@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     "& ul": theme.typography.body1,
     "& blockquote": theme.typography.body1,
     "& a": {
-      color: "#3273dc",
+      color: theme.palette.primary.main,
     },
     "& img": {
       width: "100%",
@@ -148,20 +148,18 @@ export default function MarkdownPage({
         shareImage={frontmatter.share_image}
       />
       <div className={classes.root}>
-        <Typography gutterBottom>
-          <Breadcrumbs aria-label="breadcrumb" className={classes.crumbs}>
-            {crumbs.map((crumb) => (
-              <Link
-                key={crumb.key}
-                underline="hover"
-                color="inherit"
-                href={crumb.path}
-              >
-                {crumb.value}
-              </Link>
-            ))}
-          </Breadcrumbs>
-        </Typography>
+        <Breadcrumbs aria-label="breadcrumb" className={classes.crumbs}>
+          {crumbs.map((crumb) => (
+            <Link
+              key={crumb.key}
+              underline="hover"
+              color="inherit"
+              href={crumb.path}
+            >
+              {crumb.value}
+            </Link>
+          ))}
+        </Breadcrumbs>
         <Typography component="h1" variant="h1" className={classes.title}>
           {frontmatter.title}
         </Typography>

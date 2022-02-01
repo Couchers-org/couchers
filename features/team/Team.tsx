@@ -2,6 +2,7 @@ import {
   Avatar as MuiAvatar,
   Card,
   CardContent,
+  Container,
   Grid,
   makeStyles,
   Typography,
@@ -11,17 +12,15 @@ import HtmlMeta from "components/HtmlMeta";
 import { GlobeIcon, LinkedInIcon, PinIcon } from "components/Icons";
 import IconText from "components/IconText";
 import PageTitle from "components/PageTitle";
+import StyledLink from "components/StyledLink";
 import Link from "next/link";
 import { contributeRoute } from "routes";
 
 import TeamData from "./team.json";
 
 const useStyles = makeStyles((theme) => ({
-  tightSection: {
-    marginLeft: "auto",
-    marginRight: "auto",
-    maxWidth: "769px",
-    marginTop: theme.spacing(3),
+  spacer: {
+    height: theme.spacing(4),
   },
   cardWrapper: {
     height: "100%",
@@ -40,9 +39,6 @@ const useStyles = makeStyles((theme) => ({
     width: "96px",
     height: "96px",
   },
-  link: {
-    color: theme.palette.primary.main,
-  },
 }));
 
 export default function Team() {
@@ -51,7 +47,7 @@ export default function Team() {
   return (
     <>
       <HtmlMeta title={"The Team"} />
-      <section className={classes.tightSection}>
+      <Container maxWidth="md">
         <PageTitle>The Team</PageTitle>
         <Typography variant="body1" paragraph>
           We are all couch surfers and skilled professionals who want to build
@@ -67,7 +63,8 @@ export default function Team() {
             </Button>
           </Link>
         </Typography>
-      </section>
+      </Container>
+      <div className={classes.spacer} />
       <section>
         <Grid
           container
@@ -85,29 +82,27 @@ export default function Team() {
                     className={classes.avatar}
                   />
                   <div className={classes.cardContent}>
-                    <Typography variant={founder ? "h1" : "h2"}>
+                    <Typography variant={founder ? "h1" : "h2"} component="h2">
                       {name}
                     </Typography>
                     {founder && (
-                      <Typography variant="h2">Co-founder</Typography>
+                      <Typography variant="h2" component="h3">
+                        Co-founder
+                      </Typography>
                     )}
                     <Typography variant="h3">{role}</Typography>
-                    <Typography variant="body1">
-                      <IconText icon={PinIcon} text={location} />
-                    </Typography>
+                    <IconText icon={PinIcon} text={location} />
                     {link && (
-                      <Typography variant="body1">
-                        <IconText
-                          icon={
-                            link.type === "linkedin" ? LinkedInIcon : GlobeIcon
-                          }
-                          text={
-                            <a className={classes.link} href={link.url}>
-                              {link.text}
-                            </a>
-                          }
-                        />
-                      </Typography>
+                      <IconText
+                        icon={
+                          link.type === "linkedin" ? LinkedInIcon : GlobeIcon
+                        }
+                        text={
+                          <Typography>
+                            <StyledLink href={link.url}>{link.text}</StyledLink>
+                          </Typography>
+                        }
+                      />
                     )}
                   </div>
                 </CardContent>
@@ -116,7 +111,8 @@ export default function Team() {
           ))}
         </Grid>
       </section>
-      <section className={classes.tightSection}>
+      <div className={classes.spacer} />
+      <Container maxWidth="md">
         <Typography variant="h2" component="h2">
           Have skills you want to contribute?
         </Typography>
@@ -133,7 +129,7 @@ export default function Team() {
             </Button>
           </Link>
         </Typography>
-      </section>
+      </Container>
     </>
   );
 }

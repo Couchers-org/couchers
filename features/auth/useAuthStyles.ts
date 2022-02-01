@@ -16,7 +16,6 @@ const useAuthStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     padding: theme.spacing(1, 4),
-    paddingTop: "64px",
     paddingBottom: 0,
     [theme.breakpoints.down("xs")]: {
       padding: theme.spacing(1, 2),
@@ -27,8 +26,11 @@ const useAuthStyles = makeStyles((theme) => ({
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
-    height: "100vh",
     width: "100%",
+    height: `calc(100vh - ${theme.shape.navPaddingXs})`,
+    [theme.breakpoints.up("sm")]: {
+      height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
+    },
   },
   header: {
     width: "100%",
