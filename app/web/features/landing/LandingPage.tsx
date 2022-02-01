@@ -1,4 +1,5 @@
 import {
+  Container,
   Divider,
   Grid,
   Paper,
@@ -29,27 +30,19 @@ import {
 } from "../../routes";
 
 const useStyles = makeStyles((theme) => ({
+  spacer: {
+    height: theme.spacing(4),
+  },
   topSection: {
     padding: theme.spacing(3),
   },
-  section: {
-    marginLeft: "auto",
-    marginRight: "auto",
-    maxWidth: "769px",
-    margin: theme.spacing(3),
-    marginTop: theme.spacing(12),
-    [theme.breakpoints.down("md")]: {
-      marginTop: theme.spacing(6),
-    },
-  },
-  sectionCard: {
+  card: {
+    margin: theme.spacing(0, -4),
     padding: theme.spacing(4),
-  },
-  cardWrapper: {
-    height: "100%",
   },
   header: {
     fontSize: "2rem",
+    fontWeight: "bold",
     marginBottom: theme.spacing(3),
   },
   para: {
@@ -62,10 +55,8 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(4, 0),
   },
   tileSection: {
-    marginLeft: "auto",
-    marginRight: "auto",
-    maxWidth: "1200px",
     padding: theme.spacing(3),
+    paddingTop: 0,
   },
   tile: {
     color: "#fff",
@@ -130,9 +121,7 @@ export default function LandingPage() {
             </Typography>
           </div>
           <div className={authClasses.formWrapper}>
-            <Typography variant="h1" gutterBottom>
-              {t("landing:signup_header")}
-            </Typography>
+            <Typography gutterBottom>{t("landing:signup_header")}</Typography>
             <Typography gutterBottom>
               <Typography gutterBottom>
                 <Trans i18nKey="landing:signup_description">
@@ -157,13 +146,13 @@ export default function LandingPage() {
                 </Button>
               </Link>
             )}
-            <Typography variant="body1" gutterBottom>
+            <Typography gutterBottom>
               <Trans i18nKey="auth:basic_sign_up_form.existing_user_prompt">
                 Already have an account?{" "}
                 <StyledLink href={loginRoute}>Log in</StyledLink>
               </Trans>
             </Typography>
-            <Typography variant="caption" gutterBottom>
+            <Typography gutterBottom>
               <Trans i18nKey="auth:basic_sign_up_form.sign_up_agreement_explainer">
                 By continuing, you agree to our{" "}
                 <StyledLink href={tosRoute} target="_blank" variant="caption">
@@ -184,12 +173,13 @@ export default function LandingPage() {
           </a>
         )}
       </section>
-      <section className={classes.section}>
-        <Paper elevation={isBelowMd ? 0 : 1} className={classes.sectionCard}>
-          <Typography variant="h1" component="h2" className={classes.header}>
+      <div className={classes.spacer} />
+      <Container component="section" maxWidth="md">
+        <Paper elevation={isBelowMd ? 0 : 1} className={classes.card}>
+          <Typography component="h2" className={classes.header}>
             Like Couchsurfing™, but better
           </Typography>
-          <Typography variant="body1" className={classes.para}>
+          <Typography className={classes.para}>
             Couchers.org is a <strong>non-profit and free</strong> platform,{" "}
             <strong>built by volunteers</strong> and responsible to the couch
             surfing community, instead of investors. Formed after
@@ -198,7 +188,7 @@ export default function LandingPage() {
             <strong>complete alternative</strong>, with all your{" "}
             <strong>favourite features</strong>.
           </Typography>
-          <Typography variant="body1" className={classes.para}>
+          <Typography className={classes.para}>
             Couchers.org is the <strong>fastest growing</strong> couch surfing
             platform. We have built the{" "}
             <strong>largest active volunteer base </strong> with over 40 skilled
@@ -210,7 +200,7 @@ export default function LandingPage() {
             <strong>critical mass of quality couch surfers</strong> with active
             local communities and a vibrant global discussion.
           </Typography>
-          <Typography variant="body1" className={classes.para}>
+          <Typography className={classes.para}>
             <Link href={contributeRoute} passHref>
               <Button
                 variant="contained"
@@ -221,49 +211,49 @@ export default function LandingPage() {
               </Button>
             </Link>
             <Link href={contributeRoute} passHref>
-              <Button variant="outlined" className={classes.subNavButtons}>
-                Volunteer
-              </Button>
+              <Button className={classes.subNavButtons}>Volunteer</Button>
             </Link>
           </Typography>
         </Paper>
-      </section>
-      <section className={classes.section}>
-        <Paper elevation={0} className={classes.sectionCard}>
-          <Typography variant="h1" component="h2" className={classes.header}>
-            Our plan: fix the problems with Couchsurfing™
-          </Typography>
-          <Typography variant="body1" className={classes.para}>
-            We're sure that you, like all of us, have had great experiences that
-            couldn't have happened without Couchsurfing™. But we all know it's
-            got its issues. For the next generation in couch surfing apps, we
-            need to fix those issues.
-          </Typography>
-          <Typography variant="body1" className={classes.para}>
-            If there's any problems you've found with Couchsurfing™ or any other
-            platforms, we'd love to hear about it so we can try to fix them.
-          </Typography>
-          <Typography variant="body1" className={classes.para}>
-            <Link href={forumURL} passHref>
-              <Button
-                variant="contained"
-                color="secondary"
-                className={classes.subNavButtons}
-              >
-                Tell us what you think
-              </Button>
-            </Link>
-          </Typography>
-        </Paper>
-      </section>
-      <section className={classes.section}>
-        <Paper elevation={0} className={classes.sectionCard}>
-          <Typography variant="h1" component="h2" className={classes.header}>
-            The problems with Couchsurfing™
-          </Typography>
-        </Paper>
-      </section>
-      <section className={classes.tileSection}>
+      </Container>
+      <div className={classes.spacer} />
+      <Container component="section" maxWidth="md">
+        <Typography component="h2" className={classes.header}>
+          Our plan: fix the problems with Couchsurfing™
+        </Typography>
+        <Typography className={classes.para}>
+          We're sure that you, like all of us, have had great experiences that
+          couldn't have happened without Couchsurfing™. But we all know it's got
+          its issues. For the next generation in couch surfing apps, we need to
+          fix those issues.
+        </Typography>
+        <Typography className={classes.para}>
+          If there's any problems you've found with Couchsurfing™ or any other
+          platforms, we'd love to hear about it so we can try to fix them.
+        </Typography>
+        <Typography className={classes.para}>
+          <Link href={forumURL} passHref>
+            <Button
+              variant="contained"
+              color="secondary"
+              className={classes.subNavButtons}
+            >
+              Tell us what you think
+            </Button>
+          </Link>
+        </Typography>
+      </Container>
+      <div className={classes.spacer} />
+      <Container component="section" maxWidth="md">
+        <Typography component="h2" className={classes.header}>
+          The problems with Couchsurfing™
+        </Typography>
+      </Container>
+      <Container
+        component="section"
+        maxWidth="lg"
+        className={classes.tileSection}
+      >
         <Grid
           container
           spacing={3}
@@ -380,15 +370,18 @@ export default function LandingPage() {
             </Paper>
           </Grid>
         </Grid>
-      </section>
-      <section className={classes.section}>
-        <Paper elevation={0} className={classes.sectionCard}>
-          <Typography variant="h1" component="h2" className={classes.header}>
-            Our plan for the next-generation couch surfing platform
-          </Typography>
-        </Paper>
-      </section>
-      <section className={classes.tileSection}>
+      </Container>
+      <div className={classes.spacer} />
+      <Container component="section" maxWidth="md">
+        <Typography component="h2" className={classes.header}>
+          Our plan for the next-generation couch surfing platform
+        </Typography>
+      </Container>
+      <Container
+        component="section"
+        maxWidth="lg"
+        className={classes.tileSection}
+      >
         <Grid
           container
           spacing={3}
@@ -507,15 +500,14 @@ export default function LandingPage() {
             </Paper>
           </Grid>
         </Grid>
-      </section>
-      <section className={classes.section}>
-        <Paper elevation={0} className={classes.sectionCard}>
-          <Typography variant="body1" className={classes.para}>
-            Read more about Couchers.org on our{" "}
-            <StyledLink href={blogURL}>Blog</StyledLink>.
-          </Typography>
-        </Paper>
-      </section>
+      </Container>
+      <div className={classes.spacer} />
+      <Container component="section" maxWidth="md">
+        <Typography className={classes.para}>
+          Read more about Couchers.org on our{" "}
+          <StyledLink href={blogURL}>Blog</StyledLink>.
+        </Typography>
+      </Container>
     </>
   );
 }
