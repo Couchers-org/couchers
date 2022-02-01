@@ -6,10 +6,11 @@ from sqlalchemy.sql import func
 
 from couchers import errors, urls
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
-from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
+from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password, derive_secret
 from couchers.db import session_scope
 from couchers.models import ContributorForm, LoginToken, PasswordResetToken, SignupFlow, User, UserSession
 from couchers.notifications.notify import notify
+from couchers.notifications.unsubscribe import unsubscribe
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
 from couchers.sql import couchers_select as select
@@ -570,3 +571,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 return auth_pb2.ConfirmChangeEmailRes(
                     state=auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL
                 )
+
+    def Unsubscribe(self, request, context):
+        return unsubscribe(request, context)

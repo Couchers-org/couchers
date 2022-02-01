@@ -177,5 +177,10 @@
       "enable_text": "Enable new notifications system",
       "disable_text": "Disable new notifications system"
     }
+  },
+  "unsubscribe": {
+    "title": "Unsubscribe",
+    "button_text": "Confirm unsubscription",
+    "error_message": "Error unsubscribing: {{message}}"
   }
 }

@@ -6,6 +6,7 @@ import {
   SignupAccount,
   SignupBasic,
   SignupFlowReq,
+  UnsubscribeReq,
   UsernameValidReq,
 } from "proto/auth_pb";
 import client from "service/client";
@@ -121,4 +122,12 @@ export async function validateUsername(username: string) {
   req.setUsername(username);
   const res = await client.auth.usernameValid(req);
   return res.getValid();
+}
+
+export async function unsubscribe(payload: string, sig: string) {
+  const req = new UnsubscribeReq();
+  req.setPayload(payload);
+  req.setSig(sig);
+  const res = await client.auth.unsubscribe(req);
+  return res.getResponse();
 }
