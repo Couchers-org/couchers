@@ -6,8 +6,8 @@ import useChangeDetailsFormStyles from "features/auth/useChangeDetailsFormStyles
 import { accountInfoQueryKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "next-i18next";
-import { GetAccountInfoRes } from "proto/account_pb";
+import { useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
@@ -21,15 +21,16 @@ interface ChangePasswordFormData extends ChangePasswordVariables {
   passwordConfirmation?: string;
 }
 
-type ChangePasswordProps = GetAccountInfoRes.AsObject & {
+interface ChangePasswordProps {
+  hasPassword: boolean;
   className?: string;
-};
+}
 
 export default function ChangePassword({
   className,
-  ...accountInfo
+  hasPassword,
 }: ChangePasswordProps) {
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const classes = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
@@ -81,7 +82,7 @@ export default function ChangePassword({
         </Alert>
       )}
       <form className={classes.form} onSubmit={onSubmit}>
-        {accountInfo && accountInfo.hasPassword && (
+        {hasPassword && (
           <TextField
             id="oldPassword"
             inputRef={register({ required: true })}
@@ -93,7 +94,7 @@ export default function ChangePassword({
         )}
         <TextField
           id="newPassword"
-          inputRef={register({ required: !accountInfo?.hasPassword })}
+          inputRef={register({ required: !hasPassword })}
           label={t("auth:change_password_form.new_password")}
           name="newPassword"
           type="password"

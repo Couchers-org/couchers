@@ -5,7 +5,8 @@ import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
@@ -30,7 +31,7 @@ export default function BasicForm({
   submitText,
   successCallback,
 }: BasicFormProps) {
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions } = useAuthContext();
   const authClasses = useAuthStyles();
 
