@@ -16,6 +16,7 @@ from couchers.constants import EMAIL_REGEX
 
 utc = pytz.UTC
 
+
 # When a user logs in, they can basically input one of three things: user id, username, or email
 # These are three non-intersecting sets
 # * user_ids are numeric representations in base 10
