@@ -129,5 +129,5 @@ export async function unsubscribe(payload: string, sig: string) {
   req.setPayload(payload);
   req.setSig(sig);
   const res = await client.auth.unsubscribe(req);
-  return res.getResponse();
+  return res.toObject();
 }

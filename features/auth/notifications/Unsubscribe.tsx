@@ -27,13 +27,14 @@ export default function Unsubscribe() {
   const sig = stringOrFirstString(router.query.sig);
 
   const {
+    data,
     error,
     isLoading,
     isSuccess,
     mutate: unsubscribe,
   } = useMutation<UnsubscribeRes.AsObject, RpcError, UnsubscribeParams>(
     async ({ payload, sig }) => {
-      await service.auth.unsubscribe(payload, sig);
+      return await service.auth.unsubscribe(payload, sig);
     }
   );
 
@@ -44,7 +45,7 @@ export default function Unsubscribe() {
     {isLoading ? 
           <CircularProgress />
           :(isSuccess ? (
-            <Alert severity="success">{t("global:success")}</Alert>
+            <Alert severity="success">{data?.response || t("global:success")}</Alert>
           ) : error ? (
               <Alert severity="error">
                 {t("auth:unsubscribe.error_message", {
