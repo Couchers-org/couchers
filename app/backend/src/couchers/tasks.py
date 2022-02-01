@@ -365,14 +365,17 @@ def send_digest_email(notifications: List[Notification]):
     )
 
 
-def send_notification_email(notification: Notification):
+def send_notification_email(notification_with_links: Notification, unsub_all):
     friend_requests_link = urls.friend_requests_link()
     logger.info(f"Sending notification email to {notification.user=}:")
 
     email.enqueue_email_from_template(
         notification.user.email,
         "notification",
-        template_args={"notification": notification},
+        template_args={
+            "notification": notification,
+            "unsub_all_link": unsub_all,
+        },
     )
 
 

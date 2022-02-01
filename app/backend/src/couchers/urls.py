@@ -3,7 +3,6 @@
 # Please make sure this file stays in sync with that file as well as
 # //app/web/src/routes.ts
 
-from base64 import urlsafe_b64encode
 
 from couchers.config import config
 
@@ -84,6 +83,5 @@ def donation_success_url():
     return f"{config['BASE_URL']}/donate?success=true"
 
 
-def unsubscribe_link(*, payload):
-    
-    return f"{config['BASE_URL']}/unsubscribe?payload={urlsafe_b64encode(payload)}&sig={urlsafe_b64encode(sig)}"
+def unsubscribe_link(*, payload, sig):
+    return f"{config['BASE_URL']}/unsubscribe?payload={payload}&sig={sig}"

@@ -1,4 +1,3 @@
-from couchers.config import config
 import secrets
 from base64 import urlsafe_b64encode
 
@@ -7,6 +6,8 @@ from nacl.bindings.crypto_generichash import generichash_blake2b_salt_personal
 from nacl.bindings.utils import sodium_memcmp
 from nacl.exceptions import InvalidkeyError
 from nacl.utils import random as random_bytes
+
+from couchers.config import config
 
 
 def urlsafe_random_bytes(length=32):
