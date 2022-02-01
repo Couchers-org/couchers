@@ -16,3 +16,7 @@ message HandleNotificationPayload {
   // the database table private key
   int64 notification_id = 1;
 }
+
+message GenerateMessageNotificationsPayload {
+  int64 message_id = 1;
+}

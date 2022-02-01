@@ -7,10 +7,21 @@ from sqlalchemy.sql import func, or_
 from couchers import errors
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.db import session_scope
-from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
+from couchers.jobs.enqueue import queue_job
+from couchers.models import (
+    BackgroundJobType,
+    Conversation,
+    GroupChat,
+    GroupChatRole,
+    GroupChatSubscription,
+    Message,
+    MessageType,
+    User,
+)
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now
 from proto import conversations_pb2, conversations_pb2_grpc
+from proto.internal import jobs_pb2
 
 # TODO: Still needs custom pagination: GetUpdates
 DEFAULT_PAGINATION_LENGTH = 20
@@ -110,6 +121,14 @@ def _add_message_to_subscription(session, subscription, **kwargs):
     session.flush()
 
     subscription.last_seen_message_id = message.id
+
+    # generate notifications in the background
+    queue_job(
+        job_type=BackgroundJobType.generate_message_notifications,
+        payload=jobs_pb2.GenerateMessageNotificationsPayload(
+            message_id=message.id,
+        ),
+    )
 
     return message
 
