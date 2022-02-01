@@ -2,7 +2,7 @@ import logging
 from datetime import timedelta
 from typing import List
 
-from sqlalchemy.sql import func, select
+from sqlalchemy.sql import func
 
 from couchers import email, urls
 from couchers.config import config
@@ -10,6 +10,7 @@ from couchers.constants import EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.models import ClusterRole, ClusterSubscription, LoginToken, Node, Notification, PasswordResetToken, User
+from couchers.notifications.unsubscribe import generate_mute_all, generate_unsub_topic_action, generate_unsub_topic_key
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 
@@ -365,7 +366,7 @@ def send_digest_email(notifications: List[Notification]):
     )
 
 
-def send_notification_email(notification_with_links: Notification, unsub_all):
+def send_notification_email(notification: Notification):
     friend_requests_link = urls.friend_requests_link()
     logger.info(f"Sending notification email to {notification.user=}:")
 
@@ -374,7 +375,9 @@ def send_notification_email(notification_with_links: Notification, unsub_all):
         "notification",
         template_args={
             "notification": notification,
-            "unsub_all_link": unsub_all,
+            "mute_all": generate_mute_all(notification.user_id),
+            "unsub_topic_key": generate_unsub_topic_key(notification),
+            "unsub_topic_action": generate_unsub_topic_action(notification),
         },
     )
 

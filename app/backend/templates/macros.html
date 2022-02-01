@@ -3,7 +3,7 @@
 {%- endmacro %}
 
 {% macro link(link, html) -%}
-{%if html %}<a href="{{ link|couchers_escape }}">{{ link|couchers_escape }}</a>{% else %}<{{ link|couchers_escape }}>{% endif %}
+{%if html %}<a href="{{ link|couchers_safe }}">{{ link|couchers_safe }}</a>{% else %}<{{ link|couchers_safe }}>{% endif %}
 {%- endmacro %}
 
 {% macro email_link(address, html) -%}

@@ -16,7 +16,7 @@ CONFIG_OPTIONS = [
     # Base URL
     ("BASE_URL", str),
     # Used to generate a variety of secrets
-    ("SECRET_ROOT", str),
+    ("SECRET", bytes),
     # Domain that cookies should set as their domain value
     ("COOKIE_DOMAIN", str),
     # SQLAlchemy database connection string

@@ -687,6 +687,7 @@ def testconfig():
     config["IN_TEST"] = True
 
     config["DEV"] = True
+    config["SECRET"] = "448697d3886aec65830a1ea1497cdf804981e0c260d2f812cf2787c4ed1a262b"
     config["VERSION"] = "testing_version"
     config["BASE_URL"] = "http://localhost:3000"
     config["COOKIE_DOMAIN"] = "localhost"

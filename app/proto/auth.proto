@@ -249,8 +249,8 @@ message ContributorForm {
 }
 
 message UnsubscribeReq {
-  string payload = 1;
-  string sig = 2;
+  bytes payload = 1;
+  bytes sig = 2;
 }
 
 message UnsubscribeRes {
