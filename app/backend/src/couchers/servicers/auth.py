@@ -573,4 +573,4 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 )
 
     def Unsubscribe(self, request, context):
-        return unsubscribe(request, context)
+        return auth_pb2.UnsubscribeRes(response=unsubscribe(request, context))

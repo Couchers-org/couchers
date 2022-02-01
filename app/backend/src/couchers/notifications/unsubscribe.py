@@ -4,9 +4,12 @@ from base64 import urlsafe_b64encode
 import grpc
 
 from couchers import errors, urls
+from couchers.constants import DATETIME_INFINITY
 from couchers.crypto import UNSUBSCRIBE_KEY, generate_hash_signature, verify_hash_signature
 from couchers.db import session_scope
-from couchers.models import User
+from couchers.models import GroupChatSubscription, NotificationDeliveryType, User
+from couchers.notifications import settings
+from couchers.notifications.utils import enum_from_topic_action
 from couchers.sql import couchers_select as select
 from proto.internal import unsubscribe_pb2
 
@@ -62,7 +65,35 @@ def unsubscribe(request, context):
         user = session.execute(select(User).where(User.id == payload.user_id)).scalar_one()
         if payload.HasField("all"):
             logger.info(f"User {user.name} unsubscribing from all")
-        if payload.HasField("topic_key"):
-            logger.info(f"User {user.name} unsubscribing from topic_key")
+            # todo: some other system when out of preview
+            user.new_notifications_enabled = False
+            return "You've been unsubscribed from all non-security notifications"
         if payload.HasField("topic_action"):
             logger.info(f"User {user.name} unsubscribing from topic_action")
+            topic = payload.topic_action.topic
+            action = payload.topic_action.action
+            topic_action = enum_from_topic_action[topic, action]
+            # disable emails for this type
+            settings.set_preference(session, user.id, topic_action, NotificationDeliveryType.email, False)
+            return "You've been unsubscribed from all email notifications of that type"
+        if payload.HasField("topic_key"):
+            logger.info(f"User {user.name} unsubscribing from topic_key")
+            topic = payload.topic_key.topic
+            key = payload.topic_key.key
+            # a bunch of manual stuff
+            if topic == "chat":
+                group_chat_id = int(key)
+                subscription = session.execute(
+                    select(GroupChatSubscription)
+                    .where(GroupChatSubscription.group_chat_id == group_chat_id)
+                    .where(GroupChatSubscription.user_id == user.id)
+                    .where(GroupChatSubscription.left == None)
+                ).scalar_one_or_none()
+
+                if not subscription:
+                    context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
+
+                subscription.muted_until = DATETIME_INFINITY
+                return "That group chat has been muted."
+            else:
+                context.abort(grpc.StatusCode.UNIMPLEMENTED, errors.CANT_UNSUB_TOPIC)

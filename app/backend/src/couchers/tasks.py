@@ -375,7 +375,7 @@ def send_notification_email(notification: Notification):
         "notification",
         template_args={
             "notification": notification,
-            "mute_all": generate_mute_all(notification.user_id),
+            "unsub_all": generate_mute_all(notification.user_id),
             "unsub_topic_key": generate_unsub_topic_key(notification),
             "unsub_topic_action": generate_unsub_topic_action(notification),
         },
