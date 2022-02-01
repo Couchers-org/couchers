@@ -5,8 +5,9 @@ import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { AUTH } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
 import { useEffect } from "react";
 import { useMutation } from "react-query";
 import { loginRoute } from "routes";
@@ -14,7 +15,7 @@ import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 export default function CompleteResetPassword() {
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(AUTH);
   const classes = useAppRouteStyles();
 
   const router = useRouter();

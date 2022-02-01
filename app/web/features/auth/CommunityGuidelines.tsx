@@ -13,7 +13,8 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import { communityGuidelinesQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import { GetCommunityGuidelinesRes } from "proto/resources_pb";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -53,7 +54,7 @@ export default function CommunityGuidelines({
   className,
   title,
 }: CommunityGuidelinesProps) {
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const classes = useStyles();
   const isMounted = useIsMounted();
   const [completed, setCompleted] = useSafeState(isMounted, false);

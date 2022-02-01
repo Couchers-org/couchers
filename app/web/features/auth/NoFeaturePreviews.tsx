@@ -1,4 +1,5 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "i18n";
+import { AUTH } from "i18n/namespaces";
 import makeStyles from "utils/makeStyles";
 
 import Section from "./section/Section";
@@ -11,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function NoFeaturePreviews() {
   const classes = useStyles();
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(AUTH);
 
   return (
     <Section
