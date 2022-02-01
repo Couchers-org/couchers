@@ -26,4 +26,13 @@ module.exports = {
     });
     return config;
   },
+  async rewrites() {
+    return [
+      {
+        source: "/",
+        destination: "/dashboard",
+        has: [{ type: "cookie", key: "couchers-sesh" }],
+      },
+    ];
+  },
 };
