@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func, or_
@@ -7,7 +9,7 @@ from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.db import session_scope
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
+from couchers.utils import Timestamp_from_datetime, now
 from proto import conversations_pb2, conversations_pb2_grpc
 
 # TODO: Still needs custom pagination: GetUpdates
@@ -357,11 +359,11 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 subscription.muted_until = DATETIME_MINUS_INFINITY
             elif request.forever:
                 subscription.muted_until = DATETIME_INFINITY
-            elif request.until:
-                muted_until = to_aware_datetime(request.until)
-                if muted_until < now():
+            elif request.for_duration:
+                duration = request.for_duration.ToTimedelta()
+                if duration < timedelta(seconds=0):
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_MUTE_PAST)
-                subscription.muted_until = muted_until
+                subscription.muted_until = now() + duration
 
         return empty_pb2.Empty()
 

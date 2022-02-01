@@ -6,6 +6,7 @@ from email.utils import formatdate
 import pytz
 from geoalchemy2.shape import from_shape, to_shape
 from geoalchemy2.types import Geography, Geometry
+from google.protobuf.duration_pb2 import Duration
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
 from sqlalchemy.sql import cast, func
@@ -54,6 +55,12 @@ def Timestamp_from_datetime(dt: datetime):
     pb_ts = Timestamp()
     pb_ts.FromDatetime(dt)
     return pb_ts
+
+
+def Duration_from_timedelta(dt: datetime):
+    pb_d = Duration()
+    pb_d.FromTimedelta(dt)
+    return pb_d
 
 
 def parse_date(date_str: str):

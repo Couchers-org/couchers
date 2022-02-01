@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package org.couchers.api.conversations;
 
+import "google/protobuf/duration.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
@@ -214,7 +215,7 @@ message MuteGroupChatReq {
   oneof duration {
     bool unmute = 2;
     bool forever = 3;
-    google.protobuf.Timestamp until = 4;
+    google.protobuf.Duration for_duration = 4;
   }
 }
 

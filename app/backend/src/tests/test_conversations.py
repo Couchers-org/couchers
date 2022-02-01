@@ -8,7 +8,7 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import GroupChatRole, GroupChatSubscription
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
+from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
 from proto import api_pb2, conversations_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
@@ -1380,12 +1380,13 @@ def test_muting(db):
         assert not res.mute_info.muted
         assert not res.mute_info.HasField("muted_until")
 
-        mute_until = now() + timedelta(hours=2)
-
         c.MuteGroupChat(
-            conversations_pb2.MuteGroupChatReq(group_chat_id=gcid, until=Timestamp_from_datetime(mute_until))
+            conversations_pb2.MuteGroupChatReq(
+                group_chat_id=gcid, for_duration=Duration_from_timedelta(timedelta(hours=2))
+            )
         )
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert res.mute_info.muted
         assert res.mute_info.HasField("muted_until")
-        assert to_aware_datetime(res.mute_info.muted_until) == mute_until
+        assert to_aware_datetime(res.mute_info.muted_until) >= now() + timedelta(hours=1, minutes=59)
+        assert to_aware_datetime(res.mute_info.muted_until) <= now() + timedelta(hours=2, minutes=1)
