@@ -103,7 +103,6 @@ const useAuthStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("md")]: {
       width: "45%",
       padding: theme.spacing(5, 8),
-      // alignSelf: "flex-end",
     },
     [theme.breakpoints.down("sm")]: {
       width: "80%",
@@ -121,7 +120,6 @@ const useAuthStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
     flexDirection: "column",
     display: "flex",
-    // justifyContent: "flex-end",
     textAlign: "left",
     width: "45%",
     maxWidth: theme.breakpoints.values.md / 2,
