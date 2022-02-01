@@ -45,7 +45,7 @@
     "seamless-scroll-polyfill": "^2.1.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.16.5",
+    "@babel/core": "^7.16.12",
     "@sentry/cli": "^1.71.0",
     "@storybook/addon-actions": "^6.4.9",
     "@storybook/addon-essentials": "^6.4.9",
