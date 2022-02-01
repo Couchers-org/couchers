@@ -1,9 +1,8 @@
+import { Typography } from "@material-ui/core";
 import { OverridableComponent } from "@material-ui/core/OverridableComponent";
 import { SvgIconTypeMap } from "@material-ui/core/SvgIcon";
 import React, { ReactNode } from "react";
 import makeStyles from "utils/makeStyles";
-
-import TextBody from "./TextBody";
 
 const useStyles = makeStyles((theme) => ({
   label: {
@@ -29,9 +28,9 @@ export default function IconText({ icon, text }: IconTextProps) {
     <div className={classes.root}>
       <Icon />
       {typeof text === "string" ? (
-        <TextBody className={classes.label}>{text}</TextBody>
+        <Typography className={classes.label}>{text}</Typography>
       ) : (
-        text
+        <div className={classes.label}>{text}</div>
       )}
     </div>
   );

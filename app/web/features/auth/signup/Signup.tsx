@@ -36,7 +36,10 @@ const useStyles = makeStyles((theme) => ({
     position: "fixed",
     left: 0,
     right: 0,
-    top: 0,
+    top: theme.shape.navPaddingXs,
+    [theme.breakpoints.up("sm")]: {
+      top: theme.shape.navPaddingSmUp,
+    },
     bottom: 0,
     zIndex: 1,
     [theme.breakpoints.down("sm")]: {
@@ -47,8 +50,11 @@ const useStyles = makeStyles((theme) => ({
   scrollingContent: {
     position: "relative",
     zIndex: 2,
-    minHeight: "100vh",
     justifyContent: "center",
+    minHeight: `calc(100vh - ${theme.shape.navPaddingXs})`,
+    [theme.breakpoints.up("sm")]: {
+      minHeight: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
+    },
   },
   scrollingForm: {
     flexGrow: 1,
