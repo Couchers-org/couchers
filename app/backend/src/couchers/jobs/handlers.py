@@ -81,6 +81,7 @@ def process_generate_message_notifications(payload):
                 .join(User, User.id == GroupChatSubscription.user_id)
                 .where(GroupChatSubscription.group_chat_id == message.conversation_id)
                 .where(User.is_visible)
+                .where(User.id != message.author_id)
                 .where(GroupChatSubscription.left == None)
                 .where(not_(GroupChatSubscription.is_muted))
             )
