@@ -445,6 +445,94 @@ def test_process_send_message_notifications_basic(db):
         )
 
 
+def test_process_send_message_notifications_muted(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    make_friends(user1, user2)
+    make_friends(user1, user3)
+    make_friends(user2, user3)
+
+    process_send_message_notifications(empty_pb2.Empty())
+
+    # should find no jobs, since there's no messages
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
+
+    with conversations_session(token1) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
+        ).group_chat_id
+
+    with conversations_session(token3) as c:
+        # mute it for user 3
+        c.MuteGroupChat(conversations_pb2.MuteGroupChatReq(group_chat_id=group_chat_id, forever=True))
+
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 4"))
+
+    with conversations_session(token3) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
+        ).group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 5"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
+
+    process_send_message_notifications(empty_pb2.Empty())
+
+    # no emails sent out
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
+
+    # this should generate emails for both user2 and NOT user3
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        process_send_message_notifications(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 1
+        )
+        # delete them all
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # shouldn't generate any more emails
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        process_send_message_notifications(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
+
+
 def test_process_send_request_notifications_host_request(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()

@@ -7,7 +7,7 @@ from datetime import timedelta
 
 import requests
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, delete, func, literal, or_, union_all
+from sqlalchemy.sql import and_, delete, func, literal, not_, or_, union_all
 
 from couchers import config, email, urls
 from couchers.db import session_scope
@@ -72,6 +72,7 @@ def process_send_message_notifications(payload):
                     select(User)
                     .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
                     .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                    .where(not_(GroupChatSubscription.is_muted))
                     .where(User.is_visible)
                     .where(Message.time >= GroupChatSubscription.joined)
                     .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
@@ -96,6 +97,7 @@ def process_send_message_notifications(payload):
                 )
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .where(GroupChatSubscription.user_id == user.id)
+                .where(not_(GroupChatSubscription.is_muted))
                 .where(Message.id > user.last_notified_message_id)
                 .where(Message.id > GroupChatSubscription.last_seen_message_id)
                 .where(Message.time >= GroupChatSubscription.joined)

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import grpc
 import pytest
 from google.protobuf import wrappers_pb2
@@ -6,7 +8,7 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import GroupChatRole, GroupChatSubscription
 from couchers.sql import couchers_select as select
-from couchers.utils import now, to_aware_datetime
+from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
 from proto import api_pb2, conversations_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
@@ -1341,3 +1343,50 @@ def test_regression_ListGroupChats_pagination(db):
             seen_group_chat_ids.extend([chat.group_chat_id for chat in res.group_chats])
 
         assert set(seen_group_chat_ids) == set(x[0] for x in group_chat_and_message_ids), "Not all group chats returned"
+
+
+def test_muting(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    make_friends(user1, user2)
+    make_friends(user1, user3)
+    make_friends(user2, user3)
+
+    with conversations_session(token3) as c:
+        # this is just here to mess up any issues we get if we pretend there's only one group chat ever
+        gcid_distraction = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user1.id])
+        ).group_chat_id
+
+    with conversations_session(token1) as c:
+        gcid = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
+        ).group_chat_id
+
+    with conversations_session(token2) as c:
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert not res.mute_info.muted
+        assert not res.mute_info.HasField("muted_until")
+
+        c.MuteGroupChat(conversations_pb2.MuteGroupChatReq(group_chat_id=gcid, forever=True))
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert res.mute_info.muted
+        assert not res.mute_info.HasField("muted_until")
+
+        c.MuteGroupChat(conversations_pb2.MuteGroupChatReq(group_chat_id=gcid, unmute=True))
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert not res.mute_info.muted
+        assert not res.mute_info.HasField("muted_until")
+
+        c.MuteGroupChat(
+            conversations_pb2.MuteGroupChatReq(
+                group_chat_id=gcid, for_duration=Duration_from_timedelta(timedelta(hours=2))
+            )
+        )
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert res.mute_info.muted
+        assert res.mute_info.HasField("muted_until")
+        assert to_aware_datetime(res.mute_info.muted_until) >= now() + timedelta(hours=1, minutes=59)
+        assert to_aware_datetime(res.mute_info.muted_until) <= now() + timedelta(hours=2, minutes=1)

@@ -1,12 +1,15 @@
+from datetime import timedelta
+
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func, or_
 
 from couchers import errors
+from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.db import session_scope
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, now
 from proto import conversations_pb2, conversations_pb2_grpc
 
 # TODO: Still needs custom pagination: GetUpdates
@@ -121,6 +124,14 @@ def _unseen_message_count(session, subscription_id):
     ).scalar_one()
 
 
+def _mute_info(subscription):
+    (muted, muted_until) = subscription.muted_display()
+    return conversations_pb2.MuteInfo(
+        muted=muted,
+        muted_until=Timestamp_from_datetime(muted_until) if muted_until else None,
+    )
+
+
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
     def ListGroupChats(self, request, context):
         with session_scope() as session:
@@ -168,6 +179,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                         unseen_message_count=_unseen_message_count(session, result.GroupChatSubscription.id),
                         last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                         latest_message=_message_to_pb(result.Message) if result.Message else None,
+                        mute_info=_mute_info(result.GroupChatSubscription),
                     )
                     for result in results[:page_size]
                 ],
@@ -204,6 +216,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 unseen_message_count=_unseen_message_count(session, result.GroupChatSubscription.id),
                 last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                 latest_message=_message_to_pb(result.Message) if result.Message else None,
+                mute_info=_mute_info(result.GroupChatSubscription),
             )
 
     def GetDirectMessage(self, request, context):
@@ -250,6 +263,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 unseen_message_count=_unseen_message_count(session, result.GroupChatSubscription.id),
                 last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                 latest_message=_message_to_pb(result.Message) if result.Message else None,
+                mute_info=_mute_info(result.GroupChatSubscription),
             )
 
     def GetUpdates(self, request, context):
@@ -326,6 +340,30 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             subscription.last_seen_message_id = request.last_seen_message_id
 
             # TODO: notify
+
+        return empty_pb2.Empty()
+
+    def MuteGroupChat(self, request, context):
+        with session_scope() as session:
+            subscription = session.execute(
+                select(GroupChatSubscription)
+                .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
+                .where(GroupChatSubscription.user_id == context.user_id)
+                .where(GroupChatSubscription.left == None)
+            ).scalar_one_or_none()
+
+            if not subscription:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
+
+            if request.unmute:
+                subscription.muted_until = DATETIME_MINUS_INFINITY
+            elif request.forever:
+                subscription.muted_until = DATETIME_INFINITY
+            elif request.for_duration:
+                duration = request.for_duration.ToTimedelta()
+                if duration < timedelta(seconds=0):
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_MUTE_PAST)
+                subscription.muted_until = now() + duration
 
         return empty_pb2.Empty()
 
@@ -453,6 +491,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 only_admins_invite=group_chat.only_admins_invite,
                 is_dm=group_chat.is_dm,
                 created=Timestamp_from_datetime(group_chat.conversation.created),
+                mute_info=_mute_info(your_subscription),
             )
 
     def SendMessage(self, request, context):
