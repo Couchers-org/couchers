@@ -24,6 +24,7 @@ from couchers.models import (
     User,
 )
 from couchers.notifications.background import handle_email_digests, handle_email_notifications, handle_notification
+from couchers.notifications.notify import notify
 from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships, send_onboarding_email, send_reference_reminder_email
@@ -55,6 +56,54 @@ def process_purge_login_tokens(payload):
         session.execute(
             delete(LoginToken).where(LoginToken.is_valid == False).execution_options(synchronize_session=False)
         )
+
+
+def process_generate_message_notifications(payload):
+    """
+    Generates notifications for a message sent to a group chat
+    """
+    logger.info(f"Sending out notifications for message_id = {payload.message_id}")
+
+    with session_scope() as session:
+        message, group_chat = session.execute(
+            select(Message, GroupChat)
+            .join(GroupChat, GroupChat.conversation_id == Message.conversation_id)
+            .where(Message.id == payload.message_id)
+        ).one()
+
+        if message.message_type != MessageType.text:
+            logger.info(f"Not a text message, not notifying. message_id = {payload.message_id}")
+            return
+
+        notify_args = {
+            "topic": "chat",
+            "key": str(message.conversation_id),
+            "action": "message",
+            "icon": "message",
+            "title": f"{message.author.name} sent a message in {group_chat.title}.",
+            "content": message.text,
+            "link": urls.chat_link(chat_id=message.conversation_id),
+        }
+
+        subscriptions = (
+            session.execute(
+                select(GroupChatSubscription)
+                .join(User, User.id == GroupChatSubscription.user_id)
+                .where(GroupChatSubscription.group_chat_id == message.conversation_id)
+                .where(User.is_visible)
+                .where(GroupChatSubscription.left == None)
+                .where(not_(GroupChatSubscription.is_muted))
+            )
+            .scalars()
+            .all()
+        )
+
+        for subscription in subscriptions:
+            logger.info(f"Notifying user_id = {subscription.user_id}")
+            notify(
+                user_id=subscription.user_id,
+                **notify_args,
+            )
 
 
 def process_send_message_notifications(payload):

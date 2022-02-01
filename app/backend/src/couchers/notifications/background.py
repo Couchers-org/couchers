@@ -53,7 +53,6 @@ def handle_notification(notification_id):
             return
 
         topic, action = notification.topic_action.unpack()
-        logger.info(notification)
         delivery_types = get_notification_preference(session, notification.user.id, notification.topic_action)
         for delivery_type in delivery_types:
             logger.info(f"Should notify by {delivery_type}")

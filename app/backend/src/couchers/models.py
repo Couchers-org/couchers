@@ -1789,6 +1789,8 @@ class BackgroundJobType(enum.Enum):
     handle_email_notifications = enum.auto()
     # payload: google.protobuf.Empty
     handle_email_digests = enum.auto()
+    # payload: jobs.GenerateMessageNotificationsPayload
+    generate_message_notifications = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
@@ -1890,6 +1892,9 @@ class NotificationTopicAction(enum.Enum):
     gender__change = ("gender", "change", [dt.email, dt.push, dt.digest])
     birthdate__change = ("birthdate", "change", [dt.email, dt.push, dt.digest])
     api_key__create = ("api_key", "create", [dt.email, dt.push, dt.digest])
+
+    # group chats
+    chat__message = ("chat", "message", [dt.email, dt.push, dt.digest])
 
 
 class NotificationPreference(Base):
