@@ -18,6 +18,7 @@ import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import useNotifications from "features/useNotifications";
+import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import React, { useState } from "react";
@@ -60,10 +61,10 @@ interface MenuItemProps {
   hasBottomDivider?: boolean;
 }
 
-type MenuGenData = ReturnType<typeof useNotifications>["data"];
+type PingData = ReturnType<typeof useNotifications>["data"];
 
 // shown on mobile/small screens
-const loggedInDrawerMenu = (data: MenuGenData): Array<MenuItemProps> => [
+const loggedInDrawerMenu = (pingData: PingData): Array<MenuItemProps> => [
   {
     name: DASHBOARD,
     route: "/",
@@ -72,9 +73,9 @@ const loggedInDrawerMenu = (data: MenuGenData): Array<MenuItemProps> => [
     name: MESSAGES,
     route: messagesRoute,
     notificationCount:
-      (data?.unseenMessageCount ?? 0) +
-      (data?.unseenReceivedHostRequestCount ?? 0) +
-      (data?.unseenSentHostRequestCount ?? 0),
+      (pingData?.unseenMessageCount ?? 0) +
+      (pingData?.unseenReceivedHostRequestCount ?? 0) +
+      (pingData?.unseenSentHostRequestCount ?? 0),
   },
   {
     name: MAP_SEARCH,
@@ -108,7 +109,7 @@ const loggedInDrawerMenu = (data: MenuGenData): Array<MenuItemProps> => [
 ];
 
 // shown on desktop and big screens on top of the screen
-const loggedInNavMenu = (data: MenuGenData): Array<MenuItemProps> => [
+const loggedInNavMenu = (pingData: PingData): Array<MenuItemProps> => [
   {
     name: DASHBOARD,
     route: "/",
@@ -117,9 +118,9 @@ const loggedInNavMenu = (data: MenuGenData): Array<MenuItemProps> => [
     name: MESSAGES,
     route: messagesRoute,
     notificationCount:
-      (data?.unseenMessageCount ?? 0) +
-      (data?.unseenReceivedHostRequestCount ?? 0) +
-      (data?.unseenSentHostRequestCount ?? 0),
+      (pingData?.unseenMessageCount ?? 0) +
+      (pingData?.unseenReceivedHostRequestCount ?? 0) +
+      (pingData?.unseenSentHostRequestCount ?? 0),
   },
   {
     name: MAP_SEARCH,
@@ -186,7 +187,7 @@ const loggedOutDrawerMenu = (): Array<MenuItemProps> => [
 ];
 
 // shown on desktop and big screens in the top right corner when logged in
-const loggedInMenuDropDown = (data: MenuGenData): Array<MenuItemProps> => [
+const loggedInMenuDropDown = (pingData: PingData): Array<MenuItemProps> => [
   {
     name: PROFILE,
     route: routeToProfile(),
@@ -196,9 +197,9 @@ const loggedInMenuDropDown = (data: MenuGenData): Array<MenuItemProps> => [
     name: MESSAGES,
     route: messagesRoute,
     notificationCount:
-      (data?.unseenMessageCount ?? 0) +
-      (data?.unseenReceivedHostRequestCount ?? 0) +
-      (data?.unseenSentHostRequestCount ?? 0),
+      (pingData?.unseenMessageCount ?? 0) +
+      (pingData?.unseenReceivedHostRequestCount ?? 0) +
+      (pingData?.unseenSentHostRequestCount ?? 0),
   },
   {
     name: "Account settings",
@@ -336,16 +337,16 @@ export default function Navigation() {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { data } = useNotifications();
+  const { data: pingData } = useNotifications();
   const { authState } = useAuthContext();
 
-  const { t } = useTranslation(["auth"]);
+  const { t } = useTranslation([GLOBAL]);
 
   const drawerItems = (
     <div>
       <List>
         {(authState.authenticated ? loggedInDrawerMenu : loggedOutDrawerMenu)(
-          data
+          pingData
         ).map(({ name, route, notificationCount, externalLink }) => (
           <ListItem button key={name}>
             {externalLink ? (
@@ -364,7 +365,7 @@ export default function Navigation() {
     </div>
   );
 
-  const menuItems = loggedInMenuDropDown(data).map(
+  const menuItems = loggedInMenuDropDown(pingData).map(
     ({ name, notificationCount, route, externalLink, hasBottomDivider }) => {
       const hasNotification =
         notificationCount !== undefined && notificationCount > 0;
@@ -487,7 +488,7 @@ export default function Navigation() {
           <Hidden smDown implementation="css">
             <div className={classes.flex}>
               {(authState.authenticated ? loggedInNavMenu : loggedOutNavMenu)(
-                data
+                pingData
               ).map(({ name, route, notificationCount, externalLink }) =>
                 externalLink ? (
                   <ExternalNavButton
@@ -521,12 +522,12 @@ export default function Navigation() {
                 <Hidden smDown implementation="css">
                   <Link href={signupRoute} passHref>
                     <Button variant="contained" color="secondary">
-                      {t("auth:create_account")}
+                      {t("global:sign_up")}
                     </Button>
                   </Link>
                 </Hidden>
                 <Link href={loginRoute} passHref>
-                  <Button variant="outlined">{t("auth:sign_in")}</Button>
+                  <Button variant="outlined">{t("global:login")}</Button>
                 </Link>
               </>
             )}

@@ -4,7 +4,7 @@ import Avatar from "components/Avatar";
 import { MenuIcon } from "components/Icons";
 import Menu from "components/Menu";
 import useCurrentUser from "features/userQueries/useCurrentUser";
-import React, { ReactNode } from "react";
+import React, { Dispatch, ReactNode, SetStateAction } from "react";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -41,7 +41,7 @@ export default function LoggedInMenu({
   children,
 }: {
   menuOpen: boolean;
-  setMenuOpen: (func: (open: boolean) => boolean) => void;
+  setMenuOpen: Dispatch<SetStateAction<boolean>>;
   children: ReactNode;
 }) {
   const classes = useStyles();
@@ -64,7 +64,7 @@ export default function LoggedInMenu({
         id="navigation-menu"
         open={menuOpen}
         anchorEl={menuRef.current}
-        onClose={() => setMenuOpen(() => false)}
+        onClose={() => setMenuOpen(false)}
         classes={{
           paper: classes.menu,
         }}

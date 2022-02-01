@@ -1,20 +1,42 @@
-import Redirect from "components/Redirect";
+import Alert from "components/Alert";
+import CircularProgress from "components/CircularProgress";
+import { RpcError } from "grpc-web";
+import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useQueryClient } from "react-query";
-import { loginRoute } from "routes";
+import { useMutation, useQueryClient } from "react-query";
+import { baseRoute } from "routes";
 
 import { useAuthContext } from "./AuthProvider";
 
 export default function Logout() {
-  const { authState, authActions } = useAuthContext();
+  const { authActions } = useAuthContext();
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (authState.authenticated) {
+  const router = useRouter();
+  const logout = useMutation<void, RpcError>(
+    async () => {
       authActions.logout();
       queryClient.resetQueries();
+    },
+    {
+      onSuccess: () => {
+        router.push(baseRoute);
+      },
     }
-  });
+  );
 
-  return <Redirect to={loginRoute} />;
+  const mutate = logout.mutate;
+  useEffect(() => {
+    mutate();
+  }, [mutate]);
+
+  return (
+    <>
+      {logout.error ? (
+        <Alert severity="error">{logout.error.message}</Alert>
+      ) : (
+        <CircularProgress />
+      )}
+    </>
+  );
 }

@@ -28,7 +28,11 @@ export default function IconText({ icon, text }: IconTextProps) {
   return (
     <div className={classes.root}>
       <Icon />
-      <TextBody className={classes.label}>{text}</TextBody>
+      {typeof text === "string" ? (
+        <TextBody className={classes.label}>{text}</TextBody>
+      ) : (
+        text
+      )}
     </div>
   );
 }
