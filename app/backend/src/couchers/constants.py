@@ -24,4 +24,5 @@ SMS_CODE_ATTEMPTS = 3
 
 EMAIL_TOKEN_VALIDITY = timedelta(hours=48)
 
+DATETIME_MINUS_INFINITY = pytz.UTC.localize(datetime(1, 1, 1))
 DATETIME_INFINITY = pytz.UTC.localize(datetime(9876, 12, 31, hour=23, minute=59, second=59))

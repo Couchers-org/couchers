@@ -3,7 +3,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import func, or_
 
 from couchers import errors
-from couchers.constants import DATETIME_INFINITY
+from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.db import session_scope
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.sql import couchers_select as select
@@ -354,7 +354,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
             if request.unmute:
-                subscription.muted_until = None
+                subscription.muted_until = DATETIME_MINUS_INFINITY
             elif request.forever:
                 subscription.muted_until = DATETIME_INFINITY
             elif request.until:

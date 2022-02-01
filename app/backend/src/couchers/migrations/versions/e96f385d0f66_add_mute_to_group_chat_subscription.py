@@ -16,7 +16,12 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column("group_chat_subscriptions", sa.Column("muted_until", sa.DateTime(timezone=True), nullable=True))
+    op.add_column(
+        "group_chat_subscriptions",
+        sa.Column(
+            "muted_until", sa.DateTime(timezone=True), server_default="0001-01-01T00:00:00+00:00", nullable=False
+        ),
+    )
 
 
 def downgrade():

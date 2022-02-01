@@ -28,6 +28,7 @@ from sqlalchemy.sql import func, text
 from couchers.config import config
 from couchers.constants import (
     DATETIME_INFINITY,
+    DATETIME_MINUS_INFINITY,
     EMAIL_REGEX,
     GUIDELINES_VERSION,
     PHONE_VERIFICATION_LIFETIME,
@@ -801,8 +802,8 @@ class GroupChatSubscription(Base):
 
     last_seen_message_id = Column(BigInteger, nullable=False, default=0)
 
-    # null = unmuted, otherwise time means it's muted until then, DATETIME_INFINITY for "forever"
-    muted_until = Column(DateTime(timezone=True), nullable=True)
+    # when this chat is muted until, DATETIME_INFINITY for "forever"
+    muted_until = Column(DateTime(timezone=True), nullable=False, server_default=DATETIME_MINUS_INFINITY.isoformat())
 
     user = relationship("User", backref="group_chat_subscriptions")
     group_chat = relationship("GroupChat", backref=backref("subscriptions", lazy="dynamic"))
@@ -814,21 +815,16 @@ class GroupChatSubscription(Base):
         2. If muted forever, returns (True, None)
         3. If muted until a given datetime returns (True, dt)
         """
-        if not self.muted_until or self.muted_until < now():
+        if self.muted_until < now():
             return (False, None)
-
-        if self.muted_until == DATETIME_INFINITY:
+        elif self.muted_until == DATETIME_INFINITY:
             return (True, None)
         else:
             return (True, self.muted_until)
 
     @hybrid_property
     def is_muted(self):
-        return self.muted_until and (self.muted_until > now())
-
-    @is_muted.expression
-    def is_muted(cls):
-        return (cls.muted_until != None) & (cls.muted_until > func.now())
+        return self.muted_until > func.now()
 
     def __repr__(self):
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
