@@ -131,7 +131,7 @@ const loggedInNavMenu = (data: MenuGenData): Array<MenuItemProps> => [
   },
 ];
 
-const loggedOutNavMenu = (data: MenuGenData): Array<MenuItemProps> => [
+const loggedOutNavMenu = (): Array<MenuItemProps> => [
   {
     name: "About",
     route: "/",
@@ -154,7 +154,7 @@ const loggedOutNavMenu = (data: MenuGenData): Array<MenuItemProps> => [
   },
 ];
 
-const loggedOutDrawerMenu = (data: MenuGenData): Array<MenuItemProps> => [
+const loggedOutDrawerMenu = (): Array<MenuItemProps> => [
   {
     name: "Sign in",
     route: loginRoute,
