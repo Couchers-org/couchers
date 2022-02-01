@@ -11,6 +11,7 @@
         "action_button_label": "Next",
         "recurrence_aria_label": "recurring",
         "title": "Donation Amount",
+        "amount_validation_error": "Whole numbers only, please.",
         "alert": {
             "success_message": "Thank you for donating to Couchers.org, we appreciate your support! You will receive an email shortly.",
             "warning_message": "The payment was cancelled."
