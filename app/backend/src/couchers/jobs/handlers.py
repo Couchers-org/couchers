@@ -75,16 +75,6 @@ def process_generate_message_notifications(payload):
             logger.info(f"Not a text message, not notifying. message_id = {payload.message_id}")
             return
 
-        notify_args = {
-            "topic": "chat",
-            "key": str(message.conversation_id),
-            "action": "message",
-            "icon": "message",
-            "title": f"{message.author.name} sent a message in {group_chat.title}.",
-            "content": message.text,
-            "link": urls.chat_link(chat_id=message.conversation_id),
-        }
-
         subscriptions = (
             session.execute(
                 select(GroupChatSubscription)
@@ -102,7 +92,13 @@ def process_generate_message_notifications(payload):
             logger.info(f"Notifying user_id = {subscription.user_id}")
             notify(
                 user_id=subscription.user_id,
-                **notify_args,
+                topic="chat",
+                key=str(message.conversation_id),
+                action="message",
+                icon="message",
+                title=f"{message.author.name} sent a message in {group_chat.title}.",
+                content=message.text,
+                link=urls.chat_link(chat_id=message.conversation_id),
             )
 
 
