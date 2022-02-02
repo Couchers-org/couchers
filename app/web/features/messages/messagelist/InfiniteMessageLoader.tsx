@@ -74,7 +74,7 @@ export default function InfiniteMessageLoader({
     const messageEl = document.getElementById(
       messageElementId(prevTopMessageId.current ?? 0)
     );
-    messageEl?.scrollIntoView();
+    messageEl?.scrollIntoView({ block: "center" });
   }, [isFetchingNextPage]);
 
   // Scroll to bottom on load

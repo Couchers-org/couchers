@@ -60,13 +60,10 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     },
   },
   pageWrapper: {
-    [theme.breakpoints.up("sm")]: {
-      height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
-    },
     alignItems: "stretch",
     display: "flex",
     flexDirection: "column",
-    height: `calc(100vh - ${theme.shape.navPaddingXs})`,
+    height: "80vh",
   },
   title: {
     flexGrow: 1,
