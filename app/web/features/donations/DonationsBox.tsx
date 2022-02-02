@@ -219,11 +219,11 @@ export default function DonationsBox() {
   } = useForm<DonationFormData>();
 
   const customAmountInput = useRef<HTMLInputElement>(null);
-  
+
   const checkForValidAmount: boolean = (amount: number) => {
-      if (!Number.isInteger(amount)) return false;
-      if (amount < 1) return false;
-      return true;
+    if (!Number.isInteger(amount)) return false;
+    if (amount < 1) return false;
+    return true;
   };
 
   const {
@@ -232,9 +232,9 @@ export default function DonationsBox() {
     mutate: initiateDonation,
   } = useMutation<void, RpcError, DonationFormData>(
     async ({ amount, recurring }) => {
-        if  (!checkForValidAmount(amount)) {
-          throw Error(t("donations_box.amount_validation_error"));
-      };
+      if (!checkForValidAmount(amount)) {
+        throw Error(t("donations_box.amount_validation_error"));
+      }
       const stripe = (await stripePromise)!;
       const session_id = await service.donations.initiateDonation(
         amount,
