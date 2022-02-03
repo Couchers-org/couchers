@@ -11,6 +11,7 @@ const CONNECTIONS = "connections";
 const DASHBOARD = "dashboard";
 const DONATIONS = "donations";
 const GLOBAL = "global";
+const LANDING = "landing";
 const MESSAGES = "messages";
 const PROFILE = "profile";
 const SEARCH = "search";
@@ -22,6 +23,7 @@ const NAMESPACES = [
   DASHBOARD,
   DONATIONS,
   GLOBAL,
+  LANDING,
   MESSAGES,
   PROFILE,
   SEARCH,
@@ -34,6 +36,7 @@ module.exports = {
   DASHBOARD,
   DONATIONS,
   GLOBAL,
+  LANDING,
   MESSAGES,
   PROFILE,
   SEARCH,

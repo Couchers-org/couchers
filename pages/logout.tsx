@@ -17,4 +17,4 @@ export default function LogoutPage() {
   return <Logout />;
 }
 
-LogoutPage.getLayout = appGetLayout();
+LogoutPage.getLayout = appGetLayout({ isPrivate: false });

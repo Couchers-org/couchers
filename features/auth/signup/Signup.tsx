@@ -12,7 +12,6 @@ import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import CouchersLogo from "resources/CouchersLogo";
 import vercelLogo from "resources/vercel.svg";
 import { loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";
@@ -38,7 +37,10 @@ const useStyles = makeStyles((theme) => ({
     position: "fixed",
     left: 0,
     right: 0,
-    top: 0,
+    top: theme.shape.navPaddingXs,
+    [theme.breakpoints.up("sm")]: {
+      top: theme.shape.navPaddingSmUp,
+    },
     bottom: 0,
     zIndex: 1,
     [theme.breakpoints.down("sm")]: {
@@ -49,13 +51,23 @@ const useStyles = makeStyles((theme) => ({
   scrollingContent: {
     position: "relative",
     zIndex: 2,
-    minHeight: "100vh",
     justifyContent: "center",
+    minHeight: `calc(100vh - ${theme.shape.navPaddingXs})`,
+    [theme.breakpoints.up("sm")]: {
+      minHeight: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
+    },
   },
   scrollingForm: {
-    alignSelf: "flex-end",
+    flexGrow: 1,
+    alignSelf: "flex-start",
     marginTop: theme.spacing(10),
     marginBottom: theme.spacing(4),
+    [theme.breakpoints.up("md")]: {
+      alignSelf: "flex-end",
+    },
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+    },
   },
 }));
 
@@ -202,12 +214,6 @@ export default function Signup() {
           authClasses.pageBackground
         )}
       >
-        <header className={authClasses.header}>
-          <div className={authClasses.logoContainer}>
-            <CouchersLogo />
-            <div className={authClasses.logo}>{t("global:couchers")}</div>
-          </div>
-        </header>
         <div className={authClasses.content}>
           <div className={authClasses.introduction}>
             <Typography

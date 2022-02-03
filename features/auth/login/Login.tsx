@@ -7,7 +7,6 @@ import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import CouchersLogo from "resources/CouchersLogo";
 import vercelLogo from "resources/vercel.svg";
 import { signupRoute } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -48,12 +47,6 @@ export default function Login() {
     <>
       <HtmlMeta title={t("auth:login_page.title")} />
       <div className={classNames(authClasses.page, authClasses.pageBackground)}>
-        <header className={authClasses.header}>
-          <div className={authClasses.logoContainer}>
-            <CouchersLogo />
-            <div className={authClasses.logo}>{t("global:couchers")}</div>
-          </div>
-        </header>
         <div className={authClasses.content}>
           <div className={authClasses.introduction}>
             <Typography
