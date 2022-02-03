@@ -170,7 +170,7 @@ def test_CreateEvent(db):
                 content="Dummy content.",
                 photo_key=None,
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 parent_community_id=c_id,
                 start_time=Timestamp_from_datetime(start_time),
@@ -185,7 +185,7 @@ def test_CreateEvent(db):
         assert res.content == "Dummy content."
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
-        assert res.online_information.link == "https://app.couchers.org/meet/"
+        assert res.online_information.link == "https://couchers.org/meet/"
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -219,7 +219,7 @@ def test_CreateEvent(db):
         assert res.content == "Dummy content."
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
-        assert res.online_information.link == "https://app.couchers.org/meet/"
+        assert res.online_information.link == "https://couchers.org/meet/"
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -251,7 +251,7 @@ def test_CreateEvent(db):
         assert res.content == "Dummy content."
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
-        assert res.online_information.link == "https://app.couchers.org/meet/"
+        assert res.online_information.link == "https://couchers.org/meet/"
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -282,7 +282,7 @@ def test_CreateEvent(db):
                     content="Dummy content.",
                     photo_key=None,
                     online_information=events_pb2.OnlineEventInformation(
-                        link="https://app.couchers.org/meet/",
+                        link="https://couchers.org/meet/",
                     ),
                     start_time=Timestamp_from_datetime(start_time),
                     end_time=Timestamp_from_datetime(end_time),
@@ -406,7 +406,7 @@ def test_CreateEvent(db):
                     content="Dummy content.",
                     parent_community_id=c_id,
                     online_information=events_pb2.OnlineEventInformation(
-                        link="https://app.couchers.org/meet/",
+                        link="https://couchers.org/meet/",
                     ),
                     start_time=Timestamp_from_datetime(now() - timedelta(hours=2)),
                     end_time=Timestamp_from_datetime(end_time),
@@ -423,7 +423,7 @@ def test_CreateEvent(db):
                     content="Dummy content.",
                     parent_community_id=c_id,
                     online_information=events_pb2.OnlineEventInformation(
-                        link="https://app.couchers.org/meet/",
+                        link="https://couchers.org/meet/",
                     ),
                     start_time=Timestamp_from_datetime(end_time),
                     end_time=Timestamp_from_datetime(start_time),
@@ -440,7 +440,7 @@ def test_CreateEvent(db):
                     content="Dummy content.",
                     parent_community_id=c_id,
                     online_information=events_pb2.OnlineEventInformation(
-                        link="https://app.couchers.org/meet/",
+                        link="https://couchers.org/meet/",
                     ),
                     start_time=Timestamp_from_datetime(now() + timedelta(days=500, hours=2)),
                     end_time=Timestamp_from_datetime(now() + timedelta(days=500, hours=5)),
@@ -457,7 +457,7 @@ def test_CreateEvent(db):
                     content="Dummy content.",
                     parent_community_id=c_id,
                     online_information=events_pb2.OnlineEventInformation(
-                        link="https://app.couchers.org/meet/",
+                        link="https://couchers.org/meet/",
                     ),
                     start_time=Timestamp_from_datetime(start_time),
                     end_time=Timestamp_from_datetime(now() + timedelta(days=100)),
@@ -488,7 +488,7 @@ def test_ScheduleEvent(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 start_time=Timestamp_from_datetime(start_time),
                 end_time=Timestamp_from_datetime(end_time),
@@ -563,7 +563,7 @@ def test_cannot_overlap_occurrences_schedule(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=3)),
@@ -605,7 +605,7 @@ def test_cannot_overlap_occurrences_update(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=3)),
@@ -822,7 +822,7 @@ def test_UpdateEvent_single(db):
                 event_id=event_id,
                 title=wrappers_pb2.StringValue(value="Dummy Title"),
                 content=wrappers_pb2.StringValue(value="Dummy content."),
-                online_information=events_pb2.OnlineEventInformation(link="https://app.couchers.org/meet/"),
+                online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
                 start_time=Timestamp_from_datetime(start_time),
                 end_time=Timestamp_from_datetime(end_time),
                 timezone=wrappers_pb2.StringValue(value="UTC"),
@@ -835,7 +835,7 @@ def test_UpdateEvent_single(db):
         assert res.content == "Dummy content."
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
-        assert res.online_information.link == "https://app.couchers.org/meet/"
+        assert res.online_information.link == "https://couchers.org/meet/"
         assert time_before <= to_aware_datetime(res.created) <= time_before_update
         assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -869,7 +869,7 @@ def test_UpdateEvent_single(db):
         assert res.content == "Dummy content."
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
-        assert res.online_information.link == "https://app.couchers.org/meet/"
+        assert res.online_information.link == "https://couchers.org/meet/"
         assert time_before <= to_aware_datetime(res.created) <= time_before_update
         assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -901,7 +901,7 @@ def test_UpdateEvent_single(db):
         assert res.content == "Dummy content."
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
-        assert res.online_information.link == "https://app.couchers.org/meet/"
+        assert res.online_information.link == "https://couchers.org/meet/"
         assert time_before <= to_aware_datetime(res.created) <= time_before_update
         assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -1005,7 +1005,7 @@ def test_UpdateEvent_all(db):
                     event_id=event_ids[-1],
                     content=f"{i+1}th occurrence",
                     online_information=events_pb2.OnlineEventInformation(
-                        link="https://app.couchers.org/meet/",
+                        link="https://couchers.org/meet/",
                     ),
                     start_time=Timestamp_from_datetime(start_time + timedelta(hours=2 + i)),
                     end_time=Timestamp_from_datetime(start_time + timedelta(hours=2.5 + i)),
@@ -1025,7 +1025,7 @@ def test_UpdateEvent_all(db):
                 event_id=updated_event_id,
                 title=wrappers_pb2.StringValue(value="New Title"),
                 content=wrappers_pb2.StringValue(value="New content."),
-                online_information=events_pb2.OnlineEventInformation(link="https://app.couchers.org/meet/"),
+                online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
                 update_all_future=True,
             )
         )
@@ -1573,7 +1573,7 @@ def test_ListEventOccurrences(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=1.5)),
@@ -1589,7 +1589,7 @@ def test_ListEventOccurrences(db):
                     event_id=event_ids[-1],
                     content=f"{i}th occurrence",
                     online_information=events_pb2.OnlineEventInformation(
-                        link="https://app.couchers.org/meet/",
+                        link="https://couchers.org/meet/",
                     ),
                     start_time=Timestamp_from_datetime(start + timedelta(hours=2 + i)),
                     end_time=Timestamp_from_datetime(start + timedelta(hours=2.5 + i)),
@@ -1633,7 +1633,7 @@ def test_ListMyEvents(db):
                 title="Dummy Online Title",
                 content="Dummy content.",
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 parent_community_id=community_id,
                 timezone="UTC",
@@ -1934,7 +1934,7 @@ def test_can_overlap_other_events_schedule_regression(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=5)),
@@ -1949,7 +1949,7 @@ def test_can_overlap_other_events_schedule_regression(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=2)),
@@ -1990,7 +1990,7 @@ def test_can_overlap_other_events_update_regression(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=3)),
@@ -2004,7 +2004,7 @@ def test_can_overlap_other_events_update_regression(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=7)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=8)),
@@ -2061,7 +2061,7 @@ def test_list_past_events_regression(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=3)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=4)),
