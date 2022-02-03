@@ -1,7 +1,9 @@
 import {
+  Button as MuiButton,
   Container,
   Divider,
   Grid,
+  IconButton,
   Paper,
   Typography,
   useMediaQuery,
@@ -10,6 +12,7 @@ import {
 import classNames from "classnames";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
+import { ExpandMoreIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import BasicForm from "features/auth/signup/BasicForm";
@@ -17,11 +20,12 @@ import useAuthStyles from "features/auth/useAuthStyles";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Trans, useTranslation } from "next-i18next";
+import { useRef } from "react";
 import vercelLogo from "resources/vercel.svg";
 import makeStyles from "utils/makeStyles";
 
 import {
-  blogURL,
+  blogRoute,
   contributeRoute,
   forumURL,
   loginRoute,
@@ -30,6 +34,11 @@ import {
 } from "../../routes";
 
 const useStyles = makeStyles((theme) => ({
+  scrollMoreButton: {
+    color: theme.palette.common.white,
+    background: "none",
+    border: "none",
+  },
   spacer: {
     height: theme.spacing(4),
   },
@@ -92,6 +101,15 @@ export default function LandingPage() {
   const theme = useTheme();
   const isBelowMd = useMediaQuery(theme.breakpoints.down("md"));
 
+  const moreContentRef = useRef<HTMLHeadingElement>(null);
+  const scrollToMore = () => {
+    console.log(moreContentRef.current);
+    moreContentRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  };
+
   return (
     <>
       <HtmlMeta />
@@ -123,12 +141,10 @@ export default function LandingPage() {
           <div className={authClasses.formWrapper}>
             <Typography gutterBottom>{t("landing:signup_header")}</Typography>
             <Typography gutterBottom>
-              <Typography gutterBottom>
-                <Trans i18nKey="landing:signup_description">
-                  Join {{ user_count: "8.4k" }} couch surfers on the fastest
-                  growing couch surfing platform.
-                </Trans>
-              </Typography>
+              <Trans i18nKey="landing:signup_description">
+                Join {{ user_count: "8.4k" }} couch surfers on the fastest
+                growing couch surfing platform.
+              </Trans>
             </Typography>
             {!flowState ? (
               <BasicForm
@@ -172,11 +188,29 @@ export default function LandingPage() {
             <img alt="Powered by Vercel" src={vercelLogo.src} />
           </a>
         )}
+        <MuiButton
+          className={classes.scrollMoreButton}
+          onClick={scrollToMore}
+          variant="text"
+        >
+          Read more
+        </MuiButton>
+        <IconButton
+          className={classes.scrollMoreButton}
+          onClick={scrollToMore}
+          size="small"
+        >
+          <ExpandMoreIcon />
+        </IconButton>
       </section>
       <div className={classes.spacer} />
       <Container component="section" maxWidth="md">
         <Paper elevation={isBelowMd ? 0 : 1} className={classes.card}>
-          <Typography component="h2" className={classes.header}>
+          <Typography
+            component="h2"
+            className={classes.header}
+            ref={moreContentRef}
+          >
             Like Couchsurfing™, but better
           </Typography>
           <Typography className={classes.para}>
@@ -505,7 +539,7 @@ export default function LandingPage() {
       <Container component="section" maxWidth="md">
         <Typography className={classes.para}>
           Read more about Couchers.org on our{" "}
-          <StyledLink href={blogURL}>Blog</StyledLink>.
+          <StyledLink href={blogRoute}>Blog</StyledLink>.
         </Typography>
       </Container>
     </>
