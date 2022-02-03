@@ -9,17 +9,17 @@ import { SHOW_ALL_EVENTS } from "features/communities/constants";
 import Link from "next/link";
 import { ReactNode } from "react";
 import {
-  blogURL,
+  blogRoute,
   contributeRoute,
   donationsRoute,
   eventsRoute,
-  faqURL,
+  faqRoute,
   forumURL,
-  foundationURL,
+  foundationRoute,
   githubURL,
-  handbookURL,
-  planURL,
-  teamURL,
+  handbookRoute,
+  planRoute,
+  teamRoute,
   tosRoute,
   townHallURL,
 } from "routes";
@@ -128,19 +128,19 @@ export default function Footer() {
             <Typography variant="h3" component="h2">
               {ABOUT}
             </Typography>
-            <FooterLink href={planURL}>{OUR_PLAN}</FooterLink>
-            <FooterLink href={faqURL}>{FAQ}</FooterLink>
-            <FooterLink href={handbookURL}>{HANDBOOK}</FooterLink>
+            <FooterLink href={planRoute}>{OUR_PLAN}</FooterLink>
+            <FooterLink href={faqRoute}>{FAQ}</FooterLink>
+            <FooterLink href={handbookRoute}>{HANDBOOK}</FooterLink>
             <FooterLink href={tosRoute}>{TERMS}</FooterLink>
-            <FooterLink href={foundationURL}>{LEGAL_NAME}</FooterLink>
+            <FooterLink href={foundationRoute}>{LEGAL_NAME}</FooterLink>
           </div>
           <div>
             <Typography variant="h3" component="h2">
               {COMMUNITY}
             </Typography>
             <FooterLink href={forumURL}>{FORUM}</FooterLink>
-            <FooterLink href={blogURL}>{BLOG}</FooterLink>
-            <FooterLink href={teamURL}>{OUR_TEAM}</FooterLink>
+            <FooterLink href={blogRoute}>{BLOG}</FooterLink>
+            <FooterLink href={teamRoute}>{OUR_TEAM}</FooterLink>
           </div>
           <div>
             <Typography variant="h3" component="h2">
