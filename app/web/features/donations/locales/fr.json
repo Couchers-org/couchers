@@ -4,6 +4,7 @@
         "action_button_label": "Suivant",
         "monthly_button_label": "Mensuel",
         "one_time_button_label": "Unique",
+        "amount_validation_error": "Nombres entiers uniquement, merci.",
         "alert": {
             "warning_message": "Le paiement a été annulé.",
             "success_message": "Merci d'avoir fait un don à Couchers.org, nous apprécions votre soutien ! Vous recevrez bientôt un courriel."
