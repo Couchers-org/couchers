@@ -140,12 +140,11 @@ export default function LandingPage() {
             </Typography>
           </div>
           <div className={authClasses.formWrapper}>
-            <Typography gutterBottom>{t("landing:signup_header")}</Typography>
-            <Typography gutterBottom>
-              <Trans i18nKey="landing:signup_description">
-                Join {{ user_count: "8.4k" }} couch surfers on the fastest
-                growing couch surfing platform.
-              </Trans>
+            <Typography variant="h2" component="h3">
+              {t("landing:signup_header")}
+            </Typography>
+            <Typography variant="body2" paragraph gutterBottom>
+              {t("landing:signup_description", { user_count: "9.2k" })}
             </Typography>
             {!flowState ? (
               <BasicForm
@@ -169,7 +168,7 @@ export default function LandingPage() {
                 <StyledLink href={loginRoute}>Log in</StyledLink>
               </Trans>
             </Typography>
-            <Typography gutterBottom>
+            <Typography variant="caption" gutterBottom>
               <Trans i18nKey="auth:basic_sign_up_form.sign_up_agreement_explainer">
                 By continuing, you agree to our{" "}
                 <StyledLink href={tosRoute} target="_blank" variant="caption">
