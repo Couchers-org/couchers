@@ -24,17 +24,21 @@ import { useTranslation } from "next-i18next";
 import React, { useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
+  blogRoute,
   donationsRoute,
   eventsRoute,
+  faqRoute,
   featurePreviewRoute,
-  handbookURL,
+  handbookRoute,
   loginRoute,
   logoutRoute,
   messagesRoute,
+  planRoute,
   routeToProfile,
   searchRoute,
   settingsRoute,
   signupRoute,
+  teamRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -99,7 +103,7 @@ const loggedInDrawerMenu = (pingData: PingData): Array<MenuItemProps> => [
   },
   {
     name: HELP,
-    route: handbookURL,
+    route: handbookRoute,
     externalLink: true,
   },
   {
@@ -139,19 +143,19 @@ const loggedOutNavMenu = (): Array<MenuItemProps> => [
   },
   {
     name: "Blog",
-    route: "/blog",
+    route: blogRoute,
   },
   {
     name: "Our Plan",
-    route: "/plan",
+    route: planRoute,
   },
   {
     name: "FAQ",
-    route: "/faq",
+    route: faqRoute,
   },
   {
     name: "The Team",
-    route: "/team",
+    route: teamRoute,
   },
 ];
 
@@ -170,19 +174,19 @@ const loggedOutDrawerMenu = (): Array<MenuItemProps> => [
   },
   {
     name: "Blog",
-    route: "/blog",
+    route: blogRoute,
   },
   {
     name: "Our Plan",
-    route: "/plan",
+    route: planRoute,
   },
   {
     name: "FAQ",
-    route: "/faq",
+    route: faqRoute,
   },
   {
     name: "The Team",
-    route: "/team",
+    route: teamRoute,
   },
 ];
 
@@ -212,7 +216,7 @@ const loggedInMenuDropDown = (pingData: PingData): Array<MenuItemProps> => [
   },
   {
     name: HELP,
-    route: handbookURL,
+    route: handbookRoute,
     externalLink: true,
   },
   {
