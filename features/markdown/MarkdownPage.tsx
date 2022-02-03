@@ -1,4 +1,10 @@
-import { Breadcrumbs, Link, makeStyles, Typography } from "@material-ui/core";
+import {
+  Breadcrumbs,
+  Container,
+  Link,
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
 import HtmlMeta from "components/HtmlMeta";
 import markdown from "markdown-it";
 
@@ -23,10 +29,9 @@ export interface MarkdownPageProps {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    marginLeft: "auto",
-    marginRight: "auto",
-    maxWidth: "769px",
     marginTop: theme.spacing(3),
+  },
+  markdown: {
     fontSize: theme.typography.fontSize,
     fontFamily: theme.typography.fontFamily,
     "& h1, & h2, & h3, & h4, & h5, & h6, & p": {
@@ -78,14 +83,27 @@ const useStyles = makeStyles((theme) => ({
   crumbs: {
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(3),
+    "& a": {
+      color: theme.palette.primary.main,
+    },
   },
   title: {
-    fontSize: "2.5rem !important",
-    lineHeight: "1.125 !important",
+    fontSize: "2.5rem",
+    lineHeight: "1.125",
+  },
+  bustitle: {
+    marginTop: theme.spacing(3),
+    "& > *": {
+      fontSize: "1.5rem",
+      fontWeight: "bold",
+    },
+    "& a": {
+      color: theme.palette.primary.main,
+    },
   },
 }));
 
-function CreateBreadcrumbs({
+function createBreadcrumbs({
   slug,
   frontmatter,
 }: {
@@ -138,7 +156,7 @@ export default function MarkdownPage({
     ? mkd.renderInline(frontmatter.bustitle)
     : null;
 
-  const crumbs = CreateBreadcrumbs({ slug, frontmatter });
+  const crumbs = createBreadcrumbs({ slug, frontmatter });
 
   return (
     <>
@@ -147,7 +165,7 @@ export default function MarkdownPage({
         description={frontmatter.description}
         shareImage={frontmatter.share_image}
       />
-      <div className={classes.root}>
+      <Container maxWidth="md" className={classes.root}>
         <Breadcrumbs aria-label="breadcrumb" className={classes.crumbs}>
           {crumbs.map((crumb) => (
             <Link
@@ -160,21 +178,24 @@ export default function MarkdownPage({
             </Link>
           ))}
         </Breadcrumbs>
-        <Typography component="h1" variant="h1" className={classes.title}>
+        <Typography variant="h1" className={classes.title}>
           {frontmatter.title}
         </Typography>
-        <Typography component="h3" variant="h3">
-          {subtitle && (
+        {subtitle && (
+          <Typography component="h2">
             <div dangerouslySetInnerHTML={{ __html: subtitle }}></div>
-          )}
-        </Typography>
-        <div dangerouslySetInnerHTML={{ __html: content }}></div>
-        <Typography component="h4" variant="h4">
-          {bustitle && (
+          </Typography>
+        )}
+        <div
+          className={classes.markdown}
+          dangerouslySetInnerHTML={{ __html: content }}
+        ></div>
+        {bustitle && (
+          <Typography className={classes.bustitle} component="h2">
             <div dangerouslySetInnerHTML={{ __html: bustitle }}></div>
-          )}
-        </Typography>
-      </div>
+          </Typography>
+        )}
+      </Container>
     </>
   );
 }
