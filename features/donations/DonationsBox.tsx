@@ -220,7 +220,7 @@ export default function DonationsBox() {
 
   const customAmountInput = useRef<HTMLInputElement>(null);
 
-  const checkForValidAmount: boolean = (amount: number) => {
+  const checkForValidAmount = (amount: number) => {
     if (!Number.isInteger(amount)) return false;
     if (amount < 1) return false;
     return true;
