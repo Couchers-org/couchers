@@ -1,6 +1,6 @@
 # Couchers.org
 
-![App:](https://img.shields.io/badge/-App:-blue) [![pipeline status](https://gitlab.com/couchers/couchers/badges/develop/pipeline.svg)](https://gitlab.com/couchers/couchers/-/pipelines) [![coverage report](https://gitlab.com/couchers/couchers/badges/develop/coverage.svg)](https://develop--bcov.preview.couchershq.org) ![Landing site:](https://img.shields.io/badge/-Landing%20site:-blue) ![Build status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiQ0dZUmlKNGZMREx1RXlxcnRLSTlJTnlnNU9DR3RHRVk3R1NZKzZibkJYN3hTTGdNWVZFZG1raVpyOGxPckVsd3JqcDV6aktGTUI3c1Z4cEhNMkN3ZTdRPSIsIml2UGFyYW1ldGVyU3BlYyI6Ik4rVEd4YmF3UmljQmJYYWYiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+[![pipeline status](https://gitlab.com/couchers/couchers/badges/develop/pipeline.svg)](https://gitlab.com/couchers/couchers/-/pipelines) [![coverage report](https://gitlab.com/couchers/couchers/badges/develop/coverage.svg)](https://develop--bcov.preview.couchershq.org)
 
 ## Join us as we build the new alternative to Couchsurfing™
 
