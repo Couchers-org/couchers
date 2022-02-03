@@ -17,6 +17,7 @@ import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import BasicForm from "features/auth/signup/BasicForm";
 import useAuthStyles from "features/auth/useAuthStyles";
+import { AUTH, GLOBAL, LANDING } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Trans, useTranslation } from "next-i18next";
@@ -90,7 +91,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function LandingPage() {
-  const { t } = useTranslation(["global", "landing", "auth"]);
+  const { t } = useTranslation([GLOBAL, LANDING, AUTH]);
   const { authState } = useAuthContext();
   const flowState = authState.flowState;
 
