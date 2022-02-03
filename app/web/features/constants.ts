@@ -175,5 +175,7 @@ export const CHANGE_TIME = "Change time";
 // Default HtmlMeta
 export const HTML_META_TITLE_SUFFIX = " | Couchers.org Beta";
 export const HTML_META_DEFAULT_TITLE = "Couchers.org Beta";
+export const HTML_META_DEFAULT_SHARE_IMAGE =
+  "https://couchers.org/img/share.jpg";
 export const HTML_META_DEFAULT_DESCRIPTION =
   "The new alternative to Couchsurfing™. Free forever. Community-led. Non-profit. Modern.";

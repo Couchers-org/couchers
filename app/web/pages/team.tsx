@@ -1,25 +1,24 @@
 import { appGetLayout } from "components/AppRoute";
+import Team from "features/team/Team";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import { GetStaticProps } from "next";
-import nextI18nextConfig from "next-i18next.config";
+import nextI18NextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-
-import LandingPage from "../features/landing/LandingPage";
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
     ...(await serverSideTranslations(
       locale ?? "en",
-      ["global", "dashboard", "landing", "auth"],
-      nextI18nextConfig
+      [GLOBAL, AUTH],
+      nextI18NextConfig
     )),
   },
 });
 
-export default function HomePage() {
-  return <LandingPage />;
+export default function TeamPage() {
+  return <Team />;
 }
 
-HomePage.getLayout = appGetLayout({
+TeamPage.getLayout = appGetLayout({
   isPrivate: false,
-  variant: "full-screen",
 });

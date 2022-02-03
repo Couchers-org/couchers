@@ -4,7 +4,7 @@ bustitle: "Our plan to fix it: [Improved review system](/plan/reviews)"
 crumb: The reference system
 ---
 
-<span class="tag is-warning is-large">Design</span>
+<span class="tag tag-design tag-large">Design</span>
 
 The reference system used by Couchsurfing&#8482; may seem simple and intuitive on the surface, but it fails to do its job. **People read references for two main reasons: to make sure their experience is 1) safe and 2) enjoyable.** However, given the way the reference system is structured, it **doesn't achieve either of these goals** and so the system is meaningless.
 

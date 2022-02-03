@@ -22,7 +22,15 @@ type SignupBasicInputs = {
   email: string;
 };
 
-export default function BasicForm() {
+interface BasicFormProps {
+  submitText?: string;
+  successCallback?: () => void;
+}
+
+export default function BasicForm({
+  submitText,
+  successCallback,
+}: BasicFormProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions } = useAuthContext();
   const authClasses = useAuthStyles();
@@ -45,6 +53,11 @@ export default function BasicForm() {
     {
       onSettled() {
         window.scroll({ top: 0, behavior: "smooth" });
+      },
+      onSuccess() {
+        if (successCallback !== undefined) {
+          successCallback();
+        }
       },
     }
   );
@@ -113,7 +126,7 @@ export default function BasicForm() {
           loading={mutation.isLoading}
           fullWidth
         >
-          {t("global:continue")}
+          {submitText || t("global:continue")}
         </Button>
       </form>
     </>

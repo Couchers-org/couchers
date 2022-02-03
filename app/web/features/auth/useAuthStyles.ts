@@ -15,16 +15,22 @@ const useAuthStyles = makeStyles((theme) => ({
   page: {
     display: "flex",
     flexDirection: "column",
-    padding: `${theme.spacing(1, 4)}`,
+    padding: theme.spacing(1, 4),
     paddingBottom: 0,
+    [theme.breakpoints.down("xs")]: {
+      padding: theme.spacing(1, 2),
+    },
   },
   pageBackground: {
     background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("${mobileAuthBg.src}")`,
     backgroundPosition: "top center",
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
-    height: "100vh",
     width: "100%",
+    height: `calc(100vh - ${theme.shape.navPaddingXs})`,
+    [theme.breakpoints.up("sm")]: {
+      height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
+    },
   },
   header: {
     width: "100%",
@@ -94,7 +100,7 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   formWrapper: {
     flexShrink: 0,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    backgroundColor: "#fff",
     borderRadius: theme.shape.borderRadius,
     [theme.breakpoints.up("md")]: {
       width: "45%",
@@ -103,14 +109,12 @@ const useAuthStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("sm")]: {
       width: "80%",
       padding: theme.spacing(5, 8),
-      margin: theme.spacing(0, "auto"),
+      margin: theme.spacing(2, "auto"),
     },
     [theme.breakpoints.down("xs")]: {
-      position: "relative",
-      left: "50%",
-      transform: "translateX(-50%)",
-      width: "100vw",
-      padding: theme.spacing(5, 4),
+      width: "100%",
+      padding: theme.spacing(3, 4),
+      margin: theme.spacing(0),
     },
   },
   introduction: {
@@ -118,7 +122,6 @@ const useAuthStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
     flexDirection: "column",
     display: "flex",
-    justifyContent: "flex-end",
     textAlign: "left",
     width: "45%",
     maxWidth: theme.breakpoints.values.md / 2,

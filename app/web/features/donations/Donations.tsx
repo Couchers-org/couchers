@@ -6,7 +6,7 @@ import Markdown from "components/Markdown";
 import Landscape from "features/donations/resources/landscape.jpeg";
 import { Trans, useTranslation } from "next-i18next";
 import CouchersLogo from "resources/CouchersLogo";
-import { foundationURL } from "routes";
+import { foundationRoute } from "routes";
 
 import DonationsBox from "./DonationsBox";
 
@@ -148,7 +148,7 @@ export default function Donations() {
           <Typography className={classes.marginBottom3} variant="body2">
             <Trans t={t} i18nKey="donations_info">
               Your donation goes to
-              <Link className={classes.link} href={foundationURL}>
+              <Link className={classes.link} href={foundationRoute}>
                 {{ legal_name: LEGAL_NAME }}
               </Link>
               , a U.S. 501(c)(3) non-profit that operates the Couchers.org

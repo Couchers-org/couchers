@@ -4,7 +4,7 @@ subtitle: "Our plan to fix the problem of [Member safety and freeloaders](/issue
 crumb: Member Accountability
 ---
 
-<span class="tag is-warning is-large">Design</span>
+<span class="tag tag-design tag-large">Design</span>
 
 Three key safety features will be built into the platform: **accountability**, **informed choice**, and **education**. While we will use moderators where necessary, actively policing of all members by a select few individuals leads to all kinds of issues and isn't scalable. Rather, **we will empower the community with powerful tools to moderate itself**.
 

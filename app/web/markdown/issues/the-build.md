@@ -4,7 +4,7 @@ bustitle: "Our plan to fix it: [Building it right](/plan/the-build)"
 crumb: The bugs and app issues
 ---
 
-<span class="tag is-danger is-large">Technology</span>
+<span class="tag tag-tech tag-large">Technology</span>
 
 As every one of us knows, the build of Couchsurfing&#8482; was atrocious and not up to scratch to modern standards, *even if it were a free service*. Given that the platform was [not free](/issues/profit-and-incentives) and included advertisements, **this is really not acceptable**. Even recently, there have been numerous reports of completely broken behavior from the website and the apps, and as far as anyone remembers, the platform was annoyingly slow and buggy.
 
