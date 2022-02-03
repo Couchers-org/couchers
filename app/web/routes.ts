@@ -18,6 +18,7 @@ export const forumURL = "https://community.couchers.org/";
 export const townHallURL =
   "https://community.couchers.org/t/open-town-hall/1291";
 
+export const dashboardRoute = "/dashboard";
 export const blogRoute = "/blog";
 export const faqRoute = "/faq";
 export const foundationRoute = "/foundation";

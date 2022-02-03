@@ -25,6 +25,7 @@ import React, { useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   blogRoute,
+  dashboardRoute,
   donationsRoute,
   eventsRoute,
   faqRoute,
@@ -71,7 +72,7 @@ type PingData = ReturnType<typeof useNotifications>["data"];
 const loggedInDrawerMenu = (pingData: PingData): Array<MenuItemProps> => [
   {
     name: DASHBOARD,
-    route: "/",
+    route: dashboardRoute,
   },
   {
     name: MESSAGES,
@@ -116,7 +117,7 @@ const loggedInDrawerMenu = (pingData: PingData): Array<MenuItemProps> => [
 const loggedInNavMenu = (pingData: PingData): Array<MenuItemProps> => [
   {
     name: DASHBOARD,
-    route: "/",
+    route: dashboardRoute,
   },
   {
     name: MESSAGES,
