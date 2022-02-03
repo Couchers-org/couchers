@@ -36,8 +36,8 @@ const useStyles = makeStyles((theme) => ({
     flex: "1 0 auto",
   },
   avatar: {
-    width: "96px",
-    height: "96px",
+    width: theme.typography.pxToRem(96),
+    height: theme.typography.pxToRem(96),
   },
 }));
 
@@ -46,17 +46,17 @@ export default function Team() {
 
   return (
     <>
-      <HtmlMeta title={"The Team"} />
+      <HtmlMeta title="The Team" />
       <Container maxWidth="md">
         <PageTitle>The Team</PageTitle>
-        <Typography variant="body1" paragraph>
+        <Typography paragraph>
           We are all couch surfers and skilled professionals who want to build
           an improved, safer and more inclusive platform that can support and
           sustainably grow the couch surfing community and bring its values to
           the world. If you feel the same way and want to contribute, then we'd
           love to talk to you.
         </Typography>
-        <Typography variant="body1" paragraph>
+        <Typography paragraph>
           <Link href={contributeRoute} passHref>
             <Button variant="contained" color="secondary">
               Join the team
@@ -116,13 +116,13 @@ export default function Team() {
         <Typography variant="h2" component="h2">
           Have skills you want to contribute?
         </Typography>
-        <Typography variant="body1" paragraph>
+        <Typography paragraph>
           Couchers.org is a community project, built by folks like you for the
           benefit of the global couch surfing community. If you would like to be
           a part of this great new project, or leave your feedback on our ideas,
           click the button below and fill out the short form.
         </Typography>
-        <Typography variant="body1" paragraph>
+        <Typography paragraph>
           <Link href={contributeRoute} passHref>
             <Button variant="contained" color="secondary">
               Join our team
