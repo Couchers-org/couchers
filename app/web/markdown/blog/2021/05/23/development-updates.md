@@ -14,7 +14,7 @@ A quick overview of what the development team will be working on in the next few
 
 ### Mobile applications for iOS and Android
 
-We're looking for volunteers with experience with React Native, Flutter, or iOS/Android native development to join our mobile dev team. If you have experience with these tools, please sign up to [contributor](https://app.couchers.org/contribute) and help us make the right decision going forward! We will build prototypes for both then evaluate how they fit our architecture and development practices.
+We're looking for volunteers with experience with React Native, Flutter, or iOS/Android native development to join our mobile dev team. If you have experience with these tools, please sign up to [contributor](https://couchers.org/contribute) and help us make the right decision going forward! We will build prototypes for both then evaluate how they fit our architecture and development practices.
 
 This process will take some time, but you can expect to hear more about these apps later this year.
 
@@ -26,7 +26,7 @@ We will be redesigning the signup flow and creating an invite system to allow yo
 
 We are working on events, forums, and pages for local communities. These features will significantly expand the ways in which users can interact with each other. These are highly integrated tools and so we will release them at the same time. Development on these community features started in March and we are aiming to release them by the end of June.
 
-If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the [contributor form](https://app.couchers.org/contribute). If you are already heavily involved in a local travel community, please also reach out.
+If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the [contributor form](https://couchers.org/contribute). If you are already heavily involved in a local travel community, please also reach out.
 
 ## Latest features and bugfixes
 

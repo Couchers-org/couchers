@@ -9,7 +9,7 @@ share_image: https://couchers.org/img/blog/20210825_talkingtown.png
 
 Welcome to issue #5 of Talk of the Town, the biweekly summary of the main points brought up, discussed, and debated in recent [Community Forum](https://community.couchers.org/) threads! Check out the [previous issue](https://couchers.org/blog/2021/08/25/talk-of-the-town/) if you missed it!
 
-If you’ve not joined the forum yet, please quickly [create an account](https://community.couchers.org/) to contribute and be part of the community. You can play an important role in shaping [Couchers.org](https://app.couchers.org/) for everyone.
+If you’ve not joined the forum yet, please quickly [create an account](https://community.couchers.org/) to contribute and be part of the community. You can play an important role in shaping [Couchers.org](https://couchers.org/) for everyone.
 
 
 

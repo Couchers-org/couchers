@@ -12,7 +12,7 @@ You can find the details of Couchers, Inc. through the [IRS Tax Exempt Organizat
 
 You can also find our details on the [Florida Department of State website](https://search.sunbiz.org/Inquiry/CorporationSearch/SearchResultDetail?inquirytype=FeiNumber&directionType=Initial&searchNameOrder=871734577N210000086330&aggregateId=domnp-n21000008633-9f9a169a-3a18-44ea-9bbf-07966335007d&searchTerm=871734577&listNameOrder=871734577N210000086330), and check our Solicitation of Contributions registration on the [Florida Check-A-Charity page](https://csapp.fdacs.gov/CSPublicApp/CheckACharity/CheckACharity.aspx), our registration number is CH66240.
 
-Donations to Couchers, Inc., including through our [donation page](https://app.couchers.org/donate) are tax exempt to the full extent of the law.
+Donations to Couchers, Inc., including through our [donation page](https://couchers.org/donate) are tax exempt to the full extent of the law.
 
 ## Couchers.org Foundation (Australia)
 

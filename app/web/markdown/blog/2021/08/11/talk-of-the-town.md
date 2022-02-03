@@ -9,7 +9,7 @@ share_image: https://couchers.org/img/blog/20210825_talkingtown.png
 
 Welcome to the third issue of _Talk of the Town_, the biweekly summary of the main points brought up, discussed, and debated in recent [Community Forum](https://community.couchers.org/) threads! If you missed the [first](https://couchers.org/blog/2021/07/17/talk-of-the-town/) or [second](https://couchers.org/blog/2021/07/28/talk-of-the-town/) issue, take a look!
 
-If you’ve not joined the forum yet, please quickly [create an account](https://community.couchers.org/) to contribute and be part of the community. You can play an important role in shaping [Couchers.org](https://app.couchers.org/) for everyone.
+If you’ve not joined the forum yet, please quickly [create an account](https://community.couchers.org/) to contribute and be part of the community. You can play an important role in shaping [Couchers.org](https://couchers.org/) for everyone.
 
 
 ## **Forum Digest: July 29-August 11 2021**

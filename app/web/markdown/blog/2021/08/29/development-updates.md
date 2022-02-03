@@ -20,7 +20,7 @@ We're actively looking for Community Builders who want to help grow the communit
 
 ### Mobile applications for iOS and Android
 
-We're still looking for developers who could help us build our React Native-based mobile app. Please let us know if you can help by completing the [contributor form](https://app.couchers.org/contribute).
+We're still looking for developers who could help us build our React Native-based mobile app. Please let us know if you can help by completing the [contributor form](https://couchers.org/contribute).
 
 ## Latest features and bugfixes
 

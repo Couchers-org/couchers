@@ -14,7 +14,7 @@ A quick overview of what the development team will be working on in the next few
 
 ### Mobile applications for iOS and Android
 
-We've started building mobile apps for Couchers.org, and will be giving updates on the progress in the coming months. If you're a developer with experience using React Native and are interested in contributing to this effort, please complete the [contributor form](https://app.couchers.org/contribute) and let us know!
+We've started building mobile apps for Couchers.org, and will be giving updates on the progress in the coming months. If you're a developer with experience using React Native and are interested in contributing to this effort, please complete the [contributor form](https://couchers.org/contribute) and let us know!
 
 ### Events and community building
 

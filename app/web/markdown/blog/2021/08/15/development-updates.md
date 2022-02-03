@@ -20,13 +20,13 @@ We're actively looking for Community Builders who wannt to help grow the communi
 
 ### Mobile applications for iOS and Android
 
-We're still looking for developers who could help us build our React Native-based mobile app. Please let us know if you can help by completing the [contributor form](https://app.couchers.org/contribute).
+We're still looking for developers who could help us build our React Native-based mobile app. Please let us know if you can help by completing the [contributor form](https://couchers.org/contribute).
 
 ## Latest features and bugfixes
 
 Here's a couple of the features we worked on in the last two weeks:
 
-* Donations: added a [donation page](https://app.couchers.org/donate), so you can contribute financially if you'd like to support the project [[#1553](https://github.com/Couchers-org/couchers/pull/1553)]
+* Donations: added a [donation page](https://couchers.org/donate), so you can contribute financially if you'd like to support the project [[#1553](https://github.com/Couchers-org/couchers/pull/1553)]
 * Profile: updated the language lists to add more languages and dialects [[#1699](https://github.com/Couchers-org/couchers/pull/1699), [#1821](https://github.com/Couchers-org/couchers/pull/1821)]
 * Events: implemented event discussions as well as joining and leaving events [[#1756](https://github.com/Couchers-org/couchers/pull/1756)]
 * Friend requests: added an email notification for when your friend request is accepted [[#1438](https://github.com/Couchers-org/couchers/pull/1438)]

@@ -14,7 +14,7 @@ A quick overview of what the development team will be working on in the next few
 
 ### Mobile applications for iOS and Android
 
-We had our first mobile development meeting last week to kick off the new team. We're still looking for developers with experience in React Native or Flutter to join the team. If you'd like to help, please sign up to [contribute](https://app.couchers.org/contribute) and help us build the mobile app!
+We had our first mobile development meeting last week to kick off the new team. We're still looking for developers with experience in React Native or Flutter to join the team. If you'd like to help, please sign up to [contribute](https://couchers.org/contribute) and help us build the mobile app!
 
 This process will take some time, but you can expect to hear more about these apps later this year.
 
@@ -24,7 +24,7 @@ We've started releasing features within our local communities theme and will con
 
 We've created a few initial communities and will work with local community leaders in the next few weeks to establishing more communities on the platform.
 
-If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the [contributor form](https://app.couchers.org/contribute). If you are already heavily involved in a local travel community, please also reach out.
+If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the [contributor form](https://couchers.org/contribute). If you are already heavily involved in a local travel community, please also reach out.
 
 ### Invite feature and new signup flow
 

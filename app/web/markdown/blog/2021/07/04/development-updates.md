@@ -14,7 +14,7 @@ A quick overview of what the development team will be working on in the next few
 
 ### Mobile applications for iOS and Android
 
-We've started our mobile development team, but are still looking for contributors to join and help on development of the app, if you're interested, please fill in the [contributor form](https://app.couchers.org/contribute).
+We've started our mobile development team, but are still looking for contributors to join and help on development of the app, if you're interested, please fill in the [contributor form](https://couchers.org/contribute).
 
 We aim to get Beta quality apps out by the end of this year.
 
@@ -22,7 +22,7 @@ We aim to get Beta quality apps out by the end of this year.
 
 We're working on releasing events, which we'll roll out gradually in the coming updates.
 
-We've also begun creating initial communities, and are looking for community leaders to help out getting their own local community up and running. If you're interested in this, please sign up to [contribute](https://app.couchers.org/contribute).
+We've also begun creating initial communities, and are looking for community leaders to help out getting their own local community up and running. If you're interested in this, please sign up to [contribute](https://couchers.org/contribute).
 
 ## Latest features and bugfixes
 

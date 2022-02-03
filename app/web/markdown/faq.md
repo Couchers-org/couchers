@@ -12,7 +12,7 @@ Yes. Our goal is to be a viable alternative to Couchsurfing&#8482; and the home 
 
 ### Is there going to be a mobile app for Couchers.org on both iOS and Android?
 
-Yes, mobile apps are critical for all travel platforms. We will first be implementing our [web app](https://app.couchers.org) as a prototype, then creating native apps for iOS and Android.
+Yes, mobile apps are critical for all travel platforms. We will first be implementing our [web app](https://couchers.org) as a prototype, then creating native apps for iOS and Android.
 
 ### How will you prevent this platform from ever becoming a for-profit like Couchsurfing&#8482; did?
 
@@ -66,4 +66,4 @@ There are many companies that are not profit-seeking that perform far better tha
 
 ### When do you think this will be ready to launch?
 
-We have a bit of flexibility as people aren't traveling so much right now. Our aim is to have it ready by the time people are on the road again. Please [sign up](https://app.couchers.org/signup) to try our beta platform, or join our [community forum](https://community.couchers.org) to discuss regular updates.
+We have a bit of flexibility as people aren't traveling so much right now. Our aim is to have it ready by the time people are on the road again. Please [sign up](https://couchers.org/signup) to try our beta platform, or join our [community forum](https://community.couchers.org) to discuss regular updates.
