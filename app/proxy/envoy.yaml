@@ -39,8 +39,6 @@ static_resources:
               cors:
                 allow_origin_string_match:
                 # main site
-                - exact: https://app.couchers.org
-                # landing page
                 - exact: https://couchers.org
                 # deploy preview sites
                 - exact: https://next.couchershq.org
