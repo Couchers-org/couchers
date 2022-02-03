@@ -20,23 +20,27 @@ module.exports = {
     },
     {
       source: "/foundation/constitution.pdf",
-      destination: "https://github.com/Couchers-org/couchers/raw/develop/foundation/constitution/constitution.pdf",
-      permanent: false
+      destination:
+        "https://github.com/Couchers-org/couchers/raw/develop/foundation/constitution/constitution.pdf",
+      permanent: false,
     },
     {
       source: "/contributors/backend-meeting.ics",
-      destination: "https://github.com/Couchers-org/couchers/raw/develop/docs/meetings/backend-meeting.ics",
-      permanent: false
+      destination:
+        "https://github.com/Couchers-org/couchers/raw/develop/docs/meetings/backend-meeting.ics",
+      permanent: false,
     },
     {
       source: "/contributors/web-meeting.ics",
-      destination: "https://github.com/Couchers-org/couchers/raw/develop/docs/meetings/web-meeting.ics",
-      permanent: false
+      destination:
+        "https://github.com/Couchers-org/couchers/raw/develop/docs/meetings/web-meeting.ics",
+      permanent: false,
     },
     {
       source: "/contributors/product-meeting.ics",
-      destination: "https://github.com/Couchers-org/couchers/raw/develop/docs/meetings/product-meeting.ics",
-      permanent: false
+      destination:
+        "https://github.com/Couchers-org/couchers/raw/develop/docs/meetings/product-meeting.ics",
+      permanent: false,
     },
     {
       source: "/contributors/guide.pdf",
