@@ -16,11 +16,11 @@ A quick overview of what the development team will be working on in the next few
 
 We are working on events, forums, and pages for local communities. These features will significantly expand the ways in which users can interact with each other. These are highly integrated tools and so we will release them at the same time. Development on these community features started in March and we are aiming to release them by the end of May.
 
-If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the [contributor form](https://app.couchers.org/contribute). If you are already heavily involved in a local travel community, please also reach out.
+If you are interested in becoming a community leader, it's not too late to reach out to us by filling in the [contributor form](https://couchers.org/contribute). If you are already heavily involved in a local travel community, please also reach out.
 
 ### Mobile applications for iOS and Android
 
-We're ramping up our effort to develop native mobile apps. We're currently looking for people experienced in the relevant technologies (React Native, Flutter, Swift/Kotlin, etc) to help us make solid architectural decisions before we move our development focus to mobile apps. If you have the skills to help, please fill in the [contributor form](https://app.couchers.org/contribute) below and we'll be in touch.
+We're ramping up our effort to develop native mobile apps. We're currently looking for people experienced in the relevant technologies (React Native, Flutter, Swift/Kotlin, etc) to help us make solid architectural decisions before we move our development focus to mobile apps. If you have the skills to help, please fill in the [contributor form](https://couchers.org/contribute) below and we'll be in touch.
 
 This process will take some time, but you can expect to hear more about these apps later this year.
 

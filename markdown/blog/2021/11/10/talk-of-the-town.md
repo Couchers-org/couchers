@@ -10,7 +10,7 @@ share_image: https://couchers.org/img/blog/20210825_talkingtown.png
 
 Welcome to issue #7 of Talk of the Town! We missed last fortnight’s issue, so I bring to you a four-week recap of the main points brought up, discussed, and debated in recent [Community Forum](https://community.couchers.org/) threads! Check out the [previous issue](https://couchers.org/blog/2021/10/13/talk-of-the-town/) if you missed it, and we will return to our usual biweekly program from here on.
 
-If you’ve not joined the forum yet, please quickly [create an account](https://community.couchers.org/) to contribute and be part of the community. You can play an important role in shaping [Couchers.org](https://app.couchers.org/) for everyone.
+If you’ve not joined the forum yet, please quickly [create an account](https://community.couchers.org/) to contribute and be part of the community. You can play an important role in shaping [Couchers.org](https://couchers.org/) for everyone.
 
 
 ## **Forum Digest: October 14th - November 10th, 2021**

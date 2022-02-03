@@ -17,15 +17,15 @@ Our core growth strategy is to grow a network of Community Builders around the w
 
 ### Platform tasks
 
-On the platform, your community page must be populated with some content. Check out the [Madison, USA Community Page](https://app.couchers.org/community/64/madison) for an example.
+On the platform, your community page must be populated with some content. Check out the [Madison, USA Community Page](https://couchers.org/community/64/madison) for an example.
 
 **In the first week**, please complete these tasks:
 
 
 
-1. **Short description**: write some text (50-80 words) for the community overview to appear under the “General information” in the "Overview" tab ([example](https://app.couchers.org/community/64/madison)). **Email description to community.building@couchers.org** and we will update it. ![Screenshot of the Madison community short description](/img/docs/community_builder_short_description.jpg)Please remember to email this description to **community.building@couchers.org**
-2. **Long description/page**: Write text for the "Local info" page ([example](https://app.couchers.org/community/64/madison/info)). This can be edited on the page. ![Screenshot of how to edit long description](/img/docs/community_builder_long_description.jpg)
-3. **Start discussions**: create new discussions on your community page, and make sure you are responsive when other people interact to keep up momentum ([example](https://app.couchers.org/community/54/russia)).
+1. **Short description**: write some text (50-80 words) for the community overview to appear under the “General information” in the "Overview" tab ([example](https://couchers.org/community/64/madison)). **Email description to community.building@couchers.org** and we will update it. ![Screenshot of the Madison community short description](/img/docs/community_builder_short_description.jpg)Please remember to email this description to **community.building@couchers.org**
+2. **Long description/page**: Write text for the "Local info" page ([example](https://couchers.org/community/64/madison/info)). This can be edited on the page. ![Screenshot of how to edit long description](/img/docs/community_builder_long_description.jpg)
+3. **Start discussions**: create new discussions on your community page, and make sure you are responsive when other people interact to keep up momentum ([example](https://couchers.org/community/54/russia)).
 4. **Community Builder diversity**: If all of the Community Builders in your community are men, you must recruit one who is not a man.
 
 *We may remove communities where the Community Organizers do not meet these 4 minimum platform tasks, as we need the communities present to be active.*

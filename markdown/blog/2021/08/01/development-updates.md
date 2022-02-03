@@ -20,7 +20,7 @@ We have started looking for Community Builders who would like to grow their loca
 
 ### Mobile applications for iOS and Android
 
-We're looking for React Native developers to join our mobile development team. If you could help please fill in the [contributor form](https://app.couchers.org/contribute). We aim to have the Beta apps released by the end of the year.
+We're looking for React Native developers to join our mobile development team. If you could help please fill in the [contributor form](https://couchers.org/contribute). We aim to have the Beta apps released by the end of the year.
 
 ## Latest features and bugfixes
 

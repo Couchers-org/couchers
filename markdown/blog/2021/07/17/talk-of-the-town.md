@@ -9,7 +9,7 @@ share_image: https://couchers.org/img/blog/20210825_talkingtown.png
 
 Do you know we have vibrant discussions about couch surfing and Couchers.org on our [Community Forum](https://community.couchers.org/)? Everyone is welcome to participate!
 
-If you haven’t joined yet, it only takes a minute to set up an account and add your input to the community. You can play an important role in shaping [Couchers.org](https://app.couchers.org/) into the best platform it can be.
+If you haven’t joined yet, it only takes a minute to set up an account and add your input to the community. You can play an important role in shaping [Couchers.org](https://couchers.org/) into the best platform it can be.
 
 Welcome to the first-ever issue of the biweekly forum digest, which will be summarizing the main points brought up, discussed, and debated in recent forum threads! We’re calling it “**Talk of the Town**”.
 

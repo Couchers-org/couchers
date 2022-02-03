@@ -9,7 +9,7 @@ The team at Couchers.org has been committed since day one to creating a non-prof
 
 In a huge step for Couchers.org and the wider couch surfing community, our application has been successful.
 
-A huge thanks to the whole team, and especially [Paul Rausch](https://app.couchers.org/user/paul) and [Dea Woodard](https://app.couchers.org/user/sunshine), couch surfing veterans and amazing people who have been helping with registering everything necessary to make this happen!
+A huge thanks to the whole team, and especially [Paul Rausch](https://couchers.org/user/paul) and [Dea Woodard](https://couchers.org/user/sunshine), couch surfing veterans and amazing people who have been helping with registering everything necessary to make this happen!
 
 You can read more about these organization on the [dedicated page](/foundation).
 
@@ -47,11 +47,11 @@ Stay tuned for the full Couchers.org roadmap.
 
 ### Volunteer
 
-There has never been a better time to get involved and contribute to the massive community effort that is Couchers.org. We need more developers, marketers, graphic designers, and people to organize and build their local communities. [Click here to go to our volunteer form](https://app.couchers.org/contribute).
+There has never been a better time to get involved and contribute to the massive community effort that is Couchers.org. We need more developers, marketers, graphic designers, and people to organize and build their local communities. [Click here to go to our volunteer form](https://couchers.org/contribute).
 
 ### Donate
 
-Help ensure that Couchers.org remains financially sustainable by making a one-time or recurring donation. Similar to projects like Wikipedia, Couchers.org is a community-run non-profit that is funded by donations. Where services like Couchsurfing™ must respond first to private shareholder interests, all donations to Couchers.org directly support the Couchers project. [Please consider making a donation today](https://app.couchers.org/donate). If you are a US taxpayer, your donation is tax deductible.
+Help ensure that Couchers.org remains financially sustainable by making a one-time or recurring donation. Similar to projects like Wikipedia, Couchers.org is a community-run non-profit that is funded by donations. Where services like Couchsurfing™ must respond first to private shareholder interests, all donations to Couchers.org directly support the Couchers project. [Please consider making a donation today](https://couchers.org/donate). If you are a US taxpayer, your donation is tax deductible.
 
 ### Spread the word
 

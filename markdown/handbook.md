@@ -153,7 +153,7 @@ Keep communication on the Couchers.org platform as much as possible. Use common 
 <a class="handbook-anchor" name="donate"></a>
 ### How do I donate money to Couchers.org?
 
-Visit [app.couchers.org/donate](https://app.couchers.org/donate) to make your donation.
+Visit [couchers.org/donate](https://couchers.org/donate) to make your donation.
 
 
 <a class="handbook-anchor" name="bug"></a>
@@ -173,7 +173,7 @@ Visit [app.couchers.org/donate](https://app.couchers.org/donate) to make your do
 <a class="handbook-anchor" name="volunteer"></a>
 ### How do I volunteer to help build the Couchers.org platform?
 
-1. Visit [app.couchers.org](https://app.couchers.org/) and log into your account.
+1. Visit [couchers.org](https://couchers.org/) and log into your account.
 2. On the "Dashboard" page, scroll down to "sign up to contribute" and click on it.
 3. Fill out the form, then click submit.
 4. Someone will reach out to you. Generally you will receive a response within 1 week.
@@ -254,7 +254,7 @@ Send a message to [support@couchers.org](mailto:support@couchers.org) with your 
 2. Right-click on your profile photo and select "copy link" or "copy link address".
 3. Paste the link wherever you want to share it.
 
-Keep in mind: **The person will only be able to see your profile if they have an account and are logged in** at [app.couchers.org](https://app.couchers.org)!
+Keep in mind: **The person will only be able to see your profile if they have an account and are logged in** at [couchers.org](https://couchers.org)!
 
 
 <a class="handbook-anchor" name="searchfilters"></a>
