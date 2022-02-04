@@ -21,7 +21,7 @@ import { AUTH, GLOBAL, LANDING } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Trans, useTranslation } from "next-i18next";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import vercelLogo from "resources/vercel.svg";
 import makeStyles from "utils/makeStyles";
 
@@ -102,6 +102,9 @@ export default function LandingPage() {
   const theme = useTheme();
   const isBelowMd = useMediaQuery(theme.breakpoints.down("md"));
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+
   const moreContentRef = useRef<HTMLHeadingElement>(null);
   const scrollToMore = () => {
     console.log(moreContentRef.current);
@@ -146,7 +149,7 @@ export default function LandingPage() {
             <Typography variant="body2" paragraph gutterBottom>
               {t("landing:signup_description", { user_count: "9.2k" })}
             </Typography>
-            {!flowState ? (
+            {!flowState || !isMounted ? (
               <BasicForm
                 submitText={t("landing:create_an_account")}
                 successCallback={() => router.push(signupRoute)}

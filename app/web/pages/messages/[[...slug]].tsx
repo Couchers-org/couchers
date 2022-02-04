@@ -57,7 +57,7 @@ export default function LeaveReferencePage() {
 
   return (
     <>
-      <MessagesHeader tab={tab} />
+      {!slugs[1] && <MessagesHeader tab={tab} />}
       {content}
     </>
   );

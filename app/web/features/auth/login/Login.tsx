@@ -8,7 +8,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import vercelLogo from "resources/vercel.svg";
-import { signupRoute } from "routes";
+import { dashboardRoute, signupRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 import stringOrFirstString from "utils/stringOrFirstString";
 
@@ -25,7 +25,8 @@ export default function Login() {
   const error = authState.error;
 
   const router = useRouter();
-  const redirectTo = stringOrFirstString(router.query.from) || "/";
+  const from = stringOrFirstString(router.query.from) ?? dashboardRoute;
+  const redirectTo = from === "/" || from === "%2F" ? dashboardRoute : from;
   const urlToken = stringOrFirstString(router.query.token);
 
   const authClasses = useAuthStyles();

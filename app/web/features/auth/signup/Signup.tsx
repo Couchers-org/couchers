@@ -13,7 +13,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import vercelLogo from "resources/vercel.svg";
-import { loginRoute, signupRoute, tosRoute } from "routes";
+import { dashboardRoute, loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
@@ -205,7 +205,7 @@ export default function Signup() {
 
   return (
     <>
-      {authenticated && <Redirect to="/" />}
+      {authenticated && <Redirect to={dashboardRoute} />}
       <HtmlMeta title={t("global:sign_up")} />
       <div
         className={classNames(
