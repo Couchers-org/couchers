@@ -2,13 +2,13 @@
   "donate": "",
   "donations_banner": {
     "title": "",
-    "body": ""
+    "body": "Puedes construir el futuro del couch surfing"
   },
   "donations_box": {
-    "monthly_button_label": "",
+    "monthly_button_label": "Mensualmente",
     "one_time_button_label": "",
     "validation_message": "",
-    "action_button_label": "",
+    "action_button_label": "Siguiente",
     "recurrence_aria_label": "",
     "title": "",
     "alert": {
@@ -21,8 +21,8 @@
   "donations_title2": "A dónde irá tu donación",
   "donations_text": "Couchers.org es una organización sin fines de lucro administrada por la comunidad que se financia con donaciones, similar a Wikipedia. No hay capitalistas de riesgo ni intereses privados, solo gente trabajadora que construye algo que hará del mundo un lugar un poco mejor.\n\nCreemos que hay suficiente buena voluntad en la comunidad de couchsurfing para crear una plataforma que superará fácilmente a Couchsurfing™. Y que podemos hacer esto mientras que prometemos ser gratis para todos para siempre sin convertir a nuestros usuarios en el producto.\n\nPero **necesitamos tu ayuda** para hacerlo.\n\nTu donación a Couchers.org es una inversión altamente eficiente que se destina directamente a gastos críticos. Donde servicios como Couchsurfing™ gastan grandes cantidades en contratación y servicios de terceros, contamos con voluntarios y confiamos en software de código abierto, por lo que podemos estirar de manera efectiva los ingresos que recibimos.\n\nSi crees en esta misión, entonces te pedimos que dones. Y te pedimos que consideres lo que aporta el couchsurfing a tu propia vida y lo importante que es transmitirlo a otras personas en el mundo. Considera hacer una donación de $ 5, $ 20, $ 50 o lo que puedas para lograr nuestro objetivo común.\n\nGracias,\n\nAapeli Vuorinen e Itsi Weinstock<br />Fundadores de Couchers.org",
   "donations_text2": "Tu donación se destinará a las operaciones diarias de Couchers.org, incluido el pago de servidores para garantizar un servicio confiable, así como los honorarios legales, administrativos y el financiamiento de las herramientas de colaboración que nos ayudan a construir esta plataforma.\n\nEl financiamiento adicional, como organización sin fines de lucro, se destinará por completo a mejorar la comunidad; Permitir que Couchers.org se expanda de maneras tales como mejorar el servicio, aumentar la tasa de desarrollo, proporcionar equipos de seguridad dedicados y expandir el couchsurfing a más personas y más lugares en el mundo.",
-  "benefactor_contact": "",
-  "benefactor_email": "",
+  "benefactor_contact": "Si deseas realizar una contribución mayor a $1000, por favor contacta con nosotros en <1>{{email}}</1> para que podamos gestionar una comisión más baja.",
+  "benefactor_email": "benefactor@couchers.org",
   "donations_recurrence_explainer": "",
   "donations_value": ""
 }
