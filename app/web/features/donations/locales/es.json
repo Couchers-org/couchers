@@ -1,21 +1,21 @@
 {
-  "donate": "",
+  "donate": "donar",
   "donations_banner": {
-    "title": "",
+    "title": "Tu ayuda es necesaria para apoyar nuestra misión",
     "body": "Puedes construir el futuro del couch surfing"
   },
   "donations_box": {
-    "monthly_button_label": "Mensualmente",
-    "one_time_button_label": "",
-    "validation_message": "",
-    "action_button_label": "Siguiente",
-    "recurrence_aria_label": "",
-    "title": "",
+    "monthly_button_label": "mensualmente",
+    "one_time_button_label": "único",
+    "validation_message": "Este campo es obligatorio",
+    "action_button_label": "siguiente",
+    "recurrence_aria_label": "recurrente",
+    "title": "monto de donación",
     "alert": {
-      "success_message": "",
+      "success_message": "Gracias por tu donación a Couchers.org, ¡agradecemos tu apoyo! Dentro de poco recibirás un correo electrónico.",
       "warning_message": "El pago fue cancelado."
     },
-    "helper_text": ""
+    "helper_text": "Serás redirigido a Stripe, nuestro procesador de pagos, para completar tu donación."
   },
   "donations_title": "Tu donación es necesaria para hacer crecer la plataforma que necesitamos",
   "donations_title2": "A dónde irá tu donación",
