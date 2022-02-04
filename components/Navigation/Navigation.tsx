@@ -21,10 +21,11 @@ import useNotifications from "features/useNotifications";
 import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   blogRoute,
+  dashboardRoute,
   donationsRoute,
   eventsRoute,
   faqRoute,
@@ -73,7 +74,7 @@ type PingData = ReturnType<typeof useNotifications>["data"];
 const loggedInDrawerMenu = (pingData: PingData): Array<MenuItemProps> => [
   {
     name: DASHBOARD,
-    route: "/",
+    route: dashboardRoute,
   },
   {
     name: MESSAGES,
@@ -122,7 +123,7 @@ const loggedInDrawerMenu = (pingData: PingData): Array<MenuItemProps> => [
 const loggedInNavMenu = (pingData: PingData): Array<MenuItemProps> => [
   {
     name: DASHBOARD,
-    route: "/",
+    route: dashboardRoute,
   },
   {
     name: MESSAGES,
@@ -369,27 +370,36 @@ export default function Navigation() {
   const { data: pingData } = useNotifications();
   const { authState } = useAuthContext();
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+
   const { t } = useTranslation([GLOBAL]);
 
   const drawerItems = (
     <div>
       <List>
-        {(authState.authenticated ? loggedInDrawerMenu : loggedOutDrawerMenu)(
-          pingData
-        ).map(({ name, route, notificationCount, externalLink }) => (
-          <ListItem button key={name}>
-            {externalLink ? (
-              <ExternalNavButton route={route} label={name} labelVariant="h2" />
-            ) : (
-              <NavButton
-                route={route}
-                label={name}
-                labelVariant="h2"
-                notificationCount={notificationCount}
-              />
-            )}
-          </ListItem>
-        ))}
+        {(authState.authenticated && isMounted
+          ? loggedInDrawerMenu
+          : loggedOutDrawerMenu)(pingData).map(
+          ({ name, route, notificationCount, externalLink }) => (
+            <ListItem button key={name}>
+              {externalLink ? (
+                <ExternalNavButton
+                  route={route}
+                  label={name}
+                  labelVariant="h2"
+                />
+              ) : (
+                <NavButton
+                  route={route}
+                  label={name}
+                  labelVariant="h2"
+                  notificationCount={notificationCount}
+                />
+              )}
+            </ListItem>
+          )
+        )}
       </List>
     </div>
   );
@@ -516,24 +526,25 @@ export default function Navigation() {
           <CouchersLogo />
           <Hidden smDown implementation="css">
             <div className={classes.flex}>
-              {(authState.authenticated ? loggedInNavMenu : loggedOutNavMenu)(
-                pingData
-              ).map(({ name, route, notificationCount, externalLink }) =>
-                externalLink ? (
-                  <ExternalNavButton
-                    route={route}
-                    label={name}
-                    labelVariant="h2"
-                    key={`${name}-nav-button`}
-                  />
-                ) : (
-                  <NavButton
-                    route={route}
-                    label={name}
-                    key={`${name}-nav-button`}
-                    notificationCount={notificationCount}
-                  />
-                )
+              {(authState.authenticated && isMounted
+                ? loggedInNavMenu
+                : loggedOutNavMenu)(pingData).map(
+                ({ name, route, notificationCount, externalLink }) =>
+                  externalLink ? (
+                    <ExternalNavButton
+                      route={route}
+                      label={name}
+                      labelVariant="h3"
+                      key={`${name}-nav-button`}
+                    />
+                  ) : (
+                    <NavButton
+                      route={route}
+                      label={name}
+                      key={`${name}-nav-button`}
+                      notificationCount={notificationCount}
+                    />
+                  )
               )}
             </div>
           </Hidden>
@@ -542,7 +553,7 @@ export default function Navigation() {
         <Hidden implementation="css">
           <div className={classes.menuContainer}>
             <ReportButton />
-            {authState.authenticated ? (
+            {authState.authenticated && isMounted ? (
               <LoggedInMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen}>
                 {menuItems}
               </LoggedInMenu>
