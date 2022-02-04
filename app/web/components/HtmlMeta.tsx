@@ -30,6 +30,7 @@ export default function HtmlMeta({
       </title>
 
       <meta
+        key="title"
         name="title"
         content={
           noSuffix || sharingTitle === HTML_META_DEFAULT_TITLE
@@ -38,6 +39,7 @@ export default function HtmlMeta({
         }
       />
       <meta
+        key="og_title"
         property="og:title"
         content={
           noSuffix || sharingTitle === HTML_META_DEFAULT_TITLE
@@ -46,6 +48,7 @@ export default function HtmlMeta({
         }
       />
       <meta
+        key="twitter_title"
         name="twitter:title"
         content={
           noSuffix || sharingTitle === HTML_META_DEFAULT_TITLE
@@ -54,11 +57,19 @@ export default function HtmlMeta({
         }
       />
 
-      <meta name="description" content={description} />
-      <meta property="og:description" content={description} />
-      <meta name="twitter:description" content={description} />
-      <meta property="og:image" content={shareImage} />
-      <meta property="twitter:image" content={shareImage} />
+      <meta key="description" name="description" content={description} />
+      <meta
+        key="og_description"
+        property="og:description"
+        content={description}
+      />
+      <meta
+        key="twitter_description"
+        name="twitter:description"
+        content={description}
+      />
+      <meta key="og_image" property="og:image" content={shareImage} />
+      <meta key="twitter_image" property="twitter:image" content={shareImage} />
     </Head>
   );
 }
