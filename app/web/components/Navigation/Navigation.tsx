@@ -29,6 +29,7 @@ import {
   eventsRoute,
   faqRoute,
   featurePreviewRoute,
+  forumURL,
   handbookRoute,
   loginRoute,
   logoutRoute,
@@ -47,6 +48,7 @@ import {
   DASHBOARD,
   DONATE,
   EVENTS,
+  FORUM,
   HELP,
   LOG_OUT,
   MAP_SEARCH,
@@ -102,9 +104,13 @@ const loggedInDrawerMenu = (pingData: PingData): Array<MenuItemProps> => [
     route: eventsRoute,
   },
   {
+    name: FORUM,
+    route: forumURL,
+    externalLink: true,
+  },
+  {
     name: HELP,
     route: handbookRoute,
-    externalLink: true,
   },
   {
     name: LOG_OUT,
@@ -134,6 +140,11 @@ const loggedInNavMenu = (pingData: PingData): Array<MenuItemProps> => [
     name: EVENTS,
     route: eventsRoute,
   },
+  {
+    name: FORUM,
+    route: forumURL,
+    externalLink: true,
+  },
 ];
 
 const loggedOutNavMenu = (): Array<MenuItemProps> => [
@@ -156,6 +167,11 @@ const loggedOutNavMenu = (): Array<MenuItemProps> => [
   {
     name: "The Team",
     route: teamRoute,
+  },
+  {
+    name: FORUM,
+    route: forumURL,
+    externalLink: true,
   },
 ];
 
@@ -188,6 +204,11 @@ const loggedOutDrawerMenu = (): Array<MenuItemProps> => [
     name: "The Team",
     route: teamRoute,
   },
+  {
+    name: FORUM,
+    route: forumURL,
+    externalLink: true,
+  },
 ];
 
 // shown on desktop and big screens in the top right corner when logged in
@@ -217,6 +238,10 @@ const loggedInMenuDropDown = (pingData: PingData): Array<MenuItemProps> => [
   {
     name: HELP,
     route: handbookRoute,
+  },
+  {
+    name: FORUM,
+    route: forumURL,
     externalLink: true,
   },
   {
