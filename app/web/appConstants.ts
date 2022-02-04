@@ -15,6 +15,8 @@ export const LOG_OUT = "Log out";
 export const OUR_PLAN = "Our Plan";
 export const OUR_TEAM = "Our Team";
 export const TOWN_HALL = "Town Hall";
+export const WEEKLY_SOCIAL_TUESDAY = "Tuesday Social";
+export const WEEKLY_SOCIAL_SUNDAY = "Sunday Social";
 export const VOLUNTEER = "Volunteer";
 
 export const DASHBOARD = "Dashboard";

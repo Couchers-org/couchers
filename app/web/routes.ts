@@ -17,6 +17,10 @@ export const githubURL = "https://github.com/Couchers-org/couchers";
 export const forumURL = "https://community.couchers.org/";
 export const townHallURL =
   "https://community.couchers.org/t/open-town-hall/1291";
+export const sundaySocialURL =
+  "https://community.couchers.org/t/weekly-online-event-sunday/684";
+export const tuesdaySocialURL =
+  "https://community.couchers.org/t/weekly-online-event-tuesday/1098";
 
 export const dashboardRoute = "/dashboard";
 export const blogRoute = "/blog";
