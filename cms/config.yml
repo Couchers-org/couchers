@@ -41,7 +41,7 @@ collections:
         name: share_image
         widget: image
         allow_multiple: false
-        media_folder: /app/web/public/img
+        media_folder: /app/web/public/img/blog
         hint: SEO image
       - label: Content
         name: body
