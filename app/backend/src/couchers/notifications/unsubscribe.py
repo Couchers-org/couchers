@@ -20,7 +20,7 @@ def _generate_unsubscribe_link(payload):
     msg = payload.SerializeToString()
     sig = generate_hash_signature(message=msg, key=UNSUBSCRIBE_KEY)
     return urls.unsubscribe_link(
-        payload=urlsafe_b64encode(msg).decode("utf8"), sig=urlsafe_b64encode(sig).decode("utf8")
+        payload=urlsafe_b64encode(msg).decode("ascii"), sig=urlsafe_b64encode(sig).decode("ascii")
     )
 
 
@@ -58,6 +58,9 @@ def generate_unsub_topic_action(notification):
 
 
 def unsubscribe(request, context):
+    """
+    Returns a response string or uses context.abort upon error
+    """
     if not verify_hash_signature(message=request.payload, key=UNSUBSCRIBE_KEY, sig=request.sig):
         context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.WRONG_SIGNATURE)
     payload = unsubscribe_pb2.UnsubscribePayload.FromString(request.payload)

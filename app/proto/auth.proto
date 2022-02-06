@@ -249,10 +249,12 @@ message ContributorForm {
 }
 
 message UnsubscribeReq {
+  // frontend should decode the base64 in urls and send raw bytes
   bytes payload = 1;
   bytes sig = 2;
 }
 
 message UnsubscribeRes {
+  // returned only on success, otherwise errors out the RPC
   string response = 1;
 }
