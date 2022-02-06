@@ -12,8 +12,8 @@ import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 export interface UnsubscribeParams {
-  payload: string;
-  sig: string;
+  payload?: string;
+  sig?: string;
 }
 
 export default function Unsubscribe() {
@@ -30,15 +30,13 @@ export default function Unsubscribe() {
     isSuccess,
     mutate: unsubscribe,
   } = useMutation<UnsubscribeRes.AsObject, RpcError, UnsubscribeParams>(
-    async ({ payload, sig }) => service.auth.unsubscribe(payload, sig)
-  );
-
-  const onClick = () => {
-    if (payload === undefined || sig === undefined) {
-      throw Error("Missing payload or sig");
+    async ({ payload, sig }) => {
+      if (payload === undefined || sig === undefined) {
+        throw Error("Missing payload or sig");
+      }
+      return await service.auth.unsubscribe(payload, sig);
     }
-    return unsubscribe({ payload, sig });
-  };
+  );
 
   return (
     <>
@@ -52,7 +50,7 @@ export default function Unsubscribe() {
         </Alert>
       )}
       {isSuccess && <Alert severity="success">{data!.response}</Alert>}
-      <Button onClick={onClick} loading={isLoading}>
+      <Button onClick={() => unsubscribe({ payload, sig })} loading={isLoading}>
         {t("auth:unsubscribe.button_text")}
       </Button>
     </>
