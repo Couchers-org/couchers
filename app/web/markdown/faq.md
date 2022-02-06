@@ -1,5 +1,6 @@
 ---
 title: Frequently asked questions
+type: general
 ---
 
 ## Commonly asked questions from the couch surfing community

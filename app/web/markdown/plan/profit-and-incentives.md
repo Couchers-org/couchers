@@ -1,6 +1,7 @@
 ---
 title: Our Non-Profit Plan
 crumb: Non-Profit Plan
+type: plan
 ---
 
 <span class="tag tag-governance tag-large">Governance</span>

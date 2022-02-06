@@ -2,6 +2,7 @@
 title: Community-first Framework and Improved Verification
 subtitle: "Our plan to fix the problem of [Neglected communities](/issues/communities-and-trust)"
 crumb: Community-first framework
+type: plan
 ---
 
 <span class="tag tag-governance tag-large">Governance</span>
