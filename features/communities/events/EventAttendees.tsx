@@ -1,6 +1,7 @@
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { useState } from "react";
 
-import { ATTENDEES, NO_ATTENDEES } from "./constants";
 import EventAttendeesDialog from "./EventAttendeesDialog";
 import EventUsers from "./EventUsers";
 import { useEventAttendees } from "./hooks";
@@ -18,12 +19,13 @@ export default function EventAttendees({ eventId }: EventAttendeesProps) {
     isAttendeesRefetching,
     hasNextPage,
   } = useEventAttendees({ eventId, type: "summary" });
+  const { t } = useTranslation([COMMUNITIES]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   return (
     <>
       <EventUsers
-        emptyState={NO_ATTENDEES}
+        emptyState={t("communities:no_attendees")}
         error={error}
         hasNextPage={hasNextPage}
         isLoading={isLoading}
@@ -31,7 +33,7 @@ export default function EventAttendees({ eventId }: EventAttendeesProps) {
         onSeeAllClick={() => setIsDialogOpen(true)}
         users={attendees}
         userIds={attendeesIds}
-        title={ATTENDEES}
+        title={t("communities:attendees")}
       />
       <EventAttendeesDialog
         eventId={eventId}
