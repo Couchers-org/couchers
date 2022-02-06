@@ -2,6 +2,7 @@
 title: Building it Right
 subtitle: "Our plan to fix the problem of [the Bugs and app issues](/issues/the-build)"
 crumb: Building it right
+type: plan
 ---
 
 <span class="tag tag-tech tag-large">Technology</span>

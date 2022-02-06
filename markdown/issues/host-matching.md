@@ -2,6 +2,7 @@
 title: Host Finding and the Super-Host Effect
 bustitle: "Our plan to fix it: [Better host finding](/plan/host-matching)"
 crumb: The super-host effect
+type: issue
 ---
 
 <span class="tag tag-design tag-large">Design</span>

@@ -2,6 +2,7 @@
 title: "Join the team: become a Contributor"
 crumb: Volunteer
 description: "Join the global Couchers.org contributor team and work on a high-impact, meaningful project that you love!"
+type: general
 ---
 
 Thank you for taking an interest in joining our worldwide team of couch surfers who are bringing this new community-run platform to life.

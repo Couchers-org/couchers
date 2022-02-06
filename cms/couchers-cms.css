@@ -1,0 +1,10 @@
+html,
+body {
+  color: #444;
+  font-size: 14px;
+  font-family: "Ubuntu", sans-serif;
+}
+
+body {
+  padding: 20px;
+}
