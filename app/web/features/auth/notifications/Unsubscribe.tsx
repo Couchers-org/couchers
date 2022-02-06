@@ -33,28 +33,28 @@ export default function Unsubscribe() {
     isSuccess,
     mutate: unsubscribe,
   } = useMutation<UnsubscribeRes.AsObject, RpcError, UnsubscribeParams>(
-    async ({ payload, sig }) => {
-      return await service.auth.unsubscribe(payload, sig);
-    }
+    async ({ payload, sig }) => service.auth.unsubscribe(payload, sig)
   );
 
   return (
     <>
-    <HtmlMeta title={t("auth:unsubscribe.title")} />
-    <PageTitle>{t("auth:unsubscribe.title")}</PageTitle>
-    {isLoading ? 
-          <CircularProgress />
-          :(isSuccess ? (
-            <Alert severity="success">{data?.response || t("global:success")}</Alert>
-          ) : error ? (
-              <Alert severity="error">
-                {t("auth:unsubscribe.error_message", {
-                  message: error.message,
-                })}
-              </Alert>
-            ): <Button onClick={() => unsubscribe({payload, sig})}>{t("auth:unsubscribe.button_text")}</Button>
-          )
-        }
+      <HtmlMeta title={t("auth:unsubscribe.title")} />
+      <PageTitle>{t("auth:unsubscribe.title")}</PageTitle>
+      {error && (
+        <Alert severity="error">
+          {t("auth:unsubscribe.error_message", {
+            message: error.message,
+          })}
+        </Alert>
+      )}
+      {isSuccess && (
+        <Alert severity="success">
+          {data?.response || t("global:success")}
+        </Alert>
+      )}
+      <Button onClick={() => unsubscribe({ payload, sig })} loading={isLoading}>
+        {t("auth:unsubscribe.button_text")}
+      </Button>
     </>
-  )
+  );
 }
