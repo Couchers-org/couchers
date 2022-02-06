@@ -2,6 +2,7 @@
 title: Couchers, Inc.
 crumb: Foundation
 type: general
+description: Read about the two non-profit organizations supporting the Couchers.org project
 ---
 
 The Couchers.org project is supported by Couchers, Inc. worldwide, and the Couchers.org Foundation in Australia. Both organizations are non-profits formed for the exclusive purpose of furthering the Couchers.org project.
