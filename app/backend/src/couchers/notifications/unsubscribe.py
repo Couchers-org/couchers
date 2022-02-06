@@ -5,7 +5,7 @@ import grpc
 
 from couchers import errors, urls
 from couchers.constants import DATETIME_INFINITY
-from couchers.crypto import UNSUBSCRIBE_KEY, generate_hash_signature, verify_hash_signature
+from couchers.crypto import UNSUBSCRIBE_KEY_NAME, generate_hash_signature, get_secret, verify_hash_signature
 from couchers.db import session_scope
 from couchers.models import GroupChatSubscription, NotificationDeliveryType, User
 from couchers.notifications import settings
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def _generate_unsubscribe_link(payload):
     msg = payload.SerializeToString()
-    sig = generate_hash_signature(message=msg, key=UNSUBSCRIBE_KEY)
+    sig = generate_hash_signature(message=msg, key=get_secret(UNSUBSCRIBE_KEY_NAME))
     return urls.unsubscribe_link(
         payload=urlsafe_b64encode(msg).decode("ascii"), sig=urlsafe_b64encode(sig).decode("ascii")
     )
@@ -61,7 +61,7 @@ def unsubscribe(request, context):
     """
     Returns a response string or uses context.abort upon error
     """
-    if not verify_hash_signature(message=request.payload, key=UNSUBSCRIBE_KEY, sig=request.sig):
+    if not verify_hash_signature(message=request.payload, key=get_secret(UNSUBSCRIBE_KEY_NAME), sig=request.sig):
         context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.WRONG_SIGNATURE)
     payload = unsubscribe_pb2.UnsubscribePayload.FromString(request.payload)
     with session_scope() as session:

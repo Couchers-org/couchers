@@ -80,11 +80,11 @@ def verify_token(a: str, b: str):
     return secrets.compare_digest(a, b)
 
 
-def derive_secret(name):
+def get_secret(name):
     """
     Derives a secret key from the root secret using a key derivation function
     """
     return generate_hash_signature(name.encode("utf8"), config["SECRET"])
 
 
-UNSUBSCRIBE_KEY = derive_secret("unsubscribe")
+UNSUBSCRIBE_KEY_NAME = "unsubscribe"
