@@ -5,15 +5,17 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import update
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.crypto import hash_password, urlsafe_secure_token, verify_password, verify_token
 from couchers.db import session_scope
-from couchers.models import AccountDeletionToken, ContributeOption, ReasonForDeletion, User
+from couchers.models import AccountDeletionToken, ContributeOption, ContributorForm, ReasonForDeletion, User
+from couchers.notifications.notify import notify
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
+    maybe_send_contributor_form_email,
     send_account_deletion_confirmation_email,
     send_account_deletion_successful_email,
     send_account_recovery_email,
@@ -96,7 +98,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 phone=user.phone if user.phone_is_verified() else "",
                 profile_complete=user.has_completed_profile,
                 timezone=user.timezone,
-                **auth_info
+                **auth_info,
             )
 
     def ChangePassword(self, request, context):
@@ -125,6 +127,16 @@ class Account(account_pb2_grpc.AccountServicer):
             session.commit()
 
             send_password_changed_email(user)
+
+            notify(
+                user_id=user.id,
+                topic="password",
+                key="",
+                action="change",
+                icon="wrench",
+                title=f"Your password was changed.",
+                link=urls.account_settings_link(),
+            )
 
         return empty_pb2.Empty()
 
@@ -165,6 +177,16 @@ class Account(account_pb2_grpc.AccountServicer):
                 user.need_to_confirm_via_old_email = False
                 send_email_changed_notification_email(user)
                 send_email_changed_confirmation_to_new_email(user)
+
+                notify(
+                    user_id=user.id,
+                    topic="email_address",
+                    key="",
+                    action="change",
+                    icon="wrench",
+                    title=f"Your email was changed.",
+                    link=urls.account_settings_link(),
+                )
             else:
                 user.old_email_token = urlsafe_secure_token()
                 user.old_email_token_created = now()
@@ -176,25 +198,37 @@ class Account(account_pb2_grpc.AccountServicer):
         # session autocommit
         return empty_pb2.Empty()
 
+    def FillContributorForm(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+            form = request.contributor_form
+
+            form = ContributorForm(
+                user=user,
+                ideas=form.ideas or None,
+                features=form.features or None,
+                experience=form.experience or None,
+                contribute=contributeoption2sql[form.contribute],
+                contribute_ways=form.contribute_ways,
+                expertise=form.expertise or None,
+            )
+
+            session.add(form)
+            session.flush()
+            maybe_send_contributor_form_email(form)
+
+            user.filled_contributor_form = True
+
+        return empty_pb2.Empty()
+
     def GetContributorFormInfo(self, request, context):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
             return account_pb2.GetContributorFormInfoRes(
                 filled_contributor_form=user.filled_contributor_form,
-                username=user.username,
-                name=user.name,
-                email=user.email,
-                age=user.age,
-                gender=user.gender,
-                location=user.city,
             )
-
-    def MarkContributorFormFilled(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            user.filled_contributor_form = request.filled_contributor_form
-        return empty_pb2.Empty()
 
     def ChangePhone(self, request, context):
         phone = request.phone
@@ -226,6 +260,17 @@ class Account(account_pb2_grpc.AccountServicer):
                 user.phone_verification_token = token
                 user.phone_verification_sent = now()
                 user.phone_verification_attempts = 0
+
+                notify(
+                    user_id=user.id,
+                    topic="phone_number",
+                    key="",
+                    action="change",
+                    icon="wrench",
+                    title=f"Your phone number was changed.",
+                    link=urls.account_settings_link(),
+                )
+
                 return empty_pb2.Empty()
 
         context.abort(grpc.StatusCode.UNIMPLEMENTED, result)
@@ -269,6 +314,16 @@ class Account(account_pb2_grpc.AccountServicer):
             user.phone_verification_token = None
             user.phone_verification_verified = now()
             user.phone_verification_attempts = 0
+
+            notify(
+                user_id=user.id,
+                topic="phone_number",
+                key="",
+                action="verify",
+                icon="wrench",
+                title=f"Your phone number was verified.",
+                link=urls.account_settings_link(),
+            )
 
         return empty_pb2.Empty()
 

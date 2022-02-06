@@ -247,7 +247,7 @@ def _search_events(session, search_statement, title_only, next_rank, page_size, 
     return [
         search_pb2.Result(
             rank=rank,
-            event=event_to_pb(occurrence, context),
+            event=event_to_pb(session, occurrence, context),
             snippet=snippet,
         )
         for occurrence, rank, snippet in occurrences

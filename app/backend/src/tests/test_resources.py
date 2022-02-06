@@ -14,7 +14,17 @@ def test_GetTermsOfService():
     with resources_session() as api:
         res = api.GetTermsOfService(empty_pb2.Empty()).terms_of_service
         assert len(res) > 100
-        assert "couchers.org foundation" in res.lower()
+        assert "couchers, inc." in res.lower()
+
+
+def test_GetCommunityGuidelines():
+    # make sure it works and we get out a bunch of text
+    with resources_session() as api:
+        res = api.GetCommunityGuidelines(empty_pb2.Empty()).community_guidelines
+        assert len(res) == 4
+        assert res[2].title == "Be safe and sensible"
+        assert "inappropriate content" in res[2].guideline
+        assert "stroke" in res[2].icon_svg
 
 
 def test_GetRegions(db):

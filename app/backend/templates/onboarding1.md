@@ -2,7 +2,7 @@
 subject: "Welcome to Couchers.org and the future of couch surfing"
 ---
 
-{% from "macros.html" import button, link, support_email %}
+{% from "macros.html" import button, link, support_email, email_link, newline %}
 
 Hi {{ user.name|couchers_escape }}!
 
@@ -20,7 +20,7 @@ Please take some time to explore the platform. As a first step, please head to {
 
 Otherwise, please share the link with any of your couch surfing friends that you trust! This platform can only grow with your help bringing the best people over to start it.
 
-Link: <{{ app_link|couchers_escape }}>
+Link: {{ link(app_link, html)|couchers_safe }}
 
 The platform is under rapid development, and features are actively being built by our amazing team of Couchers.org contributors around the world. If there's some features you want to see like events, forums, hangouts or public trips, you'll be happy to hear that we're going to build them all, and you'll see some features come out very soon! As you explore the platform, please report any bugs that you see by hitting the "Report a problem" button in the top right corner.
 
@@ -37,12 +37,6 @@ Thanks so much for joining, especially this early. We're really excited to make 
 
 Best,
 
-{% if html %}
-Itsi from Couchers.org<br />
-Co-founder and Community Team Lead<br />
-<a href="mailto:itsi@couchers.org">itsi@couchers.org</a> (always feel free to shoot me an email)
-{% else %}
-Itsi from Couchers.org
-Co-founder and Community Team Lead
-<itsi@couchers.org> (always feel free to shoot me an email)
-{% endif %}
+Itsi from Couchers.org{{ newline(html)|couchers_safe }}
+Co-founder and Community Team Lead{{ newline(html)|couchers_safe }}
+{{ email_link("itsi@couchers.org", html)|couchers_safe }} (always feel free to shoot me an email)

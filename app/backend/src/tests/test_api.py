@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Complaint, FriendRelationship, FriendStatus
+from couchers.models import FriendRelationship, FriendStatus
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, to_aware_datetime
 from proto import api_pb2, jail_pb2
@@ -65,8 +65,8 @@ def test_ping(db):
     assert res.user.things_i_like == user.things_i_like
     assert set(language_ability.code for language_ability in res.user.language_abilities) == set(["fin", "fra"])
     assert res.user.about_place == user.about_place
-    assert res.user.regions_visited == ["FIN", "REU"]
-    assert res.user.regions_lived == ["EST", "FRA"]
+    assert res.user.regions_visited == ["FIN", "REU", "CHE"]  # Tests alphabetization by region name
+    assert res.user.regions_lived == ["EST", "FRA", "ESP"]  # Ditto
     assert res.user.additional_information == user.additional_information
 
     assert res.user.friends == api_pb2.User.FriendshipStatus.NA
@@ -215,8 +215,8 @@ def test_update_profile(db):
                         )
                     ],
                 ),
-                regions_visited=api_pb2.RepeatedStringValue(value=["CXR", "NAM"]),
-                regions_lived=api_pb2.RepeatedStringValue(value=["USA", "ITA"]),
+                regions_visited=api_pb2.RepeatedStringValue(value=["CXR", "FIN"]),
+                regions_lived=api_pb2.RepeatedStringValue(value=["USA", "EST"]),
                 additional_information=api_pb2.NullableStringValue(value="I <3 Couchers"),
             )
         )
@@ -240,8 +240,8 @@ def test_update_profile(db):
         assert user_details.language_abilities[0].code == "eng"
         assert user_details.language_abilities[0].fluency == api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT
         assert user_details.additional_information == "I <3 Couchers"
-        assert user_details.regions_visited == ["CXR", "NAM"]
-        assert user_details.regions_lived == ["ITA", "USA"]
+        assert user_details.regions_visited == ["CXR", "FIN"]
+        assert user_details.regions_lived == ["EST", "USA"]
 
         # Test unset values
         api.UpdateProfile(
@@ -815,41 +815,6 @@ def test_reject_friend_request(db):
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert res.sent[0].user_id == user2.id
-
-
-def test_reporting(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
-
-    with api_session(token1) as api:
-        res = api.Report(
-            api_pb2.ReportReq(reported_user_id=user2.id, reason="reason text", description="description text")
-        )
-    assert isinstance(res, empty_pb2.Empty)
-
-    with session_scope() as session:
-        entries = session.execute(select(Complaint)).scalars().all()
-
-        assert len(entries) == 1
-        assert entries[0].author_user_id == user1.id
-        assert entries[0].reported_user_id == user2.id
-        assert entries[0].reason == "reason text"
-        assert entries[0].description == "description text"
-
-    # Test that reporting oneself and reporting nonexisting user fails
-    report_req = api_pb2.ReportReq(reported_user_id=user1.id, reason="foo", description="bar")
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.Report(report_req)
-    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == errors.CANT_REPORT_SELF
-
-    report_req = api_pb2.ReportReq(reported_user_id=0x7FFFFFFFFFFFFFFF, reason="foo", description="bar")
-    with api_session(token1) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.Report(report_req)
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.USER_NOT_FOUND
 
 
 def test_hosting_preferences(db):

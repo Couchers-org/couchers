@@ -1,0 +1,110 @@
+{
+  "change_email_form": {
+    "title": "更改邮箱",
+    "current_email_message": "你当前的邮箱地址是：<2>{{email}}</2>。",
+    "success_message": "你的邮箱更改申请已提交，查阅邮箱，完成更改。",
+    "current_password": "当前密码",
+    "new_email": "新邮箱地址"
+  },
+  "change_email_confirmation": {
+    "requires_confirmation_from_new_email": "非常感谢您，确认了之前的邮箱地址。为了完成更改，你还需要确认新的邮箱地址。",
+    "change_in_progress": "邮箱更改中……",
+    "success_message": "你的邮箱已经更改成功！",
+    "requires_confirmation_from_old_email": "非常感谢您，确认了新的邮箱地址。为了完成更改，你还需要确认之前的邮箱地址。",
+    "invalid_confirmation_state": "无效邮箱名称",
+    "error_message": "更改邮箱出错了：{{message}}"
+  },
+  "change_password_form": {
+    "confirm_password": "确认密码",
+    "title": "更改密码",
+    "password_changed_success": "您的密码已设好，我们给您的邮箱发了一封确认函。",
+    "old_password": "之前的密码",
+    "new_password": "新的密码",
+    "password_mismatch_error": "这与您在上面输入的密码不一样。"
+  },
+  "reset_password_form": {
+    "enter_email": "输入您的用户名或邮箱地址",
+    "success_message": "检查您的邮箱，里面有重置密码的链接！"
+  },
+  "login_page": {
+    "title": "登陆",
+    "header": "欢迎回家！",
+    "no_account_prompt": "还没有账号吗？<2>$t(global:sign_up)</2>"
+  },
+  "basic_sign_up_form": {
+    "header": "开始旅程吧！",
+    "existing_user_prompt": "已经有账号了吗？<2>$t(global:login)</2>",
+    "sign_up_agreement_explainer": "如果继续，将表示您已确认我们的 <2>服务条款</2>，其中也包括我们关于cookie、邮箱、数据信息的处理方法。"
+  },
+  "account_form": {
+    "header": "您的账号详情",
+    "username": {
+      "field_label": "用户名",
+      "required_error": "输入您的用户名",
+      "username_taken_error": "用户名已被占用。",
+      "validation_error": "用户名只可以用英文字母开头，之后跟随英文字母、数字或下划线_。"
+    },
+    "birthday": {
+      "field_label": "生日",
+      "required_error": "输入您的生日",
+      "validation_error": "生日得是过去存在的一天。"
+    },
+    "hosting_status": {
+      "field_label": "接待朋友的喜好",
+      "can_host": "可以接待",
+      "maybe": "可能可以接待",
+      "cant_host": "无法接待"
+    },
+    "gender": {
+      "field_label": "我是……",
+      "required_error": "请选择您的性别",
+      "man": "男性",
+      "woman": "女性",
+      "non_binary": "非二元性別的"
+    },
+    "tos_prompt": "如果需要继续，请您阅读并且接受<1></1>。",
+    "tos_accept_label": "我接受$t(global:terms_of_service)。"
+  },
+  "basic_form": {
+    "name": {
+      "field_label": "您的名字",
+      "empty_error": "请输入您的名字",
+      "required_error": "名字里不能只填空白。"
+    },
+    "email": {
+      "field_label": "邮箱",
+      "empty_error": "请输入一个有效的邮箱地址",
+      "required_error": "邮箱不能为空。"
+    }
+  },
+  "location": {
+    "field_label": "您的位置",
+    "validation_error": "请选择一个有效的位置。"
+  },
+  "community_guidelines_form": {
+    "header": "社区守则",
+    "guideline": {
+      "required_error": "所有必填项都需要填好",
+      "checkbox_label": "好的，我明白了"
+    }
+  },
+  "sign_up_completed_title": "感谢您注册！",
+  "unhandled_sign_up_state": "注册流程发生了一点意外。",
+  "login_prompt": "点击此处登陆",
+  "about_us": "关于我们",
+  "your_local_time_is": "，基于此，您的本地时间已校准",
+  "change_birthdate": "修改生日",
+  "introduction_subtitle": "永久免费。社区至上。不为营利。面向未来。",
+  "introduction_title": "加入我们，与我们一同成长",
+  "reset_password": "重置密码",
+  "reset_password_error": "重置密码错误：{{message}}",
+  "you_were_logged_out": "您已退出账号。",
+  "jail": {
+    "jail_tos_text": "我们更新了服务条款。要继续的话，清 "
+  },
+  "check_email_for_link": "检查您的邮箱，找一找登陆链接，点击登陆！:)",
+  "forgot_password": "忘记密码了？",
+  "sign_up_completed_prompt": "我们给您的邮箱发了一封带有确认链接的邮件，请点击链接，激活账号。",
+  "sign_up_confirmed_prompt": "完成啦！如果页面没有自动跳转，您可以直接登陆账号。",
+  "reset_password_success": "您的密码已经被重置！待您用用户名或邮箱登陆后，我们会给您发一封邮件——点击邮件里的链接，就能见证奇迹。"
+}

@@ -26,7 +26,14 @@ from sqlalchemy.orm import backref, column_property, declarative_base, relations
 from sqlalchemy.sql import func, text
 
 from couchers.config import config
-from couchers.constants import EMAIL_REGEX, GUIDELINES_VERSION, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
+from couchers.constants import (
+    DATETIME_INFINITY,
+    DATETIME_MINUS_INFINITY,
+    EMAIL_REGEX,
+    GUIDELINES_VERSION,
+    PHONE_VERIFICATION_LIFETIME,
+    TOS_VERSION,
+)
 from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
 
 meta = MetaData(
@@ -110,6 +117,9 @@ class User(Base):
     city = Column(String, nullable=False)
     hometown = Column(String, nullable=True)
 
+    regions_visited = relationship("Region", secondary="regions_visited", order_by="Region.name")
+    regions_lived = relationship("Region", secondary="regions_lived", order_by="Region.name")
+
     timezone_area = relationship(
         "TimezoneArea",
         primaryjoin="func.ST_Contains(foreign(TimezoneArea.geom), User.geom).as_comparison(1, 2)",
@@ -191,6 +201,8 @@ class User(Base):
 
     added_to_mailing_list = Column(Boolean, nullable=False, server_default="false")
 
+    last_digest_sent = Column(DateTime(timezone=True), nullable=True)
+
     # for changing their email
     new_email = Column(String, nullable=True)
     old_email_token = Column(String, nullable=True)
@@ -234,7 +246,14 @@ class User(Base):
 
     # the stripe customer identifier if the user has donated to Couchers
     # e.g. cus_JjoXHttuZopv0t
+    # for new US entity
     stripe_customer_id = Column(String, nullable=True)
+    # for old AU entity
+    stripe_customer_id_old = Column(String, nullable=True)
+
+    # True if the user has opted in to get notifications using the new notification system
+    # This column will be removed in the future when notifications are enabled for everyone and come out of preview
+    new_notifications_enabled = Column(Boolean, nullable=False, server_default=text("false"))
 
     # Verified phone numbers should be unique
     Index(
@@ -300,6 +319,7 @@ class User(Base):
             (self.accepted_tos < TOS_VERSION)
             | (self.accepted_community_guidelines < GUIDELINES_VERSION)
             | self.is_missing_location
+            | (self.hashed_password == None)
         )
 
     @hybrid_property
@@ -398,7 +418,7 @@ class Invoice(Base):
 
     amount = Column(Float, nullable=False)
 
-    stripe_payment_intent_id = Column(String, nullable=False)
+    stripe_payment_intent_id = Column(String, nullable=False, unique=True)
     stripe_receipt_url = Column(String, nullable=False)
 
     user = relationship("User", backref="invoices")
@@ -435,7 +455,7 @@ class RegionVisited(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
 
-    user = relationship("User", backref=backref("regions_visited", order_by=region_code))
+    user = relationship("User")
     region = relationship("Region")
 
 
@@ -447,7 +467,7 @@ class RegionLived(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
 
-    user = relationship("User", backref=backref("regions_lived", order_by=region_code))
+    user = relationship("User")
     region = relationship("Region")
 
 
@@ -499,15 +519,39 @@ class ContributorForm(Base):
     id = Column(BigInteger, primary_key=True)
 
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     ideas = Column(String, nullable=True)
     features = Column(String, nullable=True)
     experience = Column(String, nullable=True)
     contribute = Column(Enum(ContributeOption), nullable=True)
-    contribute_ways = Column(ARRAY(String), nullable=True)
+    contribute_ways = Column(ARRAY(String), nullable=False)
     expertise = Column(String, nullable=True)
 
     user = relationship("User", backref="contributor_forms")
+
+    @hybrid_property
+    def is_filled(self):
+        """
+        Whether the form counts as having been filled
+        """
+        return (
+            (self.ideas != None)
+            | (self.features != None)
+            | (self.experience != None)
+            | (self.contribute != None)
+            | (self.contribute_ways != [])
+            | (self.expertise != None)
+        )
+
+    @property
+    def should_notify(self):
+        """
+        If this evaluates to true, we send an email to the recruitment team.
+
+        We currently send if expertise is listed, or if they list a way to help outside of a set list
+        """
+        return (self.expertise != None) | (not set(self.contribute_ways).issubset(set(["community", "blog", "other"])))
 
 
 class SignupFlow(Base):
@@ -671,6 +715,13 @@ class UserSession(Base):
 
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
+    # sessions are either "api keys" or "session cookies", otherwise identical
+    # an api key is put in the authorization header (e.g. "authorization: Bearer <token>")
+    # a session cookie is set in the "couchers-sesh" cookie (e.g. "cookie: couchers-sesh=<token>")
+    # when a session is created, it's fixed as one or the other for security reasons
+    # for api keys to be useful, they should be long lived and have a long expiry
+    is_api_key = Column(Boolean, nullable=False, server_default=text("false"))
+
     # whether it's a long-lived or short-lived session
     long_lived = Column(Boolean, nullable=False)
 
@@ -774,8 +825,29 @@ class GroupChatSubscription(Base):
 
     last_seen_message_id = Column(BigInteger, nullable=False, default=0)
 
+    # when this chat is muted until, DATETIME_INFINITY for "forever"
+    muted_until = Column(DateTime(timezone=True), nullable=False, server_default=DATETIME_MINUS_INFINITY.isoformat())
+
     user = relationship("User", backref="group_chat_subscriptions")
     group_chat = relationship("GroupChat", backref=backref("subscriptions", lazy="dynamic"))
+
+    def muted_display(self):
+        """
+        Returns (muted, muted_until) display values:
+        1. If not muted, returns (False, None)
+        2. If muted forever, returns (True, None)
+        3. If muted until a given datetime returns (True, dt)
+        """
+        if self.muted_until < now():
+            return (False, None)
+        elif self.muted_until == DATETIME_INFINITY:
+            return (True, None)
+        else:
+            return (True, self.muted_until)
+
+    @hybrid_property
+    def is_muted(self):
+        return self.muted_until > func.now()
 
     def __repr__(self):
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
@@ -852,26 +924,38 @@ class Message(Base):
         return f"Message(id={self.id}, time={self.time}, text={self.text}, author={self.author}, conversation={self.conversation})"
 
 
-class Complaint(Base):
+class ContentReport(Base):
     """
-    A record that a user has reported another user to admin
+    A piece of content reported to admins
     """
 
-    __tablename__ = "complaints"
+    __tablename__ = "content_reports"
 
     id = Column(BigInteger, primary_key=True)
 
-    # timezone should always be UTC
     time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    author_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    reported_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    # the user who reported or flagged the content
+    reporting_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
+    # reason, e.g. spam, inappropriate, etc
     reason = Column(String, nullable=False)
+    # a short description
     description = Column(String, nullable=False)
 
-    author_user = relationship("User", foreign_keys="Complaint.author_user_id")
-    reported_user = relationship("User", foreign_keys="Complaint.reported_user_id")
+    # a reference to the content, see //docs/content_ref.md
+    content_ref = Column(String, nullable=False)
+    # the author of the content (e.g. the user who wrote the comment itself)
+    author_user_id = Column(ForeignKey("users.id"), nullable=False)
+
+    # details of the browser, if available
+    user_agent = Column(String, nullable=False)
+    # the URL the user was on when reporting the content
+    page = Column(String, nullable=False)
+
+    # see comments above for reporting vs author
+    reporting_user = relationship("User", foreign_keys="ContentReport.reporting_user_id")
+    author_user = relationship("User", foreign_keys="ContentReport.author_user_id")
 
 
 class Email(Base):
@@ -896,6 +980,26 @@ class Email(Base):
     html = Column(String, nullable=False)
 
 
+class SMS(Base):
+    """
+    Table of all sent SMSs for debugging purposes, etc.
+    """
+
+    __tablename__ = "smss"
+
+    id = Column(BigInteger, primary_key=True)
+
+    # timezone should always be UTC
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    # AWS message id
+    message_id = Column(String, nullable=False)
+
+    # the SMS sender ID sent to AWS, name that the SMS appears to come from
+    sms_sender_id = Column(String, nullable=False)
+    number = Column(String, nullable=False)
+    message = Column(String, nullable=False)
+
+
 class HostRequest(Base):
     """
     A request to stay with a host
@@ -904,8 +1008,8 @@ class HostRequest(Base):
     __tablename__ = "host_requests"
 
     conversation_id = Column("id", ForeignKey("conversations.id"), nullable=False, primary_key=True)
-    from_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-    to_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    surfer_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    host_user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
     # TODO: proper timezone handling
     timezone = "Etc/UTC"
@@ -917,35 +1021,36 @@ class HostRequest(Base):
     # timezone aware start and end times of the request, can be compared to now()
     start_time = column_property(date_in_timezone(from_date, timezone))
     end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))
+    start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))
     # notice 1 day for midnight at the *end of the day*, then 14 days to write a ref
     end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))
 
     status = Column(Enum(HostRequestStatus), nullable=False)
 
-    to_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
-    from_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
+    host_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
+    surfer_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
 
     # number of reference reminders sent out
-    to_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
-    from_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
+    host_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
+    surfer_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
 
-    from_user = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.from_user_id")
-    to_user = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.to_user_id")
+    surfer = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.surfer_user_id")
+    host = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.host_user_id")
     conversation = relationship("Conversation")
 
     @hybrid_property
     def can_write_reference(self):
         return (
-            (self.status == HostRequestStatus.confirmed)
-            & (now() >= self.end_time)
+            ((self.status == HostRequestStatus.confirmed) | (self.status == HostRequestStatus.accepted))
+            & (now() >= self.start_time_to_write_reference)
             & (now() <= self.end_time_to_write_reference)
         )
 
     @can_write_reference.expression
     def can_write_reference(cls):
         return (
-            (cls.status == HostRequestStatus.confirmed)
-            & (func.now() >= cls.end_time)
+            ((cls.status == HostRequestStatus.confirmed) | (cls.status == HostRequestStatus.accepted))
+            & (func.now() >= cls.start_time_to_write_reference)
             & (func.now() <= cls.end_time_to_write_reference)
         )
 
@@ -979,7 +1084,9 @@ class Reference(Base):
 
     host_request_id = Column(ForeignKey("host_requests.id"), nullable=True)
 
-    text = Column(String, nullable=True)  # plain text
+    text = Column(String, nullable=False)  # plain text
+    # text that's only visible to mods
+    private_text = Column(String, nullable=True)  # plain text
 
     rating = Column(Float, nullable=False)
     was_appropriate = Column(Boolean, nullable=False)
@@ -1019,6 +1126,13 @@ class Reference(Base):
             postgresql_where=(host_request_id != None),
         ),
     )
+
+    @property
+    def should_report(self):
+        """
+        If this evaluates to true, we send a report to the moderation team.
+        """
+        return self.rating <= 0.4 or not self.was_appropriate or self.private_text
 
 
 class InitiatedUpload(Base):
@@ -1690,6 +1804,14 @@ class BackgroundJobType(enum.Enum):
     send_reference_reminders = enum.auto()
     # payload: google.protobuf.Empty
     purge_account_deletion_tokens = enum.auto()
+    # payload: jobs.HandleNotificationPayload
+    handle_notification = enum.auto()
+    # payload: google.protobuf.Empty
+    handle_email_notifications = enum.auto()
+    # payload: google.protobuf.Empty
+    handle_email_digests = enum.auto()
+    # payload: jobs.GenerateMessageNotificationsPayload
+    generate_message_notifications = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
@@ -1743,6 +1865,124 @@ class BackgroundJob(Base):
 
     def __repr__(self):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
+
+
+class NotificationDeliveryType(enum.Enum):
+    # send push notification to mobile/web
+    push = enum.auto()
+    # send individual email immediately
+    email = enum.auto()
+    # send in digest
+    digest = enum.auto()
+
+
+dt = NotificationDeliveryType
+
+
+class NotificationTopicAction(enum.Enum):
+    def __init__(self, topic, action, defaults):
+        self.topic = topic
+        self.action = action
+        self.defaults = defaults
+
+    def unpack(self):
+        return self.topic, self.action
+
+    # topic, action, default delivery types
+    friend_request__send = ("friend_request", "send", [dt.email, dt.push, dt.digest])
+    friend_request__accept = ("friend_request", "accept", [dt.push, dt.digest])
+
+    # host requests
+    host_request__create = ("host_request", "create", [dt.email, dt.push, dt.digest])
+    host_request__accept = ("host_request", "accept", [dt.email, dt.push, dt.digest])
+    host_request__reject = ("host_request", "reject", [dt.push, dt.digest])
+    host_request__confirm = ("host_request", "confirm", [dt.email, dt.push, dt.digest])
+    host_request__cancel = ("host_request", "cancel", [dt.push, dt.digest])
+    host_request__message = ("host_request", "message", [dt.push, dt.digest])
+
+    # account settings
+    password__change = ("password", "change", [dt.email, dt.push, dt.digest])
+    email_address__change = ("email_address", "change", [dt.email, dt.push, dt.digest])
+    phone_number__change = ("phone_number", "change", [dt.email, dt.push, dt.digest])
+    phone_number__verify = ("phone_number", "verify", [dt.email, dt.push, dt.digest])
+    # reset password
+    account_recovery__start = ("account_recovery", "start", [dt.email, dt.push, dt.digest])
+    account_recovery__complete = ("account_recovery", "complete", [dt.email, dt.push, dt.digest])
+
+    # admin actions
+    gender__change = ("gender", "change", [dt.email, dt.push, dt.digest])
+    birthdate__change = ("birthdate", "change", [dt.email, dt.push, dt.digest])
+    api_key__create = ("api_key", "create", [dt.email, dt.push, dt.digest])
+
+    # group chats
+    chat__message = ("chat", "message", [dt.email, dt.push, dt.digest])
+
+
+class NotificationPreference(Base):
+    __tablename__ = "notification_preferences"
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    topic_action = Column(Enum(NotificationTopicAction), nullable=False)
+    delivery_type = Column(Enum(NotificationDeliveryType), nullable=False)
+    deliver = Column(Boolean, nullable=False)
+
+    user = relationship("User", foreign_keys="NotificationPreference.user_id")
+
+
+class Notification(Base):
+    """
+    Table for accumulating notifications until it is time to send email digest
+    """
+
+    __tablename__ = "notifications"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # recipient user id
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+
+    topic_action = Column(Enum(NotificationTopicAction), nullable=False)
+    key = Column(String, nullable=False)
+
+    avatar_key = Column(String, nullable=True)
+    icon = Column(String, nullable=True)  # the name (excluding .svg) in the resources/icons folder
+    title = Column(String, nullable=True)  # bold markup surrounded by double asterisks allowed, otherwise plain text
+    content = Column(String, nullable=True)  # bold markup surrounded by double asterisks allowed, otherwise plain text
+    link = Column(String, nullable=True)
+
+    user = relationship("User", foreign_keys="Notification.user_id")
+
+    @property
+    def topic(self):
+        return self.topic_action.topic
+
+    @property
+    def action(self):
+        return self.topic_action.action
+
+    @property
+    def plain_title(self):
+        # only bold is allowed
+        return self.title.replace("**", "")
+
+
+class NotificationDelivery(Base):
+    __tablename__ = "notification_deliveries"
+    __table_args__ = (UniqueConstraint("notification_id", "delivery_type"),)
+
+    id = Column(BigInteger, primary_key=True)
+    notification_id = Column(ForeignKey("notifications.id"), nullable=False, index=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    delivered = Column(DateTime(timezone=True), nullable=True)
+    read = Column(DateTime(timezone=True), nullable=True)
+    # todo: enum of "phone, web, digest"
+    delivery_type = Column(Enum(NotificationDeliveryType), nullable=False)
+    # todo: device id
+    # todo: receipt id, etc
+    notification = relationship("Notification", foreign_keys="NotificationDelivery.notification_id")
 
 
 class Language(Base):
@@ -1801,6 +2041,9 @@ class APICall(Base):
     __table_args__ = {"schema": "logging"}
 
     id = Column(BigInteger, primary_key=True)
+
+    # whether the call was made using an api key or session cookies
+    is_api_key = Column(Boolean, nullable=False, server_default=text("false"))
 
     # backend version (normally e.g. develop-31469e3), allows us to figure out which proto definitions were used
     # note that `default` is a python side default, not hardcoded into DB schema

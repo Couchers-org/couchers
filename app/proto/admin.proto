@@ -12,11 +12,18 @@ service Admin {
 
   rpc ChangeUserGender(ChangeUserGenderReq) returns (UserDetails) {}
 
+  rpc ChangeUserBirthdate(ChangeUserBirthdateReq) returns (UserDetails) {}
+
   rpc BanUser(BanUserReq) returns (UserDetails) {}
 
   rpc DeleteUser(DeleteUserReq) returns (UserDetails) {}
 
   rpc RecoverDeletedUser(RecoverDeletedUserReq) returns (UserDetails) {}
+
+  rpc CreateApiKey(CreateApiKeyReq) returns (CreateApiKeyRes) {
+    // Create an API key for a user. For security, we don't return the API key to the admin calling this API, rather
+    // it's sent to the user in an email
+  }
 
   rpc CreateCommunity(CreateCommunityReq) returns (org.couchers.api.communities.Community) {}
 }
@@ -26,6 +33,7 @@ message UserDetails {
   string username = 2;
   string email = 3;
   string gender = 4;
+  string birthdate = 7;
   bool banned = 5;
   bool deleted = 6;
 }
@@ -43,6 +51,12 @@ message ChangeUserGenderReq {
   string gender = 2;
 }
 
+message ChangeUserBirthdateReq {
+  // username, email, or user id
+  string user = 1;
+  string birthdate = 2; // in YYYY-MM-DD format
+}
+
 message BanUserReq {
   // username, email, or user id
   string user = 1;
@@ -57,6 +71,13 @@ message RecoverDeletedUserReq {
   // username, email, or user id
   string user = 1;
 }
+
+message CreateApiKeyReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message CreateApiKeyRes {}
 
 message CreateCommunityReq {
   string name = 1;

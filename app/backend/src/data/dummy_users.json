@@ -96,7 +96,7 @@
         "month": 5,
         "day": 22
       },
-      "languages": [["eng", "fluent"], ["fra", "fluent"], ["deu", "beginner"], ["zho", "beginner"]],
+      "languages": [["eng", "fluent"], ["fra", "fluent"], ["deu", "beginner"], ["cmn", "beginner"]],
       "occupation": "Musician",
       "about_me": "I hate travelling, I'm really closed minded, I'm unfriendly and socially awkward. Just kidding.\n\nI love music, theatre, art. I enjoy few things more than a drink (or many) with friends (old or new) and good conversations about travelling, philosophy, politics, or the weather. I used to study chemistry. It was quite nice, but I abandoned it to follow my dreams. I'm a violist so my music tastes are pretty diverse, from gregorian chant to indie folk. Also electronic music! Currently studying at the Royal Academy of Music. [Here *is* my website](https://lucas-levin.com)\n\n## Some Markdown\n\nMarkdown is **loads** of fun.\n\n* Just\n\n* Look\n\n* At\n\n** This indented\n\n** List. **Wow!** ~~It sucks~~",
       "about_place": "| Syntax      | Description | Test Text     |\n| :---        |    :----:   |          ---: |\n| He&#124;ader      | Title       | Here's this   |\n| Paragraph   | Text        | And more      |\n\n```\nCode goes in here\n```\n\n- [x] Fill out my profile\n- [x] ???\n- [ ] Profit\n\n😂\n\nCat  \n![Cat](https://i.redd.it/1j5mglxe6ys31.jpg)",
@@ -180,7 +180,7 @@
         "month": 4,
         "day": 18
       },
-      "languages": [["ara", "fluent"], ["hun", "fluent"]],
+      "languages": [["arb", "fluent"], ["hun", "fluent"]],
       "occupation": "Paraglider",
       "about_me": "I’m sooooo cool. ☺️",
       "about_place": "It’s a couch in a house in a city in a country on EARTH",

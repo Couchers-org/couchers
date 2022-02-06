@@ -1,0 +1,12 @@
+proto/
+/markdown/
+node_modules
+**/locales/*.json
+.next/
+_next/
+coverage/
+junit.xml
+ci-build-protos.sh
+*.Dockerfile
+*.log
+yarn.lock

@@ -1,13 +1,15 @@
+from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
 
+import couchers.email
 from couchers.config import config
 from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.models import (
     AccountDeletionToken,
-    Complaint,
+    ContentReport,
     Conversation,
     FriendRelationship,
     FriendStatus,
@@ -15,23 +17,29 @@ from couchers.models import (
     HostRequestStatus,
     Message,
     MessageType,
+    Reference,
+    ReferenceType,
     SignupFlow,
     Upload,
 )
 from couchers.tasks import (
+    maybe_send_reference_report_email,
     send_account_deletion_confirmation_email,
     send_account_deletion_successful_email,
     send_account_recovery_email,
+    send_api_key_email,
+    send_content_report_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
+    send_friend_request_accepted_email,
     send_friend_request_email,
     send_login_email,
     send_new_host_request_email,
     send_password_reset_email,
-    send_report_email,
     send_signup_email,
 )
+from couchers.utils import now
 from tests.test_fixtures import db, generate_user, testconfig  # noqa
 
 
@@ -73,42 +81,119 @@ def test_signup_verification_email(db):
 
 def test_report_email(db):
     with session_scope():
-        user_author, api_token_author = generate_user()
-        user_reported, api_token_reported = generate_user()
+        user_reporter, api_token_author = generate_user()
+        user_author, api_token_reported = generate_user()
 
-        complaint = Complaint(
-            author_user=user_author, reported_user=user_reported, reason=random_hex(64), description=random_hex(256)
+        report = ContentReport(
+            reporting_user=user_reporter,
+            reason="spam",
+            description="I think this is spam and does not belong on couchers",
+            content_ref="comment/123",
+            author_user=user_author,
+            user_agent="n/a",
+            page="https://couchers.org/comment/123",
         )
 
         with patch("couchers.email.queue_email") as mock:
-            send_report_email(complaint)
+            send_content_report_email(report)
 
         assert mock.call_count == 1
 
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
         assert recipient == "reports@couchers.org.invalid"
-        assert complaint.author_user.username in plain
-        assert str(complaint.author_user.id) in plain
-        assert complaint.author_user.email in plain
-        assert complaint.author_user.username in html
-        assert str(complaint.author_user.id) in html
-        assert complaint.author_user.email in html
-        assert complaint.reported_user.username in plain
-        assert str(complaint.reported_user.id) in plain
-        assert complaint.reported_user.email in plain
-        assert complaint.reported_user.username in html
-        assert str(complaint.reported_user.id) in html
-        assert complaint.reported_user.email in html
-        assert complaint.reason in plain
-        assert complaint.reason in html
-        assert complaint.description in plain
-        assert complaint.description in html
+        assert report.author_user.username in plain
+        assert str(report.author_user.id) in plain
+        assert report.author_user.email in plain
+        assert report.author_user.username in html
+        assert str(report.author_user.id) in html
+        assert report.author_user.email in html
+        assert report.reporting_user.username in plain
+        assert str(report.reporting_user.id) in plain
+        assert report.reporting_user.email in plain
+        assert report.reporting_user.username in html
+        assert str(report.reporting_user.id) in html
+        assert report.reporting_user.email in html
+        assert report.reason in plain
+        assert report.reason in html
+        assert report.description in plain
+        assert report.description in html
         assert "report" in subject.lower()
+
+
+def test_reference_report_email_not_sent(db):
+    with session_scope() as session:
+        from_user, api_token_author = generate_user()
+        to_user, api_token_reported = generate_user()
+
+        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.accepted)
+        session.add(friend_relationship)
+        session.flush()
+
+        reference = Reference(
+            from_user=from_user,
+            to_user=to_user,
+            reference_type=ReferenceType.friend,
+            text="This person was very nice to me.",
+            rating=0.9,
+            was_appropriate=True,
+        )
+
+        # no email sent for a positive ref
+
+        with patch("couchers.email.queue_email") as mock:
+            maybe_send_reference_report_email(reference)
+
+        assert mock.call_count == 0
+
+
+def test_reference_report_email(db):
+    with session_scope() as session:
+        from_user, api_token_author = generate_user()
+        to_user, api_token_reported = generate_user()
+
+        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.accepted)
+        session.add(friend_relationship)
+        session.flush()
+
+        reference = Reference(
+            from_user=from_user,
+            to_user=to_user,
+            reference_type=ReferenceType.friend,
+            text="This person was not nice to me.",
+            rating=0.3,
+            was_appropriate=False,
+        )
+
+        with patch("couchers.email.queue_email") as mock:
+            maybe_send_reference_report_email(reference)
+
+        assert mock.call_count == 1
+
+        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+        assert recipient == "reports@couchers.org.invalid"
+        assert "report" in subject.lower()
+        assert "reference" in subject.lower()
+        assert reference.from_user.username in plain
+        assert str(reference.from_user.id) in plain
+        assert reference.from_user.email in plain
+        assert reference.from_user.username in html
+        assert str(reference.from_user.id) in html
+        assert reference.from_user.email in html
+        assert reference.to_user.username in plain
+        assert str(reference.to_user.id) in plain
+        assert reference.to_user.email in plain
+        assert reference.to_user.username in html
+        assert str(reference.to_user.id) in html
+        assert reference.to_user.email in html
+        assert reference.text in plain
+        assert reference.text in html
+        assert "friend" in plain.lower()
+        assert "friend" in html.lower()
 
 
 def test_host_request_email(db):
     with session_scope() as session:
-        to_user, api_token_to = generate_user()
+        host, api_token_to = generate_user()
         # little trick here to get the upload correctly without invalidating users
         key = random_hex(32)
         filename = random_hex(32) + ".jpg"
@@ -116,30 +201,30 @@ def test_host_request_email(db):
             Upload(
                 key=key,
                 filename=filename,
-                creator_user_id=to_user.id,
+                creator_user_id=host.id,
             )
         )
         session.commit()
-        from_user, api_token_from = generate_user(avatar_key=key)
+        surfer, api_token_from = generate_user(avatar_key=key)
         from_date = "2020-01-01"
         to_date = "2020-01-05"
 
         conversation = Conversation()
         message = Message(
             conversation=conversation,
-            author_id=from_user.id,
+            author_id=surfer.id,
             text=random_hex(64),
             message_type=MessageType.text,
         )
 
         host_request = HostRequest(
             conversation=conversation,
-            from_user=from_user,
-            to_user=to_user,
+            surfer=surfer,
+            host=host,
             from_date=from_date,
             to_date=to_date,
             status=HostRequestStatus.pending,
-            from_last_seen_message_id=message.id,
+            surfer_last_seen_message_id=message.id,
         )
 
         session.add(host_request)
@@ -149,18 +234,18 @@ def test_host_request_email(db):
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == to_user.email
+        assert recipient == host.email
         assert "host request" in subject.lower()
-        assert to_user.name in plain
-        assert to_user.name in html
-        assert from_user.name in plain
-        assert from_user.name in html
+        assert host.name in plain
+        assert host.name in html
+        assert surfer.name in plain
+        assert surfer.name in html
         assert from_date in plain
         assert from_date in html
         assert to_date in plain
         assert to_date in html
-        assert from_user.avatar.thumbnail_url not in plain
-        assert from_user.avatar.thumbnail_url in html
+        assert surfer.avatar.thumbnail_url not in plain
+        assert surfer.avatar.thumbnail_url in html
         assert f"{config['BASE_URL']}/messages/hosting/" in plain
         assert f"{config['BASE_URL']}/messages/hosting/" in html
 
@@ -199,6 +284,42 @@ def test_friend_request_email(db):
         assert from_user.avatar.thumbnail_url in html
         assert f"{config['BASE_URL']}/connections/friends/" in plain
         assert f"{config['BASE_URL']}/connections/friends/" in html
+
+
+def test_friend_request_accepted_email(db):
+    with session_scope() as session:
+        from_user, api_token_from = generate_user()
+        to_user, api_token_to = generate_user()
+        key = random_hex(32)
+        filename = random_hex(32) + ".jpg"
+        session.add(
+            Upload(
+                key=key,
+                filename=filename,
+                creator_user_id=from_user.id,
+            )
+        )
+        session.commit()
+        to_user, api_token_to = generate_user(avatar_key=key)
+        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.accepted)
+        session.add(friend_relationship)
+
+        with patch("couchers.email.queue_email") as mock:
+            send_friend_request_accepted_email(friend_relationship)
+
+        assert mock.call_count == 1
+        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+        assert recipient == from_user.email
+        assert "friend" in subject.lower()
+        assert from_user.name in plain
+        assert from_user.name in html
+        assert to_user.name in subject
+        assert to_user.name in plain
+        assert to_user.name in html
+        assert to_user.avatar.thumbnail_url not in plain
+        assert to_user.avatar.thumbnail_url in html
+        assert f"{config['BASE_URL']}/user/{to_user.username}" in plain
+        assert f"{config['BASE_URL']}/user/{to_user.username}" in html
 
 
 def test_email_patching_fails(db):
@@ -262,8 +383,8 @@ def test_email_changed_confirmation_sent_to_old_email(db):
     assert user.new_email in html
     assert "via a similar email sent to your new email address" in plain
     assert "via a similar email sent to your new email address" in html
-    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain
-    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in html
+    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in plain
+    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in html
     assert "support@couchers.org" in plain
     assert "support@couchers.org" in html
 
@@ -286,8 +407,8 @@ def test_email_changed_confirmation_sent_to_new_email(db):
     assert user.email in html
     assert "via a similar email sent to your old email address" in plain
     assert "via a similar email sent to your old email address" in html
-    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in plain
-    assert f"{config['BASE_URL']}/confirm-email/{confirmation_token}" in html
+    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in plain
+    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in html
     assert "support@couchers.org" in plain
     assert "support@couchers.org" in html
 
@@ -308,8 +429,8 @@ def test_password_reset_email(db):
         unique_string = "You asked for your password to be reset on Couchers.org."
         assert unique_string in plain
         assert unique_string in html
-        assert f"{config['BASE_URL']}/password-reset/{password_reset_token.token}" in plain
-        assert f"{config['BASE_URL']}/password-reset/{password_reset_token.token}" in html
+        assert f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token.token}" in plain
+        assert f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token.token}" in html
         assert "support@couchers.org" in plain
         assert "support@couchers.org" in html
 
@@ -319,7 +440,6 @@ def test_account_deletion_confirmation_email(db):
 
     with patch("couchers.email.queue_email") as mock:
         account_deletion_token = send_account_deletion_confirmation_email(user)
-
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
         assert recipient == user.email
@@ -332,6 +452,31 @@ def test_account_deletion_confirmation_email(db):
         url = f"{config['BASE_URL']}/delete-account/{account_deletion_token.token}"
         assert url in plain
         assert url in html
+        assert "support@couchers.org" in plain
+        assert "support@couchers.org" in html
+
+
+def test_api_key_email(db):
+    user, api_token = generate_user()
+
+    token = random_hex(64)
+    expiry = now() + timedelta(days=90)
+
+    with session_scope() as session:
+        with patch("couchers.email.queue_email") as mock:
+            send_api_key_email(session, user, token, expiry)
+
+        assert mock.call_count == 1
+        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+        assert recipient == user.email
+        assert "api key" in subject.lower()
+        assert token in plain
+        assert token in html
+        assert str(expiry) in plain
+        assert str(expiry) in html
+        unique_string = "We've issued you with the following API key:"
+        assert unique_string in plain
+        assert unique_string in html
         assert "support@couchers.org" in plain
         assert "support@couchers.org" in html
 
@@ -374,3 +519,35 @@ def test_account_recovery_successful_email(db):
         assert unique_string in html
         assert "support@couchers.org" in plain
         assert "support@couchers.org" in html
+
+
+def test_email_prefix_config(db, monkeypatch):
+    user, token = generate_user()
+    user.new_email = f"{random_hex(12)}@couchers.org.invalid"
+
+    with patch("couchers.email.queue_email") as mock:
+        send_email_changed_notification_email(user)
+
+    assert mock.call_count == 1
+    (sender_name, sender_email, _, subject, _, _), _ = mock.call_args
+
+    assert sender_name == "Couchers.org"
+    assert sender_email == "notify@couchers.org.invalid"
+    assert subject == "[TEST] Couchers.org email change requested"
+
+    new_config = config.copy()
+    new_config["NOTIFICATION_EMAIL_SENDER"] = "TestCo"
+    new_config["NOTIFICATION_EMAIL_ADDRESS"] = "testco@testing.co.invalid"
+    new_config["NOTIFICATION_EMAIL_PREFIX"] = ""
+
+    monkeypatch.setattr(couchers.email, "config", new_config)
+
+    with patch("couchers.email.queue_email") as mock:
+        send_email_changed_notification_email(user)
+
+    assert mock.call_count == 1
+    (sender_name, sender_email, _, subject, _, _), _ = mock.call_args
+
+    assert sender_name == "TestCo"
+    assert sender_email == "testco@testing.co.invalid"
+    assert subject == "Couchers.org email change requested"

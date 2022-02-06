@@ -3,9 +3,17 @@
 {%- endmacro %}
 
 {% macro link(link, html) -%}
-{%if html %}<a href="{{ link|couchers_escape }}">{{ link|couchers_escape }}</a>{% else %}<{{ link|couchers_escape }}>{% endif %}
+{%if html %}<a href="{{ link|couchers_safe }}">{{ link|couchers_safe }}</a>{% else %}<{{ link|couchers_safe }}>{% endif %}
+{%- endmacro %}
+
+{% macro email_link(address, html) -%}
+{% if html %}<a href="mailto:{{ address|couchers_safe }}">{{ address|couchers_safe }}</a>{% else %}<{{ address|couchers_safe }}>{% endif %}
 {%- endmacro %}
 
 {% macro support_email(html) -%}
-{% if html %}<a href="mailto:support@couchers.org">support@couchers.org</a>{% else %}<support@couchers.org>{% endif %}
+{{ email_link("support@couchers.org", html)|couchers_safe }}
+{%- endmacro %}
+
+{% macro newline(html) -%}
+{% if html %}<br />{% endif %}
 {%- endmacro %}

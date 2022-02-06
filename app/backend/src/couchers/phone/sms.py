@@ -1,6 +1,10 @@
+import boto3
 import luhn
 
-from couchers import crypto, errors
+from couchers import crypto
+from couchers.config import config
+from couchers.db import session_scope
+from couchers.models import SMS
 
 
 def generate_random_code():
@@ -18,5 +22,37 @@ def format_message(token):
 
 def send_sms(number, message):
     """Send SMS to a E.164 formatted phone number with leading +. Return "success" on
-    success, on failure return an error string for any other error."""
-    return errors.UNSUPPORTED_OPERATOR
+    success, "unsupported operator" on unsupported operator, and any other
+    string for any other error."""
+
+    assert len(message) <= 140, "message too long"
+
+    if not config["ENABLE_SMS"]:
+        logger.info(f"SMS not enabled, need to send to {number}: {message}")
+        return
+
+    sns = boto3.client("sns")
+    sender_id = config["SMS_SENDER_ID"]
+
+    response = sns.publish(
+        PhoneNumber=number,
+        Message=message,
+        MessageAttributes={
+            "AWS.SNS.SMS.SMSType": {"DataType": "String", "StringValue": "Transactional"},
+            "AWS.SNS.SMS.SenderID": {"DataType": "String", "StringValue": sender_id},
+        },
+    )
+
+    message_id = response["MessageId"]
+
+    with session_scope() as session:
+        session.add(
+            SMS(
+                message_id=message_id,
+                number=number,
+                message=message,
+                sms_sender_id=sender_id,
+            )
+        )
+
+    return "success"

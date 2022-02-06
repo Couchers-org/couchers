@@ -3,9 +3,6 @@ A simple config system
 """
 import os
 
-# Sender name for outgoing notification emails e.g. "Couchers.org"
-NOTIFICATION_EMAIL_SENDER = "Couchers.org"
-
 # Allowed config options, as tuples (name, type, default).
 # All fields are required
 CONFIG_OPTIONS = [
@@ -18,6 +15,8 @@ CONFIG_OPTIONS = [
     ("VERSION", str, "unknown"),
     # Base URL
     ("BASE_URL", str),
+    # Used to generate a variety of secrets
+    ("SECRET", bytes),
     # Domain that cookies should set as their domain value
     ("COOKIE_DOMAIN", str),
     # SQLAlchemy database connection string
@@ -29,12 +28,21 @@ CONFIG_OPTIONS = [
     ("STRIPE_API_KEY", str),
     ("STRIPE_WEBHOOK_SECRET", str),
     ("STRIPE_RECURRING_PRODUCT_ID", str),
+    # SMS
+    ("ENABLE_SMS", bool),
+    ("SMS_SENDER_ID", str),
     # Email
     ("ENABLE_EMAIL", bool),
+    # Sender name for outgoing notification emails e.g. "Couchers.org"
+    ("NOTIFICATION_EMAIL_SENDER", str),
     # Sender email, e.g. "notify@couchers.org"
     ("NOTIFICATION_EMAIL_ADDRESS", str),
+    # An optional prefix for email subject, e.g. [STAGING]
+    ("NOTIFICATION_EMAIL_PREFIX", str, ""),
     # Address to send emails about reported users
     ("REPORTS_EMAIL_RECIPIENT", str),
+    # Address to send contributor forms when users sign up/fill the form
+    ("CONTRIBUTOR_FORM_EMAIL_RECIPIENT", str),
     # SMTP settings
     ("SMTP_HOST", str),
     ("SMTP_PORT", int),
@@ -114,6 +122,8 @@ def check_config():
             raise Exception("Production site must be over HTTPS")
         if not config["ENABLE_EMAIL"]:
             raise Exception("Production site must have email enabled")
+        if not config["ENABLE_SMS"]:
+            raise Exception("Production site must have SMS enabled")
         if config["IN_TEST"]:
             raise Exception("IN_TEST while not DEV")
 

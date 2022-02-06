@@ -6,6 +6,7 @@ from email.utils import formatdate
 import pytz
 from geoalchemy2.shape import from_shape, to_shape
 from geoalchemy2.types import Geography, Geometry
+from google.protobuf.duration_pb2 import Duration
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
 from sqlalchemy.sql import cast, func
@@ -15,6 +16,7 @@ from couchers.config import config
 from couchers.constants import EMAIL_REGEX
 
 utc = pytz.UTC
+
 
 # When a user logs in, they can basically input one of three things: user id, username, or email
 # These are three non-intersecting sets
@@ -53,6 +55,12 @@ def Timestamp_from_datetime(dt: datetime):
     pb_ts = Timestamp()
     pb_ts.FromDatetime(dt)
     return pb_ts
+
+
+def Duration_from_timedelta(dt: datetime):
+    pb_d = Duration()
+    pb_d.FromTimedelta(dt)
+    return pb_d
 
 
 def parse_date(date_str: str):
@@ -206,6 +214,20 @@ def parse_session_cookie(headers):
         return None
 
     return cookie.value
+
+
+def parse_api_key(headers):
+    """
+    Returns a bearer token (API key) from the `authorization` header, or None if invalid/not present
+    """
+    if "authorization" not in headers:
+        return None
+
+    authorization = headers["authorization"]
+    if not authorization.startswith("Bearer "):
+        return None
+
+    return authorization[7:]
 
 
 def remove_duplicates_retain_order(list_):

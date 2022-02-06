@@ -7,7 +7,7 @@ from datetime import timedelta
 
 import requests
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, delete, func, literal, or_, union_all
+from sqlalchemy.sql import and_, delete, func, literal, not_, or_, union_all
 
 from couchers import config, email, urls
 from couchers.db import session_scope
@@ -24,6 +24,8 @@ from couchers.models import (
     Reference,
     User,
 )
+from couchers.notifications.background import handle_email_digests, handle_email_notifications, handle_notification
+from couchers.notifications.notify import notify
 from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships, send_onboarding_email, send_reference_reminder_email
@@ -67,6 +69,51 @@ def process_purge_account_deletion_tokens(payload):
         )
 
 
+def process_generate_message_notifications(payload):
+    """
+    Generates notifications for a message sent to a group chat
+    """
+    logger.info(f"Sending out notifications for message_id = {payload.message_id}")
+
+    with session_scope() as session:
+        message, group_chat = session.execute(
+            select(Message, GroupChat)
+            .join(GroupChat, GroupChat.conversation_id == Message.conversation_id)
+            .where(Message.id == payload.message_id)
+        ).one()
+
+        if message.message_type != MessageType.text:
+            logger.info(f"Not a text message, not notifying. message_id = {payload.message_id}")
+            return
+
+        subscriptions = (
+            session.execute(
+                select(GroupChatSubscription)
+                .join(User, User.id == GroupChatSubscription.user_id)
+                .where(GroupChatSubscription.group_chat_id == message.conversation_id)
+                .where(User.is_visible)
+                .where(User.id != message.author_id)
+                .where(GroupChatSubscription.left == None)
+                .where(not_(GroupChatSubscription.is_muted))
+            )
+            .scalars()
+            .all()
+        )
+
+        for subscription in subscriptions:
+            logger.info(f"Notifying user_id = {subscription.user_id}")
+            notify(
+                user_id=subscription.user_id,
+                topic="chat",
+                key=str(message.conversation_id),
+                action="message",
+                icon="message",
+                title=f"{message.author.name} sent a message in {group_chat.title}.",
+                content=message.text,
+                link=urls.chat_link(chat_id=message.conversation_id),
+            )
+
+
 def process_send_message_notifications(payload):
     """
     Sends out email notifications for messages that have been unseen for a long enough time
@@ -82,6 +129,7 @@ def process_send_message_notifications(payload):
                     select(User)
                     .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
                     .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                    .where(not_(GroupChatSubscription.is_muted))
                     .where(User.is_visible)
                     .where(Message.time >= GroupChatSubscription.joined)
                     .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
@@ -106,6 +154,7 @@ def process_send_message_notifications(payload):
                 )
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .where(GroupChatSubscription.user_id == user.id)
+                .where(not_(GroupChatSubscription.is_muted))
                 .where(Message.id > user.last_notified_message_id)
                 .where(Message.id > GroupChatSubscription.last_seen_message_id)
                 .where(Message.time >= GroupChatSubscription.joined)
@@ -153,9 +202,9 @@ def process_send_request_notifications(payload):
         surfing_reqs = session.execute(
             select(User, HostRequest, func.max(Message.id))
             .where(User.is_visible)
-            .join(HostRequest, HostRequest.from_user_id == User.id)
+            .join(HostRequest, HostRequest.surfer_user_id == User.id)
             .join(Message, Message.conversation_id == HostRequest.conversation_id)
-            .where(Message.id > HostRequest.from_last_seen_message_id)
+            .where(Message.id > HostRequest.surfer_last_seen_message_id)
             .where(Message.id > User.last_notified_request_message_id)
             .where(Message.time < now() - timedelta(minutes=5))
             .where(Message.message_type == MessageType.text)
@@ -166,9 +215,9 @@ def process_send_request_notifications(payload):
         hosting_reqs = session.execute(
             select(User, HostRequest, func.max(Message.id))
             .where(User.is_visible)
-            .join(HostRequest, HostRequest.to_user_id == User.id)
+            .join(HostRequest, HostRequest.host_user_id == User.id)
             .join(Message, Message.conversation_id == HostRequest.conversation_id)
-            .where(Message.id > HostRequest.to_last_seen_message_id)
+            .where(Message.id > HostRequest.host_last_seen_message_id)
             .where(Message.id > User.last_notified_request_message_id)
             .where(Message.time < now() - timedelta(minutes=5))
             .where(Message.message_type == MessageType.text)
@@ -251,13 +300,14 @@ def process_send_reference_reminders(payload):
 
     # Keep this in chronological order!
     reference_reminder_schedule = [
-        # (number, days after stay, text for how long they have left to write the ref)
-        # 6 pm ish two days after stay
-        (1, timedelta(days=2) - timedelta(hours=6), "12 days"),
+        # (number, timedelta before we stop being able to write a ref, text for how long they have left to write the ref)
+        # the end time to write a reference is supposed to be midnight in the host's timezone
+        # 8 pm ish on the last day of the stay
+        (1, timedelta(days=15) - timedelta(hours=20), "14 days"),
         # 2 pm ish a week after stay
-        (2, timedelta(days=7) - timedelta(hours=10), "7 days"),
+        (2, timedelta(days=8) - timedelta(hours=14), "7 days"),
         # 10 am ish 3 days before end of time to write ref
-        (3, timedelta(days=11) - timedelta(hours=14), "3 days"),
+        (3, timedelta(days=4) - timedelta(hours=10), "3 days"),
     ]
 
     with session_scope() as session:
@@ -268,43 +318,43 @@ def process_send_reference_reminders(payload):
             # surfers needing to write a ref
             q1 = (
                 select(literal(True), HostRequest, user, other_user)
-                .join(user, user.id == HostRequest.from_user_id)
-                .join(other_user, other_user.id == HostRequest.to_user_id)
+                .join(user, user.id == HostRequest.surfer_user_id)
+                .join(other_user, other_user.id == HostRequest.host_user_id)
                 .outerjoin(
                     Reference,
                     and_(
                         Reference.host_request_id == HostRequest.conversation_id,
-                        # if no reference is found in this join, then the surfer (HostRequest.from_user_id) has not written a ref
-                        Reference.from_user_id == HostRequest.from_user_id,
+                        # if no reference is found in this join, then the surfer has not written a ref
+                        Reference.from_user_id == HostRequest.surfer_user_id,
                     ),
                 )
                 .where(user.is_visible)
                 .where(other_user.is_visible)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
-                .where(HostRequest.from_sent_reference_reminders < reminder_no)
-                .where(HostRequest.end_time + reminder_time < now())
+                .where(HostRequest.surfer_sent_reference_reminders < reminder_no)
+                .where(HostRequest.end_time_to_write_reference - reminder_time < now())
             )
 
             # hosts needing to write a ref
             q2 = (
                 select(literal(False), HostRequest, user, other_user)
-                .join(user, user.id == HostRequest.to_user_id)
-                .join(other_user, other_user.id == HostRequest.from_user_id)
+                .join(user, user.id == HostRequest.host_user_id)
+                .join(other_user, other_user.id == HostRequest.surfer_user_id)
                 .outerjoin(
                     Reference,
                     and_(
                         Reference.host_request_id == HostRequest.conversation_id,
-                        # if no reference is found in this join, then the host (HostRequest.to_user_id) has not written a ref
-                        Reference.from_user_id == HostRequest.to_user_id,
+                        # if no reference is found in this join, then the host has not written a ref
+                        Reference.from_user_id == HostRequest.host_user_id,
                     ),
                 )
                 .where(user.is_visible)
                 .where(other_user.is_visible)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
-                .where(HostRequest.to_sent_reference_reminders < reminder_no)
-                .where(HostRequest.end_time + reminder_time < now())
+                .where(HostRequest.host_sent_reference_reminders < reminder_no)
+                .where(HostRequest.end_time_to_write_reference - reminder_time < now())
             )
 
             union = union_all(q1, q2).subquery()
@@ -322,9 +372,9 @@ def process_send_reference_reminders(payload):
                 if not are_blocked(session, user.id, other_user.id):
                     send_reference_reminder_email(user, other_user, host_request, surfed, reminder_text)
                     if surfed:
-                        host_request.from_sent_reference_reminders = reminder_no
+                        host_request.surfer_sent_reference_reminders = reminder_no
                     else:
-                        host_request.to_sent_reference_reminders = reminder_no
+                        host_request.host_sent_reference_reminders = reminder_no
                     session.commit()
 
 
@@ -375,3 +425,15 @@ def process_add_users_to_email_list(payload):
 
 def process_enforce_community_membership(payload):
     enforce_community_memberships()
+
+
+def process_handle_notification(payload):
+    handle_notification(payload.notification_id)
+
+
+def process_handle_email_notifications(payload):
+    handle_email_notifications()
+
+
+def process_handle_email_digests(payload):
+    handle_email_digests()

@@ -1,4 +1,4 @@
-FROM nginx:1.20
+FROM nginx:1.21
 
 # 'production' or 'preview'
 ARG environment=production
@@ -27,7 +27,7 @@ COPY domains ./
 COPY .env.${environment} .env
 # source it and use sed to substitute the variables in all config files
 RUN sh -c ". /scripts/.env && \
-       replace=\"s#{API_DOMAIN}#\${API_DOMAIN}#;s#{MEDIA_DOMAIN}#\${MEDIA_DOMAIN}#;s#{MEDIA_CORS_ORIGIN}#\${MEDIA_CORS_ORIGIN}#\" && \
+       replace=\"s#{API_DOMAIN}#\${API_DOMAIN}#;s#{MEDIA_DOMAIN}#\${MEDIA_DOMAIN}#;s#{WEB_DOMAIN}#\${WEB_DOMAIN}#;s#{MEDIA_CORS_ORIGIN}#\${MEDIA_CORS_ORIGIN}#\" && \
        sed -i \$replace /scripts/domains /etc/nginx/sites-enabled/*"
 
 ARG version

@@ -1,5 +1,4 @@
 import logging
-import os
 from copy import deepcopy
 from time import perf_counter_ns
 from traceback import format_exception
@@ -14,15 +13,13 @@ from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import servicer_duration_histogram
 from couchers.models import APICall, User, UserSession
 from couchers.sql import couchers_select as select
-from couchers.utils import parse_session_cookie
+from couchers.utils import parse_api_key, parse_session_cookie
 from proto import annotations_pb2
-
-LOG_VERBOSE_PB = "LOG_VERBOSE_PB" in os.environ
 
 logger = logging.getLogger(__name__)
 
 
-def _try_get_and_update_user_details(token):
+def _try_get_and_update_user_details(token, is_api_key):
     """
     Tries to get session and user info corresponding to this token.
 
@@ -37,6 +34,7 @@ def _try_get_and_update_user_details(token):
             .join(User, User.id == UserSession.user_id)
             .where(UserSession.token == token)
             .where(UserSession.is_valid)
+            .where(UserSession.is_api_key == is_api_key)
         ).one_or_none()
 
         if not result:
@@ -55,11 +53,15 @@ def _try_get_and_update_user_details(token):
             return user.id, user.is_jailed, user.is_superuser
 
 
-def unauthenticated_handler(message="Unauthorized", status_code=grpc.StatusCode.UNAUTHENTICATED):
+def abort_handler(message, status_code):
     def f(request, context):
         context.abort(status_code, message)
 
     return grpc.unary_unary_rpc_method_handler(f)
+
+
+def unauthenticated_handler(message="Unauthorized", status_code=grpc.StatusCode.UNAUTHENTICATED):
+    return abort_handler(message, status_code)
 
 
 class AuthValidatorInterceptor(grpc.ServerInterceptor):
@@ -78,12 +80,18 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
         # method is of the form "/org.couchers.api.core.API/GetUser"
         _, service_name, method_name = method.split("/")
 
-        service_options = self._pool.FindServiceByName(service_name).GetOptions()
+        try:
+            service_options = self._pool.FindServiceByName(service_name).GetOptions()
+        except KeyError:
+            return abort_handler(
+                "API call does not exist. Please refresh and try again.", grpc.StatusCode.UNIMPLEMENTED
+            )
+
         auth_level = service_options.Extensions[annotations_pb2.auth_level]
 
         # if unknown auth level, then it wasn't set and something's wrong
         if auth_level == annotations_pb2.AUTH_LEVEL_UNKNOWN:
-            raise Exception("Service not annotated with auth_level")
+            return abort_handler("Internal authentication error.", grpc.StatusCode.INTERNAL)
 
         assert auth_level in [
             annotations_pb2.AUTH_LEVEL_OPEN,
@@ -92,9 +100,26 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             annotations_pb2.AUTH_LEVEL_ADMIN,
         ]
 
-        token = parse_session_cookie(dict(handler_call_details.invocation_metadata))
+        headers = dict(handler_call_details.invocation_metadata)
 
-        res = _try_get_and_update_user_details(token)
+        if "cookie" in headers and "authorization" in headers:
+            # for security reasons, only one of "cookie" or "authorization" can be present
+            return unauthenticated_handler('Both "cookie" and "authorization" in request')
+        elif "cookie" in headers:
+            # the session token is passed in cookies, i.e. in the `cookie` header
+            token = parse_session_cookie(headers)
+            is_api_key = False
+            res = _try_get_and_update_user_details(token, is_api_key)
+        elif "authorization" in headers:
+            # the session token is passed in the `authorization` header
+            token = parse_api_key(headers)
+            is_api_key = True
+            res = _try_get_and_update_user_details(token, is_api_key)
+        else:
+            # no session found
+            token = None
+            is_api_key = False
+            res = None
 
         # if no session was found and this isn't an open service, fail
         if not token or not res:
@@ -118,6 +143,7 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
         def user_unaware_function(req, context):
             context.user_id = user_id
             context.token = token
+            context.is_api_key = is_api_key
             return user_aware_function(req, context)
 
         return grpc.unary_unary_rpc_method_handler(
@@ -140,14 +166,9 @@ class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
     def intercept_service(self, continuation, handler_call_details):
         metadata = dict(handler_call_details.invocation_metadata)
 
-        if "authorization" not in metadata:
-            return unauthenticated_handler()
+        token = parse_api_key(metadata)
 
-        authorization = metadata["authorization"]
-        if not authorization.startswith("Bearer "):
-            return unauthenticated_handler()
-
-        if not self._is_authorized(token=authorization[7:]):
+        if not token or not self._is_authorized(token):
             return unauthenticated_handler()
 
         return continuation(handler_call_details)
@@ -173,12 +194,13 @@ class TracingInterceptor(grpc.ServerInterceptor):
     def _observe_in_histogram(self, method, status_code, exception_type, duration):
         servicer_duration_histogram.labels(method, status_code, exception_type).observe(duration)
 
-    def _store_log(self, method, status_code, duration, user_id, request, response, traceback):
+    def _store_log(self, method, status_code, duration, user_id, is_api_key, request, response, traceback):
         req_bytes = self._sanitized_bytes(request)
         res_bytes = self._sanitized_bytes(response)
         with session_scope() as session:
             session.add(
                 APICall(
+                    is_api_key=is_api_key,
                     method=method,
                     status_code=status_code,
                     duration=duration,
@@ -202,7 +224,8 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
                 user_id = getattr(context, "user_id", None)
-                self._store_log(method, None, duration, user_id, request, res, None)
+                is_api_key = getattr(context, "is_api_key", None)
+                self._store_log(method, None, duration, user_id, is_api_key, request, res, None)
                 self._observe_in_histogram(method, "", "", duration)
             except Exception as e:
                 finished = perf_counter_ns()
@@ -210,7 +233,8 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 code = getattr(context.code(), "name", None)
                 traceback = "".join(format_exception(type(e), e, e.__traceback__))
                 user_id = getattr(context, "user_id", None)
-                self._store_log(method, code, duration, user_id, request, None, traceback)
+                is_api_key = getattr(context, "is_api_key", None)
+                self._store_log(method, code, duration, user_id, is_api_key, request, None, traceback)
                 self._observe_in_histogram(method, code or "", type(e).__name__, duration)
 
                 if not code:
@@ -250,7 +274,7 @@ class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
                     logger.info(f"Probably an unknown error! Sanitizing...")
                     context.abort(grpc.StatusCode.INTERNAL, errors.UNKNOWN_ERROR)
                 else:
-                    logger.error(f"RPC error: {code}")
+                    logger.warning(f"RPC error: {code}")
                     raise e
             return res
 

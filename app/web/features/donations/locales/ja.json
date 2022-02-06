@@ -1,0 +1,28 @@
+{
+    "donate": "寄付する",
+    "donations_banner": {
+        "title": "私たちのミッションにはあなたの助けが不可欠です",
+        "body": "couch surfingの未来を担うことができます"
+    },
+    "donations_box": {
+        "monthly_button_label": "月々",
+        "one_time_button_label": "一度",
+        "validation_message": "この欄は入力必須です",
+        "action_button_label": "次へ",
+        "recurrence_aria_label": "",
+        "title": "寄付額",
+        "alert": {
+            "success_message": "Couchers.orgに寄付してくださり、ありがとうございます！すぐにあなたのアドレスにメールが送信されます。",
+            "warning_message": "お支払いがキャンセルされました。"
+        },
+        "helper_text": "寄付を完了するため、支払いサービスのStripeにリダイレクトします。"
+    },
+    "donations_title": "私たちのプラットフォーム拡大のためにはあなたの寄付が必要です",
+    "donations_title2": "あなたの寄付の役立てられ方",
+    "donations_text": "",
+    "donations_text2": "",
+    "benefactor_contact": "",
+    "benefactor_email": "benefactor@couchers.org",
+    "donations_recurrence_explainer": "",
+    "donations_value": "{{val, currency}}"
+}

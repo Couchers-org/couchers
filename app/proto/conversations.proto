@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package org.couchers.api.conversations;
 
+import "google/protobuf/duration.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
@@ -36,6 +37,11 @@ service Conversations {
 
   rpc MarkLastSeenGroupChat(MarkLastSeenGroupChatReq) returns (google.protobuf.Empty) {
     // Marks the last message that has been seen in this group chat
+  }
+
+  rpc MuteGroupChat(MuteGroupChatReq) returns (google.protobuf.Empty) {
+    // Mutes or unmutes a group chat
+    // when muted, you don't get notifications from that group chat
   }
 
   rpc CreateGroupChat(CreateGroupChatReq) returns (GroupChat) {
@@ -133,6 +139,12 @@ message Message {
   }
 }
 
+message MuteInfo {
+  bool muted = 1;
+  // muted_until is not present if muted forever
+  google.protobuf.Timestamp muted_until = 2;
+}
+
 message GroupChat {
   uint64 group_chat_id = 1;
   string title = 2;
@@ -144,6 +156,7 @@ message GroupChat {
   uint32 unseen_message_count = 8;
   uint64 last_seen_message_id = 9;
   Message latest_message = 10;
+  MuteInfo mute_info = 11;
 }
 
 message GetGroupChatReq {
@@ -195,6 +208,15 @@ message GetGroupChatMessagesRes {
 message MarkLastSeenGroupChatReq {
   uint64 group_chat_id = 1;
   uint64 last_seen_message_id = 2;
+}
+
+message MuteGroupChatReq {
+  uint64 group_chat_id = 1;
+  oneof duration {
+    bool unmute = 2;
+    bool forever = 3;
+    google.protobuf.Duration for_duration = 4;
+  }
 }
 
 message CreateGroupChatReq {

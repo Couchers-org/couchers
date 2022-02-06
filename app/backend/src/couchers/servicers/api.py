@@ -5,14 +5,13 @@ from urllib.parse import urlencode
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, func, intersect, or_, union
+from sqlalchemy.sql import and_, delete, func, intersect, or_, union
 
 from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import generate_hash_signature, random_hex
 from couchers.db import session_scope
 from couchers.models import (
-    Complaint,
     FriendRelationship,
     FriendStatus,
     GroupChatSubscription,
@@ -31,9 +30,10 @@ from couchers.models import (
     SmokingLocation,
     User,
 )
+from couchers.notifications.notify import notify
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_friend_request_email, send_report_email
+from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
 from proto import api_pb2, api_pb2_grpc, media_pb2
 
@@ -144,10 +144,10 @@ class API(api_pb2_grpc.APIServicer):
                 .outerjoin(
                     message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
                 )
-                .where(HostRequest.from_user_id == context.user_id)
-                .where_users_column_visible(context, HostRequest.to_user_id)
+                .where(HostRequest.surfer_user_id == context.user_id)
+                .where_users_column_visible(context, HostRequest.host_user_id)
                 .where(message_2.id == None)
-                .where(HostRequest.from_last_seen_message_id < Message.id)
+                .where(HostRequest.surfer_last_seen_message_id < Message.id)
             ).scalar_one()
 
             unseen_received_host_request_count = session.execute(
@@ -157,10 +157,10 @@ class API(api_pb2_grpc.APIServicer):
                 .outerjoin(
                     message_2, and_(Message.conversation_id == message_2.conversation_id, Message.id < message_2.id)
                 )
-                .where_users_column_visible(context, HostRequest.from_user_id)
-                .where(HostRequest.to_user_id == context.user_id)
+                .where_users_column_visible(context, HostRequest.surfer_user_id)
+                .where(HostRequest.host_user_id == context.user_id)
                 .where(message_2.id == None)
-                .where(HostRequest.to_last_seen_message_id < Message.id)
+                .where(HostRequest.host_last_seen_message_id < Message.id)
             ).scalar_one()
 
             unseen_message_count = session.execute(
@@ -302,9 +302,7 @@ class API(api_pb2_grpc.APIServicer):
                     )
 
             if request.HasField("regions_visited"):
-                for region in user.regions_visited:
-                    session.delete(region)
-                session.flush()
+                session.execute(delete(RegionVisited).where(RegionVisited.user_id == context.user_id))
 
                 for region in request.regions_visited.value:
                     if not region_is_allowed(region):
@@ -317,9 +315,7 @@ class API(api_pb2_grpc.APIServicer):
                     )
 
             if request.HasField("regions_lived"):
-                for region in user.regions_lived:
-                    session.delete(region)
-                session.flush()
+                session.execute(delete(RegionLived).where(RegionLived.user_id == context.user_id))
 
                 for region in request.regions_lived.value:
                     if not region_is_allowed(region):
@@ -595,6 +591,17 @@ class API(api_pb2_grpc.APIServicer):
 
             send_friend_request_email(friend_relationship)
 
+            notify(
+                user_id=friend_relationship.to_user_id,
+                topic="friend_request",
+                key=str(friend_relationship.from_user_id),
+                action="send",
+                avatar_key=user.avatar.thumbnail_url if user.avatar else None,
+                icon="person",
+                title=f"**{user.name}** sent you a friend request.",
+                link=urls.friend_requests_link(),
+            )
+
             return empty_pb2.Empty()
 
     def ListFriendRequests(self, request, context):
@@ -659,7 +666,22 @@ class API(api_pb2_grpc.APIServicer):
             friend_request.status = FriendStatus.accepted if request.accept else FriendStatus.rejected
             friend_request.time_responded = func.now()
 
+            if friend_request.status == FriendStatus.accepted:
+                send_friend_request_accepted_email(friend_request)
+
             session.commit()
+
+            if friend_request.status == FriendStatus.accepted:
+                notify(
+                    user_id=friend_request.from_user_id,
+                    topic="friend_request",
+                    key=str(friend_request.to_user_id),
+                    action="accept",
+                    avatar_key=friend_request.to_user.avatar.thumbnail_url if friend_request.to_user.avatar else None,
+                    icon="person",
+                    title=f"**{friend_request.from_user.name}** accepted your friend request.",
+                    link=urls.user_link(username=friend_request.to_user.username),
+                )
 
             return empty_pb2.Empty()
 
@@ -679,35 +701,9 @@ class API(api_pb2_grpc.APIServicer):
             friend_request.status = FriendStatus.cancelled
             friend_request.time_responded = func.now()
 
+            # note no notifications
+
             session.commit()
-
-            return empty_pb2.Empty()
-
-    def Report(self, request, context):
-        if context.user_id == request.reported_user_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REPORT_SELF)
-
-        with session_scope() as session:
-            reported_user = session.execute(
-                select(User).where_users_visible(context).where(User.id == request.reported_user_id)
-            ).scalar_one_or_none()
-
-            if not reported_user:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-
-            complaint = Complaint(
-                author_user_id=context.user_id,
-                reported_user_id=request.reported_user_id,
-                reason=request.reason,
-                description=request.description,
-            )
-
-            session.add(complaint)
-
-            # commit here so that send_report_email can lazy-load stuff it needs
-            session.commit()
-
-            send_report_email(complaint)
 
             return empty_pb2.Empty()
 
@@ -737,7 +733,7 @@ class API(api_pb2_grpc.APIServicer):
         path = "upload?" + urlencode({"data": data, "sig": sig})
 
         return api_pb2.InitiateMediaUploadRes(
-            upload_url=urls.media_upload_url(path),
+            upload_url=urls.media_upload_url(path=path),
             expiry=Timestamp_from_datetime(expiry),
         )
 
@@ -840,8 +836,8 @@ def user_model_to_pb(db_user, session, context):
             api_pb2.LanguageAbility(code=ability.language_code, fluency=fluency2api[ability.fluency])
             for ability in db_user.language_abilities
         ],
-        regions_visited=[region.region_code for region in db_user.regions_visited],
-        regions_lived=[region.region_code for region in db_user.regions_lived],
+        regions_visited=[region.code for region in db_user.regions_visited],
+        regions_lived=[region.code for region in db_user.regions_lived],
         additional_information=db_user.additional_information,
         friends=friends_status,
         pending_friend_request=pending_friend_request,

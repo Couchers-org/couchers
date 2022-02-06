@@ -2,7 +2,7 @@
 subject: "Finish signing up for Couchers.org"
 ---
 
-{% from "macros.html" import button, link, support_email %}
+{% from "macros.html" import button, link, support_email, email_link, newline %}
 Hi {{ flow.name|couchers_escape }}!
 
 Thanks for signing up for Couchers.org!

@@ -29,8 +29,9 @@ from couchers.models import (
     UserSession,
 )
 from couchers.servicers.account import Account
+from couchers.servicers.admin import Admin
 from couchers.servicers.api import API
-from couchers.servicers.auth import Auth
+from couchers.servicers.auth import Auth, create_session
 from couchers.servicers.blocking import Blocking
 from couchers.servicers.bugs import Bugs
 from couchers.servicers.communities import Communities
@@ -41,15 +42,19 @@ from couchers.servicers.events import Events
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.notifications import Notifications
 from couchers.servicers.pages import Pages
 from couchers.servicers.references import References
+from couchers.servicers.reporting import Reporting
 from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
+from couchers.servicers.threads import Threads
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now
 from proto import (
     account_pb2_grpc,
+    admin_pb2_grpc,
     api_pb2_grpc,
     auth_pb2_grpc,
     blocking_pb2_grpc,
@@ -62,12 +67,15 @@ from proto import (
     groups_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
+    notifications_pb2_grpc,
     pages_pb2_grpc,
     references_pb2_grpc,
+    reporting_pb2_grpc,
     requests_pb2_grpc,
     resources_pb2_grpc,
     search_pb2_grpc,
     stripe_pb2_grpc,
+    threads_pb2_grpc,
 )
 
 
@@ -143,7 +151,7 @@ def populate_testing_resources(session):
     ]
 
     languages = [
-        ("ara", "Arabic"),
+        ("arb", "Arabic (Standard)"),
         ("deu", "German"),
         ("eng", "English"),
         ("fin", "Finnish"),
@@ -153,7 +161,7 @@ def populate_testing_resources(session):
         ("jpn", "Japanese"),
         ("pol", "Polish"),
         ("swe", "Swedish"),
-        ("zho", "Chinese"),
+        ("cmn", "Chinese (Mandarin)"),
     ]
 
     with open(Path(__file__).parent / ".." / ".." / "resources" / "timezone_areas.sql-fake", "r") as f:
@@ -235,6 +243,7 @@ def generate_user(*, make_invisible=False, **kwargs):
             "geom_radius": 100,
             "onboarding_emails_sent": 1,
             "last_onboarding_email_sent": now(),
+            "new_notifications_enabled": True,
         }
 
         for key, value in kwargs.items():
@@ -244,9 +253,11 @@ def generate_user(*, make_invisible=False, **kwargs):
         session.add(user)
         session.flush()
 
+        session.add(RegionVisited(user_id=user.id, region_code="CHE"))
         session.add(RegionVisited(user_id=user.id, region_code="REU"))
         session.add(RegionVisited(user_id=user.id, region_code="FIN"))
 
+        session.add(RegionLived(user_id=user.id, region_code="ESP"))
         session.add(RegionLived(user_id=user.id, region_code="FRA"))
         session.add(RegionLived(user_id=user.id, region_code="EST"))
 
@@ -260,7 +271,7 @@ def generate_user(*, make_invisible=False, **kwargs):
             def invocation_metadata(self):
                 return {}
 
-        token, _ = auth._create_session(_DummyContext(), session, user, False)
+        token, _ = create_session(_DummyContext(), session, user, False)
 
         # deleted user aborts session creation, hence this follows and necessitates a second commit
         if make_invisible:
@@ -440,14 +451,14 @@ def real_api_session(token):
 
 
 @contextmanager
-def real_session(token, add_servicer_method, servicer, stub_method):
+def real_admin_session(token):
     """
-    Create an API for testing, using TCP sockets, uses the token for auth
+    Create a Admin service for testing, using TCP sockets, uses the token for auth
     """
     with futures.ThreadPoolExecutor(1) as executor:
         server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-        add_servicer_method(servicer, server)
+        admin_pb2_grpc.add_AdminServicer_to_server(Admin(), server)
         server.start()
 
         call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
@@ -455,7 +466,7 @@ def real_session(token, add_servicer_method, servicer, stub_method):
 
         try:
             with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
-                yield stub_method(channel)
+                yield admin_pb2_grpc.AdminStub(channel)
         finally:
             server.stop(None).wait()
 
@@ -482,7 +493,7 @@ def real_jail_session(token):
 
 
 def fake_channel(token):
-    user_id, jailed, is_superuser = _try_get_and_update_user_details(token)
+    user_id, jailed, is_superuser = _try_get_and_update_user_details(token, is_api_key=False)
     return FakeChannel(user_id=user_id)
 
 
@@ -504,6 +515,13 @@ def requests_session(token):
     channel = fake_channel(token)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), channel)
     yield requests_pb2_grpc.RequestsStub(channel)
+
+
+@contextmanager
+def threads_session(token):
+    channel = fake_channel(token)
+    threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), channel)
+    yield threads_pb2_grpc.ThreadsStub(channel)
 
 
 @contextmanager
@@ -569,6 +587,13 @@ def blocking_session(token):
 
 
 @contextmanager
+def notifications_session(token):
+    channel = fake_channel(token)
+    notifications_pb2_grpc.add_NotificationsServicer_to_server(Notifications(), channel)
+    yield notifications_pb2_grpc.NotificationsStub(channel)
+
+
+@contextmanager
 def account_session(token):
     """
     Create a Account API for testing, uses the token for auth
@@ -596,6 +621,13 @@ def references_session(token):
     channel = fake_channel(token)
     references_pb2_grpc.add_ReferencesServicer_to_server(References(), channel)
     yield references_pb2_grpc.ReferencesStub(channel)
+
+
+@contextmanager
+def reporting_session(token):
+    channel = fake_channel(token)
+    reporting_pb2_grpc.add_ReportingServicer_to_server(Reporting(), channel)
+    yield reporting_pb2_grpc.ReportingStub(channel)
 
 
 @contextmanager
@@ -655,12 +687,20 @@ def testconfig():
     config["IN_TEST"] = True
 
     config["DEV"] = True
+    config["SECRET"] = bytes.fromhex("448697d3886aec65830a1ea1497cdf804981e0c260d2f812cf2787c4ed1a262b")
     config["VERSION"] = "testing_version"
     config["BASE_URL"] = "http://localhost:3000"
     config["COOKIE_DOMAIN"] = "localhost"
+
+    config["ENABLE_SMS"] = False
+    config["SMS_SENDER_ID"] = "invalid"
+
     config["ENABLE_EMAIL"] = False
+    config["NOTIFICATION_EMAIL_SENDER"] = "Couchers.org"
     config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"
+    config["NOTIFICATION_EMAIL_PREFIX"] = "[TEST] "
     config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
+    config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"] = "forms@couchers.org.invalid"
 
     config["ENABLE_DONATIONS"] = False
     config["STRIPE_API_KEY"] = ""

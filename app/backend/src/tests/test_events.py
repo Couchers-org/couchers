@@ -3,13 +3,16 @@ from datetime import timedelta
 import grpc
 import pytest
 from google.protobuf import wrappers_pb2
+from psycopg2.extras import DateTimeTZRange
+from sqlalchemy.sql.expression import update
 
 from couchers import errors
 from couchers.db import session_scope
+from couchers.models import EventOccurrence
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
-from proto import events_pb2
+from proto import events_pb2, threads_pb2
 from tests.test_communities import create_community, create_group
-from tests.test_fixtures import db, events_session, generate_user, testconfig  # noqa
+from tests.test_fixtures import db, events_session, generate_user, testconfig, threads_session  # noqa
 
 
 @pytest.fixture(autouse=True)
@@ -85,7 +88,7 @@ def test_CreateEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert res.can_edit
         assert not res.can_moderate
 
@@ -121,7 +124,7 @@ def test_CreateEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert res.can_moderate
 
@@ -155,7 +158,7 @@ def test_CreateEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert not res.can_moderate
 
@@ -167,7 +170,7 @@ def test_CreateEvent(db):
                 content="Dummy content.",
                 photo_key=None,
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 parent_community_id=c_id,
                 start_time=Timestamp_from_datetime(start_time),
@@ -182,7 +185,7 @@ def test_CreateEvent(db):
         assert res.content == "Dummy content."
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
-        assert res.online_information.link == "https://app.couchers.org/meet/"
+        assert res.online_information.link == "https://couchers.org/meet/"
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -201,7 +204,7 @@ def test_CreateEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert res.can_edit
         assert not res.can_moderate
 
@@ -216,7 +219,7 @@ def test_CreateEvent(db):
         assert res.content == "Dummy content."
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
-        assert res.online_information.link == "https://app.couchers.org/meet/"
+        assert res.online_information.link == "https://couchers.org/meet/"
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -235,7 +238,7 @@ def test_CreateEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert res.can_moderate
 
@@ -248,7 +251,7 @@ def test_CreateEvent(db):
         assert res.content == "Dummy content."
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
-        assert res.online_information.link == "https://app.couchers.org/meet/"
+        assert res.online_information.link == "https://couchers.org/meet/"
         assert time_before <= to_aware_datetime(res.created) <= now()
         assert time_before <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -267,7 +270,7 @@ def test_CreateEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert not res.can_moderate
 
@@ -279,7 +282,7 @@ def test_CreateEvent(db):
                     content="Dummy content.",
                     photo_key=None,
                     online_information=events_pb2.OnlineEventInformation(
-                        link="https://app.couchers.org/meet/",
+                        link="https://couchers.org/meet/",
                     ),
                     start_time=Timestamp_from_datetime(start_time),
                     end_time=Timestamp_from_datetime(end_time),
@@ -403,7 +406,7 @@ def test_CreateEvent(db):
                     content="Dummy content.",
                     parent_community_id=c_id,
                     online_information=events_pb2.OnlineEventInformation(
-                        link="https://app.couchers.org/meet/",
+                        link="https://couchers.org/meet/",
                     ),
                     start_time=Timestamp_from_datetime(now() - timedelta(hours=2)),
                     end_time=Timestamp_from_datetime(end_time),
@@ -420,7 +423,7 @@ def test_CreateEvent(db):
                     content="Dummy content.",
                     parent_community_id=c_id,
                     online_information=events_pb2.OnlineEventInformation(
-                        link="https://app.couchers.org/meet/",
+                        link="https://couchers.org/meet/",
                     ),
                     start_time=Timestamp_from_datetime(end_time),
                     end_time=Timestamp_from_datetime(start_time),
@@ -437,7 +440,7 @@ def test_CreateEvent(db):
                     content="Dummy content.",
                     parent_community_id=c_id,
                     online_information=events_pb2.OnlineEventInformation(
-                        link="https://app.couchers.org/meet/",
+                        link="https://couchers.org/meet/",
                     ),
                     start_time=Timestamp_from_datetime(now() + timedelta(days=500, hours=2)),
                     end_time=Timestamp_from_datetime(now() + timedelta(days=500, hours=5)),
@@ -454,7 +457,7 @@ def test_CreateEvent(db):
                     content="Dummy content.",
                     parent_community_id=c_id,
                     online_information=events_pb2.OnlineEventInformation(
-                        link="https://app.couchers.org/meet/",
+                        link="https://couchers.org/meet/",
                     ),
                     start_time=Timestamp_from_datetime(start_time),
                     end_time=Timestamp_from_datetime(now() + timedelta(days=100)),
@@ -485,7 +488,7 @@ def test_ScheduleEvent(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 start_time=Timestamp_from_datetime(start_time),
                 end_time=Timestamp_from_datetime(end_time),
@@ -540,7 +543,7 @@ def test_ScheduleEvent(db):
         assert res.owner_user_id == user.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert res.can_edit
         assert res.can_moderate
 
@@ -560,7 +563,7 @@ def test_cannot_overlap_occurrences_schedule(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=3)),
@@ -602,7 +605,7 @@ def test_cannot_overlap_occurrences_update(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=3)),
@@ -741,7 +744,7 @@ def test_UpdateEvent_single(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert res.can_edit
         assert not res.can_moderate
 
@@ -775,7 +778,7 @@ def test_UpdateEvent_single(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert res.can_moderate
 
@@ -809,7 +812,7 @@ def test_UpdateEvent_single(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert not res.can_moderate
 
@@ -819,7 +822,7 @@ def test_UpdateEvent_single(db):
                 event_id=event_id,
                 title=wrappers_pb2.StringValue(value="Dummy Title"),
                 content=wrappers_pb2.StringValue(value="Dummy content."),
-                online_information=events_pb2.OnlineEventInformation(link="https://app.couchers.org/meet/"),
+                online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
                 start_time=Timestamp_from_datetime(start_time),
                 end_time=Timestamp_from_datetime(end_time),
                 timezone=wrappers_pb2.StringValue(value="UTC"),
@@ -832,7 +835,7 @@ def test_UpdateEvent_single(db):
         assert res.content == "Dummy content."
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
-        assert res.online_information.link == "https://app.couchers.org/meet/"
+        assert res.online_information.link == "https://couchers.org/meet/"
         assert time_before <= to_aware_datetime(res.created) <= time_before_update
         assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -851,7 +854,7 @@ def test_UpdateEvent_single(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert res.can_edit
         assert not res.can_moderate
 
@@ -866,7 +869,7 @@ def test_UpdateEvent_single(db):
         assert res.content == "Dummy content."
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
-        assert res.online_information.link == "https://app.couchers.org/meet/"
+        assert res.online_information.link == "https://couchers.org/meet/"
         assert time_before <= to_aware_datetime(res.created) <= time_before_update
         assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -885,7 +888,7 @@ def test_UpdateEvent_single(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert res.can_moderate
 
@@ -898,7 +901,7 @@ def test_UpdateEvent_single(db):
         assert res.content == "Dummy content."
         assert not res.photo_url
         assert res.WhichOneof("mode") == "online_information"
-        assert res.online_information.link == "https://app.couchers.org/meet/"
+        assert res.online_information.link == "https://couchers.org/meet/"
         assert time_before <= to_aware_datetime(res.created) <= time_before_update
         assert time_before_update <= to_aware_datetime(res.last_edited) <= now()
         assert res.creator_user_id == user1.id
@@ -917,7 +920,7 @@ def test_UpdateEvent_single(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert not res.can_moderate
 
@@ -1002,7 +1005,7 @@ def test_UpdateEvent_all(db):
                     event_id=event_ids[-1],
                     content=f"{i+1}th occurrence",
                     online_information=events_pb2.OnlineEventInformation(
-                        link="https://app.couchers.org/meet/",
+                        link="https://couchers.org/meet/",
                     ),
                     start_time=Timestamp_from_datetime(start_time + timedelta(hours=2 + i)),
                     end_time=Timestamp_from_datetime(start_time + timedelta(hours=2.5 + i)),
@@ -1022,7 +1025,7 @@ def test_UpdateEvent_all(db):
                 event_id=updated_event_id,
                 title=wrappers_pb2.StringValue(value="New Title"),
                 content=wrappers_pb2.StringValue(value="New content."),
-                online_information=events_pb2.OnlineEventInformation(link="https://app.couchers.org/meet/"),
+                online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
                 update_all_future=True,
             )
         )
@@ -1122,7 +1125,7 @@ def test_GetEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert res.can_edit
         assert not res.can_moderate
 
@@ -1156,7 +1159,7 @@ def test_GetEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert res.can_moderate
 
@@ -1190,7 +1193,7 @@ def test_GetEvent(db):
         assert res.owner_user_id == user1.id
         assert not res.owner_community_id
         assert not res.owner_group_id
-        assert res.thread_id
+        assert res.thread.thread_id
         assert not res.can_edit
         assert not res.can_moderate
 
@@ -1570,7 +1573,7 @@ def test_ListEventOccurrences(db):
                 content="Dummy content.",
                 parent_community_id=c_id,
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
                 start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=1.5)),
@@ -1586,7 +1589,7 @@ def test_ListEventOccurrences(db):
                     event_id=event_ids[-1],
                     content=f"{i}th occurrence",
                     online_information=events_pb2.OnlineEventInformation(
-                        link="https://app.couchers.org/meet/",
+                        link="https://couchers.org/meet/",
                     ),
                     start_time=Timestamp_from_datetime(start + timedelta(hours=2 + i)),
                     end_time=Timestamp_from_datetime(start + timedelta(hours=2.5 + i)),
@@ -1620,18 +1623,19 @@ def test_ListMyEvents(db):
 
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user3], [], None).id
+        c2_id = create_community(session, 0, 2, "Community", [user4], [], None).id
 
     start = now()
 
-    def new_event(hours_from_now, online=True):
+    def new_event(hours_from_now, community_id, online=True):
         if online:
             return events_pb2.CreateEventReq(
                 title="Dummy Online Title",
                 content="Dummy content.",
                 online_information=events_pb2.OnlineEventInformation(
-                    link="https://app.couchers.org/meet/",
+                    link="https://couchers.org/meet/",
                 ),
-                parent_community_id=c_id,
+                parent_community_id=community_id,
                 timezone="UTC",
                 start_time=Timestamp_from_datetime(start + timedelta(hours=hours_from_now)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=hours_from_now + 0.5)),
@@ -1651,19 +1655,22 @@ def test_ListMyEvents(db):
             )
 
     with events_session(token1) as api:
-        e2 = api.CreateEvent(new_event(2, True)).event_id
+        e2 = api.CreateEvent(new_event(2, c_id, True)).event_id
 
     with events_session(token2) as api:
-        e1 = api.CreateEvent(new_event(1, False)).event_id
+        e1 = api.CreateEvent(new_event(1, c_id, False)).event_id
 
     with events_session(token1) as api:
-        e3 = api.CreateEvent(new_event(3, False)).event_id
+        e3 = api.CreateEvent(new_event(3, c_id, False)).event_id
 
     with events_session(token2) as api:
-        e5 = api.CreateEvent(new_event(5, True)).event_id
+        e5 = api.CreateEvent(new_event(5, c_id, True)).event_id
 
     with events_session(token3) as api:
-        e4 = api.CreateEvent(new_event(4, True)).event_id
+        e4 = api.CreateEvent(new_event(4, c_id, True)).event_id
+
+    with events_session(token4) as api:
+        e6 = api.CreateEvent((new_event(6, c2_id, True))).event_id
 
     with events_session(token1) as api:
         api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=e3, user_id=user3.id))
@@ -1726,7 +1733,7 @@ def test_ListMyEvents(db):
 
     with events_session(token3) as api:
         res = api.ListMyEvents(events_pb2.ListMyEventsReq())
-        assert [event.event_id for event in res.events] == [e2, e3, e4]
+        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5]
 
         res = api.ListMyEvents(events_pb2.ListMyEventsReq(subscribed=True))
         assert [event.event_id for event in res.events] == [e2, e4]
@@ -1737,9 +1744,12 @@ def test_ListMyEvents(db):
         res = api.ListMyEvents(events_pb2.ListMyEventsReq(organizing=True))
         assert [event.event_id for event in res.events] == [e3, e4]
 
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities=True))
+        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5]
+
     with events_session(token5) as api:
         res = api.ListAllEvents(events_pb2.ListAllEventsReq())
-        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5]
+        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5, e6]
 
 
 def test_RemoveEventOrganizer(db):
@@ -1812,7 +1822,7 @@ def test_ListEventAttendees_regression(db):
     # `ListEventAttendees` should return the current user's ID
     #
     # **Actual/current behaviour**
-    # `ListEventAttendees` returns another user's ID. This ID seems to be determined from the row's auto increment ID in `event_occurence_attendees` in the database
+    # `ListEventAttendees` returns another user's ID. This ID seems to be determined from the row's auto increment ID in `event_occurrence_attendees` in the database
 
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -1860,3 +1870,212 @@ def test_ListEventAttendees_regression(db):
         res = api.ListEventAttendees(events_pb2.ListEventAttendeesReq(event_id=event_id))
         assert len(res.attendee_user_ids) == 1
         assert res.attendee_user_ids[0] == user1.id
+
+
+def test_event_threads(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+
+    with session_scope() as session:
+        c = create_community(session, 0, 2, "Community", [user3], [], None)
+        h = create_group(session, "Group", [user4], [], c)
+        c_id = c.id
+        h_id = h.id
+
+    with events_session(token1) as api:
+        event = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+                end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+                timezone="UTC",
+            )
+        )
+
+    with threads_session(token2) as api:
+        reply_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=event.thread.thread_id, content="hi")).thread_id
+
+    with events_session(token3) as api:
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event.event_id))
+        assert res.thread.num_responses == 1
+
+    with threads_session(token3) as api:
+        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=res.thread.thread_id))
+        assert len(ret.replies) == 1
+        assert not ret.next_page_token
+        assert ret.replies[0].thread_id == reply_id
+        assert ret.replies[0].content == "hi"
+        assert ret.replies[0].author_user_id == user2.id
+        assert ret.replies[0].num_replies == 0
+
+
+def test_can_overlap_other_events_schedule_regression(db):
+    # we had a bug where we were checking overlapping for *all* occurrences of *all* events, not just the ones for this event
+    user, token = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    start = now()
+
+    with events_session(token) as api:
+        # create another event, should be able to overlap with this one
+        api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://couchers.org/meet/",
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=5)),
+                timezone="UTC",
+            )
+        )
+
+        # this event
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://couchers.org/meet/",
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=2)),
+                timezone="UTC",
+            )
+        )
+
+        # this doesn't overlap with the just created event, but does overlap with the occurrence from earlier; which should be no problem
+        api.ScheduleEvent(
+            events_pb2.ScheduleEventReq(
+                event_id=res.event_id,
+                content="New event occurrence",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="A bit further but still near Null Island",
+                    lat=0.3,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=3)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=6)),
+                timezone="UTC",
+            )
+        )
+
+
+def test_can_overlap_other_events_update_regression(db):
+    user, token = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    start = now()
+
+    with events_session(token) as api:
+        # create another event, should be able to overlap with this one
+        api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://couchers.org/meet/",
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=3)),
+                timezone="UTC",
+            )
+        )
+
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://couchers.org/meet/",
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=7)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=8)),
+                timezone="UTC",
+            )
+        )
+
+        event_id = api.ScheduleEvent(
+            events_pb2.ScheduleEventReq(
+                event_id=res.event_id,
+                content="New event occurrence",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="A bit further but still near Null Island",
+                    lat=0.3,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=4)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=6)),
+                timezone="UTC",
+            )
+        ).event_id
+
+        # can overlap with this current existing occurrence
+        api.UpdateEvent(
+            events_pb2.UpdateEventReq(
+                event_id=event_id,
+                start_time=Timestamp_from_datetime(start + timedelta(hours=5)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=6)),
+            )
+        )
+
+        api.UpdateEvent(
+            events_pb2.UpdateEventReq(
+                event_id=event_id,
+                start_time=Timestamp_from_datetime(start + timedelta(hours=2)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=4)),
+            )
+        )
+
+
+def test_list_past_events_regression(db):
+    # test for a bug where listing past events didn't work if they didn't have a future occurence
+    user, token = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user], [], None).id
+
+    start = now()
+
+    with events_session(token) as api:
+        api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://couchers.org/meet/",
+                ),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=3)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=4)),
+                timezone="UTC",
+            )
+        )
+
+    with session_scope() as session:
+        session.execute(
+            update(EventOccurrence).values(
+                during=DateTimeTZRange(start + timedelta(hours=-5), start + timedelta(hours=-4))
+            )
+        )
+
+    with events_session(token) as api:
+        res = api.ListAllEvents(events_pb2.ListAllEventsReq(past=True))
+        assert len(res.events) == 1

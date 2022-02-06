@@ -39,10 +39,6 @@ service API {
 
   rpc CancelFriendRequest(CancelFriendRequestReq) returns (google.protobuf.Empty);
 
-  // Report another user to admin. Raises INVALID_ARGUMENT if you
-  // report yourself or NOT_FOUND if the reported user doesn't exist.
-  rpc Report(ReportReq) returns (google.protobuf.Empty);
-
   rpc InitiateMediaUpload(google.protobuf.Empty) returns (InitiateMediaUploadRes) {
     // Initiate a media upload
   }
@@ -331,16 +327,6 @@ message UpdateProfileReq {
   // replaces the current language abilities with a new list
   // only a subset of language codes can be used, see languages.json for that list
   RepeatedLanguageAbilityValue language_abilities = 26;
-}
-
-message ReportReq {
-  int64 reported_user_id = 1;
-
-  // one-line summary
-  string reason = 2;
-
-  // multi-line free text
-  string description = 3;
 }
 
 message InitiateMediaUploadRes {

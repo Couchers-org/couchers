@@ -1,7 +1,8 @@
 import logging
 from datetime import timedelta
+from typing import List
 
-from sqlalchemy.sql import func, select
+from sqlalchemy.sql import func
 
 from couchers import email, urls
 from couchers.config import config
@@ -14,9 +15,11 @@ from couchers.models import (
     ClusterSubscription,
     LoginToken,
     Node,
+    Notification,
     PasswordResetToken,
     User,
 )
+from couchers.notifications.unsubscribe import generate_mute_all, generate_unsub_topic_action, generate_unsub_topic_key
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 
@@ -30,7 +33,7 @@ def send_signup_email(flow):
     email_sent_before = flow.email_sent
     if flow.email_verified:
         # we just send a link to continue, not a verification link
-        signup_link = urls.signup_link(token=flow.token)
+        signup_link = urls.signup_link(token=flow.flow_token)
     elif flow.email_token and flow.token_is_valid:
         # if the verification email was sent and still is not expired, just resend the verification email
         signup_link = urls.signup_link(token=flow.email_token)
@@ -63,6 +66,13 @@ def send_login_email(session, user):
     return login_token
 
 
+def send_api_key_email(session, user, token, expiry):
+    logger.info(f"Sending API key email to {user=}:")
+    email.enqueue_email_from_template(
+        user.email, "api_key", template_args={"user": user, "token": token, "expiry": expiry}
+    )
+
+
 def send_password_reset_email(session, user):
     password_reset_token = PasswordResetToken(
         token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2)
@@ -79,30 +89,13 @@ def send_password_reset_email(session, user):
     return password_reset_token
 
 
-def send_report_email(complaint):
-    target_email = config["REPORTS_EMAIL_RECIPIENT"]
-
-    logger.info(f"Sending report email to {target_email=}")
-    logger.info(f"User {complaint=} reporting user {complaint.reported_user.username=}")
-    logger.info(f"Reason: {complaint.reason=}")
-    logger.info(f"Description:")
-    logger.info(f"{complaint.description=}")
-    email.enqueue_email_from_template(
-        target_email,
-        "report",
-        template_args={
-            "complaint": complaint,
-        },
-    )
-
-
 def send_new_host_request_email(host_request):
-    logger.info(f"Sending host request email to {host_request.to_user=}:")
-    logger.info(f"Host request sent by {host_request.from_user}")
-    logger.info(f"Email for {host_request.to_user.username=} sent to {host_request.to_user.email=}")
+    logger.info(f"Sending host request email to {host_request.host=}:")
+    logger.info(f"Host request sent by {host_request.surfer}")
+    logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
 
     email.enqueue_email_from_template(
-        host_request.to_user.email,
+        host_request.host.email,
         "host_request",
         template_args={
             "host_request": host_request,
@@ -112,11 +105,11 @@ def send_new_host_request_email(host_request):
 
 
 def send_host_request_accepted_email_to_guest(host_request):
-    logger.info(f"Sending host request accepted email to guest: {host_request.from_user=}:")
-    logger.info(f"Email for {host_request.from_user.username=} sent to {host_request.from_user.email=}")
+    logger.info(f"Sending host request accepted email to guest: {host_request.surfer=}:")
+    logger.info(f"Email for {host_request.surfer.username=} sent to {host_request.surfer.email=}")
 
     email.enqueue_email_from_template(
-        host_request.from_user.email,
+        host_request.surfer.email,
         "host_request_accepted_guest",
         template_args={
             "host_request": host_request,
@@ -126,11 +119,11 @@ def send_host_request_accepted_email_to_guest(host_request):
 
 
 def send_host_request_rejected_email_to_guest(host_request):
-    logger.info(f"Sending host request rejected email to guest: {host_request.from_user=}:")
-    logger.info(f"Email for {host_request.from_user.username=} sent to {host_request.from_user.email=}")
+    logger.info(f"Sending host request rejected email to guest: {host_request.surfer=}:")
+    logger.info(f"Email for {host_request.surfer.username=} sent to {host_request.surfer.email=}")
 
     email.enqueue_email_from_template(
-        host_request.from_user.email,
+        host_request.surfer.email,
         "host_request_rejected_guest",
         template_args={
             "host_request": host_request,
@@ -140,11 +133,11 @@ def send_host_request_rejected_email_to_guest(host_request):
 
 
 def send_host_request_confirmed_email_to_host(host_request):
-    logger.info(f"Sending host request confirmed email to host: {host_request.to_user=}:")
-    logger.info(f"Email for {host_request.to_user.username=} sent to {host_request.to_user.email=}")
+    logger.info(f"Sending host request confirmed email to host: {host_request.host=}:")
+    logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
 
     email.enqueue_email_from_template(
-        host_request.to_user.email,
+        host_request.host.email,
         "host_request_confirmed_host",
         template_args={
             "host_request": host_request,
@@ -154,11 +147,11 @@ def send_host_request_confirmed_email_to_host(host_request):
 
 
 def send_host_request_cancelled_email_to_host(host_request):
-    logger.info(f"Sending host request cancelled email to host: {host_request.to_user=}:")
-    logger.info(f"Email for {host_request.to_user.username=} sent to {host_request.to_user.email=}")
+    logger.info(f"Sending host request cancelled email to host: {host_request.host=}:")
+    logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
 
     email.enqueue_email_from_template(
-        host_request.to_user.email,
+        host_request.host.email,
         "host_request_cancelled_host",
         template_args={
             "host_request": host_request,
@@ -184,21 +177,42 @@ def send_friend_request_email(friend_relationship):
     )
 
 
+def send_friend_request_accepted_email(friend_relationship):
+    logger.info(f"Sending friend request acceptance email to {friend_relationship.from_user=}:")
+    logger.info(f"Email for {friend_relationship.from_user.username=} sent to {friend_relationship.from_user.email=}")
+
+    email.enqueue_email_from_template(
+        friend_relationship.from_user.email,
+        "friend_request_accepted",
+        template_args={
+            "friend_relationship": friend_relationship,
+            "to_user_user_link": urls.user_link(username=friend_relationship.to_user.username),
+        },
+    )
+
+
 def send_host_reference_email(reference, both_written):
     """
-    both_written iff both the surfer and hoster wrote a reference
+    both_written == true if both the surfer and hoster wrote a reference
     """
     assert reference.host_request_id
 
     logger.info(f"Sending host reference email to {reference.to_user=} for {reference.id=}")
+
+    surfed = reference.host_request.surfer_user_id != reference.from_user_id
 
     email.enqueue_email_from_template(
         reference.to_user.email,
         "host_reference",
         template_args={
             "reference": reference,
+            "leave_reference_link": urls.leave_reference_link(
+                reference_type="surfed" if surfed else "hosted",
+                to_user_id=reference.from_user_id,
+                host_request_id=reference.host_request.conversation_id,
+            ),
             # if this reference was written by the surfer, then the recipient hosted
-            "surfed": reference.host_request.from_user_id != reference.from_user_id,
+            "surfed": surfed,
             "both_written": both_written,
         },
     )
@@ -229,7 +243,9 @@ def send_reference_reminder_email(user, other_user, host_request, surfed, time_l
             "other_user": other_user,
             "host_request": host_request,
             "leave_reference_link": urls.leave_reference_link(
-                "surfed" if surfed else "hosted", other_user.id, host_request.conversation_id
+                reference_type="surfed" if surfed else "hosted",
+                to_user_id=other_user.id,
+                host_request_id=host_request.conversation_id,
             ),
             "surfed": surfed,
             "time_left_text": time_left_text,
@@ -308,6 +324,73 @@ def send_donation_email(user, amount, receipt_url):
     )
 
 
+def send_content_report_email(content_report):
+    target_email = config["REPORTS_EMAIL_RECIPIENT"]
+
+    logger.info(f"Sending content report email to {target_email=}")
+    email.enqueue_email_from_template(
+        target_email,
+        "content_report",
+        template_args={
+            "report": content_report,
+            "author_user_user_link": urls.user_link(username=content_report.author_user.username),
+            "reporting_user_user_link": urls.user_link(username=content_report.reporting_user.username),
+        },
+    )
+
+
+def maybe_send_reference_report_email(reference):
+    target_email = config["REPORTS_EMAIL_RECIPIENT"]
+
+    if reference.should_report:
+        logger.info(f"Sending reference report email to {target_email=}")
+        email.enqueue_email_from_template(
+            target_email,
+            "reference_report",
+            template_args={
+                "reference": reference,
+                "from_user_user_link": urls.user_link(username=reference.from_user.username),
+                "to_user_user_link": urls.user_link(username=reference.to_user.username),
+            },
+        )
+
+
+def maybe_send_contributor_form_email(form):
+    target_email = config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"]
+
+    if form.should_notify:
+        email.enqueue_email_from_template(
+            target_email,
+            "contributor_form",
+            template_args={"form": form, "user_link": urls.user_link(username=form.user.username)},
+        )
+
+
+def send_digest_email(notifications: List[Notification]):
+    logger.info(f"Sending digest email to {notification.user=}:")
+    email.enqueue_email_from_template(
+        notification.user.email,
+        "digest",
+        template_args={"notifications": notifications},
+    )
+
+
+def send_notification_email(notification: Notification):
+    friend_requests_link = urls.friend_requests_link()
+    logger.info(f"Sending notification email to {notification.user=}:")
+
+    email.enqueue_email_from_template(
+        notification.user.email,
+        "notification",
+        template_args={
+            "notification": notification,
+            "unsub_all": generate_mute_all(notification.user_id),
+            "unsub_topic_key": generate_unsub_topic_key(notification),
+            "unsub_topic_action": generate_unsub_topic_action(notification),
+        },
+    )
+
+
 def enforce_community_memberships():
     """
     Go through all communities and make sure every user in the polygon is also a member
@@ -370,3 +453,18 @@ def send_account_recovery_email(user):
         "account_recovery_successful",
         template_args={"user": user},
     )
+
+
+def enforce_community_memberships_for_user(session, user):
+    """
+    Adds a given user to all the communities they belong in based on their location.
+    """
+    nodes = session.execute(select(Node).where(func.ST_Contains(Node.geom, user.geom))).scalars().all()
+    for node in nodes:
+        node.official_cluster.cluster_subscriptions.append(
+            ClusterSubscription(
+                user=user,
+                role=ClusterRole.member,
+            )
+        )
+    session.commit()

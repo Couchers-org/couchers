@@ -4,15 +4,24 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
 from couchers.db import session_scope
 from couchers.models import ContributorForm, LoginToken, PasswordResetToken, SignupFlow, User, UserSession
+from couchers.notifications.notify import notify
+from couchers.notifications.unsubscribe import unsubscribe
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_login_email, send_onboarding_email, send_password_reset_email, send_signup_email
+from couchers.tasks import (
+    enforce_community_memberships_for_user,
+    maybe_send_contributor_form_email,
+    send_login_email,
+    send_onboarding_email,
+    send_password_reset_email,
+    send_signup_email,
+)
 from couchers.utils import (
     create_coordinate,
     create_session_cookie,
@@ -33,69 +42,74 @@ def _auth_res(user):
     return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
 
 
+def create_session(context, session, user, long_lived, is_api_key=False, duration=None):
+    """
+    Creates a session for the given user and returns the token and expiry.
+
+    You need to give an active DB session as nested sessions don't really
+    work here due to the active User object.
+
+    Will abort the API calling context if the user is banned from logging in.
+
+    You can set the cookie on the client (if `is_api_key=False`) with
+
+    ```py3
+    token, expiry = create_session(...)
+    context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry)),])
+    ```
+    """
+    if user.is_banned:
+        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_SUSPENDED)
+
+    # just double check
+    assert not user.is_deleted
+
+    token = cookiesafe_secure_token()
+
+    headers = dict(context.invocation_metadata())
+
+    user_session = UserSession(
+        token=token,
+        user=user,
+        long_lived=long_lived,
+        ip_address=headers.get("x-forwarded-for"),
+        user_agent=headers.get("user-agent"),
+        is_api_key=is_api_key,
+    )
+    if duration:
+        user_session.expiry = func.now() + duration
+
+    session.add(user_session)
+    session.commit()
+
+    logger.debug(f"Handing out {token=} to {user=}")
+    return token, user_session.expiry
+
+
+def delete_session(token):
+    """
+    Deletes the given session (practically logging the user out)
+
+    Returns True if the session was found, False otherwise.
+    """
+    with session_scope() as session:
+        user_session = session.execute(
+            select(UserSession).where(UserSession.token == token).where(UserSession.is_valid)
+        ).scalar_one_or_none()
+        if user_session:
+            user_session.deleted = func.now()
+            session.commit()
+            return True
+        else:
+            return False
+
+
 class Auth(auth_pb2_grpc.AuthServicer):
     """
     The Auth servicer.
 
     This class services the Auth service/API.
     """
-
-    def _create_session(self, context, session, user, long_lived):
-        """
-        Creates a session for the given user and returns the token and expiry.
-
-        You need to give an active DB session as nested sessions don't really
-        work here due to the active User object.
-
-        Will abort the API calling context if the user is banned from logging in.
-
-        You can set the cookie on the client with
-
-        ```py3
-        token, expiry = self._create_session(...)
-        context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry)),])
-        ```
-        """
-        if user.is_banned:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_SUSPENDED)
-
-        # just double check
-        assert not user.is_deleted
-
-        token = cookiesafe_secure_token()
-
-        headers = dict(context.invocation_metadata())
-
-        user_session = UserSession(
-            token=token,
-            user=user,
-            long_lived=long_lived,
-            ip_address=headers.get("x-forwarded-for"),
-            user_agent=headers.get("user-agent"),
-        )
-
-        session.add(user_session)
-        session.commit()
-
-        logger.debug(f"Handing out {token=} to {user=}")
-        return token, user_session.expiry
-
-    def _delete_session(self, token):
-        """
-        Deletes the given session (practically logging the user out)
-
-        Returns True if the session was found, False otherwise.
-        """
-        with session_scope() as session:
-            user_session = session.execute(
-                select(UserSession).where(UserSession.token == token).where(UserSession.is_valid)
-            ).scalar_one_or_none()
-            if user_session:
-                user_session.deleted = func.now()
-                session.commit()
-                return True
-            else:
-                return False
 
     def _username_available(self, username):
         """
@@ -105,9 +119,17 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not is_valid_username(username):
             return False
         with session_scope() as session:
-            user = session.execute(select(User).where(User.username == username)).scalar_one_or_none()
+            # check for existing user with that username
+            user_exists = (
+                session.execute(select(User).where(User.username == username)).scalar_one_or_none() is not None
+            )
+            # check for started signup with that username
+            signup_exists = (
+                session.execute(select(SignupFlow).where(SignupFlow.username == username)).scalar_one_or_none()
+                is not None
+            )
             # return False if user exists, True otherwise
-            return user is None
+            return not user_exists and not signup_exists
 
     def SignupFlow(self, request, context):
         with session_scope() as session:
@@ -188,11 +210,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     if not self._username_available(request.account.username):
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USERNAME_NOT_AVAILABLE)
 
-                    if request.account.password:
-                        abort_on_invalid_password(request.account.password, context)
-                        hashed_password = hash_password(request.account.password)
-                    else:
-                        hashed_password = None
+                    abort_on_invalid_password(request.account.password, context)
+                    hashed_password = hash_password(request.account.password)
 
                     birthdate = parse_date(request.account.birthdate)
                     if not birthdate or birthdate >= minimum_allowed_birthdate():
@@ -246,8 +265,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             # finish the signup if done
             if flow.is_completed:
-                # TODO: storing feedback forms
-
                 user = User(
                     name=flow.name,
                     email=flow.email,
@@ -269,23 +286,31 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 form = ContributorForm(
                     user=user,
-                    ideas=flow.ideas,
-                    features=flow.features,
-                    experience=flow.experience,
-                    contribute=flow.contribute,
+                    ideas=flow.ideas or None,
+                    features=flow.features or None,
+                    experience=flow.experience or None,
+                    contribute=flow.contribute or None,
                     contribute_ways=flow.contribute_ways,
-                    expertise=flow.expertise,
+                    expertise=flow.expertise or None,
                 )
 
                 session.add(form)
 
-                session.delete(flow)
+                user.filled_contributor_form = form.is_filled
 
+                session.delete(flow)
                 session.commit()
+
+                enforce_community_memberships_for_user(session, user)
+
+                if form.is_filled:
+                    user.filled_contributor_form = True
+
+                maybe_send_contributor_form_email(form)
 
                 send_onboarding_email(user, email_number=1)
 
-                token, expiry = self._create_session(context, session, user, False)
+                token, expiry = create_session(context, session, user, False)
                 context.send_initial_metadata(
                     [
                         ("set-cookie", create_session_cookie(token, expiry)),
@@ -362,7 +387,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.commit()
 
                 # create a session
-                token, expiry = self._create_session(context, session, user, False)
+                token, expiry = create_session(context, session, user, False)
                 context.send_initial_metadata(
                     [
                         ("set-cookie", create_session_cookie(token, expiry)),
@@ -391,7 +416,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if verify_password(user.hashed_password, request.password):
                     logger.debug(f"Right password")
                     # correct password
-                    token, expiry = self._create_session(context, session, user, request.remember_device)
+                    token, expiry = create_session(context, session, user, request.remember_device)
                     context.send_initial_metadata(
                         [
                             ("set-cookie", create_session_cookie(token, expiry)),
@@ -410,14 +435,14 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def Deauthenticate(self, request, context):
         """
-        Removes an active session.
+        Removes an active cookie session.
         """
         token = parse_session_cookie(dict(context.invocation_metadata()))
         logger.info(f"Deauthenticate(token={token})")
 
         # if we had a token, try to remove the session
         if token:
-            self._delete_session(token)
+            delete_session(token)
 
         # set the cookie to an empty string and expire immediately, should remove it from the browser
         context.send_initial_metadata(
@@ -443,6 +468,17 @@ class Auth(auth_pb2_grpc.AuthServicer):
             ).scalar_one_or_none()
             if user:
                 send_password_reset_email(session, user)
+
+                notify(
+                    user_id=user.id,
+                    topic="account_recovery",
+                    key="",
+                    action="start",
+                    icon="wrench",
+                    title=f"Password reset initiated.",
+                    link=urls.account_settings_link(),
+                )
+
             else:  # user not found
                 logger.debug(f"Didn't find user")
 
@@ -464,6 +500,17 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.delete(password_reset_token)
                 user.hashed_password = None
                 session.commit()
+
+                notify(
+                    user_id=user.id,
+                    topic="account_recovery",
+                    key="",
+                    action="complete",
+                    icon="wrench",
+                    title=f"Password reset completed.",
+                    link=urls.account_settings_link(),
+                )
+
                 return empty_pb2.Empty()
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
@@ -504,6 +551,17 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 user.new_email = None
                 user.need_to_confirm_via_old_email = None
                 user.need_to_confirm_via_new_email = None
+
+                notify(
+                    user_id=user.id,
+                    topic="email_address",
+                    key="",
+                    action="change",
+                    icon="wrench",
+                    title=f"Your email was changed.",
+                    link=urls.account_settings_link(),
+                )
+
                 return auth_pb2.ConfirmChangeEmailRes(state=auth_pb2.EMAIL_CONFIRMATION_STATE_SUCCESS)
             elif user.need_to_confirm_via_old_email:
                 return auth_pb2.ConfirmChangeEmailRes(
@@ -513,3 +571,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 return auth_pb2.ConfirmChangeEmailRes(
                     state=auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL
                 )
+
+    def Unsubscribe(self, request, context):
+        return auth_pb2.UnsubscribeRes(response=unsubscribe(request, context))

@@ -3,6 +3,12 @@ import signal
 import sys
 
 import sentry_sdk
+from sentry_sdk.integrations.atexit import AtexitIntegration
+from sentry_sdk.integrations.dedupe import DedupeIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
+from sentry_sdk.integrations.modules import ModulesIntegration
+from sentry_sdk.integrations.stdlib import StdlibIntegration
+from sentry_sdk.integrations.threading import ThreadingIntegration
 from sqlalchemy.sql import text
 
 from couchers import config
@@ -21,7 +27,23 @@ logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
 
 if config.config["SENTRY_ENABLED"]:
     # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
-    sentry_sdk.init(config.config["SENTRY_URL"], traces_sample_rate=0.0, environment=config.config["COOKIE_DOMAIN"])
+    sentry_sdk.init(
+        config.config["SENTRY_URL"],
+        traces_sample_rate=0.0,
+        environment=config.config["COOKIE_DOMAIN"],
+        release=config.config["VERSION"],
+        default_integrations=False,
+        integrations=[
+            # we need to manually list out the integrations, there is no other way of disabling the global excepthook integration
+            # we want to disable that because it seems to be picking up already handled gRPC errors (e.g. grpc.StatusCode.NOT_FOUND)
+            LoggingIntegration(),
+            StdlibIntegration(),
+            DedupeIntegration(),
+            AtexitIntegration(),
+            ModulesIntegration(),
+            ThreadingIntegration(),
+        ],
+    )
 
 # used to export metrics
 create_prometheus_server(main_process_registry, 8000)

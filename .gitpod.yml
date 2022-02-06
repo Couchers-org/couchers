@@ -1,0 +1,33 @@
+# List the start up tasks. Learn more https://www.gitpod.io/docs/config-start-tasks/
+tasks:
+  - name: Compile the protocol buffers, launch the backend with docker-compose
+    before: cd app
+    init: |
+      docker run --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
+      BASE_URL=$(gp url 3000) MEDIA_SERVER_BASE_URL=$(gp url 5000) docker-compose -f docker-compose.yml -f docker-compose.gitpod.yml up --build
+
+  - name: Install and launch the frontend with yarn
+    before: cd app/web
+    init: |
+      yarn install
+      gp await-port 8888
+    command: NEXT_PUBLIC_API_BASE_URL=$(gp url 8888) yarn start
+
+  - name: Instructions
+    before: cd app/
+    init: until (curl --head -s localhost:8888 localhost:3000 > /dev/null); do sleep 1; clear; echo "Waiting for backend & frontend to come up. This might take a few minutes!"; done
+    command: echo "Success! You can now launch the frontend by going to " $(gp url 3000)
+
+# List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
+ports:
+  - port: 3000
+    visibility: public
+    onOpen: open-preview
+  - port: 8888
+    visibility: public
+
+github:
+  prebuilds:
+    master: true
+    branches: true
+    pullRequests: true

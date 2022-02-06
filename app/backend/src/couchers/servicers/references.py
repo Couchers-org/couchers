@@ -14,7 +14,7 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_friend_reference_email, send_host_reference_email
+from couchers.tasks import maybe_send_reference_report_email, send_friend_reference_email, send_host_reference_email
 from couchers.utils import Timestamp_from_datetime
 from proto import references_pb2, references_pb2_grpc
 
@@ -135,7 +135,6 @@ class References(references_pb2_grpc.ReferencesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REFER_SELF)
 
         with session_scope() as session:
-
             check_valid_reference(request, context)
 
             if not session.execute(
@@ -155,7 +154,8 @@ class References(references_pb2_grpc.ReferencesServicer):
                 from_user_id=context.user_id,
                 to_user_id=request.to_user_id,
                 reference_type=ReferenceType.friend,
-                text=request.text,
+                text=request.text.strip(),
+                private_text=request.private_text.strip(),
                 rating=request.rating,
                 was_appropriate=request.was_appropriate,
             )
@@ -165,6 +165,9 @@ class References(references_pb2_grpc.ReferencesServicer):
             # send the recipient of the reference an email
             send_friend_reference_email(reference)
 
+            # possibly send out an alert to the mod team if the reference was bad
+            maybe_send_reference_report_email(reference)
+
             return reference_to_pb(reference, context)
 
     def WriteHostRequestReference(self, request, context):
@@ -173,10 +176,10 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             host_request = session.execute(
                 select(HostRequest)
-                .where_users_column_visible(context, HostRequest.from_user_id)
-                .where_users_column_visible(context, HostRequest.to_user_id)
+                .where_users_column_visible(context, HostRequest.surfer_user_id)
+                .where_users_column_visible(context, HostRequest.host_user_id)
                 .where(HostRequest.conversation_id == request.host_request_id)
-                .where(or_(HostRequest.from_user_id == context.user_id, HostRequest.to_user_id == context.user_id))
+                .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
             ).scalar_one_or_none()
 
             if not host_request:
@@ -201,27 +204,31 @@ class References(references_pb2_grpc.ReferencesServicer):
             reference = Reference(
                 from_user_id=context.user_id,
                 host_request_id=host_request.conversation_id,
-                text=request.text,
+                text=request.text.strip(),
+                private_text=request.private_text.strip(),
                 rating=request.rating,
                 was_appropriate=request.was_appropriate,
             )
 
-            if host_request.from_user_id == context.user_id:
+            if host_request.surfer_user_id == context.user_id:
                 # we requested to surf with someone
                 reference.reference_type = ReferenceType.surfed
-                reference.to_user_id = host_request.to_user_id
-                assert context.user_id == host_request.from_user_id
+                reference.to_user_id = host_request.host_user_id
+                assert context.user_id == host_request.surfer_user_id
             else:
                 # we hosted someone
                 reference.reference_type = ReferenceType.hosted
-                reference.to_user_id = host_request.from_user_id
-                assert context.user_id == host_request.to_user_id
+                reference.to_user_id = host_request.surfer_user_id
+                assert context.user_id == host_request.host_user_id
 
             session.add(reference)
             session.commit()
 
             # send the recipient of the reference an email
             send_host_reference_email(reference, both_written=other_reference is not None)
+
+            # possibly send out an alert to the mod team if the reference was bad
+            maybe_send_reference_report_email(reference)
 
             return reference_to_pb(reference, context)
 
@@ -256,8 +263,8 @@ class References(references_pb2_grpc.ReferencesServicer):
                 )
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
-                .where(HostRequest.from_user_id == context.user_id)
-                .where(HostRequest.to_user_id == request.to_user_id)
+                .where(HostRequest.surfer_user_id == context.user_id)
+                .where(HostRequest.host_user_id == request.to_user_id)
             )
 
             q2 = (
@@ -271,8 +278,8 @@ class References(references_pb2_grpc.ReferencesServicer):
                 )
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
-                .where(HostRequest.from_user_id == request.to_user_id)
-                .where(HostRequest.to_user_id == context.user_id)
+                .where(HostRequest.surfer_user_id == request.to_user_id)
+                .where(HostRequest.host_user_id == context.user_id)
             )
 
             union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
@@ -302,10 +309,10 @@ class References(references_pb2_grpc.ReferencesServicer):
                         Reference.from_user_id == context.user_id,
                     ),
                 )
-                .where_users_column_visible(context, HostRequest.to_user_id)
+                .where_users_column_visible(context, HostRequest.host_user_id)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
-                .where(HostRequest.from_user_id == context.user_id)
+                .where(HostRequest.surfer_user_id == context.user_id)
             )
 
             q2 = (
@@ -317,10 +324,10 @@ class References(references_pb2_grpc.ReferencesServicer):
                         Reference.from_user_id == context.user_id,
                     ),
                 )
-                .where_users_column_visible(context, HostRequest.from_user_id)
+                .where_users_column_visible(context, HostRequest.surfer_user_id)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
-                .where(HostRequest.to_user_id == context.user_id)
+                .where(HostRequest.host_user_id == context.user_id)
             )
 
             union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()

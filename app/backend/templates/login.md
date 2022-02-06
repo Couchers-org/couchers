@@ -2,7 +2,7 @@
 subject: "Your login link for Couchers.org"
 ---
 
-{% from "macros.html" import button, link, support_email %}
+{% from "macros.html" import button, link, support_email, email_link, newline %}
 Hi {{ user.name|couchers_escape }}!
 
 Here's a login link for Couchers.org:

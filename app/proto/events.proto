@@ -7,6 +7,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
+import "threads.proto";
 
 service Events {
   option (auth_level) = AUTH_LEVEL_SECURE;
@@ -143,7 +144,7 @@ message Event {
     int64 owner_community_id = 29;
     int64 owner_group_id = 30;
   }
-  int64 thread_id = 31;
+  org.couchers.api.threads.Thread thread = 34;
 
   bool can_edit = 32;
   bool can_moderate = 33;
@@ -254,6 +255,8 @@ message ListMyEventsReq {
   bool subscribed = 2;
   bool attending = 3;
   bool organizing = 4;
+  // include events in the user's communities
+  bool my_communities = 7;
 
   uint32 page_size = 5;
   string page_token = 6;

@@ -2,11 +2,11 @@
 subject: "Thank you for your donation to Couchers.org!"
 ---
 
-{% from "macros.html" import button, link, support_email %}
+{% from "macros.html" import button, link, support_email, email_link, newline %}
 
 Dear {{ user.name|couchers_escape }},
 
-Thank you so much for your donation of ${{ amount }} to the Couchers.org Foundation.
+Thank you so much for your donation of ${{ amount|couchers_safe }} to Couchers.org.
 
 Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.
 
@@ -20,16 +20,11 @@ Alternatively, click the following link: {{ link(receipt_url, html)|couchers_saf
 <{{ receipt_url|couchers_escape }}>
 {% endif %}
 
-If you have any questions about your donation, please email us at {% if html %}<a href="mailto:donations@couchers.org">donations@couchers.org</a>{% else %}<donations@couchers.org>{% endif %}.
+If you have any questions about your donation, please email us at {{ email_link("donations@couchers.org", html)|couchers_safe }}.
 
 Your generosity will help deliver the platform for everyone.
 
 Thank you.
 
-{% if html %}
-Aapeli and Itsi,<br />
+Aapeli and Itsi,{{ newline(html)|couchers_safe }}
 Couchers.org Founders
-{% else %}
-Aapeli and Itsi,
-Couchers.org Founders
-{% endif %}

@@ -500,6 +500,94 @@ def test_process_send_message_notifications_basic(db):
         )
 
 
+def test_process_send_message_notifications_muted(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    make_friends(user1, user2)
+    make_friends(user1, user3)
+    make_friends(user2, user3)
+
+    process_send_message_notifications(empty_pb2.Empty())
+
+    # should find no jobs, since there's no messages
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
+
+    with conversations_session(token1) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
+        ).group_chat_id
+
+    with conversations_session(token3) as c:
+        # mute it for user 3
+        c.MuteGroupChat(conversations_pb2.MuteGroupChatReq(group_chat_id=group_chat_id, forever=True))
+
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 4"))
+
+    with conversations_session(token3) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
+        ).group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 5"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
+
+    process_send_message_notifications(empty_pb2.Empty())
+
+    # no emails sent out
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
+
+    # this should generate emails for both user2 and NOT user3
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        process_send_message_notifications(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 1
+        )
+        # delete them all
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # shouldn't generate any more emails
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        process_send_message_notifications(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
+
+
 def test_process_send_request_notifications_host_request(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -517,7 +605,7 @@ def test_process_send_request_notifications_host_request(db):
     with requests_session(token1) as requests:
         host_request_id = requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                to_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
             )
         ).host_request_id
 
@@ -766,10 +854,10 @@ def test_process_send_reference_reminders(db):
         hr5 = create_host_request(session, user9.id, user10.id, timedelta(days=7))
 
     expected_emails = [
-        ("user4@couchers.org.invalid", "You have 3 days to write a reference for User 3!"),
-        ("user5@couchers.org.invalid", "You have 7 days to write a reference for User 6!"),
-        ("user7@couchers.org.invalid", "You have 12 days to write a reference for User 8!"),
-        ("user8@couchers.org.invalid", "You have 12 days to write a reference for User 7!"),
+        ("user4@couchers.org.invalid", "[TEST] You have 3 days to write a reference for User 3!"),
+        ("user5@couchers.org.invalid", "[TEST] You have 7 days to write a reference for User 6!"),
+        ("user7@couchers.org.invalid", "[TEST] You have 14 days to write a reference for User 8!"),
+        ("user8@couchers.org.invalid", "[TEST] You have 14 days to write a reference for User 7!"),
     ]
 
     process_send_reference_reminders(empty_pb2.Empty())

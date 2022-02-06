@@ -55,13 +55,13 @@ services:
       - "./data/certs/:/certs/"
       - "./data/nginx/logs/:/var/log/nginx/"
     ports:
-      # we don't support HTTP on the APIs, etc, users don't access these URLs directly anyway, so no redicrect is OK
-      #- 80:80
+      - 80:80
       - 443:443
       - 8443:8443
     networks:
       - media_nginx
       - envoy_nginx
+      - web_nginx
   prometheus:
     image: registry.gitlab.com/couchers/couchers/prometheus
     restart: always
@@ -70,6 +70,13 @@ services:
       - backend
     networks:
       - backend_prometheus
+  web:
+    image: registry.gitlab.com/couchers/couchers/web
+    restart: always
+    expose:
+      - 3000
+    networks:
+      - web_nginx
 
 networks:
   backend_prometheus:
@@ -83,4 +90,6 @@ networks:
   media_nginx:
     driver: bridge
   envoy_nginx:
+    driver: bridge
+  web_nginx:
     driver: bridge

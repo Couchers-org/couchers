@@ -6,29 +6,37 @@ stages:
   - release
 
 variables:
+  # whether to skip checks and only build & deploy
   DO_CHECKS: "true"
+  # whether to skip building web and mobile since they're very slow
+  BUILD_SLOW: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
   GIT_DEPTH: 10
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
   RELEASE_BRANCH: develop
-  GRPC_TAG: $CI_REGISTRY/couchers/grpc:latest
+  GRPC_TAG: registry.gitlab.com/couchers/grpc:latest
   PROXY_RELEASE_TAG: $CI_REGISTRY_IMAGE/proxy:latest
   NGINX_RELEASE_TAG: $CI_REGISTRY_IMAGE/nginx:latest
   NGINX_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/nginx-next:latest
   BACKEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/backend:latest
   MEDIA_RELEASE_TAG: $CI_REGISTRY_IMAGE/media:latest
   PROMETHEUS_RELEASE_TAG: $CI_REGISTRY_IMAGE/prometheus:latest
-  FRONTEND_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend:latest
-  FRONTEND_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/frontend-next:latest
+  WEB_DEV_RELEASE_TAG: $CI_REGISTRY_IMAGE/web-dev:latest
+  WEB_RELEASE_TAG: $CI_REGISTRY_IMAGE/web:latest
+  WEB_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/web-next:latest
+  MOBILE_APP_RELEASE_TAG: $CI_REGISTRY_IMAGE/mobile-app:latest
+  MOBILE_APP_PREVIEW_RELEASE_TAG: $CI_REGISTRY_IMAGE/mobile-app:current-preview
   SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   NGINX_TAG: $CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   NGINX_NEXT_TAG: $CI_REGISTRY_IMAGE/nginx-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   BACKEND_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   MEDIA_TAG: $CI_REGISTRY_IMAGE/media:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
-  FRONTEND_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
-  FRONTEND_NEXT_TAG: $CI_REGISTRY_IMAGE/frontend-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  WEB_TAG: $CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  WEB_DEV_TAG: $CI_REGISTRY_IMAGE/web-dev:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  WEB_NEXT_TAG: $CI_REGISTRY_IMAGE/web-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  MOBILE_APP_TAG: $CI_REGISTRY_IMAGE/mobile-app:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROMETHEUS_TAG: $CI_REGISTRY_IMAGE/prometheus:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
 
 
@@ -38,7 +46,6 @@ default:
     - docker:19.03.12-dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-
 
 protos:
   needs: []
@@ -55,7 +62,6 @@ protos:
   artifacts:
     paths:
       - app/
-
 
 build:proxy:
   needs: ["protos"]
@@ -129,22 +135,84 @@ build:media:
       - app/proto/**/*
       - app/media/**/*
 
-build:frontend:
+build:web-dev:
   needs: ["protos"]
   stage: build
   script:
-    - docker pull $FRONTEND_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG --cache-from $FRONTEND_RELEASE_TAG -t $FRONTEND_TAG app/frontend/
-    - docker push $FRONTEND_TAG
+    - docker pull $WEB_DEV_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --cache-from $WEB_DEV_RELEASE_TAG -t $WEB_DEV_TAG -f app/web/dev.Dockerfile app/web/
+    - docker push $WEB_DEV_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $FRONTEND_TAG):/app/build artifacts/frontend
+    - mkdir -p artifacts && docker cp $(docker create $WEB_DEV_TAG):/app artifacts/web-dev
   rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/proto/**/*
+      - app/web/**/*
   artifacts:
     paths:
-      - artifacts/frontend/
+      - artifacts/web-dev/
+
+build:web:
+  needs: ["protos"]
+  stage: build
+  script:
+    - docker pull $WEB_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --cache-from $WEB_RELEASE_TAG -t $WEB_TAG -f app/web/prod.Dockerfile app/web/
+    - docker push $WEB_TAG
+    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
+    - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app artifacts/web
+  rules:
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/proto/**/*
+      - app/web/**/*
+  artifacts:
+    paths:
+      - artifacts/web/
+
+build:web-next:
+  needs: ["protos"]
+  stage: build
+  script:
+    - docker pull $WEB_NEXT_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --build-arg environment=preview --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f app/web/prod.Dockerfile app/web/
+    - docker push $WEB_NEXT_TAG
+    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
+    - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app artifacts/web
+  rules:
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/proto/**/*
+      - app/web/**/*
+  artifacts:
+    paths:
+      - artifacts/web/
+
+build:mobile:
+  needs: ["protos"]
+  stage: build
+  script:
+    - docker pull $MOBILE_APP_RELEASE_TAG || true
+    - docker build --build-arg VERSION=$SLUG --build-arg EXPO_ROBOT_TOKEN=$EXPO_ROBOT_TOKEN --cache-from $MOBILE_APP_RELEASE_TAG -t $MOBILE_APP_TAG app/mobile/src/
+    - docker push $MOBILE_APP_TAG
+  rules:
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/proto/**/*
+      - app/mobile/**/*
 
 build:nginx-next:
   needs: []
@@ -161,30 +229,6 @@ build:nginx-next:
       changes:
       - app/proto/**/*
       - app/nginx/**/*
-
-build:frontend-next:
-  needs: ["protos"]
-  stage: build
-  script:
-    - docker pull $FRONTEND_RELEASE_TAG || true
-    # this is a bit hacky, but I don't see any other good way to get the preview env vars into the container
-    - cp app/frontend/.env.preview app/frontend/.env.production
-    - docker build --build-arg version=$SLUG-next --cache-from $FRONTEND_RELEASE_TAG -t $FRONTEND_NEXT_TAG app/frontend/
-    - docker push $FRONTEND_NEXT_TAG
-    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $FRONTEND_NEXT_TAG):/app/build artifacts/frontend-next
-  rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-      - app/**/*
-    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
-      changes:
-      - app/proto/**/*
-      - app/frontend/**/*
-  artifacts:
-    paths:
-      - artifacts/frontend-next/
-
 
 test:backend:
   needs: ["build:backend"]
@@ -254,35 +298,94 @@ test:media:
       - app/proto/**/*
       - app/media/**/*
 
-# test:frontend:
-#   needs: ["build:frontend"]
-#   stage: test
-#   image: $FRONTEND_TAG
-#   inherit:
-#     # no docker login
-#     default: false
-#   script:
-#     - cd /app && yarn test-ci
-#   after_script:
-#     - cp /app/junit.xml $CI_PROJECT_DIR/
-#     - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
-#     - mkdir -p $CI_PROJECT_DIR/artifacts/lcov-report && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
-#   coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
-#   artifacts:
-#     reports:
-#       cobertura: cobertura-coverage.xml
-#       junit: junit.xml
-#     paths:
-#       - artifacts/lcov-report
-#   rules:
-#     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-#       changes:
-#       - app/**/*
+test:web:
+  needs: ["build:web-dev"]
+  stage: test
+  image: $WEB_DEV_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app && yarn test-ci
+  after_script:
+    - cp /app/junit.xml $CI_PROJECT_DIR/
+    - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
+    - mkdir -p $CI_PROJECT_DIR/artifacts/lcov-report && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
+  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      cobertura: cobertura-coverage.xml
+      junit: junit.xml
+    paths:
+      - artifacts/lcov-report
+  rules:
+    - if: ($BUILD_SLOW == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($BUILD_SLOW == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/proto/**/*
+      - app/web/**/*
+
+test:mobile:
+  needs: ["build:mobile"]
+  stage: test
+  image: $MOBILE_APP_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app && yarn jest --ci
+    # we may want to add junit.xml and some kind of coverage tool here as we go.
+  rules:
+    - if: ($BUILD_SLOW == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($BUILD_SLOW == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/proto/**/*
+      - app/mobile/**/*
+
+test:web-prettier:
+  needs: ["build:web-dev"]
+  stage: test
+  image: $WEB_DEV_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app
+    - yarn prettier --check *
+  rules:
+    - if: ($BUILD_SLOW == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($BUILD_SLOW == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/web/**/*
+
+test:mobile-prettier:
+  needs: ["build:mobile"]
+  stage: test
+  image: $MOBILE_APP_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app
+    - yarn prettier --check "./*"
+  rules:
+    - if: ($BUILD_SLOW == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($BUILD_SLOW == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/mobile/**/*
 
 test:storybook:
-  needs: ["build:frontend-next"]
+  needs: ["build:web-dev"]
   stage: test
-  image: $FRONTEND_NEXT_TAG
+  image: $WEB_DEV_TAG
   inherit:
     # no docker login
     default: false
@@ -293,43 +396,13 @@ test:storybook:
     paths:
       - artifacts/storybook-static
   rules:
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_SLOW == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+    - if: ($BUILD_SLOW == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
-      - app/frontend/**/*
-
-# test:frontend-next:
-#   needs: ["build:frontend-next"]
-#   stage: test
-#   image: $FRONTEND_NEXT_TAG
-#   inherit:
-#     # no docker login
-#     default: false
-#   script:
-#     - cd /app && yarn test-ci
-#   after_script:
-#     - cp /app/junit.xml $CI_PROJECT_DIR/
-#     - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
-#     - mkdir -p $CI_PROJECT_DIR/artifacts/lcov-report && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
-#   coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
-#   artifacts:
-#     reports:
-#       cobertura: cobertura-coverage.xml
-#       junit: junit.xml
-#     paths:
-#       - artifacts/lcov-report
-#   rules:
-#     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-#       changes:
-#       - app/**/*
-#     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
-#       changes:
-#       - app/proto/**/*
-#       - app/frontend/**/*
-
+      - app/web/**/*
 
 preview:bcov:
   needs: ["test:backend"]
@@ -353,27 +426,27 @@ preview:bcov:
       - app/proto/**/*
       - app/backend/**/*
 
-# preview:fcov:
-#   needs: ["test:frontend-next"]
-#   stage: preview
-#   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
-#   inherit:
-#     # no docker login
-#     default: false
-#   script:
-#     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_SHORT_SHA/ --recursive
-#     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_SHORT_SHA/ --recursive
-#     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
-#     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/fcov/$CI_COMMIT_REF_SLUG/ --recursive
-#     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--fcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--fcov.$PREVIEW_DOMAIN/"
-#   rules:
-#     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-#       changes:
-#       - app/**/*
-#     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
-#       changes:
-#       - app/proto/**/*
-#       - app/frontend/**/*
+preview:wcov:
+  needs: ["test:web"]
+  stage: preview
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_REF_SLUG/ --recursive
+    - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--wcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--wcov.$PREVIEW_DOMAIN/"
+  rules:
+    - if: ($BUILD_SLOW == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($BUILD_SLOW == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/proto/**/*
+      - app/web/**/*
 
 preview:storybook:
   needs: ["test:storybook"]
@@ -389,36 +462,44 @@ preview:storybook:
     - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, storybook available at https://$CI_COMMIT_SHORT_SHA--storybook.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--storybook.$PREVIEW_DOMAIN/"
   rules:
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_SLOW == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+    - if: ($BUILD_SLOW == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/proto/**/*
-      - app/frontend/**/*
+      - app/web/**/*
 
-preview:frontend-next:
-  needs: ["build:frontend-next"]
+preview:mobile:
+  needs: ["test:mobile"]
   stage: preview
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  image: $MOBILE_APP_TAG
   inherit:
     # no docker login
     default: false
+  # publish and tag the release
+  # the last preview release will always be available in the registry as
+  # $MOBILE_APP_PREVIEW_RELEASE_TAG (see above)
   script:
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 cp artifacts/frontend-next s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_REF_SLUG/ --recursive
-    - aws s3 cp artifacts/frontend-next s3://$AWS_PREVIEW_BUCKET/frontend/$CI_COMMIT_REF_SLUG/ --recursive
-    - echo "Done, preview available at https://$CI_COMMIT_SHORT_SHA--frontend.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--frontend.$PREVIEW_DOMAIN/"
-  rules:
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-      - app/**/*
-    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
-      changes:
-      - app/proto/**/*
-      - app/frontend/**/*
+    - cd /app && yarn expo publish --release-channel preview --non-interactive
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_TAG =~ /v[0-9]\.[0-9]\.[0-9]-mobile-preview/
 
+preview:tag-mobile-preview:
+  needs: ["preview:mobile"]
+  stage: preview
+  script:
+    - docker pull $MOBILE_APP_TAG;
+    - docker tag $MOBILE_APP_TAG $MOBILE_APP_PREVIEW_RELEASE_TAG;
+    - docker push $MOBILE_APP_PREVIEW_RELEASE_TAG;
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_TAG =~ /v[0-9]\.[0-9]\.[0-9]-mobile-preview/
 
 release:proxy:
   stage: release
@@ -475,14 +556,37 @@ release:media:
       changes:
       - app/**/*
 
-release:frontend:
+release:web-dev:
   stage: release
   script:
-    - docker pull $FRONTEND_TAG
-    - docker tag $FRONTEND_TAG $FRONTEND_RELEASE_TAG
-    - docker push $FRONTEND_RELEASE_TAG
+    - docker pull $WEB_DEV_TAG
+    - docker tag $WEB_DEV_TAG $WEB_DEV_RELEASE_TAG
+    - docker push $WEB_DEV_RELEASE_TAG
   rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+
+release:web:
+  stage: release
+  script:
+    - docker pull $WEB_TAG
+    - docker tag $WEB_TAG $WEB_RELEASE_TAG
+    - docker push $WEB_RELEASE_TAG
+  rules:
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+
+release:web-next:
+  stage: release
+  script:
+    - docker pull $WEB_NEXT_TAG
+    - docker tag $WEB_NEXT_TAG $WEB_NEXT_RELEASE_TAG
+    - docker push $WEB_NEXT_RELEASE_TAG
+    # some command to get our preview server to redeploy?
+  rules:
+    - if: ($BUILD_SLOW == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
 
@@ -492,17 +596,6 @@ release:nginx-next:
     - docker pull $NGINX_NEXT_TAG
     - docker tag $NGINX_NEXT_TAG $NGINX_NEXT_RELEASE_TAG
     - docker push $NGINX_NEXT_RELEASE_TAG
-  rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-      - app/**/*
-
-release:frontend-next:
-  stage: release
-  script:
-    - docker pull $FRONTEND_NEXT_TAG
-    - docker tag $FRONTEND_NEXT_TAG $FRONTEND_NEXT_RELEASE_TAG
-    - docker push $FRONTEND_NEXT_RELEASE_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:

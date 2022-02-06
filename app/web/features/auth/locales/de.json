@@ -1,0 +1,108 @@
+{
+  "community_guidelines_form": {
+    "header": "Community-Richtlinien",
+    "guideline": {
+      "required_error": "Alle Kontrollkästchen werden benötigt",
+      "checkbox_label": "Okay, verstanden"
+    }
+  },
+  "account_form": {
+    "tos_accept_label": "Ich akzeptiere die $t(global:terms_of_service).",
+    "header": "Deine Accountdetails",
+    "username": {
+      "field_label": "Benutzername",
+      "required_error": "Gib deinen Nuternamen ein",
+      "username_taken_error": "Dieser Benutzername ist bereits vergeben."
+    },
+    "birthday": {
+      "field_label": "Geburtsdatum",
+      "required_error": "Gib dein Geburtsdatum ein",
+      "validation_error": "Muss ein gültiges Datum aus der Vergangenheit sein."
+    },
+    "hosting_status": {
+      "can_host": "Kann hosten",
+      "maybe": "Kann vielleicht hosten",
+      "cant_host": "Kann nicht hosten"
+    },
+    "gender": {
+      "field_label": "Ich identifiziere mich als ...",
+      "required_error": "Bitte wähle deine Geschlechts/Gender-Identität aus",
+      "man": "Mann",
+      "non_binary": "Nicht-binär",
+      "woman": "Frau"
+    },
+    "tos_prompt": "Um fortzufahren, lies und akzeptiere bitte die <1></1>."
+  },
+  "sign_up_completed_prompt": "Wir haben eine E-Mail-Adresse mit einem Bestätigungslink an deine E-Mail-Adresse gesendet. Bitte klicke auf den Link, um deinen Account zu aktivieren.",
+  "location_confirm_title": "Überprüfe deine Karte erneut, bevor du fortfährst",
+  "change_email_form": {
+    "title": "E-Mail-Adresse ändern",
+    "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <2>{{email}}</2>.",
+    "current_password": "Aktuelles Passwort",
+    "new_email": "Neue E-Mail-Adresse",
+    "success_message": "Die Änderung deiner E-Mail-Adresse wurde empfangen. Überprüfe dein E-Mail-Postfach, um die Änderung abzuschließen."
+  },
+  "change_email_confirmation": {
+    "change_in_progress": "Änderung der E-Mail-Adresse in Bearbeitung…",
+    "success_message": "Deine E-Mail-Adresse wurde erfolgreich geändert!",
+    "invalid_confirmation_state": "Ungültiger Status der Bestätigung der E-Mail-Adresse",
+    "error_message": "Fehler beim Ändern der E-Mail-Adresse: {{message}}",
+    "requires_confirmation_from_new_email": "Danke, dass du deine alte E-Mail-Adresse bestätigt hast. Um die Änderung abzuschließen, musst du immer noch deine neue E-Mail-Adresse bestätigen.",
+    "requires_confirmation_from_old_email": "Danke, dass du deine neue E-Mail-Adresse bestätigt hast. Um die Änderung abzuschließen, musst du immer noch deine alte E-Mail-Adresse bestätigen."
+  },
+  "basic_form": {
+    "name": {
+      "empty_error": "Bitte gib deinen Namen an",
+      "required_error": "Namen dürfen nicht nur Leerzeichen enthalten.",
+      "field_label": "Dein Name"
+    },
+    "email": {
+      "field_label": "E-Mail-Adresse",
+      "empty_error": "Bitte gib eine giltige E-Mail-Adresse an",
+      "required_error": "Das Feld \"E-Mail-Adresse\" darf nicht leer sein."
+    }
+  },
+  "location": {
+    "field_label": "Dein Ort",
+    "validation_error": "Bitte gib einen gültigen Ort an."
+  },
+  "change_password_form": {
+    "title": "Passwort ändern",
+    "confirm_password": "Passwort bestätigen",
+    "password_changed_success": "Dein neues Passwort wurde akzeptiert und eine Benachrichtigung wurde an deine E-Mail-Adresse gesendet.",
+    "old_password": "Altes Passwort",
+    "new_password": "Neues Passwort",
+    "password_mismatch_error": "Dies stimmt nicht mit dem Passwort, das du oben eingegeben hast, überein."
+  },
+  "reset_password_form": {
+    "success_message": "Überprüfe deine E-Mail-Adresse, für einen Link, um das Passwort zurückzusetzen!",
+    "enter_email": "Gib deinen Benutzernamen/deine E-Mail-Adresse ein"
+  },
+  "login_page": {
+    "title": "Einloggen",
+    "header": "Willkommen zurück!",
+    "no_account_prompt": "Hast du noch keinen Account? <2>$t(global:sign_up)</2>"
+  },
+  "basic_sign_up_form": {
+    "header": "Lass uns loslegen!",
+    "existing_user_prompt": "Hast du bereits einen Account? <2>$t(global:login)</2>",
+    "sign_up_agreement_explainer": "Beim Fortfahren stimmst du unseren <2>Nutzungsvereinbarungen</2> zu, inklusive unseren Vereinbarung zur Verwendung von Cookies, E-Mail-Adresse und digitaler Informationen."
+  },
+  "sign_up_completed_title": "Danke, dass du uns beigetreten bist!",
+  "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche, dich einzuloggen.",
+  "reset_password_success": "Dein Passwort wurde erfolgreich geändert! Dir wird jetzt ein magischer Link an deine E-Mail-Adresse gesendet, sobald du dich mit Benutzername oder E-Mail-Adresse einloggst.",
+  "login_prompt": "Klicke hier, um dich einzuloggen",
+  "about_us": "Über uns",
+  "username_helper": "Dein Benutzername wird beim Erstellen eines Accounts festgelegt.",
+  "change_birthdate": "Geburtstag ändern",
+  "introduction_subtitle": "Auf ewig kostenlos. Von der Community geleitet. Gemeinnützig. Modern.",
+  "introduction_title": "Tritt uns bei und unterstütze uns darin, die neue Alternative zu Couchsurfing™ wachsen zu lassen",
+  "reset_password": "Passwort zurücksetzen",
+  "reset_password_error": "Fehler beim Zurücksetzen des Passworts: {{message}}",
+  "you_were_logged_out": "Du wurdest ausgeloggt.",
+  "jail": {
+    "jail_tos_text": "Wir haben unsere Nutzungsbedingungen aktualisiert. Um Fortzufahren, lies und akzeptiere bitte die neuen "
+  },
+  "check_email_for_link": "Überprüfe dein E-Mail-Postfach für einen Link, um dich einzuloggen! :)",
+  "forgot_password": "Passwort vergessen?"
+}

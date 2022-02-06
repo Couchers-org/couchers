@@ -809,14 +809,8 @@ def test_contributor_form(db):
     with account_session(token) as account:
         res = account.GetContributorFormInfo(empty_pb2.Empty())
         assert not res.filled_contributor_form
-        assert res.username == user.username
-        assert res.name == user.name
-        assert res.email == user.email
-        assert res.age == user.age
-        assert res.gender == user.gender
-        assert res.location == user.city
 
-        account.MarkContributorFormFilled(account_pb2.MarkContributorFormFilledReq(filled_contributor_form=True))
+        account.FillContributorForm(account_pb2.FillContributorFormReq(contributor_form=auth_pb2.ContributorForm()))
 
         res = account.GetContributorFormInfo(empty_pb2.Empty())
         assert res.filled_contributor_form
