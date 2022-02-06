@@ -29,6 +29,7 @@ from couchers.models import (
     BackgroundJobType,
     Email,
     LoginToken,
+    PasswordResetToken,
 )
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_login_email
@@ -145,6 +146,39 @@ def test_purge_login_tokens(db):
 
     with session_scope() as session:
         assert session.execute(select(func.count()).select_from(LoginToken)).scalar_one() == 0
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.state == BackgroundJobState.completed)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.state != BackgroundJobState.completed)
+            ).scalar_one()
+            == 0
+        )
+
+
+def test_purge_password_reset_tokens(db):
+    user, api_token = generate_user()
+
+    with session_scope() as session:
+        password_reset_token = PasswordResetToken(token=urlsafe_secure_token(), user=user, expiry=now())
+        session.add(password_reset_token)
+        assert session.execute(select(func.count()).select_from(PasswordResetToken)).scalar_one() == 1
+
+    queue_job(BackgroundJobType.purge_password_reset_tokens, empty_pb2.Empty())
+    process_job()
+
+    with session_scope() as session:
+        assert session.execute(select(func.count()).select_from(PasswordResetToken)).scalar_one() == 0
 
     with session_scope() as session:
         assert (

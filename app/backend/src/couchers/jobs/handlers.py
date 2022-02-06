@@ -21,6 +21,7 @@ from couchers.models import (
     LoginToken,
     Message,
     MessageType,
+    PasswordResetToken,
     Reference,
     User,
 )
@@ -54,8 +55,14 @@ def process_send_email(payload):
 def process_purge_login_tokens(payload):
     logger.info(f"Purging login tokens")
     with session_scope() as session:
+        session.execute(delete(LoginToken).where(~LoginToken.is_valid).execution_options(synchronize_session=False))
+
+
+def process_purge_password_reset_tokens(payload):
+    logger.info(f"Purging login tokens")
+    with session_scope() as session:
         session.execute(
-            delete(LoginToken).where(LoginToken.is_valid == False).execution_options(synchronize_session=False)
+            delete(PasswordResetToken).where(~PasswordResetToken.is_valid).execution_options(synchronize_session=False)
         )
 
 

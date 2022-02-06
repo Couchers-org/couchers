@@ -658,12 +658,12 @@ def test_successful_authenticate(db):
     # Authenticate with username
     with auth_api_session() as (auth_api, metadata_interceptor):
         reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password="password"))
-    assert reply.jailed == False
+    assert not reply.jailed
 
     # Authenticate with email
     with auth_api_session() as (auth_api, metadata_interceptor):
         reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user.email, password="password"))
-    assert reply.jailed == False
+    assert not reply.jailed
 
 
 def test_unsuccessful_authenticate(db):

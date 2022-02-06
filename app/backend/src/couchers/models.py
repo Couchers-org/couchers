@@ -647,7 +647,7 @@ class LoginToken(Base):
 
     @hybrid_property
     def is_valid(self):
-        return (self.created <= func.now()) & (self.expiry >= func.now())
+        return (self.created <= now()) & (self.expiry >= now())
 
     def __repr__(self):
         return f"LoginToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
@@ -666,7 +666,7 @@ class PasswordResetToken(Base):
 
     @hybrid_property
     def is_valid(self):
-        return (self.created <= func.now()) & (self.expiry >= func.now())
+        return (self.created <= now()) & (self.expiry >= now())
 
     def __repr__(self):
         return f"PasswordResetToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
@@ -1812,6 +1812,8 @@ class BackgroundJobType(enum.Enum):
     handle_email_digests = enum.auto()
     # payload: jobs.GenerateMessageNotificationsPayload
     generate_message_notifications = enum.auto()
+    # payload: google.protobuf.Empty
+    purge_password_reset_tokens = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):

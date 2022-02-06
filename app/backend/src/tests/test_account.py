@@ -936,7 +936,7 @@ def test_DeleteAccount(db):
 
 
 def test_AccountRecovery(db):
-    user, token = generate_user(make_invisible=True)
+    user, token = generate_user(delete_user=True)
     with session_scope() as session:
         session.add(AccountDeletionToken(token="token", user_id=user.id))
 
@@ -985,7 +985,7 @@ def test_AccountRecovery(db):
 
 
 def test_AccountRecovery_no_pass(db):
-    user, token = generate_user(hashed_password=None, make_invisible=True)
+    user, token = generate_user(hashed_password=None, delete_user=True)
     with session_scope() as session:
         session.add(
             AccountDeletionToken(token="token", user_id=user.id, end_time_to_recover=now() + timedelta(hours=48))
