@@ -33,6 +33,13 @@ export default function Unsubscribe() {
     async ({ payload, sig }) => service.auth.unsubscribe(payload, sig)
   );
 
+  const onClick = () => {
+    if (payload === undefined || sig === undefined) {
+      throw Error("Missing payload or sig");
+    }
+    return unsubscribe({ payload, sig });
+  };
+
   return (
     <>
       <HtmlMeta title={t("auth:unsubscribe.title")} />
@@ -45,7 +52,7 @@ export default function Unsubscribe() {
         </Alert>
       )}
       {isSuccess && <Alert severity="success">{data!.response}</Alert>}
-      <Button onClick={() => unsubscribe({ payload, sig })} loading={isLoading}>
+      <Button onClick={onClick} loading={isLoading}>
         {t("auth:unsubscribe.button_text")}
       </Button>
     </>
