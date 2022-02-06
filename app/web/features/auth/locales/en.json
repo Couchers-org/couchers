@@ -181,6 +181,7 @@
   "unsubscribe": {
     "title": "Unsubscribe",
     "button_text": "Confirm unsubscription",
-    "error_message": "Error unsubscribing: {{message}}"
+    "error_message": "Error unsubscribing: {{message}}",
+    "missing_payload_or_sig": "Invalid URL, missing payload or signature"
   }
 }

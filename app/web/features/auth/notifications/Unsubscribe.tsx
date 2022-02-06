@@ -32,7 +32,7 @@ export default function Unsubscribe() {
   } = useMutation<UnsubscribeRes.AsObject, RpcError, UnsubscribeParams>(
     async ({ payload, sig }) => {
       if (payload === undefined || sig === undefined) {
-        throw Error("Missing payload or sig");
+        throw Error(t("auth:unsubscribe.missing_payload_or_sig"));
       }
       return await service.auth.unsubscribe(payload, sig);
     }
