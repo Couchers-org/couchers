@@ -1,6 +1,7 @@
 backend:
-  name: git-gateway
+  name: github
   branch: develop
+  repo: couchers-org/couchers-cms-test
 media_folder: app/web/public/img
 public_folder: /img
 publish_mode: editorial_workflow
