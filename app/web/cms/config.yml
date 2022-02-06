@@ -2,6 +2,7 @@ backend:
   name: github
   branch: develop
   repo: couchers-org/couchers
+  cms_label_prefix: cms/
 media_folder: app/web/public/img
 public_folder: /img
 publish_mode: editorial_workflow
