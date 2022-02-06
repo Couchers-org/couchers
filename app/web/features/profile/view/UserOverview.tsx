@@ -10,8 +10,8 @@ import {
 } from "features/constants";
 import { PropsWithChildren, useRef } from "react";
 import makeStyles from "utils/makeStyles";
-import UseFontResizer from "../hooks/useFontResizer";
 
+import UseFontResizer from "../hooks/useFontResizer";
 import { useProfileUser } from "../hooks/useProfileUser";
 import { LabelsReferencesLastActive } from "./UserTextAndLabel";
 
@@ -50,7 +50,7 @@ export default function UserOverview({ children }: PropsWithChildren<unknown>) {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  UseFontResizer({containerRef, textRef})
+  UseFontResizer({ containerRef, textRef });
 
   return (
     <Card className={classes.card}>
