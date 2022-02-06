@@ -8,8 +8,9 @@ import {
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/constants";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useRef } from "react";
 import makeStyles from "utils/makeStyles";
+import UseFontResizer from "../hooks/useFontResizer";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import { LabelsReferencesLastActive } from "./UserTextAndLabel";
@@ -47,11 +48,15 @@ export default function UserOverview({ children }: PropsWithChildren<unknown>) {
   const classes = useStyles();
   const user = useProfileUser();
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  UseFontResizer({containerRef, textRef})
+
   return (
     <Card className={classes.card}>
       <Avatar user={user} grow />
-      <div className={classes.wrapper}>
-        <Typography variant="h1" className={classes.intro}>
+      <div className={classes.wrapper} ref={containerRef}>
+        <Typography variant="h1" className={classes.intro} ref={textRef}>
           {user.name}
         </Typography>
         <Typography variant="body1" className={classes.intro}>
