@@ -3,6 +3,7 @@
 # Please make sure this file stays in sync with that file as well as
 # //app/web/src/routes.ts
 
+
 from couchers.config import config
 
 
@@ -80,3 +81,7 @@ def donation_cancelled_url():
 
 def donation_success_url():
     return f"{config['BASE_URL']}/donate?success=true"
+
+
+def unsubscribe_link(*, payload, sig):
+    return f"{config['BASE_URL']}/unsubscribe?payload={payload}&sig={sig}"

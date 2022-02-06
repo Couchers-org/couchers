@@ -7,6 +7,8 @@ from nacl.bindings.utils import sodium_memcmp
 from nacl.exceptions import InvalidkeyError
 from nacl.utils import random as random_bytes
 
+from couchers.config import config
+
 
 def urlsafe_random_bytes(length=32):
     return urlsafe_b64encode(random_bytes(length)).decode("utf8")
@@ -76,3 +78,13 @@ def verify_token(a: str, b: str):
     reduce the risk of timing attacks.
     """
     return secrets.compare_digest(a, b)
+
+
+def get_secret(name):
+    """
+    Derives a secret key from the root secret using a key derivation function
+    """
+    return generate_hash_signature(name.encode("utf8"), config["SECRET"])
+
+
+UNSUBSCRIBE_KEY_NAME = "unsubscribe"

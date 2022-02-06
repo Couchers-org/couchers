@@ -101,6 +101,10 @@ service Auth {
   rpc ConfirmChangeEmail(ConfirmChangeEmailReq) returns (ConfirmChangeEmailRes) {
     // Triggered when the user goes to the link sent in the either email_changed_confirmation_*_email
   }
+
+  rpc Unsubscribe(UnsubscribeReq) returns (UnsubscribeRes) {
+    // Handle an unsubscribe action from an email
+  }
 }
 
 message SignupFlowReq {
@@ -242,4 +246,15 @@ message ContributorForm {
   ContributeOption contribute = 4;
   repeated string contribute_ways = 5;
   string expertise = 6;
+}
+
+message UnsubscribeReq {
+  // frontend should decode the base64 in urls and send raw bytes
+  bytes payload = 1;
+  bytes sig = 2;
+}
+
+message UnsubscribeRes {
+  // returned only on success, otherwise errors out the RPC
+  string response = 1;
 }
