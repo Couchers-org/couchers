@@ -11,8 +11,8 @@ collections:
   - label: "Blog"
     name: "blog"
     folder: "app/web/markdown/blog"
-    path: '{{year}}/{{month}}/{{day}}/{{slug}}'
-    slug: '{{slug}}'
+    path: "{{year}}/{{month}}/{{day}}/{{slug}}"
+    slug: "{{slug}}"
     create: true
     nested:
       depth: 100
