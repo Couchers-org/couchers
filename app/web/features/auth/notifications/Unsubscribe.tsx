@@ -1,7 +1,5 @@
-import { Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import { RpcError } from "grpc-web";
@@ -9,7 +7,6 @@ import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { UnsubscribeRes } from "proto/auth_pb";
-import { useEffect } from "react";
 import { useMutation } from "react-query";
 import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";
@@ -47,11 +44,7 @@ export default function Unsubscribe() {
           })}
         </Alert>
       )}
-      {isSuccess && (
-        <Alert severity="success">
-          {data?.response || t("global:success")}
-        </Alert>
-      )}
+      {isSuccess && <Alert severity="success">{data!.response}</Alert>}
       <Button onClick={() => unsubscribe({ payload, sig })} loading={isLoading}>
         {t("auth:unsubscribe.button_text")}
       </Button>
