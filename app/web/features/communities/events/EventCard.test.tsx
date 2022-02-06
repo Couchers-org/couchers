@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
+import { t } from "test/utils";
 import timezoneMock from "timezone-mock";
 
 import { getAttendeesCount } from "../constants";
-import { VIEW_DETAILS_FOR_LINK } from "./constants";
 import EventCard from "./EventCard";
 
 const [firstEvent, secondEvent, thirdEvent] = events;
@@ -62,7 +62,9 @@ describe("Event card", () => {
     expect(
       screen.getByRole("heading", { name: secondEvent.title })
     ).toBeVisible();
-    expect(screen.getByText(VIEW_DETAILS_FOR_LINK)).toBeVisible();
+    expect(
+      screen.getByText(t("communities:view_details_for_link"))
+    ).toBeVisible();
     expect(screen.getByText("June 29, 2021 9:00 PM - 10:00 PM")).toBeVisible();
     expect(
       screen.getByText(

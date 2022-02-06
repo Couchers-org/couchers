@@ -16,21 +16,11 @@ import {
   getThread,
   getUser,
 } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 import timezoneMock from "timezone-mock";
 
 import { PREVIOUS_PAGE, WRITE_COMMENT_A11Y_LABEL } from "../constants";
-import {
-  ATTENDEES,
-  details,
-  EDIT_EVENT,
-  EVENT_DISCUSSION,
-  EVENT_LINK,
-  JOIN_EVENT,
-  LEAVE_EVENT,
-  ORGANIZERS,
-  VIRTUAL_EVENT,
-} from "./constants";
+import { details } from "./constants";
 import EventPage from "./EventPage";
 
 jest.mock("components/MarkdownInput");
@@ -96,7 +86,9 @@ describe("Event page", () => {
     // Event image
     expect(screen.getByRole("img", { name: "" })).toBeVisible();
 
-    expect(screen.getByRole("button", { name: LEAVE_EVENT })).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: t("communities:leave_event") })
+    ).toBeVisible();
 
     // Event details
     expect(screen.getByRole("heading", { name: details() })).toBeVisible();
@@ -104,12 +96,16 @@ describe("Event page", () => {
     expect(screen.getByText("or be square!")).toBeVisible();
 
     // Basic checks that the organizers and attendees sections are rendered
-    expect(screen.getByRole("heading", { name: ORGANIZERS })).toBeVisible();
-    expect(screen.getByRole("heading", { name: ATTENDEES })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: t("communities:organizers") })
+    ).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: t("communities:attendees") })
+    ).toBeVisible();
 
     // Basic checks that the discussion has been rendered
     expect(
-      screen.getByRole("heading", { name: EVENT_DISCUSSION })
+      screen.getByRole("heading", { name: t("communities:event_discussion") })
     ).toBeVisible();
     expect(screen.getByLabelText(WRITE_COMMENT_A11Y_LABEL)).toBeVisible();
   });
@@ -121,8 +117,10 @@ describe("Event page", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     // Should be identical in structure as first test, so only assert on things that are different
-    expect(screen.getByText(VIRTUAL_EVENT)).toBeVisible();
-    expect(screen.getByRole("link", { name: EVENT_LINK })).toBeVisible();
+    expect(screen.getByText(t("communities:virtual_event"))).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: t("communities:event_link") })
+    ).toBeVisible();
   });
 
   it("renders an event with a different start and end day correctly", async () => {
@@ -153,14 +151,18 @@ describe("Event page", () => {
     getEventMock.mockResolvedValue({ ...firstEvent, canEdit: true });
     renderEventPage();
 
-    expect(await screen.findByRole("link", { name: EDIT_EVENT })).toBeVisible();
+    expect(
+      await screen.findByRole("link", { name: t("communities:edit_event") })
+    ).toBeVisible();
   });
 
   it("shows the 'edit event' button if the user has moderation permission", async () => {
     getEventMock.mockResolvedValue({ ...firstEvent, canModerate: true });
     renderEventPage();
 
-    expect(await screen.findByRole("link", { name: EDIT_EVENT })).toBeVisible();
+    expect(
+      await screen.findByRole("link", { name: t("communities:edit_event") })
+    ).toBeVisible();
   });
 
   it("does not show the 'edit event' button if the user does not have edit permission", async () => {
@@ -168,7 +170,7 @@ describe("Event page", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(
-      screen.queryByRole("button", { name: EDIT_EVENT })
+      screen.queryByRole("button", { name: t("communities:edit_event") })
     ).not.toBeInTheDocument();
   });
 
@@ -202,12 +204,12 @@ describe("Event page", () => {
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
       const attendanceButton = screen.getByRole("button", {
-        name: LEAVE_EVENT,
+        name: t("communities:leave_event"),
       });
       userEvent.click(attendanceButton);
 
       expect(
-        await screen.findByRole("button", { name: JOIN_EVENT })
+        await screen.findByRole("button", { name: t("communities:join_event") })
       ).toBeVisible();
       expect(
         screen.queryByRole("heading", { name: "Funny Cat current User" })
@@ -229,7 +231,9 @@ describe("Event page", () => {
       renderEventPage();
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      userEvent.click(screen.getByRole("button", { name: LEAVE_EVENT }));
+      userEvent.click(
+        screen.getByRole("button", { name: t("communities:leave_event") })
+      );
 
       await assertErrorAlert(errorMessage);
     });

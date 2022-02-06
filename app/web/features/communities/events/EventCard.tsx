@@ -10,6 +10,8 @@ import type { TypographyStyleOptions } from "@material-ui/core/styles/createTypo
 import { eventImagePlaceholderUrl } from "appConstants";
 import classNames from "classnames";
 import { AttendeesIcon, CalendarIcon } from "components/Icons";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
@@ -20,7 +22,7 @@ import makeStyles from "utils/makeStyles";
 import stripMarkdown from "utils/stripMarkdown";
 
 import { getAttendeesCount, ONLINE } from "../constants";
-import { details, VIEW_DETAILS_FOR_LINK } from "./constants";
+import { details } from "./constants";
 
 const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
   root: {
@@ -124,6 +126,7 @@ export interface EventCardProps {
 }
 
 export default function EventCard({ event, className }: EventCardProps) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = useStyles({
     eventImageSrc: event.photoUrl || eventImagePlaceholderUrl,
   });
@@ -158,7 +161,7 @@ export default function EventCard({ event, className }: EventCardProps) {
             <Typography className={classes.subtitle} noWrap variant="body2">
               {event.offlineInformation
                 ? event.offlineInformation.address
-                : VIEW_DETAILS_FOR_LINK}
+                : t("communities:view_details_for_link")}
             </Typography>
             <ul className={classes.detailsList}>
               <li>

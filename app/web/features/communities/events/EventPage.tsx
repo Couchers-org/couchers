@@ -17,6 +17,8 @@ import NotFoundPage from "features/NotFoundPage";
 import { eventAttendeesBaseKey, eventKey } from "features/queryKeys";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
@@ -30,15 +32,7 @@ import makeStyles from "utils/makeStyles";
 
 import { PREVIOUS_PAGE } from "../constants";
 import CommentTree from "../discussions/CommentTree";
-import {
-  details,
-  EDIT_EVENT,
-  EVENT_DISCUSSION,
-  EVENT_LINK,
-  JOIN_EVENT,
-  LEAVE_EVENT,
-  VIRTUAL_EVENT,
-} from "./constants";
+import { details } from "./constants";
 import EventAttendees from "./EventAttendees";
 import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
@@ -150,6 +144,7 @@ export default function EventPage({
   eventId: number;
   eventSlug: string;
 }) {
+  const { t } = useTranslation([COMMUNITIES]);
   const router = useRouter();
   const queryClient = useQueryClient();
   const {
@@ -234,10 +229,10 @@ export default function EventPage({
                       className={classes.eventTypeText}
                       variant="body1"
                     >
-                      {VIRTUAL_EVENT}
+                      {t("communities:virtual_event")}
                     </Typography>
                     <MuiLink href={event.onlineInformation.link}>
-                      {EVENT_LINK}
+                      {t("communities:event_link")}
                     </MuiLink>
                   </div>
                 ) : (
@@ -252,7 +247,7 @@ export default function EventPage({
                     href={routeToEditEvent(event.eventId, event.slug)}
                     passHref
                   >
-                    <Button component="a">{EDIT_EVENT}</Button>
+                    <Button component="a">{t("communities:edit_event")}</Button>
                   </Link>
                 ) : null}
                 <Button
@@ -267,8 +262,8 @@ export default function EventPage({
                 >
                   {event.attendanceState ===
                   AttendanceState.ATTENDANCE_STATE_GOING
-                    ? LEAVE_EVENT
-                    : JOIN_EVENT}
+                    ? t("communities:leave_event")
+                    : t("communities:join_event")}
                 </Button>
               </div>
 
@@ -288,7 +283,9 @@ export default function EventPage({
               <EventAttendees eventId={event.eventId} />
             </div>
             <div className={classes.discussionContainer}>
-              <Typography variant="h2">{EVENT_DISCUSSION}</Typography>
+              <Typography variant="h2">
+                {t("communities:event_discussion")}
+              </Typography>
               <CommentTree threadId={event.thread!.threadId} />
             </div>
           </>

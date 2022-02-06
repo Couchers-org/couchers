@@ -6,6 +6,8 @@ import { UPDATE } from "features/constants";
 import NotFoundPage from "features/NotFoundPage";
 import { communityEventsBaseKey, eventKey } from "features/queryKeys";
 import type { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Event } from "proto/events_pb";
 import { useMutation, useQueryClient } from "react-query";
@@ -14,7 +16,6 @@ import { service } from "service";
 import type { UpdateEventInput } from "service/events";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 
-import { EDIT_EVENT } from "../constants";
 import EventForm, {
   CreateEventVariables,
   useEventFormStyles,
@@ -22,6 +23,7 @@ import EventForm, {
 import { useEvent } from "./hooks";
 
 export default function EditEventPage({ eventId }: { eventId: number }) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = useEventFormStyles();
   const router = useRouter();
 
@@ -119,13 +121,13 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
       <CircularProgress />
     ) : (
       <>
-        <HtmlMeta title={EDIT_EVENT} />
+        <HtmlMeta title={t("communities:edit_event")} />
         <EventForm
           error={error}
           event={event}
           isMutationLoading={isLoading}
           mutate={updateEvent}
-          title={EDIT_EVENT}
+          title={t("communities:edit_event")}
         >
           {({ isMutationLoading }) => (
             <Button
