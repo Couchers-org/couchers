@@ -1,7 +1,7 @@
 import { Link as MuiLink, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import Button from "components/Button";
-import { COPYRIGHT } from "components/Footer/constants";
+import { COPYRIGHT, NON_PROFIT } from "components/Footer/constants";
 import { GithubIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { TERMS } from "features/auth/constants";
@@ -19,9 +19,11 @@ import {
   githubURL,
   handbookRoute,
   planRoute,
+  sundaySocialURL,
   teamRoute,
   tosRoute,
   townHallURL,
+  tuesdaySocialURL,
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -40,6 +42,8 @@ import {
   OUR_TEAM,
   TOWN_HALL,
   VOLUNTEER,
+  WEEKLY_SOCIAL_SUNDAY,
+  WEEKLY_SOCIAL_TUESDAY,
 } from "../../appConstants";
 
 const useStyles = makeStyles((theme) => ({
@@ -77,6 +81,18 @@ const useStyles = makeStyles((theme) => ({
       justifyContent: "center",
       columnGap: theme.spacing(8),
     },
+  },
+  middleOuterContainer: {
+    paddingBlockEnd: theme.spacing(2),
+    backgroundColor: theme.palette.background.paper,
+  },
+  middleContainer: {
+    display: "flex",
+    flexWrap: "wrap",
+    margin: "0 auto",
+    justifyContent: "center",
+    fontStyle: "italic",
+    color: theme.palette.grey[500],
   },
   lowerOuterContainer: {
     paddingBlockStart: theme.spacing(2),
@@ -147,6 +163,12 @@ export default function Footer() {
               {EVENTS}
             </Typography>
             <FooterLink href={townHallURL}>{TOWN_HALL}</FooterLink>
+            <FooterLink href={sundaySocialURL}>
+              {WEEKLY_SOCIAL_SUNDAY}
+            </FooterLink>
+            <FooterLink href={tuesdaySocialURL}>
+              {WEEKLY_SOCIAL_TUESDAY}
+            </FooterLink>
             <FooterLink href={eventsRoute}>{SHOW_ALL_EVENTS}</FooterLink>
           </div>
           <div className={classes.buttonContainer}>
@@ -191,6 +213,20 @@ export default function Footer() {
               </Button>
             )}
           </div>
+        </div>
+      </div>
+      <div className={classes.middleOuterContainer}>
+        <div
+          className={classNames(
+            classes.middleContainer,
+            classes.containerPadding
+          )}
+        >
+          <Typography variant="body2">
+            <Link href={foundationRoute} passHref>
+              <a>{NON_PROFIT}</a>
+            </Link>
+          </Typography>
         </div>
       </div>
       <div className={classes.lowerOuterContainer}>
