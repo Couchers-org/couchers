@@ -35,7 +35,7 @@
     "intersection-observer": "^0.12.0",
     "maplibre-gl": "^1.15.2",
     "markdown-it": "^12.3.2",
-    "next": "12.0.7",
+    "next": "12.0.10",
     "next-i18next": "git+https://github.com/Couchers-org/next-i18next.git#39a50ec9",
     "react": "17.0.2",
     "react-dom": "17.0.2",
