@@ -212,11 +212,9 @@ def test_purge_account_deletion_tokens(db):
         3) Account is irretrievable (and expired)
         """
         account_deletion_tokens = [
-            AccountDeletionToken(token=urlsafe_secure_token(), user=user, end_time_to_recover=now()),
-            AccountDeletionToken(
-                token=urlsafe_secure_token(), user=user2, expiry=now(), end_time_to_recover=now() + timedelta(hours=48)
-            ),
-            AccountDeletionToken(token=urlsafe_secure_token(), user=user3, expiry=now(), end_time_to_recover=now()),
+            AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() - timedelta(hours=2)),
+            AccountDeletionToken(token=urlsafe_secure_token(), user=user2, expiry=now()),
+            AccountDeletionToken(token=urlsafe_secure_token(), user=user3, expiry=now() + timedelta(hours=5)),
         ]
         for token in account_deletion_tokens:
             session.add(token)
@@ -226,7 +224,7 @@ def test_purge_account_deletion_tokens(db):
     process_job()
 
     with session_scope() as session:
-        assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 2
+        assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 1
 
     with session_scope() as session:
         assert (

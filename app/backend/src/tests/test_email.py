@@ -495,8 +495,8 @@ def test_account_deletion_successful_email(db):
         unique_string = "You have successfully deleted your account from Couchers.org."
         assert unique_string in plain
         assert unique_string in html
-        assert "48 hours" in plain
-        assert "48 hours" in html
+        assert "7 days" in plain
+        assert "7 days" in html
         url = f"{config['BASE_URL']}/recover-account/{account_deletion_token.token}"
         assert url in plain
         assert url in html

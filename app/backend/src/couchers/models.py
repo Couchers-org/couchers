@@ -685,7 +685,7 @@ class AccountDeletionToken(Base):
 
     token = Column(String, primary_key=True)
 
-    user_id = Column(ForeignKey("users.id"), nullable=False, index=True, unique=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
 
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     expiry = Column(DateTime(timezone=True), nullable=False)
@@ -1796,6 +1796,10 @@ class BackgroundJobType(enum.Enum):
     # payload: google.protobuf.Empty
     purge_signup_tokens = enum.auto()
     # payload: google.protobuf.Empty
+    purge_account_deletion_tokens = enum.auto()
+    # payload: google.protobuf.Empty
+    purge_password_reset_tokens = enum.auto()
+    # payload: google.protobuf.Empty
     send_message_notifications = enum.auto()
     # payload: google.protobuf.Empty
     send_onboarding_emails = enum.auto()
@@ -1807,8 +1811,6 @@ class BackgroundJobType(enum.Enum):
     enforce_community_membership = enum.auto()
     # payload: google.protobuf.Empty
     send_reference_reminders = enum.auto()
-    # payload: google.protobuf.Empty
-    purge_account_deletion_tokens = enum.auto()
     # payload: jobs.HandleNotificationPayload
     handle_notification = enum.auto()
     # payload: google.protobuf.Empty
@@ -1817,8 +1819,6 @@ class BackgroundJobType(enum.Enum):
     handle_email_digests = enum.auto()
     # payload: jobs.GenerateMessageNotificationsPayload
     generate_message_notifications = enum.auto()
-    # payload: google.protobuf.Empty
-    purge_password_reset_tokens = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
@@ -2081,8 +2081,8 @@ class APICall(Base):
     traceback = Column(String, nullable=True)
 
 
-class AccountDeleteReason(Base):
-    __tablename__ = "reason_for_deletion"
+class AccountDeletionReason(Base):
+    __tablename__ = "account_deletion_reason"
 
     id = Column(BigInteger, primary_key=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())

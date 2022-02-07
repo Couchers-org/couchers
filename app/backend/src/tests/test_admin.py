@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date
 from unittest.mock import patch
 
 import grpc
@@ -7,9 +7,9 @@ from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import AccountDeletionToken, Cluster, UserSession
+from couchers.models import Cluster, UserSession
 from couchers.sql import couchers_select as select
-from couchers.utils import now, parse_date
+from couchers.utils import parse_date
 from proto import admin_pb2
 from tests.test_fixtures import db, generate_user, get_user_id_and_token, real_admin_session, testconfig  # noqa
 
@@ -138,25 +138,6 @@ def test_DeleteUser(db):
         assert parse_date(res.birthdate) == normal_user.birthdate
         assert not res.banned
         assert res.deleted
-
-
-def test_RecoverDeletedUser(db):
-    with session_scope() as session:
-        super_user, super_token = generate_user(is_superuser=True)
-        normal_user, normal_token = generate_user()
-        session.add(
-            AccountDeletionToken(token="token", user_id=normal_user.id, end_time_to_recover=now() + timedelta(hours=48))
-        )
-        session.commit()
-
-        with real_admin_session(super_token) as api:
-            res = api.RecoverDeletedUser(admin_pb2.RecoverDeletedUserReq(user=normal_user.username))
-        assert res.user_id == normal_user.id
-        assert res.username == normal_user.username
-        assert res.email == normal_user.email
-        assert res.gender == normal_user.gender
-        assert not res.banned
-        assert not res.deleted
 
 
 def test_CreateApiKey(db):

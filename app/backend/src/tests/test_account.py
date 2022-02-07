@@ -9,7 +9,7 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.models import AccountDeleteReason, AccountDeletionToken, BackgroundJob, BackgroundJobType, Upload, User
+from couchers.models import AccountDeletionReason, AccountDeletionToken, BackgroundJob, BackgroundJobType, Upload, User
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 from proto import account_pb2, auth_pb2
@@ -816,19 +816,12 @@ def test_contributor_form(db):
         assert res.filled_contributor_form
 
 
-def test_RequestAccountDeletion(db):
+def test_DeleteAccount_start(db):
     user, token = generate_user()
 
-    # Checking later that this token has been deleted
-    with session_scope() as session:
-        old_deletion_token = AccountDeletionToken(token="token", user_id=user.id, expiry=now() + timedelta(hours=2))
-        session.add(old_deletion_token)
-        old_token = old_deletion_token.token
-
     with account_session(token) as account:
-        # Check the right email is sent
         with patch("couchers.email.queue_email") as mock:
-            account.DeleteAccount(account_pb2.DeleteAccountReq(reason=None))
+            account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=None))
         mock.assert_called_once()
         (_, _, _, subject, _, _), _ = mock.call_args
         assert subject == "[TEST] Confirm your Couchers.org account deletion"
@@ -842,208 +835,105 @@ def test_RequestAccountDeletion(db):
         assert deletion_token.is_valid
         assert not session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
 
-        # Check original token was deleted
-        assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 1
-        assert deletion_token.token != old_token
-
 
 def test_DeleteAccount_message_storage(db):
     user, token = generate_user()
 
     with account_session(token) as account:
-        account.DeleteAccount(account_pb2.DeleteAccountReq(reason=None))
-        account.DeleteAccount(account_pb2.DeleteAccountReq(reason=""))
-        account.DeleteAccount(account_pb2.DeleteAccountReq(reason="Reason"))  # 1
-        account.DeleteAccount(account_pb2.DeleteAccountReq(reason="0192#(&!&#)*@//)(8"))
-        account.DeleteAccount(account_pb2.DeleteAccountReq(reason="0192#(&!&#)*@//)(8Reason"))  # 2
-        account.DeleteAccount(account_pb2.DeleteAccountReq(reason="1337"))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=None))  # not stored
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=""))  # not stored
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason="Reason"))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason="0192#(&!&#)*@//)(8"))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason="\n\n\t"))  # not stored
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason="1337"))
 
     with session_scope() as session:
-        assert session.execute(select(func.count()).select_from(AccountDeleteReason)).scalar_one() == 2
+        assert session.execute(select(func.count()).select_from(AccountDeletionReason)).scalar_one() == 3
 
 
-def test_DeleteAccount(db):
+def test_full_delete_account_with_recovery(db):
     user, token = generate_user()
-
-    with session_scope() as session:
-        deletion_token = AccountDeletionToken(token="token", user_id=user.id, expiry=now())
-        session.add(deletion_token)
-
-    with account_session(token) as account:
-        # Fails b/c expiry has passed
-        with pytest.raises(grpc.RpcError) as e:
-            account.RecoverAccount(
-                account_pb2.RecoverAccountReq(
-                    token="token",
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.INVALID_TOKEN
-
-    with session_scope() as session:
-        account_deletion_token = session.execute(
-            select(AccountDeletionToken).where(AccountDeletionToken.token == "token")
-        ).scalar_one()
-        account_deletion_token.expiry = now() + timedelta(hours=2)
+    user_id = user.id
 
     with account_session(token) as account:
         with pytest.raises(grpc.RpcError) as e:
-            account.DeleteAccount(
-                account_pb2.DeleteAccountReq(
-                    token="wrongtoken",
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.INVALID_TOKEN
+            account.DeleteAccount(account_pb2.DeleteAccountReq())
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.MUST_CONFIRM_ACCOUNT_DELETE
 
         # Check the right email is sent
         with patch("couchers.email.queue_email") as mock:
-            res = account.DeleteAccount(
-                account_pb2.DeleteAccountReq(
-                    token="token",
-                )
-            )
+            account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
         mock.assert_called_once()
         (_, _, _, subject, _, _), _ = mock.call_args
-        assert subject == "Your Couchers.org account has been deleted"
+        assert subject == "[TEST] Confirm your Couchers.org account deletion"
 
     with session_scope() as session:
-        assert res.success
-        assert session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
-        account_deletion_token = session.execute(
-            select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id)
-        ).scalar_one()
-        assert account_deletion_token.expiry >= now()  # Hasn't changed
-        assert account_deletion_token.end_time_to_recover >= now()
+        token_o = session.execute(select(AccountDeletionToken)).scalar_one()
+        token = token_o.token
 
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert token_o.user == user
+        assert not user.is_deleted
+        assert not user.undelete_token
+        assert not user.undelete_until
 
-def test_AccountRecovery(db):
-    user, token = generate_user(delete_user=True)
-    with session_scope() as session:
-        session.add(AccountDeletionToken(token="token", user_id=user.id))
-
-    with account_session(token) as account:
-        # Fails b/c end_time_to_recover has passed (default at creation is now())
-        with pytest.raises(grpc.RpcError) as e:
-            account.RecoverAccount(
-                account_pb2.RecoverAccountReq(
-                    token="token",
-                )
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.ConfirmDeleteAccount(
+            auth_pb2.ConfirmDeleteAccountReq(
+                token=token,
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.INVALID_TOKEN
-
-    with session_scope() as session:
-        account_deletion_token = session.execute(
-            select(AccountDeletionToken).where(AccountDeletionToken.token == "token")
-        ).scalar_one()
-        account_deletion_token.end_time_to_recover = now() + timedelta(hours=48)
-
-    with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
-            account.RecoverAccount(
-                account_pb2.RecoverAccountReq(
-                    token="wrongtoken",
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.INVALID_TOKEN
-
-        with pytest.raises(grpc.RpcError) as e:
-            account.RecoverAccount(account_pb2.RecoverAccountReq(token="token", password="wrongpassword"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
-
-        # test correct email is sent
-        with patch("couchers.email.queue_email") as mock:
-            res = account.RecoverAccount(account_pb2.RecoverAccountReq(token="token", password="password"))
-        mock.assert_called_once()
-        (_, _, _, subject, _, _), _ = mock.call_args
-        assert subject == "Your Couchers.org account has been recovered"
-
-    with session_scope() as session:
-        assert res.success
-        assert not session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
-
-
-def test_AccountRecovery_no_pass(db):
-    user, token = generate_user(hashed_password=None, delete_user=True)
-    with session_scope() as session:
-        session.add(
-            AccountDeletionToken(token="token", user_id=user.id, end_time_to_recover=now() + timedelta(hours=48))
         )
 
-    # This could theoretically be any token, as any account can currently recover an account without a password
-    with account_session(token) as account:
-        res = account.RecoverAccount(account_pb2.RecoverAccountReq(token="token"))
+    with session_scope() as session:
+        assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
 
     with session_scope() as session:
-        assert res.success
-        assert not session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert user.is_deleted
+        assert user.undelete_token
+        assert user.undelete_until > now()
+
+        undelete_token = user.undelete_token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.RecoverAccount(
+            auth_pb2.RecoverAccountReq(
+                token=undelete_token,
+            )
+        )
+
+    with session_scope() as session:
+        assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
+
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert not user.is_deleted
+        assert not user.undelete_token
+        assert not user.undelete_until
 
 
-def test_AccountRecovery_not_deleted(db):
+def test_multiple_delete_tokens(db):
+    """
+    Make sure deletion tokens are deleted on delete
+    """
     user, token = generate_user()
-    with session_scope() as session:
-        session.add(
-            AccountDeletionToken(token="token", user_id=user.id, end_time_to_recover=now() + timedelta(hours=48))
-        )
+    user_id = user.id
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
-            account.RecoverAccount(
-                account_pb2.RecoverAccountReq(
-                    token="token",
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.USER_NOT_DELETED
-
-
-# integration test
-def test_delete_and_recover_account_flow(db):
-    user, token = generate_user()
-    account_deletion_token_string = ""
-
-    with account_session(token) as account:
-        account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason=None))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
 
     with session_scope() as session:
-        account_deletion_token = session.execute(
-            select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id)
-        ).scalar_one()
-        account_deletion_token_string = account_deletion_token.token
+        assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 3
+        token = session.execute(select(AccountDeletionToken)).scalars().first().token
 
-        # first two asserts also imply created < now() and expiry > now()
-        assert account_deletion_token.is_valid
-        assert account_deletion_token.end_time_to_recover < now()
-        assert not session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
-
-    with account_session(token) as account:
-        account.DeleteAccount(
-            account_pb2.DeleteAccountReq(
-                token=account_deletion_token_string,
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.ConfirmDeleteAccount(
+            auth_pb2.ConfirmDeleteAccountReq(
+                token=token,
             )
         )
 
     with session_scope() as session:
-        assert session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
-        account_deletion_token = session.execute(
-            select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id)
-        ).scalar_one()
-        assert account_deletion_token.is_valid
-        assert account_deletion_token.expiry >= now()
-        assert account_deletion_token.end_time_to_recover >= now()
-
-    with account_session(token) as account:
-        account.RecoverAccount(account_pb2.RecoverAccountReq(token=account_deletion_token_string, password="password"))
-
-    with session_scope() as session:
-        assert not session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
-
-        # Check token hasn't changed
-        account_deletion_token = session.execute(
-            select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id)
-        ).scalar_one()
-        assert account_deletion_token.expiry >= now()
-        assert account_deletion_token.end_time_to_recover >= now()
+        assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()

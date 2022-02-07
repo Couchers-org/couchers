@@ -118,6 +118,6 @@ message VerifyPhoneReq {
 }
 
 message DeleteAccountReq {
-  bool sure = 1;
+  bool confirm = 1;
   string reason = 2;
 }

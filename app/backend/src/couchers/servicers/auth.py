@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
@@ -8,7 +9,15 @@ from couchers import errors, urls
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.db import session_scope
-from couchers.models import ContributorForm, LoginToken, PasswordResetToken, SignupFlow, User, UserSession
+from couchers.models import (
+    AccountDeletionToken,
+    ContributorForm,
+    LoginToken,
+    PasswordResetToken,
+    SignupFlow,
+    User,
+    UserSession,
+)
 from couchers.notifications.notify import notify
 from couchers.notifications.unsubscribe import unsubscribe
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
@@ -584,7 +593,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 .join(AccountDeletionToken, AccountDeletionToken.user_id == User.id)
                 .where(AccountDeletionToken.token == request.token)
                 .where(AccountDeletionToken.is_valid)
-            ).scalar_one_or_none()
+            ).one_or_none()
 
             if not res:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
