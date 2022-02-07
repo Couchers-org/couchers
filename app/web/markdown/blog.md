@@ -6,6 +6,12 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Five things to do in any city](/blog/2022/02/07/five-things-to-do-in-any-city)
+
+2022/02/06 by Anna.
+
+New to a city and don't know where to start? Here are some great tips for ways to get started exploring any city!
+
 ## [Updates from the development team: January 30th, 2022](/blog/2022/01/30/development-updates)
 
 2022/01/30 by Aapeli.
