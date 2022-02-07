@@ -16,6 +16,7 @@ from couchers.sql import couchers_select as select
 from couchers.tasks import (
     maybe_send_contributor_form_email,
     send_account_deletion_confirmation_email,
+    send_account_deletion_report_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
@@ -338,7 +339,10 @@ class Account(account_pb2_grpc.AccountServicer):
 
             reason = request.reason.strip()
             if reason:
-                session.add(AccountDeletionReason(user_id=user.id, reason=reason))
+                reason = AccountDeletionReason(user_id=user.id, reason=reason)
+                session.add(reason)
+                session.commit()
+                send_account_deletion_report_email(reason)
 
             token = send_account_deletion_confirmation_email(user)
             session.add(token)
