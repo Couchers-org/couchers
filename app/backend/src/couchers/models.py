@@ -379,8 +379,15 @@ class User(Base):
 
     @hybrid_property
     def phone_is_verified(self):
-        return (self.phone_verification_verified != None) & (
-            now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
+        return (
+            self.phone_verification_verified is not None
+            and now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
+        )
+
+    @phone_is_verified.expression
+    def phone_is_verified(cls):
+        return (cls.phone_verification_verified != None) & (
+            now() - cls.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )
 
     def __repr__(self):
