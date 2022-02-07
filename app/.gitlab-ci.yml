@@ -281,9 +281,10 @@ test:backend-format:
     # no docker login
     default: false
   script:
-    - cd app/backend && autoflake -r -i --remove-all-unused-imports --check src
-    - cd app/backend && black --check .
-    - cd app/backend && isort --check .
+    - cd app/backend
+    - autoflake -r -i --remove-all-unused-imports --check src
+    - black --check .
+    - isort --check .
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
