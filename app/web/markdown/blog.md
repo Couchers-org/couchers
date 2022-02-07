@@ -8,7 +8,7 @@ If you'd like to contribute to the blog, please [sign up](/volunteer) and let us
 
 ## [Five things to do in any city](/blog/2022/02/07/five-things-to-do-in-any-city)
 
-2022/02/06 by Anna.
+2022/02/07 by Anna.
 
 New to a city and don't know where to start? Here are some great tips for ways to get started exploring any city!
 
