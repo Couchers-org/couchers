@@ -44,4 +44,5 @@ export { default as ExtremelyDissatisfiedIcon } from "@material-ui/icons/Sentime
 export { default as ExtremelySatisfiedIcon } from "@material-ui/icons/SentimentVerySatisfiedOutlined";
 export { default as SettingsIcon } from "@material-ui/icons/SettingsOutlined";
 export { default as CommunityLeadersIcon } from "@material-ui/icons/SportsSoccerOutlined";
+export { default as MuteIcon } from "@material-ui/icons/VolumeOffOutlined";
 export { default as WorkIcon } from "@material-ui/icons/WorkOutlined";

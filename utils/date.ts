@@ -1,7 +1,8 @@
 // format a date
-import { Dayjs } from "dayjs";
+import { Duration as DurationPb } from "google-protobuf/google/protobuf/duration_pb";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 
+import { Dayjs, Duration } from "./dayjs";
 import { dayMillis } from "./timeAgo";
 
 const monthNames = [
@@ -48,6 +49,13 @@ function timestamp2Date(timestamp: Timestamp.AsObject): Date {
   return new Date(Math.floor(timestamp.seconds * 1e3 + timestamp.nanos / 1e6));
 }
 
+function duration2pb(duration: Duration) {
+  const d = new DurationPb();
+  d.setSeconds(duration.asSeconds());
+  d.setNanos(duration.milliseconds() * 1000);
+  return d;
+}
+
 function isSameDate(date1: Dayjs, date2: Dayjs): boolean {
   return (
     date1.month() === date2.month() &&
@@ -64,6 +72,7 @@ function isSameOrFutureDate(date1: Dayjs, date2: Dayjs): boolean {
 export {
   dateFormatter,
   dateTimeFormatter,
+  duration2pb,
   formatDate,
   isSameOrFutureDate,
   numNights,
