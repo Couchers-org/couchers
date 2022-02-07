@@ -11,12 +11,12 @@ description: Couchers.org help page and frequently asked questions
 ## Community values
 
 * [What is couch surfing?](#whatis)
-* [Is it okay to look for a date, romance, or sex on Couchers.org](#dating)
+* [Is it okay to look for a date, romance, or sex on Couchers.org?](#dating)
 * [Can I add anyone as a friend?](#friending)
 * [Do I have to host someone? Is it required that I be a host sometime?](#hosting)
 * [Can I ask for money, gifts, donations, services or work when interacting with other people on Couchers.org?](#askmoney)
 * [Can I create an event that requires payment?](#eventpayment)
-* [Is it okay to advertise or promote my business, organization, or cause on Couchers.org](#spam)
+* [Is it okay to advertise or promote my business, organization, or cause on Couchers.org?](#spam)
 
 ## Safety
 
@@ -43,7 +43,7 @@ description: Couchers.org help page and frequently asked questions
 * [Where can I see my friends list?](#friendslist)
 * [Where can I change my account settings?](#settings)
 
-### Interacting with other people on Couchers.or
+### Interacting with other people on Couchers.org
 
 * [How do I invite someone to Couchers.org?](#invite)
 * [How do I share my profile with someone?](#shareprofile)
