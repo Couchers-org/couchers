@@ -2,6 +2,7 @@
 title: Help
 crumb: Handbook
 type: general
+description: Couchers.org help page and frequently asked questions
 ---
 # Couchers.org Help Page
 
@@ -10,13 +11,12 @@ type: general
 ## Community values
 
 * [What is couch surfing?](#whatis)
-* [Is it okay to look for a date, romance, or sex on Couchers.org?](#dating)
-* [Can I message anyone I want?](#messaging)
+* [Is it okay to look for a date, romance, or sex on Couchers.org](#dating)
 * [Can I add anyone as a friend?](#friending)
 * [Do I have to host someone? Is it required that I be a host sometime?](#hosting)
 * [Can I ask for money, gifts, donations, services or work when interacting with other people on Couchers.org?](#askmoney)
 * [Can I create an event that requires payment?](#eventpayment)
-* [Is it okay to advertise or promote my business, organization, or cause on Couchers.org?](#spam)
+* [Is it okay to advertise or promote my business, organization, or cause on Couchers.org](#spam)
 
 ## Safety
 
@@ -43,13 +43,13 @@ type: general
 * [Where can I see my friends list?](#friendslist)
 * [Where can I change my account settings?](#settings)
 
-### Interacting with other people on Couchers.org
+### Interacting with other people on Couchers.or
 
-* [How do I send a message to someone I’m not friends with?](#messagestranger)
 * [How do I invite someone to Couchers.org?](#invite)
 * [How do I share my profile with someone?](#shareprofile)
 * [Where can I find search filters?](#searchfilters)
 * [Where can I find discussion boards for my local area?](#discussions)
+* [Can I message anyone I want?](#messaging)
 * [Where is the report button for reporting a user or content?](#report)
 * [How can I leave a reference for someone?](#reference)
 * [Where are hangouts, public trips, groups, and favorites?](#features)
@@ -66,19 +66,13 @@ type: general
 
 Couch surfing is non-transactional hospitality that is focused on meaningful interactions between the guest and the host rather than the accommodations and amenities.
 
-When you are a couch surfer, you are either hosting someone for free, or staying with someone for free, or meeting up with a local to hang out together. Before agreeing to meet, the host and guest communicate plans and availability during the visit so it is clear what to expect. Couch surfing is NOT for dating, looking for romance or sex, or for physical encounters. It is for making new friends from all around the world, sharing experiences and learning from one another.
+When you are a couch surfer, you are either hosting someone for free, or staying with someone for free, or meeting up with a local to hang out together. Before agreeing to meet, the host and guest communicate plans and availability during the visit so it is clear what to expect. Couch surfing is NOT for flirting, dating, romance, or sex. It is for making new friends from all around the world, sharing experiences and learning from one another.
 
 <a class="handbook-anchor" name="dating"></a>
 
 ### Is it okay to look for a date, romance, or sex on Couchers.org?
 
-No. It is forbidden to use Couchers.org for the purpose of flirting, dating, or seeking out romance, sex or physical encounters. Violation of this rule is grounds for an immediate and permanent ban.
-
-<a class="handbook-anchor" name="messaging"></a>
-
-### Can I message anyone I want?
-
-Currently you can only message someone if you are friends with them or if there is an open request between you and them. In the near future we plan to enable messaging between all users, even if you are not friends. This limitation was originally intended to prevent unsolicited messages from random people and to stop spam.
+**NO!** It is forbidden to use Couchers.org for the purpose of flirting, dating, or seeking out romance or sex. Violation of this rule is grounds for an immediate and permanent ban.
 
 <a class="handbook-anchor" name="friending"></a>
 
@@ -121,11 +115,10 @@ No. It is a violation of the Terms of Service to use the platform to advertise, 
 
 #### Option 1
 
-1. Visit the person’s profile.
-2. Click on the flag symbol (located below their profile photo or gray circle if they have no photo).
-3. Select the reason from the dropdown menu.
-4. Fill out the form with further details (OPTIONAL)
-5. Click "Submit".
+1. Click on the flag symbol (located below their profile photo or profile circle if they have no photo).
+2. Select the reason from the dropdown menu.
+3. Fill out the form with further details (OPTIONAL, but helpful!)
+4. Click "Submit".
 
 #### Option 2
 
@@ -178,10 +171,9 @@ Visit [couchers.org/donate](https://couchers.org/donate) to make your donation.
 
 ### How do I volunteer to help build the Couchers.org platform?
 
-1. Visit [couchers.org](https://couchers.org/) and log into your account.
-2. On the "Dashboard" page, scroll down to "sign up to contribute" and click on it.
-3. Fill out the form, then click submit.
-4. Someone will reach out to you. Generally you will receive a response within 1 week.
+1. Visit [www.couchers.org/contribute](www.couchers.org/contribute)
+2. Fill out the form, then click submit.
+3. Someone will reach out to you. Generally you will receive a response within 1 week, but in some cases it may take longer.
 
 <a class="handbook-anchor" name="password"></a>
 
@@ -238,13 +230,6 @@ Send a message to [support@couchers.org](mailto:support@couchers.org) with your 
 2. Click "Edit"
 3. Click "Account Settings" at the top of the screen
 
-<a class="handbook-anchor" name="messagestranger"></a>
-
-### How do I send a message to someone I’m not friends with?
-
-* Currently you can only send a message to someone you are friends with, someone you sent a request to, or someone who sent you a request. After the request expires, or if the request is declined, you will no longer be able to message each other. 
-* This limitation was originally intended to prevent unsolicited messages from random people and to stop spam. However, we will be changing the messaging system soon so that you can message anyone!
-
 <a class="handbook-anchor" name="invite"></a>
 
 ### How do I invite someone to Couchers.org?
@@ -267,9 +252,11 @@ Keep in mind: **The person will only be able to see your profile if they have an
 ### Where can I find search filters?
 
 1. Click on "Map Search".
-2. Click on the filter symbol on the right-hand side of the search box (the 3 lines between the magnifying glass symbol and the X).
-3. Enter your desired filter.
-4. If you enter a location in the "Near location" filter you must click the search symbol and then select the location.
+2. Click the "Filters" button at the top of the screen.
+3. Enter the information required for the desired filter(s).
+
+* **Note:** If you enter a location in the "Near location" filter you must click the search symbol and then select the location.
+
 5. Click "apply".
 
 <a class="handbook-anchor" name="discussions"></a>
@@ -283,6 +270,12 @@ Keep in mind: **The person will only be able to see your profile if they have an
 5. Click the "Discussions"tab
 
 * **Note:** If you do not see your community, you can create your community by clicking "Dashboard", then "Start your own local community", fill out the form, and submit it.
+
+<a class="handbook-anchor" name="messaging"></a>
+
+### Can I message anyone I want?
+
+You can message anyone on the platform. However, please keep our community values in mind when you message someone, and do not violate any of the community guidelines. Treat people with respect and dignity, and do not spam or harass other users.
 
 <a class="handbook-anchor" name="reference"></a>
 
@@ -300,9 +293,11 @@ Keep in mind: **The person will only be able to see your profile if they have an
 1. On your friend’s profile, click on "References"
 2. Click on "Write Reference"
 
+* **Note:** You must have sent or received a friend request, which was also confirmed, before you can leave a reference for a friend.
+
 #### A stranger or acquaintance
 
-Currently you cannot leave a reference for someone you are not friends with. However, you can [report the person](#report) or email [safety@couchers.org](mailto:safety@couchers.org).
+Currently you cannot leave a reference for someone you are not friends with. However, no matter what the situation is, you can always [report the person](#report) or email [safety@couchers.org](mailto:safety@couchers.org).
 
 <a class="handbook-anchor" name="features"></a>
 
@@ -333,4 +328,4 @@ These features have not been released yet. However, we do plan on releasing thes
 
    * If you prefer not to answer "Accept", "Maybe", or "Decline", then just click "Send". Please note that this will **only** send your message, but it will not provide any of the "Accept", "Maybe", or "Decline" responses.
    * If you know how you would like to respond, click the button "Accept", "Maybe" or "Decline". When you click one of those buttons, your message will be sent.
-   * If you decline the request, you will not be able to message the person unless you add them as a friend and they accept your friend request. They also will not be able to message you. However, we will be changing the messaging system soon so that you can send messages even if you decline the request.
+   * If you decline the request, you will not be able to message the person unless you visit their profile and send a message to them from there.
