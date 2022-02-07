@@ -197,13 +197,13 @@
     "confirm": {
       "title": "Confirm account deletion",
       "error_message": "Failed to confirm account deletion: {{message}}",
-      "button_text": "Confirm account deletion.",
+      "button_text": "Confirm account deletion",
       "account_deleted": "Account deleted. Thank you for using Couchers.org!"
     },
     "recover": {
       "title": "Recover your Couchers.org account",
       "error_message": "Failed to recover account: {{message}}",
-      "button_text": "Recover your account.",
+      "button_text": "Recover your account",
       "success": "Your account has been recovered, you can log back in. We're excited to have you back!"
     }
   }

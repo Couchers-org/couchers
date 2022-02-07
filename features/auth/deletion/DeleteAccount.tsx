@@ -105,7 +105,10 @@ export default function DeleteAccount({
             inputRef={register()}
             label={t("auth:delete_account.request.reason_label")}
             name="reason"
-            fullWidth={!isMdOrWider}
+            minRows={4}
+            maxRows={6}
+            multiline
+            fullWidth
           />
           <Button
             fullWidth={!isMdOrWider}
