@@ -24,11 +24,11 @@ certifi==2021.10.8
     #   sentry-sdk
 cffi==1.15.0
     # via pynacl
-charset-normalizer==2.0.10
+charset-normalizer==2.0.11
     # via requests
 click==8.0.3
     # via black
-coverage[toml]==6.2
+coverage[toml]==6.3.1
     # via pytest-cov
 geoalchemy2==0.10.2
     # via -r requirements.in
@@ -38,6 +38,10 @@ grpcio==1.43.0
     # via -r requirements.in
 idna==3.3
     # via requests
+importlib-metadata==4.10.1
+    # via alembic
+importlib-resources==5.4.0
+    # via alembic
 iniconfig==1.1.1
     # via pytest
 isort==5.10.1
@@ -84,16 +88,13 @@ pyflakes==2.4.0
     # via autoflake
 pynacl==1.5.0
     # via -r requirements.in
-pyparsing==3.0.6
+pyparsing==3.0.7
     # via packaging
-pytest==6.2.5
+pytest==7.0.0
     # via
     #   -r requirements.in
     #   pytest-cov
-    #   pytest-pythonpath
 pytest-cov==3.0.0
-    # via -r requirements.in
-pytest-pythonpath==0.7.3
     # via -r requirements.in
 python-dateutil==2.8.2
     # via
@@ -107,7 +108,7 @@ requests==2.27.1
     # via
     #   -r requirements.in
     #   stripe
-s3transfer==0.5.0
+s3transfer==0.5.1
     # via boto3
 sentry-sdk==1.5.4
     # via -r requirements.in
@@ -124,14 +125,19 @@ sqlalchemy==1.4.31
     #   geoalchemy2
 stripe==2.65.0
     # via -r requirements.in
-toml==0.10.2
-    # via pytest
-tomli==1.2.3
+tomli==2.0.0
     # via
     #   black
     #   coverage
+    #   pytest
+typing-extensions==4.0.1
+    # via black
 urllib3==1.26.8
     # via
     #   botocore
     #   requests
     #   sentry-sdk
+zipp==3.7.0
+    # via
+    #   importlib-metadata
+    #   importlib-resources

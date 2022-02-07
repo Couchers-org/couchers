@@ -5,6 +5,5 @@ Pillow
 protobuf
 pynacl
 pytest
-pytest-pythonpath
 pyvips
 uwsgi
