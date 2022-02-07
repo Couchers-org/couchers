@@ -19,6 +19,7 @@ import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
+import { AUTH } from "i18n/namespaces";
 
 export const validatePhoneCode = (code: string) =>
   code.length == 6 && luhn.validate(code);
@@ -40,7 +41,7 @@ export default function ChangePhone({
   className,
   accountInfo,
 }: ChangePhoneProps) {
-  const { t } = useTranslation(["auth"]);
+  const { t } = useTranslation([AUTH]);
   const formClasses = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
@@ -119,29 +120,27 @@ export default function ChangePhone({
 
   return (
     <div className={className}>
-      <Typography variant="h2">{t("auth:change_phone_form.title")}</Typography>
+      <Typography variant="h2">{t("auth:change_phone.title")}</Typography>
       {changeError && <Alert severity="error">{changeError.message}</Alert>}
       {verifyError && <Alert severity="error">{verifyError.message}</Alert>}
       {removeError && <Alert severity="error">{removeError.message}</Alert>}
       {isChangeSuccess && (
-        <Alert severity="success">
-          {t("auth:change_phone_form.add_success")}
-        </Alert>
+        <Alert severity="success">{t("auth:change_phone.add_success")}</Alert>
       )}
       {isVerifySuccess && (
         <Alert severity="success">
-          {t("auth:change_phone_form.verify_success")}
+          {t("auth:change_phone.verify_success")}
         </Alert>
       )}
       {isRemoveSuccess && (
         <Alert severity="success">
-          {t("auth:change_phone_form.remove_success")}
+          {t("auth:change_phone.remove_success")}
         </Alert>
       )}
       {!accountInfo.phone ? (
         <form className={formClasses.form} onSubmit={onChangeSubmit}>
           <Typography variant="body1">
-            {t("auth:change_phone_form.no_phone_description")}
+            {t("auth:change_phone.no_phone_description")}
           </Typography>
           <Controller
             name="phone"
@@ -152,7 +151,7 @@ export default function ChangePhone({
             render={({ onChange, value }) => (
               <PhoneInput
                 international
-                placeholder={t("auth:change_phone_form.phone_label")}
+                placeholder={t("auth:change_phone.phone_label")}
                 value={value}
                 onChange={onChange}
                 id="phone"
@@ -164,7 +163,7 @@ export default function ChangePhone({
             loading={isChangeLoading}
             type="submit"
           >
-            {t("auth:change_phone_form.add_button_text")}
+            {t("auth:change_phone.add_button_text")}
           </Button>
         </form>
       ) : (
@@ -174,7 +173,7 @@ export default function ChangePhone({
               <Typography variant="body1">
                 <Trans
                   t={t}
-                  i18nKey="auth:change_phone_form.phone_not_verified_description"
+                  i18nKey="auth:change_phone.phone_not_verified_description"
                 >
                   We sent you a code to{" "}
                   <b>{{ phone: formatPhoneNumberIntl(accountInfo.phone) }}</b>.
@@ -187,11 +186,11 @@ export default function ChangePhone({
                   required: true,
                   validate: (code) =>
                     validatePhoneCode(code) ||
-                    t("auth:change_phone_form.wrong_code"),
+                    t("auth:change_phone.wrong_code"),
                 })}
                 helperText={verifyFormErrors?.code?.message ?? " "}
                 error={!!verifyFormErrors?.code?.message}
-                label={t("auth:change_phone_form.code_label")}
+                label={t("auth:change_phone.code_label")}
                 name="code"
                 fullWidth={!isMdOrWider}
               />
@@ -200,7 +199,7 @@ export default function ChangePhone({
                 loading={isVerifyLoading}
                 type="submit"
               >
-                {t("auth:change_phone_form.verify_button_text")}
+                {t("auth:change_phone.verify_button_text")}
               </Button>
             </form>
           ) : (
@@ -208,7 +207,7 @@ export default function ChangePhone({
               <Typography variant="body1">
                 <Trans
                   t={t}
-                  i18nKey="auth:change_phone_form.remove_phone_description"
+                  i18nKey="auth:change_phone.remove_phone_description"
                 >
                   Your phone number is currently{" "}
                   <b>{{ phone: formatPhoneNumberIntl(accountInfo.phone) }}</b>.
@@ -221,13 +220,13 @@ export default function ChangePhone({
                 loading={isRemoveLoading}
                 onClick={() => removePhone()}
               >
-                {t("auth:change_phone_form.remove_button_text")}
+                {t("auth:change_phone.remove_button_text")}
               </Button>
             </>
           )}
           <form className={formClasses.form} onSubmit={onChangeSubmit}>
             <Typography variant="body1">
-              {t("auth:change_phone_form.change_to_different_description")}
+              {t("auth:change_phone.change_to_different_description")}
             </Typography>
             <Controller
               name="phone"
@@ -239,7 +238,7 @@ export default function ChangePhone({
                 <PhoneInput
                   countrySelectProps={{ unicodeFlags: true }}
                   international
-                  placeholder={t("auth:change_phone_form.phone_label")}
+                  placeholder={t("auth:change_phone.phone_label")}
                   value={value}
                   onChange={onChange}
                   id="phone"
@@ -251,7 +250,7 @@ export default function ChangePhone({
               loading={isChangeLoading}
               type="submit"
             >
-              {t("auth:change_phone_form.change_button_text")}
+              {t("auth:change_phone.change_button_text")}
             </Button>
           </form>
         </>
