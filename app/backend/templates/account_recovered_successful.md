@@ -7,7 +7,19 @@ Hi {{ user.name|couchers_escape }}!
 
 You have successfully recovered your account on Couchers.org!
 
-We are so glad you decided to stay!
+We are so glad you decided to stay! To log back in, click the following link:
+
+{% if html %}
+
+{{ button("Log in", app_link)|couchers_safe }}
+
+Alternatively, click the following link: {{ link(app_link, html)|couchers_safe }}.
+
+{% else %}
+
+<{{ app_link|couchers_safe }}>
+
+{% endif %}
 
 If you change your mind, you can delete your account at any time.
 

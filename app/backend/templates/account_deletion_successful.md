@@ -13,13 +13,13 @@ If you change your mind, you have {{ days|couchers_escape }} days to retrieve yo
 
 {% if html %}
 
-{{ button("Recover Account", undelete_token)|couchers_safe }}
+{{ button("Recover Account", undelete_link)|couchers_safe }}
 
-Alternatively, click the following link: <{{ undelete_token|couchers_safe }}>.
+Alternatively, click the following link: {{ link(undelete_link, html)|couchers_safe }}.
 
 {% else %}
 
-<{{ undelete_token|couchers_safe }}>
+<{{ undelete_link|couchers_safe }}>
 
 {% endif %}
 
