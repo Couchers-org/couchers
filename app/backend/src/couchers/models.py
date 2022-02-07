@@ -164,6 +164,9 @@ class User(Base):
     is_deleted = Column(Boolean, nullable=False, server_default=text("false"))
     is_superuser = Column(Boolean, nullable=False, server_default=text("false"))
 
+    undelete_token = Column(String, nullable=True)
+    undelete_until = Column(DateTime(timezone=True), nullable=True)
+
     # hosting preferences
     max_guests = Column(Integer, nullable=True)
     last_minute = Column(Boolean, nullable=True)
@@ -294,6 +297,11 @@ class User(Base):
         CheckConstraint(
             f"email ~ '{EMAIL_REGEX}'",
             name="valid_email",
+        ),
+        # Undelete token + time are coupled: either both null or neither; and if they're not null then the account is deleted
+        CheckConstraint(
+            "((undelete_token IS NULL) = (undelete_until IS NULL)) AND ((undelete_token IS NULL) OR is_deleted)",
+            name="undelete_nullity",
         ),
     )
 
@@ -681,18 +689,15 @@ class AccountDeletionToken(Base):
 
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     expiry = Column(DateTime(timezone=True), nullable=False)
-    end_time_to_recover = Column(
-        DateTime(timezone=True), nullable=True, default=func.now()
-    )  # stars off as now, set to 48 hours from when account is actually deleted
 
-    user = relationship("User", backref="account_deletion_token")
+    user = relationship("User", backref="account_deletion_tokens")
 
     @hybrid_property
     def is_valid(self):
-        return (self.created <= now()) & ((self.expiry >= now()) | (self.end_time_to_recover >= now()))
+        return (self.created <= now()) & (self.expiry >= now())
 
     def __repr__(self):
-        return f"AccountDeletionToken(token={self.token}, user_id={self.user_id}, created={self.created}, expiry={self.expiry}, end_time_to_recover={self.end_time_to_recover})"
+        return f"AccountDeletionToken(token={self.token}, user_id={self.user_id}, created={self.created}, expiry={self.expiry})"
 
 
 class UserSession(Base):

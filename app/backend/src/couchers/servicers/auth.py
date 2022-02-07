@@ -6,7 +6,7 @@ from sqlalchemy.sql import func
 
 from couchers import errors, urls
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
-from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
+from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.db import session_scope
 from couchers.models import ContributorForm, LoginToken, PasswordResetToken, SignupFlow, User, UserSession
 from couchers.notifications.notify import notify
@@ -17,6 +17,7 @@ from couchers.sql import couchers_select as select
 from couchers.tasks import (
     enforce_community_memberships_for_user,
     maybe_send_contributor_form_email,
+    send_account_deletion_successful_email,
     send_account_recovered_email,
     send_login_email,
     send_onboarding_email,
@@ -573,25 +574,51 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     state=auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL
                 )
 
+    def ConfirmDeleteAccount(self, request, context):
+        """
+        Can only be used to delete active user's account, no one else's
+
+        Since only an active user can make this API call, don't have to worry about user already being deleted
+        """
+        with session_scope() as session:
+            res = session.execute(
+                select(User, AccountDeletionToken)
+                .join(AccountDeletionToken, AccountDeletionToken.user_id == User.id)
+                .where(AccountDeletionToken.token == request.token)
+                .where(AccountDeletionToken.is_valid)
+            ).scalar_one_or_none()
+
+            if not res:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+
+            user, account_deletion_token = res
+
+            undelete_days = 7
+            user.is_deleted = True
+            user.undelete_until = now() + timedelta(days=undelete_days)
+            user.undelete_token = urlsafe_secure_token()
+            session.delete(account_deletion_token)
+
+            # sets the tokens
+            send_account_deletion_successful_email(user, undelete_days)
+
+        return empty_pb2.Empty()
+
     def RecoverAccount(self, request, context):
         """
         Recovers a recently deleted account
         """
         with session_scope() as session:
-            account_deletion_token = session.execute(
-                select(AccountDeletionToken)
-                .where(AccountDeletionToken.token == request.token)
-                .where(AccountDeletionToken.end_time_to_recover > now())
+            user = session.execute(
+                select(User).where(User.undelete_token == request.token).where(User.undelete_until > now())
             ).scalar_one_or_none()
 
-            if not account_deletion_token:
+            if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
-            user = account_deletion_token.user
-            if not user.is_deleted:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_DELETED)
-
             user.is_deleted = False
+            user.undelete_token = None
+            user.undelete_until = None
             send_account_recovered_email(user)
 
             return empty_pb2.Empty()

@@ -814,23 +814,6 @@ def test_contributor_form(db):
 
         res = account.GetContributorFormInfo(empty_pb2.Empty())
         assert res.filled_contributor_form
-        assert res.username == user.username
-        assert res.name == user.name
-        assert res.email == user.email
-        assert res.age == user.age
-        assert res.gender == user.gender
-        assert res.location == user.city
-
-        account.MarkContributorFormFilled(account_pb2.MarkContributorFormFilledReq(filled_contributor_form=False))
-
-        res = account.GetContributorFormInfo(empty_pb2.Empty())
-        assert not res.filled_contributor_form
-        assert res.username == user.username
-        assert res.name == user.name
-        assert res.email == user.email
-        assert res.age == user.age
-        assert res.gender == user.gender
-        assert res.location == user.city
 
 
 def test_RequestAccountDeletion(db):
@@ -845,10 +828,10 @@ def test_RequestAccountDeletion(db):
     with account_session(token) as account:
         # Check the right email is sent
         with patch("couchers.email.queue_email") as mock:
-            account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason=None))
+            account.DeleteAccount(account_pb2.DeleteAccountReq(reason=None))
         mock.assert_called_once()
         (_, _, _, subject, _, _), _ = mock.call_args
-        assert subject == "Confirm your Couchers.org account deletion"
+        assert subject == "[TEST] Confirm your Couchers.org account deletion"
 
     with session_scope() as session:
         deletion_token = session.execute(
@@ -857,7 +840,6 @@ def test_RequestAccountDeletion(db):
 
         # first two asserts also imply created < now() and expiry > now()
         assert deletion_token.is_valid
-        assert deletion_token.end_time_to_recover < now()
         assert not session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
 
         # Check original token was deleted
@@ -865,16 +847,16 @@ def test_RequestAccountDeletion(db):
         assert deletion_token.token != old_token
 
 
-def test_RequestAccountDeletion_message_storage(db):
+def test_DeleteAccount_message_storage(db):
     user, token = generate_user()
 
     with account_session(token) as account:
-        account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason=None))
-        account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason=""))
-        account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason="Reason"))  # 1
-        account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason="0192#(&!&#)*@//)(8"))
-        account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason="0192#(&!&#)*@//)(8Reason"))  # 2
-        account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason="1337"))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(reason=None))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(reason=""))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(reason="Reason"))  # 1
+        account.DeleteAccount(account_pb2.DeleteAccountReq(reason="0192#(&!&#)*@//)(8"))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(reason="0192#(&!&#)*@//)(8Reason"))  # 2
+        account.DeleteAccount(account_pb2.DeleteAccountReq(reason="1337"))
 
     with session_scope() as session:
         assert session.execute(select(func.count()).select_from(AccountDeleteReason)).scalar_one() == 2

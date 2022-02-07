@@ -8,7 +8,7 @@ from couchers import errors, urls
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.crypto import hash_password, urlsafe_secure_token, verify_password, verify_token
 from couchers.db import session_scope
-from couchers.models import AccountDeleteReason, AccountDeletionToken, ContributeOption, ContributorForm, User
+from couchers.models import AccountDeleteReason, ContributeOption, ContributorForm, User
 from couchers.notifications.notify import notify
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
@@ -16,7 +16,6 @@ from couchers.sql import couchers_select as select
 from couchers.tasks import (
     maybe_send_contributor_form_email,
     send_account_deletion_confirmation_email,
-    send_account_deletion_successful_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
@@ -325,7 +324,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         return empty_pb2.Empty()
 
-    def RequestAccountDeletion(self, request, context):
+    def DeleteAccount(self, request, context):
         """
         Triggers email with token to confirm deletion
 
@@ -334,41 +333,9 @@ class Account(account_pb2_grpc.AccountServicer):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
-            # If account deletion token already exists for user, delete it
-            existing_token = session.execute(
-                select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id)
-            ).scalar_one_or_none()
-            if existing_token:
-                session.delete(existing_token)
-                session.flush()
-
             token = send_account_deletion_confirmation_email(user)
             session.add(token)
 
             session.add(AccountDeleteReason(user_id=user.id, reason=request.reason.strip()))
-
-        return empty_pb2.Empty()
-
-    def DeleteAccount(self, request, context):
-        """
-        Can only be used to delete active user's account, no one else's
-
-        Since only an active user can make this API call, don't have to worry about user already being deleted
-        """
-        with session_scope() as session:
-            account_deletion_token = session.execute(
-                select(AccountDeletionToken)
-                .where(AccountDeletionToken.user_id == context.user_id)
-                .where(AccountDeletionToken.token == request.token)
-                .where(AccountDeletionToken.is_valid)
-            ).scalar_one_or_none()
-
-            if not account_deletion_token:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
-
-            account_deletion_token.end_time_to_recover = now() + timedelta(hours=48)
-            account_deletion_token.user.is_deleted = True
-
-            send_account_deletion_successful_email(account_deletion_token.user, account_deletion_token)
 
         return empty_pb2.Empty()

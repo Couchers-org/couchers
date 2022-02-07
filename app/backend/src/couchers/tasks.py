@@ -6,7 +6,7 @@ from sqlalchemy.sql import func
 
 from couchers import email, urls
 from couchers.config import config
-from couchers.constants import EMAIL_TOKEN_VALIDITY
+from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.models import (
@@ -42,7 +42,7 @@ def send_signup_email(flow):
         token = urlsafe_secure_token()
         flow.email_verified = False
         flow.email_token = token
-        flow.email_token_expiry = now() + EMAIL_TOKEN_VALIDITY
+        flow.email_token_expiry = now() + SIGNUP_EMAIL_TOKEN_VALIDITY
         signup_link = urls.signup_link(token=flow.email_token)
 
     flow.email_sent = True
@@ -434,14 +434,14 @@ def send_account_deletion_confirmation_email(user):
     return token
 
 
-def send_account_deletion_successful_email(user, account_deletion_token):
+def send_account_deletion_successful_email(user, undelete_days):
     logger.info(f"Sending account deletion successful email to {user=}.")
     logger.info(f"Email for {user.username=} sent to {user.email}.")
-    recovery_link = urls.recover_account_link(account_deletion_token=account_deletion_token.token)
+    recovery_link = urls.recover_account_link(account_deletion_token=user.undelete_token)
     email.enqueue_email_from_template(
         user.email,
         "account_deletion_successful",
-        template_args={"user": user, "recovery_link": recovery_link},
+        template_args={"user": user, "recovery_link": recovery_link, "days": undelete_days},
     )
 
 
