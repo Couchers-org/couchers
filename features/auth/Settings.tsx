@@ -10,6 +10,7 @@ import Username from "features/auth/username/Username";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import makeStyles from "utils/makeStyles";
+import DeleteAccount from "./deletion/DeleteAccount";
 
 import useAccountInfo from "./useAccountInfo";
 
@@ -68,6 +69,10 @@ export default function Settings() {
           <ChangePassword
             className={classes.section}
             hasPassword={accountInfo.hasPassword}
+          />
+          <DeleteAccount
+            className={classes.section}
+            username={accountInfo.username}
           />
         </>
       ) : null}

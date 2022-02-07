@@ -3,6 +3,7 @@ import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import {
   ChangeEmailReq,
   ChangePasswordReq,
+  DeleteAccountReq,
   FillContributorFormReq,
 } from "proto/account_pb";
 import {
@@ -72,4 +73,13 @@ export async function fillContributorForm(form: ContributorFormPb.AsObject) {
     )
   );
   return res.toObject();
+}
+
+export function deleteAccount(confirm: boolean, reason?: string) {
+  const req = new DeleteAccountReq();
+  req.setConfirm(confirm);
+  if (reason) {
+    req.setReason(reason);
+  }
+  return client.account.deleteAccount(req);
 }
