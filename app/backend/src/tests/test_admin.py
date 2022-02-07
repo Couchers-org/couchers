@@ -16,7 +16,6 @@ from tests.test_fixtures import (  # noqa
     generate_user,
     get_user_id_and_token,
     real_admin_session,
-    real_session,
     testconfig,
 )
 
