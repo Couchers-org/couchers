@@ -1,8 +1,10 @@
 import { BoolValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import { HostingStatus } from "proto/api_pb";
 import {
+  ConfirmDeleteAccountReq,
   ContributorForm as ContributorFormPb,
   LoginReq,
+  RecoverAccountReq,
   SignupAccount,
   SignupBasic,
   SignupFlowReq,
@@ -130,4 +132,16 @@ export async function unsubscribe(payload: string, sig: string) {
   req.setSig(sig);
   const res = await client.auth.unsubscribe(req);
   return res.toObject();
+}
+
+export async function confirmDeleteAccount(token: string) {
+  const req = new ConfirmDeleteAccountReq();
+  req.setToken(token);
+  await client.auth.confirmDeleteAccount(req);
+}
+
+export async function recoverAccount(token: string) {
+  const req = new RecoverAccountReq();
+  req.setToken(token);
+  await client.auth.recoverAccount(req);
 }

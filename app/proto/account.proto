@@ -52,6 +52,10 @@ service Account {
     // and FAILED_PRECONDITION means ChangePhone was not called before this method.
     // An incorrect code generates NOT_FOUND.
   }
+
+  rpc DeleteAccount(DeleteAccountReq) returns (google.protobuf.Empty) {
+    // Sends email with confirmation link containing token to delete account
+  }
 }
 
 message GetAccountInfoRes {
@@ -111,4 +115,9 @@ message VerifyPhoneReq {
   // Should be a 6-digit string with Luhn algorithm mod 10 checksum equals 0.
   // Frontends could do that pre-check.
   string token = 1 [ (sensitive) = true ];
+}
+
+message DeleteAccountReq {
+  bool confirm = 1;
+  string reason = 2;
 }

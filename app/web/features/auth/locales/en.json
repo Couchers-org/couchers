@@ -155,9 +155,7 @@
       "explanation": "Your username is set when you create your account."
     }
   },
-
   "vercel_logo_alt_text": "Powered by Vercel",
-
   "feature_preview": {
     "title": "Feature Preview",
     "explanation": "This page allows you to try out features that are still in development before they are quite ready for use by everyone.",
@@ -183,5 +181,30 @@
     "button_text": "Confirm unsubscription",
     "error_message": "Error unsubscribing: {{message}}",
     "missing_payload_or_sig": "Invalid URL, missing payload or signature"
+  },
+  "delete_account": {
+    "request": {
+      "title": "Delete account",
+      "description": "To delete your account, please follow the steps below. We will email you a confirmation.",
+      "confirm_username_explanation": "Your username is <1>{{ username }}</1>, please type it in below to confirm account deletion.",
+      "confirm_username_label": "Username confirmation",
+      "username_mismatch": "Username doesn't match.",
+      "reason_explanation": "Please help us improve the platform by telling us why you've chosen to delete your account.",
+      "reason_label": "Reason for account deletion",
+      "success_message": "Account deletion initiated. To complete account deletion, please confirm through the email we sent you."
+    },
+    "missing_token": "Missing token",
+    "confirm": {
+      "title": "Confirm account deletion",
+      "error_message": "Failed to confirm account deletion: {{message}}",
+      "button_text": "Confirm account deletion.",
+      "account_deleted": "Account deleted. Thank you for using Couchers.org!"
+    },
+    "recover": {
+      "title": "Recover your Couchers.org account",
+      "error_message": "Failed to recover account: {{message}}",
+      "button_text": "Recover your account.",
+      "success": "Your account has been recovered, you can log back in. We're excited to have you back!"
+    }
   }
 }

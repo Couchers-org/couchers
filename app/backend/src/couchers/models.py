@@ -164,6 +164,13 @@ class User(Base):
     is_deleted = Column(Boolean, nullable=False, server_default=text("false"))
     is_superuser = Column(Boolean, nullable=False, server_default=text("false"))
 
+    # the undelete token allows a user to recover their account for a couple of days after deletion in case it was
+    # accidental or they changed their mind
+    # constraints make sure these are non-null only if is_deleted and that these are null in unison
+    undelete_token = Column(String, nullable=True)
+    # validity of the undelete token
+    undelete_until = Column(DateTime(timezone=True), nullable=True)
+
     # hosting preferences
     max_guests = Column(Integer, nullable=True)
     last_minute = Column(Boolean, nullable=True)
@@ -294,6 +301,11 @@ class User(Base):
         CheckConstraint(
             f"email ~ '{EMAIL_REGEX}'",
             name="valid_email",
+        ),
+        # Undelete token + time are coupled: either both null or neither; and if they're not null then the account is deleted
+        CheckConstraint(
+            "((undelete_token IS NULL) = (undelete_until IS NULL)) AND ((undelete_token IS NULL) OR is_deleted)",
+            name="undelete_nullity",
         ),
     )
 
@@ -647,7 +659,7 @@ class LoginToken(Base):
 
     @hybrid_property
     def is_valid(self):
-        return (self.created <= func.now()) & (self.expiry >= func.now())
+        return (self.created <= now()) & (self.expiry >= now())
 
     def __repr__(self):
         return f"LoginToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
@@ -666,10 +678,30 @@ class PasswordResetToken(Base):
 
     @hybrid_property
     def is_valid(self):
-        return (self.created <= func.now()) & (self.expiry >= func.now())
+        return (self.created <= now()) & (self.expiry >= now())
 
     def __repr__(self):
         return f"PasswordResetToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
+
+
+class AccountDeletionToken(Base):
+    __tablename__ = "account_deletion_tokens"
+
+    token = Column(String, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    expiry = Column(DateTime(timezone=True), nullable=False)
+
+    user = relationship("User", backref="account_deletion_tokens")
+
+    @hybrid_property
+    def is_valid(self):
+        return (self.created <= now()) & (self.expiry >= now())
+
+    def __repr__(self):
+        return f"AccountDeletionToken(token={self.token}, user_id={self.user_id}, created={self.created}, expiry={self.expiry})"
 
 
 class UserSession(Base):
@@ -1768,6 +1800,10 @@ class BackgroundJobType(enum.Enum):
     # payload: google.protobuf.Empty
     purge_signup_tokens = enum.auto()
     # payload: google.protobuf.Empty
+    purge_account_deletion_tokens = enum.auto()
+    # payload: google.protobuf.Empty
+    purge_password_reset_tokens = enum.auto()
+    # payload: google.protobuf.Empty
     send_message_notifications = enum.auto()
     # payload: google.protobuf.Empty
     send_onboarding_emails = enum.auto()
@@ -2047,3 +2083,14 @@ class APICall(Base):
 
     # the exception traceback, if any
     traceback = Column(String, nullable=True)
+
+
+class AccountDeletionReason(Base):
+    __tablename__ = "account_deletion_reason"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+    reason = Column(String, nullable=True)
+
+    user = relationship("User")

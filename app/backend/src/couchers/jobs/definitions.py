@@ -9,7 +9,9 @@ from couchers.jobs.handlers import (
     process_handle_email_digests,
     process_handle_email_notifications,
     process_handle_notification,
+    process_purge_account_deletion_tokens,
     process_purge_login_tokens,
+    process_purge_password_reset_tokens,
     process_send_email,
     process_send_message_notifications,
     process_send_onboarding_emails,
@@ -23,6 +25,8 @@ from proto.internal import jobs_pb2
 JOBS = {
     BackgroundJobType.send_email: (jobs_pb2.SendEmailPayload, process_send_email),
     BackgroundJobType.purge_login_tokens: (empty_pb2.Empty, process_purge_login_tokens),
+    BackgroundJobType.purge_password_reset_tokens: (empty_pb2.Empty, process_purge_password_reset_tokens),
+    BackgroundJobType.purge_account_deletion_tokens: (empty_pb2.Empty, process_purge_account_deletion_tokens),
     BackgroundJobType.send_message_notifications: (empty_pb2.Empty, process_send_message_notifications),
     BackgroundJobType.send_onboarding_emails: (empty_pb2.Empty, process_send_onboarding_emails),
     BackgroundJobType.add_users_to_email_list: (empty_pb2.Empty, process_add_users_to_email_list),
@@ -40,6 +44,8 @@ JOBS = {
 
 SCHEDULE = [
     (BackgroundJobType.purge_login_tokens, timedelta(hours=24)),
+    (BackgroundJobType.purge_password_reset_tokens, timedelta(hours=24)),
+    (BackgroundJobType.purge_account_deletion_tokens, timedelta(hours=24)),
     (BackgroundJobType.send_message_notifications, timedelta(minutes=3)),
     (BackgroundJobType.send_onboarding_emails, timedelta(hours=1)),
     (BackgroundJobType.add_users_to_email_list, timedelta(hours=1)),

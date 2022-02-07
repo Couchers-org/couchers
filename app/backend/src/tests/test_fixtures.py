@@ -203,7 +203,7 @@ def db():
     recreate_database()
 
 
-def generate_user(*, make_invisible=False, **kwargs):
+def generate_user(*, delete_user=False, **kwargs):
     """
     Create a new user, return session token
 
@@ -274,7 +274,7 @@ def generate_user(*, make_invisible=False, **kwargs):
         token, _ = create_session(_DummyContext(), session, user, False)
 
         # deleted user aborts session creation, hence this follows and necessitates a second commit
-        if make_invisible:
+        if delete_user:
             user.is_deleted = True
             session.commit()
 

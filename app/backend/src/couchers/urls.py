@@ -83,5 +83,13 @@ def donation_success_url():
     return f"{config['BASE_URL']}/donate?success=true"
 
 
+def delete_account_link(*, account_deletion_token):
+    return f"{config['BASE_URL']}/delete-account?token={account_deletion_token}"
+
+
+def recover_account_link(*, account_undelete_token):
+    return f"{config['BASE_URL']}/recover-account?token={account_undelete_token}"
+
+
 def unsubscribe_link(*, payload, sig):
     return f"{config['BASE_URL']}/unsubscribe?payload={payload}&sig={sig}"

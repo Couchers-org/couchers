@@ -1,14 +1,23 @@
 import logging
+from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import func
+from sqlalchemy.sql import delete, func
 
 from couchers import errors, urls
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
-from couchers.crypto import cookiesafe_secure_token, hash_password, verify_password
+from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.db import session_scope
-from couchers.models import ContributorForm, LoginToken, PasswordResetToken, SignupFlow, User, UserSession
+from couchers.models import (
+    AccountDeletionToken,
+    ContributorForm,
+    LoginToken,
+    PasswordResetToken,
+    SignupFlow,
+    User,
+    UserSession,
+)
 from couchers.notifications.notify import notify
 from couchers.notifications.unsubscribe import unsubscribe
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
@@ -17,6 +26,8 @@ from couchers.sql import couchers_select as select
 from couchers.tasks import (
     enforce_community_memberships_for_user,
     maybe_send_contributor_form_email,
+    send_account_deletion_successful_email,
+    send_account_recovered_email,
     send_login_email,
     send_onboarding_email,
     send_password_reset_email,
@@ -571,6 +582,53 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 return auth_pb2.ConfirmChangeEmailRes(
                     state=auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL
                 )
+
+    def ConfirmDeleteAccount(self, request, context):
+        """
+        Confirm account deletion using account delete token
+        """
+        with session_scope() as session:
+            res = session.execute(
+                select(User, AccountDeletionToken)
+                .join(AccountDeletionToken, AccountDeletionToken.user_id == User.id)
+                .where(AccountDeletionToken.token == request.token)
+                .where(AccountDeletionToken.is_valid)
+            ).one_or_none()
+
+            if not res:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+
+            user, account_deletion_token = res
+
+            session.execute(delete(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id))
+
+            undelete_days = 7
+            user.is_deleted = True
+            user.undelete_until = now() + timedelta(days=undelete_days)
+            user.undelete_token = urlsafe_secure_token()
+
+            send_account_deletion_successful_email(user, undelete_days)
+
+        return empty_pb2.Empty()
+
+    def RecoverAccount(self, request, context):
+        """
+        Recovers a recently deleted account
+        """
+        with session_scope() as session:
+            user = session.execute(
+                select(User).where(User.undelete_token == request.token).where(User.undelete_until > now())
+            ).scalar_one_or_none()
+
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+
+            user.is_deleted = False
+            user.undelete_token = None
+            user.undelete_until = None
+            send_account_recovered_email(user)
+
+            return empty_pb2.Empty()
 
     def Unsubscribe(self, request, context):
         return auth_pb2.UnsubscribeRes(response=unsubscribe(request, context))

@@ -19,6 +19,6 @@ To finish setting up your account, please click on this link to confirm your ema
 
 {% endif %}
 
-See you in a bit :).
+See you in a bit :)
 
 The Couchers.org team

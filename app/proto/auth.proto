@@ -102,6 +102,14 @@ service Auth {
     // Triggered when the user goes to the link sent in the either email_changed_confirmation_*_email
   }
 
+  rpc ConfirmDeleteAccount(ConfirmDeleteAccountReq) returns (google.protobuf.Empty) {
+    // Confirms deletion of a user using a token
+  }
+
+  rpc RecoverAccount(RecoverAccountReq) returns (google.protobuf.Empty) {
+    // Recovers a recently deleted account
+  }
+
   rpc Unsubscribe(UnsubscribeReq) returns (UnsubscribeRes) {
     // Handle an unsubscribe action from an email
   }
@@ -246,6 +254,14 @@ message ContributorForm {
   ContributeOption contribute = 4;
   repeated string contribute_ways = 5;
   string expertise = 6;
+}
+
+message ConfirmDeleteAccountReq {
+  string token = 1 [ (sensitive) = true ];
+}
+
+message RecoverAccountReq {
+  string token = 1 [ (sensitive) = true ];
 }
 
 message UnsubscribeReq {

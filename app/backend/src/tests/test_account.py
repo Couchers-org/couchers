@@ -9,7 +9,7 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.models import BackgroundJob, BackgroundJobType, Upload, User
+from couchers.models import AccountDeletionReason, AccountDeletionToken, BackgroundJob, BackgroundJobType, Upload, User
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 from proto import account_pb2, auth_pb2
@@ -814,3 +814,125 @@ def test_contributor_form(db):
 
         res = account.GetContributorFormInfo(empty_pb2.Empty())
         assert res.filled_contributor_form
+
+
+def test_DeleteAccount_start(db):
+    user, token = generate_user()
+
+    with account_session(token) as account:
+        with patch("couchers.email.queue_email") as mock:
+            account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=None))
+        mock.assert_called_once()
+        (_, _, _, subject, _, _), _ = mock.call_args
+        assert subject == "[TEST] Confirm your Couchers.org account deletion"
+
+    with session_scope() as session:
+        deletion_token = session.execute(
+            select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id)
+        ).scalar_one()
+
+        assert deletion_token.is_valid
+        assert not session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
+
+
+def test_DeleteAccount_message_storage(db):
+    user, token = generate_user()
+
+    with account_session(token) as account:
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=None))  # not stored
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=""))  # not stored
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason="Reason"))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason="0192#(&!&#)*@//)(8"))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason="\n\n\t"))  # not stored
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason="1337"))
+
+    with session_scope() as session:
+        assert session.execute(select(func.count()).select_from(AccountDeletionReason)).scalar_one() == 3
+
+
+def test_full_delete_account_with_recovery(db):
+    user, token = generate_user()
+    user_id = user.id
+
+    with account_session(token) as account:
+        with pytest.raises(grpc.RpcError) as e:
+            account.DeleteAccount(account_pb2.DeleteAccountReq())
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.MUST_CONFIRM_ACCOUNT_DELETE
+
+        # Check the right email is sent
+        with patch("couchers.email.queue_email") as mock:
+            account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
+        mock.assert_called_once()
+        (_, _, _, subject, _, _), _ = mock.call_args
+        assert subject == "[TEST] Confirm your Couchers.org account deletion"
+
+    with session_scope() as session:
+        token_o = session.execute(select(AccountDeletionToken)).scalar_one()
+        token = token_o.token
+
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert token_o.user == user
+        assert not user.is_deleted
+        assert not user.undelete_token
+        assert not user.undelete_until
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.ConfirmDeleteAccount(
+            auth_pb2.ConfirmDeleteAccountReq(
+                token=token,
+            )
+        )
+
+    with session_scope() as session:
+        assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
+
+    with session_scope() as session:
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert user.is_deleted
+        assert user.undelete_token
+        assert user.undelete_until > now()
+
+        undelete_token = user.undelete_token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.RecoverAccount(
+            auth_pb2.RecoverAccountReq(
+                token=undelete_token,
+            )
+        )
+
+    with session_scope() as session:
+        assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
+
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert not user.is_deleted
+        assert not user.undelete_token
+        assert not user.undelete_until
+
+
+def test_multiple_delete_tokens(db):
+    """
+    Make sure deletion tokens are deleted on delete
+    """
+    user, token = generate_user()
+    user_id = user.id
+
+    with account_session(token) as account:
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
+
+    with session_scope() as session:
+        assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 3
+        token = session.execute(select(AccountDeletionToken)).scalars().first().token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.ConfirmDeleteAccount(
+            auth_pb2.ConfirmDeleteAccountReq(
+                token=token,
+            )
+        )
+
+    with session_scope() as session:
+        assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()

@@ -6,10 +6,19 @@ from sqlalchemy.sql import func
 
 from couchers import email, urls
 from couchers.config import config
-from couchers.constants import EMAIL_TOKEN_VALIDITY
+from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
-from couchers.models import ClusterRole, ClusterSubscription, LoginToken, Node, Notification, PasswordResetToken, User
+from couchers.models import (
+    AccountDeletionToken,
+    ClusterRole,
+    ClusterSubscription,
+    LoginToken,
+    Node,
+    Notification,
+    PasswordResetToken,
+    User,
+)
 from couchers.notifications.unsubscribe import generate_mute_all, generate_unsub_topic_action, generate_unsub_topic_key
 from couchers.sql import couchers_select as select
 from couchers.utils import now
@@ -33,7 +42,7 @@ def send_signup_email(flow):
         token = urlsafe_secure_token()
         flow.email_verified = False
         flow.email_token = token
-        flow.email_token_expiry = now() + EMAIL_TOKEN_VALIDITY
+        flow.email_token_expiry = now() + SIGNUP_EMAIL_TOKEN_VALIDITY
         signup_link = urls.signup_link(token=flow.email_token)
 
     flow.email_sent = True
@@ -409,6 +418,41 @@ def enforce_community_memberships():
                     )
                 )
             session.commit()
+
+
+def send_account_deletion_confirmation_email(user):
+    logger.info(f"Sending account deletion confirmation email to {user=}.")
+    logger.info(f"Email for {user.username=} sent to {user.email}.")
+    token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
+    deletion_link = urls.delete_account_link(account_deletion_token=token.token)
+    email.enqueue_email_from_template(
+        user.email,
+        "account_deletion_confirmation",
+        template_args={"user": user, "deletion_link": deletion_link},
+    )
+
+    return token
+
+
+def send_account_deletion_successful_email(user, undelete_days):
+    logger.info(f"Sending account deletion successful email to {user=}.")
+    logger.info(f"Email for {user.username=} sent to {user.email}.")
+    undelete_token = urls.recover_account_link(account_undelete_token=user.undelete_token)
+    email.enqueue_email_from_template(
+        user.email,
+        "account_deletion_successful",
+        template_args={"user": user, "undelete_token": undelete_token, "days": undelete_days},
+    )
+
+
+def send_account_recovered_email(user):
+    logger.info(f"Sending account recovered successful email to {user=}.")
+    logger.info(f"Email for {user.username=} sent to {user.email}.")
+    email.enqueue_email_from_template(
+        user.email,
+        "account_recovered_successful",
+        template_args={"user": user},
+    )
 
 
 def enforce_community_memberships_for_user(session, user):

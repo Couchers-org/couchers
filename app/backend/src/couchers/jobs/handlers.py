@@ -14,12 +14,14 @@ from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.models import (
+    AccountDeletionToken,
     GroupChat,
     GroupChatSubscription,
     HostRequest,
     LoginToken,
     Message,
     MessageType,
+    PasswordResetToken,
     Reference,
     User,
 )
@@ -53,8 +55,24 @@ def process_send_email(payload):
 def process_purge_login_tokens(payload):
     logger.info(f"Purging login tokens")
     with session_scope() as session:
+        session.execute(delete(LoginToken).where(~LoginToken.is_valid).execution_options(synchronize_session=False))
+
+
+def process_purge_password_reset_tokens(payload):
+    logger.info(f"Purging login tokens")
+    with session_scope() as session:
         session.execute(
-            delete(LoginToken).where(LoginToken.is_valid == False).execution_options(synchronize_session=False)
+            delete(PasswordResetToken).where(~PasswordResetToken.is_valid).execution_options(synchronize_session=False)
+        )
+
+
+def process_purge_account_deletion_tokens(payload):
+    logger.info(f"Purging account deletion tokens")
+    with session_scope() as session:
+        session.execute(
+            delete(AccountDeletionToken)
+            .where(~AccountDeletionToken.is_valid)
+            .execution_options(synchronize_session=False)
         )
 
 
