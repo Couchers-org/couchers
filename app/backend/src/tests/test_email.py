@@ -8,7 +8,6 @@ from couchers.config import config
 from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.models import (
-    AccountDeletionToken,
     ContentReport,
     Conversation,
     FriendRelationship,
@@ -21,7 +20,9 @@ from couchers.models import (
     ReferenceType,
     SignupFlow,
     Upload,
+    User,
 )
+from couchers.sql import couchers_select as select
 from couchers.tasks import (
     maybe_send_reference_report_email,
     send_account_deletion_confirmation_email,
@@ -449,7 +450,7 @@ def test_account_deletion_confirmation_email(db):
         unique_string = "You requested that we delete your account from Couchers.org."
         assert unique_string in plain
         assert unique_string in html
-        url = f"{config['BASE_URL']}/delete-account/{account_deletion_token.token}"
+        url = f"{config['BASE_URL']}/delete-account?token={account_deletion_token.token}"
         assert url in plain
         assert url in html
         assert "support@couchers.org" in plain
@@ -483,10 +484,15 @@ def test_api_key_email(db):
 
 def test_account_deletion_successful_email(db):
     user, api_token = generate_user()
-    account_deletion_token = AccountDeletionToken(token="token", user=user)
+
+    with session_scope() as session:
+        user_ = session.execute(select(User)).scalar_one()
+        user.undelete_token = "token"
+        user.undelete_until = now()
+        user.is_deleted = True
 
     with patch("couchers.email.queue_email") as mock:
-        send_account_deletion_successful_email(user, account_deletion_token)
+        send_account_deletion_successful_email(user, 7)
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
@@ -497,7 +503,7 @@ def test_account_deletion_successful_email(db):
         assert unique_string in html
         assert "7 days" in plain
         assert "7 days" in html
-        url = f"{config['BASE_URL']}/recover-account/{account_deletion_token.token}"
+        url = f"{config['BASE_URL']}/recover-account?token={user.undelete_token}"
         assert url in plain
         assert url in html
         assert "support@couchers.org" in plain
