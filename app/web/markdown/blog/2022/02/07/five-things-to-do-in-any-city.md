@@ -6,8 +6,9 @@ description: If you're new to traveling, whether solo or with friends, going to
   for some things you can do in any city.
 date: 2022/02/06
 author: Anna
-share_image: /app/web/public/img/blog/share_image.jpg
+share_image: https://couchers.org/img/share.jpg
 ---
+
 It’s easy to get lost in a vast diversity of people, places, attractions, and things to do—especially in big cities where everything seems grotesque and unfamiliar. How can you ever know what’s the right path to follow, which places will welcome you dearly or what you should stay away from? **How do you get the best out of your journey and is there a universal guide to follow, no matter where you go**? Nobody can give you an exact answer, but there are certain “must try” options for every traveler to experience and here we’ll narrow it down to just five simple recommendations. Let’s begin!
 
 ## Check out the local market
