@@ -164,7 +164,11 @@ class User(Base):
     is_deleted = Column(Boolean, nullable=False, server_default=text("false"))
     is_superuser = Column(Boolean, nullable=False, server_default=text("false"))
 
+    # the undelete token allows a user to recover their account for a couple of days after deletion in case it was
+    # accidental or they changed their mind
+    # constraints make sure these are non-null only if is_deleted and that these are null in unison
     undelete_token = Column(String, nullable=True)
+    # validity of the undelete token
     undelete_until = Column(DateTime(timezone=True), nullable=True)
 
     # hosting preferences

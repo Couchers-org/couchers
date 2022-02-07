@@ -103,8 +103,7 @@ service Auth {
   }
 
   rpc ConfirmDeleteAccount(ConfirmDeleteAccountReq) returns (google.protobuf.Empty) {
-    // Deletes active user's account
-    // Cannot be used to delete any other user's account
+    // Confirms deletion of a user using a token
   }
 
   rpc RecoverAccount(RecoverAccountReq) returns (google.protobuf.Empty) {

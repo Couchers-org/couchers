@@ -7,6 +7,7 @@ import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useMutation } from "react-query";
+import { logoutRoute } from "routes";
 import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";
 
@@ -24,12 +25,19 @@ export default function ConfirmDeleteAccount() {
     void,
     RpcError,
     ConfirmDeleteAccountParams
-  >(async ({ token }) => {
-    if (token === undefined) {
-      throw Error(t("auth:delete_account.missing_token"));
+  >(
+    async ({ token }) => {
+      if (token === undefined) {
+        throw Error(t("auth:delete_account.missing_token"));
+      }
+      return await service.auth.confirmDeleteAccount(token);
+    },
+    {
+      onSuccess: () => {
+        router.push(logoutRoute);
+      },
     }
-    return await service.auth.confirmDeleteAccount(token);
-  });
+  );
 
   return (
     <>

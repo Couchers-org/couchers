@@ -831,7 +831,6 @@ def test_DeleteAccount_start(db):
             select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id)
         ).scalar_one()
 
-        # first two asserts also imply created < now() and expiry > now()
         assert deletion_token.is_valid
         assert not session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
 
