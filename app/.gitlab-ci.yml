@@ -252,8 +252,6 @@ test:backend:
     - apt-get -y install postgresql-client
   script:
     - cd /app && pytest --junitxml=junit.xml --cov=src src
-    - cd /app && black --check .
-    - cd /app && isort --check .
   after_script:
     - cd /app && coverage xml && coverage html
     - cp /app/junit.xml $CI_PROJECT_DIR/
@@ -266,6 +264,25 @@ test:backend:
       junit: junit.xml
     paths:
       - artifacts/htmlcov
+  rules:
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/proto/**/*
+      - app/backend/**/*
+
+test:backend-format:
+  needs: ["build:backend"]
+  stage: test
+  image: $BACKEND_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd app/backend && black --check .
+    - cd app/backend && isort --check .
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
