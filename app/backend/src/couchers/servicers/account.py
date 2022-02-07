@@ -1,4 +1,3 @@
-import re
 from datetime import timedelta
 
 import grpc
@@ -9,7 +8,7 @@ from couchers import errors, urls
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.crypto import hash_password, urlsafe_secure_token, verify_password, verify_token
 from couchers.db import session_scope
-from couchers.models import AccountDeletionToken, ContributeOption, ContributorForm, ReasonForDeletion, User
+from couchers.models import AccountDeleteReason, AccountDeletionToken, ContributeOption, ContributorForm, User
 from couchers.notifications.notify import notify
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
@@ -18,7 +17,6 @@ from couchers.tasks import (
     maybe_send_contributor_form_email,
     send_account_deletion_confirmation_email,
     send_account_deletion_successful_email,
-    send_account_recovery_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
@@ -347,11 +345,7 @@ class Account(account_pb2_grpc.AccountServicer):
             token = send_account_deletion_confirmation_email(user)
             session.add(token)
 
-            regex = re.compile("[^a-zA-Z]")
-
-            if len(regex.sub("", request.reason)) > 0:  # Discount any messages without real text
-                reason_for_deletion = ReasonForDeletion(user_id=user.id, reason=request.reason)
-                session.add(reason_for_deletion)
+            session.add(AccountDeleteReason(user_id=user.id, reason=request.reason.strip()))
 
         return empty_pb2.Empty()
 
@@ -366,8 +360,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 select(AccountDeletionToken)
                 .where(AccountDeletionToken.user_id == context.user_id)
                 .where(AccountDeletionToken.token == request.token)
-                .where(AccountDeletionToken.expiry > now())
-                .where(AccountDeletionToken.end_time_to_recover < now())
+                .where(AccountDeletionToken.is_valid)
             ).scalar_one_or_none()
 
             if not account_deletion_token:
@@ -378,30 +371,4 @@ class Account(account_pb2_grpc.AccountServicer):
 
             send_account_deletion_successful_email(account_deletion_token.user, account_deletion_token)
 
-        return account_pb2.DeleteAccountRes(success=True)
-
-    def RecoverAccount(self, request, context):
-        """
-        Recovers account deleted within the past 48 hours
-        """
-        with session_scope() as session:
-            account_deletion_token = session.execute(
-                select(AccountDeletionToken)
-                .where(AccountDeletionToken.token == request.token)
-                .where(AccountDeletionToken.end_time_to_recover > now())
-            ).scalar_one_or_none()
-
-            if not account_deletion_token:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
-
-            user = account_deletion_token.user
-            if not user.is_deleted:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_DELETED)
-
-            if user.has_password and not verify_password(user.hashed_password, request.password):
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_USERNAME_OR_PASSWORD)
-
-            user.is_deleted = False
-            send_account_recovery_email(user)
-
-            return account_pb2.RecoverAccountRes(success=True)
+        return empty_pb2.Empty()

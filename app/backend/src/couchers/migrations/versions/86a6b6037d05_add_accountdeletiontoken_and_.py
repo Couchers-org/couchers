@@ -1,4 +1,4 @@
-"""Add AccountDeletionToken and ReasonForDeletion
+"""Add AccountDeletionToken and AccountDeleteReason
 
 Revision ID: 86a6b6037d05
 Revises: f77ccd92eb4d

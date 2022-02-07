@@ -26,7 +26,7 @@ from couchers.tasks import (
     maybe_send_reference_report_email,
     send_account_deletion_confirmation_email,
     send_account_deletion_successful_email,
-    send_account_recovery_email,
+    send_account_recovered_email,
     send_api_key_email,
     send_content_report_email,
     send_email_changed_confirmation_to_new_email,
@@ -508,7 +508,7 @@ def test_account_recovery_successful_email(db):
     user, api_token = generate_user()
 
     with patch("couchers.email.queue_email") as mock:
-        send_account_recovery_email(user)
+        send_account_recovered_email(user)
 
         assert mock.call_count == 1
         (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args

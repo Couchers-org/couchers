@@ -9,7 +9,7 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.models import AccountDeletionToken, BackgroundJob, BackgroundJobType, ReasonForDeletion, Upload, User
+from couchers.models import AccountDeleteReason, AccountDeletionToken, BackgroundJob, BackgroundJobType, Upload, User
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 from proto import account_pb2, auth_pb2
@@ -838,7 +838,7 @@ def test_RequestAccountDeletion(db):
 
     # Checking later that this token has been deleted
     with session_scope() as session:
-        old_deletion_token = AccountDeletionToken(token="token", user_id=user.id)
+        old_deletion_token = AccountDeletionToken(token="token", user_id=user.id, expiry=now() + timedelta(hours=2))
         session.add(old_deletion_token)
         old_token = old_deletion_token.token
 
@@ -877,7 +877,7 @@ def test_RequestAccountDeletion_message_storage(db):
         account.RequestAccountDeletion(account_pb2.RequestAccountDeletionReq(reason="1337"))
 
     with session_scope() as session:
-        assert session.execute(select(func.count()).select_from(ReasonForDeletion)).scalar_one() == 2
+        assert session.execute(select(func.count()).select_from(AccountDeleteReason)).scalar_one() == 2
 
 
 def test_DeleteAccount(db):

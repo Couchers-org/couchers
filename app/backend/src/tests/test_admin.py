@@ -11,13 +11,7 @@ from couchers.models import AccountDeletionToken, Cluster, UserSession
 from couchers.sql import couchers_select as select
 from couchers.utils import now, parse_date
 from proto import admin_pb2
-from tests.test_fixtures import (  # noqa
-    db,
-    generate_user,
-    get_user_id_and_token,
-    real_admin_session,
-    testconfig,
-)
+from tests.test_fixtures import db, generate_user, get_user_id_and_token, real_admin_session, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)

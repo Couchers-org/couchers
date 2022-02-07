@@ -17,6 +17,7 @@ from couchers.sql import couchers_select as select
 from couchers.tasks import (
     enforce_community_memberships_for_user,
     maybe_send_contributor_form_email,
+    send_account_recovered_email,
     send_login_email,
     send_onboarding_email,
     send_password_reset_email,
@@ -571,6 +572,29 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 return auth_pb2.ConfirmChangeEmailRes(
                     state=auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL
                 )
+
+    def RecoverAccount(self, request, context):
+        """
+        Recovers a recently deleted account
+        """
+        with session_scope() as session:
+            account_deletion_token = session.execute(
+                select(AccountDeletionToken)
+                .where(AccountDeletionToken.token == request.token)
+                .where(AccountDeletionToken.end_time_to_recover > now())
+            ).scalar_one_or_none()
+
+            if not account_deletion_token:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+
+            user = account_deletion_token.user
+            if not user.is_deleted:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_DELETED)
+
+            user.is_deleted = False
+            send_account_recovered_email(user)
+
+            return empty_pb2.Empty()
 
     def Unsubscribe(self, request, context):
         return auth_pb2.UnsubscribeRes(response=unsubscribe(request, context))

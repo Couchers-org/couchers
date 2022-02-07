@@ -53,17 +53,13 @@ service Account {
     // An incorrect code generates NOT_FOUND.
   }
 
-  rpc RequestAccountDeletion(RequestAccountDeletionReq) returns (google.protobuf.Empty){
+  rpc RequestAccountDeletion(RequestAccountDeletionReq) returns (google.protobuf.Empty) {
     // Sends email with confirmation link containing token
   }
 
-  rpc DeleteAccount(DeleteAccountReq) returns (DeleteAccountRes){
-  // Deletes active user's account
-  // Cannot be used to delete any other user's account
-  }
-
-  rpc RecoverAccount(RecoverAccountReq) returns (RecoverAccountRes){
-    // Password required only if user has password
+  rpc DeleteAccount(DeleteAccountReq) returns (google.protobuf.Empty) {
+    // Deletes active user's account
+    // Cannot be used to delete any other user's account
   }
 }
 
@@ -126,23 +122,11 @@ message VerifyPhoneReq {
   string token = 1 [ (sensitive) = true ];
 }
 
-message RequestAccountDeletionReq{
-  string reason = 1;
+message RequestAccountDeletionReq {
+  bool sure = 1;
+  string reason = 2;
 }
 
 message DeleteAccountReq {
   string token = 1 [ (sensitive) = true ];
-}
-
-message DeleteAccountRes {
-  bool success = 1;
-}
-
-message RecoverAccountReq {
-  string token = 1 [ (sensitive) = true ];
-  string password = 2 [ (sensitive) = true ];
-}
-
-message RecoverAccountRes {
-  bool success = 1;
 }

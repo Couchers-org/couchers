@@ -680,7 +680,7 @@ class AccountDeletionToken(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True, unique=True)
 
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    expiry = Column(DateTime(timezone=True), nullable=False, server_default=func.now() + text("interval '2 hours'"))
+    expiry = Column(DateTime(timezone=True), nullable=False)
     end_time_to_recover = Column(
         DateTime(timezone=True), nullable=True, default=func.now()
     )  # stars off as now, set to 48 hours from when account is actually deleted
@@ -2076,7 +2076,7 @@ class APICall(Base):
     traceback = Column(String, nullable=True)
 
 
-class ReasonForDeletion(Base):
+class AccountDeleteReason(Base):
     __tablename__ = "reason_for_deletion"
 
     id = Column(BigInteger, primary_key=True)

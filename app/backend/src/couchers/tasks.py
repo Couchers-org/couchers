@@ -423,7 +423,7 @@ def enforce_community_memberships():
 def send_account_deletion_confirmation_email(user):
     logger.info(f"Sending account deletion confirmation email to {user=}.")
     logger.info(f"Email for {user.username=} sent to {user.email}.")
-    token = AccountDeletionToken(token=urlsafe_secure_token(), user=user)
+    token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
     deletion_link = urls.delete_account_link(account_deletion_token=token.token)
     email.enqueue_email_from_template(
         user.email,
@@ -445,12 +445,12 @@ def send_account_deletion_successful_email(user, account_deletion_token):
     )
 
 
-def send_account_recovery_email(user):
-    logger.info(f"Sending account deletion successful email to {user=}.")
+def send_account_recovered_email(user):
+    logger.info(f"Sending account recovered successful email to {user=}.")
     logger.info(f"Email for {user.username=} sent to {user.email}.")
     email.enqueue_email_from_template(
         user.email,
-        "account_recovery_successful",
+        "account_recovered_successful",
         template_args={"user": user},
     )
 
