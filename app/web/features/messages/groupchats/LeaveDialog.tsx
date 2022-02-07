@@ -19,7 +19,7 @@ import React from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
-export default function MembersDialog({
+export default function LeaveDialog({
   groupChatId,
   ...props
 }: DialogProps & { groupChatId: number }) {
