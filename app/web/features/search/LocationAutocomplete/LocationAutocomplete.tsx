@@ -99,9 +99,7 @@ export default function LocationAutocomplete({
       id="location-autocomplete"
       innerRef={controller.field.ref}
       label={label}
-      error={
-        fieldError !== SELECT_LOCATION ? fieldError || geocodeError : undefined
-      }
+      error={fieldError || geocodeError}
       fullWidth={fullWidth}
       helperText={
         fieldError === SELECT_LOCATION ? SELECT_LOCATION : SEARCH_LOCATION_HINT
