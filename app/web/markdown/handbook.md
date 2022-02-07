@@ -275,7 +275,7 @@ Keep in mind: **The person will only be able to see your profile if they have an
 
 ### Can I message anyone I want?
 
-You can message anyone on the platform. However, please keep our community values in mind when you message someone, and do not violate any of the community guidelines. Treat people with respect and dignity, and do not spam or harass other users.
+You can message anyone on the platform. However, please keep our community values and guidelines in mind when you message someone. Treat people with respect and dignity, and do not spam or harass other users.
 
 <a class="handbook-anchor" name="reference"></a>
 
