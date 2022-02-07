@@ -455,6 +455,19 @@ def send_account_recovered_email(user):
     )
 
 
+def send_account_deletion_report_email(reason):
+    target_email = config["REPORTS_EMAIL_RECIPIENT"]
+
+    logger.info(f"Sending account deletion report email to {target_email=}")
+    email.enqueue_email_from_template(
+        target_email,
+        "account_deletion_report",
+        template_args={
+            "reason": reason,
+        },
+    )
+
+
 def enforce_community_memberships_for_user(session, user):
     """
     Adds a given user to all the communities they belong in based on their location.

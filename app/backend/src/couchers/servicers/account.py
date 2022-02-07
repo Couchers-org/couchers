@@ -338,7 +338,10 @@ class Account(account_pb2_grpc.AccountServicer):
 
             reason = request.reason.strip()
             if reason:
-                session.add(AccountDeletionReason(user_id=user.id, reason=reason))
+                reason = AccountDeletionReason(user_id=user.id, reason=reason)
+                session.add(reason)
+                session.commit()
+                send_account_deletion_report_email(reason)
 
             token = send_account_deletion_confirmation_email(user)
             session.add(token)
