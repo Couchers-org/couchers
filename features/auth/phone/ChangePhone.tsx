@@ -31,13 +31,13 @@ interface VerifyPhoneFormData {
   code: string;
 }
 
-type ChangePhoneProps = GetAccountInfoRes.AsObject & {
+type ChangePhoneProps = {
+  accountInfo: GetAccountInfoRes.AsObject;
   className?: string;
 };
 
-export default function ChangePhone(props: ChangePhoneProps) {
+export default function ChangePhone({className, accountInfo}: ChangePhoneProps) {
   const { t } = useTranslation(["auth"]);
-  const { className } = props;
   const formClasses = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
@@ -135,7 +135,7 @@ export default function ChangePhone(props: ChangePhoneProps) {
           {t("auth:change_phone_form.remove_success")}
         </Alert>
       )}
-      {!props.phone ? (
+      {!accountInfo.phone ? (
         <form className={formClasses.form} onSubmit={onChangeSubmit}>
           <Typography variant="body1">
             {t("auth:change_phone_form.no_phone_description")}
@@ -166,7 +166,7 @@ export default function ChangePhone(props: ChangePhoneProps) {
         </form>
       ) : (
         <>
-          {!props.phoneVerified ? (
+          {!accountInfo.phoneVerified ? (
             <form className={formClasses.form} onSubmit={onVerifySubmit}>
               <Typography variant="body1">
                 <Trans
@@ -174,7 +174,7 @@ export default function ChangePhone(props: ChangePhoneProps) {
                   i18nKey="auth:change_phone_form.phone_not_verified_description"
                 >
                   We sent you a code to{" "}
-                  <b>{{ phone: formatPhoneNumberIntl(props.phone) }}</b>. To
+                  <b>{{ phone: formatPhoneNumberIntl(accountInfo.phone) }}</b>. To
                   verify your number, please enter the code below:
                 </Trans>
               </Typography>
@@ -208,7 +208,7 @@ export default function ChangePhone(props: ChangePhoneProps) {
                   i18nKey="auth:change_phone_form.remove_phone_description"
                 >
                   Your phone number is currently{" "}
-                  <b>{{ phone: formatPhoneNumberIntl(props.phone) }}</b>. You
+                  <b>{{ phone: formatPhoneNumberIntl(accountInfo.phone) }}</b>. You
                   can remove your phone number below, you will loose
                   verification.
                 </Trans>
