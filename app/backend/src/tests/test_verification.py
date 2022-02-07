@@ -65,9 +65,10 @@ def test_ChangePhone(db, monkeypatch):
             assert user.phone == "+46701740605"
             assert len(user.phone_verification_token) == 6
 
-        # Phone number should still not show up on in your profile settings
+        # Phone number should show up but not be verified in your profile settings
         res = account.GetAccountInfo(empty_pb2.Empty())
-        assert res.phone == ""
+        assert res.phone == "+46701740605"
+        assert not res.phone_verified
 
         # Remove phone number
         account.ChangePhone(account_pb2.ChangePhoneReq(phone=""))
@@ -163,22 +164,35 @@ def test_phone_uniqueness(monkeypatch):
             user = session.execute(select(User).where(User.id == user1.id)).scalar_one()
             token = user.phone_verification_token
         account1.VerifyPhone(account_pb2.VerifyPhoneReq(token=token))
-        assert account1.GetAccountInfo(empty_pb2.Empty()).phone == "+46701740605"
+        res = account1.GetAccountInfo(empty_pb2.Empty())
+        assert res.phone == "+46701740605"
+        assert res.phone_verified
 
         # Let user2 steal user1:s phone number
 
         account2.ChangePhone(account_pb2.ChangePhoneReq(phone="+46701740605"))
 
-        assert account1.GetAccountInfo(empty_pb2.Empty()).phone == "+46701740605"
-        assert account2.GetAccountInfo(empty_pb2.Empty()).phone == ""
+        res = account1.GetAccountInfo(empty_pb2.Empty())
+        assert res.phone == "+46701740605"
+        assert res.phone_verified
+
+        res = account2.GetAccountInfo(empty_pb2.Empty())
+        assert res.phone == "+46701740605"
+        assert not res.phone_verified
 
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == user2.id)).scalar_one()
             token = user.phone_verification_token
         account2.VerifyPhone(account_pb2.VerifyPhoneReq(token=token))
 
-        assert account1.GetAccountInfo(empty_pb2.Empty()).phone == ""
-        assert account2.GetAccountInfo(empty_pb2.Empty()).phone == "+46701740605"
+        # number gets wiped when it's stolen
+        res = account1.GetAccountInfo(empty_pb2.Empty())
+        assert not res.phone
+        assert not res.phone_verified
+
+        res = account2.GetAccountInfo(empty_pb2.Empty())
+        assert res.phone == "+46701740605"
+        assert res.phone_verified
 
 
 def test_send_sms(db, monkeypatch):

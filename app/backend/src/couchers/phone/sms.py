@@ -33,8 +33,6 @@ def send_sms(number, message):
 
     if not config["ENABLE_SMS"]:
         logger.info(f"SMS not enabled, need to send to {number}: {message}")
-        if config["DEV"]:
-            return "success"
         return "SMS not enabled."
 
     sns = boto3.client("sns")

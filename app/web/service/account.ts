@@ -3,8 +3,8 @@ import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import {
   ChangeEmailReq,
   ChangePasswordReq,
-  DeleteAccountReq,
   ChangePhoneReq,
+  DeleteAccountReq,
   FillContributorFormReq,
   VerifyPhoneReq,
 } from "proto/account_pb";

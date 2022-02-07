@@ -49,7 +49,7 @@ export default function FeaturePreview() {
         <>
           <ChangePhone
             className={classes.section}
-            {...(accountInfo as GetAccountInfoRes.AsObject)}
+            accountInfo={accountInfo!}
           />
         </>
       )}
