@@ -32,6 +32,7 @@ def _try_get_and_update_user_details(token, is_api_key):
         result = session.execute(
             select(User, UserSession)
             .join(User, User.id == UserSession.user_id)
+            .where(User.is_visible)
             .where(UserSession.token == token)
             .where(UserSession.is_valid)
             .where(UserSession.is_api_key == is_api_key)
