@@ -221,6 +221,8 @@ class User(Base):
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
     need_to_confirm_via_new_email = Column(Boolean, nullable=True, default=None)
 
+    daily_order_key = Column(Float, nullable=False, server_default="0")
+
     # Columns for verifying their phone number. State chart:
     #                                       ,-------------------,
     #                                       |    Start          |
@@ -375,10 +377,10 @@ class User(Base):
         """
         return last_active_coarsen(self.last_active)
 
+    @hybrid_property
     def phone_is_verified(self):
-        return (
-            self.phone_verification_verified is not None
-            and now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
+        return (self.phone_verification_verified != None) & (
+            now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )
 
     def __repr__(self):
