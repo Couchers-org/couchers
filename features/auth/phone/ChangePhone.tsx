@@ -36,7 +36,10 @@ type ChangePhoneProps = {
   className?: string;
 };
 
-export default function ChangePhone({className, accountInfo}: ChangePhoneProps) {
+export default function ChangePhone({
+  className,
+  accountInfo,
+}: ChangePhoneProps) {
   const { t } = useTranslation(["auth"]);
   const formClasses = useChangeDetailsFormStyles();
   const theme = useTheme();
@@ -174,8 +177,8 @@ export default function ChangePhone({className, accountInfo}: ChangePhoneProps) 
                   i18nKey="auth:change_phone_form.phone_not_verified_description"
                 >
                   We sent you a code to{" "}
-                  <b>{{ phone: formatPhoneNumberIntl(accountInfo.phone) }}</b>. To
-                  verify your number, please enter the code below:
+                  <b>{{ phone: formatPhoneNumberIntl(accountInfo.phone) }}</b>.
+                  To verify your number, please enter the code below:
                 </Trans>
               </Typography>
               <TextField
@@ -208,8 +211,8 @@ export default function ChangePhone({className, accountInfo}: ChangePhoneProps) 
                   i18nKey="auth:change_phone_form.remove_phone_description"
                 >
                   Your phone number is currently{" "}
-                  <b>{{ phone: formatPhoneNumberIntl(accountInfo.phone) }}</b>. You
-                  can remove your phone number below, you will loose
+                  <b>{{ phone: formatPhoneNumberIntl(accountInfo.phone) }}</b>.
+                  You can remove your phone number below, you will loose
                   verification.
                 </Trans>
               </Typography>
