@@ -273,6 +273,27 @@ test:backend:
       - app/proto/**/*
       - app/backend/**/*
 
+test:backend-format:
+  needs: ["build:backend"]
+  stage: test
+  image: $BACKEND_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd app/backend
+    - autoflake -r -i --remove-all-unused-imports --check src
+    - isort --check --diff .
+    - black --check --diff .
+  rules:
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/proto/**/*
+      - app/backend/**/*
+
 test:media:
   needs: ["build:media"]
   stage: test
