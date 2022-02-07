@@ -2,7 +2,7 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import func
+from sqlalchemy.sql import delete, func
 
 from couchers import errors, urls
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
@@ -576,9 +576,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def ConfirmDeleteAccount(self, request, context):
         """
-        Can only be used to delete active user's account, no one else's
-
-        Since only an active user can make this API call, don't have to worry about user already being deleted
+        Confirm account deletion using account delete token
         """
         with session_scope() as session:
             res = session.execute(
@@ -593,13 +591,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             user, account_deletion_token = res
 
+            session.execute(delete(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id))
+
             undelete_days = 7
             user.is_deleted = True
             user.undelete_until = now() + timedelta(days=undelete_days)
             user.undelete_token = urlsafe_secure_token()
-            session.delete(account_deletion_token)
 
-            # sets the tokens
             send_account_deletion_successful_email(user, undelete_days)
 
         return empty_pb2.Empty()

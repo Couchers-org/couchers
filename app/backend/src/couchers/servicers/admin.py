@@ -8,7 +8,7 @@ from shapely.geometry import shape
 from couchers import errors, urls
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
-from couchers.models import AccountDeletionToken, User
+from couchers.models import User
 from couchers.notifications.notify import notify
 from couchers.servicers.auth import create_session
 from couchers.servicers.communities import community_to_pb
@@ -93,26 +93,6 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.is_deleted = True
             return _user_to_details(user)
-
-    def RecoverDeletedUser(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
-
-            if not user:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-
-            if not user.is_deleted:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_DELETED)
-
-            account_deletion_token = session.execute(
-                select(AccountDeletionToken)
-                .where(AccountDeletionToken.user_id == user.id)
-                .where(AccountDeletionToken.is_valid)
-            ).scalar_one_or_none()
-            if not account_deletion_token:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
-
-            user.is_deleted = False
 
     def CreateApiKey(self, request, context):
         with session_scope() as session:

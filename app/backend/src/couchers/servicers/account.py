@@ -333,9 +333,9 @@ class Account(account_pb2_grpc.AccountServicer):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
+            session.add(AccountDeleteReason(user_id=user.id, reason=request.reason.strip()))
+
             token = send_account_deletion_confirmation_email(user)
             session.add(token)
-
-            session.add(AccountDeleteReason(user_id=user.id, reason=request.reason.strip()))
 
         return empty_pb2.Empty()

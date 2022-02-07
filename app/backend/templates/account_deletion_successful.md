@@ -13,13 +13,13 @@ If you change your mind, you have {{ days }} days to retrieve your account by cl
 
 {% if html %}
 
-{{ button("Recover Account", recovery_link) }}
+{{ button("Recover Account", undelete_token) }}
 
-Alternatively, click the following link: <{{ recovery_link }}>.
+Alternatively, click the following link: <{{ undelete_token }}>.
 
 {% else %}
 
-<{{ recovery_link }}>
+<{{ undelete_token }}>
 
 {% endif %}
 
