@@ -4,7 +4,7 @@ slug: five-things-to-do-in-any-city
 description: If you're new to traveling, whether solo or with friends, going to
   a new city can be exciting but it's hard to know where to start. Here are tips
   for some things you can do in any city.
-date: 2022/02/06
+date: 2022/02/07
 author: Anna
 share_image: https://couchers.org/img/share.jpg
 ---
@@ -33,7 +33,7 @@ Last but not least is finding local entertainment. Find out what the best live m
 
 
 
-_Written by Anna. Published on 2022/02/06_
+_Written by Anna. Published on 2022/02/07_
 
 _Anna is a graduate MA student from Russia, living in China since 2016. She has been an active member of Couchsurfing, hosting people at her house in Russia and China as well as being hosted by locals in South East Asia, making friends along the way. She is keenly interested in international community and is eager to give her best to make this world a better place for all of humanity and beyond._
 
