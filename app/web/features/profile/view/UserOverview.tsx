@@ -10,8 +10,6 @@ import {
 } from "features/constants";
 import { PropsWithChildren, useRef } from "react";
 import makeStyles from "utils/makeStyles";
-
-import UseFontResizer from "../hooks/useFontResizer";
 import { useProfileUser } from "../hooks/useProfileUser";
 import { LabelsReferencesLastActive } from "./UserTextAndLabel";
 
@@ -33,6 +31,8 @@ const useStyles = makeStyles((theme) => ({
   intro: {
     display: "flex",
     justifyContent: "center",
+    wordBreak: 'break-word',
+    overflowWrap: 'break-word',
   },
 
   wrapper: {
@@ -47,16 +47,12 @@ const useStyles = makeStyles((theme) => ({
 export default function UserOverview({ children }: PropsWithChildren<unknown>) {
   const classes = useStyles();
   const user = useProfileUser();
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-  UseFontResizer({ containerRef, textRef });
-
+  
   return (
     <Card className={classes.card}>
       <Avatar user={user} grow />
-      <div className={classes.wrapper} ref={containerRef}>
-        <Typography variant="h1" className={classes.intro} ref={textRef}>
+      <div className={classes.wrapper}>
+        <Typography variant="h1" className={classes.intro}>
           {user.name}
         </Typography>
         <Typography variant="body1" className={classes.intro}>
