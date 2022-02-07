@@ -283,8 +283,8 @@ test:backend-format:
   script:
     - cd app/backend
     - autoflake -r -i --remove-all-unused-imports --check src
-    - black --check .
-    - isort --check .
+    - isort --check --diff .
+    - black --check --diff .
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
