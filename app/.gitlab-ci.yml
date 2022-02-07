@@ -281,6 +281,7 @@ test:backend-format:
     # no docker login
     default: false
   script:
+    - cd app/backend && autoflake -r -i --remove-all-unused-imports --check src
     - cd app/backend && black --check .
     - cd app/backend && isort --check .
   rules:
