@@ -47,10 +47,7 @@ export default function FeaturePreview() {
         <Alert severity="error">{accountInfoError.message}</Alert>
       ) : (
         <>
-          <ChangePhone
-            className={classes.section}
-            accountInfo={accountInfo!}
-          />
+          <ChangePhone className={classes.section} accountInfo={accountInfo!} />
         </>
       )}
     </>
