@@ -86,7 +86,7 @@ pynacl==1.5.0
     # via -r requirements.in
 pyparsing==3.0.6
     # via packaging
-pytest==6.2.5
+pytest==7.0.0
     # via
     #   -r requirements.in
     #   pytest-cov
@@ -124,12 +124,11 @@ sqlalchemy==1.4.31
     #   geoalchemy2
 stripe==2.65.0
     # via -r requirements.in
-toml==0.10.2
-    # via pytest
 tomli==1.2.3
     # via
     #   black
     #   coverage
+    #   pytest
 urllib3==1.26.8
     # via
     #   botocore
