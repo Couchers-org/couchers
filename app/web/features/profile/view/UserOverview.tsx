@@ -32,6 +32,8 @@ const useStyles = makeStyles((theme) => ({
   intro: {
     display: "flex",
     justifyContent: "center",
+    wordBreak: "break-word",
+    overflowWrap: "break-word",
   },
 
   wrapper: {
