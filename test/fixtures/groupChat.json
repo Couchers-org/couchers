@@ -13,5 +13,8 @@
     "authorUserId": 3,
     "text": { "text": "In 2 hours?" },
     "time": { "seconds": 1577900000, "nanos": 0 }
+  },
+  "muteInfo": {
+    "muted": false
   }
 }

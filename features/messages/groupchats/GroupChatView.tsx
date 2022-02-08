@@ -245,13 +245,17 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
                 {unmuteMutation.isLoading ? (
                   <CircularProgress size="1.5rem" />
                 ) : (
-                  groupChat?.muteInfo?.muted && <MuteIcon />
+                  groupChat?.muteInfo?.muted && (
+                    <MuteIcon data-testid="mute-icon" />
+                  )
                 )}
               </div>
             ) : (
               <PageTitle className={classes.title}>
                 {title || <Skeleton width={100} />}
-                {groupChat?.muteInfo?.muted && <MuteIcon />}
+                {groupChat?.muteInfo?.muted && (
+                  <MuteIcon data-testid="mute-icon" />
+                )}
               </PageTitle>
             )}
 
@@ -272,44 +276,58 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
                 open={isOpen.menu}
                 onClose={() => handleClose("menu")}
               >
-                {groupChat && (
-                  <MenuItem onClick={() => handleClick("mute")}>
-                    {!groupChat.muteInfo?.muted
-                      ? t("messages:chat_view.mute.button_label")
-                      : t("messages:chat_view.mute.unmute_button_label")}
-                  </MenuItem>
-                )}
-                {!groupChat?.isDm ? (
-                  <>
-                    {(!groupChat?.onlyAdminsInvite || isChatAdmin) && (
-                      <MenuItem onClick={() => handleClick("invite")}>
-                        Invite to chat
-                      </MenuItem>
-                    )}
-                    <MenuItem onClick={() => handleClick("members")}>
-                      Chat members
+                {[
+                  groupChat ? (
+                    <MenuItem onClick={() => handleClick("mute")} key="mute">
+                      {!groupChat.muteInfo?.muted
+                        ? t("messages:chat_view.mute.button_label")
+                        : t("messages:chat_view.mute.unmute_button_label")}
                     </MenuItem>
-                    {isChatAdmin && (
-                      <MenuItem onClick={() => handleClick("admins")}>
-                        Manage chat admins
-                      </MenuItem>
-                    )}
+                  ) : null,
+                  !groupChat?.isDm
+                    ? [
+                        !groupChat?.onlyAdminsInvite || isChatAdmin ? (
+                          <MenuItem
+                            onClick={() => handleClick("invite")}
+                            key="invite"
+                          >
+                            Invite to chat
+                          </MenuItem>
+                        ) : null,
+                        <MenuItem
+                          onClick={() => handleClick("members")}
+                          key="members"
+                        >
+                          Chat members
+                        </MenuItem>,
+                        isChatAdmin
+                          ? [
+                              <MenuItem
+                                onClick={() => handleClick("admins")}
+                                key="admins"
+                              >
+                                Manage chat admins
+                              </MenuItem>,
+                              <MenuItem
+                                onClick={() => handleClick("settings")}
+                                key="settings"
+                              >
+                                Chat settings
+                              </MenuItem>,
+                            ]
+                          : null,
 
-                    {
-                      //<Menu> gives console warning for JSX Fragment children
-                      isChatAdmin && (
-                        <MenuItem onClick={() => handleClick("settings")}>
-                          Chat settings
-                        </MenuItem>
-                      )
-                    }
-                    {groupChat?.memberUserIdsList.includes(currentUserId) && (
-                      <MenuItem onClick={() => handleClick("leave")}>
-                        Leave chat
-                      </MenuItem>
-                    )}
-                  </>
-                ) : null}
+                        groupChat?.memberUserIdsList.includes(currentUserId) ? (
+                          <MenuItem
+                            onClick={() => handleClick("leave")}
+                            key="leave"
+                          >
+                            Leave chat
+                          </MenuItem>
+                        ) : null,
+                      ]
+                    : null,
+                ]}
               </Menu>
               {groupChat && (
                 <>
