@@ -71,7 +71,7 @@ export default function MuteDialog({
         <FormControl component="fieldset">
           <RadioGroup
             aria-labelledby="mute-dialog-title"
-            value={selected}
+            value={selected ?? null}
             onChange={(e, val) => setSelected(val as DurationChoice)}
           >
             <FormControlLabel
