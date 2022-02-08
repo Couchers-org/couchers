@@ -141,7 +141,7 @@ def simple_decrypt(key_name: str, data: bytes) -> bytes:
 
 
 def encrypt_page_token(plaintext_page_token: str):
-    return b64encode(simple_encrypt(PAGE_TOKEN_KEY_NAME, data.encode("utf8")))
+    return b64encode(simple_encrypt(PAGE_TOKEN_KEY_NAME, plaintext_page_token.encode("utf8")))
 
 
 def decrypt_page_token(encrypted_page_token: str):
