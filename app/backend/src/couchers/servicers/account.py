@@ -93,7 +93,7 @@ class Account(account_pb2_grpc.AccountServicer):
             return account_pb2.GetAccountInfoRes(
                 username=user.username,
                 email=user.email,
-                phone=user.phone if user.phone_is_verified() else "",
+                phone=user.phone if user.phone_is_verified else "",
                 profile_complete=user.has_completed_profile,
                 timezone=user.timezone,
                 **auth_info,

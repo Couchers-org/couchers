@@ -1,11 +1,10 @@
 import logging
-from base64 import urlsafe_b64encode
 
 import grpc
 
 from couchers import errors, urls
 from couchers.constants import DATETIME_INFINITY
-from couchers.crypto import UNSUBSCRIBE_KEY_NAME, generate_hash_signature, get_secret, verify_hash_signature
+from couchers.crypto import UNSUBSCRIBE_KEY_NAME, b64encode, generate_hash_signature, get_secret, verify_hash_signature
 from couchers.db import session_scope
 from couchers.models import GroupChatSubscription, NotificationDeliveryType, User
 from couchers.notifications import settings
@@ -19,9 +18,7 @@ logger = logging.getLogger(__name__)
 def _generate_unsubscribe_link(payload):
     msg = payload.SerializeToString()
     sig = generate_hash_signature(message=msg, key=get_secret(UNSUBSCRIBE_KEY_NAME))
-    return urls.unsubscribe_link(
-        payload=urlsafe_b64encode(msg).decode("ascii"), sig=urlsafe_b64encode(sig).decode("ascii")
-    )
+    return urls.unsubscribe_link(payload=b64encode(msg), sig=b64encode(sig))
 
 
 def generate_mute_all(user_id):

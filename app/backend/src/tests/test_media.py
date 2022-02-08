@@ -1,10 +1,9 @@
-from base64 import urlsafe_b64decode
 from urllib.parse import parse_qs, urlparse
 
 import pytest
 from google.protobuf import empty_pb2
 
-from couchers.crypto import random_hex
+from couchers.crypto import b64decode, random_hex
 from couchers.db import session_scope
 from couchers.models import InitiatedUpload, Upload
 from couchers.sql import couchers_select as select
@@ -26,7 +25,7 @@ def test_media_upload(db):
         res = api.InitiateMediaUpload(empty_pb2.Empty())
 
     params = parse_qs(urlparse(res.upload_url).query)
-    data = urlsafe_b64decode(params["data"][0])
+    data = b64decode(params["data"][0])
 
     response = media_pb2.UploadRequest.FromString(data)
     key = response.key

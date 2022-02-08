@@ -276,7 +276,10 @@ def generate_user(*, delete_user=False, **kwargs):
         # deleted user aborts session creation, hence this follows and necessitates a second commit
         if delete_user:
             user.is_deleted = True
-            session.commit()
+
+        user.daily_order_key = 1e10 - user.id
+
+        session.commit()
 
         # refresh it, undoes the expiry
         session.refresh(user)
