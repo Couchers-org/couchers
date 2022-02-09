@@ -41,7 +41,7 @@ Install `docker-compose` from <https://docs.docker.com/compose/install/>.
 If you are on **macoS**, **Linux** or **WSL2**, run the following command:
 
 ```sh
-docker run --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
+docker run --pull always --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
 ```
 
 An alternative on **macOS** is to install the tools locally with `brew install grpc protoc-gen-grpc-web`, then run `./generate_protos.sh`.
@@ -51,19 +51,12 @@ An alternative on **macOS** is to install the tools locally with `brew install g
 If you are on **Windows** (without WSL2), run the following command:
 
 ```sh
-docker run --rm -w /app -v %cd%:/app registry.gitlab.com/couchers/grpc sh -c "cat generate_protos.sh | dos2unix | sh"
+docker run --pull always --rm -w /app -v %cd%:/app registry.gitlab.com/couchers/grpc sh -c "cat generate_protos.sh | dos2unix | sh"
 ```
 
-### How to update the protocol buffers compiler
+### How to update the protocol buffers
 
-If you start to get errors after some update in the grpc dependencies, you may need to pull the latest docker image with this command:
-
-```sh
-docker pull registry.gitlab.com/couchers/grpc
-```
-
-After that, compile the protocol buffers again with the commands above. 
-
+If you start to get errors after some update in the grpc dependencies, make sure to compile the protocol buffers again by executing the same commands above.
 
 ## 3. Launch the backend with `docker-compose`
 
