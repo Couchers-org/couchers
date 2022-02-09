@@ -8,6 +8,8 @@ import TextField from "components/TextField";
 import { TITLE } from "features/constants";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { LngLat } from "maplibre-gl";
 import { Event } from "proto/events_pb";
 import { useRef } from "react";
@@ -17,19 +19,6 @@ import { Dayjs } from "utils/dayjs";
 import type { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
-import {
-  EVENT_DETAILS,
-  EVENT_DETAILS_REQUIRED,
-  EVENT_IMAGE_INPUT_ALT,
-  LINK_REQUIRED,
-  LOCATION,
-  LOCATION_REQUIRED,
-  TITLE_REQUIRED,
-  UPLOAD_HELPER_TEXT,
-  VIRTUAL_EVENT,
-  VIRTUAL_EVENT_LINK,
-  VIRTUAL_EVENTS_SUBTEXT,
-} from "./constants";
 import EventTimeChanger from "./EventTimeChanger";
 
 export const useEventFormStyles = makeStyles((theme) => ({
@@ -126,6 +115,7 @@ export default function EventForm({
   isMutationLoading,
   title,
 }: EventFormProps) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = useEventFormStyles();
 
   const {
@@ -170,7 +160,7 @@ export default function EventForm({
   return (
     <div className={classes.root}>
       <ImageInput
-        alt={EVENT_IMAGE_INPUT_ALT}
+        alt={t("communities:event_image_input_alt")}
         control={control}
         id="event-image-input"
         initialPreviewSrc={event?.photoUrl || undefined}
@@ -178,7 +168,7 @@ export default function EventForm({
         type="rect"
       />
       <Typography className={classes.imageUploadhelperText} variant="body1">
-        {UPLOAD_HELPER_TEXT}
+        {t("communities:upload_helper_text")}
       </Typography>
       <PageTitle>{title}</PageTitle>
       {(error || errors.eventImage) && (
@@ -193,7 +183,7 @@ export default function EventForm({
           fullWidth
           helperText={errors.title?.message || ""}
           id="title"
-          inputRef={register({ required: TITLE_REQUIRED })}
+          inputRef={register({ required: t("communities:title_required") })}
           name="title"
           label={TITLE}
           variant="standard"
@@ -221,8 +211,8 @@ export default function EventForm({
               fullWidth
               id="link"
               name="link"
-              inputRef={register({ required: LINK_REQUIRED })}
-              label={VIRTUAL_EVENT_LINK}
+              inputRef={register({ required: t("communities:link_required") })}
+              label={t("communities:virtual_event_link")}
               variant="standard"
             />
           ) : (
@@ -233,8 +223,8 @@ export default function EventForm({
               // @ts-expect-error
               fieldError={errors.location?.message}
               fullWidth
-              label={LOCATION}
-              required={LOCATION_REQUIRED}
+              label={t("communities:location")}
+              required={t("communities:location_required")}
               showFullDisplayName
             />
           )}
@@ -247,14 +237,16 @@ export default function EventForm({
                   inputRef={register}
                 />
               }
-              label={VIRTUAL_EVENT}
+              label={t("communities:virtual_event")}
             />
-            <Typography variant="body2">{VIRTUAL_EVENTS_SUBTEXT}</Typography>
+            <Typography variant="body2">
+              {t("communities:virtual_events_subtext")}
+            </Typography>
           </div>
         </div>
         <div className={classes.eventDetailsContainer}>
           <Typography id="content-label" variant="h3" component="p">
-            {EVENT_DETAILS}
+            {t("communities:event_details")}
           </Typography>
           <MarkdownInput
             control={control}
@@ -262,7 +254,7 @@ export default function EventForm({
             id="content"
             name="content"
             labelId="content-label"
-            required={EVENT_DETAILS_REQUIRED}
+            required={t("communities:event_details_required")}
           />
           {errors.content && (
             <Typography color="error" variant="body2">

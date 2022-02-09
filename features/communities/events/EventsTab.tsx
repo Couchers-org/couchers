@@ -4,6 +4,8 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import TextBody from "components/TextBody";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { newEventRoute } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
@@ -11,7 +13,6 @@ import makeStyles from "utils/makeStyles";
 
 import { useCommunityPageStyles } from "../CommunityPage";
 import { EVENTS_EMPTY_STATE } from "../constants";
-import { CREATE_AN_EVENT, SEE_MORE_EVENTS_LABEL } from "./constants";
 import EventCard from "./EventCard";
 import { useListAllEvents } from "./hooks";
 
@@ -47,6 +48,7 @@ export default function EventsTab({
   pastEvents = false,
   tabTitle,
 }: EventsTabProps) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
   const router = useRouter();
 
@@ -59,7 +61,7 @@ export default function EventsTab({
       {error && <Alert severity="error">{error.message}</Alert>}
       {!pastEvents && (
         <Button onClick={() => router.push(newEventRoute)}>
-          {CREATE_AN_EVENT}
+          {t("communities:create_an_event")}
         </Button>
       )}
       {isLoading ? (
@@ -85,7 +87,7 @@ export default function EventsTab({
               className={classes.moreEventButton}
               onClick={() => fetchNextPage()}
             >
-              {SEE_MORE_EVENTS_LABEL}
+              {t("communities:see_more_events_label")}
             </Button>
           )}
         </>

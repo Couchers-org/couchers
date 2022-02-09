@@ -7,7 +7,6 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EVENTS_EMPTY_STATE } from "features/communities/constants";
-import { SEE_MORE_EVENTS_LABEL } from "features/communities/events/constants";
 import { mockIsIntersecting } from "react-intersection-observer/test-utils";
 import { service } from "service";
 import events from "test/fixtures/events.json";
@@ -16,6 +15,7 @@ import {
   assertErrorAlert,
   createMatchMedia,
   mockConsoleError,
+  t,
 } from "test/utils";
 
 import { MY_EVENTS } from "./constants";
@@ -80,7 +80,7 @@ describe("My events", () => {
       expect(screen.getAllByRole("link")).toHaveLength(2);
 
       const seeMoreEventsButton = screen.getByRole("button", {
-        name: SEE_MORE_EVENTS_LABEL,
+        name: t("communities:see_more_events_label"),
       });
       userEvent.click(seeMoreEventsButton);
       await waitForElementToBeRemoved(
@@ -120,7 +120,7 @@ describe("My events", () => {
       expect(await screen.findAllByRole("link")).toHaveLength(2);
       expect(
         screen.queryByRole("button", {
-          name: SEE_MORE_EVENTS_LABEL,
+          name: t("communities:see_more_events_label"),
         })
       ).not.toBeInTheDocument();
 
