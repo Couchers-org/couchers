@@ -1,6 +1,6 @@
 {
   "change_email_form": {
-    "title": "Change Email",
+    "title": "Change email",
     "current_email_message": "Your email address is currently <1>{{email}}</1>.",
     "success_message": "Your email change has been received. Check your new email to complete the change.",
     "current_password": "Current password",
