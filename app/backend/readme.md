@@ -1,5 +1,7 @@
 # Couchers.org app backend
 
+[Here is information for debugging the backend inside VS Code](/docs/backend-in-vscode.md)
+
 You can run the whole thing through Docker and docker-compose (see the readme in the `app/` folder).
 
 ## Running tests in docker
