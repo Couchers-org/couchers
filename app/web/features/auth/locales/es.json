@@ -45,7 +45,7 @@
     "password": {
       "validation_error": "La contraseña debe tener entre 8 y 256 caracteres y no ser muy común.",
       "required_error": "Introduce una contraseña",
-      "field_label": "contraseña"
+      "field_label": "Contraseña"
     }
   },
   "basic_form": {
@@ -138,5 +138,10 @@
   "introduction_title": "Únete y ayuda a que crezca la nueva alternativa a Couchsurfing™",
   "login_prompt": "Haz click aquí para iniciar sesión",
   "reset_password_error": "Error al restablecer la contraseña",
-  "reset_password_success": "Tu contraseña ha sido restablecida con éxito. Recibirás un enlace mágico por correo electrónico cuando te conectes con tu nombre de usuario o correo electrónico."
+  "reset_password_success": "Tu contraseña ha sido restablecida con éxito. Recibirás un enlace mágico por correo electrónico cuando te conectes con tu nombre de usuario o correo electrónico.",
+  "community_guidelines_form": {
+    "guideline": {
+      "checkbox_label": "Entendido"
+    }
+  }
 }
