@@ -10,17 +10,17 @@
   "change_email_form": {
     "title": "Сменить почту",
     "current_password": "Текущий пароль",
-    "current_email_message": "Ваш текущий электронный адрес: <2>{{email}}</2>.",
+    "current_email_message": "Ваш текущий электронный адрес: <1>{{email}}</1>.",
     "new_email": "Новый электронный адрес",
     "success_message": "Запрос на изменение электронной почты принят. Проверьте ваш новый адрес для завершения процедуры изменения."
   },
   "login_page": {
     "title": "Войти",
     "header": "С возвращением!",
-    "no_account_prompt": "Еще нет аккаунта? <2>$t(global:sign_up)</2>"
+    "no_account_prompt": "Еще нет аккаунта? <2>Sign up</2>"
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "Уже есть аккаунт? <2>$t(global:login)</2>",
+    "existing_user_prompt": "Уже есть аккаунт? <2>Log in</2>",
     "sign_up_agreement_explainer": "Продолжая, вы соглашаетесь с нашими <2>Условиями пользования</2>, включая правила использования файлов cookie, электронной почты и персональных данных.",
     "header": "Начнем!"
   },
@@ -74,7 +74,7 @@
     "name": {
       "field_label": "Ваше имя",
       "empty_error": "Пожалуйста, введите свое имя",
-      "required_error": "Имя не может быть пустым"
+      "required_error": "Имя не может состоять из пробела."
     },
     "email": {
       "field_label": "Электронный адрес",
