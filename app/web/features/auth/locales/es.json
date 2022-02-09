@@ -1,6 +1,6 @@
 {
   "change_email_form": {
-    "title": "Cambiar correo electrónico",
+    "title": "Cambiar Correo Electrónico",
     "current_password": "Contraseña actual",
     "new_email": "Nuevo correo electrónico",
     "current_email_message": "Tu dirección actual de correo electrónico es <1>{{email}}</1>.",
@@ -80,7 +80,8 @@
       "username_field_label": "Correo electrónico/Nombre de usuario",
       "password_field_label": "Contraseña",
       "forgot_password": "¿Has olvidado tu contraseña?",
-      "no_password_login_prompt": "¡Busca en tu correo electrónico el enlace para iniciar sesión! :)"
+      "no_password_login_prompt": "¡Busca en tu correo electrónico el enlace para iniciar sesión! :)",
+      "remember_me": "Recuérdame"
     }
   },
   "basic_sign_up_form": {
@@ -132,7 +133,8 @@
     },
     "timezone_section": {
       "title": "Zona horaria y ubicación",
-      "explanation": "Esta hora y zona horaria se han determinado en función de la ubicación de tu casa. Por favor, reporta un error si no es correcto."
+      "explanation": "Esta hora y zona horaria se han determinado en función de la ubicación de tu casa. Por favor, reporta un error si no es correcto.",
+      "description": "Tu huso horario es <1>{{timezone}}</1>. Según esto, tu hora local es aproximadamente <4>{{time}}</4>."
     },
     "username_section": {
       "title": "Nombre de usuario",
@@ -148,10 +150,16 @@
   "community_guidelines_form": {
     "guideline": {
       "checkbox_label": "Entendido",
-      "required_error": "Todas las casillas de verificación son obligatorias"
+      "required_error": "Todas las casillas son obligatorias"
     }
   },
   "feature_preview": {
     "explanation": "Esta página te permite probar características que aun están en desarrollo antes de que estén completamente listas para que las utilice todo el mundo."
+  },
+  "notification_settings": {
+    "status": {
+      "enabled_message": "El nuevo sistema de notificaciones está  <2>habilitado</2> para tu cuenta."
+    },
+    "title": "Configuración de notificaciones"
   }
 }
