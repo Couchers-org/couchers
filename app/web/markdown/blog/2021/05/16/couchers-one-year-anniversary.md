@@ -16,7 +16,7 @@ We still have a long way to go, but we have come extremely far in this short tim
 
 A year ago on May 14, the Couchsurfing™ paywall appeared without warning—locking its user base out of a hospitality-exchange site driven by the free sharing of their own homes—until each member paid a fee to be granted access back into their own profiles. This triggered an uproar—not about the money, but about the manner in which this hostage-like paywall was implemented. After years of the company not adequately listening to  its lifeblood volunteer network, this was the final straw. Community trust was irreparably broken. Our cultural exchanges and our hospitality were being sold at a price. Our couches had been commodified. Couch surfing as a movement had been co-opted by Couchsurfing™ the corporation.
 
-This was unacceptable, and two couch surfers in Australia came up with a plan to take it back. As more and more people saw that this plan was achievable, hundreds signed on to help. Now, after a year that has brought together a talented group of passionate volunteers from all corners of the globe, driven to create a nonprofit platform for ourselves and our interconnected global communities, we’re excited to share our progress. 
+This was unacceptable, and two couch surfers in Australia came up with a plan to take it back. As more and more people saw that this plan was achievable, hundreds signed on to help. Now, after a year that has brought together a talented group of passionate volunteers from all corners of the globe, driven to create a nonprofit platform for ourselves and our interconnected global communities, we’re excited to share our progress.
 
 ## The Couchers.org story so far
 
@@ -28,7 +28,7 @@ By August 2020, we had launched the Alpha platform, allowing users to create acc
 
 And in April 2021, we launched the Couchers.org Beta, a usable platform with a new frontend, complete with UX designs from our own design team.
 
-We’re developing features derived from the input of our community, and we’re building them right; everything has been engineered from scratch through solid software development practices with scalability, performance, and ease of development in mind. We’ve already got 800 accounts and growing, 200 of those having joined in the last four days. That averages out to 15 new sign-ups per day since the release of the Beta—and we’re just getting started. 
+We’re developing features derived from the input of our community, and we’re building them right; everything has been engineered from scratch through solid software development practices with scalability, performance, and ease of development in mind. We’ve already got 800 accounts and growing, 200 of those having joined in the last four days. That averages out to 15 new sign-ups per day since the release of the Beta—and we’re just getting started.
 
 Our structured development team is able to deliver at a good pace for both feature roll-outs and bug fixes. We’ve maintained about 12 developers at any given time throughout the past six months, with weekly meetings alternating between frontend and backend to help us coordinate work and stay on track. We maintain good dev practices with a high level of testing—all code is reviewed by a core dev to maintain high quality and make sure that each contribution counts and makes a difference. To date, we have had 37 contributors to our Github codebase. Our production systems have been stable, with no unscheduled outages.
 

@@ -28,7 +28,7 @@ Local communities are made up of individuals who love organizing events and maki
 
 We saw this play out through communities that were shunned in favor of the more monetizable elements. Forums were removed, with communities migrating onto platforms like Facebook and Reddit. Openness and transparency were gotten rid of, with the huge volunteer team collapsed to around 25 employees. Hosts in cities and towns were solidified into a small group of[ super-hosts](https://couchers.org/issues/host-matching). The platform was flooded with new members in a rate and manner that changed the dynamics of trust within the community.
 
-Community leaders and ambassadors were also shunned. Powers and responsibilities were slowly stripped away from them. Community leaders previously spent hours crafting community pages and moderating groups, only to have the pages removed, and the groups feature not carried over to mobile apps, rendering them useless to most users. 
+Community leaders and ambassadors were also shunned. Powers and responsibilities were slowly stripped away from them. Community leaders previously spent hours crafting community pages and moderating groups, only to have the pages removed, and the groups feature not carried over to mobile apps, rendering them useless to most users.
 
 Without consultation, community organizers were further disempowered when linking from other platforms was banned, such as for events, then further as [online events were banned from Couchsurfing™](https://couchers.org/blog/2021/03/25/couch-surfing-online-events-community/) during the middle of the pandemic. Many who had accidentally violated the rules were suspended, including many Ambassadors who were taken by surprise, not knowing about the updates.
 

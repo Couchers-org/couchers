@@ -12,7 +12,7 @@ Attending: Aapeli, Christian, Lucas, Sam
 * Slugify in postgres
   - Needed when getting stuff straight out of postgres, in particular in ST_AsMVT, and similar which automatically generate tiles for map
   - Christian doesn't like the versioning (in particular having multiple versions in codebase)
-* Sam is doing okay, busy on stuff but will get 
+* Sam is doing okay, busy on stuff but will get
 * Christian will work on PR reveiws and then enum.auto
 * Lucas asks about threads, whetehr they're ready and how to use them
   - Ready but there's no way to create them for places/guides/events/communities/groups/etc

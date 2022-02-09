@@ -24,7 +24,7 @@ In this issue, among others:
 * How should we implement **[message templates](https://community.couchers.org/t/template-messages/1406)** in the platform?
 
  \
-If you want to contribute to any of the below discussions, hop on to one of the topics linked below or [start](https://community.couchers.org/) a new discussion on our community forum. 
+If you want to contribute to any of the below discussions, hop on to one of the topics linked below or [start](https://community.couchers.org/) a new discussion on our community forum.
 
 
 ### **[Searching and displaying location on Map Search](https://community.couchers.org/t/displaying-people-on-the-map-city-not-shown/1331)**
@@ -34,7 +34,7 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 
 
-* Some people intuitively use the search bar for location (e.g. “Prague”), and profiles of people outside that location show up if they mention that location in their profile (e.g. “I grew up in Prague”). Because location is not immediately visible in profile cards, this has led to some confusing situations. 
+* Some people intuitively use the search bar for location (e.g. “Prague”), and profiles of people outside that location show up if they mention that location in their profile (e.g. “I grew up in Prague”). Because location is not immediately visible in profile cards, this has led to some confusing situations.
 * The “correct” way to search for a location is to use the Filters dialog box:
 
 
@@ -50,8 +50,8 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 
 
-* Put a “Location” search bar under the freeform search bar. 
-* Display location visibly in users’ profile cards. The problem with that is, how do we properly display location? 
+* Put a “Location” search bar under the freeform search bar.
+* Display location visibly in users’ profile cards. The problem with that is, how do we properly display location?
 * Some people describe their own location by neighborhood, some by city. How can we make sure the former group is not excluded from a search for the city?
 
 [Read the full discussion...](https://community.couchers.org/t/displaying-people-on-the-map-city-not-shown/1331)

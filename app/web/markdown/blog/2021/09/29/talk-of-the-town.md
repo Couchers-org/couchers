@@ -15,7 +15,7 @@ If you’ve not joined the forum yet, please quickly [create an account](https:/
 
 ## **Forum Digest: September 15th - 29th, 2021**
 
-Lots of interesting discussions took place this past few weeks—we are trying to capture the most important ones here. 
+Lots of interesting discussions took place this past few weeks—we are trying to capture the most important ones here.
 
 In this issue, among others
 
@@ -25,7 +25,7 @@ In this issue, among others
 * [Flexibility for who can leave ‘hosted’ or ‘surfed’ references  ](https://community.couchers.org/t/flexibility-for-leaving-references/1539)
 * [We are Couchers, but are we Couching?](https://community.couchers.org/t/we-are-couchers-but-are-we-couching/1516)
 
-If you want to contribute to any of the below discussions, hop on to one of the topics linked below or [start a new discussion](https://community.couchers.org/) on our community forum. 
+If you want to contribute to any of the below discussions, hop on to one of the topics linked below or [start a new discussion](https://community.couchers.org/) on our community forum.
 
 
 ### **[Editing references](https://community.couchers.org/t/allow-references-to-be-edited/1495)**
@@ -67,11 +67,11 @@ Read the full discussion [here](https://community.couchers.org/t/allow-reference
 
 
 * Currently the only option for leaving a reference for someone you didn’t ‘officially’ host is to add them and have the reference come up as by a ‘friend’. You could tell your surfer to send a ‘fake request’ which gets around this problem.
-* Have an option available between friends that asks if you’ve ever hosted them before and then gives you a date range in the past to choose between. 
+* Have an option available between friends that asks if you’ve ever hosted them before and then gives you a date range in the past to choose between.
 * Explicitly stating on the notifications page that when you become friends with someone, you are consenting to them potentially writing you a reference.
 * Limiting references in this way could be restricting, as often people with housemates host and they might all have separate Couchers.org accounts and want to be able to leave a reference even though they were not technically the host.
 
-Read the full discussions [here ](https://community.couchers.org/t/flexibility-for-leaving-references/1539)and [here](https://community.couchers.org/t/avoid-bad-references-by-fake-accounts/1517) 
+Read the full discussions [here ](https://community.couchers.org/t/flexibility-for-leaving-references/1539)and [here](https://community.couchers.org/t/avoid-bad-references-by-fake-accounts/1517)
 
 
 ### **[What’s our ‘verb’?](https://community.couchers.org/t/we-are-couchers-but-are-we-couching/1516)**
@@ -99,7 +99,7 @@ Read the full discussions [here ](https://community.couchers.org/t/flexibility-f
 
 ### **Other discussions**
 
-There has also been a continuation of the discussions on[ forum improvements](https://community.couchers.org/t/forum-improvements/1504), [slogan choices](https://community.couchers.org/t/slogan-for-couchers-org-any-suggestions/1432), and more responses to the [poll](https://community.couchers.org/t/poll-are-you-checking-in-on-any-communities/1462) launched last month to see who’s checking in on any communities (to see what’s going on in terms of local info, discussions and events) with the results saying people are most often checking the global community. 
+There has also been a continuation of the discussions on[ forum improvements](https://community.couchers.org/t/forum-improvements/1504), [slogan choices](https://community.couchers.org/t/slogan-for-couchers-org-any-suggestions/1432), and more responses to the [poll](https://community.couchers.org/t/poll-are-you-checking-in-on-any-communities/1462) launched last month to see who’s checking in on any communities (to see what’s going on in terms of local info, discussions and events) with the results saying people are most often checking the global community.
 
 ---
 

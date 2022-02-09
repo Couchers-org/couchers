@@ -18,11 +18,11 @@ Couchers.org talks to Nolo from Las Palmas, Spain about his experience becoming 
 
 ### What do you enjoy the most about working with Couchers.org?
 
-**Nolo**: What I really enjoy is working within a team. I live in the countryside and work as an artist at home. With the whole pandemic situation, this became quite isolated. I really enjoy the more social teamwork, both on our Slack channel and in our forums. 
+**Nolo**: What I really enjoy is working within a team. I live in the countryside and work as an artist at home. With the whole pandemic situation, this became quite isolated. I really enjoy the more social teamwork, both on our Slack channel and in our forums.
 
 ### What is your vision for the forum once we’ve released the beta version?
 
-**Nolo**: I had several visions while we were working on it, mainly imagining something very collaborative. We didn’t pick that up as much because we want most of our community building to happen on the app. 
+**Nolo**: I had several visions while we were working on it, mainly imagining something very collaborative. We didn’t pick that up as much because we want most of our community building to happen on the app.
 
 Now, I feel we have a really well-rounded and conversational forum for meta discussion. I believe it’s working well as it is. I think it’s important that when people come to the forums they can easily grasp what it’s about and how they can contribute in a constructive way.
 
@@ -32,7 +32,7 @@ Now, I feel we have a really well-rounded and conversational forum for meta disc
 
 ### What do you think has been your biggest contribution so far?
 
-Nolo: Certainly the forum. I got pretty hooked and I love using it. I’m even using the same software to build other websites for projects I’m involved with. 
+Nolo: Certainly the forum. I got pretty hooked and I love using it. I’m even using the same software to build other websites for projects I’m involved with.
 
 ### What are you most excited about for the future of the project?
 

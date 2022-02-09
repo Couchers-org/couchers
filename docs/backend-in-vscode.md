@@ -18,7 +18,7 @@ Install the following extensions
 * Some language server like [Pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance)
 
 
-## 1. Open the `app` sub-directory in VS Code 
+## 1. Open the `app` sub-directory in VS Code
 
 This will not work if you open any subdirectory inside the `app` folder such as the `backend` directory, Python will spit out errors about the lack of `pip` and other stuff (let me know if you can get this working).
 

@@ -15,7 +15,7 @@ If you’ve not joined the forum yet, please quickly [create an account](https:/
 
 ## **Forum Digest: October 14th - November 10th, 2021**
 
-Lots of interesting discussions took place this past few weeks—we are trying to capture the most important ones here. 
+Lots of interesting discussions took place this past few weeks—we are trying to capture the most important ones here.
 
 In this issue, among others:
 
@@ -26,7 +26,7 @@ In this issue, among others:
 * [New updates](https://community.couchers.org/t/you-can-now-message-anyone/) and[ ideas for messages and notifications](https://community.couchers.org/t/which-notifications-do-we-need-the-most/)
 * [Who owns a reference?](https://community.couchers.org/t/whose-is-a-reference/)
 
-If you want to contribute to any of the below discussions, hop on to one of the topics linked below or [start a new discussion](https://community.couchers.org/) on our community forum. 
+If you want to contribute to any of the below discussions, hop on to one of the topics linked below or [start a new discussion](https://community.couchers.org/) on our community forum.
 
 
 ### **[Promoting hosts on community pages](https://community.couchers.org/t/promoting-hosts-on-community-pages/)**
@@ -57,16 +57,16 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 
 * Aside from blatant violations, when is it appropriate to leave a negative reference for someone and what information should you include? What challenges are associated with writing one?
-* How do we account for the somewhat inherent power balance in hospitality between hosts and surfers? Surfers are more likely to put up with bad behaviour so as not to appear ungrateful or demanding, and thus might opt for writing no reference at all over a bad one. 
+* How do we account for the somewhat inherent power balance in hospitality between hosts and surfers? Surfers are more likely to put up with bad behaviour so as not to appear ungrateful or demanding, and thus might opt for writing no reference at all over a bad one.
 
 
 #### **Ideas:**
 
 
 
-* When a surfer does not respect set house rules, it’s better to first let them know their actions are a problem, and if it persists then you should leave a negative reference. It’s important to keep communication as open as possible. 
+* When a surfer does not respect set house rules, it’s better to first let them know their actions are a problem, and if it persists then you should leave a negative reference. It’s important to keep communication as open as possible.
 * A detailed negative reference can help other people understand exactly why you decided to write this feedback and makes it much harder to refute.
-* Couch surfing experiences are often not black and white, so there may be both positive and negative aspects to someone’s stay/host that are worth mentioning. 
+* Couch surfing experiences are often not black and white, so there may be both positive and negative aspects to someone’s stay/host that are worth mentioning.
 
 [Read the full discussion...](https://community.couchers.org/t/when-and-how-to-write-a-negative-reference/)
 
@@ -88,7 +88,7 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 * Which notifications do we need the most?
 * Should the email you receive when someone sends you a Couchers.org message include the message? Does it make it more convenient or discourage users from logging in?
-* Notifications for events: is one weekly notification summarising everything enough or is it better to have individual ones notifying an hour before start times? In the future, this is likely to be customizable, similar to Facebook. 
+* Notifications for events: is one weekly notification summarising everything enough or is it better to have individual ones notifying an hour before start times? In the future, this is likely to be customizable, similar to Facebook.
 
 [Read the full discussion…](https://community.couchers.org/t/which-notifications-do-we-need-the-most/)
 
