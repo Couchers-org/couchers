@@ -11,7 +11,7 @@
     "requires_confirmation_from_new_email": "Gracias por confirmar tu antigua dirección de correo electrónico. Para completar el cambio, tu aún necesitas confirmar tu nueva dirección de correo electrónico.",
     "change_in_progress": "Cambio de correo electrónico en progreso…",
     "requires_confirmation_from_old_email": "Gracias por confirmar tu nueva dirección de correo electrónico. Para completar el cambio, tu aún necesitas confirmar tu antigua dirección de correo electrónico.",
-    "invalid_confirmation_state": "Estado de confirmación de correo electronico invalido",
+    "invalid_confirmation_state": "Estado de confirmación de correo electrónico inválido",
     "error_message": "Cambio de correo electrónico errado: {{message}}"
   },
   "account_form": {
@@ -28,12 +28,12 @@
       "field_label": "Usuario",
       "required_error": "Ingresa tu usuario",
       "username_taken_error": "Este usuario ya existe.",
-      "validation_error": "El usuarii sólo puede tener numeros o _,empezar con una letra."
+      "validation_error": "El usuario sólo puede tener números o _,empezar con una letra."
     },
     "birthday": {
       "field_label": "Cumpleaños",
       "required_error": "Ingresa tu fecha de nacimiento",
-      "validation_error": "Debe ser una fecha válida."
+      "validation_error": "Debe ser una fecha pasada válida."
     },
     "hosting_status": {
       "field_label": "Estado de alojamiento",
@@ -41,7 +41,7 @@
       "maybe": "Tal vez podría hospedar",
       "cant_host": "No puede hospedar"
     },
-    "tos_accept_label": "Acepto los términos del servicio",
+    "tos_accept_label": "Acepto los términos y condiciones.",
     "password": {
       "validation_error": "La contraseña debe tener entre 8 y 256 caracteres y no ser muy común.",
       "required_error": "Introduce una contraseña",
@@ -117,7 +117,7 @@
   "logged_out_message": "Se ha cerrado tu sesión.",
   "sign_up_completed_prompt": "Hemos enviado un enlace de verificación a tu dirección de correo electrónico. Por favor haz clic en el enlace para activar tu cuenta.",
   "sign_up_completed_title": "¡Gracias por registrarte!",
-  "sign_up_confirmed_prompt": "¡Todo listo! Si el navegador no te redirecciona automáticamente, prueba a hacer login.",
+  "sign_up_confirmed_prompt": "¡Todo listo! Si el navegador no te redirecciona automáticamente, intenta iniciar sesión.",
   "about_us": "Sobre nosotros",
   "reset_password": "Restablecer contraseña",
   "account_settings_page": {
@@ -128,7 +128,7 @@
     },
     "birth_date_section": {
       "title": "Cambiar la fecha de nacimiento",
-      "explanation": "Los administradores estarán encantados de cambiar tu fecha de cumpleaños. Póngase en contacto con support@couchers.org."
+      "explanation": "Los administradores estarán encantados de cambiar tu fecha de nacimiento. Póngase en contacto con support@couchers.org."
     }
   },
   "introduction_subtitle": "Gratis para siempre. Gestionada por la comunidad. Sin ánimo de lucro. Moderna.",
