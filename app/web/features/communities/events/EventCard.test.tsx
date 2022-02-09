@@ -63,7 +63,7 @@ describe("Event card", () => {
       screen.getByRole("heading", { name: secondEvent.title })
     ).toBeVisible();
     expect(
-      screen.getByText(t("communities:view_details_for_link"))
+      screen.getByText(t("communities:virtual_event_location_placeholder"))
     ).toBeVisible();
     expect(screen.getByText("June 29, 2021 9:00 PM - 10:00 PM")).toBeVisible();
     expect(

@@ -20,7 +20,6 @@ import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 import timezoneMock from "timezone-mock";
 
 import { PREVIOUS_PAGE, WRITE_COMMENT_A11Y_LABEL } from "../constants";
-import { details } from "./constants";
 import EventPage from "./EventPage";
 
 jest.mock("components/MarkdownInput");
@@ -91,7 +90,11 @@ describe("Event page", () => {
     ).toBeVisible();
 
     // Event details
-    expect(screen.getByRole("heading", { name: details() })).toBeVisible();
+    expect(
+      screen.getByRole("heading", {
+        name: t("communities:details_subheading_colon"),
+      })
+    ).toBeVisible();
     expect(screen.getByText("Be there")).toBeVisible();
     expect(screen.getByText("or be square!")).toBeVisible();
 
