@@ -32,7 +32,7 @@ export default function MuteDialog({
   const queryClient = useQueryClient();
   const muteMutation = useMutation<void, RpcError, DurationChoice>(
     async (duration) => {
-      let d = null;
+      let d;
       if (duration === "1h") d = dayjs.duration({ hours: 1 });
       else if (duration === "8h") d = dayjs.duration({ hours: 8 });
       else if (duration === "1d") d = dayjs.duration({ days: 1 });
@@ -40,7 +40,7 @@ export default function MuteDialog({
       else if (duration === "1m") d = dayjs.duration({ months: 1 });
       await service.conversations.muteChat({
         groupChatId,
-        forDuration: d ?? undefined,
+        forDuration: d,
         forever: !d,
       });
     },

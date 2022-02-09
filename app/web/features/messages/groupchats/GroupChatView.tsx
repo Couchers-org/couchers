@@ -251,12 +251,12 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
                 )}
               </div>
             ) : (
-              <PageTitle className={classes.title}>
-                {title || <Skeleton width={100} />}
+              <div className={classes.title}>
+                <PageTitle>{title || <Skeleton width={100} />}</PageTitle>
                 {groupChat?.muteInfo?.muted && (
                   <MuteIcon data-testid="mute-icon" />
                 )}
-              </PageTitle>
+              </div>
             )}
 
             <>
