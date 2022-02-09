@@ -8,7 +8,7 @@
   },
   "change_email_confirmation": {
     "change_in_progress": "Endrer e-postadresse …",
-    "success_message": "Registert e-postadresse endret.",
+    "success_message": "Registert e-postadresse endret!",
     "requires_confirmation_from_new_email": "Takk for at du bekrefter din gamle e-postadresse. Fullfør endringen ved å bekrefte din nye.",
     "requires_confirmation_from_old_email": "Takk for at du bekrefter din nye e-postadresse. Fullfør endringen ved å bekrefte din gamle e-postadresse.",
     "invalid_confirmation_state": "Ugyldig e-postbekreftelse",
@@ -92,17 +92,11 @@
     "header": "La din mening komme til kjenne"
   },
   "about_us": "Om oss",
-  "username_helper": "Brukernavnet ditt settes når du lager en konto.",
   "sign_up_confirmed_prompt": "Alt klart. Hvis du blir videresendt kan du prøve å logge inn",
   "unhandled_sign_up_state": "Uhåndtert flyttilstand for registrering.",
   "login_prompt": "Klikk her for å logge inn",
-  "submit": "Send inn",
   "jailed_error_message": "Tilgang nektet",
-  "jail": {
-    "location_section_heading": "Angi hvor du befinner deg"
-  },
   "email_username": "E-post/brukernavn",
-  "change_gender_contact": "En administrator må godkjenne endringer. Kontakt support@couchers.org",
   "introduction_title": "Ta del og bygg det nye alternativet til Couchsurfing™",
   "feature_preview": {
     "title": "Funksjonsforhåndsvisninger",
