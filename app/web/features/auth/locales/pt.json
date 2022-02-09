@@ -94,7 +94,7 @@
     }
   },
   "feature_preview": {
-    "disclaimer": "Lembra-te que estas funcionalidades são experimentais. Podem não funcionar como pretendido ou mudarem rapidamente à medida que as desenvolvemos. Fica à vontade para dar feedback no nosso fórum e por favor reporta quaisquer problemas!",
+    "disclaimer": "Lembre-te que estas funcionalidades são experimentais. Elas podem não funcionar como o esperado ou mudar rapidamente à medida que as desenvolvemos. Fique à vontade para deixar seu feedback no nosso fórum e, por favor, reporte quaisquer problemas!",
     "title": "Pré-visualização da funcionalidade",
     "no_previews": {
       "title": "Sem funcionalidades para pré-visualização no momento",
@@ -174,5 +174,6 @@
     "header": "Deixe a sua opinião"
   },
   "sign_up_completed_title": "Obrigado por se registrar!",
-  "sign_up_completed_prompt": "Enviamos um e-mail com um link de verificação para o seu e-mail. Clique no link para ativar sua conta."
+  "sign_up_completed_prompt": "Enviamos um e-mail com um link de verificação para o seu e-mail. Clique no link para ativar sua conta.",
+  "sign_up_confirmed_prompt": "Tudo pronto! Se você não for redirecionado, tente entrar."
 }
