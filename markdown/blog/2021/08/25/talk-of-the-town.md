@@ -26,7 +26,7 @@ In this issue, among others:
 * How can a platform that promotes travel alleviate its [environmental](https://community.couchers.org/t/couchers-and-environmentalism/1450) impact?
 * And, as always, more thoughts about [shared sleeping surfaces](https://community.couchers.org/t/shared-beds/550/38)!
 
-If you want to contribute to any of the below discussions, hop on to one of the topics linked below or [start](https://community.couchers.org/) a new discussion on our community forum. 
+If you want to contribute to any of the below discussions, hop on to one of the topics linked below or [start](https://community.couchers.org/) a new discussion on our community forum.
 
 
 ### [How do you define couch surfing?](https://community.couchers.org/t/how-do-you-define-couch-surfing/1444)
@@ -146,7 +146,7 @@ Read the full discussions [here ](https://community.couchers.org/t/should-couche
 
 ### Other discussions
 
-Does the fact that we can currently only upload one picture to our Couchers.org profile [keep you up at night](https://community.couchers.org/t/how-many-profile-photos-should-users-be-allowed-to-upload/65/20)? What do you think about [changing the color of users’ pins](https://community.couchers.org/t/different-colors-for-pins-on-the-map-according-to-host-status/1451) on the Map Search depending on their hosting status and activity? If the above questions seem intriguing to you, jump into those discussions and see what is being said! 
+Does the fact that we can currently only upload one picture to our Couchers.org profile [keep you up at night](https://community.couchers.org/t/how-many-profile-photos-should-users-be-allowed-to-upload/65/20)? What do you think about [changing the color of users’ pins](https://community.couchers.org/t/different-colors-for-pins-on-the-map-according-to-host-status/1451) on the Map Search depending on their hosting status and activity? If the above questions seem intriguing to you, jump into those discussions and see what is being said!
 
 _______________________________________________
 

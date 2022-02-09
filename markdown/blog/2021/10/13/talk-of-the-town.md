@@ -14,7 +14,7 @@ If you’ve not joined the forum yet, please quickly [create an account](https:/
 
 ## **Forum Digest: September 30th - Oct 13th, 2021**
 
-Lots of interesting discussions took place this past few weeks—we are trying to capture the most important ones here. 
+Lots of interesting discussions took place this past few weeks—we are trying to capture the most important ones here.
 
 In this issue:
 
@@ -24,7 +24,7 @@ In this issue:
 * [Helping hosts find travelers](https://community.couchers.org/t/additional-features-to-increase-activity-and-engagement/1542)
 * [Forum-wide Secret Santa!](https://community.couchers.org/t/secret-santa/1556)
 
-If you want to contribute to any of the below discussions, hop on to one of the topics linked below or [start a new discussion](https://community.couchers.org/) on our community forum. 
+If you want to contribute to any of the below discussions, hop on to one of the topics linked below or [start a new discussion](https://community.couchers.org/) on our community forum.
 
 
 ### **[Implementing response rate metrics](https://community.couchers.org/t/request-message-window-closed/1196/19)**
@@ -43,7 +43,7 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 * Implemented as a publicly visible percentage which shows how often they send prompt responses to requests. This is similar to what Trustroots currently shows - if they reply and how fast. For example, _Julia’s response rate is 80% within an average reply time of 2 hours._
 * What counts as timely? Ideas include anytime before the start of the request, before or during the request window, before during or 24 hours after the request window ends, any response at any time regardless of how long the request was sent.
-* Some potential pitfalls of limiting the time period: some hosts may only log onto their profiles if they get a request so are disadvantaged if they happen to miss the notification 
+* Some potential pitfalls of limiting the time period: some hosts may only log onto their profiles if they get a request so are disadvantaged if they happen to miss the notification
 * Response rate declines if no response within 48 hours (as many surfers may have started to look for other hosts by then) with option for the response rate to go back up as soon as you are able to reply (even as an apology that you were not able to do so sooner).
 * Having 3 separate metrics: response rate, timely response rate, acceptance rate. But this might be difficult to calculate and would disadvantage hosts who receive many requests but naturally aren’t able to fulfill them all.
 
@@ -67,7 +67,7 @@ Read the full discussion [here](https://community.couchers.org/t/request-message
 * Be able to search for non-hosts and travelers on the map, maybe based on radius.
 * Optimise searches by allowing filtering by demographic.
 * Privacy concerns for travelers who may not want their travel plans shared. It could be made an opt-in feature for your trip to be public, as opposed to the separately created Public Trip feature available on CS.
-* For a Public Trip feature, it will be good to allow someone to specify whether they’re open to being hosted and/or just meeting up. 
+* For a Public Trip feature, it will be good to allow someone to specify whether they’re open to being hosted and/or just meeting up.
 * Public Trips are also a great opportunity for less established hosts to make their case.
 
 Read the full discussions [here](https://community.couchers.org/t/additional-features-to-increase-activity-and-engagement/1542) and [here](https://community.couchers.org/t/public-trip/1106/).
@@ -81,7 +81,7 @@ Read the full discussions [here](https://community.couchers.org/t/additional-fea
 
 
 * We now have [@Santa](https://community.couchers.org/u/santa) on the forum!
-* Secret Santa (aka Kris Kringel, Wichteln, Amigo Invisible, Monito Monita, _גמד וענק_ - tell me if you have another name!) is a holiday season tradition where everyone is randomly (and secretly) assigned a person for whom to give a gift. 
+* Secret Santa (aka Kris Kringel, Wichteln, Amigo Invisible, Monito Monita, _גמד וענק_ - tell me if you have another name!) is a holiday season tradition where everyone is randomly (and secretly) assigned a person for whom to give a gift.
 * For now if you would like to participate, send your address to @santa on the forum by the END OF OCTOBER and add something about things you like/collect.
 * In the beginning of November @santa will tell you who are sending a gift to and then send it around the end of November (international mail is still experienced COVID related delays)
 * Gift ideas: think festive season decorations, local specialties, something travel related or maybe hand-made.
@@ -93,7 +93,7 @@ This plan is still developing so if you have a good idea, join the discussion [h
 
 ### **Other discussions**
 
-There has also been a continuation of the discussions on how to [limit commercial event advertising](https://community.couchers.org/t/advertising-in-events/), and work-arounds for how to [remove someone as a friend](https://community.couchers.org/t/is-it-possible-to-unfriend-after-accepting-friend-request/) and when you want to [propose different (or less) dates](https://community.couchers.org/t/offering-to-host-different-dates/) when accepting a surf request.  
+There has also been a continuation of the discussions on how to [limit commercial event advertising](https://community.couchers.org/t/advertising-in-events/), and work-arounds for how to [remove someone as a friend](https://community.couchers.org/t/is-it-possible-to-unfriend-after-accepting-friend-request/) and when you want to [propose different (or less) dates](https://community.couchers.org/t/offering-to-host-different-dates/) when accepting a surf request.
 
 _______________________________________________
 

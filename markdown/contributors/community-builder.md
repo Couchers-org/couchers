@@ -13,7 +13,7 @@ Our core growth strategy is to grow a network of Community Builders around the w
 
 **On the Couchers.org platform**, your responsibilities are to create a community page, keep it active through discussions and events, maintain public information, and make sure all content and member actions are within the Community Guidelines.
 
-**Outside of Couchers.org**, you are critical to our outreach which you can do through bringing your local community onto the platform and by sharing Couchers.org through word of mouth, online spaces, and media outlets. 
+**Outside of Couchers.org**, you are critical to our outreach which you can do through bringing your local community onto the platform and by sharing Couchers.org through word of mouth, online spaces, and media outlets.
 
 ### Platform tasks
 

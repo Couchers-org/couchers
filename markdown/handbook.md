@@ -141,7 +141,7 @@ Send an email to [safety@couchers.org](mailto:safety@couchers.org). If you send 
 
 ### What are some things I should think about before responding to a request?
 
-You should read the person's entire profile and read through their references. References can give you an idea of what others think about the person. It is also very important to communicate thoroughly with the person before accepting their request. Be sure to ask any for any information that is missing from their profile or request message. For example, if their profile is empty or missing a photo, it is okay to ask them to fill out their profile and/or upload a photo before accepting their request. 
+You should read the person's entire profile and read through their references. References can give you an idea of what others think about the person. It is also very important to communicate thoroughly with the person before accepting their request. Be sure to ask any for any information that is missing from their profile or request message. For example, if their profile is empty or missing a photo, it is okay to ask them to fill out their profile and/or upload a photo before accepting their request.
 
 It is also good to ask them when they will arrive and when they will leave, why they are coming, and who is coming with them. It is helpful to let them know what your schedule looks like and how available you will be to interact with them. You should also let them know about any important information about you, your home, and your schedule that is relevant to their visit.
 

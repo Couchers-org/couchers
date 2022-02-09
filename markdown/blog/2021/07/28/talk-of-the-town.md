@@ -7,7 +7,7 @@ author: Natalia
 share_image: https://couchers.org/img/blog/20210825_talkingtown.png
 ---
 
-Welcome to the second issue of _Talk of the Town_, the biweekly summary of the main points brought up, discussed, and debated in recent [Community Forum](https://community.couchers.org/) threads! If you missed the first issue, take a look [here](https://couchers.org/blog/2021/07/17/talk-of-the-town/)! 
+Welcome to the second issue of _Talk of the Town_, the biweekly summary of the main points brought up, discussed, and debated in recent [Community Forum](https://community.couchers.org/) threads! If you missed the first issue, take a look [here](https://couchers.org/blog/2021/07/17/talk-of-the-town/)!
 
 If you’ve not joined the forum yet, please quickly [create an account](https://community.couchers.org/) to contribute and be part of the community. You can play an important role in shaping Couchers.org for everyone.
 
@@ -28,7 +28,7 @@ In this issue:
 * How does the Couchers.org **[financial model](https://community.couchers.org/t/should-couchers-org-follow-the-same-model-as-cs-or-find-a-new-model/823/8)** compare to Couchsurfing™?
 
 
-If you want to contribute to any of the below discussions, hop on to one of the topics linked below or [start](https://community.couchers.org/) a new discussion on our community forum. 
+If you want to contribute to any of the below discussions, hop on to one of the topics linked below or [start](https://community.couchers.org/) a new discussion on our community forum.
 
 ### [How is Couchers.org handling the data?](https://community.couchers.org/t/how-is-couchers-handling-the-data/1375/)
 
@@ -62,11 +62,11 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 
 * A mixture of a “Resources/FAQ” page and small hints interspersed at different actions in the platform could be a good way to communicate guidelines to users.
-* For surfers, we could offer explanations on “[how to write a good request](https://community.couchers.org/t/how-do-we-offer-documentation/151/14)” and how to properly discuss expectations with the host. 
+* For surfers, we could offer explanations on “[how to write a good request](https://community.couchers.org/t/how-do-we-offer-documentation/151/14)” and how to properly discuss expectations with the host.
 * For hosts, there could be a guideline urging them to clarify what surfers should be expected to bring with them (e.g. towels, sleeping bag), as this can vary from host to host.
-* There could also be a guideline for hosts on how to choose “good” surfers based on the quality of their request and profile. 
+* There could also be a guideline for hosts on how to choose “good” surfers based on the quality of their request and profile.
 * For both hosts and surfers, there could be additional hints on “good” general timelines for communication, etiquette, and info that would be good to provide to each other.
-* The majority of participants seem to agree that **any “educational” language about appropriateness of requests should come from the platform itself**, instead of asking users to educate each other. The latter can be pointless and also lead to unfair references. 
+* The majority of participants seem to agree that **any “educational” language about appropriateness of requests should come from the platform itself**, instead of asking users to educate each other. The latter can be pointless and also lead to unfair references.
 * Should the quality of one’s references/messages play a part in community standing? Could it backfire (e.g. disgruntled surfers trying to lower the community score of hosts who rejected them)?
 
 [Read the full discussion...](https://community.couchers.org/t/how-do-we-offer-documentation/151)
@@ -106,7 +106,7 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 * Length of reference: there are preferences for both shorter (easier to navigate) and longer (fun guest-book!) references, so it’s best to leave it up to the people involved.
 * Use guiding (but not compulsory) questions! _What did you do together? What was the best part of your stay?_
-* Points that can be included in host-to-guest references: positive character traits, how we spent time together, how respectful the guests were; provide context of hosting (occasion, how many people, etc.), summary of interactions, general impression, a recommendation for others to host them; how independent or willing to interact the surfer was; 
+* Points that can be included in host-to-guest references: positive character traits, how we spent time together, how respectful the guests were; provide context of hosting (occasion, how many people, etc.), summary of interactions, general impression, a recommendation for others to host them; how independent or willing to interact the surfer was;
 * Points that can be included in guest-to-host references: how the host spent time with guests, how their home was, context of surfing, summary of interactions, general impressions, fun memories
 * Many people agree that adding the duration and even dates of the stay to the references would be a useful feature
 * Sometimes people leaving references can use inconsiderate language that reveals biases (e.g. calling a woman “ little girl”)—could we do something to solve this?

@@ -18,13 +18,13 @@ Couchers.org talks to Miuriel, the graphic design team lead based in Amsterdam, 
 
 ### What is the best part about being a volunteer at Couchers.org?
 
-**Miuriel**: I get to learn a ton of things! I’m a graphic designer, but I have been wanting to get into user experience and user interface (UX/UI). I thought this would be a good opportunity, and I was able to dive right in. Normally you’d have to do projects alone and release them, but it’s not fun working by yourself—you don’t get as much feedback and you don’t get to develop things as much as you do in a team. 
+**Miuriel**: I get to learn a ton of things! I’m a graphic designer, but I have been wanting to get into user experience and user interface (UX/UI). I thought this would be a good opportunity, and I was able to dive right in. Normally you’d have to do projects alone and release them, but it’s not fun working by yourself—you don’t get as much feedback and you don’t get to develop things as much as you do in a team.
 
-I also get to be a part of an amazing team: none of us have the same backgrounds or had to go through a hiring process. We all just contribute whatever we can. We have a great atmosphere and the sense of collaboration is really nice. It’s a very special team that formed here. 
+I also get to be a part of an amazing team: none of us have the same backgrounds or had to go through a hiring process. We all just contribute whatever we can. We have a great atmosphere and the sense of collaboration is really nice. It’s a very special team that formed here.
 
 ### What are you doing when you’re not helping out as a volunteer?
 
-**Miuriel**: I do freelance design and consultancy, but I’m currently looking for a job as a product designer. I also have an almost-four-year-old who is very cool and speaks three languages. Actually, I’m one of just a handful of parents on the team. 
+**Miuriel**: I do freelance design and consultancy, but I’m currently looking for a job as a product designer. I also have an almost-four-year-old who is very cool and speaks three languages. Actually, I’m one of just a handful of parents on the team.
 
 ### What has been your proudest achievement so far?
 
@@ -32,7 +32,7 @@ I also get to be a part of an amazing team: none of us have the same backgrounds
 
 ### What feature are you most excited about?
 
-**Miuriel**: The feature I like most is the map search. That idea was born way back when we had the basic wireframes. I suggested the map for users, and the idea grew and grew. It’s nice to see a seed that you plant and everyone works together to make it grow. I think it’ll be a really cool feature once it’s live, and you’ll be able to see everything that’s going on and whether it’s near you. 
+**Miuriel**: The feature I like most is the map search. That idea was born way back when we had the basic wireframes. I suggested the map for users, and the idea grew and grew. It’s nice to see a seed that you plant and everyone works together to make it grow. I think it’ll be a really cool feature once it’s live, and you’ll be able to see everything that’s going on and whether it’s near you.
 
 That’s the fun thing about being in the team: if I were by myself, my idea wouldn’t necessarily happen. That’s where our developers and other team members came in. You can really let go of your ego here. I can be feisty, but once something is voted on and everyone has their say, we choose something and move on.
 

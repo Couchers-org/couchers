@@ -16,7 +16,7 @@ Welcome to the first-ever issue of the biweekly forum digest, which will be summ
 
 ## Forum Digest: 1st July - 14th July 2021
 
-Many of our recent hot topics revolve around **how to best balance safety features with gender inclusivity**, and have led to very nuanced discussions. 
+Many of our recent hot topics revolve around **how to best balance safety features with gender inclusivity**, and have led to very nuanced discussions.
 
 In this issue:
 
@@ -70,7 +70,7 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 
 
-* If we allow everyone to filter by any gender, the consensus is that certain users would abuse this feature for the purposes of dating. But *not* being able to filter by gender at all is also impractical (e.g. trying to find women hosts in a city with 90% male users). 
+* If we allow everyone to filter by any gender, the consensus is that certain users would abuse this feature for the purposes of dating. But *not* being able to filter by gender at all is also impractical (e.g. trying to find women hosts in a city with 90% male users).
 * On the other hand, other safety features (e.g. message filtering, blocking, character limits, etc.) can to an extent prevent possible abuses of the "filter by gender" feature.
 * A popular idea is to allow for filtering for "same gender" or "any gender" only. In that case, should we allow for non-binary folk to be excluded from searches? How would that affect non-binary people that lean more towards the "woman" side of the spectrum or the "man" side of the spectrum?
 * Idea brought up: make the display of gender optional (and only show pronouns by default), but keep it in the backend for safety purposes?
@@ -115,7 +115,7 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 
 
-* It is very limiting to only be able to message "friends" and people you are asking to surf with 
+* It is very limiting to only be able to message "friends" and people you are asking to surf with
 * It also leads to people sending friend requests to people they don't know just to message them
 * For context, the development team has already taken these comments into account and decided to move in the direction of allowing anyone to message anyone
 
