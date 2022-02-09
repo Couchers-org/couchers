@@ -1,9 +1,9 @@
 {
   "change_email_form": {
-    "title": "Cambiar Correo Electrónico",
+    "title": "Cambiar correo electrónico",
     "current_password": "Clave actual",
     "new_email": "Nuevo correo electrónico",
-    "current_email_message": "Tu dirección actual de correo electrónico es<2>{{email}}</2>",
+    "current_email_message": "Tu dirección actual de correo electrónico es <1>{{email}}</1>.",
     "success_message": "El cambio de tu correo electrónico ha sido recibido. Revisa tu nuevo correo electrónico para completar el cambio."
   },
   "change_email_confirmation": {
@@ -129,6 +129,9 @@
     "birth_date_section": {
       "title": "Cambiar la fecha de nacimiento",
       "explanation": "Los administradores estarán encantados de cambiar tu fecha de nacimiento. Póngase en contacto con support@couchers.org."
+    },
+    "timezone_section": {
+      "title": "Zona horaria y ubicación"
     }
   },
   "introduction_subtitle": "Gratis para siempre. Gestionada por la comunidad. Sin ánimo de lucro. Moderna.",
