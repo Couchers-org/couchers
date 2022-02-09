@@ -32,7 +32,6 @@ import makeStyles from "utils/makeStyles";
 
 import { PREVIOUS_PAGE } from "../constants";
 import CommentTree from "../discussions/CommentTree";
-import { details } from "./constants";
 import EventAttendees from "./EventAttendees";
 import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
@@ -276,7 +275,9 @@ export default function EventPage({
             </div>
             <div className={classes.eventDetailsContainer}>
               <Card className={classes.cardSection}>
-                <Typography variant="h2">{details()}</Typography>
+                <Typography variant="h2">
+                  {t("communities:details_subheading_colon")}
+                </Typography>
                 <Markdown source={event.content} topHeaderLevel={3} />
               </Card>
               <EventOrganizers eventId={event.eventId} />

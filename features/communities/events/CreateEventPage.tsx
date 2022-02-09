@@ -117,12 +117,12 @@ export default function CreateEventPage() {
 
   return (
     <>
-      <HtmlMeta title={t("communities:create_event")} />
+      <HtmlMeta title={t("communities:create_event_page_title")} />
       <EventForm
         error={error}
         isMutationLoading={isLoading}
         mutate={createEvent}
-        title={t("communities:create_event")}
+        title={t("communities:create_event_page_title")}
       >
         {({ isMutationLoading }) => (
           <>

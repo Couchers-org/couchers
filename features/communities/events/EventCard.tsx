@@ -22,7 +22,6 @@ import makeStyles from "utils/makeStyles";
 import stripMarkdown from "utils/stripMarkdown";
 
 import { getAttendeesCount, ONLINE } from "../constants";
-import { details } from "./constants";
 
 const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
   root: {
@@ -161,7 +160,7 @@ export default function EventCard({ event, className }: EventCardProps) {
             <Typography className={classes.subtitle} noWrap variant="body2">
               {event.offlineInformation
                 ? event.offlineInformation.address
-                : t("communities:view_details_for_link")}
+                : t("communities:virtual_event_location_placeholder")}
             </Typography>
             <ul className={classes.detailsList}>
               <li>
@@ -180,7 +179,9 @@ export default function EventCard({ event, className }: EventCardProps) {
               </li>
             </ul>
             <div className={classes.otherInfoSection}>
-              <Typography variant="h4">{details({ colon: true })}</Typography>
+              <Typography variant="h4">
+                {t("communities:details_subheading")}
+              </Typography>
               <Typography className={classes.content} variant="body1">
                 {strippedContent}
               </Typography>
