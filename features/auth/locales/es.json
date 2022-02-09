@@ -151,7 +151,8 @@
     "guideline": {
       "checkbox_label": "Entendido",
       "required_error": "Todas las casillas son obligatorias"
-    }
+    },
+    "header": "Normas de la comunidad"
   },
   "feature_preview": {
     "explanation": "Esta página te permite probar características que aun están en desarrollo antes de que estén completamente listas para que las utilice todo el mundo."
