@@ -85,7 +85,7 @@
     "name": {
       "empty_error": "Por favor, introduz o teu nome",
       "field_label": "O teu nome",
-      "required_error": "O nome não pode estar em branco"
+      "required_error": "O nome não pode estar em branco."
     },
     "email": {
       "field_label": "Email",
@@ -175,5 +175,11 @@
   },
   "sign_up_completed_title": "Obrigado por se registrar!",
   "sign_up_completed_prompt": "Enviamos um e-mail com um link de verificação para o seu e-mail. Clique no link para ativar sua conta.",
-  "sign_up_confirmed_prompt": "Tudo pronto! Se você não for redirecionado, tente entrar."
+  "sign_up_confirmed_prompt": "Tudo pronto! Se você não for redirecionado, tente fazer login.",
+  "unsubscribe": {
+    "error_message": "Erro ao cancelar a inscrição: {{message}}",
+    "missing_payload_or_sig": "URL inválido, payload ou assinatura em falta",
+    "title": "Cancelar a inscrição",
+    "button_text": "Confirmar o cancelamento da inscrição"
+  }
 }
