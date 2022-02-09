@@ -6,7 +6,7 @@ backend:
 media_folder: app/web/public/img
 public_folder: /img
 publish_mode: editorial_workflow
-display_url: https://couchers.org
+display_url: https://Couchers.org
 logo_url: https://app.couchers.org/logo512.png
 collections:
   - label: "Blog"
