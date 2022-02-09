@@ -116,5 +116,19 @@
   "logged_out_message": "Se ha cerrado tu sesión.",
   "sign_up_completed_prompt": "Hemos enviado un enlace de verificación a tu dirección de correo electrónico. Por favor haz clic en el enlace para activar tu cuenta.",
   "sign_up_completed_title": "¡Gracias por registrarte!",
-  "sign_up_confirmed_prompt": "¡Todo listo! Si el navegador no te redirecciona automáticamente, prueba a hacer login."
+  "sign_up_confirmed_prompt": "¡Todo listo! Si el navegador no te redirecciona automáticamente, prueba a hacer login.",
+  "about_us": "Sobre nosotros",
+  "reset_password": "Restablecer contraseña",
+  "account_settings_page": {
+    "title": "Configuración de la cuenta",
+    "gender_section": {
+      "title": "Cambiar género"
+    },
+    "birth_date_section": {
+      "title": "Cambiar la fecha de nacimiento"
+    }
+  },
+  "introduction_subtitle": "Gratis para siempre. Gestionada por la comunidad. Sin ánimo de lucro. Moderna.",
+  "introduction_title": "Únete y ayuda a que crezca la nueva alternativa a Couchsurfing™",
+  "login_prompt": "Haz click aquí para iniciar sesión"
 }
