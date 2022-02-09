@@ -3,7 +3,7 @@
     "title": "Cambiar Correo Electrónico",
     "current_password": "Contraseña actual",
     "new_email": "Nuevo correo electrónico",
-    "current_email_message": "Tu dirección actual de correo electrónico es <1>{{email}}</1>.",
+    "current_email_message": "Tu dirección actual de correo electrónico es<2>{{email}}</2>.",
     "success_message": "El cambio de tu correo electrónico ha sido recibido. Revisa tu nuevo correo electrónico para completar el cambio."
   },
   "change_email_confirmation": {
