@@ -95,8 +95,6 @@
   "sign_up_confirmed_prompt": "Alt klart. Hvis du blir videresendt kan du prøve å logge inn",
   "unhandled_sign_up_state": "Uhåndtert flyttilstand for registrering.",
   "login_prompt": "Klikk her for å logge inn",
-  "jailed_error_message": "Tilgang nektet",
-  "email_username": "E-post/brukernavn",
   "introduction_title": "Ta del og bygg det nye alternativet til Couchsurfing™",
   "feature_preview": {
     "title": "Funksjonsforhåndsvisninger",

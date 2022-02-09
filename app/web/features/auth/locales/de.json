@@ -34,7 +34,6 @@
     "tos_prompt": "Um fortzufahren, lies und akzeptiere bitte die <1></1>."
   },
   "sign_up_completed_prompt": "Wir haben eine E-Mail-Adresse mit einem Bestätigungslink an deine E-Mail-Adresse gesendet. Bitte klicke auf den Link, um deinen Account zu aktivieren.",
-  "location_confirm_title": "Überprüfe deine Karte erneut, bevor du fortfährst",
   "change_email_form": {
     "title": "E-Mail-Adresse ändern",
     "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <2>{{email}}</2>.",
@@ -93,16 +92,8 @@
   "reset_password_success": "Dein Passwort wurde erfolgreich geändert! Dir wird jetzt ein magischer Link an deine E-Mail-Adresse gesendet, sobald du dich mit Benutzername oder E-Mail-Adresse einloggst.",
   "login_prompt": "Klicke hier, um dich einzuloggen",
   "about_us": "Über uns",
-  "username_helper": "Dein Benutzername wird beim Erstellen eines Accounts festgelegt.",
-  "change_birthdate": "Geburtstag ändern",
   "introduction_subtitle": "Auf ewig kostenlos. Von der Community geleitet. Gemeinnützig. Modern.",
   "introduction_title": "Tritt uns bei und unterstütze uns darin, die neue Alternative zu Couchsurfing™ wachsen zu lassen",
   "reset_password": "Passwort zurücksetzen",
-  "reset_password_error": "Fehler beim Zurücksetzen des Passworts: {{message}}",
-  "you_were_logged_out": "Du wurdest ausgeloggt.",
-  "jail": {
-    "jail_tos_text": "Wir haben unsere Nutzungsbedingungen aktualisiert. Um Fortzufahren, lies und akzeptiere bitte die neuen "
-  },
-  "check_email_for_link": "Überprüfe dein E-Mail-Postfach für einen Link, um dich einzuloggen! :)",
-  "forgot_password": "Passwort vergessen?"
+  "reset_password_error": "Fehler beim Zurücksetzen des Passworts: {{message}}"
 }
