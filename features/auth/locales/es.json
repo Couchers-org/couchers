@@ -41,10 +41,11 @@
       "maybe": "Tal vez podría hospedar",
       "cant_host": "No puede hospedar"
     },
-    "tos_accept_label": "Yo Aceoto el $t(global:terms_of_service).",
+    "tos_accept_label": "Acepto los términos del servicio",
     "password": {
       "validation_error": "La contraseña debe tener entre 8 y 256 caracteres y no ser muy común.",
-      "required_error": "Introduce una contraseña"
+      "required_error": "Introduce una contraseña",
+      "field_label": "contraseña"
     }
   },
   "basic_form": {
@@ -74,11 +75,16 @@
   "login_page": {
     "title": "Iniciar sesión",
     "header": "Bienvenido de nuevo!",
-    "no_account_prompt": "Aún sin cuenta?<2>$t(global:sign_up)</2>"
+    "no_account_prompt": "¿Aún no tienes cuenta?<2>regístrate)</2>",
+    "form": {
+      "username_field_label": "Correo/Nombre de usuario",
+      "password_field_label": "Contraseña",
+      "forgot_password": "¿Has olvidado tu contraseña?"
+    }
   },
   "basic_sign_up_form": {
     "header": "Empecemos!",
-    "existing_user_prompt": "Ya tienes una cuenta?<2>$t(global:login)</2>",
+    "existing_user_prompt": "¿Ya tienes una cuenta?<2>iniciar sesión)</2>",
     "sign_up_agreement_explainer": "Para continuar, tú estás de acuerdos con nuestros<2> Términos de Servicio </2>; incluyendo nuestros cookie, correo electrónico y política de manejo de datos."
   },
   "location": {
@@ -87,5 +93,12 @@
   },
   "feedback_form": {
     "header": "Da tu opinión"
+  },
+  "jail": {
+    "title": "Se requiere más información"
+  },
+  "jail_set_password_form": {
+    "title": "Configurar una contraseña",
+    "explanation": "No has configurado previamente una contraseña para tu cuenta. Por favor crea una para continuar."
   }
 }
