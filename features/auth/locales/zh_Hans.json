@@ -92,18 +92,10 @@
   "unhandled_sign_up_state": "注册流程发生了一点意外。",
   "login_prompt": "点击此处登陆",
   "about_us": "关于我们",
-  "your_local_time_is": "，基于此，您的本地时间已校准",
-  "change_birthdate": "修改生日",
   "introduction_subtitle": "永久免费。社区至上。不为营利。面向未来。",
   "introduction_title": "加入我们，与我们一同成长",
   "reset_password": "重置密码",
   "reset_password_error": "重置密码错误：{{message}}",
-  "you_were_logged_out": "您已退出账号。",
-  "jail": {
-    "jail_tos_text": "我们更新了服务条款。要继续的话，清 "
-  },
-  "check_email_for_link": "检查您的邮箱，找一找登陆链接，点击登陆！:)",
-  "forgot_password": "忘记密码了？",
   "sign_up_completed_prompt": "我们给您的邮箱发了一封带有确认链接的邮件，请点击链接，激活账号。",
   "sign_up_confirmed_prompt": "完成啦！如果页面没有自动跳转，您可以直接登陆账号。",
   "reset_password_success": "您的密码已经被重置！待您用用户名或邮箱登陆后，我们会给您发一封邮件——点击邮件里的链接，就能见证奇迹。"

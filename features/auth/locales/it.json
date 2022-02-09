@@ -101,18 +101,10 @@
   "unhandled_sign_up_state": "Stato del flusso di iscrizione non gestito.",
   "login_prompt": "Clicca qui per accedere",
   "about_us": "Su di noi",
-  "your_local_time_is": ", basato su questo, il tuo tempo locale è approssimativamente",
-  "change_birthdate": "Modifica data di nascita",
   "introduction_subtitle": "Gratuito, per sempre. Guidato dalla comunità. No profit. Moderno.",
   "introduction_title": "Unisciti ed aiuta a crescere la nuova alternativa a Couchsurfing™",
   "reset_password": "Ripristina password",
   "reset_password_error": "Errore durante il ripristino della password: {{message}}",
-  "jailed_error_message": "Permesso negato",
-  "jail": {
-    "jail_tos_text": "Abbiamo aggiornato i nostri Termini di Servizio. Per continuare, per favore leggi ed accetta i nuovi "
-  },
-  "check_email_for_link": "Cerca nella tua casella e-mail un collegamento per connetterti! :)",
-  "forgot_password": "Password dimenticata?",
   "sign_up_completed_prompt": "Abbiamo inviato una e-mail con un collegamento per la verifica del tuo indirizzo e-mail. Per favore, clicca il collegamento per attivare la tua utenza.",
   "reset_password_success": "La tua password è stata ripristinata correttamente! Ti verrà ora inviato un collegamento magico quando accedi con il tuo nome utente o indirizzo e-mail.",
   "feature_preview": {
