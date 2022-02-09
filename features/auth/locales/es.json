@@ -99,8 +99,10 @@
     "location_section": {
       "title": "Por favor, añada su ubicación.",
       "submit_button": {
-        "inactive_text": "¡Gracias!"
-      }
+        "inactive_text": "¡Gracias!",
+        "active_text": "Guardar"
+      },
+      "resubmit_button_text": "Reenviar"
     },
     "terms_of_service_section": {
       "description": "Hemos actualizado nuestros Términos y Condiciones. Para continuar, lea y acepte las nuevas, por favor <1></1>."
@@ -109,5 +111,7 @@
   "jail_set_password_form": {
     "title": "Configurar una contraseña",
     "explanation": "No has configurado previamente una contraseña para tu cuenta. Por favor crea una para continuar."
-  }
+  },
+  "logged_out_message": "Se ha cerrado tu sesión.",
+  "sign_up_completed_prompt": "Te hemos enviado un correo electrónico con un link de verificación a tu dirección de correo electrónico. Haz clic en el enlace para activar tu cuenta."
 }
