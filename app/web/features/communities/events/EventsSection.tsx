@@ -5,6 +5,8 @@ import HorizontalScroller from "components/HorizontalScroller";
 import { CalendarIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { routeToCommunity, routeToNewEvent } from "routes";
@@ -13,12 +15,6 @@ import makeStyles from "utils/makeStyles";
 
 import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
 import { useListCommunityEvents } from "../hooks";
-import {
-  CREATE_AN_EVENT,
-  EVENTS_EMPTY_STATE,
-  EVENTS_TITLE,
-  SHOW_ALL_EVENTS,
-} from "./constants";
 import EventCard from "./EventCard";
 
 const useStyles = makeStyles((theme) => ({
@@ -36,6 +32,7 @@ export default function EventsSection({
 }: {
   community: Community.AsObject;
 }) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
   const router = useRouter();
 
@@ -48,7 +45,7 @@ export default function EventsSection({
   return (
     <section className={classes.section}>
       <SectionTitle icon={<CalendarIcon />} variant="h2">
-        {EVENTS_TITLE}
+        {t("communities:events_title")}
       </SectionTitle>
 
       {error && <Alert severity="error">{error.message}</Alert>}
@@ -76,19 +73,19 @@ export default function EventsSection({
                   "events"
                 )}
               >
-                {SHOW_ALL_EVENTS}
+                {t("communities:show_all_events")}
               </StyledLink>
             </div>
           )}
         </>
       ) : (
-        !error && <TextBody>{EVENTS_EMPTY_STATE}</TextBody>
+        !error && <TextBody>{t("communities:events_empty_state")}</TextBody>
       )}
       <Button
         className={classes.centerSelf}
         onClick={() => router.push(routeToNewEvent(community.communityId))}
       >
-        {CREATE_AN_EVENT}
+        {t("communities:create_an_event")}
       </Button>
     </section>
   );

@@ -3,6 +3,8 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import { CalendarIcon } from "components/Icons";
 import TextBody from "components/TextBody";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { routeToNewEvent } from "routes";
@@ -11,12 +13,6 @@ import makeStyles from "utils/makeStyles";
 
 import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
 import { useListCommunityEvents } from "../hooks";
-import {
-  CREATE_AN_EVENT,
-  EVENTS_EMPTY_STATE,
-  EVENTS_TITLE,
-  SEE_MORE_EVENTS_LABEL,
-} from "./constants";
 import LongEventCard from "./LongEventCard";
 
 interface EventsListProps {
@@ -41,6 +37,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function EventsList({ community }: EventsListProps) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
   const router = useRouter();
 
@@ -53,12 +50,14 @@ export default function EventsList({ community }: EventsListProps) {
 
   return (
     <>
-      <SectionTitle icon={<CalendarIcon />}>{EVENTS_TITLE}</SectionTitle>
+      <SectionTitle icon={<CalendarIcon />}>
+        {t("communities:events_title")}
+      </SectionTitle>
       <Button
         className={classes.createResourceButton}
         onClick={() => router.push(routeToNewEvent(community.communityId))}
       >
-        {CREATE_AN_EVENT}
+        {t("communities:create_an_event")}
       </Button>
       {error && <Alert severity="error">{error.message}</Alert>}
       <div className={classes.eventsListContainer}>
@@ -69,11 +68,13 @@ export default function EventsList({ community }: EventsListProps) {
             .flatMap((page) => page.eventsList)
             .map((event) => <LongEventCard event={event} key={event.eventId} />)
         ) : (
-          !error && <TextBody>{EVENTS_EMPTY_STATE}</TextBody>
+          !error && <TextBody>{t("communities:events_empty_state")}</TextBody>
         )}
       </div>
       {hasNextPage && (
-        <Button onClick={() => fetchNextPage()}>{SEE_MORE_EVENTS_LABEL}</Button>
+        <Button onClick={() => fetchNextPage()}>
+          {t("communities:see_more_events_label")}
+        </Button>
       )}
     </>
   );
