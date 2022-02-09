@@ -3,7 +3,7 @@
     "success_message": "A alteração ao teu email foi recebida. Verifica o teu novo email para completar a alteração.",
     "new_email": "Novo email",
     "current_password": "Palavra-passe actual",
-    "title": "Alterar Email",
+    "title": "Alterar e-mail",
     "current_email_message": "O teu endereço de email atualmente é <1>{{email}}</1>."
   },
   "change_email_confirmation": {
@@ -49,7 +49,7 @@
       "field_label": "Utilizador",
       "required_error": "Introduz o teu utilizador",
       "username_taken_error": "Este utilizador já existe.",
-      "validation_error": "O utilizador apenas pode conter números ou _, devendo começar com uma letra."
+      "validation_error": "O usuário só pode conter números ou _, devendo começar com uma letra."
     },
     "gender": {
       "field_label": "Identifico-me como ...",
@@ -73,7 +73,8 @@
     "hosting_status": {
       "can_host": "Pode hospedar",
       "cant_host": "Não pode hospedar",
-      "maybe": "Talvez possa hospedar"
+      "maybe": "Talvez possa hospedar",
+      "field_label": "Estado de alojamento"
     }
   },
   "jail_set_password_form": {
@@ -160,10 +161,18 @@
   "vercel_logo_alt_text": "Suportado por Vercel",
   "community_guidelines_form": {
     "guideline": {
-      "checkbox_label": "OK, entendi"
-    }
+      "checkbox_label": "OK, entendi",
+      "required_error": "Todas as caixas de verificação são obrigatórias"
+    },
+    "header": "Orientações da Comunidade"
   },
   "unhandled_sign_up_state": "Estado de registo não tratado.",
   "reset_password_success": "A tua palavra-passe foi alterada com sucesso! Irás receber um e-mail com um link mágico quando entrares com o teu nome de utilizador ou e-mail.",
-  "login_prompt": "Clica aqui para entrar"
+  "login_prompt": "Clica aqui para entrar",
+  "logged_out_message": "Sua sessão foi encerrada.",
+  "feedback_form": {
+    "header": "Deixe a sua opinião"
+  },
+  "sign_up_completed_title": "Obrigado por se registrar!",
+  "sign_up_completed_prompt": "Enviamos um e-mail com um link de verificação para o seu e-mail. Clique no link para ativar sua conta."
 }

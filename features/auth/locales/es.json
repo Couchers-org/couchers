@@ -62,7 +62,7 @@
   },
   "change_password_form": {
     "title": "Cambio de contraseña",
-    "confirm_password": "Contraseña confirmada",
+    "confirm_password": "Confirmar contraseña",
     "password_changed_success": "Tu nueva contraseña ha sido considerada y una notificación ha aido enviada a tu correo electrónico.",
     "old_password": "Contraseña antigua",
     "new_password": "Nueva contraseña",
