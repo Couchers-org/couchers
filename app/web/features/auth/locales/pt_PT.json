@@ -1,1 +1,14 @@
-{}
+{
+  "account_settings_page": {
+    "gender_section": {
+      "title": "Alterar género"
+    }
+  },
+  "sign_up_completed_prompt": "Enviámos um e-mail com um link de verificação para o teu endereço de e-mail. Clica no link para ativar a tua conta.",
+  "feature_preview": {
+    "no_previews": {
+      "explanation": "De momento não existem funcionalidades para pré-visualização ativas, volta a verificar mais tarde!",
+      "title": "Sem funcionalidades para pré-visualização de momento"
+    }
+  }
+}

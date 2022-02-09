@@ -72,7 +72,8 @@
     "tos_accept_label": "Aceito os Termos do Serviço.",
     "hosting_status": {
       "can_host": "Pode hospedar",
-      "cant_host": "Não pode hospedar"
+      "cant_host": "Não pode hospedar",
+      "maybe": "Talvez possa hospedar"
     }
   },
   "jail_set_password_form": {
@@ -95,8 +96,8 @@
     "disclaimer": "Lembra-te que estas funcionalidades são experimentais. Podem não funcionar como pretendido ou mudarem rapidamente à medida que as desenvolvemos. Fica à vontade para dar feedback no nosso fórum e por favor reporta quaisquer problemas!",
     "title": "Pré-visualização da funcionalidade",
     "no_previews": {
-      "title": "Não há funcionalidades actualmente em pré-visualização",
-      "explanation": "De momento não existem funcionalidades para pré-visualização ativas, volta a verificar mais tarde!"
+      "title": "Sem funcionalidades para pré-visualização no momento",
+      "explanation": "No momento não existem funcionalidades para pré-visualização ativas, verifique novamente mais tarde!"
     },
     "explanation": "Esta página permite-te testares funcionalidades em desenvolvimento, antes de estarem prontas para utilização geral."
   },
@@ -127,7 +128,7 @@
     },
     "title": "Definições de conta",
     "gender_section": {
-      "title": "Alterar género",
+      "title": "Alterar gênero",
       "explanation": "Os administradores terão todo o gosto em alterar a tua indicação de género. Por favor contacta support@couchers.org!"
     },
     "birth_date_section": {
