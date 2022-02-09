@@ -8,7 +8,7 @@
     "one_time_button_label": "Один раз",
     "validation_message": "Пожалуйста, заполните это поле",
     "action_button_label": "Помочь!",
-    "recurrence_aria_label": "",
+    "recurrence_aria_label": "повторяющийся",
     "title": "Размер пожертвования",
     "alert": {
       "success_message": "Спасибо, что помогаете Couchers.org, мы очень ценим вашу поддержку! Вам скоро должно прийти письмо на электронную почту.",
