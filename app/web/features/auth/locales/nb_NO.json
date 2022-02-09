@@ -110,5 +110,8 @@
   "reset_password_error": "Kunne ikke tilbakestille passordet: {{message}}",
   "sign_up_completed_prompt": "En e-post inneholdende bekreftelseslenken ble send til deg. Klikk på den for å aktivere kontoen din.",
   "reset_password_success": "Passordet ditt har blitt tilbakestilt. Du vil nå få en magisk lenke når du logger inn med brukernavn eller e-postadresse.",
-  "introduction_subtitle": "Alltid fritt. Gemenskapsdrevet. Veldedig. Moderne."
+  "introduction_subtitle": "Alltid fritt. Gemenskapsdrevet. Veldedig. Moderne.",
+  "jail_set_password_form": {
+    "title": "Lag et passord"
+  }
 }
