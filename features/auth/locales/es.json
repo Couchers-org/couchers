@@ -79,7 +79,8 @@
     "form": {
       "username_field_label": "Correo/Nombre de usuario",
       "password_field_label": "Contraseña",
-      "forgot_password": "¿Has olvidado tu contraseña?"
+      "forgot_password": "¿Has olvidado tu contraseña?",
+      "no_password_login_prompt": "Comprueba tu correo electrónico para acceder al link para iniciar una sesión"
     }
   },
   "basic_sign_up_form": {
@@ -107,7 +108,7 @@
     "terms_of_service_section": {
       "description": "Hemos actualizado nuestros Términos y Condiciones. Para continuar, lea y acepte las nuevas, por favor <1></1>."
     },
-    "description": "por favor revisa lo siguiente para continuar."
+    "description": "Por favor, compruebe lo siguiente para continuar."
   },
   "jail_set_password_form": {
     "title": "Configurar una contraseña",
@@ -122,13 +123,17 @@
   "account_settings_page": {
     "title": "Configuración de la cuenta",
     "gender_section": {
-      "title": "Cambiar género"
+      "title": "Cambiar género",
+      "explanation": "Los administradores estarán encantados de cambiar tu etiqueta de género. Póngase en contacto con support@couchers.org."
     },
     "birth_date_section": {
-      "title": "Cambiar la fecha de nacimiento"
+      "title": "Cambiar la fecha de nacimiento",
+      "explanation": "Los administradores estarán encantados de cambiar tu fecha de cumpleaños. Póngase en contacto con support@couchers.org."
     }
   },
   "introduction_subtitle": "Gratis para siempre. Gestionada por la comunidad. Sin ánimo de lucro. Moderna.",
   "introduction_title": "Únete y ayuda a que crezca la nueva alternativa a Couchsurfing™",
-  "login_prompt": "Haz click aquí para iniciar sesión"
+  "login_prompt": "Haz click aquí para iniciar sesión",
+  "reset_password_error": "Error al restablecer la contraseña",
+  "reset_password_success": "Tu contraseña ha sido restablecida con éxito. Recibirás un enlace mágico por correo electrónico cuando te conectes con tu nombre de usuario o correo electrónico."
 }
