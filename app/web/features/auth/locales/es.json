@@ -106,14 +106,15 @@
     },
     "terms_of_service_section": {
       "description": "Hemos actualizado nuestros Términos y Condiciones. Para continuar, lea y acepte las nuevas, por favor <1></1>."
-    }
+    },
+    "description": "por favor revisa lo siguiente para continuar."
   },
   "jail_set_password_form": {
     "title": "Configurar una contraseña",
     "explanation": "No has configurado previamente una contraseña para tu cuenta. Por favor crea una para continuar."
   },
   "logged_out_message": "Se ha cerrado tu sesión.",
-  "sign_up_completed_prompt": "Hemos enviado un correo electrónico de verificación a tu dirección de correo electrónico. Por favor haz click en el link para activar tu cuenta.",
+  "sign_up_completed_prompt": "Hemos enviado un enlace de verificación a tu dirección de correo electrónico. Por favor haz clic en el enlace para activar tu cuenta.",
   "sign_up_completed_title": "¡Gracias por registrarte!",
   "sign_up_confirmed_prompt": "¡Todo listo! Si el navegador no te redirecciona automáticamente, prueba a hacer login."
 }
