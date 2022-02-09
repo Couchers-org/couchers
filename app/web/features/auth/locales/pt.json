@@ -69,7 +69,11 @@
       "field_label": "Aniversário"
     },
     "tos_prompt": "Para continuar, por favor lê e aceita o <1></1>.",
-    "tos_accept_label": "Aceito os Termos do Serviço."
+    "tos_accept_label": "Aceito os Termos do Serviço.",
+    "hosting_status": {
+      "can_host": "Pode hospedar",
+      "cant_host": "Não pode hospedar"
+    }
   },
   "jail_set_password_form": {
     "title": "Definir uma palavra-passe",
@@ -93,7 +97,8 @@
     "no_previews": {
       "title": "Não há funcionalidades actualmente em pré-visualização",
       "explanation": "De momento não existem funcionalidades para pré-visualização ativas, volta a verificar mais tarde!"
-    }
+    },
+    "explanation": "Esta página permite-te testares funcionalidades em desenvolvimento, antes de estarem prontas para utilização geral."
   },
   "location": {
     "validation_error": "Por favor, seleciona uma localização válida.",
@@ -101,12 +106,63 @@
   },
   "jail": {
     "location_section": {
-      "resubmit_button_text": "Submeter de novo"
+      "resubmit_button_text": "Submeter de novo",
+      "title": "Adiciona a tua localização",
+      "submit_button": {
+        "active_text": "Guardar",
+        "inactive_text": "Obrigado!"
+      }
+    },
+    "title": "É necessária mais informação",
+    "description": "Para continuar, por favor verifica o seguinte.",
+    "terms_of_service_section": {
+      "description": "Atualizamos os nossos Termos de Serviço. Para continuar, por favor lê e aceita os novos <1></1>."
     }
   },
   "account_settings_page": {
     "timezone_section": {
-      "explanation": "Esta hora e fuso horário são determinados com base na localização da tua casa. Se não estiverem corretos, por favor reporta o erro."
+      "explanation": "Esta hora e fuso horário são determinados com base na localização da tua casa. Se não estiverem corretos, por favor reporta o erro.",
+      "title": "Fuso horário e localização",
+      "description": "O teu fuso horário é <1>{{timezone}}</1>. Logo, a tua hora local é aproximadamente <4>{{time}}</4>."
+    },
+    "title": "Definições de conta",
+    "gender_section": {
+      "title": "Alterar género",
+      "explanation": "Os administradores terão todo o gosto em alterar a tua indicação de género. Por favor contacta support@couchers.org!"
+    },
+    "birth_date_section": {
+      "title": "Alterar data de nascimento",
+      "explanation": "Os administradores terão todo o gosto em alterar a tua data de nascimento. Por favor contacta support@couchers.org!"
+    },
+    "username_section": {
+      "title": "Nome de utilizador",
+      "description": "O teu nome de utilizador é <1>{{username}}</1>.",
+      "explanation": "O teu nome de utilizador é definido quando crias a tua conta."
     }
-  }
+  },
+  "notification_settings": {
+    "title": "Definições de notificações",
+    "action_button": {
+      "disable_text": "Desativar novo sistema de notificações",
+      "enable_text": "Ativar novo sistema de notificações"
+    },
+    "status": {
+      "enabled_message": "O novo sistema de notificações está atualmente <2>enabled</2> para a tua conta.",
+      "disabled_message": "O novo sistema de notificações está atualmente <2>disabled</2> para a tua conta."
+    }
+  },
+  "about_us": "Sobre nós",
+  "introduction_subtitle": "Grátis para sempre. Construído pela Comunidade. Sem fins lucrativos. Moderno.",
+  "introduction_title": "Junta-te a nós e ajuda a crescer a nova alternativa ao Couchsurfing™",
+  "reset_password": "Redefinir palavra-passe",
+  "reset_password_error": "Erro ao redefinir palavra-passe: {{message}}",
+  "vercel_logo_alt_text": "Suportado por Vercel",
+  "community_guidelines_form": {
+    "guideline": {
+      "checkbox_label": "OK, entendi"
+    }
+  },
+  "unhandled_sign_up_state": "Estado de registo não tratado.",
+  "reset_password_success": "A tua palavra-passe foi alterada com sucesso! Irás receber um e-mail com um link mágico quando entrares com o teu nome de utilizador ou e-mail.",
+  "login_prompt": "Clica aqui para entrar"
 }
