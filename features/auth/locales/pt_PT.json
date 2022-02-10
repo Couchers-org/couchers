@@ -1,1 +1,31 @@
-{}
+{
+  "account_settings_page": {
+    "gender_section": {
+      "title": "Alterar género"
+    }
+  },
+  "sign_up_completed_prompt": "Enviámos um e-mail com um link de verificação para o teu endereço de e-mail. Clica no link para ativar a tua conta.",
+  "feature_preview": {
+    "no_previews": {
+      "explanation": "De momento não existem funcionalidades para pré-visualização ativas, volta a verificar mais tarde!",
+      "title": "Sem funcionalidades para pré-visualização de momento"
+    },
+    "disclaimer": "Lembra-te que estas funcionalidades são experimentais. Podem não funcionar como pretendido ou mudar rapidamente à medida que as desenvolvemos. Fica à vontade para dar feedback no nosso fórum e por favor reporta quaisquer problemas!"
+  },
+  "unsubscribe": {
+    "title": "Desinscrever-se",
+    "error_message": "Erro ao desinscrever: {{message}}",
+    "button_text": "Confirmar a desinscrição"
+  },
+  "logged_out_message": "A tua sessão foi encerrada.",
+  "feedback_form": {
+    "header": "Dá a tua opinião"
+  },
+  "sign_up_completed_title": "Obrigado por te registares!",
+  "sign_up_confirmed_prompt": "Tudo pronto! Se não fores redirecionado, tenta fazer login.",
+  "account_form": {
+    "username": {
+      "validation_error": "O utilizador apenas pode conter números ou _, devendo começar com uma letra."
+    }
+  }
+}

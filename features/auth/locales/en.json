@@ -1,6 +1,6 @@
 {
   "change_email_form": {
-    "title": "Change Email",
+    "title": "Change email",
     "current_email_message": "Your email address is currently <1>{{email}}</1>.",
     "success_message": "Your email change has been received. Check your new email to complete the change.",
     "current_password": "Current password",
@@ -53,7 +53,7 @@
       "field_label": "Username",
       "required_error": "Enter your username",
       "username_taken_error": "This username is taken.",
-      "validation_error": "Username can only have numbers or _, starting with a letter."
+      "validation_error": "Username can only have numbers or _, and should start with a letter."
     },
     "password": {
       "field_label": "Password",
@@ -159,7 +159,7 @@
   "feature_preview": {
     "title": "Feature Preview",
     "explanation": "This page allows you to try out features that are still in development before they are quite ready for use by everyone.",
-    "disclaimer": "Please keep in mind that these features are experimental. They may not work as intended, and they may change rapidly as we develop them, feel free to give feedback on our forum. Please report any bugs!",
+    "disclaimer": "Please keep in mind that these features are experimental. They may not work as intended and they may change rapidly as we develop them. Feel free to give feedback on our forum. Please report any bugs!",
     "no_previews": {
       "title": "No features currently in preview",
       "explanation": "There are currently no active features in preview, please check back later!"

@@ -3,21 +3,28 @@
     "title": "ई - मेल बदलें",
     "current_email_message": "आपका ईमेल वर्तमान में <1>{{email}}</1> है.",
     "current_password": "वर्तमान पासवर्ड",
-    "new_email": "नया ईमेल"
+    "new_email": "नया ईमेल",
+    "success_message": "आपका ईमेल परिवर्तन प्राप्त हो गया है। परिवर्तन को पूरा करने के लिए अपना नया ईमेल देखें।"
   },
   "change_password_form": {
     "old_password": "पुराना पासवर्ड",
     "new_password": "नया पासवर्ड",
     "title": "पासवर्ड बदलें",
-    "confirm_password": "पासवर्ड की पुष्टि कीजिये"
+    "confirm_password": "पासवर्ड की पुष्टि कीजिये",
+    "password_mismatch_error": "यह आपके द्वारा ऊपर लिखे गए नए पासवर्ड से मेल नहीं खाता।",
+    "password_changed_success": "आपका नया पासवर्ड सेट कर दिया गया है और आपके ईमेल पर एक सूचना भेज दी गई है।"
   },
   "change_email_confirmation": {
     "success_message": "आपका ईमेल सफलतापूर्वक बदल दिया गया है!",
     "change_in_progress": "ईमेल बदलना जारी है...",
-    "invalid_confirmation_state": "अमान्य ईमेल पुष्टिकरण स्थिति"
+    "invalid_confirmation_state": "अमान्य ईमेल पुष्टिकरण स्थिति",
+    "error_message": "ईमेल बदलने में एरर: {{message}}",
+    "requires_confirmation_from_new_email": "अपने पुराने ईमेल की पुष्टि करने के लिए धन्यवाद। परिवर्तन को पूरा करने के लिए, आपको अभी भी अपने नए ईमेल की पुष्टि करनी होगी।",
+    "requires_confirmation_from_old_email": "अपने नए ईमेल की पुष्टि करने के लिए धन्यवाद। परिवर्तन को पूरा करने के लिए, आपको अभी भी अपने पुराने ईमेल की पुष्टि करनी होगी।"
   },
   "jail_set_password_form": {
-    "title": "पासवर्ड सेट करें"
+    "title": "पासवर्ड सेट करें",
+    "explanation": "आपने पहले अपने खाते के लिए पासवर्ड सेट नहीं किया है। कृपया जारी रखने के लिए अभी एक बनाएं।"
   },
   "account_form": {
     "gender": {
@@ -28,7 +35,9 @@
     },
     "username": {
       "field_label": "उपयोगकर्ता नाम",
-      "required_error": "अपना उपयोगकर्ता नाम दर्ज करें"
+      "required_error": "अपना उपयोगकर्ता नाम दर्ज करें",
+      "validation_error": "उपयोगकर्ता नाम में केवल अंक या _ हो सकते हैं, जो एक अक्षर से शुरू होता है।",
+      "username_taken_error": "यह उपयोगकर्ता नाम ले लिया गया है।"
     },
     "header": "आपके खाते का विवरण",
     "password": {
@@ -46,15 +55,25 @@
       "can_host": "मेजबानी कर सकते हैं",
       "cant_host": "मेजबानी नहीं कर सकते हैं",
       "maybe": "शायद मेजबानी कर सकते हैं"
-    }
+    },
+    "tos_accept_label": "मुझे सर्विस की शर्तें स्वीकार हैं।"
   },
   "reset_password": "पासवर्ड रीसेट करें",
   "login_page": {
     "title": "लॉग इन करें",
-    "header": "वापसी पर स्वागत है!"
+    "header": "वापसी पर स्वागत है!",
+    "form": {
+      "no_password_login_prompt": "लॉग इन करने की लिंक के लिए अपना ईमेल देखें! :)",
+      "forgot_password": "पासवर्ड भूल गए?",
+      "remember_me": "मुझे याद रखना",
+      "username_field_label": "ईमेल/उपयोगकर्ता नाम",
+      "password_field_label": "पासवर्ड"
+    },
+    "no_account_prompt": "अभी तक कोई खाता नहीं है? <2>साइन अप करें</2>"
   },
   "basic_sign_up_form": {
-    "header": "आएँ शुरू करें!"
+    "header": "आएँ शुरू करें!",
+    "existing_user_prompt": "क्या आपके पास पहले से एक खाता मौजूद है? <2>लॉग इन करें</2>"
   },
   "basic_form": {
     "name": {
@@ -76,5 +95,26 @@
     "field_label": "आपकी स्थान",
     "validation_error": "कृपया एक मान्य स्थान चुनें।"
   },
-  "change_birthdate": "जन्मतिथि बदलें"
+  "reset_password_form": {
+    "success_message": "रीसेट पासवर्ड लिंक के लिए अपना ईमेल देखें!",
+    "enter_email": "अपना उपयोगकर्ता नाम/ईमेल दर्ज करें"
+  },
+  "account_settings_page": {
+    "birth_date_section": {
+      "title": "जन्मतिथि बदलें"
+    },
+    "username_section": {
+      "explanation": "जब आप अपना खाता बनाते हैं तो आपका उपयोगकर्ता नाम सेट हो जाता है।",
+      "title": "उपयोगकर्ता नाम",
+      "description": "आपका उपयोगकर्ता नाम <1>{{username}}</1> है।"
+    },
+    "gender_section": {
+      "title": "लिंग बदलें"
+    },
+    "title": "खाता सेटिंग"
+  },
+  "jail": {
+    "title": "अधिक जानकारी की आवश्यकता है"
+  },
+  "sign_up_completed_prompt": "हमने आपके ईमेल पर एक सत्यापन लिंक के साथ एक ईमेल भेजा है। कृपया अपने खाते को सक्रिय करने के लिए लिंक पर क्लिक करें।"
 }
