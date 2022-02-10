@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 
 import { theme } from "../theme";
 import { AuthContext } from "../features/auth/AuthProvider";
-import "../app.css";
+import "../fonts";
 import "./i18n";
 import "./reset.css";
 import { Suspense } from "react";

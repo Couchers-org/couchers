@@ -1,5 +1,5 @@
 import "intersection-observer";
-import "app.css";
+import "fonts";
 
 import { CssBaseline, ThemeProvider } from "@material-ui/core";
 import * as Sentry from "@sentry/nextjs";

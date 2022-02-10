@@ -1345,6 +1345,16 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@fontsource/mansalva@^4.5.2":
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/@fontsource/mansalva/-/mansalva-4.5.2.tgz#4b076da36f2fff380e45b5d85a33d2f4b3046815"
+  integrity sha512-Q0/l382Dk7sB/kN8Uvs2j7ru9sGkweH5vcf7gPEEP+Th9iwsdEZtN9QXoOwYuV6Q6qlEGJRm5HOlInFqWtqK3Q==
+
+"@fontsource/ubuntu@^4.5.2":
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/@fontsource/ubuntu/-/ubuntu-4.5.2.tgz#b4f32056d4eef3dd9c2d2740d9922859c67cf3c4"
+  integrity sha512-81PR4lS/sbcq9sOV8pkH/X4FopQTVVugBxUzuDLJjcqThyjKYdTwjPcj9tCZEH07d6q8sJrt0u3PrTI/o2GhUg==
+
 "@gar/promisify@^1.0.1":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@gar/promisify/-/promisify-1.1.2.tgz#30aa825f11d438671d585bd44e7fd564535fc210"
