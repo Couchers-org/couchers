@@ -90,6 +90,8 @@ class TimezoneArea(Base):
     tzid = Column(String)
     geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
 
+    __table_args__ = (Index("idx_timezone_areas_geom", geom, postgresql_using="gist"),)
+
 
 class User(Base):
     """
@@ -265,17 +267,16 @@ class User(Base):
     # This column will be removed in the future when notifications are enabled for everyone and come out of preview
     new_notifications_enabled = Column(Boolean, nullable=False, server_default=text("false"))
 
-    # Verified phone numbers should be unique
-    Index(
-        "ix_users_unique_phone",
-        phone,
-        unique=True,
-        postgresql_where=phone_verification_verified != None,
-    ),
-
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
     __table_args__ = (
+        # Verified phone numbers should be unique
+        Index(
+            "ix_users_unique_phone",
+            phone,
+            unique=True,
+            postgresql_where=phone_verification_verified != None,
+        ),
         # There are three possible states for need_to_confirm_via_old_email, old_email_token, old_email_token_created, and old_email_token_expiry
         # 1) All None (default)
         # 2) need_to_confirm_via_old_email is True and the others have assigned value (confirmation initiated)
@@ -310,6 +311,7 @@ class User(Base):
             "((undelete_token IS NULL) = (undelete_until IS NULL)) AND ((undelete_token IS NULL) OR is_deleted)",
             name="undelete_nullity",
         ),
+        Index("idx_users_geom", geom, postgresql_using="gist"),
     )
 
     @property
@@ -627,6 +629,8 @@ class SignupFlow(Base):
     contribute = Column(Enum(ContributeOption), nullable=True)
     contribute_ways = Column(ARRAY(String), nullable=True)
     expertise = Column(String, nullable=True)
+
+    __table_args__ = (Index("idx_signup_flows_geom", geom, postgresql_using="gist"),)
 
     @hybrid_property
     def token_is_valid(self):
@@ -1239,6 +1243,8 @@ class Node(Base):
 
     contained_user_ids = association_proxy("contained_users", "id")
 
+    __table_args__ = (Index("idx_nodes_geom", geom, postgresql_using="gist"),)
+
 
 class Cluster(Base):
     """
@@ -1467,6 +1473,7 @@ class PageVersion(Base):
             "(geom IS NULL) = (address IS NULL)",
             name="geom_iff_address",
         ),
+        Index("idx_page_versions_geom", geom, postgresql_using="gist"),
     )
 
     @property
@@ -1607,6 +1614,7 @@ class EventOccurrence(Base):
         ),
         # Can't have overlapping occurrences in the same Event
         ExcludeConstraint(("event_id", "="), ("during", "&&"), name="event_occurrences_event_id_during_excl"),
+        Index("idx_event_occurrences_geom", geom, postgresql_using="gist"),
     )
 
     @property
@@ -1879,6 +1887,15 @@ class BackgroundJob(Base):
 
     # if the job failed, we write that info here
     failure_info = Column(String, nullable=True)
+
+    __table_args__ = (
+        # Allows fast lookup of jobs to attempt
+        Index(
+            "ix_background_jobs_state_next_attempt_after",
+            state,
+            next_attempt_after,
+        ),
+    )
 
     @hybrid_property
     def ready_for_retry(self):
