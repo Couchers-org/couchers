@@ -3,7 +3,7 @@
     "current_email_message": "Il tuo indirizzo e-mail attuale è <2>{{email}}</2>.",
     "current_password": "Password attuale",
     "new_email": "Nuova e-mail",
-    "title": "Modifica e-mail",
+    "title": "Modificare e-mail",
     "success_message": "La tua modifica e-mail è stata ricevuta. Controlla la tua nuova e-mail per completare la modifica."
   },
   "change_email_confirmation": {
@@ -29,11 +29,18 @@
   "login_page": {
     "title": "Accesso",
     "header": "Bentornato/a!",
-    "no_account_prompt": "Non hai ancora un'utenza? <2>$t(global:sign_up)</2>"
+    "no_account_prompt": "Non hai ancora un'utenza? <2>Iscriviti</2>",
+    "form": {
+      "username_field_label": "E-mail/Nome utente",
+      "password_field_label": "Password",
+      "no_password_login_prompt": "Cerca nella tua casella e-mail un collegamento per accedere! :)",
+      "remember_me": "Ricordami",
+      "forgot_password": "Password dimenticata?"
+    }
   },
   "basic_sign_up_form": {
     "header": "Cominciamo!",
-    "existing_user_prompt": "Hai già un'utenza? <2>$t(global:login)</2>",
+    "existing_user_prompt": "Hai già un'utenza? <2>Accedi</2>",
     "sign_up_agreement_explainer": "Continuando, accetti i nostri <2>Termini di Servizio</2>, incluse le nostre politiche sui cookie, e-mail e gestione dati."
   },
   "basic_form": {
@@ -52,7 +59,7 @@
     "header": "I dettagli della tua utenza",
     "username": {
       "required_error": "Inserisci il tuo nome utente",
-      "validation_error": "Un nome utente può contenere solo numeri o _, iniziando con una lettera.",
+      "validation_error": "Un nome utente può contenere solo numeri o _, e deve iniziare con una lettera.",
       "field_label": "Nome utente",
       "username_taken_error": "Questo nome utente è già preso."
     },
@@ -74,7 +81,7 @@
       "woman": "Donna",
       "field_label": "Io mi identifico come..."
     },
-    "tos_accept_label": "Io accetto i $t(global:terms_of_service).",
+    "tos_accept_label": "Io accetto i Termini di Servizio.",
     "tos_prompt": "Per continuare, per favore leggi ed accetta <1></1>.",
     "password": {
       "field_label": "Password",
@@ -101,18 +108,10 @@
   "unhandled_sign_up_state": "Stato del flusso di iscrizione non gestito.",
   "login_prompt": "Clicca qui per accedere",
   "about_us": "Su di noi",
-  "your_local_time_is": ", basato su questo, il tuo tempo locale è approssimativamente",
-  "change_birthdate": "Modifica data di nascita",
   "introduction_subtitle": "Gratuito, per sempre. Guidato dalla comunità. No profit. Moderno.",
   "introduction_title": "Unisciti ed aiuta a crescere la nuova alternativa a Couchsurfing™",
   "reset_password": "Ripristina password",
   "reset_password_error": "Errore durante il ripristino della password: {{message}}",
-  "jailed_error_message": "Permesso negato",
-  "jail": {
-    "jail_tos_text": "Abbiamo aggiornato i nostri Termini di Servizio. Per continuare, per favore leggi ed accetta i nuovi "
-  },
-  "check_email_for_link": "Cerca nella tua casella e-mail un collegamento per connetterti! :)",
-  "forgot_password": "Password dimenticata?",
   "sign_up_completed_prompt": "Abbiamo inviato una e-mail con un collegamento per la verifica del tuo indirizzo e-mail. Per favore, clicca il collegamento per attivare la tua utenza.",
   "reset_password_success": "La tua password è stata ripristinata correttamente! Ti verrà ora inviato un collegamento magico quando accedi con il tuo nome utente o indirizzo e-mail.",
   "feature_preview": {
@@ -122,13 +121,65 @@
       "title": "Nessuna caratteristica disponibile per l'anteprima",
       "explanation": "Non ci sono al momento caratteristiche attive in anteprima, per favore torna a ricontrollare più tardi!"
     },
-    "disclaimer": "Per favore, ricorda che queste caratteristiche sono sperimentali. Potrebbero non funzionare come voluto, e potrebbero cambiare rapidamente mentre le sviluppiamo, per favore raccontaci la tua opinione nel nostro forum. Per favore, segnala gli errori!"
+    "disclaimer": "Per favore, ricorda che queste caratteristiche sono sperimentali. Potrebbero non funzionare come voluto e potrebbero cambiare rapidamente mentre le sviluppiamo. Facci conoscere la tua opinione nel nostro forum. Per favore, segnala ogni errore!"
   },
   "jail_set_password_form": {
     "title": "Indica una password",
     "explanation": "Non hai ancora indicato una password per il tuo conto. Per favore, creane una ora per continuare."
   },
   "notification_settings": {
-    "title": "Impostazioni notifiche"
+    "title": "Impostazioni notifiche",
+    "status": {
+      "disabled_message": "Il nuovo sistema di notifiche è attualmente <2>disabilitato</2> per il tuo conto.",
+      "enabled_message": "Il nuovo sistema di notifiche è attualmente <2>abilitato</2> per il tuo conto."
+    },
+    "action_button": {
+      "enable_text": "Abilita il nuovo sistema di notifiche",
+      "disable_text": "Disabilita il nuovo sistema di notifiche"
+    }
+  },
+  "jail": {
+    "title": "Sono necessarie più informazioni",
+    "description": "Per favore, verifica quanto segue prima di continuare.",
+    "terms_of_service_section": {
+      "description": "Abbiamo aggiornato i nostri Termini di Servizio. Per continuare, per favore leggi ed accetta i nuovi <1></1>."
+    },
+    "location_section": {
+      "title": "Per favore, aggiungi la tua posizione",
+      "submit_button": {
+        "inactive_text": "Grazie!",
+        "active_text": "Salvare"
+      },
+      "resubmit_button_text": "Inviare di nuovo"
+    }
+  },
+  "logged_out_message": "Sei stato disconnesso.",
+  "account_settings_page": {
+    "gender_section": {
+      "explanation": "Gli amministratori saranno felici di modificare la tua etichetta di genere. Per favore, contatta support@couchers.org!",
+      "title": "Modificare genere"
+    },
+    "birth_date_section": {
+      "title": "Modificare data di nascita",
+      "explanation": "Gli amministratori saranno felici di modificare la tua data di nascita. Per favore, contatta support@couchers.org!"
+    },
+    "timezone_section": {
+      "title": "Fuso orario e posizione",
+      "description": "Il tuo fuso orario è <1>{{timezone}}</1>. In base a ciò, la tua ora locale è approssimativamente <4>{{time}}</4>.",
+      "explanation": "Questi ora e fuso orario sono determinati in base alla posizione di casa tua. Per favore, segnala un errore se non sono corretti."
+    },
+    "username_section": {
+      "title": "Nome utente",
+      "description": "Il tuo nome utente è <1>{{username}}</1>.",
+      "explanation": "Il tuo nome utente viene definito quando crei il conto."
+    },
+    "title": "Impostazioni conto"
+  },
+  "vercel_logo_alt_text": "Supportato da Vercel",
+  "unsubscribe": {
+    "title": "Annullare iscrizione",
+    "button_text": "Confermare annullamento iscrizione",
+    "error_message": "Errore durante l'annullamento dell'iscrizione: {{message}}",
+    "missing_payload_or_sig": "URL non valido, dati o firma mancanti"
   }
 }

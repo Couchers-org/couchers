@@ -1,84 +1,208 @@
 {
-    "change_email_form": {
-        "title": "Cambiar Correo Electrónico",
-        "current_password": "Clave actual",
-        "new_email": "Nuevo correo electrónico",
-        "current_email_message": "Tu dirección actual de correo electrónico es<2>{{email}}</2>",
-        "success_message": "El cambio de tu correo electrónico ha sido recibido. Revisa tu nuevo correo electrónico para completar el cambio."
+  "change_email_form": {
+    "title": "Cambiar Correo Electrónico",
+    "current_password": "Contraseña actual",
+    "new_email": "Nuevo correo electrónico",
+    "current_email_message": "Tu dirección actual de correo electrónico es<2>{{email}}</2>.",
+    "success_message": "El cambio de tu correo electrónico ha sido recibido. Revisa tu nuevo correo electrónico para completar el cambio."
+  },
+  "change_email_confirmation": {
+    "success_message": "Tu correo electrónico ha sido cambiado con éxito!",
+    "requires_confirmation_from_new_email": "Gracias por confirmar tu antigua dirección de correo electrónico. Para completar el cambio, necesitas confirmar tu nueva dirección de correo electrónico.",
+    "change_in_progress": "Cambio de correo electrónico en proceso…",
+    "requires_confirmation_from_old_email": "Gracias por confirmar tu nueva dirección de correo electrónico. Para completar el cambio, necesitas confirmar tu antigua dirección de correo electrónico.",
+    "invalid_confirmation_state": "Estado de confirmación de correo electrónico inválido",
+    "error_message": "Error al cambiar el correo electrónico: {{message}}"
+  },
+  "account_form": {
+    "gender": {
+      "required_error": "Por favor, selecciona tu género",
+      "field_label": "Me identifico como ...",
+      "man": "Hombre",
+      "non_binary": "No-Binario",
+      "woman": "Mujer"
     },
-    "change_email_confirmation": {
-        "success_message": "Tu correo electrónico ha sido cambiado satistactoriamente!",
-        "requires_confirmation_from_new_email": "Gracias por confirmar tu antigua dirección de correo electrónico. Para completar el cambio, tu aún necesitas confirmar tu nueva dirección de correo electrónico.",
-        "change_in_progress": "Cambio de correo electrónico en progreso…",
-        "requires_confirmation_from_old_email": "Gracias por confirmar tu nueva dirección de correo electrónico. Para completar el cambio, tu aún necesitas confirmar tu antigua dirección de correo electrónico.",
-        "invalid_confirmation_state": "Estado de confirmación de correo electronico invalido",
-        "error_message": "Cambio de correo electrónico errado: {{message}}"
+    "tos_prompt": "Para continuar, por favor lee y acepta el <1></1>.",
+    "header": "Detalles de tu cuenta",
+    "username": {
+      "field_label": "Nombre de usuario",
+      "required_error": "Introduce tu nombre de usuario",
+      "username_taken_error": "Este nombre de usuario ya existe.",
+      "validation_error": "El nombre de usuario sólo puede tener números o _, y debe comenzar con una letra."
     },
-    "account_form": {
-        "gender": {
-            "required_error": "Por favor selecciona tu género",
-            "field_label": "Me identifico como ...",
-            "man": "Hombre",
-            "non_binary": "No-Binario",
-            "woman": "Mujer"
-        },
-        "tos_prompt": "Para continuar, por favor lee y acepta el <1></1>.",
-        "header": "Tus detalles de cuenta",
-        "username": {
-            "field_label": "Usuario",
-            "required_error": "Ingresa tu usuario",
-            "username_taken_error": "Este usuario ya existe.",
-            "validation_error": "El usuarii sólo puede tener numeros o _,empezar con una letra."
-        },
-        "birthday": {
-            "field_label": "Cumpleaños",
-            "required_error": "Ingresa tu fecha de nacimiento",
-            "validation_error": "Debe ser una fecha válida."
-        },
-        "hosting_status": {
-            "field_label": "Estado de alojamiento",
-            "can_host": "Puede hospedar",
-            "maybe": "Tal vez podría hospedar",
-            "cant_host": "No puede hospedar"
-        },
-        "tos_accept_label": "Yo Aceoto el $t(global:terms_of_service)."
+    "birthday": {
+      "field_label": "Cumpleaños",
+      "required_error": "Introduce tu fecha de nacimiento",
+      "validation_error": "Debe ser una fecha pasada válida."
     },
-    "basic_form": {
-        "email": {
-            "empty_error": "Por favor ingresa una dirección de correo electrónico válido",
-            "field_label": "Correo Electrónico",
-            "required_error": "El correo electrónico no puede estar vacío."
-        },
-        "name": {
-            "field_label": "Tu nombre",
-            "empty_error": "Por favor ingresa tu nombre",
-            "required_error": "El nombre no puede ser sólo espacio en blanco."
-        }
+    "hosting_status": {
+      "field_label": "Estado de alojamiento",
+      "can_host": "Puede hospedar",
+      "maybe": "Tal vez podría hospedar",
+      "cant_host": "No puede hospedar"
     },
-    "change_password_form": {
-        "title": "Cambio de contraseña",
-        "confirm_password": "Contraseña confirmada",
-        "password_changed_success": "Tu nueva contraseña ha sido considerada y una notificación ha aido enviada a tu correo electrónico.",
-        "old_password": "Contraseña antigua",
-        "new_password": "Nueva contraseña",
-        "password_mismatch_error": "Esto no coincide con la nueva contraseña que has tipeado arriba."
-    },
-    "reset_password_form": {
-        "enter_email": "Ingresa tu usuario/correo electrónico",
-        "success_message": "Revisa tu correo electrónico para un enlace de reinicio de contraseña!"
-    },
-    "login_page": {
-        "title": "Iniciar sesión",
-        "header": "Bienvenido de nuevo!",
-        "no_account_prompt": "Aún sin cuenta?<2>$t(global:sign_up)</2>"
-    },
-    "basic_sign_up_form": {
-        "header": "Empecemos!",
-        "existing_user_prompt": "Ya tienes una cuenta?<2>$t(global:login)</2>",
-        "sign_up_agreement_explainer": "Para continuar, tú estás de acuerdos con nuestros<2> Términos de Servicio </2>; incluyendo nuestros cookie, correo electrónico y política de manejo de datos."
-    },
-    "location": {
-        "field_label": "Tu ubicación",
-        "validation_error": "Por favor selecciona una ubicación válida."
+    "tos_accept_label": "Acepto los términos y condiciones.",
+    "password": {
+      "validation_error": "La contraseña debe tener entre 8 y 256 caracteres y no ser extremadamente común.",
+      "required_error": "Introduce una contraseña",
+      "field_label": "Contraseña"
     }
+  },
+  "basic_form": {
+    "email": {
+      "empty_error": "Por favor introduce una dirección de correo electrónico válido",
+      "field_label": "Correo Electrónico",
+      "required_error": "El correo electrónico no puede estar vacío."
+    },
+    "name": {
+      "field_label": "Tu nombre",
+      "empty_error": "Por favor introduce tu nombre",
+      "required_error": "El nombre no puede ser sólo espacio en blanco."
+    }
+  },
+  "change_password_form": {
+    "title": "Cambio de contraseña",
+    "confirm_password": "Confirmar contraseña",
+    "password_changed_success": "Se ha establecido tu nueva contraseña y se ha enviado una notificación a tu correo electrónico.",
+    "old_password": "Contraseña antigua",
+    "new_password": "Nueva contraseña",
+    "password_mismatch_error": "Esto no coincide con la nueva contraseña que has tecleado arriba."
+  },
+  "reset_password_form": {
+    "enter_email": "Introduce tu usuario/correo electrónico",
+    "success_message": "¡Busca en tu correo electrónico un enlace para restablecer la contraseña!"
+  },
+  "login_page": {
+    "title": "Iniciar sesión",
+    "header": "¡Bienvenido de nuevo!",
+    "no_account_prompt": "¿Aún no tienes una cuenta? <2>Regístrate</2>",
+    "form": {
+      "username_field_label": "Correo electrónico/Nombre de usuario",
+      "password_field_label": "Contraseña",
+      "forgot_password": "¿Has olvidado tu contraseña?",
+      "no_password_login_prompt": "¡Busca en tu correo electrónico el enlace para iniciar sesión! :)",
+      "remember_me": "Recuérdame"
+    }
+  },
+  "basic_sign_up_form": {
+    "header": "¡Empecemos!",
+    "existing_user_prompt": "¿Ya tienes una cuenta? <2>Iniciar sesión</2>",
+    "sign_up_agreement_explainer": "Al continuar, aceptas nuestros <2>Términos y condiciones</2>, incluyendo nuestras políticas de gestión de cookies, de correo electrónico y de datos."
+  },
+  "location": {
+    "field_label": "Tu ubicación",
+    "validation_error": "Por favor selecciona una ubicación válida."
+  },
+  "feedback_form": {
+    "header": "Da tu opinión"
+  },
+  "jail": {
+    "title": "Se requiere más información",
+    "location_section": {
+      "title": "Por favor, añade tu ubicación",
+      "submit_button": {
+        "inactive_text": "¡Gracias!",
+        "active_text": "Guardar"
+      },
+      "resubmit_button_text": "Reenviar"
+    },
+    "terms_of_service_section": {
+      "description": "Hemos actualizado nuestros Términos y Condiciones. Para continuar, lee y acepta las nuevas, por favor <1></1>."
+    },
+    "description": "Por favor, comprueba lo siguiente para continuar."
+  },
+  "jail_set_password_form": {
+    "title": "Establecer una contraseña",
+    "explanation": "No has establecido una contraseña para tu cuenta anteriormente. Por favor, crea una ahora para continuar."
+  },
+  "logged_out_message": "Se ha cerrado tu sesión.",
+  "sign_up_completed_prompt": "Hemos enviado un enlace de verificación a tu dirección de correo electrónico. Por favor, pincha en el enlace para activar tu cuenta.",
+  "sign_up_completed_title": "¡Gracias por registrarte!",
+  "sign_up_confirmed_prompt": "¡Todo listo! Si el navegador no te redirecciona automáticamente, intenta iniciar sesión.",
+  "about_us": "Sobre nosotros",
+  "reset_password": "Restablecer contraseña",
+  "account_settings_page": {
+    "title": "Configuración de la cuenta",
+    "gender_section": {
+      "title": "Cambiar género",
+      "explanation": "Los administradores estarán encantados de cambiar tu etiqueta de género. ¡Por favor, ponte en contacto con support@couchers.org!"
+    },
+    "birth_date_section": {
+      "title": "Cambiar la fecha de nacimiento",
+      "explanation": "Los administradores estarán encantados de cambiar tu fecha de nacimiento. ¡Por favor, ponte en contacto con support@couchers.org!"
+    },
+    "timezone_section": {
+      "title": "Zona horaria y ubicación",
+      "explanation": "Esta hora y zona horaria se han determinado en función de la ubicación de tu casa. Por favor, reporta un error si no es correcto.",
+      "description": "Tu huso horario es <1>{{timezone}}</1>. Según esto, tu hora local es aproximadamente <4>{{time}}</4>."
+    },
+    "username_section": {
+      "title": "Nombre de usuario",
+      "description": "Tu nombre de usuario es <1>{{username}}</1>.",
+      "explanation": "El nombre de usuario se elige cuando creas tu cuenta."
+    }
+  },
+  "introduction_subtitle": "Gratis para siempre. Gestionada por la comunidad. Sin ánimo de lucro. Moderna.",
+  "introduction_title": "Únete y ayuda a que crezca la nueva alternativa a Couchsurfing™",
+  "login_prompt": "Haz clic aquí para iniciar sesión",
+  "reset_password_error": "Error al restablecer la contraseña: {{message}}",
+  "reset_password_success": "Tu contraseña ha sido restablecida con éxito. Recibirás un enlace mágico por correo electrónico cuando te conectes con tu nombre de usuario o correo electrónico.",
+  "community_guidelines_form": {
+    "guideline": {
+      "checkbox_label": "Entendido",
+      "required_error": "Todas las casillas son obligatorias"
+    },
+    "header": "Normas de la comunidad"
+  },
+  "feature_preview": {
+    "explanation": "Esta página te permite probar características que aun están en desarrollo antes de que estén completamente listas para que las utilice todo el mundo.",
+    "no_previews": {
+      "title": "No hay características en previsualización en este momento",
+      "explanation": "No hay ninguna característica en vista previa activada, ¡por favor, prueba más tarde!"
+    },
+    "title": "Previsualización de características",
+    "disclaimer": "Por favor, ten en cuenta que estas características son experimentales. Podrían no funcionar según lo previsto y podrían cambiar rápidamente según las desarrollamos. Siéntete libre de dar tu opinión en nuestro forum. ¡Por favor, reporta cualquier error!"
+  },
+  "notification_settings": {
+    "status": {
+      "enabled_message": "El nuevo sistema de notificaciones está <2>activado</2> para tu cuenta.",
+      "disabled_message": "El nuevo sistema de notificaciones está <2>disabled</2> para tu cuenta actualmente."
+    },
+    "title": "Configuración de notificaciones",
+    "action_button": {
+      "enable_text": "Activar el nuevo sistema de notificaciones",
+      "disable_text": "Desactivar el nuevo sistema de notificaciones"
+    }
+  },
+  "unsubscribe": {
+    "button_text": "Confirmar anulación de suscripción",
+    "title": "Anular suscripción",
+    "missing_payload_or_sig": "URL inválida, payload o firma no encontrados",
+    "error_message": "Error al anular la suscripción: {{message}}"
+  },
+  "vercel_logo_alt_text": "Soportado por Vercel",
+  "delete_account": {
+    "request": {
+      "confirm_username_explanation": "Tu usuario es <1>{{ username }}</1>, por favor, tecléalo abajo para confirmar la eliminación de tu cuenta.",
+      "success_message": "Eliminación de cuenta iniciado. Para completar la eliminación de tu cuenta, confírmalo a través del correo electrónico que te hemos mandado, por favor.",
+      "title": "Eliminar cuenta",
+      "confirm_username_label": "Confirmación de nombre de usuario",
+      "username_mismatch": "El nombre de usuario no coincide.",
+      "reason_explanation": "Por favor, ayúdanos a mejorar la plataforma contándonos por qué has decidido eliminar tu cuenta.",
+      "reason_label": "Motivo para eliminar la cuenta",
+      "description": "Para eliminar tu cuenta, sigue los pasos indicados abajo. Te enviaremos una confirmación a tu correo electrónico."
+    },
+    "recover": {
+      "success": "Tu cuenta ha sido recuperada, puedes acceder de nuevo. ¡Estamos encantados de tenerte de vuelta!",
+      "title": "Recuperar tu cuenta de Couchers.org",
+      "error_message": "Fallo al recuperar la cuenta: {{message}}",
+      "button_text": "Recuperar tu cuenta"
+    },
+    "confirm": {
+      "title": "Confirmar eliminación de cuenta",
+      "error_message": "Fallo al confirmar la eliminación de la cuenta: {{message}}",
+      "button_text": "Confirmar eliminación de la cuenta",
+      "account_deleted": "Cuenta eliminada. ¡Gracias por utilizar Couchers.org!"
+    }
+  }
 }
