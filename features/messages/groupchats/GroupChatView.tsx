@@ -4,7 +4,7 @@ import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
-import { BackIcon, OverflowMenuIcon } from "components/Icons";
+import { BackIcon, MuteIcon, OverflowMenuIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import PageTitle from "components/PageTitle";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -14,6 +14,7 @@ import GroupChatSettingsDialog from "features/messages/groupchats/GroupChatSetti
 import InviteDialog from "features/messages/groupchats/InviteDialog";
 import LeaveDialog from "features/messages/groupchats/LeaveDialog";
 import MembersDialog from "features/messages/groupchats/MembersDialog";
+import MuteDialog from "features/messages/groupchats/MuteDialog";
 import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessageLoader";
 import MessageList from "features/messages/messagelist/MessageList";
 import useMarkLastSeen, {
@@ -28,6 +29,8 @@ import {
 import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { GetGroupChatMessagesRes, GroupChat } from "proto/conversations_pb";
@@ -71,8 +74,11 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
     width: "100%",
+    display: "flex",
+    alignItems: "center",
     marginInlineEnd: theme.spacing(2),
     marginInlineStart: theme.spacing(2),
+    "& > *": { marginInlineEnd: theme.spacing(2) },
   },
   requestedDatesWrapper: {
     display: "flex",
@@ -89,6 +95,7 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
 }));
 
 export default function GroupChatView({ chatId }: { chatId: number }) {
+  const { t } = useTranslation([GLOBAL, MESSAGES]);
   const classes = useGroupChatViewStyles();
 
   const menuAnchor = useRef<HTMLAnchorElement>(null);
@@ -98,21 +105,11 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
     leave: false,
     members: false,
     menu: false,
+    mute: false,
     settings: false,
   });
 
-  const handleClick = (item: keyof typeof isOpen) => {
-    //close the menu if a menu item was selected
-    if (item !== "menu") {
-      setIsOpen({ ...isOpen, [item]: true, menu: false });
-    } else {
-      setIsOpen({ ...isOpen, [item]: true });
-    }
-  };
-
-  const handleClose = (item: keyof typeof isOpen) => {
-    setIsOpen({ ...isOpen, [item]: false });
-  };
+  const queryClient = useQueryClient();
 
   const { data: groupChat, error: groupChatError } = useQuery<
     GroupChat.AsObject,
@@ -121,6 +118,44 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
     enabled: !!chatId,
     refetchInterval: GROUP_CHAT_REFETCH_INTERVAL,
   });
+
+  const unmuteMutation = useMutation<void, RpcError>(
+    async () => {
+      await service.conversations.muteChat({
+        groupChatId: chatId,
+        unmute: true,
+      });
+    },
+    {
+      onSuccess() {
+        queryClient.setQueryData(groupChatKey(chatId), {
+          ...groupChat,
+          muteInfo: { muted: false },
+        });
+        queryClient.invalidateQueries(groupChatKey(chatId));
+      },
+    }
+  );
+
+  const handleClick = (item: keyof typeof isOpen) => {
+    //just unmute straight away with no dialog if muted
+    if (item === "mute" && groupChat?.muteInfo?.muted) {
+      unmuteMutation.mutate();
+      setIsOpen((prev) => ({ ...prev, menu: false }));
+      return;
+    }
+
+    //close the menu if a menu item was selected
+    if (item !== "menu") {
+      setIsOpen((prev) => ({ ...prev, [item]: true, menu: false }));
+    } else {
+      setIsOpen((prev) => ({ ...prev, [item]: true }));
+    }
+  };
+
+  const handleClose = (item: keyof typeof isOpen) => {
+    setIsOpen({ ...isOpen, [item]: false });
+  };
 
   //for title text
   const currentUserId = useAuthContext().authState.userId!;
@@ -146,7 +181,6 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
     }
   );
 
-  const queryClient = useQueryClient();
   const sendMutation = useMutation<Empty, RpcError, string>(
     (text) => service.conversations.sendMessage(chatId, text),
     {
@@ -197,101 +231,139 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
             </HeaderButton>
 
             {groupChat?.isDm ? (
-              <Link
-                href={`/user/${getDmUsername(
-                  groupChatMembersQuery,
-                  currentUserId
-                )}`}
-              >
-                <a>
-                  <PageTitle className={classes.title}>
-                    {title || <Skeleton width={100} />}
-                  </PageTitle>
-                </a>
-              </Link>
-            ) : (
-              <PageTitle className={classes.title}>
-                {title || <Skeleton width={100} />}
-              </PageTitle>
-            )}
-
-            {!groupChat?.isDm && (
-              <>
-                <HeaderButton
-                  onClick={() => handleClick("menu")}
-                  aria-label="Menu"
-                  aria-haspopup="true"
-                  aria-controls="more-menu"
-                  innerRef={menuAnchor}
+              <div className={classes.title}>
+                <Link
+                  href={`/user/${getDmUsername(
+                    groupChatMembersQuery,
+                    currentUserId
+                  )}`}
                 >
-                  <OverflowMenuIcon />
-                </HeaderButton>
-                <Menu
-                  id="more-menu"
-                  anchorEl={menuAnchor.current}
-                  keepMounted
-                  open={isOpen.menu}
-                  onClose={() => handleClose("menu")}
-                >
-                  {(!groupChat?.onlyAdminsInvite || isChatAdmin) && (
-                    <MenuItem onClick={() => handleClick("invite")}>
-                      Invite to chat
-                    </MenuItem>
-                  )}
-                  <MenuItem onClick={() => handleClick("members")}>
-                    Chat members
-                  </MenuItem>
-                  {isChatAdmin && (
-                    <MenuItem onClick={() => handleClick("admins")}>
-                      Manage chat admins
-                    </MenuItem>
-                  )}
-
-                  {
-                    //<Menu> gives console warning for JSX Fragment children
-                    isChatAdmin && (
-                      <MenuItem onClick={() => handleClick("settings")}>
-                        Chat settings
-                      </MenuItem>
-                    )
-                  }
-                  {groupChat?.memberUserIdsList.includes(currentUserId) && (
-                    <MenuItem onClick={() => handleClick("leave")}>
-                      Leave chat
-                    </MenuItem>
-                  )}
-                </Menu>
-                {groupChat && (
-                  <>
-                    <InviteDialog
-                      open={isOpen.invite}
-                      onClose={() => handleClose("invite")}
-                      groupChat={groupChat}
-                    />
-                    <MembersDialog
-                      open={isOpen.members}
-                      onClose={() => handleClose("members")}
-                      groupChat={groupChat}
-                    />
-                    <AdminsDialog
-                      open={isOpen.admins}
-                      onClose={() => handleClose("admins")}
-                      groupChat={groupChat}
-                    />
-                    <GroupChatSettingsDialog
-                      open={isOpen.settings}
-                      onClose={() => handleClose("settings")}
-                      groupChat={groupChat}
-                    />
-                  </>
+                  <a>
+                    <PageTitle>{title || <Skeleton width={100} />}</PageTitle>
+                  </a>
+                </Link>
+                {unmuteMutation.isLoading ? (
+                  <CircularProgress size="1.5rem" />
+                ) : (
+                  groupChat?.muteInfo?.muted && (
+                    <MuteIcon data-testid="mute-icon" />
+                  )
                 )}
-                <LeaveDialog
-                  open={isOpen.leave}
-                  onClose={() => handleClose("leave")}
-                  groupChatId={chatId}
-                />
-              </>
+              </div>
+            ) : (
+              <div className={classes.title}>
+                <PageTitle>{title || <Skeleton width={100} />}</PageTitle>
+                {groupChat?.muteInfo?.muted && (
+                  <MuteIcon data-testid="mute-icon" />
+                )}
+              </div>
             )}
+
+            <>
+              <HeaderButton
+                onClick={() => handleClick("menu")}
+                aria-label="Menu"
+                aria-haspopup="true"
+                aria-controls="more-menu"
+                innerRef={menuAnchor}
+              >
+                <OverflowMenuIcon />
+              </HeaderButton>
+              <Menu
+                id="more-menu"
+                anchorEl={menuAnchor.current}
+                keepMounted
+                open={isOpen.menu}
+                onClose={() => handleClose("menu")}
+              >
+                {[
+                  groupChat ? (
+                    <MenuItem onClick={() => handleClick("mute")} key="mute">
+                      {!groupChat.muteInfo?.muted
+                        ? t("messages:chat_view.mute.button_label")
+                        : t("messages:chat_view.mute.unmute_button_label")}
+                    </MenuItem>
+                  ) : null,
+                  !groupChat?.isDm
+                    ? [
+                        !groupChat?.onlyAdminsInvite || isChatAdmin ? (
+                          <MenuItem
+                            onClick={() => handleClick("invite")}
+                            key="invite"
+                          >
+                            Invite to chat
+                          </MenuItem>
+                        ) : null,
+                        <MenuItem
+                          onClick={() => handleClick("members")}
+                          key="members"
+                        >
+                          Chat members
+                        </MenuItem>,
+                        isChatAdmin
+                          ? [
+                              <MenuItem
+                                onClick={() => handleClick("admins")}
+                                key="admins"
+                              >
+                                Manage chat admins
+                              </MenuItem>,
+                              <MenuItem
+                                onClick={() => handleClick("settings")}
+                                key="settings"
+                              >
+                                Chat settings
+                              </MenuItem>,
+                            ]
+                          : null,
+
+                        groupChat?.memberUserIdsList.includes(currentUserId) ? (
+                          <MenuItem
+                            onClick={() => handleClick("leave")}
+                            key="leave"
+                          >
+                            Leave chat
+                          </MenuItem>
+                        ) : null,
+                      ]
+                    : null,
+                ]}
+              </Menu>
+              {groupChat && (
+                <>
+                  <MuteDialog
+                    open={isOpen.mute}
+                    onClose={() => handleClose("mute")}
+                    groupChatId={chatId}
+                  />
+                  <InviteDialog
+                    open={isOpen.invite}
+                    onClose={() => handleClose("invite")}
+                    groupChat={groupChat}
+                  />
+                  <MembersDialog
+                    open={isOpen.members}
+                    onClose={() => handleClose("members")}
+                    groupChat={groupChat}
+                  />
+                  <AdminsDialog
+                    open={isOpen.admins}
+                    onClose={() => handleClose("admins")}
+                    groupChat={groupChat}
+                  />
+                  <GroupChatSettingsDialog
+                    open={isOpen.settings}
+                    onClose={() => handleClose("settings")}
+                    groupChat={groupChat}
+                  />
+                </>
+              )}
+              <LeaveDialog
+                open={isOpen.leave}
+                onClose={() => handleClose("leave")}
+                groupChatId={chatId}
+              />
+            </>
           </div>
           {(groupChatError || messagesError || sendMutation.error) && (
             <Alert severity="error">

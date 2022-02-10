@@ -2,6 +2,7 @@ import {
   act,
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from "@testing-library/react";
@@ -10,6 +11,7 @@ import { SEND } from "features/constants";
 import { MARK_LAST_SEEN_TIMEOUT } from "features/messages/constants";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
   mockAllIsIntersecting,
   mockIsIntersecting,
@@ -18,7 +20,14 @@ import { service } from "service";
 import messageData from "test/fixtures/messages.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { getGroupChatMessages, getUser } from "test/serviceMockDefaults";
-import { addDefaultUser, MockedService, wait } from "test/utils";
+import {
+  addDefaultUser,
+  assertErrorAlert,
+  mockConsoleError,
+  MockedService,
+  t,
+  wait,
+} from "test/utils";
 
 import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 
@@ -54,11 +63,19 @@ const baseGroupChatMockResponse = {
   onlyAdminsInvite: false,
   title: "Test group chat",
   unseenMessageCount: 4,
+  muteInfo: {
+    muted: false,
+    mutedUntil: undefined,
+  },
 };
 
 const markLastSeenGroupChatMock = service.conversations
   .markLastSeenGroupChat as MockedService<
   typeof service.conversations.markLastSeenGroupChat
+>;
+
+const muteChatMock = service.conversations.muteChat as MockedService<
+  typeof service.conversations.muteChat
 >;
 
 // TODO: tests involving these mutations - maybe these can be localised only
@@ -344,5 +361,79 @@ describe("GroupChatView", () => {
     expect(sendMessageMock).toHaveBeenCalledWith(1, "Sounds good");
     expect(getGroupChatMock).toHaveBeenCalledTimes(2);
     expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("for a muted chat, shows it's muted and can unmute", async () => {
+    getGroupChatMock.mockResolvedValue({
+      ...baseGroupChatMockResponse,
+      muteInfo: {
+        muted: true,
+        mutedUntil: Timestamp.fromDate(new Date(Date() + 10000)).toObject(),
+      },
+    });
+    muteChatMock.mockResolvedValue(new Empty());
+    renderGroupChatView();
+
+    const muteIcon = await screen.findByTestId("mute-icon");
+    expect(muteIcon).toBeVisible();
+
+    getGroupChatMock.mockResolvedValue(baseGroupChatMockResponse);
+
+    screen.getByRole("button", { name: "Menu" }).click();
+    screen.getByText(t("messages:chat_view.mute.unmute_button_label")).click();
+
+    await waitFor(() => {
+      expect(muteChatMock).toBeCalledWith({ groupChatId: 1, unmute: true });
+      expect(muteIcon).not.toBeVisible();
+    });
+  });
+
+  it("for an unmuted chat, can mute and then shows mute icon", async () => {
+    getGroupChatMock.mockResolvedValue(baseGroupChatMockResponse);
+    muteChatMock.mockResolvedValue(new Empty());
+    renderGroupChatView();
+
+    getGroupChatMock.mockResolvedValue({
+      ...baseGroupChatMockResponse,
+      muteInfo: {
+        muted: true,
+        mutedUntil: Timestamp.fromDate(new Date(Date() + 10000)).toObject(),
+      },
+    });
+
+    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+    screen.getByRole("button", { name: "Menu" }).click();
+    screen.getByText(t("messages:chat_view.mute.button_label")).click();
+    within(screen.getByRole("dialog"))
+      .getByLabelText(t("messages:chat_view.mute.forever_label"))
+      .click();
+    within(screen.getByRole("dialog"))
+      .getByRole("button", { name: t("messages:chat_view.mute.button_label") })
+      .click();
+
+    await waitFor(() => {
+      expect(muteChatMock).toBeCalledWith({ groupChatId: 1, forever: true });
+    });
+    const muteIcon = await screen.findByTestId("mute-icon");
+    expect(muteIcon).toBeVisible();
+  });
+
+  it("shows an error if muting fails", async () => {
+    mockConsoleError();
+    getGroupChatMock.mockResolvedValue(baseGroupChatMockResponse);
+    muteChatMock.mockRejectedValue(Error("Can't mute"));
+    renderGroupChatView();
+
+    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+    screen.getByRole("button", { name: "Menu" }).click();
+    screen.getByText(t("messages:chat_view.mute.button_label")).click();
+    within(screen.getByRole("dialog"))
+      .getByLabelText(t("messages:chat_view.mute.forever_label"))
+      .click();
+    within(screen.getByRole("dialog"))
+      .getByRole("button", { name: t("messages:chat_view.mute.button_label") })
+      .click();
+
+    await assertErrorAlert("Can't mute");
   });
 });
