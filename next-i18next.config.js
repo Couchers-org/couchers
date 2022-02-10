@@ -14,9 +14,13 @@ module.exports = {
   returnEmptyString: false,
   serializeConfig: false,
   localePath: (locale, namespace) => {
+    const path = require("path");
     if (namespace === "global") {
-      return `resources/locales/${locale}.json`;
+      return path.resolve(process.cwd(), `resources/locales/${locale}.json`);
     }
-    return `features/${namespace}/locales/${locale}.json`;
+    return path.resolve(
+      process.cwd(),
+      `features/${namespace}/locales/${locale}.json`
+    );
   },
 };
