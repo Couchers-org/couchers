@@ -116,8 +116,6 @@ export default function EditCommunityPage({
         return community.mainPage?.canEdit ? (
           <>
             <HtmlMeta title={EDIT_LOCAL_INFO} />
-            <PageHeader page={community.mainPage} />
-            <CommunityPageSubHeader community={community} tab="info" />
             <PageTitle>{EDIT_LOCAL_INFO}</PageTitle>
             {(error || errors.communityPhotoKey) && (
               <Alert severity="error">
