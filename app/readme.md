@@ -54,7 +54,7 @@ If you are on **Windows** (without WSL2), run the following command:
 docker run --pull always --rm -w /app -v %cd%:/app registry.gitlab.com/couchers/grpc sh -c "cat generate_protos.sh | dos2unix | sh"
 ```
 
-### How to update the protocol buffers
+### How to update the protocol buffers compiler
 
 If you start to get errors after some update in the grpc dependencies, make sure to compile the protocol buffers again by executing the same commands above.
 
