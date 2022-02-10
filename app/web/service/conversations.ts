@@ -15,10 +15,13 @@ import {
   ListGroupChatsReq,
   MakeGroupChatAdminReq,
   MarkLastSeenGroupChatReq,
+  MuteGroupChatReq,
   RemoveGroupChatAdminReq,
   SendMessageReq,
 } from "proto/conversations_pb";
 import client from "service/client";
+import { duration2pb } from "utils/date";
+import { Duration } from "utils/dayjs";
 import isGrpcError from "utils/isGrpcError";
 
 export async function listGroupChats(lastMessageId = 0, count = 10) {
@@ -139,4 +142,17 @@ export async function getDirectMessage(userId: number) {
       throw e;
     }
   }
+}
+
+export type MuteChatOptions = Pick<MuteGroupChatReq.AsObject, "groupChatId"> &
+  Partial<Omit<MuteGroupChatReq.AsObject, "groupChatId" | "forDuration">> & {
+    forDuration?: Duration;
+  };
+export async function muteChat(options: MuteChatOptions) {
+  const req = new MuteGroupChatReq();
+  req.setGroupChatId(options.groupChatId);
+  if (options.unmute) req.setUnmute(true);
+  if (options.forever) req.setForever(true);
+  if (options.forDuration) req.setForDuration(duration2pb(options.forDuration));
+  return client.conversations.muteGroupChat(req);
 }
