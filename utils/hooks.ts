@@ -9,7 +9,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { NominatimPlace, simplifyPlaceDisplayName } from "utils/nominatim";
+import {
+  filterDuplicatePlaces,
+  NominatimPlace,
+  simplifyPlaceDisplayName,
+} from "utils/nominatim";
 
 function useIsMounted() {
   const isMounted = useRef(false);
@@ -84,19 +88,15 @@ const useGeocodeQuery = () => {
       if (nominatimResults.length === 0) {
         setResults([]);
       } else {
-        setResults(
-          nominatimResults.map((result) => {
-            return {
-              location: new LngLat(
-                Number(result["lon"]),
-                Number(result["lat"])
-              ),
-              name: result["display_name"],
-              simplifiedName: simplifyPlaceDisplayName(result),
-              isRegion: !("city" in result.address),
-            };
-          })
-        );
+        const filteredResults = filterDuplicatePlaces(nominatimResults);
+        const formattedResults = filteredResults.map((result) => ({
+          location: new LngLat(Number(result["lon"]), Number(result["lat"])),
+          name: result["display_name"],
+          simplifiedName: simplifyPlaceDisplayName(result),
+          isRegion: !("city" in result.address),
+        }));
+
+        setResults(formattedResults);
       }
     } catch (e) {
       Sentry.captureException(e, {
