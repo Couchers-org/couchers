@@ -8,14 +8,15 @@
     "one_time_button_label": "Один раз",
     "validation_message": "Пожалуйста, заполните это поле",
     "action_button_label": "Помочь!",
-    "recurrence_aria_label": "",
+    "recurrence_aria_label": "повторяющийся",
     "title": "Размер пожертвования",
     "alert": {
       "success_message": "Спасибо, что помогаете Couchers.org, мы очень ценим вашу поддержку! Вам скоро должно прийти письмо на электронную почту.",
       "warning_message": "Платеж не прошел."
     },
-    "helper_text": "",
-    "monthly_button_label": "Каждый месяц"
+    "helper_text": "Для завершения перевода, вы будете перенаправлены на сайт нашей платежной системы Stripe.",
+    "monthly_button_label": "Каждый месяц",
+    "amount_validation_error": "Только целые числа, пожалуйста."
   },
   "donations_title": "",
   "donations_title2": "На что пойдет ваше пожертвование",
@@ -23,6 +24,6 @@
   "donations_text2": "",
   "benefactor_contact": "Если вы хотите пожертвовать больше 1000 $, пожалуйста, напишите на <1>{{email}}</1>, и мы организуем перевод с меньшей комиссией.",
   "benefactor_email": "",
-  "donations_recurrence_explainer": "",
+  "donations_recurrence_explainer": "Ежемесячные пожертвования помогают нам стабильно работать и планировать будущее.",
   "donations_value": ""
 }

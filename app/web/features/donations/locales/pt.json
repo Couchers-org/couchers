@@ -16,7 +16,8 @@
       "success_message": "Obrigado por doar para o Couchers.org, ficamos felizes com seu apoio! Você receberá um e-mail em breve.",
       "warning_message": "O pagamento foi cancelado."
     },
-    "helper_text": "Você será redirecionado para o Stripe, nosso processador de pagamentos, para concluir sua doação."
+    "helper_text": "Você será redirecionado para o Stripe, nosso processador de pagamentos, para concluir sua doação.",
+    "amount_validation_error": "Apenas números inteiros."
   },
   "donations_title": "Sua doação é necessária para fomentar a plataforma que precisamos",
   "donations_title2": "Para onde vai sua doação",
