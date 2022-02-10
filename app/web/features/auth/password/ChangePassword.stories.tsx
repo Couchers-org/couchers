@@ -84,7 +84,6 @@ function setMocks({
             email: "user@couchers.invalid",
             profileComplete: true,
             phone: "",
-            phoneVerified: false,
             timezone: "America/New_York",
           })
       : Promise.reject(new Error("Error getting account info"));
