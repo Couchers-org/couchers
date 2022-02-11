@@ -36,14 +36,14 @@ message UserDetails {
   string birthdate = 7;
   bool banned = 5;
   bool deleted = 6;
+
+  string text_info = 8;
 }
 
 message GetUserDetailsReq {
   // username, email, or user id
   string user = 1;
 }
-
-message GetUserDetailsRes {}
 
 message ChangeUserGenderReq {
   // username, email, or user id

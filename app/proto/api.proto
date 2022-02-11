@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package org.couchers.api.core;
 
+import "google/protobuf/duration.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
@@ -17,6 +18,10 @@ service API {
 
   rpc GetUser(GetUserReq) returns (User) {
     // Get info about a particular user
+  }
+
+  rpc GetResponseRate(GetResponseRateReq) returns (GetResponseRateRes) {
+    // Get info about a user's response rate
   }
 
   rpc UpdateProfile(UpdateProfileReq) returns (google.protobuf.Empty) {
@@ -42,6 +47,26 @@ service API {
   rpc InitiateMediaUpload(google.protobuf.Empty) returns (InitiateMediaUploadRes) {
     // Initiate a media upload
   }
+}
+
+message GetResponseRateReq {
+  int64 user_id = 1;
+}
+
+enum ResponseRate {
+  RESPONSE_RATE_UNSPECIFIED = 0;
+  RESPONSE_RATE_LOW = 1;
+  RESPONSE_RATE_SOME = 2;
+  RESPONSE_RATE_MOST = 3;
+  RESPONSE_RATE_ALMOST_ALL = 4;
+}
+
+message GetResponseRateRes {
+  ResponseRate response_rate = 1;
+  // only set for rate >= some
+  google.protobuf.Duration response_time_p33 = 2;
+  // only set for rate >= most
+  google.protobuf.Duration response_time_p66 = 3;
 }
 
 message SendFriendRequestReq {
