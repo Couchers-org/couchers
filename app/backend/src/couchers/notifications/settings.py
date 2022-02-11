@@ -29,7 +29,7 @@ def set_preference(session, user_id, topic_action, delivery_type, deliver):
         current_pref.deliver = deliver
     else:
         session.add(
-            NotificationDelivery(
+            NotificationPreference(
                 user_id=user_id,
                 topic_action=topic_action,
                 delivery_type=delivery_type,
