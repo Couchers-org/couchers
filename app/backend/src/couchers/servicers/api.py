@@ -725,6 +725,7 @@ class API(api_pb2_grpc.APIServicer):
             res = session.execute(
                 select(
                     HostRequest.host_user_id.label("user_id"),
+                    func.count().label("n"),
                     func.count(s.c.time) / (1.0 * func.greatest(func.count(t.c.time), 1)).label("response_rate"),
                     percentile_disc(0.33)
                     .within_group(func.coalesce(s.c.time - t.c.time, timedelta(days=1000)))
@@ -743,7 +744,12 @@ class API(api_pb2_grpc.APIServicer):
             if not res:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            _, response_rate, response_time_p33, response_time_p66 = res
+            _, n, response_rate, response_time_p33, response_time_p66 = res
+
+            if n < 3:
+                return api_pb2.GetResponseRateRes(
+                    response_rate=api_pb2.RESPONSE_RATE_INSUFFICIENT_DATA,
+                )
 
             if response_rate <= 0.33:
                 rate_value = api_pb2.RESPONSE_RATE_LOW

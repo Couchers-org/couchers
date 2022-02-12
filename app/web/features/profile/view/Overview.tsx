@@ -2,7 +2,7 @@ import { CardActions } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Divider from "components/Divider";
-import { CouchIcon, LocationIcon } from "components/Icons";
+import { CouchIcon, LocationIcon, HourglassIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { CONNECTIONS } from "features/connections/constants";
@@ -113,6 +113,14 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
       />
       <IconText
         icon={LocationIcon}
+        text={
+          meetupStatusLabels[
+            user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN
+          ]
+        }
+      />
+      <IconText
+        icon={HourglassIcon}
         text={
           meetupStatusLabels[
             user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN
