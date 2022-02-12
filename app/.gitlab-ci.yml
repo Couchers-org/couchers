@@ -3,6 +3,7 @@ stages:
   - build
   - test
   - preview
+  - wait
   - release
 
 variables:
@@ -522,7 +523,58 @@ preview:tag-mobile-preview:
     variables:
       - $CI_COMMIT_TAG =~ /v[0-9]\.[0-9]\.[0-9]-mobile-preview/
 
+# having this here stops us from having to list out all the needs in each release below. list out all that need to be waited for until releasing a new version
+wait:before-release:
+  stage: wait
+  inherit:
+    # no docker login
+    default: false
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - app/**/*
+  needs:
+    - job: protos
+      artifacts: false
+    - job: build:proxy
+      artifacts: false
+    - job: build:nginx
+      artifacts: false
+    - job: build:prometheus
+      artifacts: false
+    - job: build:backend
+      artifacts: false
+    - job: build:media
+      artifacts: false
+    - job: build:web-dev
+      artifacts: false
+    - job: build:web
+      artifacts: false
+    - job: build:web-next
+      artifacts: false
+    - job: build:mobile
+      artifacts: false
+    - job: build:nginx-next
+      artifacts: false
+    - job: test:backend
+      artifacts: false
+    - job: test:backend-format
+      artifacts: false
+    - job: test:media
+      artifacts: false
+    - job: test:web
+      artifacts: false
+    - job: test:mobile
+      artifacts: false
+    - job: test:web-prettier
+      artifacts: false
+    - job: test:mobile-prettier
+      artifacts: false
+    - job: test:storybook
+      artifacts: false
+
 release:proxy:
+  needs: ["wait:before-release"]
   stage: release
   script:
     - docker pull $PROXY_TAG
@@ -534,6 +586,7 @@ release:proxy:
       - app/**/*
 
 release:nginx:
+  needs: ["wait:before-release"]
   stage: release
   script:
     - docker pull $NGINX_TAG
@@ -545,6 +598,7 @@ release:nginx:
       - app/**/*
 
 release:prometheus:
+  needs: ["wait:before-release"]
   stage: release
   script:
     - docker pull $PROMETHEUS_TAG
@@ -556,6 +610,7 @@ release:prometheus:
       - app/**/*
 
 release:backend:
+  needs: ["wait:before-release"]
   stage: release
   script:
     - docker pull $BACKEND_TAG
@@ -567,6 +622,7 @@ release:backend:
       - app/**/*
 
 release:media:
+  needs: ["wait:before-release"]
   stage: release
   script:
     - docker pull $MEDIA_TAG
@@ -578,6 +634,7 @@ release:media:
       - app/**/*
 
 release:web-dev:
+  needs: ["wait:before-release"]
   stage: release
   script:
     - docker pull $WEB_DEV_TAG
@@ -589,6 +646,7 @@ release:web-dev:
       - app/**/*
 
 release:web:
+  needs: ["wait:before-release"]
   stage: release
   script:
     - docker pull $WEB_TAG
@@ -600,6 +658,7 @@ release:web:
       - app/**/*
 
 release:web-next:
+  needs: ["wait:before-release"]
   stage: release
   script:
     - docker pull $WEB_NEXT_TAG
@@ -612,6 +671,7 @@ release:web-next:
       - app/**/*
 
 release:nginx-next:
+  needs: ["wait:before-release"]
   stage: release
   script:
     - docker pull $NGINX_NEXT_TAG
