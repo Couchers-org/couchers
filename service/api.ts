@@ -1,6 +1,7 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   CancelFriendRequestReq,
+  GetResponseRateReq,
   PingReq,
   RespondFriendRequestReq,
   SendFriendRequestReq,
@@ -93,4 +94,10 @@ export async function uploadFile(file: File): Promise<ImageInputValues> {
     ...responseJson,
     file: file,
   };
+}
+
+export async function getResponseRate(userId: number) {
+  const req = new GetResponseRateReq();
+  req.setUserId(userId);
+  return (await client.api.getResponseRate(req)).toObject();
 }
