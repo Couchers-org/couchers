@@ -529,6 +529,8 @@ wait:before-release:
   inherit:
     # no docker login
     default: false
+  script:
+    - echo "Done waiting."
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
