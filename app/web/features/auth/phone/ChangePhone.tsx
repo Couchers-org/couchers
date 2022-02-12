@@ -7,6 +7,7 @@ import TextField from "components/TextField";
 import { accountInfoQueryKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
+import { AUTH } from "i18n/namespaces";
 import luhn from "luhn";
 import { Trans, useTranslation } from "next-i18next";
 import { GetAccountInfoRes } from "proto/account_pb";
@@ -19,7 +20,6 @@ import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
-import { AUTH } from "i18n/namespaces";
 
 export const validatePhoneCode = (code: string) =>
   code.length == 6 && luhn.validate(code);
@@ -211,7 +211,7 @@ export default function ChangePhone({
                 >
                   Your phone number is currently{" "}
                   <b>{{ phone: formatPhoneNumberIntl(accountInfo.phone) }}</b>.
-                  You can remove your phone number below, you will loose
+                  You can remove your phone number below, but you will loose
                   verification.
                 </Trans>
               </Typography>
