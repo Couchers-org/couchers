@@ -265,17 +265,16 @@ class User(Base):
     # This column will be removed in the future when notifications are enabled for everyone and come out of preview
     new_notifications_enabled = Column(Boolean, nullable=False, server_default=text("false"))
 
-    # Verified phone numbers should be unique
-    Index(
-        "ix_users_unique_phone",
-        phone,
-        unique=True,
-        postgresql_where=phone_verification_verified != None,
-    ),
-
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
     __table_args__ = (
+        # Verified phone numbers should be unique
+        Index(
+            "ix_users_unique_phone",
+            phone,
+            unique=True,
+            postgresql_where=phone_verification_verified != None,
+        ),
         # There are three possible states for need_to_confirm_via_old_email, old_email_token, old_email_token_created, and old_email_token_expiry
         # 1) All None (default)
         # 2) need_to_confirm_via_old_email is True and the others have assigned value (confirmation initiated)
@@ -1879,6 +1878,15 @@ class BackgroundJob(Base):
 
     # if the job failed, we write that info here
     failure_info = Column(String, nullable=True)
+
+    __table_args__ = (
+        # Allows fast lookup of jobs to attempt
+        Index(
+            "ix_background_jobs_state_next_attempt_after",
+            state,
+            next_attempt_after,
+        ),
+    )
 
     @hybrid_property
     def ready_for_retry(self):
