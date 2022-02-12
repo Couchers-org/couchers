@@ -14,7 +14,7 @@ EMAIL_REGEX = r"^[0-9a-z][0-9a-z\-\_\+\.]*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,
 PHONE_VERIFICATION_LIFETIME = timedelta(days=2 * 365)
 
 # shortest period between phone verification code requests
-PHONE_REVERIFICATION_INTERVAL = timedelta(days=180)
+PHONE_REVERIFICATION_INTERVAL = timedelta(days=2)
 
 # expiry time for an sms code
 SMS_CODE_LIFETIME = timedelta(hours=24)

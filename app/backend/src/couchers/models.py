@@ -32,6 +32,7 @@ from couchers.constants import (
     EMAIL_REGEX,
     GUIDELINES_VERSION,
     PHONE_VERIFICATION_LIFETIME,
+    SMS_CODE_LIFETIME,
     TOS_VERSION,
 )
 from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
@@ -389,6 +390,10 @@ class User(Base):
         return (cls.phone_verification_verified != None) & (
             now() - cls.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )
+
+    @hybrid_property
+    def phone_code_expired(self):
+        return now() - user.phone_verification_sent > SMS_CODE_LIFETIME
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
