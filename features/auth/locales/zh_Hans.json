@@ -139,7 +139,13 @@
     },
     "timezone_section": {
       "title": "时区和本地化",
-      "description": "您的时区是<1>{{timezone}}</1>。根据这个信息，您的当地时间大约是<4>{{time}}</4>。"
+      "description": "您的时区是<1>{{timezone}}</1>。根据这个信息，您的当地时间大约是<4>{{time}}</4>。",
+      "explanation": "此时间和时区是根据你的家庭位置决定的。如果它不正确，请报告错误。"
+    },
+    "username_section": {
+      "title": "用户名",
+      "description": "您的用户名是<1>{{username}}</1>。",
+      "explanation": "您在创建账户时，就设置了用户名。"
     }
   },
   "jail_set_password_form": {
@@ -148,5 +154,38 @@
   },
   "feedback_form": {
     "header": "听听您怎么说"
+  },
+  "notification_settings": {
+    "title": "通知设置",
+    "status": {
+      "enabled_message": "新的通知系统目前已为您的账户 <2>启用</2> 。",
+      "disabled_message": "新的通知系统目前已为您的账户<2>禁用</2>。"
+    },
+    "action_button": {
+      "enable_text": "启用新通知系统",
+      "disable_text": "禁用新通知系统"
+    }
+  },
+  "unsubscribe": {
+    "title": "退订",
+    "button_text": "确认退订",
+    "error_message": "退订时出错：{{message}}",
+    "missing_payload_or_sig": "URL无效，缺少负载或签名"
+  },
+  "vercel_logo_alt_text": "由Vercel强力驱动",
+  "feature_preview": {
+    "title": "功能预览",
+    "explanation": "这个页面允许您尝试那些仍在开发中，没有完全准备好给所有人使用的功能。",
+    "no_previews": {
+      "title": "暂无预览功能",
+      "explanation": "目前暂无活动的预览功能，请过一阵再来看看！"
+    },
+    "disclaimer": "请记住，这些功能是实验性的。它们可能无法按预期工作，而且随着我们的开发，它们可能会迅速变化。欢迎在我们的论坛上提供反馈。如有任何错误，请向我们报告！"
+  },
+  "delete_account": {
+    "request": {
+      "title": "删除账户",
+      "description": "如要删除您的账户，请按以下步骤操作。我们将向您发出确认邮件。"
+    }
   }
 }
