@@ -393,7 +393,7 @@ class User(Base):
 
     @hybrid_property
     def phone_code_expired(self):
-        return now() - user.phone_verification_sent > SMS_CODE_LIFETIME
+        return now() - self.phone_verification_sent > SMS_CODE_LIFETIME
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
