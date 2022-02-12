@@ -486,7 +486,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     key="",
                     action="start",
                     icon="wrench",
-                    title=f"Password reset initiated.",
+                    title=f"Password reset initiated",
                     link=urls.account_settings_link(),
                 )
 
@@ -518,7 +518,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     key="",
                     action="complete",
                     icon="wrench",
-                    title=f"Password reset completed.",
+                    title=f"Password reset completed",
                     link=urls.account_settings_link(),
                 )
 
@@ -569,7 +569,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     key="",
                     action="change",
                     icon="wrench",
-                    title=f"Your email was changed.",
+                    title=f"Your email was changed",
                     link=urls.account_settings_link(),
                 )
 

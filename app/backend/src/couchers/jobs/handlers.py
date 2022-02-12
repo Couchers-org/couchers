@@ -115,7 +115,7 @@ def process_generate_message_notifications(payload):
                 key=str(message.conversation_id),
                 action="message",
                 icon="message",
-                title=f"{message.author.name} sent a message in {group_chat.title}.",
+                title=f"{message.author.name} sent a message in {group_chat.title}",
                 content=message.text,
                 link=urls.chat_link(chat_id=message.conversation_id),
             )

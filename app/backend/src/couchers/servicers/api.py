@@ -597,7 +597,7 @@ class API(api_pb2_grpc.APIServicer):
                 action="send",
                 avatar_key=user.avatar.thumbnail_url if user.avatar else None,
                 icon="person",
-                title=f"**{user.name}** sent you a friend request.",
+                title=f"**{user.name}** sent you a friend request",
                 link=urls.friend_requests_link(),
             )
 
@@ -678,7 +678,7 @@ class API(api_pb2_grpc.APIServicer):
                     action="accept",
                     avatar_key=friend_request.to_user.avatar.thumbnail_url if friend_request.to_user.avatar else None,
                     icon="person",
-                    title=f"**{friend_request.from_user.name}** accepted your friend request.",
+                    title=f"**{friend_request.from_user.name}** accepted your friend request",
                     link=urls.user_link(username=friend_request.to_user.username),
                 )
 

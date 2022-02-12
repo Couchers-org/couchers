@@ -53,7 +53,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 key="",
                 action="change",
                 icon="wrench",
-                title=f"An admin changed your gender.",
+                title=f"An admin changed your gender",
                 link=urls.account_settings_link(),
             )
 
@@ -72,7 +72,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 key="",
                 action="change",
                 icon="wrench",
-                title=f"An admin changed your birth date.",
+                title=f"An admin changed your birth date",
                 link=urls.account_settings_link(),
             )
 
@@ -110,7 +110,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 key="",
                 action="create",
                 icon="wrench",
-                title=f"An admin created an API key for you, please check your email.",
+                title=f"An admin created an API key for you, please check your email",
                 link=urls.account_settings_link(),
             )
 

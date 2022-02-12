@@ -133,7 +133,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 key="",
                 action="change",
                 icon="wrench",
-                title=f"Your password was changed.",
+                title=f"Your password was changed",
                 link=urls.account_settings_link(),
             )
 
@@ -183,7 +183,7 @@ class Account(account_pb2_grpc.AccountServicer):
                     key="",
                     action="change",
                     icon="wrench",
-                    title=f"Your email was changed.",
+                    title=f"Your email was changed",
                     link=urls.account_settings_link(),
                 )
             else:
@@ -266,7 +266,7 @@ class Account(account_pb2_grpc.AccountServicer):
                     key="",
                     action="change",
                     icon="wrench",
-                    title=f"Your phone number was changed.",
+                    title=f"Your phone number was changed",
                     link=urls.account_settings_link(),
                 )
 
@@ -320,7 +320,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 key="",
                 action="verify",
                 icon="wrench",
-                title=f"Your phone number was verified.",
+                title=f"Your phone number was verified",
                 link=urls.account_settings_link(),
             )
 
