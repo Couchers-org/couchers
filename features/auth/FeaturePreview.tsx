@@ -4,7 +4,6 @@ import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import NotificationSettings from "features/auth/notifications/NotificationSettings";
 import { AUTH } from "i18n/namespaces";
-import { GetAccountInfoRes } from "proto/account_pb";
 import { useTranslation } from "react-i18next";
 import makeStyles from "utils/makeStyles";
 
