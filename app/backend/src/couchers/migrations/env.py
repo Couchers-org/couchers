@@ -38,6 +38,8 @@ def include_name(name, type_, parent_names):
         return name in [None, "logging"]
     if type_ == "table":
         return name not in exclude_tables
+    if type_ == "index":
+        return not (name.startswith("idx_") and name.endswith("_geom"))
     return True
 
 
