@@ -7,7 +7,7 @@
     "new_email": "New email"
   },
   "change_email_confirmation": {
-    "change_in_progress": "Email change in progress...",
+    "change_in_progress": "Email change in progress…",
     "success_message": "Your email has been changed successfully!",
     "requires_confirmation_from_new_email": "Thank you for confirming your old email address. To complete the change, you still need to confirm your new email address.",
     "requires_confirmation_from_old_email": "Thank you for confirming your new email address. To complete the change, you still need to confirm your old email address.",
@@ -72,7 +72,7 @@
       "cant_host": "Can't host"
     },
     "gender": {
-      "field_label": "I identify as ...",
+      "field_label": "I identify as…",
       "required_error": "Please select your gender identity",
       "man": "Man",
       "non_binary": "Non-binary",
