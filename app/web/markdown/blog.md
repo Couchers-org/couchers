@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Updates from the development team: February 13th, 2022](/blog/2022/02/13/development-updates)
+
+2022/02/13 by Aapeli.
+
+Read the latest updates from the Couchers.org development team.
+
+[Read more.](/blog/2022/02/13/development-updates)
+
 ## [Five things to do in any city](/blog/2022/02/07/five-things-to-do-in-any-city)
 
 2022/02/07 by Anna.
