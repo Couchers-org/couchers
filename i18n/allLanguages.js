@@ -11,7 +11,6 @@ const allLanguages = [
   "nb-NO",
   "pt",
   "pt-BR",
-  "pt-PT",
   "ru",
   "zh",
   "zh-CN",
