@@ -6,7 +6,7 @@ const fallbackLng = {
   zh: ["zh-Hans", "en"],
   "zh-CN": ["zh-Hans", "en"],
   "zh-HK": ["zh-Hant", "zh-Hans", "en"],
-  "zh-SG": ["zh-Hant", "zh-Hans", "en"],
+  "zh-SG": ["zh-Hans", "zh-Hant", "en"],
   "zh-TW": ["zh-Hant", "zh-Hans", "en"],
 };
 
