@@ -1,13 +1,27 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { NAMESPACES } = require("./i18n/namespaces");
+const { allLanguages } = require("./i18n/allLanguages");
+
+const fallbackLng = {
+  default: ["en"],
+  pt: ["pt_PT"],
+  "pt-BR": ["pt_PT"],
+  "pt-PT": ["pt_BR"],
+  zh: ["zh-Hans", "en"],
+  "zh-CN": ["zh-Hans", "en"],
+  "zh-HK": ["zh-Hant", "zh-Hans", "en"],
+  "zh-SG": ["zh-Hant", "zh-Hans", "en"],
+  "zh-TW": ["zh-Hant", "zh-Hans", "en"],
+};
 
 module.exports = {
   i18n: {
     defaultLocale: "en",
-    locales: ["en"],
+    localeDetection: false,
+    locales:
+      process.env.NEXT_PUBLIC_COUCHERS_ENV === "prod" ? ["en"] : allLanguages,
+    fallbackLng,
   },
   defaultNS: "global",
-  fallbackLng: "en",
   compatibilityJSON: "v3",
   debug: process.env.NODE_ENV === "development",
   ns: NAMESPACES,
@@ -16,11 +30,14 @@ module.exports = {
   localePath: (locale, namespace) => {
     const path = require("path");
     if (namespace === "global") {
-      return path.resolve(process.cwd(), `resources/locales/${locale}.json`);
+      return path.resolve(
+        process.cwd(),
+        `resources/locales/${locale.replace("-", "_")}.json`
+      );
     }
     return path.resolve(
       process.cwd(),
-      `features/${namespace}/locales/${locale}.json`
+      `features/${namespace}/locales/${locale.replace("-", "_")}.json`
     );
   },
 };
