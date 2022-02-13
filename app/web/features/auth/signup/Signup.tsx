@@ -126,6 +126,9 @@ function CurrentForm() {
         <Typography variant="h1" gutterBottom>
           {t("auth:feedback_form.header")}
         </Typography>
+        <Typography variant="h1" gutterBottom>
+        {t("auth:feedback_form.skiptitle")}
+        </Typography>
         <FeedbackForm />
       </>
     );
