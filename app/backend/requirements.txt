@@ -38,10 +38,6 @@ grpcio==1.43.0
     # via -r requirements.in
 idna==3.3
     # via requests
-importlib-metadata==4.10.1
-    # via alembic
-importlib-resources==5.4.0
-    # via alembic
 iniconfig==1.1.1
     # via pytest
 isort==5.10.1
@@ -90,7 +86,7 @@ pynacl==1.5.0
     # via -r requirements.in
 pyparsing==3.0.7
     # via packaging
-pytest==7.0.0
+pytest==7.0.1
     # via
     #   -r requirements.in
     #   pytest-cov
@@ -130,14 +126,8 @@ tomli==2.0.0
     #   black
     #   coverage
     #   pytest
-typing-extensions==4.0.1
-    # via black
 urllib3==1.26.8
     # via
     #   botocore
     #   requests
     #   sentry-sdk
-zipp==3.7.0
-    # via
-    #   importlib-metadata
-    #   importlib-resources
