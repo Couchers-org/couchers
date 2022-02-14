@@ -18,6 +18,7 @@ from couchers.models import (
     Base,
     FriendRelationship,
     FriendStatus,
+    HostingStatus,
     Language,
     LanguageAbility,
     LanguageFluency,
@@ -223,6 +224,7 @@ def generate_user(*, delete_user=False, **kwargs):
             # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
             "hashed_password": b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
             "name": username.capitalize(),
+            "hosting_status": HostingStatus.cant_host,
             "city": "Testing city",
             "hometown": "Test hometown",
             "community_standing": 0.5,
