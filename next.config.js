@@ -35,33 +35,34 @@ module.exports = {
       headers: [
         {
           key: "x-help-wanted",
-          value: "Come help build the next generation platform for couch surfers at https://github.com/Couchers-org"
+          value:
+            "Come help build the next generation platform for couch surfers at https://github.com/Couchers-org",
         },
         {
           key: "strict-transport-security",
-          value: "max-age=15552000; includeSubdomains; preload"
+          value: "max-age=15552000; includeSubdomains; preload",
         },
         {
           key: "referrer-policy",
-          value: "origin-when-cross-origin"
+          value: "origin-when-cross-origin",
         },
         {
           key: "x-content-type-options",
-          value: "nosniff"
+          value: "nosniff",
         },
         {
           key: "x-frame-options",
-          value: "DENY"
+          value: "DENY",
         },
         {
           key: "x-xss-protection",
-          value: "1; mode=block"
+          value: "1; mode=block",
         },
         {
           key: "x-fact",
-          value: "Kilroy was here."
+          value: "Kilroy was here.",
         },
-      ]
-    }
-  ]
+      ],
+    },
+  ],
 };
