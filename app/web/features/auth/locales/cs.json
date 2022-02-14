@@ -1,78 +1,109 @@
 {
-    "change_email_form": {
-        "title": "Změnit e-mail",
-        "current_email_message": "Vaše e-mailová adresa je <2>{{email}}</2>.",
-        "success_message": "Žádost o změnu e-mailové adresy byla přijata. Zkontrolujte prosím svojí e-mailovou schránku a pokračujte podle instrukcí.",
-        "current_password": "Vaše heslo",
-        "new_email": "Nový e-mail"
-    },
-    "change_email_confirmation": {
-        "success_message": "Změna e-mailu proběhla úspěšně!",
-        "change_in_progress": "Právě probíhá změna e-mailu…",
-        "requires_confirmation_from_old_email": "Děkujeme za potvrzení vaší nové e-mailové adresy. Pro dokončení změny musíte potvrdit i vaší původní e-mailovou adresu.",
-        "error_message": "Nastala chyba při změně e-mailu: {{message}}",
-        "invalid_confirmation_state": "Potvrzení e-mailu neproběhlo správně",
-        "requires_confirmation_from_new_email": "Děkujeme za potvrzení původní e-mailové adresy. Pro dokončení změny musíte potvrdit i vaší novou e-mailovou adresu."
-    },
-    "change_password_form": {
-        "title": "Změnit heslo",
-        "confirm_password": "Nové heslo znovu",
-        "old_password": "Původní heslo",
-        "new_password": "Nové heslo",
-        "password_mismatch_error": "Nové heslo se neshoduje.",
-        "password_changed_success": "Změna hesla proběhla úspěšně. Zárověň jsme poslali upozornění na vaší e-mailovou adresu."
-    },
-    "reset_password_form": {
-        "enter_email": "Zadejte vaše uživatelské jméno/e-mail",
-        "success_message": "Zkontrolujte vaší e-mailovou adresu a pokračujte podle instrukcí!"
-    },
-    "login_page": {
-        "title": "Přihlásit se",
-        "header": "Vítej zpět!",
-        "no_account_prompt": "Nemáte ještě účet? <2>1$t(global:sign_up)</2>"
-    },
-    "basic_sign_up_form": {
-        "existing_user_prompt": "Máte už vytvořený účet? <2>1$t(global:login)</2>",
-        "sign_up_agreement_explainer": "Pokračováním udělujete souhlas s <2>Podmínkami použití</2>, zpracováním dat, použitím cookies a k zasílání upozornění e-mailem.",
-        "header": "Pojďme začít!"
-    },
-    "account_form": {
-        "header": "Detaily k vašemu účtu",
-        "username": {
-            "field_label": "Uživatelské jméno",
-            "required_error": "Zadejte uživatelské jméno",
-            "username_taken_error": "Toto uživatelské jméno je již použito.",
-            "validation_error": "Uživatelské jméno může být složeno pouze z písmen, čísel, _ a musí začínat písmenem."
-        },
-        "birthday": {
-            "field_label": "Datum narození",
-            "required_error": "Zadejte datum narození",
-            "validation_error": "Datum narození musí být datum v minulosti."
-        },
-        "hosting_status": {
-            "maybe": "",
-            "can_host": "",
-            "field_label": ""
-        },
-        "gender": {
-            "field_label": "Identifikuji se jako …",
-            "man": "Muž",
-            "non_binary": "Nebinární",
-            "woman": "Žena",
-            "required_error": "Prosím vyberte vaší pohlavní identitu"
-        },
-        "tos_prompt": "Než budete pokračovat musíte si přečíst a souhlasit s <1></1>.",
-        "tos_accept_label": "Souhlasím s $t(global:terms_of_service)."
-    },
-    "basic_form": {
-        "name": {
-            "field_label": "Vaše jméno",
-            "empty_error": "Zadejte vaše jméno",
-            "required_error": "Jméno nemůže být prázdné."
-        },
-        "email": {
-            "field_label": "E-mailová adresa",
-            "empty_error": "Zadejte prosím platnou e-mailovou adresu"
-        }
+  "change_email_form": {
+    "title": "Změnit e-mail",
+    "current_email_message": "Tvá současná e-mailová adresa je <1>{{email}}</1>.",
+    "success_message": "Žádost o změnu e-mailové adresy byla přijata. Pro dokončení změny prosím zkontroluj svou e-mailovou schránku.",
+    "current_password": "Současné heslo",
+    "new_email": "Nový e-mail"
+  },
+  "change_email_confirmation": {
+    "success_message": "Změna e-mailu proběhla úspěšně!",
+    "change_in_progress": "Právě probíhá změna e-mailu…",
+    "requires_confirmation_from_old_email": "Děkujeme za potvrzení tvé nové e-mailové adresy. Pro dokončení změny musíš potvrdit i svou původní e-mailovou adresu.",
+    "error_message": "Nastala chyba při změně e-mailu: {{message}}",
+    "invalid_confirmation_state": "Potvrzení e-mailu neproběhlo správně",
+    "requires_confirmation_from_new_email": "Děkujeme za potvrzení tvé původní e-mailové adresy. Pro dokončení změny musíš potvrdit i svou novou e-mailovou adresu."
+  },
+  "change_password_form": {
+    "title": "Změnit heslo",
+    "confirm_password": "Zadej znovu nové heslo",
+    "old_password": "Původní heslo",
+    "new_password": "Nové heslo",
+    "password_mismatch_error": "Nové heslo se neshoduje.",
+    "password_changed_success": "Změna hesla proběhla úspěšně. Zároveň jsme poslali upozornění na tvou e-mailovou adresu."
+  },
+  "reset_password_form": {
+    "enter_email": "Zadej své uživatelské jméno/e-mail",
+    "success_message": "Zkontrolujte vaší e-mailovou adresu a pokračujte podle instrukcí!"
+  },
+  "login_page": {
+    "title": "Přihlásit se",
+    "header": "Vítej zpět!",
+    "no_account_prompt": "Nemáš ještě účet? <2>Sign up</2>",
+    "form": {
+      "password_field_label": "Heslo",
+      "username_field_label": "E-mail/Uživatelské jméno"
     }
+  },
+  "basic_sign_up_form": {
+    "existing_user_prompt": "Máš už vytvořený účet? <2>Log in</2>",
+    "sign_up_agreement_explainer": "Pokračováním udělujete souhlas s <2>Podmínkami použití</2>, zpracováním dat, použitím cookies a k zasílání upozornění e-mailem.",
+    "header": "Pojďme začít!"
+  },
+  "account_form": {
+    "header": "Detaily k vašemu účtu",
+    "username": {
+      "field_label": "Uživatelské jméno",
+      "required_error": "Zadejte uživatelské jméno",
+      "username_taken_error": "Toto uživatelské jméno je již použito.",
+      "validation_error": "Uživatelské jméno může být složeno pouze z písmen, čísel, _ a musí začínat písmenem."
+    },
+    "birthday": {
+      "field_label": "Datum narození",
+      "required_error": "Zadejte datum narození",
+      "validation_error": "Datum narození musí být datum v minulosti."
+    },
+    "hosting_status": {
+      "maybe": "",
+      "can_host": "",
+      "field_label": "Status hostitele"
+    },
+    "gender": {
+      "field_label": "Identifikuji se jako…",
+      "man": "Muž",
+      "non_binary": "Nebinární",
+      "woman": "Žena",
+      "required_error": "Prosím vyberte vaší pohlavní identitu"
+    },
+    "tos_prompt": "Než budete pokračovat musíte si přečíst a souhlasit s <1></1>.",
+    "tos_accept_label": "Souhlasím s $t(global:terms_of_service).",
+    "password": {
+      "required_error": "Zadej heslo",
+      "field_label": "Heslo"
+    }
+  },
+  "basic_form": {
+    "name": {
+      "field_label": "Vaše jméno",
+      "empty_error": "Zadejte vaše jméno",
+      "required_error": "Jméno nemůže být prázdné."
+    },
+    "email": {
+      "field_label": "E-mailová adresa",
+      "empty_error": "Zadejte prosím platnou e-mailovou adresu"
+    }
+  },
+  "notification_settings": {
+    "title": "Nastavení upozornění"
+  },
+  "community_guidelines_form": {
+    "guideline": {
+      "required_error": "Všechna pole jsou povinná"
+    }
+  },
+  "account_settings_page": {
+    "title": "Nastavení účtu",
+    "username_section": {
+      "title": "Uživatelské jméno"
+    }
+  },
+  "delete_account": {
+    "request": {
+      "title": "Smazat účet"
+    }
+  },
+  "jail_set_password_form": {
+    "title": "Nastavit heslo"
+  },
+  "about_us": "O nás"
 }
