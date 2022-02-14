@@ -275,6 +275,11 @@ class User(Base):
             unique=True,
             postgresql_where=phone_verification_verified != None,
         ),
+        Index(
+            "ix_users_active",
+            id,
+            postgresql_where=~is_banned & ~is_deleted,
+        ),
         # There are three possible states for need_to_confirm_via_old_email, old_email_token, old_email_token_created, and old_email_token_expiry
         # 1) All None (default)
         # 2) need_to_confirm_via_old_email is True and the others have assigned value (confirmation initiated)
