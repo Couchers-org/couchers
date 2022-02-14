@@ -6,6 +6,7 @@ Create Date: 2022-02-14 13:18:46.176547
 
 """
 from alembic import op
+from sqlalchemy.orm.session import Session
 
 from couchers.resources import copy_resources_to_database
 
