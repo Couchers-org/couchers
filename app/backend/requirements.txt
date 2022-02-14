@@ -38,10 +38,6 @@ grpcio==1.43.0
     # via -r requirements.in
 idna==3.3
     # via requests
-importlib-metadata==4.10.1
-    # via alembic
-importlib-resources==5.4.0
-    # via alembic
 iniconfig==1.1.1
     # via pytest
 isort==5.10.1
@@ -110,7 +106,7 @@ requests==2.27.1
     #   stripe
 s3transfer==0.5.1
     # via boto3
-sentry-sdk==1.5.4
+sentry-sdk==1.5.5
     # via -r requirements.in
 shapely==1.8.0
     # via -r requirements.in
@@ -130,14 +126,8 @@ tomli==2.0.0
     #   black
     #   coverage
     #   pytest
-typing-extensions==4.0.1
-    # via black
 urllib3==1.26.8
     # via
     #   botocore
     #   requests
     #   sentry-sdk
-zipp==3.7.0
-    # via
-    #   importlib-metadata
-    #   importlib-resources
