@@ -14,7 +14,7 @@ RUN wget http://eradman.com/entrproject/code/entr-4.6.tar.gz \
 
 RUN apt-get install -y zstd
 
-RUN wget https://github.com/Couchers-org/resources/raw/101e811dc9d1a51c2ccf39fe129497e917bb2ad7/timezone_areas/timezone_areas.sql.zst \
+RUN wget https://github.com/Couchers-org/resources/raw/8c68639a525e2dc85c37d0abb5a6e5a1e12968be/timezone_areas/timezone_areas.sql.zst \
     && zstd -d timezone_areas.sql.zst
 
 FROM base
