@@ -12,9 +12,9 @@ autoflake==1.4
     # via -r requirements.in
 black==22.1.0
     # via -r requirements.in
-boto3==1.20.49
+boto3==1.20.54
     # via -r requirements.in
-botocore==1.23.49
+botocore==1.23.54
     # via
     #   boto3
     #   s3transfer
@@ -38,10 +38,6 @@ grpcio==1.43.0
     # via -r requirements.in
 idna==3.3
     # via requests
-importlib-metadata==4.10.1
-    # via alembic
-importlib-resources==5.4.0
-    # via alembic
 iniconfig==1.1.1
     # via pytest
 isort==5.10.1
@@ -130,14 +126,8 @@ tomli==2.0.0
     #   black
     #   coverage
     #   pytest
-typing-extensions==4.0.1
-    # via black
 urllib3==1.26.8
     # via
     #   botocore
     #   requests
     #   sentry-sdk
-zipp==3.7.0
-    # via
-    #   importlib-metadata
-    #   importlib-resources
