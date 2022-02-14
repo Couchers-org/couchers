@@ -93,7 +93,6 @@ class TimezoneArea(Base):
     geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
 
     __table_args__ = (
-        # Verified phone numbers should be unique
         Index(
             "ix_timezone_areas_geom_tzid",
             geom,
