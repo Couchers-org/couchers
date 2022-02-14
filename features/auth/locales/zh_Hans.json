@@ -101,7 +101,7 @@
     }
   },
   "sign_up_completed_title": "感谢您注册！",
-  "unhandled_sign_up_state": "注册流程发生了一点意外。",
+  "unhandled_sign_up_state": "错误：unhandled signup flow state.",
   "login_prompt": "点击此处登陆",
   "about_us": "关于我们",
   "introduction_subtitle": "永久免费。社区至上。不为营利。面向未来。",
@@ -170,7 +170,7 @@
     "title": "退订",
     "button_text": "确认退订",
     "error_message": "退订时出错：{{message}}",
-    "missing_payload_or_sig": "URL无效，缺少负载或签名"
+    "missing_payload_or_sig": "URL无效"
   },
   "vercel_logo_alt_text": "由Vercel强力驱动",
   "feature_preview": {
@@ -185,7 +185,43 @@
   "delete_account": {
     "request": {
       "title": "删除账户",
-      "description": "如要删除您的账户，请按以下步骤操作。我们将向您发出确认邮件。"
+      "description": "如要删除您的账户，请按以下步骤操作。我们将向您发出确认邮件。",
+      "confirm_username_explanation": "您的用户名是 <1>{{ username }}</1> ，请将它输入到下方，确认删除账户。",
+      "confirm_username_label": "用户名确认",
+      "username_mismatch": "用户名不匹配。",
+      "reason_explanation": "请您告诉我们为什么要删除账户，帮助我们改进平台。",
+      "reason_label": "账户删除原因",
+      "success_message": "已启动账户删除。请通过我们发给您的电子邮件完成账户删除。"
+    },
+    "recover": {
+      "success": "您的账户已恢复，您可以重新登录了。我们很激动您愿意回来！",
+      "title": "恢复您的Couchers.org账户",
+      "error_message": "恢复账户失败：{{message}}",
+      "button_text": "恢复您的账户"
+    },
+    "missing_token": "错误：missing token",
+    "confirm": {
+      "title": "确认账户删除",
+      "error_message": "删除账户失败：{{message}}",
+      "button_text": "确认账户删除",
+      "account_deleted": "账户已删除。感谢您使用Couchers.org！"
     }
+  },
+  "change_phone": {
+    "verify_success": "电话已验证。",
+    "title": "电话号码",
+    "no_phone_description": "您还没有将电话号码添加到账户中。请在下方添加。我们会给您发送验证短信。",
+    "phone_label": "您的电话号码",
+    "add_button_text": "添加电话号码",
+    "add_success": "电话已添加。",
+    "phone_not_verified_description": "我们已向 <2>{{phone}}</2> 发送了一个验证码。请在下方填写您的验证码，验证您的电话号：",
+    "code_label": "验证码",
+    "wrong_code": "验证码错误。",
+    "verify_button_text": "验证电话号",
+    "remove_button_text": "移除当前电话号",
+    "remove_success": "电话已移除。",
+    "change_to_different_description": "如您需更改为另一个电话号，请在下方输入新的电话号。",
+    "change_button_text": "修改电话号",
+    "remove_phone_description": "您的当前电话号是 <2>{{phone}}</2> 。您可以在下方移除您的电话号。"
   }
 }
