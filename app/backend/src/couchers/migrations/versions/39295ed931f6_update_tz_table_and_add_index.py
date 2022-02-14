@@ -1,7 +1,7 @@
 """Update tz table and add index
 
 Revision ID: 39295ed931f6
-Revises: 13fe6ada1535
+Revises: 9261e9647b69
 Create Date: 2022-02-14 13:18:46.176547
 
 """
@@ -11,7 +11,7 @@ from couchers.resources import copy_resources_to_database
 
 # revision identifiers, used by Alembic.
 revision = "39295ed931f6"
-down_revision = "13fe6ada1535"
+down_revision = "9261e9647b69"
 branch_labels = None
 depends_on = None
 
