@@ -23,7 +23,9 @@ from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, relationship
-from sqlalchemy.sql import func, text
+from sqlalchemy.sql import func
+from sqlalchemy.sql import select as sa_select
+from sqlalchemy.sql import text
 
 from couchers.config import config
 from couchers.constants import (
@@ -121,11 +123,9 @@ class User(Base):
     regions_visited = relationship("Region", secondary="regions_visited", order_by="Region.name")
     regions_lived = relationship("Region", secondary="regions_lived", order_by="Region.name")
 
-    timezone_area = relationship(
-        "TimezoneArea",
-        primaryjoin="func.ST_Contains(foreign(TimezoneArea.geom), User.geom).as_comparison(1, 2)",
-        viewonly=True,
-        uselist=False,
+    timezone = column_property(
+        sa_select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom)).limit(1).scalar_subquery(),
+        deferred=True,
     )
 
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -315,10 +315,6 @@ class User(Base):
             name="undelete_nullity",
         ),
     )
-
-    @property
-    def timezone(self):
-        return self.timezone_area.tzid if self.timezone_area else "Etc/UTC"
 
     @hybrid_property
     def has_completed_profile(self):
