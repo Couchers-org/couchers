@@ -32,6 +32,7 @@ def upgrade():
         ),
         nullable=False,
     )
+    op.execute("ALTER TABLE users ALTER COLUMN meetup_status SET DEFAULT 'open_to_meetup'")
 
 
 def downgrade():

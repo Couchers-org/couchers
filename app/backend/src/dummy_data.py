@@ -74,7 +74,7 @@ def add_dummy_users():
                 about_place=user["about_place"],
                 hosting_status=hostingstatus2sql[HostingStatus.Value(user["hosting_status"])]
                 if "hosting_status" in user
-                else None,
+                else HostingStatus.cant_host,
                 new_notifications_enabled=True,
                 accepted_tos=TOS_VERSION,
                 accepted_community_guidelines=GUIDELINES_VERSION,
