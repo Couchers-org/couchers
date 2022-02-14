@@ -42,3 +42,16 @@ export const simplifyPlaceDisplayName = (place: NominatimPlace) => {
   }
   return addressParts.join(", ");
 };
+
+export const filterDuplicatePlaces = (places: NominatimPlace[] = []) => {
+  const deduplicatedPlaces = places.reduce((previousRecord, currentPlace) => {
+    const importance = currentPlace.importance ?? 0;
+    const displayName = simplifyPlaceDisplayName(currentPlace);
+
+    return previousRecord[displayName]?.importance >= importance
+      ? previousRecord
+      : { ...previousRecord, [displayName]: currentPlace };
+  }, {} as Record<string, NominatimPlace>);
+
+  return Object.values(deduplicatedPlaces)
+};
