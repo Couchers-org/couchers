@@ -8,6 +8,8 @@ attrs==21.4.0
     # via pytest
 backoff==1.11.1
     # via -r requirements.in
+certifi==2021.10.8
+    # via sentry-sdk
 cffi==1.15.0
     # via
     #   pynacl
@@ -46,10 +48,14 @@ pytest==7.0.1
     # via -r requirements.in
 pyvips==2.1.16
     # via -r requirements.in
+sentry-sdk==1.5.5
+    # via -r requirements.in
 six==1.16.0
     # via grpcio
 tomli==2.0.0
     # via pytest
+urllib3==1.26.8
+    # via sentry-sdk
 uwsgi==2.0.20
     # via -r requirements.in
 werkzeug==2.0.2
