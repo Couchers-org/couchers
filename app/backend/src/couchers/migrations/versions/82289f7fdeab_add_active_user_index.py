@@ -1,7 +1,7 @@
 """Add active user index
 
 Revision ID: 82289f7fdeab
-Revises: 13fe6ada1535
+Revises: 9261e9647b69
 Create Date: 2022-02-14 13:23:42.185952
 
 """
@@ -10,7 +10,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "82289f7fdeab"
-down_revision = "13fe6ada1535"
+down_revision = "9261e9647b69"
 branch_labels = None
 depends_on = None
 
