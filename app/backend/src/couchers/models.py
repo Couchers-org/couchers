@@ -147,8 +147,8 @@ class User(Base):
 
     avatar_key = Column(ForeignKey("uploads.key"), nullable=True)
 
-    hosting_status = Column(Enum(HostingStatus), nullable=True)
-    meetup_status = Column(Enum(MeetupStatus), nullable=True)
+    hosting_status = Column(Enum(HostingStatus), nullable=False)
+    meetup_status = Column(Enum(MeetupStatus), nullable=False)
 
     # community standing score
     community_standing = Column(Float, nullable=True)
