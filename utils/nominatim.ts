@@ -53,5 +53,5 @@ export const filterDuplicatePlaces = (places: NominatimPlace[] = []) => {
       : { ...previousRecord, [displayName]: currentPlace };
   }, {} as Record<string, NominatimPlace>);
 
-  return Object.values(deduplicatedPlaces)
+  return Object.values(deduplicatedPlaces);
 };
