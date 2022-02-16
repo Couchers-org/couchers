@@ -150,7 +150,7 @@
   "community_guidelines_form": {
     "guideline": {
       "checkbox_label": "Entendido",
-      "required_error": "Todas las casillas son obligatorias"
+      "required_error": "Todas las casillas de verificación son requeridas"
     },
     "header": "Normas de la comunidad"
   },
