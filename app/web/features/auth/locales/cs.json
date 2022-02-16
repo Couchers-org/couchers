@@ -32,25 +32,27 @@
     "no_account_prompt": "Nemáš ještě účet? <2>Sign up</2>",
     "form": {
       "password_field_label": "Heslo",
-      "username_field_label": "E-mail/Uživatelské jméno"
+      "username_field_label": "E-mail/Uživatelské jméno",
+      "forgot_password": "Zapomenuté heslo?",
+      "no_password_login_prompt": "Zkontroluj svou e-mailovou schránku a klikni na odkaz pro přihlášení! :)"
     }
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Máš už vytvořený účet? <2>Log in</2>",
     "sign_up_agreement_explainer": "Pokračováním udělujete souhlas s <2>Podmínkami použití</2>, zpracováním dat, použitím cookies a k zasílání upozornění e-mailem.",
-    "header": "Pojďme začít!"
+    "header": ""
   },
   "account_form": {
     "header": "Detaily k vašemu účtu",
     "username": {
       "field_label": "Uživatelské jméno",
-      "required_error": "Zadejte uživatelské jméno",
+      "required_error": "Zadej své uživatelské jméno",
       "username_taken_error": "Toto uživatelské jméno je již použito.",
       "validation_error": "Uživatelské jméno může být složeno pouze z písmen, čísel, _ a musí začínat písmenem."
     },
     "birthday": {
       "field_label": "Datum narození",
-      "required_error": "Zadejte datum narození",
+      "required_error": "Zadej své datum narození",
       "validation_error": "Datum narození musí být datum v minulosti."
     },
     "hosting_status": {
@@ -63,7 +65,7 @@
       "man": "Muž",
       "non_binary": "Nebinární",
       "woman": "Žena",
-      "required_error": "Prosím vyberte vaší pohlavní identitu"
+      "required_error": "Prosím vyber svou pohlavní identitu"
     },
     "tos_prompt": "Než budete pokračovat musíte si přečíst a souhlasit s <1></1>.",
     "tos_accept_label": "Souhlasím s $t(global:terms_of_service).",
@@ -74,13 +76,14 @@
   },
   "basic_form": {
     "name": {
-      "field_label": "Vaše jméno",
-      "empty_error": "Zadejte vaše jméno",
+      "field_label": "Tvé jméno",
+      "empty_error": "Prosím, zadej své jméno",
       "required_error": "Jméno nemůže být prázdné."
     },
     "email": {
       "field_label": "E-mailová adresa",
-      "empty_error": "Zadejte prosím platnou e-mailovou adresu"
+      "empty_error": "Zadej prosím platnou e-mailovou adresu",
+      "required_error": "E-mail nesmí zůstat prázdný."
     }
   },
   "notification_settings": {
@@ -94,16 +97,66 @@
   "account_settings_page": {
     "title": "Nastavení účtu",
     "username_section": {
-      "title": "Uživatelské jméno"
+      "title": "Uživatelské jméno",
+      "description": "Tvé uživatelské jméno je <1>{{username}}</1>."
+    },
+    "gender_section": {
+      "title": "Změnit pohlaví"
+    },
+    "birth_date_section": {
+      "title": "Změnit datum narození",
+      "explanation": "Admini ti rádi pomůžou se změnou data tvého narození. Prosím, kontaktuj support@couchers.org!"
     }
   },
   "delete_account": {
     "request": {
-      "title": "Smazat účet"
+      "title": "Smazat účet",
+      "confirm_username_label": "Potvrzení uživatelského jména",
+      "username_mismatch": "Uživatelské jméno se neshoduje.",
+      "reason_label": "Důvod ke smazání účtu"
+    },
+    "confirm": {
+      "title": "Potvrdit smazání účtu",
+      "account_deleted": "Účet smazán. Děkujeme za používání Couchers.org!",
+      "button_text": "Potvrdit smazání účtu"
+    },
+    "recover": {
+      "button_text": "Obnovit účet",
+      "success": "Tvůj účet byl obnoven, můžeš se znovu přihlášit. Jsme rádi, že jsi zpět!"
     }
   },
   "jail_set_password_form": {
-    "title": "Nastavit heslo"
+    "title": "Nastavit heslo",
+    "explanation": "Pro svůj účet sis dříve nenastavil/a heslo. Chceš-li pokračovat, vytvoř si ho nyní."
   },
-  "about_us": "O nás"
+  "about_us": "O nás",
+  "unsubscribe": {
+    "title": "Odhlásit se z odběru",
+    "error_message": "Nastala chyba při odhlášení z odběru: {{message}}"
+  },
+  "reset_password": "Resetovat heslo",
+  "change_phone": {
+    "phone_label": "Tvé telefonní číslo",
+    "code_label": "Ověřovací kód",
+    "verify_button_text": "Ověřit telefonní číslo",
+    "verify_success": "Telefonní číslo bylo ověřeno.",
+    "remove_button_text": "Odstranit současné telefonní číslo",
+    "remove_success": "Telefonní číslo bylo odstraněno.",
+    "title": "Telefonní číslo",
+    "add_success": "Telefonní číslo bylo přidáno.",
+    "wrong_code": "Neplatný kód.",
+    "change_button_text": "Změnit telefonní číslo"
+  },
+  "jail": {
+    "location_section": {
+      "submit_button": {
+        "active_text": "Uložit",
+        "inactive_text": "Díky!"
+      }
+    }
+  },
+  "logged_out_message": "Byl/a jsi odhlášen/a.",
+  "sign_up_completed_title": "Děkujeme za přihlášení!",
+  "login_prompt": "Klikni zde pro přihlášení",
+  "reset_password_error": "Nastala chyba při resetovaní hesla: {{message}}"
 }
