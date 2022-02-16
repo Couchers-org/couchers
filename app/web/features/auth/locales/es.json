@@ -9,7 +9,7 @@
   "change_email_confirmation": {
     "success_message": "Tu correo electrónico ha sido cambiado con éxito!",
     "requires_confirmation_from_new_email": "Gracias por confirmar tu antigua dirección de correo electrónico. Para completar el cambio, necesitas confirmar tu nueva dirección de correo electrónico.",
-    "change_in_progress": "Cambio de correo electrónico en proceso…",
+    "change_in_progress": "Cambio de correo electrónico en proceso …",
     "requires_confirmation_from_old_email": "Gracias por confirmar tu nueva dirección de correo electrónico. Para completar el cambio, necesitas confirmar tu antigua dirección de correo electrónico.",
     "invalid_confirmation_state": "Estado de confirmación de correo electrónico inválido",
     "error_message": "Error al cambiar el correo electrónico: {{message}}"
@@ -107,7 +107,7 @@
       "resubmit_button_text": "Reenviar"
     },
     "terms_of_service_section": {
-      "description": "Hemos actualizado nuestros Términos y Condiciones. Para continuar, lee y acepta las nuevas, por favor <1></1>."
+      "description": "Hemos actualizado nuestros Términos y Condiciones. Para continuar, lee y acepta los nuevos, por favor <1></1>."
     },
     "description": "Por favor, comprueba lo siguiente para continuar."
   },
@@ -222,5 +222,6 @@
     "no_phone_description": "No has añadido un número de teléfono a tu cuenta. Para añadir uno, escríbelo abajo. Verificaremos tu número mediante un mensaje de texto.",
     "phone_not_verified_description": "Te hemos enviado un código a <2>{{phone}}</2>. Para verificar tu teléfono, introduce el código a continuación:",
     "remove_phone_description": "Tu número de teléfono actual es <2>{{phone}}</2>. Puedes eliminar tú número de teléfono abajo."
-  }
+  },
+  "unhandled_sign_up_state": "Error: unhandled signup flow state."
 }
