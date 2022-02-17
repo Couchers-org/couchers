@@ -55,8 +55,8 @@ def test_ping(db):
     # same for last_active
     assert user.last_active - timedelta(hours=1) <= to_aware_datetime(res.user.last_active) <= user.last_active
 
-    assert res.user.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
-    assert res.user.meetup_status == api_pb2.MEETUP_STATUS_UNKNOWN
+    assert res.user.hosting_status == api_pb2.HOSTING_STATUS_CANT_HOST
+    assert res.user.meetup_status == api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP
 
     assert res.user.occupation == user.occupation
     assert res.user.education == user.education
@@ -255,8 +255,8 @@ def test_update_profile(db):
                 my_travels=api_pb2.NullableStringValue(is_null=True),
                 things_i_like=api_pb2.NullableStringValue(is_null=True),
                 about_place=api_pb2.NullableStringValue(is_null=True),
-                hosting_status=api_pb2.HOSTING_STATUS_UNKNOWN,
-                meetup_status=api_pb2.MEETUP_STATUS_UNKNOWN,
+                hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                meetup_status=api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP,
                 language_abilities=api_pb2.RepeatedLanguageAbilityValue(value=[]),
                 regions_visited=api_pb2.RepeatedStringValue(value=[]),
                 regions_lived=api_pb2.RepeatedStringValue(value=[]),
@@ -274,8 +274,8 @@ def test_update_profile(db):
         assert not user_details.my_travels
         assert not user_details.things_i_like
         assert not user_details.about_place
-        assert user_details.hosting_status == api_pb2.HOSTING_STATUS_UNKNOWN
-        assert user_details.meetup_status == api_pb2.MEETUP_STATUS_UNKNOWN
+        assert user_details.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
+        assert user_details.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
         assert not user_details.language_abilities
         assert not user_details.regions_visited
         assert not user_details.regions_lived

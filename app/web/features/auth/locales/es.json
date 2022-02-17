@@ -9,7 +9,7 @@
   "change_email_confirmation": {
     "success_message": "Tu correo electrónico ha sido cambiado con éxito!",
     "requires_confirmation_from_new_email": "Gracias por confirmar tu antigua dirección de correo electrónico. Para completar el cambio, necesitas confirmar tu nueva dirección de correo electrónico.",
-    "change_in_progress": "Cambio de correo electrónico en proceso…",
+    "change_in_progress": "Cambio de correo electrónico en proceso …",
     "requires_confirmation_from_old_email": "Gracias por confirmar tu nueva dirección de correo electrónico. Para completar el cambio, necesitas confirmar tu antigua dirección de correo electrónico.",
     "invalid_confirmation_state": "Estado de confirmación de correo electrónico inválido",
     "error_message": "Error al cambiar el correo electrónico: {{message}}"
@@ -17,7 +17,7 @@
   "account_form": {
     "gender": {
       "required_error": "Por favor, selecciona tu género",
-      "field_label": "Me identifico como ...",
+      "field_label": "Me identifico como…",
       "man": "Hombre",
       "non_binary": "No-Binario",
       "woman": "Mujer"
@@ -107,7 +107,7 @@
       "resubmit_button_text": "Reenviar"
     },
     "terms_of_service_section": {
-      "description": "Hemos actualizado nuestros Términos y Condiciones. Para continuar, lee y acepta las nuevas, por favor <1></1>."
+      "description": "Hemos actualizado nuestros Términos y Condiciones. Para continuar, lee y acepta los nuevos, por favor <1></1>."
     },
     "description": "Por favor, comprueba lo siguiente para continuar."
   },
@@ -150,7 +150,7 @@
   "community_guidelines_form": {
     "guideline": {
       "checkbox_label": "Entendido",
-      "required_error": "Todas las casillas son obligatorias"
+      "required_error": "Todas las casillas de verificación son requeridas"
     },
     "header": "Normas de la comunidad"
   },
@@ -177,7 +177,7 @@
   "unsubscribe": {
     "button_text": "Confirmar anulación de suscripción",
     "title": "Anular suscripción",
-    "missing_payload_or_sig": "URL inválida, payload o firma no encontrados",
+    "missing_payload_or_sig": "URL inválida",
     "error_message": "Error al anular la suscripción: {{message}}"
   },
   "vercel_logo_alt_text": "Soportado por Vercel",
@@ -203,6 +203,25 @@
       "error_message": "Fallo al confirmar la eliminación de la cuenta: {{message}}",
       "button_text": "Confirmar eliminación de la cuenta",
       "account_deleted": "Cuenta eliminada. ¡Gracias por utilizar Couchers.org!"
-    }
-  }
+    },
+    "missing_token": "Error: falta token"
+  },
+  "change_phone": {
+    "phone_label": "Tu número de teléfono",
+    "add_button_text": "Añadir número de teléfono",
+    "add_success": "Número de teléfono añadido.",
+    "code_label": "Código de verificación",
+    "wrong_code": "El código es incorrecto.",
+    "verify_button_text": "Verificar número de teléfono",
+    "verify_success": "Teléfono verificado.",
+    "remove_button_text": "Eliminar número de teléfono actual",
+    "remove_success": "Teléfono eliminado.",
+    "change_to_different_description": "Para cambiar tu número de teléfono, escribe abajo el nuevo.",
+    "change_button_text": "Cambiar número de teléfono",
+    "title": "Número de teléfono",
+    "no_phone_description": "No has añadido un número de teléfono a tu cuenta. Para añadir uno, escríbelo abajo. Verificaremos tu número mediante un mensaje de texto.",
+    "phone_not_verified_description": "Te hemos enviado un código a <2>{{phone}}</2>. Para verificar tu teléfono, introduce el código a continuación:",
+    "remove_phone_description": "Tu número de teléfono actual es <2>{{phone}}</2>. Puedes eliminar tú número de teléfono abajo."
+  },
+  "unhandled_sign_up_state": "Error: unhandled signup flow state."
 }
