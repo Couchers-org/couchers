@@ -127,7 +127,7 @@
   "sign_up_completed_title": "Thank you for signing up!",
   "sign_up_completed_prompt": "We have sent an email with a verification link to your email address. Please click the link to activate your account.",
   "sign_up_confirmed_prompt": "You're all done! If you are not redirected, try logging in.",
-  "unhandled_sign_up_state": "Unhandled signup flow state.",
+  "unhandled_sign_up_state": "Error: unhandled signup flow state.",
   "reset_password_success": "Your password has been reset successfully! You will now be emailed a magic link when you log in with your username or email.",
   "login_prompt": "Click here to log in",
   "about_us": "About us",
@@ -181,7 +181,7 @@
     "title": "Unsubscribe",
     "button_text": "Confirm unsubscription",
     "error_message": "Error unsubscribing: {{message}}",
-    "missing_payload_or_sig": "Invalid URL, missing payload or signature"
+    "missing_payload_or_sig": "Invalid URL"
   },
   "change_phone": {
     "title": "Phone number",
@@ -194,7 +194,7 @@
     "wrong_code": "The code is wrong.",
     "verify_button_text": "Verify phone number",
     "verify_success": "Phone verified.",
-    "remove_phone_description": "Your phone number is currently <2>{{phone}}</2>. You can remove your phone number below, but you will loose verification.",
+    "remove_phone_description": "Your phone number is currently <2>{{phone}}</2>. You can remove your phone number below.",
     "remove_button_text": "Remove current phone number",
     "remove_success": "Phone removed.",
     "change_to_different_description": "To change your phone number to a different one, please enter it below.",
@@ -211,7 +211,7 @@
       "reason_label": "Reason for account deletion",
       "success_message": "Account deletion initiated. To complete account deletion, please confirm through the email we sent you."
     },
-    "missing_token": "Missing token",
+    "missing_token": "Error: missing token",
     "confirm": {
       "title": "Confirm account deletion",
       "error_message": "Failed to confirm account deletion: {{message}}",

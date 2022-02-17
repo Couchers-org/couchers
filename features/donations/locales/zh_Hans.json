@@ -11,7 +11,8 @@
     },
     "helper_text": "您将会被重定向到支付平台 Stripe，以完成捐赠。",
     "monthly_button_label": "每月",
-    "one_time_button_label": "一次性"
+    "one_time_button_label": "一次性",
+    "amount_validation_error": "请仅输入整数。"
   },
   "donations_title": "您的捐赠加我们的努力，等于所有人的梦想家园",
   "donations_title2": "您的捐赠会被用来",
@@ -25,5 +26,5 @@
   "donations_text2": "您的捐赠会被用在 Couchers.org 的日常运营上，包括租赁服务器以保证网页的运作、法律支持、政策开支以及攒钱买平台搭建的其他工具。\n\n多出来的钱，我们会用在其他非赢利的方面，包括全力提升我们的社区建设、提高服务能力以让 Couchers.org 服务更多的人、加快发展迭代步伐、完善安全保障政策、将沙发客的文化带给世界上的更多人。",
   "donations_recurrence_explainer": "每月捐款会帮助我们稳定运营服务，并提前做出规划。",
   "donations_value": "{{val, currency}}",
-  "donations_info": "您会向<1>{{ legal_name }}</1>进行捐赠，它是一个U.S. 501(c)(3)指定的非盈利机构，Couchers.org的服务和项目的支持由它提供。捐赠是免税的，我们的雇主身份识别号码（EIN）是87-1734577。"
+  "donations_info": "您会捐赠给<1>{{ legal_name }}</1>，它是一个U.S. 501(c)(3)指定的非盈利机构，Couchers.org的服务和项目的支持由它提供。捐赠在美国是免税的，我们的雇主身份识别号码（EIN）是87-1734577。"
 }

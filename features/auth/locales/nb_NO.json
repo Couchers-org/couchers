@@ -24,16 +24,23 @@
   },
   "reset_password_form": {
     "enter_email": "Skriv inn ditt brukernavn/e-postadresse",
-    "success_message": "Finn bekreftelseslenken som ble sendt til din e-postadresse."
+    "success_message": "Finn bekreftelseslenken som ble sendt til din e-postadresse!"
   },
   "login_page": {
     "title": "Logg inn",
-    "header": "Velkommen tilbake",
-    "no_account_prompt": "Ingen konto enda? <2>$t(global:sign_up)</2>"
+    "header": "Velkommen tilbake!",
+    "no_account_prompt": "Har du ingen brukerkonto? <2>Sign up</2>",
+    "form": {
+      "password_field_label": "Passord",
+      "no_password_login_prompt": "Sjekk eposten din om der er en link for å logge inn! :)",
+      "remember_me": "Husk meg",
+      "forgot_password": "Glemt passord?",
+      "username_field_label": "E-postadresse/Brukernavn"
+    }
   },
   "basic_sign_up_form": {
-    "header": "La oss begynne.",
-    "existing_user_prompt": "Har du allerede en konto? <2>$t(global:login)</2>",
+    "header": "La oss begynne!",
+    "existing_user_prompt": "Har du allerede en brukerkonto? <2>Log in</2>",
     "sign_up_agreement_explainer": "Ved å fortsette samtykker du til <2>tjenestevilkårene</2>, inkludert våre kake-, e-post, og datahåndteringspraksis."
   },
   "account_form": {
@@ -45,7 +52,7 @@
       "validation_error": "Brukernavnet kan kun ha tall, eller _, og må begynne med en bokstav."
     },
     "birthday": {
-      "field_label": "Geburtsdag",
+      "field_label": "Fødselsdag",
       "required_error": "Skriv inn din fødselsdag",
       "validation_error": "Må være en gyldig tidligere dato."
     },
@@ -63,7 +70,12 @@
       "required_error": "Jeg er"
     },
     "tos_prompt": "Les og godta <1></1> for å fortsette.",
-    "tos_accept_label": "Jeg godtar $t(global:terms_of_service)."
+    "tos_accept_label": "Jeg godtar vilkårene for tjenesten.",
+    "password": {
+      "field_label": "Passord",
+      "required_error": "Skriv inn passord",
+      "validation_error": "Passord må ha mellom 8 og 256 tegn, og ikke være uttrykk som er veldig vanlige."
+    }
   },
   "basic_form": {
     "name": {
@@ -92,26 +104,124 @@
     "header": "La din mening komme til kjenne"
   },
   "about_us": "Om oss",
-  "sign_up_confirmed_prompt": "Alt klart. Hvis du blir videresendt kan du prøve å logge inn",
+  "sign_up_confirmed_prompt": "Da er alt klart! Hvis ikke siden åpnes automatisk kan du prøve å logge in selv.",
   "unhandled_sign_up_state": "Uhåndtert flyttilstand for registrering.",
   "login_prompt": "Klikk her for å logge inn",
   "introduction_title": "Ta del og bygg det nye alternativet til Couchsurfing™",
   "feature_preview": {
     "title": "Funksjonsforhåndsvisninger",
     "explanation": "Her kan du prøve nye funksjoner i utvikling for de er klare til allemannsbruk.",
-    "disclaimer": "Husk at disse er eksperimentelle. Det kan hende de ikke virker som tiltenkt, og de kan endre seg raskt. Send tilbakemeldinger på forumet, og innrapporter feil.",
+    "disclaimer": "Husk at disse funksjonene er under testing. Det kan hende de ikke virker som de skal, og de kan endre seg raskt mens vi utvikler dem. Komgjerne tilbakemeldinger i forumet, og send feilmelding hvis noe ikke virker!",
     "no_previews": {
       "title": "Ingen funksjoner er i forhåndsvisning",
-      "explanation": "Det er ingen funksjoner i dette stadiet per nå. Det kan hende dette endrer seg ved en senere anledning."
+      "explanation": "Det er ingen aktive funksjoner i dette stadiet per nå. Men det kan endres, så kom tilbake for å sjekke senere!"
     }
   },
-  "sign_up_completed_title": "Takk for at du registrerer deg.",
+  "sign_up_completed_title": "Takk for at du registrerer deg!",
   "reset_password": "Tilbakestill passord",
   "reset_password_error": "Kunne ikke tilbakestille passordet: {{message}}",
   "sign_up_completed_prompt": "En e-post inneholdende bekreftelseslenken ble send til deg. Klikk på den for å aktivere kontoen din.",
   "reset_password_success": "Passordet ditt har blitt tilbakestilt. Du vil nå få en magisk lenke når du logger inn med brukernavn eller e-postadresse.",
   "introduction_subtitle": "Alltid fritt. Gemenskapsdrevet. Veldedig. Moderne.",
   "jail_set_password_form": {
-    "title": "Lag et passord"
+    "title": "Lag et passord",
+    "explanation": "Du har ennå ikke laget et passord for brukerkontoen din. Vennligst lag et nå for å fortsette."
+  },
+  "change_phone": {
+    "title": "Telefonnummer",
+    "phone_label": "Telefonnummeret ditt",
+    "add_button_text": "Legg til telefonnummer",
+    "code_label": "Bekreftelseskode",
+    "wrong_code": "Koden er ikke korrekt.",
+    "verify_button_text": "Bekreft telefonnummeret",
+    "verify_success": "Telefonnummeret er bekreftet.",
+    "remove_button_text": "Slett nåværende telefonnummer",
+    "remove_success": "Telefonnummeret er slettet.",
+    "change_to_different_description": "For å endre til en nytt telefonnummer, vennligst skriv det inn under.",
+    "change_button_text": "Endre telefonnummer",
+    "no_phone_description": "Du har ikke lagt til et telefonnummer på brukerkontoen din. For å registrere en telefon, skriv inn nummeret i feltet under. Vi vil bekrefte det med en tekstmelding.",
+    "add_success": "Telefonnummer er lagt til.",
+    "phone_not_verified_description": "Vi har sendt en kode til <2>{{phone}}</2>. For å bekreftet telefonnummeret ditt, vennligst skriv inn denne koden i feltet under:",
+    "remove_phone_description": "Ditt telefonnummer er <2>{{phone}}</2>. Du kan slette nummeret ditt under, men da vil bekreftelsen oppheves."
+  },
+  "jail": {
+    "title": "Det trengs mer informasjon",
+    "description": "Vennligst sjekk det følgende for å fortsette.",
+    "location_section": {
+      "submit_button": {
+        "active_text": "Lagre",
+        "inactive_text": "Takk!"
+      },
+      "resubmit_button_text": "Send på nytt",
+      "title": "Vennligst legg til geografisk plassering"
+    },
+    "terms_of_service_section": {
+      "description": "Vi har oppdatert vilkårene for tjenesten. For å fortsette, vennligst les og godta oppdateringen <1></1>."
+    }
+  },
+  "logged_out_message": "Du ble logget ut.",
+  "account_settings_page": {
+    "title": "Kontoinnstillinger",
+    "birth_date_section": {
+      "title": "Endre fødselsdag",
+      "explanation": "En administrator vil med glede endre fødselsdagen din. Vennligst kontakt support@couchers.org!"
+    },
+    "timezone_section": {
+      "description": "Din tidssone er <1>{{timezone}}</1>. Ut i fra dette er klokken hos deg ca <4>{{time}}</4>.",
+      "explanation": "Klokkeslett og tidssone er basert på din hjemadresse. Hvis dette ikke stemmer, vennligst send inn en feilmelding.",
+      "title": "Tidssone og geografisk plassering"
+    },
+    "username_section": {
+      "title": "Brukernavn",
+      "description": "Brukernavnet ditt er <1>{{username}}</1>.",
+      "explanation": "Brukernavnet lages når du oppretter brukerkontoen din."
+    },
+    "gender_section": {
+      "title": "Velg annet kjønn",
+      "explanation": "En administrator vil med glede endre valgt kjønn. Vennligst kontakt support@couchers.org!"
+    }
+  },
+  "vercel_logo_alt_text": "Driftet av Vercel",
+  "notification_settings": {
+    "title": "Instillinger for varsler",
+    "status": {
+      "enabled_message": "De nye innstillingne for brukerkontoen din er <2>enabled</2> for brukerkontoen din.",
+      "disabled_message": "De nye innstillingene for varsler er for tiden<2>disabled</2> for brukerkontoen din."
+    },
+    "action_button": {
+      "enable_text": "Aktiver de nye innstillingen for varsler",
+      "disable_text": "Forkast de nye innstillingene for varsler"
+    }
+  },
+  "unsubscribe": {
+    "title": "Avslutt abonnementet",
+    "button_text": "Bekreft sletting av abonnementet",
+    "error_message": "En feil er oppstått ved sletting av abonnementet: {{message}}",
+    "missing_payload_or_sig": "Ugyldig link"
+  },
+  "delete_account": {
+    "request": {
+      "title": "Slett brukerkonto",
+      "description": "For å slette brukerkontoen din, vennligst følg trinnene under. Vi vil sende en e-post for å bekrefte.",
+      "confirm_username_explanation": "Brukernavnet ditt er <1>{{ username }}</1>, vennligst skriv det inn under for å bekrefte sletting av brukerkontoen.",
+      "confirm_username_label": "Bekreftelse av brukernavn",
+      "username_mismatch": "Brukernavnet samsvarer ikke.",
+      "reason_explanation": "Vær så snill å fortelle oss hvorfor du har valgt å slette brukerkontoen din, så vi kan forbedre plattformen vår.",
+      "reason_label": "Årsaken for å slette brukerkontoen",
+      "success_message": "Sletting av brukerkontoen er påbegynt. For å fullføre slettingen vennligst bekreft via e-posten vi har sendt deg."
+    },
+    "missing_token": "En bekreftelseskode mangler",
+    "confirm": {
+      "title": "Bekreft sletting av brukerkontoen",
+      "error_message": "Mangler bekreftelse på sletting av brukerkonto: {{message}}",
+      "account_deleted": "Brukerkontoen ble slettet. Tusen takk for tiden du har vært på Couchers.org!",
+      "button_text": "Bekreft sletting av brukerkontoen"
+    },
+    "recover": {
+      "title": "Gjennopprett din brukerkonto på Couchers.org",
+      "error_message": "Feil ved gjenoppretting av brukerkonto: {{message}}",
+      "success": "Brukerkontoen din har blitt gjenopprettet, du kan nå logge inn igjen. Vi er så glade for å ha deg tilbake igjen!",
+      "button_text": "Gjenopprett brukerkontoen din"
+    }
   }
 }
