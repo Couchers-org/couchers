@@ -107,7 +107,7 @@ It is forbidden to create, host, share, or promote an event that solicits donati
 
 ### Is it okay to advertise or promote my business, organization, or cause on Couchers.org?
 
-No. It is a violation of the Terms of Service to use the platform to advertise, promote, or advocate for a business, organization or cause. With that said, it is okay to mention your approval/disapproval of, interest in, or involvement with a business, organization, or cause, as long as that is not the primary purpose of your profile or message.
+No. It is a violation of the Terms of Service to use the platform to advertise, promote, or advocate for a business, organization or cause. With that said, it is okay to mention your approval/disapproval of, interest in, or involvement with a business, organization, or cause, as long as that is not the primary purpose of your profile, message, or event.
 
 <a class="handbook-anchor" name="report"></a>
 
@@ -179,12 +179,13 @@ Visit [couchers.org/donate](https://couchers.org/donate) to make your donation.
 
 ### How do I create or change my password?
 
-1. Go to your profile page.
-2. Click on the orange "edit" button.
-3. Click the button in the top right that says "account settings".
-4. Scroll down to where it says "Change password" and enter in your new password.
-5. Enter the same new password again where it says "confirm password"
-6. Click "submit"
+1. Click on the menu button in the upper-right corner.
+2. Click "account settings".
+3. Scroll down to "Change password"
+4. If you already have a password, enter your old password where it says "old password".
+5. Enter in your new password where it says "new password".
+6. Enter the same new password again where it says "confirm password"
+7. Click "submit"
 
 <a class="handbook-anchor" name="age"></a>
 
