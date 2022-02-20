@@ -128,7 +128,6 @@ export const hostingStatusLabels = {
   [HostingStatus.HOSTING_STATUS_MAYBE]: MAYBE_ACCEPTING,
   [HostingStatus.HOSTING_STATUS_CANT_HOST]: NOT_ACCEPTING,
   [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: UNSURE,
-  [HostingStatus.HOSTING_STATUS_UNKNOWN]: UNSURE,
 };
 
 export const meetupStatusLabels = {
@@ -136,7 +135,6 @@ export const meetupStatusLabels = {
   [MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP]: MAYBE_MEETUP,
   [MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP]: NO_MEETUP,
   [MeetupStatus.MEETUP_STATUS_UNSPECIFIED]: UNSURE,
-  [MeetupStatus.MEETUP_STATUS_UNKNOWN]: UNSURE,
 };
 
 export const sleepingArrangementLabels = {

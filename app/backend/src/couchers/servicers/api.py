@@ -37,28 +37,24 @@ from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_
 from proto import api_pb2, api_pb2_grpc, media_pb2
 
 hostingstatus2sql = {
-    api_pb2.HOSTING_STATUS_UNKNOWN: None,
     api_pb2.HOSTING_STATUS_CAN_HOST: HostingStatus.can_host,
     api_pb2.HOSTING_STATUS_MAYBE: HostingStatus.maybe,
     api_pb2.HOSTING_STATUS_CANT_HOST: HostingStatus.cant_host,
 }
 
 hostingstatus2api = {
-    None: api_pb2.HOSTING_STATUS_UNKNOWN,
     HostingStatus.can_host: api_pb2.HOSTING_STATUS_CAN_HOST,
     HostingStatus.maybe: api_pb2.HOSTING_STATUS_MAYBE,
     HostingStatus.cant_host: api_pb2.HOSTING_STATUS_CANT_HOST,
 }
 
 meetupstatus2sql = {
-    api_pb2.MEETUP_STATUS_UNKNOWN: None,
     api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP: MeetupStatus.wants_to_meetup,
     api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP: MeetupStatus.open_to_meetup,
     api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP: MeetupStatus.does_not_want_to_meetup,
 }
 
 meetupstatus2api = {
-    None: api_pb2.MEETUP_STATUS_UNKNOWN,
     MeetupStatus.wants_to_meetup: api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP,
     MeetupStatus.open_to_meetup: api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP,
     MeetupStatus.does_not_want_to_meetup: api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP,

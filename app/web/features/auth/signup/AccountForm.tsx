@@ -291,7 +291,6 @@ export default function AccountForm() {
                   ),
                   [HostingStatus.HOSTING_STATUS_UNSPECIFIED]:
                     t("global:ask_me"),
-                  [HostingStatus.HOSTING_STATUS_UNKNOWN]: t("global:ask_me"),
                 }}
               />
             )}

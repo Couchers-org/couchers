@@ -106,7 +106,7 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
         icon={CouchIcon}
         text={
           hostingStatusLabels[
-            user.hostingStatus || HostingStatus.HOSTING_STATUS_UNKNOWN
+            user.hostingStatus || HostingStatus.HOSTING_STATUS_UNSPECIFIED
           ]
         }
       />
@@ -114,7 +114,7 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
         icon={LocationIcon}
         text={
           meetupStatusLabels[
-            user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN
+            user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNSPECIFIED
           ]
         }
       />
