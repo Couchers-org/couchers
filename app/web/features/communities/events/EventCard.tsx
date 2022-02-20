@@ -21,7 +21,7 @@ import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 import stripMarkdown from "utils/stripMarkdown";
 
-import { getAttendeesCount, ONLINE } from "../constants";
+import { ONLINE } from "../constants";
 
 const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
   root: {
@@ -174,7 +174,9 @@ export default function EventCard({ event, className }: EventCardProps) {
               <li>
                 <AttendeesIcon className={classes.icon} />
                 <Typography variant="body1">
-                  {getAttendeesCount(event.goingCount + event.maybeCount)}
+                  {t("communities:attendees_count", {
+                    count: event.goingCount + event.maybeCount,
+                  })}
                 </Typography>
               </li>
             </ul>

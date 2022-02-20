@@ -4,7 +4,6 @@ import wrapper from "test/hookWrapper";
 import { t } from "test/utils";
 import timezoneMock from "timezone-mock";
 
-import { getAttendeesCount } from "../constants";
 import EventCard from "./EventCard";
 
 const [firstEvent, secondEvent, thirdEvent] = events;
@@ -30,7 +29,9 @@ describe("Event card", () => {
     expect(screen.getByText("June 29, 2021 2:37 AM - 3:37 AM")).toBeVisible();
     expect(
       screen.getByText(
-        getAttendeesCount(firstEvent.goingCount + firstEvent.maybeCount)
+        t("communities:attendees_count", {
+          count: firstEvent.goingCount + firstEvent.maybeCount,
+        })
       )
     ).toBeVisible();
     expect(screen.getByText("Be there or be square!")).toBeVisible();
@@ -50,7 +51,9 @@ describe("Event card", () => {
     ).toBeVisible();
     expect(
       screen.getByText(
-        getAttendeesCount(thirdEvent.goingCount + thirdEvent.maybeCount)
+        t("communities:attendees_count", {
+          count: thirdEvent.goingCount + thirdEvent.maybeCount,
+        })
       )
     ).toBeVisible();
     expect(screen.getByText(thirdEvent.content)).toBeVisible();
@@ -68,7 +71,9 @@ describe("Event card", () => {
     expect(screen.getByText("June 29, 2021 9:00 PM - 10:00 PM")).toBeVisible();
     expect(
       screen.getByText(
-        getAttendeesCount(secondEvent.goingCount + secondEvent.maybeCount)
+        t("communities:attendees_count", {
+          count: secondEvent.goingCount + secondEvent.maybeCount,
+        })
       )
     ).toBeVisible();
     expect(screen.getByText(secondEvent.content)).toBeVisible();
