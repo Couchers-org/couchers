@@ -214,7 +214,12 @@ Send your request via email to [support@couchers.org](mailto:support@couchers.or
 
 ### How do I delete my account?
 
-Send a message to [support@couchers.org](mailto:support@couchers.org) with your request and your username. Please send your request from the email address associated with your account. After we receive your request, a confirmation email will be sent to the email address associated with your account. You must respond to the confirmation email so we can be sure that the request is genuine.
+1. Click on the menu button in the upper-right corner.
+2. Click "account settings".
+3. Scroll down to "Delete account"
+4. Enter your username in the "Username confirmation" box to confirm you are okay with permanently deleting your account. Please note that we cannot restore an account that has been deleted.
+5. Enter the reason you want to delete your account. We are always trying to improve Couchers.org and we appreciate any feedback!
+6. Click on the "Submit" button.
 
 <a class="handbook-anchor" name="friendslist"></a>
 
