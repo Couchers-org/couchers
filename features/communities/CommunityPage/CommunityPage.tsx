@@ -1,7 +1,8 @@
 import { Typography } from "@material-ui/core";
 import HtmlMeta from "components/HtmlMeta";
-import { COMMUNITY_HEADING } from "features/communities/constants";
 import EditCommunityPage from "features/communities/EditCommunityInfoPage";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { CommunityTab } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -70,6 +71,7 @@ export default function CommunityPage({
   tab: CommunityTab | undefined;
   edit: boolean | undefined;
 }) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = useCommunityPageStyles();
 
   return (
@@ -84,7 +86,7 @@ export default function CommunityPage({
             {tab === "overview" ? (
               <>
                 <Typography variant="h1" className={classes.title}>
-                  {COMMUNITY_HEADING(community.name)}
+                  {t("communities:community_header", { name: community.name })}
                 </Typography>
                 <InfoPageSection community={community} />
                 <EventsSection community={community} />
