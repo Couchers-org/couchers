@@ -3,6 +3,8 @@ import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
 import { useUser } from "features/userQueries/useUsers";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Discussion } from "proto/discussions_pb";
 import { useMemo } from "react";
@@ -11,7 +13,7 @@ import { timestamp2Date } from "utils/date";
 import makeStyles from "utils/makeStyles";
 import { timeAgo } from "utils/timeAgo";
 
-import { COMMENTS, getByCreator } from "../constants";
+import { COMMENTS } from "../constants";
 import getContentSummary from "../getContentSummary";
 
 const useStyles = makeStyles((theme) => ({
@@ -59,6 +61,7 @@ export default function DiscussionCard({
   discussion: Discussion.AsObject;
   className?: string;
 }) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = useStyles();
   const { data: creator } = useUser(discussion.creatorUserId);
 
@@ -95,7 +98,7 @@ export default function DiscussionCard({
                 className={classes.surtitle}
               >
                 {creator ? (
-                  getByCreator(creator.name)
+                  t("communities:by_creator", { name: creator.name })
                 ) : (
                   <Skeleton className={classes.userLoading} />
                 )}{" "}

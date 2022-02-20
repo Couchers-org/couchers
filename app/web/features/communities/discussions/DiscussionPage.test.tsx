@@ -19,6 +19,7 @@ import {
   assertErrorAlert,
   mockConsoleError,
   MockedService,
+  t,
   wait,
 } from "test/utils";
 
@@ -26,7 +27,6 @@ import {
   CLOSE,
   COMMENT,
   COMMENTS,
-  getByCreator,
   LOAD_EARLIER_COMMENTS,
   LOAD_EARLIER_REPLIES,
   NO_COMMENTS,
@@ -190,7 +190,9 @@ describe("Discussion page", () => {
     ).toBeVisible();
     expect(
       commentCards[0].getByText(
-        `${getByCreator(commentUser.name)} • 1 year ago`
+        `${t("communities:by_creator", {
+          name: commentUser.name,
+        })} • 1 year ago`
       )
     ).toBeVisible();
     expect(
@@ -209,7 +211,9 @@ describe("Discussion page", () => {
       })
     ).toBeVisible();
     expect(
-      commentCards[1].getByText(`${getByCreator(replyUser.name)} • 1 year ago`)
+      commentCards[1].getByText(
+        `${t("communities:by_creator", { name: replyUser.name })} • 1 year ago`
+      )
     ).toBeVisible();
     expect(commentCards[1].getByText("+6")).toBeVisible();
     // Nested comment cannot be replied on further
