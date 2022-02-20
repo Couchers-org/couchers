@@ -11,11 +11,15 @@ import community from "test/fixtures/community.json";
 import discussions from "test/fixtures/discussions.json";
 import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
+import {
+  assertErrorAlert,
+  mockConsoleError,
+  MockedService,
+  t,
+} from "test/utils";
 
 import {
   COMMENTS,
-  getByCreator,
   NEW_DISCUSSION_TITLE,
   NEW_DISCUSSION_TOPIC,
   NEW_POST_LABEL,
@@ -57,7 +61,9 @@ describe("DiscussionsListPage", () => {
     const firstCreator = await getUser(discussions[0].creatorUserId.toString());
     expect(
       discussionCards[0].getByText(
-        new RegExp(`${getByCreator(firstCreator.name)} • .+ ago`)
+        new RegExp(
+          `${t("communities:by_creator", { name: firstCreator.name })} • .+ ago`
+        )
       )
     ).toBeVisible();
     expect(
@@ -75,7 +81,11 @@ describe("DiscussionsListPage", () => {
     );
     expect(
       discussionCards[1].getByText(
-        new RegExp(`${getByCreator(secondCreator.name)} • .+ ago`)
+        new RegExp(
+          `${t("communities:by_creator", {
+            name: secondCreator.name,
+          })} • .+ ago`
+        )
       )
     ).toBeVisible();
     expect(

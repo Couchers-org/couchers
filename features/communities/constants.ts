@@ -1,13 +1,3 @@
-import { CommunityTab } from "routes";
-
-export const communityTabBarLabels: Record<CommunityTab, string> = {
-  overview: "Overview",
-  info: "Local info",
-  discussions: "Discussions",
-  events: "Events",
-};
-
-export const getByCreator = (name: string) => `By ${name}`;
 export const getAttendeesCount = (count: number) =>
   `${count} attendee${count === 1 ? "" : "s"}`;
 export const CLOSE = "Close";
