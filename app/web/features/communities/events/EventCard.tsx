@@ -21,8 +21,6 @@ import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 import stripMarkdown from "utils/stripMarkdown";
 
-import { ONLINE } from "../constants";
-
 const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
   root: {
     "&:hover": {
@@ -150,7 +148,11 @@ export default function EventCard({ event, className }: EventCardProps) {
             className={classes.image}
           >
             {event.onlineInformation && (
-              <Chip className={classes.chip} size="medium" label={ONLINE} />
+              <Chip
+                className={classes.chip}
+                size="medium"
+                label={t("communities:online")}
+              />
             )}
           </CardMedia>
           <CardContent>

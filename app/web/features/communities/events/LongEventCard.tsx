@@ -17,7 +17,6 @@ import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
-import { ONLINE } from "../constants";
 import getContentSummary from "../getContentSummary";
 
 const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
@@ -114,7 +113,7 @@ export default function LongEventCard({ event }: LongEventCardProps) {
             >
               {event.offlineInformation
                 ? event.offlineInformation.address
-                : ONLINE}
+                : t("communities:online")}
             </Typography>
             <div className={classes.eventTimeContainer}>
               <CalendarIcon className={classes.icon} />

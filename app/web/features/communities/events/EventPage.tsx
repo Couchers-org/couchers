@@ -30,7 +30,6 @@ import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
-import { PREVIOUS_PAGE } from "../constants";
 import CommentTree from "../discussions/CommentTree";
 import EventAttendees from "./EventAttendees";
 import EventOrganizers from "./EventOrganizers";
@@ -216,7 +215,7 @@ export default function EventPage({
               <HeaderButton
                 className={classes.backButton}
                 onClick={() => router.back()}
-                aria-label={PREVIOUS_PAGE}
+                aria-label={t("communities:previous_page")}
               >
                 <BackIcon />
               </HeaderButton>

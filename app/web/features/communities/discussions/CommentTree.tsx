@@ -1,10 +1,11 @@
 import { CircularProgress, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
-import { LOAD_EARLIER_COMMENTS, NO_COMMENTS } from "../constants";
 import { useThread } from "../hooks";
 import Comment from "./Comment";
 import CommentForm from "./CommentForm";
@@ -58,6 +59,7 @@ interface CommentTreeProps {
 }
 
 export default function CommentTree({ threadId }: CommentTreeProps) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = useStyles();
 
   const {
@@ -82,7 +84,7 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
               loading={isFetchingNextPage}
               onClick={() => fetchNextPage()}
             >
-              {LOAD_EARLIER_COMMENTS}
+              {t("communities:load_earlier_comments")}
             </Button>
           )}
           {comments.pages
@@ -98,7 +100,7 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
         comments &&
         !commentsError && (
           <Typography className={classes.noComment} variant="body1">
-            {NO_COMMENTS}
+            {t("communities:no_comments")}
           </Typography>
         )
       )}

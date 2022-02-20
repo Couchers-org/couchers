@@ -1,14 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  JOIN_COMMUNITY,
-  LEAVE_COMMUNITY,
-} from "features/communities/constants";
 import { useCommunity } from "features/communities/hooks";
 import { service } from "service";
 import mockCommunity from "test/fixtures/community.json";
 import wrapper from "test/hookWrapper";
-import { mockConsoleError, MockedService } from "test/utils";
+import { mockConsoleError, MockedService, t } from "test/utils";
 
 import JoinCommunityButton from "./JoinCommunityButton";
 
@@ -51,20 +47,22 @@ describe("JoinCommunityButton", () => {
   it("Leaves and joins correctly", async () => {
     render(<View />, { wrapper });
     const joinButton = await screen.findByRole("button", {
-      name: JOIN_COMMUNITY,
+      name: t("communities:join_community"),
     });
     expect(joinButton).toBeVisible();
     userEvent.click(joinButton);
 
     expect(screen.getByRole("progressbar")).toBeVisible();
     const leaveButton = await screen.findByRole("button", {
-      name: LEAVE_COMMUNITY,
+      name: t("communities:leave_community"),
     });
     expect(leaveButton).toBeVisible();
     userEvent.click(leaveButton);
     expect(screen.getByRole("progressbar")).toBeVisible();
     expect(
-      await screen.findByRole("button", { name: JOIN_COMMUNITY })
+      await screen.findByRole("button", {
+        name: t("communities:join_community"),
+      })
     ).toBeVisible();
   });
 
@@ -73,7 +71,7 @@ describe("JoinCommunityButton", () => {
     joinCommunityMock.mockRejectedValueOnce(Error("generic error"));
     render(<View />, { wrapper });
     const joinButton = await screen.findByRole("button", {
-      name: JOIN_COMMUNITY,
+      name: t("communities:join_community"),
     });
     userEvent.click(joinButton);
     const errorAlert = await screen.findByRole("alert");

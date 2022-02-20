@@ -4,13 +4,9 @@ import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import { EmailIcon } from "components/Icons";
 import TextBody from "components/TextBody";
-import {
-  DISCUSSIONS_EMPTY_STATE,
-  DISCUSSIONS_TITLE,
-  NEW_POST_LABEL,
-  SEE_MORE_DISCUSSIONS_LABEL,
-} from "features/communities/constants";
 import { useListDiscussions } from "features/communities/hooks";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Community } from "proto/communities_pb";
 import { composingDiscussionHash, routeToCommunity } from "routes";
@@ -25,6 +21,7 @@ export default function DiscussionsSection({
 }: {
   community: Community.AsObject;
 }) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = {
     ...useCommunityPageStyles(),
     ...useDiscussionsListStyles(),
@@ -41,7 +38,7 @@ export default function DiscussionsSection({
     <section>
       <div className={classes.discussionsHeader}>
         <SectionTitle icon={<EmailIcon />} variant="h2">
-          {DISCUSSIONS_TITLE}
+          {t("communities:discussions_title")}
         </SectionTitle>
       </div>
       {discussionsError && (
@@ -60,7 +57,7 @@ export default function DiscussionsSection({
           className={classes.createResourceButton}
           component="a"
         >
-          {NEW_POST_LABEL}
+          {t("communities:new_post_label")}
         </Button>
       </Link>
       <div className={classes.discussionsContainer}>
@@ -76,7 +73,7 @@ export default function DiscussionsSection({
               />
             ))
         ) : (
-          <TextBody>{DISCUSSIONS_EMPTY_STATE}</TextBody>
+          <TextBody>{t("communities:discussions_empty_state")}</TextBody>
         )}
         {discussionsHasNextPage && (
           <div className={classes.loadMoreButton}>
@@ -88,7 +85,9 @@ export default function DiscussionsSection({
               )}
               passHref
             >
-              <MuiLink component="a">{SEE_MORE_DISCUSSIONS_LABEL}</MuiLink>
+              <MuiLink component="a">
+                {t("communities:see_more_discussions_label")}
+              </MuiLink>
             </Link>
           </div>
         )}

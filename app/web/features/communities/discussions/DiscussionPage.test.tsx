@@ -23,17 +23,6 @@ import {
   wait,
 } from "test/utils";
 
-import {
-  CLOSE,
-  COMMENT,
-  COMMENTS,
-  LOAD_EARLIER_COMMENTS,
-  LOAD_EARLIER_REPLIES,
-  NO_COMMENTS,
-  PREVIOUS_PAGE,
-  REPLY,
-  WRITE_COMMENT_A11Y_LABEL,
-} from "../constants";
 import { COMMENT_TEST_ID, REFETCH_LOADING_TEST_ID } from "./Comment";
 import DiscussionPage, { CREATOR_TEST_ID } from "./DiscussionPage";
 
@@ -174,7 +163,9 @@ describe("Discussion page", () => {
     ).map((element) => within(element));
     expect(commentCards).toHaveLength(8);
 
-    expect(screen.getByRole("heading", { name: COMMENTS })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: t("communities:comments") })
+    ).toBeVisible();
     // check top level comment
     const firstTopLevelComment = comments.find((c) => c.threadId === 6);
     const commentUser = await getUser(
@@ -198,7 +189,9 @@ describe("Discussion page", () => {
     expect(
       commentCards[0].getByText(firstTopLevelComment!.content)
     ).toBeVisible();
-    expect(commentCards[0].getByRole("button", { name: REPLY })).toBeVisible();
+    expect(
+      commentCards[0].getByRole("button", { name: t("communities:reply") })
+    ).toBeVisible();
 
     // check nested comment/reply
     const replyUser = await getUser("3");
@@ -218,7 +211,7 @@ describe("Discussion page", () => {
     expect(commentCards[1].getByText("+6")).toBeVisible();
     // Nested comment cannot be replied on further
     expect(
-      commentCards[1].queryByRole("button", { name: REPLY })
+      commentCards[1].queryByRole("button", { name: t("communities:reply") })
     ).not.toBeInTheDocument();
   });
 
@@ -228,7 +221,7 @@ describe("Discussion page", () => {
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(screen.getByText(NO_COMMENTS)).toBeVisible();
+    expect(screen.getByText(t("communities:no_comments"))).toBeVisible();
   });
 
   describe("when there are more than one page of comments", () => {
@@ -245,7 +238,9 @@ describe("Discussion page", () => {
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
       userEvent.click(
-        screen.getByRole("button", { name: LOAD_EARLIER_COMMENTS })
+        screen.getByRole("button", {
+          name: t("communities:load_earlier_comments"),
+        })
       );
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
@@ -277,7 +272,9 @@ describe("Discussion page", () => {
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
       userEvent.click(
-        screen.getByRole("button", { name: LOAD_EARLIER_REPLIES })
+        screen.getByRole("button", {
+          name: t("communities:load_earlier_replies"),
+        })
       );
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
@@ -306,7 +303,9 @@ describe("Discussion page", () => {
       name: "What is there to do in Amsterdam?",
     });
 
-    userEvent.click(screen.getByRole("button", { name: PREVIOUS_PAGE }));
+    userEvent.click(
+      screen.getByRole("button", { name: t("communities:previous_page") })
+    );
 
     expect(mockRouter.back).toBeCalled();
   });
@@ -335,11 +334,15 @@ describe("Discussion page", () => {
         getThreadAfterSuccessfulComment({ newComment, threadIdToUpdate: 2 })
       );
       userEvent.type(
-        discussionCommentForm.getByLabelText(WRITE_COMMENT_A11Y_LABEL),
+        discussionCommentForm.getByLabelText(
+          t("communities:write_comment_a11y_label")
+        ),
         newComment
       );
       userEvent.click(
-        discussionCommentForm.getByRole("button", { name: COMMENT })
+        discussionCommentForm.getByRole("button", {
+          name: t("communities:comment"),
+        })
       );
 
       expect(await screen.findByText(newComment)).toBeVisible();
@@ -358,11 +361,15 @@ describe("Discussion page", () => {
       );
 
       userEvent.type(
-        discussionCommentForm.getByLabelText(WRITE_COMMENT_A11Y_LABEL),
+        discussionCommentForm.getByLabelText(
+          t("communities:write_comment_a11y_label")
+        ),
         "new comment"
       );
       userEvent.click(
-        discussionCommentForm.getByRole("button", { name: COMMENT })
+        discussionCommentForm.getByRole("button", {
+          name: t("communities:comment"),
+        })
       );
 
       await assertErrorAlert(errorMessage);
@@ -378,7 +385,9 @@ describe("Discussion page", () => {
       const firstComment = within(
         (await screen.findAllByTestId(COMMENT_TEST_ID))[0]
       );
-      userEvent.click(firstComment.getByRole("button", { name: REPLY }));
+      userEvent.click(
+        firstComment.getByRole("button", { name: t("communities:reply") })
+      );
       const commentFormContainer = screen.getByTestId(
         FIRST_COMMENT_FORM_TEST_ID
       );
@@ -394,11 +403,15 @@ describe("Discussion page", () => {
         getThreadAfterSuccessfulComment({ newComment, threadIdToUpdate: 6 })
       );
       userEvent.type(
-        within(commentFormContainer).getByLabelText(WRITE_COMMENT_A11Y_LABEL),
+        within(commentFormContainer).getByLabelText(
+          t("communities:write_comment_a11y_label")
+        ),
         newComment
       );
       userEvent.click(
-        within(commentFormContainer).getByRole("button", { name: COMMENT })
+        within(commentFormContainer).getByRole("button", {
+          name: t("communities:comment"),
+        })
       );
       // Check refetch loading state is shown while user is waiting for reply
       expect(
@@ -419,7 +432,9 @@ describe("Discussion page", () => {
         (await screen.findAllByTestId(COMMENT_TEST_ID))[0]
       );
 
-      userEvent.click(firstComment.getByRole("button", { name: REPLY }));
+      userEvent.click(
+        firstComment.getByRole("button", { name: t("communities:reply") })
+      );
       // The comment form is opened when the transition container has height as "auto"
       const commentFormContainer = screen.getByTestId(
         FIRST_COMMENT_FORM_TEST_ID
@@ -430,7 +445,9 @@ describe("Discussion page", () => {
         );
       });
       userEvent.click(
-        within(commentFormContainer).getByRole("button", { name: CLOSE })
+        within(commentFormContainer).getByRole("button", {
+          name: t("communities:close"),
+        })
       );
 
       // The transition container has 0 height when the form is closed

@@ -13,7 +13,6 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 import { timeAgo } from "utils/timeAgo";
 
-import { LOAD_EARLIER_REPLIES, REPLY, UNKNOWN_USER } from "../constants";
 import { useThread } from "../hooks";
 import CommentForm from "./CommentForm";
 
@@ -122,7 +121,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
           ) : (
             <Typography variant="body2">
               {t("communities:by_creator", {
-                name: user?.name ?? UNKNOWN_USER,
+                name: user?.name ?? t("communities:unknown_user"),
               })}
               {` • ${postedTime}`}
             </Typography>
@@ -136,7 +135,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
               setShowCommentForm(true);
             }}
           >
-            {REPLY}
+            {t("communities:reply")}
           </Button>
         )}
       </Card>
@@ -155,7 +154,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
                   loading={isFetchingNextPage}
                   onClick={() => fetchNextPage()}
                 >
-                  {LOAD_EARLIER_REPLIES}
+                  {t("communities:load_earlier_replies")}
                 </Button>
               )}
               {comments.pages
