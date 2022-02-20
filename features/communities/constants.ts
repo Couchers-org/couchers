@@ -1,5 +1,3 @@
-export const getAttendeesCount = (count: number) =>
-  `${count} attendee${count === 1 ? "" : "s"}`;
 export const CLOSE = "Close";
 export const COMMENT = "Comment";
 export const COMMENTS = "Comments";

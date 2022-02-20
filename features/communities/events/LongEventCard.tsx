@@ -7,6 +7,8 @@ import {
 } from "@material-ui/core";
 import { eventImagePlaceholderUrl } from "appConstants";
 import { AttendeesIcon, CalendarIcon } from "components/Icons";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
@@ -15,7 +17,7 @@ import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
-import { getAttendeesCount, ONLINE } from "../constants";
+import { ONLINE } from "../constants";
 import getContentSummary from "../getContentSummary";
 
 const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
@@ -82,6 +84,7 @@ export interface LongEventCardProps {
 }
 
 export default function LongEventCard({ event }: LongEventCardProps) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = useStyles({
     eventImageSrc: event.photoUrl || eventImagePlaceholderUrl,
   });
@@ -122,7 +125,9 @@ export default function LongEventCard({ event }: LongEventCardProps) {
             <div className={classes.attendeesCountContainer}>
               <AttendeesIcon className={classes.icon} />
               <Typography variant="body1">
-                {getAttendeesCount(event.goingCount + event.maybeCount)}
+                {t("communities:attendees_count", {
+                  count: event.goingCount + event.maybeCount,
+                })}
               </Typography>
             </div>
           </div>
