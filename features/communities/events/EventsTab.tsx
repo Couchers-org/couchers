@@ -12,7 +12,6 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
 import { useCommunityPageStyles } from "../CommunityPage";
-import { EVENTS_EMPTY_STATE } from "../constants";
 import EventCard from "./EventCard";
 import { useListAllEvents } from "./hooks";
 
@@ -92,7 +91,7 @@ export default function EventsTab({
           )}
         </>
       ) : (
-        !error && <TextBody>{EVENTS_EMPTY_STATE}</TextBody>
+        !error && <TextBody>{t("communities:events_empty_state")}</TextBody>
       )}
     </div>
   );

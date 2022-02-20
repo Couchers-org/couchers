@@ -13,7 +13,6 @@ import { timestamp2Date } from "utils/date";
 import makeStyles from "utils/makeStyles";
 import { timeAgo } from "utils/timeAgo";
 
-import { COMMENTS } from "../constants";
 import getContentSummary from "../getContentSummary";
 
 const useStyles = makeStyles((theme) => ({
@@ -109,7 +108,9 @@ export default function DiscussionCard({
               </Typography>
               <Typography variant="body1">{truncatedContent}</Typography>
               <Typography className={classes.commentsCount} variant="body1">
-                {`${COMMENTS} | ${discussion.thread?.numResponses}`}
+                {`${t("communities:comments")} | ${
+                  discussion.thread?.numResponses
+                }`}
               </Typography>
             </div>
           </CardContent>

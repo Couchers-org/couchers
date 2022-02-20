@@ -5,7 +5,8 @@ import { COPYRIGHT, NON_PROFIT } from "components/Footer/constants";
 import { GithubIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { TERMS } from "features/auth/constants";
-import { SHOW_ALL_EVENTS } from "features/communities/constants";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { ReactNode } from "react";
 import {
@@ -130,6 +131,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Footer() {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = useStyles();
   return (
     <footer className={classes.root}>
@@ -169,7 +171,9 @@ export default function Footer() {
             <FooterLink href={tuesdaySocialURL}>
               {WEEKLY_SOCIAL_TUESDAY}
             </FooterLink>
-            <FooterLink href={eventsRoute}>{SHOW_ALL_EVENTS}</FooterLink>
+            <FooterLink href={eventsRoute}>
+              {t("communities:show_all_events")}
+            </FooterLink>
           </div>
           <div className={classes.buttonContainer}>
             <Link href={donationsRoute} passHref>

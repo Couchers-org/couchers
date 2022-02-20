@@ -1,11 +1,12 @@
 import { InfoIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import StyledLink from "components/StyledLink";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { routeToCommunity } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import { GENERAL_INFORMATION, SEE_MORE_INFORMATION } from "../constants";
 import { useCommunityPageStyles } from "./CommunityPage";
 import TitleWithIcon from "./TitleWithIcon";
 
@@ -20,12 +21,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function InfoPageSection({ community }: InfoPageSectionProps) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
 
   return (
     <section>
       <TitleWithIcon icon={<InfoIcon />} variant="h2">
-        {GENERAL_INFORMATION}
+        {t("communities:general_information")}
       </TitleWithIcon>
       <Markdown topHeaderLevel={3} source={community.description} />
 
@@ -33,7 +35,7 @@ export default function InfoPageSection({ community }: InfoPageSectionProps) {
         <StyledLink
           href={routeToCommunity(community.communityId, community.slug, "info")}
         >
-          {SEE_MORE_INFORMATION}
+          {t("communities:see_more_information")}
         </StyledLink>
       </div>
     </section>

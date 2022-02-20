@@ -4,14 +4,14 @@ import Button from "components/Button";
 import MarkdownInput, { MarkdownInputProps } from "components/MarkdownInput";
 import { threadKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { PostReplyRes } from "proto/threads_pb";
 import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
-
-import { CLOSE, COMMENT, WRITE_COMMENT_A11Y_LABEL } from "../constants";
 
 const useStyles = makeStyles((theme) => ({
   commentForm: {
@@ -45,6 +45,7 @@ function _CommentForm(
   { hideable = false, onClose, shown = false, threadId }: CommentFormProps,
   ref: React.ForwardedRef<HTMLFormElement>
 ) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = useStyles();
   const {
     control,
@@ -83,7 +84,7 @@ function _CommentForm(
       <form className={classes.commentForm} onSubmit={onSubmit} ref={ref}>
         {error && <Alert severity="error">{error.message}</Alert>}
         <Typography id={`comment-${threadId}-reply-label`} variant="srOnly">
-          {WRITE_COMMENT_A11Y_LABEL}
+          {t("communities:write_comment_a11y_label")}
         </Typography>
         <MarkdownInput
           control={control}
@@ -93,9 +94,11 @@ function _CommentForm(
           name="content"
         />
         <div className={classes.buttonsContainer}>
-          {hideable && <Button onClick={onClose}>{CLOSE}</Button>}
+          {hideable && (
+            <Button onClick={onClose}>{t("communities:close")}</Button>
+          )}
           <Button loading={isLoading} type="submit">
-            {COMMENT}
+            {t("communities:comment")}
           </Button>
         </div>
       </form>

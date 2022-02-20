@@ -3,11 +3,9 @@ import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
 import { LocationIcon } from "components/Icons";
 import TextBody from "components/TextBody";
-import {
-  PLACES_EMPTY_STATE,
-  PLACES_TITLE,
-} from "features/communities/constants";
 import { useListPlaces } from "features/communities/hooks";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import React from "react";
 
@@ -20,6 +18,7 @@ export default function PlacesSection({
 }: {
   community: Community.AsObject;
 }) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = useCommunityPageStyles();
 
   const {
@@ -31,14 +30,16 @@ export default function PlacesSection({
 
   return (
     <>
-      <TitleWithIcon icon={<LocationIcon />}>{PLACES_TITLE}</TitleWithIcon>
+      <TitleWithIcon icon={<LocationIcon />}>
+        {t("communities:places_title")}
+      </TitleWithIcon>
       {placesError && <Alert severity="error">{placesError.message}</Alert>}
       {isPlacesLoading && <CircularProgress />}
       <HorizontalScroller className={classes.cardContainer}>
         {places &&
         places.pages.length > 0 &&
         places.pages[0].placesList.length === 0 ? (
-          <TextBody>{PLACES_EMPTY_STATE}</TextBody>
+          <TextBody>{t("communities:places_empty_state")}</TextBody>
         ) : (
           places?.pages
             .flatMap((res) => res.placesList)

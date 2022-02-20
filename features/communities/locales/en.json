@@ -32,6 +32,7 @@
     "load_more_moderators": "Load more Community Builders",
     "local_info_label": "Local info",
     "local_info_link": "Go to local info",
+    "local_info_title": "About {{name}}",
     "more_replies": "More replies...",
     "more_tips": "More tips and information",
     "new_discussion_title": "Discussion title",

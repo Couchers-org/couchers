@@ -9,7 +9,6 @@ import { Community } from "proto/communities_pb";
 import { CommunityParent } from "proto/groups_pb";
 import { CommunityTab, routeToCommunity } from "routes";
 
-import { COMMUNITY_TABS_A11Y_LABEL } from "../constants";
 import JoinCommunityButton from "./JoinCommunityButton";
 
 export const useCommunitySubHeaderStyles = makeStyles((theme) => ({
@@ -79,7 +78,7 @@ export default function CommunityPageSubHeader({
       </div>
       <TabContext value={tab}>
         <TabBar
-          ariaLabel={COMMUNITY_TABS_A11Y_LABEL}
+          ariaLabel={t("communities:community_tabs_a11y_label")}
           setValue={(newTab) =>
             router.push(
               `${routeToCommunity(
