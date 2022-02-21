@@ -269,11 +269,7 @@ def generate_user(*, delete_user=False, **kwargs):
         # this expires the user, so now it's "dirty"
         session.commit()
 
-        class _DummyContext:
-            def invocation_metadata(self):
-                return {}
-
-        token, _ = create_session(_DummyContext(), session, user, False)
+        token, _ = create_session(DummyContext(), session, user, False)
 
         # deleted user aborts session creation, hence this follows and necessitates a second commit
         if delete_user:
@@ -361,6 +357,9 @@ class FakeRpcError(grpc.RpcError):
     def details(self):
         return self._details
 
+class DummyContext:
+    def invocation_metadata(self):
+        return {}
 
 class FakeChannel:
     def __init__(self, user_id=None):
