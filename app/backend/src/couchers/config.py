@@ -126,6 +126,8 @@ def check_config():
             raise Exception("Production site must have SMS enabled")
         if config["IN_TEST"]:
             raise Exception("IN_TEST while not DEV")
+        if config["ADD_DUMMY_DATA"]:
+            raise Exception("ADD_DUMMY_DATA while not DEV")
 
     if config["ENABLE_DONATIONS"]:
         if (
