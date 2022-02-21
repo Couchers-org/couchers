@@ -357,9 +357,11 @@ class FakeRpcError(grpc.RpcError):
     def details(self):
         return self._details
 
+
 class DummyContext:
     def invocation_metadata(self):
         return {}
+
 
 class FakeChannel:
     def __init__(self, user_id=None):

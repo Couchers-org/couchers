@@ -28,11 +28,11 @@ from couchers.tasks import (
     maybe_send_contributor_form_email,
     send_account_deletion_successful_email,
     send_account_recovered_email,
+    send_api_key_email,
     send_login_email,
     send_onboarding_email,
     send_password_reset_email,
     send_signup_email,
-    send_api_key_email,
 )
 from couchers.utils import (
     create_coordinate,
@@ -97,6 +97,7 @@ def create_session(context, session, user, long_lived, is_api_key=False, duratio
     logger.debug(f"Handing out {token=} to {user=}")
     return token, user_session.expiry
 
+
 def create_api_key(context, session, user):
     token, expiry = create_session(
         context, session, user, long_lived=True, is_api_key=True, duration=timedelta(days=365)
@@ -112,6 +113,7 @@ def create_api_key(context, session, user):
         title=f"An admin created an API key for you, please check your email",
         link=urls.account_settings_link(),
     )
+
 
 def delete_session(token):
     """

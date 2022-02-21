@@ -37,10 +37,10 @@ from couchers.models import (
 )
 from couchers.servicers.api import hostingstatus2sql
 from couchers.servicers.auth import create_api_key
-from tests.test_fixtures import DummyContext
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, create_polygon_lng_lat, geojson_to_geom, to_multi
 from proto.api_pb2 import HostingStatus
+from tests.test_fixtures import DummyContext
 
 logger = logging.getLogger(__name__)
 
@@ -368,6 +368,7 @@ def add_dummy_communities():
 
             session.add(page_version)
 
+
 def add_dummy_api_key():
     """
     add_dummy_api_key creates a dummy api key for the user with the id of 1.
@@ -377,17 +378,24 @@ def add_dummy_api_key():
     As an api key of a superuser, the key has access to all api endpoints
     """
     with session_scope() as session:
-        if session.execute(select(func.count())
-            .select_from(UserSession)
-            .where(UserSession.is_api_key)
-            .where(UserSession.is_valid)
-            .where(UserSession.user_id == 1)).scalar_one() > 0:
+        if (
+            session.execute(
+                select(func.count())
+                .select_from(UserSession)
+                .where(UserSession.is_api_key)
+                .where(UserSession.is_valid)
+                .where(UserSession.user_id == 1)
+            ).scalar_one()
+            > 0
+        ):
             logger.info("API Keys not empty, not adding dummy API key.")
-            token = session.execute(select(UserSession.token)
+            token = session.execute(
+                select(UserSession.token)
                 .select_from(UserSession)
                 .where(UserSession.is_valid)
                 .where(UserSession.is_api_key)
-                .where(UserSession.user_id == 1)).first()
+                .where(UserSession.user_id == 1)
+            ).first()
             logger.info(f"API Key: {token}")
             return
 
