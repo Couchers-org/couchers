@@ -119,7 +119,7 @@ sqlalchemy==1.4.31
     #   -r requirements.in
     #   alembic
     #   geoalchemy2
-stripe==2.65.0
+stripe==2.66.0
     # via -r requirements.in
 tomli==2.0.0
     # via
