@@ -36,7 +36,7 @@ from couchers.models import (
     UserSession,
 )
 from couchers.servicers.api import hostingstatus2sql
-from couchers.servicers.auth import create_api_key
+from couchers.servicers.admin import create_api_key
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, create_polygon_lng_lat, geojson_to_geom, to_multi
 from proto.api_pb2 import HostingStatus

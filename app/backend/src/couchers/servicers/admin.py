@@ -99,21 +99,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
             user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-            token, expiry = create_session(
-                context, session, user, long_lived=True, is_api_key=True, duration=timedelta(days=365)
-            )
-            send_api_key_email(session, user, token, expiry)
 
-            notify(
-                user_id=user.id,
-                topic="api_key",
-                key="",
-                action="create",
-                icon="wrench",
-                title=f"An admin created an API key for you, please check your email",
-                link=urls.account_settings_link(),
-            )
-
+            create_api_key()
+        
             return _user_to_details(user)
 
     def CreateCommunity(self, request, context):
@@ -130,3 +118,20 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
 
             return community_to_pb(node, context)
+
+def create_api_key(context, session, user):
+    token, expiry = create_session(
+        context, session, user, long_lived=True, is_api_key=True, duration=timedelta(days=365)
+    )
+    send_api_key_email(session, user, token, expiry)
+
+    notify(
+        user_id=user.id,
+        topic="api_key",
+        key="",
+        action="create",
+        icon="wrench",
+        title=f"An admin created an API key for you, please check your email",
+        link=urls.account_settings_link(),
+    )
+
