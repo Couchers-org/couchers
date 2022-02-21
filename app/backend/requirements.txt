@@ -34,7 +34,7 @@ geoalchemy2==0.10.2
     # via -r requirements.in
 greenlet==1.1.2
     # via sqlalchemy
-grpcio==1.43.0
+grpcio==1.44.0
     # via -r requirements.in
 idna==3.3
     # via requests
