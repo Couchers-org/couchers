@@ -20,7 +20,7 @@
     "password_changed_success": "La tua nuova password è stata impostata e una notifica è stata inviata al tuo indirizzo e-mail.",
     "old_password": "Vecchia password",
     "new_password": "Nuova password",
-    "password_mismatch_error": "Questo non corrisponde alla nuova password indicata sopra."
+    "password_mismatch_error": "Le password non corrispondono."
   },
   "reset_password_form": {
     "enter_email": "Inserisci il tuo nome utente/e-mail",
@@ -79,7 +79,7 @@
       "non_binary": "Non binario",
       "man": "Uomo",
       "woman": "Donna",
-      "field_label": "Io mi identifico come..."
+      "field_label": "Io mi identifico come…"
     },
     "tos_accept_label": "Io accetto i Termini di Servizio.",
     "tos_prompt": "Per continuare, per favore leggi ed accetta <1></1>.",
@@ -181,5 +181,47 @@
     "button_text": "Confermare annullamento iscrizione",
     "error_message": "Errore durante l'annullamento dell'iscrizione: {{message}}",
     "missing_payload_or_sig": "URL non valido, dati o firma mancanti"
+  },
+  "change_phone": {
+    "phone_label": "Il tuo numero di telefono",
+    "title": "Numero telefonico",
+    "no_phone_description": "Non hai inserito un numero di telefono nel tuo profilo. Per aggiungerne uno, digitalo qui sotto. Ti invieremo un messaggio di verifica.",
+    "add_button_text": "Aggiungi un numero di telefono",
+    "add_success": "Numero di telefono aggiunto.",
+    "phone_not_verified_description": "Ti abbiamo inviato un codice al <2>{{phone}}</2>. Per verificare il tuo numero inserisci il codice qui sotto:",
+    "wrong_code": "Il codice è errato.",
+    "verify_button_text": "Verifica il numero di telefono",
+    "verify_success": "Numero di telefono verificato.",
+    "remove_phone_description": "Il tuo attuale numero di telefono è <2>{{phone}}</2>. Puoi rimuovere il numero di telefono qui sotto.",
+    "remove_success": "Numero di telefono eliminato.",
+    "remove_button_text": "Elimina l'attuale numero di telefono",
+    "change_to_different_description": "Per cambiare il tuo numero di telefono, inserisci quello nuovo qui sotto.",
+    "change_button_text": "Modifica numero di telefono",
+    "code_label": "Codice di verifica"
+  },
+  "delete_account": {
+    "request": {
+      "title": "Elimina conto",
+      "description": "Per eliminare il tuo conto segui le istruzioni qui sotto. Ti invieremo una e-mail di conferma.",
+      "reason_explanation": "Per favore, aiutaci a migliorare la piattaforma facendoci sapere perché hai deciso di eliminare il tuo conto.",
+      "reason_label": "Ragione per eliminazione del conto",
+      "success_message": "Eliminazione del conto iniziata. Per completare l'eliminazione del conto, per favore confermala tramite il messaggio e-mail che ti abbiamo inviato.",
+      "confirm_username_label": "Conferma nome utente",
+      "username_mismatch": "Il nome utente non coincide.",
+      "confirm_username_explanation": "Il tuo nome utente è <1>{{ username }}</1>, per favore digitalo qui sotto per confermare l'eliminazione del tuo profilo."
+    },
+    "confirm": {
+      "title": "Conferma eliminazione conto",
+      "error_message": "Non si è potuto eliminare il conto: {{message}}",
+      "button_text": "Conferma eliminazione conto",
+      "account_deleted": "Conto eliminato. Grazie per aver usato Couchers.org!"
+    },
+    "recover": {
+      "button_text": "Recupera il tuo conto",
+      "title": "Recupera il tuo conto Couchers.org",
+      "error_message": "Non si è potuto recuperare il conto: {{message}}",
+      "success": "Il tuo conto è stato recuperato, ora puoi accedere di nuovo. Siamo felici che tu sia di ritorno!"
+    },
+    "missing_token": "Errore: token mancante"
   }
 }
