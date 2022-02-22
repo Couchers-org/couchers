@@ -207,7 +207,8 @@
       "reason_label": "Ragione per eliminazione del conto",
       "success_message": "Eliminazione del conto iniziata. Per completare l'eliminazione del conto, per favore confermala tramite il messaggio e-mail che ti abbiamo inviato.",
       "confirm_username_label": "Conferma nome utente",
-      "username_mismatch": "Il nome utente non coincide."
+      "username_mismatch": "Il nome utente non coincide.",
+      "confirm_username_explanation": "Il tuo nome utente è <1>{{ username }}</1>, per favore digitalo qui sotto per confermare l'eliminazione del tuo profilo."
     },
     "confirm": {
       "title": "Conferma eliminazione conto",
