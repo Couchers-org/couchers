@@ -22,7 +22,5 @@
     "donations_text": "",
     "donations_text2": "",
     "benefactor_contact": "",
-    "benefactor_email": "benefactor@couchers.org",
-    "donations_recurrence_explainer": "",
-    "donations_value": "{{val, currency}}"
+    "donations_recurrence_explainer": ""
 }
