@@ -191,6 +191,9 @@
     "phone_not_verified_description": "Ti abbiamo inviato un codice al <2>{{phone}}</2>. Per verificare il tuo numero inserisci il codice qui sotto:",
     "wrong_code": "Il codice è errato.",
     "verify_button_text": "Verifica il numero di telefono",
-    "verify_success": "Numero di telefono verificato."
+    "verify_success": "Numero di telefono verificato.",
+    "remove_phone_description": "Il tuo attuale numero di telefono è <2>{{phone}}</2>. Puoi rimuovere il numero di telefono qui sotto",
+    "remove_success": "Numero di telefono eliminato",
+    "remove_button_text": "Elimina l'attuale numero di telefono"
   }
 }
