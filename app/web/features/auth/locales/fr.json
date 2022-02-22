@@ -10,5 +10,8 @@
     "name": {
       "empty_error": "Veuillez entrer votre nom"
     }
+  },
+  "community_guidelines_form": {
+    "header": "Bonne conduite de la communauté"
   }
 }
