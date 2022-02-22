@@ -7,7 +7,7 @@
     "new_email": "Ny e-postadresse"
   },
   "change_email_confirmation": {
-    "change_in_progress": "Endrer e-postadresse …",
+    "change_in_progress": "Endrer e-postadresse…",
     "success_message": "Registert e-postadresse endret!",
     "requires_confirmation_from_new_email": "Takk for at du bekrefter din gamle e-postadresse. Fullfør endringen ved å bekrefte din nye.",
     "requires_confirmation_from_old_email": "Takk for at du bekrefter din nye e-postadresse. Fullfør endringen ved å bekrefte din gamle e-postadresse.",
@@ -18,7 +18,7 @@
     "title": "Endre passord",
     "old_password": "Gammelt passord",
     "new_password": "Nytt passord",
-    "password_mismatch_error": "Passordet samsvarer ikke.",
+    "password_mismatch_error": "Passordene samsvarer ikke.",
     "confirm_password": "Bekreft passord",
     "password_changed_success": "Ditt nye passord er satt, og en merknad ble send til deg per e-post."
   },
@@ -105,7 +105,7 @@
   },
   "about_us": "Om oss",
   "sign_up_confirmed_prompt": "Da er alt klart! Hvis ikke siden åpnes automatisk kan du prøve å logge in selv.",
-  "unhandled_sign_up_state": "Uhåndtert flyttilstand for registrering.",
+  "unhandled_sign_up_state": "Feilmelding: unhandled signup flow state.",
   "login_prompt": "Klikk her for å logge inn",
   "introduction_title": "Ta del og bygg det nye alternativet til Couchsurfing™",
   "feature_preview": {
@@ -142,7 +142,7 @@
     "no_phone_description": "Du har ikke lagt til et telefonnummer på brukerkontoen din. For å registrere en telefon, skriv inn nummeret i feltet under. Vi vil bekrefte det med en tekstmelding.",
     "add_success": "Telefonnummer er lagt til.",
     "phone_not_verified_description": "Vi har sendt en kode til <2>{{phone}}</2>. For å bekreftet telefonnummeret ditt, vennligst skriv inn denne koden i feltet under:",
-    "remove_phone_description": "Ditt telefonnummer er <2>{{phone}}</2>. Du kan slette nummeret ditt under, men da vil bekreftelsen oppheves."
+    "remove_phone_description": "Ditt telefonnummer er <2>{{phone}}</2>. Du kan slette nummeret ditt nedenfor."
   },
   "jail": {
     "title": "Det trengs mer informasjon",
@@ -210,7 +210,7 @@
       "reason_label": "Årsaken for å slette brukerkontoen",
       "success_message": "Sletting av brukerkontoen er påbegynt. For å fullføre slettingen vennligst bekreft via e-posten vi har sendt deg."
     },
-    "missing_token": "En bekreftelseskode mangler",
+    "missing_token": "Feilmelding: missing token",
     "confirm": {
       "title": "Bekreft sletting av brukerkontoen",
       "error_message": "Mangler bekreftelse på sletting av brukerkonto: {{message}}",
