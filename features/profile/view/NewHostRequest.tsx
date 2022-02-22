@@ -15,7 +15,6 @@ import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
 import {
   ARRIVAL_DATE,
-  CANCEL,
   DEPARTURE_DATE,
   MEETUP_ONLY,
   OVERNIGHT_STAY,
@@ -28,6 +27,8 @@ import {
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useUser } from "features/userQueries/useUsers";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
@@ -77,6 +78,7 @@ export default function NewHostRequest({
   setIsRequestSuccess,
   setIsRequesting,
 }: NewHostRequestProps) {
+  const { t } = useTranslation([GLOBAL, PROFILE]);
   const classes = useStyles();
   const isPostBetaEnabled = process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED;
   const [numVisitors, setNumVisitors] = useState(1);
@@ -217,7 +219,9 @@ export default function NewHostRequest({
             placeholder={REQUEST_DESCRIPTION}
           />
           <CardActions className={classes.send}>
-            <Button onClick={() => setIsRequesting(false)}>{CANCEL}</Button>
+            <Button onClick={() => setIsRequesting(false)}>
+              {t("global:cancel")}
+            </Button>
             <Button type="submit" onClick={onSubmit}>
               {SEND}
             </Button>

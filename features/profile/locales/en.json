@@ -65,5 +65,12 @@
     "message": "Message",
     "default_about_me_headings": "# Current mission\n<br>\ne.g. I want to meet people and learn...\n<br>\n# Why I use Couchers.org\n<br>\ne.g. I think couch surfing should be free...\n<br>\n# My favorite travel story\n<br>\ne.g. One time I...\n",
     "default_hobbies_headings": "# Art\n<br>\ne.g. Painting, ...\n<br>\n# Books\n<br>\neg. The Cat in the Hat, ...\n<br>\n# Movies\n<br>\ne.g. David Attenborough documentaries, ...\n<br>\n# Music\n<br>\ne.g. The Wiggles, ...\n<br>\n",
-    "default_about_home_headings": "# What I can share with guests\n<br>\ne.g. I can share...\n<br>\n"
+    "default_about_home_headings": "# What I can share with guests\n<br>\ne.g. I can share...\n<br>\n",
+    "overview_section_title": "Overview",
+    "who_section_title": "Who I am",
+    "hobbies_section_title": "What I do in my free time",
+    "additional_information_section_title": "Additional information",
+    "travel_section_title": "Travelled to",
+    "lived_section_title": "Lived in",
+    "regions_empty_state": "None"
 }

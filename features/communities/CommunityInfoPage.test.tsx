@@ -6,7 +6,6 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { getProfileLinkA11yLabel } from "components/Avatar/constants";
-import { EDIT } from "features/constants";
 import mockRouter from "next-router-mock";
 import { routeToCommunity, routeToEditCommunityPage } from "routes";
 import { service } from "service";
@@ -14,7 +13,7 @@ import community from "test/fixtures/community.json";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
 import { getUser, listCommunityAdmins } from "test/serviceMockDefaults";
-import { assertErrorAlert, keyPress, mockConsoleError } from "test/utils";
+import { assertErrorAlert, keyPress, mockConsoleError, t } from "test/utils";
 
 import CommunityInfoPage from "./CommunityInfoPage";
 import {
@@ -69,7 +68,9 @@ describe("Community info page", () => {
     expect(screen.getByText(community.mainPage.content)).toBeVisible();
 
     // Shouldn't show the edit link since the default user doesn't have permission
-    expect(screen.queryByRole("link", { name: EDIT })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: t("global:edit") })
+    ).not.toBeInTheDocument();
 
     // Community moderators section checks
     expect(
@@ -100,7 +101,7 @@ describe("Community info page", () => {
       );
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      const editLink = screen.getByRole("link", { name: EDIT });
+      const editLink = screen.getByRole("link", { name: t("global:edit") });
       expect(editLink).toBeVisible();
 
       userEvent.click(editLink);

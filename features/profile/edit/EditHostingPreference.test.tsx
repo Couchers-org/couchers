@@ -20,7 +20,7 @@ import {
   PARKING_DETAILS,
   SAVE,
   SPACE,
-} from "../../constants";
+} from "features/profile/constants";
 import EditHostingPreference from "./EditHostingPreference";
 
 jest.mock("components/MarkdownInput");

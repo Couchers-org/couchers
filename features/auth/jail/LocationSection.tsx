@@ -54,7 +54,7 @@ export default function LocationSection({
           featureArea: "auth/jail/locationField",
         },
       });
-      setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
+      setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
     }
   });
 

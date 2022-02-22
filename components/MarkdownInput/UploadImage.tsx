@@ -8,7 +8,8 @@ import {
 } from "components/Dialog";
 import ImageInput from "components/ImageInput";
 import TextField from "components/TextField";
-import { CANCEL } from "features/constants";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { ImageInputValues } from "service/api";
@@ -30,6 +31,7 @@ export default function UploadImage({
   open,
   onClose,
 }: UploadImageProps) {
+  const { t } = useTranslation(GLOBAL);
   const alt = useRef("");
   const { control } = useForm();
   const handleSuccess = async (data: ImageInputValues) => {
@@ -60,7 +62,7 @@ export default function UploadImage({
       </DialogContent>
       <DialogActions>
         <Button variant="outlined" onClick={onClose}>
-          {CANCEL}
+          {t("cancel")}
         </Button>
       </DialogActions>
     </Dialog>

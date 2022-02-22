@@ -128,7 +128,7 @@ describe("User page", () => {
       it("opens the report user dialog", async () => {
         expect(
           await screen.findByRole("heading", {
-            name: t("global:report.flag.button_aria_label"),
+            name: t("global:report.flag.title"),
           })
         ).toBeVisible();
       });
@@ -140,7 +140,7 @@ describe("User page", () => {
 
         await waitForElementToBeRemoved(
           screen.getByRole("heading", {
-            name: t("global:report.flag.button_aria_label"),
+            name: t("global:report.flag.title"),
           })
         );
         expect(screen.queryByRole("presentation")).not.toBeInTheDocument();

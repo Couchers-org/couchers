@@ -7,7 +7,6 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { SEND } from "features/constants";
 import { MARK_LAST_SEEN_TIMEOUT } from "features/messages/constants";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -300,7 +299,7 @@ describe("GroupChatView", () => {
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
 
     userEvent.type(screen.getByLabelText("Message"), "Sounds good");
-    const sendButton = screen.getByRole("button", { name: SEND });
+    const sendButton = screen.getByRole("button", { name: t("global:send") });
     userEvent.click(sendButton);
     await waitForElementToBeRemoved(
       within(sendButton).getByRole("progressbar")

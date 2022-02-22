@@ -8,7 +8,6 @@ import {
   SELECT_AN_IMAGE,
   UPLOAD_PENDING_ERROR,
 } from "components/constants";
-import { SUBMIT } from "features/constants";
 import { StatusCode } from "grpc-web";
 import { InitiateMediaUploadRes } from "proto/api_pb";
 import { useForm } from "react-hook-form";
@@ -21,7 +20,12 @@ import {
 } from "service/constants";
 import wrapper from "test/hookWrapper";
 import { rest, server } from "test/restMock";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
+import {
+  assertErrorAlert,
+  mockConsoleError,
+  MockedService,
+  t,
+} from "test/utils";
 
 import ImageInput from "./ImageInput";
 
@@ -77,7 +81,7 @@ describe.each`
               onSuccess={onSuccessMock}
             />
           )}
-          <input type="submit" name={SUBMIT} />
+          <input type="submit" name={t("global:submit")} />
         </form>
       );
     };
@@ -114,7 +118,7 @@ describe.each`
       full_url: "full.jpg",
     });
 
-    userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(submitForm).toHaveBeenCalledWith({ imageInput: MOCK_KEY });
@@ -159,7 +163,7 @@ describe.each`
       expect(uploadFileMock).not.toHaveBeenCalled();
     });
 
-    userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(submitForm).toHaveBeenCalledWith({ imageInput: "" });
@@ -207,7 +211,7 @@ describe.each`
     ).toMatch(/thumb0.jpg/);
 
     //submit
-    userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(submitForm).toHaveBeenCalledWith({ imageInput: "firstKey" });
@@ -222,7 +226,7 @@ describe.each`
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
 
-    userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
 
     expect(await screen.findByText(UPLOAD_PENDING_ERROR)).toBeVisible();
     expect(submitForm).not.toHaveBeenCalled();

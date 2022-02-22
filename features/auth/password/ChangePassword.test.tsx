@@ -93,7 +93,9 @@ describe("ChangePassword", () => {
       userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
 
       expect(
-        await screen.findByText(/This does not match the new password/i)
+        await screen.findByText(
+          t("auth:change_password_form.password_mismatch_error")
+        )
       ).toBeVisible();
       expect(changePasswordMock).not.toHaveBeenCalled();
     });
