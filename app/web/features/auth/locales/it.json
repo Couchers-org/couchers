@@ -188,6 +188,7 @@
     "no_phone_description": "Non hai inserito un numero di telefono nel tuo profilo. Per aggiungerne uno, digitalo qui sotto. Ti invieremo un messaggio di verifica.",
     "add_button_text": "Aggiungi un numero di telefono",
     "add_success": "Numero di telefono aggiunto.",
-    "phone_not_verified_description": "Abbiamo inviato un codice di verifica al <2>{{phone}}</2>. Per verificare il tuo numero inserisci il codice qui sotto:"
+    "phone_not_verified_description": "Ti abbiamo inviato un codice al <2>{{phone}}</2>. Per verificare il tuo numero inserisci il codice qui sotto:",
+    "wrong_code": "Il codice è errato."
   }
 }
