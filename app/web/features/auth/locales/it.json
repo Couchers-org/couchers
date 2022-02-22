@@ -20,7 +20,7 @@
     "password_changed_success": "La tua nuova password è stata impostata e una notifica è stata inviata al tuo indirizzo e-mail.",
     "old_password": "Vecchia password",
     "new_password": "Nuova password",
-    "password_mismatch_error": "Questo non corrisponde alla nuova password indicata sopra."
+    "password_mismatch_error": "Le password non corrispondono."
   },
   "reset_password_form": {
     "enter_email": "Inserisci il tuo nome utente/e-mail",
@@ -181,5 +181,9 @@
     "button_text": "Confermare annullamento iscrizione",
     "error_message": "Errore durante l'annullamento dell'iscrizione: {{message}}",
     "missing_payload_or_sig": "URL non valido, dati o firma mancanti"
+  },
+  "change_phone": {
+    "phone_label": "Il tuo numero di telefono",
+    "title": "Numero telefonico"
   }
 }
