@@ -196,6 +196,11 @@
     "remove_success": "Numero di telefono eliminato.",
     "remove_button_text": "Elimina l'attuale numero di telefono",
     "change_to_different_description": "Per cambiare il tuo numero di telefono, inserisci quello nuovo qui sotto.",
-    "change_button_text": "Modifica il numero di telefono"
+    "change_button_text": "Modifica numero di telefono"
+  },
+  "delete_account": {
+    "request": {
+      "title": "Elimina conto"
+    }
   }
 }
