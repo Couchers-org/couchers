@@ -16,8 +16,9 @@ import {
   DONATIONSBOX_VALUES,
 } from "features/donations/constants";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { DONATIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
 import { useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
@@ -197,7 +198,7 @@ export interface DonationFormData {
 }
 
 export default function DonationsBox() {
-  const { t } = useTranslation("donations");
+  const { t } = useTranslation(DONATIONS);
   const stripePromise = useMemo(async () => {
     const stripe = await import("@stripe/stripe-js");
     return stripe.loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY);
@@ -274,12 +275,11 @@ export default function DonationsBox() {
     };
 
   const formatDonationValue = (val: number) =>
-    t("donations_value", {
-      val,
-      formatParams: {
-        val: { currency: "USD", minimumFractionDigits: 0, locale: "en-US" },
-      },
-    });
+    new Intl.NumberFormat("en-US", {
+      currency: "USD",
+      minimumFractionDigits: 0,
+      style: "currency",
+    }).format(val);
 
   return (
     <>
