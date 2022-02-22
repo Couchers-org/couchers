@@ -1,1 +1,13 @@
-{}
+{
+  "basic_sign_up_form": {
+    "existing_user_prompt": ""
+  },
+  "change_email_form": {
+    "title": "Changer d'adresse e-mail"
+  },
+  "basic_form": {
+    "name": {
+      "empty_error": "Veuillez entrer votre nom"
+    }
+  }
+}

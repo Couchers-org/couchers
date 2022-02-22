@@ -20,7 +20,7 @@
     "password_changed_success": "Your new password has been set and a notification was sent to your email.",
     "old_password": "Old password",
     "new_password": "New password",
-    "password_mismatch_error": "This does not match the new password you typed above."
+    "password_mismatch_error": "The passwords don't match."
   },
   "jail_set_password_form": {
     "title": "Set a password",
