@@ -51,7 +51,7 @@
     "react-intersection-observer": "^8.32.5",
     "react-lines-ellipsis": "^0.15.0",
     "react-phone-number-input": "^3.1.44",
-    "react-query": "^3.34.15",
+    "react-query": "^3.34.16",
     "seamless-scroll-polyfill": "^2.1.5"
   },
   "devDependencies": {
