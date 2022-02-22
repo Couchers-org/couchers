@@ -79,7 +79,7 @@
       "non_binary": "Non binario",
       "man": "Uomo",
       "woman": "Donna",
-      "field_label": "Io mi identifico come..."
+      "field_label": "Io mi identifico come…"
     },
     "tos_accept_label": "Io accetto i Termini di Servizio.",
     "tos_prompt": "Per continuare, per favore leggi ed accetta <1></1>.",
@@ -196,12 +196,31 @@
     "remove_success": "Numero di telefono eliminato.",
     "remove_button_text": "Elimina l'attuale numero di telefono",
     "change_to_different_description": "Per cambiare il tuo numero di telefono, inserisci quello nuovo qui sotto.",
-    "change_button_text": "Modifica numero di telefono"
+    "change_button_text": "Modifica numero di telefono",
+    "code_label": "Codice di verifica"
   },
   "delete_account": {
     "request": {
       "title": "Elimina conto",
-      "description": "Per eliminare il tuo profilo segui le istruzioni qui sotto. Ti invieremo una email di conferma."
-    }
+      "description": "Per eliminare il tuo conto segui le istruzioni qui sotto. Ti invieremo una e-mail di conferma.",
+      "reason_explanation": "Per favore, aiutaci a migliorare la piattaforma facendoci sapere perché hai deciso di eliminare il tuo conto.",
+      "reason_label": "Ragione per eliminazione del conto",
+      "success_message": "Eliminazione del conto iniziata. Per completare l'eliminazione del conto, per favore confermala tramite il messaggio e-mail che ti abbiamo inviato.",
+      "confirm_username_label": "Conferma nome utente",
+      "username_mismatch": "Il nome utente non coincide."
+    },
+    "confirm": {
+      "title": "Conferma eliminazione conto",
+      "error_message": "Non si è potuto eliminare il conto: {{message}}",
+      "button_text": "Conferma eliminazione conto",
+      "account_deleted": "Conto eliminato. Grazie per aver usato Couchers.org!"
+    },
+    "recover": {
+      "button_text": "Recupera il tuo conto",
+      "title": "Recupera il tuo conto Couchers.org",
+      "error_message": "Non si è potuto recuperare il conto: {{message}}",
+      "success": "Il tuo conto è stato recuperato, ora puoi accedere di nuovo. Siamo felici che tu sia di ritorno!"
+    },
+    "missing_token": "Errore: token mancante"
   }
 }
