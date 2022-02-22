@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 import { userKey } from "features/queryKeys";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
@@ -50,7 +51,7 @@ export default function useAuthStore() {
   //may as well not waste the api call since it is needed for userId
   const queryClient = useQueryClient();
 
-  const { t } = useTranslation("global");
+  const { t } = useTranslation(GLOBAL);
   const fatalErrorMessage = useRef(t("fatal_error_message"));
   const authActions = useMemo(
     () => ({

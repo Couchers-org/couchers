@@ -43,7 +43,9 @@
     //not using this right now
     "@next/next/no-img-element": "off",
     //this is ugly
-    "react/no-unescaped-entities": "off"
+    "react/no-unescaped-entities": "off",
+    // Prefer inferred types so that the code is as close to JS as possible
+    "@typescript-eslint/explicit-module-boundary-types": "off"
   },
   "overrides": [
     //allow any in stories

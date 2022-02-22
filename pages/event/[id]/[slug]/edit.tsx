@@ -1,6 +1,7 @@
 import { appGetLayout } from "components/AppRoute";
 import EditEventPageComponent from "features/communities/events/EditEventPage";
 import NotFoundPage from "features/NotFoundPage";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { useRouter } from "next/router";
 import nextI18nextConfig from "next-i18next.config";
@@ -16,7 +17,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
     ...(await serverSideTranslations(
       locale ?? "en",
-      ["global", "communities"],
+      [GLOBAL, COMMUNITIES],
       nextI18nextConfig
     )),
   },

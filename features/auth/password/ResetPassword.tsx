@@ -6,7 +6,8 @@ import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -27,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function ResetPassword() {
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const classes = useStyles();
   const { handleSubmit, register } = useForm<{ userId: string }>();
 

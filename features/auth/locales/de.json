@@ -1,132 +1,166 @@
 {
-    "community_guidelines_form": {
-        "header": "Community-Richtlinien",
-        "guideline": {
-            "required_error": "Alle Kontrollkästchen werden benötigt",
-            "checkbox_label": "Okay, verstanden"
-        }
+  "community_guidelines_form": {
+    "header": "Community-Richtlinien",
+    "guideline": {
+      "required_error": "Alle Kontrollkästchen werden benötigt",
+      "checkbox_label": "Okay, verstanden"
+    }
+  },
+  "account_form": {
+    "tos_accept_label": "Ich akzeptiere die $t(global:terms_of_service).",
+    "header": "Deine Accountdetails",
+    "username": {
+      "field_label": "Benutzername",
+      "required_error": "Gib deinen Nuternamen ein",
+      "username_taken_error": "Dieser Benutzername ist bereits vergeben."
     },
-    "account_form": {
-        "tos_accept_label": "Ich akzeptiere die $t(global:terms_of_service).",
-        "header": "Deine Accountdetails",
-        "username": {
-            "field_label": "Benutzername",
-            "required_error": "Gib deinen Nuternamen ein",
-            "username_taken_error": "Dieser Benutzername ist bereits vergeben."
-        },
-        "birthday": {
-            "field_label": "Geburtsdatum",
-            "required_error": "Gib dein Geburtsdatum ein",
-            "validation_error": "Muss ein gültiges Datum aus der Vergangenheit sein."
-        },
-        "hosting_status": {
-            "can_host": "Kann hosten",
-            "maybe": "Kann vielleicht hosten",
-            "cant_host": "Kann nicht hosten"
-        },
-        "gender": {
-            "field_label": "Ich identifiziere mich als ...",
-            "required_error": "Bitte wähle deine Geschlechts/Gender-Identität aus",
-            "man": "Mann",
-            "non_binary": "Nicht-binär",
-            "woman": "Frau"
-        },
-        "tos_prompt": "Um fortzufahren, lies und akzeptiere bitte die <1></1>."
+    "birthday": {
+      "field_label": "Geburtsdatum",
+      "required_error": "Gib dein Geburtsdatum ein",
+      "validation_error": "Muss ein gültiges Datum aus der Vergangenheit sein."
     },
-    "sign_up_completed_prompt": "Wir haben eine E-Mail-Adresse mit einem Bestätigungslink an deine E-Mail-Adresse gesendet. Bitte klicke auf den Link, um deinen Account zu aktivieren.",
-    "timezone_helper": "Diese Zeit und Zeitzone wurden nach deinem Aufenthaltsort bestimmt. Bitte melde einen Bug, falls ein Fehler vorliegt.",
-    "change_gender_contact": "Admins werden dir gerne bei der Änderung deiner Geschlechtsidentität behilflich sein. Bitte kontaktiere support@couchers.org!",
-    "no_signup": "Es ist kein Anmeldungsprozess im Gange. Versuch es bitte ganz von vorn.",
-    "location_confirm_title": "Überprüfe deine Karte erneut, bevor du fortfährst",
-    "location_confirm_warn": "Überprüfe, dass dein Wohnort nicht im Zentrum des Kreises ist, damit andere nicht den genauen Standort erfahren. Klicke und platziere den Kreis auf der Karte, sodass andere nur den ungefähren Standort angezeigt bekommen.",
-    "change_email_form": {
-        "title": "E-Mail-Adresse ändern",
-        "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <2>{{email}}</2>.",
-        "current_password": "Aktuelles Passwort",
-        "new_email": "Neue E-Mail-Adresse",
-        "success_message": "Die Änderung deiner E-Mail-Adresse wurde empfangen. Überprüfe dein E-Mail-Postfach, um die Änderung abzuschließen."
+    "hosting_status": {
+      "can_host": "Kann hosten",
+      "maybe": "Kann vielleicht hosten",
+      "cant_host": "Kann nicht hosten"
     },
-    "change_email_confirmation": {
-        "change_in_progress": "Änderung der E-Mail-Adresse in Bearbeitung…",
-        "success_message": "Deine E-Mail-Adresse wurde erfolgreich geändert!",
-        "invalid_confirmation_state": "Ungültiger Status der Bestätigung der E-Mail-Adresse",
-        "error_message": "Fehler beim Ändern der E-Mail-Adresse: {{message}}",
-        "requires_confirmation_from_new_email": "Danke, dass du deine alte E-Mail-Adresse bestätigt hast. Um die Änderung abzuschließen, musst du immer noch deine neue E-Mail-Adresse bestätigen.",
-        "requires_confirmation_from_old_email": "Danke, dass du deine neue E-Mail-Adresse bestätigt hast. Um die Änderung abzuschließen, musst du immer noch deine alte E-Mail-Adresse bestätigen."
+    "gender": {
+      "field_label": "Ich identifiziere mich als ...",
+      "required_error": "Bitte wähle deine Geschlechts/Gender-Identität aus",
+      "man": "Mann",
+      "non_binary": "Nicht-binär",
+      "woman": "Frau"
     },
-    "basic_form": {
-        "name": {
-            "empty_error": "Bitte gib deinen Namen an",
-            "required_error": "Namen dürfen nicht nur Leerzeichen enthalten.",
-            "field_label": "Dein Name"
-        },
-        "email": {
-            "field_label": "E-Mail-Adresse",
-            "empty_error": "Bitte gib eine giltige E-Mail-Adresse an",
-            "required_error": "Das Feld \"E-Mail-Adresse\" darf nicht leer sein."
-        }
+    "tos_prompt": "Um fortzufahren, lies und akzeptiere bitte die <1></1>.",
+    "password": {
+      "validation_error": "Ein Passwort muss zwischen 8 und 256 Zeichen besitzen und darf keinem häufigen Wort entsprechen.",
+      "field_label": "Passwort",
+      "required_error": "Gib ein Passwort an"
+    }
+  },
+  "sign_up_completed_prompt": "Wir haben eine E-Mail-Adresse mit einem Bestätigungslink an deine E-Mail-Adresse gesendet. Bitte klicke auf den Link, um deinen Account zu aktivieren.",
+  "change_email_form": {
+    "title": "E-Mail-Adresse ändern",
+    "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <2>{{email}}</2>.",
+    "current_password": "Aktuelles Passwort",
+    "new_email": "Neue E-Mail-Adresse",
+    "success_message": "Die Änderung deiner E-Mail-Adresse wurde empfangen. Überprüfe dein E-Mail-Postfach, um die Änderung abzuschließen."
+  },
+  "change_email_confirmation": {
+    "change_in_progress": "Änderung der E-Mail-Adresse in Bearbeitung…",
+    "success_message": "Deine E-Mail-Adresse wurde erfolgreich geändert!",
+    "invalid_confirmation_state": "Ungültiger Status der Bestätigung der E-Mail-Adresse",
+    "error_message": "Fehler beim Ändern der E-Mail-Adresse: {{message}}",
+    "requires_confirmation_from_new_email": "Danke, dass du deine alte E-Mail-Adresse bestätigt hast. Um die Änderung abzuschließen, musst du immer noch deine neue E-Mail-Adresse bestätigen.",
+    "requires_confirmation_from_old_email": "Danke, dass du deine neue E-Mail-Adresse bestätigt hast. Um die Änderung abzuschließen, musst du immer noch deine alte E-Mail-Adresse bestätigen."
+  },
+  "basic_form": {
+    "name": {
+      "empty_error": "Bitte gib deinen Namen an",
+      "required_error": "Namen dürfen nicht nur Leerzeichen enthalten.",
+      "field_label": "Dein Name"
     },
-    "location": {
-        "field_label": "Dein Ort",
-        "validation_error": "Bitte gib einen gültigen Ort an."
+    "email": {
+      "field_label": "E-Mail-Adresse",
+      "empty_error": "Bitte gib eine giltige E-Mail-Adresse an",
+      "required_error": "Das Feld \"E-Mail-Adresse\" darf nicht leer sein."
+    }
+  },
+  "location": {
+    "field_label": "Dein Ort",
+    "validation_error": "Bitte gib einen gültigen Ort an."
+  },
+  "change_password_form": {
+    "title": "Passwort ändern",
+    "confirm_password": "Passwort bestätigen",
+    "password_changed_success": "Dein neues Passwort wurde akzeptiert und eine Benachrichtigung wurde an deine E-Mail-Adresse gesendet.",
+    "old_password": "Altes Passwort",
+    "new_password": "Neues Passwort",
+    "password_mismatch_error": "Dies stimmt nicht mit dem Passwort, das du oben eingegeben hast, überein."
+  },
+  "reset_password_form": {
+    "success_message": "Überprüfe deine E-Mail-Adresse, für einen Link, um das Passwort zurückzusetzen!",
+    "enter_email": "Gib deinen Benutzernamen/deine E-Mail-Adresse ein"
+  },
+  "login_page": {
+    "title": "Einloggen",
+    "header": "Willkommen zurück!",
+    "no_account_prompt": "Hast du noch keinen Account? <2>$t(global:sign_up)</2>",
+    "form": {
+      "username_field_label": "E-Mail-Adresse/Benutzername",
+      "password_field_label": "Passwort",
+      "no_password_login_prompt": "Überprüfe dein E-Mail-Postfach nach einem Link, um dich einzuloggen! :)",
+      "remember_me": "Angemeldet bleiben",
+      "forgot_password": "Passwort vergessen?"
+    }
+  },
+  "basic_sign_up_form": {
+    "header": "Lass uns loslegen!",
+    "existing_user_prompt": "Hast du bereits einen Account? <2>$t(global:login)</2>",
+    "sign_up_agreement_explainer": "Beim Fortfahren stimmst du unseren <2>Nutzungsvereinbarungen</2> zu, inklusive unseren Vereinbarung zur Verwendung von Cookies, E-Mail-Adresse und digitaler Informationen."
+  },
+  "sign_up_completed_title": "Danke, dass du uns beigetreten bist!",
+  "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche, dich einzuloggen.",
+  "reset_password_success": "Dein Passwort wurde erfolgreich geändert! Dir wird jetzt ein magischer Link an deine E-Mail-Adresse gesendet, sobald du dich mit Benutzername oder E-Mail-Adresse einloggst.",
+  "login_prompt": "Klicke hier, um dich einzuloggen",
+  "about_us": "Über uns",
+  "introduction_subtitle": "Auf ewig kostenlos. Von der Community geleitet. Gemeinnützig. Modern.",
+  "introduction_title": "Tritt uns bei und unterstütze uns darin, die neue Alternative zu Couchsurfing™ wachsen zu lassen",
+  "reset_password": "Passwort zurücksetzen",
+  "reset_password_error": "Fehler beim Zurücksetzen des Passworts: {{message}}",
+  "account_settings_page": {
+    "birth_date_section": {
+      "explanation": "Die Admins werden dir behilfreich sein, dein Geburtsdatum zu ändern. Bitte kontaktiere support@couchers.org!",
+      "title": "Geburtsdatum ändern"
     },
-    "change_password_form": {
-        "title": "Passwort ändern",
-        "confirm_password": "Passwort bestätigen",
-        "password_changed_success": "Dein neues Passwort wurde akzeptiert und eine Benachrichtigung wurde an deine E-Mail-Adresse gesendet.",
-        "old_password": "Altes Passwort",
-        "new_password": "Neues Passwort",
-        "password_mismatch_error": "Dies stimmt nicht mit dem Passwort, das du oben eingegeben hast, überein."
+    "timezone_section": {
+      "explanation": "Diese Zeit und Zeitzone werden von deinem Wohnort bestimmt. Bitte melde einen Bug, falls diese Angaben nicht stimmen.",
+      "title": "Zeitzone und Lokalisierung",
+      "description": "Deine Zeitzone ist <1>{{timezone}}</1>. Davon abhängig ist deine Ortszeit ungefähr <4>{{time}}</4>."
     },
-    "reset_password_form": {
-        "success_message": "Überprüfe deine E-Mail-Adresse, für einen Link, um das Passwort zurückzusetzen!",
-        "enter_email": "Gib deinen Benutzernamen/deine E-Mail-Adresse ein"
+    "gender_section": {
+      "title": "Geschlecht ändern",
+      "explanation": "Die Admins werden dir behilfreich sein, deine Geschlechtsangaben zu ändern. Bitte kontaktiere support@couchers.org!"
     },
-    "login_page": {
-        "title": "Einloggen",
-        "header": "Willkommen zurück!",
-        "no_account_prompt": "Hast du noch keinen Account? <2>$t(global:sign_up)</2>"
+    "username_section": {
+      "title": "Benutzername",
+      "description": "Dein Benutzername lautet <1>{{username}}</1>."
+    }
+  },
+  "notification_settings": {
+    "title": "Benachrichtigungseinstellungen",
+    "action_button": {
+      "enable_text": "Das neue Benachrichtigungssystem aktivieren",
+      "disable_text": "Das neue Benachrichtigungssystem deaktivieren"
+    }
+  },
+  "feature_preview": {
+    "disclaimer": "Bitte beachte, dass diese Features experimentell sind. Sie werden vielleicht nicht wie vorhergesehen funktionieren und sich während der Entwicklung schnell ändern. Bitte gib uns Feedback dazu in unserem Forum und melde uns Bugs!",
+    "no_previews": {
+      "explanation": "Es gibt derzeit keine aktiven Features zur Vorschau, bitte schau zu einem späteren Zeitpunkt wieder vorbei!",
+      "title": "Keine Features derzeit in der Vorschau"
     },
-    "basic_sign_up_form": {
-        "header": "Lass uns loslegen!",
-        "existing_user_prompt": "Hast du bereits einen Account? <2>$t(global:login)</2>",
-        "sign_up_agreement_explainer": "Beim Fortfahren stimmst du unseren <2>Nutzungsvereinbarungen</2> zu, inklusive unseren Vereinbarung zur Verwendung von Cookies, E-Mail-Adresse und digitaler Informationen."
+    "title": "Feature Vorschau",
+    "explanation": "Diese Seite ermöglicht es dir, Features auszuprobieren, die immer noch in Entwicklung sind und noch nicht ganz für den breiten Nutzen bereit sind."
+  },
+  "jail": {
+    "title": "Mehr Informationen werden benötigt",
+    "description": "Bitte überprüfe das Folgende, um fortzufahren.",
+    "terms_of_service_section": {
+      "description": "Wir haben unsere Nutzunsbedingen geändert. Um Fortzufahren, lies und akzeptiere bitte die neuen <1></1>."
     },
-    "sign_up_completed_title": "Danke, dass du uns beigetreten bist!",
-    "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche, dich einzuloggen.",
-    "reset_password_success": "Dein Passwort wurde erfolgreich geändert! Dir wird jetzt ein magischer Link an deine E-Mail-Adresse gesendet, sobald du dich mit Benutzername oder E-Mail-Adresse einloggst.",
-    "login_prompt": "Klicke hier, um dich einzuloggen",
-    "about_us": "Über uns",
-    "accept": "Akzeptieren",
-    "timezone": "Zeitzone und Lokalisierung",
-    "your_timezone": "Deine Zeitzone ist",
-    "username_helper": "Dein Benutzername wird beim Erstellen eines Accounts festgelegt.",
-    "your_username_is": "Dein Benutzername ist",
-    "account_settings": "Account-Einstellungen",
-    "change_gender": "Geschlecht ändern",
-    "change_birthdate": "Geburtstag ändern",
-    "change_birthdate_contact": "Admins werden dir gerne bei der Änderung deines Geburtsdatums behilflich sein. Bitte kontaktiere support@couchers.org!",
-    "full_name": "Vollständiger Name",
-    "introduction_subtitle": "Auf ewig kostenlos. Von der Community geleitet. Gemeinnützig. Modern.",
-    "introduction_title": "Tritt uns bei und unterstütze uns darin, die neue Alternative zu Couchsurfing™ wachsen zu lassen",
-    "reset_password": "Passwort zurücksetzen",
-    "reset_password_error": "Fehler beim Zurücksetzen des Passworts: {{message}}",
-    "submit": "Absenden",
-    "terms": "Bedingungen",
-    "thanks": "Danke!",
-    "you_were_logged_out": "Du wurdest ausgeloggt.",
-    "jailed_error_message": "Zulassung abgelehnt",
-    "logged_out_error_message": "Unauthorisiert",
-    "okay": "Okay",
-    "jail": {
-        "jail_tos_text": "Wir haben unsere Nutzungsbedingungen aktualisiert. Um Fortzufahren, lies und akzeptiere bitte die neuen ",
-        "location_section_heading": "Bitte füge deinen Standort hinzu",
-        "please_check_jail": "Bitte überprüfe Folgendes, um fortzufahren.",
-        "more_info_required": "Mehr Informationen werden benötigt"
-    },
-    "check_email_for_link": "Überprüfe dein E-Mail-Postfach für einen Link, um dich einzuloggen! :)",
-    "email_username": "E-Mail-Adresse/Benutzername",
-    "password": "Passwort",
-    "remember_me": "Angemeldet bleiben",
-    "forgot_password": "Passwort vergessen?"
+    "location_section": {
+      "title": "Bitte füge deinen Wohnort hinzu",
+      "submit_button": {
+        "active_text": "Speichern",
+        "inactive_text": "Danke!"
+      }
+    }
+  },
+  "logged_out_message": "Du wurdest ausgeloggt.",
+  "vercel_logo_alt_text": "Powered by Vercel",
+  "jail_set_password_form": {
+    "title": "Erstelle ein Passwort",
+    "explanation": "Du hast noch kein Passwort für deinen Account angegeben. Bitte erstelle eins, um fortzusetzen."
+  }
 }

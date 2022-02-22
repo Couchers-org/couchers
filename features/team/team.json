@@ -1,0 +1,284 @@
+[
+  {
+    "name": "Aapeli Vuorinen",
+    "founder": true,
+    "role": "Product & Engineering Lead",
+    "location": "New York City, USA",
+    "img": "/img/team/head-aapeli.jpg",
+    "link": {
+      "type": "website",
+      "text": "aapelivuorinen.com",
+      "url": "https://www.aapelivuorinen.com"
+    }
+  },
+  {
+    "name": "Itsi Weinstock",
+    "founder": true,
+    "role": "Community Lead",
+    "location": "Sydney, Australia",
+    "img": "/img/team/head-itsi.jpg",
+    "link": {
+      "type": "website",
+      "text": "itsiweinstock.com",
+      "url": "https://itsiweinstock.com"
+    }
+  },
+  {
+    "name": "Emily Damgali",
+    "role": "Community Engagement",
+    "location": "Istanbul, Turkey",
+    "img": "/img/team/head-emily.jpg"
+  },
+  {
+    "name": "Dominic Nayan",
+    "role": "Head of UX",
+    "location": "Ensenada, Mexico",
+    "img": "/img/team/head-dom.jpg"
+  },
+  {
+    "name": "Lucas Levin",
+    "role": "Head of Frontend (web)",
+    "location": "Melbourne, Australia",
+    "img": "/img/team/head-lucas.jpg"
+  },
+  {
+    "name": "Darren Vong",
+    "role": "Frontend Developer",
+    "location": "London, United Kingdom",
+    "img": "/img/team/head-darren.jpg"
+  },
+  {
+    "name": "Nolo Sabes",
+    "role": "Community Forum",
+    "location": "Las Palmas, Spain",
+    "img": "/img/team/head-nolo.jpg",
+    "link": {
+      "type": "website",
+      "text": "nolosabes.com",
+      "url": "https://nolosabes.com"
+    }
+  },
+  {
+    "name": "Marta Zaczek",
+    "role": "UX and Graphic Designer",
+    "location": "Wrocław, Poland",
+    "img": "/img/team/head-marta.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "marta-zaczek",
+      "url": "https://www.linkedin.com/in/marta-zaczek-576289201/"
+    }
+  },
+  {
+    "name": "Jesse Allhands",
+    "role": "Head of Support & UX Designer",
+    "location": "Madison, USA",
+    "img": "/img/team/head-jesse.jpg"
+  },
+  {
+    "name": "Poovan Devasagayam",
+    "role": "Head of Marketing",
+    "location": "Paris, France",
+    "img": "/img/team/head-poovan.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "goldpoovan",
+      "url": "https://www.linkedin.com/in/goldpoovan/"
+    }
+  },
+  {
+    "name": "Miuriel Feliks Kochva",
+    "role": "UX & Graphic designer",
+    "location": "Amsterdam, Netherlands",
+    "img": "/img/team/head-miuriel.jpg"
+  },
+  {
+    "name": "Sam Treiger",
+    "role": "Backend Developer",
+    "location": "Seattle, USA",
+    "img": "/img/team/head-sam.jpg"
+  },
+  {
+    "name": "Yi Chen",
+    "role": "Digital Marketer",
+    "location": "Luxembourg, Luxembourg",
+    "img": "/img/team/head-yi.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "yi-chen-195482137",
+      "url": "https://www.linkedin.com/in/yi-chen-195482137/"
+    }
+  },
+  {
+    "name": "Paulo Carlos",
+    "role": "UX Designer",
+    "location": "Vancouver, Canada",
+    "img": "/img/team/head-paulo.jpg"
+  },
+  {
+    "name": "Inés",
+    "role": "Frontend Developer",
+    "location": "Amsterdam, Netherlands",
+    "img": "/img/team/head-javi.jpg"
+  },
+  {
+    "name": "Jesús Olano",
+    "role": "Frontend Developer",
+    "location": "Ourense",
+    "img": "/img/team/head-jesus.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "olanojesus",
+      "url": "https://www.linkedin.com/in/olanojesus/"
+    }
+  },
+  {
+    "name": "Omer Baddour",
+    "role": "Backend Developer",
+    "location": "New York City, USA",
+    "img": "/img/team/head-omer.jpg"
+  },
+  {
+    "name": "Jakub Szwedo",
+    "role": "UX Designer",
+    "location": "Poznań, Poland",
+    "img": "/img/team/head-jakub.jpg"
+  },
+  {
+    "name": "Thomas Dekiere",
+    "role": "Frontend Developer",
+    "location": "Ghent, Belgium",
+    "img": "/img/team/head-thomas.jpg"
+  },
+  {
+    "name": "Zlata Veresniak",
+    "role": "UX/UI Designer",
+    "location": "Wrocław, Poland",
+    "img": "/img/team/head-zlata.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "zlataveresniak",
+      "url": "https://www.linkedin.com/in/zlataveresniak/"
+    }
+  },
+  {
+    "name": "Julia Evteeva",
+    "role": "UX Designer",
+    "location": "Vancouver, Canada",
+    "img": "/img/team/head-julia.jpg"
+  },
+  {
+    "name": "Krzysztof Kosecki",
+    "role": "Frontend Developer",
+    "location": "Kraków, Poland",
+    "img": "/img/team/head-krzysztof.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "krzysztof-kosecki",
+      "url": "https://www.linkedin.com/in/krzysztof-kosecki/"
+    }
+  },
+  {
+    "name": "Max Vuorinen",
+    "role": "Graphic Designer",
+    "location": "Helsinki, Finland",
+    "img": "/img/team/head-max.jpg"
+  },
+  {
+    "name": "Martina Ferrari",
+    "role": "Community Structure Designer",
+    "location": "Dublin, Ireland",
+    "img": "/img/team/head-tina.jpg"
+  },
+  {
+    "name": "Lennart van Laake",
+    "role": "Backend Developer",
+    "location": "Arnhem, Netherlands",
+    "img": "/img/team/head-lennart.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "lennartvanlaake",
+      "url": "https://www.linkedin.com/in/lennartvanlaake/"
+    }
+  },
+  {
+    "name": "Sherri Cui",
+    "role": "Frontend Developer",
+    "location": "Ancona, Italy",
+    "img": "/img/team/head-sherri.jpg"
+  },
+  {
+    "name": "Val Natanelov",
+    "role": "Strategic Advisor",
+    "location": "Brisbane, Australia",
+    "img": "/img/team/head-val.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "valerinatanelov",
+      "url": "https://www.linkedin.com/public-profile/in/valerinatanelov"
+    }
+  },
+  {
+    "name": "Mindy Curtis",
+    "role": "Graphic Designer",
+    "location": "Los Angeles, USA",
+    "img": "/img/team/head-mindy.jpg"
+  },
+  {
+    "name": "Vincent Rouilhac",
+    "role": "Frontend Developer",
+    "location": "Normandy, France",
+    "img": "/img/team/head-vincent.jpg",
+    "link": {
+      "type": "website",
+      "text": "vincentrouilhac.com",
+      "url": "https://www.vincentrouilhac.com"
+    }
+  },
+  {
+    "name": "Colin Ashby",
+    "role": "Digital Marketer",
+    "location": "Houston, USA",
+    "img": "/img/team/head-colin.jpg"
+  },
+  {
+    "name": "Keni Teh",
+    "role": "Graphic Designer",
+    "location": "Singapore",
+    "img": "/img/team/head-keni.jpg"
+  },
+  {
+    "name": "Henri Vuorinen",
+    "role": "Backend Developer",
+    "location": "Helsinki, Finland",
+    "img": "/img/team/head-henri.jpg"
+  },
+  {
+    "name": "Janis Lesinskis",
+    "role": "Backend Developer",
+    "location": "Melbourne, Australia",
+    "img": "/img/team/head-janis.jpg",
+    "link": {
+      "type": "website",
+      "text": "lesinskis.com",
+      "url": "https://www.lesinskis.com/"
+    }
+  },
+  {
+    "name": "Marlies Iserlohe",
+    "role": "Community Outreach",
+    "location": "Copenhagen, Denmark",
+    "img": "/img/team/head-marlies.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "Marlies Iserlohe",
+      "url": "https://www.linkedin.com/in/marlies-iserlohe-90282a89/"
+    }
+  },
+  {
+    "name": "Marco de Wit",
+    "role": "Frontend Developer",
+    "location": "London, United Kingdom",
+    "img": "/img/team/head-marco.jpg"
+  }
+]

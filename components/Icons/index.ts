@@ -20,8 +20,11 @@ export { default as GithubIcon } from "@material-ui/icons/GitHub";
 export { default as HelpIcon } from "@material-ui/icons/Help";
 export { default as CouchIcon } from "@material-ui/icons/HotelOutlined";
 export { default as InfoIcon } from "@material-ui/icons/InfoOutlined";
+export { default as GlobeIcon } from "@material-ui/icons/Language";
 export { default as LanguageIcon } from "@material-ui/icons/LanguageOutlined";
+export { default as LinkedInIcon } from "@material-ui/icons/LinkedIn";
 export { default as LinkIcon } from "@material-ui/icons/LinkOutlined";
+export { default as PinIcon } from "@material-ui/icons/LocationOn";
 export { default as LocationIcon } from "@material-ui/icons/LocationOnOutlined";
 export { default as MenuIcon } from "@material-ui/icons/Menu";
 export { default as VeryDissatisfiedIcon } from "@material-ui/icons/MoodBadOutlined";
@@ -41,4 +44,5 @@ export { default as ExtremelyDissatisfiedIcon } from "@material-ui/icons/Sentime
 export { default as ExtremelySatisfiedIcon } from "@material-ui/icons/SentimentVerySatisfiedOutlined";
 export { default as SettingsIcon } from "@material-ui/icons/SettingsOutlined";
 export { default as CommunityLeadersIcon } from "@material-ui/icons/SportsSoccerOutlined";
+export { default as MuteIcon } from "@material-ui/icons/VolumeOffOutlined";
 export { default as WorkIcon } from "@material-ui/icons/WorkOutlined";

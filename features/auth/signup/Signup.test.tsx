@@ -10,7 +10,7 @@ import { StatusCode } from "grpc-web";
 import mockRouter from "next-router-mock";
 import { HostingStatus } from "proto/api_pb";
 import { SignupFlowRes } from "proto/auth_pb";
-import { signupRoute } from "routes";
+import { dashboardRoute, signupRoute } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import {
@@ -256,7 +256,7 @@ describe("Signup", () => {
     render(<View />, { wrapper });
 
     userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
-    await waitFor(() => expect(mockRouter.pathname).toBe("/"));
+    await waitFor(() => expect(mockRouter.pathname).toBe(dashboardRoute));
   });
 
   it("displays the basic form if it is needed", async () => {

@@ -18,5 +18,18 @@
     "error_unknown": "Unknown error",
     "close_request_dialog_title": "Are you done messaging?",
     "close_request_dialog_host": "Please make sure you are done chatting before you    reject their request.",
-    "close_request_dialog_surfer": "Please make sure you are done chatting before you    cancel your request."
+    "close_request_dialog_surfer": "Please make sure you are done chatting before you    cancel your request.",
+    "chat_view": {
+        "mute": {
+            "button_label": "Mute chat",
+            "unmute_button_label": "Unmute chat",
+            "dialog_title": "How long do you want to mute?",
+            "1_hour_label": "1 hour",
+            "8_hours_label": "8 hours",
+            "1_day_label": "1 day",
+            "1_week_label": "1 week",
+            "1_month_label": "1 month",
+            "forever_label": "Until I unmute"
+        }
+    }
 }

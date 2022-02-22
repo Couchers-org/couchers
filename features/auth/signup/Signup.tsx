@@ -8,12 +8,12 @@ import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
 import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
+import { Trans, useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { Trans, useTranslation } from "next-i18next";
 import { useEffect, useState } from "react";
-import CouchersLogo from "resources/CouchersLogo";
 import vercelLogo from "resources/vercel.svg";
-import { loginRoute, signupRoute, tosRoute } from "routes";
+import { dashboardRoute, loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
@@ -37,7 +37,10 @@ const useStyles = makeStyles((theme) => ({
     position: "fixed",
     left: 0,
     right: 0,
-    top: 0,
+    top: theme.shape.navPaddingXs,
+    [theme.breakpoints.up("sm")]: {
+      top: theme.shape.navPaddingSmUp,
+    },
     bottom: 0,
     zIndex: 1,
     [theme.breakpoints.down("sm")]: {
@@ -48,18 +51,28 @@ const useStyles = makeStyles((theme) => ({
   scrollingContent: {
     position: "relative",
     zIndex: 2,
-    minHeight: "100vh",
     justifyContent: "center",
+    minHeight: `calc(100vh - ${theme.shape.navPaddingXs})`,
+    [theme.breakpoints.up("sm")]: {
+      minHeight: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
+    },
   },
   scrollingForm: {
-    alignSelf: "flex-end",
+    flexGrow: 1,
+    alignSelf: "flex-start",
     marginTop: theme.spacing(10),
     marginBottom: theme.spacing(4),
+    [theme.breakpoints.up("md")]: {
+      alignSelf: "flex-end",
+    },
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+    },
   },
 }));
 
 function CurrentForm() {
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const classes = useStyles();
   const { authState } = useAuthContext();
   const state = authState.flowState;
@@ -144,7 +157,7 @@ function CurrentForm() {
 }
 
 export default function Signup() {
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
@@ -192,7 +205,7 @@ export default function Signup() {
 
   return (
     <>
-      {authenticated && <Redirect to="/" />}
+      {authenticated && <Redirect to={dashboardRoute} />}
       <HtmlMeta title={t("global:sign_up")} />
       <div
         className={classNames(
@@ -201,12 +214,6 @@ export default function Signup() {
           authClasses.pageBackground
         )}
       >
-        <header className={authClasses.header}>
-          <div className={authClasses.logoContainer}>
-            <CouchersLogo />
-            <div className={authClasses.logo}>{t("global:couchers")}</div>
-          </div>
-        </header>
         <div className={authClasses.content}>
           <div className={authClasses.introduction}>
             <Typography
@@ -250,7 +257,7 @@ export default function Signup() {
             rel="noopener noreferrer"
             href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
           >
-            <img alt="Powered by Vercel" src={vercelLogo.src} />
+            <img alt={t("auth:vercel_logo_alt_text")} src={vercelLogo.src} />
           </a>
         )}
       </div>

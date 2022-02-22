@@ -4,7 +4,8 @@ import Button from "components/Button";
 import TextField from "components/TextField";
 import useChangeDetailsFormStyles from "features/auth/useChangeDetailsFormStyles";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -28,7 +29,7 @@ export default function PasswordSection({
   className,
 }: PasswordSectionProps) {
   const classes = useChangeDetailsFormStyles();
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
 
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 

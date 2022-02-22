@@ -8,8 +8,9 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import UserSummary from "components/UserSummary";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 
-import { LOAD_MORE_ORGANIZERS, ORGANIZERS } from "./constants";
 import { useEventOrganizers } from "./hooks";
 
 export const ORGANIZERS_DIALOG_LABEL_ID = "organizers";
@@ -25,6 +26,7 @@ export default function EventOrganizersDialog({
   onClose,
   open,
 }: EventOrganizersDialogProps) {
+  const { t } = useTranslation([COMMUNITIES]);
   const {
     error,
     fetchNextPage,
@@ -46,7 +48,9 @@ export default function EventOrganizersDialog({
       open={open}
       onClose={onClose}
     >
-      <DialogTitle id={ORGANIZERS_DIALOG_LABEL_ID}>{ORGANIZERS}</DialogTitle>
+      <DialogTitle id={ORGANIZERS_DIALOG_LABEL_ID}>
+        {t("communities:organizers")}
+      </DialogTitle>
       <DialogContent>
         {error && <Alert severity="error">{error.message}</Alert>}
         {isLoading ? (
@@ -72,7 +76,7 @@ export default function EventOrganizersDialog({
       {hasNextPage && (
         <DialogActions>
           <Button loading={isFetchingNextPage} onClick={() => fetchNextPage()}>
-            {LOAD_MORE_ORGANIZERS}
+            {t("communities:load_more_organizers")}
           </Button>
         </DialogActions>
       )}

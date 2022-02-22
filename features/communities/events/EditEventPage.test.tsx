@@ -12,14 +12,6 @@ import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 
-import {
-  END_DATE,
-  EVENT_DETAILS,
-  EVENT_LINK,
-  START_DATE,
-  START_TIME,
-  VIRTUAL_EVENT,
-} from "./constants";
 import EditEventPage from "./EditEventPage";
 
 jest.mock("components/MarkdownInput");
@@ -60,15 +52,17 @@ describe("Edit event page", () => {
     expect(titleField).toHaveValue("Weekly Meetup");
 
     userEvent.type(titleField, " in the dam");
-    userEvent.click(screen.getByLabelText(VIRTUAL_EVENT));
+    userEvent.click(screen.getByLabelText(t("communities:virtual_event")));
     userEvent.type(
-      screen.getByLabelText(EVENT_LINK),
+      screen.getByLabelText(t("communities:event_link")),
       "https://couchers.org/amsterdam-social"
     );
-    const eventDetails = screen.getByLabelText(EVENT_DETAILS);
+    const eventDetails = screen.getByLabelText(t("communities:event_details"));
     userEvent.clear(eventDetails);
     userEvent.type(eventDetails, "We are going virtual this week!");
-    const endDateField = await screen.findByLabelText(END_DATE);
+    const endDateField = await screen.findByLabelText(
+      t("communities:end_date")
+    );
     userEvent.clear(endDateField);
     userEvent.type(endDateField, "07012021");
     userEvent.click(screen.getByRole("button", { name: t("global:update") }));
@@ -93,7 +87,9 @@ describe("Edit event page", () => {
   it("should submit both the start and end date if the start date field is touched", async () => {
     renderPage();
 
-    const startDateField = await screen.findByLabelText(START_DATE);
+    const startDateField = await screen.findByLabelText(
+      t("communities:start_date")
+    );
     userEvent.clear(startDateField);
     userEvent.type(startDateField, "08012021");
     userEvent.click(screen.getByRole("button", { name: t("global:update") }));
@@ -116,7 +112,9 @@ describe("Edit event page", () => {
   it("should submit both the start and end date if the start time field is touched", async () => {
     renderPage();
 
-    const startTimeField = await screen.findByLabelText(START_TIME);
+    const startTimeField = await screen.findByLabelText(
+      t("communities:start_time")
+    );
     userEvent.clear(startTimeField);
     userEvent.type(startTimeField, "0000");
     userEvent.click(screen.getByRole("button", { name: t("global:update") }));

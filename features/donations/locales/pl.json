@@ -1,0 +1,11 @@
+{
+  "donations_box": {
+    "monthly_button_label": "Co miesiąc",
+    "one_time_button_label": "Jednorazowo",
+    "validation_message": "To pole musi być uzupełnione",
+    "action_button_label": "Przejdź dalej",
+    "alert": {
+      "warning_message": "Płatność została anulowana."
+    }
+  }
+}

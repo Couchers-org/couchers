@@ -21,6 +21,7 @@ const accountWithPassword = {
   email: "email@couchers.org",
   profileComplete: true,
   phone: "",
+  phoneVerified: false,
   timezone: "America/New_York",
 };
 
@@ -31,6 +32,7 @@ const accountWithLink = {
   email: "email@couchers.org",
   profileComplete: true,
   phone: "+46701740605",
+  phoneVerified: true,
   timezone: "America/New_York",
 };
 

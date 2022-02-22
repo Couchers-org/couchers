@@ -220,12 +220,21 @@ export default function DonationsBox() {
 
   const customAmountInput = useRef<HTMLInputElement>(null);
 
+  const checkForValidAmount = (amount: number) => {
+    if (!Number.isInteger(amount)) return false;
+    if (amount < 1) return false;
+    return true;
+  };
+
   const {
     error,
     isLoading,
     mutate: initiateDonation,
   } = useMutation<void, RpcError, DonationFormData>(
     async ({ amount, recurring }) => {
+      if (!checkForValidAmount(amount)) {
+        throw Error(t("donations_box.amount_validation_error"));
+      }
       const stripe = (await stripePromise)!;
       const session_id = await service.donations.initiateDonation(
         amount,
@@ -443,6 +452,7 @@ export default function DonationsBox() {
                     <input
                       ref={customAmountInput}
                       type="number"
+                      min="1"
                       onChange={(e) => {
                         onChange(
                           typeof e.target.valueAsNumber === "number"

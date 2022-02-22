@@ -17,6 +17,12 @@
     "jsx": "preserve",
     "incremental": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "i18n/namespaces.js"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "i18n/namespaces.js",
+    "i18n/allLanguages.js"
+  ],
   "exclude": ["node_modules"]
 }

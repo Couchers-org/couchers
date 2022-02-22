@@ -23,11 +23,9 @@ export default function NavButton({
   const classes = useNavLinkStyles();
   const router = useRouter();
   const isActive =
-    typeof window !== undefined
-      ? route === baseRoute
-        ? router.pathname === route
-        : router.pathname.includes(route)
-      : undefined;
+    route === baseRoute
+      ? router.asPath === route
+      : router.asPath.includes(route);
 
   return (
     <Link href={route}>

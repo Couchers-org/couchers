@@ -3,15 +3,15 @@ import classNames from "classnames";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
+import { Trans, useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { Trans, useTranslation } from "next-i18next";
 import { useEffect } from "react";
-import CouchersLogo from "resources/CouchersLogo";
 import vercelLogo from "resources/vercel.svg";
+import { dashboardRoute, signupRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-import { signupRoute } from "../../../routes";
 import { useAuthContext } from "../AuthProvider";
 import useAuthStyles from "../useAuthStyles";
 import LoginForm from "./LoginForm";
@@ -19,13 +19,14 @@ import LoginForm from "./LoginForm";
 const useStyles = makeStyles((theme) => ({}));
 
 export default function Login() {
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
 
   const router = useRouter();
-  const redirectTo = stringOrFirstString(router.query.from) || "/";
+  const from = stringOrFirstString(router.query.from) ?? dashboardRoute;
+  const redirectTo = from === "/" || from === "%2F" ? dashboardRoute : from;
   const urlToken = stringOrFirstString(router.query.token);
 
   const authClasses = useAuthStyles();
@@ -47,12 +48,6 @@ export default function Login() {
     <>
       <HtmlMeta title={t("auth:login_page.title")} />
       <div className={classNames(authClasses.page, authClasses.pageBackground)}>
-        <header className={authClasses.header}>
-          <div className={authClasses.logoContainer}>
-            <CouchersLogo />
-            <div className={authClasses.logo}>{t("global:couchers")}</div>
-          </div>
-        </header>
         <div className={authClasses.content}>
           <div className={authClasses.introduction}>
             <Typography
@@ -95,7 +90,7 @@ export default function Login() {
             rel="noopener noreferrer"
             href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
           >
-            <img alt="Powered by Vercel" src={vercelLogo.src} />
+            <img alt={t("auth:vercel_logo_alt_text")} src={vercelLogo.src} />
           </a>
         )}
       </div>

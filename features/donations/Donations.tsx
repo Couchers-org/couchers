@@ -1,10 +1,12 @@
 import { Link, makeStyles, Typography } from "@material-ui/core";
+import { LEGAL_NAME } from "appConstants";
 import classNames from "classnames";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import Landscape from "features/donations/resources/landscape.jpeg";
 import { Trans, useTranslation } from "next-i18next";
 import CouchersLogo from "resources/CouchersLogo";
+import { foundationRoute } from "routes";
 
 import DonationsBox from "./DonationsBox";
 
@@ -142,25 +144,32 @@ export default function Donations() {
           <DonationsBox />
         </div>
 
-        <Typography
-          className={classNames(
-            classes.marginBottom3,
-            classes.donationsLayoutBenefactorText
-          )}
-          variant="body2"
-        >
-          <Trans t={t} i18nKey="benefactor_contact">
-            If you wish to contribute over $1000, please contact us at
-            <Link
-              className={classes.link}
-              href={`mailto:${t("benefactor_email")}`}
-            >
-              {{ email: t("benefactor_email") }}
-            </Link>
-            for us to arrange a lower fee transfer.
-          </Trans>
-        </Typography>
+        <div className={classes.donationsLayoutBenefactorText}>
+          <Typography className={classes.marginBottom3} variant="body2">
+            <Trans t={t} i18nKey="donations_info">
+              Your donation goes to
+              <Link className={classes.link} href={foundationRoute}>
+                {{ legal_name: LEGAL_NAME }}
+              </Link>
+              , a U.S. 501(c)(3) non-profit that operates the Couchers.org
+              service and supports the project. Donations are tax exempt, our
+              EIN is 87-1734577.
+            </Trans>
+          </Typography>
 
+          <Typography className={classes.marginBottom3} variant="body2">
+            <Trans t={t} i18nKey="benefactor_contact">
+              If you wish to contribute over $1000, please contact us at
+              <Link
+                className={classes.link}
+                href={`mailto:${t("benefactor_email")}`}
+              >
+                {{ email: t("benefactor_email") }}
+              </Link>
+              for us to arrange a lower fee transfer.
+            </Trans>
+          </Typography>
+        </div>
         <div
           className={classNames(
             classes.marginBottom3,
