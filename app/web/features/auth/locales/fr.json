@@ -4,7 +4,10 @@
   },
   "change_email_form": {
     "title": "Changer d'adresse e-mail",
-    "current_email_message": "Votre adresse courriel actuelle est <1>{{email}}</1>."
+    "current_email_message": "Votre adresse e-mail actuelle est <1>{{email}}</1>.",
+    "new_email": "Nouvelle adresse e-mail",
+    "current_password": "Mot de passe actuel",
+    "success_message": "Votre changement d’adresse e-mail a été pris en compte. Veuillez vérifier votre nouvelle adresse pour finaliser la procédure."
   },
   "basic_form": {
     "name": {
@@ -13,5 +16,8 @@
   },
   "community_guidelines_form": {
     "header": "Bonne conduite de la communauté"
+  },
+  "change_email_confirmation": {
+    "change_in_progress": "Changement d’adresse e-mail en cours…"
   }
 }
