@@ -14,6 +14,7 @@
     "community_standing": "Community Standing",
     "edit": "Edit",
     "save": "Save",
+    "send": "Send",
     "cancel": "Cancel",
     "submit": "Submit",
     "confirm": "Confirm",
@@ -35,7 +36,8 @@
         },
         "content": {
             "button_label": "Report inappropriate content or behaviour",
-            "dialog_message": "We are working on robust reporting and moderation tools. In the meantime, please send us an email to the below address. Include details such as the relevant user, what was inappropriate, and where you saw it."
+            "dialog_message": "We are working on robust reporting and moderation tools. In the meantime, please send us an email to the below address. Include details such as the relevant user, what was inappropriate, and where you saw it.",
+            "success_message": "Thank you for your report and making Couchers a better platform for everybody!"
         },
         "flag": {
             "button_aria_label": "Report content or a user",
@@ -46,11 +48,23 @@
             "reason_required": "Reason is required.",
             "description_label": "Description",
             "description_helper": "Please tell us briefly why you are reporting this.",
-            "success": "Thank you for your report and making Couchers a better platform for everybody!"
+            "success": "Thank you for your report and making Couchers a better platform for everybody!",
+            "reason": {
+                "spam": "Spam",
+                "dating": "Dating / Flirting",
+                "external": "Incident off platform (e.g. surfing/hosting/event)",
+                "commercial": "Commercial content",
+                "harassment": "Harassment",
+                "fake": "Fake account / misleading info",
+                "freeloading": "Freeloading",
+                "guidelines_breach": "Breach of Community Guidelines",
+                "other": "Something else"
+            }
         }
     },
     "not_found_text_1": "We couldn't find the URL or resource you requested",
     "not_found_text_2": "Do you just want to <1>go home?</1>",
+    "not_found_alt": "404 Error: Resource Not Found",
     "change_time": "Change time",
     "html_meta": {
         "title_suffix": " | Couchers.org Beta",

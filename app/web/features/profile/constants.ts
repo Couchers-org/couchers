@@ -51,7 +51,6 @@ export const SECTION_LABELS = {
 export const SECTION_LABELS_A11Y_TEXT = "tabs for user's details";
 
 // User reporting
-export const CANCEL = "Cancel";
 export const MORE_PROFILE_ACTIONS = "...";
 export const MORE_PROFILE_ACTIONS_A11Y_TEXT = "More profile actions";
 export const REPORT_DETAILS = "Details";
@@ -206,3 +205,74 @@ export const aboutText = (user: User.AsObject) => {
 export const LAST_ACTIVE_FALSE = "Unknown";
 export const LANGUAGES_FLUENT_FALSE = "Not given";
 export const MESSAGE = "Message";
+
+// Make Request
+export const sendRequest = (name: string) => `Send ${name} a request`;
+export const ARRIVAL_DATE = "Arrival Date";
+export const DEPARTURE_DATE = "Departure Date";
+export const MEETUP_ONLY = "Meet up only";
+export const OVERNIGHT_STAY = "Overnight stay";
+export const REQUEST = "Request";
+export const REQUEST_DESCRIPTION =
+  "Share your plans for the visit and include why you're requesting to stay with this particular host";
+export const STAY_TYPE_A11Y_TEXT = "stay type";
+
+// Edit Profile
+export const ACCOUNT_SETTINGS = "Account Settings";
+export const REGIONS_VISITED = "Regions I've Visited";
+export const REGIONS_LIVED = "Regions I've Lived In";
+export const WOMAN = "Woman";
+export const WOMAN_PRONOUNS = "she / her";
+export const GENDER = "Gender";
+export const LANGUAGES_SPOKEN = "Languages I speak";
+export const MAN = "Man";
+export const MAN_PRONOUNS = "he / him";
+export const MEETUP_STATUS = "Meetup status";
+export const NAME = "Name";
+export const PRONOUNS = "Pronouns";
+export const SAVE = "Save";
+
+// About Me
+export const ADDITIONAL = "Additional information";
+export const FAVORITES = "Favorites";
+export const HOBBIES = "What I do in my free time";
+export const LIVED_IN = "Lived in";
+export const MEDIA = "Art, Books, Movies, and Music I like";
+export const MISSION = "Current mission";
+export const OVERVIEW = "Overview";
+export const PHOTOS = "Photos";
+export const STORY = "My favorite hosting or travel story";
+export const TRAVELED_TO = "Traveled to";
+export const TRAVELS = "My travels";
+export const WHO = "Who I am";
+export const WHY = "Why I use Couchers";
+
+// Home
+export const ABOUT_HOME = "About my home";
+export const ACCEPT_DRINKING = "Accept drinking";
+export const ACCEPT_PETS = "Accept pets";
+export const ACCEPT_SMOKING = "Accept smoking";
+export const ACCEPT_KIDS = "Accept children";
+export const ACCEPT_CAMPING = "Accept Camping";
+export const GENERAL = "General";
+export const HAS_HOUSEMATES = "Has housemates";
+export const HOST_DRINKING = "Drinks at home";
+export const HOST_KIDS = "Has children";
+export const HOST_PETS = "Has pets";
+export const HOST_SMOKING = "Smokes at home";
+export const HOSTING_PREFERENCES = "Hosting Preferences";
+export const HOUSE_RULES = "House rules";
+export const HOUSEMATES = "Housemates";
+export const HOUSEMATE_DETAILS = "Housemate details";
+export const KID_DETAILS = "Children details";
+export const LAST_MINUTE = "Last-minute requests";
+export const LOCAL_AREA = "Local area information";
+export const MAX_GUESTS = "Max # of guests";
+export const MY_HOME = "My home";
+export const PARKING = "Parking available";
+export const PARKING_DETAILS = "Parking details";
+export const PET_DETAILS = "Pet details";
+export const SLEEPING_ARRANGEMENT = "Sleeping arrangement";
+export const SPACE = "Private / shared space";
+export const TRANSPORTATION = "Transportation, Parking, Accessibility";
+export const WHEELCHAIR = "Wheelchair accessible";

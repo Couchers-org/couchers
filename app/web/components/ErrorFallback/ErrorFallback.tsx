@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { baseRoute } from "routes";
 import makeStyles from "utils/makeStyles";
+import { GLOBAL } from "i18n/namespaces";
 
 const useStyles = makeStyles((theme) => ({
   report: {
@@ -16,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
-  const { t } = useTranslation("global");
+  const { t } = useTranslation(GLOBAL);
   const classes = useStyles();
   const router = useRouter();
 
@@ -24,9 +25,9 @@ export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
 
   return (
     <>
-      <PageTitle>{t("error_fallback.title")}</PageTitle>
+      <PageTitle>{t("error.fallback.title")}</PageTitle>
       <Typography variant="body1">
-        {isFatal ? t("fatal_error_message") : t("error_fallback.subtitle")}
+        {isFatal ? t("error.fatal_message") : t("error.fallback.subtitle")}
       </Typography>
       {!isFatal && (
         <div className={classes.report}>
@@ -38,13 +39,13 @@ export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
         {!isFatal && (
           <Link href={baseRoute} passHref>
             <Button variant="outlined" component="a">
-              {t("error_fallback.home_page_link_label")}
+              {t("error.fallback.home_page_link_label")}
             </Button>
           </Link>
         )}
 
         <Button onClick={handleRefresh}>
-          {t("error_fallback.refresh_page_button_label")}
+          {t("error.fallback.refresh_page_button_label")}
         </Button>
       </Actions>
     </>

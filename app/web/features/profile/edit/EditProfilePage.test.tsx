@@ -5,14 +5,13 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { HOBBIES, SAVE, WHO } from "features/profile/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
 import { routeToProfile } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
-import { addDefaultUser } from "test/utils";
+import { addDefaultUser, t } from "test/utils";
 
 import EditProfilePage from "./EditProfilePage";
 
@@ -52,14 +51,16 @@ describe("Edit profile", () => {
     renderPage();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(screen.getByRole("button", { name: SAVE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:save") }));
 
     await waitFor(() =>
       expect(mockRouter.pathname).toBe(routeToProfile("about"))
     );
   });
 
-  it(`should not submit the default headings for the '${WHO}' and '${HOBBIES}' sections`, async () => {
+  it(`should not submit the default headings for the '${t(
+    "profile:who_section_header"
+  )}' and '${t("profile:hobbies_section_header")}' sections`, async () => {
     getUserMock.mockImplementation(async (user) => ({
       ...(await getUser(user)),
       aboutMe: "",
@@ -68,7 +69,7 @@ describe("Edit profile", () => {
     renderPage();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(screen.getByRole("button", { name: SAVE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:save") }));
     await waitFor(() =>
       expect(mockRouter.pathname).toBe(routeToProfile("about"))
     );

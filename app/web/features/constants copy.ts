@@ -66,20 +66,6 @@ export const NAME = "Name";
 export const PRONOUNS = "Pronouns";
 export const SAVE = "Save";
 
-// Make Request
-export const sendRequest = (name: string) => `Send ${name} a request`;
-export const ARRIVAL_DATE = "Arrival Date";
-export const CANCEL = "Cancel";
-export const DEPARTURE_DATE = "Departure Date";
-export const MEETUP_ONLY = "Meet up only";
-export const OVERNIGHT_STAY = "Overnight stay";
-export const REQUEST = "Request";
-export const REQUEST_DESCRIPTION =
-  "Share your plans for the visit and include why you're requesting to stay with this particular host";
-export const SEND = "Send";
-export const SEND_REQUEST_SUCCESS = "Request sent!";
-export const STAY_TYPE_A11Y_TEXT = "stay type";
-
 // Home
 export const ABOUT_HOME = "About my home";
 export const ACCEPT_DRINKING = "Accept drinking";

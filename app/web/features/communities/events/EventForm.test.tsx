@@ -96,7 +96,7 @@ describe("Event form", () => {
     ).not.toBeChecked();
     expect(screen.getByLabelText(t("communities:event_details"))).toBeVisible();
     expect(
-      screen.getByRole("button", { name: t("communities:create") })
+      screen.getByRole("button", { name: t("global:create") })
     ).toBeVisible();
     expect(
       screen.getByRole("img", { name: t("communities:event_image_input_alt") })

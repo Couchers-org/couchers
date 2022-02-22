@@ -26,7 +26,7 @@ export default function FeedbackForm() {
         },
       });
       authActions.authError(
-        isGrpcError(err) ? err.message : t("fatal_error_message")
+        isGrpcError(err) ? err.message : t("error.fatal_message")
       );
     }
     window.scroll({ top: 0, behavior: "smooth" });
