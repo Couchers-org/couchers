@@ -8,12 +8,6 @@ import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import { server } from "test/restMock";
 import { t } from "test/utils";
 
-import {
-  EVENT_DETAILS,
-  EVENT_LINK,
-  LOCATION,
-  VIRTUAL_EVENT,
-} from "./constants";
 import CreateEventPage from "./CreateEventPage";
 
 jest.mock("components/MarkdownInput");
@@ -45,12 +39,15 @@ describe("Create event page", () => {
     render(<CreateEventPage />, { wrapper });
 
     userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
-    userEvent.click(screen.getByLabelText(VIRTUAL_EVENT));
+    userEvent.click(screen.getByLabelText(t("communities:virtual_event")));
     userEvent.type(
-      screen.getByLabelText(EVENT_LINK),
+      screen.getByLabelText(t("communities:event_link")),
       "https://couchers.org/social"
     );
-    userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
+    userEvent.type(
+      screen.getByLabelText(t("communities:event_details")),
+      "sick social!"
+    );
     userEvent.click(screen.getByRole("button", { name: t("global:create") }));
 
     await waitFor(() => {
@@ -77,11 +74,17 @@ describe("Create event page", () => {
     userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
     // msw server response doesn't work with fake timers on, so turn it off temporarily
     jest.useRealTimers();
-    userEvent.type(screen.getByLabelText(LOCATION), "tes{enter}");
+    userEvent.type(
+      screen.getByLabelText(t("communities:location")),
+      "tes{enter}"
+    );
     userEvent.click(
       await screen.findByText("test city, test county, test country")
     );
-    userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
+    userEvent.type(
+      screen.getByLabelText(t("communities:event_details")),
+      "sick social!"
+    );
 
     // Now we got our location, turn fake timers back on so the default date we got earlier from the "current"
     // date would pass form validation
@@ -114,11 +117,17 @@ describe("Create event page", () => {
 
     userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
     jest.useRealTimers();
-    userEvent.type(screen.getByLabelText(LOCATION), "tes{enter}");
+    userEvent.type(
+      screen.getByLabelText(t("communities:location")),
+      "tes{enter}"
+    );
     userEvent.click(
       await screen.findByText("test city, test county, test country")
     );
-    userEvent.type(screen.getByLabelText(EVENT_DETAILS), "sick social!");
+    userEvent.type(
+      screen.getByLabelText(t("communities:event_details")),
+      "sick social!"
+    );
 
     jest.useFakeTimers("modern");
     jest.setSystemTime(new Date("2021-08-01 00:00"));

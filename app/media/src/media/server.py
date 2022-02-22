@@ -7,13 +7,40 @@ from pathlib import Path
 import backoff
 import grpc
 import pyvips
+import sentry_sdk
 from flask import Flask, abort, request, send_file
+from sentry_sdk.integrations.atexit import AtexitIntegration
+from sentry_sdk.integrations.dedupe import DedupeIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
+from sentry_sdk.integrations.modules import ModulesIntegration
+from sentry_sdk.integrations.stdlib import StdlibIntegration
+from sentry_sdk.integrations.threading import ThreadingIntegration
 from werkzeug.utils import secure_filename
 
 from media.crypto import verify_hash_signature
 from proto import media_pb2, media_pb2_grpc
 
 logger = logging.getLogger(__name__)
+
+SENTRY_URL = os.environ.get("SENTRY_URL", None)
+
+if SENTRY_URL:
+    # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
+    sentry_sdk.init(
+        SENTRY_URL,
+        traces_sample_rate=0.0,
+        environment=os.environ.get("SENTRY_ENVIRONMENT", "media"),
+        release=os.environ.get("VERSION", "unknown"),
+        default_integrations=False,
+        integrations=[
+            LoggingIntegration(),
+            StdlibIntegration(),
+            DedupeIntegration(),
+            AtexitIntegration(),
+            ModulesIntegration(),
+            ThreadingIntegration(),
+        ],
+    )
 
 
 def create_app(

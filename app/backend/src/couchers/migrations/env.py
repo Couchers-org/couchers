@@ -33,8 +33,14 @@ target_metadata = models.Base.metadata
 exclude_tables = config.get_section("alembic:exclude").get("tables", "").split(",")
 
 
-def include_object(object, name, type_, reflected, compare_to):
-    return not (type_ == "table" and name in exclude_tables)
+def include_name(name, type_, parent_names):
+    if type_ == "schema":
+        return name in [None, "logging"]
+    if type_ == "table":
+        return name not in exclude_tables
+    if type_ == "index":
+        return not (name.startswith("idx_") and name.endswith("_geom"))
+    return True
 
 
 def run_migrations_offline():
@@ -55,7 +61,8 @@ def run_migrations_offline():
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
-        include_object=include_object,
+        include_schemas=True,
+        include_name=include_name,
         compare_type=True,
     )
 
@@ -77,7 +84,9 @@ def run_migrations_online():
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata, include_object=include_object)
+        context.configure(
+            connection=connection, target_metadata=target_metadata, include_schemas=True, include_name=include_name
+        )
 
         with context.begin_transaction():
             context.run_migrations()

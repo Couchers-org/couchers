@@ -25,7 +25,8 @@ export const SEARCH_BY_KEYWORD = "By keyword";
 export const SEARCH_LOCATION_HINT =
   "Press enter or click the icon to choose a location";
 export const SEARCH_LOCATION_BUTTON = "Search location";
-export const SELECT_LOCATION = "Select a location from the list";
+export const SELECT_LOCATION =
+  "Press enter or click the icon, then select a location from the list";
 export const SHOWING_ALL = "Showing all users";
 
 export const lastActiveOptions = [

@@ -1,15 +1,28 @@
+import functools
 import secrets
-from base64 import urlsafe_b64encode
+from base64 import urlsafe_b64decode, urlsafe_b64encode
+from typing import Optional
 
 import nacl.pwhash
+from nacl.bindings import crypto_aead
 from nacl.bindings.crypto_generichash import generichash_blake2b_salt_personal
 from nacl.bindings.utils import sodium_memcmp
 from nacl.exceptions import InvalidkeyError
 from nacl.utils import random as random_bytes
 
+from couchers.config import config
 
-def urlsafe_random_bytes(length=32):
-    return urlsafe_b64encode(random_bytes(length)).decode("utf8")
+
+def b64encode(data: bytes) -> str:
+    return urlsafe_b64encode(data).decode("ascii")
+
+
+def b64decode(data: str) -> bytes:
+    return urlsafe_b64decode(data)
+
+
+def urlsafe_random_bytes(length=32) -> str:
+    return b64encode(random_bytes(length))
 
 
 def urlsafe_secure_token():
@@ -76,3 +89,60 @@ def verify_token(a: str, b: str):
     reduce the risk of timing attacks.
     """
     return secrets.compare_digest(a, b)
+
+
+@functools.lru_cache
+def get_secret(name: str):
+    """
+    Derives a secret key from the root secret using a key derivation function
+    """
+    return generate_hash_signature(name.encode("utf8"), config["SECRET"])
+
+
+UNSUBSCRIBE_KEY_NAME = "unsubscribe"
+PAGE_TOKEN_KEY_NAME = "pagination"
+
+
+# AEAD: Authenticated Encryption with Associated Data
+
+_aead_key_len = crypto_aead.crypto_aead_xchacha20poly1305_ietf_KEYBYTES
+_aead_nonce_len = crypto_aead.crypto_aead_xchacha20poly1305_ietf_NPUBBYTES
+
+
+def aead_generate_nonce():
+    return random_bytes(_aead_nonce_len)
+
+
+def aead_generate_key():
+    return random_bytes(_aead_key_len)
+
+
+def aead_encrypt(key: bytes, secret_data: bytes, plaintext_data: bytes = b"", nonce: Optional[bytes] = None) -> bytes:
+    if not nonce:
+        nonce = aead_generate_nonce()
+    encrypted = crypto_aead.crypto_aead_xchacha20poly1305_ietf_encrypt(secret_data, plaintext_data, nonce, key)
+    return nonce, encrypted
+
+
+def aead_decrypt(key: bytes, nonce: bytes, encrypted_secret_data: bytes, plaintext_data: bytes = b"") -> bytes:
+    return crypto_aead.crypto_aead_xchacha20poly1305_ietf_decrypt(encrypted_secret_data, plaintext_data, nonce, key)
+
+
+def simple_encrypt(key_name: str, data: bytes) -> bytes:
+    key = get_secret(key_name)
+    nonce, data = aead_encrypt(key, data)
+    return nonce + data
+
+
+def simple_decrypt(key_name: str, data: bytes) -> bytes:
+    key = get_secret(key_name)
+    nonce, data = data[:_aead_nonce_len], data[_aead_nonce_len:]
+    return aead_decrypt(key, nonce, data)
+
+
+def encrypt_page_token(plaintext_page_token: str):
+    return b64encode(simple_encrypt(PAGE_TOKEN_KEY_NAME, plaintext_page_token.encode("utf8")))
+
+
+def decrypt_page_token(encrypted_page_token: str):
+    return simple_decrypt(PAGE_TOKEN_KEY_NAME, b64decode(encrypted_page_token)).decode("utf8")

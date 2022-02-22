@@ -20,9 +20,14 @@ from couchers.models import (
     ReferenceType,
     SignupFlow,
     Upload,
+    User,
 )
+from couchers.sql import couchers_select as select
 from couchers.tasks import (
     maybe_send_reference_report_email,
+    send_account_deletion_confirmation_email,
+    send_account_deletion_successful_email,
+    send_account_recovered_email,
     send_api_key_email,
     send_content_report_email,
     send_email_changed_confirmation_to_new_email,
@@ -431,6 +436,27 @@ def test_password_reset_email(db):
         assert "support@couchers.org" in html
 
 
+def test_account_deletion_confirmation_email(db):
+    user, api_token = generate_user()
+
+    with patch("couchers.email.queue_email") as mock:
+        account_deletion_token = send_account_deletion_confirmation_email(user)
+        assert mock.call_count == 1
+        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+        assert recipient == user.email
+        assert "account deletion" in subject.lower()
+        assert account_deletion_token.token in plain
+        assert account_deletion_token.token in html
+        unique_string = "You requested that we delete your account from Couchers.org."
+        assert unique_string in plain
+        assert unique_string in html
+        url = f"{config['BASE_URL']}/delete-account?token={account_deletion_token.token}"
+        assert url in plain
+        assert url in html
+        assert "support@couchers.org" in plain
+        assert "support@couchers.org" in html
+
+
 def test_api_key_email(db):
     user, api_token = generate_user()
 
@@ -450,6 +476,51 @@ def test_api_key_email(db):
         assert str(expiry) in plain
         assert str(expiry) in html
         unique_string = "We've issued you with the following API key:"
+        assert unique_string in plain
+        assert unique_string in html
+        assert "support@couchers.org" in plain
+        assert "support@couchers.org" in html
+
+
+def test_account_deletion_successful_email(db):
+    user, api_token = generate_user()
+
+    with session_scope() as session:
+        user_ = session.execute(select(User)).scalar_one()
+        user.undelete_token = "token"
+        user.undelete_until = now()
+        user.is_deleted = True
+
+    with patch("couchers.email.queue_email") as mock:
+        send_account_deletion_successful_email(user, 7)
+
+        assert mock.call_count == 1
+        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+        assert recipient == user.email
+        assert "account has been deleted" in subject.lower()
+        unique_string = "You have successfully deleted your account from Couchers.org."
+        assert unique_string in plain
+        assert unique_string in html
+        assert "7 days" in plain
+        assert "7 days" in html
+        url = f"{config['BASE_URL']}/recover-account?token={user.undelete_token}"
+        assert url in plain
+        assert url in html
+        assert "support@couchers.org" in plain
+        assert "support@couchers.org" in html
+
+
+def test_account_recovery_successful_email(db):
+    user, api_token = generate_user()
+
+    with patch("couchers.email.queue_email") as mock:
+        send_account_recovered_email(user)
+
+        assert mock.call_count == 1
+        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+        assert recipient == user.email
+        assert "account has been recovered" in subject.lower()
+        unique_string = "You have successfully recovered your account on Couchers.org!"
         assert unique_string in plain
         assert unique_string in html
         assert "support@couchers.org" in plain

@@ -1,142 +1,110 @@
 {
-    "change_email_form": {
-        "title": "メールアドレスを変更する",
-        "current_email_message": "現在のメールアドレスは<2>1{{email}}</2>です。",
-        "current_password": "現在のパスワード",
-        "new_email": "新たなメールアドレス",
-        "success_message": "メールアドレスの変更が確認されました。新たに使用するアドレスを開き、変更を完了してください。"
+  "change_email_form": {
+    "title": "メールアドレスを変更する",
+    "current_email_message": "現在のメールアドレスは<2>1{{email}}</2>です。",
+    "current_password": "現在のパスワード",
+    "new_email": "新たなメールアドレス",
+    "success_message": "メールアドレスの変更が確認されました。新たに使用するアドレスを開き、変更を完了してください。"
+  },
+  "change_email_confirmation": {
+    "success_message": "メールアドレスの変更が完了しました！",
+    "invalid_confirmation_state": "メールアドレスが確認できません",
+    "error_message": "メールアドレスの変更エラー： {{message}}",
+    "change_in_progress": "メールアドレスを変更中です…",
+    "requires_confirmation_from_old_email": "新しいメールアドレスが確認できました。変更を完了するには、お使いのメールアドレスを承認する必要があります。",
+    "requires_confirmation_from_new_email": "お使いのメールアドレスが確認できました。変更を完了するには、新しいメールアドレスを承認する必要があります。"
+  },
+  "change_password_form": {
+    "title": "パスワードを変更する",
+    "confirm_password": "パスワードを承認する",
+    "old_password": "以前のパスワード",
+    "new_password": "新たなパスワード",
+    "password_mismatch_error": "上記の新たなパスワードと一致しません。",
+    "password_changed_success": "新たなパスワードが設定され、通知がメールアドレスに送信されました。"
+  },
+  "reset_password_form": {
+    "enter_email": "ユーザーネームまたはメールアドレスを入力してください",
+    "success_message": "パスワード変更のためのリンクを、メールボックスで確認してください！"
+  },
+  "login_page": {
+    "title": "ログイン",
+    "header": "おかえりなさい！",
+    "no_account_prompt": "まだアカウントを持っていませんか？<2>1$t(global:sign_up)</2>"
+  },
+  "basic_sign_up_form": {
+    "existing_user_prompt": "すでにアカウントを持っていますか？<2>1$t(global:login)</2>",
+    "header": "始めましょう！",
+    "sign_up_agreement_explainer": "続行するには、クッキー、メールアドレス、データ処理に関する規約<2>Terms of Service</2>に同意してください。"
+  },
+  "account_form": {
+    "header": "アカウントの詳細",
+    "username": {
+      "field_label": "ユーザーネーム",
+      "required_error": "ユーザーネームを入力してください",
+      "username_taken_error": "このユーザーネームはすでに使用されています。",
+      "validation_error": "ユーザーネームには数字、_、または文字のみが利用可能です。"
     },
-    "change_email_confirmation": {
-        "success_message": "メールアドレスの変更が完了しました！",
-        "invalid_confirmation_state": "メールアドレスが確認できません",
-        "error_message": "メールアドレスの変更エラー： {{message}}",
-        "change_in_progress": "メールアドレスを変更中です…",
-        "requires_confirmation_from_old_email": "新しいメールアドレスが確認できました。変更を完了するには、お使いのメールアドレスを承認する必要があります。",
-        "requires_confirmation_from_new_email": "お使いのメールアドレスが確認できました。変更を完了するには、新しいメールアドレスを承認する必要があります。"
+    "birthday": {
+      "field_label": "誕生日",
+      "required_error": "誕生日を入力してください",
+      "validation_error": "過去の有効な日付である必要があります。"
     },
-    "change_password_form": {
-        "title": "パスワードを変更する",
-        "confirm_password": "パスワードを承認する",
-        "old_password": "以前のパスワード",
-        "new_password": "新たなパスワード",
-        "password_mismatch_error": "上記の新たなパスワードと一致しません。",
-        "password_changed_success": "新たなパスワードが設定され、通知がメールアドレスに送信されました。"
+    "hosting_status": {
+      "field_label": "受け入れステータス",
+      "can_host": "受け入れ可能",
+      "maybe": "受け入れ可否不明",
+      "cant_host": "受け入れ不可"
     },
-    "reset_password_form": {
-        "enter_email": "ユーザーネームまたはメールアドレスを入力してください",
-        "success_message": "パスワード変更のためのリンクを、メールボックスで確認してください！"
+    "gender": {
+      "required_error": "性別を選択してください",
+      "non_binary": "ノンバイナリー",
+      "woman": "女性",
+      "man": "男性",
+      "field_label": "私は..."
     },
-    "login_page": {
-        "title": "ログイン",
-        "header": "おかえりなさい！",
-        "no_account_prompt": "まだアカウントを持っていませんか？<2>1$t(global:sign_up)</2>"
+    "tos_prompt": "続行するためには、<1></1>を読み受け入れてください。",
+    "tos_accept_label": "$t(global:terms_of_service)を受け入れます。"
+  },
+  "basic_form": {
+    "email": {
+      "empty_error": "有効なメールアドレスを入力してください",
+      "field_label": "メールアドレス",
+      "required_error": "メールアドレスは空欄不可です。"
     },
-    "basic_sign_up_form": {
-        "existing_user_prompt": "すでにアカウントを持っていますか？<2>1$t(global:login)</2>",
-        "header": "始めましょう！",
-        "sign_up_agreement_explainer": "続行するには、クッキー、メールアドレス、データ処理に関する規約<2>Terms of Service</2>に同意してください。"
+    "name": {
+      "field_label": "氏名",
+      "empty_error": "氏名を入力してください",
+      "required_error": "氏名は空欄不可です。"
+    }
+  },
+  "community_guidelines_form": {
+    "guideline": {
+      "checkbox_label": "はい、了解しました",
+      "required_error": "全ての欄の入力が必要です"
     },
-    "account_form": {
-        "header": "アカウントの詳細",
-        "username": {
-            "field_label": "ユーザーネーム",
-            "required_error": "ユーザーネームを入力してください",
-            "username_taken_error": "このユーザーネームはすでに使用されています。",
-            "validation_error": "ユーザーネームには数字、_、または文字のみが利用可能です。"
-        },
-        "birthday": {
-            "field_label": "誕生日",
-            "required_error": "誕生日を入力してください",
-            "validation_error": "過去の有効な日付である必要があります。"
-        },
-        "hosting_status": {
-            "field_label": "受け入れステータス",
-            "can_host": "受け入れ可能",
-            "maybe": "受け入れ可否不明",
-            "cant_host": "受け入れ不可"
-        },
-        "gender": {
-            "required_error": "性別を選択してください",
-            "non_binary": "ノンバイナリー",
-            "woman": "女性",
-            "man": "男性",
-            "field_label": "私は..."
-        },
-        "tos_prompt": "続行するためには、<1></1>を読み受け入れてください。",
-        "tos_accept_label": "$t(global:terms_of_service)を受け入れます。"
-    },
-    "basic_form": {
-        "email": {
-            "empty_error": "有効なメールアドレスを入力してください",
-            "field_label": "メールアドレス",
-            "required_error": "メールアドレスは空欄不可です。"
-        },
-        "name": {
-            "field_label": "氏名",
-            "empty_error": "氏名を入力してください",
-            "required_error": "氏名は空欄不可です。"
-        }
-    },
-    "community_guidelines_form": {
-        "guideline": {
-            "checkbox_label": "はい、了解しました",
-            "required_error": "全ての欄の入力が必要です"
-        },
-        "header": "コミュニティガイドライン"
-    },
-    "sign_up_completed_prompt": "登録メールアドレスに承認用リンクを送付しました。リンクにアクセスし、アカウントを有効にしてください。",
-    "location": {
-        "field_label": "住所",
-        "validation_error": "存在する住所を入力してください。"
-    },
-    "sign_up_completed_title": "ご登録ありがとうございます！",
-    "unhandled_sign_up_state": "未完了の登録ステップです。",
-    "reset_password_success": "パスワードは正常にリセットされました！ユーザーネームまたはメールアドレスでログインすると、メールボックスへ自動的にリンクが届きます。",
-    "login_prompt": "ログインするにはこちらをクリック",
-    "about_us": "私たちについて",
-    "accept": "承認する",
-    "timezone": "タイムゾーンと位置設定",
-    "your_timezone": "あなたのタイムゾーンは",
-    "sign_up_confirmed_prompt": "設定が完了しました！リダイレクトしていなければ、ログインしてください。",
-    "your_local_time_is": "あなたの現地時間は大体",
-    "timezone_helper": "この時間とタイムゾーンはあなたの現在地に依拠しています。間違いがある場合はバグを報告してください。",
-    "username_helper": "あなたのユーザーネームはアカウント作成時に登録されます。",
-    "your_username_is": "あなたのユーザーネームは",
-    "account_settings": "アカウント設定",
-    "change_gender": "性別を変更する",
-    "change_birthdate": "誕生日を変更する",
-    "full_name": "氏名",
-    "introduction_subtitle": "完全無料。コミュニティ第一。非営利団体。現代的。",
-    "introduction_title": "登録して、Couchsurfing™に変わるコミュニティを作りましょう",
-    "no_signup": "進行中のサインアップはありません。最初からやり直してください。",
-    "reset_password": "パスワードのリセット",
-    "reset_password_error": "パスワードのリセットエラー: {{message}}",
-    "submit": "確定する",
-    "terms": "条項",
-    "thanks": "ありがとう！",
-    "you_were_logged_out": "ログアウトしました。",
-    "jailed_error_message": "承諾が拒否されました",
-    "logged_out_error_message": "未承認",
-    "location_confirm_title": "もう一度マップを確認してください",
-    "location_confirm_warn": "住所の特定を避けるため、あなたの家が円の中心にならないようにしてください。利用者に大体の位置情報を示すために、円をクリック・ドラッグしてください。",
-    "okay": "オーケー",
-    "jail": {
-        "jail_tos_text": "利用規約を更新しました。続行するには、こちらを読んで承認してください ",
-        "location_section_heading": "位置情報を追加してください",
-        "please_check_jail": "続行するにはこちらを順番に確認してください。",
-        "more_info_required": "情報が不足しています"
-    },
-    "check_email_for_link": "メールボックスでログインリンクを確認してください！:)",
-    "email_username": "メールアドレス/ユーザーネーム",
-    "password": "パスワード",
-    "forgot_password": "パスワードを忘れてしまいましたか？",
-    "feature_preview": {
-        "title": "機能のプレビュー",
-        "explanation": "このページでは、開発途中の機能を試用することができます。",
-        "no_previews": {
-            "title": "現在プレビューできる機能はありません",
-            "explanation": "現在プレビューに利用可能な機能はありません。後ほどまたご確認ください！"
-        }
-    },
-    "remember_me": "情報を記憶する"
+    "header": "コミュニティガイドライン"
+  },
+  "sign_up_completed_prompt": "登録メールアドレスに承認用リンクを送付しました。リンクにアクセスし、アカウントを有効にしてください。",
+  "location": {
+    "field_label": "住所",
+    "validation_error": "存在する住所を入力してください。"
+  },
+  "sign_up_completed_title": "ご登録ありがとうございます！",
+  "unhandled_sign_up_state": "未完了の登録ステップです。",
+  "reset_password_success": "パスワードは正常にリセットされました！ユーザーネームまたはメールアドレスでログインすると、メールボックスへ自動的にリンクが届きます。",
+  "login_prompt": "ログインするにはこちらをクリック",
+  "about_us": "私たちについて",
+  "sign_up_confirmed_prompt": "設定が完了しました！リダイレクトしていなければ、ログインしてください。",
+  "introduction_subtitle": "完全無料。コミュニティ第一。非営利団体。現代的。",
+  "introduction_title": "登録して、Couchsurfing™に変わるコミュニティを作りましょう",
+  "reset_password": "パスワードのリセット",
+  "reset_password_error": "パスワードのリセットエラー: {{message}}",
+  "feature_preview": {
+    "title": "機能のプレビュー",
+    "explanation": "このページでは、開発途中の機能を試用することができます。",
+    "no_previews": {
+      "title": "現在プレビューできる機能はありません",
+      "explanation": "現在プレビューに利用可能な機能はありません。後ほどまたご確認ください！"
+    }
+  }
 }

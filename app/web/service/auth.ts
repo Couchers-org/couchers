@@ -1,11 +1,14 @@
 import { BoolValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import { HostingStatus } from "proto/api_pb";
 import {
+  ConfirmDeleteAccountReq,
   ContributorForm as ContributorFormPb,
   LoginReq,
+  RecoverAccountReq,
   SignupAccount,
   SignupBasic,
   SignupFlowReq,
+  UnsubscribeReq,
   UsernameValidReq,
 } from "proto/auth_pb";
 import client from "service/client";
@@ -121,4 +124,24 @@ export async function validateUsername(username: string) {
   req.setUsername(username);
   const res = await client.auth.usernameValid(req);
   return res.getValid();
+}
+
+export async function unsubscribe(payload: string, sig: string) {
+  const req = new UnsubscribeReq();
+  req.setPayload(payload);
+  req.setSig(sig);
+  const res = await client.auth.unsubscribe(req);
+  return res.toObject();
+}
+
+export async function confirmDeleteAccount(token: string) {
+  const req = new ConfirmDeleteAccountReq();
+  req.setToken(token);
+  await client.auth.confirmDeleteAccount(req);
+}
+
+export async function recoverAccount(token: string) {
+  const req = new RecoverAccountReq();
+  req.setToken(token);
+  await client.auth.recoverAccount(req);
 }

@@ -632,7 +632,7 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
     user2, token2 = generate_user()
     user3, token3 = generate_user()
     user4, token4 = generate_user()
-    user5, token5 = generate_user(make_invisible=True)
+    user5, token5 = generate_user(delete_user=True)
     user6, token6 = generate_user()
     user7, token7 = generate_user()
     make_user_block(user1, user6)

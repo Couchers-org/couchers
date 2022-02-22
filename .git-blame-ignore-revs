@@ -4,3 +4,5 @@ ed6cdae66d80d46c74b8f29d14c488831d5d6e5c
 894400c72eaa863c876f7a7de74974377b918311
 # Rename 'frontend' to 'web'
 8190527bc34896901639350d300489e0c743334d
+# Remove trailing whitespace from lines
+6eda6fe7ed03b3c09fb855f92666f1fa2affe1a6

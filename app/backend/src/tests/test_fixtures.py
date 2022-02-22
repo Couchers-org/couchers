@@ -18,6 +18,7 @@ from couchers.models import (
     Base,
     FriendRelationship,
     FriendStatus,
+    HostingStatus,
     Language,
     LanguageAbility,
     LanguageFluency,
@@ -42,6 +43,7 @@ from couchers.servicers.events import Events
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.notifications import Notifications
 from couchers.servicers.pages import Pages
 from couchers.servicers.references import References
 from couchers.servicers.reporting import Reporting
@@ -66,6 +68,7 @@ from proto import (
     groups_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
+    notifications_pb2_grpc,
     pages_pb2_grpc,
     references_pb2_grpc,
     reporting_pb2_grpc,
@@ -201,7 +204,7 @@ def db():
     recreate_database()
 
 
-def generate_user(*, make_invisible=False, **kwargs):
+def generate_user(*, delete_user=False, **kwargs):
     """
     Create a new user, return session token
 
@@ -221,6 +224,7 @@ def generate_user(*, make_invisible=False, **kwargs):
             # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
             "hashed_password": b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
             "name": username.capitalize(),
+            "hosting_status": HostingStatus.cant_host,
             "city": "Testing city",
             "hometown": "Test hometown",
             "community_standing": 0.5,
@@ -241,6 +245,7 @@ def generate_user(*, make_invisible=False, **kwargs):
             "geom_radius": 100,
             "onboarding_emails_sent": 1,
             "last_onboarding_email_sent": now(),
+            "new_notifications_enabled": True,
         }
 
         for key, value in kwargs.items():
@@ -271,9 +276,12 @@ def generate_user(*, make_invisible=False, **kwargs):
         token, _ = create_session(_DummyContext(), session, user, False)
 
         # deleted user aborts session creation, hence this follows and necessitates a second commit
-        if make_invisible:
+        if delete_user:
             user.is_deleted = True
-            session.commit()
+
+        user.daily_order_key = 1e10 - user.id
+
+        session.commit()
 
         # refresh it, undoes the expiry
         session.refresh(user)
@@ -584,6 +592,13 @@ def blocking_session(token):
 
 
 @contextmanager
+def notifications_session(token):
+    channel = fake_channel(token)
+    notifications_pb2_grpc.add_NotificationsServicer_to_server(Notifications(), channel)
+    yield notifications_pb2_grpc.NotificationsStub(channel)
+
+
+@contextmanager
 def account_session(token):
     """
     Create a Account API for testing, uses the token for auth
@@ -677,6 +692,7 @@ def testconfig():
     config["IN_TEST"] = True
 
     config["DEV"] = True
+    config["SECRET"] = bytes.fromhex("448697d3886aec65830a1ea1497cdf804981e0c260d2f812cf2787c4ed1a262b")
     config["VERSION"] = "testing_version"
     config["BASE_URL"] = "http://localhost:3000"
     config["COOKIE_DOMAIN"] = "localhost"

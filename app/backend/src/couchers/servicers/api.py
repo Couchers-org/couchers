@@ -1,4 +1,3 @@
-from base64 import urlsafe_b64encode
 from datetime import timedelta
 from urllib.parse import urlencode
 
@@ -9,7 +8,7 @@ from sqlalchemy.sql import and_, delete, func, intersect, or_, union
 
 from couchers import errors, urls
 from couchers.config import config
-from couchers.crypto import generate_hash_signature, random_hex
+from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.db import session_scope
 from couchers.models import (
     FriendRelationship,
@@ -30,6 +29,7 @@ from couchers.models import (
     SmokingLocation,
     User,
 )
+from couchers.notifications.notify import notify
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email
@@ -590,6 +590,17 @@ class API(api_pb2_grpc.APIServicer):
 
             send_friend_request_email(friend_relationship)
 
+            notify(
+                user_id=friend_relationship.to_user_id,
+                topic="friend_request",
+                key=str(friend_relationship.from_user_id),
+                action="send",
+                avatar_key=user.avatar.thumbnail_url if user.avatar else None,
+                icon="person",
+                title=f"**{user.name}** sent you a friend request",
+                link=urls.friend_requests_link(),
+            )
+
             return empty_pb2.Empty()
 
     def ListFriendRequests(self, request, context):
@@ -659,6 +670,18 @@ class API(api_pb2_grpc.APIServicer):
 
             session.commit()
 
+            if friend_request.status == FriendStatus.accepted:
+                notify(
+                    user_id=friend_request.from_user_id,
+                    topic="friend_request",
+                    key=str(friend_request.to_user_id),
+                    action="accept",
+                    avatar_key=friend_request.to_user.avatar.thumbnail_url if friend_request.to_user.avatar else None,
+                    icon="person",
+                    title=f"**{friend_request.from_user.name}** accepted your friend request",
+                    link=urls.user_link(username=friend_request.to_user.username),
+                )
+
             return empty_pb2.Empty()
 
     def CancelFriendRequest(self, request, context):
@@ -676,6 +699,8 @@ class API(api_pb2_grpc.APIServicer):
 
             friend_request.status = FriendStatus.cancelled
             friend_request.time_responded = func.now()
+
+            # note no notifications
 
             session.commit()
 
@@ -701,8 +726,8 @@ class API(api_pb2_grpc.APIServicer):
                 max_height=1600,
             ).SerializeToString()
 
-        data = urlsafe_b64encode(req).decode("utf8")
-        sig = urlsafe_b64encode(generate_hash_signature(req, config["MEDIA_SERVER_SECRET_KEY"])).decode("utf8")
+        data = b64encode(req)
+        sig = b64encode(generate_hash_signature(req, config["MEDIA_SERVER_SECRET_KEY"]))
 
         path = "upload?" + urlencode({"data": data, "sig": sig})
 
@@ -717,7 +742,7 @@ def user_model_to_pb(db_user, session, context):
         select(func.count())
         .select_from(Reference)
         .join(User, User.id == Reference.from_user_id)
-        .where(~User.is_deleted)
+        .where(User.is_visible)
         .where(Reference.to_user_id == db_user.id)
     ).scalar_one()
 
@@ -778,7 +803,7 @@ def user_model_to_pb(db_user, session, context):
 
     verification_score = 0.0
     if db_user.phone_verification_verified:
-        verification_score += 1.0 * db_user.phone_is_verified()
+        verification_score += 1.0 * db_user.phone_is_verified
 
     user = api_pb2.User(
         user_id=db_user.id,

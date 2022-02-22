@@ -4,17 +4,17 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-alembic==1.7.5
+alembic==1.7.6
     # via -r requirements.in
 attrs==21.4.0
     # via pytest
 autoflake==1.4
     # via -r requirements.in
-black==21.12b0
+black==22.1.0
     # via -r requirements.in
-boto3==1.20.37
+boto3==1.21.3
     # via -r requirements.in
-botocore==1.23.37
+botocore==1.24.3
     # via
     #   boto3
     #   s3transfer
@@ -24,24 +24,20 @@ certifi==2021.10.8
     #   sentry-sdk
 cffi==1.15.0
     # via pynacl
-charset-normalizer==2.0.10
+charset-normalizer==2.0.11
     # via requests
 click==8.0.3
     # via black
-coverage[toml]==6.2
+coverage[toml]==6.3.1
     # via pytest-cov
 geoalchemy2==0.10.2
     # via -r requirements.in
 greenlet==1.1.2
     # via sqlalchemy
-grpcio==1.43.0
+grpcio==1.44.0
     # via -r requirements.in
 idna==3.3
     # via requests
-importlib-metadata==4.10.0
-    # via alembic
-importlib-resources==5.4.0
-    # via alembic
 iniconfig==1.1.1
     # via pytest
 isort==5.10.1
@@ -68,15 +64,15 @@ packaging==21.3
     #   pytest
 pathspec==0.9.0
     # via black
-phonenumbers==8.12.41
+phonenumbers==8.12.43
     # via -r requirements.in
 platformdirs==2.4.1
     # via black
 pluggy==1.0.0
     # via pytest
-prometheus-client==0.12.0
+prometheus-client==0.13.1
     # via -r requirements.in
-protobuf==3.19.3
+protobuf==3.19.4
     # via -r requirements.in
 psycopg2-binary==2.9.3
     # via -r requirements.in
@@ -88,16 +84,13 @@ pyflakes==2.4.0
     # via autoflake
 pynacl==1.5.0
     # via -r requirements.in
-pyparsing==3.0.6
+pyparsing==3.0.7
     # via packaging
-pytest==6.2.5
+pytest==7.0.1
     # via
     #   -r requirements.in
     #   pytest-cov
-    #   pytest-pythonpath
 pytest-cov==3.0.0
-    # via -r requirements.in
-pytest-pythonpath==0.7.3
     # via -r requirements.in
 python-dateutil==2.8.2
     # via
@@ -111,37 +104,30 @@ requests==2.27.1
     # via
     #   -r requirements.in
     #   stripe
-s3transfer==0.5.0
+s3transfer==0.5.1
     # via boto3
-sentry-sdk==1.5.2
+sentry-sdk==1.5.5
     # via -r requirements.in
-shapely==1.8.0
+shapely==1.8.1.post1
     # via -r requirements.in
 six==1.16.0
     # via
     #   grpcio
     #   python-dateutil
-sqlalchemy==1.4.29
+sqlalchemy==1.4.31
     # via
     #   -r requirements.in
     #   alembic
     #   geoalchemy2
-stripe==2.64.0
+stripe==2.66.0
     # via -r requirements.in
-toml==0.10.2
-    # via pytest
-tomli==1.2.3
+tomli==2.0.0
     # via
     #   black
     #   coverage
-typing-extensions==4.0.1
-    # via black
+    #   pytest
 urllib3==1.26.8
     # via
     #   botocore
     #   requests
     #   sentry-sdk
-zipp==3.7.0
-    # via
-    #   importlib-metadata
-    #   importlib-resources

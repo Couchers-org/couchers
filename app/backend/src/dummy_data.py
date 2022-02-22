@@ -6,6 +6,7 @@ from datetime import date
 from dateutil import parser
 from sqlalchemy.sql import func
 
+from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import hash_password
 from couchers.db import session_scope
 from couchers.models import (
@@ -71,9 +72,14 @@ def add_dummy_users():
                 occupation=user["occupation"],
                 about_me=user["about_me"],
                 about_place=user["about_place"],
-                hosting_status=hostingstatus2sql[HostingStatus.Value(user["hosting_status"])]
-                if "hosting_status" in user
-                else None,
+                hosting_status=hostingstatus2sql[
+                    HostingStatus.Value(
+                        user["hosting_status"] if "hosting_status" in user else "HOSTING_STATUS_CANT_HOST"
+                    )
+                ],
+                new_notifications_enabled=True,
+                accepted_tos=TOS_VERSION,
+                accepted_community_guidelines=GUIDELINES_VERSION,
             )
             session.add(new_user)
             session.flush()

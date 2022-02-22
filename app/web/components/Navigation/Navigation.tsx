@@ -1,7 +1,6 @@
 import {
   AppBar,
   Badge,
-  Button,
   Drawer,
   Hidden,
   IconButton,
@@ -12,26 +11,36 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import classNames from "classnames";
-import Avatar from "components/Avatar";
+import Button from "components/Button";
 import { CloseIcon, MenuIcon } from "components/Icons";
-import Menu, { MenuItem } from "components/Menu";
+import { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
+import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import useNotifications from "features/useNotifications";
-import useCurrentUser from "features/userQueries/useCurrentUser";
+import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
-import React, { useState } from "react";
+import { useTranslation } from "next-i18next";
+import React, { useEffect, useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
+  blogRoute,
+  dashboardRoute,
   donationsRoute,
   eventsRoute,
+  faqRoute,
   featurePreviewRoute,
-  handbookURL,
+  forumURL,
+  handbookRoute,
+  loginRoute,
   logoutRoute,
   messagesRoute,
+  planRoute,
   routeToProfile,
   searchRoute,
   settingsRoute,
+  signupRoute,
+  teamRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -40,12 +49,14 @@ import {
   DASHBOARD,
   DONATE,
   EVENTS,
+  FORUM,
   HELP,
   LOG_OUT,
   MAP_SEARCH,
   MESSAGES,
   PROFILE,
 } from "../../appConstants";
+import LoggedInMenu from "./LoggedInMenu";
 import NavButton from "./NavButton";
 import ReportButton from "./ReportButton";
 
@@ -57,21 +68,21 @@ interface MenuItemProps {
   hasBottomDivider?: boolean;
 }
 
-type MenuGenData = ReturnType<typeof useNotifications>["data"];
+type PingData = ReturnType<typeof useNotifications>["data"];
 
 // shown on mobile/small screens
-const drawerMenu = (data: MenuGenData): Array<MenuItemProps> => [
+const loggedInDrawerMenu = (pingData: PingData): Array<MenuItemProps> => [
   {
     name: DASHBOARD,
-    route: "/",
+    route: dashboardRoute,
   },
   {
     name: MESSAGES,
     route: messagesRoute,
     notificationCount:
-      (data?.unseenMessageCount ?? 0) +
-      (data?.unseenReceivedHostRequestCount ?? 0) +
-      (data?.unseenSentHostRequestCount ?? 0),
+      (pingData?.unseenMessageCount ?? 0) +
+      (pingData?.unseenReceivedHostRequestCount ?? 0) +
+      (pingData?.unseenSentHostRequestCount ?? 0),
   },
   {
     name: MAP_SEARCH,
@@ -94,9 +105,13 @@ const drawerMenu = (data: MenuGenData): Array<MenuItemProps> => [
     route: eventsRoute,
   },
   {
-    name: HELP,
-    route: handbookURL,
+    name: FORUM,
+    route: forumURL,
     externalLink: true,
+  },
+  {
+    name: HELP,
+    route: handbookRoute,
   },
   {
     name: LOG_OUT,
@@ -105,18 +120,18 @@ const drawerMenu = (data: MenuGenData): Array<MenuItemProps> => [
 ];
 
 // shown on desktop and big screens on top of the screen
-const navMenu = (data: MenuGenData): Array<MenuItemProps> => [
+const loggedInNavMenu = (pingData: PingData): Array<MenuItemProps> => [
   {
     name: DASHBOARD,
-    route: "/",
+    route: dashboardRoute,
   },
   {
     name: MESSAGES,
     route: messagesRoute,
     notificationCount:
-      (data?.unseenMessageCount ?? 0) +
-      (data?.unseenReceivedHostRequestCount ?? 0) +
-      (data?.unseenSentHostRequestCount ?? 0),
+      (pingData?.unseenMessageCount ?? 0) +
+      (pingData?.unseenReceivedHostRequestCount ?? 0) +
+      (pingData?.unseenSentHostRequestCount ?? 0),
   },
   {
     name: MAP_SEARCH,
@@ -126,10 +141,79 @@ const navMenu = (data: MenuGenData): Array<MenuItemProps> => [
     name: EVENTS,
     route: eventsRoute,
   },
+  {
+    name: FORUM,
+    route: forumURL,
+    externalLink: true,
+  },
 ];
 
-// shown on desktop and big screens in the top right corner
-const menuDropDown = (data: MenuGenData): Array<MenuItemProps> => [
+const loggedOutNavMenu = (): Array<MenuItemProps> => [
+  {
+    name: "About",
+    route: "/",
+  },
+  {
+    name: "Blog",
+    route: blogRoute,
+  },
+  {
+    name: "Our Plan",
+    route: planRoute,
+  },
+  {
+    name: "FAQ",
+    route: faqRoute,
+  },
+  {
+    name: "The Team",
+    route: teamRoute,
+  },
+  {
+    name: FORUM,
+    route: forumURL,
+    externalLink: true,
+  },
+];
+
+const loggedOutDrawerMenu = (): Array<MenuItemProps> => [
+  {
+    name: "Sign in",
+    route: loginRoute,
+  },
+  {
+    name: "Create an account",
+    route: signupRoute,
+  },
+  {
+    name: "About",
+    route: "/",
+  },
+  {
+    name: "Blog",
+    route: blogRoute,
+  },
+  {
+    name: "Our Plan",
+    route: planRoute,
+  },
+  {
+    name: "FAQ",
+    route: faqRoute,
+  },
+  {
+    name: "The Team",
+    route: teamRoute,
+  },
+  {
+    name: FORUM,
+    route: forumURL,
+    externalLink: true,
+  },
+];
+
+// shown on desktop and big screens in the top right corner when logged in
+const loggedInMenuDropDown = (pingData: PingData): Array<MenuItemProps> => [
   {
     name: PROFILE,
     route: routeToProfile(),
@@ -139,9 +223,9 @@ const menuDropDown = (data: MenuGenData): Array<MenuItemProps> => [
     name: MESSAGES,
     route: messagesRoute,
     notificationCount:
-      (data?.unseenMessageCount ?? 0) +
-      (data?.unseenReceivedHostRequestCount ?? 0) +
-      (data?.unseenSentHostRequestCount ?? 0),
+      (pingData?.unseenMessageCount ?? 0) +
+      (pingData?.unseenReceivedHostRequestCount ?? 0) +
+      (pingData?.unseenSentHostRequestCount ?? 0),
   },
   {
     name: "Account settings",
@@ -154,7 +238,11 @@ const menuDropDown = (data: MenuGenData): Array<MenuItemProps> => [
   },
   {
     name: HELP,
-    route: handbookURL,
+    route: handbookRoute,
+  },
+  {
+    name: FORUM,
+    route: forumURL,
     externalLink: true,
   },
   {
@@ -279,14 +367,20 @@ export default function Navigation() {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = React.useRef<HTMLButtonElement>(null);
-  const { data } = useNotifications();
-  const { data: user } = useCurrentUser();
+  const { data: pingData } = useNotifications();
+  const { authState } = useAuthContext();
+
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+
+  const { t } = useTranslation([GLOBAL]);
 
   const drawerItems = (
     <div>
       <List>
-        {drawerMenu(data).map(
+        {(authState.authenticated && isMounted
+          ? loggedInDrawerMenu
+          : loggedOutDrawerMenu)(pingData).map(
           ({ name, route, notificationCount, externalLink }) => (
             <ListItem button key={name}>
               {externalLink ? (
@@ -310,7 +404,7 @@ export default function Navigation() {
     </div>
   );
 
-  const menuItems = menuDropDown(data).map(
+  const menuItems = loggedInMenuDropDown(pingData).map(
     ({ name, notificationCount, route, externalLink, hasBottomDivider }) => {
       const hasNotification =
         notificationCount !== undefined && notificationCount > 0;
@@ -432,13 +526,15 @@ export default function Navigation() {
           <CouchersLogo />
           <Hidden smDown implementation="css">
             <div className={classes.flex}>
-              {navMenu(data).map(
+              {(authState.authenticated && isMounted
+                ? loggedInNavMenu
+                : loggedOutNavMenu)(pingData).map(
                 ({ name, route, notificationCount, externalLink }) =>
                   externalLink ? (
                     <ExternalNavButton
                       route={route}
                       label={name}
-                      labelVariant="h2"
+                      labelVariant="h3"
                       key={`${name}-nav-button`}
                     />
                   ) : (
@@ -454,46 +550,28 @@ export default function Navigation() {
           </Hidden>
         </div>
 
-        <Hidden>
+        <Hidden implementation="css">
           <div className={classes.menuContainer}>
             <ReportButton />
-            <Button
-              aria-controls="navigation-menu"
-              aria-haspopup="true"
-              className={classes.menuBtn}
-              onClick={() =>
-                setMenuOpen((prevMenuOpen: boolean) => !prevMenuOpen)
-              }
-              ref={menuRef}
-            >
-              <MenuIcon />
-              <Avatar
-                user={user}
-                className={classes.avatar}
-                isProfileLink={false}
-              />
-            </Button>
+            {authState.authenticated && isMounted ? (
+              <LoggedInMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen}>
+                {menuItems}
+              </LoggedInMenu>
+            ) : (
+              <>
+                <Hidden smDown implementation="css">
+                  <Link href={signupRoute} passHref>
+                    <Button variant="contained" color="secondary">
+                      {t("global:sign_up")}
+                    </Button>
+                  </Link>
+                </Hidden>
+                <Link href={loginRoute} passHref>
+                  <Button variant="outlined">{t("global:login")}</Button>
+                </Link>
+              </>
+            )}
           </div>
-
-          <Menu
-            id="navigation-menu"
-            open={menuOpen}
-            anchorEl={menuRef.current}
-            onClose={() => setMenuOpen(false)}
-            classes={{
-              paper: classes.menu,
-            }}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "right",
-            }}
-            getContentAnchorEl={null}
-            PopoverClasses={{
-              root: classes.menuPopover,
-            }}
-          >
-            {menuItems}
-          </Menu>
         </Hidden>
       </Toolbar>
     </AppBar>

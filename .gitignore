@@ -3,7 +3,7 @@
 *.code-workspace
 .DS_Store
 
-# helps Lennart configure his vim 
+# helps Lennart configure his vim
 pyrightconfig.json
 
 .DS_Store

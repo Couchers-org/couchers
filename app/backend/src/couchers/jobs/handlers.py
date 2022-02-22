@@ -7,22 +7,26 @@ from datetime import timedelta
 
 import requests
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, delete, func, literal, or_, union_all
+from sqlalchemy.sql import and_, delete, func, literal, not_, or_, union_all
 
 from couchers import config, email, urls
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.models import (
+    AccountDeletionToken,
     GroupChat,
     GroupChatSubscription,
     HostRequest,
     LoginToken,
     Message,
     MessageType,
+    PasswordResetToken,
     Reference,
     User,
 )
+from couchers.notifications.background import handle_email_digests, handle_email_notifications, handle_notification
+from couchers.notifications.notify import notify
 from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships, send_onboarding_email, send_reference_reminder_email
@@ -51,9 +55,70 @@ def process_send_email(payload):
 def process_purge_login_tokens(payload):
     logger.info(f"Purging login tokens")
     with session_scope() as session:
+        session.execute(delete(LoginToken).where(~LoginToken.is_valid).execution_options(synchronize_session=False))
+
+
+def process_purge_password_reset_tokens(payload):
+    logger.info(f"Purging login tokens")
+    with session_scope() as session:
         session.execute(
-            delete(LoginToken).where(LoginToken.is_valid == False).execution_options(synchronize_session=False)
+            delete(PasswordResetToken).where(~PasswordResetToken.is_valid).execution_options(synchronize_session=False)
         )
+
+
+def process_purge_account_deletion_tokens(payload):
+    logger.info(f"Purging account deletion tokens")
+    with session_scope() as session:
+        session.execute(
+            delete(AccountDeletionToken)
+            .where(~AccountDeletionToken.is_valid)
+            .execution_options(synchronize_session=False)
+        )
+
+
+def process_generate_message_notifications(payload):
+    """
+    Generates notifications for a message sent to a group chat
+    """
+    logger.info(f"Sending out notifications for message_id = {payload.message_id}")
+
+    with session_scope() as session:
+        message, group_chat = session.execute(
+            select(Message, GroupChat)
+            .join(GroupChat, GroupChat.conversation_id == Message.conversation_id)
+            .where(Message.id == payload.message_id)
+        ).one()
+
+        if message.message_type != MessageType.text:
+            logger.info(f"Not a text message, not notifying. message_id = {payload.message_id}")
+            return
+
+        subscriptions = (
+            session.execute(
+                select(GroupChatSubscription)
+                .join(User, User.id == GroupChatSubscription.user_id)
+                .where(GroupChatSubscription.group_chat_id == message.conversation_id)
+                .where(User.is_visible)
+                .where(User.id != message.author_id)
+                .where(GroupChatSubscription.left == None)
+                .where(not_(GroupChatSubscription.is_muted))
+            )
+            .scalars()
+            .all()
+        )
+
+        for subscription in subscriptions:
+            logger.info(f"Notifying user_id = {subscription.user_id}")
+            notify(
+                user_id=subscription.user_id,
+                topic="chat",
+                key=str(message.conversation_id),
+                action="message",
+                icon="message",
+                title=f"{message.author.name} sent a message in {group_chat.title}",
+                content=message.text,
+                link=urls.chat_link(chat_id=message.conversation_id),
+            )
 
 
 def process_send_message_notifications(payload):
@@ -71,6 +136,7 @@ def process_send_message_notifications(payload):
                     select(User)
                     .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
                     .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                    .where(not_(GroupChatSubscription.is_muted))
                     .where(User.is_visible)
                     .where(Message.time >= GroupChatSubscription.joined)
                     .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
@@ -95,6 +161,7 @@ def process_send_message_notifications(payload):
                 )
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .where(GroupChatSubscription.user_id == user.id)
+                .where(not_(GroupChatSubscription.is_muted))
                 .where(Message.id > user.last_notified_message_id)
                 .where(Message.id > GroupChatSubscription.last_seen_message_id)
                 .where(Message.time >= GroupChatSubscription.joined)
@@ -365,3 +432,15 @@ def process_add_users_to_email_list(payload):
 
 def process_enforce_community_membership(payload):
     enforce_community_memberships()
+
+
+def process_handle_notification(payload):
+    handle_notification(payload.notification_id)
+
+
+def process_handle_email_notifications(payload):
+    handle_email_notifications()
+
+
+def process_handle_email_digests(payload):
+    handle_email_digests()

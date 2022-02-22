@@ -1,7 +1,7 @@
 """Regenerate all migrations
 
 Revision ID: 27a2782784d0
-Revises: 
+Revises:
 Create Date: 2021-04-02 14:56:26.236084
 
 """

@@ -3,7 +3,7 @@ tasks:
   - name: Compile the protocol buffers, launch the backend with docker-compose
     before: cd app
     init: |
-      docker run --rm -w /app -v $(pwd):/app couchers/grpc ./generate_protos.sh
+      docker run --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
       BASE_URL=$(gp url 3000) MEDIA_SERVER_BASE_URL=$(gp url 5000) docker-compose -f docker-compose.yml -f docker-compose.gitpod.yml up --build
 
   - name: Install and launch the frontend with yarn

@@ -1,11 +1,10 @@
 import { Typography } from "@material-ui/core";
 import Button from "components/Button";
 import TOSLink from "components/TOSLink";
-import { useTranslation } from "next-i18next";
+import { Trans, useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { service } from "service";
-
-import { JAIL_TOS_TEXT } from "./constants";
 
 interface TOSSectionProps {
   updateJailed: () => void;
@@ -16,7 +15,7 @@ export default function TOSSection({
   updateJailed,
   className,
 }: TOSSectionProps) {
-  const { t } = useTranslation("global");
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const [completed, setCompleted] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -35,11 +34,13 @@ export default function TOSSection({
   return (
     <div className={className}>
       <Typography variant="body1">
-        {JAIL_TOS_TEXT}
-        <TOSLink />.
+        <Trans t={t} i18nKey="auth:jail.terms_of_service_section.description">
+          We've update our Terms of Service. To continue, please read and accept
+          the new <TOSLink />
+        </Trans>
       </Typography>
       <Button loading={loading} onClick={accept} disabled={completed}>
-        {completed ? t("thanks") : t("accept")}
+        {completed ? t("global:thanks") : t("global:accept")}
       </Button>
     </div>
   );

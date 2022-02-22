@@ -22,7 +22,8 @@ import { Dayjs } from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { RpcError } from "grpc-web";
-import { Trans, useTranslation } from "next-i18next";
+import { Trans, useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import { HostingStatus } from "proto/api_pb";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -61,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function AccountForm() {
-  const { t } = useTranslation(["auth", "global"]);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
 

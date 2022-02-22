@@ -1,10 +1,14 @@
-import { Typography } from "@material-ui/core";
-import { Alert as MuiAlert } from "@material-ui/lab/";
+import { CircularProgress, Typography } from "@material-ui/core";
+import { Alert, Alert as MuiAlert } from "@material-ui/lab/";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
-import Section from "features/auth/section/Section";
+import NotificationSettings from "features/auth/notifications/NotificationSettings";
+import { AUTH } from "i18n/namespaces";
 import { useTranslation } from "react-i18next";
 import makeStyles from "utils/makeStyles";
+
+import ChangePhone from "./phone/ChangePhone";
+import useAccountInfo from "./useAccountInfo";
 
 const useStyles = makeStyles((theme) => ({
   section: {
@@ -15,7 +19,13 @@ const useStyles = makeStyles((theme) => ({
 export default function FeaturePreview() {
   const classes = useStyles();
 
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(AUTH);
+
+  const {
+    data: accountInfo,
+    error: accountInfoError,
+    isLoading: isAccountInfoLoading,
+  } = useAccountInfo();
 
   return (
     <>
@@ -29,11 +39,16 @@ export default function FeaturePreview() {
           {t("feature_preview.disclaimer")}
         </Typography>
       </MuiAlert>
-      <Section
-        className={classes.section}
-        title={t("feature_preview.no_previews.title")}
-        content={t("feature_preview.no_previews.explanation")}
-      />
+      <NotificationSettings className={classes.section} />
+      {isAccountInfoLoading ? (
+        <CircularProgress />
+      ) : accountInfoError ? (
+        <Alert severity="error">{accountInfoError.message}</Alert>
+      ) : (
+        <>
+          <ChangePhone className={classes.section} accountInfo={accountInfo!} />
+        </>
+      )}
     </>
   );
 }

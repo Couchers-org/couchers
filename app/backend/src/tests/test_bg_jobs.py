@@ -22,7 +22,15 @@ from couchers.jobs.handlers import (
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.metrics import create_prometheus_server, job_process_registry
-from couchers.models import BackgroundJob, BackgroundJobState, BackgroundJobType, Email, LoginToken
+from couchers.models import (
+    AccountDeletionToken,
+    BackgroundJob,
+    BackgroundJobState,
+    BackgroundJobType,
+    Email,
+    LoginToken,
+    PasswordResetToken,
+)
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_login_email
 from couchers.utils import now, today
@@ -138,6 +146,85 @@ def test_purge_login_tokens(db):
 
     with session_scope() as session:
         assert session.execute(select(func.count()).select_from(LoginToken)).scalar_one() == 0
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.state == BackgroundJobState.completed)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.state != BackgroundJobState.completed)
+            ).scalar_one()
+            == 0
+        )
+
+
+def test_purge_password_reset_tokens(db):
+    user, api_token = generate_user()
+
+    with session_scope() as session:
+        password_reset_token = PasswordResetToken(token=urlsafe_secure_token(), user=user, expiry=now())
+        session.add(password_reset_token)
+        assert session.execute(select(func.count()).select_from(PasswordResetToken)).scalar_one() == 1
+
+    queue_job(BackgroundJobType.purge_password_reset_tokens, empty_pb2.Empty())
+    process_job()
+
+    with session_scope() as session:
+        assert session.execute(select(func.count()).select_from(PasswordResetToken)).scalar_one() == 0
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.state == BackgroundJobState.completed)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.state != BackgroundJobState.completed)
+            ).scalar_one()
+            == 0
+        )
+
+
+def test_purge_account_deletion_tokens(db):
+    user, api_token = generate_user()
+    user2, api_token2 = generate_user()
+    user3, api_token3 = generate_user()
+
+    with session_scope() as session:
+        """
+        3 cases:
+        1) Token is valid
+        2) Token expired but account retrievable
+        3) Account is irretrievable (and expired)
+        """
+        account_deletion_tokens = [
+            AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() - timedelta(hours=2)),
+            AccountDeletionToken(token=urlsafe_secure_token(), user=user2, expiry=now()),
+            AccountDeletionToken(token=urlsafe_secure_token(), user=user3, expiry=now() + timedelta(hours=5)),
+        ]
+        for token in account_deletion_tokens:
+            session.add(token)
+        assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 3
+
+    queue_job(BackgroundJobType.purge_account_deletion_tokens, empty_pb2.Empty())
+    process_job()
+
+    with session_scope() as session:
+        assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 1
 
     with session_scope() as session:
         assert (
@@ -426,6 +513,94 @@ def test_process_send_message_notifications_basic(db):
                 .where(BackgroundJob.job_type == BackgroundJobType.send_email)
             ).scalar_one()
             == 2
+        )
+        # delete them all
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # shouldn't generate any more emails
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        process_send_message_notifications(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
+
+
+def test_process_send_message_notifications_muted(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    make_friends(user1, user2)
+    make_friends(user1, user3)
+    make_friends(user2, user3)
+
+    process_send_message_notifications(empty_pb2.Empty())
+
+    # should find no jobs, since there's no messages
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
+
+    with conversations_session(token1) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
+        ).group_chat_id
+
+    with conversations_session(token3) as c:
+        # mute it for user 3
+        c.MuteGroupChat(conversations_pb2.MuteGroupChatReq(group_chat_id=group_chat_id, forever=True))
+
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 4"))
+
+    with conversations_session(token3) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
+        ).group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 5"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
+
+    process_send_message_notifications(empty_pb2.Empty())
+
+    # no emails sent out
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 0
+        )
+
+    # this should generate emails for both user2 and NOT user3
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        process_send_message_notifications(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == 1
         )
         # delete them all
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))

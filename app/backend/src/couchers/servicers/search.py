@@ -5,6 +5,7 @@ import grpc
 from sqlalchemy.sql import func, or_
 
 from couchers import errors
+from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import session_scope
 from couchers.models import Cluster, Event, EventOccurrence, Node, Page, PageType, PageVersion, Reference, User
 from couchers.servicers.api import (
@@ -460,9 +461,13 @@ class Search(search_pb2_grpc.SearchServicer):
             # google.protobuf.UInt32Value age_max = 15;
 
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-            next_user_id = int(request.page_token) if request.page_token else 0
+            next_user_id = float(decrypt_page_token(request.page_token)) if request.page_token else 1e10
 
-            statement = statement.where(User.id >= next_user_id).order_by(User.id).limit(page_size + 1)
+            statement = (
+                statement.where(User.daily_order_key <= next_user_id)
+                .order_by(User.daily_order_key.desc())
+                .limit(page_size + 1)
+            )
             users = session.execute(statement).scalars().all()
 
             return search_pb2.UserSearchRes(
@@ -473,5 +478,5 @@ class Search(search_pb2_grpc.SearchServicer):
                     )
                     for user in users[:page_size]
                 ],
-                next_page_token=str(users[-1].id) if len(users) > page_size else None,
+                next_page_token=encrypt_page_token(str(users[-1].daily_order_key)) if len(users) > page_size else None,
             )

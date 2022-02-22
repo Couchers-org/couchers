@@ -3,7 +3,7 @@ global:
 
   external_labels:
     origin_prometheus: '{PROMETHEUS_ENVIRONMENT}'
-    
+
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
@@ -19,7 +19,7 @@ scrape_configs:
       - targets: ['backend:8001']
 
 remote_write:
-- url: https://prometheus-blocks-prod-us-central1.grafana.net/api/prom/push 
+- url: https://prometheus-blocks-prod-us-central1.grafana.net/api/prom/push
   basic_auth:
     username: 120557
-    password: {GRAFANA_CLOUD_TOKEN} 
+    password: {GRAFANA_CLOUD_TOKEN}

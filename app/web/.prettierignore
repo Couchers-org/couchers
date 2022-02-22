@@ -1,4 +1,5 @@
 proto/
+/markdown/
 node_modules
 **/locales/*.json
 .next/

@@ -11,10 +11,11 @@ import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
 import { useCommunityPageStyles } from "features/communities/CommunityPage";
 import { EVENTS_EMPTY_STATE } from "features/communities/constants";
-import { SEE_MORE_EVENTS_LABEL } from "features/communities/events/constants";
 import EventCard from "features/communities/events/EventCard";
 import { myEventsKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { ListMyEventsRes } from "proto/events_pb";
 import { useInfiniteQuery } from "react-query";
 import { service } from "service";
@@ -39,6 +40,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function MyEvents() {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
   const theme = useTheme();
   const isBelowSm = useMediaQuery(theme.breakpoints.down("xs"));
@@ -82,7 +84,7 @@ export default function MyEvents() {
           </HorizontalScroller>
           {hasNextPage && !isBelowSm && (
             <Button onClick={() => fetchNextPage()}>
-              {SEE_MORE_EVENTS_LABEL}
+              {t("communities:see_more_events_label")}
             </Button>
           )}
         </>

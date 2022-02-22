@@ -9,12 +9,14 @@ export const DONATE = "Donate";
 export const FAQ = "FAQ";
 export const HANDBOOK = "Handbook";
 export const FORUM = "Forum";
-export const FOUNDATION = "Foundation";
+export const LEGAL_NAME = "Couchers, Inc.";
 export const HELP = "Help";
 export const LOG_OUT = "Log out";
 export const OUR_PLAN = "Our Plan";
 export const OUR_TEAM = "Our Team";
 export const TOWN_HALL = "Town Hall";
+export const WEEKLY_SOCIAL_TUESDAY = "Tuesday Social";
+export const WEEKLY_SOCIAL_SUNDAY = "Sunday Social";
 export const VOLUNTEER = "Volunteer";
 
 export const DASHBOARD = "Dashboard";

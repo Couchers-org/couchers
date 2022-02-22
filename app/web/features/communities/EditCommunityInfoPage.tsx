@@ -20,7 +20,6 @@ import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "./CommunityBase";
-import CommunityPageSubHeader from "./CommunityPage/CommunityPageSubHeader";
 import {
   COMMUNITY_IMAGE_INPUT_ALT,
   COMMUNITY_PAGE_UPDATED,
@@ -30,7 +29,6 @@ import {
   UPLOAD_HELPER_TEXT,
   UPLOAD_HELPER_TEXT_REPLACE,
 } from "./constants";
-import PageHeader from "./PageHeader";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -118,8 +116,6 @@ export default function EditCommunityPage({
         return community.mainPage?.canEdit ? (
           <>
             <HtmlMeta title={EDIT_LOCAL_INFO} />
-            <PageHeader page={community.mainPage} />
-            <CommunityPageSubHeader community={community} tab="info" />
             <PageTitle>{EDIT_LOCAL_INFO}</PageTitle>
             {(error || errors.communityPhotoKey) && (
               <Alert severity="error">

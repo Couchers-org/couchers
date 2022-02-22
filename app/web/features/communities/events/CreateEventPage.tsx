@@ -15,7 +15,6 @@ import dayjs, { TIME_FORMAT } from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-import { CREATE_EVENT, CREATE_EVENT_DISCLAIMER } from "./constants";
 import EventForm, {
   CreateEventVariables,
   useEventFormStyles,
@@ -117,12 +116,12 @@ export default function CreateEventPage() {
 
   return (
     <>
-      <HtmlMeta title={CREATE_EVENT} />
+      <HtmlMeta title={t("communities:create_event_page_title")} />
       <EventForm
         error={error}
         isMutationLoading={isLoading}
         mutate={createEvent}
-        title={CREATE_EVENT}
+        title={t("communities:create_event_page_title")}
       >
         {({ isMutationLoading }) => (
           <>
@@ -134,7 +133,7 @@ export default function CreateEventPage() {
               {t("global:create")}
             </Button>
             <Typography className={classes.disclaimer} variant="body1">
-              {CREATE_EVENT_DISCLAIMER}
+              {t("communities:create_event_disclaimer")}
             </Typography>
           </>
         )}

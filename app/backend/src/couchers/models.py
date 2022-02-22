@@ -23,10 +23,20 @@ from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, relationship
-from sqlalchemy.sql import func, text
+from sqlalchemy.sql import func
+from sqlalchemy.sql import select as sa_select
+from sqlalchemy.sql import text
 
 from couchers.config import config
-from couchers.constants import EMAIL_REGEX, GUIDELINES_VERSION, PHONE_VERIFICATION_LIFETIME, TOS_VERSION
+from couchers.constants import (
+    DATETIME_INFINITY,
+    DATETIME_MINUS_INFINITY,
+    EMAIL_REGEX,
+    GUIDELINES_VERSION,
+    PHONE_VERIFICATION_LIFETIME,
+    SMS_CODE_LIFETIME,
+    TOS_VERSION,
+)
 from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
 
 meta = MetaData(
@@ -82,6 +92,15 @@ class TimezoneArea(Base):
     tzid = Column(String)
     geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
 
+    __table_args__ = (
+        Index(
+            "ix_timezone_areas_geom_tzid",
+            geom,
+            tzid,
+            postgresql_using="gist",
+        ),
+    )
+
 
 class User(Base):
     """
@@ -113,11 +132,9 @@ class User(Base):
     regions_visited = relationship("Region", secondary="regions_visited", order_by="Region.name")
     regions_lived = relationship("Region", secondary="regions_lived", order_by="Region.name")
 
-    timezone_area = relationship(
-        "TimezoneArea",
-        primaryjoin="func.ST_Contains(foreign(TimezoneArea.geom), User.geom).as_comparison(1, 2)",
-        viewonly=True,
-        uselist=False,
+    timezone = column_property(
+        sa_select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom)).limit(1).scalar_subquery(),
+        deferred=True,
     )
 
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
@@ -139,8 +156,8 @@ class User(Base):
 
     avatar_key = Column(ForeignKey("uploads.key"), nullable=True)
 
-    hosting_status = Column(Enum(HostingStatus), nullable=True)
-    meetup_status = Column(Enum(MeetupStatus), nullable=True)
+    hosting_status = Column(Enum(HostingStatus), nullable=False)
+    meetup_status = Column(Enum(MeetupStatus), nullable=False, server_default="open_to_meetup")
 
     # community standing score
     community_standing = Column(Float, nullable=True)
@@ -156,6 +173,13 @@ class User(Base):
     is_banned = Column(Boolean, nullable=False, server_default=text("false"))
     is_deleted = Column(Boolean, nullable=False, server_default=text("false"))
     is_superuser = Column(Boolean, nullable=False, server_default=text("false"))
+
+    # the undelete token allows a user to recover their account for a couple of days after deletion in case it was
+    # accidental or they changed their mind
+    # constraints make sure these are non-null only if is_deleted and that these are null in unison
+    undelete_token = Column(String, nullable=True)
+    # validity of the undelete token
+    undelete_until = Column(DateTime(timezone=True), nullable=True)
 
     # hosting preferences
     max_guests = Column(Integer, nullable=True)
@@ -194,6 +218,8 @@ class User(Base):
 
     added_to_mailing_list = Column(Boolean, nullable=False, server_default="false")
 
+    last_digest_sent = Column(DateTime(timezone=True), nullable=True)
+
     # for changing their email
     new_email = Column(String, nullable=True)
     old_email_token = Column(String, nullable=True)
@@ -204,6 +230,8 @@ class User(Base):
     new_email_token_created = Column(DateTime(timezone=True), nullable=True)
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
     need_to_confirm_via_new_email = Column(Boolean, nullable=True, default=None)
+
+    daily_order_key = Column(Float, nullable=False, server_default="0")
 
     # Columns for verifying their phone number. State chart:
     #                                       ,-------------------,
@@ -242,17 +270,25 @@ class User(Base):
     # for old AU entity
     stripe_customer_id_old = Column(String, nullable=True)
 
-    # Verified phone numbers should be unique
-    Index(
-        "ix_users_unique_phone",
-        phone,
-        unique=True,
-        postgresql_where=phone_verification_verified != None,
-    ),
+    # True if the user has opted in to get notifications using the new notification system
+    # This column will be removed in the future when notifications are enabled for everyone and come out of preview
+    new_notifications_enabled = Column(Boolean, nullable=False, server_default=text("false"))
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
     __table_args__ = (
+        # Verified phone numbers should be unique
+        Index(
+            "ix_users_unique_phone",
+            phone,
+            unique=True,
+            postgresql_where=phone_verification_verified != None,
+        ),
+        Index(
+            "ix_users_active",
+            id,
+            postgresql_where=~is_banned & ~is_deleted,
+        ),
         # There are three possible states for need_to_confirm_via_old_email, old_email_token, old_email_token_created, and old_email_token_expiry
         # 1) All None (default)
         # 2) need_to_confirm_via_old_email is True and the others have assigned value (confirmation initiated)
@@ -282,11 +318,12 @@ class User(Base):
             f"email ~ '{EMAIL_REGEX}'",
             name="valid_email",
         ),
+        # Undelete token + time are coupled: either both null or neither; and if they're not null then the account is deleted
+        CheckConstraint(
+            "((undelete_token IS NULL) = (undelete_until IS NULL)) AND ((undelete_token IS NULL) OR is_deleted)",
+            name="undelete_nullity",
+        ),
     )
-
-    @property
-    def timezone(self):
-        return self.timezone_area.tzid if self.timezone_area else "Etc/UTC"
 
     @hybrid_property
     def has_completed_profile(self):
@@ -350,11 +387,22 @@ class User(Base):
         """
         return last_active_coarsen(self.last_active)
 
+    @hybrid_property
     def phone_is_verified(self):
         return (
             self.phone_verification_verified is not None
             and now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )
+
+    @phone_is_verified.expression
+    def phone_is_verified(cls):
+        return (cls.phone_verification_verified != None) & (
+            now() - cls.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
+        )
+
+    @hybrid_property
+    def phone_code_expired(self):
+        return now() - self.phone_verification_sent > SMS_CODE_LIFETIME
 
     def __repr__(self):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
@@ -634,7 +682,7 @@ class LoginToken(Base):
 
     @hybrid_property
     def is_valid(self):
-        return (self.created <= func.now()) & (self.expiry >= func.now())
+        return (self.created <= now()) & (self.expiry >= now())
 
     def __repr__(self):
         return f"LoginToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
@@ -653,10 +701,30 @@ class PasswordResetToken(Base):
 
     @hybrid_property
     def is_valid(self):
-        return (self.created <= func.now()) & (self.expiry >= func.now())
+        return (self.created <= now()) & (self.expiry >= now())
 
     def __repr__(self):
         return f"PasswordResetToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
+
+
+class AccountDeletionToken(Base):
+    __tablename__ = "account_deletion_tokens"
+
+    token = Column(String, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    expiry = Column(DateTime(timezone=True), nullable=False)
+
+    user = relationship("User", backref="account_deletion_tokens")
+
+    @hybrid_property
+    def is_valid(self):
+        return (self.created <= now()) & (self.expiry >= now())
+
+    def __repr__(self):
+        return f"AccountDeletionToken(token={self.token}, user_id={self.user_id}, created={self.created}, expiry={self.expiry})"
 
 
 class UserSession(Base):
@@ -789,8 +857,29 @@ class GroupChatSubscription(Base):
 
     last_seen_message_id = Column(BigInteger, nullable=False, default=0)
 
+    # when this chat is muted until, DATETIME_INFINITY for "forever"
+    muted_until = Column(DateTime(timezone=True), nullable=False, server_default=DATETIME_MINUS_INFINITY.isoformat())
+
     user = relationship("User", backref="group_chat_subscriptions")
     group_chat = relationship("GroupChat", backref=backref("subscriptions", lazy="dynamic"))
+
+    def muted_display(self):
+        """
+        Returns (muted, muted_until) display values:
+        1. If not muted, returns (False, None)
+        2. If muted forever, returns (True, None)
+        3. If muted until a given datetime returns (True, dt)
+        """
+        if self.muted_until < now():
+            return (False, None)
+        elif self.muted_until == DATETIME_INFINITY:
+            return (True, None)
+        else:
+            return (True, self.muted_until)
+
+    @hybrid_property
+    def is_muted(self):
+        return self.muted_until > func.now()
 
     def __repr__(self):
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
@@ -1734,6 +1823,10 @@ class BackgroundJobType(enum.Enum):
     # payload: google.protobuf.Empty
     purge_signup_tokens = enum.auto()
     # payload: google.protobuf.Empty
+    purge_account_deletion_tokens = enum.auto()
+    # payload: google.protobuf.Empty
+    purge_password_reset_tokens = enum.auto()
+    # payload: google.protobuf.Empty
     send_message_notifications = enum.auto()
     # payload: google.protobuf.Empty
     send_onboarding_emails = enum.auto()
@@ -1745,6 +1838,14 @@ class BackgroundJobType(enum.Enum):
     enforce_community_membership = enum.auto()
     # payload: google.protobuf.Empty
     send_reference_reminders = enum.auto()
+    # payload: jobs.HandleNotificationPayload
+    handle_notification = enum.auto()
+    # payload: google.protobuf.Empty
+    handle_email_notifications = enum.auto()
+    # payload: google.protobuf.Empty
+    handle_email_digests = enum.auto()
+    # payload: jobs.GenerateMessageNotificationsPayload
+    generate_message_notifications = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
@@ -1788,6 +1889,15 @@ class BackgroundJob(Base):
     # if the job failed, we write that info here
     failure_info = Column(String, nullable=True)
 
+    __table_args__ = (
+        # Allows fast lookup of jobs to attempt
+        Index(
+            "ix_background_jobs_state_next_attempt_after",
+            state,
+            next_attempt_after,
+        ),
+    )
+
     @hybrid_property
     def ready_for_retry(self):
         return (
@@ -1798,6 +1908,124 @@ class BackgroundJob(Base):
 
     def __repr__(self):
         return f"BackgroundJob(id={self.id}, job_type={self.job_type}, state={self.state}, next_attempt_after={self.next_attempt_after}, try_count={self.try_count}, failure_info={self.failure_info})"
+
+
+class NotificationDeliveryType(enum.Enum):
+    # send push notification to mobile/web
+    push = enum.auto()
+    # send individual email immediately
+    email = enum.auto()
+    # send in digest
+    digest = enum.auto()
+
+
+dt = NotificationDeliveryType
+
+
+class NotificationTopicAction(enum.Enum):
+    def __init__(self, topic, action, defaults):
+        self.topic = topic
+        self.action = action
+        self.defaults = defaults
+
+    def unpack(self):
+        return self.topic, self.action
+
+    # topic, action, default delivery types
+    friend_request__send = ("friend_request", "send", [dt.email, dt.push, dt.digest])
+    friend_request__accept = ("friend_request", "accept", [dt.push, dt.digest])
+
+    # host requests
+    host_request__create = ("host_request", "create", [dt.email, dt.push, dt.digest])
+    host_request__accept = ("host_request", "accept", [dt.email, dt.push, dt.digest])
+    host_request__reject = ("host_request", "reject", [dt.push, dt.digest])
+    host_request__confirm = ("host_request", "confirm", [dt.email, dt.push, dt.digest])
+    host_request__cancel = ("host_request", "cancel", [dt.push, dt.digest])
+    host_request__message = ("host_request", "message", [dt.push, dt.digest])
+
+    # account settings
+    password__change = ("password", "change", [dt.email, dt.push, dt.digest])
+    email_address__change = ("email_address", "change", [dt.email, dt.push, dt.digest])
+    phone_number__change = ("phone_number", "change", [dt.email, dt.push, dt.digest])
+    phone_number__verify = ("phone_number", "verify", [dt.email, dt.push, dt.digest])
+    # reset password
+    account_recovery__start = ("account_recovery", "start", [dt.email, dt.push, dt.digest])
+    account_recovery__complete = ("account_recovery", "complete", [dt.email, dt.push, dt.digest])
+
+    # admin actions
+    gender__change = ("gender", "change", [dt.email, dt.push, dt.digest])
+    birthdate__change = ("birthdate", "change", [dt.email, dt.push, dt.digest])
+    api_key__create = ("api_key", "create", [dt.email, dt.push, dt.digest])
+
+    # group chats
+    chat__message = ("chat", "message", [dt.email, dt.push, dt.digest])
+
+
+class NotificationPreference(Base):
+    __tablename__ = "notification_preferences"
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    topic_action = Column(Enum(NotificationTopicAction), nullable=False)
+    delivery_type = Column(Enum(NotificationDeliveryType), nullable=False)
+    deliver = Column(Boolean, nullable=False)
+
+    user = relationship("User", foreign_keys="NotificationPreference.user_id")
+
+
+class Notification(Base):
+    """
+    Table for accumulating notifications until it is time to send email digest
+    """
+
+    __tablename__ = "notifications"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # recipient user id
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+
+    topic_action = Column(Enum(NotificationTopicAction), nullable=False)
+    key = Column(String, nullable=False)
+
+    avatar_key = Column(String, nullable=True)
+    icon = Column(String, nullable=True)  # the name (excluding .svg) in the resources/icons folder
+    title = Column(String, nullable=True)  # bold markup surrounded by double asterisks allowed, otherwise plain text
+    content = Column(String, nullable=True)  # bold markup surrounded by double asterisks allowed, otherwise plain text
+    link = Column(String, nullable=True)
+
+    user = relationship("User", foreign_keys="Notification.user_id")
+
+    @property
+    def topic(self):
+        return self.topic_action.topic
+
+    @property
+    def action(self):
+        return self.topic_action.action
+
+    @property
+    def plain_title(self):
+        # only bold is allowed
+        return self.title.replace("**", "")
+
+
+class NotificationDelivery(Base):
+    __tablename__ = "notification_deliveries"
+    __table_args__ = (UniqueConstraint("notification_id", "delivery_type"),)
+
+    id = Column(BigInteger, primary_key=True)
+    notification_id = Column(ForeignKey("notifications.id"), nullable=False, index=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    delivered = Column(DateTime(timezone=True), nullable=True)
+    read = Column(DateTime(timezone=True), nullable=True)
+    # todo: enum of "phone, web, digest"
+    delivery_type = Column(Enum(NotificationDeliveryType), nullable=False)
+    # todo: device id
+    # todo: receipt id, etc
+    notification = relationship("Notification", foreign_keys="NotificationDelivery.notification_id")
 
 
 class Language(Base):
@@ -1887,3 +2115,14 @@ class APICall(Base):
 
     # the exception traceback, if any
     traceback = Column(String, nullable=True)
+
+
+class AccountDeletionReason(Base):
+    __tablename__ = "account_deletion_reason"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+    reason = Column(String, nullable=True)
+
+    user = relationship("User")

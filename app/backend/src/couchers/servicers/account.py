@@ -4,16 +4,19 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import update
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.crypto import hash_password, urlsafe_secure_token, verify_password, verify_token
 from couchers.db import session_scope
-from couchers.models import ContributeOption, ContributorForm, User
+from couchers.models import AccountDeletionReason, ContributeOption, ContributorForm, User
+from couchers.notifications.notify import notify
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
     maybe_send_contributor_form_email,
+    send_account_deletion_confirmation_email,
+    send_account_deletion_report_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
@@ -90,10 +93,11 @@ class Account(account_pb2_grpc.AccountServicer):
             return account_pb2.GetAccountInfoRes(
                 username=user.username,
                 email=user.email,
-                phone=user.phone if user.phone_is_verified() else "",
+                phone=user.phone if (user.phone_is_verified or not user.phone_code_expired) else None,
+                phone_verified=user.phone_is_verified,
                 profile_complete=user.has_completed_profile,
                 timezone=user.timezone,
-                **auth_info
+                **auth_info,
             )
 
     def ChangePassword(self, request, context):
@@ -122,6 +126,16 @@ class Account(account_pb2_grpc.AccountServicer):
             session.commit()
 
             send_password_changed_email(user)
+
+            notify(
+                user_id=user.id,
+                topic="password",
+                key="",
+                action="change",
+                icon="wrench",
+                title=f"Your password was changed",
+                link=urls.account_settings_link(),
+            )
 
         return empty_pb2.Empty()
 
@@ -162,6 +176,16 @@ class Account(account_pb2_grpc.AccountServicer):
                 user.need_to_confirm_via_old_email = False
                 send_email_changed_notification_email(user)
                 send_email_changed_confirmation_to_new_email(user)
+
+                notify(
+                    user_id=user.id,
+                    topic="email_address",
+                    key="",
+                    action="change",
+                    icon="wrench",
+                    title=f"Your email was changed",
+                    link=urls.account_settings_link(),
+                )
             else:
                 user.old_email_token = urlsafe_secure_token()
                 user.old_email_token_created = now()
@@ -235,6 +259,17 @@ class Account(account_pb2_grpc.AccountServicer):
                 user.phone_verification_token = token
                 user.phone_verification_sent = now()
                 user.phone_verification_attempts = 0
+
+                notify(
+                    user_id=user.id,
+                    topic="phone_number",
+                    key="",
+                    action="change",
+                    icon="wrench",
+                    title=f"Your phone number was changed",
+                    link=urls.account_settings_link(),
+                )
+
                 return empty_pb2.Empty()
 
         context.abort(grpc.StatusCode.UNIMPLEMENTED, result)
@@ -278,5 +313,39 @@ class Account(account_pb2_grpc.AccountServicer):
             user.phone_verification_token = None
             user.phone_verification_verified = now()
             user.phone_verification_attempts = 0
+
+            notify(
+                user_id=user.id,
+                topic="phone_number",
+                key="",
+                action="verify",
+                icon="wrench",
+                title=f"Your phone number was verified",
+                link=urls.account_settings_link(),
+            )
+
+        return empty_pb2.Empty()
+
+    def DeleteAccount(self, request, context):
+        """
+        Triggers email with token to confirm deletion
+
+        Frontend should confirm via unique string (i.e. username) before this is called
+        """
+        if not request.confirm:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MUST_CONFIRM_ACCOUNT_DELETE)
+
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+            reason = request.reason.strip()
+            if reason:
+                reason = AccountDeletionReason(user_id=user.id, reason=reason)
+                session.add(reason)
+                session.commit()
+                send_account_deletion_report_email(reason)
+
+            token = send_account_deletion_confirmation_email(user)
+            session.add(token)
 
         return empty_pb2.Empty()

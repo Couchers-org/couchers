@@ -6,8 +6,8 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
-import classNames from "classnames";
 import Avatar from "components/Avatar";
+import { MuteIcon } from "components/Icons";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
   controlMessageText,
@@ -20,7 +20,11 @@ import { GroupChat } from "proto/conversations_pb";
 import React from "react";
 import { firstName } from "utils/names";
 
-const useStyles = makeStyles({ root: {}, unread: { fontWeight: "bold" } });
+const useStyles = makeStyles((theme) => ({
+  titlePadding: { marginInlineEnd: theme.spacing(1) },
+  muteIcon: { verticalAlign: "middle" },
+  unread: { fontWeight: "bold" },
+}));
 
 export interface GroupChatListItemProps extends ListItemProps {
   groupChat: GroupChat.AsObject;
@@ -74,7 +78,7 @@ export default function GroupChatListItem({
   }
 
   return (
-    <ListItem button className={classNames(classes.root, className)}>
+    <ListItem button className={className}>
       <ListItemAvatar>
         {groupChatMembersQuery.isLoading ? (
           <Skeleton />
@@ -90,7 +94,18 @@ export default function GroupChatListItem({
         //They can also take react nodes. But change typography component using props
       }
       <ListItemText
-        primary={groupChatMembersQuery.isLoading ? <Skeleton /> : title}
+        primary={
+          groupChatMembersQuery.isLoading ? (
+            <Skeleton />
+          ) : (
+            <>
+              <span className={classes.titlePadding}>{title}</span>
+              {groupChat.muteInfo?.muted && (
+                <MuteIcon className={classes.muteIcon} />
+              )}
+            </>
+          )
+        }
         secondary={groupChatMembersQuery.isLoading ? <Skeleton /> : text}
         primaryTypographyProps={{ noWrap: true, className: isUnreadClass }}
         secondaryTypographyProps={{ noWrap: true, className: isUnreadClass }}

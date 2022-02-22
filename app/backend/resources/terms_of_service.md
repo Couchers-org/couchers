@@ -2,11 +2,11 @@ You must agree to these Terms to access the Couchers.org services and create an 
 
 **Note: we'll update the Terms of Service as we approach the full launch and clarify the reasons and ways in which we may terminate or ban accounts as we develop these processes and solidify our moderation process.**
 
-*This is version 2.1 of the Terms of Service, last updated on 16th of August, 2021.*
+*This is version 2.2 of the Terms of Service, last updated on 20th of January, 2022.*
 
-# 1. Foundation
+# 1. Service provider
 
-Access to the Couchers.org platform ("platform", "service") is provided to you by the **Couchers.org Foundation** ("Couchers.org", "we", "us"), a non-profit organization formed in Sydney, Australia.
+Access to the Couchers.org platform ("platform", "service") is provided to you by the **Couchers, Inc.** ("Couchers.org", "we", "us"), a 501(c)(3) non-profit organization incorporated in the United States.
 
 
 # 2. Eligibility

@@ -5,6 +5,6 @@ Pillow
 protobuf
 pynacl
 pytest
-pytest-pythonpath
 pyvips
+sentry-sdk
 uwsgi

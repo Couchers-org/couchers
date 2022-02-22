@@ -32,7 +32,7 @@ def test_jail_basic(db):
         res = jail.JailInfo(empty_pb2.Empty())
         # check every field is false
         for field in res.DESCRIPTOR.fields:
-            assert getattr(res, field.name) == False
+            assert not getattr(res, field.name)
 
         assert not res.jailed
 

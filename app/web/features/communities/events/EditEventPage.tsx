@@ -15,7 +15,6 @@ import { service } from "service";
 import type { UpdateEventInput } from "service/events";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 
-import { EDIT_EVENT } from "../constants";
 import EventForm, {
   CreateEventVariables,
   useEventFormStyles,
@@ -121,13 +120,13 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
       <CircularProgress />
     ) : (
       <>
-        <HtmlMeta title={EDIT_EVENT} />
+        <HtmlMeta title={t("communities:edit_event")} />
         <EventForm
           error={error}
           event={event}
           isMutationLoading={isLoading}
           mutate={updateEvent}
-          title={EDIT_EVENT}
+          title={t("communities:edit_event")}
         >
           {({ isMutationLoading }) => (
             <Button

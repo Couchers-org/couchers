@@ -3,6 +3,7 @@
 # Please make sure this file stays in sync with that file as well as
 # //app/web/src/routes.ts
 
+
 from couchers.config import config
 
 
@@ -30,6 +31,10 @@ def login_link(*, login_token):
     return f"{config['BASE_URL']}/login?token={login_token}"
 
 
+def account_settings_link():
+    return f"{config['BASE_URL']}/account-settings"
+
+
 def password_reset_link(*, password_reset_token):
     return f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token}"
 
@@ -44,6 +49,10 @@ def host_request_link_guest():
 
 def messages_link():
     return f"{config['BASE_URL']}/messages/"
+
+
+def chat_link(*, chat_id):
+    return f"{config['BASE_URL']}/messages/chats/{chat_id}"
 
 
 def leave_reference_link(*, reference_type, to_user_id, host_request_id=None):
@@ -72,3 +81,15 @@ def donation_cancelled_url():
 
 def donation_success_url():
     return f"{config['BASE_URL']}/donate?success=true"
+
+
+def delete_account_link(*, account_deletion_token):
+    return f"{config['BASE_URL']}/delete-account?token={account_deletion_token}"
+
+
+def recover_account_link(*, account_undelete_token):
+    return f"{config['BASE_URL']}/recover-account?token={account_undelete_token}"
+
+
+def unsubscribe_link(*, payload, sig):
+    return f"{config['BASE_URL']}/unsubscribe?payload={payload}&sig={sig}"

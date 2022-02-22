@@ -76,13 +76,13 @@ export default function AppRoute({
 
   return (
     <ErrorBoundary>
-      {!isMounted || (isPrivate && !isAuthenticated) ? (
+      {isPrivate && (!isMounted || !isAuthenticated) ? (
         <div className={classes.loader}>
           <CircularProgress />
         </div>
       ) : (
         <>
-          {variant !== "full-screen" && <Navigation />}
+          <Navigation />
           <Container
             className={classNames({
               [classes.nonFullScreenStyles]: variant !== "full-screen",

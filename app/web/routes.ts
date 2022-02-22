@@ -13,18 +13,22 @@ import { ReferenceTypeStrings } from "service/references";
 
 export const baseRoute = "/";
 
-export const couchersURL = "https://couchers.org/";
-export const blogURL = "https://couchers.org/blog/";
 export const githubURL = "https://github.com/Couchers-org/couchers";
-export const faqURL = "https://couchers.org/faq/";
 export const forumURL = "https://community.couchers.org/";
-export const foundationURL = "https://couchers.org/foundation/";
-export const handbookURL = "https://couchers.org/handbook/";
-export const planURL = "https://couchers.org/plan/";
-export const teamURL = "https://couchers.org/team/";
 export const townHallURL =
   "https://community.couchers.org/t/open-town-hall/1291";
+export const sundaySocialURL =
+  "https://community.couchers.org/t/weekly-online-event-sunday/684";
+export const tuesdaySocialURL =
+  "https://community.couchers.org/t/weekly-online-event-tuesday/1098";
 
+export const dashboardRoute = "/dashboard";
+export const blogRoute = "/blog";
+export const faqRoute = "/faq";
+export const foundationRoute = "/foundation";
+export const handbookRoute = "/handbook";
+export const planRoute = "/plan";
+export const teamRoute = "/team";
 export const donationsRoute = "/donate";
 
 export const loginRoute = "/login";
