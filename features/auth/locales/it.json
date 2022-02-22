@@ -186,6 +186,7 @@
     "phone_label": "Il tuo numero di telefono",
     "title": "Numero telefonico",
     "no_phone_description": "Non hai inserito un numero di telefono nel tuo profilo. Per aggiungerne uno, digitalo qui sotto. Ti invieremo un messaggio di verifica.",
-    "add_button_text": "Aggiungi un numero di telefono"
+    "add_button_text": "Aggiungi un numero di telefono",
+    "add_success": "Numero di telefono aggiunto."
   }
 }
