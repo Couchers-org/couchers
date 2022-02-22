@@ -26,5 +26,5 @@
   "benefactor_email": "benefactor@couchers.org",
   "donations_recurrence_explainer": "Una donación mensual nos ayuda a llevar a cabo nuestras operaciones de manera estable y a planificar con tiempo.",
   "donations_value": "{{val, currency}}",
-  "donations_info": "Tu donación está destinada a <1>{{ legal_name }}</1>, una organización sin ánimo de lucro registrada en los Estados Unidos bajo el estatus 501(c)(3), que opera el servicio de Couchers.org y da soporte al proyecto. Las donaciones están exentas de impuestos, nuestro EIN es 87-1734577."
+  "donations_info": "Tu donación está destinada a <1>{{ legal_name }}</1>, una organización sin ánimo de lucro registrada en los Estados Unidos bajo el estatus 501(c)(3), que opera el servicio de Couchers.org y da soporte al proyecto. Las donaciones están exentas de impuestos en Estados Unidos, nuestro EIN es 87-1734577."
 }
