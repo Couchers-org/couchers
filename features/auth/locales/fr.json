@@ -3,7 +3,8 @@
     "existing_user_prompt": ""
   },
   "change_email_form": {
-    "title": "Changer d'adresse e-mail"
+    "title": "Changer d'adresse e-mail",
+    "current_email_message": "Votre adresse courriel actuelle est <1>{{email}}</1>."
   },
   "basic_form": {
     "name": {
