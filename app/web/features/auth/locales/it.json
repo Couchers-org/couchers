@@ -200,7 +200,8 @@
   },
   "delete_account": {
     "request": {
-      "title": "Elimina conto"
+      "title": "Elimina conto",
+      "description": "Per eliminare il tuo profilo segui le istruzioni qui sotto. Ti invieremo una email di conferma."
     }
   }
 }
