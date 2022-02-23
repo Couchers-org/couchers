@@ -135,5 +135,6 @@
         "refresh_page_button_label": "Refresh page",
         "home_page_link_label": "Go to homepage"
     },
-    "show_all_events": "Show all events"
+    "show_all_events": "Show all events",
+    "reply": "Reply"
 }

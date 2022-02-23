@@ -5,7 +5,7 @@ import Button from "components/Button";
 import Markdown from "components/Markdown";
 import { useUser } from "features/userQueries/useUsers";
 import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Reply } from "proto/threads_pb";
 import { useEffect, useRef, useState } from "react";
 import { timestamp2Date } from "utils/date";
@@ -79,7 +79,7 @@ interface CommentProps {
 }
 
 export default function Comment({ topLevel = false, comment }: CommentProps) {
-  const { t } = useTranslation([COMMUNITIES]);
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
   const { data: user, isLoading: isUserLoading } = useUser(
     comment.authorUserId
@@ -135,7 +135,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
               setShowCommentForm(true);
             }}
           >
-            {t("communities:reply")}
+            {t("global:reply")}
           </Button>
         )}
       </Card>
