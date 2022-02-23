@@ -108,9 +108,9 @@ export default function DiscussionCard({
               </Typography>
               <Typography variant="body1">{truncatedContent}</Typography>
               <Typography className={classes.commentsCount} variant="body1">
-                {`${t("communities:comments")} | ${
-                  discussion.thread?.numResponses
-                }`}
+                {t("communities:comments_count", {
+                  count: discussion.thread?.numResponses,
+                })}
               </Typography>
             </div>
           </CardContent>
