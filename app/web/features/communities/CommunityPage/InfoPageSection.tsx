@@ -27,7 +27,7 @@ export default function InfoPageSection({ community }: InfoPageSectionProps) {
   return (
     <section>
       <TitleWithIcon icon={<InfoIcon />} variant="h2">
-        {t("communities:general_information")}
+        {t("communities:community_info_page_title")}
       </TitleWithIcon>
       <Markdown topHeaderLevel={3} source={community.description} />
 
