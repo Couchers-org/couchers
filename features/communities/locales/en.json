@@ -2,7 +2,6 @@
     "attendees_count": "{{count}} attendee",
     "attendees_count_plural": "{{count}} attendees",
     "by_creator": "By {{name}}",
-    "close": "Close",
     "comment": "Comment",
     "comments": "Comments",
     "community_header": "Welcome to {{name}}",

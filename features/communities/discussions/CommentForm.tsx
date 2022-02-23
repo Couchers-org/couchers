@@ -5,7 +5,7 @@ import MarkdownInput, { MarkdownInputProps } from "components/MarkdownInput";
 import { threadKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { PostReplyRes } from "proto/threads_pb";
 import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
@@ -45,7 +45,7 @@ function _CommentForm(
   { hideable = false, onClose, shown = false, threadId }: CommentFormProps,
   ref: React.ForwardedRef<HTMLFormElement>
 ) {
-  const { t } = useTranslation([COMMUNITIES]);
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
   const {
     control,
@@ -94,9 +94,7 @@ function _CommentForm(
           name="content"
         />
         <div className={classes.buttonsContainer}>
-          {hideable && (
-            <Button onClick={onClose}>{t("communities:close")}</Button>
-          )}
+          {hideable && <Button onClick={onClose}>{t("global:close")}</Button>}
           <Button loading={isLoading} type="submit">
             {t("communities:comment")}
           </Button>

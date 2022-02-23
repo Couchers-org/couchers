@@ -446,7 +446,7 @@ describe("Discussion page", () => {
       });
       userEvent.click(
         within(commentFormContainer).getByRole("button", {
-          name: t("communities:close"),
+          name: t("global:close"),
         })
       );
 
