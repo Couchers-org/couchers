@@ -4,6 +4,7 @@
     "by_creator": "By {{name}}",
     "comment": "Comment",
     "comments": "Comments",
+    "comments_count": "Comments | {{count}}",
     "community_header": "Welcome to {{name}}",
     "community_image_input_alt": "Community image input",
     "upload_helper_text_replace": "Click to change photo",

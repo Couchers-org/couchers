@@ -68,7 +68,9 @@ describe("DiscussionsListPage", () => {
       )
     ).toBeVisible();
     expect(
-      discussionCards[0].getByText(`${t("communities:comments")} | 5`)
+      discussionCards[0].getByText(
+        t("communities:comments_count", { count: 5 })
+      )
     ).toBeVisible();
 
     const secondCreator = await getUser(
@@ -90,7 +92,9 @@ describe("DiscussionsListPage", () => {
       discussionCards[1].getByText("Some rules you need to know...")
     ).toBeVisible();
     expect(
-      discussionCards[1].getByText(`${t("communities:comments")} | 0`)
+      discussionCards[1].getByText(
+        t("communities:comments_count", { count: 0 })
+      )
     ).toBeVisible();
 
     expect(listDiscussionsMock).toHaveBeenCalledTimes(1);
