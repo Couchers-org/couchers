@@ -42,7 +42,9 @@ describe("Edit community page", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(
-      screen.getByRole("heading", { name: t("communities:edit_local_info") })
+      screen.getByRole("heading", {
+        name: t("communities:edit_info_page_title"),
+      })
     ).toBeVisible();
     expect(
       screen.getByLabelText(t("communities:page_content_field_label"))
