@@ -190,7 +190,7 @@ describe("Discussion page", () => {
       commentCards[0].getByText(firstTopLevelComment!.content)
     ).toBeVisible();
     expect(
-      commentCards[0].getByRole("button", { name: t("communities:reply") })
+      commentCards[0].getByRole("button", { name: t("global:reply") })
     ).toBeVisible();
 
     // check nested comment/reply
@@ -211,7 +211,7 @@ describe("Discussion page", () => {
     expect(commentCards[1].getByText("+6")).toBeVisible();
     // Nested comment cannot be replied on further
     expect(
-      commentCards[1].queryByRole("button", { name: t("communities:reply") })
+      commentCards[1].queryByRole("button", { name: t("global:reply") })
     ).not.toBeInTheDocument();
   });
 
@@ -386,7 +386,7 @@ describe("Discussion page", () => {
         (await screen.findAllByTestId(COMMENT_TEST_ID))[0]
       );
       userEvent.click(
-        firstComment.getByRole("button", { name: t("communities:reply") })
+        firstComment.getByRole("button", { name: t("global:reply") })
       );
       const commentFormContainer = screen.getByTestId(
         FIRST_COMMENT_FORM_TEST_ID
@@ -433,7 +433,7 @@ describe("Discussion page", () => {
       );
 
       userEvent.click(
-        firstComment.getByRole("button", { name: t("communities:reply") })
+        firstComment.getByRole("button", { name: t("global:reply") })
       );
       // The comment form is opened when the transition container has height as "auto"
       const commentFormContainer = screen.getByTestId(
