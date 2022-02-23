@@ -107,8 +107,8 @@ export default function EditCommunityPage({
       {({ community }) => {
         return community.mainPage?.canEdit ? (
           <>
-            <HtmlMeta title={t("communities:edit_local_info")} />
-            <PageTitle>{t("communities:edit_local_info")}</PageTitle>
+            <HtmlMeta title={t("communities:edit_info_page_title")} />
+            <PageTitle>{t("communities:edit_info_page_title")}</PageTitle>
             {(error || errors.communityPhotoKey) && (
               <Alert severity="error">
                 {error?.message || errors.communityPhotoKey?.message || ""}
