@@ -134,5 +134,6 @@
         "subtitle": "Please use the 'Report a problem' button and tell us what you were doing to help us prevent this error in the future.",
         "refresh_page_button_label": "Refresh page",
         "home_page_link_label": "Go to homepage"
-    }
+    },
+    "show_all_events": "Show all events"
 }

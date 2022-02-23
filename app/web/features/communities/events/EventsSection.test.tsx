@@ -87,7 +87,7 @@ describe("Events section", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     userEvent.click(
-      screen.getByRole("link", { name: t("communities:show_all_events") })
+      screen.getByRole("link", { name: t("global:show_all_events") })
     );
 
     expect(mockRouter.pathname).toBe(
