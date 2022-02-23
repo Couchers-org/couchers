@@ -80,7 +80,7 @@ describe("Edit community page", () => {
     const successAlert = await screen.findByRole("alert");
     expect(successAlert).toBeVisible();
     expect(successAlert).toHaveTextContent(
-      t("communities:community_page_updated")
+      t("communities:edit_info_page_success_message")
     );
     expect(updatePageMock).toHaveBeenCalledTimes(1);
     expect(updatePageMock).toHaveBeenCalledWith({

@@ -172,7 +172,7 @@ export default function EditCommunityPage({
             </form>
             {isSuccess && (
               <Snackbar severity="success">
-                {t("communities:community_page_updated")}
+                {t("communities:edit_info_page_success_message")}
               </Snackbar>
             )}
           </>
