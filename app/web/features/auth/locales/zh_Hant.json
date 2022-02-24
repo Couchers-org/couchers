@@ -1,14 +1,14 @@
 {
   "change_email_form": {
     "title": "更改郵件地址",
-    "current_email_message": "您目前的電子郵件地址為:",
+    "current_email_message": "您目前的電子郵件地址為：",
     "success_message": "我們已經收到您更改電子郵件地址的請求。請查看您的新電子郵件信箱以完成更改。",
     "current_password": "目前密碼",
     "new_email": "新電子郵件地址"
   },
   "change_email_confirmation": {
     "requires_confirmation_from_new_email": "非常感謝您確認先前的電子郵件地址。為了完成更改，您還需要確認新的電子郵件地址。",
-    "change_in_progress": "電子郵件更改中......",
+    "change_in_progress": "電子郵件更改中...…",
     "success_message": "您的電子郵件信箱已經更改成功！",
     "requires_confirmation_from_old_email": "非常感謝您確認新的電子郵件地址。為了完成更改，您還需要確認先前的電子郵件地址。",
     "invalid_confirmation_state": "無效的電子郵件地址",
@@ -29,12 +29,19 @@
   "login_page": {
     "title": "登入",
     "header": "歡迎回來！",
-    "no_account_prompt": "還沒有帳號嗎？"
+    "no_account_prompt": "還沒有帳號嗎？<2>現在註冊</2>",
+    "form": {
+      "no_password_login_prompt": "請檢查您的墊子郵件信箱以取得登入連結！：）",
+      "remember_me": "記住我",
+      "forgot_password": "忘記密碼？",
+      "username_field_label": "電子郵件／用戶名稱",
+      "password_field_label": "密碼"
+    }
   },
   "basic_sign_up_form": {
     "header": "開始旅程吧！",
     "sign_up_agreement_explainer": "如果繼續，將表示您已確認我們的 <2>服務條款</2>，其中也包括我們關於cookie、電子信箱、個人數據的處理方法。",
-    "existing_user_prompt": "已經有帳號了嗎?"
+    "existing_user_prompt": "已經有帳號了嗎?<2>登入</2>"
   },
   "account_form": {
     "header": "您的帳號詳情",
@@ -61,12 +68,16 @@
       "non_binary": "非二元性別",
       "woman": "女性"
     },
-    "tos_accept_label": "我接受$t(global:terms_of_service)。",
-    "tos_prompt": "如欲繼續，請閱讀並接受<1></1>。"
+    "tos_accept_label": "我接受服務條款。",
+    "tos_prompt": "如欲繼續，請閱讀並接受<1></1>。",
+    "password": {
+      "field_label": "密碼",
+      "required_error": "輸入密碼"
+    }
   },
   "basic_form": {
     "name": {
-      "required_error": "名字不能空白。",
+      "required_error": "此欄位不能為空白。",
       "field_label": "您的名字",
       "empty_error": "請輸入您的名字"
     },
@@ -93,5 +104,75 @@
   "login_prompt": "點擊此處登入",
   "about_us": "關於我們",
   "sign_up_completed_prompt": "我們已寄給您一封附有確認連結的電子郵件。請點擊連結以啟用您的帳號。",
-  "reset_password_success": "您的密碼已經被重新設置成功！我們會給您發一封郵件---點擊郵件裡的連結，就能見證奇跡。"
+  "reset_password_success": "您的密碼已經被重新設置成功！我們會給您發一封郵件---點擊郵件裡的連結，就能見證奇跡。",
+  "change_phone": {
+    "phone_label": "您的電話號碼",
+    "title": "電話號碼",
+    "wrong_code": "驗證碼錯誤。",
+    "remove_button_text": "移除目前的電話號碼",
+    "remove_success": "電話號碼已移除。",
+    "verify_button_text": "驗證電話號碼",
+    "verify_success": "電話號碼已驗證。",
+    "change_button_text": "更改電話號碼",
+    "code_label": "驗證碼",
+    "add_success": "電話號碼已添加。"
+  },
+  "delete_account": {
+    "confirm": {
+      "button_text": "確認帳號刪除",
+      "title": "確認帳號刪除",
+      "account_deleted": "帳號已刪除。感謝您使用Couchers.org！",
+      "error_message": "刪除帳號失敗：{{message}}"
+    },
+    "recover": {
+      "title": "恢復您的Couchers.org帳號",
+      "error_message": "恢復帳號失敗：{{message}}",
+      "button_text": "恢復您的帳號",
+      "success": "您的帳號已經恢復，您可以重新登入。我們很興奮您再度回來！"
+    },
+    "request": {
+      "username_mismatch": "用戶名稱不符。",
+      "reason_explanation": "請您告訴我們為什麼要刪除帳戶以幫助我們改進平台。",
+      "reason_label": "帳戶刪除原因",
+      "confirm_username_explanation": "您的用户名稱是 <1>{{ username }}</1> ，請將它輸入到下方，確認刪除帳戶。",
+      "confirm_username_label": "用戶名稱確認",
+      "title": "刪除帳戶"
+    }
+  },
+  "jail_set_password_form": {
+    "explanation": "您之前沒有為帳號設定過密碼。請現在設定一個密碼再繼續操作。",
+    "title": "設定密碼"
+  },
+  "jail": {
+    "title": "需要更多訊息",
+    "description": "請檢查以下問題後繼續。",
+    "terms_of_service_section": {
+      "description": "我們更新了服務條款。請閱讀並接受新的<1></1>以繼續。"
+    },
+    "location_section": {
+      "title": "請添加您的位置",
+      "submit_button": {
+        "active_text": "保存",
+        "inactive_text": "謝謝！"
+      },
+      "resubmit_button_text": "重新提交"
+    }
+  },
+  "logged_out_message": "您已登出。",
+  "reset_password": "重設密碼",
+  "account_settings_page": {
+    "title": "帳號設定",
+    "gender_section": {
+      "title": "更改性別"
+    },
+    "birth_date_section": {
+      "title": "更改生日"
+    },
+    "timezone_section": {
+      "title": "時區和在地化",
+      "description": "您的時區是<1>{{timezone}}</1>。根據這個資訊，您的當地時間大約是<4>{{time}}</4>。",
+      "explanation": "此時間和時區是根據您的住家位置決定的。如果它不正确，請回報錯誤。"
+    }
+  },
+  "reset_password_error": "重設密碼錯誤：{{message}}"
 }
