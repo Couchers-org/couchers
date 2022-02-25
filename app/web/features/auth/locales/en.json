@@ -85,7 +85,7 @@
     "name": {
       "field_label": "Your name",
       "empty_error": "Please enter your name",
-      "required_error": "Name can't be just white space."
+      "required_error": "This field can't be empty."
     },
     "email": {
       "field_label": "Email",
