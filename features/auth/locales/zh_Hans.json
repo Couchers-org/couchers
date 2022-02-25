@@ -20,7 +20,7 @@
     "password_changed_success": "您的密码已设好，我们给您的邮箱发了一封确认函。",
     "old_password": "之前的密码",
     "new_password": "新的密码",
-    "password_mismatch_error": "这与您在上面输入的密码不一样。"
+    "password_mismatch_error": "密码不匹配。"
   },
   "reset_password_form": {
     "enter_email": "输入您的用户名或邮箱地址",
@@ -81,7 +81,7 @@
     "name": {
       "field_label": "您的名字",
       "empty_error": "请输入您的名字",
-      "required_error": "名字里不能只填空白。"
+      "required_error": "此文本框不能为空。"
     },
     "email": {
       "field_label": "邮箱",
