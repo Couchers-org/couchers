@@ -1,7 +1,12 @@
+import pytest
 from couchers.db import session_scope
 from couchers.resources import copy_resources_to_database
 from dummy_data import add_dummy_data
 from tests.test_fixtures import db  # noqa
+
+@pytest.fixture(autouse=True)
+def _(testconfig):
+    pass
 
 
 def test_add_dummy_data(db, caplog):
