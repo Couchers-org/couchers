@@ -48,7 +48,11 @@ def _get_base_engine():
     # `pool_pre_ping` checks that the connections in the pool are alive before using them, which avoids the "server
     # closed the connection unexpectedly" errors
     return create_engine(
-        config.config["DATABASE_CONNECTION_STRING"], future=True, pool_pre_ping=True, poolclass=poolclass
+        config.config["DATABASE_CONNECTION_STRING"],
+        future=True,
+        pool_pre_ping=True,
+        poolclass=poolclass,
+        pool_size=50,
     )
 
 
