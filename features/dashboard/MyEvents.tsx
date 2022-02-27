@@ -15,14 +15,12 @@ import EventCard from "features/communities/events/EventCard";
 import { myEventsKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { COMMUNITIES, DASHBOARD } from "i18n/namespaces";
 import { ListMyEventsRes } from "proto/events_pb";
 import { useInfiniteQuery } from "react-query";
 import { service } from "service";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
-
-import { MY_EVENTS } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -40,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function MyEvents() {
-  const { t } = useTranslation([COMMUNITIES]);
+  const { t } = useTranslation([COMMUNITIES, DASHBOARD]);
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
   const theme = useTheme();
   const isBelowSm = useMediaQuery(theme.breakpoints.down("xs"));
@@ -55,7 +53,7 @@ export default function MyEvents() {
 
   return (
     <div className={classes.root}>
-      <Typography variant="h2">{MY_EVENTS}</Typography>
+      <Typography variant="h2">{t("dashboard:my_events")}</Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CircularProgress />

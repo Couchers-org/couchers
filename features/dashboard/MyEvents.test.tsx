@@ -18,7 +18,6 @@ import {
   t,
 } from "test/utils";
 
-import { MY_EVENTS } from "./constants";
 import MyEvents from "./MyEvents";
 
 const listMyEventsMock = service.events.listMyEvents as jest.MockedFunction<
@@ -38,7 +37,9 @@ describe("My events", () => {
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(screen.getByRole("heading", { name: MY_EVENTS })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: t("dashboard:my_events") })
+    ).toBeVisible();
     expect(screen.getAllByRole("link")).toHaveLength(3);
   });
 

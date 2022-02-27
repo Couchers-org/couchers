@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogTitle } from "components/Dialog";
 import CommunityBrowser from "features/dashboard/CommunityBrowser";
-import { ALL_COMMUNITIES_HEADING } from "features/dashboard/constants";
+import { useTranslation } from "i18n";
+import { DASHBOARD } from "i18n/namespaces";
 
 export default function CommunitiesDialog({
   isOpen,
@@ -9,6 +10,7 @@ export default function CommunitiesDialog({
   isOpen: boolean;
   onClose: () => void;
 }) {
+  const { t } = useTranslation([DASHBOARD]);
   return (
     <Dialog
       aria-labelledby="communities-dialog-title"
@@ -16,7 +18,7 @@ export default function CommunitiesDialog({
       onClose={onClose}
     >
       <DialogTitle id="communities-dialog-title" onClose={onClose}>
-        {ALL_COMMUNITIES_HEADING}
+        {t("dashboard:all_communities_heading")}
       </DialogTitle>
       <DialogContent>
         <CommunityBrowser />
