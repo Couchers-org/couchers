@@ -3,12 +3,9 @@ import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { useListSubCommunities } from "features/communities/hooks";
-import {
-  getMembers,
-  LOAD_MORE,
-  NO_COMMUNITY,
-} from "features/dashboard/constants";
 import useUserCommunities from "features/userQueries/useUserCommunities";
+import { useTranslation } from "i18n";
+import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import React from "react";
 import { routeToCommunity } from "routes";
@@ -26,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function CommunitiesList({ all = false }: { all?: boolean }) {
+  const { t } = useTranslation([DASHBOARD]);
   const classes = useStyles();
   const userCommunities = useUserCommunities();
   const allCommunities = useListSubCommunities(0);
@@ -60,7 +58,9 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
                       {community.name}
                     </MuiLink>
                     <Typography variant="body2">
-                      {getMembers(community.memberCount)}
+                      {t("dashboard:member_count", {
+                        count: community.memberCount,
+                      })}
                     </Typography>
                   </a>
                 </Link>
@@ -70,12 +70,12 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
                 onClick={() => communities.fetchNextPage()}
                 loading={communities.isFetching}
               >
-                {LOAD_MORE}
+                {t("dashboard:load_more")}
               </Button>
             )}
           </>
         ) : (
-          <Typography variant="body1">{NO_COMMUNITY}</Typography>
+          <Typography variant="body1">{t("dashboard:no_community")}</Typography>
         ))
       )}
     </>

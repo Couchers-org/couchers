@@ -4,6 +4,8 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import { accountInfoQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { GetAccountInfoRes } from "proto/account_pb";
 import React from "react";
@@ -11,16 +13,6 @@ import { useQuery } from "react-query";
 import { routeToEditProfile, settingsRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
-
-import {
-  CLICK_HERE_TO_EDIT,
-  DONT_YOU_HATE,
-  FILL_IN_WHO_I_AM,
-  PASSWORD_TEXT_1,
-  PASSWORD_TEXT_LINK,
-  PLEASE_COMPLETE_PROFILE,
-  UPLOAD_PHOTO,
-} from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   alert: {
@@ -30,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function DashboardBanners() {
+  const { t } = useTranslation([DASHBOARD]);
   const classes = useStyles();
 
   const { data, error } = useQuery<GetAccountInfoRes.AsObject, RpcError>(
@@ -45,30 +38,34 @@ export default function DashboardBanners() {
           {!data.profileComplete && (
             <MuiAlert className={classes.alert} severity="warning">
               <Typography variant="inherit" paragraph>
-                {PLEASE_COMPLETE_PROFILE}
+                {t("dashboard:please_complete_profile")}
               </Typography>
-              <Typography variant="inherit">{FILL_IN_WHO_I_AM}</Typography>
+              <Typography variant="inherit">
+                {t("dashboard:fill_in_who_i_am")}
+              </Typography>
               <Typography variant="inherit" paragraph>
-                {UPLOAD_PHOTO}
+                {t("dashboard:upload_photo")}
               </Typography>
               <Typography variant="inherit" paragraph>
                 <Link href={routeToEditProfile()} passHref>
                   <Button component="a" color="default" role="link">
-                    {CLICK_HERE_TO_EDIT}
+                    {t("dashboard:click_here_to_edit")}
                   </Button>
                 </Link>
               </Typography>
-              <Typography variant="inherit">{DONT_YOU_HATE}</Typography>
+              <Typography variant="inherit">
+                {t("dashboard:dont_you_hate")}
+              </Typography>
             </MuiAlert>
           )}
           {!data.hasPassword && (
             <MuiAlert className={classes.alert} severity="info">
               <Typography className={classes.alertText} variant="inherit">
-                {PASSWORD_TEXT_1}
+                {t("dashboard:password_text_1")}
               </Typography>
               <Link href={settingsRoute} passHref>
                 <Button component="a" color="default" role="link">
-                  {PASSWORD_TEXT_LINK}
+                  {t("dashboard:password_text_link")}
                 </Button>
               </Link>
             </MuiAlert>

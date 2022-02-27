@@ -1,9 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { NO_SUB_COMMINITIES } from "features/dashboard/constants";
 import { Community } from "proto/communities_pb";
 import { service } from "service";
 import hookWrapper from "test/hookWrapper";
+import { t } from "test/utils";
 
 import CommunityBrowser from "./CommunityBrowser";
 
@@ -90,6 +90,8 @@ describe("Community browser", () => {
 
     userEvent.click(await screen.findByRole("button", { name: "11" }));
     userEvent.click(await screen.findByRole("button", { name: "111" }));
-    expect(await screen.findByText(NO_SUB_COMMINITIES)).toBeVisible();
+    expect(
+      await screen.findByText(t("dashboard:no_sub_communities"))
+    ).toBeVisible();
   });
 });
