@@ -25,6 +25,6 @@
   "donations_info": "Your donation goes to <1>{{ legal_name }}</1>, a U.S. 501(c)(3) non-profit that operates the Couchers.org service and supports the project. Donations are tax exempt in the USA, our EIN is 87-1734577.",
   "benefactor_contact": "If you wish to contribute over $1000, please contact us at <1>{{email}}</1> for us to arrange a lower fee transfer.",
   "benefactor_email": "benefactor@couchers.org",
-  "donations_recurrence_explainer": "A monthly donation helps us build our operations on a stable basis and plan ahead.",
+  "donations_recurrence_explainer": "A monthly donation helps us plan ahead and build our operations on a stable basis.",
   "donations_value": "{{val, currency}}"
 }
