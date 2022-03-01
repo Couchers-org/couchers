@@ -39,8 +39,7 @@
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Máš už vytvořený účet? <2>Log in</2>",
-    "sign_up_agreement_explainer": "Pokračováním udělujete souhlas s <2>Podmínkami použití</2>, zpracováním dat, použitím cookies a k zasílání upozornění e-mailem.",
-    "header": ""
+    "sign_up_agreement_explainer": "Pokračováním udělujete souhlas s <2>Podmínkami použití</2>, zpracováním dat, použitím cookies a k zasílání upozornění e-mailem."
   },
   "account_form": {
     "header": "Detaily k vašemu účtu",
@@ -56,8 +55,6 @@
       "validation_error": "Datum narození musí být datum v minulosti."
     },
     "hosting_status": {
-      "maybe": "",
-      "can_host": "",
       "field_label": "Status hostitele"
     },
     "gender": {
