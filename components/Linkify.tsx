@@ -4,11 +4,11 @@ import React from "react";
 const urlRegex = () => {
   const protocol = `(?:https?://)?`;
   const auth = "(?:\\S+(?::\\S*)?@)?";
-  const host = "(?:(?:[a-z\\u00a1-\\uffff0-9][-_]*)*[a-z\\u00a1-\\uffff0-9]+)";
+  const host = "(?:(?:[a-z0-9][-_]*)*[a-z0-9]+)";
   const domain =
-    "(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*";
+    "(?:\\.(?:[a-z0-9]-*)*[a-z0-9]+)*";
   const tld = `(?:\\.)[a-z]{2,}`;
-  const path = '(?:[/?#][^\\s"]*)?';
+  const path = '(?:[/?#][^\\s\\u00a1-\\uffff"]*)?';
   const regex = `(?:${protocol}${auth}(?:${host}${domain}${tld})${path})`;
   const result = new RegExp(`(${regex})`, "ig");
   return result;
