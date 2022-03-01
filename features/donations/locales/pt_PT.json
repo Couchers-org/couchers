@@ -11,7 +11,6 @@
   "donations_title": "O teu donativo é necessário para fazer crescer a plataforma de que precisamos",
   "donations_title2": "Para onde vai o teu donativo",
   "donations_box": {
-    "validation_message": "",
     "title": "Valor do Donativo",
     "alert": {
       "success_message": "Obrigado pelo teu donativo ao Couchers.org, ficamos felizes com o teu apoio! Receberás um email em breve."
