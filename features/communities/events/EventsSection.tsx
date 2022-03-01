@@ -6,7 +6,7 @@ import { CalendarIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { routeToCommunity, routeToNewEvent } from "routes";
@@ -32,7 +32,7 @@ export default function EventsSection({
 }: {
   community: Community.AsObject;
 }) {
-  const { t } = useTranslation([COMMUNITIES]);
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
   const router = useRouter();
 
@@ -73,7 +73,7 @@ export default function EventsSection({
                   "events"
                 )}
               >
-                {t("communities:show_all_events")}
+                {t("global:show_all_events")}
               </StyledLink>
             </div>
           )}
