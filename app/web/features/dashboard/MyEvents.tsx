@@ -10,7 +10,6 @@ import Button from "components/Button";
 import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
 import { useCommunityPageStyles } from "features/communities/CommunityPage";
-import { EVENTS_EMPTY_STATE } from "features/communities/constants";
 import EventCard from "features/communities/events/EventCard";
 import { myEventsKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
@@ -89,7 +88,7 @@ export default function MyEvents() {
           )}
         </>
       ) : (
-        !error && <TextBody>{EVENTS_EMPTY_STATE}</TextBody>
+        !error && <TextBody>{t("communities:events_empty_state")}</TextBody>
       )}
     </div>
   );
