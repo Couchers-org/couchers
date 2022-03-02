@@ -1,35 +1,51 @@
 {
-    "couldnt_find_any_friends": "Couldn't find any friends",
-    "create": "Create",
-    "date_from": "Date from",
-    "date_to": "Date to",
-    "error_user_load": "(User load error)",
-    "friends": "Friends",
-    "load_more": "Load more",
-    "mark_all_read": "Mark all as read",
-    "messages": "Messages",
-    "new_chat": "Create a new chat",
-    "new_group_chat": "Create group chat",
-    "no_group_chat": "No group chats yet",
-    "no_messages": "No messages",
-    "request_closed_message": "This host request is closed or in the past. To continue chatting, send the other person a normal message.",
-    "title": "Title",
-    "write_reference": "Write a Reference",
-    "error_unknown": "Unknown error",
-    "close_request_dialog_title": "Are you done messaging?",
-    "close_request_dialog_host": "Please make sure you are done chatting before you    reject their request.",
-    "close_request_dialog_surfer": "Please make sure you are done chatting before you    cancel your request.",
-    "chat_view": {
-        "mute": {
-            "button_label": "Mute chat",
-            "unmute_button_label": "Unmute chat",
-            "dialog_title": "How long do you want to mute?",
-            "1_hour_label": "1 hour",
-            "8_hours_label": "8 hours",
-            "1_day_label": "1 day",
-            "1_week_label": "1 week",
-            "1_month_label": "1 month",
-            "forever_label": "Until I unmute"
-        }
+  "date_from": "Date from",
+  "date_to": "Date to",
+  "load_more": "Load more",
+  "mark_all_read": "Mark all as read",
+  "messages": "Messages",
+  "no_group_chat": "No group chats yet",
+  "no_messages": "No messages",
+  "request_closed_message": "This host request is closed or in the past. To continue chatting, send the other person a normal message.",
+  "title": "Title",
+  "write_reference": "Write a Reference",
+  "error_unknown": "Unknown error",
+  "close_request_dialog_title": "Are you done messaging?",
+  "close_request_dialog_host": "Please make sure you are done chatting before you    reject their request.",
+  "close_request_dialog_surfer": "Please make sure you are done chatting before you    cancel your request.",
+  "chat_view": {
+    "mute": {
+      "button_label": "Mute chat",
+      "unmute_button_label": "Unmute chat",
+      "dialog_title": "How long do you want to mute?",
+      "1_hour_label": "1 hour",
+      "8_hours_label": "8 hours",
+      "1_day_label": "1 day",
+      "1_week_label": "1 week",
+      "1_month_label": "1 month",
+      "forever_label": "Until I unmute"
     }
+  },
+  "admins_dialog": {
+    "step_down_confirmation_dialog": {
+      "title": "Step down as admin?",
+      "message": "Are you sure you want to stop being an admin of this group chat? You will not be able to become an admin again unless another admin adds you."
+    },
+    "remove_admin": {
+      "title": "Remove admin",
+      "action_a11y_label": "Remove as admin"
+    },
+    "add_admin": {
+      "title": "Add admin",
+      "action_a11y_label": "Add as admin"
+    }
+  },
+  "create_chat": {
+    "dm_title": "Create a new chat",
+    "group_title": "Create group chat",
+    "group_title_field_label": "Title",
+    "no_friends_found_message": "Couldn't find any friends",
+    "user_load_error_message": "(User load error)",
+    "friends_input_label": "Friends"
+  }
 }

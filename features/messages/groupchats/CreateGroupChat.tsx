@@ -13,18 +13,11 @@ import {
 import { AddIcon } from "components/Icons";
 import TextField from "components/TextField";
 import useFriendList from "features/connections/friends/useFriendList";
-import {
-  COULDNT_FIND_ANY_FRIENDS,
-  CREATE,
-  ERROR_USER_LOAD,
-  FRIENDS,
-  NEW_CHAT,
-  NEW_GROUP_CHAT,
-  TITLE,
-} from "features/messages/constants";
 import { groupChatsListKey } from "features/queryKeys";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { User } from "proto/api_pb";
 import React, { useState } from "react";
@@ -48,6 +41,7 @@ interface CreateGroupChatFormData {
 }
 
 export default function CreateGroupChat({ className }: { className?: string }) {
+  const { t } = useTranslation([GLOBAL, MESSAGES]);
   const classes = useStyles();
 
   //handle redirects which want to create a new message with someone
@@ -105,7 +99,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
             <AddIcon />
           </Avatar>
         </ListItemAvatar>
-        <ListItemText>{NEW_CHAT}</ListItemText>
+        <ListItemText>{t("messages:create_chat.group_title")}</ListItemText>
       </ListItem>
       <Dialog
         aria-labelledby="create-dialog-title"
@@ -118,7 +112,9 @@ export default function CreateGroupChat({ className }: { className?: string }) {
       >
         <form onSubmit={onSubmit}>
           <DialogTitle id="create-dialog-title">
-            {isGroup ? NEW_GROUP_CHAT : NEW_CHAT}
+            {isGroup
+              ? t("messages:create_chat.group_title")
+              : t("messages:create_chat.dm_title")}
           </DialogTitle>
           <DialogContent>
             {!!errors.length && (
@@ -127,7 +123,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
             {isGroup && (
               <TextField
                 id="group-chat-title"
-                label={TITLE}
+                label={t("global:title")}
                 name="title"
                 inputRef={register}
                 className={classes.field}
@@ -159,11 +155,16 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                         multiple={true}
                         loading={friends.isLoading}
                         options={friends.data ?? []}
-                        noOptionsText={COULDNT_FIND_ANY_FRIENDS}
+                        noOptionsText={t(
+                          "messages:create_chat.no_friends_found_message"
+                        )}
                         getOptionLabel={(friend) => {
-                          return friend?.name ?? ERROR_USER_LOAD;
+                          return (
+                            friend?.name ??
+                            t("messages:create_chat.user_load_error_message")
+                          );
                         }}
-                        label={FRIENDS}
+                        label={t("messages:create_chat.friends_input_label")}
                         className={classes.field}
                         value={value ?? []}
                       />
@@ -176,7 +177,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                   loading
                   multiple
                   options={[]}
-                  label={FRIENDS}
+                  label={t("messages:create_chat.friends_input_label")}
                   value={[]}
                 />
               )
@@ -190,7 +191,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
               onClick={onSubmit}
               loading={isCreateLoading}
             >
-              {CREATE}
+              {t("global:create")}
             </Button>
           </DialogActions>
         </form>
