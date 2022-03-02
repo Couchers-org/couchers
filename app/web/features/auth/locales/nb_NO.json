@@ -81,7 +81,7 @@
     "name": {
       "field_label": "Ditt navn",
       "empty_error": "Skriv inn navnet ditt",
-      "required_error": "Navnet kan ikke være tomt."
+      "required_error": "Dette feltet kan ikke være tomt."
     },
     "email": {
       "field_label": "E-postadresse",

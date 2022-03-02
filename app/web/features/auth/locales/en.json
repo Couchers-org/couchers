@@ -85,7 +85,7 @@
     "name": {
       "field_label": "Your name",
       "empty_error": "Please enter your name",
-      "required_error": "Name can't be just white space."
+      "required_error": "This field can't be empty."
     },
     "email": {
       "field_label": "Email",
@@ -111,7 +111,7 @@
     "title": "More information required",
     "description": "Please check the following in order to continue.",
     "terms_of_service_section": {
-      "description": "We've update our Terms of Service. To continue, please read and accept the new <1></1>."
+      "description": "We've updated our Terms of Service. To continue, please read and accept the new <1></1>."
     },
     "location_section": {
       "title": "Please add your location",

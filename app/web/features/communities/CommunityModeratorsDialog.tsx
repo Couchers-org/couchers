@@ -9,9 +9,10 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import UserSummary from "components/UserSummary";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 
-import { COMMUNITY_MODERATORS, LOAD_MORE_MODERATORS } from "./constants";
 import { useListAdmins } from "./hooks";
 
 interface CommunityModeratorsDialogProps {
@@ -27,6 +28,7 @@ export default function CommunityModeratorsDialog({
   onClose,
   open = false,
 }: CommunityModeratorsDialogProps) {
+  const { t } = useTranslation([COMMUNITIES]);
   const {
     adminIds,
     adminUsers,
@@ -39,7 +41,9 @@ export default function CommunityModeratorsDialog({
 
   return (
     <Dialog aria-labelledby={DIALOG_LABEL_ID} open={open} onClose={onClose}>
-      <DialogTitle id={DIALOG_LABEL_ID}>{COMMUNITY_MODERATORS}</DialogTitle>
+      <DialogTitle id={DIALOG_LABEL_ID}>
+        {t("communities:community_moderators")}
+      </DialogTitle>
       <DialogContent>
         {error && <Alert severity="error">{error.message}</Alert>}
         {isLoading ? (
@@ -60,7 +64,7 @@ export default function CommunityModeratorsDialog({
       {hasNextPage && (
         <DialogActions>
           <Button loading={isFetchingNextPage} onClick={() => fetchNextPage()}>
-            {LOAD_MORE_MODERATORS}
+            {t("communities:load_more_moderators")}
           </Button>
         </DialogActions>
       )}
