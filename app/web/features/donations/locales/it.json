@@ -24,7 +24,7 @@
   "donations_text2": "La tua donazione sarà utilizzata per operazioni giornaliere su Couchers.org, inclusi i pagamenti per i server per assicurare un servizio affidabile, così come spese legali e amministrative e per il pagamento di strumenti collaborativi che ci permettono di costruire la piattaforma.\n\nI fondi rimanenti, essendo noi un'organizzazione no profit, verranno interamente utilizzati per il miglioramento della comunità, permettendo a Couchers.org di espandersi per esempio migliorando il servizio, aumentando il ritmo di sviluppo, offrendo squadre di sicurezza dedicate e portando il couch surfing a più persone e più località nel mondo.",
   "benefactor_contact": "Se vuoi contribuire per più di 1000 USD, per favore contattaci all'indirizzo <1>{{email}}</1> in modo da poter organizzare un trasferimento ad un costo più basso.",
   "benefactor_email": "benefactor@couchers.org",
-  "donations_recurrence_explainer": "Una donazione mensile ci aiuta a costruire le nostre operazioni su una base stabile e a pianificare per il futuro.",
+  "donations_recurrence_explainer": "Una donazione mensile ci aiuta a pianificare per il futuro e a costruire le nostre operazioni su una base stabile.",
   "donations_value": "{{val, currency}}",
   "donations_info": "La tua donazione va a <1>{{ legal_name }}</1>, una organizzazione no-profit U.S. 501(c)(3) che fa funzionare il servizio Couchers.org e supporta il progetto. Le donazioni sono esentasse, il nostro EIN è 87-1734577."
 }
