@@ -8,13 +8,9 @@ import {
   SectionTitle,
   useCommunityPageStyles,
 } from "features/communities/CommunityPage";
-import {
-  DISCUSSIONS_EMPTY_STATE,
-  DISCUSSIONS_TITLE,
-  NEW_POST_LABEL,
-  SEE_MORE_DISCUSSIONS_LABEL,
-} from "features/communities/constants";
 import { useListDiscussions } from "features/communities/hooks";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { useState } from "react";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
@@ -39,6 +35,7 @@ export default function DiscussionsListPage({
 }: {
   community: Community.AsObject;
 }) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = {
     ...useCommunityPageStyles(),
     ...useDiscussionsListStyles(),
@@ -63,7 +60,9 @@ export default function DiscussionsListPage({
   return (
     <>
       <div className={classes.discussionsHeader}>
-        <SectionTitle icon={<EmailIcon />}>{DISCUSSIONS_TITLE}</SectionTitle>
+        <SectionTitle icon={<EmailIcon />}>
+          {t("communities:discussions_title")}
+        </SectionTitle>
       </div>
       {discussionsError && (
         <Alert severity="error">{discussionsError.message}</Alert>
@@ -74,7 +73,7 @@ export default function DiscussionsListPage({
             className={classes.createResourceButton}
             onClick={() => setIsCreatingNewPost(true)}
           >
-            {NEW_POST_LABEL}
+            {t("communities:new_post_label")}
           </Button>
           {isRefetching && <CircularProgress />}
         </div>
@@ -99,12 +98,12 @@ export default function DiscussionsListPage({
               />
             ))
         ) : (
-          <TextBody>{DISCUSSIONS_EMPTY_STATE}</TextBody>
+          <TextBody>{t("communities:discussions_empty_state")}</TextBody>
         )}
         {discussionsHasNextPage && (
           <div className={classes.loadMoreButton}>
             <Button onClick={() => fetchNextPage()}>
-              {SEE_MORE_DISCUSSIONS_LABEL}
+              {t("communities:see_more_discussions_label")}
             </Button>
           </div>
         )}

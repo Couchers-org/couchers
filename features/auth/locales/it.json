@@ -52,7 +52,7 @@
     "name": {
       "field_label": "Il tuo nome",
       "empty_error": "Per favore, inserisci il tuo nome",
-      "required_error": "Il nome non può essere composto solo da spazi vuoti."
+      "required_error": "Questo campo non può essere vuoto."
     }
   },
   "account_form": {

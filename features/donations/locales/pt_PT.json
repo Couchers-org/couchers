@@ -9,17 +9,10 @@
   "donations_info": "O teu donativo vai para <1>{{ legal_name }}</1>, uma organização sem fins lucrativos dos EUA 501(c)(3) que opera o serviço Couchers.org e apoia o projecto. Os donativos são isentos de impostos, o nosso EIN é 87-1734577.",
   "donations_title": "O teu donativo é necessário para fazer crescer a plataforma de que precisamos",
   "donations_title2": "Para onde vai o teu donativo",
-  "donate": "",
   "donations_box": {
-    "monthly_button_label": "",
-    "one_time_button_label": "",
-    "validation_message": "",
-    "action_button_label": "",
-    "recurrence_aria_label": "",
     "title": "Valor do Donativo",
     "alert": {
-      "success_message": "Obrigado pelo teu donativo ao Couchers.org, ficamos felizes com o teu apoio! Receberás um email em breve.",
-      "warning_message": ""
+      "success_message": "Obrigado pelo teu donativo ao Couchers.org, ficamos felizes com o teu apoio! Receberás um email em breve."
     },
     "helper_text": "Serás redirecionado para o Stripe, o nosso processador de pagamentos, para concluir o teu donativo."
   },

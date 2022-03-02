@@ -1,7 +1,4 @@
 {
-  "basic_sign_up_form": {
-    "existing_user_prompt": ""
-  },
   "change_email_form": {
     "title": "Changer d'adresse e-mail",
     "current_email_message": "Votre adresse e-mail actuelle est <1>{{email}}</1>.",
