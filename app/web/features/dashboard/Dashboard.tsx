@@ -18,7 +18,7 @@ import CommunitiesDialog from "features/dashboard/CommunitiesDialog";
 import CommunitiesList from "features/dashboard/CommunitiesList";
 import DashboardBanners from "features/dashboard/DashboardBanners";
 import { useTranslation } from "i18n";
-import { DASHBOARD } from "i18n/namespaces";
+import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 
 import MyEvents from "./MyEvents";
@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Dashboard() {
-  const { t } = useTranslation([DASHBOARD]);
+  const { t } = useTranslation([GLOBAL, DASHBOARD]);
   const classes = useStyles();
   const [isCommunitiesDialogOpen, setIsCommunitiesDialogOpen] = useState(false);
 
@@ -161,7 +161,7 @@ export default function Dashboard() {
           id="contribute-header"
         >
           <Typography variant="h2">
-            {t("dashboard:contribute_title")}
+            {t("global:contribute_title")}
             <Chip
               className={classes.chip}
               size="small"
