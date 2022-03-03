@@ -19,7 +19,6 @@ import {
 import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 import timezoneMock from "timezone-mock";
 
-import { PREVIOUS_PAGE, WRITE_COMMENT_A11Y_LABEL } from "../constants";
 import EventPage from "./EventPage";
 
 jest.mock("components/MarkdownInput");
@@ -110,7 +109,9 @@ describe("Event page", () => {
     expect(
       screen.getByRole("heading", { name: t("communities:event_discussion") })
     ).toBeVisible();
-    expect(screen.getByLabelText(WRITE_COMMENT_A11Y_LABEL)).toBeVisible();
+    expect(
+      screen.getByLabelText(t("communities:write_comment_a11y_label"))
+    ).toBeVisible();
   });
 
   it("renders an online event successfully", async () => {
@@ -145,7 +146,9 @@ describe("Event page", () => {
     renderEventPage();
     await screen.findByRole("heading", { name: events[0].title });
 
-    userEvent.click(screen.getByRole("button", { name: PREVIOUS_PAGE }));
+    userEvent.click(
+      screen.getByRole("button", { name: t("communities:previous_page") })
+    );
 
     expect(mockRouter.back).toBeCalled();
   });

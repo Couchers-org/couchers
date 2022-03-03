@@ -17,14 +17,6 @@ import {
   t,
 } from "test/utils";
 
-import {
-  COMMENTS,
-  getByCreator,
-  NEW_DISCUSSION_TITLE,
-  NEW_DISCUSSION_TOPIC,
-  NEW_POST_LABEL,
-  POST,
-} from "../constants";
 import { DISCUSSION_CARD_TEST_ID } from "./DiscussionCard";
 import DiscussionsListPage from "./DiscussionsListPage";
 
@@ -61,7 +53,9 @@ describe("DiscussionsListPage", () => {
     const firstCreator = await getUser(discussions[0].creatorUserId.toString());
     expect(
       discussionCards[0].getByText(
-        new RegExp(`${getByCreator(firstCreator.name)} • .+ ago`)
+        new RegExp(
+          `${t("communities:by_creator", { name: firstCreator.name })} • .+ ago`
+        )
       )
     ).toBeVisible();
     expect(
@@ -72,14 +66,22 @@ describe("DiscussionsListPage", () => {
         "Hi everyone, I'm looking for fun activities to do here!"
       )
     ).toBeVisible();
-    expect(discussionCards[0].getByText(`${COMMENTS} | 5`)).toBeVisible();
+    expect(
+      discussionCards[0].getByText(
+        t("communities:comments_count", { count: 5 })
+      )
+    ).toBeVisible();
 
     const secondCreator = await getUser(
       discussions[1].creatorUserId.toString()
     );
     expect(
       discussionCards[1].getByText(
-        new RegExp(`${getByCreator(secondCreator.name)} • .+ ago`)
+        new RegExp(
+          `${t("communities:by_creator", {
+            name: secondCreator.name,
+          })} • .+ ago`
+        )
       )
     ).toBeVisible();
     expect(
@@ -88,7 +90,11 @@ describe("DiscussionsListPage", () => {
     expect(
       discussionCards[1].getByText("Some rules you need to know...")
     ).toBeVisible();
-    expect(discussionCards[1].getByText(`${COMMENTS} | 0`)).toBeVisible();
+    expect(
+      discussionCards[1].getByText(
+        t("communities:comments_count", { count: 0 })
+      )
+    ).toBeVisible();
 
     expect(listDiscussionsMock).toHaveBeenCalledTimes(1);
     // (communityId, pageToken)
@@ -114,7 +120,9 @@ describe("DiscussionsListPage", () => {
       render(<DiscussionsListPage community={community} />, { wrapper });
 
       userEvent.click(
-        await screen.findByRole("button", { name: NEW_POST_LABEL })
+        await screen.findByRole("button", {
+          name: t("communities:new_post_label"),
+        })
       );
       listDiscussionsMock.mockResolvedValue({
         discussionsList: [
@@ -135,19 +143,21 @@ describe("DiscussionsListPage", () => {
       });
 
       userEvent.type(
-        screen.getByLabelText(NEW_DISCUSSION_TITLE),
+        screen.getByLabelText(t("communities:new_discussion_title")),
         "Hello world"
       );
       userEvent.type(
-        screen.getByLabelText(NEW_DISCUSSION_TOPIC),
+        screen.getByLabelText(t("communities:new_discussion_topic")),
         "I love the world!"
       );
-      userEvent.click(screen.getByRole("button", { name: POST }));
+      userEvent.click(
+        screen.getByRole("button", { name: t("communities:post") })
+      );
 
       expect(
         (
           (await screen.findByLabelText(
-            NEW_DISCUSSION_TITLE
+            t("communities:new_discussion_title")
           )) as HTMLInputElement
         ).value
       ).toEqual("");
@@ -168,17 +178,21 @@ describe("DiscussionsListPage", () => {
       render(<DiscussionsListPage community={community} />, { wrapper });
 
       userEvent.click(
-        await screen.findByRole("button", { name: NEW_POST_LABEL })
+        await screen.findByRole("button", {
+          name: t("communities:new_post_label"),
+        })
       );
       userEvent.type(
-        screen.getByLabelText(NEW_DISCUSSION_TITLE),
+        screen.getByLabelText(t("communities:new_discussion_title")),
         "Hello world"
       );
       userEvent.type(
-        screen.getByLabelText(NEW_DISCUSSION_TOPIC),
+        screen.getByLabelText(t("communities:new_discussion_topic")),
         "I love the world!"
       );
-      userEvent.click(screen.getByRole("button", { name: POST }));
+      userEvent.click(
+        screen.getByRole("button", { name: t("communities:post") })
+      );
 
       await assertErrorAlert("Error creating new discussion");
     });
@@ -187,10 +201,12 @@ describe("DiscussionsListPage", () => {
       render(<DiscussionsListPage community={community} />, { wrapper });
 
       userEvent.click(
-        await screen.findByRole("button", { name: NEW_POST_LABEL })
+        await screen.findByRole("button", {
+          name: t("communities:new_post_label"),
+        })
       );
       userEvent.type(
-        screen.getByLabelText(NEW_DISCUSSION_TITLE),
+        screen.getByLabelText(t("communities:new_discussion_title")),
         "Hello world"
       );
       userEvent.click(screen.getByRole("button", { name: t("global:cancel") }));
@@ -198,7 +214,7 @@ describe("DiscussionsListPage", () => {
       expect(
         (
           (await screen.findByLabelText(
-            NEW_DISCUSSION_TITLE
+            t("communities:new_discussion_title")
           )) as HTMLInputElement
         ).value
       ).toEqual("");

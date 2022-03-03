@@ -20,15 +20,6 @@ import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "./CommunityBase";
-import {
-  COMMUNITY_IMAGE_INPUT_ALT,
-  COMMUNITY_PAGE_UPDATED,
-  EDIT_LOCAL_INFO,
-  PAGE_CONTENT_FIELD_LABEL,
-  PAGE_CONTENT_REQUIRED,
-  UPLOAD_HELPER_TEXT,
-  UPLOAD_HELPER_TEXT_REPLACE,
-} from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -115,8 +106,8 @@ export default function EditCommunityPage({
       {({ community }) => {
         return community.mainPage?.canEdit ? (
           <>
-            <HtmlMeta title={EDIT_LOCAL_INFO} />
-            <PageTitle>{EDIT_LOCAL_INFO}</PageTitle>
+            <HtmlMeta title={t("communities:edit_info_page_title")} />
+            <PageTitle>{t("communities:edit_info_page_title")}</PageTitle>
             {(error || errors.communityPhotoKey) && (
               <Alert severity="error">
                 {error?.message || errors.communityPhotoKey?.message || ""}
@@ -124,7 +115,7 @@ export default function EditCommunityPage({
             )}
             <form className={classes.form} onSubmit={onSubmit}>
               <ImageInput
-                alt={COMMUNITY_IMAGE_INPUT_ALT}
+                alt={t("communities:community_image_input_alt")}
                 control={control}
                 id="community-image-input"
                 initialPreviewSrc={community.mainPage.photoUrl || undefined}
@@ -136,11 +127,11 @@ export default function EditCommunityPage({
                 variant="body1"
               >
                 {community.mainPage.photoUrl
-                  ? UPLOAD_HELPER_TEXT_REPLACE
-                  : UPLOAD_HELPER_TEXT}
+                  ? t("communities:upload_helper_text_replace")
+                  : t("communities:upload_helper_text")}
               </Typography>
               <Typography id="content-label" variant="h2">
-                {PAGE_CONTENT_FIELD_LABEL}
+                {t("communities:page_content_field_label")}
               </Typography>
               <MarkdownInput
                 control={control}
@@ -149,7 +140,7 @@ export default function EditCommunityPage({
                 id="content"
                 name="content"
                 imageUpload
-                required={PAGE_CONTENT_REQUIRED}
+                required={t("communities:page_content_required")}
               />
               {errors.content && (
                 <Typography color="error" variant="body2">
@@ -179,7 +170,9 @@ export default function EditCommunityPage({
               </Button>
             </form>
             {isSuccess && (
-              <Snackbar severity="success">{COMMUNITY_PAGE_UPDATED}</Snackbar>
+              <Snackbar severity="success">
+                {t("communities:edit_info_page_success_message")}
+              </Snackbar>
             )}
           </>
         ) : (

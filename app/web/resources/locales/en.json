@@ -1,6 +1,7 @@
 {
     "close": "Close",
     "couchers": "Couchers.org",
+    "legal_name": "Couchers, Inc.",
     "login": "Log in",
     "sign_up": "Sign up",
     "title": "title",
@@ -86,5 +87,33 @@
             "display_location_label": "Display location",
             "search_location_label": "Search for location"
         }
+    },
+    "reply": "Reply",
+    "nav": {
+        "account_settings": "Account settings",
+        "about": "About",
+        "blog": "Blog",
+        "community": "Community",
+        "dashboard": "Dashboard",
+        "donate": "Donate",
+        "events": "Events",
+        "faq": "FAQ",
+        "feature_preview": "Feature Preview",
+        "forum": "Forum",
+        "github": "GitHub",
+        "handbook": "Handbook",
+        "help": "Help",
+        "log_out": "Log out",
+        "map_search": "Map Search",
+        "messages": "Messages",
+        "our_plan": "Our Plan",
+        "our_team": "Our Team",
+        "profile": "Profile",
+        "show_all_events": "Show all events",
+        "the_team": "The Team",
+        "town_hall": "Town Hall",
+        "volunteer": "Volunteer",
+        "weekly_social_sunday": "Sunday Social",
+        "weekly_social_tuesday": "Tuesday Social"
     }
 }
