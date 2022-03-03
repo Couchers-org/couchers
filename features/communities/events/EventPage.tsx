@@ -29,7 +29,6 @@ import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
-import { PREVIOUS_PAGE, TO } from "../constants";
 import CommentTree from "../discussions/CommentTree";
 import EventAttendees from "./EventAttendees";
 import EventOrganizers from "./EventOrganizers";
@@ -130,7 +129,7 @@ function getEventTimeString(
   const start = dayjs(timestamp2Date(startTime));
   const end = dayjs(timestamp2Date(endTime));
 
-  return `${start.format("LLLL")} ${TO} ${end.format(
+  return `${start.format("LLLL")} to ${end.format(
     end.isSame(start, "day") ? "LT" : "LLLL"
   )}`;
 }
@@ -215,7 +214,7 @@ export default function EventPage({
               <HeaderButton
                 className={classes.backButton}
                 onClick={() => router.back()}
-                aria-label={PREVIOUS_PAGE}
+                aria-label={t("communities:previous_page")}
               >
                 <BackIcon />
               </HeaderButton>

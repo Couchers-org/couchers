@@ -4,6 +4,8 @@ import Avatar from "components/Avatar";
 import Button from "components/Button";
 import Markdown from "components/Markdown";
 import { useUser } from "features/userQueries/useUsers";
+import { useTranslation } from "i18n";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Reply } from "proto/threads_pb";
 import { useEffect, useRef, useState } from "react";
 import { timestamp2Date } from "utils/date";
@@ -11,12 +13,6 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 import { timeAgo } from "utils/timeAgo";
 
-import {
-  getByCreator,
-  LOAD_EARLIER_REPLIES,
-  REPLY,
-  UNKNOWN_USER,
-} from "../constants";
 import { useThread } from "../hooks";
 import CommentForm from "./CommentForm";
 
@@ -83,6 +79,7 @@ interface CommentProps {
 }
 
 export default function Comment({ topLevel = false, comment }: CommentProps) {
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
   const { data: user, isLoading: isUserLoading } = useUser(
     comment.authorUserId
@@ -123,7 +120,9 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
             <Skeleton />
           ) : (
             <Typography variant="body2">
-              {getByCreator(user?.name ?? UNKNOWN_USER)}
+              {t("communities:by_creator", {
+                name: user?.name ?? t("communities:unknown_user"),
+              })}
               {` • ${postedTime}`}
             </Typography>
           )}
@@ -136,7 +135,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
               setShowCommentForm(true);
             }}
           >
-            {REPLY}
+            {t("global:reply")}
           </Button>
         )}
       </Card>
@@ -155,7 +154,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
                   loading={isFetchingNextPage}
                   onClick={() => fetchNextPage()}
                 >
-                  {LOAD_EARLIER_REPLIES}
+                  {t("communities:load_earlier_replies")}
                 </Button>
               )}
               {comments.pages

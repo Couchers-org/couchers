@@ -6,7 +6,6 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import { DASHBOARD } from "appConstants";
 import Button from "components/Button";
 import { JOIN_THE_TEAM } from "components/ContributorForm";
 import StandaloneContributorForm from "components/ContributorForm/StandaloneContributorForm";
@@ -37,6 +36,8 @@ import {
   YOUR_COMMUNITIES_HELPER_TEXT2,
 } from "features/dashboard/constants";
 import DashboardBanners from "features/dashboard/DashboardBanners";
+import { useTranslation } from "i18n";
+import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 
 import MyEvents from "./MyEvents";
@@ -73,12 +74,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Dashboard() {
+  const { t } = useTranslation([GLOBAL, DASHBOARD]);
   const classes = useStyles();
   const [isCommunitiesDialogOpen, setIsCommunitiesDialogOpen] = useState(false);
 
   return (
     <>
-      <HtmlMeta title={DASHBOARD} />
+      <HtmlMeta title={t("global:nav.dashboard")} />
       <PageTitle>{WELCOME}</PageTitle>
 
       <Typography variant="body1" paragraph>
