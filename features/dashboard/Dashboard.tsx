@@ -21,6 +21,7 @@ import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 
+import { COMMUNITY_BUILDER_FORM_LINK } from "./constants";
 import MyEvents from "./MyEvents";
 
 const useStyles = makeStyles((theme) => ({
@@ -93,7 +94,7 @@ export default function Dashboard() {
         {t("dashboard:your_communities_helper_text2")}
       </Typography>
       <Button
-        href={t("dashboard:community_builder_form_link")}
+        href={COMMUNITY_BUILDER_FORM_LINK}
         target="_blank"
         rel="noreferrer noopener"
       >
