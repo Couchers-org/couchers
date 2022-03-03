@@ -8,6 +8,7 @@ import { Trans, useTranslation } from "next-i18next";
 import CouchersLogo from "resources/CouchersLogo";
 import { foundationRoute } from "routes";
 
+import { BENEFACTOR_EMAIL } from "./constants";
 import DonationsBox from "./DonationsBox";
 
 const useStyles = makeStyles((theme) => ({
@@ -162,9 +163,9 @@ export default function Donations() {
               If you wish to contribute over $1000, please contact us at
               <Link
                 className={classes.link}
-                href={`mailto:${t("benefactor_email")}`}
+                href={`mailto:${BENEFACTOR_EMAIL}`}
               >
-                {{ email: t("benefactor_email") }}
+                {{ email: BENEFACTOR_EMAIL }}
               </Link>
               for us to arrange a lower fee transfer.
             </Trans>
