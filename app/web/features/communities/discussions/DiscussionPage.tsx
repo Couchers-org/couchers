@@ -11,8 +11,9 @@ import PageTitle from "components/PageTitle";
 import { discussionKey } from "features/queryKeys";
 import { useUser } from "features/userQueries/useUsers";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
 import { Discussion } from "proto/discussions_pb";
 import { useQuery } from "react-query";
 import { service } from "service";
@@ -21,12 +22,6 @@ import makeStyles from "utils/makeStyles";
 
 import CommunityBase from "../CommunityBase";
 import CommunityPageSubHeader from "../CommunityPage/CommunityPageSubHeader";
-import {
-  COMMENTS,
-  CREATED_AT,
-  PREVIOUS_PAGE,
-  UNKNOWN_USER,
-} from "../constants";
 import PageHeader from "../PageHeader";
 import CommentTree from "./CommentTree";
 
@@ -70,8 +65,9 @@ export default function DiscussionPage({
   discussionId: number;
 }) {
   const {
+    t,
     i18n: { language: locale },
-  } = useTranslation();
+  } = useTranslation([COMMUNITIES]);
   const classes = useStyles();
   const router = useRouter();
 
@@ -113,7 +109,7 @@ export default function DiscussionPage({
                   <div className={classes.header}>
                     <HeaderButton
                       onClick={() => router.back()}
-                      aria-label={PREVIOUS_PAGE}
+                      aria-label={t("communities:previous_page")}
                     >
                       <BackIcon />
                     </HeaderButton>
@@ -138,14 +134,15 @@ export default function DiscussionPage({
                         <Skeleton width={100} />
                       ) : (
                         <Typography variant="body1">
-                          {discussionCreator?.name ?? UNKNOWN_USER}
+                          {discussionCreator?.name ??
+                            t("communities:unknown_user")}
                         </Typography>
                       )}
                       {isCreatorLoading ? (
                         <Skeleton width={100} />
                       ) : (
                         <Typography variant="body2">
-                          {CREATED_AT}
+                          {t("communities:created_at")}
                           {dateFormatter(locale).format(
                             timestamp2Date(discussion.created!)
                           )}
@@ -153,7 +150,9 @@ export default function DiscussionPage({
                       )}
                     </div>
                   </div>
-                  <Typography variant="h2">{COMMENTS}</Typography>
+                  <Typography variant="h2">
+                    {t("communities:comments")}
+                  </Typography>
                   <CommentTree threadId={discussion.thread!.threadId} />
                 </div>
               </>

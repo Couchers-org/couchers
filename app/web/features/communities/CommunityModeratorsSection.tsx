@@ -4,17 +4,14 @@ import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import { CommunityLeadersIcon } from "components/Icons";
 import UserSummary from "components/UserSummary";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { useState } from "react";
 import makeStyles from "utils/makeStyles";
 
 import CommunityModeratorsDialog from "./CommunityModeratorsDialog";
 import { SectionTitle } from "./CommunityPage";
-import {
-  COMMUNITY_MODERATORS,
-  NO_MODERATORS,
-  SEE_ALL_MODERATORS,
-} from "./constants";
 import { useListAdmins } from "./hooks";
 
 const useStyles = makeStyles((theme) => ({
@@ -39,6 +36,7 @@ interface CommunityModeratorsSectionProps {
 export default function CommunityModeratorsSection({
   community,
 }: CommunityModeratorsSectionProps) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = useStyles();
   const { adminIds, adminUsers, error, isLoading, hasNextPage } = useListAdmins(
     community.communityId,
@@ -49,7 +47,7 @@ export default function CommunityModeratorsSection({
   return (
     <section className={classes.section}>
       <SectionTitle icon={<CommunityLeadersIcon />} variant="h2">
-        {COMMUNITY_MODERATORS}
+        {t("communities:community_moderators")}
       </SectionTitle>
       {error ? (
         <Alert severity="error">{error.message}</Alert>
@@ -71,7 +69,9 @@ export default function CommunityModeratorsSection({
           </div>
         )
       ) : (
-        <Typography variant="body1">{NO_MODERATORS}</Typography>
+        <Typography variant="body1">
+          {t("communities:no_moderators")}
+        </Typography>
       )}
       {hasNextPage && (
         <>
@@ -79,7 +79,7 @@ export default function CommunityModeratorsSection({
             className={classes.loadMoreModeratorsButton}
             onClick={() => setIsModeratorsDialogOpen(true)}
           >
-            {SEE_ALL_MODERATORS}
+            {t("communities:see_all_moderators")}
           </Button>
           <CommunityModeratorsDialog
             community={community}

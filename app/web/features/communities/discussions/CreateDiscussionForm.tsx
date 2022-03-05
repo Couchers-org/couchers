@@ -4,15 +4,11 @@ import Button from "components/Button";
 import MarkdownInput from "components/MarkdownInput";
 import TextField from "components/TextField";
 import { CANCEL } from "features/constants";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
 
-import {
-  CREATE_NEW_DISCUSSION_TITLE,
-  NEW_DISCUSSION_TITLE,
-  NEW_DISCUSSION_TOPIC,
-  POST,
-} from "../constants";
 import { CreateDiscussionInput, useNewDiscussionMutation } from "../hooks";
 
 const useStyles = makeStyles((theme) => ({
@@ -53,6 +49,7 @@ export default function CreateDiscussionForm({
   onCancel,
   onPostSuccess,
 }: CreateDiscussionFormProps) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = useStyles();
   const {
     control,
@@ -89,7 +86,7 @@ export default function CreateDiscussionForm({
   return (
     <Card className={classes.root}>
       <Typography className={classes.title} variant="h2">
-        {CREATE_NEW_DISCUSSION_TITLE}
+        {t("communities:create_new_discussion_title")}
       </Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       <form className={classes.form} onSubmit={onSubmit}>
@@ -98,10 +95,10 @@ export default function CreateDiscussionForm({
           id="title"
           name="title"
           inputRef={register({ required: true })}
-          label={NEW_DISCUSSION_TITLE}
+          label={t("communities:new_discussion_title")}
         />
         <Typography id="content-label" variant="h3">
-          {NEW_DISCUSSION_TOPIC}
+          {t("communities:new_discussion_topic")}
         </Typography>
         <MarkdownInput
           control={control}
@@ -111,7 +108,7 @@ export default function CreateDiscussionForm({
         />
         <div className={classes.actionButtonsContainer}>
           <Button loading={isLoading} type="submit">
-            {POST}
+            {t("communities:post")}
           </Button>
           <Button onClick={handleCancel}>{CANCEL}</Button>
         </div>
