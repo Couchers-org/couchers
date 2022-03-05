@@ -27,9 +27,9 @@ const NAMESPACES = [
   MESSAGES,
   PROFILE,
   SEARCH,
-];
+] as const;
 
-module.exports = {
+export {
   AUTH,
   COMMUNITIES,
   CONNECTIONS,
