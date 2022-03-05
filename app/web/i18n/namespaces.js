@@ -27,7 +27,7 @@ const NAMESPACES = [
   MESSAGES,
   PROFILE,
   SEARCH,
-] as const;
+];
 
 export {
   AUTH,
