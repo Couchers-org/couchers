@@ -3,8 +3,7 @@ import mediaQuery from "css-mediaquery";
 import { StringMap, TOptions } from "i18next";
 import i18n from "test/i18n";
 import { TFunction } from "react-i18next";
-import { NAMESPACES } from "i18n/namespaces";
-import { Mutable } from "utils/types";
+import resources from "i18n/resources";
 
 export function addDefaultUser(userId?: number) {
   window.localStorage.setItem("auth.authenticated", JSON.stringify(true));
@@ -63,7 +62,7 @@ export function createMatchMedia(width: number) {
 
 export function t(
   translationKey: Parameters<
-    TFunction<Mutable<typeof NAMESPACES>, undefined>
+    TFunction<(keyof typeof resources)[], undefined>
   >[0],
   options?: string | TOptions<StringMap> | undefined
 ) {

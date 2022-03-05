@@ -29,7 +29,3 @@ export type ProtoToJsTypes<T> = T extends StringValue.AsObject
 export type SetMutationError = React.Dispatch<
   React.SetStateAction<string | null>
 >;
-
-export type Mutable<T> = {
-  -readonly [P in keyof T]: T[P];
-};
