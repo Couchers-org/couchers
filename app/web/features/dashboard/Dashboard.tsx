@@ -21,7 +21,7 @@ import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 
-import { COMMUNITY_BUILDER_FORM_LINK } from "./constants";
+import { COMMUNITY_BUILDER_FORM_LINK, UPDATES_MARKDOWN } from "./constants";
 import MyEvents from "./MyEvents";
 
 const useStyles = makeStyles((theme) => ({
@@ -122,10 +122,7 @@ export default function Dashboard() {
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Markdown
-            source={t("dashboard:updates_markdown")}
-            topHeaderLevel={3}
-          />
+          <Markdown source={UPDATES_MARKDOWN} topHeaderLevel={3} />
         </AccordionDetails>
       </Accordion>
 
