@@ -2,12 +2,13 @@ import { Breadcrumbs, makeStyles, Typography } from "@material-ui/core";
 import { TabContext } from "@material-ui/lab";
 import StyledLink from "components/StyledLink";
 import TabBar from "components/TabBar";
+import { useTranslation } from "i18n";
+import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { CommunityParent } from "proto/groups_pb";
 import { CommunityTab, routeToCommunity } from "routes";
 
-import { COMMUNITY_TABS_A11Y_LABEL, communityTabBarLabels } from "../constants";
 import JoinCommunityButton from "./JoinCommunityButton";
 
 export const useCommunitySubHeaderStyles = makeStyles((theme) => ({
@@ -30,9 +31,17 @@ export default function CommunityPageSubHeader({
   community: Community.AsObject;
   tab: CommunityTab;
 }) {
+  const { t } = useTranslation([COMMUNITIES]);
   const classes = useCommunitySubHeaderStyles();
 
   const router = useRouter();
+  const communityTabBarLabels: Record<CommunityTab, string> = {
+    overview: t("communities:overview_label"),
+    info: t("communities:local_info_label"),
+    discussions: t("communities:discussions_label"),
+    events: t("communities:events_label"),
+  };
+
   return (
     <>
       <div className={classes.breadcrumbsContainer}>
@@ -69,7 +78,7 @@ export default function CommunityPageSubHeader({
       </div>
       <TabContext value={tab}>
         <TabBar
-          ariaLabel={COMMUNITY_TABS_A11Y_LABEL}
+          ariaLabel={t("communities:community_tabs_a11y_label")}
           setValue={(newTab) =>
             router.push(
               `${routeToCommunity(

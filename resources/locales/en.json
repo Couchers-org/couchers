@@ -135,5 +135,7 @@
     "refresh_page_button_label": "Refresh page",
     "home_page_link_label": "Go to homepage"
   },
-  "contribute_title": "Sign up to contribute"
+  "contribute_title": "Sign up to contribute",
+  "show_all_events": "Show all events",
+  "reply": "Reply"
 }
