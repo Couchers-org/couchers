@@ -1,9 +1,10 @@
 import { Box, CircularProgress, IconButton } from "@material-ui/core";
 import { CheckIcon, CloseIcon } from "components/Icons";
+import { CONNECTIONS } from "i18n/namespaces";
+import { Trans, useTranslation } from "next-i18next";
 import { FriendRequest } from "proto/api_pb";
 import { useIsMounted, useSafeState } from "utils/hooks";
 
-import { FRIEND_REQUESTS, NO_FRIEND_REQUESTS } from "../constants";
 import type { SetMutationError } from ".";
 import FriendSummaryView from "./FriendSummaryView";
 import FriendTile from "./FriendTile";
@@ -64,16 +65,17 @@ function FriendRequestsReceived() {
   const isMounted = useIsMounted();
   const [mutationError, setMutationError] = useSafeState(isMounted, "");
   const { data, isLoading, isError, errors } = useFriendRequests("received");
+  const { t } = useTranslation([CONNECTIONS]);
 
   return (
     <FriendTile
-      title={FRIEND_REQUESTS}
+      title={ t("connections_friend_requests") }
       errorMessage={
         isError ? errors.join("\n") : mutationError ? mutationError : null
       }
       isLoading={isLoading}
       hasData={!!data?.length}
-      noDataMessage={NO_FRIEND_REQUESTS}
+      noDataMessage={ t("connections_no_friend_requests") }
     >
       {data &&
         data.map((friendRequest) => (

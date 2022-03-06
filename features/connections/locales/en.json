@@ -1,12 +1,11 @@
 {
-    "add_friend": "Add friend",
-    "connections": "My connections",
-    "friends": "Friends",
-    "friend_list_title": "Your friends",
-    "friend_requests": "Friend requests",
-    "friend_requests_sent": "Friend requests you sent",
-    "no_friends": "No friends available",
-    "no_friend_requests": "No pending friend requests",
-    "no_friend_requests_sent": "No pending friend requests",
-    "pending": "Pending"
+    "connections_add_friend": "Add friend",
+    "connections_my_connections": "My connections",
+    "connections_friends": "Friends",
+    "connections_friend_list_title": "Your friends",
+    "connections_friend_requests": "Friend requests",
+    "connections_friend_requests_sent": "Friend requests you sent",
+    "connections_no_friends": "No friends available",
+    "connections_no_friend_requests": "No pending friend requests",
+    "connections_no_friend_requests_sent": "No pending friend requests"
 }

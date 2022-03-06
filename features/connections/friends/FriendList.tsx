@@ -1,18 +1,20 @@
-import { FRIEND_LIST_TITLE, NO_FRIENDS } from "../constants";
 import FriendSummaryView from "./FriendSummaryView";
 import FriendTile from "./FriendTile";
+import { CONNECTIONS } from "i18n/namespaces";
+import { Trans, useTranslation } from "next-i18next";
 import useFriendList from "./useFriendList";
 
 function FriendList() {
   const { errors, isLoading, isError, data: friends } = useFriendList();
+  const { t } = useTranslation([CONNECTIONS]);
 
   return (
     <FriendTile
-      title={FRIEND_LIST_TITLE}
+      title={ t("connections_friend_list_title") }
       errorMessage={isError ? errors.join("\n") : null}
       isLoading={isLoading}
       hasData={!!friends?.length}
-      noDataMessage={NO_FRIENDS}
+      noDataMessage={ t("connections_no_friends") }
     >
       {friends &&
         friends.map((friend) =>
