@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { CONNECTIONS } from "i18n/namespaces";
-import { Trans, useTranslation } from "next-i18next";
+import { useTranslation } from "next-i18next";
 import React, { useState } from "react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
@@ -32,7 +32,11 @@ afterEach(() => {
 describe("AddFriendButton", () => {
   it("renders the button correctly", () => {
     render(<TestComponent />, { wrapper });
-    expect(screen.getByRole("button", { name: t("connections:connections_add_friend") })).toBeVisible();
+    expect(
+      screen.getByRole("button", {
+        name: t("connections:connections_add_friend"),
+      })
+    ).toBeVisible();
   });
 
   it("shows loading state correctly if the add friend action is still running", async () => {
@@ -40,7 +44,11 @@ describe("AddFriendButton", () => {
     sendFriendRequestMock.mockImplementation(() => new Promise(() => void 0));
     render(<TestComponent />, { wrapper });
 
-    userEvent.click(screen.getByRole("button", { name: t("connections:connections_add_friend") }));
+    userEvent.click(
+      screen.getByRole("button", {
+        name: t("connections:connections_add_friend"),
+      })
+    );
     expect(await screen.findByRole("progressbar")).toBeVisible();
   });
 
@@ -48,7 +56,11 @@ describe("AddFriendButton", () => {
     sendFriendRequestMock.mockResolvedValue(new Empty());
     render(<TestComponent />, { wrapper });
 
-    userEvent.click(screen.getByRole("button", { name: t("connections:connections_add_friend") }));
+    userEvent.click(
+      screen.getByRole("button", {
+        name: t("connections:connections_add_friend"),
+      })
+    );
 
     expect(await screen.findByText(/Success/)).toBeInTheDocument();
   });
@@ -60,7 +72,11 @@ describe("AddFriendButton", () => {
     );
     render(<TestComponent />, { wrapper });
 
-    userEvent.click(screen.getByRole("button", { name: t("connections:connections_add_friend") }));
+    userEvent.click(
+      screen.getByRole("button", {
+        name: t("connections:connections_add_friend"),
+      })
+    );
     expect(
       await screen.findByText("Failed to add funny dog")
     ).toBeInTheDocument();

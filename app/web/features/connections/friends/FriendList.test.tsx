@@ -1,10 +1,11 @@
 import { render, screen, within } from "@testing-library/react";
 import { CONNECTIONS } from "i18n/namespaces";
-import { Trans, useTranslation } from "next-i18next";
+import { useTranslation } from "next-i18next";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getUser, listFriends } from "test/serviceMockDefaults";
 import { MockedService } from "test/utils";
+
 import FriendList from "./FriendList";
 import { FRIEND_ITEM_TEST_ID } from "./FriendSummaryView";
 
@@ -51,7 +52,7 @@ describe("FriendList", () => {
     listFriendsMock.mockResolvedValue([]);
     render(<FriendList />, { wrapper });
 
-    expect(await screen.findByText(t("connections_no_friends)).toBeVisible();
+    expect(await screen.findByText(t("connections_no_friends"))).toBeVisible();
     expect(screen.queryByTestId(FRIEND_ITEM_TEST_ID)).not.toBeInTheDocument();
   });
 
