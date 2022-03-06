@@ -3,7 +3,7 @@ import { PersonAddIcon } from "components/Icons";
 import { userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { CONNECTIONS } from "i18n/namespaces";
-import { Trans, useTranslation } from "next-i18next";
+import { useTranslation } from "next-i18next";
 import { User } from "proto/api_pb";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
@@ -63,7 +63,7 @@ export default function AddFriendButton({
       }}
       loading={isLoading}
     >
-      { t("connections:connections_add_friend") }
+      {t("connections:connections_add_friend")}
     </Button>
   );
 }

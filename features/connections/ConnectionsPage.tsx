@@ -5,10 +5,11 @@ import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
 import useNotifications from "features/useNotifications";
 import { CONNECTIONS } from "i18n/namespaces";
-import { Trans, useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 import React from "react";
 import { connectionsRoute } from "routes";
+
 import { FriendsTab } from "./friends";
 
 function FriendsNotification() {
