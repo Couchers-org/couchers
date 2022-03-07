@@ -32,16 +32,14 @@ import {
   MAX_GUESTS,
   PARKING,
   PARKING_DETAILS,
+  parkingDetailsLabels,
   PET_DETAILS,
   SAVE,
   SLEEPING_ARRANGEMENT,
-  SPACE,
-  WHEELCHAIR,
-} from "features/profile/constants";
-import {
-  parkingDetailsLabels,
   sleepingArrangementLabels,
   smokingLocationLabels,
+  SPACE,
+  WHEELCHAIR,
 } from "features/profile/constants";
 import useUpdateHostingPreferences from "features/profile/hooks/useUpdateHostingPreferences";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
