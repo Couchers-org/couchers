@@ -5,14 +5,6 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import mockRouter from "next-router-mock";
-import { routeToProfile } from "routes";
-import { service } from "service";
-import wrapper from "test/hookWrapper";
-import { getUser } from "test/serviceMockDefaults";
-
-import { addDefaultUser, MockedService } from "../../../test/utils";
 import {
   ABOUT_HOME,
   ACCEPT_SMOKING,
@@ -21,6 +13,14 @@ import {
   SAVE,
   SPACE,
 } from "features/profile/constants";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import mockRouter from "next-router-mock";
+import { routeToProfile } from "routes";
+import { service } from "service";
+import wrapper from "test/hookWrapper";
+import { getUser } from "test/serviceMockDefaults";
+
+import { addDefaultUser, MockedService } from "../../../test/utils";
 import EditHostingPreference from "./EditHostingPreference";
 
 jest.mock("components/MarkdownInput");

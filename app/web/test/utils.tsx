@@ -1,9 +1,9 @@
 import { fireEvent, screen } from "@testing-library/react";
 import mediaQuery from "css-mediaquery";
-import { StringMap, TOptions } from "i18next";
-import i18n from "test/i18n";
-import { TFunction } from "react-i18next";
 import resources from "i18n/resources";
+import { StringMap, TOptions } from "i18next";
+import { TFunction } from "react-i18next";
+import i18n from "test/i18n";
 
 export function addDefaultUser(userId?: number) {
   window.localStorage.setItem("auth.authenticated", JSON.stringify(true));

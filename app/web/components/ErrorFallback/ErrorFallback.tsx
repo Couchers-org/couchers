@@ -3,12 +3,12 @@ import Actions from "components/Actions";
 import Button from "components/Button";
 import ReportButton from "components/Navigation/ReportButton";
 import PageTitle from "components/PageTitle";
+import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { baseRoute } from "routes";
 import makeStyles from "utils/makeStyles";
-import { GLOBAL } from "i18n/namespaces";
 
 const useStyles = makeStyles((theme) => ({
   report: {
