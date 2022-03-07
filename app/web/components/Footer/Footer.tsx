@@ -4,7 +4,6 @@ import Button from "components/Button";
 import { COPYRIGHT, NON_PROFIT } from "components/Footer/constants";
 import { GithubIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
-import { TERMS } from "features/auth/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";

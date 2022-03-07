@@ -26,7 +26,7 @@ function TestComponent({ event }: { event?: Event.AsObject }) {
       event={event}
       mutate={mutate}
       isMutationLoading={isLoading}
-      title={t("communities:create_event")}
+      title={t("communities:create_an_event")}
     >
       {() => <button type="submit">{t("global:create")}</button>}
     </EventForm>
@@ -66,7 +66,7 @@ describe("Event form", () => {
 
     expect(
       await screen.findByRole("heading", {
-        name: t("communities:create_event"),
+        name: t("communities:create_an_event"),
       })
     ).toBeVisible();
     expect(screen.getByText(t("communities:upload_helper_text"))).toBeVisible();
