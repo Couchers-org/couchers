@@ -29,7 +29,7 @@ const NAMESPACES = [
   SEARCH,
 ];
 
-export {
+module.exports = {
   AUTH,
   COMMUNITIES,
   CONNECTIONS,
