@@ -11,7 +11,7 @@ import isGrpcError from "utils/isGrpcError";
 export function usePersistedState<T>(
   key: string,
   defaultValue: T
-): [T, (value: T) => void] {
+): [T, (value: T) => void, () => void] {
   //in ssr, window doesn't exist, just use default
   const saved =
     typeof window !== "undefined" ? window.localStorage.getItem(key) : null;
@@ -29,7 +29,11 @@ export function usePersistedState<T>(
     },
     [key]
   );
-  return [_state, setState];
+  const clearState = useCallback(() => {
+    window.localStorage.removeItem(key);
+    _setState(defaultValue);
+  }, [key, defaultValue]);
+  return [_state, setState, clearState];
 }
 
 export default function useAuthStore() {

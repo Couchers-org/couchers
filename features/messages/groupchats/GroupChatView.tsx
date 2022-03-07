@@ -397,7 +397,11 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
                   />
                 </InfiniteMessageLoader>
                 <div className={classes.footer}>
-                  <GroupChatSendField sendMutation={sendMutation} />
+                  <GroupChatSendField
+                    sendMutation={sendMutation}
+                    chatId={chatId}
+                    currentUserId={currentUserId}
+                  />
                 </div>
               </>
             )
