@@ -12668,10 +12668,10 @@ schema-utils@^3.0.0, schema-utils@^3.1.0, schema-utils@^3.1.1:
     ajv "^6.12.5"
     ajv-keywords "^3.5.2"
 
-seamless-scroll-polyfill@^2.1.5:
-  version "2.1.6"
-  resolved "https://registry.yarnpkg.com/seamless-scroll-polyfill/-/seamless-scroll-polyfill-2.1.6.tgz#01ef3ff33ab51b1bc773e879bc5661840e57d03a"
-  integrity sha512-xgrwq7wu+W9AL/RCXWdvGZpgj2JRaub7R59QKxFLdiz7NXriEahhYQR0q6PFT5+izqBqbJZ+9oQZFbpA1xBWhw==
+seamless-scroll-polyfill@^2.1.8:
+  version "2.1.8"
+  resolved "https://registry.yarnpkg.com/seamless-scroll-polyfill/-/seamless-scroll-polyfill-2.1.8.tgz#357b478b54a093e03581dcc9c0a86eae4b00eee2"
+  integrity sha512-cF92Op90//vEpHphRx25rttJGXIgxcTB1WR5y0ODQhN7O4d0lSEOp5+l3sQDx0aAZ2MfXCqFEb/rG/3ghvVDIQ==
 
 semver-diff@^3.1.1:
   version "3.1.1"
