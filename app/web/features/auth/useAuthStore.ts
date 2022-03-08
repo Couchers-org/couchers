@@ -11,7 +11,7 @@ import isGrpcError from "utils/isGrpcError";
 export function usePersistedState<T>(
   key: string,
   defaultValue: T
-): [T, (value: T) => void, () => void] {
+): [T, (value: T) => void] {
   //in ssr, window doesn't exist, just use default
   const saved =
     typeof window !== "undefined" ? window.localStorage.getItem(key) : null;
@@ -29,10 +29,34 @@ export function usePersistedState<T>(
     },
     [key]
   );
+  return [_state, setState];
+}
+
+export function useSessionStorage<T>(
+  key: string,
+  defaultValue: T
+): [T | undefined, (value: T) => void, () => void] {
+  //in ssr, window doesn't exist, just use default
+  const saved =
+    typeof window !== "undefined" ? window.sessionStorage.getItem(key) : null;
+  const [_state, _setState] = useState<T | undefined>(
+    saved !== null ? JSON.parse(saved) : defaultValue
+  );
+  const setState = useCallback(
+    (value: T) => {
+      if (value === undefined) {
+        console.warn(`${key} can't be stored as undefined, casting to null.`);
+      }
+      const v = value === undefined ? null : value;
+      window.sessionStorage.setItem(key, JSON.stringify(v));
+      _setState(value);
+    },
+    [key]
+  );
   const clearState = useCallback(() => {
-    window.localStorage.removeItem(key);
-    _setState(defaultValue);
-  }, [key, defaultValue]);
+    window.sessionStorage.removeItem(key);
+    _setState(undefined);
+  }, [key]);
   return [_state, setState, clearState];
 }
 
@@ -82,6 +106,7 @@ export default function useAuthStore() {
           });
           setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
+        window.sessionStorage.clear();
         setLoading(false);
       },
       async passwordLogin({
