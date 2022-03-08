@@ -408,7 +408,11 @@ describe("GroupChatView", () => {
 
     getGroupChatMock.mockResolvedValue(baseGroupChatMockResponse);
 
-    screen.getByRole("button", { name: "Menu" }).click();
+    screen
+      .getByRole("button", {
+        name: t("messages:chat_view.actions_menu.a11y_label"),
+      })
+      .click();
     screen.getByText(t("messages:chat_view.mute.unmute_button_label")).click();
 
     await waitFor(() => {
@@ -431,7 +435,11 @@ describe("GroupChatView", () => {
     });
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-    screen.getByRole("button", { name: "Menu" }).click();
+    screen
+      .getByRole("button", {
+        name: t("messages:chat_view.actions_menu.a11y_label"),
+      })
+      .click();
     screen.getByText(t("messages:chat_view.mute.button_label")).click();
     within(screen.getByRole("dialog"))
       .getByLabelText(t("messages:chat_view.mute.forever_label"))
@@ -454,7 +462,11 @@ describe("GroupChatView", () => {
     renderGroupChatView();
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-    screen.getByRole("button", { name: "Menu" }).click();
+    screen
+      .getByRole("button", {
+        name: t("messages:chat_view.actions_menu.a11y_label"),
+      })
+      .click();
     screen.getByText(t("messages:chat_view.mute.button_label")).click();
     within(screen.getByRole("dialog"))
       .getByLabelText(t("messages:chat_view.mute.forever_label"))

@@ -1,3 +1,4 @@
+import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
@@ -44,7 +45,6 @@ import {
 import { groupChatsRoute } from "routes";
 import { service } from "service";
 
-import { ERROR_UNKNOWN } from "../constants";
 import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 
 export const useGroupChatViewStyles = makeStyles((theme) => ({
@@ -223,11 +223,16 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
     <>
       <HtmlMeta title={title} />
       {!chatId ? (
-        <Alert severity="error">Invalid chat id.</Alert>
+        <Alert severity="error">
+          {t("messages:chat_view.invalid_id_error")}
+        </Alert>
       ) : (
         <div className={classes.pageWrapper}>
           <div className={classes.header}>
-            <HeaderButton onClick={handleBack} aria-label="Back">
+            <HeaderButton
+              onClick={handleBack}
+              aria-label={t("messages:chat_view.back_button.a11y_label")}
+            >
               <BackIcon />
             </HeaderButton>
 
@@ -247,7 +252,12 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
                   <CircularProgress size="1.5rem" />
                 ) : (
                   groupChat?.muteInfo?.muted && (
-                    <MuteIcon data-testid="mute-icon" />
+                    <>
+                      <MuteIcon data-testid="mute-icon" />
+                      <Typography variant="srOnly">
+                        {t("messages:chat_view.muted_icon.a11y_label")}
+                      </Typography>
+                    </>
                   )
                 )}
               </div>
@@ -255,7 +265,12 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
               <div className={classes.title}>
                 <PageTitle>{title || <Skeleton width={100} />}</PageTitle>
                 {groupChat?.muteInfo?.muted && (
-                  <MuteIcon data-testid="mute-icon" />
+                  <>
+                    <MuteIcon data-testid="mute-icon" />
+                    <Typography variant="srOnly">
+                      {t("messages:chat_view.muted_icon.a11y_label")}
+                    </Typography>
+                  </>
                 )}
               </div>
             )}
@@ -263,7 +278,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
             <>
               <HeaderButton
                 onClick={() => handleClick("menu")}
-                aria-label="Menu"
+                aria-label={t("messages:chat_view.actions_menu.a11y_label")}
                 aria-haspopup="true"
                 aria-controls="more-menu"
                 innerRef={menuAnchor}
@@ -292,14 +307,18 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
                             onClick={() => handleClick("invite")}
                             key="invite"
                           >
-                            Invite to chat
+                            {t(
+                              "messages:chat_view.actions_menu.items.invite_members"
+                            )}
                           </MenuItem>
                         ) : null,
                         <MenuItem
                           onClick={() => handleClick("members")}
                           key="members"
                         >
-                          Chat members
+                          {t(
+                            "messages:chat_view.actions_menu.items.show_all_members"
+                          )}
                         </MenuItem>,
                         isChatAdmin
                           ? [
@@ -307,13 +326,17 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
                                 onClick={() => handleClick("admins")}
                                 key="admins"
                               >
-                                Manage chat admins
+                                {t(
+                                  "messages:chat_view.actions_menu.items.manage_admins"
+                                )}
                               </MenuItem>,
                               <MenuItem
                                 onClick={() => handleClick("settings")}
                                 key="settings"
                               >
-                                Chat settings
+                                {t(
+                                  "messages:chat_view.actions_menu.items.chat_settings"
+                                )}
                               </MenuItem>,
                             ]
                           : null,
@@ -323,7 +346,9 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
                             onClick={() => handleClick("leave")}
                             key="leave"
                           >
-                            Leave chat
+                            {t(
+                              "messages:chat_view.actions_menu.items.leave_chat"
+                            )}
                           </MenuItem>
                         ) : null,
                       ]
@@ -371,7 +396,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
               {groupChatError?.message ||
                 messagesError?.message ||
                 sendMutation.error?.message ||
-                ERROR_UNKNOWN}
+                t("global:error.fallback.title")}
             </Alert>
           )}
           {isMessagesLoading ? (
