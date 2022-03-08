@@ -6,7 +6,10 @@ import { service } from "service";
 
 import wrapper from "../../test/hookWrapper";
 import { addDefaultUser } from "../../test/utils";
-import useAuthStore, { usePersistedState } from "./useAuthStore";
+import useAuthStore, {
+  usePersistedState,
+  useSessionStorage,
+} from "./useAuthStore";
 
 const getUserMock = service.user.getUser as jest.Mock;
 const getCurrentUserMock = service.user.getCurrentUser as jest.Mock;
@@ -36,6 +39,35 @@ describe("usePersistedState hook", () => {
   });
 });
 
+describe("useSessionStorage hook", () => {
+  it("uses a default value", () => {
+    const defaultValue = "Test string";
+    const { result } = renderHook(() => useSessionStorage("key", defaultValue));
+    expect(result.current[0]).toBe(defaultValue);
+  });
+
+  it("saves then loads a value", () => {
+    const value = { test: "Test string" };
+    const { result } = renderHook(() => useSessionStorage("key", { test: "" }));
+    expect(result.current[0]).toStrictEqual({ test: "" });
+    act(() => result.current[1](value));
+    expect(result.current[0]).toStrictEqual(value);
+    expect(sessionStorage.getItem("key")).toBe(JSON.stringify(value));
+    const { result: result2 } = renderHook(() =>
+      useSessionStorage("key", { test: "" })
+    );
+    expect(result2.current[0]).toStrictEqual(value);
+  });
+
+  it("clears a value", () => {
+    const { result } = renderHook(() => useSessionStorage("key", { test: "" }));
+    expect(result.current[0]).toStrictEqual({ test: "" });
+    act(() => result.current[2]());
+    expect(result.current[0]).toStrictEqual(undefined);
+    expect(sessionStorage.getItem("key")).toBe(null);
+  });
+});
+
 describe("useAuthStore hook", () => {
   it("sets and clears an error", async () => {
     const { result } = renderHook(() => useAuthStore(), { wrapper });
@@ -54,6 +86,17 @@ describe("useAuthStore hook", () => {
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.error).toBeNull();
     expect(result.current.authState.userId).toBeNull();
+  });
+
+  it("clears sessionStorage on logout", async () => {
+    logoutMock.mockResolvedValue(new Empty());
+    addDefaultUser();
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+    expect(result.current.authState.authenticated).toBe(true);
+    sessionStorage.setItem("test key", "test value");
+    expect(sessionStorage.length).toBe(1);
+    await act(() => result.current.authActions.logout());
+    expect(sessionStorage.length).toBe(0);
   });
 });
 
