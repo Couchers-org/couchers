@@ -16,6 +16,8 @@ import {
 } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { GroupChat } from "proto/conversations_pb";
 import React from "react";
@@ -27,6 +29,7 @@ export default function InviteDialog({
   groupChat,
   ...props
 }: DialogProps & { groupChat: GroupChat.AsObject }) {
+  const { t } = useTranslation([GLOBAL, MESSAGES]);
   const friends = useFriendList();
   const { control, handleSubmit } = useForm<{
     selected: User.AsObject[];
@@ -57,7 +60,9 @@ export default function InviteDialog({
 
   return (
     <Dialog {...props} aria-labelledby="invite-dialog-title">
-      <DialogTitle id="invite-dialog-title">Invite to chat</DialogTitle>
+      <DialogTitle id="invite-dialog-title">
+        {t("messages:invite_dialog.title")}
+      </DialogTitle>
       <DialogContent>
         <form onSubmit={onSubmit}>
           {(mutation.error || !!friends.errors.length) && (
@@ -78,10 +83,15 @@ export default function InviteDialog({
                 loading={friends.isLoading}
                 options={friendsNotInChat ?? []}
                 getOptionLabel={(friend) => {
-                  return friend?.name ?? "(User load error)";
+                  return (
+                    friend?.name ??
+                    t("messages:invite_dialog.selected.option_load_error_text")
+                  );
                 }}
-                noOptionsText="No one to invite"
-                label="Friends"
+                noOptionsText={t(
+                  "messages:invite_dialog.selected.no_options_text"
+                )}
+                label={t("messages:invite_dialog.selected.field_label")}
                 multiple={true}
                 freeSolo={false}
               />
@@ -91,14 +101,14 @@ export default function InviteDialog({
       </DialogContent>
       <DialogActions>
         <Button onClick={onSubmit} loading={mutation.isLoading}>
-          Invite
+          {t("messages:invite_dialog.invite_button_label")}
         </Button>
         <Button
           onClick={() =>
             props.onClose ? props.onClose({}, "escapeKeyDown") : null
           }
         >
-          Cancel
+          {t("global:cancel")}
         </Button>
       </DialogActions>
     </Dialog>

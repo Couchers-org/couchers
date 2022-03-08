@@ -4,16 +4,31 @@
   "load_more": "Load more",
   "mark_all_read": "Mark all as read",
   "messages": "Messages",
-  "no_group_chat": "No group chats yet",
   "no_messages": "No messages",
   "request_closed_message": "This host request is closed or in the past. To continue chatting, send the other person a normal message.",
   "title": "Title",
   "write_reference": "Write a Reference",
-  "error_unknown": "Unknown error",
   "close_request_dialog_title": "Are you done messaging?",
   "close_request_dialog_host": "Please make sure you are done chatting before you    reject their request.",
   "close_request_dialog_surfer": "Please make sure you are done chatting before you    cancel your request.",
   "chat_view": {
+    "invalid_id_error": "Invalid chat ID.",
+    "back_button": {
+      "a11y_label": "Back"
+    },
+    "muted_icon": {
+      "a11y_label": "Muted"
+    },
+    "actions_menu": {
+      "a11y_label": "Show more chat actions",
+      "items": {
+        "invite_members": "Invite to chat",
+        "show_all_members": "Chat members",
+        "manage_admins": "Manage chat admins",
+        "chat_settings": "Chat settings",
+        "leave_chat": "Leave chat"
+      }
+    },
     "mute": {
       "button_label": "Mute chat",
       "unmute_button_label": "Unmute chat",
@@ -47,5 +62,37 @@
     "no_friends_found_message": "Couldn't find any friends",
     "user_load_error_message": "(User load error)",
     "friends_input_label": "Friends"
+  },
+  "chat_input": {
+    "label": "Message"
+  },
+  "group_chat_settings_dialog": {
+    "title": "Group chat settings",
+    "chat_title": {
+      "field_label": "Chat title"
+    },
+    "only_admins_invite": {
+      "field_label": "Only admins can invite others to the chat"
+    }
+  },
+  "group_chats_tab": {
+    "no_chats_message": "No group chats yet",
+    "load_more_button_label": "Load more"
+  },
+  "invite_dialog": {
+    "title": "Invite to chat",
+    "selected": {
+      "field_label": "Friends",
+      "no_options_text": "No one to invite",
+      "option_load_error_text": "(User load error)"
+    },
+    "invite_button_label": "Invite"
+  },
+  "leave_chat_dialog": {
+    "title": "Leave chat?",
+    "message": "Are you sure you want to leave this chat?"
+  },
+  "members_dialog": {
+    "title": "Chat Members"
   }
 }

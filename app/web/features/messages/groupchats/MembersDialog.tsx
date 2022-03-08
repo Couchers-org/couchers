@@ -14,6 +14,8 @@ import {
 } from "components/Dialog";
 import TextBody from "components/TextBody";
 import useUsers from "features/userQueries/useUsers";
+import { useTranslation } from "i18n";
+import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { GroupChat } from "proto/conversations_pb";
 import React from "react";
@@ -56,11 +58,14 @@ export default function MembersDialog({
   groupChat,
   ...props
 }: DialogProps & { groupChat?: GroupChat.AsObject }) {
+  const { t } = useTranslation([GLOBAL, MESSAGES]);
   const members = useUsers(groupChat?.memberUserIdsList ?? []);
 
   return (
     <Dialog {...props} aria-labelledby="members-dialog-title">
-      <DialogTitle id="members-dialog-title">Chat Members</DialogTitle>
+      <DialogTitle id="members-dialog-title">
+        {t("messages:members_dialog.title")}
+      </DialogTitle>
       <DialogContent>
         <List>
           {members.isLoading ? (
@@ -86,7 +91,7 @@ export default function MembersDialog({
             props.onClose ? props.onClose({}, "escapeKeyDown") : null
           }
         >
-          Ok
+          {t("global:ok")}
         </Button>
       </DialogActions>
     </Dialog>
