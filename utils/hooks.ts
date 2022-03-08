@@ -103,7 +103,6 @@ const useGeocodeQuery = () => {
         setResults([]);
       } else {
         const filteredResults = filterDuplicatePlaces(nominatimResults);
-        console.log(filteredResults[0]);
         const formattedResults = filteredResults.map((result) => ({
           location: new LngLat(Number(result["lon"]), Number(result["lat"])),
           name: result["display_name"],
