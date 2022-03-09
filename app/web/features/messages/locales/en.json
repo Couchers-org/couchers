@@ -94,5 +94,15 @@
   },
   "members_dialog": {
     "title": "Chat Members"
+  },
+  "control_message": {
+    "created_chat_text": "{{user}} created the chat",
+    "edited_chat_text": "{{user}} edited the chat",
+    "invite_user_text": "{{user}} invited {{target_user}}",
+    "user_left_chat_text": "{{user}} left the chat",
+    "admin_assignment_text": "{{user}} made {{target_user}} an admin",
+    "admin_removal_text": "{{user}} removed {{target_user}} as admin",
+    "host_request_status_changed_text": "{{user}} changed the request to {{status}}",
+    "unknown_message_text": "Unknown control message"
   }
 }

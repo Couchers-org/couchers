@@ -1,6 +1,7 @@
 import { hostRequestStatusLabels } from "features/messages/constants";
 import useUsers from "features/userQueries/useUsers";
 import { GroupChat, Message } from "proto/conversations_pb";
+import { TFunction } from "react-i18next";
 import { firstName } from "utils/names";
 
 export function isControlMessage(message: Message.AsObject) {
@@ -17,6 +18,53 @@ export function messageTargetId(message: Message.AsObject) {
     : undefined;
 }
 
+export function controlMessage({
+  user,
+  target_user,
+  message,
+  t,
+}: {
+  user: string;
+  target_user?: string;
+  message: Message.AsObject;
+  t: TFunction<"messages", undefined>;
+}) {
+  const userCap = user.charAt(0).toUpperCase() + user.slice(1);
+  if (message.chatCreated) {
+    return t("control_message.created_chat_text", { user: userCap });
+  } else if (message.chatEdited) {
+    return t("control_message.edited_chat_text", { user: userCap });
+  } else if (message.userInvited) {
+    return t("control_message.invite_user_text", {
+      user: userCap,
+      target_user,
+    });
+  } else if (message.userLeft) {
+    return t("control_message.user_left_chat_text", { user: userCap });
+  } else if (message.userMadeAdmin) {
+    return t("control_message.admin_assignment_text", {
+      user: userCap,
+      target_user,
+    });
+  } else if (message.userRemovedAdmin) {
+    return t("control_message.admin_removal_text", {
+      user: userCap,
+      target_user,
+    });
+  } else if (message.hostRequestStatusChanged) {
+    // TODO: actually compute from real value
+    return t("control_message.host_request_status_changed_text", {
+      user,
+      status: "accepted",
+    });
+  } else {
+    throw Error(t("control_message.unknown_message_text"));
+  }
+}
+
+/**
+ * @deprecated Use controlMessage instead
+ */
 export function controlMessageText(
   message: Message.AsObject,
   authorName: string,
