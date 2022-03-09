@@ -4,7 +4,6 @@
   "load_more": "Load more",
   "mark_all_read": "Mark all as read",
   "messages": "Messages",
-  "no_messages": "No messages",
   "request_closed_message": "This host request is closed or in the past. To continue chatting, send the other person a normal message.",
   "title": "Title",
   "write_reference": "Write a Reference",
@@ -13,6 +12,7 @@
   "close_request_dialog_surfer": "Please make sure you are done chatting before you    cancel your request.",
   "chat_view": {
     "invalid_id_error": "Invalid chat ID.",
+    "no_messages_state_text": "No messages",
     "back_button": {
       "a11y_label": "Back"
     },
