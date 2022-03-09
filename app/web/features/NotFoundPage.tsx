@@ -1,10 +1,12 @@
 import { Typography } from "@material-ui/core";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
+import { useAuthContext } from "features/auth/AuthProvider";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
+import { useEffect, useState } from "react";
 import Graphic from "resources/404graphic.png";
-import { baseRoute } from "routes";
+import { baseRoute, dashboardRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -23,6 +25,11 @@ const useStyles = makeStyles((theme) => ({
 export default function NotFoundPage() {
   const { t } = useTranslation(GLOBAL);
   const classes = useStyles();
+  const {
+    authState: { authenticated },
+  } = useAuthContext();
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
 
   return (
     <>
@@ -37,7 +44,11 @@ export default function NotFoundPage() {
         <Typography>
           <Trans t={t} i18nKey="not_found_text_2">
             Do you just want to
-            <StyledLink href={baseRoute}>go home?</StyledLink>
+            <StyledLink
+              href={!authenticated || !isMounted ? baseRoute : dashboardRoute}
+            >
+              go home?
+            </StyledLink>
           </Trans>
         </Typography>
       </div>
