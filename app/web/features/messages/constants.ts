@@ -14,7 +14,6 @@ export const DATE_TO = "Date to";
 export const MARK_ALL_READ = "Mark all as read";
 export const MARK_LAST_SEEN_TIMEOUT = 500;
 export const MESSAGES = "Messages";
-export const NO_MESSAGES = "No messages";
 export const REQUEST_CLOSED_MESSAGE =
   "This host request is closed or in the past. To continue chatting, send the other person a normal message.";
 export const WRITE_REFERENCE = "Write a Reference";

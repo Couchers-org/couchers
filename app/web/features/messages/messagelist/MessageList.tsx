@@ -1,10 +1,11 @@
 import { makeStyles } from "@material-ui/core/styles";
 import classNames from "classnames";
 import TextBody from "components/TextBody";
-import { NO_MESSAGES } from "features/messages/constants";
 import ControlMessageView from "features/messages/messagelist/ControlMessageView";
 import MessageView from "features/messages/messagelist/MessageView";
 import { isControlMessage } from "features/messages/utils";
+import { useTranslation } from "i18n";
+import { MESSAGES } from "i18n/namespaces";
 import { Message } from "proto/conversations_pb";
 import * as React from "react";
 
@@ -33,6 +34,7 @@ export default function MessageList({
   messages,
   className,
 }: MessageListProps) {
+  const { t } = useTranslation(MESSAGES);
   const classes = useStyles();
 
   return (
@@ -59,7 +61,7 @@ export default function MessageList({
           )
         )
       ) : (
-        <TextBody>{NO_MESSAGES}</TextBody>
+        <TextBody>{t("chat_view.no_messages_state_text")}</TextBody>
       )}
     </div>
   );
