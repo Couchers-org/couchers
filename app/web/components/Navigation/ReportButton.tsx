@@ -168,7 +168,7 @@ export default function ReportButton({
           <>
             <DialogContent>
               <Typography variant="body1" paragraph>
-                {t("cancel")}
+                {t("report.content.dialog_message")}
               </Typography>
               <Link href={`mailto:${supportEmail}`}>{supportEmail}</Link>
             </DialogContent>
