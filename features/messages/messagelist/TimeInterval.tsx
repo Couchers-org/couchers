@@ -1,4 +1,4 @@
-import { Box, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import classNames from "classnames";
 import React from "react";
@@ -18,8 +18,8 @@ export interface TimeIntervalProps {
 export default function TimeInterval({ date, className }: TimeIntervalProps) {
   const classes = useStyles();
   return (
-    <Box className={classNames(className, classes.root)}>
+    <div className={classNames(className, classes.root)}>
       <Typography variant="caption">{timeAgo(date)}</Typography>
-    </Box>
+    </div>
   );
 }

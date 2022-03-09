@@ -142,7 +142,9 @@ describe("GroupChatView", () => {
         }
       } else if (message.chatCreated) {
         // control message assertions
-        expect(messageElement.getByText("You created the chat")).toBeVisible();
+        expect(
+          messageElement.getByText("Funny created the chat")
+        ).toBeVisible();
       }
     }
     expect(getGroupChatMock).toHaveBeenCalledTimes(1);
