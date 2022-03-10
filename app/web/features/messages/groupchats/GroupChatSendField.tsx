@@ -51,7 +51,7 @@ export default function GroupChatSendField({
         id="group-chat-message-field"
         label="Message"
         name="text"
-        defaultValue={persistedMessage}
+        defaultValue={persistedMessage ?? ''}
         inputRef={register}
         multiline
         fullWidth
