@@ -7,7 +7,7 @@ author: Itsi
 share_image: /app/web/public/img/blog/20220310_ukraine_en.jpg
 ---
 
-[Українська](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-uk) – [Magyar](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-hu)
+[Українська](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-uk) – [Polski](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-po) – [Magyar](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-hu)
 
 In light of recent conflict, we strongly encourage people with means in nearby countries to temporarily host refugees and displaced people in their homes.
 
