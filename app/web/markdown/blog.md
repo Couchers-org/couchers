@@ -6,7 +6,7 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
-## [Hosting refugees and finding shelter with Couchers.org](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org)
+## [Hosting refugees and finding shelter with Couchers.org](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-en)
 
 2022/03/10.
 
