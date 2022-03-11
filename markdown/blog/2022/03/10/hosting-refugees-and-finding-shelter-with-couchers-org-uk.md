@@ -6,7 +6,7 @@ author: Itsi
 share_image: /app/web/public/img/blog/20220310_ukraine_uk.jpg
 ---
 
-[English](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-en) – [Magyar](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-hu)
+[English](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-en) – [Polski](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-po) – [Magyar](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-hu)
 
 світлі нещодавнього конфлікту ми наполегливо закликаємо людей, що мешкають в сусідніх країнах і мають фінансову спроможність, тимчасово приймати у своїх домівках біженців і переміщених осіб. 
 
