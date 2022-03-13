@@ -12,7 +12,7 @@ If you'd like to contribute to the blog, please [sign up](/volunteer) and let us
 
 We encourage people to use Couchers.org to find temporary housing or help refugees during current and future crises.
 
-[Read more.](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org)
+[Read more.](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org)
 
 ## [Updates from the development team: February 13th, 2022](/blog/2022/02/13/development-updates)
 
