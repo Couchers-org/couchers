@@ -1,12 +1,12 @@
 ---
 title: Przyjmowanie uchodźców i szukanie schronienia z Couchers.org
-slug: host-refugees-po
-date: 2022/03/10
+slug: hosting-refugees-and-finding-shelter-with-couchers-org-pl
+date: 2022/03/13
 author: Itsi
-share_image: /app/web/public/img/blog/20220310_ukraine_po.jpg
+share_image: /app/web/public/img/blog/20220313_ukraine_pl.jpg
 ---
 
-[English](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-en) – [Українська](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-uk) – [Magyar](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-hu)
+[English](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-en) – [Українська](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-uk) – [Magyar](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-hu)
 
 W świetle ostatniego konfliktu, bardzo zachęcamy osoby w pobliskich krajach, mające takie możliwości, do tymczasowego goszczenia uchodźców i przesiedleńców w swoich domach. Couchers.org jest organizacją non-profit, stworzoną by umożliwiać darmowy pobyt w domach innych użytkowników podczas podróży.
 
@@ -39,3 +39,5 @@ Nie możemy zagwarantować, jak długi pobyt będzie możliwy. Niektórzy będą
 W razie jakichkolwiek problemów prosimy o kontakt na adres [support@couchers.org](mailto:support@couchers.org)
 
 Życzymy Wam wszystkiego najlepszego i mamy nadzieję, że jesteście bezpieczni. Pamiętajcie, że są ludzie, którzy chcą Wam pomóc.
+
+*Published on 2022/03/13.*

@@ -1,13 +1,13 @@
 ---
 title: Hosting refugees and finding shelter with Couchers.org
-slug: host-refugees-en
+slug: hosting-refugees-and-finding-shelter-with-couchers-org-en
 description: Host refugees or find shelter with Couchers.org
-date: 2022/03/10
+date: 2022/03/13
 author: Itsi
-share_image: /app/web/public/img/blog/20220310_ukraine_en.jpg
+share_image: /app/web/public/img/blog/20220313_ukraine_en.jpg
 ---
 
-[Українська](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-uk) – [Polski](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-po) – [Magyar](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-hu)
+[Українська](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-uk) – [Polski](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-pl) – [Magyar](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-hu)
 
 In light of recent conflict, we strongly encourage people with means in nearby countries to temporarily host refugees and displaced people in their homes.
 
@@ -42,3 +42,5 @@ We cannot guarantee how long people will house you for. Some may be able to for 
 If you have any issues please contact [support@couchers.org](mailto:support@couchers.org).
 
 We wish you the best and hope for your safety. Please know there are people out there who want to help you.
+
+*Published on 2022/03/13.*

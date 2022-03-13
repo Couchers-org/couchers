@@ -1,12 +1,12 @@
 ---
 title: Menekültek elszállásolása és menedék keresése a Couchers.orggal
-slug: host-refugees-hu
-date: 2022/03/10
+slug: hosting-refugees-and-finding-shelter-with-couchers-org-hu
+date: 2022/03/13
 author: Itsi
-share_image: /app/web/public/img/blog/20220310_ukraine_hu.jpg
+share_image: /app/web/public/img/blog/20220313_ukraine_hu.jpg
 ---
 
-[English](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-en) – [Українська](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-uk) – [Polski](/blog/2022/03/10/hosting-refugees-and-finding-shelter-with-couchers-org-po)
+[English](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-en) – [Українська](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-uk) – [Polski](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-pl)
 
 A jelen konfliktusban arra bátorítjuk a szomszédos országok jó szándékú lakóit, hogy nyújtsanak átmeneti szállást a menekülőknek és otthon nélkül maradottaknak. A Couchers.org egy nonprofit szervezet, amely hagyományosan abban közreműködik, hogy utazók ingyenesen szallhassanak meg magánemberek otthonában.
 
@@ -39,3 +39,5 @@ Arra sajnos nem tudunk garanciát vállalni, hogy mennyi időre juthatsz így sz
 Ha elakadnál, kérjük írj nekünk erre a címre: [support@couchers.org](mailto:support@couchers.org)
 
 Minden jót kívánunk; reméljük, hogy biztonságban vagy és leszel. Tudd, hogy sokan vannak, akik segíteni szeretnének neked.
+
+*Published on 2022/03/13.*
