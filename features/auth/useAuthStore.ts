@@ -10,35 +10,11 @@ import isGrpcError from "utils/isGrpcError";
 
 export function usePersistedState<T>(
   key: string,
-  defaultValue: T
-): [T, (value: T) => void] {
-  //in ssr, window doesn't exist, just use default
-  const saved =
-    typeof window !== "undefined" ? window.localStorage.getItem(key) : null;
-  const [_state, _setState] = useState<T>(
-    saved !== null ? JSON.parse(saved) : defaultValue
-  );
-  const setState = useCallback(
-    (value: T) => {
-      if (value === undefined) {
-        console.warn(`${key} can't be stored as undefined, casting to null.`);
-      }
-      const v = value === undefined ? null : value;
-      window.localStorage.setItem(key, JSON.stringify(v));
-      _setState(value);
-    },
-    [key]
-  );
-  return [_state, setState];
-}
-
-export function useSessionStorage<T>(
-  key: string,
-  defaultValue: T
+  defaultValue: T,
+  storage = window?.localStorage
 ): [T | undefined, (value: T) => void, () => void] {
   //in ssr, window doesn't exist, just use default
-  const saved =
-    typeof window !== "undefined" ? window.sessionStorage.getItem(key) : null;
+  const saved = typeof window !== "undefined" ? storage.getItem(key) : null;
   const [_state, _setState] = useState<T | undefined>(
     saved !== null ? JSON.parse(saved) : defaultValue
   );
@@ -48,15 +24,15 @@ export function useSessionStorage<T>(
         console.warn(`${key} can't be stored as undefined, casting to null.`);
       }
       const v = value === undefined ? null : value;
-      window.sessionStorage.setItem(key, JSON.stringify(v));
+      storage.setItem(key, JSON.stringify(v));
       _setState(value);
     },
-    [key]
+    [key, storage]
   );
   const clearState = useCallback(() => {
-    window.sessionStorage.removeItem(key);
+    storage.removeItem(key);
     _setState(undefined);
-  }, [key]);
+  }, [key, storage]);
   return [_state, setState, clearState];
 }
 
