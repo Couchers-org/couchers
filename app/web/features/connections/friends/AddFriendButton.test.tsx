@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { CONNECTIONS } from "i18n/namespaces";
-import { useTranslation } from "next-i18next";
+import { t } from "test/utils";
 import React, { useState } from "react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
@@ -34,7 +34,7 @@ describe("AddFriendButton", () => {
     render(<TestComponent />, { wrapper });
     expect(
       screen.getByRole("button", {
-        name: t("connections:connections_add_friend"),
+        name: t("connections:add_friend"),
       })
     ).toBeVisible();
   });
@@ -46,7 +46,7 @@ describe("AddFriendButton", () => {
 
     userEvent.click(
       screen.getByRole("button", {
-        name: t("connections:connections_add_friend"),
+        name: t("connections:add_friend"),
       })
     );
     expect(await screen.findByRole("progressbar")).toBeVisible();
@@ -58,7 +58,7 @@ describe("AddFriendButton", () => {
 
     userEvent.click(
       screen.getByRole("button", {
-        name: t("connections:connections_add_friend"),
+        name: t("connections:add_friend"),
       })
     );
 
@@ -74,7 +74,7 @@ describe("AddFriendButton", () => {
 
     userEvent.click(
       screen.getByRole("button", {
-        name: t("connections:connections_add_friend"),
+        name: t("connections:add_friend"),
       })
     );
     expect(

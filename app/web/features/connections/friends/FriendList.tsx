@@ -11,11 +11,11 @@ function FriendList() {
 
   return (
     <FriendTile
-      title={t("connections_friend_list_title")}
+      title={t("connections:friend_list_title")}
       errorMessage={isError ? errors.join("\n") : null}
       isLoading={isLoading}
       hasData={!!friends?.length}
-      noDataMessage={t("connections_no_friends")}
+      noDataMessage={t("connections:no_friends")}
     >
       {friends &&
         friends.map((friend) =>

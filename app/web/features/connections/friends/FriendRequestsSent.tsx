@@ -55,13 +55,13 @@ function FriendRequestsSent() {
 
   return (
     <FriendTile
-      title={t("connections_friend_requests_sent")}
+      title={t("connections:friend_requests_sent")}
       errorMessage={
         isError ? errors.join("\n") : mutationError ? mutationError : null
       }
       isLoading={isLoading}
       hasData={!!data?.length}
-      noDataMessage={t("connections_no_friend_requests_sent")}
+      noDataMessage={t("connections:no_friend_requests_sent")}
     >
       {data &&
         data.map(({ friendRequestId, friend, userId, state }) => (

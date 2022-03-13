@@ -18,7 +18,7 @@ function FriendsNotification() {
 
   return (
     <NotificationBadge count={data?.pendingFriendRequestCount}>
-      {t("connections:connections_friends")}
+      {t("connections:friends")}
     </NotificationBadge>
   );
 }
@@ -36,8 +36,8 @@ function ConnectionsPage({ type }: { type: "friends" }) {
 
   return (
     <>
-      <HtmlMeta title={t("connections:connections_my_connections")} />
-      <PageTitle>{t("connections:connections_my_connections")}</PageTitle>
+      <HtmlMeta title={t("connections:my_connections")} />
+      <PageTitle>{t("connections:my_connections")}</PageTitle>
       <TabContext value={connectionType}>
         <TabBar
           ariaLabel="Tabs for different connection types"

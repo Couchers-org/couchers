@@ -44,12 +44,14 @@ export default function AddFriendButton({
       }
       return cachedUser;
     },
+
     onError: (error, { setMutationError }, cachedUser) => {
       setMutationError(error.message);
       if (cachedUser) {
         queryClient.setQueryData(userKey(userId), cachedUser);
       }
     },
+
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries(userKey(userId));
     },
@@ -63,7 +65,7 @@ export default function AddFriendButton({
       }}
       loading={isLoading}
     >
-      {t("connections:connections_add_friend")}
+      {t("connections:add_friend")}
     </Button>
   );
 }

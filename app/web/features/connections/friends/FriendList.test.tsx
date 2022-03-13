@@ -52,7 +52,7 @@ describe("FriendList", () => {
     listFriendsMock.mockResolvedValue([]);
     render(<FriendList />, { wrapper });
 
-    expect(await screen.findByText(t("connections_no_friends"))).toBeVisible();
+    expect(await screen.findByText(t("connections:no_friends"))).toBeVisible();
     expect(screen.queryByTestId(FRIEND_ITEM_TEST_ID)).not.toBeInTheDocument();
   });
 
