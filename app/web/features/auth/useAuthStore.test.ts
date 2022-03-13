@@ -8,7 +8,6 @@ import wrapper from "../../test/hookWrapper";
 import { addDefaultUser } from "../../test/utils";
 import useAuthStore, {
   usePersistedState,
-  useSessionStorage,
 } from "./useAuthStore";
 
 const getUserMock = service.user.getUser as jest.Mock;
@@ -37,30 +36,26 @@ describe("usePersistedState hook", () => {
     );
     expect(result2.current[0]).toStrictEqual(value);
   });
-});
 
-describe("useSessionStorage hook", () => {
-  it("uses a default value", () => {
-    const defaultValue = "Test string";
-    const { result } = renderHook(() => useSessionStorage("key", defaultValue));
-    expect(result.current[0]).toBe(defaultValue);
-  });
-
-  it("saves then loads a value", () => {
-    const value = { test: "Test string" };
-    const { result } = renderHook(() => useSessionStorage("key", { test: "" }));
+  it("saves then loads a value from sessionStorage", () => {
+    const value = { test: "session test" };
+    const { result } = renderHook(() =>
+      usePersistedState("key", { test: "" }, sessionStorage)
+    );
     expect(result.current[0]).toStrictEqual({ test: "" });
     act(() => result.current[1](value));
     expect(result.current[0]).toStrictEqual(value);
     expect(sessionStorage.getItem("key")).toBe(JSON.stringify(value));
     const { result: result2 } = renderHook(() =>
-      useSessionStorage("key", { test: "" })
+      usePersistedState("key", { test: "" }, sessionStorage)
     );
     expect(result2.current[0]).toStrictEqual(value);
   });
 
   it("clears a value", () => {
-    const { result } = renderHook(() => useSessionStorage("key", { test: "" }));
+    const { result } = renderHook(() =>
+      usePersistedState("key", { test: "" }, sessionStorage)
+    );
     expect(result.current[0]).toStrictEqual({ test: "" });
     act(() => result.current[2]());
     expect(result.current[0]).toStrictEqual(undefined);

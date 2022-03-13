@@ -6,7 +6,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
 
-import { useSessionStorage } from "../../../features/auth/useAuthStore";
+import { usePersistedState } from "../../../features/auth/useAuthStore";
 import useSendFieldStyles from "../useSendFieldStyles";
 
 interface MessageFormData {
@@ -30,7 +30,11 @@ export default function GroupChatSendField({
 
   const { register, handleSubmit, reset } = useForm<MessageFormData>();
   const [persistedMessage, setPersistedMessage, clearPersistedMessage] =
-    useSessionStorage(`messages.${currentUserId}.${chatId}`, "");
+    usePersistedState(
+      `messages.${currentUserId}.${chatId}`,
+      "",
+      sessionStorage
+    );
 
   const onSubmit = handleSubmit(async (data: MessageFormData) => {
     handleSend(data.text.trimRight());
@@ -51,7 +55,7 @@ export default function GroupChatSendField({
         id="group-chat-message-field"
         label="Message"
         name="text"
-        defaultValue={persistedMessage ?? ''}
+        defaultValue={persistedMessage ?? ""}
         inputRef={register}
         multiline
         fullWidth
