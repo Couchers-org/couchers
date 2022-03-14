@@ -64,7 +64,7 @@ packaging==21.3
     #   pytest
 pathspec==0.9.0
     # via black
-phonenumbers==8.12.44
+phonenumbers==8.12.45
     # via -r requirements.in
 platformdirs==2.4.1
     # via black
@@ -114,12 +114,12 @@ six==1.16.0
     # via
     #   grpcio
     #   python-dateutil
-sqlalchemy==1.4.31
+sqlalchemy==1.4.32
     # via
     #   -r requirements.in
     #   alembic
     #   geoalchemy2
-stripe==2.66.0
+stripe==2.67.0
     # via -r requirements.in
 tomli==2.0.0
     # via
