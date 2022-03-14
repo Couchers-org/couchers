@@ -29,7 +29,7 @@ interface MultiLevelReply extends Reply.AsObject {
 }
 
 export default function CommentBox({ threadId }: CommentBoxProps) {
-  const { t } = useTranslation("global");
+  const { t } = useTranslation();
   const classes = useStyles();
 
   const [loading, setLoading] = useState(false);
@@ -58,7 +58,7 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
         );
       } catch (e) {
         console.error(e);
-        setError(isGrpcError(e) ? e.message : t("fatal_error_message"));
+        setError(isGrpcError(e) ? e.message : t("error.fatal_message"));
       }
       setLoading(false);
     })();
@@ -85,7 +85,7 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
       );
     } catch (e) {
       console.error(e);
-      setError(isGrpcError(e) ? e.message : t("fatal_error_message"));
+      setError(isGrpcError(e) ? e.message : t("error.fatal_message"));
     }
     setLoading(false);
   };

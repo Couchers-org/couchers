@@ -75,7 +75,7 @@ export default function GroupPage({
         }
       } catch (e) {
         console.error(e);
-        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
+        setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
       }
       setLoading(false);
 
@@ -85,7 +85,7 @@ export default function GroupPage({
         setAdmins(res.adminUserIdsList.length ? res.adminUserIdsList : null);
       } catch (e) {
         console.error(e);
-        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
+        setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
       }
       setAdminsLoading(false);
 
@@ -95,7 +95,7 @@ export default function GroupPage({
         setMembers(res.memberUserIdsList.length ? res.memberUserIdsList : null);
       } catch (e) {
         console.error(e);
-        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
+        setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
       }
       setMembersLoading(false);
 
@@ -105,7 +105,7 @@ export default function GroupPage({
         setPlaces(res.placesList.length ? res.placesList : null);
       } catch (e) {
         console.error(e);
-        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
+        setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
       }
       setPlacesLoading(false);
 
@@ -115,7 +115,7 @@ export default function GroupPage({
         setGuides(res.guidesList.length ? res.guidesList : null);
       } catch (e) {
         console.error(e);
-        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
+        setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
       }
       setGuidesLoading(false);
 
@@ -125,7 +125,7 @@ export default function GroupPage({
         setDiscussions(res.discussionsList.length ? res.discussionsList : null);
       } catch (e) {
         console.error(e);
-        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
+        setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
       }
       setDiscussionsLoading(false);
     })();

@@ -22,6 +22,7 @@ import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import React, { useEffect, useState } from "react";
+import { TFunction } from "react-i18next";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   blogRoute,
@@ -44,18 +45,6 @@ import {
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import {
-  COUCHERS,
-  DASHBOARD,
-  DONATE,
-  EVENTS,
-  FORUM,
-  HELP,
-  LOG_OUT,
-  MAP_SEARCH,
-  MESSAGES,
-  PROFILE,
-} from "../../appConstants";
 import LoggedInMenu from "./LoggedInMenu";
 import NavButton from "./NavButton";
 import ReportButton from "./ReportButton";
@@ -71,13 +60,16 @@ interface MenuItemProps {
 type PingData = ReturnType<typeof useNotifications>["data"];
 
 // shown on mobile/small screens
-const loggedInDrawerMenu = (pingData: PingData): Array<MenuItemProps> => [
+const loggedInDrawerMenu = (
+  t: TFunction<"global", undefined>,
+  pingData: PingData
+): Array<MenuItemProps> => [
   {
-    name: DASHBOARD,
+    name: t("nav.dashboard"),
     route: dashboardRoute,
   },
   {
-    name: MESSAGES,
+    name: t("nav.messages"),
     route: messagesRoute,
     notificationCount:
       (pingData?.unseenMessageCount ?? 0) +
@@ -85,11 +77,11 @@ const loggedInDrawerMenu = (pingData: PingData): Array<MenuItemProps> => [
       (pingData?.unseenSentHostRequestCount ?? 0),
   },
   {
-    name: MAP_SEARCH,
+    name: t("nav.map_search"),
     route: searchRoute,
   },
   {
-    name: PROFILE,
+    name: t("nav.profile"),
     route: routeToProfile(),
   },
   {
@@ -101,32 +93,35 @@ const loggedInDrawerMenu = (pingData: PingData): Array<MenuItemProps> => [
     route: featurePreviewRoute,
   },
   {
-    name: EVENTS,
+    name: t("nav.events"),
     route: eventsRoute,
   },
   {
-    name: FORUM,
+    name: t("nav.forum"),
     route: forumURL,
     externalLink: true,
   },
   {
-    name: HELP,
+    name: t("nav.help"),
     route: handbookRoute,
   },
   {
-    name: LOG_OUT,
+    name: t("nav.log_out"),
     route: logoutRoute,
   },
 ];
 
 // shown on desktop and big screens on top of the screen
-const loggedInNavMenu = (pingData: PingData): Array<MenuItemProps> => [
+const loggedInNavMenu = (
+  t: TFunction<"global", undefined>,
+  pingData: PingData
+): Array<MenuItemProps> => [
   {
-    name: DASHBOARD,
+    name: t("nav.dashboard"),
     route: dashboardRoute,
   },
   {
-    name: MESSAGES,
+    name: t("nav.messages"),
     route: messagesRoute,
     notificationCount:
       (pingData?.unseenMessageCount ?? 0) +
@@ -134,93 +129,100 @@ const loggedInNavMenu = (pingData: PingData): Array<MenuItemProps> => [
       (pingData?.unseenSentHostRequestCount ?? 0),
   },
   {
-    name: MAP_SEARCH,
+    name: t("nav.map_search"),
     route: searchRoute,
   },
   {
-    name: EVENTS,
+    name: t("nav.events"),
     route: eventsRoute,
   },
   {
-    name: FORUM,
+    name: t("nav.forum"),
     route: forumURL,
     externalLink: true,
   },
 ];
 
-const loggedOutNavMenu = (): Array<MenuItemProps> => [
+const loggedOutNavMenu = (
+  t: TFunction<"global", undefined>
+): Array<MenuItemProps> => [
   {
-    name: "About",
+    name: t("nav.about"),
     route: "/",
   },
   {
-    name: "Blog",
+    name: t("nav.blog"),
     route: blogRoute,
   },
   {
-    name: "Our Plan",
+    name: t("nav.our_plan"),
     route: planRoute,
   },
   {
-    name: "FAQ",
+    name: t("nav.faq"),
     route: faqRoute,
   },
   {
-    name: "The Team",
+    name: t("nav.the_team"),
     route: teamRoute,
   },
   {
-    name: FORUM,
+    name: t("nav.forum"),
     route: forumURL,
     externalLink: true,
   },
 ];
 
-const loggedOutDrawerMenu = (): Array<MenuItemProps> => [
+const loggedOutDrawerMenu = (
+  t: TFunction<"global", undefined>
+): Array<MenuItemProps> => [
   {
-    name: "Sign in",
+    name: t("login"),
     route: loginRoute,
   },
   {
-    name: "Create an account",
+    name: t("sign_up"),
     route: signupRoute,
   },
   {
-    name: "About",
+    name: t("nav.about"),
     route: "/",
   },
   {
-    name: "Blog",
+    name: t("nav.blog"),
     route: blogRoute,
   },
   {
-    name: "Our Plan",
+    name: t("nav.our_plan"),
     route: planRoute,
   },
   {
-    name: "FAQ",
+    name: t("nav.faq"),
     route: faqRoute,
   },
   {
-    name: "The Team",
+    name: t("nav.the_team"),
     route: teamRoute,
   },
   {
-    name: FORUM,
+    name: t("nav.forum"),
     route: forumURL,
     externalLink: true,
   },
 ];
 
 // shown on desktop and big screens in the top right corner when logged in
-const loggedInMenuDropDown = (pingData: PingData): Array<MenuItemProps> => [
+const loggedInMenuDropDown = (
+  t: TFunction<"global", undefined>,
+  pingData: PingData
+): Array<MenuItemProps> => [
   {
-    name: PROFILE,
+    name: t("nav.profile"),
     route: routeToProfile(),
     hasBottomDivider: true,
   },
   {
-    name: MESSAGES,
+    name: t("nav.messages"),
     route: messagesRoute,
     notificationCount:
       (pingData?.unseenMessageCount ?? 0) +
@@ -228,29 +230,29 @@ const loggedInMenuDropDown = (pingData: PingData): Array<MenuItemProps> => [
       (pingData?.unseenSentHostRequestCount ?? 0),
   },
   {
-    name: "Account settings",
+    name: t("nav.account_settings"),
     route: settingsRoute,
   },
   {
-    name: "Feature preview",
+    name: t("nav.feature_preview"),
     route: featurePreviewRoute,
     hasBottomDivider: true,
   },
   {
-    name: HELP,
+    name: t("nav.help"),
     route: handbookRoute,
   },
   {
-    name: FORUM,
+    name: t("nav.forum"),
     route: forumURL,
     externalLink: true,
   },
   {
-    name: DONATE,
+    name: t("nav.donate"),
     route: donationsRoute,
   },
   {
-    name: LOG_OUT,
+    name: t("nav.log_out"),
     route: logoutRoute,
   },
 ];
@@ -373,14 +375,14 @@ export default function Navigation() {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
-  const { t } = useTranslation([GLOBAL]);
+  const { t } = useTranslation(GLOBAL);
 
   const drawerItems = (
     <div>
       <List>
         {(authState.authenticated && isMounted
           ? loggedInDrawerMenu
-          : loggedOutDrawerMenu)(pingData).map(
+          : loggedOutDrawerMenu)(t, pingData).map(
           ({ name, route, notificationCount, externalLink }) => (
             <ListItem button key={name}>
               {externalLink ? (
@@ -404,7 +406,7 @@ export default function Navigation() {
     </div>
   );
 
-  const menuItems = loggedInMenuDropDown(pingData).map(
+  const menuItems = loggedInMenuDropDown(t, pingData).map(
     ({ name, notificationCount, route, externalLink, hasBottomDivider }) => {
       const hasNotification =
         notificationCount !== undefined && notificationCount > 0;
@@ -510,7 +512,7 @@ export default function Navigation() {
                 <div
                   className={classNames(authClasses.logo, classes.drawerTitle)}
                 >
-                  {COUCHERS}
+                  {t("couchers")}
                 </div>
                 <IconButton
                   className={classes.icon}
@@ -528,7 +530,7 @@ export default function Navigation() {
             <div className={classes.flex}>
               {(authState.authenticated && isMounted
                 ? loggedInNavMenu
-                : loggedOutNavMenu)(pingData).map(
+                : loggedOutNavMenu)(t, pingData).map(
                 ({ name, route, notificationCount, externalLink }) =>
                   externalLink ? (
                     <ExternalNavButton
@@ -562,12 +564,12 @@ export default function Navigation() {
                 <Hidden smDown implementation="css">
                   <Link href={signupRoute} passHref>
                     <Button variant="contained" color="secondary">
-                      {t("global:sign_up")}
+                      {t("sign_up")}
                     </Button>
                   </Link>
                 </Hidden>
                 <Link href={loginRoute} passHref>
-                  <Button variant="outlined">{t("global:login")}</Button>
+                  <Button variant="outlined">{t("login")}</Button>
                 </Link>
               </>
             )}

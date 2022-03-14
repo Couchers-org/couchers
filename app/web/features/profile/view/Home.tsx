@@ -2,7 +2,7 @@ import { Typography } from "@material-ui/core";
 import Divider from "components/Divider";
 import LabelAndText from "components/LabelAndText";
 import Markdown from "components/Markdown";
-import {
+import booleanConversion, {
   ABOUT_HOME,
   ACCEPT_CAMPING,
   ACCEPT_DRINKING,
@@ -23,15 +23,13 @@ import {
   MY_HOME,
   PARKING,
   PARKING_DETAILS,
-  SLEEPING_ARRANGEMENT,
-  SPACE,
-  WHEELCHAIR,
-} from "features/constants";
-import booleanConversion, {
   parkingDetailsLabels,
+  SLEEPING_ARRANGEMENT,
   sleepingArrangementLabels,
   smokingLocationLabels,
+  SPACE,
   UNSURE,
+  WHEELCHAIR,
 } from "features/profile/constants";
 import { User } from "proto/api_pb";
 import makeStyles from "utils/makeStyles";

@@ -73,7 +73,7 @@ export default function EventsSection({
                   "events"
                 )}
               >
-                {t("global:show_all_events")}
+                {t("global:nav.show_all_events")}
               </StyledLink>
             </div>
           )}

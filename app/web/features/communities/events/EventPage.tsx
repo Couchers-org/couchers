@@ -12,7 +12,6 @@ import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
-import { TO } from "features/constants";
 import NotFoundPage from "features/NotFoundPage";
 import { eventAttendeesBaseKey, eventKey } from "features/queryKeys";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
@@ -130,7 +129,7 @@ function getEventTimeString(
   const start = dayjs(timestamp2Date(startTime));
   const end = dayjs(timestamp2Date(endTime));
 
-  return `${start.format("LLLL")} ${TO} ${end.format(
+  return `${start.format("LLLL")} to ${end.format(
     end.isSame(start, "day") ? "LT" : "LLLL"
   )}`;
 }
