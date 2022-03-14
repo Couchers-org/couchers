@@ -30,7 +30,7 @@ click==8.0.3
     # via black
 coverage[toml]==6.3.1
     # via pytest-cov
-geoalchemy2==0.10.2
+geoalchemy2==0.11.1
     # via -r requirements.in
 greenlet==1.1.2
     # via sqlalchemy
