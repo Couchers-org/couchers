@@ -289,9 +289,6 @@ export default function AccountForm() {
                   [HostingStatus.HOSTING_STATUS_CANT_HOST]: t(
                     "auth:account_form.hosting_status.cant_host"
                   ),
-                  [HostingStatus.HOSTING_STATUS_UNSPECIFIED]:
-                    t("global:ask_me"),
-                  [HostingStatus.HOSTING_STATUS_UNKNOWN]: t("global:ask_me"),
                 }}
               />
             )}

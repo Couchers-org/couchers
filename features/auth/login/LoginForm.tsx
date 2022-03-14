@@ -78,7 +78,7 @@ export default function LoginForm() {
           },
         });
         authActions.authError(
-          isGrpcError(e) ? e.message : t("global:fatal_error_message")
+          isGrpcError(e) ? e.message : t("global:error.fatal_message")
         );
       }
       setLoading(false);

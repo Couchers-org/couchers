@@ -16,7 +16,6 @@ import Divider from "components/Divider";
 import IconButton from "components/IconButton";
 import { CrossIcon } from "components/Icons";
 import TextField from "components/TextField";
-import { HOSTING_STATUS, LAST_ACTIVE } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { searchQueryKey } from "features/queryKeys";
 import LocationAutocomplete from "features/search/LocationAutocomplete";
@@ -35,6 +34,8 @@ import {
   CLEAR_SEARCH,
   FILTER_DIALOG_TITLE,
   HOST_FILTERS,
+  HOSTING_STATUS,
+  LAST_ACTIVE,
   lastActiveOptions,
   LOCATION,
   MUST_HAVE_LOCATION,

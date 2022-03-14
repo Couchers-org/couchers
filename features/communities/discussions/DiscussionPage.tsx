@@ -12,7 +12,7 @@ import { discussionKey } from "features/queryKeys";
 import { useUser } from "features/userQueries/useUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Discussion } from "proto/discussions_pb";
 import { useQuery } from "react-query";
@@ -67,7 +67,7 @@ export default function DiscussionPage({
   const {
     t,
     i18n: { language: locale },
-  } = useTranslation([COMMUNITIES]);
+  } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
   const router = useRouter();
 

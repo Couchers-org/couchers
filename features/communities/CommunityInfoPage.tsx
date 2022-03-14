@@ -1,9 +1,8 @@
 import { InfoIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import StyledLink from "components/StyledLink";
-import { EDIT } from "features/constants";
 import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { routeToEditCommunityPage } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -25,7 +24,7 @@ interface CommunityInfoPageProps {
 export default function CommunityInfoPage({
   community,
 }: CommunityInfoPageProps) {
-  const { t } = useTranslation([COMMUNITIES]);
+  const { t } = useTranslation([COMMUNITIES, GLOBAL]);
   const classes = useStyles();
 
   return (
@@ -42,7 +41,7 @@ export default function CommunityInfoPage({
                 community.slug
               )}
             >
-              {EDIT}
+              {t("global:edit")}
             </StyledLink>
           )}
         </div>

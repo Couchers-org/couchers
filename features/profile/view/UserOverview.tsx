@@ -7,7 +7,7 @@ import {
   COMMUNITY_STANDING_DESCRIPTION,
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
-} from "features/constants";
+} from "features/profile/constants";
 import { PropsWithChildren } from "react";
 import makeStyles from "utils/makeStyles";
 

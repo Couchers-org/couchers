@@ -17,21 +17,10 @@ import {
 import { FlagIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import TextField from "components/TextField";
-import {
-  CANCEL,
-  CONTENT_REPORT,
-  CONTENT_REPORT_DESCRIPTION_HELPER,
-  CONTENT_REPORT_DESCRIPTION_LABEL,
-  CONTENT_REPORT_EXPLAINER,
-  CONTENT_REPORT_REASON_HELPER,
-  CONTENT_REPORT_REASON_LABEL,
-  CONTENT_REPORT_REASONS,
-  CONTENT_REPORT_SUCCESS,
-  REASON_REQUIRED,
-  SUBMIT,
-} from "features/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
@@ -70,6 +59,7 @@ export default function FlagButton({
   authorUser,
   className,
 }: FlagButtonProps) {
+  const { t } = useTranslation(GLOBAL);
   const classes = useStyles();
   const [isOpen, setIsOpen] = useState(false);
   const {
@@ -112,10 +102,12 @@ export default function FlagButton({
   return (
     <>
       {report && (
-        <Snackbar severity="success">{CONTENT_REPORT_SUCCESS}</Snackbar>
+        <Snackbar severity="success">
+          {t("report.content.success_message")}
+        </Snackbar>
       )}
       <IconButton
-        aria-label={CONTENT_REPORT}
+        aria-label={t("report.flag.button_aria_label")}
         className={className}
         onClick={() => setIsOpen(true)}
         color="primary"
@@ -127,11 +119,13 @@ export default function FlagButton({
         open={isOpen}
         onClose={handleClose}
       >
-        <DialogTitle id="content-reporter">{CONTENT_REPORT}</DialogTitle>
+        <DialogTitle id="content-reporter">
+          {t("report.flag.title")}
+        </DialogTitle>
         <form onSubmit={onSubmit}>
           <DialogContent>
             {error && <Alert severity="error">{error.message}</Alert>}
-            <DialogContentText>{CONTENT_REPORT_EXPLAINER}</DialogContentText>
+            <DialogContentText>{t("report.flag.explainer")}</DialogContentText>
             <FormControl
               variant="outlined"
               fullWidth
@@ -139,23 +133,36 @@ export default function FlagButton({
               margin="normal"
             >
               <InputLabel htmlFor="content-report-reason">
-                {CONTENT_REPORT_REASON_LABEL}
+                {t("report.flag.reason_label")}
               </InputLabel>
               <Controller
                 control={control}
                 defaultValue={""}
-                rules={{ validate: (v) => !!v || REASON_REQUIRED }}
+                rules={{
+                  validate: (v) => !!v || t("report.flag.reason_required"),
+                }}
                 name="reason"
                 render={({ onChange, value }) => (
                   <Select
                     className={classes.field}
                     native
                     value={value}
-                    label={CONTENT_REPORT_REASON_LABEL}
+                    label={t("report.flag.reason_label")}
                     id="content-report-reason"
                     onChange={(event) => onChange(event.target.value)}
                   >
-                    {CONTENT_REPORT_REASONS.map((option) => (
+                    {[
+                      "",
+                      t("report.flag.reason.spam"),
+                      t("report.flag.reason.dating"),
+                      t("report.flag.reason.external"),
+                      t("report.flag.reason.commercial"),
+                      t("report.flag.reason.harassment"),
+                      t("report.flag.reason.fake"),
+                      t("report.flag.reason.freeloading"),
+                      t("report.flag.reason.guidelines_breach"),
+                      t("report.flag.reason.other"),
+                    ].map((option) => (
                       <option value={option} key={option}>
                         {option}
                       </option>
@@ -164,14 +171,14 @@ export default function FlagButton({
                 )}
               />
               <FormHelperText error={!!errors?.reason}>
-                {errors?.reason?.message || CONTENT_REPORT_REASON_HELPER}
+                {errors?.reason?.message || t("report.flag.reason_helper")}
               </FormHelperText>
             </FormControl>
             <TextField
               className={classes.field}
               id="content-report-description"
-              label={CONTENT_REPORT_DESCRIPTION_LABEL}
-              helperText={CONTENT_REPORT_DESCRIPTION_HELPER}
+              label={t("report.flag.description_label")}
+              helperText={t("report.flag.description_helper")}
               name="description"
               inputRef={register}
               fullWidth
@@ -182,13 +189,13 @@ export default function FlagButton({
           </DialogContent>
           <DialogActions>
             <Button type="submit" loading={isLoading} onClick={onSubmit}>
-              {SUBMIT}
+              {t("submit")}
             </Button>
             <Button
               onClick={() => handleClose({}, "button")}
               variant="outlined"
             >
-              {CANCEL}
+              {t("cancel")}
             </Button>
           </DialogActions>
         </form>
