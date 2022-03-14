@@ -12,9 +12,9 @@ autoflake==1.4
     # via -r requirements.in
 black==22.1.0
     # via -r requirements.in
-boto3==1.21.8
+boto3==1.21.18
     # via -r requirements.in
-botocore==1.24.8
+botocore==1.24.18
     # via
     #   boto3
     #   s3transfer
@@ -106,7 +106,7 @@ requests==2.27.1
     #   stripe
 s3transfer==0.5.1
     # via boto3
-sentry-sdk==1.5.6
+sentry-sdk==1.5.7
     # via -r requirements.in
 shapely==1.8.1.post1
     # via -r requirements.in
@@ -114,12 +114,12 @@ six==1.16.0
     # via
     #   grpcio
     #   python-dateutil
-sqlalchemy==1.4.31
+sqlalchemy==1.4.32
     # via
     #   -r requirements.in
     #   alembic
     #   geoalchemy2
-stripe==2.66.0
+stripe==2.67.0
     # via -r requirements.in
 tomli==2.0.0
     # via
