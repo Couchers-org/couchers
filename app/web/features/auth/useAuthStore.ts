@@ -8,13 +8,15 @@ import { useQueryClient } from "react-query";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
 
+type StorageType = 'localStorage' | 'sessionStorage';
+
 export function usePersistedState<T>(
   key: string,
   defaultValue: T,
-  storage = window?.localStorage
+  storage: StorageType = 'localStorage'
 ): [T | undefined, (value: T) => void, () => void] {
   //in ssr, window doesn't exist, just use default
-  const saved = typeof window !== "undefined" ? storage.getItem(key) : null;
+  const saved = typeof window !== "undefined" ? window[storage].getItem(key) : null;
   const [_state, _setState] = useState<T | undefined>(
     saved !== null ? JSON.parse(saved) : defaultValue
   );
@@ -24,13 +26,13 @@ export function usePersistedState<T>(
         console.warn(`${key} can't be stored as undefined, casting to null.`);
       }
       const v = value === undefined ? null : value;
-      storage.setItem(key, JSON.stringify(v));
+      window[storage].setItem(key, JSON.stringify(v));
       _setState(value);
     },
     [key, storage]
   );
   const clearState = useCallback(() => {
-    storage.removeItem(key);
+    window[storage].removeItem(key);
     _setState(undefined);
   }, [key, storage]);
   return [_state, setState, clearState];
