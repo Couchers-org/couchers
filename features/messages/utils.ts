@@ -1,4 +1,3 @@
-import { hostRequestStatusLabels } from "features/messages/constants";
 import useUsers from "features/userQueries/useUsers";
 import { GroupChat, Message } from "proto/conversations_pb";
 import { TFunction } from "react-i18next";
@@ -52,43 +51,26 @@ export function controlMessage({
       target_user,
     });
   } else if (message.hostRequestStatusChanged) {
-    // TODO: actually compute from real value
+    // TODO: actually compute from real value - old code below for reference for doing the work later...
+    //
+    // const hostRequestStatusLabels = {
+    //   [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]: "Accepted",
+    //   [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "Cancelled",
+    //   [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]: "Confirmed",
+    //   [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: "Pending",
+    //   [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "Rejected",
+    // };
+    //
+    // return `${authorCap} changed the request to ${
+    //   hostRequestStatusLabels[message.hostRequestStatusChanged.status]
+    // }`;
+
     return t("control_message.host_request_status_changed_text", {
       user,
       status: "accepted",
     });
   } else {
     throw Error(t("control_message.unknown_message_text"));
-  }
-}
-
-/**
- * @deprecated Use controlMessage instead
- */
-export function controlMessageText(
-  message: Message.AsObject,
-  authorName: string,
-  targetName?: string
-) {
-  const authorCap = authorName.charAt(0).toUpperCase() + authorName.slice(1);
-  if (message.chatCreated) {
-    return `${authorCap} created the chat`;
-  } else if (message.chatEdited) {
-    return `${authorCap} edited the chat`;
-  } else if (message.userInvited) {
-    return `${authorCap} invited ${targetName}`;
-  } else if (message.userLeft) {
-    return `${authorCap} left the chat`;
-  } else if (message.userMadeAdmin) {
-    return `${authorCap} made ${targetName} an admin`;
-  } else if (message.userRemovedAdmin) {
-    return `${authorCap} removed ${targetName} as admin`;
-  } else if (message.hostRequestStatusChanged) {
-    return `${authorCap} changed the request to ${
-      hostRequestStatusLabels[message.hostRequestStatusChanged.status]
-    }`;
-  } else {
-    throw Error("Unknown control message.");
   }
 }
 
