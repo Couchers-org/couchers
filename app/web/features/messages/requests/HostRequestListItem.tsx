@@ -13,11 +13,13 @@ import TextBody from "components/TextBody";
 import useAuthStore from "features/auth/useAuthStore";
 import HostRequestStatusIcon from "features/messages/requests/HostRequestStatusIcon";
 import {
-  controlMessageText,
+  controlMessage,
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
 import { useUser } from "features/userQueries/useUsers";
+import { useTranslation } from "i18n";
+import { MESSAGES } from "i18n/namespaces";
 import { HostRequest } from "proto/requests_pb";
 import { formatDate } from "utils/date";
 import { firstName } from "utils/names";
@@ -44,6 +46,7 @@ export default function HostRequestListItem({
   hostRequest,
   className,
 }: HostRequestListItemProps) {
+  const { t } = useTranslation(MESSAGES);
   const classes = useStyles();
   const currentUserId = useAuthStore().authState.userId;
   const isHost = currentUserId === hostRequest.hostUserId;
@@ -68,7 +71,12 @@ export default function HostRequestListItem({
   //text is the control message text or message text, truncated
   const latestMessageText = hostRequest.latestMessage
     ? isControlMessage(hostRequest.latestMessage)
-      ? controlMessageText(hostRequest.latestMessage, authorName, targetName)
+      ? controlMessage({
+          message: hostRequest.latestMessage,
+          user: authorName,
+          target_user: targetName,
+          t,
+        })
       : //if it's a normal message, show "<User's Name>: <The message>"
         `${capitalize(authorName)}: ${
           hostRequest.latestMessage.text?.text || ""

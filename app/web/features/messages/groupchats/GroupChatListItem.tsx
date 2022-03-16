@@ -10,12 +10,14 @@ import Avatar from "components/Avatar";
 import { MuteIcon } from "components/Icons";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
-  controlMessageText,
+  controlMessage,
   groupChatTitleText,
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
 import useUsers from "features/userQueries/useUsers";
+import { useTranslation } from "i18n";
+import { MESSAGES } from "i18n/namespaces";
 import { GroupChat } from "proto/conversations_pb";
 import React from "react";
 import { firstName } from "utils/names";
@@ -34,6 +36,7 @@ export default function GroupChatListItem({
   groupChat,
   className,
 }: GroupChatListItemProps) {
+  const { t } = useTranslation(MESSAGES);
   const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId!;
   const latestMessageAuthorId = groupChat.latestMessage?.authorUserId;
@@ -72,7 +75,12 @@ export default function GroupChatListItem({
       groupChatMembersQuery.data?.get(messageTargetId(groupChat.latestMessage))
         ?.name
     );
-    text = controlMessageText(groupChat.latestMessage, authorName, targetName);
+    text = controlMessage({
+      user: authorName,
+      target_user: targetName,
+      t,
+      message: groupChat.latestMessage,
+    });
   } else {
     text = `${authorName}: ${groupChat.latestMessage?.text?.text || ""}`;
   }
