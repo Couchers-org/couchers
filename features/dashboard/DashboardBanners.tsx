@@ -49,7 +49,7 @@ export default function DashboardBanners() {
               <Typography variant="inherit" paragraph>
                 <Link href={routeToEditProfile()} passHref>
                   <Button component="a" color="default" role="link">
-                    {t("dashboard:click_here_to_edit")}
+                    {t("dashboard:edit_profile_button_text")}
                   </Button>
                 </Link>
               </Typography>
