@@ -52,7 +52,7 @@ export default function useAuthStore() {
   const queryClient = useQueryClient();
 
   const { t } = useTranslation(GLOBAL);
-  const fatalErrorMessage = useRef(t("fatal_error_message"));
+  const fatalErrorMessage = useRef(t("error.fatal_message"));
   const authActions = useMemo(
     () => ({
       authError(message: string) {

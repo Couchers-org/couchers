@@ -21,7 +21,6 @@ import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 
-import { COMMUNITY_BUILDER_FORM_LINK, UPDATES_MARKDOWN } from "./constants";
 import MyEvents from "./MyEvents";
 
 const useStyles = makeStyles((theme) => ({
@@ -62,7 +61,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <HtmlMeta title={DASHBOARD_TITLE} />
+      <HtmlMeta title={t("global:nav.dashboard")} />
       <PageTitle>{t("dashboard:welcome")}</PageTitle>
 
       <Typography variant="body1" paragraph>

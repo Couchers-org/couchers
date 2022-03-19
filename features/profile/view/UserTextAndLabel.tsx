@@ -5,16 +5,15 @@ import {
   HOMETOWN,
   JOINED,
   LANGUAGES_FLUENT,
+  LANGUAGES_FLUENT_FALSE,
   LAST_ACTIVE,
+  LAST_ACTIVE_FALSE,
   LOCAL_TIME,
   OCCUPATION,
   REFERENCES,
-} from "features/constants";
-import {
-  LANGUAGES_FLUENT_FALSE,
-  LAST_ACTIVE_FALSE,
 } from "features/profile/constants";
 import { useLanguages } from "features/profile/hooks/useLanguages";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { User } from "proto/api_pb";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
@@ -70,7 +69,7 @@ export const LabelsAgeGenderLanguages = ({ user }: Props) => {
 export const RemainingAboutLabels = ({ user }: Props) => {
   const {
     i18n: { language: locale },
-  } = useTranslation();
+  } = useTranslation([GLOBAL, COMMUNITIES]);
   return (
     <>
       <LabelAndText label={HOMETOWN} text={user.hometown} />
