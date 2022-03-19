@@ -6,7 +6,6 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import { DASHBOARD as DASHBOARD_TITLE } from "appConstants";
 import Button from "components/Button";
 import { JOIN_THE_TEAM } from "components/ContributorForm";
 import StandaloneContributorForm from "components/ContributorForm/StandaloneContributorForm";
@@ -21,6 +20,7 @@ import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 
+import { COMMUNITY_BUILDER_FORM_LINK, UPDATES_MARKDOWN } from "./constants";
 import MyEvents from "./MyEvents";
 
 const useStyles = makeStyles((theme) => ({
