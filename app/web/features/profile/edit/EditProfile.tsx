@@ -11,6 +11,7 @@ import CircularProgress from "components/CircularProgress";
 import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
 import {
+  ACCEPTING,
   ADDITIONAL,
   EDUCATION,
   HOBBIES,
@@ -18,8 +19,13 @@ import {
   HOSTING_STATUS,
   LANGUAGES_SPOKEN,
   MAN_PRONOUNS,
+  MAYBE_ACCEPTING,
+  MAYBE_MEETUP,
+  MEETUP,
   MEETUP_STATUS,
   NAME,
+  NO_MEETUP,
+  NOT_ACCEPTING,
   OCCUPATION,
   PRONOUNS,
   REGIONS_LIVED,
@@ -27,14 +33,6 @@ import {
   SAVE,
   WHO,
   WOMAN_PRONOUNS,
-} from "features/constants";
-import {
-  ACCEPTING,
-  MAYBE_ACCEPTING,
-  MAYBE_MEETUP,
-  MEETUP,
-  NO_MEETUP,
-  NOT_ACCEPTING,
 } from "features/profile/constants";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useRegions } from "features/profile/hooks/useRegions";

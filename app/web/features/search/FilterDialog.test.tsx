@@ -1,9 +1,9 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { HOSTING_STATUS } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import {
   APPLY_FILTER,
+  HOSTING_STATUS,
   LAST_ACTIVE,
   LAST_WEEK,
   LOCATION,

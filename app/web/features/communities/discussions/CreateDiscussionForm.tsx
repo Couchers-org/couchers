@@ -3,9 +3,8 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import MarkdownInput from "components/MarkdownInput";
 import TextField from "components/TextField";
-import { CANCEL } from "features/constants";
 import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
 
@@ -49,7 +48,7 @@ export default function CreateDiscussionForm({
   onCancel,
   onPostSuccess,
 }: CreateDiscussionFormProps) {
-  const { t } = useTranslation([COMMUNITIES]);
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
   const {
     control,
@@ -110,7 +109,7 @@ export default function CreateDiscussionForm({
           <Button loading={isLoading} type="submit">
             {t("communities:post")}
           </Button>
-          <Button onClick={handleCancel}>{CANCEL}</Button>
+          <Button onClick={handleCancel}>{t("global:cancel")}</Button>
         </div>
       </form>
     </Card>
