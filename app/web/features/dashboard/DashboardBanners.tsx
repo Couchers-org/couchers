@@ -54,7 +54,7 @@ export default function DashboardBanners() {
                 </Link>
               </Typography>
               <Typography variant="inherit">
-                {t("dashboard:dont_you_hate")}
+                {t("dashboard:complete_profile_explanation")}
               </Typography>
             </MuiAlert>
           )}
