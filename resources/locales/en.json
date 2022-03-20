@@ -119,5 +119,21 @@
   "reply": "Reply",
   "yes": "Yes",
   "no": "No",
-  "ok": "OK"
+  "ok": "OK",
+  "relative_time": {
+    "less_than_a_minute_ago": "< 1 minute ago",
+    "one_minute_ago": "1 minute ago",
+    "x_minutes_ago": "{{date}} minutes ago",
+    "less_than_one_hour_ago": "Less than an hour ago",
+    "one_hour_ago": "1 hour ago",
+    "x_hours_ago": "{{date}} hours ago",
+    "one_day_ago": "1 day ago",
+    "x_days_ago": "{{date}} days ago",
+    "one_week_ago": "1 week ago",
+    "x_weeks_ago": "{{date}} weeks ago",
+    "one_month_ago": "1 month ago",
+    "x_months_ago": "{{date}} months ago",
+    "one_year_ago": "1 year ago",
+    "x_years_ago": "{{date}} years ago"
+  }
 }
