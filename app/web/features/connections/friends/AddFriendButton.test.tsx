@@ -1,18 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { CONNECTIONS } from "i18n/namespaces";
-import { t } from "test/utils";
 import React, { useState } from "react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
+import { t } from "test/utils";
 
 import AddFriendButton from "./AddFriendButton";
 
 const sendFriendRequestMock = service.api.sendFriendRequest as jest.Mock<
   ReturnType<typeof service.api.sendFriendRequest>
 >;
-const { t } = useTranslation([CONNECTIONS]);
 
 function TestComponent() {
   const [mutationError, setMutationError] = useState("");

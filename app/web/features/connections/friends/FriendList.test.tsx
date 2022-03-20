@@ -1,10 +1,8 @@
 import { render, screen, within } from "@testing-library/react";
-import { CONNECTIONS } from "i18n/namespaces";
-import { useTranslation } from "next-i18next";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getUser, listFriends } from "test/serviceMockDefaults";
-import { MockedService } from "test/utils";
+import { MockedService,t  } from "test/utils";
 
 import FriendList from "./FriendList";
 import { FRIEND_ITEM_TEST_ID } from "./FriendSummaryView";
@@ -15,7 +13,6 @@ const listFriendsMock = service.api.listFriends as MockedService<
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
 >;
-const { t } = useTranslation([CONNECTIONS]);
 
 describe("FriendList", () => {
   beforeEach(() => {
