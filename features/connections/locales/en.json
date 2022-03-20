@@ -7,5 +7,6 @@
     "friend_requests_sent": "Friend requests you sent",
     "no_friends": "No friends available",
     "no_friend_requests": "No pending friend requests",
-    "no_friend_requests_sent": "No pending friend requests"
+    "no_friend_requests_sent": "No pending friend requests",
+    "pending": "Pending";
 }

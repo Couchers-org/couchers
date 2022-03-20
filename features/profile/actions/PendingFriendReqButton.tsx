@@ -1,13 +1,14 @@
 import Button from "components/Button";
 import { CheckIcon, CloseIcon, PersonAddIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
-import { PENDING } from "features/connections/constants";
 import type { SetMutationError } from "features/connections/friends";
 import useRespondToFriendRequest from "features/connections/friends/useRespondToFriendRequest";
 import {
   ACCEPT_FRIEND_ACTION,
   DECLINE_FRIEND_ACTION,
 } from "features/profile/constants";
+import { CONNECTIONS } from "i18n/namespaces";
+import { useTranslation } from "next-i18next";
 import { FriendRequest } from "proto/api_pb";
 import React, { useRef, useState } from "react";
 
@@ -56,6 +57,8 @@ function PendingFriendReqButton({
     setIsOpen((prevState) => ({ ...prevState, [item]: false }));
   };
 
+  const { t } = useTranslation([CONNECTIONS]);
+
   return (
     <>
       {isSuccess ? null : (
@@ -67,7 +70,7 @@ function PendingFriendReqButton({
             aria-controls={RESPOND_TO_FRIEND_REQUEST_MENU_ID}
             loading={isLoading}
           >
-            {PENDING}
+            { t("connections:pending") }
           </Button>
           <Menu
             anchorEl={menuAnchor.current}
