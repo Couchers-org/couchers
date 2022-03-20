@@ -17,6 +17,7 @@ import {
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
+import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useUser } from "features/userQueries/useUsers";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
@@ -50,6 +51,7 @@ export default function HostRequestListItem({
   const classes = useStyles();
   const currentUserId = useAuthStore().authState.userId;
   const isHost = currentUserId === hostRequest.hostUserId;
+  const { data: currentUser } = useCurrentUser();
   const { data: otherUser, isLoading: isOtherUserLoading } = useUser(
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId
   );
@@ -59,12 +61,12 @@ export default function HostRequestListItem({
   //control message target to use in short message preview
   const authorName =
     hostRequest?.latestMessage?.authorUserId === currentUserId
-      ? "you"
+      ? firstName(currentUser?.name) || ""
       : firstName(otherUser?.name) || "";
 
   const targetName = hostRequest?.latestMessage
-    ? messageTargetId(hostRequest?.latestMessage) === currentUserId
-      ? "you"
+    ? messageTargetId(hostRequest.latestMessage) === currentUserId
+      ? firstName(currentUser?.name) || ""
       : firstName(otherUser?.name) || ""
     : "";
 
