@@ -3324,10 +3324,10 @@
     resolve-from "^5.0.0"
     store2 "^2.12.0"
 
-"@stripe/stripe-js@^1.23.0":
-  version "1.23.0"
-  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.23.0.tgz#62eed14e83c63c3e8c27f14f6b1e6feb8496c867"
-  integrity sha512-+7w4rVs71Fk8/8uzyzQB5GotHSH9mjOjxM3EYDq/3MR3I2ewELHtvWVMOqfS/9WSKCaKv7h7eFLsMZGpK5jApQ==
+"@stripe/stripe-js@^1.25.0":
+  version "1.25.0"
+  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.25.0.tgz#74334e3f9971e8dfd352a67581c6e02dc5c2ebf8"
+  integrity sha512-cywIoKu3sJnBPQ1eKi3BzFHWslA2ePqHvQhcxp7iYYlo1tWcVgEKTSh7y7hb6GoR4TyT3DwlK4v1vOZpVg8u4Q==
 
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"
