@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getUser, listFriends } from "test/serviceMockDefaults";
-import { MockedService,t  } from "test/utils";
+import { MockedService, t } from "test/utils";
 
 import FriendList from "./FriendList";
 import { FRIEND_ITEM_TEST_ID } from "./FriendSummaryView";
