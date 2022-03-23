@@ -362,6 +362,36 @@ describe("GroupChatView", () => {
     expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(2);
   });
 
+  it("persists message draft state in sessionStorage", async () => {
+    renderGroupChatView();
+    await screen.findByRole("heading", { level: 1, name: "Test group chat" });
+    userEvent.type(screen.getByLabelText("Message"), "Not ready to se-");
+    expect(sessionStorage.getItem("messages.1.1")).toEqual(
+      JSON.stringify("Not ready to se-")
+    );
+  });
+
+  it("populates message draft state from sessionStorage", async () => {
+    sessionStorage.setItem("messages.1.1", JSON.stringify("Not ready to se-"));
+    renderGroupChatView();
+    await screen.findByRole("heading", { level: 1, name: "Test group chat" });
+    expect(await screen.getByDisplayValue("Not ready to se-")).toBeVisible();
+  });
+
+  it("clears message draft state from sessionStorage", async () => {
+    sessionStorage.setItem("messages.1.1", JSON.stringify("Not ready to se-"));
+    renderGroupChatView();
+    await screen.findByRole("heading", { level: 1, name: "Test group chat" });
+
+    const sendButton = screen.getByRole("button", { name: SEND });
+    userEvent.click(sendButton);
+    await waitForElementToBeRemoved(
+      within(sendButton).getByRole("progressbar")
+    );
+
+    expect(sessionStorage.getItem("messages.1.1")).toBeNull();
+  });
+
   it("for a muted chat, shows it's muted and can unmute", async () => {
     getGroupChatMock.mockResolvedValue({
       ...baseGroupChatMockResponse,
