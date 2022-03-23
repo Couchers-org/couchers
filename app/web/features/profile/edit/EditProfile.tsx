@@ -42,6 +42,9 @@ import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import { userKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
+import { useTranslation } from "i18n";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
+import { useRouter } from "next/router";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -60,6 +63,7 @@ type FormValues = Omit<UpdateUserProfileData, "languageAbilities"> & {
 };
 
 export default function EditProfileForm() {
+  const { t } = useTranslation([GLOBAL, PROFILE]);
   const classes = useStyles();
   const {
     updateUserProfile,
@@ -74,7 +78,7 @@ export default function EditProfileForm() {
     null
   );
   const queryClient = useQueryClient();
-  const { control, errors, register, handleSubmit, setValue } =
+  const { control, errors, register, handleSubmit, setValue, formState } =
     useForm<FormValues>({
       defaultValues: {
         city: user?.city,
@@ -84,6 +88,30 @@ export default function EditProfileForm() {
       },
       shouldFocusError: true,
     });
+
+  const isDirty = formState.isDirty;
+  const router = useRouter();
+  // https://github.com/vercel/next.js/issues/2694#issuecomment-732990201
+  useEffect(() => {
+    const handleWindowClose = (e: BeforeUnloadEvent) => {
+      if (!isDirty) return;
+      e.preventDefault();
+      e.returnValue = t("profile:unsaved_changes_warning");
+      return;
+    };
+    const handleBrowseAway = () => {
+      if (!isDirty || formState.isSubmitted) return;
+      if (window.confirm(t("profile:unsaved_changes_warning"))) return;
+      router.events.emit("routeChangeError");
+      throw Error("Cancelled due to unsaved changes");
+    };
+    window.addEventListener("beforeunload", handleWindowClose);
+    router.events.on("routeChangeStart", handleBrowseAway);
+    return () => {
+      window.removeEventListener("beforeunload", handleWindowClose);
+      router.events.off("routeChangeStart", handleBrowseAway);
+    };
+  }, [isDirty, router.events, t, formState]);
 
   //Although the default value was set above, if the page is just loaded,
   //user will be undefined on first render, so the default values will be undefined.
@@ -199,10 +227,10 @@ export default function EditProfileForm() {
                 }}
                 updateLocation={(location) => {
                   if (location) {
-                    setValue("city", location.address);
-                    setValue("lat", location.lat);
-                    setValue("lng", location.lng);
-                    setValue("radius", location.radius);
+                    setValue("city", location.address, { shouldDirty: true });
+                    setValue("lat", location.lat, { shouldDirty: true });
+                    setValue("lng", location.lng, { shouldDirty: true });
+                    setValue("radius", location.radius, { shouldDirty: true });
                   }
                 }}
               />
