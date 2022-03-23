@@ -43,5 +43,5 @@ it("shows the fatal error message for unknown errors", async () => {
   );
   userEvent.click(screen.getByRole("button", { name: t("global:continue") }));
 
-  await assertErrorAlert(t("global:fatal_error_message"));
+  await assertErrorAlert(t("global:error.fatal_message"));
 });
