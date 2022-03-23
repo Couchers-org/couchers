@@ -1,9 +1,10 @@
 import { Box, CircularProgress, IconButton } from "@material-ui/core";
 import { CheckIcon, CloseIcon } from "components/Icons";
+import { useTranslation } from "i18n";
+import { CONNECTIONS } from "i18n/namespaces";
 import { FriendRequest } from "proto/api_pb";
 import { useIsMounted, useSafeState } from "utils/hooks";
 
-import { FRIEND_REQUESTS, NO_FRIEND_REQUESTS } from "../constants";
 import type { SetMutationError } from ".";
 import FriendSummaryView from "./FriendSummaryView";
 import FriendTile from "./FriendTile";
@@ -19,6 +20,7 @@ function RespondToFriendRequestAction({
   friendRequest,
   setMutationError,
 }: RespondToFriendRequestActionProps) {
+  const { t } = useTranslation(CONNECTIONS);
   const { isLoading, isSuccess, reset, respondToFriendRequest } =
     useRespondToFriendRequest();
 
@@ -29,7 +31,7 @@ function RespondToFriendRequestAction({
       ) : (
         <>
           <IconButton
-            aria-label="Accept request"
+            aria-label={t("accept_button_a11y_label")}
             onClick={() => {
               reset();
               respondToFriendRequest({
@@ -42,7 +44,7 @@ function RespondToFriendRequestAction({
             <CheckIcon />
           </IconButton>
           <IconButton
-            aria-label="Decline request"
+            aria-label={t("decline_button_a11y_label")}
             onClick={() => {
               reset();
               respondToFriendRequest({
@@ -61,19 +63,20 @@ function RespondToFriendRequestAction({
 }
 
 function FriendRequestsReceived() {
+  const { t } = useTranslation(CONNECTIONS);
   const isMounted = useIsMounted();
   const [mutationError, setMutationError] = useSafeState(isMounted, "");
   const { data, isLoading, isError, errors } = useFriendRequests("received");
 
   return (
     <FriendTile
-      title={FRIEND_REQUESTS}
+      title={t("friend_requests_title")}
       errorMessage={
         isError ? errors.join("\n") : mutationError ? mutationError : null
       }
       isLoading={isLoading}
       hasData={!!data?.length}
-      noDataMessage={NO_FRIEND_REQUESTS}
+      noDataMessage={t("friend_requests_empty_state")}
     >
       {data &&
         data.map((friendRequest) => (

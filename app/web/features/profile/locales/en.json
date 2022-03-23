@@ -35,6 +35,7 @@
     "invalid_step": "Invalid form step",
     "next": "Next",
     "okay": "Okay",
+    "pending_request_label": "Pending",
     "previous_step": "Previous step",
     "private_answer": "Your answer will not be seen by the other person, and will remain private.",
     "private_reference": "You will also submit the following private answers:",

@@ -1,10 +1,11 @@
 import { Box, CircularProgress, IconButton } from "@material-ui/core";
 import { CloseIcon } from "components/Icons";
+import { useTranslation } from "i18n";
+import { CONNECTIONS } from "i18n/namespaces";
 import { FriendRequest } from "proto/api_pb";
 import React from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
 
-import { FRIEND_REQUESTS_SENT, NO_FRIEND_REQUESTS_SENT } from "../constants";
 import type { SetMutationError } from ".";
 import FriendSummaryView from "./FriendSummaryView";
 import FriendTile from "./FriendTile";
@@ -24,6 +25,7 @@ function CancelFriendRequestAction({
   setMutationError,
   userId,
 }: CancelFriendRequestActionProps) {
+  const { t } = useTranslation(CONNECTIONS);
   const { cancelFriendRequest, isLoading, isSuccess, reset } =
     useCancelFriendRequest();
 
@@ -33,7 +35,7 @@ function CancelFriendRequestAction({
         <CircularProgress />
       ) : (
         <IconButton
-          aria-label="Cancel request"
+          aria-label={t("cancel_request_button_a11y_label")}
           onClick={() => {
             reset();
             cancelFriendRequest({ friendRequestId, setMutationError, userId });
@@ -47,19 +49,20 @@ function CancelFriendRequestAction({
 }
 
 function FriendRequestsSent() {
+  const { t } = useTranslation(CONNECTIONS);
   const isMounted = useIsMounted();
   const [mutationError, setMutationError] = useSafeState(isMounted, "");
   const { data, isLoading, isError, errors } = useFriendRequests("sent");
 
   return (
     <FriendTile
-      title={FRIEND_REQUESTS_SENT}
+      title={t("friend_requests_sent_title")}
       errorMessage={
         isError ? errors.join("\n") : mutationError ? mutationError : null
       }
       isLoading={isLoading}
       hasData={!!data?.length}
-      noDataMessage={NO_FRIEND_REQUESTS_SENT}
+      noDataMessage={t("sent_friend_requests_empty_state")}
     >
       {data &&
         data.map(({ friendRequestId, friend, userId, state }) => (

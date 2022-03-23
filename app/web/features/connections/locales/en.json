@@ -1,12 +1,15 @@
 {
-    "add_friend": "Add friend",
-    "connections": "My connections",
-    "friends": "Friends",
+    "add_friend_button_label": "Add friend",
+    "accept_button_a11y_label": "Accept request",
+    "cancel_request_button_a11y_label": "Cancel request",
+    "decline_button_a11y_label": "Decline request",
+    "connections_title": "My connections",
+    "connections_tab_bar_a11y_label": "Tabs for different connection types",
+    "friends_title": "Friends",
     "friend_list_title": "Your friends",
-    "friend_requests": "Friend requests",
-    "friend_requests_sent": "Friend requests you sent",
-    "no_friends": "No friends available",
-    "no_friend_requests": "No pending friend requests",
-    "no_friend_requests_sent": "No pending friend requests",
-    "pending": "Pending"
+    "friend_requests_title": "Friend requests",
+    "friend_requests_sent_title": "Friend requests you sent",
+    "friends_empty_state": "No friends available",
+    "friend_requests_empty_state": "No pending friend requests",
+    "sent_friend_requests_empty_state": "No pending friend requests"
 }

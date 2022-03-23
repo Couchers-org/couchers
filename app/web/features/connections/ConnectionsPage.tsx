@@ -4,19 +4,21 @@ import NotificationBadge from "components/NotificationBadge";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
 import useNotifications from "features/useNotifications";
+import { useTranslation } from "i18n";
+import { CONNECTIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import React from "react";
 import { connectionsRoute } from "routes";
 
-import { CONNECTIONS, FRIENDS } from "./constants";
 import { FriendsTab } from "./friends";
 
 function FriendsNotification() {
+  const { t } = useTranslation(CONNECTIONS);
   const { data } = useNotifications();
 
   return (
     <NotificationBadge count={data?.pendingFriendRequestCount}>
-      {FRIENDS}
+      {t("friends_title")}
     </NotificationBadge>
   );
 }
@@ -28,16 +30,17 @@ const labels = {
 type ConnectionType = keyof typeof labels;
 
 function ConnectionsPage({ type }: { type: "friends" }) {
+  const { t } = useTranslation(CONNECTIONS);
   const router = useRouter();
   const connectionType = type in labels ? (type as ConnectionType) : "friends";
 
   return (
     <>
-      <HtmlMeta title={CONNECTIONS} />
-      <PageTitle>{CONNECTIONS}</PageTitle>
+      <HtmlMeta title={t("connections_title")} />
+      <PageTitle>{t("connections_title")}</PageTitle>
       <TabContext value={connectionType}>
         <TabBar
-          ariaLabel="Tabs for different connection types"
+          ariaLabel={t("connections_tab_bar_a11y_label")}
           setValue={(newType) =>
             router.push(
               `${connectionsRoute}/${newType !== "friends" ? newType : ""}`
