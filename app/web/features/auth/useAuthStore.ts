@@ -8,14 +8,16 @@ import { useQueryClient } from "react-query";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
 
+type StorageType = 'localStorage' | 'sessionStorage';
+
 export function usePersistedState<T>(
   key: string,
-  defaultValue: T
-): [T, (value: T) => void] {
+  defaultValue: T,
+  storage: StorageType = 'localStorage'
+): [T | undefined, (value: T) => void, () => void] {
   //in ssr, window doesn't exist, just use default
-  const saved =
-    typeof window !== "undefined" ? window.localStorage.getItem(key) : null;
-  const [_state, _setState] = useState<T>(
+  const saved = typeof window !== "undefined" ? window[storage].getItem(key) : null;
+  const [_state, _setState] = useState<T | undefined>(
     saved !== null ? JSON.parse(saved) : defaultValue
   );
   const setState = useCallback(
@@ -24,12 +26,16 @@ export function usePersistedState<T>(
         console.warn(`${key} can't be stored as undefined, casting to null.`);
       }
       const v = value === undefined ? null : value;
-      window.localStorage.setItem(key, JSON.stringify(v));
+      window[storage].setItem(key, JSON.stringify(v));
       _setState(value);
     },
-    [key]
+    [key, storage]
   );
-  return [_state, setState];
+  const clearState = useCallback(() => {
+    window[storage].removeItem(key);
+    _setState(undefined);
+  }, [key, storage]);
+  return [_state, setState, clearState];
 }
 
 export default function useAuthStore() {
@@ -78,6 +84,7 @@ export default function useAuthStore() {
           });
           setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
+        window.sessionStorage.clear();
         setLoading(false);
       },
       async passwordLogin({
