@@ -1,7 +1,10 @@
 import { Card } from "@material-ui/core";
 import { TabPanel } from "@material-ui/lab";
 import TabBar from "components/TabBar";
-import { SECTION_LABELS, SECTION_LABELS_A11Y_TEXT } from "features/constants";
+import {
+  SECTION_LABELS,
+  SECTION_LABELS_A11Y_TEXT,
+} from "features/profile/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";

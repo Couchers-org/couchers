@@ -15,6 +15,20 @@ import {
   simplifyPlaceDisplayName,
 } from "utils/nominatim";
 
+// Locations having one of these keys are considered non-regions.
+// https://nominatim.org/release-docs/latest/api/Output/#addressdetails
+const nonRegionKeys = [
+  "municipality",
+  "city",
+  "town",
+  "village",
+  "city_district",
+  "district",
+  "borough",
+  "suburb",
+  "subdivision",
+];
+
 function useIsMounted() {
   const isMounted = useRef(false);
 
@@ -93,7 +107,7 @@ const useGeocodeQuery = () => {
           location: new LngLat(Number(result["lon"]), Number(result["lat"])),
           name: result["display_name"],
           simplifiedName: simplifyPlaceDisplayName(result),
-          isRegion: !("city" in result.address),
+          isRegion: !nonRegionKeys.some((k) => k in result.address),
         }));
 
         setResults(formattedResults);

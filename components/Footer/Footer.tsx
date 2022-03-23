@@ -4,7 +4,6 @@ import Button from "components/Button";
 import { COPYRIGHT, NON_PROFIT } from "components/Footer/constants";
 import { GithubIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
-import { TERMS } from "features/auth/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
@@ -27,25 +26,6 @@ import {
   tuesdaySocialURL,
 } from "routes";
 import makeStyles from "utils/makeStyles";
-
-import {
-  ABOUT,
-  BLOG,
-  COMMUNITY,
-  DONATE,
-  EVENTS,
-  FAQ,
-  FORUM,
-  GITHUB,
-  HANDBOOK,
-  LEGAL_NAME,
-  OUR_PLAN,
-  OUR_TEAM,
-  TOWN_HALL,
-  VOLUNTEER,
-  WEEKLY_SOCIAL_SUNDAY,
-  WEEKLY_SOCIAL_TUESDAY,
-} from "../../appConstants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -131,7 +111,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Footer() {
-  const { t } = useTranslation([GLOBAL]);
+  const { t } = useTranslation(GLOBAL);
   const classes = useStyles();
   return (
     <footer className={classes.root}>
@@ -144,35 +124,35 @@ export default function Footer() {
         >
           <div>
             <Typography variant="h3" component="h2">
-              {ABOUT}
+              {t("nav.about")}
             </Typography>
-            <FooterLink href={planRoute}>{OUR_PLAN}</FooterLink>
-            <FooterLink href={faqRoute}>{FAQ}</FooterLink>
-            <FooterLink href={handbookRoute}>{HANDBOOK}</FooterLink>
-            <FooterLink href={tosRoute}>{TERMS}</FooterLink>
-            <FooterLink href={foundationRoute}>{LEGAL_NAME}</FooterLink>
+            <FooterLink href={planRoute}>{t("nav.our_plan")}</FooterLink>
+            <FooterLink href={faqRoute}>{t("nav.faq")}</FooterLink>
+            <FooterLink href={handbookRoute}>{t("nav.handbook")}</FooterLink>
+            <FooterLink href={tosRoute}>{t("terms_of_service")}</FooterLink>
+            <FooterLink href={foundationRoute}>{t("legal_name")}</FooterLink>
           </div>
           <div>
             <Typography variant="h3" component="h2">
-              {COMMUNITY}
+              {t("nav.community")}
             </Typography>
-            <FooterLink href={forumURL}>{FORUM}</FooterLink>
-            <FooterLink href={blogRoute}>{BLOG}</FooterLink>
-            <FooterLink href={teamRoute}>{OUR_TEAM}</FooterLink>
+            <FooterLink href={forumURL}>{t("nav.forum")}</FooterLink>
+            <FooterLink href={blogRoute}>{t("nav.blog")}</FooterLink>
+            <FooterLink href={teamRoute}>{t("nav.our_team")}</FooterLink>
           </div>
           <div>
             <Typography variant="h3" component="h2">
-              {EVENTS}
+              {t("nav.events")}
             </Typography>
-            <FooterLink href={townHallURL}>{TOWN_HALL}</FooterLink>
+            <FooterLink href={townHallURL}>{t("nav.town_hall")}</FooterLink>
             <FooterLink href={sundaySocialURL}>
-              {WEEKLY_SOCIAL_SUNDAY}
+              {t("nav.weekly_social_sunday")}
             </FooterLink>
             <FooterLink href={tuesdaySocialURL}>
-              {WEEKLY_SOCIAL_TUESDAY}
+              {t("nav.weekly_social_tuesday")}
             </FooterLink>
             <FooterLink href={eventsRoute}>
-              {t("global:show_all_events")}
+              {t("nav.show_all_events")}
             </FooterLink>
           </div>
           <div className={classes.buttonContainer}>
@@ -182,7 +162,7 @@ export default function Footer() {
                 variant="contained"
                 className={classes.button}
               >
-                {DONATE}
+                {t("nav.donate")}
               </Button>
             </Link>
             <Link href={contributeRoute} passHref>
@@ -192,7 +172,7 @@ export default function Footer() {
                 color="primary"
                 className={classes.button}
               >
-                {VOLUNTEER}
+                {t("nav.volunteer")}
               </Button>
             </Link>
             <Button
@@ -203,7 +183,7 @@ export default function Footer() {
               className={classes.button}
             >
               <GithubIcon />
-              <span>{GITHUB}</span>
+              <span>{t("nav.github")}</span>
             </Button>
             {process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" && (
               <Button

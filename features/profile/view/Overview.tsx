@@ -5,13 +5,15 @@ import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { EDIT, REQUEST } from "features/constants";
+import { CONNECTIONS } from "features/connections/constants";
 import FlagButton from "features/FlagButton";
 import FriendActions from "features/profile/actions/FriendActions";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
 import {
+  EDIT,
   hostingStatusLabels,
   meetupStatusLabels,
+  REQUEST,
 } from "features/profile/constants";
 import UserOverview from "features/profile/view/UserOverview";
 import { CONNECTIONS } from "i18n/namespaces";

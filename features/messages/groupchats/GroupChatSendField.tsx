@@ -6,6 +6,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
 
+import { usePersistedState } from "../../../features/auth/useAuthStore";
 import useSendFieldStyles from "../useSendFieldStyles";
 
 interface MessageFormData {
@@ -14,19 +15,31 @@ interface MessageFormData {
 
 export interface GroupChatSendFieldProps {
   sendMutation: UseMutationResult<string | undefined | Empty, RpcError, string>;
+  chatId: number;
+  currentUserId: number;
 }
 
 export default function GroupChatSendField({
   sendMutation,
+  chatId,
+  currentUserId,
 }: GroupChatSendFieldProps) {
   const classes = useSendFieldStyles();
 
   const { mutate: handleSend, isLoading } = sendMutation;
 
   const { register, handleSubmit, reset } = useForm<MessageFormData>();
+  const [persistedMessage, setPersistedMessage, clearPersistedMessage] =
+    usePersistedState(
+      `messages.${currentUserId}.${chatId}`,
+      "",
+      'sessionStorage'
+    );
+
   const onSubmit = handleSubmit(async (data: MessageFormData) => {
     handleSend(data.text.trimRight());
-    reset();
+    clearPersistedMessage();
+    reset({ text: "" });
   });
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
@@ -42,11 +55,12 @@ export default function GroupChatSendField({
         id="group-chat-message-field"
         label="Message"
         name="text"
-        defaultValue={""}
+        defaultValue={persistedMessage ?? ""}
         inputRef={register}
         multiline
         fullWidth
         onKeyDown={handleKeyDown}
+        onChange={(event) => setPersistedMessage(event.target.value)}
         maxRows={4}
         size="small"
       />

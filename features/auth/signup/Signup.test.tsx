@@ -4,7 +4,6 @@ import userEvent from "@testing-library/user-event";
 import { QUESTIONS_OPTIONAL } from "components/ContributorForm/constants";
 import { EditLocationMapProps } from "components/EditLocationMap";
 import useAuthStore from "features/auth/useAuthStore";
-import { SUBMIT } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { StatusCode } from "grpc-web";
 import mockRouter from "next-router-mock";
@@ -446,7 +445,9 @@ describe("Signup", () => {
     );
     render(<View />, { wrapper });
 
-    userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
+    userEvent.click(
+      await screen.findByRole("button", { name: t("global:submit") })
+    );
     mockConsoleError();
     await assertErrorAlert("Permission denied");
   });

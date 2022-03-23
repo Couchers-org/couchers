@@ -1,31 +1,8 @@
 import { LngLat } from "maplibre-gl";
 
-export const ABOUT = "About";
-export const BLOG = "Blog";
-export const GITHUB = "GitHub";
-export const COMMUNITY = "Community";
-export const COUCHERS = "Couchers.org";
-export const DONATE = "Donate";
-export const FAQ = "FAQ";
-export const HANDBOOK = "Handbook";
-export const FORUM = "Forum";
-export const LEGAL_NAME = "Couchers, Inc.";
-export const HELP = "Help";
-export const LOG_OUT = "Log out";
-export const OUR_PLAN = "Our Plan";
-export const OUR_TEAM = "Our Team";
-export const TOWN_HALL = "Town Hall";
-export const WEEKLY_SOCIAL_TUESDAY = "Tuesday Social";
-export const WEEKLY_SOCIAL_SUNDAY = "Sunday Social";
-export const VOLUNTEER = "Volunteer";
-
-export const DASHBOARD = "Dashboard";
-export const EVENTS = "Events";
-export const MESSAGES = "Messages";
-export const MAP_SEARCH = "Map Search";
-export const PROFILE = "Profile";
-
 export const eventImagePlaceholderUrl = "/img/eventImagePlaceholder.svg";
+
+export const supportEmail = "support@couchers.org";
 
 export const userLocationMaxRadius = 2000;
 export const userLocationMinRadius = 50;

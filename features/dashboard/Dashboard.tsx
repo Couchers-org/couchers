@@ -6,7 +6,6 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import { DASHBOARD } from "appConstants";
 import Button from "components/Button";
 import { JOIN_THE_TEAM } from "components/ContributorForm";
 import StandaloneContributorForm from "components/ContributorForm/StandaloneContributorForm";
@@ -16,29 +15,12 @@ import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import CommunitiesDialog from "features/dashboard/CommunitiesDialog";
 import CommunitiesList from "features/dashboard/CommunitiesList";
-import {
-  ALL_COMMUNITIES_LINK,
-  COMMUNITY_BUILDER_FORM_LINK,
-  COMMUNITY_BUILDER_FORM_TEXT,
-  CONTRIBUTE_PILL,
-  CONTRIBUTE_TITLE,
-  LANDING_TEXT,
-  LAST_UPDATE,
-  OUTREACH_MARKDOWN,
-  OUTREACH_PILL,
-  OUTREACH_SUBTITLE,
-  OUTREACH_TITLE,
-  UPDATES_MARKDOWN,
-  UPDATES_PILL,
-  UPDATES_TITLE,
-  WELCOME,
-  YOUR_COMMUNITIES_HEADING,
-  YOUR_COMMUNITIES_HELPER_TEXT,
-  YOUR_COMMUNITIES_HELPER_TEXT2,
-} from "features/dashboard/constants";
 import DashboardBanners from "features/dashboard/DashboardBanners";
+import { useTranslation } from "i18n";
+import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 
+import { COMMUNITY_BUILDER_FORM_LINK, UPDATES_MARKDOWN } from "./constants";
 import MyEvents from "./MyEvents";
 
 const useStyles = makeStyles((theme) => ({
@@ -73,21 +55,24 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Dashboard() {
+  const { t } = useTranslation([GLOBAL, DASHBOARD]);
   const classes = useStyles();
   const [isCommunitiesDialogOpen, setIsCommunitiesDialogOpen] = useState(false);
 
   return (
     <>
-      <HtmlMeta title={DASHBOARD} />
-      <PageTitle>{WELCOME}</PageTitle>
+      <HtmlMeta title={t("global:nav.dashboard")} />
+      <PageTitle>{t("dashboard:welcome")}</PageTitle>
 
       <Typography variant="body1" paragraph>
-        {LANDING_TEXT}
+        {t("dashboard:landing_text")}
       </Typography>
       <DashboardBanners />
-      <Typography variant="h2">{YOUR_COMMUNITIES_HEADING}</Typography>
+      <Typography variant="h2">
+        {t("dashboard:your_communities_heading")}
+      </Typography>
       <Typography variant="body1" paragraph>
-        {YOUR_COMMUNITIES_HELPER_TEXT}
+        {t("dashboard:your_communities_helper_text")}
       </Typography>
       <CommunitiesList />
       <Button
@@ -96,7 +81,7 @@ export default function Dashboard() {
         }}
         className={classes.button}
       >
-        {ALL_COMMUNITIES_LINK}
+        {t("dashboard:all_communities_link")}
       </Button>
 
       <CommunitiesDialog
@@ -105,14 +90,14 @@ export default function Dashboard() {
       />
 
       <Typography variant="body1" className={classes.communityText2}>
-        {YOUR_COMMUNITIES_HELPER_TEXT2}
+        {t("dashboard:your_communities_helper_text2")}
       </Typography>
       <Button
         href={COMMUNITY_BUILDER_FORM_LINK}
         target="_blank"
         rel="noreferrer noopener"
       >
-        {COMMUNITY_BUILDER_FORM_TEXT}
+        {t("dashboard:community_builder_form_text")}
       </Button>
 
       <MyEvents />
@@ -124,11 +109,15 @@ export default function Dashboard() {
           id="updates-header"
         >
           <Typography variant="h2">
-            {UPDATES_TITLE}
-            <Chip className={classes.chip} size="small" label={UPDATES_PILL} />
+            {t("dashboard:updates_title")}
+            <Chip
+              className={classes.chip}
+              size="small"
+              label={t("dashboard:updates_pill")}
+            />
           </Typography>
           <Typography className={classes.accordionSubtitle}>
-            {LAST_UPDATE}
+            {t("dashboard:last_update")}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -143,15 +132,22 @@ export default function Dashboard() {
           id="weekly-events-header"
         >
           <Typography variant="h2">
-            {OUTREACH_TITLE}
-            <Chip className={classes.chip} size="small" label={OUTREACH_PILL} />
+            {t("dashboard:outreach_title")}
+            <Chip
+              className={classes.chip}
+              size="small"
+              label={t("dashboard:outreach_pill")}
+            />
           </Typography>
           <Typography className={classes.accordionSubtitle}>
-            {OUTREACH_SUBTITLE}
+            {t("dashboard:outreach_subtitle")}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Markdown source={OUTREACH_MARKDOWN} topHeaderLevel={3} />
+          <Markdown
+            source={t("dashboard:outreach_markdown")}
+            topHeaderLevel={3}
+          />
         </AccordionDetails>
       </Accordion>
 
@@ -162,11 +158,11 @@ export default function Dashboard() {
           id="contribute-header"
         >
           <Typography variant="h2">
-            {CONTRIBUTE_TITLE}
+            {t("global:contribute_title")}
             <Chip
               className={classes.chip}
               size="small"
-              label={CONTRIBUTE_PILL}
+              label={t("dashboard:contribute_pill")}
             />
           </Typography>
           <Typography className={classes.accordionSubtitle}>
