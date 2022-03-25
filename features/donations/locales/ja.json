@@ -17,7 +17,5 @@
     "helper_text": "寄付を完了するため、支払いサービスのStripeにリダイレクトします。"
   },
   "donations_title": "私たちのプラットフォーム拡大のためにはあなたの寄付が必要です",
-  "donations_title2": "あなたの寄付の役立てられ方",
-  "benefactor_email": "benefactor@couchers.org",
-  "donations_value": "{{val, currency}}"
+  "donations_title2": "あなたの寄付の役立てられ方"
 }

@@ -34,6 +34,31 @@ describe("usePersistedState hook", () => {
     );
     expect(result2.current[0]).toStrictEqual(value);
   });
+
+  it("saves then loads a value from sessionStorage", () => {
+    const value = { test: "session test" };
+    const { result } = renderHook(() =>
+      usePersistedState("key", { test: "" }, "sessionStorage")
+    );
+    expect(result.current[0]).toStrictEqual({ test: "" });
+    act(() => result.current[1](value));
+    expect(result.current[0]).toStrictEqual(value);
+    expect(sessionStorage.getItem("key")).toBe(JSON.stringify(value));
+    const { result: result2 } = renderHook(() =>
+      usePersistedState("key", { test: "" }, "sessionStorage")
+    );
+    expect(result2.current[0]).toStrictEqual(value);
+  });
+
+  it("clears a value", () => {
+    const { result } = renderHook(() =>
+      usePersistedState("key", { test: "" }, "sessionStorage")
+    );
+    expect(result.current[0]).toStrictEqual({ test: "" });
+    act(() => result.current[2]());
+    expect(result.current[0]).toStrictEqual(undefined);
+    expect(sessionStorage.getItem("key")).toBe(null);
+  });
 });
 
 describe("useAuthStore hook", () => {
@@ -54,6 +79,17 @@ describe("useAuthStore hook", () => {
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.error).toBeNull();
     expect(result.current.authState.userId).toBeNull();
+  });
+
+  it("clears sessionStorage on logout", async () => {
+    logoutMock.mockResolvedValue(new Empty());
+    addDefaultUser();
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+    expect(result.current.authState.authenticated).toBe(true);
+    sessionStorage.setItem("test key", "test value");
+    expect(sessionStorage.length).toBe(1);
+    await act(() => result.current.authActions.logout());
+    expect(sessionStorage.length).toBe(0);
   });
 });
 

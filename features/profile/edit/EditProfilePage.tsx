@@ -8,7 +8,7 @@ import {
   EDIT_PROFILE,
   SECTION_LABELS,
   SECTION_LABELS_A11Y_TEXT,
-} from "features/constants";
+} from "features/profile/constants";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";

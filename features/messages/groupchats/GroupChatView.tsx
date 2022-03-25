@@ -69,7 +69,8 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     alignItems: "stretch",
     display: "flex",
     flexDirection: "column",
-    height: `calc(100vh - ${theme.shape.navPaddingXs})`,
+    // 56px = address bar height on mobile - https://dev.to/peiche/100vh-behavior-on-chrome-2hm8
+    height: `calc(100vh - ${theme.shape.navPaddingXs} - 56px)`,
   },
   title: {
     flexGrow: 1,
@@ -219,7 +220,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
     : undefined;
 
   return (
-    <div>
+    <>
       <HtmlMeta title={title} />
       {!chatId ? (
         <Alert severity="error">Invalid chat id.</Alert>
@@ -397,13 +398,17 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
                   />
                 </InfiniteMessageLoader>
                 <div className={classes.footer}>
-                  <GroupChatSendField sendMutation={sendMutation} />
+                  <GroupChatSendField
+                    sendMutation={sendMutation}
+                    chatId={chatId}
+                    currentUserId={currentUserId}
+                  />
                 </div>
               </>
             )
           )}
         </div>
       )}
-    </div>
+    </>
   );
 }

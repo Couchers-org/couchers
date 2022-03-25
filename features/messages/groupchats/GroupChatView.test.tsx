@@ -7,7 +7,6 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { SEND } from "features/constants";
 import { MARK_LAST_SEEN_TIMEOUT } from "features/messages/constants";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -300,7 +299,7 @@ describe("GroupChatView", () => {
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
 
     userEvent.type(screen.getByLabelText("Message"), "Sounds good");
-    const sendButton = screen.getByRole("button", { name: SEND });
+    const sendButton = screen.getByRole("button", { name: t("global:send") });
     userEvent.click(sendButton);
     await waitForElementToBeRemoved(
       within(sendButton).getByRole("progressbar")
@@ -361,6 +360,36 @@ describe("GroupChatView", () => {
     expect(sendMessageMock).toHaveBeenCalledWith(1, "Sounds good");
     expect(getGroupChatMock).toHaveBeenCalledTimes(2);
     expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("persists message draft state in sessionStorage", async () => {
+    renderGroupChatView();
+    await screen.findByRole("heading", { level: 1, name: "Test group chat" });
+    userEvent.type(screen.getByLabelText("Message"), "Not ready to se-");
+    expect(sessionStorage.getItem("messages.1.1")).toEqual(
+      JSON.stringify("Not ready to se-")
+    );
+  });
+
+  it("populates message draft state from sessionStorage", async () => {
+    sessionStorage.setItem("messages.1.1", JSON.stringify("Not ready to se-"));
+    renderGroupChatView();
+    await screen.findByRole("heading", { level: 1, name: "Test group chat" });
+    expect(await screen.getByDisplayValue("Not ready to se-")).toBeVisible();
+  });
+
+  it("clears message draft state from sessionStorage", async () => {
+    sessionStorage.setItem("messages.1.1", JSON.stringify("Not ready to se-"));
+    renderGroupChatView();
+    await screen.findByRole("heading", { level: 1, name: "Test group chat" });
+
+    const sendButton = screen.getByRole("button", { name: t("global:send") });
+    userEvent.click(sendButton);
+    await waitForElementToBeRemoved(
+      within(sendButton).getByRole("progressbar")
+    );
+
+    expect(sessionStorage.getItem("messages.1.1")).toBeNull();
   });
 
   it("for a muted chat, shows it's muted and can unmute", async () => {

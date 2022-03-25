@@ -2,12 +2,11 @@ import { CircularProgress } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
-import { UPDATE } from "features/constants";
 import NotFoundPage from "features/NotFoundPage";
 import { communityEventsBaseKey, eventKey } from "features/queryKeys";
 import type { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Event } from "proto/events_pb";
 import { useMutation, useQueryClient } from "react-query";
@@ -23,7 +22,7 @@ import EventForm, {
 import { useEvent } from "./hooks";
 
 export default function EditEventPage({ eventId }: { eventId: number }) {
-  const { t } = useTranslation([COMMUNITIES]);
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useEventFormStyles();
   const router = useRouter();
 
@@ -135,7 +134,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
               loading={isMutationLoading}
               type="submit"
             >
-              {UPDATE}
+              {t("global:update")}
             </Button>
           )}
         </EventForm>

@@ -5,7 +5,6 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { REFERENCES } from "features/constants";
 import { ReferenceType } from "proto/references_pb";
 import { service } from "service";
 import references from "test/fixtures/references.json";
@@ -17,6 +16,7 @@ import { MockedService } from "test/utils";
 import {
   NO_REFERENCES,
   referenceBadgeLabel,
+  REFERENCES,
   REFERENCES_FILTER_A11Y_LABEL,
   referencesFilterLabels,
   SEE_MORE_REFERENCES,

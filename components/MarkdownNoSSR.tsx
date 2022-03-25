@@ -24,7 +24,6 @@ const useStyles = makeStyles((theme) => ({
       marginBottom: 0,
       marginTop: theme.spacing(2),
       overflowWrap: "break-word",
-      whiteSpace: "pre-wrap",
     },
     "& h1": theme.typography.h1,
     "& h2": theme.typography.h2,
