@@ -7,7 +7,8 @@ import {
   useCommunity,
   useListSubCommunities,
 } from "features/communities/hooks";
-import { LOAD_MORE, NO_SUB_COMMINITIES } from "features/dashboard/constants";
+import { useTranslation } from "i18n";
+import { DASHBOARD } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { useEffect, useRef, useState } from "react";
 import { routeToCommunity } from "routes";
@@ -37,6 +38,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function CommunityBrowser() {
+  const { t } = useTranslation([DASHBOARD]);
   const classes = useStyles();
   const [selected, setSelected] = useState<Community.AsObject[]>([]);
 
@@ -128,7 +130,7 @@ export default function CommunityBrowser() {
               loading={query.isFetchingNextPage}
               variant="outlined"
             >
-              {LOAD_MORE}
+              {t("dashboard:load_more")}
             </Button>
           )}
         </div>
@@ -150,6 +152,7 @@ function BrowserColumn({
   handleClick: (community: Community.AsObject) => void;
   selected?: number;
 }) {
+  const { t } = useTranslation([DASHBOARD]);
   const classes = useStyles();
 
   return (
@@ -173,7 +176,7 @@ function BrowserColumn({
               variant: "body2",
             }}
           >
-            {NO_SUB_COMMINITIES}
+            {t("dashboard:no_sub_communities")}
           </ListItemText>
         </ListItem>
       ) : (

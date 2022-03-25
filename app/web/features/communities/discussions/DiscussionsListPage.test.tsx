@@ -5,7 +5,6 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { CANCEL } from "features/constants";
 import { service } from "service";
 import community from "test/fixtures/community.json";
 import discussions from "test/fixtures/discussions.json";
@@ -210,7 +209,7 @@ describe("DiscussionsListPage", () => {
         screen.getByLabelText(t("communities:new_discussion_title")),
         "Hello world"
       );
-      userEvent.click(screen.getByRole("button", { name: CANCEL }));
+      userEvent.click(screen.getByRole("button", { name: t("global:cancel") }));
 
       expect(
         (

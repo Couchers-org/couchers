@@ -6,6 +6,7 @@ export const APPLY_FILTER = "Apply";
 export const CLEAR_SEARCH = "Clear search";
 export const FILTER_DIALOG_TITLE = "Filters";
 export const HOST_FILTERS = "Host filters";
+export const HOSTING_STATUS = "Hosting status";
 export const LAST_2_WEEKS = "Last 2 weeks";
 export const LAST_3_MONTHS = "Last 3 months";
 export const LAST_ACTIVE = "Last active";

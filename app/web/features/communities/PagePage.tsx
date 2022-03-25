@@ -50,7 +50,7 @@ export default function PagePage({
         }
       } catch (e) {
         console.error(e);
-        setError(isGrpcError(e) ? e.message : t("global:fatal_error_message"));
+        setError(isGrpcError(e) ? e.message : t("global:error.fatal_message"));
       }
       setLoading(false);
     })();
