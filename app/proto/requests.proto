@@ -39,7 +39,7 @@ service Requests {
   // Saves the last seen message
   rpc MarkLastSeenHostRequest(MarkLastSeenHostRequestReq) returns (google.protobuf.Empty);
 
-  // Get info about a user's response rate
+  // Get the response rate and response time for a given user
   rpc GetResponseRate(GetResponseRateReq) returns (GetResponseRateRes);
 }
 
@@ -145,17 +145,29 @@ message GetResponseRateReq {
 
 enum ResponseRate {
   RESPONSE_RATE_UNSPECIFIED = 0;
+  // received <3 requests
   RESPONSE_RATE_INSUFFICIENT_DATA = 1;
+  // response rate <= 33%
   RESPONSE_RATE_LOW = 2;
+  // response rate > 33%, but <= 66%
   RESPONSE_RATE_SOME = 3;
+  // response rate > 66%, but <= 90%
   RESPONSE_RATE_MOST = 4;
+  // response rate > 90%
   RESPONSE_RATE_ALMOST_ALL = 5;
 }
 
 message GetResponseRateRes {
+  // Response rate is number of requests responded to (accepted/rejected/sent message) divided by total number of
+  // received requests.
   ResponseRate response_rate = 1;
-  // only set for rate >= some
+
+  // We quantify the response time with two percentiles: the 33rd and 66th percentiles. Every un-responded request
+  // counts as a point at infinity: e.g. if a user has responded to one request but received 3 then their 66th
+  // percentile response time (response_time_p66) is infinity. The two values below are missing if they're infinite.
+
+  // the 33rd percentile response time (only set for rate >= some)
   google.protobuf.Duration response_time_p33 = 2;
-  // only set for rate >= most
+  // the 66th percentile response time (only set for rate >= most)
   google.protobuf.Duration response_time_p66 = 3;
 }

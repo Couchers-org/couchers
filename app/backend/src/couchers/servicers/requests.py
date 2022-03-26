@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy import Float
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 from sqlalchemy.sql.functions import percentile_disc
@@ -612,11 +613,17 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             res = session.execute(
                 select(
                     User.id,
+                    # number of requests received
                     func.count().label("n"),
-                    func.count(s.c.time) / (1.0 * func.greatest(func.count(t.c.time), 1)).label("response_rate"),
+                    # percentage of requests responded to
+                    (func.count(s.c.time) / func.cast(func.greatest(func.count(t.c.time), 1.0), Float)).label(
+                        "response_rate"
+                    ),
+                    # the 33rd percentile response time
                     percentile_disc(0.33)
                     .within_group(func.coalesce(s.c.time - t.c.time, timedelta(days=1000)))
                     .label("response_time_p33"),
+                    # the 66th percentile response time
                     percentile_disc(0.66)
                     .within_group(func.coalesce(s.c.time - t.c.time, timedelta(days=1000)))
                     .label("response_time_p66"),
