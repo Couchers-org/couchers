@@ -18,6 +18,7 @@ import {
   foundationRoute,
   githubURL,
   handbookRoute,
+  missionRoute,
   planRoute,
   sundaySocialURL,
   teamRoute,
@@ -128,6 +129,7 @@ export default function Footer() {
             </Typography>
             <FooterLink href={planRoute}>{t("nav.our_plan")}</FooterLink>
             <FooterLink href={faqRoute}>{t("nav.faq")}</FooterLink>
+            <FooterLink href={missionRoute}>{t("nav.mission")}</FooterLink>
             <FooterLink href={handbookRoute}>{t("nav.handbook")}</FooterLink>
             <FooterLink href={tosRoute}>{t("terms_of_service")}</FooterLink>
             <FooterLink href={foundationRoute}>{t("legal_name")}</FooterLink>

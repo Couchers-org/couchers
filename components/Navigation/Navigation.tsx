@@ -36,6 +36,7 @@ import {
   loginRoute,
   logoutRoute,
   messagesRoute,
+  missionRoute,
   planRoute,
   routeToProfile,
   searchRoute,
@@ -163,6 +164,10 @@ const loggedOutNavMenu = (
     route: faqRoute,
   },
   {
+    name: t("nav.mission"),
+    route: missionRoute,
+  },
+  {
     name: t("nav.the_team"),
     route: teamRoute,
   },
@@ -199,6 +204,10 @@ const loggedOutDrawerMenu = (
   {
     name: t("nav.faq"),
     route: faqRoute,
+  },
+  {
+    name: t("nav.mission"),
+    route: missionRoute,
   },
   {
     name: t("nav.the_team"),
