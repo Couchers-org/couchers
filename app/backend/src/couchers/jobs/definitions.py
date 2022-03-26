@@ -17,6 +17,7 @@ from couchers.jobs.handlers import (
     process_send_onboarding_emails,
     process_send_reference_reminders,
     process_send_request_notifications,
+    process_update_recommendation_scores,
 )
 from couchers.models import BackgroundJobType
 from proto.internal import jobs_pb2
@@ -40,6 +41,7 @@ JOBS = {
         jobs_pb2.GenerateMessageNotificationsPayload,
         process_generate_message_notifications,
     ),
+    BackgroundJobType.update_recommendation_scores: (empty_pb2.Empty, process_update_recommendation_scores),
 }
 
 SCHEDULE = [
@@ -54,4 +56,5 @@ SCHEDULE = [
     (BackgroundJobType.send_reference_reminders, timedelta(hours=1)),
     (BackgroundJobType.handle_email_notifications, timedelta(minutes=1)),
     (BackgroundJobType.handle_email_digests, timedelta(minutes=15)),
+    (BackgroundJobType.update_recommendation_scores, timedelta(hours=24)),
 ]
