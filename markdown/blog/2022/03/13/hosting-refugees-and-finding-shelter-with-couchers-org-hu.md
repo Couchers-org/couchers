@@ -6,7 +6,7 @@ author: Itsi
 share_image: /app/web/public/img/blog/20220313_ukraine_hu.jpg
 ---
 
-[English](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-en) – [Українська](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-uk) – [Polski](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-pl)
+[English](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-en) – [Українська](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-uk) – [Polski](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-pl) – [Română](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-ro)
 
 A jelen konfliktusban arra bátorítjuk a szomszédos országok jó szándékú lakóit, hogy nyújtsanak átmeneti szállást a menekülőknek és otthon nélkül maradottaknak. A Couchers.org egy nonprofit szervezet, amely hagyományosan abban közreműködik, hogy utazók ingyenesen szallhassanak meg magánemberek otthonában.
 
