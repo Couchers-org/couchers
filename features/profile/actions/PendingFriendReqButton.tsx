@@ -70,7 +70,7 @@ function PendingFriendReqButton({
             aria-controls={RESPOND_TO_FRIEND_REQUEST_MENU_ID}
             loading={isLoading}
           >
-            { t("connections:pending") }
+            {t("connections:pending")}
           </Button>
           <Menu
             anchorEl={menuAnchor.current}
