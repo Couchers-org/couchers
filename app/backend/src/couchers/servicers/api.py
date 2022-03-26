@@ -5,6 +5,7 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, delete, func, intersect, or_, union
+from sqlalchemy.sql.functions import percentile_disc
 
 from couchers import errors, urls
 from couchers.config import config
@@ -21,6 +22,7 @@ from couchers.models import (
     LanguageFluency,
     MeetupStatus,
     Message,
+    MessageType,
     ParkingDetails,
     Reference,
     RegionLived,
@@ -724,7 +726,7 @@ class API(api_pb2_grpc.APIServicer):
 
             res = session.execute(
                 select(
-                    HostRequest.host_user_id.label("user_id"),
+                    User.id,
                     func.count().label("n"),
                     func.count(s.c.time) / (1.0 * func.greatest(func.count(t.c.time), 1)).label("response_rate"),
                     percentile_disc(0.33)
@@ -734,11 +736,12 @@ class API(api_pb2_grpc.APIServicer):
                     .within_group(func.coalesce(s.c.time - t.c.time, timedelta(days=1000)))
                     .label("response_time_p66"),
                 )
-                .where_users_column_visible(context, HostRequest.host_user_id)
-                .where(HostRequest.host_user_id == request.user_id)
-                .join(t, t.c.conversation_id == HostRequest.conversation_id)
+                .where_users_visible(context)
+                .where(User.id == request.user_id)
+                .outerjoin(HostRequest, HostRequest.host_user_id == User.id)
+                .outerjoin(t, t.c.conversation_id == HostRequest.conversation_id)
                 .outerjoin(s, s.c.conversation_id == HostRequest.conversation_id)
-                .group_by(HostRequest.host_user_id)
+                .group_by(User.id)
             ).one_or_none()
 
             if not res:
