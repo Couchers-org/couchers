@@ -2,12 +2,16 @@
 Background job servicers
 """
 
+
 import logging
 from datetime import timedelta
+from math import sqrt
 
 import requests
+from sqlalchemy import Integer
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, delete, func, literal, not_, or_, union_all
+from sqlalchemy.sql import and_, cast, delete, distinct, extract, func, literal, not_, or_, select, union_all
+from sqlalchemy.sql.functions import percentile_disc
 
 from couchers import config, email, urls
 from couchers.db import session_scope
@@ -15,8 +19,13 @@ from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.models import (
     AccountDeletionToken,
+    Cluster,
+    ClusterRole,
+    ClusterSubscription,
+    Float,
     GroupChat,
     GroupChatSubscription,
+    HostingStatus,
     HostRequest,
     LoginToken,
     Message,
@@ -444,3 +453,196 @@ def process_handle_email_notifications(payload):
 
 def process_handle_email_digests(payload):
     handle_email_digests()
+
+
+def process_update_recommendation_scores(payload):
+    text_fields = [
+        User.hometown,
+        User.occupation,
+        User.education,
+        User.about_me,
+        User.my_travels,
+        User.things_i_like,
+        User.about_place,
+        User.additional_information,
+        User.pet_details,
+        User.kid_details,
+        User.housemate_details,
+        User.other_host_info,
+        User.sleeping_details,
+        User.area,
+        User.house_rules,
+    ]
+    home_fields = [User.about_place, User.other_host_info, User.sleeping_details, User.area, User.house_rules]
+
+    def poor_man_gaussian():
+        """
+        Produces an approximatley std normal random variate
+        """
+        trials = 5
+        return (sum([func.random() for _ in range(trials)]) - trials / 2) / sqrt(trials / 12)
+
+    def int_(stmt):
+        return func.coalesce(cast(stmt, Integer), 0)
+
+    def float_(stmt):
+        return func.coalesce(cast(stmt, Float), 0.0)
+
+    with session_scope() as session:
+        # profile
+        profile_text = ""
+        for field in text_fields:
+            profile_text += func.coalesce(field, "")
+        text_length = func.length(profile_text)
+        home_text = ""
+        for field in home_fields:
+            home_text += func.coalesce(field, "")
+        home_length = func.length(home_text)
+
+        has_text = int_(text_length > 500)
+        long_text = int_(text_length > 2000)
+        has_pic = int_(User.avatar_key != None)
+        can_host = int_(User.hosting_status == HostingStatus.can_host)
+        cant_host = int_(User.hosting_status == HostingStatus.cant_host)
+        filled_home = int_(User.last_minute != None) * int_(home_length > 200)
+        profile_points = 2 * has_text + 3 * long_text + 2 * has_pic + 3 * can_host + 2 * filled_home - 5 * cant_host
+
+        # references
+        left_ref_expr = int_(1).label("left_reference")
+        left_refs_subquery = (
+            select(Reference.from_user_id.label("user_id"), left_ref_expr).group_by(Reference.from_user_id).subquery()
+        )
+        left_reference = int_(left_refs_subquery.c.left_reference)
+        has_reference_expr = int_(func.count(Reference.id) >= 1).label("has_reference")
+        ref_count_expr = int_(func.count(Reference.id)).label("ref_count")
+        ref_avg_expr = func.avg(1.4 * (Reference.rating - 0.3)).label("ref_avg")
+        has_multiple_types_expr = int_(func.count(distinct(Reference.reference_type)) >= 2).label("has_multiple_types")
+        has_bad_ref_expr = int_(func.sum(int_((Reference.rating <= 0.2) | (~Reference.was_appropriate))) >= 1).label(
+            "has_bad_ref"
+        )
+        received_ref_subquery = (
+            select(
+                Reference.to_user_id.label("user_id"),
+                has_reference_expr,
+                has_multiple_types_expr,
+                has_bad_ref_expr,
+                ref_count_expr,
+                ref_avg_expr,
+            )
+            .group_by(Reference.to_user_id)
+            .subquery()
+        )
+        has_multiple_types = int_(received_ref_subquery.c.has_multiple_types)
+        has_reference = int_(received_ref_subquery.c.has_reference)
+        has_bad_reference = int_(received_ref_subquery.c.has_bad_ref)
+        rating_score = float_(
+            received_ref_subquery.c.ref_avg
+            * (
+                2 * func.least(received_ref_subquery.c.ref_count, 5)
+                + func.greatest(received_ref_subquery.c.ref_count - 5, 0)
+            )
+        )
+        ref_score = 2 * has_reference + has_multiple_types + left_reference - 5 * has_bad_reference + rating_score
+
+        # activeness
+        recently_active = int_(User.last_active >= now() - timedelta(days=180))
+        very_recently_active = int_(User.last_active >= now() - timedelta(days=14))
+        recently_messaged = int_(func.max(Message.time) > now() - timedelta(days=14))
+        messaged_lots = int_(func.count(Message.id) > 5)
+        messaging_points_subquery = (recently_messaged + messaged_lots).label("messaging_points")
+        messaging_subquery = (
+            select(Message.author_id.label("user_id"), messaging_points_subquery)
+            .where(Message.message_type == MessageType.text)
+            .group_by(Message.author_id)
+            .subquery()
+        )
+        activeness_points = recently_active + 2 * very_recently_active + int_(messaging_subquery.c.messaging_points)
+
+        # verification
+        phone_verified = int_(User.phone_is_verified)
+        cb_subquery = (
+            select(ClusterSubscription.user_id.label("user_id"), func.min(Cluster.parent_node_id).label("min_node_id"))
+            .join(Cluster, Cluster.id == ClusterSubscription.cluster_id)
+            .where(ClusterSubscription.role == ClusterRole.admin)
+            .where(Cluster.is_official_cluster)
+            .group_by(ClusterSubscription.user_id)
+            .subquery()
+        )
+        min_node_id = cb_subquery.c.min_node_id
+        cb = int_(min_node_id >= 1)
+        f = int_(User.id <= 2)
+        wcb = int_(min_node_id == 1)
+        verification_points = 0.0 + 100 * f + 10 * wcb + 5 * cb
+
+        # response rate
+        t = (
+            select(Message.conversation_id, Message.time)
+            .where(Message.message_type == MessageType.chat_created)
+            .subquery()
+        )
+        s = (
+            select(Message.conversation_id, Message.author_id, func.min(Message.time).label("time"))
+            .group_by(Message.conversation_id, Message.author_id)
+            .subquery()
+        )
+        hr_subquery = (
+            select(
+                HostRequest.host_user_id.label("user_id"),
+                func.avg(s.c.time - t.c.time).label("avg_response_time"),
+                func.count(t.c.time).label("received"),
+                func.count(s.c.time).label("responded"),
+                float_(
+                    extract(
+                        "epoch",
+                        percentile_disc(0.33).within_group(func.coalesce(s.c.time - t.c.time, timedelta(days=1000))),
+                    )
+                    / 60.0
+                ).label("response_time_33p"),
+                float_(
+                    extract(
+                        "epoch",
+                        percentile_disc(0.66).within_group(func.coalesce(s.c.time - t.c.time, timedelta(days=1000))),
+                    )
+                    / 60.0
+                ).label("response_time_66p"),
+            )
+            .join(t, t.c.conversation_id == HostRequest.conversation_id)
+            .outerjoin(
+                s, and_(s.c.conversation_id == HostRequest.conversation_id, s.c.author_id == HostRequest.host_user_id)
+            )
+            .group_by(HostRequest.host_user_id)
+            .subquery()
+        )
+        avg_response_time = hr_subquery.c.avg_response_time
+        avg_response_time_hr = float_(extract("epoch", avg_response_time) / 60.0)
+        received = hr_subquery.c.received
+        responded = hr_subquery.c.responded
+        response_time_33p = hr_subquery.c.response_time_33p
+        response_time_66p = hr_subquery.c.response_time_66p
+        response_rate = float_(responded / (1.0 * func.greatest(received, 1)))
+        # be careful with nulls
+        response_rate_points = -10 * int_(response_time_33p > 60 * 48.0) + 5 * int_(response_time_66p < 60 * 48.0)
+
+        recommendation_score = (
+            profile_points
+            + ref_score
+            + activeness_points
+            + verification_points
+            + response_rate_points
+            + 2 * poor_man_gaussian()
+        )
+
+        scores = (
+            select(User.id.label("user_id"), recommendation_score.label("score"))
+            .outerjoin(messaging_subquery, messaging_subquery.c.user_id == User.id)
+            .outerjoin(left_refs_subquery, left_refs_subquery.c.user_id == User.id)
+            .outerjoin(received_ref_subquery, received_ref_subquery.c.user_id == User.id)
+            .outerjoin(cb_subquery, cb_subquery.c.user_id == User.id)
+            .outerjoin(hr_subquery, hr_subquery.c.user_id == User.id)
+        ).subquery()
+
+        session.execute(
+            User.__table__.update().values(recommendation_score=scores.c.score).where(User.id == scores.c.user_id)
+        )
+
+    logger.info("Updated recommendation scores")

@@ -279,7 +279,7 @@ def generate_user(*, delete_user=False, **kwargs):
         if delete_user:
             user.is_deleted = True
 
-        user.daily_order_key = 1e10 - user.id
+        user.recommendation_score = 1e10 - user.id
 
         session.commit()
 

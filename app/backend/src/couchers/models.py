@@ -231,7 +231,7 @@ class User(Base):
     new_email_token_expiry = Column(DateTime(timezone=True), nullable=True)
     need_to_confirm_via_new_email = Column(Boolean, nullable=True, default=None)
 
-    daily_order_key = Column(Float, nullable=False, server_default="0")
+    recommendation_score = Column(Float, nullable=False, server_default="0")
 
     # Columns for verifying their phone number. State chart:
     #                                       ,-------------------,
@@ -1846,6 +1846,8 @@ class BackgroundJobType(enum.Enum):
     handle_email_digests = enum.auto()
     # payload: jobs.GenerateMessageNotificationsPayload
     generate_message_notifications = enum.auto()
+    # payload: google.protobuf.Empty
+    update_recommendation_scores = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
