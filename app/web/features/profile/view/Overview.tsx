@@ -119,14 +119,6 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
           ]
         }
       />
-      <IconText
-        icon={HourglassIcon}
-        text={
-          meetupStatusLabels[
-            user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN
-          ]
-        }
-      />
       <Divider className={classes.marginBottom3} />
     </UserOverview>
   );
