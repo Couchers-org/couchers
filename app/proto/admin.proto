@@ -43,8 +43,6 @@ message GetUserDetailsReq {
   string user = 1;
 }
 
-message GetUserDetailsRes {}
-
 message ChangeUserGenderReq {
   // username, email, or user id
   string user = 1;
