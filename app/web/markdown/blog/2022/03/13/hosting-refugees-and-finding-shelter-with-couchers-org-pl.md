@@ -6,7 +6,7 @@ author: Itsi
 share_image: /app/web/public/img/blog/20220313_ukraine_pl.jpg
 ---
 
-[English](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-en) – [Українська](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-uk) – [Magyar](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-hu)
+[English](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-en) – [Українська](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-uk) – [Magyar](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-hu) – [Română](/blog/2022/03/13/hosting-refugees-and-finding-shelter-with-couchers-org-ro)
 
 W świetle ostatniego konfliktu, bardzo zachęcamy osoby w pobliskich krajach, mające takie możliwości, do tymczasowego goszczenia uchodźców i przesiedleńców w swoich domach. Couchers.org jest organizacją non-profit, stworzoną by umożliwiać darmowy pobyt w domach innych użytkowników podczas podróży.
 
