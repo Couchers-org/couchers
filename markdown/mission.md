@@ -1,15 +1,11 @@
 ---
-title: Our Purpose
+title: Our Mission and Values
 type: general
 ---
 
 ## Our Mission
 
 Couchers.org exists to create genuine real-world connections and community. By engaging with people from different cultures and backgrounds, we push people to grow into being more open, empathetic, and tolerant and to build safe, inclusive community.
-
-## Our Vision
-
-Our vision is to create a world where you can find warm and open communities in every city; where you can host or stay, discover and share new experiences, make transient or lifelong connections — all with no monetary transactions involved.
 
 ## Our Values
 
@@ -21,7 +17,7 @@ Profit will not be extracted from our organization, platform or community by any
 
 Couch surfing provides social and societal value, not monetary value, as it is based on genuine connections between people. It is impossible to extract this value as profit without introducing conflicting incentives between the organization and the community. To sustainably deliver on our mission, we must be non-profit.
 
-### Free-forever
+### Free forever
 
 No one should have to pay money to sign up and use Couchers.org.
 
@@ -30,6 +26,7 @@ No one should have to pay money to sign up and use Couchers.org.
 Requiring payment for use is an untenable barrier to entry. By involving money in couch surfing, people may build wrong expectations.
 
 ### Anti-metaverse
+
 We strive to build effective tools to help you have sincere experiences in the real world by spending minimal time looking for them in the digital world. We do not build to increase empty engagement.
 
 #### Why?
@@ -44,9 +41,9 @@ Decision makers and volunteers should be a part of and drawn from the community;
 
 Maintaining a healthy organization and platform requires active participation from the community that we serve, and divorcing the community from the rest of the project stops us from really building for our people. The community can only participate if they have visibility into the organization.
 
-### Open-source
+### Open source
 
-The platform and tools we build are freely available for use, modification, and distribution, with the foundation not having unique rights to it. We strive to contribute back to the open-source community.
+The platform and tools we build are freely available for use, modification, and distribution, with the foundation not having unique rights to it. We strive to contribute back to the open source community.
 
 #### Why?
 
@@ -76,7 +73,7 @@ We serve everyone in our community regardless of their couch surfing experience,
 
 #### Why?
 
-We believe that it’s the participation and experiences that are important and make this project worthwhile, and that we need to continuously appeal to and welcome newcomers in order to thrive and remain healthy. Our ideology and purpose, though important for guiding the organization, is not necessary to be engaged with for that reason; and it is important to accept that and communicate that to community leaders.
+We believe that it's the participation and experiences that are important and make this project worthwhile, and that we need to continuously appeal to and welcome newcomers in order to thrive and remain healthy. Our ideology and purpose, though important for guiding the organization, is not necessary to be engaged with for that reason; and it is important to accept that and communicate that to community leaders.
 
 ### We make the world a better place
 
@@ -84,4 +81,4 @@ We align ourselves with the betterment of the world. Travel should be accessible
 
 #### Why?
 
-It’s the right thing to do.
+It's the right thing to do.
