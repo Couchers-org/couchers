@@ -5,7 +5,6 @@ import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { CONNECTIONS } from "features/connections/constants";
 import FlagButton from "features/FlagButton";
 import FriendActions from "features/profile/actions/FriendActions";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
