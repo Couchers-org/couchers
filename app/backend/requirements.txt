@@ -106,7 +106,7 @@ requests==2.27.1
     #   stripe
 s3transfer==0.5.1
     # via boto3
-sentry-sdk==1.5.7
+sentry-sdk==1.5.8
     # via -r requirements.in
 shapely==1.8.1.post1
     # via -r requirements.in
