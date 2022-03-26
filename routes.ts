@@ -25,6 +25,7 @@ export const tuesdaySocialURL =
 export const dashboardRoute = "/dashboard";
 export const blogRoute = "/blog";
 export const faqRoute = "/faq";
+export const missionRoute = "/mission";
 export const foundationRoute = "/foundation";
 export const handbookRoute = "/handbook";
 export const planRoute = "/plan";
