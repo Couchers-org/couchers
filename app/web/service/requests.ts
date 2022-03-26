@@ -108,5 +108,5 @@ export function markLastRequestSeen(hostRequestId: number, messageId: number) {
 export async function getResponseRate(userId: number) {
   const req = new GetResponseRateReq();
   req.setUserId(userId);
-  return (await client.api.getResponseRate(req)).toObject();
+  return (await client.requests.getResponseRate(req)).toObject();
 }
