@@ -18,7 +18,5 @@
     "amount_validation_error": "請僅輸入整數。"
   },
   "donations_title": "我們需要您的捐款以茁壯一個我們都渴望的平台",
-  "donations_title2": "您的捐款會被用來",
-  "donations_value": "{{val, currency}}",
-  "benefactor_email": "benefactor@couchers.org"
+  "donations_title2": "您的捐款會被用來"
 }
