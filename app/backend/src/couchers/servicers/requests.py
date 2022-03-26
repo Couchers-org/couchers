@@ -5,6 +5,7 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
+from sqlalchemy.sql.functions import percentile_disc
 
 from couchers import errors, urls
 from couchers.db import session_scope
@@ -18,7 +19,14 @@ from couchers.tasks import (
     send_host_request_rejected_email_to_guest,
     send_new_host_request_email,
 )
-from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, today_in_timezone
+from couchers.utils import (
+    Duration_from_timedelta,
+    Timestamp_from_datetime,
+    date_to_api,
+    now,
+    parse_date,
+    today_in_timezone,
+)
 from proto import conversations_pb2, requests_pb2, requests_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -584,3 +592,75 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             session.commit()
             return empty_pb2.Empty()
+
+    def GetResponseRate(self, request, context):
+        with session_scope() as session:
+            # this subquery gets the time that the request was sent
+            t = (
+                select(Message.conversation_id, Message.time)
+                .where(Message.message_type == MessageType.chat_created)
+                .subquery()
+            )
+            # this subquery gets the time that the user responded to the request
+            s = (
+                select(Message.conversation_id, func.min(Message.time).label("time"))
+                .where(Message.author_id == request.user_id)
+                .group_by(Message.conversation_id)
+                .subquery()
+            )
+
+            res = session.execute(
+                select(
+                    User.id,
+                    func.count().label("n"),
+                    func.count(s.c.time) / (1.0 * func.greatest(func.count(t.c.time), 1)).label("response_rate"),
+                    percentile_disc(0.33)
+                    .within_group(func.coalesce(s.c.time - t.c.time, timedelta(days=1000)))
+                    .label("response_time_p33"),
+                    percentile_disc(0.66)
+                    .within_group(func.coalesce(s.c.time - t.c.time, timedelta(days=1000)))
+                    .label("response_time_p66"),
+                )
+                .where_users_visible(context)
+                .where(User.id == request.user_id)
+                .outerjoin(HostRequest, HostRequest.host_user_id == User.id)
+                .outerjoin(t, t.c.conversation_id == HostRequest.conversation_id)
+                .outerjoin(s, s.c.conversation_id == HostRequest.conversation_id)
+                .group_by(User.id)
+            ).one_or_none()
+
+            if not res:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+            _, n, response_rate, response_time_p33, response_time_p66 = res
+
+            if n < 3:
+                return requests_pb2.GetResponseRateRes(
+                    response_rate=requests_pb2.RESPONSE_RATE_INSUFFICIENT_DATA,
+                )
+
+            if response_rate <= 0.33:
+                rate_value = requests_pb2.RESPONSE_RATE_LOW
+            elif response_rate <= 0.66:
+                rate_value = requests_pb2.RESPONSE_RATE_SOME
+            elif response_rate <= 0.90:
+                rate_value = requests_pb2.RESPONSE_RATE_MOST
+            else:
+                rate_value = requests_pb2.RESPONSE_RATE_ALMOST_ALL
+
+            response_time_p33_coarsened = None
+            response_time_p66_coarsened = None
+            if response_rate > 0.33:
+                response_time_p33_coarsened = Duration_from_timedelta(
+                    timedelta(seconds=round(response_time_p33.total_seconds() / 60) * 60)
+                )
+            if response_rate > 0.66:
+                response_time_p66_coarsened = Duration_from_timedelta(
+                    timedelta(seconds=round(response_time_p66.total_seconds() / 60) * 60)
+                )
+
+            return requests_pb2.GetResponseRateRes(
+                response_rate=rate_value,
+                response_time_p33=response_time_p33_coarsened,
+                response_time_p66=response_time_p66_coarsened,
+            )

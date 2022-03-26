@@ -5,7 +5,6 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, delete, func, intersect, or_, union
-from sqlalchemy.sql.functions import percentile_disc
 
 from couchers import errors, urls
 from couchers.config import config
@@ -22,7 +21,6 @@ from couchers.models import (
     LanguageFluency,
     MeetupStatus,
     Message,
-    MessageType,
     ParkingDetails,
     Reference,
     RegionLived,
@@ -35,7 +33,7 @@ from couchers.notifications.notify import notify
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email
-from couchers.utils import Duration_from_timedelta, Timestamp_from_datetime, create_coordinate, is_valid_name, now
+from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
 from proto import api_pb2, api_pb2_grpc, media_pb2
 
 hostingstatus2sql = {
@@ -707,78 +705,6 @@ class API(api_pb2_grpc.APIServicer):
             session.commit()
 
             return empty_pb2.Empty()
-
-    def GetResponseRate(self, request, context):
-        with session_scope() as session:
-            # this subquery gets the time that the request was sent
-            t = (
-                select(Message.conversation_id, Message.time)
-                .where(Message.message_type == MessageType.chat_created)
-                .subquery()
-            )
-            # this subquery gets the time that the user responded to the request
-            s = (
-                select(Message.conversation_id, func.min(Message.time).label("time"))
-                .where(Message.author_id == request.user_id)
-                .group_by(Message.conversation_id)
-                .subquery()
-            )
-
-            res = session.execute(
-                select(
-                    User.id,
-                    func.count().label("n"),
-                    func.count(s.c.time) / (1.0 * func.greatest(func.count(t.c.time), 1)).label("response_rate"),
-                    percentile_disc(0.33)
-                    .within_group(func.coalesce(s.c.time - t.c.time, timedelta(days=1000)))
-                    .label("response_time_p33"),
-                    percentile_disc(0.66)
-                    .within_group(func.coalesce(s.c.time - t.c.time, timedelta(days=1000)))
-                    .label("response_time_p66"),
-                )
-                .where_users_visible(context)
-                .where(User.id == request.user_id)
-                .outerjoin(HostRequest, HostRequest.host_user_id == User.id)
-                .outerjoin(t, t.c.conversation_id == HostRequest.conversation_id)
-                .outerjoin(s, s.c.conversation_id == HostRequest.conversation_id)
-                .group_by(User.id)
-            ).one_or_none()
-
-            if not res:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-
-            _, n, response_rate, response_time_p33, response_time_p66 = res
-
-            if n < 3:
-                return api_pb2.GetResponseRateRes(
-                    response_rate=api_pb2.RESPONSE_RATE_INSUFFICIENT_DATA,
-                )
-
-            if response_rate <= 0.33:
-                rate_value = api_pb2.RESPONSE_RATE_LOW
-            elif response_rate <= 0.66:
-                rate_value = api_pb2.RESPONSE_RATE_SOME
-            elif response_rate <= 0.90:
-                rate_value = api_pb2.RESPONSE_RATE_MOST
-            else:
-                rate_value = api_pb2.RESPONSE_RATE_ALMOST_ALL
-
-            response_time_p33_coarsened = None
-            response_time_p66_coarsened = None
-            if response_rate > 0.33:
-                response_time_p33_coarsened = Duration_from_timedelta(
-                    timedelta(seconds=round(response_time_p33.total_seconds() / 60) * 60)
-                )
-            if response_rate > 0.66:
-                response_time_p66_coarsened = Duration_from_timedelta(
-                    timedelta(seconds=round(response_time_p66.total_seconds() / 60) * 60)
-                )
-
-            return api_pb2.GetResponseRateRes(
-                response_rate=rate_value,
-                response_time_p33=response_time_p33_coarsened,
-                response_time_p66=response_time_p66_coarsened,
-            )
 
     def InitiateMediaUpload(self, request, context):
         key = random_hex()
