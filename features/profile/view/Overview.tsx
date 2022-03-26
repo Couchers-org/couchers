@@ -2,7 +2,7 @@ import { CardActions } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Divider from "components/Divider";
-import { CouchIcon, LocationIcon, HourglassIcon } from "components/Icons";
+import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { CONNECTIONS } from "features/connections/constants";
