@@ -64,7 +64,11 @@ export default function HtmlMeta({
         }
       />
 
-      <meta key="description" name="description" content={description} />
+      <meta
+        key="description"
+        name="description"
+        content={description ?? t("html_meta.default_description")}
+      />
       <meta
         key="og_description"
         property="og:description"
