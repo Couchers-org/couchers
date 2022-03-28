@@ -73,7 +73,7 @@
     "@types/jest": "^27.4.1",
     "@types/markdown-it": "^12.2.3",
     "@types/node": "^16.11.26",
-    "@types/react": "^17.0.38",
+    "@types/react": "^17.0.43",
     "@types/react-dom": "^17.0.13",
     "@types/react-gtm-module": "^2.0.1",
     "@types/react-test-renderer": "^17.0.1",
