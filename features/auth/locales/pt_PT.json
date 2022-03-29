@@ -26,18 +26,35 @@
   "account_form": {
     "username": {
       "validation_error": "O utilizador apenas pode conter números ou _, devendo começar com uma letra.",
-      "required_error": "Introduz o teu nome de utilizador"
+      "required_error": "Introduz o teu nome de utilizador",
+      "field_label": "Nome de utilizador",
+      "username_taken_error": "Este nome de utilizador já existe."
     },
     "tos_prompt": "Para continuar, por favor lê e aceita o <1></1>.",
     "header": "Detalhes da tua conta",
     "password": {
-      "required_error": "Introduz uma palavra-passe"
+      "required_error": "Introduz uma palavra-passe",
+      "field_label": "Palavra-passe",
+      "validation_error": "A palavra-passe deve ter entre 8 e 256 carateres e não ser demasiado comum."
     },
     "birthday": {
-      "required_error": "Introduz a tua data de nascimento"
+      "required_error": "Introduz a tua data de nascimento",
+      "field_label": "Aniversário",
+      "validation_error": "Deve ser uma data válida no passado."
     },
     "gender": {
-      "required_error": "Por favor, seleciona a tua identidade de género"
+      "required_error": "Por favor, seleciona a tua identidade de género",
+      "non_binary": "Não binário",
+      "woman": "Mulher",
+      "man": "Homem",
+      "field_label": "Identifico-me como…"
+    },
+    "tos_accept_label": "Aceito os Termos de utilização.",
+    "hosting_status": {
+      "field_label": "Estado de anfitrião",
+      "can_host": "Pode hospedar",
+      "maybe": "Talvez possa hospedar",
+      "cant_host": "Não pode hospedar"
     }
   },
   "change_email_form": {
@@ -87,7 +104,8 @@
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Já tens uma conta? <2>Inicia sessão</2>",
-    "sign_up_agreement_explainer": "Ao continuar, aceitas os nossos <2>Termos de utilização</2>, incluindo as nossas políticas de gestão de dados, e-mails e cookies."
+    "sign_up_agreement_explainer": "Ao continuar, aceitas os nossos <2>Termos de utilização</2>, incluindo as nossas políticas de gestão de dados, e-mails e cookies.",
+    "header": "Vamos começar!"
   },
   "jail_set_password_form": {
     "title": "Definir uma palavra-passe",
