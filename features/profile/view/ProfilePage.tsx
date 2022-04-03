@@ -17,7 +17,7 @@ export const useProfileStyles = makeStyles((theme) => ({
     padding: theme.spacing(1),
     [theme.breakpoints.up("sm")]: {
       display: "grid",
-      gridTemplateColumns: "1fr 2fr",
+      gridTemplateColumns: "2fr 3fr",
       gridGap: theme.spacing(3),
       margin: theme.spacing(0, 3),
       padding: 0,
@@ -25,7 +25,7 @@ export const useProfileStyles = makeStyles((theme) => ({
       paddingBottom: theme.spacing(3),
     },
     [theme.breakpoints.up("md")]: {
-      gridTemplateColumns: "1fr 3fr",
+      gridTemplateColumns: "2fr 4fr",
       maxWidth: "61.5rem",
       margin: "0 auto",
     },
