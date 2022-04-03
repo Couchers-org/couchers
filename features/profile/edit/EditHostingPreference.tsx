@@ -47,15 +47,15 @@ import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { useRouter } from "next/router";
 import {
   ParkingDetails,
   SleepingArrangement,
   SmokingLocation,
 } from "proto/api_pb";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm, UseFormMethods } from "react-hook-form";
 import { HostingPreferenceData } from "service";
+import { useUnsavedChangesWarning } from "utils/hooks";
 
 import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
 import useStyles from "./styles";
@@ -106,28 +106,12 @@ export default function HostingPreferenceForm() {
     });
 
   const isDirty = formState.isDirty;
-  const router = useRouter();
-  // https://github.com/vercel/next.js/issues/2694#issuecomment-732990201
-  useEffect(() => {
-    const handleWindowClose = (e: BeforeUnloadEvent) => {
-      if (!isDirty) return;
-      e.preventDefault();
-      e.returnValue = t("profile:unsaved_changes_warning");
-      return;
-    };
-    const handleBrowseAway = () => {
-      if (!isDirty || formState.isSubmitted) return;
-      if (window.confirm(t("profile:unsaved_changes_warning"))) return;
-      router.events.emit("routeChangeError");
-      throw Error("Cancelled due to unsaved changes");
-    };
-    window.addEventListener("beforeunload", handleWindowClose);
-    router.events.on("routeChangeStart", handleBrowseAway);
-    return () => {
-      window.removeEventListener("beforeunload", handleWindowClose);
-      router.events.off("routeChangeStart", handleBrowseAway);
-    };
-  }, [isDirty, router.events, t, formState]);
+  const isSubmitted = formState.isSubmitted;
+  useUnsavedChangesWarning({
+    isDirty,
+    isSubmitted,
+    warningMessage: t("profile:unsaved_changes_warning"),
+  });
 
   const onSubmit = handleSubmit((data) => {
     resetUpdate();
