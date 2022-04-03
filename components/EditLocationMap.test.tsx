@@ -130,7 +130,14 @@ describe("Edit location map", () => {
           t("global:components.edit_location_map.display_location_label")
         )
       ).toHaveValue("test city, test country");
-      await waitFor(() => expect(updateLocation).toHaveBeenCalledTimes(1));
+      await waitFor(() => {
+        expect(
+          screen
+            .getByRole("combobox")
+            .classList.contains("MuiAutocomplete-loading")
+        ).toBe(false);
+        expect(updateLocation).toHaveBeenCalledTimes(1);
+      });
     });
   });
 });
