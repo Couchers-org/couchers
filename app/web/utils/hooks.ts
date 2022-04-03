@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/nextjs";
 import { LngLat } from "maplibre-gl";
+import { useRouter } from "next/router";
 import {
   Dispatch,
   MutableRefObject,
@@ -134,4 +135,43 @@ function usePrevious<T>(value: T) {
   return ref.current;
 }
 
-export { useGeocodeQuery, useIsMounted, usePrevious, useSafeState };
+function useUnsavedChangesWarning({
+  isDirty,
+  isSubmitted,
+  warningMessage,
+}: {
+  isDirty: boolean;
+  isSubmitted: boolean;
+  warningMessage: string;
+}) {
+  const router = useRouter();
+  // https://github.com/vercel/next.js/issues/2694#issuecomment-732990201
+  useEffect(() => {
+    const handleWindowClose = (e: BeforeUnloadEvent) => {
+      if (!isDirty) return;
+      e.preventDefault();
+      e.returnValue = warningMessage;
+      return;
+    };
+    const handleBrowseAway = () => {
+      if (!isDirty || isSubmitted) return;
+      if (window.confirm(warningMessage)) return;
+      router.events.emit("routeChangeError");
+      throw Error("Cancelled due to unsaved changes");
+    };
+    window.addEventListener("beforeunload", handleWindowClose);
+    router.events.on("routeChangeStart", handleBrowseAway);
+    return () => {
+      window.removeEventListener("beforeunload", handleWindowClose);
+      router.events.off("routeChangeStart", handleBrowseAway);
+    };
+  }, [isDirty, router.events, isSubmitted, warningMessage]);
+}
+
+export {
+  useGeocodeQuery,
+  useIsMounted,
+  usePrevious,
+  useSafeState,
+  useUnsavedChangesWarning,
+};

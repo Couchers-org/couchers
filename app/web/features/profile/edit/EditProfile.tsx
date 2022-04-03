@@ -44,13 +44,16 @@ import { userKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { useRouter } from "next/router";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { service, UpdateUserProfileData } from "service/index";
-import { useIsMounted, useSafeState } from "utils/hooks";
+import {
+  useIsMounted,
+  useSafeState,
+  useUnsavedChangesWarning,
+} from "utils/hooks";
 
 import {
   DEFAULT_ABOUT_ME_HEADINGS,
@@ -90,28 +93,12 @@ export default function EditProfileForm() {
     });
 
   const isDirty = formState.isDirty;
-  const router = useRouter();
-  // https://github.com/vercel/next.js/issues/2694#issuecomment-732990201
-  useEffect(() => {
-    const handleWindowClose = (e: BeforeUnloadEvent) => {
-      if (!isDirty) return;
-      e.preventDefault();
-      e.returnValue = t("profile:unsaved_changes_warning");
-      return;
-    };
-    const handleBrowseAway = () => {
-      if (!isDirty || formState.isSubmitted) return;
-      if (window.confirm(t("profile:unsaved_changes_warning"))) return;
-      router.events.emit("routeChangeError");
-      throw Error("Cancelled due to unsaved changes");
-    };
-    window.addEventListener("beforeunload", handleWindowClose);
-    router.events.on("routeChangeStart", handleBrowseAway);
-    return () => {
-      window.removeEventListener("beforeunload", handleWindowClose);
-      router.events.off("routeChangeStart", handleBrowseAway);
-    };
-  }, [isDirty, router.events, t, formState]);
+  const isSubmitted = formState.isSubmitted;
+  useUnsavedChangesWarning({
+    isDirty,
+    isSubmitted,
+    warningMessage: t("profile:unsaved_changes_warning"),
+  });
 
   //Although the default value was set above, if the page is just loaded,
   //user will be undefined on first render, so the default values will be undefined.
