@@ -1,3 +1,4 @@
+import CircularProgress from "components/CircularProgress";
 import LabelAndText from "components/LabelAndText";
 import {
   AGE_GENDER,
@@ -13,9 +14,13 @@ import {
   REFERENCES,
 } from "features/profile/constants";
 import { useLanguages } from "features/profile/hooks/useLanguages";
+import { responseRateKey } from "features/queryKeys";
+import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
-import { useTranslation } from "next-i18next";
 import { User } from "proto/api_pb";
+import { ResponseRate } from "proto/requests_pb";
+import { useQuery } from "react-query";
+import { service } from "service";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import { hourMillis, lessThanHour, timeAgo } from "utils/timeAgo";
@@ -40,6 +45,60 @@ export const LabelsReferencesLastActive = ({ user }: Props) => (
     />
   </>
 );
+
+export const LabelsResponseRate = ({ user }: Props) => {
+  const { t } = useTranslation("profile");
+  const query = useQuery(responseRateKey(user.userId), () =>
+    service.requests.getResponseRate(user.userId)
+  );
+  const rateText =
+    query.data?.responseRate === ResponseRate.RESPONSE_RATE_INSUFFICIENT_DATA
+      ? t("response_rate_text_insufficient")
+      : query.data?.responseRate === ResponseRate.RESPONSE_RATE_LOW
+      ? t("response_rate_text_low")
+      : query.data?.responseRate === ResponseRate.RESPONSE_RATE_SOME
+      ? t("response_rate_text_some")
+      : query.data?.responseRate === ResponseRate.RESPONSE_RATE_MOST
+      ? t("response_rate_text_most")
+      : query.data?.responseRate === ResponseRate.RESPONSE_RATE_ALMOST_ALL
+      ? t("response_rate_text_almost_all")
+      : undefined;
+  const timeText =
+    query.data?.responseRate === ResponseRate.RESPONSE_RATE_SOME
+      ? t("response_time_text_some", {
+          p33: dayjs
+            .duration(query.data.responseTimeP33!.seconds, "second")
+            .humanize(),
+        })
+      : query.data?.responseRate === ResponseRate.RESPONSE_RATE_MOST
+      ? t("response_time_text_most", {
+          p33: dayjs
+            .duration(query.data.responseTimeP33!.seconds, "second")
+            .humanize(),
+          p66: dayjs
+            .duration(query.data.responseTimeP66!.seconds, "second")
+            .humanize(),
+        })
+      : query.data?.responseRate === ResponseRate.RESPONSE_RATE_ALMOST_ALL
+      ? t("response_time_text_almost_all", {
+          p33: dayjs
+            .duration(query.data.responseTimeP33!.seconds, "second")
+            .humanize(),
+          p66: dayjs
+            .duration(query.data.responseTimeP66!.seconds, "second")
+            .humanize(),
+        })
+      : undefined;
+
+  return (
+    <>
+      <LabelAndText label={t("response_rate_label")} text={rateText ?? ""} />
+      {timeText && (
+        <LabelAndText label={t("response_time_label")} text={timeText} />
+      )}
+    </>
+  );
+};
 
 export const LabelsAgeGenderLanguages = ({ user }: Props) => {
   const { languages } = useLanguages();

@@ -72,5 +72,15 @@
     "additional_information_section_title": "Additional information",
     "travel_section_title": "Travelled to",
     "lived_section_title": "Lived in",
-    "regions_empty_state": "None"
+    "regions_empty_state": "None",
+    "response_rate_label": "Reponse rate",
+    "response_rate_text_insufficient": "Not sure yet",
+    "response_rate_text_low": "Rarely",
+    "response_rate_text_some": "Sometimes",
+    "response_rate_text_most": "Usually",
+    "response_rate_text_almost_all": "Almost always",
+    "response_time_label": "Response time",
+    "response_time_text_some": "Maybe in {{p33}}",
+    "response_time_text_most": "Usually in {{p33}} to {{p66}}",
+    "response_time_text_almost_all": "Usually in {{p33}} to {{p66}}"
 }
