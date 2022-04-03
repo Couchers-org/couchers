@@ -20,7 +20,7 @@ export const NO_MEETUP = "Can't meet";
 export const UNSURE = "Ask me";
 
 // Profile
-export const ABOUT_ME = "About";
+export const ABOUT_ME = "About Me";
 export const AGE_GENDER = "Age / Gender";
 export const COMMUNITY_STANDING = "Community Standing";
 export const COMMUNITY_STANDING_DESCRIPTION =
@@ -28,7 +28,7 @@ export const COMMUNITY_STANDING_DESCRIPTION =
 export const EDIT = "Edit";
 export const EDIT_PROFILE = "Edit profile";
 export const EDUCATION = "Education";
-export const HOME = "Home";
+export const HOME = "My Home";
 export const HOMETOWN = "Grew up in";
 export const HOSTING_STATUS = "Hosting status";
 export const JOINED = "Coucher since";
