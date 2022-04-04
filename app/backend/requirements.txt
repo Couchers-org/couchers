@@ -114,7 +114,7 @@ six==1.16.0
     # via
     #   grpcio
     #   python-dateutil
-sqlalchemy==1.4.32
+sqlalchemy==1.4.34
     # via
     #   -r requirements.in
     #   alembic
