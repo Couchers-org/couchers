@@ -383,7 +383,7 @@ describe("GroupChatView", () => {
     renderGroupChatView();
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
 
-    const sendButton = screen.getByRole("button", { name: SEND });
+    const sendButton = screen.getByRole("button", { name: t("global:send") });
     userEvent.click(sendButton);
     await waitForElementToBeRemoved(
       within(sendButton).getByRole("progressbar")

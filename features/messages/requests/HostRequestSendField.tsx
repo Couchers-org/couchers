@@ -118,7 +118,8 @@ export default function HostRequestSendField({
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
 
   const isReferenceAvailable =
-    hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED &&
+    (hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED ||
+      hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED) &&
     availableRefrences &&
     availableRefrences.availableWriteReferencesList.find(
       ({ hostRequestId }) => hostRequestId === hostRequest.hostRequestId
