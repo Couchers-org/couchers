@@ -781,9 +781,7 @@ def test_response_rate(db):
     with requests_session(token1) as api:
         # no requests: insufficient
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
-        assert res.response_rate == requests_pb2.RESPONSE_RATE_INSUFFICIENT_DATA
-        assert not res.HasField("response_time_p33")
-        assert not res.HasField("response_time_p66")
+        assert res.HasField("insufficient_data")
 
         # send a request and back date it by 36 hours
         host_request_1 = api.CreateHostRequest(
@@ -800,9 +798,7 @@ def test_response_rate(db):
 
         # still insufficient
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
-        assert res.response_rate == requests_pb2.RESPONSE_RATE_INSUFFICIENT_DATA
-        assert not res.HasField("response_time_p33")
-        assert not res.HasField("response_time_p66")
+        assert res.HasField("insufficient_data")
 
         # send a request and back date it by 35 hours
         host_request_2 = api.CreateHostRequest(
@@ -819,9 +815,7 @@ def test_response_rate(db):
 
         # still insufficient
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
-        assert res.response_rate == requests_pb2.RESPONSE_RATE_INSUFFICIENT_DATA
-        assert not res.HasField("response_time_p33")
-        assert not res.HasField("response_time_p66")
+        assert res.HasField("insufficient_data")
 
         # send a request and back date it by 34 hours
         host_request_3 = api.CreateHostRequest(
@@ -838,9 +832,7 @@ def test_response_rate(db):
 
         # now low
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
-        assert res.response_rate == requests_pb2.RESPONSE_RATE_LOW
-        assert not res.HasField("response_time_p33")
-        assert not res.HasField("response_time_p66")
+        assert res.HasField("low")
 
     with requests_session(token2) as api:
         # accept a host req
@@ -855,9 +847,8 @@ def test_response_rate(db):
     with requests_session(token1) as api:
         # now some w p33 = 35h
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
-        assert res.response_rate == requests_pb2.RESPONSE_RATE_SOME
-        assert res.response_time_p33.ToTimedelta() == timedelta(hours=35)
-        assert not res.HasField("response_time_p66")
+        assert res.HasField("some")
+        assert res.some.response_time_p33.ToTimedelta() == timedelta(hours=35)
 
     with requests_session(token2) as api:
         # accept another host req
@@ -872,9 +863,9 @@ def test_response_rate(db):
     with requests_session(token1) as api:
         # now most w p33 = 34h, p66 = 35h
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
-        assert res.response_rate == requests_pb2.RESPONSE_RATE_MOST
-        assert res.response_time_p33.ToTimedelta() == timedelta(hours=34)
-        assert res.response_time_p66.ToTimedelta() == timedelta(hours=35)
+        assert res.HasField("most")
+        assert res.most.response_time_p33.ToTimedelta() == timedelta(hours=34)
+        assert res.most.response_time_p66.ToTimedelta() == timedelta(hours=35)
 
     with requests_session(token2) as api:
         # accept last host req
@@ -889,9 +880,9 @@ def test_response_rate(db):
     with requests_session(token1) as api:
         # now all w p33 = 34h, p66 = 35h
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
-        assert res.response_rate == requests_pb2.RESPONSE_RATE_ALMOST_ALL
-        assert res.response_time_p33.ToTimedelta() == timedelta(hours=34)
-        assert res.response_time_p66.ToTimedelta() == timedelta(hours=35)
+        assert res.HasField("almost_all")
+        assert res.almost_all.response_time_p33.ToTimedelta() == timedelta(hours=34)
+        assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
 
         # send a request and back date it by 2 hours
         host_request_4 = api.CreateHostRequest(
@@ -921,9 +912,8 @@ def test_response_rate(db):
 
         # now some w p33 = 35h
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
-        assert res.response_rate == requests_pb2.RESPONSE_RATE_SOME
-        assert res.response_time_p33.ToTimedelta() == timedelta(hours=35)
-        assert not res.HasField("response_time_p66")
+        assert res.HasField("some")
+        assert res.some.response_time_p33.ToTimedelta() == timedelta(hours=35)
 
     with requests_session(token2) as api:
         # accept host req
@@ -938,9 +928,9 @@ def test_response_rate(db):
     with requests_session(token1) as api:
         # now most w p33 = 34h, p66 = 36h
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
-        assert res.response_rate == requests_pb2.RESPONSE_RATE_MOST
-        assert res.response_time_p33.ToTimedelta() == timedelta(hours=34)
-        assert res.response_time_p66.ToTimedelta() == timedelta(hours=36)
+        assert res.HasField("most")
+        assert res.most.response_time_p33.ToTimedelta() == timedelta(hours=34)
+        assert res.most.response_time_p66.ToTimedelta() == timedelta(hours=36)
 
     with requests_session(token2) as api:
         # accept host req
@@ -955,6 +945,6 @@ def test_response_rate(db):
     with requests_session(token1) as api:
         # now most w p33 = 4h, p66 = 35h
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
-        assert res.response_rate == requests_pb2.RESPONSE_RATE_ALMOST_ALL
-        assert res.response_time_p33.ToTimedelta() == timedelta(hours=4)
-        assert res.response_time_p66.ToTimedelta() == timedelta(hours=35)
+        assert res.HasField("almost_all")
+        assert res.almost_all.response_time_p33.ToTimedelta() == timedelta(hours=4)
+        assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
