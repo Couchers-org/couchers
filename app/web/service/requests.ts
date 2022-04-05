@@ -4,6 +4,7 @@ import {
   CreateHostRequestReq,
   GetHostRequestMessagesReq,
   GetHostRequestReq,
+  GetResponseRateReq,
   ListHostRequestsReq,
   MarkLastSeenHostRequestReq,
   RespondHostRequestReq,
@@ -102,4 +103,10 @@ export function markLastRequestSeen(hostRequestId: number, messageId: number) {
   req.setLastSeenMessageId(messageId);
 
   return client.requests.markLastSeenHostRequest(req);
+}
+
+export async function getResponseRate(userId: number) {
+  const req = new GetResponseRateReq();
+  req.setUserId(userId);
+  return (await client.requests.getResponseRate(req)).toObject();
 }

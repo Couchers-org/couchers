@@ -2,11 +2,12 @@ from datetime import timedelta
 
 import grpc
 import pytest
+from sqlalchemy.sql import select
 
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Message, MessageType
-from couchers.utils import today
+from couchers.utils import now, today
 from proto import api_pb2, conversations_pb2, requests_pb2
 from tests.test_fixtures import api_session, db, generate_user, requests_session, testconfig  # noqa
 
@@ -768,3 +769,192 @@ def test_mark_last_seen(db):
     with api_session(token2) as api:
         assert api.Ping(api_pb2.PingReq()).unseen_received_host_request_count == 1
         assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 1
+
+
+def test_response_rate(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    with requests_session(token1) as api:
+        # no requests: insufficient
+        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        assert res.response_rate == requests_pb2.RESPONSE_RATE_INSUFFICIENT_DATA
+        assert not res.HasField("response_time_p33")
+        assert not res.HasField("response_time_p66")
+
+        # send a request and back date it by 36 hours
+        host_request_1 = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+        with session_scope() as session:
+            session.execute(
+                select(Message)
+                .where(Message.conversation_id == host_request_1)
+                .where(Message.message_type == MessageType.chat_created)
+            ).scalar_one().time = now() - timedelta(hours=36)
+
+        # still insufficient
+        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        assert res.response_rate == requests_pb2.RESPONSE_RATE_INSUFFICIENT_DATA
+        assert not res.HasField("response_time_p33")
+        assert not res.HasField("response_time_p66")
+
+        # send a request and back date it by 35 hours
+        host_request_2 = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+        with session_scope() as session:
+            session.execute(
+                select(Message)
+                .where(Message.conversation_id == host_request_2)
+                .where(Message.message_type == MessageType.chat_created)
+            ).scalar_one().time = now() - timedelta(hours=35)
+
+        # still insufficient
+        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        assert res.response_rate == requests_pb2.RESPONSE_RATE_INSUFFICIENT_DATA
+        assert not res.HasField("response_time_p33")
+        assert not res.HasField("response_time_p66")
+
+        # send a request and back date it by 34 hours
+        host_request_3 = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+        with session_scope() as session:
+            session.execute(
+                select(Message)
+                .where(Message.conversation_id == host_request_3)
+                .where(Message.message_type == MessageType.chat_created)
+            ).scalar_one().time = now() - timedelta(hours=34)
+
+        # now low
+        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        assert res.response_rate == requests_pb2.RESPONSE_RATE_LOW
+        assert not res.HasField("response_time_p33")
+        assert not res.HasField("response_time_p66")
+
+    with requests_session(token2) as api:
+        # accept a host req
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_2,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Accepting host request",
+            )
+        )
+
+    with requests_session(token1) as api:
+        # now some w p33 = 35h
+        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        assert res.response_rate == requests_pb2.RESPONSE_RATE_SOME
+        assert res.response_time_p33.ToTimedelta() == timedelta(hours=35)
+        assert not res.HasField("response_time_p66")
+
+    with requests_session(token2) as api:
+        # accept another host req
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_3,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Accepting host request",
+            )
+        )
+
+    with requests_session(token1) as api:
+        # now most w p33 = 34h, p66 = 35h
+        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        assert res.response_rate == requests_pb2.RESPONSE_RATE_MOST
+        assert res.response_time_p33.ToTimedelta() == timedelta(hours=34)
+        assert res.response_time_p66.ToTimedelta() == timedelta(hours=35)
+
+    with requests_session(token2) as api:
+        # accept last host req
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_1,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Accepting host request",
+            )
+        )
+
+    with requests_session(token1) as api:
+        # now all w p33 = 34h, p66 = 35h
+        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        assert res.response_rate == requests_pb2.RESPONSE_RATE_ALMOST_ALL
+        assert res.response_time_p33.ToTimedelta() == timedelta(hours=34)
+        assert res.response_time_p66.ToTimedelta() == timedelta(hours=35)
+
+        # send a request and back date it by 2 hours
+        host_request_4 = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+        with session_scope() as session:
+            session.execute(
+                select(Message)
+                .where(Message.conversation_id == host_request_4)
+                .where(Message.message_type == MessageType.chat_created)
+            ).scalar_one().time = now() - timedelta(hours=2)
+
+        # send a request and back date it by 4 hours
+        host_request_5 = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+            )
+        ).host_request_id
+        with session_scope() as session:
+            session.execute(
+                select(Message)
+                .where(Message.conversation_id == host_request_5)
+                .where(Message.message_type == MessageType.chat_created)
+            ).scalar_one().time = now() - timedelta(hours=4)
+
+        # now some w p33 = 35h
+        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        assert res.response_rate == requests_pb2.RESPONSE_RATE_SOME
+        assert res.response_time_p33.ToTimedelta() == timedelta(hours=35)
+        assert not res.HasField("response_time_p66")
+
+    with requests_session(token2) as api:
+        # accept host req
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_5,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Accepting host request",
+            )
+        )
+
+    with requests_session(token1) as api:
+        # now most w p33 = 34h, p66 = 36h
+        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        assert res.response_rate == requests_pb2.RESPONSE_RATE_MOST
+        assert res.response_time_p33.ToTimedelta() == timedelta(hours=34)
+        assert res.response_time_p66.ToTimedelta() == timedelta(hours=36)
+
+    with requests_session(token2) as api:
+        # accept host req
+        api.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_4,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Accepting host request",
+            )
+        )
+
+    with requests_session(token1) as api:
+        # now most w p33 = 4h, p66 = 35h
+        res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
+        assert res.response_rate == requests_pb2.RESPONSE_RATE_ALMOST_ALL
+        assert res.response_time_p33.ToTimedelta() == timedelta(hours=4)
+        assert res.response_time_p66.ToTimedelta() == timedelta(hours=35)

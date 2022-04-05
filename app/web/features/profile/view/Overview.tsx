@@ -5,7 +5,6 @@ import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { CONNECTIONS } from "features/connections/constants";
 import FlagButton from "features/FlagButton";
 import FriendActions from "features/profile/actions/FriendActions";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
@@ -16,7 +15,9 @@ import {
   REQUEST,
 } from "features/profile/constants";
 import UserOverview from "features/profile/view/UserOverview";
+import { CONNECTIONS } from "i18n/namespaces";
 import Link from "next/link";
+import { useTranslation } from "next-i18next";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import { useState } from "react";
 import {
@@ -71,6 +72,7 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
   const currentUserId = useAuthContext().authState.userId;
   const [mutationError, setMutationError] = useState("");
   const user = useProfileUser();
+  const { t } = useTranslation([CONNECTIONS]);
 
   return (
     <UserOverview>
@@ -84,7 +86,7 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
               </Button>
             </Link>
             <Link href={connectionsRoute} passHref>
-              <Button component="a">{CONNECTIONS}</Button>
+              <Button component="a">{t("connections:my_connections")}</Button>
             </Link>
           </>
         ) : (

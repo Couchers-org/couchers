@@ -9,6 +9,8 @@ tasks:
   - name: Install and launch the frontend with yarn
     before: cd app/web
     init: |
+      nvm install 14
+      nvm use 14
       yarn install
       gp await-port 8888
     command: NEXT_PUBLIC_API_BASE_URL=$(gp url 8888) yarn start
