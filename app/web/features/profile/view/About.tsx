@@ -7,10 +7,7 @@ import { User } from "proto/api_pb";
 import makeStyles from "utils/makeStyles";
 
 import { useRegions } from "../hooks/useRegions";
-import {
-  LabelsAgeGenderLanguages,
-  RemainingAboutLabels,
-} from "./UserTextAndLabel";
+import { AgeGenderLanguagesLabels, RemainingAboutLabels } from "./userLabels";
 
 interface AboutProps {
   user: User.AsObject;
@@ -33,7 +30,7 @@ export default function About({ user }: AboutProps) {
       <Typography variant="h1">
         {t("profile:overview_section_title")}
       </Typography>
-      <LabelsAgeGenderLanguages user={user} />
+      <AgeGenderLanguagesLabels user={user} />
       <RemainingAboutLabels user={user} />
       <Divider className={classes.marginTop3} />
       {user.aboutMe && (
