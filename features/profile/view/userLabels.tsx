@@ -1,4 +1,3 @@
-import CircularProgress from "components/CircularProgress";
 import LabelAndText from "components/LabelAndText";
 import {
   AGE_GENDER,
@@ -18,7 +17,6 @@ import { responseRateKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { User } from "proto/api_pb";
-import { ResponseRate } from "proto/requests_pb";
 import { useQuery } from "react-query";
 import { service } from "service";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
