@@ -35,7 +35,7 @@
     "dayjs": "^1.11.0",
     "frontmatter-markdown-loader": "^3.6.3",
     "glob": "^7.2.0",
-    "google-protobuf": "^3.19.4",
+    "google-protobuf": "^3.20.0",
     "grpc-web": "1.3.1",
     "intersection-observer": "^0.12.0",
     "luhn": "^2.4.1",
