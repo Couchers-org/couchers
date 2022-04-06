@@ -29,7 +29,7 @@ interface Props {
   user: User.AsObject;
 }
 
-export const LabelsReferencesLastActive = ({ user }: Props) => (
+export const ReferencesLastActiveLabels = ({ user }: Props) => (
   <>
     <LabelAndText label={REFERENCES} text={`${user.numReferences || 0}`} />
     <LabelAndText
@@ -46,49 +46,47 @@ export const LabelsReferencesLastActive = ({ user }: Props) => (
   </>
 );
 
-export const LabelsResponseRate = ({ user }: Props) => {
+export const ResponseRateLabel = ({ user }: Props) => {
   const { t } = useTranslation("profile");
   const query = useQuery(responseRateKey(user.userId), () =>
     service.requests.getResponseRate(user.userId)
   );
-  const rateText =
-    query.data?.responseRate === ResponseRate.RESPONSE_RATE_INSUFFICIENT_DATA
-      ? t("response_rate_text_insufficient")
-      : query.data?.responseRate === ResponseRate.RESPONSE_RATE_LOW
-      ? t("response_rate_text_low")
-      : query.data?.responseRate === ResponseRate.RESPONSE_RATE_SOME
-      ? t("response_rate_text_some")
-      : query.data?.responseRate === ResponseRate.RESPONSE_RATE_MOST
-      ? t("response_rate_text_most")
-      : query.data?.responseRate === ResponseRate.RESPONSE_RATE_ALMOST_ALL
-      ? t("response_rate_text_almost_all")
-      : undefined;
-  const timeText =
-    query.data?.responseRate === ResponseRate.RESPONSE_RATE_SOME
-      ? t("response_time_text_some", {
-          p33: dayjs
-            .duration(query.data.responseTimeP33!.seconds, "second")
-            .humanize(),
-        })
-      : query.data?.responseRate === ResponseRate.RESPONSE_RATE_MOST
-      ? t("response_time_text_most", {
-          p33: dayjs
-            .duration(query.data.responseTimeP33!.seconds, "second")
-            .humanize(),
-          p66: dayjs
-            .duration(query.data.responseTimeP66!.seconds, "second")
-            .humanize(),
-        })
-      : query.data?.responseRate === ResponseRate.RESPONSE_RATE_ALMOST_ALL
-      ? t("response_time_text_almost_all", {
-          p33: dayjs
-            .duration(query.data.responseTimeP33!.seconds, "second")
-            .humanize(),
-          p66: dayjs
-            .duration(query.data.responseTimeP66!.seconds, "second")
-            .humanize(),
-        })
-      : undefined;
+
+  let rateText = undefined;
+  let timeText = undefined;
+
+  if (query?.data?.insufficientData) {
+    rateText = t("response_rate_text_insufficient");
+  } else if (query?.data?.low) {
+    rateText = t("response_rate_text_low");
+  } else if (query?.data?.some) {
+    rateText = t("response_rate_text_some");
+    timeText = t("response_time_text_some", {
+      p33: dayjs
+        .duration(query.data.some.responseTimeP33!.seconds, "second")
+        .humanize(),
+    });
+  } else if (query?.data?.most) {
+    rateText = t("response_rate_text_most");
+    timeText = t("response_time_text_most", {
+      p33: dayjs
+        .duration(query.data.most.responseTimeP33!.seconds, "second")
+        .humanize(),
+      p66: dayjs
+        .duration(query.data.most.responseTimeP66!.seconds, "second")
+        .humanize(),
+    });
+  } else if (query?.data?.almostAll) {
+    rateText = t("response_rate_text_almost_all");
+    timeText = t("response_time_text_almost_all", {
+      p33: dayjs
+        .duration(query.data.almostAll.responseTimeP33!.seconds, "second")
+        .humanize(),
+      p66: dayjs
+        .duration(query.data.almostAll.responseTimeP66!.seconds, "second")
+        .humanize(),
+    });
+  }
 
   return (
     <>
@@ -100,7 +98,7 @@ export const LabelsResponseRate = ({ user }: Props) => {
   );
 };
 
-export const LabelsAgeGenderLanguages = ({ user }: Props) => {
+export const AgeGenderLanguagesLabels = ({ user }: Props) => {
   const { languages } = useLanguages();
 
   return (

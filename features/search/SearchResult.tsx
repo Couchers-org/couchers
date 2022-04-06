@@ -9,9 +9,9 @@ import {
   meetupStatusLabels,
 } from "features/profile/constants";
 import {
-  LabelsAgeGenderLanguages,
-  LabelsReferencesLastActive,
-} from "features/profile/view/UserTextAndLabel";
+  AgeGenderLanguagesLabels,
+  ReferencesLastActiveLabels,
+} from "features/profile/view/userLabels";
 import { getShowUserOnMap } from "features/search/constants";
 import { User } from "proto/api_pb";
 import LinesEllipsis from "react-lines-ellipsis";
@@ -143,8 +143,8 @@ export default function SearchResult({
           <Typography variant="body1" className={classes.about}>
             {stripMarkdown(aboutText(user))}
           </Typography>
-          <LabelsAgeGenderLanguages user={user} />
-          <LabelsReferencesLastActive user={user} />
+          <AgeGenderLanguagesLabels user={user} />
+          <ReferencesLastActiveLabels user={user} />
         </Hidden>
         <Button
           onClick={() => onSelect(user)}
