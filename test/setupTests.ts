@@ -34,7 +34,8 @@ jest.mock("next/dynamic", () => ({
 jest.setTimeout(15000);
 
 global.defaultUser = user;
-global.localStorage = createLocalStorageMock();
+global.localStorage = createWebStorageMock();
+global.sessionStorage = createWebStorageMock();
 
 //sentry testing was causing OOM for some reason
 //const { testkit, sentryTransport } = sentryTestkit();
@@ -49,6 +50,7 @@ beforeAll(() => {
 
 beforeEach(async () => {
   global.localStorage.clear();
+  global.sessionStorage.clear();
   jest.restoreAllMocks();
   //testkit.reset();
   await waitFor(() => {
@@ -68,7 +70,7 @@ declare global {
   var testKit: sentryTestkit.Testkit; // eslint-disable-line
 }
 
-function createLocalStorageMock() {
+function createWebStorageMock() {
   return {
     clear() {
       this.store = {};

@@ -4,19 +4,13 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { UPDATE } from "features/constants";
 import mockRouter from "next-router-mock";
 import { routeToCommunity, routeToEditCommunityPage } from "routes";
 import { service } from "service";
 import community from "test/fixtures/community.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 
-import {
-  COMMUNITY_PAGE_UPDATED,
-  EDIT_LOCAL_INFO,
-  PAGE_CONTENT_FIELD_LABEL,
-} from "./constants";
 import EditCommunityInfoPage from "./EditCommunityInfoPage";
 
 jest.mock("components/MarkdownInput");
@@ -47,10 +41,19 @@ describe("Edit community page", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(
-      screen.getByRole("heading", { name: EDIT_LOCAL_INFO })
+      screen.getByRole("heading", {
+        name: t("communities:edit_info_page_title"),
+      })
     ).toBeVisible();
-    expect(screen.getByLabelText(PAGE_CONTENT_FIELD_LABEL)).toBeVisible();
-    expect(screen.getByRole("button", { name: UPDATE })).toBeVisible();
+    expect(
+      screen.getByLabelText(t("communities:page_content_field_label"))
+    ).toBeVisible();
+    expect(
+      screen.getByLabelText(t("communities:page_content_field_label"))
+    ).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: t("global:update") })
+    ).toBeVisible();
   });
 
   it("redirects the user back to the community page if they do not have permission", async () => {
@@ -73,14 +76,16 @@ describe("Edit community page", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     userEvent.type(
-      screen.getByLabelText(PAGE_CONTENT_FIELD_LABEL),
+      screen.getByLabelText(t("communities:page_content_field_label")),
       " are great!"
     );
-    userEvent.click(screen.getByRole("button", { name: UPDATE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:update") }));
 
     const successAlert = await screen.findByRole("alert");
     expect(successAlert).toBeVisible();
-    expect(successAlert).toHaveTextContent(COMMUNITY_PAGE_UPDATED);
+    expect(successAlert).toHaveTextContent(
+      t("communities:edit_info_page_success_message")
+    );
     expect(updatePageMock).toHaveBeenCalledTimes(1);
     expect(updatePageMock).toHaveBeenCalledWith({
       content: newContent,
@@ -96,7 +101,7 @@ describe("Edit community page", () => {
     renderEditCommunityPage();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(screen.getByRole("button", { name: UPDATE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:update") }));
 
     await assertErrorAlert(errorMessage);
   });

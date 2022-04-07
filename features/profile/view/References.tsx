@@ -2,8 +2,8 @@ import { Select, Typography } from "@material-ui/core";
 import Button from "components/Button";
 import { AddIcon } from "components/Icons";
 import { MenuItem } from "components/Menu";
-import { REFERENCES } from "features/constants";
 import {
+  REFERENCES,
   REFERENCES_FILTER_A11Y_LABEL,
   referencesFilterLabels,
   WRITE_REFERENCE,

@@ -199,7 +199,7 @@ export default function Signup() {
             },
           });
           authActions.authError(
-            isGrpcError(err) ? err.message : t("global:fatal_error_message")
+            isGrpcError(err) ? err.message : t("global:error.fatal_message")
           );
           router.push(signupRoute);
           return;

@@ -1,13 +1,14 @@
 import { Link, makeStyles, Typography } from "@material-ui/core";
-import { LEGAL_NAME } from "appConstants";
 import classNames from "classnames";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import Landscape from "features/donations/resources/landscape.jpeg";
+import { DONATIONS, GLOBAL } from "i18n/namespaces";
 import { Trans, useTranslation } from "next-i18next";
 import CouchersLogo from "resources/CouchersLogo";
 import { foundationRoute } from "routes";
 
+import { BENEFACTOR_EMAIL } from "./constants";
 import DonationsBox from "./DonationsBox";
 
 const useStyles = makeStyles((theme) => ({
@@ -119,17 +120,19 @@ const useStyles = makeStyles((theme) => ({
 export default function Donations() {
   const classes = useStyles();
 
-  const { t } = useTranslation("donations");
+  const { t } = useTranslation([GLOBAL, DONATIONS]);
 
   return (
     <>
-      <HtmlMeta title={t("donate")} />
+      <HtmlMeta title={t("donations:donate")} />
       <div className={classes.donationsWrapper}>
         <div className={classes.donationsLogoHeader}>
           <CouchersLogo className={classes.donationsLogo} />
           <div className={classes.donationsLogoText}>
-            <Typography variant="h2">{t("donations_banner.title")}</Typography>
-            <Typography>{t("donations_banner.body")}</Typography>
+            <Typography variant="h2">
+              {t("donations:donations_banner.title")}
+            </Typography>
+            <Typography>{t("donations:donations_banner.body")}</Typography>
           </div>
         </div>
         <img className={classes.donationsImage} src={Landscape.src} alt="" />
@@ -146,10 +149,10 @@ export default function Donations() {
 
         <div className={classes.donationsLayoutBenefactorText}>
           <Typography className={classes.marginBottom3} variant="body2">
-            <Trans t={t} i18nKey="donations_info">
+            <Trans t={t} i18nKey="donations:donations_info">
               Your donation goes to
               <Link className={classes.link} href={foundationRoute}>
-                {{ legal_name: LEGAL_NAME }}
+                {{ legal_name: t("global:legal_name") }}
               </Link>
               , a U.S. 501(c)(3) non-profit that operates the Couchers.org
               service and supports the project. Donations are tax exempt, our
@@ -158,13 +161,13 @@ export default function Donations() {
           </Typography>
 
           <Typography className={classes.marginBottom3} variant="body2">
-            <Trans t={t} i18nKey="benefactor_contact">
+            <Trans t={t} i18nKey="donations:benefactor_contact">
               If you wish to contribute over $1000, please contact us at
               <Link
                 className={classes.link}
-                href={`mailto:${t("benefactor_email")}`}
+                href={`mailto:${BENEFACTOR_EMAIL}`}
               >
-                {{ email: t("benefactor_email") }}
+                {{ email: BENEFACTOR_EMAIL }}
               </Link>
               for us to arrange a lower fee transfer.
             </Trans>
@@ -176,10 +179,10 @@ export default function Donations() {
             classes.donationsLayoutText
           )}
         >
-          <Typography variant="h1">{t("donations_title")}</Typography>
+          <Typography variant="h1">{t("donations:donations_title")}</Typography>
           <Markdown
             className={classes.donationsText}
-            source={t("donations_text")}
+            source={t("donations:donations_text")}
           />
         </div>
 
@@ -187,7 +190,7 @@ export default function Donations() {
           className={classes.donationsLayoutSecondaryTitle}
           variant="h2"
         >
-          {t("donations_title2")}
+          {t("donations:donations_title2")}
         </Typography>
 
         <Markdown
@@ -195,7 +198,7 @@ export default function Donations() {
             classes.donationsText,
             classes.donationsLayoutSecondaryText
           )}
-          source={t("donations_text2")}
+          source={t("donations:donations_text2")}
         />
       </section>
     </>

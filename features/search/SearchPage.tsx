@@ -4,13 +4,14 @@ import Map from "components/Map";
 import SearchBox from "features/search/SearchBox";
 import useSearchFilters from "features/search/useSearchFilters";
 import { Point } from "geojson";
+import { useTranslation } from "i18n";
+import { GLOBAL, SEARCH } from "i18n/namespaces";
 import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { searchRoute } from "routes";
 import { usePrevious } from "utils/hooks";
 
-import { MAP_SEARCH } from "../../appConstants";
 import SearchResultsList from "./SearchResultsList";
 import { addClusteredUsersToMap, layers } from "./users";
 
@@ -52,6 +53,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function SearchPage() {
+  const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
   const theme = useTheme();
 
@@ -185,7 +187,7 @@ export default function SearchPage() {
 
   return (
     <>
-      <HtmlMeta title={MAP_SEARCH} />
+      <HtmlMeta title={t("global:nav.map_search")} />
       <div className={classes.container}>
         <Hidden smDown>
           <SearchResultsList

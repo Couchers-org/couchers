@@ -6,7 +6,6 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { EVENTS_EMPTY_STATE } from "features/communities/constants";
 import { mockIsIntersecting } from "react-intersection-observer/test-utils";
 import { service } from "service";
 import events from "test/fixtures/events.json";
@@ -18,7 +17,6 @@ import {
   t,
 } from "test/utils";
 
-import { MY_EVENTS } from "./constants";
 import MyEvents from "./MyEvents";
 
 const listMyEventsMock = service.events.listMyEvents as jest.MockedFunction<
@@ -38,7 +36,9 @@ describe("My events", () => {
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(screen.getByRole("heading", { name: MY_EVENTS })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: t("dashboard:my_events") })
+    ).toBeVisible();
     expect(screen.getAllByRole("link")).toHaveLength(3);
   });
 
@@ -50,7 +50,7 @@ describe("My events", () => {
     render(<MyEvents />, { wrapper });
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(screen.getByText(EVENTS_EMPTY_STATE)).toBeVisible();
+    expect(screen.getByText(t("communities:events_empty_state"))).toBeVisible();
     // Check that there are no events card, in addition to empty state
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
@@ -64,7 +64,9 @@ describe("My events", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     await assertErrorAlert(errorMessage);
-    expect(screen.queryByText(EVENTS_EMPTY_STATE)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(t("communities:events_empty_state"))
+    ).not.toBeInTheDocument();
   });
 
   describe("when there are more than one page of events", () => {
