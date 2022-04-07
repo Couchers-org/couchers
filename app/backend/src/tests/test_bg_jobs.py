@@ -19,6 +19,7 @@ from couchers.jobs.handlers import (
     process_send_onboarding_emails,
     process_send_reference_reminders,
     process_send_request_notifications,
+    process_update_recommendation_scores,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.metrics import create_prometheus_server, job_process_registry
@@ -958,3 +959,7 @@ def test_process_add_users_to_email_list(db):
         with patch("couchers.jobs.handlers.requests.post") as mock:
             process_add_users_to_email_list(empty_pb2.Empty())
         mock.assert_not_called()
+
+
+def test_process_update_recommendation_scores(db):
+    process_update_recommendation_scores(empty_pb2.Empty())

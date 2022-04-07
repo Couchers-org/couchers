@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EditLocationMapProps } from "components/EditLocationMap";
-import { HOSTING_STATUS, WOMAN } from "features/constants";
 import { hostingStatusLabels } from "features/profile/constants";
 import { StatusCode } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
@@ -95,11 +94,15 @@ describe("AccountForm", () => {
         hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST]
       );
       userEvent.selectOptions(
-        screen.getByLabelText(HOSTING_STATUS),
+        screen.getByLabelText(
+          t("auth:account_form.hosting_status.field_label")
+        ),
         hostingStatusItem
       );
 
-      userEvent.click(screen.getByLabelText(WOMAN));
+      userEvent.click(
+        screen.getByLabelText(t("auth:account_form.gender.woman"))
+      );
       userEvent.click(
         screen.getByLabelText(t("auth:account_form.tos_accept_label"))
       );
@@ -213,7 +216,9 @@ describe("AccountForm", () => {
     });
 
     it("fails if hosting status is blank", async () => {
-      const field = screen.getByLabelText(HOSTING_STATUS);
+      const field = screen.getByLabelText(
+        t("auth:account_form.hosting_status.field_label")
+      );
       userEvent.selectOptions(field, "");
       userEvent.click(
         screen.getByRole("button", { name: t("global:sign_up") })
@@ -224,7 +229,7 @@ describe("AccountForm", () => {
     });
 
     it("fails on blank gender status", async () => {
-      const field = screen.getByLabelText(WOMAN);
+      const field = screen.getByLabelText(t("auth:account_form.gender.woman"));
       userEvent.clear(field);
       userEvent.click(
         screen.getByRole("button", { name: t("global:sign_up") })

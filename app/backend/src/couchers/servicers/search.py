@@ -464,8 +464,8 @@ class Search(search_pb2_grpc.SearchServicer):
             next_user_id = float(decrypt_page_token(request.page_token)) if request.page_token else 1e10
 
             statement = (
-                statement.where(User.daily_order_key <= next_user_id)
-                .order_by(User.daily_order_key.desc())
+                statement.where(User.recommendation_score <= next_user_id)
+                .order_by(User.recommendation_score.desc())
                 .limit(page_size + 1)
             )
             users = session.execute(statement).scalars().all()
@@ -478,5 +478,7 @@ class Search(search_pb2_grpc.SearchServicer):
                     )
                     for user in users[:page_size]
                 ],
-                next_page_token=encrypt_page_token(str(users[-1].daily_order_key)) if len(users) > page_size else None,
+                next_page_token=encrypt_page_token(str(users[-1].recommendation_score))
+                if len(users) > page_size
+                else None,
             )

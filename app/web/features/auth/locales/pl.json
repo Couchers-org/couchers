@@ -1,1 +1,114 @@
-{}
+{
+  "change_email_form": {
+    "title": "Zmień adres e-mail",
+    "current_email_message": "Twój obecny adres e-mail to <1>{{email}}</1>.",
+    "new_email": "Nowy adres e-mail",
+    "current_password": "Obecne hasło",
+    "success_message": "Otrzymaliśmy prośbę o zmianę adresu e-mail. Sprawdź swoją skrzynkę pocztową, żeby dokończyć zmianę."
+  },
+  "change_password_form": {
+    "new_password": "Nowe hasło",
+    "password_mismatch_error": "Hasła nie pasują do siebie.",
+    "title": "Zmień hasło",
+    "confirm_password": "Potwierdź hasło",
+    "old_password": "Stare hasło",
+    "password_changed_success": "Twoje nowe hasło zostało ustawione, a powiadomienie wysłane na adres e-mail."
+  },
+  "login_page": {
+    "header": "Witaj z powrotem!",
+    "form": {
+      "remember_me": "Zapamiętaj mnie",
+      "password_field_label": "Hasło",
+      "forgot_password": "Nie pamiętasz hasła?",
+      "no_password_login_prompt": "Sprawdź swoją skrzynkę e-mail, aby odebrać link do zalogowania się! :)"
+    },
+    "title": "Zaloguj się"
+  },
+  "account_form": {
+    "password": {
+      "required_error": "Wpisz hasło",
+      "field_label": "Hasło"
+    },
+    "birthday": {
+      "field_label": "Data urodzenia",
+      "required_error": "Wpisz swoją datę urodzenia"
+    },
+    "gender": {
+      "man": "Meżczyzna",
+      "non_binary": "Osoba niebinarna",
+      "woman": "Kobieta"
+    }
+  },
+  "change_phone": {
+    "add_success": "Dodano numer telefonu.",
+    "change_button_text": "Zmień numer telefonu",
+    "verify_button_text": "Potwierdź numer telefonu",
+    "title": "Numer telefonu",
+    "add_button_text": "Dodaj numer telefonu",
+    "phone_label": "Twój numer telefonu",
+    "verify_success": "Numer telefonu potwierdzony.",
+    "code_label": "Kod weryfikacyjny",
+    "wrong_code": "Kod jest niepoprawny.",
+    "remove_success": "Usunięto numer telefonu.",
+    "remove_button_text": "Usuń obecny numer telefonu",
+    "remove_phone_description": "Twój obecny numer telefonu to <2>{{phone}}</2>. Możesz usunąć swój numer poniżej.",
+    "phone_not_verified_description": "Wysłaliśmy kod pod numer <2>{{phone}}</2>. Aby potwierdzić swój numer telefonu, wpisz kod poniżej:",
+    "change_to_different_description": "Aby zmienić numer telefonu, wpisz nowy poniżej."
+  },
+  "basic_form": {
+    "name": {
+      "required_error": "Pole z imieniem nie może zostać puste.",
+      "field_label": "Twoje imię",
+      "empty_error": "Wpisz swoje imię"
+    },
+    "email": {
+      "field_label": "Adres e-mail",
+      "required_error": "Pole adresu e-mail nie może być puste."
+    }
+  },
+  "jail": {
+    "location_section": {
+      "submit_button": {
+        "inactive_text": "Dzięki!",
+        "active_text": "Zapisz"
+      },
+      "resubmit_button_text": "Wyślij ponownie"
+    }
+  },
+  "community_guidelines_form": {
+    "guideline": {
+      "checkbox_label": "Ok, wszystko jasne"
+    }
+  },
+  "unsubscribe": {
+    "missing_payload_or_sig": "Nieprawidłowy adres URL",
+    "title": "Zrezygnuj z subskrypcji",
+    "button_text": "Potwierdź rezygnację z subskrypcji",
+    "error_message": "Błąd podczas rezygnacji z subskrypcji: {{message}}"
+  },
+  "unhandled_sign_up_state": "Błąd: unhandled signup flow state.",
+  "notification_settings": {
+    "title": "Ustawienia powiadomień"
+  },
+  "change_email_confirmation": {
+    "success_message": "Udało się zmienić adres e-mail!",
+    "change_in_progress": "Zmiana adresu e-mail jest w trakcie realizacji…",
+    "requires_confirmation_from_old_email": "Dziękujemy za potwierdzenie swojego nowego adresu e-mail. Aby dokończyć zmianę, musisz potwierdzić również swój stary adres.",
+    "error_message": "Błąd podczas zmiany adresu e-mail: {{message}}",
+    "requires_confirmation_from_new_email": "Dziękujemy za potwierdzenie swojego starego adresu e-mail. Aby dokończyć zmianę, musisz potwierdzić również swój nowy adres.",
+    "invalid_confirmation_state": "Adres e-mail nie został właściwie potwierdzony"
+  },
+  "account_settings_page": {
+    "birth_date_section": {
+      "title": "Zmień datę urodzenia"
+    }
+  },
+  "jail_set_password_form": {
+    "title": "Ustaw hasło"
+  },
+  "reset_password": "Zresetuj hasło",
+  "reset_password_error": "Błąd podczas próby zresetowania hasła: {{message}}",
+  "reset_password_form": {
+    "success_message": "Sprawdź swoją skrzynkę e-mail, aby odebrać link do zresetowania hasła!"
+  }
+}
