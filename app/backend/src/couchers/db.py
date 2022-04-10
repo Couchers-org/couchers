@@ -42,13 +42,14 @@ def apply_migrations():
 @functools.lru_cache
 def _get_base_engine():
     if config.config["IN_TEST"]:
-        poolclass = NullPool
-        pool_size = 0
+        pool_opts = {"poolclass": NullPool}
     else:
-        # one connection per thread
-        poolclass = SingletonThreadPool
-        # main threads + a couple for bg workers, etc
-        pool_size = SERVER_THREADS + 12
+        pool_opts = {
+            # one connection per thread
+            "poolclass": SingletonThreadPool,
+            # main threads + a couple for bg workers, etc
+            "pool_size": SERVER_THREADS + 12,
+        }
 
     # `future` enables SQLalchemy 2.0 behaviour
     # `pool_pre_ping` checks that the connections in the pool are alive before using them, which avoids the "server
@@ -57,8 +58,7 @@ def _get_base_engine():
         config.config["DATABASE_CONNECTION_STRING"],
         future=True,
         pool_pre_ping=True,
-        poolclass=poolclass,
-        pool_size=pool_size,
+        **pool_opts,
     )
 
 
