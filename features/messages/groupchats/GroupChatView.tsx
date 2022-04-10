@@ -252,12 +252,12 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
                   <CircularProgress size="1.5rem" />
                 ) : (
                   groupChat?.muteInfo?.muted && (
-                    <>
-                      <MuteIcon data-testid="mute-icon" />
-                      <Typography variant="srOnly">
-                        {t("messages:chat_view.muted_icon.a11y_label")}
-                      </Typography>
-                    </>
+                    <MuteIcon
+                      data-testid="mute-icon"
+                      titleAccess={t(
+                        "messages:chat_view.muted_icon.a11y_label"
+                      )}
+                    />
                   )
                 )}
               </div>
@@ -265,12 +265,10 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
               <div className={classes.title}>
                 <PageTitle>{title || <Skeleton width={100} />}</PageTitle>
                 {groupChat?.muteInfo?.muted && (
-                  <>
-                    <MuteIcon data-testid="mute-icon" />
-                    <Typography variant="srOnly">
-                      {t("messages:chat_view.muted_icon.a11y_label")}
-                    </Typography>
-                  </>
+                  <MuteIcon
+                    data-testid="mute-icon"
+                    titleAccess={t("messages:chat_view.muted_icon.a11y_label")}
+                  />
                 )}
               </div>
             )}
