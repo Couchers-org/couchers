@@ -13,13 +13,14 @@ import {
 } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { RpcError } from "grpc-web";
+import { Trans } from "i18n";
 import {
   ContributeOption,
   ContributorForm as ContributorFormPb,
 } from "proto/auth_pb";
-import { Trans, useTranslation } from "i18n";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
@@ -133,12 +134,6 @@ export default function ContributorForm({
         <Typography variant="body1">{SUCCESS_MSG}</Typography>
       ) : (
         <form onSubmit={submit}>
-          <Trans i18nKey="auth:feedback_form.skip_title">
-            <Typography variant="h1" gutterBottom>
-              Not interested
-              <button onClick={submit}>skip this step.</button>
-            </Typography>
-          </Trans>
           <Typography variant="body2" paragraph>
             {QUESTIONS_OPTIONAL}
           </Typography>
