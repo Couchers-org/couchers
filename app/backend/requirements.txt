@@ -10,11 +10,11 @@ attrs==21.4.0
     # via pytest
 autoflake==1.4
     # via -r requirements.in
-black==22.1.0
+black==22.3.0
     # via -r requirements.in
-boto3==1.21.27
+boto3==1.21.36
     # via -r requirements.in
-botocore==1.24.27
+botocore==1.24.36
     # via
     #   boto3
     #   s3transfer
@@ -72,7 +72,7 @@ pluggy==1.0.0
     # via pytest
 prometheus-client==0.13.1
     # via -r requirements.in
-protobuf==3.19.4
+protobuf==3.20.0
     # via -r requirements.in
 psycopg2-binary==2.9.3
     # via -r requirements.in
@@ -114,12 +114,12 @@ six==1.16.0
     # via
     #   grpcio
     #   python-dateutil
-sqlalchemy==1.4.32
+sqlalchemy==1.4.34
     # via
     #   -r requirements.in
     #   alembic
     #   geoalchemy2
-stripe==2.68.0
+stripe==2.70.0
     # via -r requirements.in
 tomli==2.0.0
     # via

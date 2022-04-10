@@ -16,7 +16,7 @@ cffi==1.15.0
     #   pyvips
 click==8.0.3
     # via flask
-flask==2.0.3
+flask==2.1.1
     # via -r requirements.in
 grpcio==1.44.0
     # via -r requirements.in
@@ -34,7 +34,7 @@ pillow==9.0.1
     # via -r requirements.in
 pluggy==1.0.0
     # via pytest
-protobuf==3.19.4
+protobuf==3.20.0
     # via -r requirements.in
 py==1.11.0
     # via pytest

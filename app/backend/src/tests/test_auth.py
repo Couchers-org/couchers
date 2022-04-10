@@ -578,7 +578,7 @@ def test_signup_invalid_birthdate(db):
                         username="franklin",
                         password="a very insecure password",
                         city="Los Santos",
-                        birthdate="2004-04-09",  # arbitrary birthdate around 17 years
+                        birthdate="2010-04-09",  # arbitrary birthdate < 18 yrs
                         gender="Male",
                         hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
                         lat=1,
