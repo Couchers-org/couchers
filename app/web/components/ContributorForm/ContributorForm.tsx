@@ -133,14 +133,12 @@ export default function ContributorForm({
         <Typography variant="body1">{SUCCESS_MSG}</Typography>
       ) : (
         <form onSubmit={submit}>
-          <Typography variant="h1" gutterBottom>
-          <Trans i18nKey="auth:feedback_form.skiptitle">
-          Not interested
-            <button onclick="submit()"> 
-              skip this step.
-            </button>    
+          <Trans i18nKey="auth:feedback_form.skip_title">
+            <Typography variant="h1" gutterBottom>
+              Not interested
+              <button onClick={submit}>skip this step.</button>
+            </Typography>
           </Trans>
-        </Typography>
           <Typography variant="body2" paragraph>
             {QUESTIONS_OPTIONAL}
           </Typography>

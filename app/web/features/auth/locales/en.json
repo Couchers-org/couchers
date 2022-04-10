@@ -106,7 +106,7 @@
   },
   "feedback_form": {
     "header": "Have your say",
-    "skiptitle":"Not interested? Click <1>here</1> to skip this step."
+    "skip_title": "Not interested? <1>Skip this step.</1>"
   },
   "jail": {
     "title": "More information required",
