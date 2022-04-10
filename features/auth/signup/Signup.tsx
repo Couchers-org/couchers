@@ -126,12 +126,6 @@ function CurrentForm() {
         <Typography variant="h1" gutterBottom>
           {t("auth:feedback_form.header")}
         </Typography>
-        <Typography variant="h1" gutterBottom>
-          <Trans i18nKey="auth:feedback_form.skip_title">
-            Not interested
-            <StyledLink href={loginRoute}>skip this step.</StyledLink>
-          </Trans>
-        </Typography>
         <FeedbackForm />
       </>
     );
