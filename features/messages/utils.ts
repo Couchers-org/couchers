@@ -3,6 +3,8 @@ import { GroupChat, Message } from "proto/conversations_pb";
 import { TFunction } from "react-i18next";
 import { firstName } from "utils/names";
 
+import { requestStatusToTransKey } from "./constants";
+
 export function isControlMessage(message: Message.AsObject) {
   return !message.text;
 }
@@ -51,23 +53,11 @@ export function controlMessage({
       target_user,
     });
   } else if (message.hostRequestStatusChanged) {
-    // TODO: actually compute from real value - old code below for reference for doing the work later...
-    //
-    // const hostRequestStatusLabels = {
-    //   [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]: "Accepted",
-    //   [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]: "Cancelled",
-    //   [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]: "Confirmed",
-    //   [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: "Pending",
-    //   [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]: "Rejected",
-    // };
-    //
-    // return `${authorCap} changed the request to ${
-    //   hostRequestStatusLabels[message.hostRequestStatusChanged.status]
-    // }`;
-
     return t("control_message.host_request_status_changed_text", {
       user,
-      status: "accepted",
+      status: t(
+        requestStatusToTransKey[message.hostRequestStatusChanged.status]
+      ),
     });
   } else {
     throw Error(t("control_message.unknown_message_text"));

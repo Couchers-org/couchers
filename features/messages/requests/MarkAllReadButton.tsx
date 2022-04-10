@@ -2,9 +2,10 @@ import { Tooltip } from "@material-ui/core";
 import IconButton from "components/IconButton";
 import { DoneAllIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
-import { MARK_ALL_READ } from "features/messages/constants";
 import { groupChatsListKey, hostRequestsListKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { MESSAGES } from "i18n/namespaces";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import getAllPages from "utils/getAllPages";
@@ -14,6 +15,7 @@ export default function MarkAllReadButton({
 }: {
   type: "chats" | "hosting" | "surfing";
 }) {
+  const { t } = useTranslation(MESSAGES);
   const queryClient = useQueryClient();
   const markAll = useMutation<void, RpcError>(
     async () => {
@@ -71,9 +73,9 @@ export default function MarkAllReadButton({
       {markAll.error && (
         <Snackbar severity="error">{markAll.error.message}</Snackbar>
       )}
-      <Tooltip title={MARK_ALL_READ}>
+      <Tooltip title={t("mark_all_read_button_text")}>
         <IconButton
-          aria-label={MARK_ALL_READ}
+          aria-label={t("mark_all_read_button_text")}
           loading={markAll.isLoading}
           onClick={() => markAll.mutate()}
         >
