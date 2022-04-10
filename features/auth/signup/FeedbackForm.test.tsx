@@ -35,12 +35,15 @@ const stateAfterFeedback = {
 };
 
 describe("signup form (feedback part)", () => {
-  it("works", async () => {
+  beforeEach(() => {
     signupFlowFeedbackMock.mockResolvedValue(stateAfterFeedback);
     window.localStorage.setItem(
       "auth.flowState",
       JSON.stringify(stateBeforeFeedback)
     );
+  });
+
+  it("works", async () => {
     const { result } = renderHook(() => useAuthContext(), {
       wrapper,
     });
@@ -76,5 +79,33 @@ describe("signup form (feedback part)", () => {
         stateAfterFeedback
       );
     });
+  });
+
+  it("skips the form successfully if the skip link is used", async () => {
+    render(<FeedbackForm />, { wrapper });
+
+    userEvent.click(
+      await screen.findByRole("link", { name: "Skip this step" })
+    );
+
+    await waitFor(() => {
+      expect(signupFlowFeedbackMock).toBeCalledTimes(1);
+    });
+    expect(signupFlowFeedbackMock).toHaveBeenCalledWith(
+      "dummy-token",
+      expect.objectContaining({
+        contribute: ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED,
+      })
+    );
+
+    const { result } = renderHook(() => useAuthContext(), {
+      wrapper,
+    });
+    await waitFor(() => {
+      expect(result.current.authState.authenticated).toBe(false);
+    });
+    expect(result.current.authState.flowState).toMatchObject(
+      stateAfterFeedback
+    );
   });
 });
