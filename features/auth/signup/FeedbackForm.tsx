@@ -1,7 +1,9 @@
+import { Typography } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import ContributorForm from "components/ContributorForm";
+import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { ContributorForm as ContributorFormPb } from "proto/auth_pb";
 import { service } from "service";
@@ -32,5 +34,24 @@ export default function FeedbackForm() {
     window.scroll({ top: 0, behavior: "smooth" });
   };
 
-  return <ContributorForm processForm={handleSubmit} autofocus />;
+  return (
+    <>
+      <Typography variant="h2">
+        <Trans i18nKey="auth:feedback_form.skip_step_text">
+          Not interested?{" "}
+          <StyledLink
+            variant="h2"
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              handleSubmit(new ContributorFormPb().toObject());
+            }}
+          >
+            Skip this step
+          </StyledLink>
+        </Trans>
+      </Typography>
+      <ContributorForm processForm={handleSubmit} autofocus />
+    </>
+  );
 }
