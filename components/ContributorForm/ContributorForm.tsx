@@ -19,6 +19,7 @@ import {
   ContributeOption,
   ContributorForm as ContributorFormPb,
 } from "proto/auth_pb";
+import { Trans, useTranslation } from "i18n";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
@@ -132,6 +133,14 @@ export default function ContributorForm({
         <Typography variant="body1">{SUCCESS_MSG}</Typography>
       ) : (
         <form onSubmit={submit}>
+          <Typography variant="h1" gutterBottom>
+          <Trans i18nKey="auth:feedback_form.skiptitle">
+          Not interested
+            <button onclick="submit()"> 
+              skip this step.
+            </button>    
+          </Trans>
+        </Typography>
           <Typography variant="body2" paragraph>
             {QUESTIONS_OPTIONAL}
           </Typography>
