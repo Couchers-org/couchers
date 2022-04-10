@@ -13,10 +13,8 @@ import {
 } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { RpcError } from "grpc-web";
-import { Trans } from "i18n";
 import {
   ContributeOption,
   ContributorForm as ContributorFormPb,
