@@ -14,4 +14,3 @@ export const requestStatusToTransKey = {
 } as const;
 
 export const MARK_LAST_SEEN_TIMEOUT = 500;
-export const MESSAGES = "Messages";
