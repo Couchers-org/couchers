@@ -72,5 +72,6 @@
     "additional_information_section_title": "Additional information",
     "travel_section_title": "Travelled to",
     "lived_section_title": "Lived in",
-    "regions_empty_state": "None"
+    "regions_empty_state": "None",
+    "unsaved_changes_warning": "You haven't saved your changes. Are you sure you want to leave the page?"
 }

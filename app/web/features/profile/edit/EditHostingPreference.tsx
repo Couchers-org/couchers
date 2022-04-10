@@ -45,6 +45,8 @@ import useUpdateHostingPreferences from "features/profile/hooks/useUpdateHosting
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";
+import { useTranslation } from "i18n";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import {
   ParkingDetails,
   SleepingArrangement,
@@ -53,6 +55,7 @@ import {
 import { useState } from "react";
 import { Controller, useForm, UseFormMethods } from "react-hook-form";
 import { HostingPreferenceData } from "service";
+import { useUnsavedChangesWarning } from "utils/hooks";
 
 import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
 import useStyles from "./styles";
@@ -85,6 +88,7 @@ function HostingPreferenceCheckbox({
 }
 
 export default function HostingPreferenceForm() {
+  const { t } = useTranslation([GLOBAL, PROFILE]);
   const classes = useStyles();
 
   const {
@@ -95,11 +99,19 @@ export default function HostingPreferenceForm() {
   } = useUpdateHostingPreferences();
   const { data: user } = useCurrentUser();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { control, errors, register, handleSubmit } =
+  const { control, errors, register, handleSubmit, formState } =
     useForm<HostingPreferenceData>({
       mode: "onBlur",
       shouldFocusError: true,
     });
+
+  const isDirty = formState.isDirty;
+  const isSubmitted = formState.isSubmitted;
+  useUnsavedChangesWarning({
+    isDirty,
+    isSubmitted,
+    warningMessage: t("profile:unsaved_changes_warning"),
+  });
 
   const onSubmit = handleSubmit((data) => {
     resetUpdate();
