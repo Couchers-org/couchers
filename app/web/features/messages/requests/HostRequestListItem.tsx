@@ -22,10 +22,10 @@ import { useUser } from "features/userQueries/useUsers";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { HostRequest } from "proto/requests_pb";
-import { formatDate } from "utils/date";
+import dayjs from "utils/dayjs";
 import { firstName } from "utils/names";
 
-import { hostingStatusText } from "../constants";
+import HostRequestStatusText from "./HostRequestStatusText";
 
 const useStyles = makeStyles((theme) => ({
   hostStatusContainer: {
@@ -104,19 +104,19 @@ export default function HostRequestListItem({
                 hostRequest={hostRequest}
                 className={classes.hostStatusIcon}
               />
-              <Typography variant="body2">
-                {isOtherUserLoading ? (
-                  <Skeleton width={200} />
-                ) : (
-                  hostingStatusText(isHost, hostRequest.status)
-                )}
-              </Typography>
+              {isOtherUserLoading ? (
+                <Skeleton width={200} />
+              ) : (
+                <HostRequestStatusText
+                  isHost={isHost}
+                  requestStatus={hostRequest.status}
+                />
+              )}
             </div>
             <Typography component="div" display="inline" variant="h3">
-              {`${formatDate(hostRequest.fromDate, true)} - ${formatDate(
-                hostRequest.toDate,
-                true
-              )}`}
+              {`${dayjs(hostRequest.fromDate).format("LL")} - ${dayjs(
+                hostRequest.toDate
+              ).format("LL")}`}
             </Typography>
             <TextBody
               noWrap

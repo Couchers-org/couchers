@@ -1,15 +1,21 @@
 {
-  "date_from": "Date from",
-  "date_to": "Date to",
-  "load_more": "Load more",
-  "mark_all_read": "Mark all as read",
-  "messages": "Messages",
+  "mark_all_read_button_text": "Mark all as read",
   "request_closed_message": "This host request is closed or in the past. To continue chatting, send the other person a normal message.",
-  "title": "Title",
-  "write_reference": "Write a Reference",
+  "write_reference_button_text": "Write a Reference",
   "close_request_dialog_title": "Are you done messaging?",
-  "close_request_dialog_host": "Please make sure you are done chatting before you    reject their request.",
-  "close_request_dialog_surfer": "Please make sure you are done chatting before you    cancel your request.",
+  "close_request_dialog_host": "Please make sure you are done chatting before you reject their request.",
+  "close_request_dialog_surfer": "Please make sure you are done chatting before you cancel your request.",
+  "close_request_button_text": "Reject",
+  "confirm_request_button_text": "Confirm",
+  "messages_page": {
+    "title": "Messages",
+    "tabs": {
+      "aria_label": "Tabs for different message types",
+      "chats": "Chats",
+      "hosting": "Hosting",
+      "surfing": "Surfing"
+    }
+  },
   "chat_view": {
     "invalid_id_error": "Invalid chat ID.",
     "no_messages_state_text": "No messages",
@@ -79,6 +85,10 @@
     "no_chats_message": "No group chats yet",
     "load_more_button_label": "Load more"
   },
+  "requests_tab": {
+    "no_requests_message": "No requests yet",
+    "load_more_button_label": "Load more"
+  },
   "invite_dialog": {
     "title": "Invite to chat",
     "selected": {
@@ -104,5 +114,35 @@
     "admin_removal_text": "{{user}} removed {{target_user}} as admin",
     "host_request_status_changed_text": "{{user}} changed the request to {{status}}",
     "unknown_message_text": "Unknown control message"
+  },
+  "host_request_status": {
+    "accepted": "Accepted",
+    "cancelled": "Cancelled",
+    "confirmed": "Confirmed",
+    "pending": "Pending",
+    "rejected": "Rejected"
+  },
+  "host_request_item": {
+    "pending": "This request is still pending",
+    "host_status": {
+      "accepted": "You have accepted this request",
+      "cancelled": "You have cancelled this request",
+      "confirmed": "You have confirmed this request",
+      "rejected": "You have rejected this request"
+    },
+    "surfer_status": {
+      "accepted": "Your request was accepted",
+      "cancelled": "Your request was cancelled",
+      "confirmed": "Your request was confirmed",
+      "rejected": "Your request was rejected"
+    }
+  },
+  "host_request_view": {
+    "error_message": "Invalid host request ID",
+    "back_button_a11y_label": "Back",
+    "title_for_host": "Request from {{user}} - {{status}}",
+    "title_for_surfer": "Request to {{user}} - {{status}}",
+    "request_duration": "{{count}} night",
+    "request_duration_plural": "{{count}} nights"
   }
 }

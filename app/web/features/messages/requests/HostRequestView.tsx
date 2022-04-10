@@ -1,4 +1,4 @@
-import { Box, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
@@ -23,6 +23,8 @@ import {
 import { useUser } from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import {
   GetHostRequestMessagesRes,
@@ -36,16 +38,18 @@ import {
   useQueryClient,
 } from "react-query";
 import { service } from "service";
-import { formatDate, numNights } from "utils/date";
+import { numNights } from "utils/date";
+import dayjs from "utils/dayjs";
 import { firstName } from "utils/names";
 
-import { hostRequestStatusLabels } from "../constants";
+import { requestStatusToTransKey } from "../constants";
 
 export default function HostRequestView({
   hostRequestId,
 }: {
   hostRequestId: number;
 }) {
+  const { t } = useTranslation(MESSAGES);
   const classes = useGroupChatViewStyles();
 
   const { data: hostRequest, error: hostRequestError } = useQuery<
@@ -82,11 +86,18 @@ export default function HostRequestView({
   const currentUserId = useAuthContext().authState.userId;
   const isHost = host?.userId === currentUserId;
   const otherUser = isHost ? surfer : host;
-  const title = otherUser
-    ? isHost
-      ? `Request from ${firstName(otherUser.name)}`
-      : `Request to ${firstName(otherUser.name)}`
-    : undefined;
+  const title =
+    otherUser && hostRequest
+      ? isHost
+        ? t("host_request_view.title_for_host", {
+            user: firstName(otherUser.name),
+            status: t(requestStatusToTransKey[hostRequest.status]),
+          })
+        : t("host_request_view.title_for_surfer", {
+            user: firstName(otherUser.name),
+            status: t(requestStatusToTransKey[hostRequest.status]),
+          })
+      : undefined;
 
   const queryClient = useQueryClient();
   const sendMutation = useMutation<string | undefined, RpcError, string>(
@@ -144,24 +155,21 @@ export default function HostRequestView({
   const handleBack = () => router.back();
 
   return !hostRequestId ? (
-    <Alert severity={"error"}>Invalid host request id.</Alert>
+    <Alert severity="error">{t("host_request_view.error_message")}</Alert>
   ) : (
-    <Box className={classes.pageWrapper}>
-      <Box className={classes.header}>
-        <HeaderButton onClick={handleBack} aria-label="Back">
+    <div className={classes.pageWrapper}>
+      <div className={classes.header}>
+        <HeaderButton
+          onClick={handleBack}
+          aria-label={t("host_request_view.back_button_a11y_label")}
+        >
           <BackIcon />
         </HeaderButton>
 
         <PageTitle className={classes.title}>
-          {!title || hostRequestError ? (
-            <Skeleton width="100" />
-          ) : (
-            `${title} - ${
-              hostRequest && hostRequestStatusLabels[hostRequest.status]
-            }`
-          )}
+          {!title || hostRequestError ? <Skeleton width="100" /> : title}
         </PageTitle>
-      </Box>
+      </div>
       <UserSummary user={otherUser}>
         {hostRequest && (
           <div className={classes.requestedDatesWrapper}>
@@ -170,15 +178,20 @@ export default function HostRequestView({
               variant="h3"
               className={classes.requestedDates}
             >
-              {`${formatDate(hostRequest.fromDate, true)} -
-              ${formatDate(hostRequest?.toDate, true)}`}
+              {`${dayjs(hostRequest.fromDate).format("LL")} - ${dayjs(
+                hostRequest.toDate
+              ).format("LL")}`}
             </Typography>
             <Typography
               component="p"
               variant="h3"
               className={classes.numNights}
             >
-              ({numNights(hostRequest.toDate, hostRequest.fromDate)})
+              (
+              {t("host_request_view.request_duration", {
+                count: numNights(hostRequest.toDate, hostRequest.fromDate),
+              })}
+              )
             </Typography>
           </div>
         )}
@@ -197,7 +210,7 @@ export default function HostRequestView({
       ) : (
         <>
           {messagesError && (
-            <Alert severity={"error"}>{messagesError.message}</Alert>
+            <Alert severity="error">{messagesError.message}</Alert>
           )}
           {messagesRes && hostRequest && (
             <>
@@ -217,17 +230,17 @@ export default function HostRequestView({
                     .flat()}
                 />
               </InfiniteMessageLoader>
-              <Box className={classes.footer}>
+              <div className={classes.footer}>
                 <HostRequestSendField
                   hostRequest={hostRequest}
                   sendMutation={sendMutation}
                   respondMutation={respondMutation}
                 />
-              </Box>
+              </div>
             </>
           )}
         </>
       )}
-    </Box>
+    </div>
   );
 }
