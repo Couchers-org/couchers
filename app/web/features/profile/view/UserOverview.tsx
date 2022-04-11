@@ -12,7 +12,7 @@ import { PropsWithChildren } from "react";
 import makeStyles from "utils/makeStyles";
 
 import { useProfileUser } from "../hooks/useProfileUser";
-import { LabelsReferencesLastActive } from "./UserTextAndLabel";
+import { ReferencesLastActiveLabels, ResponseRateLabel } from "./userLabels";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -77,7 +77,8 @@ export default function UserOverview({ children }: PropsWithChildren<unknown>) {
         </>
       )}
       <div className={classes.info}>
-        <LabelsReferencesLastActive user={user} />
+        <ReferencesLastActiveLabels user={user} />
+        <ResponseRateLabel user={user} />
       </div>
     </Card>
   );

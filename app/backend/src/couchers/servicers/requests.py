@@ -643,31 +643,36 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             if n < 3:
                 return requests_pb2.GetResponseRateRes(
-                    response_rate=requests_pb2.RESPONSE_RATE_INSUFFICIENT_DATA,
+                    insufficient_data=requests_pb2.ResponseRateInsufficientData(),
                 )
 
             if response_rate <= 0.33:
-                rate_value = requests_pb2.RESPONSE_RATE_LOW
-            elif response_rate <= 0.66:
-                rate_value = requests_pb2.RESPONSE_RATE_SOME
-            elif response_rate <= 0.90:
-                rate_value = requests_pb2.RESPONSE_RATE_MOST
-            else:
-                rate_value = requests_pb2.RESPONSE_RATE_ALMOST_ALL
-
-            response_time_p33_coarsened = None
-            response_time_p66_coarsened = None
-            if response_rate > 0.33:
-                response_time_p33_coarsened = Duration_from_timedelta(
-                    timedelta(seconds=round(response_time_p33.total_seconds() / 60) * 60)
-                )
-            if response_rate > 0.66:
-                response_time_p66_coarsened = Duration_from_timedelta(
-                    timedelta(seconds=round(response_time_p66.total_seconds() / 60) * 60)
+                return requests_pb2.GetResponseRateRes(
+                    low=requests_pb2.ResponseRateLow(),
                 )
 
-            return requests_pb2.GetResponseRateRes(
-                response_rate=rate_value,
-                response_time_p33=response_time_p33_coarsened,
-                response_time_p66=response_time_p66_coarsened,
+            response_time_p33_coarsened = Duration_from_timedelta(
+                timedelta(seconds=round(response_time_p33.total_seconds() / 60) * 60)
             )
+
+            if response_rate <= 0.66:
+                return requests_pb2.GetResponseRateRes(
+                    some=requests_pb2.ResponseRateSome(response_time_p33=response_time_p33_coarsened),
+                )
+
+            response_time_p66_coarsened = Duration_from_timedelta(
+                timedelta(seconds=round(response_time_p66.total_seconds() / 60) * 60)
+            )
+
+            if response_rate <= 0.90:
+                return requests_pb2.GetResponseRateRes(
+                    most=requests_pb2.ResponseRateMost(
+                        response_time_p33=response_time_p33_coarsened, response_time_p66=response_time_p66_coarsened
+                    ),
+                )
+            else:
+                return requests_pb2.GetResponseRateRes(
+                    almost_all=requests_pb2.ResponseRateAlmostAll(
+                        response_time_p33=response_time_p33_coarsened, response_time_p66=response_time_p66_coarsened
+                    ),
+                )

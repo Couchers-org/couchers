@@ -8,6 +8,7 @@ import TextBody from "./TextBody";
 const useStyles = makeStyles((theme) => ({
   label: {
     margin: 0,
+    marginInlineEnd: theme.spacing(1),
   },
   root: {
     display: "flex",

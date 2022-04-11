@@ -13,6 +13,10 @@ export function userKey(userId?: number) {
   return userId === undefined ? "user" : ["user", userId];
 }
 
+export function responseRateKey(userId: number) {
+  return ["responseRate", userId];
+}
+
 export const referencesGivenKey = (userId: number) => [
   "referencesGiven",
   { userId },
