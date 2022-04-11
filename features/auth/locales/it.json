@@ -101,7 +101,8 @@
     }
   },
   "feedback_form": {
-    "header": "Dì la tua"
+    "header": "Dì la tua",
+    "skip_step_text": "Non ti interessa? <2>Salta questo passaggio</2>"
   },
   "sign_up_completed_title": "Grazie per la tua iscrizione!",
   "sign_up_confirmed_prompt": "Hai fatto tutto! Se non vieni trasferito, prova accedendo.",
