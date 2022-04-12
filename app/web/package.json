@@ -89,7 +89,7 @@
     "eslint-plugin-unused-imports": "^2.0.0",
     "i18next-resources-to-backend": "^1.0.0",
     "jest": "^27.5.1",
-    "jest-junit": "^12.2.0",
+    "jest-junit": "^13.1.0",
     "msw": "^0.39.2",
     "next-router-mock": "^0.6.5",
     "prettier": "^2.5.1",
