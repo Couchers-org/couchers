@@ -4,13 +4,14 @@ import NotificationBadge from "components/NotificationBadge";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
 import MarkAllReadButton from "features/messages/requests/MarkAllReadButton";
+import { useTranslation } from "i18n";
+import { MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import { messagesRoute, MessageType } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import useNotifications from "../useNotifications";
-import { MESSAGES } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   tabBarContainer: {
@@ -20,31 +21,34 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function MessagesNotification() {
+  const { t } = useTranslation(MESSAGES);
   const { data } = useNotifications();
 
   return (
     <NotificationBadge count={data?.unseenMessageCount}>
-      Chats
+      {t("messages_page.tabs.chats")}
     </NotificationBadge>
   );
 }
 
 export function HostRequestsReceivedNotification() {
+  const { t } = useTranslation(MESSAGES);
   const { data } = useNotifications();
 
   return (
     <NotificationBadge count={data?.unseenReceivedHostRequestCount}>
-      Hosting
+      {t("messages_page.tabs.hosting")}
     </NotificationBadge>
   );
 }
 
 export function HostRequestsSentNotification() {
+  const { t } = useTranslation(MESSAGES);
   const { data } = useNotifications();
 
   return (
     <NotificationBadge count={data?.unseenSentHostRequestCount}>
-      Surfing
+      {t("messages_page.tabs.surfing")}
     </NotificationBadge>
   );
 }
@@ -63,17 +67,18 @@ export default function MessagesHeader({
 }: {
   tab: MessageType | undefined;
 }) {
+  const { t } = useTranslation(MESSAGES);
   const classes = useStyles();
   const router = useRouter();
 
   return (
     <>
-      <HtmlMeta title={MESSAGES} />
-      <PageTitle>{MESSAGES}</PageTitle>
+      <HtmlMeta title={t("messages_page.title")} />
+      <PageTitle>{t("messages_page.title")}</PageTitle>
       <div className={classes.tabBarContainer}>
         <TabContext value={tab ?? ""}>
           <TabBar
-            ariaLabel="Tabs for different message types"
+            ariaLabel={t("messages_page.tabs.aria_label")}
             setValue={(newTab) => router.push(`${messagesRoute}/${newTab}`)}
             labels={labels}
           />

@@ -15,6 +15,8 @@ import {
 } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { GroupChat } from "proto/conversations_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -30,6 +32,7 @@ export default function GroupChatSettingsDialog({
   groupChat,
   ...props
 }: DialogProps & { groupChat: GroupChat.AsObject }) {
+  const { t } = useTranslation([GLOBAL, MESSAGES]);
   const { register, handleSubmit } = useForm<GroupChatSettingsData>();
 
   const queryClient = useQueryClient();
@@ -59,7 +62,7 @@ export default function GroupChatSettingsDialog({
   return (
     <Dialog {...props} aria-labelledby="group-chat-settings-dialog-title">
       <DialogTitle id="group-chat-settings-dialog-title">
-        Group chat settings
+        {t("messages:group_chat_settings_dialog.title")}
       </DialogTitle>
       <DialogContent>
         <form onSubmit={onSubmit}>
@@ -71,7 +74,9 @@ export default function GroupChatSettingsDialog({
             inputRef={register}
             defaultValue={groupChat.title}
             name="title"
-            label="Chat title"
+            label={t(
+              "messages:group_chat_settings_dialog.chat_title.field_label"
+            )}
           />
           <FormControlLabel
             control={
@@ -81,20 +86,22 @@ export default function GroupChatSettingsDialog({
                 defaultChecked={groupChat.onlyAdminsInvite}
               />
             }
-            label="Only admins can invite others to the chat"
+            label={t(
+              "messages:group_chat_settings_dialog.only_admins_invite.field_label"
+            )}
           />
         </form>
       </DialogContent>
       <DialogActions>
         <Button onClick={onSubmit} loading={mutation.isLoading}>
-          Save
+          {t("global:save")}
         </Button>
         <Button
           onClick={() =>
             props.onClose ? props.onClose({}, "escapeKeyDown") : null
           }
         >
-          Cancel
+          {t("global:cancel")}
         </Button>
       </DialogActions>
     </Dialog>

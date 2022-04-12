@@ -5,21 +5,6 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { Dayjs, Duration } from "./dayjs";
 import { dayMillis } from "./timeAgo";
 
-const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
 const dateTimeFormatter = (locale: string) =>
   new Intl.DateTimeFormat(locale, {
     month: "short",
@@ -33,17 +18,11 @@ const dateFormatter = (locale: string) =>
     day: "2-digit",
   });
 
-const numNights = (date1: string, date2: string): string => {
+const numNights = (date1: string, date2: string) => {
   const diffTime = Date.parse(date1) - Date.parse(date2);
   const diffDays = Math.ceil(diffTime / dayMillis);
-  return diffDays === 1 ? `${diffDays} night` : `${diffDays} nights`;
+  return diffDays;
 };
-
-function formatDate(s: string, short = false): string {
-  const monthName = monthNames[Number.parseInt(s.split("-")[1]) - 1];
-  if (short) return `${s.split("-")[2]} ${monthName}`;
-  return `${s.split("-")[2]} ${monthName.substr(0, 3)} ${s.split("-")[0]}`;
-}
 
 function timestamp2Date(timestamp: Timestamp.AsObject): Date {
   return new Date(Math.floor(timestamp.seconds * 1e3 + timestamp.nanos / 1e6));
@@ -73,7 +52,6 @@ export {
   dateFormatter,
   dateTimeFormatter,
   duration2pb,
-  formatDate,
   isSameOrFutureDate,
   numNights,
   timestamp2Date,

@@ -1,7 +1,9 @@
-import { hostRequestStatusLabels } from "features/messages/constants";
 import useUsers from "features/userQueries/useUsers";
 import { GroupChat, Message } from "proto/conversations_pb";
+import { TFunction } from "react-i18next";
 import { firstName } from "utils/names";
+
+import { requestStatusToTransKey } from "./constants";
 
 export function isControlMessage(message: Message.AsObject) {
   return !message.text;
@@ -17,30 +19,48 @@ export function messageTargetId(message: Message.AsObject) {
     : undefined;
 }
 
-export function controlMessageText(
-  message: Message.AsObject,
-  authorName: string,
-  targetName?: string
-) {
-  const authorCap = authorName.charAt(0).toUpperCase() + authorName.slice(1);
+export function controlMessage({
+  user,
+  target_user,
+  message,
+  t,
+}: {
+  user: string;
+  target_user?: string;
+  message: Message.AsObject;
+  t: TFunction<"messages", undefined>;
+}) {
+  const userCap = user.charAt(0).toUpperCase() + user.slice(1);
   if (message.chatCreated) {
-    return `${authorCap} created the chat`;
+    return t("control_message.created_chat_text", { user: userCap });
   } else if (message.chatEdited) {
-    return `${authorCap} edited the chat`;
+    return t("control_message.edited_chat_text", { user: userCap });
   } else if (message.userInvited) {
-    return `${authorCap} invited ${targetName}`;
+    return t("control_message.invite_user_text", {
+      user: userCap,
+      target_user,
+    });
   } else if (message.userLeft) {
-    return `${authorCap} left the chat`;
+    return t("control_message.user_left_chat_text", { user: userCap });
   } else if (message.userMadeAdmin) {
-    return `${authorCap} made ${targetName} an admin`;
+    return t("control_message.admin_assignment_text", {
+      user: userCap,
+      target_user,
+    });
   } else if (message.userRemovedAdmin) {
-    return `${authorCap} removed ${targetName} as admin`;
+    return t("control_message.admin_removal_text", {
+      user: userCap,
+      target_user,
+    });
   } else if (message.hostRequestStatusChanged) {
-    return `${authorCap} changed the request to ${
-      hostRequestStatusLabels[message.hostRequestStatusChanged.status]
-    }`;
+    return t("control_message.host_request_status_changed_text", {
+      user,
+      status: t(
+        requestStatusToTransKey[message.hostRequestStatusChanged.status]
+      ),
+    });
   } else {
-    throw Error("Unknown control message.");
+    throw Error(t("control_message.unknown_message_text"));
   }
 }
 
