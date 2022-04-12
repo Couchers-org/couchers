@@ -13,16 +13,19 @@ import TextBody from "components/TextBody";
 import useAuthStore from "features/auth/useAuthStore";
 import HostRequestStatusIcon from "features/messages/requests/HostRequestStatusIcon";
 import {
-  controlMessageText,
+  controlMessage,
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
+import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useUser } from "features/userQueries/useUsers";
+import { useTranslation } from "i18n";
+import { MESSAGES } from "i18n/namespaces";
 import { HostRequest } from "proto/requests_pb";
-import { formatDate } from "utils/date";
+import dayjs from "utils/dayjs";
 import { firstName } from "utils/names";
 
-import { hostingStatusText } from "../constants";
+import HostRequestStatusText from "./HostRequestStatusText";
 
 const useStyles = makeStyles((theme) => ({
   hostStatusContainer: {
@@ -44,9 +47,11 @@ export default function HostRequestListItem({
   hostRequest,
   className,
 }: HostRequestListItemProps) {
+  const { t } = useTranslation(MESSAGES);
   const classes = useStyles();
   const currentUserId = useAuthStore().authState.userId;
   const isHost = currentUserId === hostRequest.hostUserId;
+  const { data: currentUser } = useCurrentUser();
   const { data: otherUser, isLoading: isOtherUserLoading } = useUser(
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId
   );
@@ -56,19 +61,24 @@ export default function HostRequestListItem({
   //control message target to use in short message preview
   const authorName =
     hostRequest?.latestMessage?.authorUserId === currentUserId
-      ? "you"
+      ? firstName(currentUser?.name) || ""
       : firstName(otherUser?.name) || "";
 
   const targetName = hostRequest?.latestMessage
-    ? messageTargetId(hostRequest?.latestMessage) === currentUserId
-      ? "you"
+    ? messageTargetId(hostRequest.latestMessage) === currentUserId
+      ? firstName(currentUser?.name) || ""
       : firstName(otherUser?.name) || ""
     : "";
 
   //text is the control message text or message text, truncated
   const latestMessageText = hostRequest.latestMessage
     ? isControlMessage(hostRequest.latestMessage)
-      ? controlMessageText(hostRequest.latestMessage, authorName, targetName)
+      ? controlMessage({
+          message: hostRequest.latestMessage,
+          user: authorName,
+          target_user: targetName,
+          t,
+        })
       : //if it's a normal message, show "<User's Name>: <The message>"
         `${capitalize(authorName)}: ${
           hostRequest.latestMessage.text?.text || ""
@@ -94,19 +104,19 @@ export default function HostRequestListItem({
                 hostRequest={hostRequest}
                 className={classes.hostStatusIcon}
               />
-              <Typography variant="body2">
-                {isOtherUserLoading ? (
-                  <Skeleton width={200} />
-                ) : (
-                  hostingStatusText(isHost, hostRequest.status)
-                )}
-              </Typography>
+              {isOtherUserLoading ? (
+                <Skeleton width={200} />
+              ) : (
+                <HostRequestStatusText
+                  isHost={isHost}
+                  requestStatus={hostRequest.status}
+                />
+              )}
             </div>
             <Typography component="div" display="inline" variant="h3">
-              {`${formatDate(hostRequest.fromDate, true)} - ${formatDate(
-                hostRequest.toDate,
-                true
-              )}`}
+              {`${dayjs(hostRequest.fromDate).format("LL")} - ${dayjs(
+                hostRequest.toDate
+              ).format("LL")}`}
             </Typography>
             <TextBody
               noWrap

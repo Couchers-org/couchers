@@ -2,14 +2,15 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import TextBody from "components/TextBody";
+import { useTranslation } from "i18n";
+import { MESSAGES } from "i18n/namespaces";
 import React from "react";
 
 import { timestamp2Date } from "../../../utils/date";
 import { firstName } from "../../../utils/names";
 import useOnVisibleEffect from "../../../utils/useOnVisibleEffect";
-import { useAuthContext } from "../../auth/AuthProvider";
 import { useUser } from "../../userQueries/useUsers";
-import { controlMessageText, messageTargetId } from "../utils";
+import { controlMessage, messageTargetId } from "../utils";
 import { messageElementId, MessageProps } from "./MessageView";
 import TimeInterval from "./TimeInterval";
 
@@ -31,8 +32,8 @@ export default function ControlMessageView({
   onVisible,
   className,
 }: MessageProps) {
+  const { t } = useTranslation(MESSAGES);
   const classes = useStyles();
-  const currentUserId = useAuthContext().authState.userId;
   const { data: author, isLoading: isAuthorLoading } = useUser(
     message.authorUserId
   );
@@ -41,8 +42,7 @@ export default function ControlMessageView({
   );
   const { ref } = useOnVisibleEffect(onVisible);
 
-  const isCurrentUser = author?.userId === currentUserId;
-  const authorName = isCurrentUser ? "you" : firstName(author?.name);
+  const authorName = firstName(author?.name);
   const targetName = firstName(target?.name);
   return (
     <div
@@ -58,7 +58,12 @@ export default function ControlMessageView({
       <div className={classes.message}>
         {!isAuthorLoading && !isTargetLoading ? (
           <TextBody>
-            {controlMessageText(message, authorName, targetName)}
+            {controlMessage({
+              message,
+              user: authorName,
+              target_user: targetName,
+              t,
+            })}
           </TextBody>
         ) : (
           <Skeleton className={classes.skeleton} />

@@ -1,4 +1,4 @@
-import { Box, BoxProps, List } from "@material-ui/core";
+import { List } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
@@ -7,6 +7,8 @@ import HostRequestListItem from "features/messages/requests/HostRequestListItem"
 import useMessageListStyles from "features/messages/useMessageListStyles";
 import { hostRequestsListKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
 import { GroupChat } from "proto/conversations_pb";
 import { ListHostRequestsRes } from "proto/requests_pb";
@@ -15,7 +17,7 @@ import { useInfiniteQuery } from "react-query";
 import { routeToHostRequest } from "routes";
 import { service } from "service";
 
-export interface GroupChatListProps extends BoxProps {
+export interface GroupChatListProps {
   groupChats: Array<GroupChat.AsObject>;
 }
 
@@ -26,6 +28,7 @@ export default function RequestsTab({
   type: "all" | "hosting" | "surfing";
   onlyActive?: boolean;
 }) {
+  const { t } = useTranslation(MESSAGES);
   const {
     data,
     isLoading,
@@ -47,7 +50,7 @@ export default function RequestsTab({
 
   const classes = useMessageListStyles();
   return (
-    <Box className={classes.root}>
+    <div className={classes.root}>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CircularProgress />
@@ -57,7 +60,9 @@ export default function RequestsTab({
             data.pages.map((hostRequestsRes, pageNumber) =>
               pageNumber === 0 &&
               hostRequestsRes.hostRequestsList.length === 0 ? (
-                <TextBody key="no-requests-text">No requests yet.</TextBody>
+                <TextBody key="no-requests-text">
+                  {t("requests_tab.no_requests_message")}
+                </TextBody>
               ) : (
                 <React.Fragment key={`host-requests-page-${pageNumber}`}>
                   {hostRequestsRes.hostRequestsList.map((hostRequest) => (
@@ -78,11 +83,11 @@ export default function RequestsTab({
             )}
           {hasNextPage && (
             <Button onClick={loadMoreRequests} loading={isFetchingNextPage}>
-              Load more
+              {t("requests_tab.load_more_button_label")}
             </Button>
           )}
         </List>
       )}
-    </Box>
+    </div>
   );
 }

@@ -1,6 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MARK_ALL_READ } from "features/messages/constants";
 import MarkAllReadButton from "features/messages/requests/MarkAllReadButton";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { GroupChat } from "proto/conversations_pb";
@@ -10,7 +9,7 @@ import chat from "test/fixtures/groupChat.json";
 import request from "test/fixtures/hostRequest.json";
 import messages from "test/fixtures/messages.json";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 
 const listGroupChatsMock = service.conversations
   .listGroupChats as jest.MockedFunction<
@@ -79,7 +78,11 @@ describe("MarkAllReadButton", () => {
 
   it("marks expected chats", async () => {
     render(<MarkAllReadButton type="chats" />, { wrapper });
-    userEvent.click(screen.getByRole("button", { name: MARK_ALL_READ }));
+    userEvent.click(
+      screen.getByRole("button", {
+        name: t("messages:mark_all_read_button_text"),
+      })
+    );
 
     await waitFor(() => {
       expect(markLastSeenGroupChatMock).toBeCalledTimes(1);
@@ -95,7 +98,11 @@ describe("MarkAllReadButton", () => {
   });
   it("marks expected requests", async () => {
     render(<MarkAllReadButton type="hosting" />, { wrapper });
-    userEvent.click(screen.getByRole("button", { name: MARK_ALL_READ }));
+    userEvent.click(
+      screen.getByRole("button", {
+        name: t("messages:mark_all_read_button_text"),
+      })
+    );
 
     await waitFor(() => {
       expect(markLastRequestSeenMock).toBeCalledTimes(1);
@@ -114,7 +121,11 @@ describe("MarkAllReadButton", () => {
     mockConsoleError();
     listGroupChatsMock.mockRejectedValueOnce(new Error("Generic error"));
     render(<MarkAllReadButton type="chats" />, { wrapper });
-    userEvent.click(screen.getByRole("button", { name: MARK_ALL_READ }));
+    userEvent.click(
+      screen.getByRole("button", {
+        name: t("messages:mark_all_read_button_text"),
+      })
+    );
 
     await assertErrorAlert("Generic error");
   });

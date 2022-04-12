@@ -27,6 +27,8 @@ import {
 import useUsers from "features/userQueries/useUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { GroupChat } from "proto/conversations_pb";
 import React, { useEffect, useState } from "react";
@@ -44,6 +46,7 @@ function AdminListItem({
   memberIsAdmin: boolean;
   setError: (value: string) => void;
 }) {
+  const { t } = useTranslation(MESSAGES);
   const classes = useMembersDialogStyles();
 
   const isCurrentUser = useAuthContext().authState.userId === member.userId;
@@ -114,17 +117,13 @@ function AdminListItem({
         memberIsAdmin ? (
           isCurrentUser ? (
             <ConfirmationDialogWrapper
-              title="Step down as admin?"
-              message={
-                `Are you sure you want to stop being an admin ` +
-                `of this group chat? You will not be able to become ` +
-                `an admin again unless another admin adds you.`
-              }
+              title={t("admins_dialog.step_down_confirmation_dialog.title")}
+              message={t("admins_dialog.step_down_confirmation_dialog.message")}
               onConfirm={handleRemoveAdmin}
             >
               {(setIsOpen) => (
                 <IconButton
-                  aria-label="Remove as admin"
+                  aria-label={t("admins_dialog.remove_admin.action_a11y_label")}
                   size="small"
                   loading={removeAdmin.isLoading}
                   onClick={() => setIsOpen(true)}
@@ -135,7 +134,7 @@ function AdminListItem({
             </ConfirmationDialogWrapper>
           ) : (
             <IconButton
-              aria-label="Remove as admin"
+              aria-label={t("admins_dialog.remove_admin.action_a11y_label")}
               size="small"
               loading={removeAdmin.isLoading}
               onClick={handleRemoveAdmin}
@@ -145,7 +144,7 @@ function AdminListItem({
           )
         ) : (
           <IconButton
-            aria-label="Add as admin"
+            aria-label={t("admins_dialog.add_admin.action_a11y_label")}
             size="small"
             loading={makeAdmin.isLoading}
             onClick={handleMakeAdmin}
@@ -168,6 +167,7 @@ export default function AdminsDialog({
   groupChat,
   ...props
 }: AdminsDialogProps) {
+  const { t } = useTranslation([GLOBAL, MESSAGES]);
   const [error, setError] = useState("");
 
   const nonAdminIds = groupChat?.memberUserIdsList.filter(
@@ -195,7 +195,9 @@ export default function AdminsDialog({
           <Alert severity="error">{error}</Alert>
         </DialogContent>
       )}
-      <DialogTitle id="admins-dialog-title">Remove Admin</DialogTitle>
+      <DialogTitle id="admins-dialog-title">
+        {t("messages:admins_dialog.remove_admin.title")}
+      </DialogTitle>
       <DialogContent>
         <List>
           {admins.isLoading ? (
@@ -221,7 +223,9 @@ export default function AdminsDialog({
       </DialogContent>
       {nonAdminIds?.length !== 0 && (
         <>
-          <DialogTitle id="admins-dialog-title">Add Admin</DialogTitle>
+          <DialogTitle id="admins-dialog-title">
+            {t("messages:admins_dialog.add_admin.title")}
+          </DialogTitle>
 
           <DialogContent>
             <List>
@@ -251,7 +255,7 @@ export default function AdminsDialog({
       )}
       <DialogActions>
         <Button onClick={() => (onClose ? onClose({}, "escapeKeyDown") : null)}>
-          Ok
+          {t("global:ok")}
         </Button>
       </DialogActions>
     </Dialog>

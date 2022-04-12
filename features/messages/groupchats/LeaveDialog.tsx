@@ -15,6 +15,8 @@ import {
 } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
@@ -23,6 +25,7 @@ export default function LeaveDialog({
   groupChatId,
   ...props
 }: DialogProps & { groupChatId: number }) {
+  const { t } = useTranslation([GLOBAL, MESSAGES]);
   const queryClient = useQueryClient();
   const leaveGroupChatMutation = useMutation<Empty, RpcError, void>(
     () => service.conversations.leaveGroupChat(groupChatId),
@@ -39,7 +42,9 @@ export default function LeaveDialog({
 
   return (
     <Dialog {...props} aria-labelledby="leave-dialog-title">
-      <DialogTitle id="leave-dialog-title">Leave chat?</DialogTitle>
+      <DialogTitle id="leave-dialog-title">
+        {t("messages:leave_chat_dialog.title")}
+      </DialogTitle>
       <DialogContent>
         {leaveGroupChatMutation.error && (
           <Alert severity="error">
@@ -47,7 +52,7 @@ export default function LeaveDialog({
           </Alert>
         )}
         <DialogContentText>
-          Are you sure you want to leave the chat?
+          {t("messages:leave_chat_dialog.message")}
         </DialogContentText>
       </DialogContent>
       <DialogActions>
@@ -55,7 +60,7 @@ export default function LeaveDialog({
           onClick={handleLeaveGroupChat}
           loading={leaveGroupChatMutation.isLoading}
         >
-          Yes
+          {t("global:yes")}
         </Button>
         <Button
           onClick={() =>
@@ -63,7 +68,7 @@ export default function LeaveDialog({
           }
           loading={leaveGroupChatMutation.isLoading}
         >
-          No
+          {t("global:no")}
         </Button>
       </DialogActions>
     </Dialog>

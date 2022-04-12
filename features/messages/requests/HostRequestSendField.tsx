@@ -2,17 +2,12 @@ import Button from "components/Button";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import TextField from "components/TextField";
 import useAuthStore from "features/auth/useAuthStore";
-import {
-  CLOSE_REQUEST_DIALOG_HOST,
-  CLOSE_REQUEST_DIALOG_SURFER,
-  CLOSE_REQUEST_DIALOG_TITLE,
-  REQUEST_CLOSED_MESSAGE,
-  WRITE_REFERENCE,
-} from "features/messages/constants";
 import useSendFieldStyles from "features/messages/useSendFieldStyles";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
+import { useTranslation } from "i18n";
+import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
 import { HostRequestStatus } from "proto/conversations_pb";
 import { ReferenceType } from "proto/references_pb";
@@ -70,6 +65,7 @@ export default function HostRequestSendField({
   sendMutation,
   respondMutation,
 }: HostRequestSendFieldProps) {
+  const { t } = useTranslation([MESSAGES, GLOBAL]);
   const classes = useSendFieldStyles();
 
   const isHost = hostRequest.hostUserId === useAuthStore().authState.userId;
@@ -142,7 +138,7 @@ export default function HostRequestSendField({
               hostRequest.status ===
                 HostRequestStatus.HOST_REQUEST_STATUS_REJECTED) && (
               <FieldButton callback={handleAccept} isLoading={isButtonLoading}>
-                Accept
+                {t("global:accept")}
               </FieldButton>
             )}
             {(hostRequest.status ===
@@ -152,8 +148,8 @@ export default function HostRequestSendField({
               hostRequest.status ===
                 HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) && (
               <ConfirmationDialogWrapper
-                title={CLOSE_REQUEST_DIALOG_TITLE}
-                message={CLOSE_REQUEST_DIALOG_HOST}
+                title={t("messages:close_request_dialog_title")}
+                message={t("messages:close_request_dialog_host")}
                 onConfirm={handleReject}
               >
                 {(setIsOpen) => (
@@ -161,7 +157,7 @@ export default function HostRequestSendField({
                     isLoading={isButtonLoading}
                     callback={() => setIsOpen(true)}
                   >
-                    Reject
+                    {t("messages:close_request_button_text")}
                   </FieldButton>
                 )}
               </ConfirmationDialogWrapper>
@@ -180,7 +176,7 @@ export default function HostRequestSendField({
                   color="primary"
                   component="a"
                 >
-                  {WRITE_REFERENCE}
+                  {t("messages:write_reference_button_text")}
                 </Button>
               </Link>
             )}
@@ -191,7 +187,7 @@ export default function HostRequestSendField({
             {hostRequest.status ===
               HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED && (
               <FieldButton callback={handleConfirm} isLoading={isButtonLoading}>
-                Confirm
+                {t("messages:confirm_request_button_text")}
               </FieldButton>
             )}
             {(hostRequest.status ===
@@ -203,8 +199,8 @@ export default function HostRequestSendField({
               hostRequest.status ===
                 HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) && (
               <ConfirmationDialogWrapper
-                title={CLOSE_REQUEST_DIALOG_TITLE}
-                message={CLOSE_REQUEST_DIALOG_SURFER}
+                title={t("messages:close_request_dialog_title")}
+                message={t("messages:close_request_dialog_surfer")}
                 onConfirm={handleCancel}
               >
                 {(setIsOpen) => (
@@ -212,7 +208,7 @@ export default function HostRequestSendField({
                     isLoading={isButtonLoading}
                     callback={() => setIsOpen(true)}
                   >
-                    Cancel
+                    {t("global:cancel")}
                   </FieldButton>
                 )}
               </ConfirmationDialogWrapper>
@@ -231,7 +227,7 @@ export default function HostRequestSendField({
                   color="primary"
                   component="a"
                 >
-                  {WRITE_REFERENCE}
+                  {t("messages:write_reference_button_text")}
                 </Button>
               </Link>
             )}
@@ -240,11 +236,13 @@ export default function HostRequestSendField({
       </div>
       <div className={classes.container}>
         <TextField
-          defaultValue={isRequestClosed ? REQUEST_CLOSED_MESSAGE : ""}
+          defaultValue={
+            isRequestClosed ? t("messages:request_closed_message") : ""
+          }
           disabled={isRequestClosed}
           fullWidth
-          aria-label="Message"
-          label={!isRequestClosed ? "Message" : ""}
+          aria-label={t("messages:chat_input.label")}
+          label={!isRequestClosed ? t("messages:chat_input.label") : ""}
           id="host-request-message"
           InputLabelProps={{
             className: isRequestClosed ? classes.requestClosedLabel : undefined,
@@ -263,7 +261,7 @@ export default function HostRequestSendField({
           isLoading={isButtonLoading}
           isSubmit
         >
-          Send
+          {t("global:send")}
         </FieldButton>
       </div>
     </form>
