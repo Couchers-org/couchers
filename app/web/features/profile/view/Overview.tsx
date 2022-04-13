@@ -12,8 +12,8 @@ import {
   EDIT,
   hostingStatusLabels,
   meetupStatusLabels,
-  REQUEST,
   NOT_ACCEPTING,
+  REQUEST,
 } from "features/profile/constants";
 import UserOverview from "features/profile/view/UserOverview";
 import { CONNECTIONS } from "i18n/namespaces";
