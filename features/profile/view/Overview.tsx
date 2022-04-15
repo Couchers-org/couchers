@@ -12,6 +12,7 @@ import {
   EDIT,
   hostingStatusLabels,
   meetupStatusLabels,
+  NOT_ACCEPTING,
   REQUEST,
 } from "features/profile/constants";
 import UserOverview from "features/profile/view/UserOverview";
@@ -74,6 +75,9 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
   const user = useProfileUser();
   const { t } = useTranslation([CONNECTIONS]);
 
+  const disableHosting =
+    user.hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST;
+
   return (
     <UserOverview>
       {mutationError && <Alert severity="error">{mutationError}</Alert>}
@@ -91,7 +95,13 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
           </>
         ) : (
           <>
-            <Button onClick={() => setIsRequesting(true)}>{REQUEST}</Button>
+            <Button
+              onClick={() => setIsRequesting(true)}
+              disabled={disableHosting}
+            >
+              {disableHosting ? NOT_ACCEPTING : REQUEST}
+            </Button>
+
             <MessageUserButton
               user={user}
               setMutationError={setMutationError}
