@@ -7,7 +7,7 @@ from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine
 from sqlalchemy.orm.session import Session
-from sqlalchemy.pool import NullPool
+from sqlalchemy.pool import NullPool, SingletonThreadPool
 from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers import config
