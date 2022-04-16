@@ -3,6 +3,7 @@ from concurrent import futures
 import grpc
 
 from couchers import config
+from couchers.constants import SERVER_THREADS
 from couchers.interceptors import AuthValidatorInterceptor, ErrorSanitizationInterceptor, TracingInterceptor
 from couchers.servicers.account import Account
 from couchers.servicers.admin import Admin
@@ -55,9 +56,9 @@ from proto import (
 )
 
 
-def create_main_server(port, threads=64):
+def create_main_server(port):
     server = grpc.server(
-        futures.ThreadPoolExecutor(threads),
+        futures.ThreadPoolExecutor(SERVER_THREADS),
         interceptors=[
             ErrorSanitizationInterceptor(),
             TracingInterceptor(),
