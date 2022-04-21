@@ -71,7 +71,7 @@ When you are a couch surfer, you are either hosting someone for free, or staying
 
 <a class="handbook-anchor" name="guidelines"></a>
 
-### A brief summary of the guidelines
+### A brief summary of the community guidelines
 
 Below is a brief summary of the rules and guidelines that all users must agree to after signing up for a Couchers account:
 
