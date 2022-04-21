@@ -33,3 +33,4 @@ github:
     master: true
     branches: true
     pullRequests: true
+    addCheck: false
