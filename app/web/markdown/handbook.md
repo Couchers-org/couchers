@@ -11,7 +11,7 @@ description: Couchers.org help page and frequently asked questions
 ## Community values
 
 * [What is couch surfing?](#whatis)
-* [A brief summary of the guidelines](#guidelines)
+* [A brief summary of the Community Guidelines](#guidelines)
 * [Is it okay to look for a date, romance, or sex on Couchers.org?](#dating)
 * [Can I add anyone as a friend?](#friending)
 * [Do I have to host someone? Is it required that I be a host sometime?](#hosting)
@@ -71,9 +71,9 @@ When you are a couch surfer, you are either hosting someone for free, or staying
 
 <a class="handbook-anchor" name="guidelines"></a>
 
-### A brief summary of the community guidelines
+### A brief summary of the Community Guidelines
 
-Below is a brief summary of the rules and guidelines that all users must agree to after signing up for a Couchers account:
+Below is a brief summary of the guidelines (rules) that all users must agree to after signing up for a Couchers account:
 
 1. **Be kind to one another**
 
@@ -85,7 +85,7 @@ Couchers.org is NOT for dating, romance, or sex. Harassment or or using the plat
 
 3. **Be safe and sensible**
 
-Read profiles, references, and resources. Report any inappropriate content or behavior.
+Read profiles, references, and resources. [Report](#report) any inappropriate content or behavior.
 
 4. **Keep money out of it**
 
@@ -168,9 +168,9 @@ Send an email to [safety@couchers.org](mailto:safety@couchers.org). If you send 
 
 You should read the person's entire profile and read through their references. References can give you an idea of what others think about the person. It is also very important to communicate thoroughly with the person before accepting their request. Be sure to ask any for any information that is missing from their profile or request message. For example, if their profile is empty or missing a photo, it is okay to ask them to fill out their profile and/or upload a photo before accepting their request.
 
-It is also good to ask them when they will arrive and when they will leave, why they are coming, and who is coming with them. It is helpful to let them know what your schedule looks like and how available you will be to interact with them. You should also let them know about any important information about you, your home, and your schedule that is relevant to their visit.
+It is also good to ask the person when they will arrive and when they will leave, why they are coming, and who is coming with them. It is helpful to let them know what your schedule looks like and how available you will be to interact with them. Don't feel obligated to provide a bunch of details or private information, but you should let your guest(s) know about any important information about you, your home, and your schedule that is relevant to their visit.
 
-Keep communication on the Couchers.org platform as much as possible. Use common sense when providing personal information like your address and schedule. Keep in mind that you are never obligated to accept a request or provide a reason for why you cannot accept. If you decline a request, the person will not be able to message you again unless you add them as a friend. If you accept a request but change your mind, you can reject a request up until the start date of the request by clicking the "reject" button at the bottom of the request.
+Keep communication on the Couchers.org platform as much as possible. Use common sense when reviewing requests and profiles and especially when providing personal information like your address and schedule. Keep in mind that you are never obligated to accept a request or provide a reason for why you cannot accept. If you decline a request, the person will not be able to message you again unless you add them as a friend. If you accept a request but change your mind, you can reject a request up until the start date of the request by clicking the "reject" button at the bottom of the request.
 
 <a class="handbook-anchor" name="donate"></a>
 
@@ -200,17 +200,27 @@ Visit [couchers.org/donate](https://couchers.org/donate) to make your donation.
 2. Fill out the form, then click submit.
 3. Someone will reach out to you. Generally you will receive a response within 1 week, but in some cases it may take longer.
 
+<a class="handbook-anchor" name="passwordreset"></a>
+
+### How do I reset my password?
+
+1. Visit <https://couchers.org/password-reset>
+2. Enter the email address you used for your account and click the submit button.
+3. An email will be sent to the email address with a link to reset your password. If you do not see the email within 5 minutes, check your "spam" filter and "promotions", "social", or "bulk" folders of your email account to make sure the email did not get filtered out.
+4. Click on the link in the email and you will be taken to a page to reset your password.
+
 <a class="handbook-anchor" name="password"></a>
 
-### How do I create or change my password?
+### How do I change my password?
 
-1. Click on the menu button in the upper-right corner.
-2. Click "account settings".
-3. Scroll down to "Change password"
-4. If you already have a password, enter your old password where it says "old password".
-5. Enter in your new password where it says "new password".
-6. Enter the same new password again where it says "confirm password"
-7. Click "submit"
+1. Log into your account.
+2. Click on the menu button in the upper-right corner.
+3. Click "account settings".
+4. Scroll down to "Change password".
+5. Enter your old password where it says "old password".
+6. Enter in your new password where it says "new password".
+7. Enter the same new password again where it says "confirm password".
+8. Click "submit".
 
 <a class="handbook-anchor" name="age"></a>
 
@@ -241,7 +251,7 @@ Send your request via email to [support@couchers.org](mailto:support@couchers.or
 
 1. Click on the menu button in the upper-right corner.
 2. Click "account settings".
-3. Scroll down to "Delete account"
+3. Scroll down to "Delete account".
 4. Enter your username in the "Username confirmation" box to confirm you are okay with permanently deleting your account. Please note that we cannot restore an account that has been deleted.
 5. Enter the reason you want to delete your account. We are always trying to improve Couchers.org and we appreciate any feedback!
 6. Click on the "Submit" button.
@@ -250,16 +260,16 @@ Send your request via email to [support@couchers.org](mailto:support@couchers.or
 
 ### Where can I see my friends list?
 
-1. Click "Profile"
-2. Click "My Connections"
+1. Click "Profile".
+2. Click "My Connections".
 
 <a class="handbook-anchor" name="settings"></a>
 
 ### Where can I change my account settings?
 
-1. Click "Profile"
-2. Click "Edit"
-3. Click "Account Settings" at the top of the screen
+1. Click "Profile".
+2. Click "Edit".
+3. Click "Account Settings" at the top of the screen.
 
 <a class="handbook-anchor" name="invite"></a>
 
@@ -306,7 +316,7 @@ Keep in mind: **The person will only be able to see your profile if they have an
 
 ### Can I message anyone I want?
 
-You can message anyone on the platform. However, please keep our community values and guidelines in mind when you message someone. Treat people with respect and dignity, and do not spam or harass other users.
+You can message anyone on the platform. However, please keep in mind our [Community Guidelines](#guidelines) and values when you message someone. Treat people with respect and dignity, and do not spam or harass other users.
 
 <a class="handbook-anchor" name="reference"></a>
 
@@ -340,7 +350,7 @@ These features have not been released yet. However, we do plan on releasing thes
 
 ### How do I send a request?
 
-1. Visit the person’s profile.
+1. Visit a person’s profile.
 2. Click "Request".
 3. Fill out your request and click "Send".
 
