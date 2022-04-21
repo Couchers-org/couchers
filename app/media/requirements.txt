@@ -30,8 +30,6 @@ markupsafe==2.0.1
     # via jinja2
 packaging==21.3
     # via pytest
-pillow==9.0.1
-    # via -r requirements.in
 pluggy==1.0.0
     # via pytest
 protobuf==3.20.0
@@ -48,7 +46,7 @@ pytest==7.1.1
     # via -r requirements.in
 pyvips==2.1.16
     # via -r requirements.in
-sentry-sdk==1.5.8
+sentry-sdk==1.5.10
     # via -r requirements.in
 six==1.16.0
     # via grpcio
