@@ -11,6 +11,7 @@ description: Couchers.org help page and frequently asked questions
 ## Community values
 
 * [What is couch surfing?](#whatis)
+* [A brief summary of the guidelines](#guidelines)
 * [Is it okay to look for a date, romance, or sex on Couchers.org?](#dating)
 * [Can I add anyone as a friend?](#friending)
 * [Do I have to host someone? Is it required that I be a host sometime?](#hosting)
@@ -67,6 +68,30 @@ description: Couchers.org help page and frequently asked questions
 Couch surfing is non-transactional hospitality that is focused on meaningful interactions between the guest and the host rather than the accommodations and amenities.
 
 When you are a couch surfer, you are either hosting someone for free, or staying with someone for free, or meeting up with a local to hang out together. Before agreeing to meet, the host and guest communicate plans and availability during the visit so it is clear what to expect. Couch surfing is NOT for flirting, dating, romance, or sex. It is for making new friends from all around the world, sharing experiences and learning from one another.
+
+<a class="handbook-anchor" name="guidelines"></a>
+
+### A brief summary of the guidelines
+
+Below is a brief summary of the rules and guidelines that all users must agree to after signing up for a Couchers account:
+
+1. **Be kind to one another**
+
+Couchers.org is an inclusive community where people of all cultures and backgrounds come together. Treat everyone with mutual respect and dignity.
+
+2. **This is not a dating app**
+
+Couchers.org is NOT for dating, romance, or sex. Harassment or or using the platform for the purpose of flirting, dating, seeking out romantic or sexual partners, or for engaging in sexual activities will result in an immediate ban.
+
+3. **Be safe and sensible**
+
+Read profiles, references, and resources. Report any inappropriate content or behavior.
+
+4. **Keep money out of it**
+
+Keep things non-transactional. Don't exchange money while staying or hosting. Couchers.org is about learning, experiences, and getting to know people.
+
+Please note that these rules are in addition to the [Terms of Service](https://couchers.org/terms) that all users must agree to.
 
 <a class="handbook-anchor" name="dating"></a>
 
@@ -290,7 +315,6 @@ You can message anyone on the platform. However, please keep our community value
 * #### After hosting or staying with someone
 
 1. Click "Messages".
-
 2. Click "hosting" or "surfing" (depending on which type of reference you are leaving).
 3. Click on the request you want to leave a reference for.
 4. Click the "Write reference" button.
