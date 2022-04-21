@@ -20,6 +20,8 @@ flask==2.1.1
     # via -r requirements.in
 grpcio==1.44.0
     # via -r requirements.in
+importlib-metadata==4.11.3
+    # via flask
 iniconfig==1.1.1
     # via pytest
 itsdangerous==2.0.1
@@ -30,6 +32,8 @@ markupsafe==2.0.1
     # via jinja2
 packaging==21.3
     # via pytest
+pillow==9.1.0
+    # via -r requirements.in
 pluggy==1.0.0
     # via pytest
 protobuf==3.20.0
@@ -58,3 +62,5 @@ uwsgi==2.0.20
     # via -r requirements.in
 werkzeug==2.0.2
     # via flask
+zipp==3.8.0
+    # via importlib-metadata

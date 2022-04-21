@@ -1,6 +1,7 @@
 backoff
 Flask
 grpcio
+pillow
 protobuf
 pynacl
 pytest
