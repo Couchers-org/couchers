@@ -31,7 +31,8 @@
         "SWE",
         "USA"
       ],
-      "hosting_status": "HOSTING_STATUS_CAN_HOST"
+      "hosting_status": "HOSTING_STATUS_CAN_HOST",
+      "is_superuser": true
     },
     {
       "username": "itsi",

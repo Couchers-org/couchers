@@ -28,6 +28,7 @@ from couchers.tasks import (
     maybe_send_contributor_form_email,
     send_account_deletion_successful_email,
     send_account_recovered_email,
+    send_api_key_email,
     send_login_email,
     send_onboarding_email,
     send_password_reset_email,
