@@ -36,7 +36,8 @@ description: Couchers.org help page and frequently asked questions
 
 ### My Profile/Account
 
-* [How do I create or change my password?](#password)
+* [I forgot my password. How do I reset it?](#passwordreset)
+* [How do I change my password?](#password)
 * [How do I change my age?](#age)
 * [How do I change my display name or username?](#displayname)
 * [How do I change the gender displayed on my profile?](#gender)
@@ -287,6 +288,10 @@ Send your request via email to [support@couchers.org](mailto:support@couchers.or
 3. Paste the link wherever you want to share it.
 
 Keep in mind: **The person will only be able to see your profile if they have an account and are logged in** at [couchers.org](https://couchers.org)!
+
+How is the "response rate" on my profile calculated?
+
+can get an idea on how likely it is a user responds to your request and how long to expect them to take to respond to you! It also influences your search ordering: how high up the top in the search you show up (try to get back to requests in two days).
 
 <a class="handbook-anchor" name="searchfilters"></a>
 
