@@ -11,6 +11,7 @@ description: Couchers.org help page and frequently asked questions
 ## Community values
 
 * [What is couch surfing?](#whatis)
+* [A brief summary of the Community Guidelines](#guidelines)
 * [Is it okay to look for a date, romance, or sex on Couchers.org?](#dating)
 * [Can I add anyone as a friend?](#friending)
 * [Do I have to host someone? Is it required that I be a host sometime?](#hosting)
@@ -29,13 +30,15 @@ description: Couchers.org help page and frequently asked questions
 * [How do I donate money to Couchers.org?](#donate)
 * [How do I report a bug? (a problem with the website)](#bug)
 * [How do I give feedback or share an idea?](#feedback)
-* [How do I volunteer to help build the Couchers.org platform?](#volunteer)
+* [How do I volunteer to help Couchers.org?](#volunteer)
+* [Where can I download the Couchers logo or wordmark?](#logo)
 
 ## Using the Couchers.org website
 
 ### My Profile/Account
 
-* [How do I create or change my password?](#password)
+* [I forgot my password. How do I reset it?](#passwordreset)
+* [How do I change my password?](#password)
 * [How do I change my age?](#age)
 * [How do I change my display name or username?](#displayname)
 * [How do I change the gender displayed on my profile?](#gender)
@@ -67,6 +70,30 @@ description: Couchers.org help page and frequently asked questions
 Couch surfing is non-transactional hospitality that is focused on meaningful interactions between the guest and the host rather than the accommodations and amenities.
 
 When you are a couch surfer, you are either hosting someone for free, or staying with someone for free, or meeting up with a local to hang out together. Before agreeing to meet, the host and guest communicate plans and availability during the visit so it is clear what to expect. Couch surfing is NOT for flirting, dating, romance, or sex. It is for making new friends from all around the world, sharing experiences and learning from one another.
+
+<a class="handbook-anchor" name="guidelines"></a>
+
+### A brief summary of the Community Guidelines
+
+Below is a brief summary of the guidelines (rules) that all users must agree to after signing up for a Couchers account:
+
+1. **Be kind to one another**
+
+Couchers.org is an inclusive community where people of all cultures and backgrounds come together. Treat everyone with mutual respect and dignity.
+
+2. **This is not a dating app**
+
+Couchers.org is NOT for dating, romance, or sex. Harassment or or using the platform for the purpose of flirting, dating, seeking out romantic or sexual partners, or for engaging in sexual activities will result in an immediate ban.
+
+3. **Be safe and sensible**
+
+Read profiles, references, and resources. [Report](#report) any inappropriate content or behavior.
+
+4. **Keep money out of it**
+
+Keep things non-transactional. Don't exchange money while staying or hosting. Couchers.org is about learning, experiences, and getting to know people.
+
+Please note that these rules are in addition to the [Terms of Service](https://couchers.org/terms) that all users must agree to. A violation of the Terms of Service or Community Guidelines may result in a suspension or permanent ban.
 
 <a class="handbook-anchor" name="dating"></a>
 
@@ -117,7 +144,7 @@ No. It is a violation of the Terms of Service to use the platform to advertise, 
 
 1. Click on the flag symbol (located below their profile photo or profile circle if they have no photo).
 2. Select the reason from the dropdown menu.
-3. Fill out the form with further details (OPTIONAL, but helpful!)
+3. Fill out the form with further details (OPTIONAL, but very helpful!)
 4. Click "Submit".
 
 #### Option 2
@@ -143,9 +170,9 @@ Send an email to [safety@couchers.org](mailto:safety@couchers.org). If you send 
 
 You should read the person's entire profile and read through their references. References can give you an idea of what others think about the person. It is also very important to communicate thoroughly with the person before accepting their request. Be sure to ask any for any information that is missing from their profile or request message. For example, if their profile is empty or missing a photo, it is okay to ask them to fill out their profile and/or upload a photo before accepting their request.
 
-It is also good to ask them when they will arrive and when they will leave, why they are coming, and who is coming with them. It is helpful to let them know what your schedule looks like and how available you will be to interact with them. You should also let them know about any important information about you, your home, and your schedule that is relevant to their visit.
+It is also good to ask the person when they will arrive and when they will leave, why they are coming, and who is coming with them. It is helpful to let them know what your schedule looks like and how available you will be to interact with them. Don't feel obligated to provide a bunch of details or private information, but you should let your guest(s) know about any important information about you, your home, and your schedule that is relevant to their visit.
 
-Keep communication on the Couchers.org platform as much as possible. Use common sense when providing personal information like your address and schedule. Keep in mind that you are never obligated to accept a request or provide a reason for why you cannot accept. If you decline a request, the person will not be able to message you again unless you add them as a friend. If you accept a request but change your mind, you can reject a request up until the start date of the request by clicking the "reject" button at the bottom of the request.
+Keep communication on the Couchers.org platform as much as possible. Use common sense when reviewing requests and profiles and especially when providing personal information like your address and schedule. Keep in mind that you are never obligated to accept a request or provide a reason for why you cannot accept. If you decline a request, the person will not be able to message you again unless you add them as a friend. If you accept a request but change your mind, you can reject a request up until the start date of the request by clicking the "reject" button at the bottom of the request.
 
 <a class="handbook-anchor" name="donate"></a>
 
@@ -169,23 +196,41 @@ Visit [couchers.org/donate](https://couchers.org/donate) to make your donation.
 
 <a class="handbook-anchor" name="volunteer"></a>
 
-### How do I volunteer to help build the Couchers.org platform?
+### How do I volunteer to help Couchers.org?
 
 1. Visit [www.couchers.org/contribute](www.couchers.org/contribute)
 2. Fill out the form, then click submit.
-3. Someone will reach out to you. Generally you will receive a response within 1 week, but in some cases it may take longer.
+3. Someone will reach out to you. Generally you will receive a response within 1 week, but in some cases it may take longer. If you do not receive a response after a week, please email [volunteers@couchers.org](mailto:volunteers@couchers.org)
+
+<a class="handbook-anchor" name="logo"></a>
+
+### Where can I download the Couchers logo or wordmark?
+
+You can use our logo and wordmark when organizing Couchers events or promoting Couchers. Our logo and wordmark are available in various formats. You can download our logo and wordmark here: <https://drive.google.com/drive/folders/1LpArrYWQT94KMAfpX2iF5wNJn8r19K7p>
+
+Our wordmark is the font "[Manslava](https://fonts.google.com/specimen/Mansalva)" and our primary font is "[Ubuntu](https://fonts.google.com/specimen/Ubuntu)". The primary colors we use are the orange "#E47701" and teal "#00A398".
+
+<a class="handbook-anchor" name="passwordreset"></a>
+
+### How do I reset my password?
+
+1. Visit <https://couchers.org/password-reset>
+2. Enter the email address you used for your account and click the submit button.
+3. An email will be sent to the email address with a link to reset your password. If you do not see the email within 5 minutes, check your "spam" filter and "promotions", "social", or "bulk" folders of your email account to make sure the email did not get filtered out.
+4. Click on the link in the email and you will be taken to a page to reset your password.
 
 <a class="handbook-anchor" name="password"></a>
 
-### How do I create or change my password?
+### How do I change my password?
 
-1. Click on the menu button in the upper-right corner.
-2. Click "account settings".
-3. Scroll down to "Change password"
-4. If you already have a password, enter your old password where it says "old password".
-5. Enter in your new password where it says "new password".
-6. Enter the same new password again where it says "confirm password"
-7. Click "submit"
+1. Log into your account.
+2. Click on the menu button in the upper-right corner.
+3. Click "account settings".
+4. Scroll down to "Change password".
+5. Enter your old password where it says "old password".
+6. Enter in your new password where it says "new password".
+7. Enter the same new password again where it says "confirm password".
+8. Click "submit".
 
 <a class="handbook-anchor" name="age"></a>
 
@@ -216,7 +261,7 @@ Send your request via email to [support@couchers.org](mailto:support@couchers.or
 
 1. Click on the menu button in the upper-right corner.
 2. Click "account settings".
-3. Scroll down to "Delete account"
+3. Scroll down to "Delete account".
 4. Enter your username in the "Username confirmation" box to confirm you are okay with permanently deleting your account. Please note that we cannot restore an account that has been deleted.
 5. Enter the reason you want to delete your account. We are always trying to improve Couchers.org and we appreciate any feedback!
 6. Click on the "Submit" button.
@@ -225,16 +270,16 @@ Send your request via email to [support@couchers.org](mailto:support@couchers.or
 
 ### Where can I see my friends list?
 
-1. Click "Profile"
-2. Click "My Connections"
+1. Click "Profile".
+2. Click "My Connections".
 
 <a class="handbook-anchor" name="settings"></a>
 
 ### Where can I change my account settings?
 
-1. Click "Profile"
-2. Click "Edit"
-3. Click "Account Settings" at the top of the screen
+1. Click "Profile".
+2. Click "Edit".
+3. Click "Account Settings" at the top of the screen.
 
 <a class="handbook-anchor" name="invite"></a>
 
@@ -252,6 +297,10 @@ Send your request via email to [support@couchers.org](mailto:support@couchers.or
 3. Paste the link wherever you want to share it.
 
 Keep in mind: **The person will only be able to see your profile if they have an account and are logged in** at [couchers.org](https://couchers.org)!
+
+How is the "response rate" on my profile calculated?
+
+can get an idea on how likely it is a user responds to your request and how long to expect them to take to respond to you! It also influences your search ordering: how high up the top in the search you show up (try to get back to requests in two days).
 
 <a class="handbook-anchor" name="searchfilters"></a>
 
@@ -281,7 +330,7 @@ Keep in mind: **The person will only be able to see your profile if they have an
 
 ### Can I message anyone I want?
 
-You can message anyone on the platform. However, please keep our community values and guidelines in mind when you message someone. Treat people with respect and dignity, and do not spam or harass other users.
+You can message anyone on the platform. However, please keep in mind our [Community Guidelines](#guidelines) and values when you message someone. Treat people with respect and dignity, and do not spam or harass other users.
 
 <a class="handbook-anchor" name="reference"></a>
 
@@ -290,7 +339,6 @@ You can message anyone on the platform. However, please keep our community value
 * #### After hosting or staying with someone
 
 1. Click "Messages".
-
 2. Click "hosting" or "surfing" (depending on which type of reference you are leaving).
 3. Click on the request you want to leave a reference for.
 4. Click the "Write reference" button.
@@ -316,7 +364,7 @@ These features have not been released yet. However, we do plan on releasing thes
 
 ### How do I send a request?
 
-1. Visit the person’s profile.
+1. Visit a person’s profile.
 2. Click "Request".
 3. Fill out your request and click "Send".
 
