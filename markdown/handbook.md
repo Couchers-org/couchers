@@ -30,7 +30,8 @@ description: Couchers.org help page and frequently asked questions
 * [How do I donate money to Couchers.org?](#donate)
 * [How do I report a bug? (a problem with the website)](#bug)
 * [How do I give feedback or share an idea?](#feedback)
-* [How do I volunteer to help build the Couchers.org platform?](#volunteer)
+* [How do I volunteer to help Couchers.org?](#volunteer)
+* [Where can I download the Couchers logo or wordmark?](#logo)
 
 ## Using the Couchers.org website
 
@@ -92,7 +93,7 @@ Read profiles, references, and resources. [Report](#report) any inappropriate co
 
 Keep things non-transactional. Don't exchange money while staying or hosting. Couchers.org is about learning, experiences, and getting to know people.
 
-Please note that these rules are in addition to the [Terms of Service](https://couchers.org/terms) that all users must agree to.
+Please note that these rules are in addition to the [Terms of Service](https://couchers.org/terms) that all users must agree to. A violation of the Terms of Service or Community Guidelines may result in a suspension or permanent ban.
 
 <a class="handbook-anchor" name="dating"></a>
 
@@ -143,7 +144,7 @@ No. It is a violation of the Terms of Service to use the platform to advertise, 
 
 1. Click on the flag symbol (located below their profile photo or profile circle if they have no photo).
 2. Select the reason from the dropdown menu.
-3. Fill out the form with further details (OPTIONAL, but helpful!)
+3. Fill out the form with further details (OPTIONAL, but very helpful!)
 4. Click "Submit".
 
 #### Option 2
@@ -195,11 +196,17 @@ Visit [couchers.org/donate](https://couchers.org/donate) to make your donation.
 
 <a class="handbook-anchor" name="volunteer"></a>
 
-### How do I volunteer to help build the Couchers.org platform?
+### How do I volunteer to help Couchers.org?
 
 1. Visit [www.couchers.org/contribute](www.couchers.org/contribute)
 2. Fill out the form, then click submit.
-3. Someone will reach out to you. Generally you will receive a response within 1 week, but in some cases it may take longer.
+3. Someone will reach out to you. Generally you will receive a response within 1 week, but in some cases it may take longer. If you do not receive a response after a week, please email [volunteers@couchers.org](mailto:volunteers@couchers.org)
+
+<a class="handbook-anchor" name="logo"></a>
+
+### Where can I download the Couchers logo or wordmark?
+
+You can use our logo and wordmark when organizing Couchers events or promoting Couchers. Our logo and wordmark are available in various formats. The font used for our wordmark is "manslava". You can download our logo and wordmark here: <https://drive.google.com/drive/folders/1LpArrYWQT94KMAfpX2iF5wNJn8r19K7p>
 
 <a class="handbook-anchor" name="passwordreset"></a>
 
