@@ -206,7 +206,9 @@ Visit [couchers.org/donate](https://couchers.org/donate) to make your donation.
 
 ### Where can I download the Couchers logo or wordmark?
 
-You can use our logo and wordmark when organizing Couchers events or promoting Couchers. Our logo and wordmark are available in various formats. The font used for our wordmark is "manslava". You can download our logo and wordmark here: <https://drive.google.com/drive/folders/1LpArrYWQT94KMAfpX2iF5wNJn8r19K7p>
+You can use our logo and wordmark when organizing Couchers events or promoting Couchers. Our logo and wordmark are available in various formats. You can download our logo and wordmark here: <https://drive.google.com/drive/folders/1LpArrYWQT94KMAfpX2iF5wNJn8r19K7p>
+
+Our wordmark is the font "[manslava](https://fonts.google.com/specimen/Mansalva)" and our primary font is "Ubuntu". The primary colors we use are the orange "#E47701" and teal "#00A398".
 
 <a class="handbook-anchor" name="passwordreset"></a>
 
