@@ -30,5 +30,7 @@
   "discussions_empty_state": "Nenhuma discussão no momento.",
   "events_empty_state": "Nenhum evento no momento.",
   "local_info_link": "Ir para informação local",
-  "new_discussion_topic_placeholder": "Criar novo tópico de discussão - por exemplo, Meu momento favorito de Amesterdam é quando..."
+  "new_discussion_topic_placeholder": "Criar novo tópico de discussão - por exemplo, Meu momento favorito de Amesterdã é quando...",
+  "error_loading_community": "Erro ao carregar comunidade.",
+  "no_moderators": "No momento não há nenhum Organizador da Comunidade aqui."
 }
