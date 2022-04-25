@@ -59,5 +59,15 @@
   "date_required": "Insira uma data.",
   "event_details": "Detalhes do evento",
   "event_discussion": "Discussão do evento",
-  "event_image_input_alt": "Entrada de imagem do evento"
+  "event_image_input_alt": "Entrada de imagem do evento",
+  "event_link": "Link do evento",
+  "events_label": "Eventos",
+  "events_title": "Eventos",
+  "invalid_time": "A hora tem de estar no formato 24 horas, HH:MM",
+  "leave_event": "Abandonar evento",
+  "load_more_attendees": "Carregar mais participantes",
+  "load_more_organizers": "Carregar mais organizadores",
+  "location": "Local",
+  "no_attendees": "O evento ainda não tem nenhum participante!",
+  "no_organizers": "Este evento não tem organizadores."
 }
