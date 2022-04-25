@@ -16,7 +16,7 @@ import {
   REQUEST,
 } from "features/profile/constants";
 import UserOverview from "features/profile/view/UserOverview";
-import { CONNECTIONS } from "i18n/namespaces";
+import { PROFILE } from "i18n/namespaces";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
@@ -55,10 +55,10 @@ const useStyles = makeStyles((theme) => ({
 
 export interface OverviewProps {
   setIsRequesting: (value: boolean) => void;
-  tab: UserTab;
+  tab: UserTab | undefined;
 }
 
-const getEditTab = (tab: UserTab): EditUserTab | undefined => {
+const getEditTab = (tab: UserTab | undefined): EditUserTab | undefined => {
   switch (tab) {
     case "about":
     case "home":
@@ -73,7 +73,7 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
   const currentUserId = useAuthContext().authState.userId;
   const [mutationError, setMutationError] = useState("");
   const user = useProfileUser();
-  const { t } = useTranslation([CONNECTIONS]);
+  const { t } = useTranslation([PROFILE]);
 
   const disableHosting =
     user.hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST;
@@ -90,7 +90,7 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
               </Button>
             </Link>
             <Link href={connectionsRoute} passHref>
-              <Button component="a">{t("connections:my_connections")}</Button>
+              <Button component="a">{t("profile:my_connections")}</Button>
             </Link>
           </>
         ) : (
