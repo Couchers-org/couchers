@@ -1,1 +1,20 @@
-{}
+{
+  "discussions_empty_state": "De momento não há discussões.",
+  "create_event_disclaimer": "Ao carregar neste botão, o teu evento irá ficar publicamente visível para a comunidade Couchers.org.",
+  "upload_helper_text_replace": "Clica para mudar foto",
+  "error_loading_community": "Erro a carregar a comunidade.",
+  "events_empty_state": "De momento não há eventos.",
+  "local_info_link": "Aceder a informação local",
+  "new_discussion_topic_placeholder": "Criar novo tópico de discussão - por ex., O meu momento favorito de Amesterdão é quando...",
+  "no_comments": "De momento esta discussão não tem comentários.",
+  "no_moderators": "De momento, não está aqui nenhum Organizador da comunidade.",
+  "page_content_required": "Por favor, preenche os conteúdos da página",
+  "unknown_user": "Utilizador desconhecido",
+  "date_required": "Por favor, introduz uma data.",
+  "event_details_required": "Por favor, preenche o campo de detalhes do evento.",
+  "location_required": "Por favor indica a localização do evento.",
+  "title_required": "Por favor, dá um título ao evento.",
+  "upload_helper_text": "Clica para começar a carregar uma imagem.",
+  "discover_events_subtitle": "Descobre os próximos e futuros eventos organizados por membros da comunidade Couchers.org!",
+  "discover_events_title": "Descobre eventos do Couchers.org"
+}
