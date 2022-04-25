@@ -4,5 +4,6 @@
   "by_creator": "Por {{name}}",
   "comments": "Comentários",
   "comments_count": "Comentários | {{count}}",
-  "community_header": "Bem-vindo(a) a  {{name}}"
+  "community_header": "Bem-vindo(a) a  {{name}}",
+  "upload_helper_text_replace": "Clique para mudar a foto"
 }
