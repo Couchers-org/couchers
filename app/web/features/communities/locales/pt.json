@@ -56,5 +56,8 @@
   "unknown_user": "Usuário desconhecido",
   "create_event_disclaimer": "Ao selecionar este botão, seu evento ficará publicamente visível para a comunidade Couchers.org.",
   "event_details_required": "Preencha o campo de detalhes do evento.",
-  "date_required": "Insira uma data."
+  "date_required": "Insira uma data.",
+  "event_details": "Detalhes do evento",
+  "event_discussion": "Discussão do evento",
+  "event_image_input_alt": "Imagem do evento"
 }
