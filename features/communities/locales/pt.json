@@ -55,5 +55,6 @@
   "create_event_page_title": "Criar evento",
   "unknown_user": "Usuário desconhecido",
   "create_event_disclaimer": "Ao selecionar este botão, seu evento ficará publicamente visível para a comunidade Couchers.org.",
-  "event_details_required": "Preencha o campo de detalhes do evento."
+  "event_details_required": "Preencha o campo de detalhes do evento.",
+  "date_required": "Insira uma data."
 }
