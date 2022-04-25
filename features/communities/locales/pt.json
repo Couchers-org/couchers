@@ -32,5 +32,7 @@
   "local_info_link": "Ir para informação local",
   "new_discussion_topic_placeholder": "Criar novo tópico de discussão - por exemplo, Meu momento favorito de Amesterdã é quando...",
   "error_loading_community": "Erro ao carregar comunidade.",
-  "no_moderators": "No momento não há nenhum Organizador da Comunidade aqui."
+  "no_moderators": "No momento não há nenhum Organizador da Comunidade aqui.",
+  "page_content_required": "Preencha o conteúdo da página",
+  "no_comments": "Nenhum comentário nesta discussão no momento."
 }
