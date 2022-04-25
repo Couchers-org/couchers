@@ -82,7 +82,7 @@ export default function Avatar({
                 alt={user.name}
                 src={user.avatarUrl}
               >
-                {user.name.split(/\s+/).map((name) => name[0])}
+                {(user.name || "").split(/\s+/).map((name) => name[0])}
               </MuiAvatar>
             </a>
           </Link>
@@ -92,7 +92,7 @@ export default function Avatar({
             alt={user.name}
             src={user.avatarUrl}
           >
-            {user.name.split(/\s+/).map((name) => name[0])}
+            {(user.name || "").split(/\s+/).map((name) => name[0])}
           </MuiAvatar>
         )
       ) : otherProps.children ? (
