@@ -52,5 +52,7 @@
   "write_comment_a11y_label": "Escrever um comentário",
   "attendees": "Participantes",
   "create_an_event": "Criar um evento",
-  "create_event_page_title": "Criar evento"
+  "create_event_page_title": "Criar evento",
+  "unknown_user": "Usuário desconhecido",
+  "create_event_disclaimer": "Selecionando este botão, seu vento ficará publicamente visível para a comunidade Couchers.org."
 }
