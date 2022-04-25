@@ -34,5 +34,13 @@
   "error_loading_community": "Erro ao carregar comunidade.",
   "no_moderators": "No momento não há nenhum Organizador da Comunidade aqui.",
   "page_content_required": "Preencha o conteúdo da página",
-  "no_comments": "Nenhum comentário nesta discussão no momento."
+  "no_comments": "Nenhum comentário nesta discussão no momento.",
+  "new_post_label": "Novo post",
+  "online": "Online",
+  "page_content_field_label": "Conteúdo da página",
+  "places_empty_state": "Ainda não há lugares para mostrar.",
+  "places_title": "Lugares",
+  "post": "Post",
+  "previous_page": "Voltar à página anterior",
+  "see_all_moderators": "Ver todos os Organizadores da comunidade"
 }
