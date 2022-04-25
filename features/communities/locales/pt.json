@@ -44,7 +44,7 @@
   "previous_page": "Voltar à página anterior",
   "see_all_moderators": "Ver todos os Organizadores da Comunidade",
   "see_more_discussions_label": "Ver mais discussões",
-  "see_more_information": "Ver mais informação",
+  "see_more_information": "Ver mais informações",
   "see_more_places_label": "Ver mais lugares",
   "upload_image": "Carregar imagem",
   "details_subheading_colon": "Detalhes:",
@@ -54,5 +54,6 @@
   "create_an_event": "Criar um evento",
   "create_event_page_title": "Criar evento",
   "unknown_user": "Usuário desconhecido",
-  "create_event_disclaimer": "Selecionando este botão, seu vento ficará publicamente visível para a comunidade Couchers.org."
+  "create_event_disclaimer": "Ao selecionar este botão, seu evento ficará publicamente visível para a comunidade Couchers.org.",
+  "event_details_required": "Preencha o campo de detalhes do evento."
 }
