@@ -8,6 +8,8 @@ description: Couchers.org help page and frequently asked questions
 
 *We are currently working on a guide that more thoroughly addresses questions about couch surfing, Couchers.org, and how to use the website. In the meantime, you can find answers to the most commonly asked questions below.*
 
+*Last updated: April 25, 2022.*
+
 ## Community values
 
 * [What is couch surfing?](#whatis)
