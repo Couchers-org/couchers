@@ -3,5 +3,5 @@
   "attendees_count_plural": "{{count}} participantes",
   "by_creator": "Por {{name}}",
   "comments": "Comentários",
-  "comments_count": "Comentários| {{count}}"
+  "comments_count": "Comentários | {{count}}"
 }
