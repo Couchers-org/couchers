@@ -4,6 +4,8 @@
     "not_accepting": "Can't host",
     "meetup": "Wants to meet",
     "maybe_meetup": "Open to meet",
+    "my_connections": "My connections",
+    "connection_pending": "Pending",
     "no_meetup": "Can't meet",
     "unsure": "Ask me",
     "cancel": "Cancel",
