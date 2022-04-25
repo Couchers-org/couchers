@@ -46,7 +46,7 @@ pyparsing==3.0.7
     # via packaging
 pytest==7.1.2
     # via -r requirements.in
-pyvips==2.1.16
+pyvips==2.2.0
     # via -r requirements.in
 sentry-sdk==1.5.10
     # via -r requirements.in
