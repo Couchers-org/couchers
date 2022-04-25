@@ -1,4 +1,4 @@
-import { Card, Typography } from "@material-ui/core";
+import { Box, Card, Typography } from "@material-ui/core";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
@@ -51,7 +51,9 @@ export default function UserOverview({ children }: PropsWithChildren<unknown>) {
 
   return (
     <Card className={classes.card}>
-      <Avatar user={user} grow />
+      <Box maxWidth="75%" mx="auto">
+        <Avatar user={user} grow />
+      </Box>
       <div className={classes.wrapper}>
         <Typography variant="h1" className={classes.intro}>
           {user.name}
