@@ -90,5 +90,6 @@
   "virtual_events_subtext": "Os eventos virtuais serão adicionados à comunidade global.",
   "past": "Passados",
   "upcoming": "Próximos",
-  "load_more_moderators": "Carregar mais Organizadores da Comunidade"
+  "load_more_moderators": "Carregar mais Organizadores da Comunidade",
+  "all_events_page_tabs_a11y_label": "Abas para a página de listagem de eventos"
 }
