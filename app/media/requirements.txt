@@ -20,8 +20,6 @@ flask==2.1.1
     # via -r requirements.in
 grpcio==1.44.0
     # via -r requirements.in
-importlib-metadata==4.11.3
-    # via flask
 iniconfig==1.1.1
     # via pytest
 itsdangerous==2.0.1
@@ -48,7 +46,7 @@ pyparsing==3.0.7
     # via packaging
 pytest==7.1.1
     # via -r requirements.in
-pyvips==2.1.16
+pyvips==2.2.0
     # via -r requirements.in
 sentry-sdk==1.5.10
     # via -r requirements.in
@@ -62,5 +60,3 @@ uwsgi==2.0.20
     # via -r requirements.in
 werkzeug==2.0.2
     # via flask
-zipp==3.8.0
-    # via importlib-metadata
