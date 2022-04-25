@@ -74,5 +74,6 @@
   "upload_helper_text": "Clique para começar a carregar uma imagem.",
   "discover_events_subtitle": "Descubra os próximos e futuros eventos organizados por membros da comunidade Couchers.org!",
   "title_required": "Dê um título ao evento.",
-  "discover_events_title": "Descubra eventos do Couchers.org"
+  "discover_events_title": "Descubra eventos do Couchers.org",
+  "community_image_input_alt": "Entrada de imagem da comunidade"
 }
