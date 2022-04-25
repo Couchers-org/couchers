@@ -26,5 +26,9 @@
   "more_replies": "Mais respostas...",
   "more_tips": "Mais dicas e informações",
   "new_discussion_title": "Título da discussão",
-  "new_discussion_topic": "Tópico da discussão"
+  "new_discussion_topic": "Tópico da discussão",
+  "discussions_empty_state": "Nenhuma discussão no momento.",
+  "events_empty_state": "Nenhum evento no momento.",
+  "local_info_link": "Ir para informação local",
+  "new_discussion_topic_placeholder": "Criar novo tópico de discussão - por exemplo, Meu momento favorito de Amesterdam é quando..."
 }
