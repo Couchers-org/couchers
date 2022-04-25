@@ -42,5 +42,15 @@
   "places_title": "Lugares",
   "post": "Post",
   "previous_page": "Voltar à página anterior",
-  "see_all_moderators": "Ver todos os Organizadores da Comunidade"
+  "see_all_moderators": "Ver todos os Organizadores da Comunidade",
+  "see_more_discussions_label": "Ver mais discussões",
+  "see_more_information": "Ver mais informação",
+  "see_more_places_label": "Ver mais lugares",
+  "upload_image": "Carregar imagem",
+  "details_subheading_colon": "Detalhes:",
+  "details_subheading": "Detalhes",
+  "write_comment_a11y_label": "Escrever um comentário",
+  "attendees": "Participantes",
+  "create_an_event": "Criar um evento",
+  "create_event_page_title": "Criar evento"
 }
