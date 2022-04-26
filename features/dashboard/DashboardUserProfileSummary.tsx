@@ -1,4 +1,4 @@
-import { CircularProgress } from "@material-ui/core";
+import { CircularProgress, Theme, useMediaQuery } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Button from "components/Button";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
@@ -29,6 +29,9 @@ function DashboardUserProfileSummaryActions() {
 
 export default function DashboardUserProfileSummary() {
   const { data: user, error, isLoading } = useCurrentUser();
+  const desktopMode = useMediaQuery((theme: Theme) =>
+    theme.breakpoints.up("sm")
+  );
   return (
     <>
       {error && <Alert severity="error">{error}</Alert>}
@@ -36,10 +39,15 @@ export default function DashboardUserProfileSummary() {
         <CircularProgress />
       ) : user ? (
         <ProfileUserProvider user={user}>
-          <UserOverview
-            actions={<DashboardUserProfileSummaryActions />}
-            showHostAndMeetAvailability
-          />
+          {desktopMode ? (
+            <UserOverview
+              actions={<DashboardUserProfileSummaryActions />}
+              showHostAndMeetAvailability
+              showCommunityAndVerificationScore={false}
+            />
+          ) : (
+            <>{/*todo: add here small version of profile */}</>
+          )}
         </ProfileUserProvider>
       ) : undefined}
     </>
