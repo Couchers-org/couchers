@@ -3,7 +3,12 @@ import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import wrapper from "test/hookWrapper";
 import { addDefaultUser } from "test/utils";
 
-import { hostingStatusLabels, meetupStatusLabels } from "../constants";
+import {
+  COMMUNITY_STANDING,
+  hostingStatusLabels,
+  meetupStatusLabels,
+  VERIFICATION_SCORE,
+} from "../constants";
 import { ProfileUserProvider } from "../hooks/useProfileUser";
 import UserOverview from "./UserOverview";
 
@@ -39,33 +44,10 @@ describe("UserOverview", () => {
       expect(getByText(defaultUser.city)).toBeInTheDocument();
     });
 
-    it("should display the hosting status only when showHostAndMeetAvailability is true", () => {
-      const expectedLabel =
+    it("should display the hosting and meeting status only when showHostAndMeetAvailability is true", () => {
+      const expectedLabelHosting =
         hostingStatusLabels[defaultUser.hostingStatus as HostingStatus];
-
-      const { queryByText, getByText, rerender } = render(
-        <ProfileUserProvider user={defaultUser}>
-          <UserOverview showHostAndMeetAvailability={false} />
-        </ProfileUserProvider>,
-        { wrapper }
-      );
-      expect(queryByText(expectedLabel)).not.toBeInTheDocument();
-      rerender(
-        <ProfileUserProvider user={defaultUser}>
-          <UserOverview showHostAndMeetAvailability />
-        </ProfileUserProvider>
-      );
-      expect(getByText(expectedLabel)).toBeInTheDocument();
-      rerender(
-        <ProfileUserProvider user={defaultUser}>
-          <UserOverview />
-        </ProfileUserProvider>
-      );
-      expect(getByText(expectedLabel)).toBeInTheDocument();
-    });
-
-    it("should display the meeting status only when showHostAndMeetAvailability is true", () => {
-      const expectedLabel =
+      const expectedLabelMeeting =
         meetupStatusLabels[defaultUser.meetupStatus as MeetupStatus];
 
       const { queryByText, getByText, rerender } = render(
@@ -74,19 +56,62 @@ describe("UserOverview", () => {
         </ProfileUserProvider>,
         { wrapper }
       );
-      expect(queryByText(expectedLabel)).not.toBeInTheDocument();
+      expect(queryByText(expectedLabelHosting)).not.toBeInTheDocument();
+      expect(queryByText(expectedLabelMeeting)).not.toBeInTheDocument();
       rerender(
         <ProfileUserProvider user={defaultUser}>
           <UserOverview showHostAndMeetAvailability />
         </ProfileUserProvider>
       );
-      expect(getByText(expectedLabel)).toBeInTheDocument();
+      expect(getByText(expectedLabelHosting)).toBeInTheDocument();
+      expect(getByText(expectedLabelMeeting)).toBeInTheDocument();
       rerender(
         <ProfileUserProvider user={defaultUser}>
           <UserOverview />
         </ProfileUserProvider>
       );
-      expect(getByText(expectedLabel)).toBeInTheDocument();
+      expect(getByText(expectedLabelHosting)).toBeInTheDocument();
+      expect(getByText(expectedLabelMeeting)).toBeInTheDocument();
+    });
+
+    it("should display the community and verification scores only when showCommunityAndVerificationScore is true", () => {
+      const previousEnvValueVerificationEnabled =
+        process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED;
+      process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED = "true";
+      const previousEnvValuePostBetaEnabled =
+        process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED;
+      process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED = "true";
+
+      const expectedLabelCommunity = COMMUNITY_STANDING;
+      const expectedLabelVerification = VERIFICATION_SCORE;
+
+      const { queryByText, getByText, rerender } = render(
+        <ProfileUserProvider user={defaultUser}>
+          <UserOverview showCommunityAndVerificationScore={false} />
+        </ProfileUserProvider>,
+        { wrapper }
+      );
+      expect(queryByText(expectedLabelCommunity)).not.toBeInTheDocument();
+      expect(queryByText(expectedLabelVerification)).not.toBeInTheDocument();
+      rerender(
+        <ProfileUserProvider user={defaultUser}>
+          <UserOverview showCommunityAndVerificationScore />
+        </ProfileUserProvider>
+      );
+      expect(getByText(expectedLabelCommunity)).toBeInTheDocument();
+      expect(getByText(expectedLabelVerification)).toBeInTheDocument();
+      rerender(
+        <ProfileUserProvider user={defaultUser}>
+          <UserOverview />
+        </ProfileUserProvider>
+      );
+      expect(getByText(expectedLabelCommunity)).toBeInTheDocument();
+      expect(getByText(expectedLabelVerification)).toBeInTheDocument();
+
+      process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED =
+        previousEnvValueVerificationEnabled;
+      process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED =
+        previousEnvValuePostBetaEnabled;
     });
 
     it("should render the action buttons", () => {

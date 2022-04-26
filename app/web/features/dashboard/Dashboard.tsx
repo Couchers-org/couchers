@@ -1,7 +1,6 @@
 import {
   Container,
   Grid,
-  Hidden,
   Link as MuiLink,
   makeStyles,
   Typography,
@@ -36,16 +35,9 @@ export default function Dashboard() {
   return (
     <Container maxWidth="md">
       <Grid container direction="row" spacing={0}>
-        <Hidden xsDown>
-          <Grid
-            item
-            sm={4}
-            xs={12}
-            className={classes.profileOverviewContainer}
-          >
-            <DashboardUserProfileSummary />
-          </Grid>
-        </Hidden>
+        <Grid item sm={4} xs={12} className={classes.profileOverviewContainer}>
+          <DashboardUserProfileSummary />
+        </Grid>
 
         <Grid item sm={8} xs={12} className={classes.mainContentContainer}>
           <HtmlMeta title={t("global:nav.dashboard")} />

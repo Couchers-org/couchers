@@ -68,9 +68,11 @@ const useStyles = makeStyles((theme) => ({
 export default function UserOverview({
   actions,
   showHostAndMeetAvailability = true,
+  showCommunityAndVerificationScore = true,
 }: PropsWithChildren<{
   actions?: React.ReactNode;
   showHostAndMeetAvailability?: boolean;
+  showCommunityAndVerificationScore?: boolean;
 }>) {
   const classes = useStyles();
   const user = useProfileUser();
@@ -121,20 +123,21 @@ export default function UserOverview({
         <Divider spacing={3} />
       )}
 
-      {process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED && (
-        <>
-          <BarWithHelp
-            value={user.communityStanding || 0}
-            label={COMMUNITY_STANDING}
-            description={COMMUNITY_STANDING_DESCRIPTION}
-          />
-          <BarWithHelp
-            value={user.verification || 0}
-            label={VERIFICATION_SCORE}
-            description={VERIFICATION_SCORE_DESCRIPTION}
-          />
-        </>
-      )}
+      {process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED &&
+        showCommunityAndVerificationScore && (
+          <>
+            <BarWithHelp
+              value={user.communityStanding || 0}
+              label={COMMUNITY_STANDING}
+              description={COMMUNITY_STANDING_DESCRIPTION}
+            />
+            <BarWithHelp
+              value={user.verification || 0}
+              label={VERIFICATION_SCORE}
+              description={VERIFICATION_SCORE_DESCRIPTION}
+            />
+          </>
+        )}
       <div className={classes.info}>
         <ReferencesLastActiveLabels user={user} />
         <ResponseRateLabel user={user} />
