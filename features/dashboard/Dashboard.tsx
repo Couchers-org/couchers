@@ -22,11 +22,10 @@ import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { blogRoute } from "routes";
 
-import AccordionContribute from "./AccordionContribute";
-import AccordionFeatureUpdates from "./AccordionFeatureUpdates";
-import AccordionOutreach from "./AccordionOutreach";
-import { COMMUNITY_BUILDER_FORM_LINK } from "./constants";
 import MyEvents from "./MyEvents";
+
+const COMMUNITY_BUILDER_FORM_LINK =
+  "https://couchers.org/community-builder-form";
 
 const useStyles = makeStyles((theme) => ({
   communityText2: {
@@ -143,14 +142,6 @@ export default function Dashboard() {
               </MuiLink>
             </Trans>
           </Typography>
-
-          <Divider spacing={3} />
-
-          <AccordionFeatureUpdates />
-
-          <AccordionOutreach />
-
-          <AccordionContribute />
         </Grid>
       </Grid>
     </Container>
