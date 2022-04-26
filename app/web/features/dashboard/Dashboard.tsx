@@ -20,6 +20,7 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
+import { blogRoute } from "routes";
 
 import AccordionContribute from "./AccordionContribute";
 import AccordionFeatureUpdates from "./AccordionFeatureUpdates";
@@ -74,7 +75,17 @@ export default function Dashboard() {
 
           <PageTitle>{t("dashboard:welcome")}</PageTitle>
           <Typography variant="body1" paragraph>
-            {t("dashboard:landing_text")}
+            <Trans i18nKey="dashboard:landing_text">
+              {`We are building new `}
+              <MuiLink
+                href={blogRoute}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                features
+              </MuiLink>
+              {` like events, local guides, moderation and hangouts. We appreciate your patience and support as we develop these.`}
+            </Trans>
           </Typography>
 
           <Typography variant="h1" component="h2" paragraph>
