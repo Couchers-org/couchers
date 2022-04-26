@@ -36,7 +36,10 @@ export default function DashboardUserProfileSummary() {
         <CircularProgress />
       ) : user ? (
         <ProfileUserProvider user={user}>
-          <UserOverview actions={<DashboardUserProfileSummaryActions />} />
+          <UserOverview
+            actions={<DashboardUserProfileSummaryActions />}
+            showHostAndMeetAvailability
+          />
         </ProfileUserProvider>
       ) : undefined}
     </>

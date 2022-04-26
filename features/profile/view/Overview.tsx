@@ -1,25 +1,15 @@
-import { CardActions } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import Divider from "components/Divider";
-import { CouchIcon, LocationIcon } from "components/Icons";
-import IconText from "components/IconText";
 import { useAuthContext } from "features/auth/AuthProvider";
 import FlagButton from "features/FlagButton";
 import FriendActions from "features/profile/actions/FriendActions";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
-import {
-  EDIT,
-  hostingStatusLabels,
-  meetupStatusLabels,
-  NOT_ACCEPTING,
-  REQUEST,
-} from "features/profile/constants";
+import { EDIT, NOT_ACCEPTING, REQUEST } from "features/profile/constants";
 import UserOverview from "features/profile/view/UserOverview";
 import { PROFILE } from "i18n/namespaces";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
-import { HostingStatus, MeetupStatus } from "proto/api_pb";
+import { HostingStatus } from "proto/api_pb";
 import { useState } from "react";
 import {
   connectionsRoute,
@@ -101,7 +91,6 @@ export interface OverviewProps {
 }
 
 export default function Overview({ setIsRequesting, tab }: OverviewProps) {
-  const classes = useStyles();
   const currentUserId = useAuthContext().authState.userId;
   const user = useProfileUser();
 
@@ -114,23 +103,6 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
           <DefaultActions setIsRequesting={setIsRequesting} />
         )
       }
-    >
-      <IconText
-        icon={CouchIcon}
-        text={
-          hostingStatusLabels[
-            user.hostingStatus || HostingStatus.HOSTING_STATUS_UNKNOWN
-          ]
-        }
-      />
-      <IconText
-        icon={LocationIcon}
-        text={
-          meetupStatusLabels[
-            user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN
-          ]
-        }
-      />
-    </UserOverview>
+    />
   );
 }
