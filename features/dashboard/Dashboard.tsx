@@ -11,27 +11,18 @@ import { Alert } from "@material-ui/lab";
 import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
-import CommunitiesDialog from "features/dashboard/CommunitiesDialog";
-import CommunitiesList from "features/dashboard/CommunitiesList";
 import DashboardBanners from "features/dashboard/DashboardBanners";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import Overview from "features/profile/view/Overview";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
-import { useState } from "react";
 import { blogRoute } from "routes";
 
+import CommunitiesSection from "./CommunitiesSection";
 import MyEvents from "./MyEvents";
 
-const COMMUNITY_BUILDER_FORM_LINK =
-  "https://couchers.org/community-builder-form";
-
 const useStyles = makeStyles((theme) => ({
-  communityText2: {
-    paddingBlockStart: theme.spacing(2),
-    paddingBlockEnd: theme.spacing(1),
-  },
   profileOverviewContainer: {
     marginTop: theme.spacing(3),
   },
@@ -45,7 +36,6 @@ const useStyles = makeStyles((theme) => ({
 export default function Dashboard() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
   const classes = useStyles();
-  const [isCommunitiesDialogOpen, setIsCommunitiesDialogOpen] = useState(false);
   const { data: user, error, isLoading } = useCurrentUser();
 
   return (
@@ -88,7 +78,7 @@ export default function Dashboard() {
           </Typography>
 
           <Typography variant="h1" component="h2" paragraph>
-            Dashboard
+            {t("dashboard:dashboard")}
           </Typography>
 
           <DashboardBanners />
@@ -99,49 +89,7 @@ export default function Dashboard() {
 
           <Divider spacing={3} />
 
-          <Typography variant="h2" gutterBottom>
-            {t("dashboard:your_communities_heading")}
-          </Typography>
-          <Typography variant="body1" paragraph>
-            <Trans i18nKey="dashboard:your_communities_helper_text">
-              {`You have been added to all communities based on your location. Feel free to `}
-              <MuiLink
-                component="button"
-                style={{ verticalAlign: "baseline" }}
-                onClick={() => {
-                  setIsCommunitiesDialogOpen(true);
-                }}
-              >
-                {/* @todo: revisit this UI. A button that opens a popup shouldn't look like a link */}
-                browse communities
-              </MuiLink>
-              {` in other locations as well.`}
-            </Trans>
-          </Typography>
-
-          <CommunitiesList />
-
-          <CommunitiesDialog
-            isOpen={isCommunitiesDialogOpen}
-            onClose={() => setIsCommunitiesDialogOpen(false)}
-          />
-
-          <Typography
-            variant="body1"
-            gutterBottom
-            className={classes.communityText2}
-          >
-            <Trans i18nKey="dashboard:your_communities_helper_text2">
-              {`Don't see your community? `}
-              <MuiLink
-                href={COMMUNITY_BUILDER_FORM_LINK}
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                Get it started!
-              </MuiLink>
-            </Trans>
-          </Typography>
+          <CommunitiesSection />
         </Grid>
       </Grid>
     </Container>
