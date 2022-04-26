@@ -1,5 +1,4 @@
 import {
-  CircularProgress,
   Container,
   Grid,
   Hidden,
@@ -7,19 +6,16 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import { Alert } from "@material-ui/lab";
 import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import DashboardBanners from "features/dashboard/DashboardBanners";
-import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
-import Overview from "features/profile/view/Overview";
-import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { blogRoute } from "routes";
 
 import CommunitiesSection from "./CommunitiesSection";
+import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import MyEvents from "./MyEvents";
 
 const useStyles = makeStyles((theme) => ({
@@ -36,7 +32,6 @@ const useStyles = makeStyles((theme) => ({
 export default function Dashboard() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
   const classes = useStyles();
-  const { data: user, error, isLoading } = useCurrentUser();
 
   return (
     <Container maxWidth="md">
@@ -48,14 +43,7 @@ export default function Dashboard() {
             xs={12}
             className={classes.profileOverviewContainer}
           >
-            {error && <Alert severity="error">{error}</Alert>}
-            {isLoading ? (
-              <CircularProgress />
-            ) : user ? (
-              <ProfileUserProvider user={user}>
-                <Overview setIsRequesting={() => {}} tab={undefined} />
-              </ProfileUserProvider>
-            ) : undefined}
+            <DashboardUserProfileSummary />
           </Grid>
         </Hidden>
 
