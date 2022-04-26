@@ -1,4 +1,4 @@
-import { CircularProgress, Theme, useMediaQuery } from "@material-ui/core";
+import { Box, CircularProgress, Theme, useMediaQuery } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Button from "components/Button";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
@@ -8,6 +8,8 @@ import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import { routeToEditProfile, routeToProfile } from "routes";
+
+import MinimalUserProfileCard from "./MinimalUserProfileCard";
 
 function DashboardUserProfileSummaryActions() {
   const { t } = useTranslation([DASHBOARD]);
@@ -36,19 +38,21 @@ export default function DashboardUserProfileSummary() {
     <>
       {error && <Alert severity="error">{error}</Alert>}
       {isLoading ? (
-        <CircularProgress />
+        <Box display="flex" justifyContent="center">
+          <CircularProgress />
+        </Box>
       ) : user ? (
-        <ProfileUserProvider user={user}>
-          {desktopMode ? (
+        desktopMode ? (
+          <ProfileUserProvider user={user}>
             <UserOverview
               actions={<DashboardUserProfileSummaryActions />}
               showHostAndMeetAvailability
               showCommunityAndVerificationScore={false}
             />
-          ) : (
-            <>{/*todo: add here small version of profile */}</>
-          )}
-        </ProfileUserProvider>
+          </ProfileUserProvider>
+        ) : (
+          <MinimalUserProfileCard user={user} />
+        )
       ) : undefined}
     </>
   );
