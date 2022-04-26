@@ -1,4 +1,5 @@
 import {
+  Box,
   Card,
   CardContent,
   CardMedia,
@@ -6,10 +7,9 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import type { TypographyStyleOptions } from "@material-ui/core/styles/createTypography";
 import { eventImagePlaceholderUrl } from "appConstants";
 import classNames from "classnames";
-import { AttendeesIcon, CalendarIcon } from "components/Icons";
+import Divider from "components/Divider";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
@@ -46,50 +46,10 @@ const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
     fontWeight: "bold",
   },
   title: {
-    ...theme.typography.h2,
     display: "-webkit-box",
     boxOrient: "vertical",
     lineClamp: 2,
     overflow: "hidden",
-    height: `calc(2 * calc(${theme.typography.h2.lineHeight} * ${theme.typography.h2.fontSize}))`,
-    marginBottom: 0,
-    marginTop: 0,
-    [theme.breakpoints.up("md")]: {
-      height: `calc(2 * calc(${theme.typography.h2.lineHeight} * ${
-        (
-          theme.typography.h2[
-            theme.breakpoints.up("md")
-          ] as TypographyStyleOptions
-        ).fontSize
-      }))`,
-      fontSize: (
-        theme.typography.h2[
-          theme.breakpoints.up("md")
-        ] as TypographyStyleOptions
-      ).fontSize,
-    },
-  },
-  subtitle: {
-    marginBottom: theme.spacing(2),
-    color: theme.palette.grey[600],
-    fontWeight: "bold",
-    height: `calc(${theme.typography.body2.lineHeight} * ${theme.typography.body2.fontSize})`,
-  },
-  icon: {
-    display: "block",
-    fontSize: "1rem",
-    marginInlineEnd: theme.spacing(0.5),
-  },
-  detailsList: {
-    "& > li": {
-      alignItems: "center",
-      display: "flex",
-    },
-    "ul&": {
-      listStyle: "none",
-      margin: 0,
-      padding: 0,
-    },
   },
   eventTime: {
     display: "-webkit-box",
@@ -99,14 +59,6 @@ const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
     [theme.breakpoints.up("sm")]: {
       lineClamp: 1,
     },
-  },
-  detailsText: {
-    ...theme.typography.body2,
-    color: theme.palette.secondary.main,
-    fontWeight: "bold",
-  },
-  otherInfoSection: {
-    marginTop: theme.spacing(1),
   },
   content: {
     display: "-webkit-box",
@@ -136,6 +88,10 @@ export default function EventCard({ event, className }: EventCardProps) {
     [event.content]
   );
 
+  const formattedEventDates = `${startTime.format("llll")} - ${endTime.format(
+    endTime.isSame(startTime, "day") ? "LT" : "llll"
+  )}`;
+
   return (
     <Card
       className={classNames(className, classes.root)}
@@ -155,41 +111,41 @@ export default function EventCard({ event, className }: EventCardProps) {
               />
             )}
           </CardMedia>
+
           <CardContent>
-            <Typography component="h3" className={classes.title}>
+            <Typography
+              variant="body2"
+              color="textSecondary"
+              className={classes.eventTime}
+              gutterBottom
+              /* title useful to hover in case it's too long for the card */
+              title={formattedEventDates}
+            >
+              {formattedEventDates}
+            </Typography>
+
+            <Typography variant="h3" gutterBottom className={classes.title}>
               {event.title}
             </Typography>
-            <Typography className={classes.subtitle} noWrap variant="body2">
+            <Typography noWrap variant="body2" gutterBottom>
               {event.offlineInformation
                 ? event.offlineInformation.address
                 : t("communities:virtual_event_location_placeholder")}
             </Typography>
-            <ul className={classes.detailsList}>
-              <li>
-                <CalendarIcon className={classes.icon} />
-                <Typography variant="body1" className={classes.eventTime}>
-                  {`${startTime.format("LLL")} - ${endTime.format(
-                    endTime.isSame(startTime, "day") ? "LT" : "LLL"
-                  )}`}
-                </Typography>
-              </li>
-              <li>
-                <AttendeesIcon className={classes.icon} />
-                <Typography variant="body1">
-                  {t("communities:attendees_count", {
-                    count: event.goingCount + event.maybeCount,
-                  })}
-                </Typography>
-              </li>
-            </ul>
-            <div className={classes.otherInfoSection}>
-              <Typography variant="h4">
-                {t("communities:details_subheading")}
-              </Typography>
-              <Typography className={classes.content} variant="body1">
+
+            <Divider spacing={1} />
+
+            <Box mt={1}>
+              <Typography className={classes.content} variant="body1" paragraph>
                 {strippedContent}
               </Typography>
-            </div>
+
+              <Typography variant="body2" color="textSecondary">
+                {t("communities:attendees_count", {
+                  count: event.goingCount + event.maybeCount,
+                })}
+              </Typography>
+            </Box>
           </CardContent>
         </a>
       </Link>
