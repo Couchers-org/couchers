@@ -2,12 +2,17 @@ import { Box, Card, CardActions, Typography } from "@material-ui/core";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
+import { CouchIcon, LocationIcon } from "components/Icons";
+import IconText from "components/IconText";
 import {
   COMMUNITY_STANDING,
   COMMUNITY_STANDING_DESCRIPTION,
+  hostingStatusLabels,
+  meetupStatusLabels,
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/profile/constants";
+import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import React, { PropsWithChildren } from "react";
 import makeStyles from "utils/makeStyles";
 
@@ -61,9 +66,12 @@ const useStyles = makeStyles((theme) => ({
 // @todo: move this into /components and decouple it from features/profile because it's used
 //        from the dashboard as well
 export default function UserOverview({
-  children,
   actions,
-}: PropsWithChildren<{ actions?: React.ReactNode }>) {
+  showHostAndMeetAvailability = true,
+}: PropsWithChildren<{
+  actions?: React.ReactNode;
+  showHostAndMeetAvailability?: boolean;
+}>) {
   const classes = useStyles();
   const user = useProfileUser();
 
@@ -88,9 +96,30 @@ export default function UserOverview({
         <CardActions className={classes.cardActions}>{actions}</CardActions>
       )}
 
-      {children}
+      {showHostAndMeetAvailability && (
+        <>
+          <IconText
+            icon={CouchIcon}
+            text={
+              hostingStatusLabels[
+                user.hostingStatus || HostingStatus.HOSTING_STATUS_UNKNOWN
+              ]
+            }
+          />
+          <IconText
+            icon={LocationIcon}
+            text={
+              meetupStatusLabels[
+                user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN
+              ]
+            }
+          />
+        </>
+      )}
 
-      {Boolean(children || actions) && <Divider spacing={3} />}
+      {Boolean(showHostAndMeetAvailability || actions) && (
+        <Divider spacing={3} />
+      )}
 
       {process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED && (
         <>
