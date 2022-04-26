@@ -84,10 +84,10 @@ export default function UserOverview({
       </Box>
 
       <div className={classes.wrapper}>
-        <Typography variant="h1" className={classes.intro}>
+        <Typography variant="h1" className={classes.intro} align="center">
           {user.name}
         </Typography>
-        <Typography variant="body1" className={classes.intro}>
+        <Typography variant="body1" className={classes.intro} align="center">
           {user.city}
         </Typography>
       </div>
