@@ -1,4 +1,4 @@
-import { Box, Card, Typography } from "@material-ui/core";
+import { Box, Card, CardActions, Typography } from "@material-ui/core";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
@@ -8,7 +8,7 @@ import {
   VERIFICATION_SCORE,
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/profile/constants";
-import { PropsWithChildren } from "react";
+import React, { PropsWithChildren } from "react";
 import makeStyles from "utils/makeStyles";
 
 import { useProfileUser } from "../hooks/useProfileUser";
@@ -43,9 +43,27 @@ const useStyles = makeStyles((theme) => ({
       marginBottom: theme.spacing(0.5),
     },
   },
+
+  cardActions: {
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "stretch",
+    padding: theme.spacing(0.5),
+    "& > *": {
+      margin: theme.spacing(0.5),
+    },
+    "& > :not(:first-child)": {
+      marginLeft: theme.spacing(0.5),
+    },
+  },
 }));
 
-export default function UserOverview({ children }: PropsWithChildren<unknown>) {
+// @todo: move this into /components and decouple it from features/profile because it's used
+//        from the dashboard as well
+export default function UserOverview({
+  children,
+  actions,
+}: PropsWithChildren<{ actions?: React.ReactNode }>) {
   const classes = useStyles();
   const user = useProfileUser();
 
@@ -54,6 +72,7 @@ export default function UserOverview({ children }: PropsWithChildren<unknown>) {
       <Box maxWidth="75%" mx="auto">
         <Avatar user={user} grow />
       </Box>
+
       <div className={classes.wrapper}>
         <Typography variant="h1" className={classes.intro}>
           {user.name}
@@ -62,8 +81,17 @@ export default function UserOverview({ children }: PropsWithChildren<unknown>) {
           {user.city}
         </Typography>
       </div>
+
       <Divider />
+
+      {actions && (
+        <CardActions className={classes.cardActions}>{actions}</CardActions>
+      )}
+
       {children}
+
+      {Boolean(children || actions) && <Divider spacing={3} />}
+
       {process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED && (
         <>
           <BarWithHelp

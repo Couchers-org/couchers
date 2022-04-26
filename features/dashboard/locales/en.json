@@ -20,5 +20,7 @@
   "community_builder_form_text": "Start your own local community",
   "upcoming_events": "Upcoming events",
   "member_count": "{{count}} member",
-  "member_count_plural": "{{count}} members"
+  "member_count_plural": "{{count}} members",
+  "profile_summary_edit": "Edit",
+  "profile_summary_view": "View my profile"
 }
