@@ -34,7 +34,7 @@ export default function Dashboard() {
 
   return (
     <Container maxWidth="md">
-      <Grid container direction="row" spacing={0}>
+      <Grid container direction="row">
         <Grid item sm={4} xs={12} className={classes.profileOverviewContainer}>
           <DashboardUserProfileSummary />
         </Grid>
