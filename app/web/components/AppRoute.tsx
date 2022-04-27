@@ -38,6 +38,16 @@ export const useAppRouteStyles = makeStyles((theme) => ({
     alignItems: "center",
     marginBlockStart: theme.spacing(6),
   },
+  "@global html": {
+    scrollPaddingTop: `calc(${theme.shape.navPaddingXs} + ${theme.spacing(2)})`,
+  },
+  [theme.breakpoints.up("sm")]: {
+    "@global html": {
+      scrollPaddingTop: `calc(${theme.shape.navPaddingSmUp} + ${theme.spacing(
+        2
+      )})`,
+    },
+  },
 }));
 
 interface AppRouteProps {
