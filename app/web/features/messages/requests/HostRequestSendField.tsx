@@ -254,6 +254,7 @@ export default function HostRequestSendField({
           onKeyDown={handleKeyDown}
           maxRows={6}
           size="small"
+          className={classes.textField}
         />
         <FieldButton
           callback={onSubmit}
