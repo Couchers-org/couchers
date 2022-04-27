@@ -47,8 +47,6 @@ export default function DashboardUserProfileSummary() {
             <UserOverview
               actions={<DashboardUserProfileSummaryActions />}
               showHostAndMeetAvailability
-              // @todo: once the community and verification score features are finished, we should display them
-              showCommunityAndVerificationScore={false}
             />
           </ProfileUserProvider>
         ) : (
