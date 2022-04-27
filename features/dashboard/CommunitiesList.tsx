@@ -20,9 +20,6 @@ const useStyles = makeStyles((theme) => ({
     "&:first-child": {
       borderTop: `solid 1px ${theme.palette.divider}`,
     },
-    "& > *:first-child": {
-      marginInlineEnd: theme.spacing(2),
-    },
   },
 }));
 
