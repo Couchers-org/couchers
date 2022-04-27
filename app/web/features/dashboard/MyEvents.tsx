@@ -71,7 +71,9 @@ export default function MyEvents() {
       <Typography variant="h2">{t("dashboard:upcoming_events")}</Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
-        <CircularProgress />
+        <Box display="flex" justifyContent="center" width="100%">
+          <CircularProgress />
+        </Box>
       ) : hasAtLeastOnePage(data, "eventsList") ? (
         <>
           <HorizontalScroller
