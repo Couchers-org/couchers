@@ -42,14 +42,25 @@ If you don't want to install docker, you can target the live preview api and bac
 - Click the first pipeline step, "protos".
 - Click "download artifacts" on the right. This is a copy of the repo, but it has the generated gRPC code in it, so you can copy that from `couchers/app/web/src/proto` to your local clone of the repo.
 
-Then you need to target the dev preview api instead of localhost.
+Then, target the dev preview and API with the following command, instead of using `yarn start`, when running the app:
+
+```sh
+yarn cross-env NEXT_PUBLIC_API_BASE_URL=https://dev-api.couchershq.org yarn start
+```
+
+Alternatively, you can use `yarn start` if you update your local environment variables:
 
 - In `couchers/app/web/.env.development`, change `NEXT_PUBLIC_API_BASE_URL=http://localhost:8888` to `NEXT_PUBLIC_API_BASE_URL=https://dev-api.couchershq.org`
 - Remember not to commit this file to any pull requests!
 
-Alternatively, target the dev preview api with the following command instead of using `yarn start` (see below) when running the app.
+<details>
+<summary>Common problem: Getting logged out right after logging in</summary>
+  
+If you're getting logged out right after logging in, it's possible that 3rd party cookies are blocked in your browser. Since you're using localhost:3000, the cookie `couchers-sesh` coming from `https://dev-api.couchershq.org` is considered a 3rd party cookie.
 
-`yarn cross-env NEXT_PUBLIC_API_BASE_URL=https://dev-api.couchershq.org yarn start`
+- Chrome allows to enable 3rd party cookies for specific websites in the cookie settings > Sites that can always use cookies. Enable "Including third-party cookies on this site"
+- Safari is all-or-nothing, in Preferences > Privacy > Prevent cross-site tracking. You have to disable it.
+</details>
 
 ### Option 3: Use Gitpod and develop in the browser
 
