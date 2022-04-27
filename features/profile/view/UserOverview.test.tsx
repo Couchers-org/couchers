@@ -74,7 +74,7 @@ describe("UserOverview", () => {
       expect(getByText(expectedLabelMeeting)).toBeInTheDocument();
     });
 
-    it("should display the community and verification scores only when showCommunityAndVerificationScore is true", () => {
+    it("should display the community and verification scores when the feature flag is enabled", () => {
       const previousEnvValueVerificationEnabled =
         process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED;
       process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED = "true";
@@ -85,25 +85,11 @@ describe("UserOverview", () => {
       const expectedLabelCommunity = COMMUNITY_STANDING;
       const expectedLabelVerification = VERIFICATION_SCORE;
 
-      const { queryByText, getByText, rerender } = render(
-        <ProfileUserProvider user={defaultUser}>
-          <UserOverview showCommunityAndVerificationScore={false} />
-        </ProfileUserProvider>,
-        { wrapper }
-      );
-      expect(queryByText(expectedLabelCommunity)).not.toBeInTheDocument();
-      expect(queryByText(expectedLabelVerification)).not.toBeInTheDocument();
-      rerender(
-        <ProfileUserProvider user={defaultUser}>
-          <UserOverview showCommunityAndVerificationScore />
-        </ProfileUserProvider>
-      );
-      expect(getByText(expectedLabelCommunity)).toBeInTheDocument();
-      expect(getByText(expectedLabelVerification)).toBeInTheDocument();
-      rerender(
+      const { getByText } = render(
         <ProfileUserProvider user={defaultUser}>
           <UserOverview />
-        </ProfileUserProvider>
+        </ProfileUserProvider>,
+        { wrapper }
       );
       expect(getByText(expectedLabelCommunity)).toBeInTheDocument();
       expect(getByText(expectedLabelVerification)).toBeInTheDocument();
