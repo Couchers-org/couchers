@@ -100,7 +100,7 @@ export default function MyEvents() {
           </HorizontalScroller>
           {hasNextPage && !isBelowSm && (
             <Box display="flex" justifyContent="center" width="100%">
-              <Button onClick={() => fetchNextPage()}>
+              <Button onClick={() => fetchNextPage()} variant="outlined">
                 {t("communities:see_more_events_label")}
               </Button>
             </Box>
