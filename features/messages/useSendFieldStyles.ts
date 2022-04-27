@@ -25,6 +25,9 @@ const useSendFieldStyles = makeStyles((theme) => ({
   requestClosedLabel: {
     transform: "none",
   },
+  textField: {
+    background: theme.palette.common.white,
+  },
 }));
 
 export default useSendFieldStyles;
