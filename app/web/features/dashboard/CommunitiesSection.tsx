@@ -9,9 +9,8 @@ const COMMUNITY_BUILDER_FORM_LINK =
   "https://couchers.org/community-builder-form";
 
 const useStyles = makeStyles((theme) => ({
-  communityText2: {
+  createCommunityText: {
     paddingBlockStart: theme.spacing(2),
-    paddingBlockEnd: theme.spacing(1),
   },
 }));
 
@@ -52,8 +51,8 @@ export default function CommunitiesSection() {
 
       <Typography
         variant="body1"
-        gutterBottom
-        className={classes.communityText2}
+        paragraph
+        className={classes.createCommunityText}
       >
         <Trans i18nKey="dashboard:your_communities_helper_text2">
           {`Don't see your community? `}
