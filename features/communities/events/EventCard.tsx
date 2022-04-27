@@ -135,7 +135,7 @@ export default function EventCard({ event, className }: EventCardProps) {
 
             <Divider spacing={1} />
 
-            <Box mt={1}>
+            <Box>
               <Typography className={classes.content} variant="body1" paragraph>
                 {strippedContent}
               </Typography>
