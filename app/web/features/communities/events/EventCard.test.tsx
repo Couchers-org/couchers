@@ -26,7 +26,9 @@ describe("Event card", () => {
     expect(
       screen.getByText(firstEvent.offlineInformation!.address)
     ).toBeVisible();
-    expect(screen.getByText("June 29, 2021 2:37 AM - 3:37 AM")).toBeVisible();
+    expect(
+      screen.getByText("Tue, Jun 29, 2021 2:37 AM - 3:37 AM")
+    ).toBeVisible();
     expect(
       screen.getByText(
         t("communities:attendees_count", {
@@ -47,7 +49,7 @@ describe("Event card", () => {
       screen.getByText(thirdEvent.offlineInformation!.address)
     ).toBeVisible();
     expect(
-      screen.getByText("June 29, 2021 9:00 PM - June 30, 2021 2:00 AM")
+      screen.getByText("Tue, Jun 29, 2021 9:00 PM - Wed, Jun 30, 2021 2:00 AM")
     ).toBeVisible();
     expect(
       screen.getByText(
@@ -68,7 +70,9 @@ describe("Event card", () => {
     expect(
       screen.getByText(t("communities:virtual_event_location_placeholder"))
     ).toBeVisible();
-    expect(screen.getByText("June 29, 2021 9:00 PM - 10:00 PM")).toBeVisible();
+    expect(
+      screen.getByText("Tue, Jun 29, 2021 9:00 PM - 10:00 PM")
+    ).toBeVisible();
     expect(
       screen.getByText(
         t("communities:attendees_count", {
