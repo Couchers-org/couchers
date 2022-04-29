@@ -2,7 +2,7 @@
   {
     "name": "Aapeli Vuorinen",
     "director": true,
-    "board_position": "Co-founder, Board Director", 
+    "board_position": "Co-founder, Board Director",
     "role": "President",
     "location": "New York City, USA",
     "img": "/img/team/head-aapeli.jpg",
@@ -15,7 +15,7 @@
   {
     "name": "Itsi Weinstock",
     "director": true,
-    "board_position": "Co-founder, Board Director", 
+    "board_position": "Co-founder, Board Director",
     "role": "Executive Director",
     "location": "New York City, USA",
     "img": "/img/team/head-itsi.jpg",
@@ -28,7 +28,7 @@
   {
     "name": "Andrea Woodard",
     "director": true,
-    "board_position": "Board Director", 
+    "board_position": "Board Director",
     "role": "",
     "location": "Orlando, USA",
     "img": "/img/team/head-dea.jpg"
