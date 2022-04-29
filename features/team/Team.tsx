@@ -14,7 +14,7 @@ import IconText from "components/IconText";
 import PageTitle from "components/PageTitle";
 import StyledLink from "components/StyledLink";
 import Link from "next/link";
-import { contributeRoute } from "routes";
+import { volunteerRoute } from "routes";
 
 import TeamData from "./team.json";
 
@@ -57,7 +57,7 @@ export default function Team() {
           love to talk to you.
         </Typography>
         <Typography paragraph>
-          <Link href={contributeRoute} passHref>
+          <Link href={volunteerRoute} passHref>
             <Button variant="contained" color="secondary">
               Join the team
             </Button>
@@ -123,7 +123,7 @@ export default function Team() {
           click the button below and fill out the short form.
         </Typography>
         <Typography paragraph>
-          <Link href={contributeRoute} passHref>
+          <Link href={volunteerRoute} passHref>
             <Button variant="contained" color="secondary">
               Join our team
             </Button>
