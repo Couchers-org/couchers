@@ -72,9 +72,9 @@ export default function Team() {
           justifyContent="center"
           alignItems="stretch"
         >
-          {TeamData.map(({ name, founder, role, location, img, link }) => (
-            <Grid key={name} item xs={12} md={!!founder ? 5 : 4}>
-              <Card elevation={founder ? 3 : 1} className={classes.cardWrapper}>
+          {TeamData.map(({ name, director, board_position, role, location, img, link }) => (
+            <Grid key={name} item xs={12} md={!!director ? 4 : 4}>
+              <Card elevation={director ? 3 : 1} className={classes.cardWrapper}>
                 <CardContent className={classes.card}>
                   <MuiAvatar
                     alt={`Headshot of ${name}`}
@@ -82,12 +82,12 @@ export default function Team() {
                     className={classes.avatar}
                   />
                   <div className={classes.cardContent}>
-                    <Typography variant={founder ? "h1" : "h2"} component="h2">
+                    <Typography variant={director ? "h1" : "h2"} component="h2">
                       {name}
                     </Typography>
-                    {founder && (
+                    {director && (
                       <Typography variant="h2" component="h3">
-                        Co-founder
+                        {board_position}
                       </Typography>
                     )}
                     <Typography variant="h3">{role}</Typography>
