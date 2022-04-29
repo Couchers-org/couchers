@@ -4,9 +4,11 @@ crumb: Volunteer Coordinator
 description: "Apply to become a Volunteer Coordinator for Couchers.org"
 ---
 
-## [Apply Here](https://couchers.org/contributors/form)
+## [Apply Here](/contributors/form)
 
 ## Position Description
+
+**This is a remote position**
 
 We are recruiting for a select group of 4 volunteers that will be coordinating the Volunteer Management Program (VMP). The main goal of the VMP is to ensure that Couchers.org has the volunteer capacity to fulfil its mission. To meet that goal, the group of Volunteer Coordinators must perform a variety of duties involving recruitment, training and program planning. 
 
@@ -49,7 +51,7 @@ This is a job-sharing/collaborative volunteer position. The group will be workin
 
 ### Apply
 
-1. [Fill out this form](https://couchers.org/contributors/form). Under "Position Applying For", put "Volunteer Coordinator".
+1. [Fill out this form](/contributors/form). Under "Position Applying For", put "Volunteer Coordinator".
 
 2. We'll review and get back to you as soon as possible — setting up a Zoom call so we can get to know you and you can meet the team.
 
