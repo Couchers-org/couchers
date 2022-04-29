@@ -9,11 +9,11 @@ type: general
 
 Couchers.org is made up of a professional volunteer team, with everyone contributing their spare time. We have all kinds of positions available including in software development, marketing, design, finance, events, volunteer coordination and more!
 
-### [Meet our volunteers](https://couchers.org/team)
+### [Meet our volunteers](/team)
 
 People join for many reasons, but what brings us all together is a shared set of values, and a belief in the necessity of growing Couchers.org as a new platform and community.
 
-### [Our Plan](https://couchers.org/plan) and [Our Mission & Values](https://couchers.org/mission)
+### [Our Plan](/plan) and [Our Mission & Values](/mission)
 
 ## The Volunteering Experience:
 
@@ -35,30 +35,30 @@ We value being highly collaborative to learn together, honest and transparent, k
 
 ### General Application
 
-Want to help but don't see anything listed for you? [Fill out this form](...)
+Want to help but don't see anything listed for you? [Fill out this form](/contributors/form)
 
 ### Core Team
 
 #### Operations
 
-[Volunteer Coordinator]()
+- [Volunteer Coordinator](/volunteer/volunteer_coordinator)
 
-[Finance Lead]()
+- [Finance Lead]()
 
 #### Software Development
 
-[Mobile Lead]()
+- [Mobile Lead]()
 
-[Backend Developer — Django]()
+- [Backend Developer — Django]()
 
-[Web Developer — TypeScript/React]()
+- [Web Developer — TypeScript/React]()
 
 #### Marketing
 
-[Blog Writer]()
+- [Blog Writer]()
 
 ### Community Building
 
 One of the best ways to get involved is to start and grow a community where you live. If you love couch surfing events and want to spread the word and make friends, this is the way to go!
 
-#### [Fill out our Community Builder application form](https://couchers.org/community-builder-form)
+#### [Fill out our Community Builder application form](/community-builder-form)
