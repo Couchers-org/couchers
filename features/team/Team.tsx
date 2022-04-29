@@ -72,43 +72,53 @@ export default function Team() {
           justifyContent="center"
           alignItems="stretch"
         >
-          {TeamData.map(({ name, director, board_position, role, location, img, link }) => (
-            <Grid key={name} item xs={12} md={!!director ? 4 : 4}>
-              <Card elevation={director ? 3 : 1} className={classes.cardWrapper}>
-                <CardContent className={classes.card}>
-                  <MuiAvatar
-                    alt={`Headshot of ${name}`}
-                    src={img}
-                    className={classes.avatar}
-                  />
-                  <div className={classes.cardContent}>
-                    <Typography variant={director ? "h1" : "h2"} component="h2">
-                      {name}
-                    </Typography>
-                    {director && (
-                      <Typography variant="h2" component="h3">
-                        {board_position}
+          {TeamData.map(
+            ({ name, director, board_position, role, location, img, link }) => (
+              <Grid key={name} item xs={12} md={!!director ? 4 : 4}>
+                <Card
+                  elevation={director ? 3 : 1}
+                  className={classes.cardWrapper}
+                >
+                  <CardContent className={classes.card}>
+                    <MuiAvatar
+                      alt={`Headshot of ${name}`}
+                      src={img}
+                      className={classes.avatar}
+                    />
+                    <div className={classes.cardContent}>
+                      <Typography
+                        variant={director ? "h1" : "h2"}
+                        component="h2"
+                      >
+                        {name}
                       </Typography>
-                    )}
-                    <Typography variant="h3">{role}</Typography>
-                    <IconText icon={PinIcon} text={location} />
-                    {link && (
-                      <IconText
-                        icon={
-                          link.type === "linkedin" ? LinkedInIcon : GlobeIcon
-                        }
-                        text={
-                          <Typography>
-                            <StyledLink href={link.url}>{link.text}</StyledLink>
-                          </Typography>
-                        }
-                      />
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+                      {director && (
+                        <Typography variant="h2" component="h3">
+                          {board_position}
+                        </Typography>
+                      )}
+                      <Typography variant="h3">{role}</Typography>
+                      <IconText icon={PinIcon} text={location} />
+                      {link && (
+                        <IconText
+                          icon={
+                            link.type === "linkedin" ? LinkedInIcon : GlobeIcon
+                          }
+                          text={
+                            <Typography>
+                              <StyledLink href={link.url}>
+                                {link.text}
+                              </StyledLink>
+                            </Typography>
+                          }
+                        />
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </Grid>
+            )
+          )}
         </Grid>
       </section>
       <div className={classes.spacer} />
