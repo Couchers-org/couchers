@@ -1,5 +1,5 @@
 ---
-title: "Help bring the next generation of couch surfing to life"
+title: "Volunteer: be part of bringing the next generation of couch surfing to life"
 crumb: Volunteer
 description: "Join the global Couchers.org team. Work with passionate professionals and make a huge impact on improving the couch surfing community."
 type: general
@@ -56,3 +56,9 @@ Want to help but don't see anything listed for you? [Fill out this form](...)
 #### Marketing
 
 [Blog Writer]()
+
+### Community Building
+
+One of the best ways to get involved is to start and grow a community where you live. If you love couch surfing events and want to spread the word and make friends, this is the way to go!
+
+[Fill out our Community Builder application form.](https://couchers.org/community-builder-form)
