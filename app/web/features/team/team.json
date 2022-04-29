@@ -69,6 +69,17 @@
     "img": "/img/team/head-emily.jpg"
   },
   {
+    "name": "Guillermo de la Puente",
+    "role": "Web Developer",
+    "location": "Traveling, Earth",
+    "img": "/img/team/head-guillermo.jpg",
+    "link": {
+      "type": "website",
+      "text": "guillermodlpa.com",
+      "url": "https://guillermodlpa.com/"
+    }
+  },
+  {
     "name": "Darren Vong",
     "role": "Web Developer",
     "location": "London, United Kingdom",
@@ -83,6 +94,17 @@
       "type": "linkedin",
       "text": "yi-chen-195482137",
       "url": "https://www.linkedin.com/in/yi-chen-195482137/"
+    }
+  },
+  {
+    "name": "Han Chengyu",
+    "role": "Language Lead: Chinese (Simplified)",
+    "location": "Hangzhou, China",
+    "img": "/img/team/head-han.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "cyhan",
+      "url": "https://www.linkedin.com/in/cyhan/"
     }
   },
   {
