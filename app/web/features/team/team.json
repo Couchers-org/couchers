@@ -1,8 +1,9 @@
 [
   {
     "name": "Aapeli Vuorinen",
-    "founder": true,
-    "role": "Product & Engineering Lead",
+    "director": true,
+    "board_position": "Co-founder, Board Director", 
+    "role": "President",
     "location": "New York City, USA",
     "img": "/img/team/head-aapeli.jpg",
     "link": {
@@ -13,9 +14,10 @@
   },
   {
     "name": "Itsi Weinstock",
-    "founder": true,
-    "role": "Community Lead",
-    "location": "Sydney, Australia",
+    "director": true,
+    "board_position": "Co-founder, Board Director", 
+    "role": "Executive Director",
+    "location": "New York City, USA",
     "img": "/img/team/head-itsi.jpg",
     "link": {
       "type": "website",
@@ -24,32 +26,68 @@
     }
   },
   {
+    "name": "Andrea Woodard",
+    "director": true,
+    "board_position": "Board Director", 
+    "role": "",
+    "location": "Orlando, USA",
+    "img": "/img/team/head-dea.jpg"
+  },
+  {
+    "name": "Jesse Allhands",
+    "role": "Head of Community & Support",
+    "location": "Berlin, Germany",
+    "img": "/img/team/head-jesse.jpg"
+  },
+  {
+    "name": "Farley Farley",
+    "role": "Head of Product",
+    "location": "New Plymouth, New Zealand",
+    "img": "/img/team/head-farley.jpg",
+    "link": {
+      "type": "website",
+      "text": "neonsurge.com",
+      "url": "https://neonsurge.com"
+    }
+  },
+  {
+    "name": "Dominic Nayan",
+    "role": "UI/UX Design Lead",
+    "location": "Ensenada, Mexico",
+    "img": "/img/team/head-dom.jpg"
+  },
+  {
+    "name": "Lucas Levin",
+    "role": "Web Development Lead",
+    "location": "Melbourne, Australia",
+    "img": "/img/team/head-lucas.jpg"
+  },
+  {
     "name": "Emily Damgali",
     "role": "Community Engagement",
     "location": "Istanbul, Turkey",
     "img": "/img/team/head-emily.jpg"
   },
   {
-    "name": "Dominic Nayan",
-    "role": "Head of UX",
-    "location": "Ensenada, Mexico",
-    "img": "/img/team/head-dom.jpg"
-  },
-  {
-    "name": "Lucas Levin",
-    "role": "Head of Frontend (web)",
-    "location": "Melbourne, Australia",
-    "img": "/img/team/head-lucas.jpg"
-  },
-  {
     "name": "Darren Vong",
-    "role": "Frontend Developer",
+    "role": "Web Developer",
     "location": "London, United Kingdom",
     "img": "/img/team/head-darren.jpg"
   },
   {
+    "name": "Yi Chen",
+    "role": "Digital Marketer",
+    "location": "Luxembourg, Luxembourg",
+    "img": "/img/team/head-yi.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "yi-chen-195482137",
+      "url": "https://www.linkedin.com/in/yi-chen-195482137/"
+    }
+  },
+  {
     "name": "Nolo Sabes",
-    "role": "Community Forum",
+    "role": "Community Forum Designer",
     "location": "Las Palmas, Spain",
     "img": "/img/team/head-nolo.jpg",
     "link": {
@@ -68,12 +106,6 @@
       "text": "marta-zaczek",
       "url": "https://www.linkedin.com/in/marta-zaczek-576289201/"
     }
-  },
-  {
-    "name": "Jesse Allhands",
-    "role": "Head of Support & UX Designer",
-    "location": "Madison, USA",
-    "img": "/img/team/head-jesse.jpg"
   },
   {
     "name": "Poovan Devasagayam",
@@ -99,17 +131,6 @@
     "img": "/img/team/head-sam.jpg"
   },
   {
-    "name": "Yi Chen",
-    "role": "Digital Marketer",
-    "location": "Luxembourg, Luxembourg",
-    "img": "/img/team/head-yi.jpg",
-    "link": {
-      "type": "linkedin",
-      "text": "yi-chen-195482137",
-      "url": "https://www.linkedin.com/in/yi-chen-195482137/"
-    }
-  },
-  {
     "name": "Paulo Carlos",
     "role": "UX Designer",
     "location": "Vancouver, Canada",
@@ -117,13 +138,13 @@
   },
   {
     "name": "Inés",
-    "role": "Frontend Developer",
+    "role": "Web Developer",
     "location": "Amsterdam, Netherlands",
     "img": "/img/team/head-javi.jpg"
   },
   {
     "name": "Jesús Olano",
-    "role": "Frontend Developer",
+    "role": "Web Developer",
     "location": "Ourense",
     "img": "/img/team/head-jesus.jpg",
     "link": {
@@ -146,7 +167,7 @@
   },
   {
     "name": "Thomas Dekiere",
-    "role": "Frontend Developer",
+    "role": "Web Developer",
     "location": "Ghent, Belgium",
     "img": "/img/team/head-thomas.jpg"
   },
@@ -169,7 +190,7 @@
   },
   {
     "name": "Krzysztof Kosecki",
-    "role": "Frontend Developer",
+    "role": "Web Developer",
     "location": "Kraków, Poland",
     "img": "/img/team/head-krzysztof.jpg",
     "link": {
@@ -203,7 +224,7 @@
   },
   {
     "name": "Sherri Cui",
-    "role": "Frontend Developer",
+    "role": "Web Developer",
     "location": "Ancona, Italy",
     "img": "/img/team/head-sherri.jpg"
   },
@@ -226,7 +247,7 @@
   },
   {
     "name": "Vincent Rouilhac",
-    "role": "Frontend Developer",
+    "role": "Web Developer",
     "location": "Normandy, France",
     "img": "/img/team/head-vincent.jpg",
     "link": {
@@ -277,7 +298,7 @@
   },
   {
     "name": "Marco de Wit",
-    "role": "Frontend Developer",
+    "role": "Web Developer",
     "location": "London, United Kingdom",
     "img": "/img/team/head-marco.jpg"
   }

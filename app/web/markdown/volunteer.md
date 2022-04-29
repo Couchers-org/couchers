@@ -1,5 +1,5 @@
 ---
-title: "Volunteer: help bring the next generation of couch surfing to life"
+title: "Help bring the next generation of couch surfing to life"
 crumb: Volunteer
 description: "Join the global Couchers.org team. Work with passionate professionals and make a huge impact on improving the couch surfing community."
 type: general
@@ -9,11 +9,11 @@ type: general
 
 Couchers.org is made up of a professional volunteer team, with everyone contributing their spare time. We have all kinds of positions available including in software development, marketing, design, finance, events, volunteer coordination and more!
 
-[Meet our volunteers](https://couchers.org/team)
+### [Meet our volunteers](https://couchers.org/team)
 
 People join for many reasons, but what brings us all together is a shared set of values, and a belief in the necessity of growing Couchers.org as a new platform and community.
 
-[Our Plan](https://couchers.org/plan) and [Our Mission & Values](https://couchers.org/mission)
+### [Our Plan](https://couchers.org/plan) and [Our Mission & Values](https://couchers.org/mission)
 
 ## The Volunteering Experience:
 
@@ -23,7 +23,7 @@ People join for many reasons, but what brings us all together is a shared set of
 
 We value being highly collaborative to learn together, honest and transparent, kind, welcoming, and enthusiastic. We are a group of smart and dedicated people, and we trust each other to truly own our work and push the project forward.
 
-## Our recruiting process
+## Recruitment process
 
 1. Find one of the open positions below and apply via the form!
 
@@ -35,7 +35,7 @@ We value being highly collaborative to learn together, honest and transparent, k
 
 ### General Application
 
-Want to help but don't see anything listed for you? Fill out [this form](...)
+Want to help but don't see anything listed for you? [Fill out this form](...)
 
 ### Core Team
 
