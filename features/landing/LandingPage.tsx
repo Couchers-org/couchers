@@ -27,11 +27,11 @@ import makeStyles from "utils/makeStyles";
 
 import {
   blogRoute,
-  contributeRoute,
   forumURL,
   loginRoute,
   signupRoute,
   tosRoute,
+  volunteerRoute,
 } from "../../routes";
 
 const useStyles = makeStyles((theme) => ({
@@ -238,7 +238,7 @@ export default function LandingPage() {
             local communities and a vibrant global discussion.
           </Typography>
           <Typography className={classes.para}>
-            <Link href={contributeRoute} passHref>
+            <Link href={volunteerRoute} passHref>
               <Button
                 variant="contained"
                 color="secondary"
@@ -246,9 +246,6 @@ export default function LandingPage() {
               >
                 Join our team
               </Button>
-            </Link>
-            <Link href={contributeRoute} passHref>
-              <Button className={classes.subNavButtons}>Volunteer</Button>
             </Link>
           </Typography>
         </Paper>
