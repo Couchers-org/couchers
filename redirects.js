@@ -3,7 +3,7 @@ module.exports = {
     {
       source: "/contributors/form",
       destination:
-        "https://docs.google.com/forms/d/e/1FAIpQLSe-YqgNrgjPKW2EsrJAGSuwWuSq8lC7LVhVgQ_DYNeKm3m38A/viewform",
+        "https://forms.monday.com/forms/f87fe22951e9328f4ee1578d339cb927?r=use1",
       permanent: false,
     },
     {
