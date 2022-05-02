@@ -102,8 +102,11 @@ export default function Team() {
                       {link && (
                         <IconText
                           icon={
-                            link.type === "linkedin" ? LinkedInIcon : 
-                              (link.type === "email" ? EmailIcon : GlobeIcon)
+                            link.type === "linkedin"
+                              ? LinkedInIcon
+                              : link.type === "email"
+                              ? EmailIcon
+                              : GlobeIcon
                           }
                           text={
                             <Typography>
