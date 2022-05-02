@@ -300,9 +300,9 @@ describe("GroupChatView", () => {
     renderGroupChatView();
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
 
-    userEvent.type(screen.getByLabelText("Message"), "Sounds good");
+    await userEvent.type(screen.getByLabelText("Message"), "Sounds good");
     const sendButton = screen.getByRole("button", { name: t("global:send") });
-    userEvent.click(sendButton);
+    await userEvent.click(sendButton);
     await waitForElementToBeRemoved(
       within(sendButton).getByRole("progressbar")
     );
@@ -350,12 +350,12 @@ describe("GroupChatView", () => {
     renderGroupChatView();
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
 
-    userEvent.type(screen.getByLabelText("Message"), "Sounds good");
-    userEvent.keyboard("{enter}");
+    await userEvent.type(screen.getByLabelText("Message"), "Sounds good");
+    await userEvent.keyboard("{enter}");
 
     expect(sendMessageMock).toHaveBeenCalledTimes(0);
 
-    userEvent.keyboard("{ctrl>}{enter}{/ctrl}");
+    await userEvent.keyboard("{ctrl>}{enter}{/ctrl}");
 
     expect(await screen.findByText("Sounds good")).toBeVisible();
     expect(sendMessageMock).toHaveBeenCalledTimes(1);
@@ -367,7 +367,7 @@ describe("GroupChatView", () => {
   it("persists message draft state in sessionStorage", async () => {
     renderGroupChatView();
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
-    userEvent.type(screen.getByLabelText("Message"), "Not ready to se-");
+    await userEvent.type(screen.getByLabelText("Message"), "Not ready to se-");
     expect(sessionStorage.getItem("messages.1.1")).toEqual(
       JSON.stringify("Not ready to se-")
     );
@@ -386,7 +386,7 @@ describe("GroupChatView", () => {
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
 
     const sendButton = screen.getByRole("button", { name: t("global:send") });
-    userEvent.click(sendButton);
+    await userEvent.click(sendButton);
     await waitForElementToBeRemoved(
       within(sendButton).getByRole("progressbar")
     );

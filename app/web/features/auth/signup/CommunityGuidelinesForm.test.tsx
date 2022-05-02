@@ -65,13 +65,15 @@ describe("community guidelines signup form", () => {
     const button = await screen.findByRole("button", {
       name: t("global:continue"),
     });
-    checkboxes.forEach((checkbox) => {
-      expect(button).toBeDisabled();
-      expect(signupFlowCommunityGuidelinesMock).not.toBeCalled();
-      userEvent.click(checkbox);
-    });
+    await Promise.all(
+      checkboxes.map(async (checkbox) => {
+        expect(button).toBeDisabled();
+        expect(signupFlowCommunityGuidelinesMock).not.toBeCalled();
+        await userEvent.click(checkbox);
+      })
+    );
     await waitFor(() => expect(button).not.toBeDisabled());
-    userEvent.click(button);
+    await userEvent.click(button);
 
     await waitFor(() => {
       expect(signupFlowCommunityGuidelinesMock).toBeCalledWith(
@@ -94,11 +96,13 @@ describe("community guidelines signup form", () => {
       t("auth:community_guidelines_form.guideline.checkbox_label")
     );
     const button = screen.getByRole("button", { name: t("global:continue") });
-    checkboxes.forEach((checkbox) => {
-      userEvent.click(checkbox);
-    });
+    await Promise.all(
+      checkboxes.map(async (checkbox) => {
+        await userEvent.click(checkbox);
+      })
+    );
     await waitFor(() => expect(button).not.toBeDisabled());
-    userEvent.click(button);
+    await userEvent.click(button);
 
     mockConsoleError();
     await assertErrorAlert("Permission denied");

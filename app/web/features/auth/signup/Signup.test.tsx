@@ -109,11 +109,11 @@ describe("Signup", () => {
 
       render(<View />, { wrapper });
 
-      userEvent.type(
+      await userEvent.type(
         await screen.findByLabelText(t("auth:basic_form.name.field_label")),
         "Test user"
       );
-      userEvent.type(
+      await userEvent.type(
         screen.getByLabelText(t("auth:basic_form.email.field_label")),
         "test@example.com{enter}"
       );
@@ -148,13 +148,13 @@ describe("Signup", () => {
 
       render(<View />, { wrapper });
 
-      userEvent.type(
+      await userEvent.type(
         await screen.findByLabelText(
           t("auth:account_form.username.field_label")
         ),
         "test"
       );
-      userEvent.type(
+      await userEvent.type(
         await screen.findByLabelText(
           t("auth:account_form.password.field_label")
         ),
@@ -163,29 +163,29 @@ describe("Signup", () => {
       const birthdayField = screen.getByLabelText(
         t("auth:account_form.birthday.field_label")
       );
-      userEvent.clear(birthdayField);
-      userEvent.type(birthdayField, "01/01/1990");
+      await userEvent.clear(birthdayField);
+      await userEvent.type(birthdayField, "01/01/1990");
 
-      userEvent.type(
+      await userEvent.type(
         screen.getByTestId("edit-location-map"),
         "test city, test country"
       );
 
-      userEvent.selectOptions(
+      await userEvent.selectOptions(
         screen.getByLabelText(
           t("auth:account_form.hosting_status.field_label")
         ),
         hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST]
       );
 
-      userEvent.click(
+      await userEvent.click(
         screen.getByLabelText(t("auth:account_form.gender.woman"))
       );
-      userEvent.click(
+      await userEvent.click(
         await screen.findByLabelText(t("auth:account_form.tos_accept_label"))
       );
 
-      userEvent.click(
+      await userEvent.click(
         screen.getByRole("button", { name: t("global:sign_up") })
       );
 
@@ -217,11 +217,13 @@ describe("Signup", () => {
       const checkboxes = await screen.findAllByLabelText(
         t("auth:community_guidelines_form.guideline.checkbox_label")
       );
-      checkboxes.forEach((checkbox) => userEvent.click(checkbox));
+      await Promise.all(
+        checkboxes.map(async (checkbox) => await userEvent.click(checkbox))
+      );
       const button = screen.getByRole("button", { name: t("global:continue") });
 
       await waitFor(() => expect(button).not.toBeDisabled());
-      userEvent.click(button);
+      await userEvent.click(button);
 
       await waitFor(() => {
         expect(screen.getByText(QUESTIONS_OPTIONAL)).toBeVisible();
@@ -254,7 +256,9 @@ describe("Signup", () => {
 
     render(<View />, { wrapper });
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:submit") })
+    );
     await waitFor(() => expect(mockRouter.pathname).toBe(dashboardRoute));
   });
 
@@ -445,7 +449,7 @@ describe("Signup", () => {
     );
     render(<View />, { wrapper });
 
-    userEvent.click(
+    await userEvent.click(
       await screen.findByRole("button", { name: t("global:submit") })
     );
     mockConsoleError();

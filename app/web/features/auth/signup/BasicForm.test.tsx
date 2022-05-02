@@ -35,7 +35,7 @@ describe("basic signup form", () => {
     expect(result.current.authState.flowState).toBe(null);
 
     render(<BasicForm />, { wrapper });
-    userEvent.click(
+    await userEvent.click(
       await screen.findByRole("button", { name: t("global:continue") })
     );
 
@@ -53,11 +53,11 @@ describe("basic signup form", () => {
     expect(result.current.authState.flowState).toBe(null);
 
     render(<BasicForm />, { wrapper });
-    userEvent.type(
+    await userEvent.type(
       await screen.findByLabelText(t("auth:basic_form.name.field_label")),
       "Frodo"
     );
-    userEvent.click(
+    await userEvent.click(
       await screen.findByRole("button", { name: t("global:continue") })
     );
 
@@ -75,11 +75,11 @@ describe("basic signup form", () => {
     expect(result.current.authState.flowState).toBe(null);
 
     render(<BasicForm />, { wrapper });
-    userEvent.type(
+    await userEvent.type(
       await screen.findByLabelText(t("auth:basic_form.email.field_label")),
       "frodo@couchers.org.invalid"
     );
-    userEvent.click(
+    await userEvent.click(
       await screen.findByRole("button", { name: t("global:continue") })
     );
 
@@ -98,16 +98,16 @@ describe("basic signup form", () => {
     expect(result.current.authState.flowState).toBe(null);
 
     render(<BasicForm />, { wrapper });
-    userEvent.type(
+    await userEvent.type(
       await screen.findByLabelText(t("auth:basic_form.name.field_label")),
       "Frodo"
     );
-    userEvent.type(
+    await userEvent.type(
       await screen.findByLabelText(t("auth:basic_form.email.field_label")),
       "frodo@couchers.org.invalid"
     );
 
-    userEvent.click(
+    await userEvent.click(
       await screen.findByRole("button", { name: t("global:continue") })
     );
 
@@ -128,11 +128,11 @@ describe("basic signup form", () => {
       wrapper,
     });
 
-    userEvent.type(
+    await userEvent.type(
       screen.getByLabelText(t("auth:basic_form.name.field_label")),
       "Test user"
     );
-    userEvent.type(
+    await userEvent.type(
       screen.getByLabelText(t("auth:basic_form.email.field_label")),
       "test@example.com{enter}"
     );

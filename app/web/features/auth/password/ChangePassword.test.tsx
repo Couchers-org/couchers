@@ -70,7 +70,7 @@ describe("ChangePassword", () => {
     });
 
     it("does not try to submit the form if the user doesn't provide its old password", async () => {
-      userEvent.click(
+      await userEvent.click(
         await screen.findByRole("button", { name: t("global:submit") })
       );
 
@@ -80,17 +80,19 @@ describe("ChangePassword", () => {
     });
 
     it("does not try to submit the form if the new and confirm password values don't match", async () => {
-      userEvent.type(
+      await userEvent.type(
         await screen.findByLabelText(
           t("auth:change_password_form.new_password")
         ),
         "password"
       );
-      userEvent.type(
+      await userEvent.type(
         screen.getByLabelText(t("auth:change_password_form.confirm_password")),
         "password1"
       );
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+      await userEvent.click(
+        screen.getByRole("button", { name: t("global:submit") })
+      );
 
       expect(
         await screen.findByText(
@@ -101,21 +103,23 @@ describe("ChangePassword", () => {
     });
 
     it("updates the user's password successfully if a new password has been given", async () => {
-      userEvent.type(
+      await userEvent.type(
         await screen.findByLabelText(
           t("auth:change_password_form.old_password")
         ),
         "old_password"
       );
-      userEvent.type(
+      await userEvent.type(
         screen.getByLabelText(t("auth:change_password_form.new_password")),
         "new_password"
       );
-      userEvent.type(
+      await userEvent.type(
         screen.getByLabelText(t("auth:change_password_form.confirm_password")),
         "new_password"
       );
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+      await userEvent.click(
+        screen.getByRole("button", { name: t("global:submit") })
+      );
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
@@ -141,13 +145,15 @@ describe("ChangePassword", () => {
     });
 
     it("clears the user password successfully if no new password has been given", async () => {
-      userEvent.type(
+      await userEvent.type(
         await screen.findByLabelText(
           t("auth:change_password_form.old_password")
         ),
         "old_password"
       );
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+      await userEvent.click(
+        screen.getByRole("button", { name: t("global:submit") })
+      );
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
@@ -189,7 +195,7 @@ describe("ChangePassword", () => {
 
     // When user doesn't have an old password, new password becomes a required field
     it("does not try to submit the form if the user doesn't provide a new password", async () => {
-      userEvent.click(
+      await userEvent.click(
         await screen.findByRole("button", { name: t("global:submit") })
       );
 
@@ -199,14 +205,19 @@ describe("ChangePassword", () => {
     });
 
     it("submits the change password request successfully if a new password has been given", async () => {
-      userEvent.type(
+      await userEvent.type(
         await screen.findByLabelText(
           t("auth:change_password_form.new_password")
         ),
         "new_password"
       );
-      userEvent.type(screen.getByLabelText("Confirm password"), "new_password");
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+      await userEvent.type(
+        screen.getByLabelText("Confirm password"),
+        "new_password"
+      );
+      await userEvent.click(
+        screen.getByRole("button", { name: t("global:submit") })
+      );
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
@@ -234,15 +245,17 @@ describe("ChangePassword", () => {
     changePasswordMock.mockRejectedValue(new Error("The password is insecure"));
     render(<ChangePassword {...accountWithLink} />, { wrapper });
 
-    userEvent.type(
+    await userEvent.type(
       await screen.findByLabelText(t("auth:change_password_form.new_password")),
       "new_password"
     );
-    userEvent.type(
+    await userEvent.type(
       screen.getByLabelText(t("auth:change_password_form.confirm_password")),
       "new_password"
     );
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:submit") })
+    );
 
     const errorAlert = await screen.findByRole("alert");
     expect(errorAlert).toBeVisible();

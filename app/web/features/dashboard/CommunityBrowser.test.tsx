@@ -50,34 +50,34 @@ describe("Community browser", () => {
     expect(screen.getByRole("link", { name: "Global" })).toBeVisible();
 
     //clicking down the tree
-    userEvent.click(button11);
+    await userEvent.click(button11);
     const button111 = await screen.findByRole("button", { name: "111" });
     expect(button111).toBeVisible();
-    userEvent.click(button111);
+    await userEvent.click(button111);
     expect(await screen.findByRole("button", { name: "1111" })).toBeVisible();
 
     //switching the previous column
     const button112 = screen.getByRole("button", { name: "112" });
-    userEvent.click(button112);
+    await userEvent.click(button112);
     expect(await screen.findByRole("button", { name: "1121" })).toBeVisible();
 
     //deselecting the previous column
-    userEvent.click(button112);
+    await userEvent.click(button112);
     expect(
       screen.queryByRole("button", { name: "1121" })
     ).not.toBeInTheDocument();
 
     //switching the first column
     const button12 = screen.getByRole("button", { name: "12" });
-    userEvent.click(button12);
+    await userEvent.click(button12);
     const button121 = await screen.findByRole("button", { name: "121" });
     expect(button121).toBeVisible();
 
-    userEvent.click(button121);
+    await userEvent.click(button121);
     expect(await screen.findByRole("button", { name: "1211" })).toBeVisible();
 
     //deselect the first column
-    userEvent.click(button12);
+    await userEvent.click(button12);
     expect(button121).not.toBeInTheDocument();
   });
 
@@ -88,8 +88,8 @@ describe("Community browser", () => {
     });
     render(<CommunityBrowser />, { wrapper: hookWrapper });
 
-    userEvent.click(await screen.findByRole("button", { name: "11" }));
-    userEvent.click(await screen.findByRole("button", { name: "111" }));
+    await userEvent.click(await screen.findByRole("button", { name: "11" }));
+    await userEvent.click(await screen.findByRole("button", { name: "111" }));
     expect(
       await screen.findByText(t("dashboard:no_sub_communities"))
     ).toBeVisible();

@@ -42,7 +42,7 @@ describe("AddFriendButton", () => {
     sendFriendRequestMock.mockImplementation(() => new Promise(() => void 0));
     render(<TestComponent />, { wrapper });
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole("button", {
         name: t("connections:add_friend"),
       })
@@ -54,7 +54,7 @@ describe("AddFriendButton", () => {
     sendFriendRequestMock.mockResolvedValue(new Empty());
     render(<TestComponent />, { wrapper });
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole("button", {
         name: t("connections:add_friend"),
       })
@@ -70,7 +70,7 @@ describe("AddFriendButton", () => {
     );
     render(<TestComponent />, { wrapper });
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole("button", {
         name: t("connections:add_friend"),
       })

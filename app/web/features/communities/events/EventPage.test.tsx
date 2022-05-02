@@ -146,7 +146,7 @@ describe("Event page", () => {
     renderEventPage();
     await screen.findByRole("heading", { name: events[0].title });
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole("button", { name: t("communities:previous_page") })
     );
 
@@ -212,7 +212,7 @@ describe("Event page", () => {
       const attendanceButton = screen.getByRole("button", {
         name: t("communities:leave_event"),
       });
-      userEvent.click(attendanceButton);
+      await userEvent.click(attendanceButton);
 
       expect(
         await screen.findByRole("button", { name: t("communities:join_event") })
@@ -237,7 +237,7 @@ describe("Event page", () => {
       renderEventPage();
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      userEvent.click(
+      await userEvent.click(
         screen.getByRole("button", { name: t("communities:leave_event") })
       );
 

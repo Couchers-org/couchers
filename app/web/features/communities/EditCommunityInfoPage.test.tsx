@@ -75,11 +75,13 @@ describe("Edit community page", () => {
     renderEditCommunityPage();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.type(
+    await userEvent.type(
       screen.getByLabelText(t("communities:page_content_field_label")),
       " are great!"
     );
-    userEvent.click(screen.getByRole("button", { name: t("global:update") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:update") })
+    );
 
     const successAlert = await screen.findByRole("alert");
     expect(successAlert).toBeVisible();
@@ -101,7 +103,9 @@ describe("Edit community page", () => {
     renderEditCommunityPage();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(screen.getByRole("button", { name: t("global:update") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:update") })
+    );
 
     await assertErrorAlert(errorMessage);
   });

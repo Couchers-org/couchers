@@ -136,7 +136,7 @@ describe("SearchResultsList", () => {
       const card = await screen.findByRole("button", {
         name: getShowUserOnMap(firstName(users[0].name)),
       });
-      userEvent.click(card);
+      await userEvent.click(card);
       await waitFor(() => {
         expect(mockHandleResultClick).toBeCalledWith(users[0]);
       });

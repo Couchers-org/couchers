@@ -46,7 +46,7 @@ describe("CompleteResetPassword", () => {
     });
 
     it("shows a link that takes you to the login page when clicked", async () => {
-      userEvent.click(
+      await userEvent.click(
         await screen.findByRole("link", { name: t("auth:login_prompt") })
       );
 

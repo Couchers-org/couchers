@@ -51,21 +51,25 @@ describe("Edit event page", () => {
     const titleField = screen.getByLabelText(t("global:title"));
     expect(titleField).toHaveValue("Weekly Meetup");
 
-    userEvent.type(titleField, " in the dam");
-    userEvent.click(screen.getByLabelText(t("communities:virtual_event")));
-    userEvent.type(
+    await userEvent.type(titleField, " in the dam");
+    await userEvent.click(
+      screen.getByLabelText(t("communities:virtual_event"))
+    );
+    await userEvent.type(
       screen.getByLabelText(t("communities:event_link")),
       "https://couchers.org/amsterdam-social"
     );
     const eventDetails = screen.getByLabelText(t("communities:event_details"));
-    userEvent.clear(eventDetails);
-    userEvent.type(eventDetails, "We are going virtual this week!");
+    await userEvent.clear(eventDetails);
+    await userEvent.type(eventDetails, "We are going virtual this week!");
     const endDateField = await screen.findByLabelText(
       t("communities:end_date")
     );
-    userEvent.clear(endDateField);
-    userEvent.type(endDateField, "07012021");
-    userEvent.click(screen.getByRole("button", { name: t("global:update") }));
+    await userEvent.clear(endDateField);
+    await userEvent.type(endDateField, "07012021");
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:update") })
+    );
 
     await waitFor(() => {
       expect(updateEventMock).toHaveBeenCalledTimes(1);
@@ -90,9 +94,11 @@ describe("Edit event page", () => {
     const startDateField = await screen.findByLabelText(
       t("communities:start_date")
     );
-    userEvent.clear(startDateField);
-    userEvent.type(startDateField, "08012021");
-    userEvent.click(screen.getByRole("button", { name: t("global:update") }));
+    await userEvent.clear(startDateField);
+    await userEvent.type(startDateField, "08012021");
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:update") })
+    );
 
     await waitFor(
       () => {
@@ -115,9 +121,11 @@ describe("Edit event page", () => {
     const startTimeField = await screen.findByLabelText(
       t("communities:start_time")
     );
-    userEvent.clear(startTimeField);
-    userEvent.type(startTimeField, "0000");
-    userEvent.click(screen.getByRole("button", { name: t("global:update") }));
+    await userEvent.clear(startTimeField);
+    await userEvent.type(startTimeField, "0000");
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:update") })
+    );
 
     await waitFor(
       () => {

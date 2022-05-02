@@ -67,11 +67,11 @@ describe("Profile page", () => {
 
         expect(mockRouter.pathname).toBe("/profile");
 
-        userEvent.click(await screen.findByText(SECTION_LABELS.home));
+        await userEvent.click(await screen.findByText(SECTION_LABELS.home));
 
         expect(mockRouter.pathname).toBe("/profile/home");
 
-        userEvent.click(await screen.findByText(SECTION_LABELS.about));
+        await userEvent.click(await screen.findByText(SECTION_LABELS.about));
 
         expect(mockRouter.pathname).toBe("/profile/about");
       });

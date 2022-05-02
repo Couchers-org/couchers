@@ -35,7 +35,7 @@ const Dialog = () => {
 };
 
 describe("FilterDialog", () => {
-  //using lots of userEvent.type can be slow
+  //using lots of await userEvent.type can be slow
   jest.setTimeout(30000);
 
   beforeEach(() => {
@@ -49,31 +49,31 @@ describe("FilterDialog", () => {
     });
 
     const locationInput = screen.getByLabelText(LOCATION);
-    userEvent.type(locationInput, "tes{enter}");
+    await userEvent.type(locationInput, "tes{enter}");
     const locationItem = await screen.findByText("test city, test country");
-    userEvent.click(locationItem);
+    await userEvent.click(locationItem);
 
     const keywordsInput = screen.getByLabelText(PROFILE_KEYWORDS);
-    userEvent.type(keywordsInput, "keyword1");
+    await userEvent.type(keywordsInput, "keyword1");
 
     const lastActiveInput = screen.getByLabelText(LAST_ACTIVE);
-    userEvent.click(lastActiveInput);
-    userEvent.click(screen.getByText(LAST_WEEK));
+    await userEvent.click(lastActiveInput);
+    await userEvent.click(screen.getByText(LAST_WEEK));
 
     const hostStatusInput = screen.getByLabelText(HOSTING_STATUS);
-    userEvent.click(hostStatusInput);
-    userEvent.click(
+    await userEvent.click(hostStatusInput);
+    await userEvent.click(
       screen.getByText(
         hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST]
       )
     );
-    userEvent.click(hostStatusInput);
-    userEvent.click(
+    await userEvent.click(hostStatusInput);
+    await userEvent.click(
       screen.getByText(hostingStatusLabels[HostingStatus.HOSTING_STATUS_MAYBE])
     );
 
     const numGuestsInput = screen.getByLabelText(NUM_GUESTS);
-    userEvent.type(numGuestsInput, "3");
+    await userEvent.type(numGuestsInput, "3");
 
     const expectedFilters = {
       location: "test city, test country",
@@ -85,7 +85,7 @@ describe("FilterDialog", () => {
       numGuests: 3,
     };
 
-    userEvent.click(screen.getByRole("button", { name: APPLY_FILTER }));
+    await userEvent.click(screen.getByRole("button", { name: APPLY_FILTER }));
 
     await waitFor(() => {
       expect(parsedQueryToFilters(mockRouter.query)).toMatchObject(
@@ -133,11 +133,11 @@ describe("FilterDialog", () => {
     ).toBeVisible();
     expect(numGuestsInput).toHaveValue(3);
 
-    userEvent.clear(locationInput);
-    userEvent.click(lastActiveInput);
-    userEvent.click(screen.getByText("Any"));
-    userEvent.type(hostStatusInput, "{backspace}{backspace}");
-    userEvent.clear(numGuestsInput);
+    await userEvent.clear(locationInput);
+    await userEvent.click(lastActiveInput);
+    await userEvent.click(screen.getByText("Any"));
+    await userEvent.type(hostStatusInput, "{backspace}{backspace}");
+    await userEvent.clear(numGuestsInput);
 
     await waitFor(() => {
       expect(locationInput).toHaveValue("");
@@ -163,25 +163,25 @@ describe("FilterDialog", () => {
       wrapper,
     });
     const lastActiveInput = screen.getByLabelText(LAST_ACTIVE);
-    userEvent.click(lastActiveInput);
-    userEvent.click(screen.getByText(LAST_WEEK));
+    await userEvent.click(lastActiveInput);
+    await userEvent.click(screen.getByText(LAST_WEEK));
 
     const hostStatusInput = screen.getByLabelText(HOSTING_STATUS);
-    userEvent.click(hostStatusInput);
-    userEvent.click(
+    await userEvent.click(hostStatusInput);
+    await userEvent.click(
       screen.getByText(
         hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST]
       )
     );
-    userEvent.click(hostStatusInput);
-    userEvent.click(
+    await userEvent.click(hostStatusInput);
+    await userEvent.click(
       screen.getByText(hostingStatusLabels[HostingStatus.HOSTING_STATUS_MAYBE])
     );
 
     const numGuestsInput = screen.getByLabelText(NUM_GUESTS);
-    userEvent.type(numGuestsInput, "3");
+    await userEvent.type(numGuestsInput, "3");
 
-    userEvent.click(screen.getByRole("button", { name: APPLY_FILTER }));
+    await userEvent.click(screen.getByRole("button", { name: APPLY_FILTER }));
     await waitFor(() => {
       const errors = screen.getAllByText(MUST_HAVE_LOCATION);
       expect(errors).toHaveLength(3);

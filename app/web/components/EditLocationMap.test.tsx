@@ -108,13 +108,13 @@ describe("Edit location map", () => {
         />
       );
 
-      userEvent.type(
+      await userEvent.type(
         screen.getByLabelText(
           t("global:components.edit_location_map.search_location_label")
         ),
         "test{enter}"
       );
-      userEvent.click(
+      await userEvent.click(
         await screen.findByRole("option", {
           name: "test city, test county, test country",
         })

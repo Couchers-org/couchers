@@ -53,11 +53,11 @@ describe("signup form (feedback part)", () => {
     );
 
     render(<FeedbackForm />, { wrapper });
-    userEvent.type(
+    await userEvent.type(
       await screen.findByLabelText(EXPERTISE_LABEL),
       "I have lots of expertise!"
     );
-    userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
+    await userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
       expect(signupFlowFeedbackMock).toBeCalledTimes(1);
@@ -84,7 +84,7 @@ describe("signup form (feedback part)", () => {
   it("skips the form successfully if the skip link is used", async () => {
     render(<FeedbackForm />, { wrapper });
 
-    userEvent.click(
+    await userEvent.click(
       await screen.findByRole("link", { name: "Skip this step" })
     );
 

@@ -27,7 +27,7 @@ describe("MessageUserButton", () => {
       wrapper,
     });
 
-    userEvent.click(screen.getByRole("button"));
+    await userEvent.click(screen.getByRole("button"));
 
     await waitFor(() => expect(mockRouter.pathname).toBe(routeToGroupChat(99)));
   });
@@ -39,7 +39,7 @@ describe("MessageUserButton", () => {
       wrapper,
     });
 
-    userEvent.click(screen.getByRole("button"));
+    await userEvent.click(screen.getByRole("button"));
 
     await waitFor(() =>
       expect(mockRouter.asPath).toBe(routeToCreateMessage(user.username))

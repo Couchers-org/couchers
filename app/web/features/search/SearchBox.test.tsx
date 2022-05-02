@@ -39,9 +39,9 @@ describe("SearchBox", () => {
   it("performs a keyword search", async () => {
     const setActive = jest.fn();
     render(<View setActive={setActive} />, { wrapper });
-    userEvent.click(screen.getByLabelText(SEARCH_BY_KEYWORD));
+    await userEvent.click(screen.getByLabelText(SEARCH_BY_KEYWORD));
     const input = screen.getByLabelText(PROFILE_KEYWORDS);
-    userEvent.type(input, "test search");
+    await userEvent.type(input, "test search");
     await waitFor(() => {
       expect(setActive).toBeCalledWith({ query: "test search" });
     });
@@ -58,8 +58,8 @@ describe("SearchBox", () => {
       const setActive = jest.fn();
       render(<View setActive={setActive} />, { wrapper });
       const input = screen.getByLabelText(LOCATION);
-      userEvent.type(input, "tes{enter}");
-      userEvent.click(await screen.findByText("test city, test country"));
+      await userEvent.type(input, "tes{enter}");
+      await userEvent.click(await screen.findByText("test city, test country"));
       await waitFor(() => {
         expect(setActive).toBeCalledWith({
           location: "test city, test country",
@@ -99,7 +99,7 @@ describe("SearchBox", () => {
     });
     const input = screen.getByLabelText(PROFILE_KEYWORDS);
     expect(input).toHaveValue("default value");
-    userEvent.click(screen.getByRole("button", { name: CLEAR_SEARCH }));
+    await userEvent.click(screen.getByRole("button", { name: CLEAR_SEARCH }));
     await waitFor(() => {
       expect(input).toHaveValue("");
       expect(setActive).toBeCalledWith({});
@@ -117,7 +117,7 @@ describe("SearchBox", () => {
     const input = screen.getByLabelText(LOCATION);
     expect(input).toHaveValue("default location");
     //button role doesn't seem to work, despite it being there
-    userEvent.click(await screen.findByTitle("Clear"));
+    await userEvent.click(await screen.findByTitle("Clear"));
     await waitFor(() => {
       expect(input).toHaveValue("");
       expect(setActive).toBeCalledWith({});
@@ -127,21 +127,23 @@ describe("SearchBox", () => {
   it("opens and closes the filter dialog, with changes applied to search box", async () => {
     const setActive = jest.fn();
     render(<View setActive={setActive} />, { wrapper });
-    userEvent.click(screen.getByLabelText(SEARCH_BY_KEYWORD));
+    await userEvent.click(screen.getByLabelText(SEARCH_BY_KEYWORD));
     const input = screen.getByLabelText(PROFILE_KEYWORDS);
-    userEvent.type(input, "test search");
+    await userEvent.type(input, "test search");
     await waitFor(() => {
       expect(setActive).toBeCalledWith({ query: "test search" });
     });
-    userEvent.click(screen.getByRole("button", { name: FILTER_DIALOG_TITLE }));
+    await userEvent.click(
+      screen.getByRole("button", { name: FILTER_DIALOG_TITLE })
+    );
 
     const dialog = screen.getByRole("dialog", { name: FILTER_DIALOG_TITLE });
     expect(dialog).toBeVisible();
     const dialogKeywordsField = within(dialog).getByLabelText(PROFILE_KEYWORDS);
     expect(dialogKeywordsField).toHaveValue("test search");
-    userEvent.clear(dialogKeywordsField);
-    userEvent.type(dialogKeywordsField, "new search");
-    userEvent.click(screen.getByRole("button", { name: APPLY_FILTER }));
+    await userEvent.clear(dialogKeywordsField);
+    await userEvent.type(dialogKeywordsField, "new search");
+    await userEvent.click(screen.getByRole("button", { name: APPLY_FILTER }));
     await waitFor(
       () => {
         expect(dialog).not.toBeVisible();

@@ -47,7 +47,7 @@ describe("EditHostingPreference", () => {
   it("should redirect to the user profile route with 'home' tab active after successful update", async () => {
     renderPage();
 
-    userEvent.click(await screen.findByRole("button", { name: SAVE }));
+    await userEvent.click(await screen.findByRole("button", { name: SAVE }));
     await waitFor(() =>
       expect(mockRouter.pathname).toBe(routeToProfile("home"))
     );
@@ -61,7 +61,7 @@ describe("EditHostingPreference", () => {
     renderPage();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(screen.getByRole("button", { name: SAVE }));
+    await userEvent.click(screen.getByRole("button", { name: SAVE }));
     await waitFor(() =>
       expect(mockRouter.pathname).toBe(routeToProfile("home"))
     );

@@ -86,7 +86,7 @@ describe("Events section", () => {
     renderEventsSection();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole("link", { name: t("global:nav.show_all_events") })
     );
 

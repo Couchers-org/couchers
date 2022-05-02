@@ -23,7 +23,7 @@ describe("contributor form", () => {
   it("can be submitted empty", async () => {
     const processForm = jest.fn(() => Promise.resolve());
     render(<ContributorForm processForm={processForm} />, { wrapper });
-    userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
+    await userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
     expect(await screen.findByText(SUCCESS_MSG)).toBeVisible();
 
     await waitFor(() => {
@@ -43,26 +43,29 @@ describe("contributor form", () => {
     jest.setTimeout(10000);
     const processForm = jest.fn(() => Promise.resolve());
     render(<ContributorForm processForm={processForm} />, { wrapper });
-    userEvent.type(screen.getByLabelText(IDEAS_LABEL), "I have great ideas");
-    userEvent.type(
+    await userEvent.type(
+      screen.getByLabelText(IDEAS_LABEL),
+      "I have great ideas"
+    );
+    await userEvent.type(
       screen.getByLabelText(FEATURES_LABEL),
       "I want all the features"
     );
-    userEvent.click(screen.getByRole("radio", { name: "Yes" }));
+    await userEvent.click(screen.getByRole("radio", { name: "Yes" }));
     // For some reason, checking boxes makes tests flakey when running jest
     // either on CI, or with many workers. Go figure. (Performance related?)
-    // userEvent.click(screen.getByRole("checkbox", { name: "Other" }));
-    // userEvent.click(screen.getByRole("checkbox", { name: "Marketing" }));
-    userEvent.type(
+    // await userEvent.click(screen.getByRole("checkbox", { name: "Other" }));
+    // await userEvent.click(screen.getByRole("checkbox", { name: "Marketing" }));
+    await userEvent.type(
       screen.getByLabelText(EXPERTISE_LABEL),
       "I am a robot, I have all the expertise"
     );
-    userEvent.type(
+    await userEvent.type(
       screen.getByLabelText(EXPERIENCE_LABEL),
       "I have lots of experience"
     );
 
-    userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+    await userEvent.click(screen.getByRole("button", { name: SUBMIT }));
     expect(await screen.findByText(SUCCESS_MSG)).toBeVisible();
     expect(processForm).toHaveBeenCalledWith({
       ideas: "I have great ideas",
@@ -80,9 +83,12 @@ describe("contributor form", () => {
     );
     mockConsoleError();
     render(<ContributorForm processForm={processForm} />, { wrapper });
-    userEvent.type(screen.getByLabelText(IDEAS_LABEL), "I have great ideas");
+    await userEvent.type(
+      screen.getByLabelText(IDEAS_LABEL),
+      "I have great ideas"
+    );
 
-    userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+    await userEvent.click(screen.getByRole("button", { name: SUBMIT }));
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
     expect(screen.getByRole("alert")).toBeVisible();
     expect(screen.getByRole("alert")).toHaveTextContent("Network error?");

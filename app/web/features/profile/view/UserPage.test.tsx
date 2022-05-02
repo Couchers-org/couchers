@@ -88,11 +88,11 @@ describe("User page", () => {
 
         expect(mockRouter.pathname).toBe("/user/funnycat");
 
-        userEvent.click(await screen.findByText(SECTION_LABELS.home));
+        await userEvent.click(await screen.findByText(SECTION_LABELS.home));
 
         expect(mockRouter.pathname).toBe("/user/funnycat/home");
 
-        userEvent.click(await screen.findByText(SECTION_LABELS.about));
+        await userEvent.click(await screen.findByText(SECTION_LABELS.about));
 
         expect(mockRouter.pathname).toBe("/user/funnycat/about");
       });
@@ -107,18 +107,18 @@ describe("User page", () => {
     it("updates the url with the chosen tab value", async () => {
       expect(mockRouter.pathname).toBe("/user/funnydog");
 
-      userEvent.click(await screen.findByText(SECTION_LABELS.home));
+      await userEvent.click(await screen.findByText(SECTION_LABELS.home));
 
       expect(mockRouter.pathname).toBe("/user/funnydog/home");
 
-      userEvent.click(await screen.findByText(SECTION_LABELS.about));
+      await userEvent.click(await screen.findByText(SECTION_LABELS.about));
 
       expect(mockRouter.pathname).toBe("/user/funnydog/about");
     });
 
     describe("and the 'report user' option is clicked", () => {
       beforeEach(async () => {
-        userEvent.click(
+        await userEvent.click(
           await screen.findByRole("button", {
             name: t("global:report.flag.button_aria_label"),
           })
@@ -134,7 +134,7 @@ describe("User page", () => {
       });
 
       it("closes the report user dialog if the 'Cancel' button is clicked", async () => {
-        userEvent.click(
+        await userEvent.click(
           await screen.findByRole("button", { name: t("global:cancel") })
         );
 
@@ -150,15 +150,15 @@ describe("User page", () => {
         const reason = "Dating / Flirting";
         const description = "I feel very uncomfortable around this creepy dog";
 
-        userEvent.selectOptions(
+        await userEvent.selectOptions(
           await screen.findByLabelText(t("global:report.flag.reason_label")),
           reason
         );
-        userEvent.type(
+        await userEvent.type(
           screen.getByLabelText(t("global:report.flag.description_label")),
           description
         );
-        userEvent.click(
+        await userEvent.click(
           screen.getByRole("button", { name: t("global:submit") })
         );
 
@@ -177,7 +177,7 @@ describe("User page", () => {
       });
 
       it("does not submit the user report if the required fields are not filled in", async () => {
-        userEvent.click(
+        await userEvent.click(
           screen.getByRole("button", { name: t("global:submit") })
         );
 
@@ -193,15 +193,15 @@ describe("User page", () => {
         const reason = "Dating / Flirting";
         const description = " ";
 
-        userEvent.selectOptions(
+        await userEvent.selectOptions(
           await screen.findByLabelText(t("global:report.flag.reason_label")),
           reason
         );
-        userEvent.type(
+        await userEvent.type(
           screen.getByLabelText(t("global:report.flag.description_label")),
           description
         );
-        userEvent.click(
+        await userEvent.click(
           screen.getByRole("button", { name: t("global:submit") })
         );
 

@@ -18,13 +18,15 @@ it("shows the known gRPC error from the API", async () => {
   });
   render(<Login />, { wrapper });
 
-  userEvent.type(
+  await userEvent.type(
     await screen.findByLabelText(
       t("auth:login_page.form.username_field_label")
     ),
     "invalid"
   );
-  userEvent.click(screen.getByRole("button", { name: t("global:continue") }));
+  await userEvent.click(
+    screen.getByRole("button", { name: t("global:continue") })
+  );
 
   await assertErrorAlert(errorMessage);
 });
@@ -35,13 +37,15 @@ it("shows the fatal error message for unknown errors", async () => {
   });
   render(<Login />, { wrapper });
 
-  userEvent.type(
+  await userEvent.type(
     await screen.findByLabelText(
       t("auth:login_page.form.username_field_label")
     ),
     "invalid"
   );
-  userEvent.click(screen.getByRole("button", { name: t("global:continue") }));
+  await userEvent.click(
+    screen.getByRole("button", { name: t("global:continue") })
+  );
 
   await assertErrorAlert(t("global:error.fatal_message"));
 });

@@ -62,15 +62,15 @@ describe("LocationAutocomplete component", () => {
 
     const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
     expect(input).toBeVisible();
-    userEvent.type(input, "tes{enter}");
+    await userEvent.type(input, "tes{enter}");
 
     const item = await screen.findByText("test city, test country");
     expect(item).toBeVisible();
-    userEvent.click(item);
+    await userEvent.click(item);
     expect(input.value).toBe("test city, test country");
 
     const submitButton = await screen.findByRole("button", { name: "submit" });
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
     await waitFor(() => {
       expect(submitAction).toBeCalledWith(
         expect.objectContaining({
@@ -90,7 +90,7 @@ describe("LocationAutocomplete component", () => {
     const onChange = jest.fn();
     renderForm("", onChange, true);
 
-    userEvent.type(await screen.findByLabelText(LOCATION), "tes{enter}");
+    await userEvent.type(await screen.findByLabelText(LOCATION), "tes{enter}");
 
     expect(
       await screen.findByText("test city, test county, test country")
@@ -103,8 +103,8 @@ describe("LocationAutocomplete component", () => {
 
     const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
     expect(input).toBeVisible();
-    userEvent.type(input, "tes");
-    userEvent.click(
+    await userEvent.type(input, "tes");
+    await userEvent.click(
       screen.getByRole("button", { name: SEARCH_LOCATION_BUTTON })
     );
 
@@ -118,9 +118,9 @@ describe("LocationAutocomplete component", () => {
 
     const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
     expect(input).toBeVisible();
-    userEvent.type(input, "test");
+    await userEvent.type(input, "test");
     const submitButton = await screen.findByRole("button", { name: "submit" });
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
     expect(await screen.findByText(SELECT_LOCATION)).toBeVisible();
   });
 
@@ -139,9 +139,9 @@ describe("LocationAutocomplete component", () => {
     expect(input).toBeVisible();
     expect(input).toHaveValue("test location");
 
-    userEvent.clear(input);
+    await userEvent.clear(input);
     const submitButton = await screen.findByRole("button", { name: "submit" });
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
       expect(submitAction).toBeCalledWith(
@@ -167,7 +167,7 @@ describe("LocationAutocomplete component", () => {
 
     const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
     expect(input).toBeVisible();
-    userEvent.type(input, "test{enter}");
+    await userEvent.type(input, "test{enter}");
 
     const error = await screen.findByText("generic error");
     expect(error).toBeVisible();
@@ -194,13 +194,13 @@ describe("LocationAutocomplete component", () => {
     renderForm("", () => {}, false, true);
 
     const input = (await screen.findByLabelText(LOCATION)) as HTMLInputElement;
-    userEvent.type(input, "tes{enter}");
+    await userEvent.type(input, "tes{enter}");
 
     const item = await screen.findByText("test country");
-    userEvent.click(item);
+    await userEvent.click(item);
 
     const submitButton = await screen.findByRole("button", { name: "submit" });
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     expect(await screen.findByText(MUST_BE_MORE_SPECIFIC)).toBeVisible();
     expect(submitAction).not.toBeCalled();

@@ -74,7 +74,7 @@ describe("Events list", () => {
   )}" button is clicked`, async () => {
     render(<EventsList community={community} />, { wrapper });
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole("button", { name: t("communities:create_an_event") })
     );
 
@@ -113,7 +113,7 @@ describe("Events list", () => {
       const seeMoreEventsButton = screen.getByRole("button", {
         name: t("communities:see_more_events_label"),
       });
-      userEvent.click(seeMoreEventsButton);
+      await userEvent.click(seeMoreEventsButton);
       await waitForElementToBeRemoved(
         within(seeMoreEventsButton).getByRole("progressbar")
       );

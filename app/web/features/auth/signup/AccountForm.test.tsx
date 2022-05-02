@@ -67,13 +67,13 @@ describe("AccountForm", () => {
       );
       render(<AccountForm />, { wrapper });
 
-      userEvent.type(
+      await userEvent.type(
         await screen.findByLabelText(
           t("auth:account_form.username.field_label")
         ),
         "test"
       );
-      userEvent.type(
+      await userEvent.type(
         await screen.findByLabelText(
           t("auth:account_form.password.field_label")
         ),
@@ -82,10 +82,10 @@ describe("AccountForm", () => {
       const birthdayField = screen.getByLabelText(
         t("auth:account_form.birthday.field_label")
       );
-      userEvent.clear(birthdayField);
-      userEvent.type(birthdayField, "01/01/1990");
+      await userEvent.clear(birthdayField);
+      await userEvent.type(birthdayField, "01/01/1990");
 
-      userEvent.type(
+      await userEvent.type(
         screen.getByTestId("edit-location-map"),
         "test city, test country"
       );
@@ -93,23 +93,23 @@ describe("AccountForm", () => {
       const hostingStatusItem = await screen.findByText(
         hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST]
       );
-      userEvent.selectOptions(
+      await userEvent.selectOptions(
         screen.getByLabelText(
           t("auth:account_form.hosting_status.field_label")
         ),
         hostingStatusItem
       );
 
-      userEvent.click(
+      await userEvent.click(
         screen.getByLabelText(t("auth:account_form.gender.woman"))
       );
-      userEvent.click(
+      await userEvent.click(
         screen.getByLabelText(t("auth:account_form.tos_accept_label"))
       );
     });
 
     it("submits correctly", async () => {
-      userEvent.click(
+      await userEvent.click(
         screen.getByRole("button", { name: t("global:sign_up") })
       );
 
@@ -134,9 +134,9 @@ describe("AccountForm", () => {
       const usernameField = screen.getByLabelText(
         t("auth:account_form.username.field_label")
       );
-      userEvent.clear(usernameField);
-      userEvent.type(usernameField, "TeSt");
-      userEvent.click(
+      await userEvent.clear(usernameField);
+      await userEvent.type(usernameField, "TeSt");
+      await userEvent.click(
         screen.getByRole("button", { name: t("global:sign_up") })
       );
 
@@ -161,8 +161,8 @@ describe("AccountForm", () => {
       const field = screen.getByLabelText(
         t("auth:account_form.username.field_label")
       );
-      userEvent.clear(field);
-      userEvent.click(
+      await userEvent.clear(field);
+      await userEvent.click(
         screen.getByRole("button", { name: t("global:sign_up") })
       );
 
@@ -171,8 +171,8 @@ describe("AccountForm", () => {
       ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
 
-      userEvent.type(field, "1user");
-      userEvent.click(
+      await userEvent.type(field, "1user");
+      await userEvent.click(
         screen.getByRole("button", { name: t("global:sign_up") })
       );
 
@@ -188,9 +188,9 @@ describe("AccountForm", () => {
       const field = screen.getByLabelText(
         t("auth:account_form.birthday.field_label")
       );
-      userEvent.clear(field);
-      userEvent.type(field, "01/01/2099");
-      userEvent.click(
+      await userEvent.clear(field);
+      await userEvent.type(field, "01/01/2099");
+      await userEvent.click(
         screen.getByRole("button", { name: t("global:sign_up") })
       );
 
@@ -204,8 +204,8 @@ describe("AccountForm", () => {
 
     it("fails on blank location", async () => {
       const field = screen.getByTestId("edit-location-map");
-      userEvent.clear(field);
-      userEvent.click(
+      await userEvent.clear(field);
+      await userEvent.click(
         screen.getByRole("button", { name: t("global:sign_up") })
       );
 
@@ -219,8 +219,8 @@ describe("AccountForm", () => {
       const field = screen.getByLabelText(
         t("auth:account_form.hosting_status.field_label")
       );
-      userEvent.selectOptions(field, "");
-      userEvent.click(
+      await userEvent.selectOptions(field, "");
+      await userEvent.click(
         screen.getByRole("button", { name: t("global:sign_up") })
       );
 
@@ -230,8 +230,8 @@ describe("AccountForm", () => {
 
     it("fails on blank gender status", async () => {
       const field = screen.getByLabelText(t("auth:account_form.gender.woman"));
-      userEvent.clear(field);
-      userEvent.click(
+      await userEvent.clear(field);
+      await userEvent.click(
         screen.getByRole("button", { name: t("global:sign_up") })
       );
 
@@ -245,7 +245,7 @@ describe("AccountForm", () => {
       const checkbox = screen.getByLabelText(
         t("auth:account_form.tos_accept_label")
       );
-      userEvent.click(checkbox);
+      await userEvent.click(checkbox);
       const button = screen.getByRole("button", { name: t("global:sign_up") });
 
       await waitFor(() => {
@@ -260,7 +260,7 @@ describe("AccountForm", () => {
         code: StatusCode.FAILED_PRECONDITION,
         message: "Generic error",
       });
-      userEvent.click(
+      await userEvent.click(
         screen.getByRole("button", { name: t("global:sign_up") })
       );
       await assertErrorAlert("Generic error");

@@ -101,7 +101,7 @@ describe("Community info page", () => {
       const editLink = screen.getByRole("link", { name: t("global:edit") });
       expect(editLink).toBeVisible();
 
-      userEvent.click(editLink);
+      await userEvent.click(editLink);
       expect(mockRouter.pathname).toBe(
         routeToEditCommunityPage(community.communityId, community.slug)
       );
@@ -129,7 +129,7 @@ describe("Community info page", () => {
       render(<CommunityInfoPage community={community} />, { wrapper });
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      userEvent.click(
+      await userEvent.click(
         screen.getByRole("button", {
           name: t("communities:see_all_moderators"),
         })
@@ -163,7 +163,7 @@ describe("Community info page", () => {
       render(<CommunityInfoPage community={community} />, { wrapper });
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      userEvent.click(
+      await userEvent.click(
         screen.getByRole("button", {
           name: t("communities:see_all_moderators"),
         })
@@ -179,7 +179,7 @@ describe("Community info page", () => {
         nextPageToken: "",
       });
 
-      userEvent.click(
+      await userEvent.click(
         screen.getByRole("button", {
           name: t("communities:load_more_moderators"),
         })
@@ -200,7 +200,7 @@ describe("Community info page", () => {
       expect(adminDialog.getByText(thirdAdmin.name)).toBeVisible();
 
       // Check it doesn't affect the underlying page
-      userEvent.click(document.querySelector(".MuiBackdrop-root")!);
+      await userEvent.click(document.querySelector(".MuiBackdrop-root")!);
       await waitForElementToBeRemoved(
         screen.getByRole("dialog", {
           name: t("communities:community_moderators"),
@@ -215,7 +215,7 @@ describe("Community info page", () => {
     });
 
     it("closes the dialog by clicking the backdrop", async () => {
-      userEvent.click(document.querySelector(".MuiBackdrop-root")!);
+      await userEvent.click(document.querySelector(".MuiBackdrop-root")!);
       await waitForElementToBeRemoved(
         screen.getByRole("dialog", {
           name: t("communities:community_moderators"),

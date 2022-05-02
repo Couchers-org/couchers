@@ -155,7 +155,9 @@ describe("Event form", () => {
   it("should hide the location field when the virtual event checkbox is ticked", async () => {
     renderForm();
 
-    userEvent.click(screen.getByLabelText(t("communities:virtual_event")));
+    await userEvent.click(
+      screen.getByLabelText(t("communities:virtual_event"))
+    );
 
     expect(screen.getByLabelText(t("communities:virtual_event"))).toBeChecked();
     expect(screen.getByLabelText(t("communities:event_link"))).toBeVisible();
@@ -167,7 +169,9 @@ describe("Event form", () => {
   it("should not submit if the title is missing", async () => {
     renderForm();
 
-    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:create") })
+    );
     await waitFor(() => {
       expect(serviceFn).not.toHaveBeenCalled();
     });
@@ -175,9 +179,14 @@ describe("Event form", () => {
 
   it("should not submit if location is missing for an offline event", async () => {
     renderForm();
-    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
+    await userEvent.type(
+      screen.getByLabelText(t("global:title")),
+      "Test event"
+    );
 
-    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:create") })
+    );
 
     expect(
       await screen.findByText(t("communities:location_required"))
@@ -187,9 +196,16 @@ describe("Event form", () => {
 
   it("should not submit if an event meeting link is missing for an online event", async () => {
     renderForm();
-    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
-    userEvent.click(screen.getByLabelText(t("communities:virtual_event")));
-    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
+    await userEvent.type(
+      screen.getByLabelText(t("global:title")),
+      "Test event"
+    );
+    await userEvent.click(
+      screen.getByLabelText(t("communities:virtual_event"))
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:create") })
+    );
 
     expect(
       await screen.findByText(t("communities:link_required"))
@@ -200,17 +216,24 @@ describe("Event form", () => {
   it("should submit the form successfully if all required fields are filled in", async () => {
     renderForm();
 
-    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
-    userEvent.click(screen.getByLabelText(t("communities:virtual_event")));
-    userEvent.type(
+    await userEvent.type(
+      screen.getByLabelText(t("global:title")),
+      "Test event"
+    );
+    await userEvent.click(
+      screen.getByLabelText(t("communities:virtual_event"))
+    );
+    await userEvent.type(
       screen.getByLabelText(t("communities:event_link")),
       "https://couchers.org/social"
     );
-    userEvent.type(
+    await userEvent.type(
       screen.getByLabelText(t("communities:event_details")),
       "sick social!"
     );
-    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:create") })
+    );
 
     await waitFor(() => {
       expect(serviceFn).toHaveBeenCalledTimes(1);
@@ -223,17 +246,24 @@ describe("Event form", () => {
     serviceFn.mockRejectedValue(new Error(errorMessage));
     renderForm();
 
-    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
-    userEvent.click(screen.getByLabelText(t("communities:virtual_event")));
-    userEvent.type(
+    await userEvent.type(
+      screen.getByLabelText(t("global:title")),
+      "Test event"
+    );
+    await userEvent.click(
+      screen.getByLabelText(t("communities:virtual_event"))
+    );
+    await userEvent.type(
       screen.getByLabelText(t("communities:event_link")),
       "https://couchers.org/social"
     );
-    userEvent.type(
+    await userEvent.type(
       screen.getByLabelText(t("communities:event_details")),
       "sick social!"
     );
-    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:create") })
+    );
 
     await waitFor(() => {
       expect(serviceFn).toHaveBeenCalledTimes(1);
@@ -244,23 +274,28 @@ describe("Event form", () => {
   it("should submit an offline event successfully", async () => {
     renderForm();
 
-    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
+    await userEvent.type(
+      screen.getByLabelText(t("global:title")),
+      "Test event"
+    );
     jest.useRealTimers();
-    userEvent.type(
+    await userEvent.type(
       screen.getByLabelText(t("communities:location")),
       "tes{enter}"
     );
-    userEvent.click(
+    await userEvent.click(
       await screen.findByText("test city, test county, test country")
     );
-    userEvent.type(
+    await userEvent.type(
       screen.getByLabelText(t("communities:event_details")),
       "sick social!"
     );
 
     jest.useFakeTimers("modern");
     jest.setSystemTime(new Date("2021-08-01 00:00"));
-    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:create") })
+    );
 
     await waitFor(
       () => {

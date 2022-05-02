@@ -97,14 +97,14 @@ describe.each`
   });
 
   it("uploads upon confirmation and submits key", async () => {
-    userEvent.upload(
+    await userEvent.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       MOCK_FILE
     );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
 
-    userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
+    await userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
 
     await waitFor(() => {
       expect(uploadFileMock).toHaveBeenCalledTimes(1);
@@ -118,7 +118,9 @@ describe.each`
       full_url: "full.jpg",
     });
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:submit") })
+    );
 
     await waitFor(() => {
       expect(submitForm).toHaveBeenCalledWith({ imageInput: MOCK_KEY });
@@ -134,14 +136,14 @@ describe.each`
       code: StatusCode.INVALID_ARGUMENT,
       message: "Invalid argument",
     });
-    userEvent.upload(
+    await userEvent.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       MOCK_FILE
     );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
 
-    userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
+    await userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
 
     await waitFor(() => {
       expect(uploadFileMock).toHaveBeenCalledTimes(1);
@@ -150,20 +152,22 @@ describe.each`
   });
 
   it("cancels when cancel button pressed and doesn't submit key", async () => {
-    userEvent.upload(
+    await userEvent.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       MOCK_FILE
     );
 
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
 
-    userEvent.click(screen.getByLabelText(CANCEL_UPLOAD));
+    await userEvent.click(screen.getByLabelText(CANCEL_UPLOAD));
 
     await waitFor(() => {
       expect(uploadFileMock).not.toHaveBeenCalled();
     });
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:submit") })
+    );
 
     await waitFor(() => {
       expect(submitForm).toHaveBeenCalledWith({ imageInput: "" });
@@ -185,12 +189,12 @@ describe.each`
     });
 
     //first upload and confirm
-    userEvent.upload(
+    await userEvent.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       OTHER_MOCK_FILE
     );
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
-    userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
+    await userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
 
     await waitFor(() => {
       expect(uploadFileMock).toHaveBeenCalled();
@@ -200,18 +204,20 @@ describe.each`
     ).toMatch(/thumb0.jpg/);
 
     //2nd upload and cancel
-    userEvent.upload(
+    await userEvent.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       MOCK_FILE
     );
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
-    userEvent.click(screen.getByLabelText(CANCEL_UPLOAD));
+    await userEvent.click(screen.getByLabelText(CANCEL_UPLOAD));
     expect(
       (await screen.findByAltText(getAvatarLabel(NAME))).getAttribute("src")
     ).toMatch(/thumb0.jpg/);
 
     //submit
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:submit") })
+    );
 
     await waitFor(() => {
       expect(submitForm).toHaveBeenCalledWith({ imageInput: "firstKey" });
@@ -219,14 +225,16 @@ describe.each`
   });
 
   it("doesn't submit without confirming/cancelling", async () => {
-    userEvent.upload(
+    await userEvent.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       MOCK_FILE
     );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:submit") })
+    );
 
     expect(await screen.findByText(UPLOAD_PENDING_ERROR)).toBeVisible();
     expect(submitForm).not.toHaveBeenCalled();
@@ -236,7 +244,7 @@ describe.each`
     jest.spyOn(FileReader.prototype, "readAsDataURL").mockImplementation(() => {
       FileReader.prototype.dispatchEvent(new Event("error"));
     });
-    userEvent.upload(
+    await userEvent.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       new File([new Blob(undefined)], "")
     );
@@ -248,12 +256,12 @@ describe.each`
   it("displays an error if the upload fails", async () => {
     uploadFileMock.mockRejectedValueOnce(new Error("Whoops"));
     jest.spyOn(console, "error").mockReturnValueOnce(undefined);
-    userEvent.upload(
+    await userEvent.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       new File([new Blob(undefined)], "")
     );
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
-    userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
+    await userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
 
     expect(await screen.findByText("Whoops")).toBeVisible();
   });
@@ -261,14 +269,14 @@ describe.each`
   //This doesn't work https://github.com/testing-library/user-event/issues/632
   //We reset by setting input.value = "" but this doesn't do anything for @testing-library
   it.skip("previews the image after cancelling and selecting the same image", async () => {
-    userEvent.upload(
+    await userEvent.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       MOCK_FILE
     );
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
-    userEvent.click(screen.getByLabelText(CANCEL_UPLOAD));
+    await userEvent.click(screen.getByLabelText(CANCEL_UPLOAD));
 
-    userEvent.upload(
+    await userEvent.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       MOCK_FILE
     );
@@ -324,13 +332,13 @@ describe("ImageInput http error tests", () => {
       })
     );
 
-    userEvent.upload(
+    await userEvent.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       MOCK_FILE
     );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
-    userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
+    await userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
 
     await assertErrorAlert(IMAGE_TOO_LARGE);
   });
@@ -342,13 +350,13 @@ describe("ImageInput http error tests", () => {
       })
     );
 
-    userEvent.upload(
+    await userEvent.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       MOCK_FILE
     );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
-    userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
+    await userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
 
     await assertErrorAlert(SERVER_ERROR);
   });
@@ -360,13 +368,13 @@ describe("ImageInput http error tests", () => {
       })
     );
 
-    userEvent.upload(
+    await userEvent.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
       MOCK_FILE
     );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
-    userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
+    await userEvent.click(screen.getByLabelText(CONFIRM_UPLOAD));
 
     await assertErrorAlert(INTERNAL_ERROR);
   });

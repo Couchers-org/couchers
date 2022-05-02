@@ -39,11 +39,11 @@ describe.skip("DatePicker", () => {
   it("should submit with proper date for clicking", async () => {
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
-    userEvent.click(
+    await userEvent.click(
       screen.getByLabelText(t("global:components.datepicker.change_date"))
     );
-    userEvent.click(screen.getByText("23"));
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await userEvent.click(screen.getByText("23"));
+    await userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(date?.format()).toEqual(dayjs("2021-03-23").format());
@@ -64,7 +64,7 @@ describe.skip("DatePicker", () => {
     const spy = jest.spyOn(global, "Date").mockImplementation(() => mockDate);
     let date: Dayjs | undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
-    userEvent.click(
+    await userEvent.click(
       await screen.findByRole("button", { name: t("global:submit") })
     );
 
@@ -92,12 +92,12 @@ describe.skip("DatePicker", () => {
       render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
-      userEvent.type(screen.getByRole("textbox"), "{backspace}");
+      await userEvent.type(screen.getByRole("textbox"), "{backspace}");
       expect(input.value).toBe(afterOneBackspace);
-      userEvent.clear(input);
-      userEvent.type(input, typing);
+      await userEvent.clear(input);
+      await userEvent.type(input, typing);
       expect(input.value).toBe(afterInput);
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+      await userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
       const expectedDate = "2021-03-21";
       await waitFor(() => {
         expect(date?.format().split("T")[0]).toEqual(expectedDate);

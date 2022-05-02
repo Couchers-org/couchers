@@ -119,7 +119,7 @@ describe("DiscussionsListPage", () => {
     it("creates a new discussion successfully and clears the form", async () => {
       render(<DiscussionsListPage community={community} />, { wrapper });
 
-      userEvent.click(
+      await userEvent.click(
         await screen.findByRole("button", {
           name: t("communities:new_post_label"),
         })
@@ -142,15 +142,15 @@ describe("DiscussionsListPage", () => {
         nextPageToken: "",
       });
 
-      userEvent.type(
+      await userEvent.type(
         screen.getByLabelText(t("communities:new_discussion_title")),
         "Hello world"
       );
-      userEvent.type(
+      await userEvent.type(
         screen.getByLabelText(t("communities:new_discussion_topic")),
         "I love the world!"
       );
-      userEvent.click(
+      await userEvent.click(
         screen.getByRole("button", { name: t("communities:post") })
       );
 
@@ -177,20 +177,20 @@ describe("DiscussionsListPage", () => {
       );
       render(<DiscussionsListPage community={community} />, { wrapper });
 
-      userEvent.click(
+      await userEvent.click(
         await screen.findByRole("button", {
           name: t("communities:new_post_label"),
         })
       );
-      userEvent.type(
+      await userEvent.type(
         screen.getByLabelText(t("communities:new_discussion_title")),
         "Hello world"
       );
-      userEvent.type(
+      await userEvent.type(
         screen.getByLabelText(t("communities:new_discussion_topic")),
         "I love the world!"
       );
-      userEvent.click(
+      await userEvent.click(
         screen.getByRole("button", { name: t("communities:post") })
       );
 
@@ -200,16 +200,18 @@ describe("DiscussionsListPage", () => {
     it("resets the form if the user presses cancel", async () => {
       render(<DiscussionsListPage community={community} />, { wrapper });
 
-      userEvent.click(
+      await userEvent.click(
         await screen.findByRole("button", {
           name: t("communities:new_post_label"),
         })
       );
-      userEvent.type(
+      await userEvent.type(
         screen.getByLabelText(t("communities:new_discussion_title")),
         "Hello world"
       );
-      userEvent.click(screen.getByRole("button", { name: t("global:cancel") }));
+      await userEvent.click(
+        screen.getByRole("button", { name: t("global:cancel") })
+      );
 
       expect(
         (

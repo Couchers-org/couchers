@@ -123,9 +123,9 @@ describe("References", () => {
   });
 
   describe("When a specific reference type is selected", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       renderReferences();
-      userEvent.click(
+      await userEvent.click(
         screen.getByRole("button", {
           name: REFERENCES_FILTER_A11Y_LABEL.trim(),
         })
@@ -140,7 +140,7 @@ describe("References", () => {
         nextPageToken: "",
         referencesList: [friendReference],
       });
-      userEvent.click(
+      await userEvent.click(
         screen.getByRole("option", {
           name: referencesFilterLabels[ReferenceType.REFERENCE_TYPE_FRIEND],
         })
@@ -173,7 +173,7 @@ describe("References", () => {
         nextPageToken: "",
         referencesList,
       });
-      userEvent.click(
+      await userEvent.click(
         screen.getByRole("option", {
           name: referencesFilterLabels[ReferenceType.REFERENCE_TYPE_SURFED],
         })
@@ -210,7 +210,7 @@ describe("References", () => {
         nextPageToken: "",
         referencesList: [],
       });
-      userEvent.click(
+      await userEvent.click(
         screen.getByRole("option", {
           name: referencesFilterLabels[ReferenceType.REFERENCE_TYPE_HOSTED],
         })
@@ -232,7 +232,7 @@ describe("References", () => {
         nextPageToken: "",
         referencesList: [givenReference],
       });
-      userEvent.click(
+      await userEvent.click(
         screen.getByRole("option", { name: referencesFilterLabels["given"] })
       );
 
@@ -262,7 +262,7 @@ describe("References", () => {
         });
       renderReferences();
 
-      userEvent.click(
+      await userEvent.click(
         await screen.findByRole("button", {
           name: SEE_MORE_REFERENCES,
         })
@@ -304,20 +304,20 @@ describe("References", () => {
             ],
           });
         renderReferences();
-        userEvent.click(
+        await userEvent.click(
           screen.getByRole("button", {
             name: REFERENCES_FILTER_A11Y_LABEL.trim(),
           })
         );
         // Ignore the API calls from the default "all references" we encounter on first render
         getReferencesReceivedMock.mockClear();
-        userEvent.click(
+        await userEvent.click(
           screen.getByRole("option", {
             name: referencesFilterLabels[ReferenceType.REFERENCE_TYPE_FRIEND],
           })
         );
 
-        userEvent.click(
+        await userEvent.click(
           await screen.findByRole("button", { name: SEE_MORE_REFERENCES })
         );
         await waitForElementToBeRemoved(screen.getByRole("progressbar"));
@@ -356,12 +356,12 @@ describe("References", () => {
       expect(errorAlert).toHaveTextContent("Error loading references");
 
       // Error remains there when switching to a category that has an API error
-      userEvent.click(
+      await userEvent.click(
         screen.getByRole("button", {
           name: REFERENCES_FILTER_A11Y_LABEL.trim(),
         })
       );
-      userEvent.click(screen.getByRole("option", { name: "From hosts" }));
+      await userEvent.click(screen.getByRole("option", { name: "From hosts" }));
       expect(await screen.findByRole("alert")).toHaveTextContent(
         "Error loading references"
       );
@@ -376,7 +376,7 @@ describe("References", () => {
         });
       renderReferences();
 
-      userEvent.click(
+      await userEvent.click(
         await screen.findByRole("button", {
           name: SEE_MORE_REFERENCES,
         })

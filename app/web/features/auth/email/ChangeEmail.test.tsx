@@ -65,11 +65,13 @@ describe("ChangeEmail", () => {
     });
 
     it("does not try to submit the form if the user didn't provide their old password", async () => {
-      userEvent.type(
+      await userEvent.type(
         await screen.findByLabelText(t("auth:change_email_form.new_email")),
         "test@example.com"
       );
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+      await userEvent.click(
+        screen.getByRole("button", { name: t("global:submit") })
+      );
 
       await waitFor(() => {
         expect(changeEmailMock).not.toHaveBeenCalled();
@@ -77,13 +79,15 @@ describe("ChangeEmail", () => {
     });
 
     it("does not try to submit the form if the user didn't provide a new email", async () => {
-      userEvent.type(
+      await userEvent.type(
         await screen.findByLabelText(
           t("auth:change_email_form.current_password")
         ),
         "password"
       );
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+      await userEvent.click(
+        screen.getByRole("button", { name: t("global:submit") })
+      );
 
       await waitFor(() => {
         expect(changeEmailMock).not.toHaveBeenCalled();
@@ -91,17 +95,19 @@ describe("ChangeEmail", () => {
     });
 
     it("changes the user's email successfully if all required fields have been filled in", async () => {
-      userEvent.type(
+      await userEvent.type(
         await screen.findByLabelText(
           t("auth:change_email_form.current_password")
         ),
         "password"
       );
-      userEvent.type(
+      await userEvent.type(
         screen.getByLabelText(t("auth:change_email_form.new_email")),
         "test@example.com"
       );
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+      await userEvent.click(
+        screen.getByRole("button", { name: t("global:submit") })
+      );
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
@@ -140,11 +146,13 @@ describe("ChangeEmail", () => {
     });
 
     it("changes the user's email successfully if the user has provided a new email", async () => {
-      userEvent.type(
+      await userEvent.type(
         await screen.findByLabelText(t("auth:change_email_form.new_email")),
         "test@example.com"
       );
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+      await userEvent.click(
+        screen.getByRole("button", { name: t("global:submit") })
+      );
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
@@ -164,11 +172,13 @@ describe("ChangeEmail", () => {
     });
 
     it("changes the user's email successfully if the user has provided an email with non-lowercase characters", async () => {
-      userEvent.type(
+      await userEvent.type(
         await screen.findByLabelText(t("auth:change_email_form.new_email")),
         "tesT@eXaMple.cOm"
       );
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+      await userEvent.click(
+        screen.getByRole("button", { name: t("global:submit") })
+      );
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
@@ -193,11 +203,13 @@ describe("ChangeEmail", () => {
     changeEmailMock.mockRejectedValue(new Error("Invalid email"));
     await render(<ChangeEmail {...accountWithLink} />, { wrapper });
 
-    userEvent.type(
+    await userEvent.type(
       await screen.findByLabelText(t("auth:change_email_form.new_email")),
       "test@example.com"
     );
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:submit") })
+    );
 
     const errorAlert = await screen.findByRole("alert");
     expect(errorAlert).toBeVisible();

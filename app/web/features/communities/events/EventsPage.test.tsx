@@ -62,7 +62,9 @@ describe("Events page", () => {
   it('switches to the "Past" tab when clicked', async () => {
     render(<EventsPage />, { wrapper });
 
-    userEvent.click(screen.getByRole("tab", { name: t("communities:past") }));
+    await userEvent.click(
+      screen.getByRole("tab", { name: t("communities:past") })
+    );
 
     expect(
       await screen.findByRole("heading", { name: t("communities:past") })
@@ -74,7 +76,7 @@ describe("Events page", () => {
   )}" button is clicked`, async () => {
     render(<EventsPage />, { wrapper });
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole("button", { name: t("communities:create_an_event") })
     );
 
@@ -114,7 +116,7 @@ describe("Events page", () => {
       const seeMoreEventsButton = screen.getByRole("button", {
         name: t("communities:see_more_events_label"),
       });
-      userEvent.click(seeMoreEventsButton);
+      await userEvent.click(seeMoreEventsButton);
       await waitForElementToBeRemoved(
         within(seeMoreEventsButton).getByRole("progressbar")
       );

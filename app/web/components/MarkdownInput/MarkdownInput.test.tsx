@@ -53,18 +53,21 @@ describe("MarkdownInput", () => {
     const onSubmit = jest.fn();
 
     render(<Form submit={onSubmit} />, { wrapper });
-    userEvent.click(screen.getByRole("button", { name: INSERT_IMAGE }));
+    await userEvent.click(screen.getByRole("button", { name: INSERT_IMAGE }));
     const dialog = await screen.findByRole("dialog");
-    userEvent.upload(within(dialog).getByLabelText(SELECT_AN_IMAGE), mockFile);
-    userEvent.type(
+    await userEvent.upload(
+      within(dialog).getByLabelText(SELECT_AN_IMAGE),
+      mockFile
+    );
+    await userEvent.type(
       within(dialog).getByLabelText(IMAGE_DESCRIPTION),
       "description"
     );
-    userEvent.click(
+    await userEvent.click(
       await within(dialog).findByRole("button", { name: CONFIRM_UPLOAD })
     );
     await waitForElementToBeRemoved(dialog);
-    userEvent.click(screen.getByRole("button", { name: "Submit" }));
+    await userEvent.click(screen.getByRole("button", { name: "Submit" }));
     await waitFor(() =>
       expect(onSubmit).toBeCalledWith("![description](full.jpg)")
     );

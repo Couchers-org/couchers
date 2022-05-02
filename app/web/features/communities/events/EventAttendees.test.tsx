@@ -57,7 +57,7 @@ describe("Event attendees", () => {
     it("should show dialog for seeing all attendees when the 'See all' button is clicked", async () => {
       render(<EventAttendees eventId={1} />, { wrapper });
 
-      userEvent.click(
+      await userEvent.click(
         await screen.findByRole("button", { name: t("communities:see_all") })
       );
       expect(
@@ -69,14 +69,14 @@ describe("Event attendees", () => {
 
     it("should load the next page of attendees when the 'Load more attendees' button is clicked", async () => {
       render(<EventAttendees eventId={1} />, { wrapper });
-      userEvent.click(
+      await userEvent.click(
         await screen.findByRole("button", { name: t("communities:see_all") })
       );
       const dialog = within(
         await screen.findByRole("dialog", { name: t("communities:attendees") })
       );
 
-      userEvent.click(
+      await userEvent.click(
         dialog.getByRole("button", {
           name: t("communities:load_more_attendees"),
         })
@@ -104,14 +104,14 @@ describe("Event attendees", () => {
         };
       });
       render(<EventAttendees eventId={1} />, { wrapper });
-      userEvent.click(
+      await userEvent.click(
         await screen.findByRole("button", { name: t("communities:see_all") })
       );
       const dialog = within(
         await screen.findByRole("dialog", { name: t("communities:attendees") })
       );
 
-      userEvent.click(
+      await userEvent.click(
         dialog.getByRole("button", {
           name: t("communities:load_more_attendees"),
         })
@@ -129,7 +129,7 @@ describe("Event attendees", () => {
       const errorMessage = "Error listing attendees";
       listEventAttendeesMock.mockRejectedValue(new Error(errorMessage));
 
-      userEvent.click(
+      await userEvent.click(
         await screen.findByRole("button", { name: t("communities:see_all") })
       );
 
@@ -139,12 +139,12 @@ describe("Event attendees", () => {
 
     it("closes the dialog when the backdrop is clicked", async () => {
       render(<EventAttendees eventId={1} />, { wrapper });
-      userEvent.click(
+      await userEvent.click(
         await screen.findByRole("button", { name: t("communities:see_all") })
       );
       await screen.findByRole("dialog", { name: t("communities:attendees") });
 
-      userEvent.click(document.querySelector(".MuiBackdrop-root")!);
+      await userEvent.click(document.querySelector(".MuiBackdrop-root")!);
       await waitForElementToBeRemoved(
         screen.getByRole("dialog", { name: t("communities:attendees") })
       );

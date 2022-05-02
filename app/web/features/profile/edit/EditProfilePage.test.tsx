@@ -51,7 +51,9 @@ describe("Edit profile", () => {
     renderPage();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(screen.getByRole("button", { name: t("global:save") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:save") })
+    );
 
     await waitFor(() =>
       expect(mockRouter.pathname).toBe(routeToProfile("about"))
@@ -69,7 +71,9 @@ describe("Edit profile", () => {
     renderPage();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(screen.getByRole("button", { name: t("global:save") }));
+    await userEvent.click(
+      screen.getByRole("button", { name: t("global:save") })
+    );
     await waitFor(() =>
       expect(mockRouter.pathname).toBe(routeToProfile("about"))
     );

@@ -17,7 +17,9 @@ it.skip("should try to log the error to Sentry if one is thrown when the button 
     { wrapper }
   );
 
-  userEvent.click(await screen.findByRole("button", { name: "Test button" }));
+  await userEvent.click(
+    await screen.findByRole("button", { name: "Test button" })
+  );
 
   await waitFor(() => {
     expect(testKit.reports()).toHaveLength(1);

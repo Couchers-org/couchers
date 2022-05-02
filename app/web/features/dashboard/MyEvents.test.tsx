@@ -84,7 +84,7 @@ describe("My events", () => {
       const seeMoreEventsButton = screen.getByRole("button", {
         name: t("communities:see_more_events_label"),
       });
-      userEvent.click(seeMoreEventsButton);
+      await userEvent.click(seeMoreEventsButton);
       await waitForElementToBeRemoved(
         within(seeMoreEventsButton).getByRole("progressbar")
       );
