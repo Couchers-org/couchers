@@ -74,7 +74,7 @@ export default function Team() {
         >
           {TeamData.map(
             ({ name, director, board_position, role, location, img, link }) => (
-              <Grid key={name} item xs={12} md={!!director ? 4 : 4}>
+              <Grid key={name} item xs={12} md={4}>
                 <Card
                   elevation={director ? 3 : 1}
                   className={classes.cardWrapper}

@@ -58,7 +58,7 @@
   },
   {
     "name": "Lucas Levin",
-    "role": "Web Development Lead",
+    "role": "Frontend (Web) Development Lead",
     "location": "Melbourne, Australia",
     "img": "/img/team/head-lucas.jpg"
   },
@@ -76,7 +76,7 @@
   },
   {
     "name": "Darren Vong",
-    "role": "Web Developer",
+    "role": "Frontend Developer",
     "location": "London, United Kingdom",
     "img": "/img/team/head-darren.jpg"
   },
@@ -110,7 +110,7 @@
   },
   {
     "name": "Guillermo de la Puente",
-    "role": "Web Developer",
+    "role": "Frontend Developer",
     "location": "Traveling, Earth",
     "img": "/img/team/head-guillermo.jpg",
     "link": {
@@ -194,13 +194,13 @@
   },
   {
     "name": "Inés",
-    "role": "Web Developer",
+    "role": "Frontend Developer",
     "location": "Amsterdam, Netherlands",
     "img": "/img/team/head-javi.jpg"
   },
   {
     "name": "Jesús Olano",
-    "role": "Web Developer",
+    "role": "Frontend Developer",
     "location": "Ourense",
     "img": "/img/team/head-jesus.jpg",
     "link": {
@@ -223,7 +223,7 @@
   },
   {
     "name": "Thomas Dekiere",
-    "role": "Web Developer",
+    "role": "Frontend Developer",
     "location": "Ghent, Belgium",
     "img": "/img/team/head-thomas.jpg"
   },
@@ -246,7 +246,7 @@
   },
   {
     "name": "Krzysztof Kosecki",
-    "role": "Web Developer",
+    "role": "Frontend Developer",
     "location": "Kraków, Poland",
     "img": "/img/team/head-krzysztof.jpg",
     "link": {
@@ -280,7 +280,7 @@
   },
   {
     "name": "Sherri Cui",
-    "role": "Web Developer",
+    "role": "Frontend Developer",
     "location": "Ancona, Italy",
     "img": "/img/team/head-sherri.jpg"
   },
@@ -303,7 +303,7 @@
   },
   {
     "name": "Vincent Rouilhac",
-    "role": "Web Developer",
+    "role": "Frontend Developer",
     "location": "Normandy, France",
     "img": "/img/team/head-vincent.jpg",
     "link": {
@@ -354,7 +354,7 @@
   },
   {
     "name": "Marco de Wit",
-    "role": "Web Developer",
+    "role": "Frontend Developer",
     "location": "London, United Kingdom",
     "img": "/img/team/head-marco.jpg"
   }
