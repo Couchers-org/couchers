@@ -12,8 +12,8 @@ Couchers.org is built by a global team of skilled volunteers — like you — in
 
 To get started, do the following tasks:
 
-1. Get set up on your new google @couchers.org account
-    - make sure you can sign in and view the shared google drive folders
+1. Get set up on your new Google @couchers.org account
+    - make sure you can sign in and view the shared Google drive folders
     - (optional) [forward your emails](https://support.google.com/mail/answer/10957?hl=en#zippy=) to your regular email account. This way you can get all emails and event invitations sent to your regular email address
 2. Get set up on Slack
     - [download the app](https://slack.com/downloads) on your desktop and/or phone
@@ -37,9 +37,9 @@ Our belief is that through good design and curation of the community, we can mak
 
 We work in countless time zones, spread all around the world. In order to be productive, it’s best that we follow asynchronous work practices. Try to avoid organizing meetings when things can be communicated by email or slack. The purpose of having a meeting should be for team and relationship building, and live brainstorming when necessary. Your team leader will outline the way your specific team works asynchronously.
 
-Always refer to our [Code of Conduct](/volunteer-documents/code-of-conduct) to make sure everyone is being treated fairly and with respect.
+Always refer to our [Code of Conduct](/documents/code-of-conduct) to make sure everyone is being treated fairly and with respect.
 
-For an understanding of our governance and decision making structure, please refer to our [Governance and Leadership Structure](/volunteer-documents/governance).
+For an understanding of our governance and decision making structure, please refer to our [Governance and Leadership Structure](/documents/governance).
 
 ### Our Culture
 We attract people who love couch surfing, and love working on projects. We strive to make sure that everyone has fun while contributing, and feels rewarded watching Couchers.org grow.
