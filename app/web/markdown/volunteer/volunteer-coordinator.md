@@ -4,7 +4,7 @@ crumb: Volunteer Coordinator
 description: "Apply to become a Volunteer Coordinator for Couchers.org"
 ---
 
-## [Apply Here](/contributors/form)
+## [Apply Here](/volunteer/form)
 
 ## Position Description
 
@@ -51,7 +51,7 @@ This is a job-sharing/collaborative volunteer position. The group will be workin
 
 ### Apply
 
-1. [Fill out this form](/contributors/form). Under "Position Applying For", put "Volunteer Coordinator".
+1. [Fill out this form](/volunteer/form). Under "Position Applying For", put "Volunteer Coordinator".
 
 2. We'll review and get back to you as soon as possible — setting up a Zoom call so we can get to know you and you can meet the team.
 
