@@ -43,13 +43,28 @@ module.exports = {
       permanent: false,
     },
     {
-      source: "/contributors/guide.pdf",
-      destination: "https://couchers.org/volunteer-documents/guide/",
+      source: "https://couchers.org/contributors",
+      destination: "https://couchers.org/documents/",
       permanent: false,
     },
     {
-      source: "/volunteer-documents/guide.pdf",
-      destination: "https://couchers.org/volunteer-documents/guide/",
+      source: "/contributors/guide.pdf",
+      destination: "https://couchers.org/documents/guide/",
+      permanent: false,
+    },
+    {
+      source: "https://couchers.org/contributors/community-builder",
+      destination: "https://couchers.org/documents/community-builder/",
+      permanent: false,
+    },
+    {
+      source: "https://couchers.org/contributors/guide",
+      destination: "https://couchers.org/documents/guide/",
+      permanent: false,
+    },
+    {
+      source: "https://couchers.org/contributors/new-developer",
+      destination: "https://couchers.org/documents/new-developer/",
       permanent: false,
     },
     {
