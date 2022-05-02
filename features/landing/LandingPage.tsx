@@ -6,8 +6,6 @@ import {
   IconButton,
   Paper,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from "@material-ui/core";
 import classNames from "classnames";
 import Button from "components/Button";
@@ -45,10 +43,6 @@ const useStyles = makeStyles((theme) => ({
   },
   topSection: {
     padding: theme.spacing(3),
-  },
-  card: {
-    margin: theme.spacing(0, -4),
-    padding: theme.spacing(4),
   },
   header: {
     fontSize: "2rem",
@@ -99,8 +93,6 @@ export default function LandingPage() {
 
   const authClasses = useAuthStyles();
   const classes = useStyles();
-  const theme = useTheme();
-  const isBelowMd = useMediaQuery(theme.breakpoints.down("md"));
 
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
