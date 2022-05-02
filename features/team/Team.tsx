@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
-import { GlobeIcon, LinkedInIcon, PinIcon } from "components/Icons";
+import { EmailIcon, GlobeIcon, LinkedInIcon, PinIcon } from "components/Icons";
 import IconText from "components/IconText";
 import PageTitle from "components/PageTitle";
 import StyledLink from "components/StyledLink";
@@ -102,7 +102,8 @@ export default function Team() {
                       {link && (
                         <IconText
                           icon={
-                            link.type === "linkedin" ? LinkedInIcon : GlobeIcon
+                            link.type === "linkedin" ? LinkedInIcon : 
+                              (link.type === "email" ? EmailIcon : GlobeIcon)
                           }
                           text={
                             <Typography>

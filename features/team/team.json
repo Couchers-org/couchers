@@ -63,6 +63,46 @@
     "img": "/img/team/head-lucas.jpg"
   },
   {
+    "name": "Mariana Baroni",
+    "role": "Translations Lead",
+    "location": "Japan",
+    "img": "/img/team/head-mariana.jpg"
+  },
+  {
+    "name": "Hamish Fagg",
+    "role": "Backend Developer",
+    "location": "Hastings, New Zealand",
+    "img": "/img/team/head-hamish.jpg"
+  },
+  {
+    "name": "Darren Vong",
+    "role": "Web Developer",
+    "location": "London, United Kingdom",
+    "img": "/img/team/head-darren.jpg"
+  },
+  {
+    "name": "Ben Weiner",
+    "role": "Email Marketer",
+    "location": "Shenzhen, China",
+    "img": "/img/team/head-ben.jpg",
+    "link": {
+      "type": "email",
+      "text": "bw388@nyu.edu",
+      "url": "mailto:bw388@nyu.edu"
+    }
+  },
+  {
+    "name": "Yi Chen",
+    "role": "Digital Marketer",
+    "location": "Luxembourg, Luxembourg",
+    "img": "/img/team/head-yi.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "yi-chen-195482137",
+      "url": "https://www.linkedin.com/in/yi-chen-195482137/"
+    }
+  },
+  {
     "name": "Emily Damgali",
     "role": "Community Engagement",
     "location": "Istanbul, Turkey",
@@ -80,20 +120,14 @@
     }
   },
   {
-    "name": "Darren Vong",
-    "role": "Web Developer",
-    "location": "London, United Kingdom",
-    "img": "/img/team/head-darren.jpg"
-  },
-  {
-    "name": "Yi Chen",
-    "role": "Digital Marketer",
-    "location": "Luxembourg, Luxembourg",
-    "img": "/img/team/head-yi.jpg",
+    "name": "Nolo Sabes",
+    "role": "Community Forum Designer",
+    "location": "Las Palmas, Spain",
+    "img": "/img/team/head-nolo.jpg",
     "link": {
-      "type": "linkedin",
-      "text": "yi-chen-195482137",
-      "url": "https://www.linkedin.com/in/yi-chen-195482137/"
+      "type": "website",
+      "text": "nolosabes.com",
+      "url": "https://nolosabes.com"
     }
   },
   {
@@ -108,15 +142,21 @@
     }
   },
   {
-    "name": "Nolo Sabes",
-    "role": "Community Forum Designer",
-    "location": "Las Palmas, Spain",
-    "img": "/img/team/head-nolo.jpg",
+    "name": "Inbar Atias",
+    "role": "UX Designer",
+    "location": "Israel",
+    "img": "/img/team/head-inbar.jpg",
     "link": {
-      "type": "website",
-      "text": "nolosabes.com",
-      "url": "https://nolosabes.com"
+      "type": "linkedin",
+      "text": "inbar-atias",
+      "url": "https://www.linkedin.com/in/inbar-atias/"
     }
+  },
+  {
+    "name": "Sam Treiger",
+    "role": "Backend Developer",
+    "location": "Seattle, USA",
+    "img": "/img/team/head-sam.jpg"
   },
   {
     "name": "Marta Zaczek",
@@ -145,12 +185,6 @@
     "role": "UX & Graphic designer",
     "location": "Amsterdam, Netherlands",
     "img": "/img/team/head-miuriel.jpg"
-  },
-  {
-    "name": "Sam Treiger",
-    "role": "Backend Developer",
-    "location": "Seattle, USA",
-    "img": "/img/team/head-sam.jpg"
   },
   {
     "name": "Paulo Carlos",
