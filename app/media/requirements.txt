@@ -6,7 +6,7 @@
 #
 attrs==21.4.0
     # via pytest
-backoff==1.11.1
+backoff==2.0.1
     # via -r requirements.in
 certifi==2021.10.8
     # via sentry-sdk
