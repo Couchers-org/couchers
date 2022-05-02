@@ -1,7 +1,7 @@
 module.exports = {
   redirects: [
     {
-      source: "/contributors/form",
+      source: "/volunteer/form",
       destination:
         "https://forms.monday.com/forms/f87fe22951e9328f4ee1578d339cb927?r=use1",
       permanent: false,
@@ -44,12 +44,12 @@ module.exports = {
     },
     {
       source: "/contributors/guide.pdf",
-      destination: "https://couchers.org/contributors/guide/",
+      destination: "https://couchers.org/volunteer-documents/guide/",
       permanent: false,
     },
     {
-      source: "/contributors/caa.pdf",
-      destination: "https://couchers.org/contributors/caa/",
+      source: "/volunteer-documents/guide.pdf",
+      destination: "https://couchers.org/volunteer-documents/guide/",
       permanent: false,
     },
     {

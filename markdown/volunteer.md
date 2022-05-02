@@ -35,27 +35,13 @@ We value being highly collaborative to learn together, honest and transparent, k
 
 ### General Application
 
-Want to help but don't see anything listed for you? [Fill out this form](/contributors/form)
+Want to help but don't see anything listed for you? [Fill out this form](/volunteer/form)
 
 ### Core Team
 
 #### Operations
 
-- [Volunteer Coordinator](/volunteer/volunteer_coordinator)
-
-- [Finance Lead]()
-
-#### Software Development
-
-- [Mobile Lead]()
-
-- [Backend Developer — Django]()
-
-- [Web Developer — TypeScript/React]()
-
-#### Marketing
-
-- [Blog Writer]()
+- [Volunteer Coordinator](/volunteer/volunteer-coordinator)
 
 ### Community Building
 
