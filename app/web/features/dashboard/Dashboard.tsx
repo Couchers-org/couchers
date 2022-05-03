@@ -1,5 +1,4 @@
 import {
-  Container,
   Grid,
   Link as MuiLink,
   makeStyles,
@@ -33,45 +32,39 @@ export default function Dashboard() {
   const classes = useStyles();
 
   return (
-    <Container maxWidth="md">
-      <Grid container direction="row">
-        <Grid item sm={4} xs={12} className={classes.profileOverviewContainer}>
-          <DashboardUserProfileSummary />
-        </Grid>
-
-        <Grid item sm={8} xs={12} className={classes.mainContentContainer}>
-          <HtmlMeta title={t("global:nav.dashboard")} />
-
-          <PageTitle>{t("dashboard:welcome")}</PageTitle>
-          <Typography variant="body1" paragraph>
-            <Trans i18nKey="dashboard:landing_text">
-              {`We are building new `}
-              <MuiLink
-                href={blogRoute}
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                features
-              </MuiLink>
-              {` like events, local guides, moderation and hangouts. We appreciate your patience and support as we develop these.`}
-            </Trans>
-          </Typography>
-
-          <Typography variant="h1" component="h2" paragraph>
-            {t("dashboard:dashboard")}
-          </Typography>
-
-          <DashboardBanners />
-
-          <Divider spacing={3} />
-
-          <MyEvents />
-
-          <Divider spacing={3} />
-
-          <CommunitiesSection />
-        </Grid>
+    <Grid container direction="row">
+      <Grid item sm={4} xs={12} className={classes.profileOverviewContainer}>
+        <DashboardUserProfileSummary />
       </Grid>
-    </Container>
+
+      <Grid item sm={8} xs={12} className={classes.mainContentContainer}>
+        <HtmlMeta title={t("global:nav.dashboard")} />
+
+        <PageTitle>{t("dashboard:welcome")}</PageTitle>
+        <Typography variant="body1" paragraph>
+          <Trans i18nKey="dashboard:landing_text">
+            {`We are building new `}
+            <MuiLink href={blogRoute} target="_blank" rel="noreferrer noopener">
+              features
+            </MuiLink>
+            {` like events, local guides, moderation and hangouts. We appreciate your patience and support as we develop these.`}
+          </Trans>
+        </Typography>
+
+        <Typography variant="h1" component="h2" paragraph>
+          {t("dashboard:dashboard")}
+        </Typography>
+
+        <DashboardBanners />
+
+        <Divider spacing={3} />
+
+        <MyEvents />
+
+        <Divider spacing={3} />
+
+        <CommunitiesSection />
+      </Grid>
+    </Grid>
   );
 }
