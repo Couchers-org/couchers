@@ -91,9 +91,11 @@ describe("My events", () => {
 
       expect(screen.getAllByRole("link")).toHaveLength(3);
       expect(listMyEventsMock).toHaveBeenCalledTimes(2);
+
+      const eventCardPerRow = 2;
       expect(listMyEventsMock.mock.calls).toEqual([
-        [{ pageSize: expect.any(Number) }],
-        [{ pageToken: "2", pageSize: expect.any(Number) }],
+        [{ pageSize: eventCardPerRow }],
+        [{ pageToken: "2", pageSize: eventCardPerRow }],
       ]);
     });
   });
@@ -133,9 +135,11 @@ describe("My events", () => {
         expect(screen.getAllByRole("link")).toHaveLength(3);
       });
       expect(listMyEventsMock).toHaveBeenCalledTimes(2);
+
+      const eventCardPerRow = 2;
       expect(listMyEventsMock.mock.calls).toEqual([
-        [{ pageSize: expect.any(Number) }],
-        [{ pageToken: "2", pageSize: expect.any(Number) }],
+        [{ pageSize: eventCardPerRow }],
+        [{ pageToken: "2", pageSize: eventCardPerRow }],
       ]);
     });
   });
