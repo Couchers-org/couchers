@@ -61,6 +61,11 @@ const useStyles = makeStyles((theme) => ({
       marginLeft: theme.spacing(0.5),
     },
   },
+
+  avatarContainer: {
+    maxWidth: "75%",
+    margin: "0 auto",
+  },
 }));
 
 // @todo: move this into /components and decouple it from features/profile because it's used
@@ -77,9 +82,9 @@ export default function UserOverview({
 
   return (
     <Card className={classes.card}>
-      <Box maxWidth="75%" mx="auto">
+      <div className={classes.avatarContainer}>
         <Avatar user={user} grow />
-      </Box>
+      </div>
 
       <div className={classes.wrapper}>
         <Typography variant="h1" className={classes.intro} align="center">
