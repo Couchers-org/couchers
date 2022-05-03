@@ -96,6 +96,7 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
 
   return (
     <UserOverview
+      showHostAndMeetAvailability
       actions={
         user.userId === currentUserId ? (
           <LoggedInUserActions tab={tab} />

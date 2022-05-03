@@ -1,4 +1,4 @@
-import { Box, Card, CardActions, Typography } from "@material-ui/core";
+import { Card, CardActions, Typography } from "@material-ui/core";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
@@ -70,15 +70,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type UserOverviewProps = {
+  showHostAndMeetAvailability: boolean;
   actions?: React.ReactNode;
-  showHostAndMeetAvailability?: boolean;
 };
 
 // @todo: move this into /components and decouple it from features/profile because it's used
 //        from the dashboard as well
 export default function UserOverview({
+  showHostAndMeetAvailability,
   actions,
-  showHostAndMeetAvailability = true,
 }: UserOverviewProps) {
   const classes = useStyles();
   const user = useProfileUser();
