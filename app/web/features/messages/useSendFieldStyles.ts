@@ -26,6 +26,8 @@ const useSendFieldStyles = makeStyles((theme) => ({
     transform: "none",
   },
   textField: {
+    // so you can still see what you are typing when soft keyboard is up on
+    // devices with not much vertical space, which causes overlap with footer
     background: theme.palette.common.white,
   },
 }));
