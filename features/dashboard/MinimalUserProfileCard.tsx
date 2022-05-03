@@ -1,10 +1,29 @@
-import { Box, Card, Link as MuiLink, Typography } from "@material-ui/core";
+import { Card, Link as MuiLink, Typography } from "@material-ui/core";
 import Avatar from "components/Avatar";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import { User } from "proto/api_pb";
 import { routeToProfile } from "routes";
+import makeStyles from "utils/makeStyles";
+
+const useStyles = makeStyles((theme) => ({
+  container: {
+    display: "flex",
+    flexDirection: "row",
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
+  textFieldsContainer: {
+    display: "flex",
+    justifyContent: "flex-end",
+    flexGrow: 1,
+    paddingLeft: theme.spacing(2),
+    overflow: "hidden",
+  },
+}));
 
 export default function MinimalUserProfileCard({
   user,
@@ -12,30 +31,23 @@ export default function MinimalUserProfileCard({
   user: User.AsObject;
 }) {
   const { t } = useTranslation([DASHBOARD]);
+  const classes = useStyles();
   return (
-    <Card>
-      <Box display="flex" flexDirection="row" py={1} px={2}>
-        <Avatar user={user} />
+    <Card className={classes.container}>
+      <Avatar user={user} />
 
-        <Box
-          paddingLeft={2}
-          overflow="hidden"
-          flexGrow={1}
-          display="flex"
-          justifyContent="flex-end"
-        >
-          <Box>
-            <Typography noWrap align="right">
-              {user.city}
-            </Typography>
-            <Typography noWrap align="right">
-              <Link href={routeToProfile()} passHref>
-                <MuiLink>{t("dashboard:profile_mobile_summary_view")}</MuiLink>
-              </Link>
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
+      <div className={classes.textFieldsContainer}>
+        <div>
+          <Typography noWrap align="right">
+            {user.city}
+          </Typography>
+          <Typography noWrap align="right">
+            <Link href={routeToProfile()} passHref>
+              <MuiLink>{t("dashboard:profile_mobile_summary_view")}</MuiLink>
+            </Link>
+          </Typography>
+        </div>
+      </div>
     </Card>
   );
 }
