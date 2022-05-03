@@ -61,7 +61,7 @@ export default function DashboardUserProfileSummary() {
         ) : (
           <MinimalUserProfileCard user={user} />
         )
-      ) : undefined}
+      ) : null}
     </>
   );
 }
