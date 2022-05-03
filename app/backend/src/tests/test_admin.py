@@ -248,3 +248,13 @@ def test_CreateCommunity(db):
             community = session.execute(select(Cluster).where(Cluster.name == "test community")).scalar_one()
             assert community.description == "community for testing"
             assert community.slug == "test-community"
+
+
+def test_GetChats(db):
+    with session_scope() as session:
+        super_user, super_token = generate_user(is_superuser=True)
+        normal_user, normal_token = generate_user()
+
+        with real_admin_session(super_token) as api:
+            res = api.GetChats(admin_pb2.GetChatsReq(user=normal_user.username))
+        assert res.response

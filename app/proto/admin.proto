@@ -26,6 +26,8 @@ service Admin {
   }
 
   rpc CreateCommunity(CreateCommunityReq) returns (org.couchers.api.communities.Community) {}
+
+  rpc GetChats(GetChatsReq) returns (GetChatsRes) {}
 }
 
 message UserDetails {
@@ -84,4 +86,13 @@ message CreateCommunityReq {
   int64 parent_node_id = 4;
   repeated int64 admin_ids = 5;
   string geojson = 6;
+}
+
+message GetChatsReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message GetChatsRes {
+  string response = 2;
 }
