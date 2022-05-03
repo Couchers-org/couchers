@@ -45,6 +45,11 @@ const useStyles = makeStyles((theme) => ({
   allUpcomingEventsLink: {
     justifySelf: "center",
   },
+  loaderContainer: {
+    display: "flex",
+    justifyContent: "center",
+    width: "100%",
+  },
 }));
 
 const PAGE_SIZE = 2;
@@ -71,9 +76,9 @@ export default function MyEvents() {
       <Typography variant="h2">{t("dashboard:upcoming_events")}</Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
-        <Box display="flex" justifyContent="center" width="100%">
+        <div className={classes.loaderContainer}>
           <CircularProgress />
-        </Box>
+        </div>
       ) : hasAtLeastOnePage(data, "eventsList") ? (
         <>
           <HorizontalScroller
