@@ -1,5 +1,4 @@
 import {
-  Box,
   CircularProgress,
   Typography,
   useMediaQuery,

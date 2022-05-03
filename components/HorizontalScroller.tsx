@@ -1,4 +1,4 @@
-import { Box, useMediaQuery, useTheme } from "@material-ui/core";
+import { useMediaQuery, useTheme } from "@material-ui/core";
 import { Breakpoint } from "@material-ui/core/styles/createBreakpoints";
 import classNames from "classnames";
 import React, { ReactNode } from "react";
@@ -22,6 +22,10 @@ const useStyles = makeStyles((theme) => ({
     "& > *": {
       flexShrink: 0,
     },
+  },
+  loaderContainer: {
+    display: "flex",
+    alignItems: "center",
   },
 }));
 
@@ -56,13 +60,13 @@ export default function HorizontalScroller({
     >
       {children}
       {fetchNext && hasMore && (
-        <Box display="flex" alignItems="center">
+        <div className={classes.loaderContainer}>
           {isFetching ? (
             <CircularProgress />
           ) : (
             <CircularProgress variant="determinate" value={0} ref={loaderRef} />
           )}
-        </Box>
+        </div>
       )}
     </div>
   );
