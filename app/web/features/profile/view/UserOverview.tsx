@@ -13,7 +13,7 @@ import {
   VERIFICATION_SCORE_DESCRIPTION,
 } from "features/profile/constants";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
-import React, { PropsWithChildren } from "react";
+import React from "react";
 import makeStyles from "utils/makeStyles";
 
 import { useProfileUser } from "../hooks/useProfileUser";
@@ -68,15 +68,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+type UserOverviewProps = {
+  actions?: React.ReactNode;
+  showHostAndMeetAvailability?: boolean;
+};
+
 // @todo: move this into /components and decouple it from features/profile because it's used
 //        from the dashboard as well
 export default function UserOverview({
   actions,
   showHostAndMeetAvailability = true,
-}: PropsWithChildren<{
-  actions?: React.ReactNode;
-  showHostAndMeetAvailability?: boolean;
-}>) {
+}: UserOverviewProps) {
   const classes = useStyles();
   const user = useProfileUser();
 
