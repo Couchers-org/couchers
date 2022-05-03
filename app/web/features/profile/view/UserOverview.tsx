@@ -39,6 +39,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     wordBreak: "break-word",
     overflowWrap: "break-word",
+    textAlign: "center",
   },
 
   wrapper: {
@@ -89,10 +90,10 @@ export default function UserOverview({
       </div>
 
       <div className={classes.wrapper}>
-        <Typography variant="h1" className={classes.intro} align="center">
+        <Typography variant="h1" className={classes.intro}>
           {user.name}
         </Typography>
-        <Typography variant="body1" className={classes.intro} align="center">
+        <Typography variant="body1" className={classes.intro}>
           {user.city}
         </Typography>
       </div>
