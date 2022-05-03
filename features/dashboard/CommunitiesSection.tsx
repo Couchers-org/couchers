@@ -12,13 +12,15 @@ const useStyles = makeStyles((theme) => ({
   createCommunityText: {
     paddingBlockStart: theme.spacing(2),
   },
+  browseCommunitiesLink: {
+    verticalAlign: "baseline",
+  },
 }));
 
 export default function CommunitiesSection() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
   const classes = useStyles();
-  const [isCommunitiesDialogOpen, setIsCommunitiesDialogOpen] =
-    useState<boolean>(false);
+  const [isCommunitiesDialogOpen, setIsCommunitiesDialogOpen] = useState(false);
 
   return (
     <>
@@ -30,7 +32,7 @@ export default function CommunitiesSection() {
           {`You have been added to all communities based on your location. Feel free to `}
           <MuiLink
             component="button"
-            style={{ verticalAlign: "baseline" }}
+            className={classes.browseCommunitiesLink}
             onClick={() => {
               setIsCommunitiesDialogOpen(true);
             }}
