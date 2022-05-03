@@ -17,12 +17,6 @@ describe("UserOverview", () => {
     addDefaultUser();
   });
 
-  describe("when user is missing", () => {
-    it("doesn't fail", () => {
-      render(<UserOverview />, { wrapper });
-    });
-  });
-
   describe("when user is loaded and provided via context", () => {
     it("should display the user name", () => {
       const { getByText } = render(
@@ -65,13 +59,6 @@ describe("UserOverview", () => {
       );
       expect(getByText(expectedLabelHosting)).toBeInTheDocument();
       expect(getByText(expectedLabelMeeting)).toBeInTheDocument();
-      rerender(
-        <ProfileUserProvider user={defaultUser}>
-          <UserOverview />
-        </ProfileUserProvider>
-      );
-      expect(getByText(expectedLabelHosting)).toBeInTheDocument();
-      expect(getByText(expectedLabelMeeting)).toBeInTheDocument();
     });
 
     it("should display the community and verification scores when the feature flag is enabled", () => {
@@ -87,7 +74,7 @@ describe("UserOverview", () => {
 
       const { getByText } = render(
         <ProfileUserProvider user={defaultUser}>
-          <UserOverview />
+          <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
         { wrapper }
       );
@@ -104,6 +91,7 @@ describe("UserOverview", () => {
       const { getByText } = render(
         <ProfileUserProvider user={defaultUser}>
           <UserOverview
+            showHostAndMeetAvailability={false}
             actions={
               <>
                 <button>Edit profile</button>
