@@ -43,7 +43,7 @@ module.exports = {
       permanent: false,
     },
     {
-      source: "https://couchers.org/contributors",
+      source: "/contributors",
       destination: "https://couchers.org/documents/",
       permanent: false,
     },
@@ -53,17 +53,17 @@ module.exports = {
       permanent: false,
     },
     {
-      source: "https://couchers.org/contributors/community-builder",
+      source: "/contributors/community-builder",
       destination: "https://couchers.org/documents/community-builder/",
       permanent: false,
     },
     {
-      source: "https://couchers.org/contributors/guide",
+      source: "/contributors/guide",
       destination: "https://couchers.org/documents/guide/",
       permanent: false,
     },
     {
-      source: "https://couchers.org/contributors/new-developer",
+      source: "/contributors/new-developer",
       destination: "https://couchers.org/documents/new-developer/",
       permanent: false,
     },
