@@ -55,9 +55,9 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
                   key={`community-link-${community.communityId}`}
                   className={classes.communityLink}
                 >
-                  <MuiLink variant="h2" component="span">
+                  <Typography variant="h2" component="span">
                     {community.name}
-                  </MuiLink>
+                  </Typography>
                   <Typography variant="body1" color="textSecondary">
                     {t("dashboard:member_count", {
                       count: community.memberCount,
