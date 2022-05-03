@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import wrapper from "test/hookWrapper";
 import { addDefaultUser } from "test/utils";
@@ -19,46 +19,56 @@ describe("UserOverview", () => {
 
   describe("when user is loaded and provided via context", () => {
     it("should display the user name", () => {
-      const { getByText } = render(
+      render(
         <ProfileUserProvider user={defaultUser}>
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
         { wrapper }
       );
-      expect(getByText(defaultUser.name)).toBeInTheDocument();
+      expect(screen.getByText(defaultUser.name)).toBeInTheDocument();
     });
 
     it("should display the user location", () => {
-      const { getByText } = render(
+      render(
         <ProfileUserProvider user={defaultUser}>
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
         { wrapper }
       );
-      expect(getByText(defaultUser.city)).toBeInTheDocument();
+      expect(screen.getByText(defaultUser.city)).toBeInTheDocument();
     });
 
-    it("should display the hosting and meeting status only when showHostAndMeetAvailability is true", () => {
+    describe("hosting and meeting status", () => {
       const expectedLabelHosting =
         hostingStatusLabels[defaultUser.hostingStatus as HostingStatus];
       const expectedLabelMeeting =
         meetupStatusLabels[defaultUser.meetupStatus as MeetupStatus];
 
-      const { queryByText, getByText, rerender } = render(
-        <ProfileUserProvider user={defaultUser}>
-          <UserOverview showHostAndMeetAvailability={false} />
-        </ProfileUserProvider>,
-        { wrapper }
-      );
-      expect(queryByText(expectedLabelHosting)).not.toBeInTheDocument();
-      expect(queryByText(expectedLabelMeeting)).not.toBeInTheDocument();
-      rerender(
-        <ProfileUserProvider user={defaultUser}>
-          <UserOverview showHostAndMeetAvailability />
-        </ProfileUserProvider>
-      );
-      expect(getByText(expectedLabelHosting)).toBeInTheDocument();
-      expect(getByText(expectedLabelMeeting)).toBeInTheDocument();
+      it("should display the hosting and meeting status when showHostAndMeetAvailability is true", () => {
+        render(
+          <ProfileUserProvider user={defaultUser}>
+            <UserOverview showHostAndMeetAvailability />
+          </ProfileUserProvider>,
+          { wrapper }
+        );
+        expect(screen.getByText(expectedLabelHosting)).toBeInTheDocument();
+        expect(screen.getByText(expectedLabelMeeting)).toBeInTheDocument();
+      });
+
+      it("should npt display the hosting and meeting status when showHostAndMeetAvailability is false", () => {
+        render(
+          <ProfileUserProvider user={defaultUser}>
+            <UserOverview showHostAndMeetAvailability={false} />
+          </ProfileUserProvider>,
+          { wrapper }
+        );
+        expect(
+          screen.queryByText(expectedLabelHosting)
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(expectedLabelMeeting)
+        ).not.toBeInTheDocument();
+      });
     });
 
     it("should display the community and verification scores when the feature flag is enabled", () => {
@@ -72,14 +82,14 @@ describe("UserOverview", () => {
       const expectedLabelCommunity = COMMUNITY_STANDING;
       const expectedLabelVerification = VERIFICATION_SCORE;
 
-      const { getByText } = render(
+      render(
         <ProfileUserProvider user={defaultUser}>
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
         { wrapper }
       );
-      expect(getByText(expectedLabelCommunity)).toBeInTheDocument();
-      expect(getByText(expectedLabelVerification)).toBeInTheDocument();
+      expect(screen.getByText(expectedLabelCommunity)).toBeInTheDocument();
+      expect(screen.getByText(expectedLabelVerification)).toBeInTheDocument();
 
       process.env.NEXT_PUBLIC_IS_VERIFICATION_ENABLED =
         previousEnvValueVerificationEnabled;
@@ -88,7 +98,7 @@ describe("UserOverview", () => {
     });
 
     it("should render the action buttons", () => {
-      const { getByText } = render(
+      render(
         <ProfileUserProvider user={defaultUser}>
           <UserOverview
             showHostAndMeetAvailability={false}
@@ -101,7 +111,7 @@ describe("UserOverview", () => {
         </ProfileUserProvider>,
         { wrapper }
       );
-      expect(getByText("Edit profile")).toBeInTheDocument();
+      expect(screen.getByText("Edit profile")).toBeInTheDocument();
     });
   });
 });
