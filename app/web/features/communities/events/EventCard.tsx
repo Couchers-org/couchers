@@ -1,5 +1,4 @@
 import {
-  Box,
   Card,
   CardContent,
   CardMedia,
@@ -135,7 +134,7 @@ export default function EventCard({ event, className }: EventCardProps) {
 
             <Divider spacing={1} />
 
-            <Box>
+            <div>
               <Typography className={classes.content} variant="body1" paragraph>
                 {strippedContent}
               </Typography>
@@ -145,7 +144,7 @@ export default function EventCard({ event, className }: EventCardProps) {
                   count: event.goingCount + event.maybeCount,
                 })}
               </Typography>
-            </Box>
+            </div>
           </CardContent>
         </a>
       </Link>
