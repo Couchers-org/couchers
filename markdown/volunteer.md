@@ -43,6 +43,10 @@ Want to help but don't see anything listed for you? [Fill out this form](/volunt
 
 - [Volunteer Coordinator](/volunteer/volunteer-coordinator)
 
+#### Development
+
+- [Backend Developer (Python/Django)](/volunteer/backend-developer)
+
 ### Community Building
 
 One of the best ways to get involved is to start and grow a community where you live. If you love couch surfing events and want to spread the word and make friends, this is the way to go!
