@@ -19,8 +19,8 @@ To install the chart...
 
 ```bash
 export SERVICE_NAME="frontend"
-export CI_ENVIRONMENT_SLUG="master"
-export K8S_NAMESPACE="dev"
+export CI_ENVIRONMENT_SLUG="dev"
+export K8S_NAMESPACE=$CI_ENVIRONMENT_SLUG
 export HELM_CHART=$SERVICE_NAME
 export CURRENT_HELM_CHART=$SERVICE_NAME
 # Go into our deployment folder
