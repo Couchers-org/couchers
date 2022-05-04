@@ -55,7 +55,7 @@ describe("UserOverview", () => {
         expect(screen.getByText(expectedLabelMeeting)).toBeInTheDocument();
       });
 
-      it("should npt display the hosting and meeting status when showHostAndMeetAvailability is false", () => {
+      it("should not display the hosting and meeting status when showHostAndMeetAvailability is false", () => {
         render(
           <ProfileUserProvider user={defaultUser}>
             <UserOverview showHostAndMeetAvailability={false} />
