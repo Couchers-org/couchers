@@ -32,7 +32,7 @@ runs:
         helm dependency update $CURRENT_HELM_CHART || true
 
         echo "Helm diff..."
-        helm diff upgrade --allow-unreleased --namespace $K8S_NAMESPACE $HELM_UPDIFF_EXTRA_ARGS $CURRENT_HELM_CHART ./$CURRENT_HELM_CHART -f $CURRENT_HELM_CHART/values.yaml -f $CURRENT_HELM_CHART/values-master.yaml $HELM_EXTRA_ARGS
+        helm diff upgrade --allow-unreleased --namespace $K8S_NAMESPACE $HELM_UPDIFF_EXTRA_ARGS $CURRENT_HELM_CHART ./$CURRENT_HELM_CHART -f $CURRENT_HELM_CHART/values.yaml -f $CURRENT_HELM_CHART/values-$K8S_NAMESPACE.yaml $HELM_EXTRA_ARGS
 
         echo "Helm upgrade..."
-        helm upgrade --install --atomic --namespace $K8S_NAMESPACE $CURRENT_HELM_CHART ./$CURRENT_HELM_CHART -f $CURRENT_HELM_CHART/values.yaml -f $CURRENT_HELM_CHART/values-master.yaml $HELM_EXTRA_ARGS
+        helm upgrade --install --atomic --namespace $K8S_NAMESPACE $CURRENT_HELM_CHART ./$CURRENT_HELM_CHART -f $CURRENT_HELM_CHART/values.yaml -f $CURRENT_HELM_CHART/values-$K8S_NAMESPACE.yaml $HELM_EXTRA_ARGS
