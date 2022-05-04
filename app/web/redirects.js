@@ -48,6 +48,11 @@ module.exports = {
       permanent: false,
     },
     {
+      source: "/contributors/form",
+      destination: "https://couchers.org/volunteer/form/",
+      permanent: false,
+    },
+    {
       source: "/contributors/guide.pdf",
       destination: "https://couchers.org/documents/guide/",
       permanent: false,
