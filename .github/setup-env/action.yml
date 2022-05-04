@@ -1,0 +1,13 @@
+runs:
+  using: "composite"
+  steps:
+    - uses: FranzDiebold/github-env-vars-action@v2
+    - shell: bash
+      run: |
+        echo "SLUG=$CI_REF_SLUG-$CI_SHA_SHORT" >> $GITHUB_ENV
+      # echo "DO_CHECKS=true" >> $GITHUB_ENV
+      # echo "BUILD_SLOW=true" >> $GITHUB_ENV
+      # echo "PREVIEW_DOMAIN=preview.couchershq.org" >> $GITHUB_ENV
+      # cho "GIT_DEPTH=10" >> $GITHUB_ENV
+      # echo "RELEASE_BRANCH=develop" >> $GITHUB_ENV
+      # echo "MOBILE_APP_PREVIEW_RELEASE_TAG=current-preview" >> $GITHUB_ENV

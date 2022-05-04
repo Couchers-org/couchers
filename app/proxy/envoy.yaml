@@ -43,6 +43,9 @@ static_resources:
                 # deploy preview sites
                 - exact: https://next.couchershq.org
                 - suffix: .preview.couchershq.org
+                # New Dev
+                - exact: https://couchers.dev
+                - suffix: .couchers.dev
                 # react
                 - exact: http://127.0.0.1:3000
                 - exact: http://localhost:3000
@@ -114,7 +117,7 @@ static_resources:
       endpoints:
       - lb_endpoints:
         - endpoint:
-            address: { socket_address: { address: backend, port_value: 1751 }}
+            address: { socket_address: { address: 127.0.0.1, port_value: 1751 }}
     typed_extension_protocol_options:
       envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
         "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions

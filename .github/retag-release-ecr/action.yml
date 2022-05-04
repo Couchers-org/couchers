@@ -1,0 +1,18 @@
+inputs:
+  module-name:
+    description: "Module (or image) name to grab and re-tag."
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: ./.github/actions/pre-tasks
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    - shell: bash
+      run: |
+         REPO_IMAGE=${{ steps.login-ecr.outputs.registry }}/${{ inputs.module-name }}
+         docker pull $REPO_IMAGE:${{ env.SLUG }}
+         docker tag $REPO_IMAGE:${{ env.SLUG }} $REPO_IMAGE:latest
+         docker push $REPO_IMAGE:latest

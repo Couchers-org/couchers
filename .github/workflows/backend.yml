@@ -1,0 +1,81 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - app/proto/**
+      - app/backend/**
+      - app/proxy/**
+      - deployment/backend/**
+      - .github/workflow/backend.yml
+      - .github/actions/**
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+
+  build:
+    runs-on: [self-hosted, master]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/build-push-ecr
+        with:
+          module-name: backend
+
+  build-proxy:
+    uses: ./.github/workflows/proxy.yml
+
+
+  test-backend:
+    runs-on: [self-hosted, master]
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/pre-tasks
+      - working-directory: app/backend
+        run: |
+          curl -sLO https://github.com/Couchers-org/resources/raw/a664750dc60771ec5080ac4753d9a27e6ec544b9/timezone_areas/timezone_areas.sql.zst
+          zstd -d timezone_areas.sql.zst -o resources/timezone_areas.sql
+          docker-compose -f ../docker-compose.test.yml up -d postgres_tests
+          export DATABASE_CONNECTION_STRING=postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/postgres
+          pip install -r requirements.txt
+          pytest src --junitxml=junit.xml --cov=src src
+          coverage xml && coverage html
+
+
+  test-backend-format:
+    runs-on: [self-hosted, master]
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      # NOTE: If you run generate_protos.sh here (i.e. via actions/pre-tasks)
+      # autoflake will fail due to the files it generates
+      - working-directory: app/backend
+        run: |
+          pip install -r requirements.txt
+          autoflake -r -i --remove-all-unused-imports --check src
+          isort --check --diff .
+          black --check --diff .
+
+
+  release:
+    runs-on: [self-hosted, master]
+    needs: [test-backend, test-backend-format]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/retag-release-ecr
+        with:
+          module-name: backend
+
+
+  deploy:
+    runs-on: [self-hosted, master]
+    needs: [release, build-proxy]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/helm-deploy
+        with:
+          module-name: backend
+          environment: dev

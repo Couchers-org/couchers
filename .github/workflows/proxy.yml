@@ -1,0 +1,27 @@
+name: Proxy CI
+
+on: workflow_call
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+
+  build:
+    runs-on: [self-hosted, master]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/build-push-ecr
+        with:
+          module-name: proxy
+
+
+  release:
+    runs-on: [self-hosted, master]
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/retag-release-ecr
+        with:
+          module-name: proxy

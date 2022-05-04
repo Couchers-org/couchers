@@ -1,0 +1,5 @@
+dependencies:
+- alias: statefulset
+  repository: https://devops-nirvana.s3.amazonaws.com/helm-charts/
+  name: statefulset
+  version: ~1.0.0

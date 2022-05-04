@@ -1,0 +1,7 @@
+runs:
+  using: 'composite'
+  steps:
+    - uses: ./.github/actions/setup-env
+    - run: ./generate_protos.sh
+      shell: bash
+      working-directory: app

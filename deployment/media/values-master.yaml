@@ -1,0 +1,11 @@
+statefulset:
+  ingress:
+    hosts:
+      - host: media.couchers.dev
+        paths:
+          - /
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: 20m
+  envFrom:
+    - secretRef:
+        name: master-media-dev-env 

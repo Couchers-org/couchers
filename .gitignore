@@ -9,3 +9,7 @@ pyrightconfig.json
 .DS_Store
 ._.DS_Store
 /private/
+
+# Helm / GitlabCI / Farley stuff
+deployment/*/charts
+requirements.lock

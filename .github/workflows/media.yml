@@ -1,0 +1,57 @@
+name: Media CI
+
+on:
+  push:
+    paths:
+      - app/proto/**
+      - app/media/**
+      - deployment/media/**
+      - .github/workflow/media.yml
+      - .github/actions/**
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+
+  build:
+    runs-on: [self-hosted, master]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/build-push-ecr
+        with:
+          module-name: media
+
+
+  test:
+    runs-on: [self-hosted, master]
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/pre-tasks
+      - working-directory: app/media
+        run: |
+          pip install -r requirements.txt
+          pytest src --junitxml=junit.xml
+
+
+  release:
+    runs-on: [self-hosted, master]
+    needs: test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/retag-release-ecr
+        with:
+          module-name: media
+
+
+  deploy:
+    runs-on: [self-hosted, master]
+    needs: release
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/helm-deploy
+        with:
+          module-name: media
+          environment: dev
