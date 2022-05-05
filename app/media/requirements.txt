@@ -6,7 +6,7 @@
 #
 attrs==21.4.0
     # via pytest
-backoff==1.11.1
+backoff==2.0.1
     # via -r requirements.in
 certifi==2021.10.8
     # via sentry-sdk
@@ -16,7 +16,7 @@ cffi==1.15.0
     #   pyvips
 click==8.0.3
     # via flask
-flask==2.1.1
+flask==2.1.2
     # via -r requirements.in
 grpcio==1.44.0
     # via -r requirements.in

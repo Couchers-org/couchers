@@ -12,9 +12,9 @@ autoflake==1.4
     # via -r requirements.in
 black==22.3.0
     # via -r requirements.in
-boto3==1.21.46
+boto3==1.22.4
     # via -r requirements.in
-botocore==1.24.46
+botocore==1.25.4
     # via
     #   boto3
     #   s3transfer
@@ -42,7 +42,7 @@ iniconfig==1.1.1
     # via pytest
 isort==5.10.1
     # via -r requirements.in
-jinja2==3.1.1
+jinja2==3.1.2
     # via -r requirements.in
 jmespath==0.10.0
     # via
@@ -114,7 +114,7 @@ six==1.16.0
     # via
     #   grpcio
     #   python-dateutil
-sqlalchemy==1.4.35
+sqlalchemy==1.4.36
     # via
     #   -r requirements.in
     #   alembic

@@ -66,6 +66,7 @@ export default function GroupChatSendField({
         onChange={(event) => setPersistedMessage(event.target.value)}
         maxRows={4}
         size="small"
+        className={classes.textField}
       />
 
       <Button

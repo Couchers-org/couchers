@@ -24,6 +24,7 @@ export const useAppRouteStyles = makeStyles((theme) => ({
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     paddingBottom: theme.spacing(2),
+    flex: 1,
   },
   fullWidthContainer: {
     margin: "0 auto",
@@ -40,6 +41,7 @@ export const useAppRouteStyles = makeStyles((theme) => ({
   },
   "@global html": {
     scrollPaddingTop: `calc(${theme.shape.navPaddingXs} + ${theme.spacing(2)})`,
+    height: "100%",
   },
   [theme.breakpoints.up("sm")]: {
     "@global html": {
@@ -47,6 +49,14 @@ export const useAppRouteStyles = makeStyles((theme) => ({
         2
       )})`,
     },
+  },
+  "@global body": {
+    height: "100%",
+  },
+  "@global #__next": {
+    display: "flex",
+    flexDirection: "column",
+    minHeight: "100%",
   },
 }));
 
