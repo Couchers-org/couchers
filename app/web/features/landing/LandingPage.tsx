@@ -200,7 +200,6 @@ export default function LandingPage() {
       </section>
       <div className={classes.spacer} />
       <Container component="section" maxWidth="md">
-<<<<<<< HEAD
         <Typography
           component="h2"
           className={classes.header}
@@ -242,49 +241,6 @@ export default function LandingPage() {
             <Button className={classes.subNavButtons}>Volunteer</Button>
           </Link>
         </Typography>
-=======
-        <Paper elevation={isBelowMd ? 0 : 1} className={classes.card}>
-          <Typography
-            component="h2"
-            className={classes.header}
-            ref={moreContentRef}
-          >
-            Like Couchsurfing™, but better
-          </Typography>
-          <Typography className={classes.para}>
-            Couchers.org is a <strong>non-profit and free</strong> platform,{" "}
-            <strong>built by volunteers</strong> and responsible to the couch
-            surfing community, instead of investors. Formed after
-            Couchsurfing&#8482; put up its paywall in 2020, our goal is to{" "}
-            <strong>reclaim couch surfing</strong> by creating a{" "}
-            <strong>complete alternative</strong>, with all your{" "}
-            <strong>favourite features</strong>.
-          </Typography>
-          <Typography className={classes.para}>
-            Couchers.org is the <strong>fastest growing</strong> couch surfing
-            platform. We have built the{" "}
-            <strong>largest active volunteer base </strong> with over 40 skilled
-            contributors. Our product teams are designing and developing the
-            platform at blazing speed, releasing{" "}
-            <strong>new features every two weeks</strong>; our community teams
-            are planning out and executing user base growth and engagement
-            strategies to reach a{" "}
-            <strong>critical mass of quality couch surfers</strong> with active
-            local communities and a vibrant global discussion.
-          </Typography>
-          <Typography className={classes.para}>
-            <Link href={volunteerRoute} passHref>
-              <Button
-                variant="contained"
-                color="secondary"
-                className={classes.subNavButtons}
-              >
-                Join our team
-              </Button>
-            </Link>
-          </Typography>
-        </Paper>
->>>>>>> 023030fe5 (Update volunteer links from /contribute to /volunteer)
       </Container>
       <div className={classes.spacer} />
       <Container component="section" maxWidth="md">
