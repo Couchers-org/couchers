@@ -1,14 +1,9 @@
+# This file is for running the stack on your local machine.
 version: "3"
 services:
-  proxy:
-    build: proxy
-    restart: unless-stopped
-    ports:
-      - 8888:8888
-      - 9901:9901
   postgres:
     image: postgis/postgis:13-3.1
-    env_file: postgres.dev.env
+    env_file: postgres.local.env
     # uncomment this line if you want postgres to log all queries
     # command: ["postgres", "-c", "log_statement=all"]
     volumes:
@@ -18,7 +13,7 @@ services:
       - 6545:6545
   backend:
     build: backend
-    env_file: backend.dev.env
+    env_file: backend.local.env
     volumes:
       - "./backend:/app"
     # see https://github.com/eradman/entr#docker-and-windows-subsystem-for-linux
@@ -28,6 +23,8 @@ services:
       - 1751:1751
       - 1752:1752
       - 1753:1753
+      - 8888:8888
+      - 9901:9901
     depends_on:
       - postgres
     links:
@@ -35,10 +32,16 @@ services:
   media:
     build: media
     restart: unless-stopped
-    env_file: media.dev.env
+    env_file: media.local.env
     volumes:
       - "./data/media/uploads/:/uploads/"
     ports:
       - 5000:5000
+    depends_on:
+      - backend
+  proxy:
+    build: proxy
+    restart: unless-stopped
+    network_mode: "service:backend"
     depends_on:
       - backend
