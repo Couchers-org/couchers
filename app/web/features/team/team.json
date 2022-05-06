@@ -159,6 +159,17 @@
     "img": "/img/team/head-sam.jpg"
   },
   {
+    "name": "Sam Nuñez",
+    "role": "Grants Specialist",
+    "location": "USA",
+    "img": "/img/team/head-sam-n.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "sam-nunez-",
+      "url": "https://www.linkedin.com/in/sam-nunez-/"
+    }
+  },
+  {
     "name": "Marta Zaczek",
     "role": "UX and Graphic Designer",
     "location": "Wrocław, Poland",
