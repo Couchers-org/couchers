@@ -10,7 +10,6 @@ import Link from "next/link";
 import { ReactNode } from "react";
 import {
   blogRoute,
-  contributeRoute,
   donationsRoute,
   eventsRoute,
   faqRoute,
@@ -25,6 +24,7 @@ import {
   tosRoute,
   townHallURL,
   tuesdaySocialURL,
+  volunteerRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -167,11 +167,11 @@ export default function Footer() {
                 {t("nav.donate")}
               </Button>
             </Link>
-            <Link href={contributeRoute} passHref>
+            <Link href={volunteerRoute} passHref>
               <Button
                 component="a"
-                variant="outlined"
-                color="primary"
+                variant="contained"
+                color="secondary"
                 className={classes.button}
               >
                 {t("nav.volunteer")}

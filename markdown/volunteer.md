@@ -1,33 +1,54 @@
 ---
-title: "Join the team: become a Contributor"
+title: "Volunteer: be part of bringing the next generation of couch surfing to life"
 crumb: Volunteer
-description: "Join the global Couchers.org contributor team and work on a high-impact, meaningful project that you love!"
+description: "Join the global Couchers.org team. Work with passionate professionals and make a huge impact on improving the couch surfing community."
 type: general
 ---
 
-Thank you for taking an interest in joining our worldwide team of couch surfers who are bringing this new community-run platform to life.
+## Our Team
 
-Becoming a [Couchers.org](https://couchers.org) Contributor means joining a talented team of dozens of passionate couch surfers around the world. People join the team for many reasons, but what binds us all together is our common set of values and a belief in the necessity of making Couchers.org come to life because of the broad benefit it will bring to the world.
+Couchers.org is made up of a professional volunteer team, with everyone contributing their spare time. We have all kinds of positions available including in software development, marketing, design, finance, events, volunteer coordination and more!
 
-Contributors on our team develop their skills, mentor others, and work and make friends with a global network of highly skilled and interesting individuals — all while working on a high-impact and rapidly moving project that they love.
+### [Meet our volunteers](/team)
+
+People join for many reasons, but what brings us all together is a shared set of values, and a belief in the necessity of growing Couchers.org as a new platform and community.
+
+### [Our Plan](/plan) and [Our Mission & Values](/mission)
+
+## The Volunteering Experience:
+
+- **Professional development**: Work and develop your skills alongside a global network of highly skilled and committed people — with professionals in your own field and others. There are plenty of opportunities to grow your skills and mentor others, all while working on high-impact projects in a rapidly growing organization.
+- **Remote work**: All work is done remotely, with everyone working to their own schedules. We maintain great documentation and asynchronous practices to make the remote experience as easy as possible.
+- **Have fun and grow your network**: everyone involved is passionate and skilled with similar values in wanting to see this project succeed. We hold virtual events to make sure everyone can meet each other and have fun. As we grow, we'll be holding in-person events around the world for our volunteers as well!
+
+We value being highly collaborative to learn together, honest and transparent, kind, welcoming, and enthusiastic. We are a group of smart and dedicated people, and we trust each other to truly own our work and push the project forward.
+
+## Recruitment process
+
+1. Find one of the open positions below and apply via the form!
+
+2. We'll review and get back to you as soon as possible — setting up a Zoom call so we can get to know you and you can meet the team.
+
+3. After accepting the position, we'll send you some volunteer agreements and then get you onboarded with the people you're going to directly work with.
 
 ## Open positions
 
-- Mobile developers (React Native, Flutter, or native)
-- Frontend developers (React and TypeScript)
-- Backend developers (Python, SQLAlchemy)
-- Senior UI/UX designers
-- Graphic designers
-- Digital marketers
-- Bloggers
+### General Application
 
-We also want to hear from community leaders, and people who regularly host events and have large networks on other couch surfing platforms.
+Want to help but don't see anything listed for you? [Fill out this form](/volunteer/form)
 
-If you can help in any other way, we'd also love to hear from you.
+### Core Team
 
-## Process
+#### Operations
 
-1. Create an account and login to [https://couchers.org](https://couchers.org/)
-2. On the "Dashboard" page, scroll to the volunteer sign up form at the bottom of the page
-3. Fill out the form, indicating how you would like to help
-4. We will be in touch with you as soon as we are able
+- [Volunteer Coordinator](/volunteer/volunteer-coordinator)
+
+#### Development
+
+- [Backend Developer (Python/Django)](/volunteer/backend-developer)
+
+### Community Building
+
+One of the best ways to get involved is to start and grow a community where you live. If you love couch surfing events and want to spread the word and make friends, this is the way to go!
+
+#### [Fill out our Community Builder application form](/community-builder-form)
