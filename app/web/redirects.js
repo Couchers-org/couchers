@@ -1,9 +1,9 @@
 module.exports = {
   redirects: [
     {
-      source: "/contributors/form",
+      source: "/volunteer/form",
       destination:
-        "https://docs.google.com/forms/d/e/1FAIpQLSe-YqgNrgjPKW2EsrJAGSuwWuSq8lC7LVhVgQ_DYNeKm3m38A/viewform",
+        "https://forms.monday.com/forms/f87fe22951e9328f4ee1578d339cb927?r=use1",
       permanent: false,
     },
     {
@@ -43,13 +43,33 @@ module.exports = {
       permanent: false,
     },
     {
-      source: "/contributors/guide.pdf",
-      destination: "https://couchers.org/contributors/guide/",
+      source: "/contributors",
+      destination: "https://couchers.org/documents/",
       permanent: false,
     },
     {
-      source: "/contributors/caa.pdf",
-      destination: "https://couchers.org/contributors/caa/",
+      source: "/contributors/form",
+      destination: "https://couchers.org/volunteer/form/",
+      permanent: false,
+    },
+    {
+      source: "/contributors/guide.pdf",
+      destination: "https://couchers.org/documents/guide/",
+      permanent: false,
+    },
+    {
+      source: "/contributors/community-builder",
+      destination: "https://couchers.org/documents/community-builder/",
+      permanent: false,
+    },
+    {
+      source: "/contributors/guide",
+      destination: "https://couchers.org/documents/guide/",
+      permanent: false,
+    },
+    {
+      source: "/contributors/new-developer",
+      destination: "https://couchers.org/documents/new-developer/",
       permanent: false,
     },
     {

@@ -43,6 +43,7 @@ import {
   settingsRoute,
   signupRoute,
   teamRoute,
+  volunteerRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -259,6 +260,10 @@ const loggedInMenuDropDown = (
   {
     name: t("nav.donate"),
     route: donationsRoute,
+  },
+  {
+    name: t("nav.volunteer"),
+    route: volunteerRoute,
   },
   {
     name: t("nav.log_out"),

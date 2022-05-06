@@ -25,11 +25,11 @@ import makeStyles from "utils/makeStyles";
 
 import {
   blogRoute,
-  contributeRoute,
   forumURL,
   loginRoute,
   signupRoute,
   tosRoute,
+  volunteerRoute,
 } from "../../routes";
 
 const useStyles = makeStyles((theme) => ({
@@ -139,7 +139,7 @@ export default function LandingPage() {
               {t("landing:signup_header")}
             </Typography>
             <Typography variant="body2" paragraph gutterBottom>
-              {t("landing:signup_description", { user_count: "9.2k" })}
+              {t("landing:signup_description", { user_count: "12k" })}
             </Typography>
             {!flowState || !isMounted ? (
               <BasicForm
@@ -228,7 +228,7 @@ export default function LandingPage() {
           with active local communities and a vibrant global discussion.
         </Typography>
         <Typography className={classes.para}>
-          <Link href={contributeRoute} passHref>
+          <Link href={volunteerRoute} passHref>
             <Button
               variant="contained"
               color="secondary"
@@ -237,7 +237,7 @@ export default function LandingPage() {
               Join our team
             </Button>
           </Link>
-          <Link href={contributeRoute} passHref>
+          <Link href={volunteerRoute} passHref>
             <Button className={classes.subNavButtons}>Volunteer</Button>
           </Link>
         </Typography>

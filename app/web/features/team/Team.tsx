@@ -9,12 +9,12 @@ import {
 } from "@material-ui/core";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
-import { GlobeIcon, LinkedInIcon, PinIcon } from "components/Icons";
+import { EmailIcon, GlobeIcon, LinkedInIcon, PinIcon } from "components/Icons";
 import IconText from "components/IconText";
 import PageTitle from "components/PageTitle";
 import StyledLink from "components/StyledLink";
 import Link from "next/link";
-import { contributeRoute } from "routes";
+import { volunteerRoute } from "routes";
 
 import TeamData from "./team.json";
 
@@ -57,7 +57,7 @@ export default function Team() {
           love to talk to you.
         </Typography>
         <Typography paragraph>
-          <Link href={contributeRoute} passHref>
+          <Link href={volunteerRoute} passHref>
             <Button variant="contained" color="secondary">
               Join the team
             </Button>
@@ -72,43 +72,57 @@ export default function Team() {
           justifyContent="center"
           alignItems="stretch"
         >
-          {TeamData.map(({ name, founder, role, location, img, link }) => (
-            <Grid key={name} item xs={12} md={!!founder ? 5 : 4}>
-              <Card elevation={founder ? 3 : 1} className={classes.cardWrapper}>
-                <CardContent className={classes.card}>
-                  <MuiAvatar
-                    alt={`Headshot of ${name}`}
-                    src={img}
-                    className={classes.avatar}
-                  />
-                  <div className={classes.cardContent}>
-                    <Typography variant={founder ? "h1" : "h2"} component="h2">
-                      {name}
-                    </Typography>
-                    {founder && (
-                      <Typography variant="h2" component="h3">
-                        Co-founder
+          {TeamData.map(
+            ({ name, director, board_position, role, location, img, link }) => (
+              <Grid key={name} item xs={12} md={4}>
+                <Card
+                  elevation={director ? 3 : 1}
+                  className={classes.cardWrapper}
+                >
+                  <CardContent className={classes.card}>
+                    <MuiAvatar
+                      alt={`Headshot of ${name}`}
+                      src={img}
+                      className={classes.avatar}
+                    />
+                    <div className={classes.cardContent}>
+                      <Typography
+                        variant={director ? "h1" : "h2"}
+                        component="h2"
+                      >
+                        {name}
                       </Typography>
-                    )}
-                    <Typography variant="h3">{role}</Typography>
-                    <IconText icon={PinIcon} text={location} />
-                    {link && (
-                      <IconText
-                        icon={
-                          link.type === "linkedin" ? LinkedInIcon : GlobeIcon
-                        }
-                        text={
-                          <Typography>
-                            <StyledLink href={link.url}>{link.text}</StyledLink>
-                          </Typography>
-                        }
-                      />
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+                      {director && (
+                        <Typography variant="h2" component="h3">
+                          {board_position}
+                        </Typography>
+                      )}
+                      <Typography variant="h3">{role}</Typography>
+                      <IconText icon={PinIcon} text={location} />
+                      {link && (
+                        <IconText
+                          icon={
+                            link.type === "linkedin"
+                              ? LinkedInIcon
+                              : link.type === "email"
+                              ? EmailIcon
+                              : GlobeIcon
+                          }
+                          text={
+                            <Typography>
+                              <StyledLink href={link.url}>
+                                {link.text}
+                              </StyledLink>
+                            </Typography>
+                          }
+                        />
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </Grid>
+            )
+          )}
         </Grid>
       </section>
       <div className={classes.spacer} />
@@ -123,7 +137,7 @@ export default function Team() {
           click the button below and fill out the short form.
         </Typography>
         <Typography paragraph>
-          <Link href={contributeRoute} passHref>
+          <Link href={volunteerRoute} passHref>
             <Button variant="contained" color="secondary">
               Join our team
             </Button>
