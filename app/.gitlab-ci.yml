@@ -261,7 +261,9 @@ test:backend:
   coverage: '/^TOTAL.+?(\d+\%)$/'
   artifacts:
     reports:
-      cobertura: coverage.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
       junit: junit.xml
     paths:
       - artifacts/htmlcov
@@ -336,7 +338,9 @@ test:web:
   coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
   artifacts:
     reports:
-      cobertura: cobertura-coverage.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura-coverage.xml
       junit: junit.xml
     paths:
       - artifacts/lcov-report
