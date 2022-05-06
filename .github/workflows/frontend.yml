@@ -20,17 +20,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        image-name: [web, web-next, web-dev]
+        image-name: [web, web-dev]
         include: # Adds the following builds to the above list
           - image-name: web
             module-name: web
-            extra-build-args: -f prod.Dockerfile
+            extra-build-args: -f Dockerfile
           - image-name: web-dev
             module-name: web
-            extra-build-args: -f dev.Dockerfile
-          - image-name: web-next
-            module-name: web
-            extra-build-args: -f prod.Dockerfile --build-arg environment=preview
+            extra-build-args: -f Dockerfile --build-arg environment=development
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/build-push-ecr
@@ -81,7 +78,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module-name: [web, web-dev, web-next]
+        module-name: [web, web-dev]
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/retag-release-ecr

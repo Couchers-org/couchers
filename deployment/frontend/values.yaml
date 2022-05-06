@@ -13,7 +13,7 @@ deployment:
     rollingUpdate: null
 
   image:
-    repository: 694904428454.dkr.ecr.us-east-1.amazonaws.com/web-next
+    repository: 694904428454.dkr.ecr.us-east-1.amazonaws.com/web-dev
     # If you need to debug stuff, or manually import/delete the database, uncomment these lines then kubectl exec into the pod
     # you'll also need to disable probes otherwise it will auto-restart on you
     # command: ["/bin/sh"]
