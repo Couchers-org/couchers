@@ -1,21 +1,22 @@
-import { Divider as MuiDivider } from "@material-ui/core";
+import { Divider as MuiDivider, Theme } from "@material-ui/core";
 import classNames from "classnames";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    marginBottom: theme.spacing(2),
-    marginTop: theme.spacing(2),
-  },
+const useStyles = makeStyles<Theme, { spacing: number }>((theme) => ({
+  root: (props) => ({
+    marginBottom: theme.spacing(props.spacing),
+    marginTop: theme.spacing(props.spacing),
+  }),
 }));
 
 export interface DividerProps {
   className?: string;
+  spacing?: number;
 }
 
-export default function Divider({ className }: DividerProps) {
-  const classes = useStyles();
+export default function Divider({ className, spacing = 2 }: DividerProps) {
+  const classes = useStyles({ spacing });
 
   return <MuiDivider className={classNames(classes.root, className)} />;
 }

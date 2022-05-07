@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
     display: "inline-flex",
     flexDirection: "row",
     height: "100%",
-    width: "100%",
+    width: "100vw",
     padding: theme.spacing(2),
     WebkitOverflowScrolling: "touch",
     overflowX: "scroll",
@@ -22,6 +22,10 @@ const useStyles = makeStyles((theme) => ({
     "& > *": {
       flexShrink: 0,
     },
+  },
+  loaderContainer: {
+    display: "flex",
+    alignItems: "center",
   },
 }));
 
@@ -56,7 +60,7 @@ export default function HorizontalScroller({
     >
       {children}
       {fetchNext && hasMore && (
-        <div>
+        <div className={classes.loaderContainer}>
           {isFetching ? (
             <CircularProgress />
           ) : (

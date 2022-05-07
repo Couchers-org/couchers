@@ -2,11 +2,11 @@ import { Link as MuiLink, makeStyles, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import StyledLink from "components/StyledLink";
 import { useListSubCommunities } from "features/communities/hooks";
 import useUserCommunities from "features/userQueries/useUserCommunities";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
-import Link from "next/link";
 import React from "react";
 import { routeToCommunity } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
@@ -14,10 +14,11 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 const useStyles = makeStyles((theme) => ({
   communityLink: {
     display: "flex",
-    alignItems: "baseline",
-    margin: theme.spacing(1, 0),
-    "& > *:first-child": {
-      marginInlineEnd: theme.spacing(2),
+    flexDirection: "column",
+    padding: theme.spacing(2, 0),
+    borderBottom: `solid 1px ${theme.palette.divider}`,
+    "&:first-child": {
+      borderTop: `solid 1px ${theme.palette.divider}`,
     },
   },
 }));
@@ -29,7 +30,7 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
   const allCommunities = useListSubCommunities(0);
   const communities = all ? allCommunities : userCommunities;
   return (
-    <>
+    <div>
       {communities.error?.message && (
         <Alert severity="error">{communities.error.message}</Alert>
       )}
@@ -49,21 +50,20 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
             {communities.data.pages
               .flatMap((page) => page.communitiesList)
               .map((community) => (
-                <Link
+                <StyledLink
                   href={routeToCommunity(community.communityId, community.slug)}
                   key={`community-link-${community.communityId}`}
+                  className={classes.communityLink}
                 >
-                  <a className={classes.communityLink}>
-                    <MuiLink variant="h2" component="span">
-                      {community.name}
-                    </MuiLink>
-                    <Typography variant="body2">
-                      {t("dashboard:member_count", {
-                        count: community.memberCount,
-                      })}
-                    </Typography>
-                  </a>
-                </Link>
+                  <Typography variant="h2" component="span">
+                    {community.name}
+                  </Typography>
+                  <Typography variant="body1" color="textSecondary">
+                    {t("dashboard:member_count", {
+                      count: community.memberCount,
+                    })}
+                  </Typography>
+                </StyledLink>
               ))}
             {communities.hasNextPage && (
               <Button
@@ -75,9 +75,11 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
             )}
           </>
         ) : (
-          <Typography variant="body1">{t("dashboard:no_community")}</Typography>
+          <Typography variant="body1" color="textSecondary">
+            {t("dashboard:no_community")}
+          </Typography>
         ))
       )}
-    </>
+    </div>
   );
 }

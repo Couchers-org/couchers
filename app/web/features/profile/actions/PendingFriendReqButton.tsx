@@ -7,7 +7,7 @@ import {
   ACCEPT_FRIEND_ACTION,
   DECLINE_FRIEND_ACTION,
 } from "features/profile/constants";
-import { CONNECTIONS } from "i18n/namespaces";
+import { PROFILE } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { FriendRequest } from "proto/api_pb";
 import React, { useRef, useState } from "react";
@@ -57,7 +57,7 @@ function PendingFriendReqButton({
     setIsOpen((prevState) => ({ ...prevState, [item]: false }));
   };
 
-  const { t } = useTranslation([CONNECTIONS]);
+  const { t } = useTranslation([PROFILE]);
 
   return (
     <>
@@ -70,7 +70,7 @@ function PendingFriendReqButton({
             aria-controls={RESPOND_TO_FRIEND_REQUEST_MENU_ID}
             loading={isLoading}
           >
-            {t("connections:pending")}
+            {t("profile:connection_pending")}
           </Button>
           <Menu
             anchorEl={menuAnchor.current}

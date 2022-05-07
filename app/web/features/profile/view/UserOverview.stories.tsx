@@ -10,13 +10,17 @@ export default {
   title: "Profile/UserOverview",
 } as Meta;
 
-const Template: Story<{ user: User.AsObject }> = (args) => (
-  <ProfileUserProvider {...args}>
-    <UserOverview />
+const Template: Story<{
+  user: User.AsObject;
+  showHostAndMeetAvailability: boolean;
+}> = ({ user, showHostAndMeetAvailability }) => (
+  <ProfileUserProvider user={user}>
+    <UserOverview showHostAndMeetAvailability={showHostAndMeetAvailability} />
   </ProfileUserProvider>
 );
 
 export const basicOverview = Template.bind({});
 basicOverview.args = {
+  showHostAndMeetAvailability: true,
   user: users[0],
 };
