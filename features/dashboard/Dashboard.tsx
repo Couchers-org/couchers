@@ -1,178 +1,70 @@
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Chip,
+  Grid,
+  Link as MuiLink,
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import Button from "components/Button";
-import { JOIN_THE_TEAM } from "components/ContributorForm";
-import StandaloneContributorForm from "components/ContributorForm/StandaloneContributorForm";
+import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
-import { ExpandMoreIcon } from "components/Icons";
-import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
-import CommunitiesDialog from "features/dashboard/CommunitiesDialog";
-import CommunitiesList from "features/dashboard/CommunitiesList";
 import DashboardBanners from "features/dashboard/DashboardBanners";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
-import { useState } from "react";
+import { blogRoute } from "routes";
 
-import { COMMUNITY_BUILDER_FORM_LINK, UPDATES_MARKDOWN } from "./constants";
+import CommunitiesSection from "./CommunitiesSection";
+import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import MyEvents from "./MyEvents";
 
 const useStyles = makeStyles((theme) => ({
-  button: { display: "block", marginTop: theme.spacing(1) },
-  divider: { marginTop: theme.spacing(3) },
-  accordion: {
-    marginBlockStart: theme.spacing(2),
-    "& .MuiAccordionSummary-content": {
-      display: "grid",
-      alignItems: "baseline",
-      gridTemplateColumns: "repeat(auto-fit, 100%)",
-      columnGap: theme.spacing(2),
-      [theme.breakpoints.up("md")]: {
-        gridTemplateColumns: "1fr 2fr",
-      },
+  profileOverviewContainer: {
+    marginTop: theme.spacing(3),
+  },
+  mainContentContainer: {
+    [theme.breakpoints.up("sm")]: {
+      paddingLeft: theme.spacing(5),
     },
-    "& .MuiAccordionDetails-root": {
-      display: "block",
-    },
-  },
-  chip: {
-    marginLeft: theme.spacing(1),
-  },
-  accordionSubtitle: {
-    ...theme.typography.h3,
-    color: theme.palette.grey[600],
-  },
-  communityText2: {
-    marginBlockStart: theme.spacing(2),
-    marginBlockEnd: theme.spacing(1),
   },
 }));
 
 export default function Dashboard() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
   const classes = useStyles();
-  const [isCommunitiesDialogOpen, setIsCommunitiesDialogOpen] = useState(false);
 
   return (
-    <>
-      <HtmlMeta title={t("global:nav.dashboard")} />
-      <PageTitle>{t("dashboard:welcome")}</PageTitle>
+    <Grid container direction="row">
+      <Grid item sm={4} xs={12} className={classes.profileOverviewContainer}>
+        <DashboardUserProfileSummary />
+      </Grid>
 
-      <Typography variant="body1" paragraph>
-        {t("dashboard:landing_text")}
-      </Typography>
-      <DashboardBanners />
-      <Typography variant="h2">
-        {t("dashboard:your_communities_heading")}
-      </Typography>
-      <Typography variant="body1" paragraph>
-        {t("dashboard:your_communities_helper_text")}
-      </Typography>
-      <CommunitiesList />
-      <Button
-        onClick={() => {
-          setIsCommunitiesDialogOpen(true);
-        }}
-        className={classes.button}
-      >
-        {t("dashboard:all_communities_link")}
-      </Button>
+      <Grid item sm={8} xs={12} className={classes.mainContentContainer}>
+        <HtmlMeta title={t("global:nav.dashboard")} />
 
-      <CommunitiesDialog
-        isOpen={isCommunitiesDialogOpen}
-        onClose={() => setIsCommunitiesDialogOpen(false)}
-      />
+        <PageTitle>{t("dashboard:welcome")}</PageTitle>
+        <Typography variant="body1" paragraph>
+          <Trans i18nKey="dashboard:landing_text">
+            {`We are building new `}
+            <MuiLink href={blogRoute} target="_blank" rel="noreferrer noopener">
+              features
+            </MuiLink>
+            {` like events, local guides, moderation and hangouts. We appreciate your patience and support as we develop these.`}
+          </Trans>
+        </Typography>
 
-      <Typography variant="body1" className={classes.communityText2}>
-        {t("dashboard:your_communities_helper_text2")}
-      </Typography>
-      <Button
-        href={COMMUNITY_BUILDER_FORM_LINK}
-        target="_blank"
-        rel="noreferrer noopener"
-      >
-        {t("dashboard:community_builder_form_text")}
-      </Button>
+        <Typography variant="h1" component="h2" paragraph>
+          {t("dashboard:dashboard")}
+        </Typography>
 
-      <MyEvents />
+        <DashboardBanners />
 
-      <Accordion className={classes.accordion}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="updates-content"
-          id="updates-header"
-        >
-          <Typography variant="h2">
-            {t("dashboard:updates_title")}
-            <Chip
-              className={classes.chip}
-              size="small"
-              label={t("dashboard:updates_pill")}
-            />
-          </Typography>
-          <Typography className={classes.accordionSubtitle}>
-            {t("dashboard:last_update")}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Markdown source={UPDATES_MARKDOWN} topHeaderLevel={3} />
-        </AccordionDetails>
-      </Accordion>
+        <Divider spacing={3} />
 
-      <Accordion className={classes.accordion}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="weekly-events-content"
-          id="weekly-events-header"
-        >
-          <Typography variant="h2">
-            {t("dashboard:outreach_title")}
-            <Chip
-              className={classes.chip}
-              size="small"
-              label={t("dashboard:outreach_pill")}
-            />
-          </Typography>
-          <Typography className={classes.accordionSubtitle}>
-            {t("dashboard:outreach_subtitle")}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Markdown
-            source={t("dashboard:outreach_markdown")}
-            topHeaderLevel={3}
-          />
-        </AccordionDetails>
-      </Accordion>
+        <MyEvents />
 
-      <Accordion className={classes.accordion}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="contribute-content"
-          id="contribute-header"
-        >
-          <Typography variant="h2">
-            {t("global:contribute_title")}
-            <Chip
-              className={classes.chip}
-              size="small"
-              label={t("dashboard:contribute_pill")}
-            />
-          </Typography>
-          <Typography className={classes.accordionSubtitle}>
-            {JOIN_THE_TEAM}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <StandaloneContributorForm />
-        </AccordionDetails>
-      </Accordion>
-    </>
+        <Divider spacing={3} />
+
+        <CommunitiesSection />
+      </Grid>
+    </Grid>
   );
 }

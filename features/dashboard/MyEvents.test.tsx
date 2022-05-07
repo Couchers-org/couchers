@@ -37,7 +37,7 @@ describe("My events", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(
-      screen.getByRole("heading", { name: t("dashboard:my_events") })
+      screen.getByRole("heading", { name: t("dashboard:upcoming_events") })
     ).toBeVisible();
     expect(screen.getAllByRole("link")).toHaveLength(3);
   });
@@ -91,9 +91,11 @@ describe("My events", () => {
 
       expect(screen.getAllByRole("link")).toHaveLength(3);
       expect(listMyEventsMock).toHaveBeenCalledTimes(2);
+
+      const eventCardPerRow = 2;
       expect(listMyEventsMock.mock.calls).toEqual([
-        [{ pageSize: 3 }],
-        [{ pageToken: "2", pageSize: 3 }],
+        [{ pageSize: eventCardPerRow }],
+        [{ pageToken: "2", pageSize: eventCardPerRow }],
       ]);
     });
   });
@@ -133,9 +135,11 @@ describe("My events", () => {
         expect(screen.getAllByRole("link")).toHaveLength(3);
       });
       expect(listMyEventsMock).toHaveBeenCalledTimes(2);
+
+      const eventCardPerRow = 2;
       expect(listMyEventsMock.mock.calls).toEqual([
-        [{ pageSize: 3 }],
-        [{ pageToken: "2", pageSize: 3 }],
+        [{ pageSize: eventCardPerRow }],
+        [{ pageToken: "2", pageSize: eventCardPerRow }],
       ]);
     });
   });

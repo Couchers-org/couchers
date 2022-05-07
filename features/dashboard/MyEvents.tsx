@@ -29,12 +29,29 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(2, 0, 3),
   },
   upcomingEventContainer: {
-    paddingLeft: 0,
+    [theme.breakpoints.up("sm")]: {
+      display: "grid",
+      gridGap: theme.spacing(3),
+      gridTemplateColumns: "repeat(2, 1fr)",
+    },
+  },
+  eventCard: {
+    width: "90%",
+    [theme.breakpoints.up("sm")]: {
+      width: "auto",
+    },
   },
   allUpcomingEventsLink: {
     justifySelf: "center",
   },
+  loaderContainer: {
+    display: "flex",
+    justifyContent: "center",
+    width: "100%",
+  },
 }));
+
+const PAGE_SIZE = 2;
 
 export default function MyEvents() {
   const { t } = useTranslation([COMMUNITIES, DASHBOARD]);
@@ -46,16 +63,21 @@ export default function MyEvents() {
     useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
       queryKey: myEventsKey,
       queryFn: ({ pageParam }) =>
-        service.events.listMyEvents({ pageToken: pageParam, pageSize: 3 }),
+        service.events.listMyEvents({
+          pageToken: pageParam,
+          pageSize: PAGE_SIZE,
+        }),
       getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     });
 
   return (
     <div className={classes.root}>
-      <Typography variant="h2">{t("dashboard:my_events")}</Typography>
+      <Typography variant="h2">{t("dashboard:upcoming_events")}</Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
-        <CircularProgress />
+        <div className={classes.loaderContainer}>
+          <CircularProgress />
+        </div>
       ) : hasAtLeastOnePage(data, "eventsList") ? (
         <>
           <HorizontalScroller
@@ -74,15 +96,20 @@ export default function MyEvents() {
                   <EventCard
                     key={event.eventId}
                     event={event}
-                    className={classes.placeEventCard}
+                    className={classNames(
+                      classes.placeEventCard,
+                      classes.eventCard
+                    )}
                   />
                 );
               })}
           </HorizontalScroller>
           {hasNextPage && !isBelowSm && (
-            <Button onClick={() => fetchNextPage()}>
-              {t("communities:see_more_events_label")}
-            </Button>
+            <div className={classes.loaderContainer}>
+              <Button onClick={() => fetchNextPage()} variant="outlined">
+                {t("communities:see_more_events_label")}
+              </Button>
+            </div>
           )}
         </>
       ) : (

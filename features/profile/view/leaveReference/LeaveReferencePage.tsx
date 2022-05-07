@@ -85,7 +85,7 @@ export default function LeaveReferencePage({
           <div className={classes.root}>
             <ProfileUserProvider user={user}>
               <Hidden smDown>
-                <UserOverview />
+                <UserOverview showHostAndMeetAvailability={false} />
               </Hidden>
               <div className={classes.form}>
                 <ReferenceForm
