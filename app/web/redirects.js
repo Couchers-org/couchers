@@ -54,7 +54,7 @@ module.exports = {
     },
     {
       source: "/contributors/guide.pdf",
-      destination: "https://couchers.org/documents/guide/",
+      destination: "https://couchers.org/documents/volunteer-guide/",
       permanent: false,
     },
     {
@@ -64,7 +64,7 @@ module.exports = {
     },
     {
       source: "/contributors/guide",
-      destination: "https://couchers.org/documents/guide/",
+      destination: "https://couchers.org/documents/volunteer-guide/",
       permanent: false,
     },
     {
