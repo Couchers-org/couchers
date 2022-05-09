@@ -83,18 +83,6 @@ const loggedInDrawerMenu = (
     route: searchRoute,
   },
   {
-    name: t("nav.profile"),
-    route: routeToProfile(),
-  },
-  {
-    name: "Account settings",
-    route: settingsRoute,
-  },
-  {
-    name: "Feature preview",
-    route: featurePreviewRoute,
-  },
-  {
     name: t("nav.events"),
     route: eventsRoute,
   },
@@ -102,14 +90,6 @@ const loggedInDrawerMenu = (
     name: t("nav.forum"),
     route: forumURL,
     externalLink: true,
-  },
-  {
-    name: t("nav.help"),
-    route: handbookRoute,
-  },
-  {
-    name: t("nav.log_out"),
-    route: logoutRoute,
   },
 ];
 
@@ -251,11 +231,6 @@ const loggedInMenuDropDown = (
   {
     name: t("nav.help"),
     route: handbookRoute,
-  },
-  {
-    name: t("nav.forum"),
-    route: forumURL,
-    externalLink: true,
   },
   {
     name: t("nav.donate"),
