@@ -39,13 +39,20 @@ Want to help but don't see anything listed for you? [Fill out this form](/volunt
 
 ### Core Team
 
+#### Development
+
+- [Backend Developer (Python/Django)](/volunteer/backend-developer)
+- [Frontend (web) Developer (React/Typescript)](/volunteer/frontend-developer)
+- [Mobile Development Lead](/volunteer/mobile-development-lead)
+
 #### Operations
 
 - [Volunteer Coordinator](/volunteer/volunteer-coordinator)
 
-#### Development
+#### Marketing
 
-- [Backend Developer (Python/Django)](/volunteer/backend-developer)
+- [PR Manager](/volunteer/pr-manager)
+- [Social Media Community Manager](/volunteer/social-media-community-manager)
 
 ### Community Building
 
