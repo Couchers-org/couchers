@@ -41,12 +41,39 @@ Always refer to our [Code of Conduct](/documents/code-of-conduct) to make sure e
 
 For an understanding of our governance and decision making structure, please refer to our [Governance and Leadership Structure](/documents/governance).
 
-### Our Culture
+### Our culture
+
 We attract people who love couch surfing, and love working on projects. We strive to make sure that everyone has fun while contributing, and feels rewarded watching Couchers.org grow.
 
 Most people contribute a few hours a week, and everyone is entirely remote. What we’ve found to work is a mixture of structure and encouraging initiative. We keep things well structured here to keep things moving, but want to make sure you don’t get bogged down in approval processes and meetings in order to get things done. As long as you see something that’s within your scope, we want you to push ahead with it. If you feel blocked or unsure what you should be doing, say something!
 
 Allowing everyone to push things forward means people will make mistakes, and that’s a great thing. We expect everyone on the team to make mistakes, including the leadership. It’s not hard to fix mistakes as long as everyone is open and honest, and willing to take on feedback. Allowing mistakes means the project keeps moving, and people develop professionally.
+
+### Our traditions
+
+#### 👋 Onboarding
+
+We like to welcome our new volunteers with open arms and excitement. Here are some ways we make that happen:
+
+- your Team Lead will send an introductory message on Slack welcoming you on our #announcement channel;
+- we will ask you to take some time to introduce yourself on the #introduce-yourself channel;
+- we will ask you to share a picture so we can introduce you on our social media channels.
+
+#### 🍰 Birthdays
+
+They only come around once a year, so why not make them special? We try to let everyone know it's your birthday to let you know you're appreciated and to feel the love from the team!
+
+- we will wish you a happy birthday on our #chit-chat channel
+- if budget allows us, we will send you some gift merch, such as t-shirt or mug
+- we will add your birthday to an organization-wide calendar, so you can know when to wish everyone else as well!
+
+#### 🎈 Virtual Fun
+
+We have volunteers spread across 10+ countries and 30+ different cities. Since we don't pass each another in the halls, we do our best to find creative ways to connect and build relationships.
+
+- We pair our volunteers up every other week for a **#VirtualCoffee**. A chit-chat for 15-30 mins to connect and talk about their lives. We use the donut app to pair our volunteers together and match them in our #virtual-coffee channel;
+- Answer a **fun question every Wednesday** on the #chit-chat channel. Each question is designed to prompt fun, creative answers that will in turn create an engaging, energetic comment section through which our people can laugh together and enjoy each other's answers;
+- **Share our weekend adventures** every Monday morning in the #chit-chat channel. This is a fun time to learn more about our volunteers and what they are up to while surfing, hosting, enjoying, and exploring life outside their work/volunteer duties.
 
 ### Our attitude towards Couchsurfing™
 
