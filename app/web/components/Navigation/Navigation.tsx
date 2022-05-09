@@ -233,11 +233,6 @@ const loggedInMenuDropDown = (
     route: handbookRoute,
   },
   {
-    name: t("nav.forum"),
-    route: forumURL,
-    externalLink: true,
-  },
-  {
     name: t("nav.donate"),
     route: donationsRoute,
   },
