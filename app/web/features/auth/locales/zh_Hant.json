@@ -48,8 +48,7 @@
     "username": {
       "field_label": "用戶名稱",
       "username_taken_error": "該用戶名稱已經被註冊。",
-      "required_error": "請輸入您的用戶名稱",
-      "validation_error": ""
+      "required_error": "請輸入您的用戶名稱"
     },
     "birthday": {
       "field_label": "生日",
@@ -73,8 +72,7 @@
     "tos_prompt": "如欲繼續，請閱讀並接受<1></1>。",
     "password": {
       "field_label": "密碼",
-      "required_error": "輸入密碼",
-      "validation_error": ""
+      "required_error": "輸入密碼"
     }
   },
   "basic_form": {
@@ -117,12 +115,7 @@
     "verify_success": "電話號碼已驗證。",
     "change_button_text": "更改電話號碼",
     "code_label": "驗證碼",
-    "add_success": "電話號碼已添加。",
-    "no_phone_description": "",
-    "add_button_text": "",
-    "phone_not_verified_description": "",
-    "remove_phone_description": "",
-    "change_to_different_description": ""
+    "add_success": "電話號碼已添加。"
   },
   "delete_account": {
     "confirm": {
@@ -143,11 +136,8 @@
       "reason_label": "帳戶刪除原因",
       "confirm_username_explanation": "您的用户名稱是 <1>{{ username }}</1> ，請將它輸入到下方，確認刪除帳戶。",
       "confirm_username_label": "用戶名稱確認",
-      "title": "刪除帳戶",
-      "description": "",
-      "success_message": ""
-    },
-    "missing_token": ""
+      "title": "刪除帳戶"
+    }
   },
   "jail_set_password_form": {
     "explanation": "您之前沒有為帳號設定過密碼。請現在設定一個密碼再繼續操作。",
@@ -173,56 +163,16 @@
   "account_settings_page": {
     "title": "帳號設定",
     "gender_section": {
-      "title": "更改性別",
-      "explanation": ""
+      "title": "更改性別"
     },
     "birth_date_section": {
-      "title": "更改生日",
-      "explanation": ""
+      "title": "更改生日"
     },
     "timezone_section": {
       "title": "時區和在地化",
       "description": "您的時區是<1>{{timezone}}</1>。根據這個資訊，您的當地時間大約是<4>{{time}}</4>。",
       "explanation": "此時間和時區是根據您的住家位置決定的。如果它不正确，請回報錯誤。"
-    },
-    "username_section": {
-      "title": "",
-      "description": "",
-      "explanation": ""
     }
   },
-  "reset_password_error": "重設密碼錯誤：{{message}}",
-  "notification_settings": {
-    "title": "",
-    "action_button": {
-      "disable_text": "",
-      "enable_text": ""
-    },
-    "status": {
-      "enabled_message": "",
-      "disabled_message": ""
-    }
-  },
-  "feedback_form": {
-    "skip_step_text": "",
-    "header": ""
-  },
-  "unsubscribe": {
-    "title": "",
-    "button_text": "",
-    "error_message": "",
-    "missing_payload_or_sig": ""
-  },
-  "vercel_logo_alt_text": "",
-  "feature_preview": {
-    "disclaimer": "",
-    "title": "",
-    "explanation": "",
-    "no_previews": {
-      "title": "",
-      "explanation": ""
-    }
-  },
-  "introduction_subtitle": "",
-  "introduction_title": ""
+  "reset_password_error": "重設密碼錯誤：{{message}}"
 }

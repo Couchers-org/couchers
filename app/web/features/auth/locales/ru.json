@@ -161,8 +161,7 @@
   },
   "introduction_subtitle": "Бесплатно навсегда. Управляется сообществом. Некоммерческий. Современный.",
   "feedback_form": {
-    "header": "Выскажите свое мнение",
-    "skip_step_text": ""
+    "header": "Выскажите свое мнение"
   },
   "unhandled_sign_up_state": "Ошибка: unhandled signup flow state.",
   "feature_preview": {
@@ -177,8 +176,7 @@
   "unsubscribe": {
     "title": "Отписаться",
     "error_message": "Описаться не удалось: {{message}}",
-    "missing_payload_or_sig": "Неправильная ссылка",
-    "button_text": ""
+    "missing_payload_or_sig": "Неправильная ссылка"
   },
   "change_phone": {
     "phone_not_verified_description": "Мы отправили код на <2>{{phone}}</2>. Чтобы подтвердить ваш номер телефона, введите код ниже:",
