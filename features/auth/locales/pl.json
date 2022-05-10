@@ -20,24 +20,45 @@
       "remember_me": "Zapamiętaj mnie",
       "password_field_label": "Hasło",
       "forgot_password": "Nie pamiętasz hasła?",
-      "no_password_login_prompt": "Sprawdź swoją skrzynkę e-mail, aby odebrać link do zalogowania się! :)"
+      "no_password_login_prompt": "Sprawdź swoją skrzynkę e-mail, aby odebrać link do zalogowania się! :)",
+      "username_field_label": ""
     },
-    "title": "Zaloguj się"
+    "title": "Zaloguj się",
+    "no_account_prompt": ""
   },
   "account_form": {
     "password": {
       "required_error": "Wpisz hasło",
-      "field_label": "Hasło"
+      "field_label": "Hasło",
+      "validation_error": ""
     },
     "birthday": {
       "field_label": "Data urodzenia",
-      "required_error": "Wpisz swoją datę urodzenia"
+      "required_error": "Wpisz swoją datę urodzenia",
+      "validation_error": ""
     },
     "gender": {
       "man": "Meżczyzna",
       "non_binary": "Osoba niebinarna",
-      "woman": "Kobieta"
-    }
+      "woman": "Kobieta",
+      "field_label": "",
+      "required_error": ""
+    },
+    "hosting_status": {
+      "can_host": "",
+      "field_label": "",
+      "maybe": "",
+      "cant_host": ""
+    },
+    "header": "",
+    "username": {
+      "field_label": "",
+      "required_error": "",
+      "username_taken_error": "",
+      "validation_error": ""
+    },
+    "tos_prompt": "",
+    "tos_accept_label": ""
   },
   "change_phone": {
     "add_success": "Dodano numer telefonu.",
@@ -53,7 +74,8 @@
     "remove_button_text": "Usuń obecny numer telefonu",
     "remove_phone_description": "Twój obecny numer telefonu to <2>{{phone}}</2>. Możesz usunąć swój numer poniżej.",
     "phone_not_verified_description": "Wysłaliśmy kod pod numer <2>{{phone}}</2>. Aby potwierdzić swój numer telefonu, wpisz kod poniżej:",
-    "change_to_different_description": "Aby zmienić numer telefonu, wpisz nowy poniżej."
+    "change_to_different_description": "Aby zmienić numer telefonu, wpisz nowy poniżej.",
+    "no_phone_description": ""
   },
   "basic_form": {
     "name": {
@@ -63,7 +85,8 @@
     },
     "email": {
       "field_label": "Adres e-mail",
-      "required_error": "Pole adresu e-mail nie może być puste."
+      "required_error": "Pole adresu e-mail nie może być puste.",
+      "empty_error": ""
     }
   },
   "jail": {
@@ -72,13 +95,21 @@
         "inactive_text": "Dzięki!",
         "active_text": "Zapisz"
       },
-      "resubmit_button_text": "Wyślij ponownie"
+      "resubmit_button_text": "Wyślij ponownie",
+      "title": ""
+    },
+    "title": "",
+    "description": "",
+    "terms_of_service_section": {
+      "description": ""
     }
   },
   "community_guidelines_form": {
     "guideline": {
-      "checkbox_label": "Ok, wszystko jasne"
-    }
+      "checkbox_label": "Ok, wszystko jasne",
+      "required_error": ""
+    },
+    "header": ""
   },
   "unsubscribe": {
     "missing_payload_or_sig": "Nieprawidłowy adres URL",
@@ -88,7 +119,15 @@
   },
   "unhandled_sign_up_state": "Błąd: unhandled signup flow state.",
   "notification_settings": {
-    "title": "Ustawienia powiadomień"
+    "title": "Ustawienia powiadomień",
+    "status": {
+      "enabled_message": "",
+      "disabled_message": ""
+    },
+    "action_button": {
+      "enable_text": "",
+      "disable_text": ""
+    }
   },
   "change_email_confirmation": {
     "success_message": "Udało się zmienić adres e-mail!",
@@ -100,15 +139,90 @@
   },
   "account_settings_page": {
     "birth_date_section": {
-      "title": "Zmień datę urodzenia"
+      "title": "Zmień datę urodzenia",
+      "explanation": ""
+    },
+    "title": "",
+    "gender_section": {
+      "title": "",
+      "explanation": ""
+    },
+    "timezone_section": {
+      "title": "",
+      "description": "",
+      "explanation": ""
+    },
+    "username_section": {
+      "title": "",
+      "description": "",
+      "explanation": ""
     }
   },
   "jail_set_password_form": {
-    "title": "Ustaw hasło"
+    "title": "Ustaw hasło",
+    "explanation": ""
   },
   "reset_password": "Zresetuj hasło",
   "reset_password_error": "Błąd podczas próby zresetowania hasła: {{message}}",
   "reset_password_form": {
-    "success_message": "Sprawdź swoją skrzynkę e-mail, aby odebrać link do zresetowania hasła!"
+    "success_message": "Sprawdź swoją skrzynkę e-mail, aby odebrać link do zresetowania hasła!",
+    "enter_email": ""
+  },
+  "feedback_form": {
+    "skip_step_text": "",
+    "header": ""
+  },
+  "basic_sign_up_form": {
+    "header": "",
+    "existing_user_prompt": "",
+    "sign_up_agreement_explainer": ""
+  },
+  "vercel_logo_alt_text": "",
+  "location": {
+    "field_label": "",
+    "validation_error": ""
+  },
+  "logged_out_message": "",
+  "sign_up_completed_title": "",
+  "sign_up_completed_prompt": "",
+  "sign_up_confirmed_prompt": "",
+  "reset_password_success": "",
+  "login_prompt": "",
+  "about_us": "",
+  "introduction_subtitle": "",
+  "introduction_title": "",
+  "feature_preview": {
+    "title": "",
+    "explanation": "",
+    "disclaimer": "",
+    "no_previews": {
+      "title": "",
+      "explanation": ""
+    }
+  },
+  "delete_account": {
+    "request": {
+      "title": "",
+      "description": "",
+      "confirm_username_explanation": "",
+      "confirm_username_label": "",
+      "username_mismatch": "",
+      "reason_explanation": "",
+      "reason_label": "",
+      "success_message": ""
+    },
+    "missing_token": "",
+    "confirm": {
+      "title": "",
+      "error_message": "",
+      "button_text": "",
+      "account_deleted": ""
+    },
+    "recover": {
+      "title": "",
+      "success": "",
+      "error_message": "",
+      "button_text": ""
+    }
   }
 }
