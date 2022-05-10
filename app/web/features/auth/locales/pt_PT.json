@@ -1,23 +1,7 @@
 {
   "account_settings_page": {
     "gender_section": {
-      "title": "Alterar género",
-      "explanation": ""
-    },
-    "birth_date_section": {
-      "title": "",
-      "explanation": ""
-    },
-    "username_section": {
-      "title": "",
-      "description": "",
-      "explanation": ""
-    },
-    "title": "",
-    "timezone_section": {
-      "title": "",
-      "description": "",
-      "explanation": ""
+      "title": "Alterar género"
     }
   },
   "sign_up_completed_prompt": "Enviámos um e-mail com um link de verificação para o teu endereço de e-mail. Clica no link para ativar a tua conta.",
@@ -26,20 +10,16 @@
       "explanation": "De momento não existem funcionalidades para pré-visualização ativas, volta a verificar mais tarde!",
       "title": "Sem funcionalidades para pré-visualização de momento"
     },
-    "disclaimer": "Lembra-te que estas funcionalidades são experimentais. Podem não funcionar como pretendido ou mudar rapidamente à medida que as desenvolvemos. Fica à vontade para dar feedback no nosso fórum e por favor reporta quaisquer problemas!",
-    "explanation": "",
-    "title": ""
+    "disclaimer": "Lembra-te que estas funcionalidades são experimentais. Podem não funcionar como pretendido ou mudar rapidamente à medida que as desenvolvemos. Fica à vontade para dar feedback no nosso fórum e por favor reporta quaisquer problemas!"
   },
   "unsubscribe": {
     "title": "Desinscrever-se",
     "error_message": "Erro ao desinscrever: {{message}}",
-    "button_text": "Confirmar a desinscrição",
-    "missing_payload_or_sig": ""
+    "button_text": "Confirmar a desinscrição"
   },
   "logged_out_message": "A tua sessão foi encerrada.",
   "feedback_form": {
-    "header": "Dá a tua opinião",
-    "skip_step_text": ""
+    "header": "Dá a tua opinião"
   },
   "sign_up_completed_title": "Obrigado por te registares!",
   "sign_up_confirmed_prompt": "Tudo pronto! Se não fores redirecionado, tenta fazer login.",
@@ -119,13 +99,7 @@
   "basic_form": {
     "name": {
       "field_label": "O teu nome",
-      "empty_error": "Por favor, introduz o teu nome",
-      "required_error": ""
-    },
-    "email": {
-      "field_label": "",
-      "required_error": "",
-      "empty_error": ""
+      "empty_error": "Por favor, introduz o teu nome"
     }
   },
   "basic_sign_up_form": {
@@ -139,90 +113,7 @@
   },
   "delete_account": {
     "recover": {
-      "success": "A tua conta foi recuperada, podes voltar a entrar. Estamos felizes por ter-te de volta!",
-      "title": "",
-      "error_message": "",
-      "button_text": ""
-    },
-    "request": {
-      "title": "",
-      "description": "",
-      "confirm_username_explanation": "",
-      "confirm_username_label": "",
-      "username_mismatch": "",
-      "reason_explanation": "",
-      "reason_label": "",
-      "success_message": ""
-    },
-    "missing_token": "",
-    "confirm": {
-      "account_deleted": "",
-      "title": "",
-      "error_message": "",
-      "button_text": ""
+      "success": "A tua conta foi recuperada, podes voltar a entrar. Estamos felizes por ter-te de volta!"
     }
-  },
-  "notification_settings": {
-    "title": "",
-    "action_button": {
-      "disable_text": "",
-      "enable_text": ""
-    },
-    "status": {
-      "enabled_message": "",
-      "disabled_message": ""
-    }
-  },
-  "jail": {
-    "title": "",
-    "description": "",
-    "terms_of_service_section": {
-      "description": ""
-    },
-    "location_section": {
-      "title": "",
-      "submit_button": {
-        "active_text": "",
-        "inactive_text": ""
-      },
-      "resubmit_button_text": ""
-    }
-  },
-  "introduction_title": "",
-  "change_phone": {
-    "title": "",
-    "no_phone_description": "",
-    "add_success": "",
-    "phone_not_verified_description": "",
-    "code_label": "",
-    "wrong_code": "",
-    "remove_phone_description": "",
-    "phone_label": "",
-    "add_button_text": "",
-    "verify_button_text": "",
-    "verify_success": "",
-    "remove_button_text": "",
-    "remove_success": "",
-    "change_to_different_description": "",
-    "change_button_text": ""
-  },
-  "community_guidelines_form": {
-    "header": "",
-    "guideline": {
-      "required_error": "",
-      "checkbox_label": ""
-    }
-  },
-  "unhandled_sign_up_state": "",
-  "login_prompt": "",
-  "reset_password_error": "",
-  "reset_password_success": "",
-  "about_us": "",
-  "introduction_subtitle": "",
-  "reset_password": "",
-  "vercel_logo_alt_text": "",
-  "location": {
-    "field_label": "",
-    "validation_error": ""
   }
 }

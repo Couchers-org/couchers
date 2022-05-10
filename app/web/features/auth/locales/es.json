@@ -94,8 +94,7 @@
     "validation_error": "Por favor selecciona una ubicación válida."
   },
   "feedback_form": {
-    "header": "Da tu opinión",
-    "skip_step_text": ""
+    "header": "Da tu opinión"
   },
   "jail": {
     "title": "Se requiere más información",
