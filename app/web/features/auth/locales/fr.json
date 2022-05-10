@@ -29,7 +29,9 @@
     "change_in_progress": "Changement d’adresse e-mail en cours…",
     "requires_confirmation_from_new_email": "",
     "requires_confirmation_from_old_email": "",
-    "invalid_confirmation_state": ""
+    "invalid_confirmation_state": "",
+    "success_message": "",
+    "error_message": ""
   },
   "notification_settings": {
     "title": "",
@@ -64,15 +66,24 @@
     "remove_success": ""
   },
   "change_password_form": {
-    "password_changed_success": ""
+    "password_changed_success": "",
+    "password_mismatch_error": "",
+    "title": "",
+    "confirm_password": "",
+    "old_password": "",
+    "new_password": ""
   },
   "login_page": {
     "form": {
       "username_field_label": "",
       "no_password_login_prompt": "",
-      "remember_me": ""
+      "remember_me": "",
+      "password_field_label": "",
+      "forgot_password": ""
     },
-    "no_account_prompt": ""
+    "no_account_prompt": "",
+    "header": "",
+    "title": ""
   },
   "account_form": {
     "tos_accept_label": "",
@@ -145,7 +156,9 @@
     "missing_token": ""
   },
   "basic_sign_up_form": {
-    "sign_up_agreement_explainer": ""
+    "sign_up_agreement_explainer": "",
+    "existing_user_prompt": "",
+    "header": ""
   },
   "location": {
     "field_label": "",
