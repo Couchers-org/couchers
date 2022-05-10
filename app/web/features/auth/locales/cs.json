@@ -56,7 +56,9 @@
       "validation_error": "Datum narození musí být datum v minulosti."
     },
     "hosting_status": {
-      "field_label": "Status hostitele"
+      "field_label": "Status hostitele",
+      "can_host": "",
+      "maybe": ""
     },
     "gender": {
       "field_label": "Identifikuji se jako…",
