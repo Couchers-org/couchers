@@ -29,7 +29,14 @@
   "login_page": {
     "title": "ログイン",
     "header": "おかえりなさい！",
-    "no_account_prompt": "まだアカウントを持っていませんか？<2>1$t(global:sign_up)</2>"
+    "no_account_prompt": "まだアカウントを持っていませんか？<2>1$t(global:sign_up)</2>",
+    "form": {
+      "username_field_label": "",
+      "password_field_label": "",
+      "no_password_login_prompt": "",
+      "remember_me": "",
+      "forgot_password": ""
+    }
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "すでにアカウントを持っていますか？<2>1$t(global:login)</2>",
@@ -63,7 +70,12 @@
       "field_label": "私は..."
     },
     "tos_prompt": "続行するためには、<1></1>を読み受け入れてください。",
-    "tos_accept_label": "$t(global:terms_of_service)を受け入れます。"
+    "tos_accept_label": "$t(global:terms_of_service)を受け入れます。",
+    "password": {
+      "field_label": "",
+      "required_error": "",
+      "validation_error": ""
+    }
   },
   "basic_form": {
     "email": {
@@ -105,6 +117,112 @@
     "no_previews": {
       "title": "現在プレビューできる機能はありません",
       "explanation": "現在プレビューに利用可能な機能はありません。後ほどまたご確認ください！"
+    },
+    "disclaimer": ""
+  },
+  "notification_settings": {
+    "title": "",
+    "status": {
+      "enabled_message": "",
+      "disabled_message": ""
+    },
+    "action_button": {
+      "enable_text": "",
+      "disable_text": ""
     }
-  }
+  },
+  "feedback_form": {
+    "skip_step_text": "",
+    "header": ""
+  },
+  "unsubscribe": {
+    "title": "",
+    "button_text": "",
+    "error_message": "",
+    "missing_payload_or_sig": ""
+  },
+  "jail": {
+    "location_section": {
+      "title": "",
+      "submit_button": {
+        "active_text": "",
+        "inactive_text": ""
+      },
+      "resubmit_button_text": ""
+    },
+    "title": "",
+    "description": "",
+    "terms_of_service_section": {
+      "description": ""
+    }
+  },
+  "change_phone": {
+    "title": "",
+    "no_phone_description": "",
+    "phone_label": "",
+    "add_button_text": "",
+    "add_success": "",
+    "code_label": "",
+    "remove_phone_description": "",
+    "remove_button_text": "",
+    "remove_success": "",
+    "change_to_different_description": "",
+    "phone_not_verified_description": "",
+    "wrong_code": "",
+    "verify_button_text": "",
+    "verify_success": "",
+    "change_button_text": ""
+  },
+  "delete_account": {
+    "confirm": {
+      "account_deleted": "",
+      "title": "",
+      "error_message": "",
+      "button_text": ""
+    },
+    "request": {
+      "title": "",
+      "description": "",
+      "confirm_username_explanation": "",
+      "confirm_username_label": "",
+      "username_mismatch": "",
+      "reason_explanation": "",
+      "reason_label": "",
+      "success_message": ""
+    },
+    "missing_token": "",
+    "recover": {
+      "title": "",
+      "error_message": "",
+      "button_text": "",
+      "success": ""
+    }
+  },
+  "logged_out_message": "",
+  "account_settings_page": {
+    "title": "",
+    "birth_date_section": {
+      "title": "",
+      "explanation": ""
+    },
+    "username_section": {
+      "explanation": "",
+      "title": "",
+      "description": ""
+    },
+    "timezone_section": {
+      "title": "",
+      "description": "",
+      "explanation": ""
+    },
+    "gender_section": {
+      "title": "",
+      "explanation": ""
+    }
+  },
+  "jail_set_password_form": {
+    "title": "",
+    "explanation": ""
+  },
+  "vercel_logo_alt_text": ""
 }

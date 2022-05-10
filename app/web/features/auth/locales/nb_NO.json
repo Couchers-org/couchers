@@ -101,7 +101,8 @@
     "header": "Gemenskapsveiledning"
   },
   "feedback_form": {
-    "header": "La din mening komme til kjenne"
+    "header": "La din mening komme til kjenne",
+    "skip_step_text": ""
   },
   "about_us": "Om oss",
   "sign_up_confirmed_prompt": "Da er alt klart! Hvis ikke siden åpnes automatisk kan du prøve å logge in selv.",
