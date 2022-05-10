@@ -2,7 +2,9 @@ import {
   Grid,
   InputAdornment,
   makeStyles,
+  Theme,
   Typography,
+  useMediaQuery,
 } from "@material-ui/core";
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
@@ -32,7 +34,8 @@ import {
   ACCOMODATION_FILTERS,
   APPLY_FILTER,
   CLEAR_SEARCH,
-  FILTER_DIALOG_TITLE,
+  FILTER_DIALOG_TITLE_DESKTOP,
+  FILTER_DIALOG_TITLE_MOBILE,
   HOST_FILTERS,
   HOSTING_STATUS,
   LAST_ACTIVE,
@@ -134,13 +137,19 @@ export default function FilterDialog({
       : true;
   };
 
+  const isSmDown = useMediaQuery((theme: Theme) =>
+    theme.breakpoints.down("sm")
+  );
+
   return (
     <Dialog
       open={isOpen}
       onClose={onClose}
       aria-labelledby="filter-dialog-title"
     >
-      <DialogTitle id="filter-dialog-title">{FILTER_DIALOG_TITLE}</DialogTitle>
+      <DialogTitle id="filter-dialog-title">
+        {isSmDown ? FILTER_DIALOG_TITLE_MOBILE : FILTER_DIALOG_TITLE_DESKTOP}
+      </DialogTitle>
       <form onSubmit={onSubmit}>
         <DialogContent>
           <div className={classes.container}>
