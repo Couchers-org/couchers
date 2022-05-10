@@ -171,8 +171,7 @@
   "login_prompt": "Clica aqui para entrar",
   "logged_out_message": "Sua sessão foi encerrada.",
   "feedback_form": {
-    "header": "Deixe a sua opinião",
-    "skip_step_text": ""
+    "header": "Deixe a sua opinião"
   },
   "sign_up_completed_title": "Obrigado por se registrar!",
   "sign_up_completed_prompt": "Enviamos um e-mail com um link de verificação para o seu e-mail. Clique no link para ativar sua conta.",
@@ -182,47 +181,5 @@
     "missing_payload_or_sig": "URL inválido, payload ou assinatura em falta",
     "title": "Cancelar a inscrição",
     "button_text": "Confirmar o cancelamento da inscrição"
-  },
-  "change_phone": {
-    "title": "",
-    "no_phone_description": "",
-    "phone_label": "",
-    "add_button_text": "",
-    "wrong_code": "",
-    "verify_button_text": "",
-    "verify_success": "",
-    "remove_phone_description": "",
-    "remove_button_text": "",
-    "remove_success": "",
-    "change_to_different_description": "",
-    "change_button_text": "",
-    "add_success": "",
-    "phone_not_verified_description": "",
-    "code_label": ""
-  },
-  "delete_account": {
-    "confirm": {
-      "error_message": "",
-      "button_text": "",
-      "account_deleted": "",
-      "title": ""
-    },
-    "recover": {
-      "title": "",
-      "error_message": "",
-      "button_text": "",
-      "success": ""
-    },
-    "request": {
-      "title": "",
-      "description": "",
-      "confirm_username_explanation": "",
-      "confirm_username_label": "",
-      "username_mismatch": "",
-      "reason_label": "",
-      "reason_explanation": "",
-      "success_message": ""
-    },
-    "missing_token": ""
   }
 }

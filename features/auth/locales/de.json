@@ -12,8 +12,7 @@
     "username": {
       "field_label": "Benutzername",
       "required_error": "Gib deinen Nuternamen ein",
-      "username_taken_error": "Dieser Benutzername ist bereits vergeben.",
-      "validation_error": ""
+      "username_taken_error": "Dieser Benutzername ist bereits vergeben."
     },
     "birthday": {
       "field_label": "Geburtsdatum",
@@ -23,8 +22,7 @@
     "hosting_status": {
       "can_host": "Kann hosten",
       "maybe": "Kann vielleicht hosten",
-      "cant_host": "Kann nicht hosten",
-      "field_label": ""
+      "cant_host": "Kann nicht hosten"
     },
     "gender": {
       "field_label": "Ich identifiziere mich als ...",
@@ -126,20 +124,14 @@
     },
     "username_section": {
       "title": "Benutzername",
-      "description": "Dein Benutzername lautet <1>{{username}}</1>.",
-      "explanation": ""
-    },
-    "title": ""
+      "description": "Dein Benutzername lautet <1>{{username}}</1>."
+    }
   },
   "notification_settings": {
     "title": "Benachrichtigungseinstellungen",
     "action_button": {
       "enable_text": "Das neue Benachrichtigungssystem aktivieren",
       "disable_text": "Das neue Benachrichtigungssystem deaktivieren"
-    },
-    "status": {
-      "enabled_message": "",
-      "disabled_message": ""
     }
   },
   "feature_preview": {
@@ -162,8 +154,7 @@
       "submit_button": {
         "active_text": "Speichern",
         "inactive_text": "Danke!"
-      },
-      "resubmit_button_text": ""
+      }
     }
   },
   "logged_out_message": "Du wurdest ausgeloggt.",
@@ -171,58 +162,5 @@
   "jail_set_password_form": {
     "title": "Erstelle ein Passwort",
     "explanation": "Du hast noch kein Passwort für deinen Account angegeben. Bitte erstelle eins, um fortzusetzen."
-  },
-  "feedback_form": {
-    "skip_step_text": "",
-    "header": ""
-  },
-  "unsubscribe": {
-    "title": "",
-    "button_text": "",
-    "error_message": "",
-    "missing_payload_or_sig": ""
-  },
-  "change_phone": {
-    "title": "",
-    "no_phone_description": "",
-    "phone_label": "",
-    "add_button_text": "",
-    "add_success": "",
-    "remove_success": "",
-    "phone_not_verified_description": "",
-    "code_label": "",
-    "wrong_code": "",
-    "verify_button_text": "",
-    "verify_success": "",
-    "remove_phone_description": "",
-    "remove_button_text": "",
-    "change_to_different_description": "",
-    "change_button_text": ""
-  },
-  "delete_account": {
-    "request": {
-      "title": "",
-      "confirm_username_label": "",
-      "success_message": "",
-      "description": "",
-      "confirm_username_explanation": "",
-      "username_mismatch": "",
-      "reason_explanation": "",
-      "reason_label": ""
-    },
-    "missing_token": "",
-    "confirm": {
-      "title": "",
-      "error_message": "",
-      "button_text": "",
-      "account_deleted": ""
-    },
-    "recover": {
-      "title": "",
-      "error_message": "",
-      "button_text": "",
-      "success": ""
-    }
-  },
-  "unhandled_sign_up_state": ""
+  }
 }
