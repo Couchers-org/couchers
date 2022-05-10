@@ -16,7 +16,8 @@
     "title": "",
     "timezone_section": {
       "title": "",
-      "description": ""
+      "description": "",
+      "explanation": ""
     }
   },
   "sign_up_completed_prompt": "Enviámos um e-mail com um link de verificação para o teu endereço de e-mail. Clica no link para ativar a tua conta.",
@@ -123,7 +124,8 @@
     },
     "email": {
       "field_label": "",
-      "required_error": ""
+      "required_error": "",
+      "empty_error": ""
     }
   },
   "basic_sign_up_form": {
@@ -207,7 +209,8 @@
   "community_guidelines_form": {
     "header": "",
     "guideline": {
-      "required_error": ""
+      "required_error": "",
+      "checkbox_label": ""
     }
   },
   "unhandled_sign_up_state": "",
@@ -217,5 +220,9 @@
   "about_us": "",
   "introduction_subtitle": "",
   "reset_password": "",
-  "vercel_logo_alt_text": ""
+  "vercel_logo_alt_text": "",
+  "location": {
+    "field_label": "",
+    "validation_error": ""
+  }
 }
