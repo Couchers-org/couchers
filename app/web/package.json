@@ -27,7 +27,7 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.61",
     "@material-ui/pickers": "3.3.10",
-    "@sentry/nextjs": "^6.19.6",
+    "@sentry/nextjs": "^6.19.7",
     "@sentry/react": "^6.18.0",
     "@stripe/stripe-js": "^1.29.0",
     "@toast-ui/editor": "^3.1.3",
