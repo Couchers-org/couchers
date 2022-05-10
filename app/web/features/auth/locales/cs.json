@@ -34,7 +34,8 @@
       "password_field_label": "Heslo",
       "username_field_label": "E-mail/Uživatelské jméno",
       "forgot_password": "Zapomenuté heslo?",
-      "no_password_login_prompt": "Zkontroluj svou e-mailovou schránku a klikni na odkaz pro přihlášení! :)"
+      "no_password_login_prompt": "Zkontroluj svou e-mailovou schránku a klikni na odkaz pro přihlášení! :)",
+      "remember_me": ""
     }
   },
   "basic_sign_up_form": {
@@ -58,7 +59,8 @@
     "hosting_status": {
       "field_label": "Status hostitele",
       "can_host": "",
-      "maybe": ""
+      "maybe": "",
+      "cant_host": ""
     },
     "gender": {
       "field_label": "Identifikuji se jako…",
@@ -71,7 +73,8 @@
     "tos_accept_label": "Souhlasím s $t(global:terms_of_service).",
     "password": {
       "required_error": "Zadej heslo",
-      "field_label": "Heslo"
+      "field_label": "Heslo",
+      "validation_error": ""
     }
   },
   "basic_form": {
@@ -87,25 +90,42 @@
     }
   },
   "notification_settings": {
-    "title": "Nastavení upozornění"
+    "title": "Nastavení upozornění",
+    "status": {
+      "enabled_message": "",
+      "disabled_message": ""
+    },
+    "action_button": {
+      "enable_text": "",
+      "disable_text": ""
+    }
   },
   "community_guidelines_form": {
     "guideline": {
-      "required_error": "Všechna pole jsou povinná"
-    }
+      "required_error": "Všechna pole jsou povinná",
+      "checkbox_label": ""
+    },
+    "header": ""
   },
   "account_settings_page": {
     "title": "Nastavení účtu",
     "username_section": {
       "title": "Uživatelské jméno",
-      "description": "Tvé uživatelské jméno je <1>{{username}}</1>."
+      "description": "Tvé uživatelské jméno je <1>{{username}}</1>.",
+      "explanation": ""
     },
     "gender_section": {
-      "title": "Změnit pohlaví"
+      "title": "Změnit pohlaví",
+      "explanation": ""
     },
     "birth_date_section": {
       "title": "Změnit datum narození",
       "explanation": "Admini ti rádi pomůžou se změnou data tvého narození. Prosím, kontaktuj support@couchers.org!"
+    },
+    "timezone_section": {
+      "title": "",
+      "description": "",
+      "explanation": ""
     }
   },
   "delete_account": {
@@ -113,17 +133,25 @@
       "title": "Smazat účet",
       "confirm_username_label": "Potvrzení uživatelského jména",
       "username_mismatch": "Uživatelské jméno se neshoduje.",
-      "reason_label": "Důvod ke smazání účtu"
+      "reason_label": "Důvod ke smazání účtu",
+      "description": "",
+      "confirm_username_explanation": "",
+      "reason_explanation": "",
+      "success_message": ""
     },
     "confirm": {
       "title": "Potvrdit smazání účtu",
       "account_deleted": "Účet smazán. Děkujeme za používání Couchers.org!",
-      "button_text": "Potvrdit smazání účtu"
+      "button_text": "Potvrdit smazání účtu",
+      "error_message": ""
     },
     "recover": {
       "button_text": "Obnovit účet",
-      "success": "Tvůj účet byl obnoven, můžeš se znovu přihlášit. Jsme rádi, že jsi zpět!"
-    }
+      "success": "Tvůj účet byl obnoven, můžeš se znovu přihlášit. Jsme rádi, že jsi zpět!",
+      "title": "",
+      "error_message": ""
+    },
+    "missing_token": ""
   },
   "jail_set_password_form": {
     "title": "Nastavit heslo",
@@ -132,7 +160,9 @@
   "about_us": "O nás",
   "unsubscribe": {
     "title": "Odhlásit se z odběru",
-    "error_message": "Nastala chyba při odhlášení z odběru: {{message}}"
+    "error_message": "Nastala chyba při odhlášení z odběru: {{message}}",
+    "button_text": "",
+    "missing_payload_or_sig": ""
   },
   "reset_password": "Resetovat heslo",
   "change_phone": {
@@ -145,18 +175,54 @@
     "title": "Telefonní číslo",
     "add_success": "Telefonní číslo bylo přidáno.",
     "wrong_code": "Neplatný kód.",
-    "change_button_text": "Změnit telefonní číslo"
+    "change_button_text": "Změnit telefonní číslo",
+    "no_phone_description": "",
+    "add_button_text": "",
+    "phone_not_verified_description": "",
+    "remove_phone_description": "",
+    "change_to_different_description": ""
   },
   "jail": {
     "location_section": {
       "submit_button": {
         "active_text": "Uložit",
         "inactive_text": "Díky!"
-      }
+      },
+      "title": "",
+      "resubmit_button_text": ""
+    },
+    "title": "",
+    "description": "",
+    "terms_of_service_section": {
+      "description": ""
     }
   },
   "logged_out_message": "Byl/a jsi odhlášen/a.",
   "sign_up_completed_title": "Děkujeme za přihlášení!",
   "login_prompt": "Klikni zde pro přihlášení",
-  "reset_password_error": "Nastala chyba při resetovaní hesla: {{message}}"
+  "reset_password_error": "Nastala chyba při resetovaní hesla: {{message}}",
+  "feedback_form": {
+    "skip_step_text": "",
+    "header": ""
+  },
+  "introduction_subtitle": "",
+  "sign_up_completed_prompt": "",
+  "reset_password_success": "",
+  "location": {
+    "field_label": "",
+    "validation_error": ""
+  },
+  "unhandled_sign_up_state": "",
+  "sign_up_confirmed_prompt": "",
+  "introduction_title": "",
+  "vercel_logo_alt_text": "",
+  "feature_preview": {
+    "title": "",
+    "explanation": "",
+    "disclaimer": "",
+    "no_previews": {
+      "title": "",
+      "explanation": ""
+    }
+  }
 }
