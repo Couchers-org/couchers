@@ -48,7 +48,7 @@
     "react-error-boundary": "^3.1.3",
     "react-gtm-module": "^2.0.11",
     "react-hook-form": "^6.15.8",
-    "react-intersection-observer": "^8.32.5",
+    "react-intersection-observer": "^9.1.0",
     "react-lines-ellipsis": "^0.15.0",
     "react-phone-number-input": "^3.1.52",
     "react-query": "^3.39.0",
