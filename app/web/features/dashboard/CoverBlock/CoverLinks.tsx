@@ -12,9 +12,10 @@ const useStyles = makeStyles((theme) => ({
   coverLinksContainer: {
     display: "flex",
     flexWrap: "wrap",
-    gap: theme.spacing(4),
+    rowGap: theme.spacing(2),
+    columnGap: theme.spacing(4),
     justifyContent: "center",
-    margin: theme.spacing(4, 2),
+    margin: theme.spacing(4, 0),
   },
   tabAppearance: {
     position: "relative",
@@ -55,6 +56,7 @@ export default function CoverLinks() {
         <ThemeProvider theme={imageOverlayTheme}>
           <Typography
             color="textPrimary"
+            variant="body1"
             className={classNames(
               classes.tabAppearance,
               classes.selectedTabAppearance
