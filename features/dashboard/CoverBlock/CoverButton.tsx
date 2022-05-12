@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
   coverButtonContainer: {
     display: "flex",
     justifyContent: "center",
-    margin: theme.spacing(6, 2),
+    margin: theme.spacing(6, 0),
   },
 }));
 

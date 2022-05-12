@@ -16,7 +16,12 @@ const useStyles = makeStyles((theme) => ({
   contentContainer: {
     zIndex: 1,
     position: "relative",
-    padding: theme.spacing(4, 2),
+    display: "flex",
+    flexDirection: "column",
+    padding: theme.spacing(2, 2),
+    [theme.breakpoints.up("sm")]: {
+      padding: theme.spacing(4, 2),
+    },
   },
 }));
 
