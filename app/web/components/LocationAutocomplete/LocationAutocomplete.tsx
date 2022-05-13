@@ -6,12 +6,13 @@ import React, { useState } from "react";
 import { Control, useController } from "react-hook-form";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
-import {
-  MUST_BE_MORE_SPECIFIC,
-  SEARCH_LOCATION_BUTTON,
-  SEARCH_LOCATION_HINT,
-  SELECT_LOCATION,
-} from "../constants";
+export const LOCATION = "Near location";
+export const MUST_BE_MORE_SPECIFIC = "Please choose a more specific place";
+export const SEARCH_LOCATION_HINT =
+  "Press enter or click the icon to choose a location";
+export const SEARCH_LOCATION_BUTTON = "Search location";
+export const SELECT_LOCATION =
+  "Press enter or click the icon, then select a location from the list";
 
 interface LocationAutocompleteProps {
   control: Control;
@@ -29,9 +30,6 @@ interface LocationAutocompleteProps {
   disableRegions?: boolean;
 }
 
-/**
- * @todo: abstract because it's used in the dashboard
- */
 export default function LocationAutocomplete({
   control,
   defaultValue,

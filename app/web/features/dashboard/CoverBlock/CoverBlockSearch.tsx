@@ -1,8 +1,8 @@
 import { Typography } from "@material-ui/core";
-import LocationAutocomplete from "features/search/LocationAutocomplete";
+import LocationAutocomplete from "components/LocationAutocomplete";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
-import { searchRoute } from "routes";
+import { routeToSearch } from "routes";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -39,12 +39,18 @@ export default function CoverBlockSearch() {
         variant="outlined"
         placeholder="Search a location"
         defaultValue={""}
-        onChange={
-          (/* value: "" | GeocodeResult */) => {
-            const searchQuery = ""; // @todo: get URL with search query here
-            router.push(`${searchRoute}?${searchQuery}`);
-          }
-        }
+        onChange={(value) => {
+          const searchRouteWithSearchQuery = routeToSearch(
+            value === ""
+              ? {}
+              : {
+                  location: value.simplifiedName,
+                  lat: value.location.lat,
+                  lng: value.location.lng,
+                }
+          );
+          router.push(searchRouteWithSearchQuery);
+        }}
         fieldError={errors.location?.message}
         disableRegions
       />

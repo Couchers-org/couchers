@@ -5,13 +5,12 @@ import { useForm } from "react-hook-form";
 import { rest, server } from "test/restMock";
 import { GeocodeResult } from "utils/hooks";
 
-import {
+import LocationAutocomplete, {
   LOCATION,
   MUST_BE_MORE_SPECIFIC,
   SEARCH_LOCATION_BUTTON,
   SELECT_LOCATION,
-} from "../constants";
-import LocationAutocomplete from "./index";
+} from "./LocationAutocomplete";
 
 const submitAction = jest.fn();
 const submitInvalidAction = jest.fn();

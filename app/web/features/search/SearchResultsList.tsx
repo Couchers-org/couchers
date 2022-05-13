@@ -7,8 +7,8 @@ import { searchQueryKey } from "features/queryKeys";
 import { NO_USER_RESULTS, selectedUserZoom } from "features/search/constants";
 import SearchBox from "features/search/SearchBox";
 import SearchResult from "features/search/SearchResult";
+import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
 import { filterUsers } from "features/search/users";
-import useSearchFilters from "features/search/useSearchFilters";
 import { useUser } from "features/userQueries/useUsers";
 import maplibregl, { LngLatBounds, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
@@ -88,7 +88,7 @@ interface SearchResultsListProps {
   }): void;
   map: MutableRefObject<MaplibreMap | undefined>;
   selectedResult?: number;
-  searchFilters: ReturnType<typeof useSearchFilters>;
+  searchFilters: ReturnType<typeof useRouteWithSearchFilters>;
 }
 
 export default function SearchResultsList({
