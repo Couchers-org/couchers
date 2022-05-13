@@ -17,10 +17,9 @@ const getImageOverlayTheme = (theme: Theme) =>
   });
 
 /**
- *
- * @returns
+ * Hook that returns a modified theme that adapts text to be over the hero image background
  */
-export default function useImageOverlayTheme(): Theme {
+export default function useHeroBackgroundTheme(): Theme {
   const theme = useTheme();
   const imageOverlayTheme = useMemo(() => getImageOverlayTheme(theme), [theme]);
   return imageOverlayTheme;
