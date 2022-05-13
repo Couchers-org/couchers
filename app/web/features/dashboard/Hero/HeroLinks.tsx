@@ -29,6 +29,7 @@ const useStyles = makeStyles((theme) => ({
       width: 40,
       height: 2,
       background: theme.palette.common.white,
+      transition: `opacity ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
       opacity: 0,
     },
     "&:hover::after": {
