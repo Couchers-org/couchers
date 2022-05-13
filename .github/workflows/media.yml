@@ -5,8 +5,9 @@ on:
     paths:
       - app/proto/**
       - app/media/**
+      - app/media.*.env
       - deployment/media/**
-      - .github/workflow/media.yml
+      - .github/workflows/media.yml
       - .github/actions/**
 
 defaults:
@@ -46,7 +47,7 @@ jobs:
           module-name: media
 
 
-  deploy:
+  deploy-dev:
     runs-on: [self-hosted, master]
     needs: release
     steps:
@@ -55,3 +56,13 @@ jobs:
         with:
           module-name: media
           environment: dev
+
+  deploy-staging:
+    runs-on: [self-hosted, master]
+    needs: release
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/helm-deploy
+        with:
+          module-name: media
+          environment: staging

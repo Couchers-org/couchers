@@ -1,3 +1,5 @@
+# This file is called by backend.yaml as this proxy runs as a sidecar in the backend pod
+
 name: Proxy CI
 
 on: workflow_call

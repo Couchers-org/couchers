@@ -1,3 +1,5 @@
+# Takes an existing image in Amazon ECR and re-tags it to "latest"
+
 inputs:
   module-name:
     description: "Module (or image) name to grab and re-tag."

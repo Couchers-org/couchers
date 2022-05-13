@@ -1,3 +1,5 @@
+# Builds a docker image, then tags it with the github sha and pushes it to our Amazon ECR registry
+
 inputs:
   module-name:
     description: "Name of the module to build. Used as the default image name and src dir unless 'image-name' or 'src-path' are used."
@@ -16,6 +18,7 @@ runs:
   using: 'composite'
   steps:
     - uses: ./.github/actions/pre-tasks
+    # https://github.com/aws-actions/amazon-ecr-login
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
@@ -31,5 +34,6 @@ runs:
         aws ecr create-repository --repository-name $IMAGE_NAME || true # Just let this fail if the repo already exists
         cd $SRC_PATH
         docker pull $REPO_IMAGE:latest || true
+        docker pull $REPO_IMAGE:${{ env.SLUG }}  || true
         docker build ${{ inputs.extra-build-args }} --build-arg version=${{ env.SLUG }} --cache-from $REPO_IMAGE:latest -t $REPO_IMAGE:${{ env.SLUG }} .
         docker push $REPO_IMAGE:${{ env.SLUG }}

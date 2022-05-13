@@ -1,6 +1,6 @@
 deployment:
   ingress:
     hosts:
-      - host: couchers.dev 
+      - host: couchers.dev
         paths:
           - /

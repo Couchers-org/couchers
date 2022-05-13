@@ -1,13 +1,16 @@
 statefulset:
   ingress:
     hosts:
-      - host: media.couchers.dev
+      - host: media.staging.couchers.dev
+        paths:
+          - /
+      - host: media.next.couchershq.org
         paths:
           - /
     annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: 20m
       nginx.ingress.kubernetes.io/enable-cors: "true"
-      nginx.ingress.kubernetes.io/cors-allow-origin: "https://couchers.dev"
+      nginx.ingress.kubernetes.io/cors-allow-origin: "https://next.couchershq.org,https://staging.couchers.dev"
   envFrom:
     - secretRef:
         name: media-env

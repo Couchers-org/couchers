@@ -6,7 +6,7 @@ on:
       - app/proto/**
       - app/web/**
       - deployment/frontend/**
-      - .github/workflow/frontend.yml
+      - .github/workflows/frontend.yml
       - .github/actions/**
 
 defaults:
@@ -17,24 +17,11 @@ jobs:
 
   build:
     runs-on: [self-hosted, master]
-    strategy:
-      fail-fast: false
-      matrix:
-        image-name: [web, web-dev]
-        include: # Adds the following builds to the above list
-          - image-name: web
-            module-name: web
-            extra-build-args: -f Dockerfile
-          - image-name: web-dev
-            module-name: web
-            extra-build-args: -f Dockerfile --build-arg environment=development
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/build-push-ecr
         with:
-          module-name: ${{ matrix.module-name }}
-          extra-build-args: ${{ matrix.extra-build-args }}
-          image-name: ${{ matrix.image-name }}
+          module-name: web
 
 
   test-web:
@@ -75,18 +62,14 @@ jobs:
   release:
     runs-on: [self-hosted, master]
     needs: [test-web, test-web-prettier, test-storybook]
-    strategy:
-      fail-fast: false
-      matrix:
-        module-name: [web, web-dev]
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/retag-release-ecr
         with:
-          module-name: ${{ matrix.module-name }}
+          module-name: web
 
 
-  deploy:
+  deploy-dev:
     runs-on: [self-hosted, master]
     needs: release
     steps:
@@ -95,3 +78,13 @@ jobs:
         with:
           module-name: frontend
           environment: dev
+
+  deploy-staging:
+    runs-on: [self-hosted, master]
+    needs: release
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/helm-deploy
+        with:
+          module-name: frontend
+          environment: staging

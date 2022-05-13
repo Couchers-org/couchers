@@ -42,6 +42,7 @@ static_resources:
                 - exact: https://couchers.org
                 # deploy preview sites
                 - exact: https://next.couchershq.org
+                - suffix: .next.couchershq.org
                 - suffix: .preview.couchershq.org
                 # New Dev
                 - exact: https://couchers.dev

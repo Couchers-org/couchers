@@ -1,3 +1,5 @@
+# Deploys a helm chart
+
 inputs:
   environment:
     required: true
@@ -34,5 +36,6 @@ runs:
         echo "Helm diff..."
         helm diff upgrade --allow-unreleased --namespace $K8S_NAMESPACE $HELM_UPDIFF_EXTRA_ARGS $CURRENT_HELM_CHART ./$CURRENT_HELM_CHART -f $CURRENT_HELM_CHART/values.yaml -f $CURRENT_HELM_CHART/values-$K8S_NAMESPACE.yaml $HELM_EXTRA_ARGS
 
+        # Timeout argument is only for the current implementation of the frontend container which builds the nextjs app before running
         echo "Helm upgrade..."
-        helm upgrade --install --atomic --namespace $K8S_NAMESPACE $CURRENT_HELM_CHART ./$CURRENT_HELM_CHART -f $CURRENT_HELM_CHART/values.yaml -f $CURRENT_HELM_CHART/values-$K8S_NAMESPACE.yaml $HELM_EXTRA_ARGS
+        helm upgrade --install --atomic --timeout 600s --namespace $K8S_NAMESPACE $CURRENT_HELM_CHART ./$CURRENT_HELM_CHART -f $CURRENT_HELM_CHART/values.yaml -f $CURRENT_HELM_CHART/values-$K8S_NAMESPACE.yaml $HELM_EXTRA_ARGS

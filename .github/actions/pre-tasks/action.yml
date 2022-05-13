@@ -1,3 +1,5 @@
+# Anything that is required before most other tasks for couchers.
+
 runs:
   using: 'composite'
   steps:

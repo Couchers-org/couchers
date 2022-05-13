@@ -1,0 +1,9 @@
+deployment:
+  ingress:
+    hosts:
+      - host: staging.couchers.dev 
+        paths:
+          - /
+      - host: next.couchershq.org
+        paths:
+          - /

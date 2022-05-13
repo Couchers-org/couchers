@@ -13,11 +13,21 @@ deployment:
     rollingUpdate: null
 
   image:
-    repository: 694904428454.dkr.ecr.us-east-1.amazonaws.com/web-dev
+    repository: 694904428454.dkr.ecr.us-east-1.amazonaws.com/web
     # If you need to debug stuff, or manually import/delete the database, uncomment these lines then kubectl exec into the pod
     # you'll also need to disable probes otherwise it will auto-restart on you
     # command: ["/bin/sh"]
     # args: ["-c", "while true; do echo hello; sleep 10;done"]
+
+  volumeMounts:
+    - name: env-volume
+      mountPath: /app/.env.local
+      subPath: .env
+  volumes:
+    - name: env-volume
+      configMap:
+        name: frontend-env
+
 
   # Our service listens on port 8080
   service:
@@ -27,12 +37,14 @@ deployment:
   # Only specify the values you need to override from the defaults
   livenessProbe:
     enabled: true
+    initialDelaySeconds: 480
     path: /
 
   # readinessProbes are used to determine when a container is ready to start accepting traffic
   # Only specify the values you need to override from the defaults
   readinessProbe:
     enabled: true
+    initialDelaySeconds: 480
     path: /
 
   # deployment container resource requests/limits

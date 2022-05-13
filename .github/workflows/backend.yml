@@ -2,12 +2,15 @@ name: Backend CI
 
 on:
   push:
+    branches:
+      - ci_github_actions # TODO change this before merging with master
     paths:
       - app/proto/**
       - app/backend/**
       - app/proxy/**
+      - app/backend.*.env
       - deployment/backend/**
-      - .github/workflow/backend.yml
+      - .github/workflows/backend.yml
       - .github/actions/**
 
 defaults:
@@ -24,7 +27,7 @@ jobs:
         with:
           module-name: backend
 
-  build-proxy:
+  build-release-proxy:
     uses: ./.github/workflows/proxy.yml
 
 
@@ -70,12 +73,22 @@ jobs:
           module-name: backend
 
 
-  deploy:
+  deploy-dev:
     runs-on: [self-hosted, master]
-    needs: [release, build-proxy]
+    needs: [release, build-release-proxy]
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/helm-deploy
         with:
           module-name: backend
           environment: dev
+
+  deploy-staging:
+    runs-on: [self-hosted, master]
+    needs: [release, build-release-proxy]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/helm-deploy
+        with:
+          module-name: backend
+          environment: staging
