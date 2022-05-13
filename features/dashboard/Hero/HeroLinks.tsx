@@ -6,7 +6,7 @@ import { routeToProfile } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import CommunitiesDialog from "../CommunitiesDialog";
-import useImageOverlayTheme from "./useImageOverlayTheme";
+import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
 
 const useStyles = makeStyles((theme) => ({
   linksContainer: {
@@ -46,7 +46,7 @@ export default function HeroLinks() {
   const classes = useStyles();
 
   // because this component is over an image background, we need to use a theme that overrides some styles
-  const imageOverlayTheme = useImageOverlayTheme();
+  const imageOverlayTheme = useHeroBackgroundTheme();
 
   const [communitiesDialogOpen, setCommunitiesDialogOpen] = useState(false);
 

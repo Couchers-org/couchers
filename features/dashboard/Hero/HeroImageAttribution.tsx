@@ -1,7 +1,7 @@
 import { Link as MuiLink, ThemeProvider, Typography } from "@material-ui/core";
 import makeStyles from "utils/makeStyles";
 
-import useImageOverlayTheme from "./useImageOverlayTheme";
+import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
 
 const useStyles = makeStyles((theme) => ({
   attribution: {
@@ -29,10 +29,10 @@ export default function HeroImageAttribution() {
   const classes = useStyles();
 
   // because this component is over an image background, we need to use a theme that overrides some styles
-  const imageOverlayTheme = useImageOverlayTheme();
+  const heroBackgroundTheme = useHeroBackgroundTheme();
 
   return (
-    <ThemeProvider theme={imageOverlayTheme}>
+    <ThemeProvider theme={heroBackgroundTheme}>
       <Typography
         className={classes.attribution}
         color="textPrimary"
