@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { getShowUserOnMap } from "features/search/constants";
-import { SearchFilters } from "features/search/useSearchFilters";
 import { Map } from "maplibre-gl";
 import { UserSearchRes } from "proto/search_pb";
 import { service } from "service";
@@ -15,6 +14,7 @@ import {
   wait,
 } from "test/utils";
 import { firstName } from "utils/names";
+import SearchFilters from "utils/SearchFilters";
 
 import SearchResultsList from "./SearchResultsList";
 
