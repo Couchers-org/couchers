@@ -15,10 +15,14 @@ export default function useSearchFilters(route: string) {
   );
   const pending = useRef<SearchFilters>(active);
 
+  const expectedRouteWithQuery = `${route}?${filtersToSearchQuery(active)}`;
+  const routerQueryIsReady = router.isReady;
   useEffect(() => {
-    router.push(`${route}?${filtersToSearchQuery(active)}`);
-  }, [active, route]); // eslint-disable-line react-hooks/exhaustive-deps
-  // next-router-mock not memoized, including here breaks tests
+    if (routerQueryIsReady) {
+      router.push(expectedRouteWithQuery);
+    }
+  }, [expectedRouteWithQuery, routerQueryIsReady]); // eslint-disable-line react-hooks/exhaustive-deps
+  // router excluded from deps because instance changes. @see https://github.com/vercel/next.js/issues/18127
 
   const change = useCallback(
     <T extends keyof SearchFilters>(

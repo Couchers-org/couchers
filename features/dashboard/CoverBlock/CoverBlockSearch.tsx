@@ -1,6 +1,8 @@
-import { InputAdornment, Typography } from "@material-ui/core";
-import { SearchIcon } from "components/Icons";
-import TextField from "components/TextField";
+import { Typography } from "@material-ui/core";
+import LocationAutocomplete from "features/search/LocationAutocomplete";
+import { useRouter } from "next/router";
+import { useForm } from "react-hook-form";
+import { searchRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -13,7 +15,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function CoverBlockSearch() {
   const classes = useStyles();
+  const router = useRouter();
   const searchInputId = "cover-block-search-input"; // @todo: replace with React 18's useId
+
+  const { control, errors } = useForm({ mode: "onChange" });
 
   return (
     <div className={classes.searchBoxContainer}>
@@ -27,18 +32,21 @@ export default function CoverBlockSearch() {
         Where are you going?
       </Typography>
 
-      <TextField
+      <LocationAutocomplete
+        control={control}
+        name="location"
         id={searchInputId}
-        placeholder="Search a location"
         variant="outlined"
-        fullWidth
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          ),
-        }}
+        placeholder="Search a location"
+        defaultValue={""}
+        onChange={
+          (/* value: "" | GeocodeResult */) => {
+            const searchQuery = ""; // @todo: get URL with search query here
+            router.push(`${searchRoute}?${searchQuery}`);
+          }
+        }
+        fieldError={errors.location?.message}
+        disableRegions
       />
     </div>
   );
