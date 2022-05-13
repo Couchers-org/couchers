@@ -13,10 +13,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function CoverBlockSearch() {
+export default function HeroSearch() {
   const classes = useStyles();
   const router = useRouter();
-  const searchInputId = "cover-block-search-input"; // @todo: replace with React 18's useId
+  const searchInputId = "hero-search-input"; // @todo: replace with React 18's useId
 
   const { control, errors } = useForm({ mode: "onChange" });
 
@@ -40,16 +40,14 @@ export default function CoverBlockSearch() {
         placeholder="Search a location"
         defaultValue={""}
         onChange={(value) => {
-          const searchRouteWithSearchQuery = routeToSearch(
-            value === ""
-              ? {}
-              : {
-                  location: value.simplifiedName,
-                  lat: value.location.lat,
-                  lng: value.location.lng,
-                }
-          );
-          router.push(searchRouteWithSearchQuery);
+          if (value !== "") {
+            const searchRouteWithSearchQuery = routeToSearch({
+              location: value.simplifiedName,
+              lat: value.location.lat,
+              lng: value.location.lng,
+            });
+            router.push(searchRouteWithSearchQuery);
+          }
         }}
         fieldError={errors.location?.message}
         disableRegions

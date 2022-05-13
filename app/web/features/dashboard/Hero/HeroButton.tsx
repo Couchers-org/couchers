@@ -6,7 +6,7 @@ import { searchRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 // because this component is over an image background and has a special button, we adjust the theme
-const getCoverButtonTheme = (theme: Theme) =>
+const getHeroButtonTheme = (theme: Theme) =>
   createTheme({
     ...theme,
     palette: {
@@ -34,20 +34,19 @@ const useStyles = makeStyles((theme) => ({
     "-webkit-background-clip": "text",
     "-webkit-text-fill-color": "transparent",
   },
-  coverButtonContainer: {
+  buttonContainer: {
     display: "flex",
     justifyContent: "center",
     margin: theme.spacing(6, 0),
   },
 }));
 
-export default function CoverButton() {
+export default function HeroButon() {
   const classes = useStyles();
   const theme = useTheme();
-  const coverButtonTheme = useMemo(() => getCoverButtonTheme(theme), [theme]);
-
+  const coverButtonTheme = useMemo(() => getHeroButtonTheme(theme), [theme]);
   return (
-    <div className={classes.coverButtonContainer}>
+    <div className={classes.buttonContainer}>
       <ThemeProvider theme={coverButtonTheme}>
         <Link href={searchRoute} passHref>
           <Button variant="contained" size="large">

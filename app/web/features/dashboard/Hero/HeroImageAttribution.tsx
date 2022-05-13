@@ -25,7 +25,7 @@ const authorUrl =
 const unsplashUrl =
   "https://unsplash.com/?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText";
 
-export default function CoverImageAttribution() {
+export default function HeroImageAttribution() {
   const classes = useStyles();
 
   // because this component is over an image background, we need to use a theme that overrides some styles
