@@ -9,7 +9,7 @@ import CommunitiesDialog from "../CommunitiesDialog";
 import useImageOverlayTheme from "./useImageOverlayTheme";
 
 const useStyles = makeStyles((theme) => ({
-  coverLinksContainer: {
+  linksContainer: {
     display: "flex",
     flexWrap: "wrap",
     rowGap: theme.spacing(2),
@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function CoverLinks() {
+export default function HeroLinks() {
   const classes = useStyles();
 
   // because this component is over an image background, we need to use a theme that overrides some styles
@@ -52,7 +52,7 @@ export default function CoverLinks() {
 
   return (
     <>
-      <div className={classes.coverLinksContainer}>
+      <div className={classes.linksContainer}>
         <ThemeProvider theme={imageOverlayTheme}>
           <Typography
             color="textPrimary"
