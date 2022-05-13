@@ -18,7 +18,10 @@ interface LocationAutocompleteProps {
   defaultValue: GeocodeResult | "";
   fieldError: string | undefined;
   fullWidth?: boolean;
-  label: string;
+  label?: string;
+  placeholder?: string;
+  id?: string;
+  variant?: "filled" | "standard" | "outlined" | undefined;
   name: string;
   onChange?(value: GeocodeResult | ""): void;
   required?: string;
@@ -26,13 +29,19 @@ interface LocationAutocompleteProps {
   disableRegions?: boolean;
 }
 
+/**
+ * @todo: abstract because it's used in the dashboard
+ */
 export default function LocationAutocomplete({
   control,
   defaultValue,
   fieldError,
   fullWidth,
   label,
+  placeholder,
+  id = "location-autocomplete",
   name,
+  variant = "standard",
   onChange,
   required,
   showFullDisplayName = false,
@@ -96,11 +105,13 @@ export default function LocationAutocomplete({
 
   return (
     <Autocomplete
-      id="location-autocomplete"
+      id={id}
       innerRef={controller.field.ref}
       label={label}
       error={fieldError || geocodeError}
       fullWidth={fullWidth}
+      variant={variant}
+      placeholder={placeholder}
       helperText={
         fieldError === SELECT_LOCATION ? SELECT_LOCATION : SEARCH_LOCATION_HINT
       }
