@@ -33,6 +33,9 @@ const useStyles = makeStyles((theme) => ({
     background: `-webkit-linear-gradient(0deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
     "-webkit-background-clip": "text",
     "-webkit-text-fill-color": "transparent",
+
+    // fallback
+    color: theme.palette.primary.main,
   },
   buttonContainer: {
     display: "flex",
