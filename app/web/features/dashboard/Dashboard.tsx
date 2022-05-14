@@ -10,7 +10,7 @@ import PageTitle from "components/PageTitle";
 import DashboardBanners from "features/dashboard/DashboardBanners";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
-import { blogRoute } from "routes";
+import { blogRoute, donationsRoute } from "routes";
 
 import CommunitiesSection from "./CommunitiesSection";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
@@ -47,7 +47,15 @@ export default function Dashboard() {
             <MuiLink href={blogRoute} target="_blank" rel="noreferrer noopener">
               features
             </MuiLink>
-            {` like events, local guides, moderation and hangouts. We appreciate your patience and support as we develop these.`}
+            {` like events, local guides, moderation and hangouts. We appreciate your patience and `}
+            <MuiLink
+              href={donationsRoute}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              support
+            </MuiLink>
+            {` as we develop these.`}
           </Trans>
         </Typography>
 
