@@ -33,7 +33,7 @@ export default function Dashboard() {
       <Hero />
 
       {/* this view uses a container, instead of it coming from the route layout,
-        because the cover block is full viewport width */}
+        because the hero section is full viewport width */}
       <Container maxWidth="lg">
         <Grid container direction="row">
           <Grid
