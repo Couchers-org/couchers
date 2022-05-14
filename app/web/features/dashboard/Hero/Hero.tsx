@@ -39,8 +39,6 @@ export default function Hero() {
         <HeroButton />
       </Container>
 
-      <div>{/* scroll hint arrow */}</div>
-
       <HeroImageAttribution />
 
       <Image
