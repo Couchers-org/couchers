@@ -1,5 +1,7 @@
 import { Container } from "@material-ui/core";
+import { DASHBOARD } from "i18n/namespaces";
 import Image from "next/image";
+import { useTranslation } from "next-i18next";
 import makeStyles from "utils/makeStyles";
 
 import HeroButton from "./HeroButton";
@@ -26,6 +28,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Hero() {
+  const { t } = useTranslation(DASHBOARD);
   const classes = useStyles();
 
   return (
@@ -46,7 +49,7 @@ export default function Hero() {
         layout="fill"
         objectFit="cover"
         objectPosition="50% 50%"
-        alt="Background with hot-air balloons in Capadocia"
+        alt={t("hero_image_alt")}
       />
     </div>
   );

@@ -1,6 +1,8 @@
 import { Link as MuiLink, ThemeProvider, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import StyledLink from "components/StyledLink";
+import { DASHBOARD } from "i18n/namespaces";
+import { useTranslation } from "next-i18next";
 import { useState } from "react";
 import { routeToProfile } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -44,6 +46,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function HeroLinks() {
+  const { t } = useTranslation(DASHBOARD);
   const classes = useStyles();
 
   // because this component is over an image background, we need to use a theme that overrides some styles
@@ -63,7 +66,7 @@ export default function HeroLinks() {
               classes.selectedTabAppearance
             )}
           >
-            Find a host
+            {t("find_a_host")}
           </Typography>
 
           <StyledLink
@@ -71,7 +74,7 @@ export default function HeroLinks() {
             href={routeToProfile()}
             className={classes.tabAppearance}
           >
-            Become a host
+            {t("become_a_host")}
           </StyledLink>
 
           <MuiLink
@@ -80,7 +83,7 @@ export default function HeroLinks() {
             className={classes.tabAppearance}
             onClick={() => setCommunitiesDialogOpen(true)}
           >
-            Browse communities
+            {t("browse_communities")}
           </MuiLink>
         </ThemeProvider>
       </div>
