@@ -1,4 +1,5 @@
 import { Link as MuiLink, ThemeProvider, Typography } from "@material-ui/core";
+import { Trans } from "next-i18next";
 import makeStyles from "utils/makeStyles";
 
 import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
@@ -38,14 +39,26 @@ export default function HeroImageAttribution() {
         color="textPrimary"
         variant="body2"
       >
-        {`Photo by `}
-        <MuiLink href={authorUrl} variant="inherit">
-          Mesut Kaya
-        </MuiLink>
-        {` on `}
-        <MuiLink href={unsplashUrl} variant="inherit">
-          Unsplash
-        </MuiLink>
+        <Trans i18nKey="dashboard:hero_image_attribution">
+          {`Photo by `}
+          <MuiLink
+            href={authorUrl}
+            variant="inherit"
+            rel="noreferrer noopener"
+            target="_blank"
+          >
+            Mesut Kaya
+          </MuiLink>
+          {` on `}
+          <MuiLink
+            href={unsplashUrl}
+            variant="inherit"
+            rel="noreferrer noopener"
+            target="_blank"
+          >
+            Unsplash
+          </MuiLink>
+        </Trans>
       </Typography>
     </ThemeProvider>
   );

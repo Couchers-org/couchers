@@ -1,6 +1,8 @@
 import { createTheme, Theme, ThemeProvider, useTheme } from "@material-ui/core";
 import Button from "components/Button";
+import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
+import { useTranslation } from "next-i18next";
 import { useMemo } from "react";
 import { searchRoute } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -45,6 +47,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function HeroButon() {
+  const { t } = useTranslation(DASHBOARD);
   const classes = useStyles();
   const theme = useTheme();
   const coverButtonTheme = useMemo(() => getHeroButtonTheme(theme), [theme]);
@@ -53,7 +56,7 @@ export default function HeroButon() {
       <ThemeProvider theme={coverButtonTheme}>
         <Link href={searchRoute} passHref>
           <Button variant="contained" size="large">
-            <span className={classes.textGradient}>Show Map</span>
+            <span className={classes.textGradient}>{t("show_map")}</span>
           </Button>
         </Link>
       </ThemeProvider>

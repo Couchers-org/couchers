@@ -1,6 +1,8 @@
 import { Typography } from "@material-ui/core";
 import LocationAutocomplete from "components/LocationAutocomplete";
+import { DASHBOARD } from "i18n/namespaces";
 import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 import { useForm } from "react-hook-form";
 import { routeToSearch } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -14,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function HeroSearch() {
+  const { t } = useTranslation(DASHBOARD);
   const classes = useStyles();
   const router = useRouter();
   const searchInputId = "hero-search-input"; // @todo: replace with React 18's useId
@@ -29,7 +32,7 @@ export default function HeroSearch() {
         htmlFor={searchInputId}
         paragraph
       >
-        Where are you going?
+        {t("search_input_label")}
       </Typography>
 
       <LocationAutocomplete
@@ -37,7 +40,7 @@ export default function HeroSearch() {
         name="location"
         id={searchInputId}
         variant="outlined"
-        placeholder="Search a location"
+        placeholder={t("search_input_placeholder")}
         defaultValue={""}
         onChange={(value) => {
           if (value !== "") {
