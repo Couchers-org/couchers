@@ -1,17 +1,29 @@
 import { createTheme, Theme, useTheme } from "@material-ui/core";
 import { useMemo } from "react";
 
-const getImageOverlayTheme = (theme: Theme) =>
+const getTheme = (theme: Theme) =>
   createTheme({
     ...theme,
     palette: {
       ...theme.palette,
       primary: {
-        main: "#ffffff",
+        main: theme.palette.common.white,
       },
       text: {
         ...theme.palette.text,
-        primary: "#ffffff",
+        primary: theme.palette.common.white,
+      },
+    },
+    shape: {
+      ...theme.shape,
+      borderRadius: 32, // px
+    },
+    typography: {
+      ...theme.typography,
+      button: {
+        ...theme.typography.button,
+        color: theme.palette.primary.main,
+        fontWeight: 700,
       },
     },
   });
@@ -21,6 +33,6 @@ const getImageOverlayTheme = (theme: Theme) =>
  */
 export default function useHeroBackgroundTheme(): Theme {
   const theme = useTheme();
-  const imageOverlayTheme = useMemo(() => getImageOverlayTheme(theme), [theme]);
+  const imageOverlayTheme = useMemo(() => getTheme(theme), [theme]);
   return imageOverlayTheme;
 }
