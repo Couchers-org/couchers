@@ -16,7 +16,7 @@ import mockRouter from "next-router-mock";
 import { HostingStatus } from "proto/api_pb";
 import wrapper from "test/hookWrapper";
 import { server } from "test/restMock";
-import { parsedQueryToSearchFilters } from "utils/SearchFilters";
+import { parsedQueryToSearchFilters } from "utils/searchFilters";
 
 import FilterDialog from "./FilterDialog";
 

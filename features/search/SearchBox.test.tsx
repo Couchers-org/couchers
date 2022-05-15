@@ -14,7 +14,7 @@ import mockRouter from "next-router-mock";
 import { useEffect } from "react";
 import wrapper from "test/hookWrapper";
 import { server } from "test/restMock";
-import SearchFilters from "utils/SearchFilters";
+import SearchFilters from "utils/searchFilters";
 
 import SearchBox from "./SearchBox";
 

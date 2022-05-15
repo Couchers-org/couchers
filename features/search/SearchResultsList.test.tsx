@@ -14,7 +14,7 @@ import {
   wait,
 } from "test/utils";
 import { firstName } from "utils/names";
-import SearchFilters from "utils/SearchFilters";
+import SearchFilters from "utils/searchFilters";
 
 import SearchResultsList from "./SearchResultsList";
 
