@@ -25,7 +25,7 @@ import { HostingStatus } from "proto/api_pb";
 import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { GeocodeResult } from "utils/hooks";
-import SearchFilters from "utils/SearchFilters";
+import SearchFilters from "utils/searchFilters";
 
 import {
   ACCOMODATION_FILTERS,

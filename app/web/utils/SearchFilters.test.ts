@@ -3,7 +3,7 @@ import { parse } from "querystring";
 import {
   parsedQueryToSearchFilters,
   parseSearchFiltersToQuery,
-} from "./SearchFilters";
+} from "./searchFilters";
 
 describe("parsedQueryToSearchFilters", () => {
   it("should return a SearchFilters object parsing the URL parameters", () => {

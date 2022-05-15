@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import SearchFilters, {
   parsedQueryToSearchFilters,
   parseSearchFiltersToQuery,
-} from "utils/SearchFilters";
+} from "utils/searchFilters";
 
 /**
  * This hook manages a state with search filters and keeps the URL in sync
