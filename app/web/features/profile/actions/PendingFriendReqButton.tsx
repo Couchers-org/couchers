@@ -3,10 +3,6 @@ import { CheckIcon, CloseIcon, PersonAddIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import type { SetMutationError } from "features/connections/friends";
 import useRespondToFriendRequest from "features/connections/friends/useRespondToFriendRequest";
-import {
-  ACCEPT_FRIEND_ACTION,
-  DECLINE_FRIEND_ACTION,
-} from "features/profile/constants";
 import { PROFILE } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { FriendRequest } from "proto/api_pb";
@@ -80,11 +76,11 @@ function PendingFriendReqButton({
           >
             <MenuItem onClick={handleClick("accepted")}>
               <CheckIcon />
-              {ACCEPT_FRIEND_ACTION}
+              {t("profile:actions.accept_friend_label")}
             </MenuItem>
             <MenuItem onClick={handleClick("declined")}>
               <CloseIcon />
-              {DECLINE_FRIEND_ACTION}
+              {t("profile:actions.decline_friend_label")}
             </MenuItem>
           </Menu>
         </>

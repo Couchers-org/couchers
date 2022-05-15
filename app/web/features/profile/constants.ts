@@ -7,6 +7,7 @@ import {
   User,
 } from "proto/api_pb";
 import { ReferenceType } from "proto/references_pb";
+import { t as tFunction } from "test/utils";
 import { firstName } from "utils/names";
 
 export const ACCEPTING = "Can host";
@@ -144,48 +145,80 @@ export const THANK_YOU =
 export const WAS_APPROPRIATE_REQUIRED =
   "To help us keep our community safe, this question is required.";
 
-export const smokingLocationLabels = {
-  [SmokingLocation.SMOKING_LOCATION_NO]: "No",
-  [SmokingLocation.SMOKING_LOCATION_OUTSIDE]: "Outside",
-  [SmokingLocation.SMOKING_LOCATION_WINDOW]: "Window",
-  [SmokingLocation.SMOKING_LOCATION_YES]: "Yes",
-  [SmokingLocation.SMOKING_LOCATION_UNKNOWN]: UNSURE,
-  [SmokingLocation.SMOKING_LOCATION_UNSPECIFIED]: UNSURE,
-};
+export const smokingLocationLabels = (t: typeof tFunction) => ({
+  [SmokingLocation.SMOKING_LOCATION_NO]: t("profile:smoking_location.no"),
+  [SmokingLocation.SMOKING_LOCATION_OUTSIDE]: t(
+    "profile:smoking_location.outside"
+  ),
+  [SmokingLocation.SMOKING_LOCATION_WINDOW]: t(
+    "profile:smoking_location.window"
+  ),
+  [SmokingLocation.SMOKING_LOCATION_YES]: t("profile:smoking_location.yes"),
+  [SmokingLocation.SMOKING_LOCATION_UNKNOWN]: t("profile:unspecified_info"),
+  [SmokingLocation.SMOKING_LOCATION_UNSPECIFIED]: t("profile:unspecified_info"),
+});
 
-export const hostingStatusLabels = {
-  [HostingStatus.HOSTING_STATUS_CAN_HOST]: ACCEPTING,
-  [HostingStatus.HOSTING_STATUS_MAYBE]: MAYBE_ACCEPTING,
-  [HostingStatus.HOSTING_STATUS_CANT_HOST]: NOT_ACCEPTING,
-  [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: UNSURE,
-  [HostingStatus.HOSTING_STATUS_UNKNOWN]: UNSURE,
-};
+export const hostingStatusLabels = (t: typeof tFunction) => ({
+  [HostingStatus.HOSTING_STATUS_CAN_HOST]: t("profile:hosting_status.can_host"),
+  [HostingStatus.HOSTING_STATUS_MAYBE]: t("profile:hosting_status.maybe"),
+  [HostingStatus.HOSTING_STATUS_CANT_HOST]: t(
+    "profile:hosting_status.cant_host"
+  ),
+  [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: t("profile:unspecified_info"),
+  [HostingStatus.HOSTING_STATUS_UNKNOWN]: t("profile:unspecified_info"),
+});
 
-export const meetupStatusLabels = {
-  [MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP]: MEETUP,
-  [MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP]: MAYBE_MEETUP,
-  [MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP]: NO_MEETUP,
-  [MeetupStatus.MEETUP_STATUS_UNSPECIFIED]: UNSURE,
-  [MeetupStatus.MEETUP_STATUS_UNKNOWN]: UNSURE,
-};
+export const meetupStatusLabels = (t: typeof tFunction) => ({
+  [MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP]: t(
+    "profile:meetup_status.wants_to_meetup"
+  ),
+  [MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP]: t(
+    "profile:meetup_status.open_to_meetup"
+  ),
+  [MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP]: t(
+    "profile:meetup_status.does_not_want_to_meetup"
+  ),
+  [MeetupStatus.MEETUP_STATUS_UNSPECIFIED]: t("profile:unspecified_info"),
+  [MeetupStatus.MEETUP_STATUS_UNKNOWN]: t("profile:unspecified_info"),
+});
 
-export const sleepingArrangementLabels = {
-  [SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED]: UNSURE,
-  [SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN]: UNSURE,
-  [SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE]: "Private",
-  [SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON]: "Common",
-  [SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM]: "Shared room",
-  [SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_SPACE]: "Shared space",
-};
+export const sleepingArrangementLabels = (t: typeof tFunction) => ({
+  [SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE]: t(
+    "profile:sleeping_arrangement.private"
+  ),
+  [SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON]: t(
+    "profile:sleeping_arrangement.common"
+  ),
+  [SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM]: t(
+    "profile:sleeping_arrangement.shared_room"
+  ),
+  [SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_SPACE]: t(
+    "profile:sleeping_arrangement.shared_space"
+  ),
+  [SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED]: t(
+    "profile:unspecified_info"
+  ),
+  [SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN]: t(
+    "profile:unspecified_info"
+  ),
+});
 
-export const parkingDetailsLabels = {
-  [ParkingDetails.PARKING_DETAILS_UNSPECIFIED]: UNSURE,
-  [ParkingDetails.PARKING_DETAILS_UNKNOWN]: UNSURE,
-  [ParkingDetails.PARKING_DETAILS_FREE_ONSITE]: "Free onsite parking",
-  [ParkingDetails.PARKING_DETAILS_FREE_OFFSITE]: "Free offsite parking",
-  [ParkingDetails.PARKING_DETAILS_PAID_ONSITE]: "Paid onsite parking",
-  [ParkingDetails.PARKING_DETAILS_PAID_OFFSITE]: "Paid offsite parking",
-};
+export const parkingDetailsLabels = (t: typeof tFunction) => ({
+  [ParkingDetails.PARKING_DETAILS_FREE_ONSITE]: t(
+    "profile:parking_details.free_onsite"
+  ),
+  [ParkingDetails.PARKING_DETAILS_FREE_OFFSITE]: t(
+    "profile:parking_details.free_offsite"
+  ),
+  [ParkingDetails.PARKING_DETAILS_PAID_ONSITE]: t(
+    "profile:parking_details.paid_onsite"
+  ),
+  [ParkingDetails.PARKING_DETAILS_PAID_OFFSITE]: t(
+    "profile:parking_details.paid_offsite"
+  ),
+  [ParkingDetails.PARKING_DETAILS_UNSPECIFIED]: t("profile:unspecified_info"),
+  [ParkingDetails.PARKING_DETAILS_UNKNOWN]: t("profile:unspecified_info"),
+});
 
 export default function booleanConversion(value: boolean | undefined) {
   return value === undefined ? UNSURE : value ? "Yes" : "No";
