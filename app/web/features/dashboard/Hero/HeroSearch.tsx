@@ -19,7 +19,7 @@ export default function HeroSearch() {
   const { t } = useTranslation(DASHBOARD);
   const classes = useStyles();
   const router = useRouter();
-  const searchInputId = "hero-search-input"; // @todo: replace with React 18's useId
+  const searchInputId = "hero-search-input";
 
   const { control, errors } = useForm({ mode: "onChange" });
 
