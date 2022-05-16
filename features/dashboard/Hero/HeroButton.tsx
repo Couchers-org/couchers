@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function HeroButon() {
+export default function HeroButton() {
   const { t } = useTranslation(DASHBOARD);
   const classes = useStyles();
 
