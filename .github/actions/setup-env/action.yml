@@ -6,4 +6,4 @@ runs:
     - uses: FranzDiebold/github-env-vars-action@v2
     - shell: bash
       run: |
-        echo "SLUG=CI_SHA" >> $GITHUB_ENV
+        echo "SLUG=$CI_SHA" >> $GITHUB_ENV
