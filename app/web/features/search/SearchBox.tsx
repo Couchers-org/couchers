@@ -132,7 +132,7 @@ export default function SearchBox({
       <>
         <Button
           onClick={() => setIsFiltersOpen(true)}
-          className={classNames(className)}
+          className={className}
           variant="contained"
           size="medium"
         >
