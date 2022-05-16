@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
   searchMobile: {
     position: "absolute",
     top: theme.spacing(1.5),
-    left: theme.spacing(1.5),
+    left: "auto",
     right: 52,
     display: "flex",
     "& .MuiInputBase-root": {
