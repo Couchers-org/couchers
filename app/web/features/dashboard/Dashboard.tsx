@@ -1,16 +1,12 @@
-import {
-  Grid,
-  Link as MuiLink,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
+import { Grid, makeStyles, Typography } from "@material-ui/core";
 import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
+import StyledLink from "components/StyledLink";
 import DashboardBanners from "features/dashboard/DashboardBanners";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
-import { blogRoute } from "routes";
+import { blogRoute, donationsRoute } from "routes";
 
 import CommunitiesSection from "./CommunitiesSection";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
@@ -44,10 +40,10 @@ export default function Dashboard() {
         <Typography variant="body1" paragraph>
           <Trans i18nKey="dashboard:landing_text">
             {`We are building new `}
-            <MuiLink href={blogRoute} target="_blank" rel="noreferrer noopener">
-              features
-            </MuiLink>
-            {` like events, local guides, moderation and hangouts. We appreciate your patience and support as we develop these.`}
+            <StyledLink href={blogRoute}>features</StyledLink>
+            {` like events, local guides, moderation and hangouts. We appreciate your patience and `}
+            <StyledLink href={donationsRoute}>support</StyledLink>
+            {` as we develop these.`}
           </Trans>
         </Typography>
 
