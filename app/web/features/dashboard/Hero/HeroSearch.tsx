@@ -24,7 +24,7 @@ export default function HeroSearch() {
   const { control, errors } = useForm({ mode: "onChange" });
 
   return (
-    <div className={classes.searchBoxContainer}>
+    <form className={classes.searchBoxContainer}>
       <Typography
         variant="h2"
         component="label"
@@ -55,6 +55,6 @@ export default function HeroSearch() {
         fieldError={errors.location?.message}
         disableRegions
       />
-    </div>
+    </form>
   );
 }
