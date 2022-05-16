@@ -134,7 +134,7 @@ export default function SearchBox({
           onClick={() => setIsFiltersOpen(true)}
           className={classNames(className)}
           variant="contained"
-          size="small"
+          size="medium"
         >
           {FILTER_DIALOG_TITLE_MOBILE}
         </Button>
