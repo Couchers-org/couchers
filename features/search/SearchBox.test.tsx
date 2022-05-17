@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import {
   APPLY_FILTER,
   CLEAR_SEARCH,
-  FILTER_DIALOG_TITLE,
+  FILTER_DIALOG_TITLE_DESKTOP,
   LOCATION,
   PROFILE_KEYWORDS,
   SEARCH_BY_KEYWORD,
@@ -133,9 +133,13 @@ describe("SearchBox", () => {
     await waitFor(() => {
       expect(setActive).toBeCalledWith({ query: "test search" });
     });
-    userEvent.click(screen.getByRole("button", { name: FILTER_DIALOG_TITLE }));
+    userEvent.click(
+      screen.getByRole("button", { name: FILTER_DIALOG_TITLE_DESKTOP })
+    );
 
-    const dialog = screen.getByRole("dialog", { name: FILTER_DIALOG_TITLE });
+    const dialog = screen.getByRole("dialog", {
+      name: FILTER_DIALOG_TITLE_DESKTOP,
+    });
     expect(dialog).toBeVisible();
     const dialogKeywordsField = within(dialog).getByLabelText(PROFILE_KEYWORDS);
     expect(dialogKeywordsField).toHaveValue("test search");

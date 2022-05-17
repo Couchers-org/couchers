@@ -27,7 +27,8 @@ import makeStyles from "utils/makeStyles";
 
 import {
   CLEAR_SEARCH,
-  FILTER_DIALOG_TITLE,
+  FILTER_DIALOG_TITLE_DESKTOP,
+  FILTER_DIALOG_TITLE_MOBILE,
   LOCATION,
   PROFILE_KEYWORDS,
   SEARCH_BY_KEYWORD,
@@ -35,7 +36,7 @@ import {
 } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
-  filterDialogButton: {
+  filterDialogButtonDesktop: {
     marginInlineStart: "auto",
   },
   mobileHide: {
@@ -118,25 +119,29 @@ export default function SearchBox({
     setValue("query", searchFilters.active.query ?? "");
   }, [setValue, searchFilters.active.location, searchFilters.active.query]);
 
-  const filterDialogButton = (
-    <>
-      <Button
-        onClick={() => setIsFiltersOpen(true)}
-        className={classNames(className, classes.filterDialogButton)}
-        variant={isSmDown ? "contained" : "outlined"}
-        size="small"
-      >
-        {FILTER_DIALOG_TITLE}
-      </Button>
-      <FilterDialog
-        isOpen={isFiltersOpen}
-        onClose={() => setIsFiltersOpen(false)}
-        searchFilters={searchFilters}
-      />
-    </>
+  const filterDialog = (
+    <FilterDialog
+      isOpen={isFiltersOpen}
+      onClose={() => setIsFiltersOpen(false)}
+      searchFilters={searchFilters}
+    />
   );
+
   if (isSmDown) {
-    return filterDialogButton;
+    return (
+      <>
+        <Button
+          onClick={() => setIsFiltersOpen(true)}
+          className={className}
+          variant="contained"
+          size="medium"
+        >
+          {FILTER_DIALOG_TITLE_MOBILE}
+        </Button>
+
+        {filterDialog}
+      </>
+    );
   }
 
   return (
@@ -224,7 +229,17 @@ export default function SearchBox({
             />
           </RadioGroup>
         </FormControl>
-        {filterDialogButton}
+
+        <Button
+          onClick={() => setIsFiltersOpen(true)}
+          className={classNames(className, classes.filterDialogButtonDesktop)}
+          variant="outlined"
+          size="small"
+        >
+          {FILTER_DIALOG_TITLE_DESKTOP}
+        </Button>
+
+        {filterDialog}
       </div>
     </>
   );
