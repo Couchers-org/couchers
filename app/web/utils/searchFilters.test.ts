@@ -21,10 +21,10 @@ describe("parsedQueryToSearchFilters", () => {
   overrideConsoleWarn();
 
   it("should return an empty object when there are no parameters", () => {
-    expect(parsedQueryToSearchFilters("")).toEqual({});
+    expect(parsedQueryToSearchFilters(parse(""))).toEqual({});
   });
   it("should return an empty object when there are no supported parameters", () => {
-    expect(parsedQueryToSearchFilters("a=1&b=2")).toEqual({});
+    expect(parsedQueryToSearchFilters(parse("a=1&b=2"))).toEqual({});
   });
   it("should return a SearchFilters object parsing the URL parameters that a simple search produces", () => {
     const parsedQuery = parse(
