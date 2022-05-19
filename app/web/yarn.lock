@@ -1501,10 +1501,10 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
-"@fontsource/mansalva@^4.5.4":
-  version "4.5.4"
-  resolved "https://registry.yarnpkg.com/@fontsource/mansalva/-/mansalva-4.5.4.tgz#32ab86ef9814df42e6a4d77a8922e546b231dff3"
-  integrity sha512-CTWT/pWckoAQU7JJ1f6Fz7TwEkDTEb/VyxVdFbfEHeSwzT/BIsVjztB0a6acsO5aUWSBIb4faWBmWAX/JnCWkg==
+"@fontsource/mansalva@^4.5.9":
+  version "4.5.9"
+  resolved "https://registry.yarnpkg.com/@fontsource/mansalva/-/mansalva-4.5.9.tgz#e4a7adcaa0f6ecf604192aaa3bda2bffe1ead997"
+  integrity sha512-ULTOLt5WrC2DAh/bx6um8J8b4ckZXZh6nufWY0Y4kzIrkUWLSVnZm2B0kBemwNVlEl4j9YhjdDdrLFMxs+Ve4w==
 
 "@fontsource/ubuntu@^4.5.9":
   version "4.5.9"
