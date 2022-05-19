@@ -1,10 +1,15 @@
-import { render, screen, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitForElementToBeRemoved,
+  within,
+} from "@testing-library/react";
 import {
   INVALID_REFERENCE_TYPE,
   REFERENCE_TYPE_NOT_AVAILABLE,
 } from "features/profile/constants";
 import mockRouter from "next-router-mock";
-import { leaveReferenceBaseRoute } from "routes";
+import { leaveReferenceBaseRoute, ReferenceStep } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getAvailableReferences, getUser } from "test/serviceMockDefaults";
@@ -33,7 +38,8 @@ function renderLeaveFriendReferencePage(referenceType: string, userId: number) {
 function renderLeaveRequestReferencePage(
   referenceType: string,
   userId: number,
-  hostRequestId: number
+  hostRequestId: number,
+  step?: ReferenceStep
 ) {
   mockRouter.setCurrentUrl(
     `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`
@@ -44,6 +50,7 @@ function renderLeaveRequestReferencePage(
       referenceType={referenceType}
       userId={userId}
       hostRequestId={hostRequestId}
+      step={step}
     />,
     { wrapper }
   );
@@ -175,6 +182,15 @@ describe("LeaveReferencePage", () => {
           })
         ).not.toBeInTheDocument();
       });
+    });
+  });
+
+  describe("When the user skips a step in the form", () => {
+    it("redirects to first step", async () => {
+      renderLeaveRequestReferencePage("hosted", 5, 1, "submit");
+
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+      expect(mockRouter.pathname).toBe(`${leaveReferenceBaseRoute}/hosted/5/1`);
     });
   });
 });
