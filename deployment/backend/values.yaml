@@ -51,13 +51,13 @@ deployment:
   # this is set VERY low by default, to be aggressive above resource limiting, please override this if necessary
   # Note: Limits are HARD Limits
   #       Requests are "soft" limits and are what affects HPA (autoscaling) aggressiveness if HPA is enabled
-  # resources:
-  #   limits:
-  #    cpu: 100m
-  #    memory: 100Mi
-  #   requests:
-  #    cpu: 100m
-  #    memory: 100Mi
+  resources:
+    limits:
+     cpu: 500m
+     memory: 1024Mi
+    requests:
+     cpu: 200m
+     memory: 512Mi
 
   # Enable autoscaling (prod only usually, if needed)
   autoscaling:

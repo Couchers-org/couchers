@@ -1,10 +1,7 @@
 deployment:
   ingress:
     hosts:
-      - host: api.staging.couchershq.dev
-        paths:
-          - /
-      - host: api.next.couchershq.org
+      - host: api.staging.couchers.dev
         paths:
           - /
   envFrom:
