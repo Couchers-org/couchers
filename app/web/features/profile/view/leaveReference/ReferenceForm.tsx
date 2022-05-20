@@ -88,11 +88,13 @@ export default function ReferenceForm({
 
   const isSkippedStep =
     referenceData.wasAppropriate === "" && step !== "appropriate";
+  const redirectTo =
+    referenceType === "friend"
+      ? `${leaveReferenceBaseRoute}/${referenceType}/${userId}`
+      : `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`;
 
   return isSkippedStep ? (
-    <Redirect
-      to={`${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`}
-    />
+    <Redirect to={redirectTo} />
   ) : step === "appropriate" ? (
     <Appropriate
       referenceData={referenceData}

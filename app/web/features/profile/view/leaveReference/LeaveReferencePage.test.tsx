@@ -25,14 +25,25 @@ const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
 >;
 
-function renderLeaveFriendReferencePage(referenceType: string, userId: number) {
+function renderLeaveFriendReferencePage(
+  referenceType: string,
+  userId: number,
+  step?: ReferenceStep
+) {
   mockRouter.setCurrentUrl(
-    `${leaveReferenceBaseRoute}/${referenceType}/${userId}`
+    `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${step}`
   );
 
-  render(<LeaveReferencePage referenceType={referenceType} userId={userId} />, {
-    wrapper,
-  });
+  render(
+    <LeaveReferencePage
+      referenceType={referenceType}
+      userId={userId}
+      step={step}
+    />,
+    {
+      wrapper,
+    }
+  );
 }
 
 function renderLeaveRequestReferencePage(
@@ -42,7 +53,7 @@ function renderLeaveRequestReferencePage(
   step?: ReferenceStep
 ) {
   mockRouter.setCurrentUrl(
-    `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`
+    `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}/${step}`
   );
 
   render(
@@ -185,12 +196,19 @@ describe("LeaveReferencePage", () => {
     });
   });
 
-  describe("When the user skips a step in the form", () => {
-    it("redirects to first step", async () => {
+  describe("When the user skips a step", () => {
+    it("redirects to first step of the hosting reference form", async () => {
       renderLeaveRequestReferencePage("hosted", 5, 1, "submit");
 
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
       expect(mockRouter.pathname).toBe(`${leaveReferenceBaseRoute}/hosted/5/1`);
+    });
+
+    it("redirects to first step of the friend reference form", async () => {
+      renderLeaveFriendReferencePage("friend", 5, "submit");
+
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+      expect(mockRouter.pathname).toBe(`${leaveReferenceBaseRoute}/friend/5`);
     });
   });
 });
