@@ -1,0 +1,15 @@
+deployment:
+  ingress:
+    hosts:
+      - host: api.couchers.org
+        paths:
+          - /
+  envFrom:
+    - secretRef:
+        name: backend-env
+  extraEnvs:
+    - name: "DATABASE_CONNECTION_STRING"
+      valueFrom:
+        secretKeyRef:
+          name: backend-db
+          key: database_uri
