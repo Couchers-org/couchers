@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 import Button from "components/Button";
-import useSearchFilters from "features/search/useSearchFilters";
+import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
 import { useState } from "react";
 
 import FilterDialog from "./FilterDialog";
@@ -12,7 +12,7 @@ export default {
 
 const Template: Story<any> = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const searchFilters = useSearchFilters("");
+  const searchFilters = useRouteWithSearchFilters("");
   return (
     <>
       <FilterDialog

@@ -22,4 +22,5 @@ export default function HomePage() {
 
 HomePage.getLayout = appGetLayout({
   isPrivate: true,
+  variant: "full-width",
 });

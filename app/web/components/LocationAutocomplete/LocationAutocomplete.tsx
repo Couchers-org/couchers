@@ -2,23 +2,21 @@ import { AutocompleteChangeReason } from "@material-ui/lab";
 import Autocomplete from "components/Autocomplete";
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
+import { GLOBAL } from "i18n/namespaces";
+import { useTranslation } from "next-i18next";
 import React, { useState } from "react";
 import { Control, useController } from "react-hook-form";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
-
-import {
-  MUST_BE_MORE_SPECIFIC,
-  SEARCH_LOCATION_BUTTON,
-  SEARCH_LOCATION_HINT,
-  SELECT_LOCATION,
-} from "../constants";
 
 interface LocationAutocompleteProps {
   control: Control;
   defaultValue: GeocodeResult | "";
   fieldError: string | undefined;
   fullWidth?: boolean;
-  label: string;
+  label?: string;
+  placeholder?: string;
+  id?: string;
+  variant?: "filled" | "standard" | "outlined" | undefined;
   name: string;
   onChange?(value: GeocodeResult | ""): void;
   required?: string;
@@ -32,12 +30,17 @@ export default function LocationAutocomplete({
   fieldError,
   fullWidth,
   label,
+  placeholder,
+  id = "location-autocomplete",
   name,
+  variant = "standard",
   onChange,
   required,
   showFullDisplayName = false,
   disableRegions = false,
 }: LocationAutocompleteProps) {
+  const { t } = useTranslation(GLOBAL);
+
   const controller = useController({
     name,
     defaultValue: defaultValue ?? "",
@@ -46,9 +49,13 @@ export default function LocationAutocomplete({
       required,
       validate: {
         didSelect: (value) =>
-          value === "" || typeof value !== "string" ? true : SELECT_LOCATION,
+          value === "" || typeof value !== "string"
+            ? true
+            : t("location_autocomplete.select_location_hint"),
         isSpecific: (value) =>
-          !value?.isRegion || !disableRegions ? true : MUST_BE_MORE_SPECIFIC,
+          !value?.isRegion || !disableRegions
+            ? true
+            : t("location_autocomplete.more_specific"),
       },
     },
   });
@@ -96,13 +103,17 @@ export default function LocationAutocomplete({
 
   return (
     <Autocomplete
-      id="location-autocomplete"
+      id={id}
       innerRef={controller.field.ref}
       label={label}
       error={fieldError || geocodeError}
       fullWidth={fullWidth}
+      variant={variant}
+      placeholder={placeholder}
       helperText={
-        fieldError === SELECT_LOCATION ? SELECT_LOCATION : SEARCH_LOCATION_HINT
+        fieldError === t("location_autocomplete.select_location_hint")
+          ? t("location_autocomplete.select_location_hint")
+          : t("location_autocomplete.search_location_hint")
       }
       loading={isLoading}
       options={options || []}
@@ -125,7 +136,7 @@ export default function LocationAutocomplete({
       }}
       endAdornment={
         <IconButton
-          aria-label={SEARCH_LOCATION_BUTTON}
+          aria-label={t("location_autocomplete.search_location_button")}
           onClick={() => searchSubmit(controller.field.value, "create-option")}
           size="small"
         >

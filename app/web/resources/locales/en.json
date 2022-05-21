@@ -136,5 +136,11 @@
     "x_months_ago": "{{date}} months ago",
     "one_year_ago": "1 year ago",
     "x_years_ago": "{{date}} years ago"
+  },
+  "location_autocomplete": {
+    "more_specific": "Please choose a more specific place",
+    "search_location_hint": "Press enter or click the icon to choose a location",
+    "search_location_button": "Search location",
+    "select_location_hint": "Press enter or click the icon, then select a location from the list"
   }
 }
