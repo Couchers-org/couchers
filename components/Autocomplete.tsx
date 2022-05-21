@@ -26,8 +26,10 @@ export type AutocompleteProps<
   id: string;
   error?: string;
   endAdornment?: React.ReactNode;
-  label: string;
+  label?: string;
+  placeholder?: string;
   helperText?: string;
+  variant?: "filled" | "standard" | "outlined" | undefined;
 };
 
 export default function Autocomplete<
@@ -41,6 +43,8 @@ export default function Autocomplete<
   helperText,
   id,
   label,
+  placeholder,
+  variant = "standard",
   endAdornment,
   ...otherProps
 }: AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>) {
@@ -53,10 +57,11 @@ export default function Autocomplete<
       id={id}
       renderInput={(params) => (
         <TextField
-          variant="standard"
+          variant={variant}
           {...params}
           error={!!error}
           label={label}
+          placeholder={placeholder}
           helperText={error || helperText}
           InputProps={
             endAdornment

@@ -17,18 +17,17 @@ import {
 import Divider from "components/Divider";
 import IconButton from "components/IconButton";
 import { CrossIcon } from "components/Icons";
+import LocationAutocomplete from "components/LocationAutocomplete";
 import TextField from "components/TextField";
 import { hostingStatusLabels } from "features/profile/constants";
 import { searchQueryKey } from "features/queryKeys";
-import LocationAutocomplete from "features/search/LocationAutocomplete";
-import useSearchFilters, {
-  SearchFilters,
-} from "features/search/useSearchFilters";
+import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
 import { LngLat } from "maplibre-gl";
 import { HostingStatus } from "proto/api_pb";
 import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { GeocodeResult } from "utils/hooks";
+import SearchFilters from "utils/searchFilters";
 
 import {
   ACCOMODATION_FILTERS,
@@ -73,7 +72,7 @@ export default function FilterDialog({
 }: {
   isOpen: boolean;
   onClose(): void;
-  searchFilters: ReturnType<typeof useSearchFilters>;
+  searchFilters: ReturnType<typeof useRouteWithSearchFilters>;
 }) {
   const classes = useStyles();
   const { control, handleSubmit, register, setValue, getValues, errors } =

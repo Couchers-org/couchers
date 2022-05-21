@@ -23,5 +23,13 @@
   "member_count_plural": "{{count}} members",
   "profile_summary_edit": "Edit",
   "profile_summary_view": "View my profile",
-  "profile_mobile_summary_view": "Go to profile"
+  "profile_mobile_summary_view": "Go to profile",
+  "find_a_host": "Find a host",
+  "become_a_host": "Become a host",
+  "browse_communities": "Browse communities",
+  "search_input_label": "Where are you going?",
+  "search_input_placeholder": "Search a location",
+  "show_map": "Show Map",
+  "hero_image_alt": "Hot-air balloons in Capadocia",
+  "hero_image_attribution": "Photo by <1>Mesut Kaya</1> on <3>Unsplash</3>"
 }

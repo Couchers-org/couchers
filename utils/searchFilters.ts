@@ -1,61 +1,15 @@
-import { useRouter } from "next/router";
 import { ParsedUrlQuery } from "querystring";
-import { useCallback, useEffect, useRef, useState } from "react";
 import { UserSearchFilters as ServiceUserSearchFilters } from "service/search";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-export interface SearchFilters extends ServiceUserSearchFilters {
+export default interface SearchFilters extends ServiceUserSearchFilters {
   location?: string;
 }
 
-export default function useSearchFilters(route: string) {
-  const router = useRouter();
-  const [active, setActive] = useState<SearchFilters>(() =>
-    parsedQueryToFilters(router.query)
-  );
-  const pending = useRef<SearchFilters>(active);
-
-  useEffect(() => {
-    router.push(`${route}?${filtersToSearchQuery(active)}`);
-  }, [active, route]); // eslint-disable-line react-hooks/exhaustive-deps
-  // next-router-mock not memoized, including here breaks tests
-
-  const change = useCallback(
-    <T extends keyof SearchFilters>(
-      filter: T,
-      value: Exclude<SearchFilters[T], undefined>
-    ) => {
-      pending.current = { ...pending.current, [filter]: value };
-    },
-    []
-  );
-
-  const remove = useCallback((filter: keyof SearchFilters) => {
-    delete pending.current[filter];
-    //need to copy the object or setState may not cause re-render
-    pending.current = { ...pending.current };
-  }, []);
-
-  const apply = useCallback(() => {
-    setActive(pending.current);
-  }, []);
-
-  const clear = useCallback(() => {
-    pending.current = {};
-  }, []);
-
-  const any = !!(
-    active.hostingStatusOptions?.length ||
-    active.lastActive ||
-    active.location ||
-    active.numGuests ||
-    active.query
-  );
-
-  return { active, change, remove, apply, clear, any };
-}
-
-export function parsedQueryToFilters(urlQuery: ParsedUrlQuery) {
+/**
+ * Parses a URL search query into an object with all the search filter properties found
+ */
+export function parsedQueryToSearchFilters(urlQuery: ParsedUrlQuery) {
   const filters: SearchFilters = {};
   Array.from(Object.keys(urlQuery)).forEach((key) => {
     switch (key) {
@@ -102,7 +56,10 @@ export function parsedQueryToFilters(urlQuery: ParsedUrlQuery) {
   return filters;
 }
 
-export function filtersToSearchQuery(filters: SearchFilters) {
+/**
+ * Parses a search filter object into a URL encoded search query
+ */
+export function parseSearchFiltersToQuery(filters: SearchFilters) {
   const entries: [string, string][] = [];
   Object.entries(filters).forEach(([key, filterValue]) => {
     if (Array.isArray(filterValue)) {

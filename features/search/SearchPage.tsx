@@ -2,7 +2,7 @@ import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
 import HtmlMeta from "components/HtmlMeta";
 import Map from "components/Map";
 import SearchBox from "features/search/SearchBox";
-import useSearchFilters from "features/search/useSearchFilters";
+import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
 import { Point } from "geojson";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
@@ -68,7 +68,7 @@ export default function SearchPage() {
 
   const showResults = useRef(false);
 
-  const searchFilters = useSearchFilters(searchRoute);
+  const searchFilters = useRouteWithSearchFilters(searchRoute);
 
   useEffect(() => {
     if (showResults.current !== searchFilters.any) {

@@ -13,11 +13,11 @@ import {
 import classNames from "classnames";
 import Button from "components/Button";
 import { CrossIcon } from "components/Icons";
+import LocationAutocomplete from "components/LocationAutocomplete";
 import TextField from "components/TextField";
 import { searchQueryKey } from "features/queryKeys";
 import FilterDialog from "features/search/FilterDialog";
-import LocationAutocomplete from "features/search/LocationAutocomplete";
-import useSearchFilters from "features/search/useSearchFilters";
+import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
 import { LngLat } from "maplibre-gl";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -55,7 +55,7 @@ export default function SearchBox({
   searchFilters,
 }: {
   className?: string;
-  searchFilters: ReturnType<typeof useSearchFilters>;
+  searchFilters: ReturnType<typeof useRouteWithSearchFilters>;
 }) {
   const classes = useStyles();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);

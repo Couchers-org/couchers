@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 import SearchBox from "features/search/SearchBox";
-import useSearchFilters from "features/search/useSearchFilters";
+import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
 
 export default {
   component: SearchBox,
@@ -8,7 +8,7 @@ export default {
 } as Meta;
 
 const Template: Story<any> = () => {
-  const searchFilters = useSearchFilters("");
+  const searchFilters = useRouteWithSearchFilters("");
   return (
     <>
       <SearchBox searchFilters={searchFilters} />
