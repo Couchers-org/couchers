@@ -1,7 +1,7 @@
 {
   "discussions_empty_state": "De momento não há discussões.",
   "create_event_disclaimer": "Ao carregar neste botão, o teu evento irá ficar publicamente visível para a comunidade Couchers.org.",
-  "upload_helper_text_replace": "Clica para mudar foto",
+  "upload_helper_text_replace": "Clica para mudar a foto",
   "error_loading_community": "Erro a carregar a comunidade.",
   "events_empty_state": "De momento não há eventos.",
   "local_info_link": "Aceder a informação local",
@@ -14,7 +14,19 @@
   "event_details_required": "Por favor, preenche o campo de detalhes do evento.",
   "location_required": "Por favor indica a localização do evento.",
   "title_required": "Por favor, dá um título ao evento.",
-  "upload_helper_text": "Clica para começar a carregar uma imagem.",
+  "upload_helper_text": "Clica para começar a carregar uma imagem",
   "discover_events_subtitle": "Descobre os próximos e futuros eventos organizados por membros da comunidade Couchers.org!",
-  "discover_events_title": "Descobre eventos do Couchers.org"
+  "discover_events_title": "Descobre eventos do Couchers.org",
+  "edit_info_page_success_message": "A página da comunidade foi atualizada com sucesso.",
+  "attendees_count": "{{count}} participante",
+  "attendees_count_plural": "{{count}} participantes",
+  "by_creator": "Por {{name}}",
+  "comment": "Comentar",
+  "comments": "Comentários",
+  "comments_count": "Comentários | {{count}}",
+  "community_header": "Bem-vindo a {{name}}",
+  "community_image_input_alt": "Imagem da comunidade",
+  "community_moderators": "Organizadores da comunidade",
+  "community_tabs_a11y_label": "Abas para subpáginas da comunidade",
+  "created_at": "Criado em "
 }

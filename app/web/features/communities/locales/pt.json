@@ -99,5 +99,6 @@
   "overview_label": "Resumo",
   "end_date": "Data de fim",
   "end_time": "Hora de fim",
-  "join_event": "Aderir ao evento"
+  "join_event": "Aderir ao evento",
+  "link_required": "Por favor indica um link de encontro para o evento."
 }
