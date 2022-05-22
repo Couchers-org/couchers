@@ -12,10 +12,16 @@
   "donations_box": {
     "title": "Valor do Donativo",
     "alert": {
-      "success_message": "Obrigado pelo teu donativo ao Couchers.org, ficamos felizes com o teu apoio! Receberás um email em breve."
+      "success_message": "Obrigado pelo teu donativo ao Couchers.org, ficamos felizes com o teu apoio! Receberás um email em breve.",
+      "warning_message": "O pagamento foi cancelado."
     },
     "helper_text": "Serás redirecionado para o Stripe, o nosso processador de pagamentos, para concluir o teu donativo.",
-    "amount_validation_error": "Por favor, apenas números inteiros."
+    "amount_validation_error": "Por favor, apenas números inteiros.",
+    "monthly_button_label": "Mensal",
+    "one_time_button_label": "Uma única vez",
+    "validation_message": "Este campo é obrigatório",
+    "action_button_label": "Avançar",
+    "recurrence_aria_label": "recorrente"
   },
   "benefactor_contact": "Se quiseres contribuir com mais de USD $1.000, entra em contacto connosco pelo <1>{{email}}</1> para providenciarmos uma forma de transferência com uma taxa mais baixa.",
   "donate": "Doar"
