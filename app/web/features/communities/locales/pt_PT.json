@@ -47,7 +47,7 @@
   "invalid_community_id": "ID de comunidade inválido.",
   "hangouts_label": "Hangouts",
   "join_community": "Junta-te à comunidade",
-  "leave_community": "Abandona comunidade",
+  "leave_community": "Abandonar comunidade",
   "load_earlier_replies": "Carregar respostas anteriores",
   "load_more_moderators": "Carregar mais Organizadores da comunidade",
   "load_earlier_comments": "Carregar comentários anteriores",
@@ -60,5 +60,6 @@
   "new_post_label": "Nova publicação",
   "online": "Online",
   "page_content_field_label": "Conteúdo da página",
-  "places_empty_state": "Ainda não existem lugares para  mostrar."
+  "places_empty_state": "Ainda não existem lugares para  mostrar.",
+  "overview_label": "Vista Geral"
 }
