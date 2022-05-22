@@ -44,5 +44,6 @@
   "find_host": "Encontrar anfitrião",
   "finished": "Concluído",
   "community_info_page_title": "Informação geral",
-  "invalid_community_id": "Id de comunidade inválido"
+  "invalid_community_id": "ID de comunidade inválido.",
+  "hangouts_label": "Hangouts"
 }
