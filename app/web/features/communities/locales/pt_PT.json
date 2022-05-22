@@ -1,9 +1,9 @@
 {
-  "discussions_empty_state": "De momento não há discussões.",
+  "discussions_empty_state": "De momento, não há discussões.",
   "create_event_disclaimer": "Ao carregar neste botão, o teu evento irá ficar publicamente visível para a comunidade Couchers.org.",
   "upload_helper_text_replace": "Clica para mudar a foto",
   "error_loading_community": "Erro a carregar a comunidade.",
-  "events_empty_state": "De momento não há eventos.",
+  "events_empty_state": "De momento, não há eventos.",
   "local_info_link": "Aceder a informação local",
   "new_discussion_topic_placeholder": "Criar novo tópico de discussão - por ex., O meu momento favorito de Amesterdão é quando...",
   "no_comments": "De momento esta discussão não tem comentários.",
@@ -35,5 +35,14 @@
   "virtual_events_subtext": "Os eventos virtuais serão adicionados à comunidade global.",
   "past": "Passados",
   "upcoming": "Próximos",
-  "all_events_page_tabs_a11y_label": "Tabs para a página lista de eventos"
+  "all_events_page_tabs_a11y_label": "Tabs para a página lista de eventos",
+  "create_new_discussion_title": "Criar nova publicação",
+  "discussions_label": "Discussões",
+  "discussions_title": "Discussões",
+  "edit_event": "Editar evento",
+  "edit_info_page_title": "Editar informação local",
+  "find_host": "Encontrar anfitrião",
+  "finished": "Concluído",
+  "community_info_page_title": "Informação geral",
+  "invalid_community_id": "Id de comunidade inválido"
 }
