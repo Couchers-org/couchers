@@ -28,5 +28,12 @@
   "community_image_input_alt": "Imagem da comunidade",
   "community_moderators": "Organizadores da comunidade",
   "community_tabs_a11y_label": "Abas para subpáginas da comunidade",
-  "created_at": "Criado em "
+  "created_at": "Criado em ",
+  "virtual_event": "Evento virtual",
+  "virtual_event_link": "Link do evento",
+  "virtual_event_location_placeholder": "Ver detalhes do link",
+  "virtual_events_subtext": "Os eventos virtuais serão adicionados à comunidade global.",
+  "past": "Passados",
+  "upcoming": "Próximos",
+  "all_events_page_tabs_a11y_label": "Tabs para a página lista de eventos"
 }

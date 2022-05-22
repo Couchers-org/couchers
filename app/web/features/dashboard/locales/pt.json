@@ -1,1 +1,14 @@
-{}
+{
+  "find_a_host": "Encontrar um anfitrião",
+  "become_a_host": "Torna-te um anfitrião",
+  "browse_communities": "Explorar comunidades",
+  "search_input_label": "Para onde vais?",
+  "search_input_placeholder": "Procura um local",
+  "show_map": "Mostrar Mapa",
+  "hero_image_alt": "Balões de ar quente na Capadócia",
+  "hero_image_attribution": "Fotografia por <1>Mesut Kaya</1> em <3>Unsplash</3>",
+  "please_complete_profile": "Por favor completa o teu perfil e assegura que apareces na pesquisa:",
+  "fill_in_who_i_am": "1. Preenche a secção \"Quem sou eu\" com algumas frases sobre ti",
+  "upload_photo": "2. Carrega uma foto (clicando no avatar, na página editar)",
+  "dashboard": "Painel"
+}
