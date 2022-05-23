@@ -1,0 +1,15 @@
+---
+# This is our "dev" specific values for the web-frontend "deployment".  The values here will override any values set
+# in the upstream helm chart, and will override any values in values.yaml but only for development deploys.
+deployment:
+
+  # Using a custom hostname on dev
+  ingress:
+    hosts:
+      # We use "dynamic dev environments" based on the branch name we populate the global "namespace" value and inject it here
+      - host: '{{ (include "namespace" .) }}.couchers.dev'
+        paths:
+          - /
+
+# Using an custom .env file injected into the running container.  See: templates/env.yaml
+envFile: .env.development

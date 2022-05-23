@@ -1,0 +1,189 @@
+syntax = "proto3";
+
+package org.couchers.api.requests;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+import "annotations.proto";
+import "conversations.proto";
+
+service Requests {
+  option (auth_level) = AUTH_LEVEL_SECURE;
+
+  rpc CreateHostRequest(CreateHostRequestReq) returns (CreateHostRequestRes);
+
+  rpc GetHostRequest(GetHostRequestReq) returns (HostRequest);
+
+  // Change the status of a host request.
+  // Throws NOT_FOUND if you don't have a host request of that id, NOT_AUTHORIZED
+  // if you try to change the status to one you aren't allowed.
+  rpc RespondHostRequest(RespondHostRequestReq) returns (google.protobuf.Empty);
+
+  rpc ListHostRequests(ListHostRequestsReq) returns (ListHostRequestsRes);
+
+  // Get the messages and events (created, accepted, etc) for a host request
+  // Throws NOT_FOUND if the user isn't part of the request or it doesn't exist
+  rpc GetHostRequestMessages(GetHostRequestMessagesReq) returns (GetHostRequestMessagesRes);
+
+  // Adds a new message to a host request
+  // Throws NOT_FOUND if the user isn't part of the request or it doesn't exist
+  // Throws PERMISSION_DENIED if you try to send a message to a rejected, confirmed
+  // or cancelled request
+  rpc SendHostRequestMessage(SendHostRequestMessageReq) returns (google.protobuf.Empty);
+
+  // Get new messages in a host request and latest status
+  rpc GetHostRequestUpdates(GetHostRequestUpdatesReq) returns (GetHostRequestUpdatesRes);
+
+  // Saves the last seen message
+  rpc MarkLastSeenHostRequest(MarkLastSeenHostRequestReq) returns (google.protobuf.Empty);
+
+  // Get the response rate and response time for a given user
+  rpc GetResponseRate(GetResponseRateReq) returns (GetResponseRateRes);
+}
+
+message CreateHostRequestReq {
+  int64 host_user_id = 1;
+  // dates as "yyyy-mm-dd", in the timezone of the host
+  string from_date = 2;
+  string to_date = 3;
+  string text = 4;
+}
+
+message HostRequest {
+  int64 host_request_id = 1;
+  int64 surfer_user_id = 2;
+  int64 host_user_id = 3;
+  org.couchers.api.conversations.HostRequestStatus status = 4;
+  google.protobuf.Timestamp created = 5;
+
+  // dates as "yyyy-mm-dd", these are associated with a timezone, but that's not yet returned here TODO?
+  string from_date = 6;
+  string to_date = 7;
+  int64 last_seen_message_id = 8;
+  org.couchers.api.conversations.Message latest_message = 9;
+}
+
+message GetHostRequestReq {
+  int64 host_request_id = 1;
+}
+
+message CreateHostRequestRes {
+  int64 host_request_id = 1;
+}
+
+message RespondHostRequestReq {
+  int64 host_request_id = 1;
+  org.couchers.api.conversations.HostRequestStatus status = 2;
+  string text = 3;
+}
+
+message ListHostRequestsReq {
+  int64 last_request_id = 1;
+  uint32 number = 2;
+
+  // Whether to only show pending, accepted and
+  // confirmed requests which haven't passed the
+  // end date.
+  bool only_active = 3;
+
+  bool only_sent = 4;
+  bool only_received = 5;
+}
+
+message ListHostRequestsRes {
+  repeated HostRequest host_requests = 1;
+  int64 last_request_id = 2;
+  bool no_more = 3;
+}
+
+message GetHostRequestMessagesReq {
+  int64 host_request_id = 1;
+  int64 last_message_id = 2;
+  uint32 number = 3;
+}
+
+message GetHostRequestMessagesRes {
+  repeated org.couchers.api.conversations.Message messages = 1;
+  int64 last_message_id = 4;
+  bool no_more = 5;
+}
+
+message SendHostRequestMessageReq {
+  int64 host_request_id = 1;
+  string text = 2;
+}
+
+message GetHostRequestUpdatesReq {
+  int64 newest_message_id = 1;
+  uint32 number = 2;
+  bool only_sent = 3;
+  bool only_received = 4;
+}
+
+message HostRequestUpdate {
+  int64 host_request_id = 1;
+  org.couchers.api.conversations.Message message = 2;
+  // the current status of the host request, regardless of this update
+  org.couchers.api.conversations.HostRequestStatus status = 3;
+}
+
+message GetHostRequestUpdatesRes {
+  repeated HostRequestUpdate updates = 1;
+  bool no_more = 2;
+}
+
+message MarkLastSeenHostRequestReq {
+  int64 host_request_id = 1;
+  int64 last_seen_message_id = 2;
+}
+
+message GetResponseRateReq {
+  int64 user_id = 1;
+}
+
+message ResponseRateInsufficientData {}
+
+message ResponseRateLow {}
+
+message ResponseRateSome {
+  // the 33rd percentile response time
+  google.protobuf.Duration response_time_p33 = 2;
+}
+
+message ResponseRateMost {
+  // the 33rd percentile response time
+  google.protobuf.Duration response_time_p33 = 2;
+  // the 66th percentile response time
+  google.protobuf.Duration response_time_p66 = 3;
+}
+
+
+message ResponseRateAlmostAll {
+  // the 33rd percentile response time
+  google.protobuf.Duration response_time_p33 = 2;
+  // the 66th percentile response time
+  google.protobuf.Duration response_time_p66 = 3;
+}
+
+enum ResponseRate {
+  RESPONSE_RATE_UNSPECIFIED = 0;
+}
+
+message GetResponseRateRes {
+  // Response rate is number of requests responded to (accepted/rejected/sent message) divided by total number of
+  // received requests.
+  oneof response_rate {
+    // received <3 requests
+    ResponseRateInsufficientData insufficient_data = 1;
+    // response rate <= 33%
+    ResponseRateLow low = 2;
+    // response rate > 33%, but <= 66%
+    ResponseRateSome some = 3;
+    // response rate > 66%, but <= 90%
+    ResponseRateMost most = 4;
+    // response rate > 90%
+    ResponseRateAlmostAll almost_all = 5;
+  }
+}

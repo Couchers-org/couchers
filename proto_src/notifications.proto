@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package org.couchers.notifications;
+
+import "annotations.proto";
+
+service Notifications {
+  option (auth_level) = AUTH_LEVEL_SECURE;
+
+  rpc GetNotificationSettings(GetNotificationSettingsReq) returns (GetNotificationSettingsRes);
+
+  rpc SetNotificationSettings(SetNotificationSettingsReq) returns (SetNotificationSettingsRes);
+}
+
+message GetNotificationSettingsReq {}
+
+message GetNotificationSettingsRes {
+  bool new_notifications_enabled = 1;
+}
+
+message SetNotificationSettingsReq {
+  bool enable_new_notifications = 1;
+}
+
+message SetNotificationSettingsRes {}

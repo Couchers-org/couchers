@@ -1,0 +1,40 @@
+# Builds a docker image, then tags it with the github sha and pushes it to our Amazon ECR registry
+
+inputs:
+  module-name:
+    description: "Name of the module to build. Used as the default image name and src dir unless 'image-name' or 'src-path' are used."
+    required: true
+  extra-build-args:
+    description: "Extra args passed to 'docker build'."
+    required: false
+  image-name:
+    description: "Name to give the built image."
+    required: false
+  src-path:
+    description: "Where to find the Dockerfile."
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: ./.github/actions/setup-env
+    # https://github.com/aws-actions/amazon-ecr-login
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    - shell: bash
+      run: |
+        PATH_BASE=app/
+        INPUT_SRC_PATH=${{ inputs.src-path }}
+        INPUT_MODULE_NAME=${{ inputs.module-name }}
+        INPUT_IMAGE_NAME=${{ inputs.image-name }}
+        IMAGE_NAME=${INPUT_IMAGE_NAME:-$INPUT_MODULE_NAME} # Use image-name if it's supplied, otherwise use module-name as image name
+        SRC_PATH=${INPUT_SRC_PATH:-$PATH_BASE$INPUT_MODULE_NAME} # Use src-path if it's supplied, otherwise use module-name as the folder
+        REPO_IMAGE=${{ steps.login-ecr.outputs.registry }}/$IMAGE_NAME
+        DOCKER_BUILDKIT=1
+        aws ecr create-repository --repository-name $IMAGE_NAME || true # Just let this fail if the repo already exists
+        cd $SRC_PATH
+        docker pull $REPO_IMAGE:latest || true
+        docker pull $REPO_IMAGE:${{ env.SLUG }}  || true
+        docker build ${{ inputs.extra-build-args }} --build-arg version=${{ env.SLUG }} --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $REPO_IMAGE:latest --cache-from $REPO_IMAGE:${{ env.SLUG }} -t $REPO_IMAGE:${{ env.SLUG }} .
+        docker push $REPO_IMAGE:${{ env.SLUG }}

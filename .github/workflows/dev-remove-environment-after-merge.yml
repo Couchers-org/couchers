@@ -1,0 +1,46 @@
+name: Dev - After Merge Into Master, Cleanup
+
+#####################################
+# We only want to run this job if...
+#   if this is a pull request
+#   if that pull request was closed
+#   if that pull request is on the master branch
+#   if that pull request was merged successfully (see the "if" statement below)
+#####################################
+on:
+  pull_request:
+    types: [closed]
+    branches: [master]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+
+  # Our job to cleanup and remove via helm
+  cleanup-dev-environment:
+    if: github.event.pull_request.merged == true
+
+    # Use our local runner, for faster runs and docker layer caching
+    runs-on: [self-hosted, master]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/setup-env
+      - name: Helm Uninstall
+        run: |
+          # Setup
+          cd deployment
+
+          # Defining env vars
+          export K8S_NAMESPACE=`echo "${{ env.ENV_NAME }}" | sed 's/-*$//g'`
+
+          echo "Change to our namespace..."
+          kubens $K8S_NAMESPACE || true
+
+          # Iterate through all our deployments
+          for CURRENT_HELM_CHART in $(ls -d */ | grep -Evi "helm_value_files|templates" | tr '/' ' '); do
+            echo "Uninstalling $CURRENT_HELM_CHART ..."
+            helm --namespace $K8S_NAMESPACE uninstall $CURRENT_HELM_CHART
+          done

@@ -1,0 +1,36 @@
+name: Staging - Deploy Frontend on Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [master]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+
+  build:
+    runs-on: [self-hosted, master]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/generate-protos
+      - uses: ./.github/actions/build-push-ecr
+        with:
+          module-name: frontend
+          src-path: ./
+
+  deploy-staging:
+    runs-on: [self-hosted, master]
+    needs: build
+    environment:
+      name: staging
+      url: staging.couchers.dev
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/setup-env
+      - uses: ./.github/actions/helm-deploy
+        with:
+          environment-slug: staging
+          environment-name: staging

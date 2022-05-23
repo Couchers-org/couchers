@@ -181,6 +181,17 @@
     }
   },
   {
+    "name": "Poovan Devasagayam",
+    "role": "Head of Marketing",
+    "location": "Paris, France",
+    "img": "/img/team/head-poovan.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "goldpoovan",
+      "url": "https://www.linkedin.com/in/goldpoovan/"
+    }
+  },
+  {
     "name": "Miuriel Feliks Kochva",
     "role": "UX & Graphic designer",
     "location": "Amsterdam, Netherlands",

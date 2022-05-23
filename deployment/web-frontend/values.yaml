@@ -1,0 +1,65 @@
+---
+# This is our "Global" values for the web-frontend "deployment".  The values here will be the default values used when deploying this
+# service to any enviornment.  Note: You only need to modify values which are changed from the defaults
+#   See: https://github.com/DevOps-Nirvana/Universal-Kubernetes-Helm-Charts/tree/master/charts/deployment for the Helm Chart used
+deployment:
+
+  # This is the name of the deployment, this is used in a _lot_ of places in the helm charts so lets just specify it
+  name: web-frontend
+
+  # By default we only want 1.  On prod we'll up this only
+  replicaCount: 1
+
+  image:
+    # This is where we pull the docker image from
+    repository: 694904428454.dkr.ecr.us-east-1.amazonaws.com/frontend
+    # If you need to debug this container or manually import/delete a database, uncomment these next two lines then kubectl exec into the pod
+    #   Reminder: you'll also need to disable probes otherwise it will auto-restart on you
+    # command: ["/bin/sh"]
+    # args: ["-c", "while true; do echo hello; sleep 10;done"]
+
+  # This sets an .env file which we use for dev/staging.  Prod is pre-built statically.
+  volumeMounts:
+    - name: env-volume
+      mountPath: /app/.env.local
+      subPath: .env
+  volumes:
+    - name: env-volume
+      configMap:
+        name: frontend-env
+
+  service:
+    # Our service listens on port 3000
+    targetPort: 3000
+
+  # livenessProbes are used to determine when to restart a container
+  livenessProbe:
+    enabled: true
+    path: /
+
+  # readinessProbes are used to determine when a container is ready to start accepting traffic
+  readinessProbe:
+    enabled: true
+    path: /
+
+  # Deployment container resource requests/limits to ensure resources are guaranteed for this, and have max limits to prevent starvation
+  #   Note: Limits are HARD Limits, requests are "soft" limits and are what affects HPA (autoscaling) if enabled
+  resources:
+    limits:
+     cpu: 2
+     memory: 2000Mi
+    requests:
+     cpu: 200m
+     memory: 2000Mi
+
+  # Enable autoscaling (prod only usually, if needed)
+  autoscaling:
+    enabled: false
+
+  # Ingress is enabled because this is a public-facing service, we set the URL(s) in the values-env files
+  ingress:
+    enabled: true
+    hosts:
+      - host: REPLACE_HOSTNAME_IN_ENV_VALUES
+        paths:
+          - /(/+)?(.*)

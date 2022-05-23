@@ -1,0 +1,37 @@
+name: Prod - Deploy Frontend on Release
+
+on:
+  release:
+    types: [published]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+
+  build-prod:
+    runs-on: [self-hosted, master]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/generate-protos
+      - uses: ./.github/actions/build-push-ecr
+        with:
+          module-name: frontend
+          extra-build-args: -f prod.Dockerfile
+          image-name: frontend-prod
+          src-path: ./
+
+  deploy-prod:
+    runs-on: [self-hosted, master]
+    needs: build-prod
+    environment:
+      name: prod
+      url: couchers.org
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/setup-env
+      - uses: ./.github/actions/helm-deploy
+        with:
+          environment-slug: prod
+          environment-name: prod

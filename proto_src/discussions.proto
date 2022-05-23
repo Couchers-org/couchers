@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package org.couchers.api.discussions;
+
+import "google/protobuf/timestamp.proto";
+
+import "annotations.proto";
+import "threads.proto";
+
+service Discussions {
+  option (auth_level) = AUTH_LEVEL_SECURE;
+
+  rpc CreateDiscussion(CreateDiscussionReq) returns (Discussion) {
+    // Create a new discussion
+  }
+
+  rpc GetDiscussion(GetDiscussionReq) returns (Discussion) {
+    // Retrieve a discussion
+  }
+}
+
+message Discussion {
+  int64 discussion_id = 1;
+  string slug = 2;
+  google.protobuf.Timestamp created = 3;
+  int64 creator_user_id = 4;
+  oneof owner {
+    int64 owner_community_id = 5;
+    int64 owner_group_id = 6;
+  }
+  string title = 7;
+  string content = 8;
+  org.couchers.api.threads.Thread thread = 11;
+
+  bool can_moderate = 10;
+}
+
+message CreateDiscussionReq {
+  string title = 1;
+  string content = 2;
+  oneof owner {
+    int64 owner_community_id = 3;
+    int64 owner_group_id = 4;
+  }
+}
+
+message GetDiscussionReq {
+  int64 discussion_id = 1;
+}

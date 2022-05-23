@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package org.couchers.api.account;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+import "annotations.proto";
+import "auth.proto";
+
+service Account {
+  option (auth_level) = AUTH_LEVEL_SECURE;
+
+  // account management APIs
+  rpc GetAccountInfo(google.protobuf.Empty) returns (GetAccountInfoRes) {
+    // Get information about the user's account
+  }
+
+  rpc ChangePassword(ChangePasswordReq) returns (google.protobuf.Empty) {
+    // Change, set, or unset the user's password
+    // we will send and an email to the user saying their password was changed
+  }
+
+  rpc ChangeEmail(ChangeEmailReq) returns (google.protobuf.Empty) {
+    // Change the user's email address
+    // If user has password, we will send a notification email to the old email, and confirmation email to the new email
+    // If not, we will send a confirmation email to both emails
+    // Raises INVALID_ARGUMENT if password is too small, too large, insecure, wrong or not supplied.
+  }
+
+  rpc GetContributorFormInfo(google.protobuf.Empty) returns (GetContributorFormInfoRes) {
+    // Returns info related to filling out the contributor form
+  }
+
+  rpc FillContributorForm(FillContributorFormReq) returns (google.protobuf.Empty) {
+    // Fill the contributor form; this can be done multiple times
+  }
+
+  rpc ChangePhone(ChangePhoneReq) returns (google.protobuf.Empty) {
+    // Set/Change/Remove phone number. An verification sms with a 6-digit code will be sent out,
+    // And returned in a call to in VerifyPhone() to complete the phone number change.
+    // An INVALID_ARGUMENT is returned if the phone number is not formatted according to E.164.
+    // A RESOURCE_EXHAUSTED error code indicates that you have done too many changes lately.
+    // An UNIMPLEMENTED error code indicates that sms to your operator is not supported.
+  }
+
+  rpc VerifyPhone(VerifyPhoneReq) returns (google.protobuf.Empty) {
+    // Enter the code you got in the sms. Other accounts using the same phone number will
+    // lose their verification status.
+
+    // A RESOURCE_EXHAUSTED error code indicates too many tries has been performed,
+    // and FAILED_PRECONDITION means ChangePhone was not called before this method.
+    // An incorrect code generates NOT_FOUND.
+  }
+
+  rpc DeleteAccount(DeleteAccountReq) returns (google.protobuf.Empty) {
+    // Sends email with confirmation link containing token to delete account
+  }
+}
+
+message GetAccountInfoRes {
+  enum LoginMethod {
+    MAGIC_LINK = 0;
+    PASSWORD = 1;
+  }
+
+  LoginMethod login_method = 1;
+  bool has_password = 2;
+
+  string username = 7;
+
+  // user's current email address
+  string email = 3;
+
+  // whether the user has completed their profile; otherwise needs to display a banner on dashboard
+  bool profile_complete = 4;
+
+  // User's alleged phone number in E.164 format (including country code with the + sign)
+  string phone = 8;
+
+  // Whether the above phone number has been successfully verified or not
+  bool phone_verified = 9;
+
+  // the user's timezone name identifier, derived from their coordinates, for example "Australia/Melbourne"
+  string timezone = 6;
+}
+
+message ChangePasswordReq {
+  // a null value indicates that the password wasn't set before
+  google.protobuf.StringValue old_password = 1 [ (sensitive) = true ];
+  // a null value indicates that the password should be unset (removed)
+  // the frontend should ask for the password twice and whatnot
+  google.protobuf.StringValue new_password = 2 [ (sensitive) = true ];
+}
+
+message ChangeEmailReq {
+  google.protobuf.StringValue password = 1 [ (sensitive) = true ];
+  string new_email = 2;
+}
+
+message GetContributorFormInfoRes {
+  bool filled_contributor_form = 1;
+}
+
+message FillContributorFormReq {
+  org.couchers.auth.ContributorForm contributor_form = 1;
+}
+
+message ChangePhoneReq {
+  // New phone number in international format without spaces and punctuation,
+  // for example "+46701740605". Pass empty string to remove a verified phone number.
+  // The phone number will only be visible, once verified, to accepted guests and accepted hosts.
+  string phone = 1;
+}
+
+message VerifyPhoneReq {
+  // Should be a 6-digit string with Luhn algorithm mod 10 checksum equals 0.
+  // Frontends could do that pre-check.
+  string token = 1 [ (sensitive) = true ];
+}
+
+message DeleteAccountReq {
+  bool confirm = 1;
+  string reason = 2;
+}

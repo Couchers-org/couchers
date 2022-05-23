@@ -1,0 +1,100 @@
+name: Dev - Deploy Frontend on Push
+
+on:
+  push:
+    branches-ignore:
+      - master
+      - master-hotfix
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+
+  build:
+    runs-on: [self-hosted, master]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/generate-protos
+      - uses: ./.github/actions/build-push-ecr
+        with:
+          module-name: frontend
+          src-path: ./
+
+  build-prod:
+    runs-on: [self-hosted, master]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/generate-protos
+      - uses: ./.github/actions/build-push-ecr
+        with:
+          module-name: frontend
+          extra-build-args: -f prod.Dockerfile
+          image-name: frontend-prod
+          src-path: ./
+
+
+  test-web:
+    runs-on: [self-hosted, master]
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/generate-protos
+      - run: |
+          yarn install
+          yarn test-ci
+
+  test-web-prettier:
+    runs-on: [self-hosted, master]
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/generate-protos
+      - run: |
+          yarn install
+          yarn prettier --check *
+
+  test-storybook:
+    runs-on: [self-hosted, master]
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/generate-protos
+      - run: |
+          yarn install
+          yarn build-storybook
+
+
+
+  # We need to use the deployment name and url in the 'environment' section of the deployment job below
+  # We need then as job outputs to workaround a limitation of github actions: https://github.com/actions/runner/issues/998
+  set-env:
+    runs-on: [self-hosted, master]
+    needs: [test-web, test-web-prettier, test-storybook]
+    outputs:
+      environment_name: ${{ steps.set-envs.outputs.envname }}
+      environment_url: ${{ steps.set-envs.outputs.envurl }}
+      environment_slug: "dev"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/setup-env
+      - id: set-envs
+        run: |
+          echo "::set-output name=envname::${{env.ENV_NAME}}"
+          echo "::set-output name=envurl::${{env.ENV_URL}}"
+
+
+  deploy-dev:
+    runs-on: [self-hosted, master]
+    needs: set-env
+    environment:
+      name: ${{ needs.set-env.outputs.environment_name }}
+      url: ${{ needs.set-env.outputs.environment_url }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/setup-env
+      - uses: ./.github/actions/helm-deploy
+        with:
+          environment-slug: ${{ needs.set-env.outputs.environment_slug }}
+          environment-name: ${{ needs.set-env.outputs.environment_name }}

@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package org.couchers.resources;
+
+import "google/protobuf/empty.proto";
+
+import "annotations.proto";
+
+service Resources {
+  option (auth_level) = AUTH_LEVEL_OPEN;
+
+  // This API contains general resources needed by frontends and managed by the backend team
+
+  rpc GetTermsOfService(google.protobuf.Empty) returns (GetTermsOfServiceRes) {
+    // Returns the latest Terms of Service markdown, to be shown on signup or if jailed due to this
+  }
+
+  rpc GetCommunityGuidelines(google.protobuf.Empty) returns (GetCommunityGuidelinesRes) {
+    // Returns the latest Community Guidelines, see GetCommunityGuidelinesRes
+    // Each of the Community Guidelines should be shown under the text "Please agree to our Community Guidelines", and
+    // each Community Guideline should be shown with its title, the logo, and the guideline content. The user needs to
+    // tick a checkbox to agree each of the individual Guidelines and the frontend should only say a user agreed to them
+    // if they agreed to each one individually.
+  }
+
+  rpc GetRegions(google.protobuf.Empty) returns (GetRegionsRes) {
+    // Returns a list of allowed regions
+  }
+
+  rpc GetLanguages(google.protobuf.Empty) returns (GetLanguagesRes) {
+    // Returns a list of allowed languages. This is a subset of the full ISO639-3 table.
+  }
+}
+
+message GetTermsOfServiceRes {
+  string terms_of_service = 1; // CommonMark without images
+}
+
+message CommunityGuideline {
+  string title = 1;
+  string guideline = 2;
+  string icon_svg = 3;
+}
+
+message GetCommunityGuidelinesRes {
+  repeated CommunityGuideline community_guidelines = 1;
+}
+
+message Region {
+  string alpha3 = 1;
+  string name = 2;
+}
+
+message GetRegionsRes {
+  repeated Region regions = 1;
+}
+
+message Language {
+  string code = 1; // ISO639-3 lowercase language code
+  string name = 2;
+}
+
+message GetLanguagesRes {
+  repeated Language languages = 1;
+}

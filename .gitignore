@@ -41,3 +41,22 @@ proto/**
 storybook-static/
 
 junit.xml
+
+
+# Ignore all logfiles and tempfiles and editor files
+*.log
+*.swp
+**.swp
+**.swo
+*minified.*
+**DS_Store
+revision.txt
+.puppet/
+.vagrant
+.smarty/
+.idea/
+.vscode
+
+# For gitlabci and helm stuff
+deployment/*/charts
+requirements.lock

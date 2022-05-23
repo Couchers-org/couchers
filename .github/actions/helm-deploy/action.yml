@@ -1,0 +1,45 @@
+# Deploys a helm chart
+
+inputs:
+  environment-slug:
+    required: true
+  environment-name:
+    required: true
+
+
+runs:
+  using: 'composite'
+
+  steps:
+    - uses: ./.github/actions/generate-protos
+    - uses: ./.github/actions/setup-env
+    - shell: bash
+      run: |
+        # Setup
+        cd deployment
+
+        # Defining env vars
+        export K8S_NAMESPACE=${{ inputs.environment-name }}
+
+        # Creating namespace if necessary
+        kubectl create namespace $K8S_NAMESPACE || true
+
+        # Change to our namespace
+        kubens $K8S_NAMESPACE
+
+        # Setup our helm args (TODO OPTIONAL NOT SET IF EXTERNAL DOCKER IMAGE)
+        export HELM_EXTRA_ARGS="$HELM_EXTRA_ARGS --set image.tag=${{ env.SLUG }} --set global.image.tag=${{ env.SLUG }} --set global.namespace=$K8S_NAMESPACE";
+
+        # Iterate through all our deployments
+        for CURRENT_HELM_CHART in $(ls -d */ | grep -Evi "helm_value_files|templates" | tr '/' ' '); do
+
+          echo "Update our helm chart dependencies"
+          helm dependency update $CURRENT_HELM_CHART || true
+
+          echo "Helm diff..."
+          helm diff upgrade --allow-unreleased --namespace $K8S_NAMESPACE $HELM_UPDIFF_EXTRA_ARGS $CURRENT_HELM_CHART ./$CURRENT_HELM_CHART -f $CURRENT_HELM_CHART/values.yaml -f $CURRENT_HELM_CHART/values-${{ inputs.environment-slug }}.yaml $HELM_EXTRA_ARGS
+
+          # Timeout argument is only for the current implementation of the frontend container which builds the nextjs app before running
+          echo "Helm upgrade..."
+          helm upgrade --install --atomic --namespace $K8S_NAMESPACE $CURRENT_HELM_CHART ./$CURRENT_HELM_CHART -f $CURRENT_HELM_CHART/values.yaml -f $CURRENT_HELM_CHART/values-${{ inputs.environment-slug }}.yaml $HELM_EXTRA_ARGS
+        done

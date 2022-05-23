@@ -1,0 +1,147 @@
+syntax = "proto3";
+
+package org.couchers.api.search;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+import "annotations.proto";
+import "api.proto";
+import "communities.proto";
+import "events.proto";
+import "groups.proto";
+import "pages.proto";
+
+service Search {
+  option (auth_level) = AUTH_LEVEL_SECURE;
+
+  rpc Search(SearchReq) returns (SearchRes) {
+    // Search all content
+  }
+
+  rpc UserSearch(UserSearchReq) returns (UserSearchRes) {
+    // Search for users in particular with extra filters, e.g. hosts
+  }
+}
+
+message Area {
+  double lat = 1;
+  double lng = 2;
+  double radius = 3; // m
+}
+
+message SearchReq {
+  // there are two modes: full text search and fuzzy title search (trigram), see `//docs/search.md` for overview
+  // in normal mode we use full text to search through all content (including titles) plus fuzzy search through titles
+  // only, in rankings fuzzy has a bit higher weight because of the inner workings
+  // when you set title_only, we don't do full text search, only fuzzy title search
+  // in full text search, you can use the following operators:
+  // * `"quote text"`` to search for a chunk of consequtive text
+  // * `or` to search for one or another search term
+  // * `-` (minus) to ignore a search term
+  // in the fuzzy search these have no meaning
+  string query = 1;
+
+  bool include_users = 4;
+  bool include_communities = 5;
+  bool include_groups = 6;
+  bool include_places = 7;
+  bool include_guides = 8;
+  // bool include_discussions = 9;
+  bool include_events = 10;
+
+  // restrictions on area
+  // oneof search_in {
+  //   // search in given area
+  //   Area search_in_area = 11;
+  //   // search inside the area defined by the community
+  //   int64 search_in_community_id = 12;
+  // }
+
+  // whether to only perform a trigram based search on titles and not do full text search
+  bool title_only = 13;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message Result {
+  // a ranking score, higher is more relevant
+  double rank = 1;
+
+  // a snippet of the matched parts of the document
+  string snippet = 2;
+
+  oneof result {
+    org.couchers.api.core.User user = 3;
+    org.couchers.api.communities.Community community = 4;
+    org.couchers.api.groups.Group group = 5;
+    org.couchers.api.pages.Page place = 6;
+    org.couchers.api.pages.Page guide = 7;
+    org.couchers.api.events.Event event = 8;
+    // org.couchers.api.discussions.Discussion discussion = 9;
+  }
+}
+
+message SearchRes {
+  // sorted with highest rank first
+  repeated Result results = 1;
+
+  string next_page_token = 2;
+}
+
+message UserSearchReq {
+  google.protobuf.StringValue query = 3;
+  // whether the query (if any) should only search through username and display name
+  bool query_name_only = 30;
+
+  // coarsened
+  google.protobuf.Timestamp last_active = 4;
+
+  // restrictions on area
+  oneof search_in {
+    // search in given area
+    Area search_in_area = 28;
+    // search inside the area defined by the community
+    int64 search_in_community_id = 29;
+  }
+
+  repeated org.couchers.api.core.HostingStatus hosting_status_filter = 5;
+  repeated org.couchers.api.core.SmokingLocation smoking_location_filter = 6;
+  repeated org.couchers.api.core.SleepingArrangement sleeping_arrangement_filter = 7;
+  repeated org.couchers.api.core.ParkingDetails parking_details_filter = 8;
+
+  google.protobuf.StringValue gender = 9;
+  google.protobuf.UInt32Value guests = 10;
+  // google.protobuf.StringValue language = 11;
+  bool only_with_references = 12;
+
+  // bool friends_only = 13;
+
+  // google.protobuf.UInt32Value age_min = 14;
+  // google.protobuf.UInt32Value age_max = 15;
+
+  google.protobuf.BoolValue last_minute = 16;
+  google.protobuf.BoolValue has_pets = 17;
+  google.protobuf.BoolValue accepts_pets = 18;
+  google.protobuf.BoolValue has_kids = 19;
+  google.protobuf.BoolValue accepts_kids = 20;
+  google.protobuf.BoolValue has_housemates = 21;
+  google.protobuf.BoolValue wheelchair_accessible = 22;
+  google.protobuf.BoolValue smokes_at_home = 23;
+  google.protobuf.BoolValue drinking_allowed = 24;
+  google.protobuf.BoolValue drinks_at_home = 25;
+  google.protobuf.BoolValue parking = 26;
+  google.protobuf.BoolValue camping_ok = 27;
+
+  uint32 page_size = 1;
+  string page_token = 2;
+}
+
+message UserSearchRes {
+  // sorted with highest rank first
+  // this will only contain users
+  repeated Result results = 1;
+
+  string next_page_token = 2;
+}

@@ -1,0 +1,325 @@
+syntax = "proto3";
+
+package org.couchers.api.events;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+import "annotations.proto";
+import "threads.proto";
+
+service Events {
+  option (auth_level) = AUTH_LEVEL_SECURE;
+
+  rpc CreateEvent(CreateEventReq) returns (Event) {
+    // Creates an event, only one instance, add more with ScheduleEvent
+  }
+
+  rpc ScheduleEvent(ScheduleEventReq) returns (Event) {
+    // Schedules a new occurrence of an existing event
+  }
+
+  rpc UpdateEvent(UpdateEventReq) returns (Event) {
+    // Edit an event
+  }
+
+  rpc GetEvent(GetEventReq) returns (Event) {
+    // Gets an event
+  }
+
+  rpc ListEventOccurrences(ListEventOccurrencesReq) returns (ListEventOccurrencesRes) {
+    // List all occurrences of a recurring event
+  }
+
+  rpc ListEventAttendees(ListEventAttendeesReq) returns (ListEventAttendeesRes) {
+    // Paginated list of event attendees
+  }
+
+  rpc ListEventSubscribers(ListEventSubscribersReq) returns (ListEventSubscribersRes) {
+    // Paginated list of event subscribers
+  }
+
+  rpc ListEventOrganizers(ListEventOrganizersReq) returns (ListEventOrganizersRes) {
+    // Paginated list of event organizers
+  }
+
+  rpc TransferEvent(TransferEventReq) returns (Event) {
+    // Transfer an event you own to either a group or a community
+  }
+
+  rpc SetEventSubscription(SetEventSubscriptionReq) returns (Event) {
+    // Subscribe to get notifications about all occurrences of an event
+  }
+
+  rpc SetEventAttendance(SetEventAttendanceReq) returns (Event) {
+    // RSVP/change going status for an occurrence of an event
+  }
+
+  rpc InviteEventOrganizer(InviteEventOrganizerReq) returns (google.protobuf.Empty) {
+    // Invite another user to become an organizer of this event
+  }
+
+  rpc RemoveEventOrganizer(RemoveEventOrganizerReq) returns (google.protobuf.Empty) {
+    // Remove yourself as an event organizer
+  }
+
+  rpc ListMyEvents(ListMyEventsReq) returns (ListMyEventsRes) {
+    // Lists all subscribed, attending
+  }
+
+  rpc ListAllEvents(ListAllEventsReq) returns (ListAllEventsRes) {
+    // Lists all events
+  }
+
+  // TODO: DownloadCalendarInvite
+}
+
+message OnlineEventInformation {
+  // videoconferencing link, etc
+  string link = 1;
+}
+
+message OfflineEventInformation {
+  // in-person events must have address + location
+  string address = 1;
+  double lat = 2;
+  double lng = 3;
+}
+
+enum AttendanceState {
+  ATTENDANCE_STATE_NOT_GOING = 0;
+  ATTENDANCE_STATE_MAYBE = 1;
+  ATTENDANCE_STATE_GOING = 2;
+}
+
+message Event {
+  int64 event_id = 1; // = occurrence_id
+  // whether this is the next occurrence of this particular event
+  // e.g. if this is a recurring event
+  bool is_next = 2;
+
+  string title = 5;
+  // a short URL fragment generated from the name, e.g. "New York City: weekly meetup" might become
+  // "new-york-city-weekly-meetup"
+  string slug = 6;
+  string content = 7; // CommonMark without images
+  // empty string if no photo
+  string photo_url = 8;
+
+  oneof mode {
+    OnlineEventInformation online_information = 9;
+    OfflineEventInformation offline_information = 10;
+  }
+
+  google.protobuf.Timestamp created = 13;
+  google.protobuf.Timestamp last_edited = 14;
+  int64 creator_user_id = 15;
+
+  // the UTC timestamps of start and end times
+  google.protobuf.Timestamp start_time = 16;
+  google.protobuf.Timestamp end_time = 17;
+
+  // the tzdata timezone identifier
+  string timezone = 18;
+
+  // the start/end times as localized strings (according to the above timezone)
+  string start_time_display = 19;
+  string end_time_display = 20;
+
+  // the user's attendance state
+  AttendanceState attendance_state = 21;
+  // whether the current user is a subscriber/organizer to the event
+  // subscribers get emails about stuff
+  bool organizer = 22;
+  bool subscriber = 23;
+
+  uint32 going_count = 24;
+  uint32 maybe_count = 25;
+  uint32 organizer_count = 26;
+  uint32 subscriber_count = 27;
+
+  oneof owner {
+    int64 owner_user_id = 28;
+    int64 owner_community_id = 29;
+    int64 owner_group_id = 30;
+  }
+  org.couchers.api.threads.Thread thread = 34;
+
+  bool can_edit = 32;
+  bool can_moderate = 33;
+}
+
+message CreateEventReq {
+  string title = 1;
+  string content = 2; // CommonMark without images
+  // from media server
+  string photo_key = 3;
+  oneof mode {
+    OnlineEventInformation online_information = 4;
+    OfflineEventInformation offline_information = 5;
+  }
+  // must give this if online, otherwise optional as it can be auto-filled from the location
+  int64 parent_community_id = 8;
+  // timestamps are in UTC
+  google.protobuf.Timestamp start_time = 9;
+  google.protobuf.Timestamp end_time = 10;
+  // the tzdata timezone identifier, empty string means tz of creating user
+  string timezone = 11;
+}
+
+message ScheduleEventReq {
+  int64 event_id = 1;
+  string content = 2; // CommonMark without images
+  // from media server
+  string photo_key = 3;
+  oneof mode {
+    OnlineEventInformation online_information = 4;
+    OfflineEventInformation offline_information = 5;
+  }
+  // timestamps are in UTC
+  google.protobuf.Timestamp start_time = 8;
+  google.protobuf.Timestamp end_time = 9;
+  // the tzdata timezone identifier, empty string means tz of creating user
+  string timezone = 10;
+}
+
+message UpdateEventReq {
+  int64 event_id = 1;
+  // whether to update all future occurrences or just this one
+  bool update_all_future = 2;
+  google.protobuf.StringValue title = 3;
+  google.protobuf.StringValue content = 4; // CommonMark without images
+  // from media server, set to empty string to clear
+  google.protobuf.StringValue photo_key = 5;
+  oneof mode {
+    OnlineEventInformation online_information = 6;
+    OfflineEventInformation offline_information = 7;
+  }
+  google.protobuf.Timestamp start_time = 9;
+  google.protobuf.Timestamp end_time = 10;
+  // the tzdata timezone identifier
+  google.protobuf.StringValue timezone = 11;
+
+  // whether to notify all attendees about the change
+  // bool notify_attendees = 12;
+}
+
+message GetEventReq {
+  int64 event_id = 1;
+}
+
+message ListEventAttendeesReq {
+  int64 event_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListEventAttendeesRes {
+  repeated int64 attendee_user_ids = 1;
+
+  string next_page_token = 2;
+}
+
+message ListEventSubscribersReq {
+  int64 event_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListEventSubscribersRes {
+  repeated int64 subscriber_user_ids = 1;
+
+  string next_page_token = 2;
+}
+
+message ListEventOrganizersReq {
+  int64 event_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListEventOrganizersRes {
+  repeated int64 organizer_user_ids = 1;
+
+  string next_page_token = 2;
+}
+
+message ListMyEventsReq {
+  // whether to paginate backwards
+  bool past = 1;
+  // all false => everything
+  bool subscribed = 2;
+  bool attending = 3;
+  bool organizing = 4;
+  // include events in the user's communities
+  bool my_communities = 7;
+
+  uint32 page_size = 5;
+  string page_token = 6;
+}
+
+message ListMyEventsRes {
+  repeated Event events = 1;
+
+  string next_page_token = 2;
+}
+
+message ListAllEventsReq {
+  // whether to paginate backwards
+  bool past = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListAllEventsRes {
+  repeated Event events = 1;
+
+  string next_page_token = 2;
+}
+
+message ListEventOccurrencesReq {
+  int64 event_id = 1;
+  // whether to paginate backwards
+  bool past = 2;
+
+  uint32 page_size = 3;
+  string page_token = 4;
+}
+
+message ListEventOccurrencesRes {
+  repeated Event events = 1;
+
+  string next_page_token = 2;
+}
+
+message TransferEventReq {
+  int64 event_id = 1;
+  oneof new_owner {
+    int64 new_owner_community_id = 3;
+    int64 new_owner_group_id = 2;
+  }
+}
+
+message SetEventSubscriptionReq {
+  int64 event_id = 1;
+  bool subscribe = 2;
+}
+
+message SetEventAttendanceReq {
+  int64 event_id = 1;
+  AttendanceState attendance_state = 2;
+}
+
+message InviteEventOrganizerReq {
+  int64 event_id = 1;
+  int64 user_id = 2;
+}
+
+message RemoveEventOrganizerReq {
+  int64 event_id = 1;
+}

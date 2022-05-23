@@ -1,0 +1,5 @@
+runs:
+  using: 'composite'
+  steps:
+    - run: ./generate_protos.sh
+      shell: bash
