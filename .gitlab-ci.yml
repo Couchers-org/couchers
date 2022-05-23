@@ -1,2 +1,4 @@
-include:
-  - local: /app/.gitlab-ci.yml
+# Note: This is disabled, moving to Github Actions and microservice repos
+#  See: https://github.com/couchers-org/web-frontend for frontend
+# include:
+#   - local: /app/.gitlab-ci.yml
