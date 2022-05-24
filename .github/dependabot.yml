@@ -1,17 +1,6 @@
 version: 2
 updates:
 
-  - package-ecosystem: "npm"
-    directory: "/app/web"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "web"
-      - "dependencies"
-    reviewers:
-      - "darrenvong"
-      - "lucaslcode"
-
   - package-ecosystem: "pip"
     directory: "/app/backend"
     schedule:
