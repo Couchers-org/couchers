@@ -1,6 +1,0 @@
-deployment:
-  ingress:
-    hosts:
-      - host: couchers.dev
-        paths:
-          - /
