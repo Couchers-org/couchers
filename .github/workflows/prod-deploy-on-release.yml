@@ -35,3 +35,34 @@ jobs:
         with:
           environment-slug: prod
           environment-name: prod
+
+  notify-slack:
+    runs-on: [self-hosted, master]
+    needs: deploy-prod
+    steps:
+      - uses: slackapi/slack-github-action@v1.18.0
+        with:
+          payload: |
+            {
+              "text": "Web-Frontend was Deployed to Production",
+              "channel": "C01PWQEJ2SY",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Web-Frontend was Deployed to Production"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "The web frontend was just deployed to <https://couchers.org|production>.\n*Ref:* ${{github.ref_name}}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
