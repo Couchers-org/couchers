@@ -90,7 +90,7 @@ module.exports = {
     },
     {
       source: "/chat-aapeli",
-      destination: "https://calendly.com/couchers/backend-developer-chat",
+      destination: "https://calendly.com/couchers/chat-aapeli",
       permanent: false,
     },
     {

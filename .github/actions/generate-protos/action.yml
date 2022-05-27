@@ -1,5 +1,5 @@
 runs:
   using: 'composite'
   steps:
-    - run: ./generate_protos.sh
+    - run: aws s3 cp s3://couchers-dev-assets/proto_may_27_2022.tar.gz - | tar -xz
       shell: bash

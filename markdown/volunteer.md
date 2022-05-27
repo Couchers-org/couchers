@@ -39,6 +39,10 @@ Want to help but don't see anything listed for you? [Fill out this form](/volunt
 
 ### Core Team
 
+#### Community
+
+- [Community Builder Program Manager](/volunteer/community-builder-program-manager)
+
 #### Development
 
 - [Backend Developer (Python/Django)](/volunteer/backend-developer)
@@ -53,6 +57,10 @@ Want to help but don't see anything listed for you? [Fill out this form](/volunt
 
 - [PR Manager](/volunteer/pr-manager)
 - [Social Media Community Manager](/volunteer/social-media-community-manager)
+
+#### Support
+
+- [Handbook Project Manager](/volunteer/handbook-project-manager)
 
 ### Community Building
 
