@@ -2,7 +2,7 @@ version: 2
 updates:
 
   - package-ecosystem: "npm"
-    directory: "/app/web"
+    directory: "/"
     schedule:
       interval: "weekly"
     labels:
@@ -12,22 +12,3 @@ updates:
       - "darrenvong"
       - "lucaslcode"
 
-  - package-ecosystem: "pip"
-    directory: "/app/backend"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "backend"
-      - "dependencies"
-    reviewers:
-      - "aapeliv"
-
-  - package-ecosystem: "pip"
-    directory: "/app/media"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "backend"
-      - "dependencies"
-    reviewers:
-      - "aapeliv"
