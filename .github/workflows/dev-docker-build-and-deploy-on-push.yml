@@ -12,59 +12,72 @@ defaults:
 
 jobs:
 
+
   build:
     runs-on: [self-hosted, master]
     steps:
       - uses: actions/checkout@v2
-      - uses: ./.github/actions/generate-protos
       - uses: ./.github/actions/build-push-ecr
         with:
           module-name: frontend
-          src-path: ./
+          build-for-environment: development
 
+  # We do this on dev, to make sure that we can build for prod also.
+  # This is incase there are some missing vars or something you've set that are new in dev, but you forgot to set in prod for
   build-prod:
     runs-on: [self-hosted, master]
     steps:
       - uses: actions/checkout@v2
-      - uses: ./.github/actions/generate-protos
       - uses: ./.github/actions/build-push-ecr
         with:
           module-name: frontend
-          extra-build-args: -f prod.Dockerfile
-          image-name: frontend-prod
-          src-path: ./
+          build-for-environment: production
 
-
+  # Run our tests, with our pre-built test-staged container
   test-web:
     runs-on: [self-hosted, master]
     needs: build
     steps:
       - uses: actions/checkout@v2
-      - uses: ./.github/actions/generate-protos
-      - run: |
-          yarn install
-          yarn test-ci
+      - uses: ./.github/actions/setup-env
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - shell: bash
+        run: |
+          REPO_IMAGE_AND_TAG=${{ steps.login-ecr.outputs.registry }}/frontend:development-${{ env.SLUG }}-stage
+          docker pull $REPO_IMAGE_AND_TAG
+          docker run $REPO_IMAGE_AND_TAG yarn test-ci
 
   test-web-prettier:
     runs-on: [self-hosted, master]
     needs: build
     steps:
       - uses: actions/checkout@v2
-      - uses: ./.github/actions/generate-protos
-      - run: |
-          yarn install
-          yarn prettier --check *
+      - uses: ./.github/actions/setup-env
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - shell: bash
+        run: |
+          REPO_IMAGE_AND_TAG=${{ steps.login-ecr.outputs.registry }}/frontend:development-${{ env.SLUG }}-stage
+          docker pull $REPO_IMAGE_AND_TAG
+          docker run $REPO_IMAGE_AND_TAG yarn prettier --check \*
 
   test-storybook:
     runs-on: [self-hosted, master]
     needs: build
     steps:
       - uses: actions/checkout@v2
-      - uses: ./.github/actions/generate-protos
-      - run: |
-          yarn install
-          yarn build-storybook
-
+      - uses: ./.github/actions/setup-env
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - shell: bash
+        run: |
+          REPO_IMAGE_AND_TAG=${{ steps.login-ecr.outputs.registry }}/frontend:development-${{ env.SLUG }}-stage
+          docker pull $REPO_IMAGE_AND_TAG
+          docker run $REPO_IMAGE_AND_TAG yarn build-storybook
 
 
   # We need to use the deployment name and url in the 'environment' section of the deployment job below
@@ -98,3 +111,4 @@ jobs:
         with:
           environment-slug: ${{ needs.set-env.outputs.environment_slug }}
           environment-name: ${{ needs.set-env.outputs.environment_name }}
+          image-tag: development-${{ env.SLUG }}

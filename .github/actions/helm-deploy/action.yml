@@ -5,13 +5,13 @@ inputs:
     required: true
   environment-name:
     required: true
-
+  image-tag:
+    required: true
 
 runs:
   using: 'composite'
 
   steps:
-    - uses: ./.github/actions/generate-protos
     - uses: ./.github/actions/setup-env
     - shell: bash
       run: |
@@ -28,7 +28,7 @@ runs:
         kubens $K8S_NAMESPACE
 
         # Setup our helm args (TODO OPTIONAL NOT SET IF EXTERNAL DOCKER IMAGE)
-        export HELM_EXTRA_ARGS="$HELM_EXTRA_ARGS --set image.tag=${{ env.SLUG }} --set global.image.tag=${{ env.SLUG }} --set global.namespace=$K8S_NAMESPACE";
+        export HELM_EXTRA_ARGS="$HELM_EXTRA_ARGS --set image.tag=${{ inputs.image-tag }} --set global.image.tag=${{ inputs.image-tag }} --set global.namespace=$K8S_NAMESPACE";
 
         # Iterate through all our deployments
         for CURRENT_HELM_CHART in $(ls -d */ | grep -Evi "helm_value_files|templates" | tr '/' ' '); do

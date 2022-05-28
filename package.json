@@ -9,7 +9,7 @@
     "build-storybook": "build-storybook",
     "build": "next build",
     "dev": "next dev",
-    "start": "yarn dev",
+    "start": "next start",
     "format": "prettier --write *",
     "jest": "jest --modulePaths=.",
     "lint": "next lint",
