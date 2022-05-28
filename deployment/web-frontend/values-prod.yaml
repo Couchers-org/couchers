@@ -1,6 +1,4 @@
 deployment:
-  image:
-    repository: 694904428454.dkr.ecr.us-east-1.amazonaws.com/frontend-prod
 
   ingress:
     hosts:
