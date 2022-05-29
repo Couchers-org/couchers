@@ -21,7 +21,7 @@ ARG version
 COPY .env.${environment} .env.production
 ENV NEXT_PUBLIC_VERSION=$version
 RUN tar -xf proto_may_27_2022.tar.gz && \
-    rm -f proto_may_27_2022.tar.gz &&
+    rm -f proto_may_27_2022.tar.gz && \
     yarn build && yarn install --production --ignore-scripts --prefer-offline
 
 # Production image, copy all the files and run next
