@@ -20,7 +20,9 @@ ARG environment=production
 ARG version
 COPY .env.${environment} .env.production
 ENV NEXT_PUBLIC_VERSION=$version
-RUN yarn build && yarn install --production --ignore-scripts --prefer-offline
+RUN tar -xf proto_may_27_2022.tar.gz && \
+    rm -f proto_may_27_2022.tar.gz &&
+    yarn build && yarn install --production --ignore-scripts --prefer-offline
 
 # Production image, copy all the files and run next
 ENV NODE_ENV production
