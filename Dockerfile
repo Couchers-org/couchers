@@ -10,8 +10,8 @@
 ####################################################################
 
 ARG BUILD_FOR_ENVIRONMENT=development
-ARG BUILD_IMAGE=node:14-buster
-ARG RUNTIME_IMAGE=node:14-slim
+ARG BUILD_IMAGE=node:14.19.0-alpine
+ARG RUNTIME_IMAGE=node:14.19.0-alpine
 
 ###################################
 # First, using a NodeJS builder container build our frontend assets
@@ -24,7 +24,10 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 # Install deps for layer caching
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+# https://github.com/yarnpkg/yarn/issues/8242
+RUN yarn config set network-timeout 300000 && \
+    apk add --no-cache libc6-compat git && \
+    yarn install --frozen-lockfile
 
 # Now copy the source code and build when needed against the env type
 ARG BUILD_FOR_ENVIRONMENT
@@ -77,15 +80,10 @@ COPY --from=builder /app/.env.local ./
 COPY --from=builder /app/node_modules ./node_modules
 
 # Todo, should be able to use above logic
-RUN apt-get -y update && \
-    apt-get -y --no-install-recommends install git ca-certificates && \
-    yarn install --production --ignore-scripts --prefer-offline && \
-    apt-get -y remove git && \
-    apt-get -y autoremove && \
-    apt-get -y clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /var/tmp/* && \
-    rm -rf /usr/local/share/.cache
+RUN apk add --no-cache libc6-compat git && \
+    yarn build && yarn install --production --ignore-scripts --prefer-offline && \
+    apk delete git && \
+    rm -rf /usr/local/share/.cache || true
 
 # This allows next to tell us/users what version this is
 ARG IMAGE_TAG=unknown-or-local
