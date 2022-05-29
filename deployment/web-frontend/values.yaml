@@ -55,6 +55,7 @@ deployment:
   # Enable autoscaling (prod only usually, if needed)
   autoscaling:
     enabled: false # Disable by default, enabled on prod only
+    minReplicas: 3
     targetMemoryUtilizationPercentage: null  # Disable scaling by RAM usage
 
   # Ingress is enabled because this is a public-facing service, we set the URL(s) in the values-env files
