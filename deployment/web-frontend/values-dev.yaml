@@ -11,5 +11,17 @@ deployment:
         paths:
           - /
 
+  extraEnvs:
+    - name: NODE_OPTIONS
+      value: "--max_old_space_size=195"
+
+  resources:
+    limits:
+     cpu: 500m
+     memory: 200Mi
+    requests:
+     cpu: 50m
+     memory: 200Mi
+
 # Using an custom .env file injected into the running container.  See: templates/env.yaml
 envFile: .env.development

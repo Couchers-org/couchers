@@ -1,3 +1,5 @@
+---
+# Production-specific environment variables / overrides in here
 deployment:
 
   ingress:
@@ -8,15 +10,20 @@ deployment:
       - host: prod.couchers.org
         paths:
           - /
+
   autoscaling:
     enabled: true
 
+  extraEnvs:
+    - name: NODE_OPTIONS
+      value: "--max_old_space_size=295"
+
   resources:
     limits:
-     cpu: 200m
-     memory: 256Mi
+     cpu: 1
+     memory: 300Mi
     requests:
      cpu: 100m
-     memory: 256Mi
+     memory: 300Mi
 
 envFile: .env.production

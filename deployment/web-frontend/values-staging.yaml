@@ -15,4 +15,16 @@ deployment:
     annotations:
       nginx.ingress.kubernetes.io/permanent-redirect: https://staging.couchers.dev
 
+  extraEnvs:
+    - name: NODE_OPTIONS
+      value: "--max_old_space_size=195"
+
+  resources:
+    limits:
+     cpu: 500m
+     memory: 200Mi
+    requests:
+     cpu: 50m
+     memory: 200Mi
+
 envFile: .env.staging
