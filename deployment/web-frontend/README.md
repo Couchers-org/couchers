@@ -23,7 +23,9 @@ export CI_ENVIRONMENT_SLUG="dev"
 export K8S_NAMESPACE="web-frontend-ci-github-actions"  # A sample namespace, replace me if desired to your branch name
 export HELM_CHART=$SERVICE_NAME
 export CURRENT_HELM_CHART=$SERVICE_NAME
-export HELM_IMG_TAG="4182730cabd12e572528ed7be413923c5ccfa6f0"
+export HELM_IMG_TAG="development-ff94eb6e2aaa55a36f52d4995950d429381662b7"  # Images built on branched
+export HELM_IMG_TAG="staging-ff94eb6e2aaa55a36f52d4995950d429381662b7"   # Images built on master
+export HELM_IMG_TAG="production-ff94eb6e2aaa55a36f52d4995950d429381662b7"   # Images built on tag releases
 # Go into our deployment folder
 cd deployment
 # Update our helm subchart...
