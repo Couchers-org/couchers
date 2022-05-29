@@ -16,12 +16,15 @@ RUN yarn install --frozen-lockfile
 # Rebuild the source code only when needed
 COPY . .
 RUN rm .env.local || true
-ARG environment=production
+ARG BUILD_FOR_ENVIRONMENT=production
 ARG version
 COPY .env.${environment} .env.production
 ENV NEXT_PUBLIC_VERSION=$version
 RUN tar -xf proto_may_27_2022.tar.gz && \
     rm -f proto_may_27_2022.tar.gz && \
+    cp .env.${BUILD_FOR_ENVIRONMENT} /tmp/saved-temporarily && \
+    rm .env.* && \
+    mv /tmp/saved-temporarily .env.local && \
     yarn build && yarn install --production --ignore-scripts --prefer-offline
 
 # Production image, copy all the files and run next
