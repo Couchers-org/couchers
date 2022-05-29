@@ -5,6 +5,7 @@ deployment:
         paths:
           - /
 
+  # This is to "redirect" users from the old URL into the new one
   ingress_secondary:
     enabled: true
     name: app-frontend-staging-redirect
@@ -17,7 +18,7 @@ deployment:
 
   extraEnvs:
     - name: NODE_OPTIONS
-      value: "--max_old_space_size=195"
+      value: "--max_old_space_size=160" # This should be 80% of maximum of 200M below
 
   resources:
     limits:

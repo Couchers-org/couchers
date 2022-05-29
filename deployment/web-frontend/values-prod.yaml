@@ -16,14 +16,14 @@ deployment:
 
   extraEnvs:
     - name: NODE_OPTIONS
-      value: "--max_old_space_size=295"
+      value: "--max_old_space_size=400" # This should be 80% of maximum of 500M below
 
   resources:
     limits:
      cpu: 1
-     memory: 300Mi
+     memory: 500Mi
     requests:
-     cpu: 100m
-     memory: 300Mi
+     cpu: 500m
+     memory: 500Mi
 
 envFile: .env.production
