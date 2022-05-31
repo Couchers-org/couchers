@@ -15,7 +15,7 @@ deployment:
     repository: 694904428454.dkr.ecr.us-east-1.amazonaws.com/frontend
     # Couchers never used this in anything except "yarn dev" supposedly.
     # TODO: Fix this please someone, make yarn start non-dev mode work
-    command: ["yarn", "dev"]
+    # command: ["yarn", "dev"]
     # If you need to debug this container or manually import/delete a database, uncomment these next two lines then kubectl exec into the pod
     #   Reminder: you'll also need to disable probes otherwise it will auto-restart on you
     # command: ["/bin/sh"]
