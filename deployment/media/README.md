@@ -18,22 +18,25 @@ This chart bootstraps a highly available deployment on a [Kubernetes](http://kub
 To install the chart...
 
 ```bash
+# For deploying to dev
 export SERVICE_NAME="media"
 export CI_ENVIRONMENT_SLUG="dev"
 export K8S_NAMESPACE=$CI_ENVIRONMENT_SLUG
 export HELM_CHART=$SERVICE_NAME
 export CURRENT_HELM_CHART=$SERVICE_NAME
+export HELM_IMG_TAG="49c22b67c9a09c6b55400fc57b834b44fd5da1de"
 # Go into our deployment folder
 cd deployment
 # Update our helm subchart...
 helm dependencies update --skip-refresh $SERVICE_NAME/
 # FOR TESTING/DEBUGGING ONLY OR DOING MANUAL KUBECTL APPLIES...
-helm template --namespace $K8S_NAMESPACE $CURRENT_HELM_CHART $HELM_CHART -f $CURRENT_HELM_CHART/values.yaml     -f $CURRENT_HELM_CHART/values-${CI_ENVIRONMENT_SLUG}.yaml --set global.namespace="infrastructure"
+helm template --namespace $K8S_NAMESPACE $CURRENT_HELM_CHART $HELM_CHART -f $CURRENT_HELM_CHART/values.yaml     -f $CURRENT_HELM_CHART/values-${CI_ENVIRONMENT_SLUG}.yaml --set global.namespace="$K8S_NAMESPACE"  --set global.image.tag="$HELM_IMG_TAG"
 # View the diff of what you want to do
-helm diff upgrade --namespace $K8S_NAMESPACE --allow-unreleased $CURRENT_HELM_CHART $HELM_CHART     -f $CURRENT_HELM_CHART/values.yaml     -f $CURRENT_HELM_CHART/values-${CI_ENVIRONMENT_SLUG}.yaml --set global.namespace="infrastructure"
+helm diff upgrade --namespace $K8S_NAMESPACE --allow-unreleased $CURRENT_HELM_CHART $HELM_CHART     -f $CURRENT_HELM_CHART/values.yaml     -f $CURRENT_HELM_CHART/values-${CI_ENVIRONMENT_SLUG}.yaml --set global.namespace="$K8S_NAMESPACE"  --set global.image.tag="$HELM_IMG_TAG"
 # Actually do it...
-helm upgrade --namespace $K8S_NAMESPACE --install $CURRENT_HELM_CHART $HELM_CHART     -f $CURRENT_HELM_CHART/values.yaml     -f $CURRENT_HELM_CHART/values-${CI_ENVIRONMENT_SLUG}.yaml  --set global.namespace="infrastructure"
+helm upgrade --namespace $K8S_NAMESPACE --install $CURRENT_HELM_CHART $HELM_CHART     -f $CURRENT_HELM_CHART/values.yaml     -f $CURRENT_HELM_CHART/values-${CI_ENVIRONMENT_SLUG}.yaml  --set global.namespace="$K8S_NAMESPACE"  --set global.image.tag="$HELM_IMG_TAG"
 ```
+
 
 ## Configuration
 
