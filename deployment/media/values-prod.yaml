@@ -6,7 +6,6 @@ statefulset:
           - /
     annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: 20m
-      nginx.ingress.kubernetes.io/enable-cors: "true"
       nginx.ingress.kubernetes.io/cors-allow-origin: "https://couchers.org"
   envFrom:
     - secretRef:

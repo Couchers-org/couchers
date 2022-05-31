@@ -59,6 +59,10 @@ statefulset:
 
   ingress:
     enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/enable-cors: "true"
+      nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+      nginx.ingress.kubernetes.io/cors-allow-headers: DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,Referer,Accept,X-Auth-Token
     hosts:
       - host: REPLACE_HOSTNAME_IN_ENV_VALUES
         paths:
