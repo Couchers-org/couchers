@@ -1,12 +1,12 @@
 name: Staging - Deploy Frontend on Merge
 
 on:
-  pull_request:
-    types: [closed]
-    branches: [master]
   push:
     branches:
       - master
+#  pull_request:
+#    types: [closed]
+#    branches: [master]
 
 
 defaults:
