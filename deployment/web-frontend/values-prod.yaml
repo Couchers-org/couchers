@@ -16,7 +16,7 @@ deployment:
 
   extraEnvs:
     - name: NODE_OPTIONS
-      value: "--max_old_space_size=500" # Testing at 50% of maximum of 2000M below
+      value: "--max_old_space_size=800" # Testing at 80% of maximum of 1000M below
 
   resources:
     limits:
