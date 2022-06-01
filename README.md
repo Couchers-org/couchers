@@ -16,13 +16,13 @@ Communication with the backend is via [protobuf messages](https://github.com/pro
 
 4. Do some code! It is good to commit regularly, but if possible your code should successfully compile with each commit.
 
-5. Create a pull request and request a code review from someone. It can be good to open a PR before you are finished, make it a draft PR in that case.
+5. Create a pull request and request a code review from the web team, `Couchers-org/web`. It can be good to open a PR before you are finished, make it a draft PR in that case.
 
 6. Listen to the feedback and make any necessary changes. Remember, code review can sometimes seem very direct if your are not accustomed to it, but we are all learning and all comments are intended to be kind and constructive. :)
 
 7. Remember to also get review on your post-review changes.
 
-8. Once everything is resolved, you can merge the PR if you feel confident, or ask someone to merge for you. If there are merge conflicts, merge the base branch (probably `develop`) into your branch first, and make sure everything is still okay.
+8. Once everything is resolved, you can merge the PR if you feel confident, or ask someone to merge for you. If there are merge conflicts, merge the base branch (probably `master`) into your branch first, and make sure everything is still okay.
 
 ## Setting up the dev environment
 
@@ -34,29 +34,25 @@ _hint_: You can find a set of users for logging in at the [dummy data loaded in 
 
 ### Option 2: Target the preview api and backend
 
-If you don't want to install docker, you can target the live preview api and backend. However, you will first need to download the auto-generated gRPC code, since normally this is done by docker.
+If you don't want to install docker, you can target the live preview api and backend.
 
-- Go to the [CI pipelines](https://gitlab.com/couchers/couchers/-/pipelines/).
-- Search for the branch you want to generate the gRPC code from (usually `develop`).
-- Click the pipeline number.
-- Click the first pipeline step, "protos".
-- Click "download artifacts" on the right. This is a copy of the repo, but it has the generated gRPC code in it, so you can copy that from `couchers/app/web/src/proto` to your local clone of the repo.
+There's a copy of the auto-generated gRPC code in this repository, compressed in a file `proto_*.tag.gz`. Uncompress the file. It should output a folder called `proto` in your local web repository.
 
 Then, target the dev preview and API with the following command, instead of using `yarn start`, when running the app:
 
 ```sh
-yarn cross-env NEXT_PUBLIC_API_BASE_URL=https://dev-api.couchershq.org yarn start
+yarn cross-env NEXT_PUBLIC_API_BASE_URL=https://api.couchers.dev yarn start
 ```
 
 Alternatively, you can use `yarn start` if you update your local environment variables:
 
-- In `couchers/app/web/.env.development`, change `NEXT_PUBLIC_API_BASE_URL=http://localhost:8888` to `NEXT_PUBLIC_API_BASE_URL=https://dev-api.couchershq.org`
+- In `couchers/app/web/.env.development`, change `NEXT_PUBLIC_API_BASE_URL=http://localhost:8888` to `NEXT_PUBLIC_API_BASE_URL=https://api.couchers.dev`
 - Remember not to commit this file to any pull requests!
 
 <details>
 <summary>Common problem: Getting logged out right after logging in</summary>
 
-If you're getting logged out right after logging in, it's possible that 3rd party cookies are blocked in your browser. Since you're using localhost:3000, the cookie `couchers-sesh` coming from `https://dev-api.couchershq.org` is considered a 3rd party cookie.
+If you're getting logged out right after logging in, it's possible that 3rd party cookies are blocked in your browser. Since you're using localhost:3000, the cookie `couchers-sesh` coming from `https://api.couchers.dev` is considered a 3rd party cookie.
 
 - Chrome allows to enable 3rd party cookies for specific websites in the cookie settings > Sites that can always use cookies. Enable "Including third-party cookies on this site"
 - Safari is all-or-nothing, in Preferences > Privacy > Prevent cross-site tracking. You have to disable it.
