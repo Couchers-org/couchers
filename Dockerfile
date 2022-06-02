@@ -24,6 +24,8 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 # Install deps for layer caching
 COPY package.json yarn.lock ./
+# https://github.com/yarnpkg/yarn/issues/8242
+RUN yarn config set network-timeout 300000
 RUN yarn install --frozen-lockfile
 
 # Now copy the source code and build when needed against the env type
@@ -53,6 +55,8 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 # Re-run and install only production/runtime dependencies
 #COPY --from=builder /app/package.json ./
+# https://github.com/yarnpkg/yarn/issues/8242
+#RUN yarn config set network-timeout 300000
 #RUN apt-get -y update && \
 #    apt-get -y --no-install-recommends install git ca-certificates && \
 #    yarn install --production --ignore-scripts --prefer-offline && \

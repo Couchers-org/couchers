@@ -1,10 +1,40 @@
-# Couchers web frontend
-
-[![Powered by Vercel](https://www.datocms-assets.com/31049/1618983297-powered-by-vercel.svg)](https://vercel.com?utm_source=couchers-org&utm_campaign=oss)
+# Couchers Web Frontend
 
 This is the react/nextjs web frontend for couchers.org. We are using Typescript with [React Query](https://react-query.tanstack.com/) for data fetching and [Material UI](https://material-ui.com/) for components.
 
 Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf/tree/master/js) and [grpc-web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://developers.google.com/protocol-buffers/docs/reference/javascript-generated).
+
+## Setup
+
+- Install [the GitHub Desktop App](https://docs.github.com/en/desktop/installing-and-configuring-github-desktop/installing-and-authenticating-to-github-desktop/installing-github-desktop) (or alternatively, the [git CLI](https://git-scm.com/). This varies by platform but on Mac/Linux you should use your package manager.)
+- Install docker and docker compose
+  - It's recommended you install [Docker Desktop](https://www.docker.com/products/docker-desktop/) as it includes both.
+  - If you don't want docker desktop, you can follow [these instructions](https://docs.docker.com/compose/install/) to install docker compose.
+- Install an editor of your choice. Good examples are [Atom](https://atom.io) or [Visual Studio Code](https://code.visualstudio.com/) which both have extensions for Typescript/Javascript etc.
+- Clone this repository with `git clone https://github.com/Couchers-org/web-frontend.git`
+
+## Setting up the dev environment
+
+It is recommended that while running the frontend locally, you target the hosted dev API and backend - this is the default behaviour. If you'd like to run the backend locally too, see the note below.
+
+A makefile is provided which will run the frontend in docker-compose, using your local source code. You only need to run `make run` to get started, but here's a more in-depth description of a typical workflow:
+_Windows users: you may need to install [MinGW](https://www.mingw-w64.org/) for some commands (like `make`) to work properly._
+
+- `make run` - Launch the frontend in docker-compose and attach to logs.
+  - CTRL+C will detach you from the logs, but leave the containers running. Use `make logs` to reattach.
+  - `make shell` will put you in a shell inside the frontend container - useful for running commands in the container itself.
+- `make stop` - Stop running containers.
+- `make rebuild` - Will delete the containers and force a new build of them.
+- `make run-foreground` - Will start the containers without detaching.
+
+
+#### Run the backend, proxy and database locally
+
+You can run _everything_ locally if you like - [follow the main instructions](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md) to start the docker containers and generate the protocol buffer code.
+
+Then, you just need to rename `.env.localdev` in the repo root to `.env.local`. Then you can run the frontend normally as described above, and it will target the local backend. Remember not to commit the renamed file!
+
+_hint_: You can find a set of users for logging in at the [dummy data loaded in the docker container](https://github.com/Couchers-org/couchers/blob/develop/app/backend/src/data/dummy_users.json)
 
 ## How to contribute
 
@@ -23,80 +53,3 @@ Communication with the backend is via [protobuf messages](https://github.com/pro
 7. Remember to also get review on your post-review changes.
 
 8. Once everything is resolved, you can merge the PR if you feel confident, or ask someone to merge for you. If there are merge conflicts, merge the base branch (probably `master`) into your branch first, and make sure everything is still okay.
-
-## Setting up the dev environment
-
-### Option 1: Use Docker to run the backend, proxy and database locally
-
-[Follow the main instructions](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md) to start the docker containers and generate the protocol buffer code.
-
-_hint_: You can find a set of users for logging in at the [dummy data loaded in the docker container](https://github.com/Couchers-org/couchers/blob/develop/app/backend/src/data/dummy_users.json)
-
-### Option 2: Target the preview api and backend
-
-If you don't want to install docker, you can target the live preview api and backend.
-
-There's a copy of the auto-generated gRPC code in this repository, compressed in a file `proto_*.tag.gz`. Uncompress the file. It should output a folder called `proto` in your local web repository.
-
-Then, target the dev preview and API with the following command, instead of using `yarn start`, when running the app:
-
-```sh
-yarn cross-env NEXT_PUBLIC_API_BASE_URL=https://api.couchers.dev yarn start
-```
-
-Alternatively, you can use `yarn start` if you update your local environment variables:
-
-- In `couchers/app/web/.env.development`, change `NEXT_PUBLIC_API_BASE_URL=http://localhost:8888` to `NEXT_PUBLIC_API_BASE_URL=https://api.couchers.dev`
-- Remember not to commit this file to any pull requests!
-
-<details>
-<summary>Common problem: Getting logged out right after logging in</summary>
-
-If you're getting logged out right after logging in, it's possible that 3rd party cookies are blocked in your browser. Since you're using localhost:3000, the cookie `couchers-sesh` coming from `https://api.couchers.dev` is considered a 3rd party cookie.
-
-- Chrome allows to enable 3rd party cookies for specific websites in the cookie settings > Sites that can always use cookies. Enable "Including third-party cookies on this site"
-- Safari is all-or-nothing, in Preferences > Privacy > Prevent cross-site tracking. You have to disable it.
-</details>
-
-### Option 3: Use Gitpod and develop in the browser
-
-If you don't want to install the repo and still contribute, you can get started by doing the following:
-
-- Open the repo in your browser via Gitpod:
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/Couchers-org/couchers)
-
-- Wait a few minutes until you see "Success! You can now launch the frontend..." message to show up in the browser's VS Code "Instructions" terminal
-- You should see a preview of the web app that's been spun up in Gitpod in the "Simple Browser" tab in the browser's VS Code
-- Start developing away in the browser as if VS Code is installed on your machine!
-
-### Then
-
-You should then have the gRPC code in `couchers/app/web/src/proto`, and you can use the below `yarn` commands to run the web frontend.
-
-If you have any trouble, someone will be happy to help, just ask!
-
-While coding, your editor should auto-format with `prettier` when you save. If not, you can always run `yarn format`.
-
----
-
-In the project directory, you can run:
-
-### `yarn start`
-
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
-
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-**Tip**: before submitting a PR, it might be worth running all the CI tests with `yarn test-ci` to get a quick feedback on your own machine.
-
-### `yarn storybook`
-
-Runs storybook, good for testing and developing components in isolation.

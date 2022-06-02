@@ -1,0 +1,48 @@
+version: "3"
+
+services:
+  ########################
+  # Service Dependencies #
+  ########################
+  # NONE - Todo, allow hosting of our "backend" here if desired
+
+
+  ############################
+  # NextJS Frontend services #
+  ############################
+  web-frontend:
+    image: web-frontend
+    platform: linux/x86_64 # Helps ensure consistency even when used on an M1 Mac
+    build:
+      context: .
+      dockerfile: Dockerfile.stage
+    entrypoint:
+      - "/bin/sh"
+    environment:
+      - NODE_ENV=development
+    command:
+      - "-c"
+      #- "sleep 10000000000"
+      - "yarn install && node_modules/.bin/next dev"
+    healthcheck:
+        test: "curl --verbose --fail --max-time 2000 -s http://localhost:3000"
+        start_period: 220s # It should do its initial compile by this time in the tests from Farley, make this larger if needed for slower computers
+        interval: 10s
+        timeout: 10s
+        retries: 6  # If it goes down for 70 seconds for some reason, it'll get restarted (1+6 retries x 10 seconds)
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 30
+    # Mount our current directories into place for "hot-compiling" support so you can work on this codebase
+    # Uses a volume for node_modules because these are not cross-platform
+    volumes:
+      - nodemodules:/app/node_modules
+      - protos:/app/proto
+      - .:/app/
+    ports:
+      - '3000:3000'
+
+volumes:
+  nodemodules:
+  protos:
