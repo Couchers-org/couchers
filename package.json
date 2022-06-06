@@ -40,7 +40,7 @@
     "intersection-observer": "^0.12.0",
     "luhn": "^2.4.1",
     "maplibre-gl": "^1.15.3",
-    "markdown-it": "^13.0.0",
+    "markdown-it": "^13.0.1",
     "next": "12.1.6",
     "next-i18next": "git+https://github.com/Couchers-org/next-i18next.git#39a50ec9",
     "react": "17.0.2",
