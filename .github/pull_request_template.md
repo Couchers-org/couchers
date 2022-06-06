@@ -6,19 +6,12 @@ If there is an issue but it isn't completely closed, still refer to the issue nu
 
 
 <!---
-Checklists - you can remove one that is not applicable (ie. remove backend checklist if you only worked on the web frontend)
+Checklists
 If you need help with any of these, please ask :)
 --->
-**Backend checklist**
-- [ ] Formatted my code by running `autoflake -r -i --remove-all-unused-imports src && isort . && black .` in `app/backend`
-- [ ] Added tests for any new code or added a regression test if fixing a bug
-- [ ] All tests pass
-- [ ] Run the backend locally and it works
-- [ ] Added migrations if there are any database changes, rebased onto `develop` if necessary for linear migration history
-
 **Web frontend checklist**
-- [ ] Formatted my code with `yarn format && yarn lint --fix`
-- [ ] There are no warnings from `yarn lint`
+- [ ] Formatted my code with `make format`
+- [ ] There are no warnings from `make lint`
 - [ ] There are no console warnings when running the app
 - [ ] Added any new components to storybook
 - [ ] Added tests where relevant

@@ -4,7 +4,7 @@ import StyledLink from "components/StyledLink";
 import { DASHBOARD } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
-import { routeToProfile } from "routes";
+import { routeToEditProfile } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import CommunitiesDialog from "../CommunitiesDialog";
@@ -71,7 +71,7 @@ export default function HeroLinks() {
 
           <StyledLink
             underline="none"
-            href={routeToProfile()}
+            href={routeToEditProfile("home")}
             className={classes.tabAppearance}
           >
             {t("become_a_host")}
