@@ -83,7 +83,7 @@
     "cross-env": "^7.0.3",
     "css-mediaquery": "^0.1.2",
     "eslint": "<9.0.0",
-    "eslint-config-next": "12.1.5",
+    "eslint-config-next": "12.1.6",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-storybook": "^0.5.11",
