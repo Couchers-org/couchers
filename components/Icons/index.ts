@@ -13,6 +13,7 @@ export { default as EditIcon } from "@material-ui/icons/EditOutlined";
 export { default as EmailIcon } from "@material-ui/icons/EmailOutlined";
 export { default as PersonIcon } from "@material-ui/icons/EmojiPeopleOutlined";
 export { default as CalendarIcon } from "@material-ui/icons/EventOutlined";
+export { default as ExpandLessIcon } from "@material-ui/icons/ExpandLessOutlined";
 export { default as ExpandMoreIcon } from "@material-ui/icons/ExpandMoreOutlined";
 export { default as FilterIcon } from "@material-ui/icons/FilterListOutlined";
 export { default as FlagIcon } from "@material-ui/icons/Flag";

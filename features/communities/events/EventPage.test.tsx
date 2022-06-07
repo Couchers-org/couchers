@@ -84,9 +84,10 @@ describe("Event page", () => {
     // Event image
     expect(screen.getByRole("img", { name: "" })).toBeVisible();
 
-    expect(
-      screen.getByRole("button", { name: t("communities:leave_event") })
-    ).toBeVisible();
+    const attendanceMenuButton = screen.getByRole("button", {
+      name: t("communities:going_to_event"),
+    });
+    expect(attendanceMenuButton).toBeVisible();
 
     // Event details
     expect(
@@ -209,10 +210,14 @@ describe("Event page", () => {
       renderEventPage();
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      const attendanceButton = screen.getByRole("button", {
-        name: t("communities:leave_event"),
+      const attendanceMenuButton = screen.getByRole("button", {
+        name: t("communities:going_to_event"),
       });
-      userEvent.click(attendanceButton);
+      userEvent.click(attendanceMenuButton);
+      const leaveEventOption = screen.getByRole("menuitem", {
+        name: t("communities:not_going_to_event"),
+      });
+      userEvent.click(leaveEventOption);
 
       expect(
         await screen.findByRole("button", { name: t("communities:join_event") })
@@ -237,9 +242,14 @@ describe("Event page", () => {
       renderEventPage();
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      userEvent.click(
-        screen.getByRole("button", { name: t("communities:leave_event") })
-      );
+      const attendanceMenuButton = screen.getByRole("button", {
+        name: t("communities:going_to_event"),
+      });
+      userEvent.click(attendanceMenuButton);
+      const leaveEventOption = screen.getByRole("menuitem", {
+        name: t("communities:not_going_to_event"),
+      });
+      userEvent.click(leaveEventOption);
 
       await assertErrorAlert(errorMessage);
     });

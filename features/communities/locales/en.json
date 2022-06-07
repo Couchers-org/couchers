@@ -76,6 +76,8 @@
     "invalid_time": "Time must be in 24-hour format HH:MM.",
     "join_event": "Join event",
     "leave_event": "Leave event",
+    "going_to_event": "I'm going",
+    "not_going_to_event": "Not going",
     "link_required": "Please provide a meeting link for the event.",
     "load_more_attendees": "Load more attendees",
     "load_more_organizers": "Load more organizers",

@@ -18,10 +18,10 @@ deployment:
   resources:
     limits:
      cpu: 500m
-     memory: 200Mi
+     memory: 300Mi
     requests:
      cpu: 50m
-     memory: 200Mi
+     memory: 300Mi
 
 # Using an custom .env file injected into the running container.  See: templates/env.yaml
 envFile: .env.development

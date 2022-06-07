@@ -30,6 +30,7 @@ import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
 import CommentTree from "../discussions/CommentTree";
+import AttendanceMenu from "./AttendanceMenu";
 import EventAttendees from "./EventAttendees";
 import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
@@ -156,13 +157,9 @@ export default function EventPage({
     error: setEventAttendanceError,
     mutate: setEventAttendance,
   } = useMutation<Event.AsObject, RpcError, AttendanceState>(
-    (currentAttendanceState) => {
-      const attendanceStateToSet =
-        currentAttendanceState === AttendanceState.ATTENDANCE_STATE_GOING
-          ? AttendanceState.ATTENDANCE_STATE_NOT_GOING
-          : AttendanceState.ATTENDANCE_STATE_GOING;
+    (newEventAttendance: AttendanceState) => {
       return service.events.setEventAttendance({
-        attendanceState: attendanceStateToSet,
+        attendanceState: newEventAttendance,
         eventId,
       });
     },
@@ -244,24 +241,20 @@ export default function EventPage({
                     href={routeToEditEvent(event.eventId, event.slug)}
                     passHref
                   >
-                    <Button component="a">{t("communities:edit_event")}</Button>
+                    <Button component="a" variant="outlined">
+                      {t("communities:edit_event")}
+                    </Button>
                   </Link>
                 ) : null}
-                <Button
+
+                <AttendanceMenu
                   loading={isSetEventAttendanceLoading}
-                  onClick={() => setEventAttendance(event.attendanceState)}
-                  variant={
-                    event.attendanceState ===
-                    AttendanceState.ATTENDANCE_STATE_GOING
-                      ? "outlined"
-                      : "contained"
+                  onChange={(attendanceState) =>
+                    setEventAttendance(attendanceState)
                   }
-                >
-                  {event.attendanceState ===
-                  AttendanceState.ATTENDANCE_STATE_GOING
-                    ? t("communities:leave_event")
-                    : t("communities:join_event")}
-                </Button>
+                  attendanceState={event.attendanceState}
+                  id="event-page-attendance"
+                />
               </div>
 
               <div className={classes.eventTimeContainer}>

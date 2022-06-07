@@ -65,6 +65,8 @@
   "events_title": "Eventos",
   "invalid_time": "O horário deve estar no formato 24 horas, HH:MM.",
   "leave_event": "Abandonar evento",
+  "going_to_event": "Vou participar",
+  "not_going_to_event": "Não irei",
   "load_more_attendees": "Carregar mais participantes",
   "load_more_organizers": "Carregar mais organizadores",
   "location": "Local",

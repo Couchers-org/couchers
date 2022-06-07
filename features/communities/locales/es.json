@@ -48,6 +48,8 @@
   "invalid_time": "La hora debe estar en formato 24 horas, HH:MM.",
   "join_event": "Unirse al evento",
   "leave_event": "Dejar el evento",
+  "going_to_event": "Asistiré",
+  "not_going_to_event": "No asistiré",
   "load_more_organizers": "Cargar más organizadores",
   "load_more_attendees": "Cargar más asistentes",
   "location": "Ubicación",
