@@ -53,7 +53,7 @@
     "react-phone-number-input": "^3.1.52",
     "react-query": "^3.39.1",
     "seamless-scroll-polyfill": "^2.1.8",
-    "sharp": "^0.30.5"
+    "sharp": "^0.30.6"
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",
