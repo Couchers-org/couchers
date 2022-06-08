@@ -53,33 +53,16 @@ WORKDIR /app
 # Next.js collects completely anonymous telemetry data about general usage, disable this
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Re-run and install only production/runtime dependencies
-#COPY --from=builder /app/package.json ./
-# https://github.com/yarnpkg/yarn/issues/8242
-#RUN yarn config set network-timeout 300000
-#RUN apt-get -y update && \
-#    apt-get -y --no-install-recommends install git ca-certificates && \
-#    yarn install --production --ignore-scripts --prefer-offline && \
-#    apt-get -y remove git && \
-#    apt-get -y autoremove && \
-#    apt-get -y clean && \
-#    rm -rf /var/lib/apt/lists/* && \
-#    rm -rf /var/tmp/* && \
-#    rm -rf /usr/local/share/.cache
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-# Instead of above, copy just node modules from our builder
-# TODO: This must be done because our "prod" deps aren't enough and cause crashing, someone fix me
-#       if you wish to fix me, the issue is an insane random 137 "oom" crash which even with debug logging
-#       it doesn't log anything.
-COPY --from=builder /app/node_modules ./node_modules
-
-# Copy over needed files
-COPY . .
-RUN rm .env.*
-
-# Copy built files
+COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/package.json ./package.json
+
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
 COPY --from=builder /app/.env.local ./
 COPY --from=builder /app/proto ./proto
 
@@ -89,4 +72,4 @@ ENV NEXT_PUBLIC_VERSION=${IMAGE_TAG}
 
 EXPOSE 3000
 
-CMD ["yarn", "serve"]
+CMD ["node", "server.js"]
