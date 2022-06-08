@@ -59,7 +59,7 @@
     "@babel/core": "^7.17.10",
     "@storybook/addon-actions": "^6.5.7",
     "@storybook/addon-essentials": "^6.4.22",
-    "@storybook/addon-links": "^6.4.22",
+    "@storybook/addon-links": "^6.5.7",
     "@storybook/builder-webpack5": "^6.4.22",
     "@storybook/cli": "^6.4.22",
     "@storybook/manager-webpack5": "^6.4.22",
