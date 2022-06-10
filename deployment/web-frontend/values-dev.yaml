@@ -11,17 +11,5 @@ deployment:
         paths:
           - /
 
-  extraEnvs:
-    - name: NODE_OPTIONS
-      value: "--max_old_space_size=160" # This should be 80% of maximum of 200M below
-
-  resources:
-    limits:
-     cpu: 500m
-     memory: 300Mi
-    requests:
-     cpu: 50m
-     memory: 300Mi
-
 # Using an custom .env file injected into the running container.  See: templates/env.yaml
 envFile: .env.development

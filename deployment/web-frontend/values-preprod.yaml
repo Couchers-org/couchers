@@ -5,16 +5,9 @@ deployment:
 
   ingress:
     hosts:
-      - host: couchers.org
+      - host: preprod.couchers.org
         paths:
           - /
-      - host: prod.couchers.org
-        paths:
-          - /
-
-  # We want autoscaling on production
-  autoscaling:
-    enabled: true
 
   # We need more resources on production/live than our defaults from values.yaml
   resources:

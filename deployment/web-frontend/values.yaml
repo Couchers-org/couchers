@@ -46,11 +46,11 @@ deployment:
   #   Note: Limits are HARD Limits, requests are "soft" limits and are what affects HPA (autoscaling) if enabled
   resources:
     limits:
-     cpu: 2
-     memory: 2000Mi
-    requests:
      cpu: 200m
-     memory: 2000Mi
+     memory: 300Mi
+    requests:
+     cpu: 50m
+     memory: 300Mi
 
   # Enable autoscaling (prod only usually, if needed)
   autoscaling:
@@ -58,9 +58,15 @@ deployment:
     minReplicas: 3
     targetMemoryUtilizationPercentage: null  # Disable scaling by RAM usage
 
+  # These are for "global" environment variables (aka on all installations of this service)
   # globalEnvs:
   #   - name: NODE_DEBUG
   #     value: "http,fs,cluster,child_process,module"
+
+  # These are for env-specific environment variables, but we can set in the global (values.yaml) file if we want, and override optionally inside values-env.yaml
+  extraEnvs:
+    - name: NODE_OPTIONS
+      value: "--max_old_space_size=240" # This should be 80% of maximum of 300M above
 
   # Ingress is enabled because this is a public-facing service, we set the URL(s) in the values-env files
   ingress:

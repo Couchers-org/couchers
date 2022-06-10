@@ -1,3 +1,6 @@
+---
+# This is our "staging" specific values for the web-frontend "deployment".  The values here will override any values set
+# in the upstream helm chart, and will override any values in values.yaml but only for staging (next, on commits/merges to master) deploys.
 deployment:
   ingress:
     hosts:
@@ -5,7 +8,7 @@ deployment:
         paths:
           - /
 
-  # This is to "redirect" users from the old URL into the new one
+  # This is to "redirect" users from the old "next" URL into the new one
   ingress_secondary:
     enabled: true
     name: app-frontend-staging-redirect
@@ -15,17 +18,5 @@ deployment:
           - /
     annotations:
       nginx.ingress.kubernetes.io/permanent-redirect: https://staging.couchers.dev
-
-  extraEnvs:
-    - name: NODE_OPTIONS
-      value: "--max_old_space_size=400" # This should be 80% of maximum of 200M below
-
-  resources:
-    limits:
-     cpu: 500m
-     memory: 500Mi
-    requests:
-     cpu: 50m
-     memory: 500Mi
 
 envFile: .env.staging
