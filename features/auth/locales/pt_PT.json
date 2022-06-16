@@ -87,8 +87,8 @@
   "login_page": {
     "form": {
       "password_field_label": "Palavra-passe",
-      "remember_me": "Lembrar-se de mim",
-      "forgot_password": "Esqueceste a palavra-passe?",
+      "remember_me": "Lembra-me",
+      "forgot_password": "Esqueceste-te da palavra-passe?",
       "username_field_label": "E-mail/Nome de utilizador",
       "no_password_login_prompt": "Encontra no teu email o link para iniciar a sessão! :)"
     },
@@ -99,7 +99,13 @@
   "basic_form": {
     "name": {
       "field_label": "O teu nome",
-      "empty_error": "Por favor, introduz o teu nome"
+      "empty_error": "Por favor, introduz o teu nome",
+      "required_error": "Este campo não pode estar vazio."
+    },
+    "email": {
+      "empty_error": "Por favor introduz um endereço de e-mail válido",
+      "field_label": "E-mail",
+      "required_error": "O e-mail não pode estar vazio."
     }
   },
   "basic_sign_up_form": {
@@ -115,5 +121,15 @@
     "recover": {
       "success": "A tua conta foi recuperada, podes voltar a entrar. Estamos felizes por ter-te de volta!"
     }
+  },
+  "community_guidelines_form": {
+    "header": "Normas da comunidade",
+    "guideline": {
+      "checkbox_label": "Entendi"
+    }
+  },
+  "location": {
+    "field_label": "A tua localização",
+    "validation_error": "Por favor seleciona uma localização válida."
   }
 }

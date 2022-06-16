@@ -93,5 +93,14 @@
   "past": "Passados",
   "upcoming": "Próximos",
   "load_more_moderators": "Carregar mais Organizadores da Comunidade",
-  "all_events_page_tabs_a11y_label": "Abas para a página de listagem de eventos"
+  "all_events_page_tabs_a11y_label": "Abas para a página de listagem de eventos",
+  "finished": "Terminado",
+  "hangouts_label": "Hangouts",
+  "join_community": "Aderir à comunidade",
+  "end_time_error": "A hora do fim do evento tem de ser posterior à hora de início.",
+  "overview_label": "Resumo",
+  "end_date": "Data de fim",
+  "end_time": "Hora de fim",
+  "join_event": "Aderir ao evento",
+  "link_required": "Por favor indica um link de encontro para o evento."
 }
