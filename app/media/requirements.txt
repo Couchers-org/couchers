@@ -18,7 +18,7 @@ click==8.0.3
     # via flask
 flask==2.1.2
     # via -r requirements.in
-grpcio==1.46.1
+grpcio==1.47.0
     # via -r requirements.in
 iniconfig==1.1.1
     # via pytest
