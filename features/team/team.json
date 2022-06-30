@@ -81,15 +81,10 @@
     "img": "/img/team/head-darren.jpg"
   },
   {
-    "name": "Ben Weiner",
-    "role": "Email Marketer",
-    "location": "Shenzhen, China",
-    "img": "/img/team/head-ben.jpg",
-    "link": {
-      "type": "email",
-      "text": "bw388@nyu.edu",
-      "url": "mailto:bw388@nyu.edu"
-    }
+    "name": "Claudio Costa",
+    "role": "Translations Lead",
+    "location": "Valencia, Spain",
+    "img": "/img/team/head-claudio.jpg"
   },
   {
     "name": "Yi Chen",
@@ -107,6 +102,17 @@
     "role": "Community Engagement",
     "location": "Istanbul, Turkey",
     "img": "/img/team/head-emily.jpg"
+  },
+  {
+    "name": "Ben Weiner",
+    "role": "Email Marketer",
+    "location": "Shenzhen, China",
+    "img": "/img/team/head-ben.jpg",
+    "link": {
+      "type": "email",
+      "text": "bw388@nyu.edu",
+      "url": "mailto:bw388@nyu.edu"
+    }
   },
   {
     "name": "Guillermo de la Puente",
@@ -131,17 +137,6 @@
     }
   },
   {
-    "name": "Han Chengyu",
-    "role": "Language Lead: Chinese (Simplified)",
-    "location": "Hangzhou, China",
-    "img": "/img/team/head-han.jpg",
-    "link": {
-      "type": "linkedin",
-      "text": "cyhan",
-      "url": "https://www.linkedin.com/in/cyhan/"
-    }
-  },
-  {
     "name": "Inbar Atias",
     "role": "UX Designer",
     "location": "Israel",
@@ -150,6 +145,28 @@
       "type": "linkedin",
       "text": "inbar-atias",
       "url": "https://www.linkedin.com/in/inbar-atias/"
+    }
+  },
+  {
+    "name": "William Ginsberg",
+    "role": "Frontend Developer",
+    "location": "Toronto, Canada",
+    "img": "/img/team/head-will.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "will-ginsberg-31403bb9",
+      "url": "https://www.linkedin.com/in/will-ginsberg-31403bb9/"
+    }
+  },
+  {
+    "name": "Han Chengyu",
+    "role": "Language Lead: Chinese (Simplified)",
+    "location": "Hangzhou, China",
+    "img": "/img/team/head-han.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "cyhan",
+      "url": "https://www.linkedin.com/in/cyhan/"
     }
   },
   {
