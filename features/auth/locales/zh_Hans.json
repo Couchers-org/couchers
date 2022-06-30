@@ -153,7 +153,8 @@
     "explanation": "您之前没有为账户设置过密码。请现在创建一个密码再继续操作。"
   },
   "feedback_form": {
-    "header": "听听您怎么说"
+    "header": "听听您怎么说",
+    "skip_step_text": "不感兴趣吗？<2>跳过这一步</2>"
   },
   "notification_settings": {
     "title": "通知设置",

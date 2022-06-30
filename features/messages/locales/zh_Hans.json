@@ -1,1 +1,147 @@
-{}
+{
+  "mark_all_read_button_text": "全部标记为已读",
+  "write_reference_button_text": "编写评语",
+  "close_request_dialog_title": "您要结束聊天吗？",
+  "close_request_dialog_host": "请确认您在拒绝他们的请求前已结束聊天。",
+  "close_request_button_text": "拒绝",
+  "confirm_request_button_text": "确认",
+  "messages_page": {
+    "title": "消息",
+    "tabs": {
+      "aria_label": "不同消息类型标签",
+      "chats": "聊天",
+      "hosting": "留宿",
+      "surfing": "找沙发主"
+    }
+  },
+  "chat_view": {
+    "invalid_id_error": "无效的聊天ID。",
+    "no_messages_state_text": "无消息",
+    "back_button": {
+      "a11y_label": "返回"
+    },
+    "actions_menu": {
+      "items": {
+        "invite_members": "邀请到聊天",
+        "show_all_members": "聊天成员",
+        "manage_admins": "管理聊天管理员",
+        "chat_settings": "聊天设置",
+        "leave_chat": "离开聊天"
+      },
+      "a11y_label": "显示更多聊天操作"
+    },
+    "muted_icon": {
+      "a11y_label": "已静音"
+    },
+    "mute": {
+      "button_label": "静音聊天",
+      "unmute_button_label": "取消静音聊天",
+      "dialog_title": "您想静音多久？",
+      "1_hour_label": "1小时",
+      "8_hours_label": "8小时",
+      "1_day_label": "1天",
+      "1_week_label": "1周",
+      "1_month_label": "1个月",
+      "forever_label": "直到我取消静音"
+    }
+  },
+  "admins_dialog": {
+    "step_down_confirmation_dialog": {
+      "title": "卸任管理员？",
+      "message": "你确定你要停止做这个群聊的管理员吗？除非其他管理员添加你，否则你将无法再次成为管理员。"
+    },
+    "remove_admin": {
+      "title": "移除管理员",
+      "action_a11y_label": "移除管理员角色"
+    },
+    "add_admin": {
+      "title": "添加管理员",
+      "action_a11y_label": "添加管理员角色"
+    }
+  },
+  "members_dialog": {
+    "title": "聊天成员"
+  },
+  "create_chat": {
+    "user_load_error_message": "（用户加载错误）",
+    "friends_input_label": "好友",
+    "dm_title": "创建新聊天",
+    "group_title": "创建群聊",
+    "group_title_field_label": "标题",
+    "no_friends_found_message": "无法找到任何好友"
+  },
+  "chat_input": {
+    "label": "消息"
+  },
+  "group_chat_settings_dialog": {
+    "title": "群聊设置",
+    "chat_title": {
+      "field_label": "聊天标题"
+    },
+    "only_admins_invite": {
+      "field_label": "只有管理员才能邀请他人加入聊天"
+    }
+  },
+  "group_chats_tab": {
+    "no_chats_message": "尚无群聊",
+    "load_more_button_label": "加载更多"
+  },
+  "request_closed_message": "此留宿请求已关闭或处于过去。如要继续聊天，请发送一条普通消息。",
+  "close_request_dialog_surfer": "请您确认在取消您的请求前已结束聊天。",
+  "requests_tab": {
+    "no_requests_message": "尚无请求",
+    "load_more_button_label": "加载更多"
+  },
+  "invite_dialog": {
+    "title": "邀请加入群聊",
+    "selected": {
+      "field_label": "好友",
+      "no_options_text": "没有可邀请的人",
+      "option_load_error_text": "（用户加载错误）"
+    },
+    "invite_button_label": "邀请"
+  },
+  "control_message": {
+    "created_chat_text": "{{user}} 创建了聊天",
+    "invite_user_text": "{{user}} 邀请了 {{target_user}}",
+    "host_request_status_changed_text": "{{user}} 将请求修改为 {{status}}",
+    "edited_chat_text": "{{user}} 修改了聊天",
+    "user_left_chat_text": "{{user}} 离开了聊天",
+    "admin_assignment_text": "{{user}} 将 {{target_user}} 设为了管理员",
+    "admin_removal_text": "{{user}} 移除了 {{target_user}} 的管理员身份",
+    "unknown_message_text": "未知控制消息"
+  },
+  "host_request_item": {
+    "surfer_status": {
+      "cancelled": "您的请求已取消",
+      "accepted": "您的请求已被接受",
+      "confirmed": "您的请求已确认",
+      "rejected": "您的请求已被拒绝"
+    },
+    "pending": "此请求仍在等待中",
+    "host_status": {
+      "accepted": "您已接受此请求",
+      "cancelled": "您已拒绝此请求",
+      "confirmed": "您已确认此请求",
+      "rejected": "您已拒绝此请求"
+    }
+  },
+  "host_request_view": {
+    "title_for_surfer": "向 {{user}} 发出的请求 - {{status}}",
+    "error_message": "无效的留宿请求ID",
+    "back_button_a11y_label": "返回",
+    "title_for_host": "来自{{user}} 的请求 - {{status}}",
+    "request_duration": "{{count}} 晚"
+  },
+  "leave_chat_dialog": {
+    "title": "离开聊天？",
+    "message": "您确认要离开聊天吗？"
+  },
+  "host_request_status": {
+    "accepted": "已接受",
+    "cancelled": "已取消",
+    "confirmed": "已确认",
+    "pending": "等待中",
+    "rejected": "已拒绝"
+  }
+}

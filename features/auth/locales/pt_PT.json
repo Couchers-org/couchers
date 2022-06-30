@@ -131,5 +131,10 @@
   "location": {
     "field_label": "A tua localização",
     "validation_error": "Por favor seleciona uma localização válida."
+  },
+  "notification_settings": {
+    "status": {
+      "disabled_message": ""
+    }
   }
 }

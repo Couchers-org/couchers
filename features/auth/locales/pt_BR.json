@@ -181,5 +181,10 @@
     "missing_payload_or_sig": "URL inválido, payload ou assinatura em falta",
     "title": "Cancelar a inscrição",
     "button_text": "Confirmar o cancelamento da inscrição"
+  },
+  "delete_account": {
+    "recover": {
+      "success": ""
+    }
   }
 }
