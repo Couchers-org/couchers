@@ -17,12 +17,12 @@ const useStyles = makeStyles((theme) => ({
 
 export default function AttendanceMenu({
   loading,
-  onChange,
+  onChangeAttendanceState,
   attendanceState,
   id,
 }: {
   loading: boolean;
-  onChange: (attendanceState: AttendanceState) => void;
+  onChangeAttendanceState: (attendanceState: AttendanceState) => void;
   attendanceState: AttendanceState;
   id: string;
 }) {
@@ -31,18 +31,25 @@ export default function AttendanceMenu({
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const isAttending =
+    attendanceState === AttendanceState.ATTENDANCE_STATE_GOING;
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
+    if (!isAttending) {
+      onChangeAttendanceState(AttendanceState.ATTENDANCE_STATE_GOING);
+    } else {
+      setAnchorEl(event.currentTarget);
+    }
   };
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const handleChange = (attendanceState: AttendanceState) => {
-    onChange(attendanceState);
+  const handleChangeAttendanceState = (attendanceState: AttendanceState) => {
+    onChangeAttendanceState(attendanceState);
     setAnchorEl(null);
   };
 
-  /* @todo: this id can be unique and not passed from outside when we have Reeact 18 useId */
+  /* @todo: this id can be unique and not passed from outside when we have React 18 useId */
   const buttonId = `${id}-button`;
   const menuId = `${id}-menu`;
 
@@ -55,17 +62,13 @@ export default function AttendanceMenu({
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
         loading={loading}
-        variant={
-          attendanceState === AttendanceState.ATTENDANCE_STATE_GOING
-            ? "outlined"
-            : "contained"
-        }
+        variant={isAttending ? "outlined" : "contained"}
       >
-        {attendanceState === AttendanceState.ATTENDANCE_STATE_GOING
+        {isAttending
           ? t("communities:going_to_event")
           : t("communities:join_event")}
 
-        {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+        {isAttending && (open ? <ExpandLessIcon /> : <ExpandMoreIcon />)}
       </Button>
 
       <Menu
@@ -88,7 +91,7 @@ export default function AttendanceMenu({
       >
         <MenuItem
           onClick={() => {
-            handleChange(AttendanceState.ATTENDANCE_STATE_GOING);
+            handleChangeAttendanceState(AttendanceState.ATTENDANCE_STATE_GOING);
           }}
           classes={{ root: classes.menuListItem }}
         >
@@ -99,7 +102,9 @@ export default function AttendanceMenu({
         </MenuItem>
         <MenuItem
           onClick={() => {
-            handleChange(AttendanceState.ATTENDANCE_STATE_NOT_GOING);
+            handleChangeAttendanceState(
+              AttendanceState.ATTENDANCE_STATE_NOT_GOING
+            );
           }}
           classes={{ root: classes.menuListItem }}
         >

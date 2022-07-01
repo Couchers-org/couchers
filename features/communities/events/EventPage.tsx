@@ -249,7 +249,7 @@ export default function EventPage({
 
                 <AttendanceMenu
                   loading={isSetEventAttendanceLoading}
-                  onChange={(attendanceState) =>
+                  onChangeAttendanceState={(attendanceState) =>
                     setEventAttendance(attendanceState)
                   }
                   attendanceState={event.attendanceState}
