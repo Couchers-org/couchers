@@ -38,7 +38,7 @@ This not only allows the community to have a real, working verification system t
 
 ### Rationale
 
-Users should be able to trust that other users are who they say they are. This is important because it prevents spam accounts and from from creating more than one account. If users are banned or even just earn low enough Community Standing scores from making others feel unsafe, then we don't want them to be able to make new accounts.
+Users should be able to trust that other users are who they say they are. This is important because it prevents spam accounts and from creating more than one account. If users are banned or even just earn low enough Community Standing scores from making others feel unsafe, then we don't want them to be able to make new accounts.
 
 Couchsurfing&#8482; smashed together their verification and payment methods in a way that disincentivized real verification and undermined trust in the community. By re-separating verification and stressing its importance, it will be utilized as an important element of trust in our platform.
 
