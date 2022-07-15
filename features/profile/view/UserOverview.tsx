@@ -5,13 +5,11 @@ import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import {
-  COMMUNITY_STANDING,
-  COMMUNITY_STANDING_DESCRIPTION,
   hostingStatusLabels,
   meetupStatusLabels,
-  VERIFICATION_SCORE,
-  VERIFICATION_SCORE_DESCRIPTION,
 } from "features/profile/constants";
+import { useTranslation } from "i18n";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import React from "react";
 import makeStyles from "utils/makeStyles";
@@ -80,6 +78,7 @@ export default function UserOverview({
   showHostAndMeetAvailability,
   actions,
 }: UserOverviewProps) {
+  const { t } = useTranslation([GLOBAL, PROFILE]);
   const classes = useStyles();
   const user = useProfileUser();
 
@@ -109,7 +108,7 @@ export default function UserOverview({
           <IconText
             icon={CouchIcon}
             text={
-              hostingStatusLabels[
+              hostingStatusLabels(t)[
                 user.hostingStatus || HostingStatus.HOSTING_STATUS_UNKNOWN
               ]
             }
@@ -117,7 +116,7 @@ export default function UserOverview({
           <IconText
             icon={LocationIcon}
             text={
-              meetupStatusLabels[
+              meetupStatusLabels(t)[
                 user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN
               ]
             }
@@ -133,13 +132,13 @@ export default function UserOverview({
         <>
           <BarWithHelp
             value={user.communityStanding || 0}
-            label={COMMUNITY_STANDING}
-            description={COMMUNITY_STANDING_DESCRIPTION}
+            label={t("global:community_standing")}
+            description={t("global:community_standing_description")}
           />
           <BarWithHelp
             value={user.verification || 0}
-            label={VERIFICATION_SCORE}
-            description={VERIFICATION_SCORE_DESCRIPTION}
+            label={t("global:verification_score")}
+            description={t("global:verification_score_description")}
           />
         </>
       )}

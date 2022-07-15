@@ -2,14 +2,11 @@ import { Select, Typography } from "@material-ui/core";
 import Button from "components/Button";
 import { AddIcon } from "components/Icons";
 import { MenuItem } from "components/Menu";
-import {
-  REFERENCES,
-  REFERENCES_FILTER_A11Y_LABEL,
-  referencesFilterLabels,
-  WRITE_REFERENCE,
-} from "features/profile/constants";
+import { referencesFilterLabels } from "features/profile/constants";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
+import { useTranslation } from "i18n";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import Link from "next/link";
 import { User } from "proto/api_pb";
 import { ReferenceType } from "proto/references_pb";
@@ -56,9 +53,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export type ReferenceTypeState = keyof typeof referencesFilterLabels;
+export type ReferenceTypeState = keyof ReturnType<
+  typeof referencesFilterLabels
+>;
 
 export default function References() {
+  const { t } = useTranslation([GLOBAL, PROFILE]);
   const classes = useStyles();
   const [referenceType, setReferenceType] = useState<ReferenceTypeState>("all");
   const { userId, friends } = useProfileUser();
@@ -72,7 +72,7 @@ export default function References() {
     <div className={classes.referencesContainer}>
       <div className={classes.headerContainer}>
         <Typography className={classes.header} variant="h1">
-          {REFERENCES}
+          {t("profile:heading.references")}
         </Typography>
         {availableReferences?.canWriteFriendReference &&
           friends === User.FriendshipStatus.FRIENDS && (
@@ -86,7 +86,7 @@ export default function References() {
                 passHref
               >
                 <Button startIcon={<AddIcon />} component="a">
-                  {WRITE_REFERENCE}
+                  {t("profile:write_reference")}
                 </Button>
               </Link>
             </div>
@@ -94,11 +94,13 @@ export default function References() {
         <Select
           classes={{ select: classes.referenceTypeSelect }}
           displayEmpty
-          inputProps={{ "aria-label": REFERENCES_FILTER_A11Y_LABEL }}
+          inputProps={{
+            "aria-label": t("profile:references_filter_a11y_label"),
+          }}
           onChange={handleChange}
           value={referenceType}
         >
-          {Object.entries(referencesFilterLabels).map(([key, label]) => {
+          {Object.entries(referencesFilterLabels(t)).map(([key, label]) => {
             const value = key === "all" || key === "given" ? key : Number(key);
             return (
               <MenuItem key={value} value={value}>

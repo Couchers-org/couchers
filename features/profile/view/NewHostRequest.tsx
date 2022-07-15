@@ -13,17 +13,6 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
-import {
-  ARRIVAL_DATE,
-  DEPARTURE_DATE,
-  MEETUP_ONLY,
-  OVERNIGHT_STAY,
-  REQUEST,
-  REQUEST_DESCRIPTION,
-  SEND,
-  sendRequest,
-  STAY_TYPE_A11Y_TEXT,
-} from "features/profile/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useUser } from "features/userQueries/useUsers";
 import { RpcError } from "grpc-web";
@@ -136,7 +125,11 @@ export default function NewHostRequest({
   return (
     <>
       <Typography variant="h1">
-        {hostLoading ? <Skeleton width="100" /> : sendRequest(user.name)}
+        {hostLoading ? (
+          <Skeleton width="100" />
+        ) : (
+          t("profile:request_form.send_request", { name: user.name })
+        )}
       </Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       {hostError ? (
@@ -151,20 +144,20 @@ export default function NewHostRequest({
                 defaultValue={1}
                 render={({ onChange, value }) => (
                   <RadioGroup
-                    aria-label={STAY_TYPE_A11Y_TEXT}
+                    aria-label={t("profile:request_form.stay_type_a11y_text")}
                     name="stay-radio"
                     value={value}
                     onChange={(value) => onChange(value)}
                   >
                     <FormControlLabel
-                      value={OVERNIGHT_STAY}
+                      value={t("profile:request_form.overnight_stay")}
                       control={<Radio />}
-                      label={OVERNIGHT_STAY}
+                      label={t("profile:request_form.overnight_stay")}
                     />
                     <FormControlLabel
-                      value={MEETUP_ONLY}
+                      value={t("profile:request_form.meetup_only")}
                       control={<Radio />}
-                      label={MEETUP_ONLY}
+                      label={t("profile:request_form.meetup_only")}
                     />
                   </RadioGroup>
                 )}
@@ -181,7 +174,7 @@ export default function NewHostRequest({
                 errors?.fromDate?.message
               }
               id="from-date"
-              label={ARRIVAL_DATE}
+              label={t("profile:request_form.arrival_date")}
               name="fromDate"
             />
             <Datepicker
@@ -193,7 +186,7 @@ export default function NewHostRequest({
                 errors?.toDate?.message
               }
               id="to-date"
-              label={DEPARTURE_DATE}
+              label={t("profile:request_form.departure_date")}
               minDate={watchFromDate.add(1, "day").toDate()}
               name="toDate"
             />
@@ -210,20 +203,20 @@ export default function NewHostRequest({
           <TextField
             id="text"
             className={classes.requestField}
-            label={REQUEST}
+            label={t("profile:request_form.request")}
             name="text"
             minRows={6}
             inputRef={register}
             multiline
             fullWidth
-            placeholder={REQUEST_DESCRIPTION}
+            placeholder={t("profile:request_form.request_description")}
           />
           <CardActions className={classes.send}>
             <Button onClick={() => setIsRequesting(false)}>
               {t("global:cancel")}
             </Button>
             <Button type="submit" onClick={onSubmit}>
-              {SEND}
+              {t("global:send")}
             </Button>
           </CardActions>
         </form>

@@ -3,16 +3,11 @@ import { TabContext, TabPanel } from "@material-ui/lab";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
-import {
-  ACCOUNT_SETTINGS,
-  EDIT_PROFILE,
-  SECTION_LABELS,
-  SECTION_LABELS_A11Y_TEXT,
-} from "features/profile/constants";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import { EditUserTab, routeToEditProfile, settingsRoute } from "routes";
+import { t } from "test/utils";
 import makeStyles from "utils/makeStyles";
 
 import EditHostingPreference from "./EditHostingPreference";
@@ -64,18 +59,18 @@ export default function EditProfilePage({
 
   return (
     <>
-      <HtmlMeta title={EDIT_PROFILE} />
+      <HtmlMeta title={t("profile:heading.edit_profile")} />
       <Grid
         container
         direction="row"
         justifyContent="space-between"
         alignItems="center"
       >
-        <PageTitle>{EDIT_PROFILE}</PageTitle>
+        <PageTitle>{t("profile:heading.edit_profile")}</PageTitle>
         <div className={classes.buttonContainer}>
           <Link href={settingsRoute} passHref>
             <Button component="a" variant="contained" color="primary">
-              {ACCOUNT_SETTINGS}
+              {t("global:nav.account_settings")}
             </Button>
           </Link>
         </div>
@@ -86,10 +81,10 @@ export default function EditProfilePage({
             <TabBar
               setValue={(newTab) => router.push(routeToEditProfile(newTab))}
               labels={{
-                about: SECTION_LABELS.about,
-                home: SECTION_LABELS.home,
+                about: t("profile:heading.about_me"),
+                home: t("profile:heading.home"),
               }}
-              ariaLabel={SECTION_LABELS_A11Y_TEXT}
+              ariaLabel={t("profile:edit_profile_tab_bar_a11y_label")}
             />
             <TabPanel classes={{ root: classes.tabPanel }} value="about">
               <EditProfile />

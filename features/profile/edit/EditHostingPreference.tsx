@@ -10,36 +10,9 @@ import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import Select from "components/Select";
 import {
-  ABOUT_HOME,
-  ACCEPT_CAMPING,
-  ACCEPT_DRINKING,
-  ACCEPT_KIDS,
-  ACCEPT_PETS,
-  ACCEPT_SMOKING,
-  ADDITIONAL,
-  GENERAL,
-  HOST_DRINKING,
-  HOST_KIDS,
-  HOST_PETS,
-  HOST_SMOKING,
-  HOSTING_PREFERENCES,
-  HOUSE_RULES,
-  HOUSEMATE_DETAILS,
-  HOUSEMATES,
-  KID_DETAILS,
-  LAST_MINUTE,
-  LOCAL_AREA,
-  MAX_GUESTS,
-  PARKING,
-  PARKING_DETAILS,
   parkingDetailsLabels,
-  PET_DETAILS,
-  SAVE,
-  SLEEPING_ARRANGEMENT,
   sleepingArrangementLabels,
   smokingLocationLabels,
-  SPACE,
-  WHEELCHAIR,
 } from "features/profile/constants";
 import useUpdateHostingPreferences from "features/profile/hooks/useUpdateHostingPreferences";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
@@ -143,47 +116,49 @@ export default function HostingPreferenceForm() {
       )}
       {user ? (
         <form className={classes.form} onSubmit={onSubmit}>
-          <Typography variant="h2">{HOSTING_PREFERENCES}</Typography>
+          <Typography variant="h2">
+            {t("profile:home_info_headings.hosting_preferences")}
+          </Typography>
           <div className={classes.checkboxContainer}>
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.lastMinute?.value}
-              label={LAST_MINUTE}
+              label={t("profile:home_info_headings.last_minute")}
               name="lastMinute"
               register={register}
             />
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.wheelchairAccessible?.value}
-              label={WHEELCHAIR}
+              label={t("profile:home_info_headings.wheelchair")}
               name="wheelchairAccessible"
               register={register}
             />
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.campingOk?.value}
-              label={ACCEPT_CAMPING}
+              label={t("profile:edit_home_questions.accept_camping")}
               name="campingOk"
               register={register}
             />
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.acceptsKids?.value}
-              label={ACCEPT_KIDS}
+              label={t("profile:edit_home_questions.accept_kids")}
               name="acceptsKids"
               register={register}
             />
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.acceptsPets?.value}
-              label={ACCEPT_PETS}
+              label={t("profile:edit_home_questions.accept_pets")}
               name="acceptsPets"
               register={register}
             />
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.drinkingAllowed?.value}
-              label={ACCEPT_DRINKING}
+              label={t("profile:edit_home_questions.accept_drinking")}
               name="drinkingAllowed"
               register={register}
             />
@@ -207,7 +182,7 @@ export default function HostingPreferenceForm() {
                     {...params}
                     error={!!errors?.maxGuests?.message}
                     helperText={errors?.maxGuests?.message}
-                    label={MAX_GUESTS}
+                    label={t("profile:home_info_headings.max_guests")}
                     name="maxGuests"
                     onChange={(e) => onChange(Number(e.target.value))}
                     inputRef={ref}
@@ -230,7 +205,7 @@ export default function HostingPreferenceForm() {
             render={({ onChange, value }) => (
               <Select
                 onChange={(event) => onChange(event.target.value)}
-                label={ACCEPT_SMOKING}
+                label={t("profile:edit_home_questions.accept_smoking")}
                 className={classes.field}
                 value={value}
                 id="smokingAllowed"
@@ -241,13 +216,13 @@ export default function HostingPreferenceForm() {
                   SmokingLocation.SMOKING_LOCATION_WINDOW,
                   SmokingLocation.SMOKING_LOCATION_YES,
                 ]}
-                optionLabelMap={smokingLocationLabels}
+                optionLabelMap={smokingLocationLabels(t)}
               />
             )}
           />
           <ProfileMarkdownInput
             id="aboutPlace"
-            label={ABOUT_HOME}
+            label={t("profile:home_info_headings.about_home")}
             name="aboutPlace"
             defaultValue={user.aboutPlace || DEFAULT_ABOUT_HOME_HEADINGS}
             control={control}
@@ -264,7 +239,7 @@ export default function HostingPreferenceForm() {
               <Select
                 onChange={(event) => onChange(event.target.value)}
                 id="sleepingArrangement"
-                label={SPACE}
+                label={t("profile:home_info_headings.space")}
                 className={classes.field}
                 value={value}
                 options={[
@@ -274,7 +249,7 @@ export default function HostingPreferenceForm() {
                   SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM,
                   SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_SPACE,
                 ]}
-                optionLabelMap={sleepingArrangementLabels}
+                optionLabelMap={sleepingArrangementLabels(t)}
               />
             )}
           />
@@ -283,13 +258,13 @@ export default function HostingPreferenceForm() {
               <HostingPreferenceCheckbox
                 className={classes.formControl}
                 defaultValue={!!user.hasHousemates?.value}
-                label={HOUSEMATES}
+                label={t("profile:home_info_headings.has_housemates")}
                 name="hasHousemates"
                 register={register}
               />
               <ProfileTextInput
                 id="housemateDetails"
-                label={HOUSEMATE_DETAILS}
+                label={t("profile:home_info_headings.housemate_details")}
                 name="housemateDetails"
                 defaultValue={user.housemateDetails?.value ?? ""}
                 inputRef={register}
@@ -302,13 +277,13 @@ export default function HostingPreferenceForm() {
               <HostingPreferenceCheckbox
                 className={classes.formControl}
                 defaultValue={!!user.hasKids?.value}
-                label={HOST_KIDS}
+                label={t("profile:home_info_headings.host_kids")}
                 name="hasKids"
                 register={register}
               />
               <ProfileTextInput
                 id="kidDetails"
-                label={KID_DETAILS}
+                label={t("profile:home_info_headings.kid_details")}
                 name="kidDetails"
                 defaultValue={user.kidDetails?.value ?? ""}
                 inputRef={register}
@@ -321,13 +296,13 @@ export default function HostingPreferenceForm() {
               <HostingPreferenceCheckbox
                 className={classes.formControl}
                 defaultValue={!!user.hasPets?.value}
-                label={HOST_PETS}
+                label={t("profile:home_info_headings.host_pets")}
                 name="hasPets"
                 register={register}
               />
               <ProfileTextInput
                 id="petDetails"
-                label={PET_DETAILS}
+                label={t("profile:home_info_headings.pet_details")}
                 name="petDetails"
                 defaultValue={user.petDetails?.value ?? ""}
                 inputRef={register}
@@ -340,7 +315,7 @@ export default function HostingPreferenceForm() {
               <HostingPreferenceCheckbox
                 className={classes.formControl}
                 defaultValue={!!user.parking?.value}
-                label={PARKING}
+                label={t("profile:home_info_headings.parking")}
                 name="parking"
                 register={register}
               />
@@ -352,7 +327,7 @@ export default function HostingPreferenceForm() {
                 name="parkingDetails"
                 render={({ onChange, value }) => (
                   <Select
-                    label={PARKING_DETAILS}
+                    label={t("profile:home_info_headings.parking_details")}
                     onChange={(event) => onChange(event.target.value)}
                     className={classes.field}
                     value={value}
@@ -364,7 +339,7 @@ export default function HostingPreferenceForm() {
                       ParkingDetails.PARKING_DETAILS_PAID_ONSITE,
                       ParkingDetails.PARKING_DETAILS_PAID_OFFSITE,
                     ]}
-                    optionLabelMap={parkingDetailsLabels}
+                    optionLabelMap={parkingDetailsLabels(t)}
                   />
                 )}
               />
@@ -372,22 +347,24 @@ export default function HostingPreferenceForm() {
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.drinksAtHome?.value}
-              label={HOST_DRINKING}
+              label={t("profile:home_info_headings.host_drinking")}
               name="drinksAtHome"
               register={register}
             />
             <HostingPreferenceCheckbox
               className={classes.formControl}
               defaultValue={!!user.smokesAtHome?.value}
-              label={HOST_SMOKING}
+              label={t("profile:home_info_headings.host_smoking")}
               name="smokesAtHome"
               register={register}
             />
           </div>
-          <Typography variant="h2">{GENERAL}</Typography>
+          <Typography variant="h2">
+            {t("profile:home_info_headings.general")}
+          </Typography>
           <ProfileMarkdownInput
             id="area"
-            label={LOCAL_AREA}
+            label={t("profile:home_info_headings.local_area")}
             name="area"
             defaultValue={user.area?.value ?? ""}
             control={control}
@@ -395,7 +372,7 @@ export default function HostingPreferenceForm() {
           />
           <ProfileMarkdownInput
             id="sleepingDetails"
-            label={SLEEPING_ARRANGEMENT}
+            label={t("profile:home_info_headings.sleeping_arrangement")}
             name="sleepingDetails"
             defaultValue={user.sleepingDetails?.value ?? ""}
             control={control}
@@ -403,7 +380,7 @@ export default function HostingPreferenceForm() {
           />
           <ProfileMarkdownInput
             id="houseRules"
-            label={HOUSE_RULES}
+            label={t("profile:home_info_headings.house_rules")}
             name="houseRules"
             defaultValue={user.houseRules?.value ?? ""}
             control={control}
@@ -411,7 +388,7 @@ export default function HostingPreferenceForm() {
           />
           <ProfileMarkdownInput
             id="otherHostInfo"
-            label={ADDITIONAL}
+            label={t("profile:home_info_headings.other_info")}
             name="otherHostInfo"
             defaultValue={user.otherHostInfo?.value ?? ""}
             control={control}
@@ -425,7 +402,7 @@ export default function HostingPreferenceForm() {
               loading={updateIsLoading}
               onClick={onSubmit}
             >
-              {SAVE}
+              {t("global:save")}
             </Button>
           </div>
         </form>

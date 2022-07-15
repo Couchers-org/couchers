@@ -12,15 +12,6 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import Divider from "components/Divider";
 import TextBody from "components/TextBody";
-import {
-  APPROPRIATE_BEHAVIOR,
-  APPROPRIATE_EXPLANATION,
-  APPROPRIATE_QUESTION,
-  NEXT,
-  PRIVATE_ANSWER,
-  REQUIRED,
-  SAFETY_PRIORITY,
-} from "features/profile/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import {
@@ -28,6 +19,8 @@ import {
   ReferenceStepProps,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
+import { useTranslation } from "i18n";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { Controller, useForm } from "react-hook-form";
@@ -43,6 +36,7 @@ export default function Appropriate({
   referenceType,
   hostRequestId,
 }: ReferenceStepProps) {
+  const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
   const theme = useTheme();
@@ -68,7 +62,9 @@ export default function Appropriate({
   return (
     <form onSubmit={onSubmit} className={classes.form}>
       <ReferenceStepHeader name={user.name} referenceType={referenceType} />
-      <TextBody className={classes.text}>{APPROPRIATE_EXPLANATION}</TextBody>
+      <TextBody className={classes.text}>
+        {t("profile:leave_reference.appropriate_explanation")}
+      </TextBody>
 
       {errors.wasAppropriate?.message && (
         <Alert className={classes.alert} severity="error">
@@ -77,11 +73,15 @@ export default function Appropriate({
       )}
       <Card className={classes.card}>
         <CardContent>
-          <Typography variant="h3">{APPROPRIATE_BEHAVIOR}</Typography>
+          <Typography variant="h3">
+            {t("profile:leave_reference.appropriate_behavior")}
+          </Typography>
           <Divider />
-          <TextBody className={classes.text}>{SAFETY_PRIORITY}</TextBody>
+          <TextBody className={classes.text}>
+            {t("profile:leave_reference.safety_priority")}
+          </TextBody>
           <Typography variant="h3" className={classes.text}>
-            {APPROPRIATE_QUESTION}
+            {t("profile:leave_reference.appropriate_question")}
           </Typography>
           <Controller
             as={
@@ -100,14 +100,18 @@ export default function Appropriate({
             }
             name="wasAppropriate"
             control={control}
-            rules={{ required: REQUIRED }}
+            rules={{
+              required: t("profile:leave_reference.was_appropriate_required"),
+            }}
           />
-          <TextBody className={classes.text}>{PRIVATE_ANSWER}</TextBody>
+          <TextBody className={classes.text}>
+            {t("profile:leave_reference.private_answer")}
+          </TextBody>
         </CardContent>
       </Card>
       <div className={classes.buttonContainer}>
         <Button fullWidth={!isSmOrWider} type="submit">
-          {NEXT}
+          {t("profile:leave_reference.next_step_label")}
         </Button>
       </div>
     </form>

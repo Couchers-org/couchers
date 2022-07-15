@@ -11,16 +11,9 @@ import references from "test/fixtures/references.json";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
-import { MockedService } from "test/utils";
+import { MockedService, t } from "test/utils";
 
-import {
-  NO_REFERENCES,
-  referenceBadgeLabel,
-  REFERENCES,
-  REFERENCES_FILTER_A11Y_LABEL,
-  referencesFilterLabels,
-  SEE_MORE_REFERENCES,
-} from "../constants";
+import { referenceBadgeLabel, referencesFilterLabels } from "../constants";
 import { ProfileUserProvider } from "../hooks/useProfileUser";
 import { REFERENCE_LIST_ITEM_TEST_ID } from "./ReferenceListItem";
 import References from "./References";
@@ -77,7 +70,9 @@ describe("References", () => {
   it("shows all references with references received first by default", async () => {
     renderReferences();
 
-    expect(screen.getByRole("heading", { name: REFERENCES })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: t("profile:heading.references") })
+    ).toBeVisible();
 
     const referenceListItems = await screen.findAllByTestId(
       REFERENCE_LIST_ITEM_TEST_ID
@@ -95,7 +90,7 @@ describe("References", () => {
       expect(reference.getByText(references[i].text)).toBeVisible();
       // Reference type badge
       expect(
-        reference.getByText(referenceBadgeLabel[referenceType])
+        reference.getByText(referenceBadgeLabel(t)[referenceType])
       ).toBeVisible();
       assertDateBadgeIsVisible(reference);
     }
@@ -116,7 +111,7 @@ describe("References", () => {
     renderReferences();
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-    expect(screen.getByText(NO_REFERENCES)).toBeVisible();
+    expect(screen.getByText(t("profile:no_references"))).toBeVisible();
     expect(
       screen.queryByTestId(REFERENCE_LIST_ITEM_TEST_ID)
     ).not.toBeInTheDocument();
@@ -127,7 +122,7 @@ describe("References", () => {
       renderReferences();
       userEvent.click(
         screen.getByRole("button", {
-          name: REFERENCES_FILTER_A11Y_LABEL.trim(),
+          name: t("profile:references_filter_a11y_label").trim(),
         })
       );
       // Ignore the API call from the default "all references" we encounter on first render
@@ -142,7 +137,7 @@ describe("References", () => {
       });
       userEvent.click(
         screen.getByRole("option", {
-          name: referencesFilterLabels[ReferenceType.REFERENCE_TYPE_FRIEND],
+          name: referencesFilterLabels(t)[ReferenceType.REFERENCE_TYPE_FRIEND],
         })
       );
 
@@ -156,7 +151,7 @@ describe("References", () => {
       // Reference type badge
       expect(
         reference.getByText(
-          referenceBadgeLabel[ReferenceType.REFERENCE_TYPE_FRIEND]
+          referenceBadgeLabel(t)[ReferenceType.REFERENCE_TYPE_FRIEND]
         )
       ).toBeVisible();
       assertDateBadgeIsVisible(reference);
@@ -175,7 +170,7 @@ describe("References", () => {
       });
       userEvent.click(
         screen.getByRole("option", {
-          name: referencesFilterLabels[ReferenceType.REFERENCE_TYPE_SURFED],
+          name: referencesFilterLabels(t)[ReferenceType.REFERENCE_TYPE_SURFED],
         })
       );
 
@@ -191,7 +186,7 @@ describe("References", () => {
         // Reference type badge
         expect(
           reference.getByText(
-            referenceBadgeLabel[ReferenceType.REFERENCE_TYPE_SURFED]
+            referenceBadgeLabel(t)[ReferenceType.REFERENCE_TYPE_SURFED]
           )
         ).toBeVisible();
         assertDateBadgeIsVisible(reference);
@@ -212,11 +207,11 @@ describe("References", () => {
       });
       userEvent.click(
         screen.getByRole("option", {
-          name: referencesFilterLabels[ReferenceType.REFERENCE_TYPE_HOSTED],
+          name: referencesFilterLabels(t)[ReferenceType.REFERENCE_TYPE_HOSTED],
         })
       );
 
-      expect(await screen.findByText(NO_REFERENCES)).toBeVisible();
+      expect(await screen.findByText(t("profile:no_references"))).toBeVisible();
       expect(
         screen.queryByTestId(REFERENCE_LIST_ITEM_TEST_ID)
       ).not.toBeInTheDocument();
@@ -233,7 +228,7 @@ describe("References", () => {
         referencesList: [givenReference],
       });
       userEvent.click(
-        screen.getByRole("option", { name: referencesFilterLabels["given"] })
+        screen.getByRole("option", { name: referencesFilterLabels(t)["given"] })
       );
 
       const reference = within(
@@ -264,7 +259,7 @@ describe("References", () => {
 
       userEvent.click(
         await screen.findByRole("button", {
-          name: SEE_MORE_REFERENCES,
+          name: t("profile:see_more_references"),
         })
       );
       await waitForElementToBeRemoved(screen.getAllByRole("progressbar"));
@@ -306,19 +301,23 @@ describe("References", () => {
         renderReferences();
         userEvent.click(
           screen.getByRole("button", {
-            name: REFERENCES_FILTER_A11Y_LABEL.trim(),
+            name: t("profile:references_filter_a11y_label").trim(),
           })
         );
         // Ignore the API calls from the default "all references" we encounter on first render
         getReferencesReceivedMock.mockClear();
         userEvent.click(
           screen.getByRole("option", {
-            name: referencesFilterLabels[ReferenceType.REFERENCE_TYPE_FRIEND],
+            name: referencesFilterLabels(t)[
+              ReferenceType.REFERENCE_TYPE_FRIEND
+            ],
           })
         );
 
         userEvent.click(
-          await screen.findByRole("button", { name: SEE_MORE_REFERENCES })
+          await screen.findByRole("button", {
+            name: t("profile:see_more_references"),
+          })
         );
         await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
@@ -358,7 +357,7 @@ describe("References", () => {
       // Error remains there when switching to a category that has an API error
       userEvent.click(
         screen.getByRole("button", {
-          name: REFERENCES_FILTER_A11Y_LABEL.trim(),
+          name: t("profile:references_filter_a11y_label").trim(),
         })
       );
       userEvent.click(screen.getByRole("option", { name: "From hosts" }));
@@ -378,7 +377,7 @@ describe("References", () => {
 
       userEvent.click(
         await screen.findByRole("button", {
-          name: SEE_MORE_REFERENCES,
+          name: t("profile:see_more_references"),
         })
       );
 

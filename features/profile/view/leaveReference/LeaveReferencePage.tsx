@@ -1,15 +1,13 @@
 import Hidden from "@material-ui/core/Hidden";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
-import {
-  INVALID_REFERENCE_TYPE,
-  REFERENCE_TYPE_NOT_AVAILABLE,
-} from "features/profile/constants";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import ReferenceForm from "features/profile/view/leaveReference/ReferenceForm";
 import UserOverview from "features/profile/view/UserOverview";
 import { useUser } from "features/userQueries/useUsers";
+import { useTranslation } from "i18n";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { ReferenceType } from "proto/references_pb";
 import React from "react";
@@ -46,6 +44,7 @@ export default function LeaveReferencePage({
   hostRequestId?: number;
   step?: ReferenceStep;
 }) {
+  const { t } = useTranslation([GLOBAL, PROFILE]);
   const classes = useStyles();
 
   const {
@@ -60,7 +59,11 @@ export default function LeaveReferencePage({
   } = useListAvailableReferences(userId);
 
   if (!(referenceType in ReferenceTypeStrings)) {
-    return <Alert severity="error">{INVALID_REFERENCE_TYPE}</Alert>;
+    return (
+      <Alert severity="error">
+        {t("profile:leave_reference.invalid_reference_type")}
+      </Alert>
+    );
   }
 
   return (
@@ -98,7 +101,9 @@ export default function LeaveReferencePage({
             </ProfileUserProvider>
           </div>
         ) : (
-          <Alert severity="error">{REFERENCE_TYPE_NOT_AVAILABLE}</Alert>
+          <Alert severity="error">
+            {t("profile:leave_reference.reference_type_not_available")}
+          </Alert>
         ))}
     </>
   );

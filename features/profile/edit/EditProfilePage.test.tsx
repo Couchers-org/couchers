@@ -59,8 +59,8 @@ describe("Edit profile", () => {
   });
 
   it(`should not submit the default headings for the '${t(
-    "profile:who_section_title"
-  )}' and '${t("profile:hobbies_section_title")}' sections`, async () => {
+    "profile:heading.who_section"
+  )}' and '${t("profile:heading.hobbies_section")}' sections`, async () => {
     getUserMock.mockImplementation(async (user) => ({
       ...(await getUser(user)),
       aboutMe: "",

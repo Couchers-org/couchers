@@ -13,6 +13,9 @@
   "continue": "Continue",
   "thanks": "Thanks!",
   "community_standing": "Community Standing",
+  "community_standing_description": "Calculated from various factors such as references and community engagement.",
+  "verification_score": "Verification Score",
+  "verification_score_description": "Calculated from vouches by other users",
   "edit": "Edit",
   "save": "Save",
   "send": "Send",
@@ -20,6 +23,18 @@
   "submit": "Submit",
   "confirm": "Confirm",
   "cookie_message": "We use cookies to ensure that we give you the best experience on our website. If you continue to use this site, we will assume that you are happy with it. You can read more about our <1>Terms of Service</1>.",
+  "hosting_status": {
+    "can_host": "Can host",
+    "maybe": "May host",
+    "cant_host": "Can't host",
+    "unspecified_info": "Didn't say"
+  },
+  "meetup_status": {
+      "wants_to_meetup": "Wants to meet",
+      "open_to_meetup": "Open to meet",
+      "does_not_want_to_meetup": "Can't meet",
+      "unspecified_info": "Didn't say"
+  },
   "report": {
     "label": "Report a problem",
     "title": "Report a problem",
@@ -73,6 +88,7 @@
   },
   "error": {
     "fatal_message": "This shouldn't have happened. Please contact us and tell us what you were doing to help us prevent this error in the future.",
+    "unknown": "Unknown error",
     "fallback": {
       "title": "Ooops... that's an unknown error",
       "subtitle": "Please use the 'Report a problem' button and tell us what you were doing to help us prevent this error in the future.",

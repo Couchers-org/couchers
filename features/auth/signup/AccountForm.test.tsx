@@ -91,7 +91,7 @@ describe("AccountForm", () => {
       );
 
       const hostingStatusItem = await screen.findByText(
-        hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST]
+        hostingStatusLabels(t)[HostingStatus.HOSTING_STATUS_CAN_HOST]
       );
       userEvent.selectOptions(
         screen.getByLabelText(

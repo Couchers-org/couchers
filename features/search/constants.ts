@@ -1,5 +1,16 @@
 import maplibregl from "maplibre-gl";
+import { User } from "proto/api_pb";
 import { UserSearchFilters } from "service/search";
+import { firstName } from "utils/names";
+
+export const aboutText = (user: User.AsObject) => {
+  const missingAbout = user.aboutMe.length === 0;
+  return missingAbout
+    ? `${firstName(user?.name)} hasn't said anything about themselves yet`
+    : user.aboutMe.length < 300
+    ? user.aboutMe
+    : user.aboutMe.substring(0, 300) + "...";
+};
 
 export const ACCOMODATION_FILTERS = "Accomodation filters";
 export const APPLY_FILTER = "Apply";

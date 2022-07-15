@@ -5,14 +5,6 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  ABOUT_HOME,
-  ACCEPT_SMOKING,
-  HOSTING_PREFERENCES,
-  PARKING_DETAILS,
-  SAVE,
-  SPACE,
-} from "features/profile/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
 import { routeToProfile } from "routes";
@@ -20,7 +12,7 @@ import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
 
-import { addDefaultUser, MockedService } from "../../../test/utils";
+import { addDefaultUser, MockedService, t } from "../../../test/utils";
 import EditHostingPreference from "./EditHostingPreference";
 
 jest.mock("components/MarkdownInput");
@@ -47,13 +39,17 @@ describe("EditHostingPreference", () => {
   it("should redirect to the user profile route with 'home' tab active after successful update", async () => {
     renderPage();
 
-    userEvent.click(await screen.findByRole("button", { name: SAVE }));
+    userEvent.click(
+      await screen.findByRole("button", { name: t("global:save") })
+    );
     await waitFor(() =>
       expect(mockRouter.pathname).toBe(routeToProfile("home"))
     );
   });
 
-  it(`should not submit the default headings for the '${ABOUT_HOME}'section`, async () => {
+  it(`should not submit the default headings for the '${t(
+    "profile:home_info_headings.about_home"
+  )}'section`, async () => {
     getUserMock.mockImplementation(async (user) => ({
       ...(await getUser(user)),
       aboutPlace: "",
@@ -61,7 +57,7 @@ describe("EditHostingPreference", () => {
     renderPage();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(screen.getByRole("button", { name: SAVE }));
+    userEvent.click(screen.getByRole("button", { name: t("global:save") }));
     await waitFor(() =>
       expect(mockRouter.pathname).toBe(routeToProfile("home"))
     );
@@ -77,16 +73,26 @@ describe("EditHostingPreference", () => {
   it("should display the users hosting preferences", async () => {
     renderPage();
 
-    await screen.findByText(HOSTING_PREFERENCES);
+    await screen.findByText(
+      t("profile:home_info_headings.hosting_preferences")
+    );
 
     expect(
-      screen.getByLabelText(ACCEPT_SMOKING) as HTMLSelectElement
+      screen.getByLabelText(
+        t("profile:edit_home_questions.accept_smoking")
+      ) as HTMLSelectElement
     ).toHaveValue("1");
 
     expect(
-      screen.getByLabelText(PARKING_DETAILS) as HTMLSelectElement
+      screen.getByLabelText(
+        t("profile:home_info_headings.parking_details")
+      ) as HTMLSelectElement
     ).toHaveValue("3");
 
-    expect(screen.getByLabelText(SPACE) as HTMLSelectElement).toHaveValue("2");
+    expect(
+      screen.getByLabelText(
+        t("profile:home_info_headings.space")
+      ) as HTMLSelectElement
+    ).toHaveValue("2");
   });
 });

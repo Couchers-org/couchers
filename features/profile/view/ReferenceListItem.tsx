@@ -53,6 +53,7 @@ export default function ReferenceListItem({
   reference,
 }: ReferenceListItemProps) {
   const {
+    t,
     i18n: { language: locale },
   } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
@@ -67,7 +68,7 @@ export default function ReferenceListItem({
         <div className={classes.badgesContainer}>
           {isReceived && (
             <Pill variant="rounded">
-              {referenceBadgeLabel[reference.referenceType]}
+              {referenceBadgeLabel(t)[reference.referenceType]}
             </Pill>
           )}
           {reference.writtenTime && (

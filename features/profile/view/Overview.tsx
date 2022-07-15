@@ -4,9 +4,8 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import FlagButton from "features/FlagButton";
 import FriendActions from "features/profile/actions/FriendActions";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
-import { EDIT, NOT_ACCEPTING, REQUEST } from "features/profile/constants";
 import UserOverview from "features/profile/view/UserOverview";
-import { PROFILE } from "i18n/namespaces";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import { HostingStatus } from "proto/api_pb";
@@ -38,12 +37,12 @@ const getEditTab = (tab: UserTab): EditUserTab | undefined => {
 };
 
 function LoggedInUserActions({ tab }: { tab: UserTab }) {
-  const { t } = useTranslation([PROFILE]);
+  const { t } = useTranslation([GLOBAL, PROFILE]);
   return (
     <>
       <Link href={routeToEditProfile(getEditTab(tab))} passHref>
         <Button component="a" color="primary">
-          {EDIT}
+          {t("global:edit")}
         </Button>
       </Link>
       <Link href={connectionsRoute} passHref>
@@ -60,6 +59,7 @@ function DefaultActions({
 }: {
   setIsRequesting: (value: boolean) => void;
 }) {
+  const { t } = useTranslation([GLOBAL, PROFILE]);
   const classes = useStyles();
   const user = useProfileUser();
   const disableHosting =
@@ -70,7 +70,9 @@ function DefaultActions({
   return (
     <>
       <Button onClick={() => setIsRequesting(true)} disabled={disableHosting}>
-        {disableHosting ? NOT_ACCEPTING : REQUEST}
+        {disableHosting
+          ? t("global:hosting_status.cant_host")
+          : t("profile:actions.request")}
       </Button>
 
       <MessageUserButton user={user} setMutationError={setMutationError} />

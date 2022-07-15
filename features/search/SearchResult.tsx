@@ -4,7 +4,6 @@ import Button from "components/Button";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import UserSummary from "components/UserSummary";
 import {
-  aboutText,
   hostingStatusLabels,
   meetupStatusLabels,
 } from "features/profile/constants";
@@ -12,7 +11,9 @@ import {
   AgeGenderLanguagesLabels,
   ReferencesLastActiveLabels,
 } from "features/profile/view/userLabels";
-import { getShowUserOnMap } from "features/search/constants";
+import { aboutText, getShowUserOnMap } from "features/search/constants";
+import { useTranslation } from "i18n";
+import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import LinesEllipsis from "react-lines-ellipsis";
 import makeStyles from "utils/makeStyles";
@@ -107,6 +108,7 @@ export default function SearchResult({
   onSelect,
   highlight = false,
 }: SearchResultProps) {
+  const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
   return (
     <Card
@@ -119,13 +121,13 @@ export default function SearchResult({
             <div>
               <CouchIcon className={classes.statusIcon} />
               <Typography display="inline" variant="body1" color="primary">
-                {hostingStatusLabels[user.hostingStatus]}
+                {hostingStatusLabels(t)[user.hostingStatus]}
               </Typography>
             </div>
             <div>
               <LocationIcon className={classes.statusIcon} />
               <Typography display="inline" variant="body1">
-                {meetupStatusLabels[user.meetupStatus]}
+                {meetupStatusLabels(t)[user.meetupStatus]}
               </Typography>
             </div>
           </div>

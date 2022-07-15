@@ -1,48 +1,43 @@
 import LabelAndText from "components/LabelAndText";
-import {
-  AGE_GENDER,
-  EDUCATION,
-  HOMETOWN,
-  JOINED,
-  LANGUAGES_FLUENT,
-  LANGUAGES_FLUENT_FALSE,
-  LAST_ACTIVE,
-  LAST_ACTIVE_FALSE,
-  LOCAL_TIME,
-  OCCUPATION,
-  REFERENCES,
-} from "features/profile/constants";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { responseRateKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { useQuery } from "react-query";
 import { service } from "service";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
-import { hourMillis, lessThanHour, timeAgo } from "utils/timeAgo";
+import { timeAgoI18n } from "utils/timeAgo";
 
 interface Props {
   user: User.AsObject;
 }
 
-export const ReferencesLastActiveLabels = ({ user }: Props) => (
-  <>
-    <LabelAndText label={REFERENCES} text={`${user.numReferences || 0}`} />
-    <LabelAndText
-      label={LAST_ACTIVE}
-      text={
-        user.lastActive
-          ? timeAgo(timestamp2Date(user.lastActive), {
-              millis: hourMillis,
-              text: lessThanHour,
-            })
-          : LAST_ACTIVE_FALSE
-      }
-    />
-  </>
-);
+export const ReferencesLastActiveLabels = ({ user }: Props) => {
+  const { t } = useTranslation(PROFILE);
+  //workaround for not being able to type timeAgoI18n properly
+  const { t: tGlobal } = useTranslation(GLOBAL);
+  return (
+    <>
+      <LabelAndText
+        label={t("heading.references")}
+        text={`${user.numReferences || 0}`}
+      />
+      <LabelAndText
+        label={t("heading.last_active")}
+        text={
+          user.lastActive
+            ? timeAgoI18n({
+                input: timestamp2Date(user.lastActive),
+                t: tGlobal,
+              })
+            : t("last_active_false")
+        }
+      />
+    </>
+  );
+};
 
 export const ResponseRateLabel = ({ user }: Props) => {
   const { t } = useTranslation("profile");
@@ -97,23 +92,24 @@ export const ResponseRateLabel = ({ user }: Props) => {
 };
 
 export const AgeGenderLanguagesLabels = ({ user }: Props) => {
+  const { t } = useTranslation("profile");
   const { languages } = useLanguages();
 
   return (
     <>
       <LabelAndText
-        label={AGE_GENDER}
+        label={t("heading.age_gender")}
         text={`${user.age} / ${user.gender} ${
           user.pronouns ? `(${user.pronouns})` : ""
         }`}
       />
       {languages && (
         <LabelAndText
-          label={LANGUAGES_FLUENT}
+          label={t("heading.languages_fluent")}
           text={
             user.languageAbilitiesList
               .map((ability) => languages[ability.code])
-              .join(", ") || LANGUAGES_FLUENT_FALSE
+              .join(", ") || t("languages_fluent_false")
           }
         />
       )}
@@ -123,15 +119,25 @@ export const AgeGenderLanguagesLabels = ({ user }: Props) => {
 
 export const RemainingAboutLabels = ({ user }: Props) => {
   const {
+    t,
     i18n: { language: locale },
-  } = useTranslation([GLOBAL, COMMUNITIES]);
+  } = useTranslation([GLOBAL, COMMUNITIES, PROFILE]);
   return (
     <>
-      <LabelAndText label={HOMETOWN} text={user.hometown} />
-      <LabelAndText label={OCCUPATION} text={user.occupation} />
-      <LabelAndText label={EDUCATION} text={user.education} />
       <LabelAndText
-        label={JOINED}
+        label={t("profile:heading.hometown")}
+        text={user.hometown}
+      />
+      <LabelAndText
+        label={t("profile:heading.occupation")}
+        text={user.occupation}
+      />
+      <LabelAndText
+        label={t("profile:heading.education")}
+        text={user.education}
+      />
+      <LabelAndText
+        label={t("profile:heading.joined")}
         text={
           user.joined
             ? dateTimeFormatter(locale).format(timestamp2Date(user.joined))
@@ -139,7 +145,7 @@ export const RemainingAboutLabels = ({ user }: Props) => {
         }
       />
       <LabelAndText
-        label={LOCAL_TIME}
+        label={t("profile:heading.local_time")}
         text={dayjs().tz(user.timezone).format("LT")}
       />
     </>

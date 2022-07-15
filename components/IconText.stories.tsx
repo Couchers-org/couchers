@@ -1,8 +1,7 @@
 import { Meta, Story } from "@storybook/react";
 import { CouchIcon } from "components/Icons";
 import IconText from "components/IconText";
-import { hostingStatusLabels } from "features/profile/constants";
-import { HostingStatus, User } from "proto/api_pb";
+import { HostingStatus } from "proto/api_pb";
 
 export default {
   argTypes: {
@@ -21,18 +20,11 @@ export default {
 
 const Template: Story<any> = (args) => (
   <>
-    <IconText
-      icon={CouchIcon}
-      text={
-        hostingStatusLabels[
-          ({ hostingStatus: args.hostingStatus } as User.AsObject).hostingStatus
-        ]
-      }
-    />
+    <IconText icon={CouchIcon} text={args.exampleText} />
   </>
 );
 
 export const iconText = Template.bind({});
 iconText.args = {
-  hostingStatus: HostingStatus.HOSTING_STATUS_CAN_HOST,
+  exampleText: "Example text",
 };

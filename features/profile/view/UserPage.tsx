@@ -2,12 +2,13 @@ import { CircularProgress, Collapse } from "@material-ui/core";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import Snackbar from "components/Snackbar";
-import { SEND_REQUEST_SUCCESS } from "features/profile/constants";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import NewHostRequest from "features/profile/view/NewHostRequest";
 import Overview from "features/profile/view/Overview";
 import { useProfileStyles } from "features/profile/view/ProfilePage";
 import useUserByUsername from "features/userQueries/useUserByUsername";
+import { useTranslation } from "i18n";
+import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useLayoutEffect, useState } from "react";
 import { routeToUser, UserTab } from "routes";
@@ -23,6 +24,7 @@ export default function UserPage({
   username: string;
   tab?: UserTab;
 }) {
+  const { t } = useTranslation(PROFILE);
   const classes = useProfileStyles();
   const router = useRouter();
 
@@ -42,7 +44,7 @@ export default function UserPage({
     <>
       <HtmlMeta title={user?.name} />
       {isSuccessRequest && (
-        <Snackbar severity="success">{SEND_REQUEST_SUCCESS}</Snackbar>
+        <Snackbar severity="success">{t("request_form.success")}</Snackbar>
       )}
       {error && <Alert severity="error">{error}</Alert>}
       {isLoading ? (

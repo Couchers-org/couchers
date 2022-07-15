@@ -4,16 +4,12 @@ import {
   waitForElementToBeRemoved,
   within,
 } from "@testing-library/react";
-import {
-  INVALID_REFERENCE_TYPE,
-  REFERENCE_TYPE_NOT_AVAILABLE,
-} from "features/profile/constants";
 import mockRouter from "next-router-mock";
 import { leaveReferenceBaseRoute, ReferenceStep } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getAvailableReferences, getUser } from "test/serviceMockDefaults";
-import { MockedService } from "test/utils";
+import { MockedService, t } from "test/utils";
 
 import LeaveReferencePage from "./LeaveReferencePage";
 
@@ -81,7 +77,9 @@ describe("LeaveReferencePage", () => {
     it("Returns an error", async () => {
       const errorAlert = await screen.findByRole("alert");
       expect(
-        within(errorAlert).getByText(INVALID_REFERENCE_TYPE)
+        within(errorAlert).getByText(
+          t("profile:leave_reference.invalid_reference_type")
+        )
       ).toBeVisible();
     });
 
@@ -131,7 +129,9 @@ describe("LeaveReferencePage", () => {
       it("Returns an error", async () => {
         const errorAlert = await screen.findByRole("alert");
         expect(
-          within(errorAlert).getByText(REFERENCE_TYPE_NOT_AVAILABLE)
+          within(errorAlert).getByText(
+            t("profile:leave_reference.reference_type_not_available")
+          )
         ).toBeVisible();
       });
 
@@ -182,7 +182,9 @@ describe("LeaveReferencePage", () => {
       it("Returns an error", async () => {
         const errorAlert = await screen.findByRole("alert");
         expect(
-          within(errorAlert).getByText(REFERENCE_TYPE_NOT_AVAILABLE)
+          within(errorAlert).getByText(
+            t("profile:leave_reference.reference_type_not_available")
+          )
         ).toBeVisible();
       });
 

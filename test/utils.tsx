@@ -1,8 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
 import mediaQuery from "css-mediaquery";
-import resources from "i18n/resources";
+import { TFunction } from "i18n";
 import { StringMap, TOptions } from "i18next";
-import { TFunction } from "react-i18next";
 import i18n from "test/i18n";
 
 export function addDefaultUser(userId?: number) {
@@ -60,11 +59,9 @@ export function createMatchMedia(width: number) {
   });
 }
 
-export function t(
-  translationKey: Parameters<
-    TFunction<(keyof typeof resources)[], undefined>
-  >[0],
+export const t: TFunction = (
+  translationKey: Parameters<TFunction>[0],
   options?: string | TOptions<StringMap> | undefined
-) {
+) => {
   return i18n.t(translationKey, options);
-}
+};

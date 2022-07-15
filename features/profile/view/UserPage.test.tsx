@@ -16,7 +16,7 @@ import wrapper from "test/hookWrapper";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser, MockedService, t } from "test/utils";
 
-import { MORE_PROFILE_ACTIONS_A11Y_TEXT, SECTION_LABELS } from "../constants";
+import { sectionLabels } from "../constants";
 import UserPage from "./UserPage";
 
 jest.mock("features/userQueries/useCurrentUser");
@@ -78,7 +78,9 @@ describe("User page", () => {
         await screen.findByRole("heading", { name: "Funny Cat current User" })
       ).toBeVisible();
       expect(
-        screen.queryByRole("button", { name: MORE_PROFILE_ACTIONS_A11Y_TEXT })
+        screen.queryByRole("button", {
+          name: t("profile:more_profile_actions_a11y_text"),
+        })
       ).not.toBeInTheDocument();
     });
 
@@ -88,11 +90,11 @@ describe("User page", () => {
 
         expect(mockRouter.pathname).toBe("/user/funnycat");
 
-        userEvent.click(await screen.findByText(SECTION_LABELS.home));
+        userEvent.click(await screen.findByText(sectionLabels(t).home));
 
         expect(mockRouter.pathname).toBe("/user/funnycat/home");
 
-        userEvent.click(await screen.findByText(SECTION_LABELS.about));
+        userEvent.click(await screen.findByText(sectionLabels(t).about));
 
         expect(mockRouter.pathname).toBe("/user/funnycat/about");
       });
@@ -107,11 +109,11 @@ describe("User page", () => {
     it("updates the url with the chosen tab value", async () => {
       expect(mockRouter.pathname).toBe("/user/funnydog");
 
-      userEvent.click(await screen.findByText(SECTION_LABELS.home));
+      userEvent.click(await screen.findByText(sectionLabels(t).home));
 
       expect(mockRouter.pathname).toBe("/user/funnydog/home");
 
-      userEvent.click(await screen.findByText(SECTION_LABELS.about));
+      userEvent.click(await screen.findByText(sectionLabels(t).about));
 
       expect(mockRouter.pathname).toBe("/user/funnydog/about");
     });

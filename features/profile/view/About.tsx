@@ -28,14 +28,16 @@ export default function About({ user }: AboutProps) {
   return (
     <div className={classes.root}>
       <Typography variant="h1">
-        {t("profile:overview_section_title")}
+        {t("profile:heading.overview_section")}
       </Typography>
       <AgeGenderLanguagesLabels user={user} />
       <RemainingAboutLabels user={user} />
       <Divider className={classes.marginTop3} />
       {user.aboutMe && (
         <>
-          <Typography variant="h1">{t("profile:who_section_title")}</Typography>
+          <Typography variant="h1">
+            {t("profile:heading.who_section")}
+          </Typography>
           <Markdown source={user.aboutMe} />
           <Divider className={classes.marginTop3} />
         </>
@@ -43,7 +45,7 @@ export default function About({ user }: AboutProps) {
       {user.thingsILike && (
         <>
           <Typography variant="h1">
-            {t("profile:hobbies_section_title")}
+            {t("profile:heading.hobbies_section")}
           </Typography>
           <Markdown source={user.thingsILike} />
           <Divider className={classes.marginTop3} />
@@ -52,13 +54,15 @@ export default function About({ user }: AboutProps) {
       {user.additionalInformation && (
         <>
           <Typography variant="h1">
-            {t("profile:additional_information_section_title")}
+            {t("profile:heading.additional_information_section")}
           </Typography>
           <Markdown source={user.additionalInformation} />
           <Divider className={classes.marginTop3} />
         </>
       )}
-      <Typography variant="h1">{t("profile:travel_section_title")}</Typography>
+      <Typography variant="h1">
+        {t("profile:heading.travel_section")}
+      </Typography>
       <Typography variant="body1">
         {regions && user.regionsVisitedList.length > 0
           ? user.regionsVisitedList
@@ -67,7 +71,7 @@ export default function About({ user }: AboutProps) {
           : t("profile:regions_empty_state")}
       </Typography>
       <Divider className={classes.marginTop3} />
-      <Typography variant="h1">{t("profile:lived_section_title")}</Typography>
+      <Typography variant="h1">{t("profile:heading.lived_section")}</Typography>
       <Typography variant="body1">
         {regions && user.regionsLivedList.length > 0
           ? user.regionsLivedList.map((country) => regions[country]).join(`, `)

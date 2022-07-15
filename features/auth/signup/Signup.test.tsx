@@ -175,7 +175,7 @@ describe("Signup", () => {
         screen.getByLabelText(
           t("auth:account_form.hosting_status.field_label")
         ),
-        hostingStatusLabels[HostingStatus.HOSTING_STATUS_CAN_HOST]
+        hostingStatusLabels(t)[HostingStatus.HOSTING_STATUS_CAN_HOST]
       );
 
       userEvent.click(

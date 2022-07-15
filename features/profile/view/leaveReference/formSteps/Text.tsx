@@ -3,12 +3,6 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import TextBody from "components/TextBody";
 import TextField from "components/TextField";
-import {
-  NEXT,
-  PUBLIC_ANSWER,
-  REQUIRED,
-  TEXT_EXPLANATION,
-} from "features/profile/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import {
@@ -16,6 +10,8 @@ import {
   ReferenceStepProps,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
+import { useTranslation } from "i18n";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { Controller, useForm } from "react-hook-form";
@@ -31,6 +27,7 @@ export default function Text({
   referenceType,
   hostRequestId,
 }: ReferenceStepProps) {
+  const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
   const classes = useReferenceStyles();
@@ -56,8 +53,12 @@ export default function Text({
   return (
     <form className={classes.form} onSubmit={onSubmit}>
       <ReferenceStepHeader name={user.name} referenceType={referenceType} />
-      <TextBody className={classes.text}>{TEXT_EXPLANATION}</TextBody>
-      <TextBody className={classes.text}>{PUBLIC_ANSWER}</TextBody>
+      <TextBody className={classes.text}>
+        {t("profile:leave_reference.text_explanation")}
+      </TextBody>
+      <TextBody className={classes.text}>
+        {t("profile:leave_reference.public_answer")}
+      </TextBody>
       {errors.text?.message && (
         <Alert className={classes.alert} severity="error">
           {errors.text.message}
@@ -78,13 +79,13 @@ export default function Text({
           )}
           name="text"
           control={control}
-          rules={{ required: REQUIRED }}
+          rules={{ required: t("profile:leave_reference.required") }}
           class={classes.card}
         />
       </div>
       <div className={classes.buttonContainer}>
         <Button fullWidth={!isSmOrWider} type="submit">
-          {NEXT}
+          {t("profile:leave_reference.next_step_label")}
         </Button>
       </div>
     </form>

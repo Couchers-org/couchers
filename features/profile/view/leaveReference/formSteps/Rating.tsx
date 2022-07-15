@@ -4,13 +4,6 @@ import Button from "components/Button";
 import Markdown from "components/Markdown";
 import RatingsSlider from "components/RatingsSlider/RatingsSlider";
 import TextBody from "components/TextBody";
-import {
-  getRatingQuestion,
-  NEXT,
-  PRIVATE_ANSWER,
-  RATING_EXPLANATION,
-  RATING_HOW,
-} from "features/profile/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import {
@@ -18,6 +11,8 @@ import {
   ReferenceStepProps,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
+import { useTranslation } from "i18n";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { Controller, useForm } from "react-hook-form";
@@ -33,6 +28,7 @@ export default function Rating({
   referenceType,
   hostRequestId,
 }: ReferenceStepProps) {
+  const { t } = useTranslation([PROFILE, GLOBAL]);
   const user = useProfileUser();
   const router = useRouter();
   const classes = useReferenceStyles();
@@ -58,16 +54,20 @@ export default function Rating({
   return (
     <form className={classes.form} onSubmit={onSubmit}>
       <ReferenceStepHeader name={user.name} referenceType={referenceType} />
-      <Typography variant="h3">{RATING_HOW}</Typography>
-      <Markdown source={RATING_EXPLANATION} />
-      <TextBody className={classes.text}>{PRIVATE_ANSWER}</TextBody>
+      <Typography variant="h3">
+        {t("profile:leave_reference.rating_how")}
+      </Typography>
+      <Markdown source={t("profile:leave_reference.rating_explanation")} />
+      <TextBody className={classes.text}>
+        {t("profile:leave_reference.private_answer")}
+      </TextBody>
       {errors && errors.rating?.message && (
         <Alert className={classes.alert} severity="error">
           {errors.rating.message}
         </Alert>
       )}
       <Typography variant="h3" className={classes.text}>
-        {getRatingQuestion(user.name)}
+        {t("profile:leave_reference.rating_question", { name: user.name })}
       </Typography>
       <Controller
         control={control}
@@ -79,7 +79,7 @@ export default function Rating({
       />
       <div className={classes.buttonContainer}>
         <Button fullWidth={!isSmOrWider} type="submit">
-          {NEXT}
+          {t("profile:leave_reference.next_step_label")}
         </Button>
       </div>
     </form>

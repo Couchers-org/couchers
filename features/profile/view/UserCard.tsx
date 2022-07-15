@@ -1,14 +1,13 @@
 import { Card } from "@material-ui/core";
 import { TabPanel } from "@material-ui/lab";
 import TabBar from "components/TabBar";
-import {
-  SECTION_LABELS,
-  SECTION_LABELS_A11Y_TEXT,
-} from "features/profile/constants";
+import { sectionLabels } from "features/profile/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import About from "features/profile/view/About";
 import Home from "features/profile/view/Home";
 import References from "features/profile/view/References";
+import { useTranslation } from "i18n";
+import { PROFILE } from "i18n/namespaces";
 import { ReactNode } from "react";
 import { UserTab } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -40,6 +39,7 @@ export default function UserCard({
   onTabChange: (tab: UserTab) => void;
   tab: UserTab;
 }) {
+  const { t } = useTranslation([PROFILE]);
   const classes = useStyles();
   const user = useProfileUser();
   return (
@@ -47,8 +47,8 @@ export default function UserCard({
       <UserTabContext tab={tab}>
         <TabBar
           setValue={onTabChange}
-          labels={SECTION_LABELS}
-          ariaLabel={SECTION_LABELS_A11Y_TEXT}
+          labels={sectionLabels(t)}
+          ariaLabel={t("profile:section_tabs_a11y_label")}
         />
         {top || null}
         <TabPanel classes={{ root: classes.tabPanel }} value="about">
