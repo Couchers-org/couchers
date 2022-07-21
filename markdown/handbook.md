@@ -16,7 +16,7 @@ description: Couchers.org help page and frequently asked questions
 * [A brief summary of the Community Guidelines](#guidelines)
 * [Is it okay to look for a date, romance, or sex on Couchers.org?](#dating)
 * [Can I add anyone as a friend?](#friending)
-* [Do I have to host someone? Is it required that I be a host sometime?](#hosting)
+* [Do I have to host someone? Is it required to be a host sometime?](#hosting)
 * [Can I ask for money, gifts, donations, services or work when interacting with other people on Couchers.org?](#askmoney)
 * [Can I create an event that requires payment?](#eventpayment)
 * [Is it okay to advertise or promote my business, organization, or cause on Couchers.org?](#spam)
@@ -112,7 +112,7 @@ You should only add someone as a friend if you know them in real life -- either 
 
 <a class="handbook-anchor" name="hosting"></a>
 
-### Do I have to host someone? Is it required that I be a host sometime?
+### Do I have to host someone? Is it required to be a host sometime?
 
 No. You do not have to host someone, and you do not have to set your hosting status to "can host" or "maybe can host". You are also not required to meet up with anyone. However, it is recommended that you consider opening up your home to hosting or setting your status as willing to meet up as soon as you are comfortable and your life situation allows.
 
@@ -171,7 +171,7 @@ Send an email to [safety@couchers.org](mailto:safety@couchers.org). If you send 
 
 ### What are some things I should think about before responding to a request?
 
-You should read the person's entire profile and read through their references. References can give you an idea of what others think about the person. It is also very important to communicate thoroughly with the person before accepting their request. Be sure to ask any for any information that is missing from their profile or request message. For example, if their profile is empty or missing a photo, it is okay to ask them to fill out their profile and/or upload a photo before accepting their request.
+You should read the person's entire profile and read through their references. References can give you an idea of what others think about the person. It is also very important to communicate thoroughly with the person before accepting their request. Be sure to ask for any information that is missing from their profile or request message. For example, if their profile is empty or missing a photo, it is okay to ask them to fill out their profile and/or upload a photo before accepting their request.
 
 It is also good to ask the person when they will arrive and when they will leave, why they are coming, and who is coming with them. It is helpful to let them know what your schedule looks like and how available you will be to interact with them. Don't feel obligated to provide a bunch of details or private information, but you should let your guest(s) know about any important information about you, your home, and your schedule that is relevant to their visit.
 
