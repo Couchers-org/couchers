@@ -1,7 +1,20 @@
 {
   "account_settings_page": {
     "gender_section": {
-      "title": "Alterar género"
+      "title": "Alterar género",
+      "explanation": "Os administradores terão todo o gosto em alterar a tua indicação de género. Por favor contacta support@couchers.org!"
+    },
+    "timezone_section": {
+      "description": "O teu fuso horário é <1>{{timezone}}</1>. Logo, a tua hora local é aproximadamente <4>{{time}}</4>.",
+      "explanation": "Esta hora e fuso horário são determinados com base na localização da tua casa. Se não estiverem corretos, por favor reporta o erro."
+    },
+    "username_section": {
+      "title": "Nome de utilizador",
+      "description": "O teu nome de utilizador é <1>{{username}}</1>.",
+      "explanation": "O teu nome de utilizador é definido quando crias a tua conta."
+    },
+    "birth_date_section": {
+      "explanation": "Os administradores terão todo o gosto em alterar a tua data de nascimento. Por favor contacta support@couchers.org!"
     }
   },
   "sign_up_completed_prompt": "Enviámos um e-mail com um link de verificação para o teu endereço de e-mail. Clica no link para ativar a tua conta.",
@@ -10,7 +23,8 @@
       "explanation": "De momento não existem funcionalidades para pré-visualização ativas, volta a verificar mais tarde!",
       "title": "Sem funcionalidades para pré-visualização de momento"
     },
-    "disclaimer": "Lembra-te que estas funcionalidades são experimentais. Podem não funcionar como pretendido ou mudar rapidamente à medida que as desenvolvemos. Fica à vontade para dar feedback no nosso fórum e por favor reporta quaisquer problemas!"
+    "disclaimer": "Lembra-te que estas funcionalidades são experimentais. Podem não funcionar como pretendido ou mudar rapidamente à medida que as desenvolvemos. Fica à vontade para dar feedback no nosso fórum e por favor reporta quaisquer problemas!",
+    "explanation": "Esta página permite-te testares funcionalidades em desenvolvimento, antes de estarem prontas para utilização geral."
   },
   "unsubscribe": {
     "title": "Desinscrever-se",
@@ -39,7 +53,7 @@
     },
     "birthday": {
       "required_error": "Introduz a tua data de nascimento",
-      "field_label": "Aniversário",
+      "field_label": "Data de nascimento",
       "validation_error": "Deve ser uma data válida no passado."
     },
     "gender": {
@@ -110,7 +124,7 @@
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Já tens uma conta? <2>Inicia sessão</2>",
-    "sign_up_agreement_explainer": "Ao continuar, aceitas os nossos <2>Termos de utilização</2>, incluindo as nossas políticas de gestão de dados, e-mails e cookies.",
+    "sign_up_agreement_explainer": "Ao continuar, aceitas os nossos <2>Termos de utilização</2>, incluindo as nossas políticas de gestão de cookies, email e dados.",
     "header": "Vamos começar!"
   },
   "jail_set_password_form": {
@@ -120,6 +134,13 @@
   "delete_account": {
     "recover": {
       "success": "A tua conta foi recuperada, podes voltar a entrar. Estamos felizes por ter-te de volta!"
+    },
+    "request": {
+      "confirm_username_explanation": "Seu nome de utilizador é <1>{{ username }}</1>, digite-o abaixo para confirmar a exclusão de conta.",
+      "description": "Para excluir a tua conta, segue as etapas abaixo. Enviaremos um e-mail de confirmação.",
+      "confirm_username_label": "Confirmação de nome de utilizador",
+      "username_mismatch": "O nome de utilizador não corresponde.",
+      "reason_explanation": "Ajuda-nos a melhorar a plataforma contando-nos por que você escolheste excluir a tua conta."
     }
   },
   "community_guidelines_form": {
@@ -134,7 +155,31 @@
   },
   "notification_settings": {
     "status": {
-      "disabled_message": ""
+      "disabled_message": "O novo sistema de notificações está atualmente <2>desativado</2> para a tua conta.",
+      "enabled_message": "O novo sistema de notificações está atualmente <2>ativado</2> para a tua conta."
     }
-  }
+  },
+  "change_phone": {
+    "phone_label": "Teu número de telefone",
+    "change_to_different_description": "Para alterar o teu número de telefone para um diferente, digita-o abaixo.",
+    "remove_phone_description": "O teu número de telefone atual é <2>{{phone}}</2>. Podes remover o teu número de telefone abaixo."
+  },
+  "jail": {
+    "description": "Para continuar, por favor verifica o seguinte para continuar.",
+    "terms_of_service_section": {
+      "description": "Atualizamos os nossos Termos de Serviço. Para continuar, por favor lê e aceita os novos <1></1>."
+    },
+    "location_section": {
+      "title": "Adiciona a tua localização",
+      "submit_button": {
+        "active_text": "Guardar"
+      },
+      "resubmit_button_text": "Submeter de novo"
+    }
+  },
+  "reset_password_success": "A tua palavra-passe foi alterada com sucesso! Irás receber um e-mail com um link mágico quando entrares com o teu nome de utilizador ou e-mail.",
+  "login_prompt": "Clica aqui para entrar",
+  "introduction_title": "Junta-te a nós e ajuda a crescer a nova alternativa ao Couchsurfing™",
+  "reset_password": "Redefinir palavra-passe",
+  "reset_password_error": "Erro ao redefinir palavra-passe: {{message}}"
 }

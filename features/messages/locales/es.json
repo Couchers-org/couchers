@@ -1,1 +1,51 @@
-{}
+{
+  "mark_all_read_button_text": "Marcar todos como leídos",
+  "write_reference_button_text": "Escribir una referencia",
+  "close_request_button_text": "Rechazar",
+  "confirm_request_button_text": "Confirmar",
+  "messages_page": {
+    "title": "Mensajes",
+    "tabs": {
+      "chats": "Chats"
+    }
+  },
+  "chat_view": {
+    "back_button": {
+      "a11y_label": "Atrás"
+    },
+    "muted_icon": {
+      "a11y_label": "Silenciado"
+    },
+    "actions_menu": {
+      "items": {
+        "invite_members": "Invitar al chat",
+        "show_all_members": "Miembros del chat",
+        "chat_settings": "Ajustes del chat",
+        "leave_chat": "Abandonar chat"
+      }
+    },
+    "mute": {
+      "button_label": "Silenciar chat",
+      "1_hour_label": "1 hora",
+      "8_hours_label": "8 horas",
+      "1_day_label": "1 día",
+      "1_week_label": "1 semana",
+      "1_month_label": "1 mes"
+    }
+  },
+  "create_chat": {
+    "dm_title": "Crear un nuevo chat",
+    "group_title": "Crear un chat de grupo",
+    "group_title_field_label": "Título",
+    "friends_input_label": "Amigos"
+  },
+  "chat_input": {
+    "label": "Mensaje"
+  },
+  "group_chat_settings_dialog": {
+    "title": "Ajustes del chat de grupo",
+    "chat_title": {
+      "field_label": "Título del chat"
+    }
+  }
+}

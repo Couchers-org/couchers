@@ -1,1 +1,148 @@
-{}
+{
+  "messages_page": {
+    "title": "Mensagens",
+    "tabs": {
+      "aria_label": "Separadores para diferentes tipos de mensagens",
+      "chats": "Conversas",
+      "hosting": "A hospedar",
+      "surfing": "A surfar"
+    }
+  },
+  "control_message": {
+    "host_request_status_changed_text": "{{user}} mudou o pedido para {{status}}",
+    "unknown_message_text": "Mensagem de controlo desconhecida",
+    "created_chat_text": "{{user}} iniciou a conversa",
+    "invite_user_text": "{{user}} convidou {{target_user}}",
+    "admin_assignment_text": "{{user}} fez de {{target_user}} administrador(a)",
+    "edited_chat_text": "{{user}} editou a conversa",
+    "user_left_chat_text": "{{user}} abandonou a conversa",
+    "admin_removal_text": "{{user}} removeu {{target_user}} de administrador(a)"
+  },
+  "host_request_status": {
+    "accepted": "Aceite",
+    "cancelled": "Cancelado",
+    "confirmed": "Confirmado",
+    "pending": "Pendente",
+    "rejected": "Rejeitado"
+  },
+  "request_closed_message": "Este pedido de hospedagem está fechado ou passado. Para continuar a conversar, envie uma mensagem normal à outra pessoa.",
+  "write_reference_button_text": "Escreva uma Referência",
+  "close_request_dialog_title": "Já terminou de enviar mensagens?",
+  "close_request_dialog_host": "Por favor, certifique-se de que terminou de conversar antes de rejeitar o pedido.",
+  "close_request_dialog_surfer": "Por favor, certifique-se que terminou de conversar antes de cancelar o pedido.",
+  "close_request_button_text": "Rejeitar",
+  "confirm_request_button_text": "Confirmar",
+  "chat_view": {
+    "invalid_id_error": "ID de conversa inválido.",
+    "no_messages_state_text": "Sem mensagens",
+    "back_button": {
+      "a11y_label": "Voltar"
+    },
+    "muted_icon": {
+      "a11y_label": "Silenciado"
+    },
+    "actions_menu": {
+      "a11y_label": "Mostrar mais ações de conversa",
+      "items": {
+        "invite_members": "Convidar para conversa",
+        "show_all_members": "Participantes da conversa",
+        "manage_admins": "Gerir administradores da conversa",
+        "leave_chat": "Abandonar conversa",
+        "chat_settings": "Definições de conversa"
+      }
+    },
+    "mute": {
+      "button_label": "Silenciar conversa",
+      "unmute_button_label": "Reactivar conversa",
+      "dialog_title": "Durante quanto tempo você quer silenciar?",
+      "1_hour_label": "1 hora",
+      "8_hours_label": "8 horas",
+      "1_day_label": "1 dia",
+      "1_week_label": "1 semana",
+      "1_month_label": "1 mês",
+      "forever_label": "Até eu voltar a ligar"
+    }
+  },
+  "admins_dialog": {
+    "step_down_confirmation_dialog": {
+      "title": "Deixar de ser administrador?",
+      "message": "Você tem a certeza que quer deixar de ser administrador desta conversa de grupo? Não poderá voltar a ser administrador, a não ser que outro administrador lhe adicione como tal."
+    },
+    "remove_admin": {
+      "title": "Remover administrador",
+      "action_a11y_label": "Remover como administrador"
+    },
+    "add_admin": {
+      "title": "Adicionar administrador",
+      "action_a11y_label": "Adicionar como administrador"
+    }
+  },
+  "create_chat": {
+    "dm_title": "Criar nova conversa",
+    "group_title": "Criar nova conversa de grupo",
+    "group_title_field_label": "Título",
+    "no_friends_found_message": "Não foi possível encontrar nenhum amigo",
+    "user_load_error_message": "(Erro ao carregar utilizador)",
+    "friends_input_label": "Amigos"
+  },
+  "chat_input": {
+    "label": "Mensagem"
+  },
+  "group_chat_settings_dialog": {
+    "title": "Definições de conversa de grupo",
+    "chat_title": {
+      "field_label": "Título de conversa"
+    },
+    "only_admins_invite": {
+      "field_label": "Apenas os administradores podem convidar outros para a conversa"
+    }
+  },
+  "group_chats_tab": {
+    "no_chats_message": "Sem conversas de grupo",
+    "load_more_button_label": "Carregar mais"
+  },
+  "requests_tab": {
+    "load_more_button_label": "Carregar mais",
+    "no_requests_message": "Ainda não há pedidos"
+  },
+  "invite_dialog": {
+    "title": "Convidar para conversa",
+    "selected": {
+      "field_label": "Amigos",
+      "no_options_text": "Ninguém para convidar",
+      "option_load_error_text": "(Erro ao carregar utilizador)"
+    },
+    "invite_button_label": "Convidar"
+  },
+  "leave_chat_dialog": {
+    "title": "Abandonar conversa?",
+    "message": "Você tem a certeza que quer abandonar esta conversa?"
+  },
+  "host_request_item": {
+    "pending": "Este pedido ainda está pendente",
+    "host_status": {
+      "accepted": "Você aceitou este pedido",
+      "cancelled": "Você cancelou este pedido",
+      "confirmed": "Você confirmou este pedido",
+      "rejected": "Você rejeitou este pedido"
+    },
+    "surfer_status": {
+      "accepted": "O seu pedido foi aceite",
+      "confirmed": "O seu pedido foi confirmado",
+      "rejected": "O seu pedido foi rejeitado",
+      "cancelled": "O seu pedido foi cancelado"
+    }
+  },
+  "host_request_view": {
+    "error_message": "ID de pedido de hospedagem inválido",
+    "back_button_a11y_label": "Voltar",
+    "title_for_host": "Pedido de {{user}} - {{status}}",
+    "title_for_surfer": "Pedido a {{user}} - {{status}}",
+    "request_duration": "{{count}} noite",
+    "request_duration_plural": "{{count}} noites"
+  },
+  "mark_all_read_button_text": "Marcar todos como lidos",
+  "members_dialog": {
+    "title": "Participantes da conversa"
+  }
+}

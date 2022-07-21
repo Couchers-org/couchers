@@ -1,145 +1,145 @@
 {
   "change_email_form": {
-    "success_message": "A alteração ao teu email foi recebida. Verifica o teu novo email para completar a alteração.",
-    "new_email": "Novo email",
+    "success_message": "A alteração ao teu e-mail foi recebida. Verifica o teu novo email para completar a alteração.",
+    "new_email": "Novo e-mail",
     "current_password": "Palavra-passe actual",
     "title": "Alterar e-mail",
-    "current_email_message": "O teu endereço de email atualmente é <1>{{email}}</1>."
+    "current_email_message": "O teu endereço de e-mail atualmente é <1>{{email}}</1>."
   },
   "change_email_confirmation": {
-    "success_message": "O teu email foi alterado correctamente!",
-    "requires_confirmation_from_new_email": "Obrigado por confirmares o teu antigo endereço de email. Para completar a alteração, ainda precisas de confirmar o teu novo endereço de email.",
-    "requires_confirmation_from_old_email": "Obrigado por confirmares o teu novo endereço de email. Para completar a alteração, ainda precisas de confirmar o teu antigo endereço de email.",
-    "invalid_confirmation_state": "Estado de confirmação de endereço de email inválido",
-    "error_message": "Erro ao alterar o email: {{message}}",
-    "change_in_progress": "Alteração de email em curso..."
+    "success_message": "O teu e-mail foi alterado com sucesso!",
+    "requires_confirmation_from_new_email": "Obrigado por confirmar seu antigo endereço de e-mail. Para completar a alteração, você ainda precisa confirmar seu novo endereço de e-mail.",
+    "requires_confirmation_from_old_email": "Obrigado por confirmar o teu novo endereço de e-mail. Para completar a alteração, você ainda precisas de confirmar seu antigo endereço de e-mail.",
+    "invalid_confirmation_state": "Estado de confirmação de endereço de e-mail inválido",
+    "error_message": "Erro ao alterar o e-mail: {{message}}",
+    "change_in_progress": "Alteração de email em andamento…"
   },
   "change_password_form": {
-    "title": "Alteração de palavra-passe",
-    "confirm_password": "Confirmar palavra-passe",
-    "new_password": "Nova palavra-passe",
-    "password_mismatch_error": "Isto não coincide com a palavra-passe que introduziste acima.",
-    "password_changed_success": "A tua nova palavra-passe foi definida e uma notificação foi enviada para o teu email.",
-    "old_password": "Antiga palavra-passe"
+    "title": "Alteração de senha",
+    "confirm_password": "Confirmar senha",
+    "new_password": "Nova senha",
+    "password_mismatch_error": "A senha não corresponde com a digitada anteriormente.",
+    "password_changed_success": "Sua senha foi definida e uma notificação foi enviada para o seu e-mail.",
+    "old_password": "Antiga senha"
   },
   "reset_password_form": {
-    "enter_email": "Introduz o teu utilizador/email",
-    "success_message": "Encontra no teu email o link para reinicializar a palavra-passe!"
+    "enter_email": "Digite seu nome de usuário/e-mail",
+    "success_message": "Verifique no seu email o link para redefinir a senha!"
   },
   "login_page": {
-    "no_account_prompt": "Ainda não tens uma conta? <2>Sign up</2>",
+    "no_account_prompt": "Ainda não tem uma conta? <2>Registre-se!</2>",
     "form": {
       "remember_me": "Lembrar-se de mim",
-      "username_field_label": "Email/Utilizador",
-      "password_field_label": "Palavra-passe",
-      "no_password_login_prompt": "Encontra no teu email o link para iniciar a sessão! :)",
-      "forgot_password": "Esqueceste a palavra-passe?"
+      "username_field_label": "E-mail/Nome de usuário",
+      "password_field_label": "Senha",
+      "no_password_login_prompt": "Verifique no seu e-mail o link para entrar! :)",
+      "forgot_password": "Esqueceu a senha?"
     },
     "title": "Iniciar sessão",
     "header": "Bem-vindo de volta!"
   },
   "basic_sign_up_form": {
     "header": "Vamos começar!",
-    "existing_user_prompt": "Já tens uma conta? <2>Inicia sessão</2>",
-    "sign_up_agreement_explainer": "Ao continuar, estás de acordo com os nossos <2> Termos de Serviço </2>; incluindo os nossos cookies, email e política de tratamento de dados."
+    "existing_user_prompt": "Já tem uma conta? <2>Entre!</2>",
+    "sign_up_agreement_explainer": "Ao continuar, você concorda com nossos <2> Termos de Serviço</2>, incluindo nossas políticas de gestão de cookies, email e dados."
   },
   "account_form": {
-    "header": "Detalhes da tua conta",
+    "header": "Detalhes da sua conta",
     "username": {
-      "field_label": "Utilizador",
-      "required_error": "Introduz o teu utilizador",
-      "username_taken_error": "Este utilizador já existe.",
-      "validation_error": "O usuário só pode conter números ou _, devendo começar com uma letra."
+      "field_label": "Nome de usuário",
+      "required_error": "Digite seu nome de usuário",
+      "username_taken_error": "Este nome de usuário já existe.",
+      "validation_error": "O nome de usuário só pode conter números ou _, e deve começar com uma letra."
     },
     "gender": {
-      "field_label": "Identifico-me como ...",
-      "required_error": "Por favor, seleciona a tua identidade de género",
+      "field_label": "Identifico-me como…",
+      "required_error": "Selecione sua identidade de gênero",
       "man": "Homem",
-      "non_binary": "Não-binário",
+      "non_binary": "Não binário",
       "woman": "Mulher"
     },
     "password": {
-      "validation_error": "A palavra-passe deve ter entre 8 e 256 caracteres e não deve ser extremamente comum.",
-      "field_label": "Palavra-passe",
+      "validation_error": "A senha deve ter entre 8 e 256 caracteres e não deve ser extremamente comum.",
+      "field_label": "Senha",
       "required_error": "Insere uma palavra-passe"
     },
     "birthday": {
-      "required_error": "Insere a tua data de aniversário",
+      "required_error": "Digite sua data de nascimento",
       "validation_error": "Deve ser uma data válida no passado.",
-      "field_label": "Aniversário"
+      "field_label": "Data de nascimento"
     },
-    "tos_prompt": "Para continuar, por favor lê e aceita o <1></1>.",
-    "tos_accept_label": "Aceito os Termos do Serviço.",
+    "tos_prompt": "Para continuar, leia e aceite o <1></1>.",
+    "tos_accept_label": "Aceito os Termos de Serviço.",
     "hosting_status": {
       "can_host": "Pode hospedar",
       "cant_host": "Não pode hospedar",
       "maybe": "Talvez possa hospedar",
-      "field_label": "Estado de alojamento"
+      "field_label": "Estado de anfitrião"
     }
   },
   "jail_set_password_form": {
-    "title": "Definir uma palavra-passe",
-    "explanation": "Ainda não definiste uma palavra-passe para a tua conta. Por favor criam uma para continuar."
+    "title": "Definir uma senha",
+    "explanation": "Você ainda não definiu uma senha para sua conta. Crie uma agora para continuar."
   },
   "basic_form": {
     "name": {
-      "empty_error": "Por favor, introduz o teu nome",
-      "field_label": "O teu nome",
-      "required_error": "O nome não pode estar em branco."
+      "empty_error": "Digite seu nome",
+      "field_label": "Seu nome",
+      "required_error": "Este campo não pode estar em branco."
     },
     "email": {
-      "field_label": "Email",
-      "empty_error": "Por favor, introduz um endereço de email válido",
-      "required_error": "O email não pode estar em branco."
+      "field_label": "E-mail",
+      "empty_error": "Por favor, digite um endereço de e-mail válido",
+      "required_error": "O e-mail não pode estar em branco."
     }
   },
   "feature_preview": {
-    "disclaimer": "Lembre-te que estas funcionalidades são experimentais. Elas podem não funcionar como o esperado ou mudar rapidamente à medida que as desenvolvemos. Fique à vontade para deixar seu feedback no nosso fórum e, por favor, reporte quaisquer problemas!",
+    "disclaimer": "Lembre-se que estas funcionalidades são experimentais. Elas podem não funcionar como o esperado ou mudar rapidamente à medida que as desenvolvemos. Fique à vontade para deixar seu feedback no nosso fórum e, por favor, reporte quaisquer problemas!",
     "title": "Pré-visualização da funcionalidade",
     "no_previews": {
       "title": "Sem funcionalidades para pré-visualização no momento",
       "explanation": "No momento não existem funcionalidades para pré-visualização ativas, verifique novamente mais tarde!"
     },
-    "explanation": "Esta página permite-te testares funcionalidades em desenvolvimento, antes de estarem prontas para utilização geral."
+    "explanation": "Esta página permite que você teste funcionalidades em desenvolvimento antes de estarem prontas para utilização geral."
   },
   "location": {
-    "validation_error": "Por favor, seleciona uma localização válida.",
-    "field_label": "A tua localização"
+    "validation_error": "Selecione uma localização válida.",
+    "field_label": "Sua localização"
   },
   "jail": {
     "location_section": {
-      "resubmit_button_text": "Submeter de novo",
-      "title": "Adiciona a tua localização",
+      "resubmit_button_text": "Reenviar",
+      "title": "Adicione a sua localização",
       "submit_button": {
-        "active_text": "Guardar",
+        "active_text": "Salvar",
         "inactive_text": "Obrigado!"
       }
     },
     "title": "É necessária mais informação",
-    "description": "Para continuar, por favor verifica o seguinte.",
+    "description": "Para continuar, marque a seguir para continuar.",
     "terms_of_service_section": {
-      "description": "Atualizamos os nossos Termos de Serviço. Para continuar, por favor lê e aceita os novos <1></1>."
+      "description": "Atualizamos os nossos Termos de Serviço. Para continuar, leia e aceite os novos <1></1>."
     }
   },
   "account_settings_page": {
     "timezone_section": {
-      "explanation": "Esta hora e fuso horário são determinados com base na localização da tua casa. Se não estiverem corretos, por favor reporta o erro.",
+      "explanation": "Esta hora e fuso horário são determinados com base na localização da sua casa. Se não estiverem corretos, reporte o erro.",
       "title": "Fuso horário e localização",
-      "description": "O teu fuso horário é <1>{{timezone}}</1>. Logo, a tua hora local é aproximadamente <4>{{time}}</4>."
+      "description": "Seu fuso horário é <1>{{timezone}}</1>. Portanto, sua hora local é aproximadamente <4>{{time}}</4>."
     },
     "title": "Definições de conta",
     "gender_section": {
       "title": "Alterar gênero",
-      "explanation": "Os administradores terão todo o gosto em alterar a tua indicação de género. Por favor contacta support@couchers.org!"
+      "explanation": "Os administradores ficarão felizes em alterar sua indicação de gênero. Entre em contato com support@couchers.org!"
     },
     "birth_date_section": {
       "title": "Alterar data de nascimento",
-      "explanation": "Os administradores terão todo o gosto em alterar a tua data de nascimento. Por favor contacta support@couchers.org!"
+      "explanation": "Os administradores ficarão felizes em alterar sua data de nascimento. Entre em contato com support@couchers.org!"
     },
     "username_section": {
-      "title": "Nome de utilizador",
-      "description": "O teu nome de utilizador é <1>{{username}}</1>.",
-      "explanation": "O teu nome de utilizador é definido quando crias a tua conta."
+      "title": "Nome de usuário",
+      "description": "Seu nome de usuário é <1>{{username}}</1>.",
+      "explanation": "Seu nome de usuário é definido quando você cria sua conta."
     }
   },
   "notification_settings": {
@@ -149,16 +149,16 @@
       "enable_text": "Ativar novo sistema de notificações"
     },
     "status": {
-      "enabled_message": "O novo sistema de notificações está atualmente <2>enabled</2> para a tua conta.",
-      "disabled_message": "O novo sistema de notificações está atualmente <2>disabled</2> para a tua conta."
+      "enabled_message": "O novo sistema de notificações está atualmente <2>ativado</2> para sua conta.",
+      "disabled_message": "O novo sistema de notificações está atualmente <2>desativado</2> para sua conta."
     }
   },
   "about_us": "Sobre nós",
   "introduction_subtitle": "Grátis para sempre. Construído pela Comunidade. Sem fins lucrativos. Moderno.",
-  "introduction_title": "Junta-te a nós e ajuda a crescer a nova alternativa ao Couchsurfing™",
-  "reset_password": "Redefinir palavra-passe",
-  "reset_password_error": "Erro ao redefinir palavra-passe: {{message}}",
-  "vercel_logo_alt_text": "Suportado por Vercel",
+  "introduction_title": "Junte-se a nós e ajude a nova alternativa ao Couchsurfing™ a crescer",
+  "reset_password": "Redefinir senha",
+  "reset_password_error": "Erro ao redefinir senha: {{message}}",
+  "vercel_logo_alt_text": "Desenvolvido por Vercel",
   "community_guidelines_form": {
     "guideline": {
       "checkbox_label": "OK, entendi",
@@ -166,25 +166,63 @@
     },
     "header": "Orientações da Comunidade"
   },
-  "unhandled_sign_up_state": "Estado de registo não tratado.",
-  "reset_password_success": "A tua palavra-passe foi alterada com sucesso! Irás receber um e-mail com um link mágico quando entrares com o teu nome de utilizador ou e-mail.",
-  "login_prompt": "Clica aqui para entrar",
+  "unhandled_sign_up_state": "Erro: estado de fluxo de registo não tratado.",
+  "reset_password_success": "Sua senha foi alterada com sucesso! Você receberá um e-mail com um link mágico quando fizer login com seu nome de usuário ou e-mail.",
+  "login_prompt": "Clique aqui para entrar",
   "logged_out_message": "Sua sessão foi encerrada.",
   "feedback_form": {
-    "header": "Deixe a sua opinião"
+    "header": "Deixe a sua opinião",
+    "skip_step_text": "Não tem interesse? <2>Pule esta etapa.</2>"
   },
   "sign_up_completed_title": "Obrigado por se registrar!",
   "sign_up_completed_prompt": "Enviamos um e-mail com um link de verificação para o seu e-mail. Clique no link para ativar sua conta.",
   "sign_up_confirmed_prompt": "Tudo pronto! Se você não for redirecionado, tente fazer login.",
   "unsubscribe": {
     "error_message": "Erro ao cancelar a inscrição: {{message}}",
-    "missing_payload_or_sig": "URL inválido, payload ou assinatura em falta",
+    "missing_payload_or_sig": "URL inválido",
     "title": "Cancelar a inscrição",
     "button_text": "Confirmar o cancelamento da inscrição"
   },
   "delete_account": {
     "recover": {
-      "success": ""
+      "success": "Sua conta foi recuperada, você pode fazer login novamente. Estamos felizes por você ter voltado!",
+      "error_message": "Falha ao recuperar conta: {{message}}",
+      "title": "Recuperar sua conta do Couchers.org",
+      "button_text": "Recuperar sua conta"
+    },
+    "missing_token": "Erro: token ausente",
+    "request": {
+      "description": "Para excluir sua conta, siga as etapas abaixo. Enviaremos um e-mail de confirmação.",
+      "confirm_username_explanation": "Seu nome de usuário é <1>{{ username }}</1>, digite-o abaixo para confirmar a exclusão de conta.",
+      "confirm_username_label": "Confirmação de nome de usuário",
+      "username_mismatch": "O nome de usuário não corresponde.",
+      "title": "Excluir conta",
+      "reason_explanation": "Ajude-nos a melhorar a plataforma nos contando por que você escolheu excluir sua conta.",
+      "reason_label": "Motivo para exclusão da conta",
+      "success_message": "Exclusão da conta iniciada. Para concluir a exclusão da conta, confirme pelo e-mail que enviamos para você."
+    },
+    "confirm": {
+      "error_message": "Falha ao confirmar exclusão de conta: {{message}}",
+      "title": "Confirmar exclusão de conta",
+      "button_text": "Confirmar exclusão de conta",
+      "account_deleted": "Conta excluída. Obrigado por usar o Couchers.org!"
     }
+  },
+  "change_phone": {
+    "add_success": "Telefone adicionado.",
+    "phone_not_verified_description": "Enviamos um código para <2>{{phone}}</2>. Para verificar seu número, digite o código abaixo:",
+    "phone_label": "Seu número de telefone",
+    "add_button_text": "Adicionar número de telefone",
+    "code_label": "Código de verificação",
+    "wrong_code": "O código está incorreto.",
+    "verify_button_text": "Verificar número de telefone",
+    "verify_success": "Telefone verificado.",
+    "remove_button_text": "Remover número de telefone atual",
+    "remove_phone_description": "Seu número de telefone atual é <2>{{phone}}</2>. Você pode remover seu número de telefone abaixo.",
+    "change_to_different_description": "Para alterar seu número de telefone para um diferente, digite-o abaixo.",
+    "change_button_text": "Alterar número de telefone",
+    "no_phone_description": "Você não adicionou um número de telefone à sua conta. Para adicionar, digite abaixo. Enviaremos uma mensagem de texto para verificá-lo.",
+    "title": "Número de telefone",
+    "remove_success": "Telefone removido."
   }
 }

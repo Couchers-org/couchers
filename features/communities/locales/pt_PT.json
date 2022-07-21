@@ -13,7 +13,7 @@
   "date_required": "Por favor, introduz uma data.",
   "event_details_required": "Por favor, preenche o campo dos detalhes do evento.",
   "location_required": "Por favor indica o local do evento.",
-  "title_required": "Por favor, dá um título ao evento",
+  "title_required": "Por favor, dá um título ao evento.",
   "upload_helper_text": "Clica para começar a carregar uma imagem",
   "discover_events_subtitle": "Descobre os próximos e futuros eventos organizados por membros da comunidade Couchers.org!",
   "discover_events_title": "Descobre eventos do Couchers.org",
@@ -100,5 +100,7 @@
   "see_all": "Ver todos",
   "see_more_events_label": "Ver mais eventos",
   "start_date": "Data de início",
-  "start_time": "Hora de início"
+  "start_time": "Hora de início",
+  "going_to_event": "Vou participar",
+  "not_going_to_event": "Não vou"
 }

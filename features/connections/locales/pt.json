@@ -1,1 +1,12 @@
-{}
+{
+  "add_friend": "Adicionar amigo(a)",
+  "my_connections": "As minhas ligações",
+  "friends": "Amigos",
+  "friend_list_title": "Os seus amigos",
+  "friend_requests": "Pedidos de amizade",
+  "friend_requests_sent": "Pedidos de amizade enviados",
+  "no_friends": "Nenhum amigo disponível",
+  "no_friend_requests": "Sem pedidos de amizade pendentes",
+  "no_friend_requests_sent": "Sem pedidos de amizade pendentes",
+  "pending": "Pendentes"
+}

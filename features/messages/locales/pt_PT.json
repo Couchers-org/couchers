@@ -1,1 +1,4 @@
-{}
+{
+  "request_closed_message": "Este pedido de hospedagem está fechado ou passado. Para continuar a conversar, envia uma mensagem normal à outra pessoa.",
+  "mark_all_read_button_text": "Marcar todos como lidos"
+}
