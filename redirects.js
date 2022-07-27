@@ -85,7 +85,7 @@ module.exports = {
     },
     {
       source: "/backend-developer-chat",
-      destination: "https://calendly.com/couchers/backend-developer-chat",
+      destination: "https://calendly.com/farley_neonsurge/couchers",
       permanent: false,
     },
     {
