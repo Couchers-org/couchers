@@ -37,7 +37,7 @@
     "glob": "^8.0.3",
     "google-protobuf": "^3.20.0",
     "grpc-web": "1.3.1",
-    "intersection-observer": "^0.12.0",
+    "intersection-observer": "^0.12.2",
     "luhn": "^2.4.1",
     "maplibre-gl": "^1.15.3",
     "markdown-it": "^13.0.1",
