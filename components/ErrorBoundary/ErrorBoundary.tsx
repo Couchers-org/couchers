@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
-import { ErrorBoundaryProps as SentryErrorBoundaryProps } from "@sentry/react/dist/errorboundary";
+import { ErrorBoundaryProps as SentryErrorBoundaryProps } from "@sentry/react";
 import ErrorFallback from "components/ErrorFallback";
 import React, { PropsWithChildren } from "react";
 
