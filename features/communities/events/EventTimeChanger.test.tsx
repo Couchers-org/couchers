@@ -41,7 +41,7 @@ function TestForm({ event }: { event?: Event.AsObject }) {
 }
 
 beforeEach(() => {
-  jest.useFakeTimers("modern");
+  jest.useFakeTimers();
   jest.setSystemTime(new Date("2021-08-01 00:00"));
 });
 

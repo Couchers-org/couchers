@@ -34,7 +34,7 @@ describe("Edit event page", () => {
   beforeEach(() => {
     getEventMock.mockResolvedValue(events[0]);
     updateEventMock.mockResolvedValue(events[0]);
-    jest.useFakeTimers("modern");
+    jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-06-01 00:00"));
   });
 

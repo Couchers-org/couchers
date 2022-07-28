@@ -30,7 +30,7 @@ const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
 
 describe.skip("DatePicker", () => {
   beforeEach(() => {
-    jest.useFakeTimers("modern");
+    jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-03-20"));
   });
   afterEach(() => {

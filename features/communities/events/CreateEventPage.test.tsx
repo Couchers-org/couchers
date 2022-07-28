@@ -27,7 +27,7 @@ describe("Create event page", () => {
 
   beforeEach(() => {
     createEventMock.mockResolvedValue(events[0]);
-    jest.useFakeTimers("modern");
+    jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-08-01 00:00"));
   });
 
@@ -88,7 +88,7 @@ describe("Create event page", () => {
 
     // Now we got our location, turn fake timers back on so the default date we got earlier from the "current"
     // date would pass form validation
-    jest.useFakeTimers("modern");
+    jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-08-01 00:00"));
     userEvent.click(screen.getByRole("button", { name: t("global:create") }));
 
@@ -129,7 +129,7 @@ describe("Create event page", () => {
       "sick social!"
     );
 
-    jest.useFakeTimers("modern");
+    jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-08-01 00:00"));
     userEvent.click(screen.getByRole("button", { name: t("global:create") }));
 

@@ -53,7 +53,7 @@ describe("Event form", () => {
 
   beforeEach(() => {
     serviceFn.mockResolvedValue(1);
-    jest.useFakeTimers("modern");
+    jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-08-01 00:00"));
   });
 
@@ -258,7 +258,7 @@ describe("Event form", () => {
       "sick social!"
     );
 
-    jest.useFakeTimers("modern");
+    jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-08-01 00:00"));
     userEvent.click(screen.getByRole("button", { name: t("global:create") }));
 

@@ -85,7 +85,7 @@ function getThreadAfterSuccessfulComment({
 
 describe("Discussion page", () => {
   beforeAll(() => {
-    jest.useFakeTimers("modern");
+    jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-05-10"));
   });
 
