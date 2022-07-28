@@ -6,7 +6,8 @@
     },
     "timezone_section": {
       "description": "O teu fuso horário é <1>{{timezone}}</1>. Logo, a tua hora local é aproximadamente <4>{{time}}</4>.",
-      "explanation": "Esta hora e fuso horário são determinados com base na localização da tua casa. Se não estiverem corretos, por favor reporta o erro."
+      "explanation": "Esta hora e fuso horário são determinados com base na localização da tua casa. Se não estiverem corretos, por favor reporta o erro.",
+      "title": "Fuso horário e localização"
     },
     "username_section": {
       "title": "Nome de utilizador",
@@ -14,8 +15,10 @@
       "explanation": "O teu nome de utilizador é definido quando crias a tua conta."
     },
     "birth_date_section": {
-      "explanation": "Os administradores terão todo o gosto em alterar a tua data de nascimento. Por favor contacta support@couchers.org!"
-    }
+      "explanation": "Os administradores terão todo o gosto em alterar a tua data de nascimento. Por favor contacta support@couchers.org!",
+      "title": "Alterar data de nascimento"
+    },
+    "title": "Definições da conta"
   },
   "sign_up_completed_prompt": "Enviámos um e-mail com um link de verificação para o teu endereço de e-mail. Clica no link para ativar a tua conta.",
   "feature_preview": {
@@ -24,16 +27,19 @@
       "title": "Sem funcionalidades para pré-visualização de momento"
     },
     "disclaimer": "Lembra-te que estas funcionalidades são experimentais. Podem não funcionar como pretendido ou mudar rapidamente à medida que as desenvolvemos. Fica à vontade para dar feedback no nosso fórum e por favor reporta quaisquer problemas!",
-    "explanation": "Esta página permite-te testares funcionalidades em desenvolvimento, antes de estarem prontas para utilização geral."
+    "explanation": "Esta página permite-te testares funcionalidades em desenvolvimento, antes de estarem prontas para utilização geral.",
+    "title": "Pré-visualização de funcionalidade"
   },
   "unsubscribe": {
     "title": "Desinscrever-se",
     "error_message": "Erro ao desinscrever: {{message}}",
-    "button_text": "Confirmar a desinscrição"
+    "button_text": "Confirmar a desinscrição",
+    "missing_payload_or_sig": "URL inválido"
   },
   "logged_out_message": "A tua sessão foi encerrada.",
   "feedback_form": {
-    "header": "Dá a tua opinião"
+    "header": "Dá a tua opinião",
+    "skip_step_text": "Sem interesse? <2>Avança este passo</2>"
   },
   "sign_up_completed_title": "Obrigado por te registares!",
   "sign_up_confirmed_prompt": "Tudo pronto! Se não fores redirecionado, tenta fazer login.",
@@ -133,20 +139,34 @@
   },
   "delete_account": {
     "recover": {
-      "success": "A tua conta foi recuperada, podes voltar a entrar. Estamos felizes por ter-te de volta!"
+      "success": "A tua conta foi recuperada, podes voltar a entrar. Estamos felizes por ter-te de volta!",
+      "error_message": "Falha a recuperar conta: {{message}}",
+      "button_text": "Recupera a tua conta",
+      "title": "Recupera a tua conta Couchers.org"
     },
     "request": {
       "confirm_username_explanation": "Seu nome de utilizador é <1>{{ username }}</1>, digite-o abaixo para confirmar a exclusão de conta.",
       "description": "Para excluir a tua conta, segue as etapas abaixo. Enviaremos um e-mail de confirmação.",
       "confirm_username_label": "Confirmação de nome de utilizador",
       "username_mismatch": "O nome de utilizador não corresponde.",
-      "reason_explanation": "Ajuda-nos a melhorar a plataforma contando-nos por que você escolheste excluir a tua conta."
+      "reason_explanation": "Ajuda-nos a melhorar a plataforma contando-nos por que você escolheste excluir a tua conta.",
+      "title": "Eliminar conta",
+      "reason_label": "Motivo para eliminação da conta",
+      "success_message": "Eliminação da conta iniciada. Para concluir a eliminação da conta, por favor confirma através do e-mail que te enviámos."
+    },
+    "missing_token": "Erro: missing token",
+    "confirm": {
+      "title": "Confirmar eliminação da conta",
+      "account_deleted": "Conta eliminada. Obrigado por usares Couchers.org!",
+      "error_message": "Falha a confirmar eliminação da conta: {{message}}",
+      "button_text": "Confirmar eliminação da conta"
     }
   },
   "community_guidelines_form": {
     "header": "Normas da comunidade",
     "guideline": {
-      "checkbox_label": "Entendi"
+      "checkbox_label": "Entendi",
+      "required_error": "É preciso verificar todas as caixas"
     }
   },
   "location": {
@@ -157,12 +177,29 @@
     "status": {
       "disabled_message": "O novo sistema de notificações está atualmente <2>desativado</2> para a tua conta.",
       "enabled_message": "O novo sistema de notificações está atualmente <2>ativado</2> para a tua conta."
+    },
+    "title": "Definições de notificação",
+    "action_button": {
+      "enable_text": "Ativar novo sistema de notificações",
+      "disable_text": "Desativar novo sistema de notificações"
     }
   },
   "change_phone": {
     "phone_label": "Teu número de telefone",
     "change_to_different_description": "Para alterar o teu número de telefone para um diferente, digita-o abaixo.",
-    "remove_phone_description": "O teu número de telefone atual é <2>{{phone}}</2>. Podes remover o teu número de telefone abaixo."
+    "remove_phone_description": "O teu número de telefone atual é <2>{{phone}}</2>. Podes remover o teu número de telefone abaixo.",
+    "add_button_text": "Adicionar número de telefone",
+    "verify_button_text": "Verificar número de telefone",
+    "verify_success": "Telefone verificado.",
+    "remove_success": "Telefone removido.",
+    "change_button_text": "Alterar número de telefone",
+    "title": "Número de telefone",
+    "phone_not_verified_description": "Enviamos-te um código para o <2>{{phone}}</2>. Para verificares o teu número, por favor introduz o código em baixo:",
+    "code_label": "Código de verificação",
+    "wrong_code": "O código está errado.",
+    "remove_button_text": "Remover número de telefone atual",
+    "no_phone_description": "Não adicionaste um número de telefone à tua conta. Para adicionar, introduz um em baixo. Iremos verificá-lo com uma mensagem de texto.",
+    "add_success": "Número de telefone adicionado."
   },
   "jail": {
     "description": "Para continuar, por favor verifica o seguinte para continuar.",
@@ -172,14 +209,20 @@
     "location_section": {
       "title": "Adiciona a tua localização",
       "submit_button": {
-        "active_text": "Guardar"
+        "active_text": "Guardar",
+        "inactive_text": "Obrigado!"
       },
       "resubmit_button_text": "Submeter de novo"
-    }
+    },
+    "title": "É necessária mais informação"
   },
   "reset_password_success": "A tua palavra-passe foi alterada com sucesso! Irás receber um e-mail com um link mágico quando entrares com o teu nome de utilizador ou e-mail.",
   "login_prompt": "Clica aqui para entrar",
   "introduction_title": "Junta-te a nós e ajuda a crescer a nova alternativa ao Couchsurfing™",
   "reset_password": "Redefinir palavra-passe",
-  "reset_password_error": "Erro ao redefinir palavra-passe: {{message}}"
+  "reset_password_error": "Erro ao redefinir palavra-passe: {{message}}",
+  "about_us": "Sobre nós",
+  "unhandled_sign_up_state": "Erro: unhandled signup flow state.",
+  "introduction_subtitle": "Grátis para sempre. Gerido pela comunidade. Sem fins lucrativos. Moderno.",
+  "vercel_logo_alt_text": "Desenvolvido por Vercel"
 }

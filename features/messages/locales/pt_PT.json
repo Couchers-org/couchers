@@ -1,4 +1,148 @@
 {
   "request_closed_message": "Este pedido de hospedagem está fechado ou passado. Para continuar a conversar, envia uma mensagem normal à outra pessoa.",
-  "mark_all_read_button_text": "Marcar todos como lidos"
+  "mark_all_read_button_text": "Marcar todos como lidos",
+  "create_chat": {
+    "group_title_field_label": "Título",
+    "no_friends_found_message": "Não foi possível encontrar nenhum amigo",
+    "dm_title": "Criar nova conversa",
+    "group_title": "Criar nova conversa de grupo",
+    "user_load_error_message": "(Erro ao carregar utilizador)",
+    "friends_input_label": "Amigos"
+  },
+  "host_request_item": {
+    "surfer_status": {
+      "cancelled": "O teu pedido foi cancelado",
+      "accepted": "O teu pedido foi aceite",
+      "confirmed": "O teu pedido foi confirmado",
+      "rejected": "O teu pedido foi rejeitado"
+    },
+    "host_status": {
+      "cancelled": "Cancelaste este pedido",
+      "accepted": "Aceitaste este pedido",
+      "confirmed": "Confirmaste este pedido",
+      "rejected": "Rejeitaste este pedido"
+    },
+    "pending": "Este pedido ainda está pendente"
+  },
+  "close_request_dialog_surfer": "Por favor, certifica-te que terminaste de conversar antes de cancelares o pedido.",
+  "chat_view": {
+    "muted_icon": {
+      "a11y_label": "Silenciado"
+    },
+    "actions_menu": {
+      "a11y_label": "Mostrar mais ações de conversa",
+      "items": {
+        "invite_members": "Convidar para conversa",
+        "show_all_members": "Participantes da conversa",
+        "manage_admins": "Gerir administradores da conversa",
+        "chat_settings": "Definições de conversa",
+        "leave_chat": "Abandonar conversa"
+      }
+    },
+    "mute": {
+      "unmute_button_label": "Reactivar conversa",
+      "button_label": "Silenciar conversa",
+      "dialog_title": "Durante quanto tempo queres silenciar?",
+      "1_hour_label": "1 hora",
+      "8_hours_label": "8 horas",
+      "1_day_label": "1 dia",
+      "1_week_label": "1 semana",
+      "1_month_label": "1 mês",
+      "forever_label": "Até eu voltar a ligar"
+    },
+    "invalid_id_error": "ID de conversa inválido.",
+    "no_messages_state_text": "Sem mensagens",
+    "back_button": {
+      "a11y_label": "Voltar"
+    }
+  },
+  "chat_input": {
+    "label": "Mensagem"
+  },
+  "admins_dialog": {
+    "step_down_confirmation_dialog": {
+      "message": "Tens a certeza que queres deixar de ser administrador desta conversa de grupo? Não poderás voltar a ser administrador, a não ser que outro administrador te adicione como tal.",
+      "title": "Deixar de ser administrador?"
+    },
+    "remove_admin": {
+      "title": "Remover administrador",
+      "action_a11y_label": "Remover como administrador"
+    },
+    "add_admin": {
+      "title": "Adicionar administrador",
+      "action_a11y_label": "Adicionar como administrador"
+    }
+  },
+  "group_chat_settings_dialog": {
+    "only_admins_invite": {
+      "field_label": "Apenas os administradores podem convidar outros para a conversa"
+    },
+    "title": "Definições de conversa de grupo",
+    "chat_title": {
+      "field_label": "Título da conversa"
+    }
+  },
+  "control_message": {
+    "admin_assignment_text": "{{user}} fez de {{target_user}} administrador(a)",
+    "user_left_chat_text": "{{user}} abandonou a conversa",
+    "admin_removal_text": "{{user}} removeu {{target_user}} de administrador(a)",
+    "host_request_status_changed_text": "{{user}} mudou o pedido para {{status}}",
+    "created_chat_text": "{{user}} iniciou a conversa",
+    "edited_chat_text": "{{user}} editou a conversa",
+    "invite_user_text": "{{user}} convidou {{target_user}}",
+    "unknown_message_text": "Mensagem de controlo desconhecida"
+  },
+  "group_chats_tab": {
+    "no_chats_message": "Sem conversas de grupo",
+    "load_more_button_label": "Carregar mais"
+  },
+  "requests_tab": {
+    "no_requests_message": "Ainda não há pedidos",
+    "load_more_button_label": "Carregar mais"
+  },
+  "invite_dialog": {
+    "title": "Convidar para conversa",
+    "selected": {
+      "field_label": "Amigos",
+      "no_options_text": "Ninguém para convidar",
+      "option_load_error_text": "(Erro ao carregar utilizador)"
+    },
+    "invite_button_label": "Convidar"
+  },
+  "leave_chat_dialog": {
+    "title": "Abandonar conversa?",
+    "message": "Tens a certeza que queres abandonar esta conversa?"
+  },
+  "host_request_status": {
+    "rejected": "Rejeitado",
+    "accepted": "Aceite",
+    "cancelled": "Cancelado",
+    "confirmed": "Confirmado",
+    "pending": "Pendente"
+  },
+  "host_request_view": {
+    "back_button_a11y_label": "Voltar",
+    "title_for_host": "Pedido de {{user}} - {{status}}",
+    "title_for_surfer": "Pedido a {{user}} - {{status}}",
+    "request_duration": "{{count}} noite",
+    "request_duration_plural": "{{count}} noites",
+    "error_message": "ID de pedido de hospedagem inválido"
+  },
+  "write_reference_button_text": "Escreve uma Referência",
+  "close_request_dialog_title": "Já terminaste de enviar mensagens?",
+  "close_request_dialog_host": "Por favor, certifica-te de que terminaste de conversar antes de rejeitares o pedido.",
+  "close_request_button_text": "Rejeitar",
+  "confirm_request_button_text": "Confirmar",
+  "messages_page": {
+    "title": "Mensagens",
+    "tabs": {
+      "aria_label": "Separadores para diferentes tipos de mensagens",
+      "chats": "Conversas",
+      "hosting": "A hospedar",
+      "surfing": "A surfar"
+    }
+  },
+  "members_dialog": {
+    "title": "Participantes da conversa"
+  }
 }

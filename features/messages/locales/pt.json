@@ -91,7 +91,7 @@
   "group_chat_settings_dialog": {
     "title": "Definições de conversa de grupo",
     "chat_title": {
-      "field_label": "Título de conversa"
+      "field_label": "Título da conversa"
     },
     "only_admins_invite": {
       "field_label": "Apenas os administradores podem convidar outros para a conversa"
