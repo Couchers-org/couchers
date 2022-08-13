@@ -18,7 +18,7 @@ To get started, head to our GitHub repository and find a good first issue to get
 
 <!-- not assigned, exclude critical or high priority issues, and exclude those requiring work from the other "end" -->
 * [Backend good first issues](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Abackend+label%3A%22good+first+issue%22+-label%3Aweb+-label%3A%22priority%3A+critical%22+-label%3A%22priority%3A+high%22+no%3Aassignee)
-* [Web frontend good first issues](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Aweb+label%3A%22good+first+issue%22+-label%3Abackend+-label%3A%22priority%3A+critical%22+-label%3A%22priority%3A+high%22+no%3Aassignee)
+* [Web frontend good first issues](https://github.com/Couchers-org/web-frontend/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+no%3Aassignee)
 
 **Comment on the issue that you'd like to work on it**, and one of the core developers will assign it to you. Feel free to ask any questions in that issue's comments and we'll do our best to help you get going.
 
