@@ -10870,10 +10870,10 @@ nested-error-stacks@^2.0.0, nested-error-stacks@^2.1.0:
     i18next-fs-backend "^1.0.7"
     react-i18next "^11.8.13"
 
-next-router-mock@^0.6.9:
-  version "0.6.9"
-  resolved "https://registry.yarnpkg.com/next-router-mock/-/next-router-mock-0.6.9.tgz#8f7d65e3bfe0c6688d2ac333e71d31b77b6735db"
-  integrity sha512-EDhkG9PfoWs1q9W+Ebg+CYTMC2THzn344v+M9dkG3RZzB9be48A6A/FOzmfpwMR9psRe1piMC0PWPuf9eLhXDw==
+next-router-mock@^0.7.4:
+  version "0.7.4"
+  resolved "https://registry.yarnpkg.com/next-router-mock/-/next-router-mock-0.7.4.tgz#6af31bdc3383d29050901bb6a71ad50eefe0fe5b"
+  integrity sha512-phYLFXOQ9klg6gxVRJJdH0QoD+5bAbAdDYM9O3YdGZ+IFEbvIoIns+o9SoSfTkCjzoU2R1ARoFc8WHp0+hnD8A==
 
 next@12.1.6:
   version "12.1.6"
