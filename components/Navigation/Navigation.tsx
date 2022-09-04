@@ -130,7 +130,7 @@ const loggedOutNavMenu = (
 ): Array<MenuItemProps> => [
   {
     name: t("nav.about"),
-    route: "/",
+    route: "/#",
   },
   {
     name: t("nav.blog"),
