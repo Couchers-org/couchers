@@ -20,6 +20,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Trans, useTranslation } from "next-i18next";
 import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "react-query";
 import vercelLogo from "resources/vercel.svg";
 import makeStyles from "utils/makeStyles";
 
@@ -96,6 +97,15 @@ export default function LandingPage() {
 
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
+
+  // This makes sure anything didn't get cleared up in the query cache in the Logout
+  // component definitely gets cleared here when redirected to the landing page
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (!authState.authenticated) {
+      queryClient.clear();
+    }
+  }, [queryClient, authState.authenticated]);
 
   const moreContentRef = useRef<HTMLHeadingElement>(null);
   const scrollToMore = () => {

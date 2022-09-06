@@ -16,7 +16,7 @@ export default function Logout() {
   const logout = useMutation<void, RpcError>(
     async () => {
       authActions.logout();
-      queryClient.resetQueries();
+      queryClient.clear();
     },
     {
       onSuccess: () => {
