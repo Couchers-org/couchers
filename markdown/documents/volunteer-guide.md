@@ -14,7 +14,8 @@ To get started, do the following tasks:
 
 1. Get set up on your new Google @couchers.org account
     - make sure you can sign in and view the shared Google drive folders
-    - (optional) [forward your emails](https://support.google.com/mail/answer/10957?hl=en#zippy=) to your regular email account. This way you can get all emails and event invitations sent to your regular email address
+    - click [this link](https://calendar.google.com/calendar/u/0?cid=Y180cGRkcjRtdDlsMGZwZDFxNW52ZWU2OTl1OEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t) to add yourself to the all-team calendar.
+    - (optional) [forward your emails](https://support.google.com/mail/answer/10957?hl=en#zippy=) to your regular email account. This way you can get all emails and event invitations sent to your regular email address.
 2. Get set up on Slack
     - [download the app](https://slack.com/downloads) on your desktop and/or phone
     - upload a photo to your account
