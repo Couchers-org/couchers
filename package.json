@@ -69,7 +69,7 @@
     "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^13.4.1",
     "@types/css-mediaquery": "^0.1.1",
-    "@types/geojson": "^7946.0.8",
+    "@types/geojson": "^7946.0.10",
     "@types/google-protobuf": "^3.15.5",
     "@types/jest": "^28.1.6",
     "@types/markdown-it": "^12.2.3",
