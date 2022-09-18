@@ -62,6 +62,22 @@ describe("ResetPassword", () => {
     expect(resetPasswordMock).toHaveBeenCalledWith("test");
   });
 
+  it("submits the reset password request even if the username is typed in mixed casing", async () => {
+    render(<ResetPassword />, { wrapper });
+
+    userEvent.type(
+      screen.getByLabelText(t("auth:reset_password_form.enter_email")),
+      "TeST"
+    );
+    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+
+    expect(
+      await screen.findByText(t("auth:reset_password_form.success_message"))
+    ).toBeVisible();
+    expect(resetPasswordMock).toHaveBeenCalledTimes(1);
+    expect(resetPasswordMock).toHaveBeenCalledWith("test");
+  });
+
   it("shows an error alert if the reset password request failed", async () => {
     jest.spyOn(console, "error").mockReturnValue(undefined);
     resetPasswordMock.mockRejectedValue(new Error("GRPC error"));

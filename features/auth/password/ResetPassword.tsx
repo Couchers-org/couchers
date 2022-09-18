@@ -12,12 +12,16 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
+import { lowercaseAndTrimField } from "utils/validation";
 
 const useStyles = makeStyles((theme) => ({
   form: {
     "& > * + *": {
       marginBlockStart: theme.spacing(1),
     },
+  },
+  main: {
+    padding: theme.spacing(0, 3),
   },
   textField: {
     width: "100%",
@@ -42,11 +46,11 @@ export default function ResetPassword() {
   );
 
   const onSubmit = handleSubmit(({ userId }) => {
-    resetPassword(userId);
+    resetPassword(lowercaseAndTrimField(userId));
   });
 
   return (
-    <>
+    <main className={classes.main}>
       <HtmlMeta title={t("auth:reset_password")} />
       <PageTitle>{t("auth:reset_password")}</PageTitle>
       {error && <Alert severity="error">{error.message}</Alert>}
@@ -57,6 +61,7 @@ export default function ResetPassword() {
           inputRef={register({ required: true })}
           label={t("auth:reset_password_form.enter_email")}
           name="userId"
+          variant="standard"
           fullWidth
         />
         <Button loading={isLoading} type="submit">
@@ -68,6 +73,6 @@ export default function ResetPassword() {
           </Typography>
         )}
       </form>
-    </>
+    </main>
   );
 }
