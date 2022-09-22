@@ -31,21 +31,7 @@ import { useQueryClient } from "react-query";
 import { GeocodeResult } from "utils/hooks";
 import SearchFilters from "utils/searchFilters";
 
-import {
-  ACCOMODATION_FILTERS,
-  APPLY_FILTER,
-  CLEAR_SEARCH,
-  FILTER_DIALOG_TITLE_DESKTOP,
-  FILTER_DIALOG_TITLE_MOBILE,
-  HOST_FILTERS,
-  HOSTING_STATUS,
-  LAST_ACTIVE,
-  lastActiveOptions,
-  LOCATION,
-  MUST_HAVE_LOCATION,
-  NUM_GUESTS,
-  PROFILE_KEYWORDS,
-} from "./constants";
+import { getLastActiveOptions } from "./constants";
 
 const hostingStatusOptions = [
   HostingStatus.HOSTING_STATUS_CAN_HOST,
@@ -64,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
 interface FilterDialogFormData
   extends Omit<SearchFilters, "location" | "lastActive"> {
   location: GeocodeResult | "";
-  lastActive: typeof lastActiveOptions[number];
+  lastActive: ReturnType<typeof getLastActiveOptions>[number];
 }
 
 export default function FilterDialog({
@@ -135,13 +121,15 @@ export default function FilterDialog({
     )
       return true;
     return getValues("location") === "" || !getValues("location")
-      ? MUST_HAVE_LOCATION
+      ? t("search:form.missing_location_validation_error")
       : true;
   };
 
   const isSmDown = useMediaQuery((theme: Theme) =>
     theme.breakpoints.down("sm")
   );
+
+  const lastActiveOptions = getLastActiveOptions(t);
 
   return (
     <Dialog
@@ -150,7 +138,9 @@ export default function FilterDialog({
       aria-labelledby="filter-dialog-title"
     >
       <DialogTitle id="filter-dialog-title">
-        {isSmDown ? FILTER_DIALOG_TITLE_MOBILE : FILTER_DIALOG_TITLE_DESKTOP}
+        {isSmDown
+          ? t("search:filter_dialog.mobile_title")
+          : t("search:filter_dialog.desktop_title")}
       </DialogTitle>
       <form onSubmit={onSubmit}>
         <DialogContent>
@@ -170,7 +160,7 @@ export default function FilterDialog({
                     }
                   : ""
               }
-              label={LOCATION}
+              label={t("search:form.location_field_label")}
               fieldError={errors.location?.message}
               disableRegions
             />
@@ -178,7 +168,7 @@ export default function FilterDialog({
               fullWidth
               defaultValue={searchFilters.active.query ?? ""}
               id="keywords-filter"
-              label={PROFILE_KEYWORDS}
+              label={t("search:form.keywords.field_label")}
               name="query"
               inputRef={register}
               variant="standard"
@@ -186,7 +176,9 @@ export default function FilterDialog({
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      aria-label={CLEAR_SEARCH}
+                      aria-label={t(
+                        "search:form.keywords.clear_field_action_a11y_label"
+                      )}
                       onClick={() => {
                         setValue("query", "");
                       }}
@@ -202,7 +194,9 @@ export default function FilterDialog({
           <Divider />
           <Grid container spacing={2}>
             <Grid item xs={12} md={6} className={classes.container}>
-              <Typography variant="h3">{HOST_FILTERS}</Typography>
+              <Typography variant="h3">
+                {t("search:form.host_filters.title")}
+              </Typography>
               <Controller
                 control={control}
                 name="lastActive"
@@ -214,7 +208,9 @@ export default function FilterDialog({
                 render={({ onChange, value }) => (
                   <Autocomplete
                     id="last-active-filter"
-                    label={LAST_ACTIVE}
+                    label={t(
+                      "search:form.host_filters.last_active_field_label"
+                    )}
                     options={lastActiveOptions}
                     getOptionLabel={(o) => o.label}
                     onChange={(_e, option) => onChange(option)}
@@ -235,7 +231,9 @@ export default function FilterDialog({
                 render={({ onChange, value }) => (
                   <Autocomplete<HostingStatus, true, false, false>
                     id="host-status-filter"
-                    label={HOSTING_STATUS}
+                    label={t(
+                      "search:form.host_filters.hosting_status_field_label"
+                    )}
                     options={hostingStatusOptions}
                     onChange={(_e, options) => {
                       onChange(options);
@@ -255,7 +253,9 @@ export default function FilterDialog({
               />
             </Grid>
             <Grid item xs={12} md={6} className={classes.container}>
-              <Typography variant="h3">{ACCOMODATION_FILTERS}</Typography>
+              <Typography variant="h3">
+                {t("search:form.accommodation_filters.title")}
+              </Typography>
               <TextField
                 type="number"
                 variant="standard"
@@ -266,7 +266,9 @@ export default function FilterDialog({
                 })}
                 name="numGuests"
                 fullWidth
-                label={NUM_GUESTS}
+                label={t(
+                  "search:form.accommodation_filters.guests_field_label"
+                )}
                 defaultValue={searchFilters.active.numGuests ?? ""}
                 error={!!errors.numGuests}
                 helperText={errors.numGuests?.message}
@@ -275,7 +277,7 @@ export default function FilterDialog({
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button type="submit">{APPLY_FILTER}</Button>
+          <Button type="submit">{t("search:form.submit_button_label")}</Button>
         </DialogActions>
       </form>
     </Dialog>

@@ -11,7 +11,7 @@ import {
   AgeGenderLanguagesLabels,
   ReferencesLastActiveLabels,
 } from "features/profile/view/userLabels";
-import { aboutText, getShowUserOnMap } from "features/search/constants";
+import { aboutText } from "features/search/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
@@ -135,7 +135,7 @@ export default function SearchResult({
         </UserSummary>
         <Hidden mdUp>
           <LinesEllipsis
-            text={stripMarkdown(aboutText(user))}
+            text={stripMarkdown(aboutText(user, t))}
             maxLine={3}
             component="p"
             className={classes.about}
@@ -143,7 +143,7 @@ export default function SearchResult({
         </Hidden>
         <Hidden smDown>
           <Typography variant="body1" className={classes.about}>
-            {stripMarkdown(aboutText(user))}
+            {stripMarkdown(aboutText(user, t))}
           </Typography>
           <AgeGenderLanguagesLabels user={user} />
           <ReferencesLastActiveLabels user={user} />
@@ -154,7 +154,9 @@ export default function SearchResult({
           className={classes.mapButton}
           size="small"
         >
-          {getShowUserOnMap(firstName(user.name))}
+          {t("search:search_result.show_user_button_label", {
+            name: firstName(user.name),
+          })}
         </Button>
       </CardContent>
     </Card>

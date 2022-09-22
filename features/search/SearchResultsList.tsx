@@ -4,12 +4,14 @@ import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
 import { searchQueryKey } from "features/queryKeys";
-import { NO_USER_RESULTS, selectedUserZoom } from "features/search/constants";
+import { selectedUserZoom } from "features/search/constants";
 import SearchBox from "features/search/SearchBox";
 import SearchResult from "features/search/SearchResult";
 import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
 import { filterUsers } from "features/search/users";
 import { useUser } from "features/userQueries/useUsers";
+import { useTranslation } from "i18n";
+import { SEARCH } from "i18n/namespaces";
 import maplibregl, { LngLatBounds, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
@@ -98,6 +100,7 @@ export default function SearchResultsList({
   selectedResult,
   searchFilters,
 }: SearchResultsListProps) {
+  const { t } = useTranslation(SEARCH);
   const classes = useStyles();
 
   const selectedUser = useUser(selectedResult);
@@ -230,7 +233,9 @@ export default function SearchResultsList({
               )}
           </HorizontalScroller>
         ) : (
-          <TextBody className={classes.baseMargin}>{NO_USER_RESULTS}</TextBody>
+          <TextBody className={classes.baseMargin}>
+            {t("search_result.no_user_result_message")}
+          </TextBody>
         )
       ) : (
         selectedResult && (

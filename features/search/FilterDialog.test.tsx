@@ -1,16 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { hostingStatusLabels } from "features/profile/constants";
-import {
-  APPLY_FILTER,
-  HOSTING_STATUS,
-  LAST_ACTIVE,
-  LAST_WEEK,
-  LOCATION,
-  MUST_HAVE_LOCATION,
-  NUM_GUESTS,
-  PROFILE_KEYWORDS,
-} from "features/search/constants";
 import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
 import mockRouter from "next-router-mock";
 import { HostingStatus } from "proto/api_pb";
@@ -48,19 +38,29 @@ describe("FilterDialog", () => {
       wrapper,
     });
 
-    const locationInput = screen.getByLabelText(LOCATION);
+    const locationInput = screen.getByLabelText(
+      t("search:form.location_field_label")
+    );
     userEvent.type(locationInput, "tes{enter}");
     const locationItem = await screen.findByText("test city, test country");
     userEvent.click(locationItem);
 
-    const keywordsInput = screen.getByLabelText(PROFILE_KEYWORDS);
+    const keywordsInput = screen.getByLabelText(
+      t("search:form.keywords.field_label")
+    );
     userEvent.type(keywordsInput, "keyword1");
 
-    const lastActiveInput = screen.getByLabelText(LAST_ACTIVE);
+    const lastActiveInput = screen.getByLabelText(
+      t("search:form.host_filters.last_active_field_label")
+    );
     userEvent.click(lastActiveInput);
-    userEvent.click(screen.getByText(LAST_WEEK));
+    userEvent.click(
+      screen.getByText(t("search:last_active_options.last_week"))
+    );
 
-    const hostStatusInput = screen.getByLabelText(HOSTING_STATUS);
+    const hostStatusInput = screen.getByLabelText(
+      t("search:form.host_filters.hosting_status_field_label")
+    );
     userEvent.click(hostStatusInput);
     userEvent.click(
       screen.getByText(
@@ -74,7 +74,9 @@ describe("FilterDialog", () => {
       )
     );
 
-    const numGuestsInput = screen.getByLabelText(NUM_GUESTS);
+    const numGuestsInput = screen.getByLabelText(
+      t("search:form.accommodation_filters.guests_field_label")
+    );
     userEvent.type(numGuestsInput, "3");
 
     const expectedFilters = {
@@ -87,7 +89,11 @@ describe("FilterDialog", () => {
       numGuests: 3,
     };
 
-    userEvent.click(screen.getByRole("button", { name: APPLY_FILTER }));
+    userEvent.click(
+      screen.getByRole("button", {
+        name: t("search:form.submit_button_label"),
+      })
+    );
 
     await waitFor(() => {
       expect(parsedQueryToSearchFilters(mockRouter.query)).toMatchObject(
@@ -106,23 +112,27 @@ describe("FilterDialog", () => {
       wrapper,
     });
 
-    const locationInput = screen.getByLabelText(LOCATION) as HTMLInputElement;
+    const locationInput = screen.getByLabelText(
+      t("search:form.location_field_label")
+    ) as HTMLInputElement;
     const keywordInput = screen.getByLabelText(
-      PROFILE_KEYWORDS
+      t("search:form.keywords.field_label")
     ) as HTMLInputElement;
     const lastActiveInput = screen.getByLabelText(
-      LAST_ACTIVE
+      t("search:form.host_filters.last_active_field_label")
     ) as HTMLInputElement;
     const hostStatusInput = screen.getByLabelText(
-      HOSTING_STATUS
+      t("search:form.host_filters.hosting_status_field_label")
     ) as HTMLInputElement;
     const numGuestsInput = screen.getByLabelText(
-      NUM_GUESTS
+      t("search:form.accommodation_filters.guests_field_label")
     ) as HTMLInputElement;
 
     expect(locationInput).toHaveValue("test location");
     expect(keywordInput).toHaveValue("keyword1");
-    expect(lastActiveInput).toHaveValue(LAST_WEEK);
+    expect(lastActiveInput).toHaveValue(
+      t("search:last_active_options.last_week")
+    );
     expect(
       screen.getByRole("button", {
         name: hostingStatusLabels(t)[HostingStatus.HOSTING_STATUS_CAN_HOST],
@@ -164,11 +174,17 @@ describe("FilterDialog", () => {
     render(<Dialog />, {
       wrapper,
     });
-    const lastActiveInput = screen.getByLabelText(LAST_ACTIVE);
+    const lastActiveInput = screen.getByLabelText(
+      t("search:form.host_filters.last_active_field_label")
+    );
     userEvent.click(lastActiveInput);
-    userEvent.click(screen.getByText(LAST_WEEK));
+    userEvent.click(
+      screen.getByText(t("search:last_active_options.last_week"))
+    );
 
-    const hostStatusInput = screen.getByLabelText(HOSTING_STATUS);
+    const hostStatusInput = screen.getByLabelText(
+      t("search:form.host_filters.hosting_status_field_label")
+    );
     userEvent.click(hostStatusInput);
     userEvent.click(
       screen.getByText(
@@ -182,12 +198,20 @@ describe("FilterDialog", () => {
       )
     );
 
-    const numGuestsInput = screen.getByLabelText(NUM_GUESTS);
+    const numGuestsInput = screen.getByLabelText(
+      t("search:form.accommodation_filters.guests_field_label")
+    );
     userEvent.type(numGuestsInput, "3");
 
-    userEvent.click(screen.getByRole("button", { name: APPLY_FILTER }));
+    userEvent.click(
+      screen.getByRole("button", {
+        name: t("search:form.submit_button_label"),
+      })
+    );
     await waitFor(() => {
-      const errors = screen.getAllByText(MUST_HAVE_LOCATION);
+      const errors = screen.getAllByText(
+        t("search:form.missing_location_validation_error")
+      );
       expect(errors).toHaveLength(3);
       expect(parsedQueryToSearchFilters(mockRouter.query)).toMatchObject({});
     });

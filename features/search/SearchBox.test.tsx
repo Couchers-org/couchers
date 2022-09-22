@@ -1,19 +1,11 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  APPLY_FILTER,
-  CLEAR_SEARCH,
-  FILTER_DIALOG_TITLE_DESKTOP,
-  LOCATION,
-  PROFILE_KEYWORDS,
-  SEARCH_BY_KEYWORD,
-  SEARCH_BY_LOCATION,
-} from "features/search/constants";
 import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
 import mockRouter from "next-router-mock";
 import { useEffect } from "react";
 import wrapper from "test/hookWrapper";
 import { server } from "test/restMock";
+import { t } from "test/utils";
 import SearchFilters from "utils/searchFilters";
 
 import SearchBox from "./SearchBox";
@@ -38,8 +30,10 @@ describe("SearchBox", () => {
   it("performs a keyword search", async () => {
     const setActive = jest.fn();
     render(<View setActive={setActive} />, { wrapper });
-    userEvent.click(screen.getByLabelText(SEARCH_BY_KEYWORD));
-    const input = screen.getByLabelText(PROFILE_KEYWORDS);
+    userEvent.click(
+      screen.getByLabelText(t("search:form.by_keyword_filter_label"))
+    );
+    const input = screen.getByLabelText(t("search:form.keywords.field_label"));
     userEvent.type(input, "test search");
     await waitFor(() => {
       expect(setActive).toBeCalledWith({ query: "test search" });
@@ -56,7 +50,9 @@ describe("SearchBox", () => {
     it("performs a location search", async () => {
       const setActive = jest.fn();
       render(<View setActive={setActive} />, { wrapper });
-      const input = screen.getByLabelText(LOCATION);
+      const input = screen.getByLabelText(
+        t("search:form.location_field_label")
+      );
       userEvent.type(input, "tes{enter}");
       userEvent.click(await screen.findByText("test city, test country"));
       await waitFor(() => {
@@ -74,8 +70,10 @@ describe("SearchBox", () => {
     render(<View />, {
       wrapper,
     });
-    expect(screen.getByLabelText(SEARCH_BY_KEYWORD)).toBeChecked();
-    const input = screen.getByLabelText(PROFILE_KEYWORDS);
+    expect(
+      screen.getByLabelText(t("search:form.by_keyword_filter_label"))
+    ).toBeChecked();
+    const input = screen.getByLabelText(t("search:form.keywords.field_label"));
     expect(input).toHaveValue("default value");
   });
 
@@ -85,8 +83,10 @@ describe("SearchBox", () => {
       wrapper,
     });
     //not easy to also test lat/lng, just test location text
-    expect(screen.getByLabelText(SEARCH_BY_LOCATION)).toBeChecked();
-    const input = screen.getByLabelText(LOCATION);
+    expect(
+      screen.getByLabelText(t("search:form.by_location_filter_label"))
+    ).toBeChecked();
+    const input = screen.getByLabelText(t("search:form.location_field_label"));
     expect(input).toHaveValue("default value");
   });
 
@@ -96,9 +96,13 @@ describe("SearchBox", () => {
     render(<View setActive={setActive} />, {
       wrapper,
     });
-    const input = screen.getByLabelText(PROFILE_KEYWORDS);
+    const input = screen.getByLabelText(t("search:form.keywords.field_label"));
     expect(input).toHaveValue("default value");
-    userEvent.click(screen.getByRole("button", { name: CLEAR_SEARCH }));
+    userEvent.click(
+      screen.getByRole("button", {
+        name: t("search:form.keywords.clear_field_action_a11y_label"),
+      })
+    );
     await waitFor(() => {
       expect(input).toHaveValue("");
       expect(setActive).toBeCalledWith({});
@@ -113,7 +117,7 @@ describe("SearchBox", () => {
     render(<View setActive={setActive} />, {
       wrapper,
     });
-    const input = screen.getByLabelText(LOCATION);
+    const input = screen.getByLabelText(t("search:form.location_field_label"));
     expect(input).toHaveValue("default location");
     //button role doesn't seem to work, despite it being there
     userEvent.click(await screen.findByTitle("Clear"));
@@ -126,25 +130,33 @@ describe("SearchBox", () => {
   it("opens and closes the filter dialog, with changes applied to search box", async () => {
     const setActive = jest.fn();
     render(<View setActive={setActive} />, { wrapper });
-    userEvent.click(screen.getByLabelText(SEARCH_BY_KEYWORD));
-    const input = screen.getByLabelText(PROFILE_KEYWORDS);
+    userEvent.click(
+      screen.getByLabelText(t("search:form.by_keyword_filter_label"))
+    );
+    const input = screen.getByLabelText(t("search:form.keywords.field_label"));
     userEvent.type(input, "test search");
     await waitFor(() => {
       expect(setActive).toBeCalledWith({ query: "test search" });
     });
     userEvent.click(
-      screen.getByRole("button", { name: FILTER_DIALOG_TITLE_DESKTOP })
+      screen.getByRole("button", {
+        name: t("search:filter_dialog.desktop_title"),
+      })
     );
 
     const dialog = screen.getByRole("dialog", {
-      name: FILTER_DIALOG_TITLE_DESKTOP,
+      name: t("search:filter_dialog.desktop_title"),
     });
     expect(dialog).toBeVisible();
-    const dialogKeywordsField = within(dialog).getByLabelText(PROFILE_KEYWORDS);
+    const dialogKeywordsField = within(dialog).getByLabelText(
+      t("search:form.keywords.field_label")
+    );
     expect(dialogKeywordsField).toHaveValue("test search");
     userEvent.clear(dialogKeywordsField);
     userEvent.type(dialogKeywordsField, "new search");
-    userEvent.click(screen.getByRole("button", { name: APPLY_FILTER }));
+    userEvent.click(
+      screen.getByRole("button", { name: t("search:form.submit_button_label") })
+    );
     await waitFor(
       () => {
         expect(dialog).not.toBeVisible();

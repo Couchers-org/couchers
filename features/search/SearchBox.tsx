@@ -18,22 +18,14 @@ import TextField from "components/TextField";
 import { searchQueryKey } from "features/queryKeys";
 import FilterDialog from "features/search/FilterDialog";
 import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
+import { useTranslation } from "i18n";
+import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { LngLat } from "maplibre-gl";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
-
-import {
-  CLEAR_SEARCH,
-  FILTER_DIALOG_TITLE_DESKTOP,
-  FILTER_DIALOG_TITLE_MOBILE,
-  LOCATION,
-  PROFILE_KEYWORDS,
-  SEARCH_BY_KEYWORD,
-  SEARCH_BY_LOCATION,
-} from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   filterDialogButtonDesktop: {
@@ -57,6 +49,7 @@ export default function SearchBox({
   className?: string;
   searchFilters: ReturnType<typeof useRouteWithSearchFilters>;
 }) {
+  const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [searchType, setSearchType] = useState<"location" | "keyword">(() =>
@@ -136,7 +129,7 @@ export default function SearchBox({
           variant="contained"
           size="medium"
         >
-          {FILTER_DIALOG_TITLE_MOBILE}
+          {t("search:filter_dialog.mobile_title")}
         </Button>
 
         {filterDialog}
@@ -162,7 +155,7 @@ export default function SearchBox({
                 }
               : ""
           }
-          label={LOCATION}
+          label={t("search:form.location_field_label")}
           onChange={handleNewLocation}
           fieldError={errors.location?.message}
           disableRegions
@@ -177,7 +170,7 @@ export default function SearchBox({
               fullWidth
               id="query"
               value={value}
-              label={PROFILE_KEYWORDS}
+              label={t("search:form.keywords.field_label")}
               variant="standard"
               helperText=" "
               onChange={(event) => {
@@ -188,7 +181,9 @@ export default function SearchBox({
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      aria-label={CLEAR_SEARCH}
+                      aria-label={t(
+                        "search:form.keywords.clear_field_action_a11y_label"
+                      )}
                       onClick={() => {
                         setValue("query", "");
                         handleKeywordsChange("");
@@ -217,14 +212,18 @@ export default function SearchBox({
               value="location"
               control={<Radio />}
               label={
-                <Typography variant="body2">{SEARCH_BY_LOCATION}</Typography>
+                <Typography variant="body2">
+                  {t("search:form.by_location_filter_label")}
+                </Typography>
               }
             />
             <FormControlLabel
               value="keyword"
               control={<Radio />}
               label={
-                <Typography variant="body2">{SEARCH_BY_KEYWORD}</Typography>
+                <Typography variant="body2">
+                  {t("search:form.by_keyword_filter_label")}
+                </Typography>
               }
             />
           </RadioGroup>
@@ -236,7 +235,7 @@ export default function SearchBox({
           variant="outlined"
           size="small"
         >
-          {FILTER_DIALOG_TITLE_DESKTOP}
+          {t("search:filter_dialog.desktop_title")}
         </Button>
 
         {filterDialog}

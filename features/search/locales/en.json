@@ -1,24 +1,39 @@
 {
-    "accomodation_filters": "Accomodation filters",
-    "apply_filter": "Apply",
-    "clear_search": "Clear search",
-    "filter_dialog_title_desktop": "Filters",
-    "filter_dialog_title_mobile": "Search",
-    "host_filters": "Host filters",
-    "last_2_weeks": "Last 2 weeks",
-    "last_3_months": "Last 3 months",
-    "last_active": "Last active",
-    "last_day": "Last day",
-    "last_month": "Last month",
-    "last_week": "Last week",
-    "location": "Near location",
-    "map_page": "Map page",
-    "num_guests": "Number of guests",
-    "no_user_results": "No users found.",
-    "open_filter_dialog": "Open filter dialog",
-    "search": "Search",
-    "search_location_hint": "Press enter to choose a location",
-    "search_location_button": "Search location",
-    "select_location": "Select a location from the list",
-    "user_search": "Search for a user..."
+    "filter_dialog": {
+        "desktop_title": "Filters",
+        "mobile_title": "Search"
+    },
+    "last_active_options": {
+        "any": "Any",
+        "last_day": "Last day",
+        "last_week": "Last week",
+        "last_2_weeks": "Last 2 weeks",
+        "last_month": "Last month",
+        "last_3_months": "Last 3 months"
+    },
+    "form": {
+        "location_field_label": "Near location",
+        "missing_location_validation_error": "Specify a location to use this filter",
+        "keywords": {
+            "field_label": "Profile keywords",
+            "clear_field_action_a11y_label": "Clear search"
+        },
+        "by_location_filter_label": "By location",
+        "by_keyword_filter_label": "By keyword",
+        "host_filters": {
+            "title": "Host filters",
+            "last_active_field_label": "Last active",
+            "hosting_status_field_label": "Hosting status"
+        },
+        "accommodation_filters": {
+            "title": "Accommodation filters",
+            "guests_field_label": "Number of guests"
+        },
+        "submit_button_label": "Apply"
+    },
+    "search_result": {
+        "no_user_result_message": "No users found.",
+        "show_user_button_label": "Show {{name}} on the map",
+        "missing_about_description": "{{name}} hasn't said anything about themselves yet"
+    }
 }

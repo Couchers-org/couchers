@@ -1,51 +1,28 @@
+import { TFunction } from "i18n";
 import maplibregl from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchFilters } from "service/search";
 import { firstName } from "utils/names";
 
-export const aboutText = (user: User.AsObject) => {
+export const aboutText = (user: User.AsObject, t: TFunction) => {
   const missingAbout = user.aboutMe.length === 0;
   return missingAbout
-    ? `${firstName(user?.name)} hasn't said anything about themselves yet`
+    ? t("search:search_result.missing_about_description", {
+        name: firstName(user?.name),
+      })
     : user.aboutMe.length < 300
     ? user.aboutMe
     : user.aboutMe.substring(0, 300) + "...";
 };
 
-export const ACCOMODATION_FILTERS = "Accomodation filters";
-export const APPLY_FILTER = "Apply";
-export const CLEAR_SEARCH = "Clear search";
-export const FILTER_DIALOG_TITLE_DESKTOP = "Filters";
-export const FILTER_DIALOG_TITLE_MOBILE = "Search";
-export const HOST_FILTERS = "Host filters";
-export const HOSTING_STATUS = "Hosting status";
-export const LAST_2_WEEKS = "Last 2 weeks";
-export const LAST_3_MONTHS = "Last 3 months";
-export const LAST_ACTIVE = "Last active";
-export const LAST_DAY = "Last day";
-export const LAST_MONTH = "Last month";
-export const LAST_WEEK = "Last week";
-export const LOCATION = "Near location";
-export const MAP_PAGE = "Map page";
-export const MUST_HAVE_LOCATION = "Specify a location to use this filter";
-export const NUM_GUESTS = "Number of guests";
-export const NO_USER_RESULTS = "No users found.";
-export const PROFILE_KEYWORDS = "Profile keywords";
-export const SEARCH = "Search";
-export const SEARCH_BY_LOCATION = "By location";
-export const SEARCH_BY_KEYWORD = "By keyword";
-export const SHOWING_ALL = "Showing all users";
-
-export const lastActiveOptions = [
-  { label: "Any", value: null },
-  { label: LAST_DAY, value: 1 },
-  { label: LAST_WEEK, value: 7 },
-  { label: LAST_2_WEEKS, value: 14 },
-  { label: LAST_MONTH, value: 31 },
-  { label: LAST_3_MONTHS, value: 93 },
+export const getLastActiveOptions = (t: TFunction) => [
+  { label: t("search:last_active_options.any"), value: null },
+  { label: t("search:last_active_options.last_day"), value: 1 },
+  { label: t("search:last_active_options.last_week"), value: 7 },
+  { label: t("search:last_active_options.last_2_weeks"), value: 14 },
+  { label: t("search:last_active_options.last_month"), value: 31 },
+  { label: t("search:last_active_options.last_3_months"), value: 93 },
 ];
-
-export const getShowUserOnMap = (name: string) => `Show ${name} on the map`;
 
 export const selectedUserZoom = 12;
 

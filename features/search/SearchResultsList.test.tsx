@@ -1,6 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { getShowUserOnMap } from "features/search/constants";
 import { Map } from "maplibre-gl";
 import { UserSearchRes } from "proto/search_pb";
 import { service } from "service";
@@ -11,6 +10,7 @@ import {
   assertErrorAlert,
   mockConsoleError,
   MockedService,
+  t,
   wait,
 } from "test/utils";
 import { firstName } from "utils/names";
@@ -134,7 +134,9 @@ describe("SearchResultsList", () => {
 
     it("calls the handler when a result is clicked", async () => {
       const card = await screen.findByRole("button", {
-        name: getShowUserOnMap(firstName(users[0].name)),
+        name: t("search:search_result.show_user_button_label", {
+          name: firstName(users[0].name),
+        }),
       });
       userEvent.click(card);
       await waitFor(() => {
