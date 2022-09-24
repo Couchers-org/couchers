@@ -56,8 +56,10 @@ Want to help but don't see anything listed for you? [Fill out this form](/volunt
 
 #### Marketing
 
+- [Head of Marketing](/volunteer/head-of-marketing)
 - [PR Manager](/volunteer/pr-manager)
 - [Social Media Community Manager](/volunteer/social-media-community-manager)
+- [Blog Writer](/volunteer/blog-writer)
 
 #### Support
 
