@@ -181,5 +181,9 @@
     "response_time_text_some": "Maybe in {{p33}}",
     "response_time_text_most": "Usually in {{p33}} to {{p66}}",
     "response_time_text_almost_all": "Usually in {{p33}} to {{p66}}",
-    "unsaved_changes_warning": "You haven't saved your changes. Are you sure you want to leave the page?"
+    "unsaved_changes_warning": "You haven't saved your changes. Are you sure you want to leave the page?",
+    "profile_tag_input": {
+        "header_text": "Press 'Enter' to add\n<support_link>Email us</support_link> to add a language",
+        "remove_button_a11y_text": "Remove {{tag}}"
+    }
 }

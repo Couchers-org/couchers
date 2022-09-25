@@ -13,6 +13,8 @@ import Autocomplete, {
   AutocompleteCloseReason,
 } from "@material-ui/lab/Autocomplete";
 import { CloseIcon, ExpandMoreIcon } from "components/Icons";
+import { Trans, useTranslation } from "i18n";
+import { PROFILE } from "i18n/namespaces";
 import React, { useRef, useState } from "react";
 import makeStyles from "utils/makeStyles";
 
@@ -44,6 +46,9 @@ const useStyles = makeStyles((theme) =>
       borderBottomWidth: 1,
       fontSize: theme.typography.body1.fontSize,
       padding: theme.spacing(1, 2),
+      "& > p": {
+        whiteSpace: "pre-line",
+      },
     },
     inputBase: {
       "& input": {
@@ -128,6 +133,7 @@ export default function ProfileTagInput({
   id,
   className,
 }: ProfileTagInputProps) {
+  const { t } = useTranslation(PROFILE);
   const classes = useStyles();
 
   const [open, setOpen] = useState<boolean>(false);
@@ -177,7 +183,9 @@ export default function ProfileTagInput({
         {value.map((tag) => (
           <div key={tag} className={classes.tag}>
             <IconButton
-              aria-label={`Remove ${tag}`}
+              aria-label={t("profile_tag_input.remove_button_a11y_text", {
+                tag,
+              })}
               edge="start"
               onClick={() => handleRemove(tag)}
             >
@@ -195,9 +203,14 @@ export default function ProfileTagInput({
         className={classes.popper}
       >
         <div className={classes.header}>
-          <Typography>Press 'Enter' to add</Typography>
-          <Link href="mailto:support@couchers.org">Email us</Link> to add a
-          language
+          <Typography>
+            <Trans
+              components={{
+                support_link: <Link href="mailto:support@couchers.org" />,
+              }}
+              i18nKey="profile:profile_tag_input.header_text"
+            />
+          </Typography>
         </div>
         <Autocomplete
           open
