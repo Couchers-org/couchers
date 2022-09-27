@@ -10,6 +10,12 @@ parent_folder = Path(__file__).parent
 
 version = (parent_folder / "version").read_text().strip()
 
+# load the ISRG / Let's Encrypt certs for use as roots
+x1 = (parent_folder / "certs" / "isrg-root-x1.pem").read_bytes()
+x2 = (parent_folder / "certs" / "isrg-root-x2.pem").read_bytes()
+# PEM encoded roots
+ROOTS_PEM = x1 + x2
+
 
 def get_client(api_key, server_address=DEFAULT_SERVER_ADDRESS, disable_tls=False):
     """
@@ -23,7 +29,7 @@ def get_client(api_key, server_address=DEFAULT_SERVER_ADDRESS, disable_tls=False
     if disable_tls:
         creds = grpc.local_channel_credentials()
     else:
-        creds = grpc.ssl_channel_credentials()
+        creds = grpc.ssl_channel_credentials(root_certificates=ROOTS_PEM)
 
     creds = grpc.composite_channel_credentials(creds, grpc.access_token_call_credentials(api_key))
 
