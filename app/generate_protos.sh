@@ -4,7 +4,7 @@ set -e
 # create the directories if they don't exist
 mkdir -p backend/src/proto/
 mkdir -p media/src/proto/
-mkdir -p web/proto/
+mkdir -p web-frontend/proto/
 mkdir -p client/src/couchers/proto/google/api
 touch client/src/couchers/proto/__init__.py
 touch client/src/couchers/proto/google/__init__.py
@@ -26,8 +26,8 @@ find proto -name '*.proto' | protoc -I proto \
   --python_out=media/src/proto \
   --grpc_python_out=media/src/proto \
   \
-  --js_out="import_style=commonjs,binary:web/proto" \
-  --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:web/proto" \
+  --js_out="import_style=commonjs,binary:web-frontend/proto" \
+  --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:web-frontend/proto" \
   \
   $(xargs)
 
