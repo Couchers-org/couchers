@@ -11,6 +11,11 @@ services:
       - 5432:5432
     networks:
       - postgres_backend
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: 100m
   backend:
     image: registry.gitlab.com/couchers/couchers/backend
     restart: always
@@ -62,7 +67,6 @@ services:
     networks:
       - media_nginx
       - envoy_nginx
-      - web_nginx
   prometheus:
     image: registry.gitlab.com/couchers/couchers/prometheus
     restart: always
@@ -71,13 +75,6 @@ services:
       - backend
     networks:
       - backend_prometheus
-  web:
-    image: registry.gitlab.com/couchers/couchers/web
-    restart: always
-    expose:
-      - 3000
-    networks:
-      - web_nginx
 
 networks:
   backend_prometheus:
@@ -91,6 +88,4 @@ networks:
   media_nginx:
     driver: bridge
   envoy_nginx:
-    driver: bridge
-  web_nginx:
     driver: bridge
