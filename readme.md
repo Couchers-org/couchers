@@ -2,6 +2,12 @@
 
 [![pipeline status](https://gitlab.com/couchers/couchers/badges/develop/pipeline.svg)](https://gitlab.com/couchers/couchers/-/pipelines) [![coverage report](https://gitlab.com/couchers/couchers/badges/develop/coverage.svg)](https://develop--bcov.preview.couchershq.org)
 
+## Note on status of this repo
+
+There is currently an effort to rewrite the backend in Django, which is happening at [Couchers-org/backend-v2](https://github.com/Couchers-org/backend-v2) (will be public soon). The frontend has been split into [Couchers-org/web-frontend](https://github.com/Couchers-org/web-frontend).
+
+This repo is therefore getting only minimal updates. To help out on the dev side, please get in touch with us or come help out on the new repos!
+
 ## Join us as we build the new alternative to Couchsurfing™
 
 Free forever. Community‑led. Non‑profit. Modern.
