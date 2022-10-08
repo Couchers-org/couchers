@@ -5,6 +5,7 @@ Revises: b8487ad90a52
 Create Date: 2022-10-08 11:06:15.912112
 
 """
+from alembic import op
 from sqlalchemy.orm.session import Session
 
 from couchers.resources import copy_resources_to_database
