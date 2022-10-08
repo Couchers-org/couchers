@@ -29,7 +29,7 @@
   },
   {
     "code": "acq",
-    "name": "Arabic (Taʽizzi-Adeni )"
+    "name": "Arabic (Ta'izzi-Adeni)"
   },
   {
     "code": "acw",
@@ -190,6 +190,10 @@
   {
     "code": "bra",
     "name": "Braj"
+  },
+  {
+    "code": "bre",
+    "name": "Breton"
   },
   {
     "code": "bug",
