@@ -2,10 +2,14 @@
 .idea
 *.code-workspace
 .DS_Store
+._.DS_Store
+*.swp
 
 # helps Lennart configure his vim
 pyrightconfig.json
 
-.DS_Store
-._.DS_Store
 /private/
+
+# don't include the generated protocol buffers
+app/web/proto/
+
