@@ -1,4 +1,4 @@
 {
-  "attendees_count": "",
-  "attendees_count_plural": ""
+  "attendees_count": "{{count}} participant·e",
+  "attendees_count_plural": "{{count}} participant·es"
 }
