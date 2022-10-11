@@ -6,7 +6,9 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { ContributorForm as ContributorFormPb } from "proto/auth_pb";
+import TagManager from "react-gtm-module";
 import { service } from "service";
+import getRandomId from "utils/getRandomId";
 import isGrpcError from "utils/isGrpcError";
 
 export default function FeedbackForm() {
@@ -20,6 +22,14 @@ export default function FeedbackForm() {
         authState.flowState!.flowToken,
         form
       );
+      TagManager.dataLayer({
+        dataLayer: {
+          event: "sign_up",
+          signupMethod: "email",
+          userId: getRandomId(),
+          "gtm.elementUrl": `${window.location.hostname}${window.location.pathname}`,
+        },
+      });
       authActions.updateSignupState(res);
     } catch (err) {
       Sentry.captureException(err, {

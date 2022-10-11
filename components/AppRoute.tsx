@@ -103,6 +103,9 @@ export default function AppRoute({
       ) : (
         <>
           <Navigation />
+          {/* Temporary container injected for marketing to test dynamic "announcements".
+           * Find a better spot to componentise this code once plan is more finalised with this */}
+          <div id="announcements"></div>
           <Container
             className={classNames({
               [classes.nonFullScreenStyles]: variant !== "full-screen",

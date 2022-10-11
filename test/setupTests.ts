@@ -7,6 +7,7 @@ import "whatwg-fetch";
 
 //import * as Sentry from "@sentry/nextjs";
 import { waitFor } from "@testing-library/react";
+import crypto from "crypto";
 import mediaQuery from "css-mediaquery";
 import sentryTestkit from "sentry-testkit";
 import i18n from "test/i18n";
@@ -30,12 +31,20 @@ jest.mock("next/dynamic", () => ({
     } else throw Error(`Couldn't resolve dynamic component: ${matchedPath}`);
   },
 }));
+jest.mock("react-gtm-module");
 
 jest.setTimeout(15000);
 
 global.defaultUser = user;
 global.localStorage = createWebStorageMock();
 global.sessionStorage = createWebStorageMock();
+
+// @ts-expect-error Only interested in mocking getRandomValues
+global.crypto = {
+  getRandomValues(array: Uint32Array) {
+    return crypto.randomFillSync(array);
+  },
+};
 
 //sentry testing was causing OOM for some reason
 //const { testkit, sentryTransport } = sentryTestkit();

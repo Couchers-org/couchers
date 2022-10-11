@@ -9,6 +9,7 @@ import { StatusCode } from "grpc-web";
 import mockRouter from "next-router-mock";
 import { HostingStatus } from "proto/api_pb";
 import { SignupFlowRes } from "proto/auth_pb";
+import TagManager from "react-gtm-module";
 import { dashboardRoute, signupRoute } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
@@ -256,6 +257,16 @@ describe("Signup", () => {
 
     userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
     await waitFor(() => expect(mockRouter.pathname).toBe(dashboardRoute));
+
+    expect(TagManager.dataLayer).toHaveBeenCalledTimes(1);
+    expect(TagManager.dataLayer).toHaveBeenCalledWith({
+      dataLayer: {
+        event: "sign_up",
+        signupMethod: "email",
+        userId: expect.any(String),
+        "gtm.elementUrl": expect.any(String),
+      },
+    });
   });
 
   it("displays the basic form if it is needed", async () => {
