@@ -13,7 +13,7 @@ import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
 import { MockedService, t } from "test/utils";
 
-import { referenceBadgeLabel, referencesFilterLabels } from "../constants";
+import { referenceBadgeLabel } from "../constants";
 import { ProfileUserProvider } from "../hooks/useProfileUser";
 import { REFERENCE_LIST_ITEM_TEST_ID } from "./ReferenceListItem";
 import References from "./References";
@@ -47,8 +47,13 @@ function renderReferences() {
   );
 }
 
-const [friendReference, guestReference1, guestReference2, givenReference] =
-  references;
+const [
+  friendReference,
+  guestReference1,
+  guestReference2,
+  givenReference,
+  hostReference,
+] = references;
 
 describe("References", () => {
   beforeEach(() => {
@@ -137,7 +142,7 @@ describe("References", () => {
       });
       userEvent.click(
         screen.getByRole("option", {
-          name: referencesFilterLabels(t)[ReferenceType.REFERENCE_TYPE_FRIEND],
+          name: t("profile:reference_filter_label.friend"),
         })
       );
 
@@ -150,9 +155,7 @@ describe("References", () => {
       ).toBeVisible();
       // Reference type badge
       expect(
-        reference.getByText(
-          referenceBadgeLabel(t)[ReferenceType.REFERENCE_TYPE_FRIEND]
-        )
+        reference.getByText(t("profile:reference_badge_label.friend"))
       ).toBeVisible();
       assertDateBadgeIsVisible(reference);
       expect(getReferencesReceivedMock).toHaveBeenCalledTimes(1);
@@ -170,7 +173,7 @@ describe("References", () => {
       });
       userEvent.click(
         screen.getByRole("option", {
-          name: referencesFilterLabels(t)[ReferenceType.REFERENCE_TYPE_SURFED],
+          name: t("profile:reference_filter_label.surfed"),
         })
       );
 
@@ -185,9 +188,7 @@ describe("References", () => {
         expect(reference.getByText(referencesList[i].text)).toBeVisible();
         // Reference type badge
         expect(
-          reference.getByText(
-            referenceBadgeLabel(t)[ReferenceType.REFERENCE_TYPE_SURFED]
-          )
+          reference.getByText(t("profile:reference_badge_label.surfed"))
         ).toBeVisible();
         assertDateBadgeIsVisible(reference);
       });
@@ -199,22 +200,29 @@ describe("References", () => {
       });
     });
 
-    // Since there aren't references from hosts in the fixture data
-    it("shows no references from hosts", async () => {
+    it("only shows references from hosts", async () => {
       getReferencesReceivedMock.mockResolvedValue({
         nextPageToken: "",
-        referencesList: [],
+        referencesList: [hostReference],
       });
       userEvent.click(
         screen.getByRole("option", {
-          name: referencesFilterLabels(t)[ReferenceType.REFERENCE_TYPE_HOSTED],
+          name: t("profile:reference_filter_label.hosted"),
         })
       );
 
-      expect(await screen.findByText(t("profile:no_references"))).toBeVisible();
+      const reference = within(
+        await screen.findByTestId(REFERENCE_LIST_ITEM_TEST_ID)
+      );
       expect(
-        screen.queryByTestId(REFERENCE_LIST_ITEM_TEST_ID)
-      ).not.toBeInTheDocument();
+        await screen.findByText(t("profile:reference_badge_label.hosted"))
+      ).toBeVisible();
+      expect(
+        reference.getByText(
+          "Hosting cat was a pleasure - there was never a dull moment!"
+        )
+      ).toBeVisible();
+      assertDateBadgeIsVisible(reference);
       expect(getReferencesReceivedMock).toHaveBeenCalledTimes(1);
       expect(getReferencesReceivedMock).toHaveBeenCalledWith({
         referenceType: ReferenceType.REFERENCE_TYPE_HOSTED,
@@ -228,7 +236,9 @@ describe("References", () => {
         referencesList: [givenReference],
       });
       userEvent.click(
-        screen.getByRole("option", { name: referencesFilterLabels(t)["given"] })
+        screen.getByRole("option", {
+          name: t("profile:reference_filter_label.given"),
+        })
       );
 
       const reference = within(
@@ -308,9 +318,7 @@ describe("References", () => {
         getReferencesReceivedMock.mockClear();
         userEvent.click(
           screen.getByRole("option", {
-            name: referencesFilterLabels(t)[
-              ReferenceType.REFERENCE_TYPE_FRIEND
-            ],
+            name: t("profile:reference_filter_label.friend"),
           })
         );
 

@@ -155,7 +155,9 @@
     "reference_filter_label": {
         "friend": "From friends",
         "hosted": "From hosts",
-        "surfed": "From guests"
+        "surfed": "From guests",
+        "given": "Given to others",
+        "all": "All references"
     },
     "reference_badge_label": {
         "friend": "Friend",

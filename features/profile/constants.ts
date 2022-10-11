@@ -29,18 +29,18 @@ export const referencesFilterLabels = (t: TFunction) => ({
   [ReferenceType.REFERENCE_TYPE_SURFED]: t(
     "profile:reference_filter_label.surfed"
   ),
-  all: "All references",
-  given: "Given to others",
+  all: t("profile:reference_filter_label.all"),
+  given: t("profile:reference_filter_label.given"),
 });
 export const referenceBadgeLabel = (t: TFunction) => ({
   [ReferenceType.REFERENCE_TYPE_FRIEND]: t(
-    "profile:reference_badge_label.surfed"
+    "profile:reference_badge_label.friend"
   ),
   [ReferenceType.REFERENCE_TYPE_HOSTED]: t(
     "profile:reference_badge_label.hosted"
   ),
   [ReferenceType.REFERENCE_TYPE_SURFED]: t(
-    "profile:reference_badge_label.friend"
+    "profile:reference_badge_label.surfed"
   ),
 });
 

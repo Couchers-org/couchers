@@ -46,5 +46,17 @@
       "nanos": 0
     },
     "hostRequestId": 3
+  },
+  {
+    "referenceId": 5,
+    "fromUserId": 4,
+    "toUserId": 1,
+    "referenceType": 2,
+    "text": "Hosting cat was a pleasure - there was never a dull moment!",
+    "writtenTime": {
+      "seconds": 1512544000,
+      "nanos": 0
+    },
+    "hostRequestId": 4
   }
 ]
