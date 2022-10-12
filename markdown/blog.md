@@ -6,9 +6,17 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Couch surfing in a post-COVID world](/blog/2022/10/11/traveling-in-a-post-covid-world)
+
+2022/10/11.
+
+How are people navigating the world of couch surfing now that people are starting to travel again after being locked in for the pandemic?
+
+[Read more.](/blog/2022/10/11/traveling-in-a-post-covid-world)
+
 ## [Couch Surfing 101: 5 steps to creating a good host request](/blog/2022/09/20/creating-a-good-request)
 
-2022/08/30.
+2022/09/20.
 
 A guide for new couch surfers on how to send the best request to get hosted!
 
