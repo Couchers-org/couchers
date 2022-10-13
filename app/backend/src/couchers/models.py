@@ -289,6 +289,14 @@ class User(Base):
             id,
             postgresql_where=~is_banned & ~is_deleted,
         ),
+        # create index on users(geom, id, username) where not is_banned and not is_deleted and geom is not null;
+        Index(
+            "ix_users_geom_active",
+            geom,
+            id,
+            username,
+            postgresql_where=~is_banned & ~is_deleted & (geom != None),
+        ),
         # There are three possible states for need_to_confirm_via_old_email, old_email_token, old_email_token_created, and old_email_token_expiry
         # 1) All None (default)
         # 2) need_to_confirm_via_old_email is True and the others have assigned value (confirmation initiated)
@@ -1897,6 +1905,13 @@ class BackgroundJob(Base):
             "ix_background_jobs_state_next_attempt_after",
             state,
             next_attempt_after,
+        ),
+        # create index on background_jobs(next_attempt_after, (max_tries - try_count)) where state = 'pending' OR state = 'error';
+        Index(
+            "ix_background_jobs_lookup",
+            next_attempt_after,
+            (max_tries - try_count),
+            postgresql_where=((state == BackgroundJobState.pending) | (state == BackgroundJobState.error)),
         ),
     )
 
