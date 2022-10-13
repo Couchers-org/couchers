@@ -32,6 +32,15 @@ def upgrade():
         postgresql_where=sa.text("state = 'pending' OR state = 'error'"),
     )
 
+    op.create_index(
+        "ix_notification_deliveries_delivery_type",
+        "notification_deliveries",
+        ["delivery_type"],
+        unique=False,
+        postgresql_where=sa.text("delivered IS NOT NULL"),
+    )
+    op.create_index("ix_notifications_created", "notifications", ["created"], unique=False)
+
     op.execute(
         """
         CREATE MATERIALIZED VIEW cluster_subscription_counts AS

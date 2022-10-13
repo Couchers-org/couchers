@@ -2017,6 +2017,13 @@ class Notification(Base):
 
     user = relationship("User", foreign_keys="Notification.user_id")
 
+    __table_args__ = (
+        Index(
+            "ix_notifications_created",
+            created,
+        ),
+    )
+
     @property
     def topic(self):
         return self.topic_action.topic
@@ -2045,6 +2052,14 @@ class NotificationDelivery(Base):
     # todo: device id
     # todo: receipt id, etc
     notification = relationship("Notification", foreign_keys="NotificationDelivery.notification_id")
+
+    __table_args__ = (
+        Index(
+            "ix_notification_deliveries_delivery_type",
+            delivery_type,
+            postgresql_where=(delivered != None),
+        ),
+    )
 
 
 class Language(Base):

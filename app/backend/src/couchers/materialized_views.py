@@ -16,7 +16,7 @@ cluster_subscription_counts_selectable = (
         func.count().label("count"),
     )
     .select_from(ClusterSubscription)
-    .outerjoin(User, ClusterSubscription.user_id == User.id)
+    .outerjoin(User, User.id == ClusterSubscription.user_id)
     .where(User.is_visible)
     .group_by(ClusterSubscription.cluster_id)
 )
@@ -40,7 +40,7 @@ cluster_admin_counts_selectable = (
         func.count().label("count"),
     )
     .select_from(ClusterSubscription)
-    .outerjoin(User, ClusterSubscription.user_id == User.id)
+    .outerjoin(User, User.id == ClusterSubscription.user_id)
     .where(ClusterSubscription.role == ClusterRole.admin)
     .where(User.is_visible)
     .group_by(ClusterSubscription.cluster_id)
