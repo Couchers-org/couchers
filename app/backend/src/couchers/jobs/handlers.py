@@ -10,7 +10,7 @@ from math import sqrt
 import requests
 from sqlalchemy import Integer
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, cast, delete, distinct, extract, func, literal, not_, or_, select, union_all
+from sqlalchemy.sql import and_, cast, delete, distinct, extract, func, literal, not_, or_, select, text, union_all
 from sqlalchemy.sql.functions import percentile_disc
 
 from couchers import config, email, urls
@@ -646,3 +646,10 @@ def process_update_recommendation_scores(payload):
         )
 
     logger.info("Updated recommendation scores")
+
+
+def process_refresh_materialized_views(payload):
+    logger.info("Refreshing materialized views")
+    with session_scope() as session:
+        session.execute(text("REFRESH MATERIALIZED VIEW CONCURRENTLY cluster_subscription_counts;"))
+        session.execute(text("REFRESH MATERIALIZED VIEW CONCURRENTLY cluster_admin_counts;"))

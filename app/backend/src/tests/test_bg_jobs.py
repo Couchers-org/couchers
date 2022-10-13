@@ -269,6 +269,29 @@ def test_enforce_community_memberships(db):
         )
 
 
+def test_refresh_materialized_views(db):
+    queue_job(BackgroundJobType.refresh_materialized_views, empty_pb2.Empty())
+    process_job()
+
+    with session_scope() as session:
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.state == BackgroundJobState.completed)
+            ).scalar_one()
+            == 1
+        )
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.state != BackgroundJobState.completed)
+            ).scalar_one()
+            == 0
+        )
+
+
 def test_service_jobs(db):
     queue_email("sender_name", "sender_email", "recipient", "subject", "plain", "html")
 
