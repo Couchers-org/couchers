@@ -201,7 +201,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
         with session_scope() as session:
             response_truncated = False
             truncate_res_bytes_length = 16 * 1024  # 16 kB
-            if len(res_bytes) > truncate_res_bytes_length:
+            if res_bytes and len(res_bytes) > truncate_res_bytes_length:
                 res_bytes = res_bytes[:truncate_res_bytes_length]
                 response_truncated = True
             session.add(
