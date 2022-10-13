@@ -283,10 +283,13 @@ wait:before-release:
       artifacts: false
     - job: test:backend
       artifacts: false
+      optional: true
     - job: test:backend-format
       artifacts: false
+      optional: true
     - job: test:media
       artifacts: false
+      optional: true
 
 release:proxy:
   needs: ["wait:before-release"]
