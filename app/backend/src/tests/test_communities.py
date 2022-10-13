@@ -6,6 +6,7 @@ from google.protobuf import wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
+from couchers.materialized_views import refresh_materialized_views
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -277,6 +278,8 @@ def testing_communities():
     create_place(token2, "Country 1, Region 1, City 1, Attraction 2", "Place content", "Somewhere in c1r1c1", 4)
     create_place(token8, "Global, Attraction", "Place content", "Somewhere in w", 51.5)
     create_place(token6, "Country 2, Region 1, Attraction", "Place content", "Somewhere in c2r1", 59)
+
+    refresh_materialized_views()
 
     yield
 

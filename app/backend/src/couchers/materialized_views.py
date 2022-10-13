@@ -1,19 +1,16 @@
 import logging
 
+from sqlalchemy import Index
 from sqlalchemy.sql import func
 from sqlalchemy.sql import select as sa_select
-from sqlalchemy.sql import text
+from sqlalchemy_utils import create_materialized_view, refresh_materialized_view
 
 from couchers.db import session_scope
-from couchers.models import Base, ClusterSubscription, User, ClusterRole
-from couchers.views import view
-from sqlalchemy import UniqueConstraint
+from couchers.models import Base, ClusterRole, ClusterSubscription, User
 
 logger = logging.getLogger(__name__)
 
-cluster_subscription_counts = view(
-    "cluster_subscription_counts",
-    Base.metadata,
+cluster_subscription_counts_selectable = (
     sa_select(
         ClusterSubscription.cluster_id.label("cluster_id"),
         func.count().label("count"),
@@ -21,14 +18,23 @@ cluster_subscription_counts = view(
     .select_from(ClusterSubscription)
     .outerjoin(User, ClusterSubscription.user_id == User.id)
     .where(User.is_visible)
-    .group_by(ClusterSubscription.cluster_id),
+    .group_by(ClusterSubscription.cluster_id)
 )
 
-UniqueConstraint(cluster_subscription_counts.c.cluster_id)
-
-cluster_admin_counts = view(
-    "cluster_admin_counts",
+cluster_subscription_counts = create_materialized_view(
+    "cluster_subscription_counts",
+    cluster_subscription_counts_selectable,
     Base.metadata,
+    [
+        Index(
+            "uq_cluster_subscription_counts_cluster_id",
+            cluster_subscription_counts_selectable.c.cluster_id,
+            unique=True,
+        )
+    ],
+)
+
+cluster_admin_counts_selectable = (
     sa_select(
         ClusterSubscription.cluster_id.label("cluster_id"),
         func.count().label("count"),
@@ -37,14 +43,19 @@ cluster_admin_counts = view(
     .outerjoin(User, ClusterSubscription.user_id == User.id)
     .where(ClusterSubscription.role == ClusterRole.admin)
     .where(User.is_visible)
-    .group_by(ClusterSubscription.cluster_id),
+    .group_by(ClusterSubscription.cluster_id)
 )
 
-UniqueConstraint(cluster_admin_counts.c.cluster_id)
+cluster_admin_counts = create_materialized_view(
+    "cluster_admin_counts",
+    cluster_admin_counts_selectable,
+    Base.metadata,
+    [Index("uq_cluster_admin_counts_cluster_id", cluster_admin_counts_selectable.c.cluster_id, unique=True)],
+)
 
 
 def refresh_materialized_views():
     logger.info("Refreshing materialized views")
     with session_scope() as session:
-        session.execute(text("REFRESH MATERIALIZED VIEW CONCURRENTLY cluster_subscription_counts;"))
-        session.execute(text("REFRESH MATERIALIZED VIEW CONCURRENTLY cluster_admin_counts;"))
+        refresh_materialized_view(session, "cluster_subscription_counts", concurrently=True)
+        refresh_materialized_view(session, "cluster_admin_counts", concurrently=True)
