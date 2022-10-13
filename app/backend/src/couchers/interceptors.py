@@ -1,5 +1,6 @@
 import logging
 from copy import deepcopy
+from datetime import timedelta
 from time import perf_counter_ns
 from traceback import format_exception
 
@@ -13,7 +14,7 @@ from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import servicer_duration_histogram
 from couchers.models import APICall, User, UserSession
 from couchers.sql import couchers_select as select
-from couchers.utils import parse_api_key, parse_session_cookie
+from couchers.utils import now, parse_api_key, parse_session_cookie
 from proto import annotations_pb2
 
 logger = logging.getLogger(__name__)
@@ -43,8 +44,9 @@ def _try_get_and_update_user_details(token, is_api_key):
         else:
             user, user_session = result
 
-            # update user last active time
-            user.last_active = func.now()
+            # update user last active time if it's been a while
+            if now() - user.last_active > timedelta(minutes=5):
+                user.last_active = func.now()
 
             # let's update the token
             user_session.last_seen = func.now()
