@@ -289,6 +289,14 @@ class User(Base):
             id,
             postgresql_where=~is_banned & ~is_deleted,
         ),
+        # create index on users(geom, id, username) where not is_banned and not is_deleted and geom is not null;
+        Index(
+            "ix_users_geom_active",
+            geom,
+            id,
+            username,
+            postgresql_where=~is_banned & ~is_deleted & (geom != None),
+        ),
         # There are three possible states for need_to_confirm_via_old_email, old_email_token, old_email_token_created, and old_email_token_expiry
         # 1) All None (default)
         # 2) need_to_confirm_via_old_email is True and the others have assigned value (confirmation initiated)
@@ -1848,6 +1856,8 @@ class BackgroundJobType(enum.Enum):
     generate_message_notifications = enum.auto()
     # payload: google.protobuf.Empty
     update_recommendation_scores = enum.auto()
+    # payload: google.protobuf.Empty
+    refresh_materialized_views = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
@@ -1892,11 +1902,13 @@ class BackgroundJob(Base):
     failure_info = Column(String, nullable=True)
 
     __table_args__ = (
-        # Allows fast lookup of jobs to attempt
+        # used in looking up background jobs to attempt
+        # create index on background_jobs(next_attempt_after, (max_tries - try_count)) where state = 'pending' OR state = 'error';
         Index(
-            "ix_background_jobs_state_next_attempt_after",
-            state,
+            "ix_background_jobs_lookup",
             next_attempt_after,
+            (max_tries - try_count),
+            postgresql_where=((state == BackgroundJobState.pending) | (state == BackgroundJobState.error)),
         ),
     )
 
@@ -2000,6 +2012,14 @@ class Notification(Base):
 
     user = relationship("User", foreign_keys="Notification.user_id")
 
+    __table_args__ = (
+        # used in looking up which notifications need delivery
+        Index(
+            "ix_notifications_created",
+            created,
+        ),
+    )
+
     @property
     def topic(self):
         return self.topic_action.topic
@@ -2016,7 +2036,6 @@ class Notification(Base):
 
 class NotificationDelivery(Base):
     __tablename__ = "notification_deliveries"
-    __table_args__ = (UniqueConstraint("notification_id", "delivery_type"),)
 
     id = Column(BigInteger, primary_key=True)
     notification_id = Column(ForeignKey("notifications.id"), nullable=False, index=True)
@@ -2028,6 +2047,16 @@ class NotificationDelivery(Base):
     # todo: device id
     # todo: receipt id, etc
     notification = relationship("Notification", foreign_keys="NotificationDelivery.notification_id")
+
+    __table_args__ = (
+        UniqueConstraint("notification_id", "delivery_type"),
+        # used in looking up which notifications need delivery
+        Index(
+            "ix_notification_deliveries_delivery_type",
+            delivery_type,
+            postgresql_where=(delivered != None),
+        ),
+    )
 
 
 class Language(Base):
@@ -2114,6 +2143,9 @@ class APICall(Base):
 
     # sanitized response bytes
     response = Column(Binary, nullable=True)
+
+    # whether response bytes have been truncated
+    response_truncated = Column(Boolean, nullable=False, server_default=text("false"))
 
     # the exception traceback, if any
     traceback = Column(String, nullable=True)

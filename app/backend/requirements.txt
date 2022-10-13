@@ -38,6 +38,10 @@ grpcio==1.49.1
     # via -r requirements.in
 idna==3.3
     # via requests
+importlib-metadata==5.0.0
+    # via alembic
+importlib-resources==5.10.0
+    # via alembic
 iniconfig==1.1.1
     # via pytest
 isort==5.10.1
@@ -119,6 +123,9 @@ sqlalchemy==1.4.41
     #   -r requirements.in
     #   alembic
     #   geoalchemy2
+    #   sqlalchemy-utils
+sqlalchemy-utils==0.38.3
+    # via -r requirements.in
 stripe==4.2.0
     # via -r requirements.in
 toml==0.10.2
@@ -128,8 +135,14 @@ tomli==2.0.0
     #   black
     #   coverage
     #   pytest
+typing-extensions==4.4.0
+    # via black
 urllib3==1.26.8
     # via
     #   botocore
     #   requests
     #   sentry-sdk
+zipp==3.9.0
+    # via
+    #   importlib-metadata
+    #   importlib-resources

@@ -17,6 +17,7 @@ from couchers import config, email, urls
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
+from couchers.materialized_views import refresh_materialized_views
 from couchers.models import (
     AccountDeletionToken,
     Cluster,
@@ -646,3 +647,7 @@ def process_update_recommendation_scores(payload):
         )
 
     logger.info("Updated recommendation scores")
+
+
+def process_refresh_materialized_views(payload):
+    refresh_materialized_views()

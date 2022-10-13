@@ -7,6 +7,7 @@ from sqlalchemy.sql import delete, func, or_
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
+from couchers.materialized_views import cluster_admin_counts, cluster_subscription_counts
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -52,12 +53,14 @@ def community_to_pb(node: Node, context):
     with session_scope() as session:
         can_moderate = can_moderate_node(session, context.user_id, node.id)
 
-        member_count = session.execute(
-            select(func.count())
-            .select_from(ClusterSubscription)
-            .where_users_column_visible(context, ClusterSubscription.user_id)
-            .where(ClusterSubscription.cluster_id == node.official_cluster.id)
-        ).scalar_one()
+        member_count = (
+            session.execute(
+                select(cluster_subscription_counts.c.count).where(
+                    cluster_subscription_counts.c.cluster_id == node.official_cluster.id
+                )
+            ).scalar_one_or_none()
+            or 1
+        )
         is_member = (
             session.execute(
                 select(ClusterSubscription)
@@ -67,13 +70,14 @@ def community_to_pb(node: Node, context):
             is not None
         )
 
-        admin_count = session.execute(
-            select(func.count())
-            .select_from(ClusterSubscription)
-            .where_users_column_visible(context, ClusterSubscription.user_id)
-            .where(ClusterSubscription.cluster_id == node.official_cluster.id)
-            .where(ClusterSubscription.role == ClusterRole.admin)
-        ).scalar_one()
+        admin_count = (
+            session.execute(
+                select(cluster_admin_counts.c.count).where(
+                    cluster_admin_counts.c.cluster_id == node.official_cluster.id
+                )
+            ).scalar_one_or_none()
+            or 1
+        )
         is_admin = (
             session.execute(
                 select(ClusterSubscription)

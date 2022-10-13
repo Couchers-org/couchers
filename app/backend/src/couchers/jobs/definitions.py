@@ -12,6 +12,7 @@ from couchers.jobs.handlers import (
     process_purge_account_deletion_tokens,
     process_purge_login_tokens,
     process_purge_password_reset_tokens,
+    process_refresh_materialized_views,
     process_send_email,
     process_send_message_notifications,
     process_send_onboarding_emails,
@@ -42,6 +43,7 @@ JOBS = {
         process_generate_message_notifications,
     ),
     BackgroundJobType.update_recommendation_scores: (empty_pb2.Empty, process_update_recommendation_scores),
+    BackgroundJobType.refresh_materialized_views: (empty_pb2.Empty, process_refresh_materialized_views),
 }
 
 SCHEDULE = [
@@ -57,4 +59,5 @@ SCHEDULE = [
     (BackgroundJobType.handle_email_notifications, timedelta(minutes=1)),
     (BackgroundJobType.handle_email_digests, timedelta(minutes=15)),
     (BackgroundJobType.update_recommendation_scores, timedelta(hours=24)),
+    (BackgroundJobType.refresh_materialized_views, timedelta(minutes=5)),
 ]
