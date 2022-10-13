@@ -38,7 +38,6 @@ from couchers.constants import (
     TOS_VERSION,
 )
 from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
-from couchers.views import view
 
 meta = MetaData(
     naming_convention={
@@ -1376,34 +1375,6 @@ class ClusterSubscription(Base):
 
     user = relationship("User", backref="cluster_subscriptions")
     cluster = relationship("Cluster", backref="cluster_subscriptions")
-
-
-cluster_subscription_counts = view(
-    "cluster_subscription_counts",
-    Base.metadata,
-    sa_select(
-        ClusterSubscription.cluster_id.label("cluster_id"),
-        func.count().label("count"),
-    )
-    .select_from(ClusterSubscription)
-    .outerjoin(User, ClusterSubscription.user_id == User.id)
-    .where(User.is_visible)
-    .group_by(ClusterSubscription.cluster_id),
-)
-
-cluster_admin_counts = view(
-    "cluster_admin_counts",
-    Base.metadata,
-    sa_select(
-        ClusterSubscription.cluster_id.label("cluster_id"),
-        func.count().label("count"),
-    )
-    .select_from(ClusterSubscription)
-    .outerjoin(User, ClusterSubscription.user_id == User.id)
-    .where(ClusterSubscription.role == ClusterRole.admin)
-    .where(User.is_visible)
-    .group_by(ClusterSubscription.cluster_id),
-)
 
 
 class ClusterPageAssociation(Base):

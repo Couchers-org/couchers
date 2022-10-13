@@ -29,6 +29,7 @@ from couchers.models import (
     UserBlock,
     UserSession,
 )
+from couchers.materialized_views import cluster_subscription_counts, cluster_admin_counts
 from couchers.servicers.account import Account
 from couchers.servicers.admin import Admin
 from couchers.servicers.api import API

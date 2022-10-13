@@ -10,13 +10,14 @@ from math import sqrt
 import requests
 from sqlalchemy import Integer
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, cast, delete, distinct, extract, func, literal, not_, or_, select, text, union_all
+from sqlalchemy.sql import and_, cast, delete, distinct, extract, func, literal, not_, or_, select, union_all
 from sqlalchemy.sql.functions import percentile_disc
 
 from couchers import config, email, urls
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
+from couchers.materialized_views import refresh_materialized_views
 from couchers.models import (
     AccountDeletionToken,
     Cluster,
@@ -649,7 +650,4 @@ def process_update_recommendation_scores(payload):
 
 
 def process_refresh_materialized_views(payload):
-    logger.info("Refreshing materialized views")
-    with session_scope() as session:
-        session.execute(text("REFRESH MATERIALIZED VIEW CONCURRENTLY cluster_subscription_counts;"))
-        session.execute(text("REFRESH MATERIALIZED VIEW CONCURRENTLY cluster_admin_counts;"))
+    refresh_materialized_views()

@@ -7,6 +7,7 @@ from sqlalchemy.sql import delete, func, or_
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
+from couchers.materialized_views import cluster_admin_counts, cluster_subscription_counts
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -18,8 +19,6 @@ from couchers.models import (
     Page,
     PageType,
     User,
-    cluster_admin_counts,
-    cluster_subscription_counts,
 )
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
