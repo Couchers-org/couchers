@@ -199,6 +199,11 @@ class TracingInterceptor(grpc.ServerInterceptor):
         req_bytes = self._sanitized_bytes(request)
         res_bytes = self._sanitized_bytes(response)
         with session_scope() as session:
+            response_truncated = False
+            truncate_res_bytes_length = 16 * 1024  # 16 kB
+            if len(res_bytes) > truncate_res_bytes_length:
+                res_bytes = res_bytes[:truncate_res_bytes_length]
+                response_truncated = True
             session.add(
                 APICall(
                     is_api_key=is_api_key,
@@ -208,6 +213,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                     user_id=user_id,
                     request=req_bytes,
                     response=res_bytes,
+                    response_truncated=response_truncated,
                     traceback=traceback,
                 )
             )

@@ -16,6 +16,12 @@ depends_on = None
 
 
 def upgrade():
+    op.add_column(
+        "api_calls",
+        sa.Column("response_truncated", sa.Boolean(), server_default=sa.text("false"), nullable=False),
+        schema="logging",
+    )
+
     op.create_index(
         "ix_users_geom_active",
         "users",

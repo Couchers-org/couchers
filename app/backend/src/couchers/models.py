@@ -2144,6 +2144,9 @@ class APICall(Base):
     # sanitized response bytes
     response = Column(Binary, nullable=True)
 
+    # whether response bytes have been truncated
+    response_truncated = Column(Boolean, nullable=False, server_default=text("false"))
+
     # the exception traceback, if any
     traceback = Column(String, nullable=True)
 
