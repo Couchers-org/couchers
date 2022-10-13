@@ -1902,12 +1902,7 @@ class BackgroundJob(Base):
     failure_info = Column(String, nullable=True)
 
     __table_args__ = (
-        # Allows fast lookup of jobs to attempt
-        Index(
-            "ix_background_jobs_state_next_attempt_after",
-            state,
-            next_attempt_after,
-        ),
+        # used in looking up background jobs to attempt
         # create index on background_jobs(next_attempt_after, (max_tries - try_count)) where state = 'pending' OR state = 'error';
         Index(
             "ix_background_jobs_lookup",
@@ -2018,6 +2013,7 @@ class Notification(Base):
     user = relationship("User", foreign_keys="Notification.user_id")
 
     __table_args__ = (
+        # used in looking up which notifications need delivery
         Index(
             "ix_notifications_created",
             created,
@@ -2040,7 +2036,6 @@ class Notification(Base):
 
 class NotificationDelivery(Base):
     __tablename__ = "notification_deliveries"
-    __table_args__ = (UniqueConstraint("notification_id", "delivery_type"),)
 
     id = Column(BigInteger, primary_key=True)
     notification_id = Column(ForeignKey("notifications.id"), nullable=False, index=True)
@@ -2054,6 +2049,8 @@ class NotificationDelivery(Base):
     notification = relationship("Notification", foreign_keys="NotificationDelivery.notification_id")
 
     __table_args__ = (
+        UniqueConstraint("notification_id", "delivery_type"),
+        # used in looking up which notifications need delivery
         Index(
             "ix_notification_deliveries_delivery_type",
             delivery_type,

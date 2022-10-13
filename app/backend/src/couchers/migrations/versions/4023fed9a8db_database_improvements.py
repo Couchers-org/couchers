@@ -32,6 +32,8 @@ def upgrade():
         postgresql_where=sa.text("state = 'pending' OR state = 'error'"),
     )
 
+    op.drop_index(op.f("ix_background_jobs_state_next_attempt_after"), table_name="background_jobs")
+
     op.create_index(
         "ix_notification_deliveries_delivery_type",
         "notification_deliveries",
