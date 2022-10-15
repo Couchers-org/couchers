@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   postgres:
-    image: postgis/postgis:13-3.3
+    image: postgis/postgis:15-3.3
     command: ["postgres", "-c", "max_connections=256"]
     restart: always
     env_file: postgres.prod.env

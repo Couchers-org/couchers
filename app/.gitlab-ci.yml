@@ -149,7 +149,7 @@ test:backend:
     # no docker login
     default: false
   services:
-    - name: postgis/postgis:13-3.3
+    - name: postgis/postgis:15-3.3
       alias: postgres
       command: ["postgres", "-c", "fsync=off"]
   variables:
