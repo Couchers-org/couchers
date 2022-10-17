@@ -1,5 +1,4 @@
-import { Tooltip } from "@material-ui/core";
-import IconButton from "components/IconButton";
+import Button from "components/Button";
 import { DoneAllIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import { groupChatsListKey, hostRequestsListKey } from "features/queryKeys";
@@ -9,12 +8,26 @@ import { MESSAGES } from "i18n/namespaces";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import getAllPages from "utils/getAllPages";
+import { Typography, makeStyles } from "@material-ui/core";
+
+const useStyles = makeStyles((theme) => ({
+  markAsReadButton: {
+    border: `1px solid ${theme.palette.grey[800]}`,
+    borderRadius: theme.shape.borderRadius,
+    marginBottom: theme.spacing(1)
+  },
+  markAsReadIcon: {
+    marginInlineEnd: theme.spacing(1),
+    fontSize: theme.typography.body1.fontSize
+  }
+}));
 
 export default function MarkAllReadButton({
   type,
 }: {
   type: "chats" | "hosting" | "surfing";
 }) {
+  const classes = useStyles();
   const { t } = useTranslation(MESSAGES);
   const queryClient = useQueryClient();
   const markAll = useMutation<void, RpcError>(
@@ -73,15 +86,13 @@ export default function MarkAllReadButton({
       {markAll.error && (
         <Snackbar severity="error">{markAll.error.message}</Snackbar>
       )}
-      <Tooltip title={t("mark_all_read_button_text")}>
-        <IconButton
-          aria-label={t("mark_all_read_button_text")}
-          loading={markAll.isLoading}
-          onClick={() => markAll.mutate()}
-        >
-          <DoneAllIcon />
-        </IconButton>
-      </Tooltip>
+
+      <Button className={classes.markAsReadButton} loading={markAll.isLoading} variant="text" onClick={() => markAll.mutate()}>
+        <DoneAllIcon className={classes.markAsReadIcon} />
+        <Typography component="span">
+          {t("mark_all_read_button_text")}
+        </Typography>
+      </Button>
     </>
   );
 }

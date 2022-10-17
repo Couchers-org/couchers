@@ -75,6 +75,7 @@ export default function MessagesHeader({
     <>
       <HtmlMeta title={t("messages_page.title")} />
       <PageTitle>{t("messages_page.title")}</PageTitle>
+      {tab && <MarkAllReadButton type={tab} />}
       <div className={classes.tabBarContainer}>
         <TabContext value={tab ?? ""}>
           <TabBar
@@ -83,7 +84,6 @@ export default function MessagesHeader({
             labels={labels}
           />
         </TabContext>
-        {tab && <MarkAllReadButton type={tab} />}
       </div>
     </>
   );
