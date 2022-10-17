@@ -70,7 +70,7 @@ platformdirs==2.4.1
     # via black
 pluggy==1.0.0
     # via pytest
-prometheus-client==0.14.1
+prometheus-client==0.15.0
     # via -r requirements.in
 protobuf==4.21.7
     # via -r requirements.in
