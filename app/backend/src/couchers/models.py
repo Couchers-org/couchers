@@ -2144,6 +2144,9 @@ class APICall(Base):
     # the exception traceback, if any
     traceback = Column(String, nullable=True)
 
+    # human readable perf report
+    perf_report = Column(String, nullable=True)
+
 
 class AccountDeletionReason(Base):
     __tablename__ = "account_deletion_reason"
