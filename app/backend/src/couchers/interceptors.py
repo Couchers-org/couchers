@@ -230,7 +230,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
 
         def tracing_function(request, context):
             try:
-                with CouchersProfiler(do_profile=False) as prof:
+                with CouchersProfiler(do_profile=True) as prof:
                     start = perf_counter_ns()
                     res = prev_func(request, context)
                     finished = perf_counter_ns()

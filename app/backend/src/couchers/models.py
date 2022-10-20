@@ -22,7 +22,7 @@ from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, column_property, declarative_base, relationship
+from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
 from sqlalchemy.sql import func
 from sqlalchemy.sql import select as sa_select
 from sqlalchemy.sql import text
@@ -1236,7 +1236,7 @@ class Node(Base):
 
     # name and description come from official cluster
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=True, index=True)
-    geom = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
+    geom = deferred(Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False))
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     parent_node = relationship("Node", backref="child_nodes", remote_side="Node.id")
