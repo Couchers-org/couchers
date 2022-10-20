@@ -498,9 +498,6 @@ class RegionVisited(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
 
-    user = relationship("User")
-    region = relationship("Region")
-
 
 class RegionLived(Base):
     __tablename__ = "regions_lived"
@@ -509,9 +506,6 @@ class RegionLived(Base):
     id = Column(BigInteger, primary_key=True)
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
     region_code = Column(ForeignKey("regions.code", deferrable=True), nullable=False)
-
-    user = relationship("User")
-    region = relationship("Region")
 
 
 class FriendStatus(enum.Enum):

@@ -28,6 +28,8 @@ def couchers_select(*expr):
 
 
 class CouchersSelect(Select):
+    inherit_cache = True
+
     def where_username_or_email(self, field):
         if is_valid_username(field):
             return self.where(User.username == field)
