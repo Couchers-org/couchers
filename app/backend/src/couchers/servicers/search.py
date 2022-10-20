@@ -439,7 +439,12 @@ class Search(search_pb2_grpc.SearchServicer):
                 search_point = create_coordinate(request.search_in_area.lat, request.search_in_area.lng)
                 statement = statement.where(
                     func.ST_DWithin(
-                        User.geom, search_point, (User.geom_radius + request.search_in_area.radius) / 111111
+                        # old:
+                        # User.geom, search_point, (User.geom_radius + request.search_in_area.radius) / 111111
+                        # this is an optimization that speeds up the db queries since it doesn't need to look up the user's geom radius
+                        User.geom,
+                        search_point,
+                        (1000 + request.search_in_area.radius) / 111111,
                     )
                 )
             if request.HasField("search_in_community_id"):
