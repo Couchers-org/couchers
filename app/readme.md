@@ -1,10 +1,10 @@
 # Couchers.org app
 
+# NOTE: these instructions are out of date after the split of the frontend into a separate repo.
+
 **[Read the dev FAQ](#faq)**
 
 The easiest way to get started is to run the app through Gitpod.io. This requires no local setup and you just have to wait a bit for the backend and web frontend to be built and pop up!
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/Couchers-org/couchers)
 
 To **run the app locally**, you need to do **four things**:
 
