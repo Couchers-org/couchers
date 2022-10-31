@@ -56,7 +56,7 @@ tomli==2.0.0
     # via pytest
 urllib3==1.26.8
     # via sentry-sdk
-uwsgi==2.0.20
+uwsgi==2.0.21
     # via -r requirements.in
 werkzeug==2.0.2
     # via flask
