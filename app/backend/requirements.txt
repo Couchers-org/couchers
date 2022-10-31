@@ -30,6 +30,8 @@ click==8.0.3
     # via black
 coverage[toml]==6.3.1
     # via pytest-cov
+exceptiongroup==1.0.0
+    # via pytest
 geoalchemy2==0.12.5
     # via -r requirements.in
 greenlet==1.1.2
@@ -76,8 +78,6 @@ protobuf==4.21.7
     # via -r requirements.in
 psycopg2-binary==2.9.4
     # via -r requirements.in
-py==1.11.0
-    # via pytest
 pycparser==2.21
     # via cffi
 pyflakes==2.4.0
@@ -86,7 +86,7 @@ pynacl==1.5.0
     # via -r requirements.in
 pyparsing==3.0.7
     # via packaging
-pytest==7.1.3
+pytest==7.2.0
     # via
     #   -r requirements.in
     #   pytest-cov
