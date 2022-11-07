@@ -30,8 +30,6 @@ click==8.0.3
     # via black
 coverage[toml]==6.3.1
     # via pytest-cov
-exceptiongroup==1.0.0
-    # via pytest
 geoalchemy2==0.12.5
     # via -r requirements.in
 greenlet==1.1.2
@@ -96,7 +94,7 @@ python-dateutil==2.8.2
     # via
     #   -r requirements.in
     #   botocore
-pytz==2022.5
+pytz==2022.6
     # via -r requirements.in
 pyyaml==6.0
     # via -r requirements.in
@@ -127,10 +125,7 @@ stripe==4.2.0
 toml==0.10.2
     # via autoflake
 tomli==2.0.0
-    # via
-    #   black
-    #   coverage
-    #   pytest
+    # via coverage
 urllib3==1.26.8
     # via
     #   botocore
