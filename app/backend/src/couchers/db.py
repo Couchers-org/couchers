@@ -2,10 +2,12 @@ import functools
 import logging
 import os
 from contextlib import contextmanager
+from time import perf_counter_ns
 
 from alembic import command
 from alembic.config import Config
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import NullPool, SingletonThreadPool
 from sqlalchemy.sql import and_, func, literal, or_
@@ -21,7 +23,9 @@ from couchers.models import (
     Node,
     TimezoneArea,
 )
+from couchers.profiler import add_sql_statement
 from couchers.sql import couchers_select as select
+from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +88,18 @@ def session_scope(isolation_level=None):
         raise
     finally:
         session.close()
+
+
+@event.listens_for(Engine, "before_cursor_execute")
+def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+    conn.info.setdefault("query_profiler_info", []).append((statement, parameters, now(), perf_counter_ns()))
+
+
+@event.listens_for(Engine, "after_cursor_execute")
+def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+    statement, parameters, start, start_ns = conn.info["query_profiler_info"].pop(-1)
+    end, end_ns = now(), perf_counter_ns()
+    add_sql_statement(statement, parameters, start, start_ns, end, end_ns)
 
 
 def are_friends(session, context, other_user):

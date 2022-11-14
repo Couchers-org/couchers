@@ -1,6 +1,7 @@
 import logging
 from copy import deepcopy
 from datetime import timedelta
+from random import random
 from time import perf_counter_ns
 from traceback import format_exception
 
@@ -13,6 +14,7 @@ from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import servicer_duration_histogram
 from couchers.models import APICall, User, UserSession
+from couchers.profiler import CouchersProfiler
 from couchers.sql import couchers_select as select
 from couchers.utils import now, parse_api_key, parse_session_cookie
 from proto import annotations_pb2
@@ -197,7 +199,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
     def _observe_in_histogram(self, method, status_code, exception_type, duration):
         servicer_duration_histogram.labels(method, status_code, exception_type).observe(duration)
 
-    def _store_log(self, method, status_code, duration, user_id, is_api_key, request, response, traceback):
+    def _store_log(self, method, status_code, duration, user_id, is_api_key, request, response, traceback, perf_report):
         req_bytes = self._sanitized_bytes(request)
         res_bytes = self._sanitized_bytes(response)
         with session_scope() as session:
@@ -217,6 +219,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                     response=res_bytes,
                     response_truncated=response_truncated,
                     traceback=traceback,
+                    perf_report=perf_report,
                 )
             )
         logger.debug(f"{user_id=}, {method=}, {duration=} ms")
@@ -228,13 +231,14 @@ class TracingInterceptor(grpc.ServerInterceptor):
 
         def tracing_function(request, context):
             try:
-                start = perf_counter_ns()
-                res = prev_func(request, context)
-                finished = perf_counter_ns()
+                with CouchersProfiler(do_profile=random() < 0.05) as prof:
+                    start = perf_counter_ns()
+                    res = prev_func(request, context)
+                    finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
                 user_id = getattr(context, "user_id", None)
                 is_api_key = getattr(context, "is_api_key", None)
-                self._store_log(method, None, duration, user_id, is_api_key, request, res, None)
+                self._store_log(method, None, duration, user_id, is_api_key, request, res, None, prof.report)
                 self._observe_in_histogram(method, "", "", duration)
             except Exception as e:
                 finished = perf_counter_ns()
@@ -243,7 +247,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 traceback = "".join(format_exception(type(e), e, e.__traceback__))
                 user_id = getattr(context, "user_id", None)
                 is_api_key = getattr(context, "is_api_key", None)
-                self._store_log(method, code, duration, user_id, is_api_key, request, None, traceback)
+                self._store_log(method, code, duration, user_id, is_api_key, request, None, traceback, None)
                 self._observe_in_histogram(method, code or "", type(e).__name__, duration)
 
                 if not code:
