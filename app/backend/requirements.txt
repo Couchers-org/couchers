@@ -8,7 +8,7 @@ alembic==1.8.1
     # via -r requirements.in
 attrs==21.4.0
     # via pytest
-autoflake==1.5.3
+autoflake==1.7.7
     # via -r requirements.in
 black==22.10.0
     # via -r requirements.in
@@ -122,8 +122,6 @@ sqlalchemy-utils==0.38.3
     # via -r requirements.in
 stripe==4.2.0
     # via -r requirements.in
-toml==0.10.2
-    # via autoflake
 tomli==2.0.0
     # via coverage
 urllib3==1.26.8
