@@ -30,8 +30,6 @@ click==8.0.3
     # via black
 coverage[toml]==6.3.1
     # via pytest-cov
-exceptiongroup==1.0.0
-    # via pytest
 geoalchemy2==0.12.5
     # via -r requirements.in
 greenlet==1.1.2
@@ -114,7 +112,7 @@ six==1.16.0
     # via
     #   grpcio
     #   python-dateutil
-sqlalchemy==1.4.42
+sqlalchemy==1.4.44
     # via
     #   -r requirements.in
     #   alembic
@@ -127,10 +125,7 @@ stripe==4.2.0
 toml==0.10.2
     # via autoflake
 tomli==2.0.0
-    # via
-    #   black
-    #   coverage
-    #   pytest
+    # via coverage
 urllib3==1.26.8
     # via
     #   botocore
