@@ -120,7 +120,7 @@ sqlalchemy==1.4.44
     #   sqlalchemy-utils
 sqlalchemy-utils==0.38.3
     # via -r requirements.in
-stripe==4.2.0
+stripe==5.0.0
     # via -r requirements.in
 toml==0.10.2
     # via autoflake
