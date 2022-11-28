@@ -45,6 +45,6 @@ Staying with hospitable strangers and hosting travelers can form lasting relatio
 Head on over to the [Couchers.org forum](https://community.couchers.org) and ask! The couch surfing community is one of the most friendly and open there is, and people will be more than happy to answer any questions you may have!
 
 
-_Written by Bob. Published on 2022/08/30_
+_Written by Bob. Published on 2022/09/20_
 
 **Want to submit to our blog? [Sign up](/contribute) and let us know.**
