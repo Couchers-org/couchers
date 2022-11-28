@@ -14,8 +14,7 @@ module.exports = {
   i18n: {
     defaultLocale: "en",
     localeDetection: false,
-    locales:
-      process.env.NEXT_PUBLIC_COUCHERS_ENV === "prod" ? ["en"] : allLanguages,
+    locales: allLanguages,
     fallbackLng,
   },
   defaultNS: "global",
