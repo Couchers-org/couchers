@@ -7,8 +7,10 @@ from sqlalchemy.sql import and_, func, or_, update
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
+from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     AttendeeStatus,
+    BackgroundJobType,
     Cluster,
     ClusterSubscription,
     Event,
@@ -32,6 +34,7 @@ from couchers.utils import (
     to_aware_datetime,
 )
 from proto import events_pb2, events_pb2_grpc
+from proto.internal import jobs_pb2
 
 attendancestate2sql = {
     events_pb2.AttendanceState.ATTENDANCE_STATE_NOT_GOING: None,
@@ -269,6 +272,13 @@ class Events(events_pb2_grpc.EventsServicer):
             session.add(attendee)
 
             session.commit()
+
+            queue_job(
+                job_type=BackgroundJobType.send_event_creation_email,
+                payload=jobs_pb2.SendEventCreationEmailPayload(
+                    event_id=event.id,
+                ),
+            )
 
             return event_to_pb(session, occurrence, context)
 
