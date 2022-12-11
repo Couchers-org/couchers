@@ -20,6 +20,7 @@ from couchers.jobs.handlers import (
     process_send_reference_reminders,
     process_send_request_notifications,
     process_update_recommendation_scores,
+    process_event_creation_emails,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.metrics import create_prometheus_server, job_process_registry
@@ -31,11 +32,16 @@ from couchers.models import (
     Email,
     LoginToken,
     PasswordResetToken,
+
+    User,
+    Event
 )
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_login_email
+from couchers.tasks import send_login_email, enforce_community_memberships
 from couchers.utils import now, today
-from proto import conversations_pb2, requests_pb2
+from proto import conversations_pb2, requests_pb2, events_pb2
+from proto.internal import jobs_pb2
+from tests.test_communities import create_community, create_event, create_1d_point
 from tests.test_fixtures import (  # noqa
     auth_api_session,
     conversations_session,
@@ -986,3 +992,137 @@ def test_process_add_users_to_email_list(db):
 
 def test_process_update_recommendation_scores(db):
     process_update_recommendation_scores(empty_pb2.Empty())
+
+def test_process_event_creation_emails(db):
+    valid_creator, api_token_valid = generate_user(
+        about_me="My about me is long enough",
+        geom=create_1d_point(1),
+        geom_radius=0.1,
+        username="valid_creator"
+    )
+    other_user, _ = generate_user()
+    invalid_creator, api_token_invalid = generate_user()
+
+    job_send_event_creation_email_count = 1
+    job_send_email_count = 2
+    with session_scope() as session:
+        # only two users in community
+        node = create_community(
+            session=session,
+            interval_lb=0,
+            interval_ub=100,
+            name="dummy cluster",
+            admins=[valid_creator],
+            extra_members=[invalid_creator],
+            parent=None
+        )
+        event_valid_res = create_event(
+            token=api_token_valid,
+            community_id=node.id,
+            group_id=None,
+            title="dummy event",
+            content="dummy content",
+            start_td=timedelta(hours=1)
+        )
+
+    process_event_creation_emails(jobs_pb2.SendEventCreationEmailPayload(event_id=event_valid_res.event_id))
+
+    with session_scope() as session:
+        # only one background job for sending out all emails for a given event
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_event_creation_email)
+            ).scalar_one()
+            == job_send_event_creation_email_count
+        )
+        # a background job for each user subscribed to the event
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == job_send_email_count
+        )
+
+    job_send_event_creation_email_count += 1
+    job_send_email_count += 0
+    with session_scope() as session:
+        event_invalid = create_event(
+            token=api_token_invalid,
+            community_id=community.id,
+            group_id=None,
+            title="dummy title",
+            content="dummy content",
+            start_td=timedelta(hours=1)
+        )
+
+        process_event_creation_emails(jobs_pb2.SendEventCreationEmailPayload(event_id=event_invalid.id))
+
+        # a job is made for sending the emails
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_event_creation_email)
+            ).scalar_one()
+            == job_send_event_creation_email_count
+        )
+        # no actual email jobs are enqueued though
+        assert (
+            session.execute(
+                select(func.count())
+                .select_from(BackgroundJob)
+                .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+            ).scalar_one()
+            == job_send_email_count
+        )
+
+# def test_process_event_creation_emails_max_users(db):
+#     max_users = 1000
+#     job_send_event_creation_email_count = 1
+#     job_send_email_count = max_users
+#     creator, token = generate_user(about_me="My about me is long enough")
+#     users = [generate_user()[0] for _ in range(max_users)]
+#     with session_scope() as session:
+#         big_community = create_community(
+#             session=session,
+#             interval_lb=0,
+#             interval_ub=100,
+#             name="dummy cluster",
+#             admins=[valid_creator],
+#             extra_members=users,
+#             parent=None
+#         )
+#         # TODO: make one of the users really far away from the event
+#         event = create_event(
+#             token=token,
+#             community_id=big_community.id,
+#             group_id=None,
+#             title="dummy title",
+#             content="dummy content",
+#             start_td=timedelta(hours=1)
+#         )
+
+#         process_event_creation_emails(jobs_pb2.SendEventCreationEmailPayload(event_id=event.id))
+
+#         # a job is made for sending the emails
+#         assert (
+#             session.execute(
+#                 select(func.count())
+#                 .select_from(BackgroundJob)
+#                 .where(BackgroundJob.job_type == BackgroundJobType.send_event_creation_email)
+#             ).scalar_one()
+#             == 1
+#         )
+#         # no actual email jobs are enqueued though
+#         assert (
+#             session.execute(
+#                 select(func.count())
+#                 .select_from(BackgroundJob)
+#                 .where(BackgroundJob.job_type == BackgroundJobType.send_email)
+#             ).scalar_one()
+#             == max_users
+#         )
