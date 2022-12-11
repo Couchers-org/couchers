@@ -15,12 +15,12 @@ from couchers.email.dev import print_dev_email
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import (
     process_add_users_to_email_list,
+    process_event_creation_emails,
     process_send_message_notifications,
     process_send_onboarding_emails,
     process_send_reference_reminders,
     process_send_request_notifications,
     process_update_recommendation_scores,
-    process_event_creation_emails,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.metrics import create_prometheus_server, job_process_registry
@@ -32,16 +32,13 @@ from couchers.models import (
     Email,
     LoginToken,
     PasswordResetToken,
-
-    User,
-    Event
 )
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_login_email, enforce_community_memberships
+from couchers.tasks import send_login_email
 from couchers.utils import now, today
-from proto import conversations_pb2, requests_pb2, events_pb2
+from proto import conversations_pb2, requests_pb2
 from proto.internal import jobs_pb2
-from tests.test_communities import create_community, create_event, create_1d_point
+from tests.test_communities import create_1d_point, create_community, create_event
 from tests.test_fixtures import (  # noqa
     auth_api_session,
     conversations_session,
@@ -993,12 +990,10 @@ def test_process_add_users_to_email_list(db):
 def test_process_update_recommendation_scores(db):
     process_update_recommendation_scores(empty_pb2.Empty())
 
+
 def test_process_event_creation_emails(db):
     valid_creator, api_token_valid = generate_user(
-        about_me="My about me is long enough",
-        geom=create_1d_point(1),
-        geom_radius=0.1,
-        username="valid_creator"
+        about_me="My about me is long enough", geom=create_1d_point(1), geom_radius=0.1, username="valid_creator"
     )
     other_user, _ = generate_user()
     invalid_creator, api_token_invalid = generate_user()
@@ -1014,7 +1009,7 @@ def test_process_event_creation_emails(db):
             name="dummy cluster",
             admins=[valid_creator],
             extra_members=[invalid_creator],
-            parent=None
+            parent=None,
         )
         event_valid_res = create_event(
             token=api_token_valid,
@@ -1022,7 +1017,7 @@ def test_process_event_creation_emails(db):
             group_id=None,
             title="dummy event",
             content="dummy content",
-            start_td=timedelta(hours=1)
+            start_td=timedelta(hours=1),
         )
 
     process_event_creation_emails(jobs_pb2.SendEventCreationEmailPayload(event_id=event_valid_res.event_id))
@@ -1056,7 +1051,7 @@ def test_process_event_creation_emails(db):
             group_id=None,
             title="dummy title",
             content="dummy content",
-            start_td=timedelta(hours=1)
+            start_td=timedelta(hours=1),
         )
 
         process_event_creation_emails(jobs_pb2.SendEventCreationEmailPayload(event_id=event_invalid.id))
@@ -1079,6 +1074,7 @@ def test_process_event_creation_emails(db):
             ).scalar_one()
             == job_send_email_count
         )
+
 
 # def test_process_event_creation_emails_max_users(db):
 #     max_users = 1000

@@ -43,9 +43,9 @@ from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
     enforce_community_memberships,
+    send_event_creation_email,
     send_onboarding_email,
     send_reference_reminder_email,
-    send_event_creation_email
 )
 from couchers.utils import now
 
@@ -137,6 +137,7 @@ def process_generate_message_notifications(payload):
                 link=urls.chat_link(chat_id=message.conversation_id),
             )
 
+
 def process_event_creation_emails(payload):
     """
     Sends out emails to all users subscribed to a newly created event's cluster.
@@ -148,22 +149,19 @@ def process_event_creation_emails(payload):
         "Global Community": 1,
         "Americas": 4,
         "Asia-Pacific": 7,
-        "Europe, Africa, and Middle East": 10
+        "Europe, Africa, and Middle East": 10,
     }
     # don't send emails to users more than max_radius away from an event if there are more than max_users subscribed
     max_users = 1000
     max_radius = 20000
 
     with session_scope() as session:
-        event, cluster = (
-            session.execute(
-                select(Event, Cluster)
-                .join(ClusterEventAssociation, Event.id == ClusterEventAssociation.event_id)
-                .join(Cluster, ClusterEventAssociation.cluster_id == Cluster.id)
-                .where(Event.id == payload.event_id)
-            )
-            .one()
-        )
+        event, cluster = session.execute(
+            select(Event, Cluster)
+            .join(ClusterEventAssociation, Event.id == ClusterEventAssociation.event_id)
+            .join(Cluster, ClusterEventAssociation.cluster_id == Cluster.id)
+            .where(Event.id == payload.event_id)
+        ).one()
 
         creator = event.creator_user
         if not creator.has_completed_profile():
@@ -177,27 +175,23 @@ def process_event_creation_emails(payload):
                 )
                 return
 
-        users_subquery = (
-            session.execute(
-                select(User)
-                .join(ClusterSubscription, User.id == ClusterSubscription.user_id)
-                .join(EventOccurrence, event.id == EventOccurrence.event_id)
-                .where(ClusterSubscription.cluster_id == cluster.id)
-            )
-            .subquery()
-        )
+        users_subquery = session.execute(
+            select(User)
+            .join(ClusterSubscription, User.id == ClusterSubscription.user_id)
+            .join(EventOccurrence, event.id == EventOccurrence.event_id)
+            .where(ClusterSubscription.cluster_id == cluster.id)
+        ).subquery()
         users = users_subquery.all()
 
         if len(users) > max_users:
-            users = (
-                users_subquery
-                .where(func.ST_Contains(func.ST_Buffer(EventOccurrence.geom, max_radius), User.geom))
-                .all()
-            )
+            users = users_subquery.where(
+                func.ST_Contains(func.ST_Buffer(EventOccurrence.geom, max_radius), User.geom)
+            ).all()
 
         for user in users:
             logger.info(f"Sending email for event {event.name=} to subscriber {user.name=} of cluster {cluster.name=}")
             send_event_creation_email(user, event)
+
 
 def process_send_message_notifications(payload):
     """
