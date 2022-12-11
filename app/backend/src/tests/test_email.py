@@ -33,6 +33,7 @@ from couchers.tasks import (
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
+    send_event_creation_email,
     send_friend_request_accepted_email,
     send_friend_request_email,
     send_login_email,
@@ -42,7 +43,7 @@ from couchers.tasks import (
 )
 from couchers.utils import now
 from tests.test_fixtures import db, generate_user, testconfig  # noqa
-
+from tests.test_communities import create_community, create_event
 
 @pytest.fixture(autouse=True)
 def _(testconfig):
@@ -557,3 +558,38 @@ def test_email_prefix_config(db, monkeypatch):
     assert sender_name == "TestCo"
     assert sender_email == "testco@testing.co.invalid"
     assert subject == "Couchers.org email change requested"
+
+
+def test_event_creation_email(db):
+    creator, api_token_creator = generate_user()
+    other, api_token_other = generate_user()
+    
+    with session_scope() as session:
+        community = create_community(
+            session=session,
+            interval_lb=0,
+            interval_ub=100,
+            name="dummy cluster",
+            admins=[creator],
+            extra_members=[other],
+            parent=None
+        )
+        event = create_event(
+            token=api_token_creator,
+            community_id=community.id,
+            group_id=None,
+            title="dummy title",
+            content="dummy content",
+            start_td=timedelta(hours=1)
+        )
+
+    with patch("couchers.email.queue_email") as mock:
+        send_event_creation_email(other, event)
+
+    assert mock.call_count == 1
+    (_, _, recipient, subject, plain, html), _ = mock.call_args
+    assert recipient == other.email
+    assert "event" in subject.lower()
+    assert other.name in plain
+    assert f"{config['BASE_URL']}/event/{event.id}/{event.slug}" in plain
+    assert f"{config['BASE_URL']}/event/{event.id}/{event.slug}" in html
