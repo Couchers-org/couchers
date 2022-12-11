@@ -18,6 +18,7 @@ from couchers.models import (
     Notification,
     PasswordResetToken,
     User,
+    Event
 )
 from couchers.notifications.unsubscribe import generate_mute_all, generate_unsub_topic_action, generate_unsub_topic_key
 from couchers.sql import couchers_select as select
@@ -387,6 +388,19 @@ def send_notification_email(notification: Notification):
             "unsub_all": generate_mute_all(notification.user_id),
             "unsub_topic_key": generate_unsub_topic_key(notification),
             "unsub_topic_action": generate_unsub_topic_action(notification),
+        },
+    )
+
+def send_event_creation_email(user: User, event: Event):
+    logger.info(f"Sending email to {user.email=} for {event.title=}.")
+
+    email.enqueue_email_from_template(
+        user.email,
+        "event_created",
+        template_args={
+            "user": user,
+            "event": event,
+            "event_link": urls.event_link(event=event),
         },
     )
 
