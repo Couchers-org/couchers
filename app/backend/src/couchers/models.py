@@ -1850,8 +1850,8 @@ class BackgroundJobType(enum.Enum):
     generate_message_notifications = enum.auto()
     # payload: google.protobuf.Empty
     update_recommendation_scores = enum.auto()
-    # payload: google.protobuf.Empty
-    refresh_materialized_views = enum.auto()
+    # payload: jobs.SendEventCreationEmailPayload
+    send_event_creation_email = enum.auto()
 
 
 class BackgroundJobState(enum.Enum):
