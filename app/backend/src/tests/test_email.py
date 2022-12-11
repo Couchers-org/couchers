@@ -42,8 +42,9 @@ from couchers.tasks import (
     send_signup_email,
 )
 from couchers.utils import now
-from tests.test_fixtures import db, generate_user, testconfig  # noqa
 from tests.test_communities import create_community, create_event
+from tests.test_fixtures import db, generate_user, testconfig  # noqa
+
 
 @pytest.fixture(autouse=True)
 def _(testconfig):
@@ -563,7 +564,7 @@ def test_email_prefix_config(db, monkeypatch):
 def test_event_creation_email(db):
     creator, api_token_creator = generate_user()
     other, api_token_other = generate_user()
-    
+
     with session_scope() as session:
         community = create_community(
             session=session,
@@ -572,7 +573,7 @@ def test_event_creation_email(db):
             name="dummy cluster",
             admins=[creator],
             extra_members=[other],
-            parent=None
+            parent=None,
         )
         event = create_event(
             token=api_token_creator,
@@ -580,7 +581,7 @@ def test_event_creation_email(db):
             group_id=None,
             title="dummy title",
             content="dummy content",
-            start_td=timedelta(hours=1)
+            start_td=timedelta(hours=1),
         )
 
     with patch("couchers.email.queue_email") as mock:

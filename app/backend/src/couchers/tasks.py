@@ -13,12 +13,12 @@ from couchers.models import (
     AccountDeletionToken,
     ClusterRole,
     ClusterSubscription,
+    Event,
     LoginToken,
     Node,
     Notification,
     PasswordResetToken,
     User,
-    Event
 )
 from couchers.notifications.unsubscribe import generate_mute_all, generate_unsub_topic_action, generate_unsub_topic_key
 from couchers.sql import couchers_select as select
@@ -390,6 +390,7 @@ def send_notification_email(notification: Notification):
             "unsub_topic_action": generate_unsub_topic_action(notification),
         },
     )
+
 
 def send_event_creation_email(user: User, event: Event):
     logger.info(f"Sending email to {user.email=} for {event.title=}.")
