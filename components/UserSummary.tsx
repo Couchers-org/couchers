@@ -2,7 +2,7 @@ import { ListItemAvatar, ListItemText, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
-import { LinkIcon } from "components/Icons";
+import { OpenInNewIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { User } from "proto/api_pb";
 import { routeToUser } from "routes";
@@ -36,7 +36,12 @@ export const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
   },
-  linkIcon: { display: "block", marginInlineStart: theme.spacing(1) },
+  linkIcon: {
+    display: "block",
+    marginInlineStart: theme.spacing(0.5),
+    height: "1.25rem",
+    width: "1.25rem",
+  },
   titleAndBarContainer: {
     display: "grid",
     gridGap: theme.spacing(0.5),
@@ -113,10 +118,12 @@ export default function UserSummary({
           titleIsLink && user ? (
             <StyledLink
               href={routeToUser(user.username)}
+              target="_blank"
+              rel="noopener noreferrer"
               className={classes.link}
             >
               {title}
-              <LinkIcon className={classes.linkIcon} />
+              <OpenInNewIcon className={classes.linkIcon} />
             </StyledLink>
           ) : (
             title

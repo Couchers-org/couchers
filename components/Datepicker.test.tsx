@@ -28,7 +28,7 @@ const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
   );
 };
 
-describe.skip("DatePicker", () => {
+describe("DatePicker", () => {
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-03-20"));
@@ -46,7 +46,7 @@ describe.skip("DatePicker", () => {
     userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
-      expect(date?.format()).toEqual(dayjs("2021-03-23").format());
+      expect(date?.date).toEqual(dayjs("2021-03-23").date);
     });
   });
 

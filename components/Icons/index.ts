@@ -33,6 +33,7 @@ export { default as VerySatisfiedIcon } from "@material-ui/icons/MoodOutlined";
 export { default as QuestionIcon } from "@material-ui/icons/MoreHorizOutlined";
 export { default as MoreIcon } from "@material-ui/icons/MoreHorizOutlined";
 export { default as OverflowMenuIcon } from "@material-ui/icons/MoreVertOutlined";
+export { default as OpenInNewIcon } from "@material-ui/icons/OpenInNew";
 export { default as PeopleIcon } from "@material-ui/icons/PeopleOutlined";
 export { default as PersonAddIcon } from "@material-ui/icons/PersonAddOutlined";
 export { default as ClockIcon } from "@material-ui/icons/ScheduleOutlined";
