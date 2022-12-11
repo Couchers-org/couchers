@@ -34,7 +34,7 @@ geoalchemy2==0.12.5
     # via -r requirements.in
 greenlet==1.1.2
     # via sqlalchemy
-grpcio==1.50.0
+grpcio==1.51.1
     # via -r requirements.in
 idna==3.3
     # via requests
@@ -109,9 +109,7 @@ sentry-sdk==1.9.0
 shapely==1.8.5.post1
     # via -r requirements.in
 six==1.16.0
-    # via
-    #   grpcio
-    #   python-dateutil
+    # via python-dateutil
 sqlalchemy==1.4.44
     # via
     #   -r requirements.in
