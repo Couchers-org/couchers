@@ -110,7 +110,7 @@ shapely==1.8.5.post1
     # via -r requirements.in
 six==1.16.0
     # via python-dateutil
-sqlalchemy==1.4.44
+sqlalchemy==1.4.45
     # via
     #   -r requirements.in
     #   alembic
