@@ -11,6 +11,7 @@
     "dev": "next dev",
     "start": "yarn dev",
     "format": "prettier --write *",
+    "format:check": "prettier --check '**/(*.ts|.tsx)'",
     "jest": "jest --modulePaths=.",
     "lint": "next lint",
     "serve": "next start",

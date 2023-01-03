@@ -1,4 +1,4 @@
-import { makeStyles,Typography } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import Button from "components/Button";
 import { DoneAllIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";

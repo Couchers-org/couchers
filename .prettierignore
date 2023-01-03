@@ -17,6 +17,8 @@ deployment/
 Makefile
 README.md
 docker-compose.yaml
+Dockerfile
 Dockerfile.backedupold
 Dockerfile.stage
 proto_may_27_2022.tar.gz
+tsconfig.tsbuildinfo

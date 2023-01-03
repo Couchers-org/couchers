@@ -11,8 +11,6 @@ defaults:
     shell: bash
 
 jobs:
-
-
   build:
     runs-on: [self-hosted, master]
     steps:
@@ -49,6 +47,21 @@ jobs:
           docker pull $REPO_IMAGE_AND_TAG
           docker run $REPO_IMAGE_AND_TAG yarn test-ci
 
+  test-web-lint:
+    runs-on: [self-hosted, master]
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/setup-env
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - shell: bash
+        run: |
+          REPO_IMAGE_AND_TAG=${{ steps.login-ecr.outputs.registry }}/frontend:development-${{ env.SLUG }}-stage
+          docker pull $REPO_IMAGE_AND_TAG
+          docker run $REPO_IMAGE_AND_TAG yarn lint --max-warnings 0
+
   test-web-prettier:
     runs-on: [self-hosted, master]
     needs: build
@@ -62,7 +75,7 @@ jobs:
         run: |
           REPO_IMAGE_AND_TAG=${{ steps.login-ecr.outputs.registry }}/frontend:development-${{ env.SLUG }}-stage
           docker pull $REPO_IMAGE_AND_TAG
-          docker run $REPO_IMAGE_AND_TAG yarn prettier --check \*
+          docker run $REPO_IMAGE_AND_TAG yarn format:check
 
   test-storybook:
     runs-on: [self-hosted, master]
@@ -79,12 +92,11 @@ jobs:
           docker pull $REPO_IMAGE_AND_TAG
           docker run $REPO_IMAGE_AND_TAG yarn build-storybook
 
-
   # We need to use the deployment name and url in the 'environment' section of the deployment job below
   # We need then as job outputs to workaround a limitation of github actions: https://github.com/actions/runner/issues/998
   set-env:
     runs-on: [self-hosted, master]
-    needs: [test-web, test-web-prettier, test-storybook]
+    needs: [test-web, test-web-lint, test-web-prettier, test-storybook]
     outputs:
       environment_name: ${{ steps.set-envs.outputs.envname }}
       environment_url: ${{ steps.set-envs.outputs.envurl }}
@@ -96,7 +108,6 @@ jobs:
         run: |
           echo "::set-output name=envname::${{env.ENV_NAME}}"
           echo "::set-output name=envurl::${{env.ENV_URL}}"
-
 
   deploy-dev:
     runs-on: [self-hosted, master]
