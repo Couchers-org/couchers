@@ -32,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
   },
   inputRoot: {
     display: "flex",
+    width: "100%",
   },
   avatar: {
     "& img": { objectFit: "cover" },
@@ -45,6 +46,11 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   image: {
+    height: 100,
+    [theme.breakpoints.up("md")]: {
+      height: 200,
+    },
+    width: "100%",
     objectFit: "cover",
     cursor: "pointer",
     "&:hover": {
@@ -62,7 +68,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     display: "flex",
     justifyContent: "center",
-    width: "fit-content",
+    width: "100%",
   },
   loading: {
     position: "absolute",
@@ -87,8 +93,8 @@ interface RectImgInputProps extends ImageInputProps {
   type: "rect";
   alt: string;
   grow?: boolean;
-  height?: number;
-  width?: number;
+  height?: string;
+  width?: string;
 }
 
 export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
@@ -100,6 +106,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
   const [file, setFile] = useState<File | null>(null);
   const [readerError, setReaderError] = useState("");
+
   const mutation = useMutation<ImageInputValues, Error>(
     () =>
       file
@@ -108,7 +115,9 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
     {
       onSuccess: async (data: ImageInputValues) => {
         field.onChange(data.key);
-        setImageUrl(data.thumbnail_url);
+        setImageUrl(
+          props.type === "avatar" ? data.thumbnail_url : data.full_url
+        );
         confirmedUpload.current = data;
         setFile(null);
         await props.onSuccess?.(data);
@@ -159,7 +168,11 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
 
   const handleCancel = () => {
     field.onChange(confirmedUpload.current?.key ?? "");
-    setImageUrl(confirmedUpload.current?.thumbnail_url ?? initialPreviewSrc);
+    const imageUrl =
+      props.type === "avatar"
+        ? confirmedUpload.current?.thumbnail_url
+        : confirmedUpload.current?.full_url;
+    setImageUrl(imageUrl ?? initialPreviewSrc);
     setFile(null);
   };
 

@@ -165,6 +165,8 @@ export default function EventForm({
         initialPreviewSrc={event?.photoUrl || undefined}
         name="eventImage"
         type="rect"
+        height={"200px"}
+        width={"100%"}
       />
       <Typography className={classes.imageUploadhelperText} variant="body1">
         {t("communities:upload_helper_text")}
