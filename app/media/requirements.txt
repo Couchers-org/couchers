@@ -46,9 +46,9 @@ pytest==7.2.0
     # via -r requirements.in
 pyvips==2.2.1
     # via -r requirements.in
-sentry-sdk==1.9.0
+sentry-sdk==1.14.0
     # via -r requirements.in
-urllib3==1.26.8
+urllib3==1.26.14
     # via sentry-sdk
 uwsgi==2.0.21
     # via -r requirements.in
