@@ -74,7 +74,7 @@ pluggy==1.0.0
     # via pytest
 prometheus-client==0.15.0
     # via -r requirements.in
-protobuf==4.21.11
+protobuf==4.21.12
     # via -r requirements.in
 psycopg2-binary==2.9.5
     # via -r requirements.in
