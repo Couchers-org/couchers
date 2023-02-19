@@ -6,6 +6,7 @@ import { useTranslation } from "next-i18next";
 import { useForm } from "react-hook-form";
 import { routeToSearch } from "routes";
 import makeStyles from "utils/makeStyles";
+import { HostingStatus } from "proto/api_pb";
 
 const useStyles = makeStyles((theme) => ({
   searchBoxContainer: {
@@ -48,6 +49,10 @@ export default function HeroSearch() {
               location: value.simplifiedName,
               lat: value.location.lat,
               lng: value.location.lng,
+              hostingStatusOptions: [
+                HostingStatus.HOSTING_STATUS_CAN_HOST,
+                HostingStatus.HOSTING_STATUS_MAYBE,
+              ]
             });
             router.push(searchRouteWithSearchQuery);
           }
