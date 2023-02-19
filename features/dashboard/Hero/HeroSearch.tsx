@@ -3,10 +3,10 @@ import LocationAutocomplete from "components/LocationAutocomplete";
 import { DASHBOARD } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
+import { HostingStatus } from "proto/api_pb";
 import { useForm } from "react-hook-form";
 import { routeToSearch } from "routes";
 import makeStyles from "utils/makeStyles";
-import { HostingStatus } from "proto/api_pb";
 
 const useStyles = makeStyles((theme) => ({
   searchBoxContainer: {
@@ -52,7 +52,7 @@ export default function HeroSearch() {
               hostingStatusOptions: [
                 HostingStatus.HOSTING_STATUS_CAN_HOST,
                 HostingStatus.HOSTING_STATUS_MAYBE,
-              ]
+              ],
             });
             router.push(searchRouteWithSearchQuery);
           }
