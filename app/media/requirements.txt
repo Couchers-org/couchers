@@ -16,7 +16,7 @@ cffi==1.15.0
     #   pyvips
 click==8.0.3
     # via flask
-flask==2.2.2
+flask==2.2.3
     # via -r requirements.in
 grpcio==1.51.3
     # via -r requirements.in
