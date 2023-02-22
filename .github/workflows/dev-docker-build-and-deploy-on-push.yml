@@ -1,10 +1,11 @@
 name: Dev - Deploy Frontend on Push
 
 on:
-  push:
-    branches-ignore:
-      - master
-      - master-hotfix
+  workflow_call:
+  # push:
+  #   branches-ignore:
+  #     - master
+  #     - master-hotfix
 
 defaults:
   run:

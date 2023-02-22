@@ -8,9 +8,10 @@ name: Dev - After Merge Into Master, Cleanup
 #   if that pull request was merged successfully (see the "if" statement below)
 #####################################
 on:
-  pull_request:
-    types: [closed]
-    branches: [master]
+  workflow_call:
+  # pull_request:
+  #   types: [closed]
+  #   branches: [master]
 
 defaults:
   run:
