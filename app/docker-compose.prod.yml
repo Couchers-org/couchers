@@ -54,7 +54,7 @@ services:
       - backend_envoy
       - envoy_nginx
   nginx:
-    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/nginx
+    image: registry.gitlab.com/couchers/couchers/nginx
     restart: always
     env_file: nginx.prod.env
     volumes:
