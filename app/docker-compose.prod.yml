@@ -67,6 +67,7 @@ services:
     networks:
       - media_nginx
       - envoy_nginx
+      - web_nginx
   prometheus:
     image: registry.gitlab.com/couchers/couchers/prometheus
     restart: always
@@ -75,6 +76,14 @@ services:
       - backend
     networks:
       - backend_prometheus
+  web:
+    # todo: fix this
+    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/frontend:production-41962a3bebc5ae59662d407a858802139de483fd
+    restart: always
+    expose:
+      - 3000
+    networks:
+      - web_nginx
 
 networks:
   backend_prometheus:
@@ -88,4 +97,6 @@ networks:
   media_nginx:
     driver: bridge
   envoy_nginx:
+    driver: bridge
+  web_nginx:
     driver: bridge
