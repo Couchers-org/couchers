@@ -80,7 +80,7 @@ build:web-next:
   stage: build
   script:
     - docker pull $WEB_NEXT_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG --build-arg --build-arg BUILD_FOR_ENVIRONMENT=staging environment=preview --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f Dockerfile .
+    - docker build --build-arg version=$SLUG --build-arg BUILD_FOR_ENVIRONMENT=staging --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f Dockerfile .
     - docker push $WEB_NEXT_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app artifacts/web
