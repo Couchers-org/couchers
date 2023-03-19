@@ -4,7 +4,7 @@ set -e
 # create the directories if they don't exist
 rm -rf proto/gen
 mkdir -p proto/gen/python
-mkdir -p proto/gen/js
+mkdir -p proto/gen/ts
 mkdir -p backend/src/proto/
 mkdir -p media/src/proto/
 mkdir -p web-frontend/proto/
@@ -32,8 +32,8 @@ find proto -name '*.proto' | protoc -I proto \
   --python_out=media/src/proto \
   --grpc_python_out=media/src/proto \
   \
-  --js_out="import_style=commonjs,binary:proto/gen/js" \
-  --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:proto/gen/js" \
+  --js_out="import_style=commonjs,binary:proto/gen/ts" \
+  --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:proto/gen/ts" \
   \
   --js_out="import_style=commonjs,binary:web-frontend/proto" \
   --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:web-frontend/proto" \
@@ -56,6 +56,6 @@ sed -i -E 's/^from google.api/from .google.api/' backend/src/proto/*.py client/s
 sed -i -E 's/^from google.api/from ./' backend/src/proto/google/api/*.py client/src/couchers/proto/google/api/*.py media/src/proto/google/api/*.py
 
 (cd proto/gen && tar czf python.tgz python)
-(cd proto/gen && tar czf js.tgz js)
+(cd proto/gen && tar czf ts.tgz ts)
 
 echo "OK"
