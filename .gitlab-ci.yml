@@ -49,7 +49,7 @@ build:web-dev:
   stage: build
   script:
     - docker pull $WEB_DEV_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG --build-arg BUILD_FOR_ENVIRONMENT=staging --cache-from $WEB_DEV_RELEASE_TAG -t $WEB_DEV_TAG -f Dockerfile.stage .
+    - docker build --build-arg version=$SLUG --build-arg environment=staging --cache-from $WEB_DEV_RELEASE_TAG -t $WEB_DEV_TAG -f Dockerfile .
     - docker push $WEB_DEV_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_DEV_TAG):/app artifacts/web-dev
@@ -67,7 +67,7 @@ build:web:
   stage: build
   script:
     - docker pull $WEB_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG --build-arg BUILD_FOR_ENVIRONMENT=production --cache-from $WEB_RELEASE_TAG -t $WEB_TAG -f Dockerfile .
+    - docker build --build-arg version=$SLUG --build-arg environment=production --cache-from $WEB_RELEASE_TAG -t $WEB_TAG -f Dockerfile.prod .
     - docker push $WEB_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app artifacts/web
@@ -80,7 +80,7 @@ build:web-next:
   stage: build
   script:
     - docker pull $WEB_NEXT_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG --build-arg BUILD_FOR_ENVIRONMENT=staging --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f Dockerfile .
+    - docker build --build-arg version=$SLUG --build-arg environment=staging --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f Dockerfile .
     - docker push $WEB_NEXT_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app artifacts/web

@@ -15,7 +15,7 @@ services:
     platform: linux/x86_64 # Helps ensure consistency even when used on an M1 Mac
     build:
       context: .
-      dockerfile: Dockerfile.stage
+      dockerfile: Dockerfile
     entrypoint:
       - "/bin/sh"
     environment:
