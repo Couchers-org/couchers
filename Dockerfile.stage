@@ -28,6 +28,9 @@ COPY package.json yarn.lock ./
 RUN yarn config set network-timeout 300000
 RUN yarn install --frozen-lockfile
 
+ARG version
+ENV NEXT_PUBLIC_VERSION=$version
+
 # Now copy the source code and build when needed against the env type
 ARG BUILD_FOR_ENVIRONMENT
 COPY . .

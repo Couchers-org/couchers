@@ -28,6 +28,10 @@ COPY package.json yarn.lock ./
 RUN yarn config set network-timeout 300000
 RUN yarn install --frozen-lockfile
 
+# This allows next to tell us/users what version this is
+ARG IMAGE_TAG=unknown-or-local
+ENV NEXT_PUBLIC_VERSION=${IMAGE_TAG}
+
 # Now copy the source code and build when needed against the env type
 ARG BUILD_FOR_ENVIRONMENT
 COPY . .
@@ -66,9 +70,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/.env.local ./
 COPY --from=builder /app/proto ./proto
 
-# This allows next to tell us/users what version this is
-ARG IMAGE_TAG=unknown-or-local
-ENV NEXT_PUBLIC_VERSION=${IMAGE_TAG}
 
 EXPOSE 3000
 
