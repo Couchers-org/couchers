@@ -1,0 +1,254 @@
+stages:
+  - protos
+  - build
+  - test
+  - preview
+  - wait
+  - release
+
+variables:
+  # whether to skip checks & dev stuff and only build & deploy
+  DO_ALL: "true"
+  PREVIEW_DOMAIN: preview.couchershq.org
+  GIT_DEPTH: 10
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  RELEASE_BRANCH: master
+  GRPC_TAG: registry.gitlab.com/couchers/grpc:latest
+  WEB_DEV_RELEASE_TAG: $CI_REGISTRY_IMAGE/web-dev:latest
+  WEB_RELEASE_TAG: $CI_REGISTRY_IMAGE/web:latest
+  WEB_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/web-next:latest
+  SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  WEB_TAG: $CI_REGISTRY_IMAGE/web:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  WEB_DEV_TAG: $CI_REGISTRY_IMAGE/web-dev:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  WEB_NEXT_TAG: $CI_REGISTRY_IMAGE/web-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+
+
+default:
+  image: docker
+  services:
+    - docker:19.03.12-dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+protos:
+  needs: []
+  stage: protos
+  image: $GRPC_TAG
+  inherit:
+    # the grpc container doesn't have docker, no need to login
+    default: false
+  script:
+    - echo "Done!"
+  artifacts:
+    paths:
+      - ./
+
+build:web-dev:
+  needs: ["protos"]
+  stage: build
+  script:
+    - docker pull $WEB_DEV_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --build-arg BUILD_FOR_ENVIRONMENT=staging --cache-from $WEB_DEV_RELEASE_TAG -t $WEB_DEV_TAG -f Dockerfile .
+    - docker push $WEB_DEV_TAG
+    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
+    - mkdir -p artifacts && docker cp $(docker create $WEB_DEV_TAG):/app artifacts/web-dev
+  rules:
+    - if: ($DO_ALL == "true")
+      when: always
+    - if: ($DO_ALL != "true")
+      when: manual
+  artifacts:
+    paths:
+      - artifacts/web-dev/
+
+build:web:
+  needs: ["protos"]
+  stage: build
+  script:
+    - docker pull $WEB_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --build-arg BUILD_FOR_ENVIRONMENT=production --cache-from $WEB_RELEASE_TAG -t $WEB_TAG -f Dockerfile .
+    - docker push $WEB_TAG
+    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
+    - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app artifacts/web
+  artifacts:
+    paths:
+      - artifacts/web/
+
+build:web-next:
+  needs: ["protos"]
+  stage: build
+  script:
+    - docker pull $WEB_NEXT_RELEASE_TAG || true
+    - docker build --build-arg version=$SLUG --build-arg --build-arg BUILD_FOR_ENVIRONMENT=staging environment=preview --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f Dockerfile .
+    - docker push $WEB_NEXT_TAG
+    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
+    - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app artifacts/web
+  rules:
+    - if: ($DO_ALL == "true")
+      when: always
+    - if: ($DO_ALL != "true")
+      when: manual
+  artifacts:
+    paths:
+      - artifacts/web/
+
+test:web:
+  needs: ["build:web-dev"]
+  stage: test
+  image: $WEB_DEV_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app && yarn test-ci
+  after_script:
+    - cp /app/junit.xml $CI_PROJECT_DIR/
+    - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
+    - mkdir -p $CI_PROJECT_DIR/artifacts/lcov-report && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
+  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura-coverage.xml
+      junit: junit.xml
+    paths:
+      - artifacts/lcov-report
+  rules:
+    - if: ($DO_ALL == "true")
+      when: always
+    - if: ($DO_ALL != "true")
+      when: manual
+
+test:web-prettier:
+  needs: ["build:web-dev"]
+  stage: test
+  image: $WEB_DEV_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app
+    - yarn prettier --check *
+  rules:
+    - if: ($DO_ALL == "true")
+      when: always
+    - if: ($DO_ALL != "true")
+      when: manual
+
+test:storybook:
+  needs: ["build:web-dev"]
+  stage: test
+  image: $WEB_DEV_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app && yarn build-storybook
+    - mkdir -p $CI_PROJECT_DIR/artifacts/storybook-static && cp -a /app/storybook-static $CI_PROJECT_DIR/artifacts/
+  artifacts:
+    paths:
+      - artifacts/storybook-static
+  rules:
+    - if: ($DO_ALL == "true")
+      when: always
+    - if: ($DO_ALL != "true")
+      when: manual
+
+preview:wcov:
+  needs: ["test:web"]
+  stage: preview
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_REF_SLUG/ --recursive
+    - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--wcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--wcov.$PREVIEW_DOMAIN/"
+  rules:
+    - if: ($DO_ALL == "true")
+      when: always
+    - if: ($DO_ALL != "true")
+      when: manual
+
+preview:storybook:
+  needs: ["test:storybook"]
+  stage: preview
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_REF_SLUG/ --recursive
+    - echo "Done, storybook available at https://$CI_COMMIT_SHORT_SHA--storybook.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--storybook.$PREVIEW_DOMAIN/"
+  rules:
+    - if: ($DO_ALL == "true")
+      when: always
+    - if: ($DO_ALL != "true")
+      when: manual
+
+# having this here stops us from having to list out all the needs in each release below. list out all that need to be waited for until releasing a new version
+wait:before-release:
+  stage: wait
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - echo "Done waiting."
+  needs:
+    - job: protos
+      artifacts: false
+    - job: build:web-dev
+      artifacts: false
+    - job: build:web
+      artifacts: false
+    - job: build:web-next
+      artifacts: false
+    - job: test:web
+      artifacts: false
+    - job: test:web-prettier
+      artifacts: false
+    - job: test:storybook
+      artifacts: false
+
+release:web-dev:
+  needs: ["wait:before-release"]
+  stage: release
+  script:
+    - docker pull $WEB_DEV_TAG
+    - docker tag $WEB_DEV_TAG $WEB_DEV_RELEASE_TAG
+    - docker push $WEB_DEV_RELEASE_TAG
+  rules:
+    - if: ($DO_ALL == "true")
+      when: always
+    - if: ($DO_ALL != "true")
+      when: manual
+
+release:web:
+  needs: ["wait:before-release"]
+  stage: release
+  script:
+    - docker pull $WEB_TAG
+    - docker tag $WEB_TAG $WEB_RELEASE_TAG
+    - docker push $WEB_RELEASE_TAG
+
+release:web-next:
+  needs: ["wait:before-release"]
+  stage: release
+  script:
+    - docker pull $WEB_NEXT_TAG
+    - docker tag $WEB_NEXT_TAG $WEB_NEXT_RELEASE_TAG
+    - docker push $WEB_NEXT_RELEASE_TAG
+    # some command to get our preview server to redeploy?
+  rules:
+    - if: ($DO_ALL == "true")
+      when: always
+    - if: ($DO_ALL != "true")
+      when: manual
