@@ -78,7 +78,7 @@ services:
       - backend_prometheus
   web:
     # todo: fix this
-    image: 694904428454.dkr.ecr.us-east-1.amazonaws.com/frontend:production-41962a3bebc5ae59662d407a858802139de483fd
+    image: registry.gitlab.com/couchers/web-frontend/web
     restart: always
     expose:
       - 3000
