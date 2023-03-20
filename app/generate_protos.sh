@@ -51,9 +51,9 @@ cp proto/gen/descriptors.pb backend/src/proto/descriptors.pb
 
 # fixup python3 relative imports with oneliner from
 # https://github.com/protocolbuffers/protobuf/issues/1491#issuecomment-690618628
-sed -i -E 's/^import.*_pb2/from . &/' backend/src/proto/*.py client/src/couchers/proto/*.py media/src/proto/*.py
-sed -i -E 's/^from google.api/from .google.api/' backend/src/proto/*.py client/src/couchers/proto/*.py media/src/proto/*.py
-sed -i -E 's/^from google.api/from ./' backend/src/proto/google/api/*.py client/src/couchers/proto/google/api/*.py media/src/proto/google/api/*.py
+sed -i -E 's/^import.*_pb2/from . &/' proto/gen/python/proto/*.py backend/src/proto/*.py client/src/couchers/proto/*.py media/src/proto/*.py
+sed -i -E 's/^from google.api/from .google.api/' proto/gen/python/proto/*.py backend/src/proto/*.py client/src/couchers/proto/*.py media/src/proto/*.py
+sed -i -E 's/^from google.api/from ./' proto/gen/python/proto/google/api/*.py backend/src/proto/google/api/*.py client/src/couchers/proto/google/api/*.py media/src/proto/google/api/*.py
 
 (cd proto/gen/python && tar czf ../python.tar.gz proto)
 (cd proto/gen/ts && tar czf ../ts.tar.gz proto)
