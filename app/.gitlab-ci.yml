@@ -262,12 +262,12 @@ preview:protos:
     # no docker login
     default: false
   script:
-    - python_sum=$(sha256sum app/proto/gen/python.tgz)
-    - ts_sum=$(sha256sum app/proto/gen/ts.tgz)
-    - pb_sum=$(sha256sum app/proto/gen/descriptors.pb)
-    - aws s3 cp app/proto/gen/python.tgz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$(python_sum)/python.tgz
-    - aws s3 cp app/proto/gen/ts.tgz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$(ts_sum)/ts.tgz
-    - aws s3 cp app/proto/gen/descriptors.pb s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$(pb_sum)/descriptors.pb
+    - python_sum=$(sha256sum app/proto/gen/python.tgz | head -c 40)
+    - ts_sum=$(sha256sum app/proto/gen/ts.tgz | head -c 40)
+    - pb_sum=$(sha256sum app/proto/gen/descriptors.pb | head -c 40)
+    - aws s3 cp app/proto/gen/python.tgz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$python_sum/python.tgz
+    - aws s3 cp app/proto/gen/ts.tgz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$ts_sum/ts.tgz
+    - aws s3 cp app/proto/gen/descriptors.pb s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$pb_sum/descriptors.pb
     - >
       echo '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>'
       '<h1>Couchers generated protos @ <a href="https://github.com/Couchers-org/couchers/commit/'$CI_COMMIT_SHA'">'$CI_COMMIT_SHORT_SHA'</a>. Generated '$(TZ=UTC date)'.</h1>'
