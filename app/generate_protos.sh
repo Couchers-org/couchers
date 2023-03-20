@@ -55,7 +55,7 @@ sed -i -E 's/^import.*_pb2/from . &/' backend/src/proto/*.py client/src/couchers
 sed -i -E 's/^from google.api/from .google.api/' backend/src/proto/*.py client/src/couchers/proto/*.py media/src/proto/*.py
 sed -i -E 's/^from google.api/from ./' backend/src/proto/google/api/*.py client/src/couchers/proto/google/api/*.py media/src/proto/google/api/*.py
 
-(cd proto/gen && tar czf python.tgz python)
-(cd proto/gen && tar czf ts.tgz ts)
+(cd proto/gen && tar czf python.tar.gz python)
+(cd proto/gen && tar czf ts.tar.gz ts)
 
 echo "OK"

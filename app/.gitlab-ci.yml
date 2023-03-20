@@ -262,19 +262,19 @@ preview:protos:
     # no docker login
     default: false
   script:
-    - python_sum=$(sha256sum app/proto/gen/python.tgz | head -c 64)
-    - ts_sum=$(sha256sum app/proto/gen/ts.tgz | head -c 64)
+    - python_sum=$(sha256sum app/proto/gen/python.tar.gz | head -c 64)
+    - ts_sum=$(sha256sum app/proto/gen/ts.tar.gz | head -c 64)
     - pb_sum=$(sha256sum app/proto/gen/descriptors.pb | head -c 64)
-    - aws s3 cp app/proto/gen/python.tgz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$python_sum/python.tgz
-    - aws s3 cp app/proto/gen/ts.tgz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$ts_sum/ts.tgz
+    - aws s3 cp app/proto/gen/python.tar.gz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$python_sum/python.tar.gz
+    - aws s3 cp app/proto/gen/ts.tar.gz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$ts_sum/ts.tar.gz
     - aws s3 cp app/proto/gen/descriptors.pb s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$pb_sum/descriptors.pb
     - >
       echo '<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:monospace}</style></head><body>'
       '<h1>Couchers generated protos @ <a href="https://github.com/Couchers-org/couchers/commit/'$CI_COMMIT_SHA'">'$CI_COMMIT_SHORT_SHA'</a>.</h1>'
       '<p>Generated at '$(TZ=UTC date)'.</p>'
       '<ul>'
-      '<li><a href="https://protos--by-sha.'$PREVIEW_DOMAIN'/'$python_sum'/python.tgz">Python (sha256: '$python_sum')</a></li>'
-      '<li><a href="https://protos--by-sha.'$PREVIEW_DOMAIN'/'$ts_sum'/ts.tgz">TypeScript (sha256: '$ts_sum')</a></li>'
+      '<li><a href="https://protos--by-sha.'$PREVIEW_DOMAIN'/'$python_sum'/python.tar.gz">Python (sha256: '$python_sum')</a></li>'
+      '<li><a href="https://protos--by-sha.'$PREVIEW_DOMAIN'/'$ts_sum'/ts.tar.gz">TypeScript (sha256: '$ts_sum')</a></li>'
       '<li><a href="https://protos--by-sha.'$PREVIEW_DOMAIN'/'$pb_sum'/descriptors.pb">Descriptors (sha256: '$pb_sum')</a></li>'
       '</ul></body></html>' > app/proto/gen/index.html
     - aws s3 cp app/proto/gen/index.html s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_SHORT_SHA/
