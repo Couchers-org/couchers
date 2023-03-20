@@ -1,7 +1,6 @@
-ARG environment=development
-
 FROM node:14-buster as builder
 
+ARG environment=development
 WORKDIR /app
 
 # disable next.js telemetry
