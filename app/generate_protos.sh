@@ -3,8 +3,8 @@ set -e
 
 # create the directories if they don't exist
 rm -rf proto/gen
-mkdir -p proto/gen/python
-mkdir -p proto/gen/ts
+mkdir -p proto/gen/python/proto
+mkdir -p proto/gen/ts/proto
 mkdir -p backend/src/proto/
 mkdir -p media/src/proto/
 mkdir -p web-frontend/proto/
@@ -20,8 +20,8 @@ find proto -name '*.proto' | protoc -I proto \
   \
   --descriptor_set_out proto/gen/descriptors.pb \
   \
-  --python_out=proto/gen/python \
-  --grpc_python_out=proto/gen/python \
+  --python_out=proto/gen/python/proto \
+  --grpc_python_out=proto/gen/python/proto \
   \
   --python_out=backend/src/proto \
   --grpc_python_out=backend/src/proto \
@@ -32,8 +32,8 @@ find proto -name '*.proto' | protoc -I proto \
   --python_out=media/src/proto \
   --grpc_python_out=media/src/proto \
   \
-  --js_out="import_style=commonjs,binary:proto/gen/ts" \
-  --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:proto/gen/ts" \
+  --js_out="import_style=commonjs,binary:proto/gen/ts/proto" \
+  --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:proto/gen/ts/proto" \
   \
   --js_out="import_style=commonjs,binary:web-frontend/proto" \
   --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:web-frontend/proto" \
@@ -55,7 +55,7 @@ sed -i -E 's/^import.*_pb2/from . &/' backend/src/proto/*.py client/src/couchers
 sed -i -E 's/^from google.api/from .google.api/' backend/src/proto/*.py client/src/couchers/proto/*.py media/src/proto/*.py
 sed -i -E 's/^from google.api/from ./' backend/src/proto/google/api/*.py client/src/couchers/proto/google/api/*.py media/src/proto/google/api/*.py
 
-(cd proto/gen && tar czf python.tar.gz python)
-(cd proto/gen && tar czf ts.tar.gz ts)
+(cd proto/gen/python && tar czf ../python.tar.gz proto)
+(cd proto/gen/ts && tar czf ../ts.tar.gz proto)
 
 echo "OK"
