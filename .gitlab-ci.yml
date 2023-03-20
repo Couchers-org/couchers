@@ -1,5 +1,4 @@
 stages:
-  - protos
   - build
   - test
   - preview
@@ -31,21 +30,8 @@ default:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
-protos:
-  needs: []
-  stage: protos
-  image: $GRPC_TAG
-  inherit:
-    # the grpc container doesn't have docker, no need to login
-    default: false
-  script:
-    - echo "Done!"
-  artifacts:
-    paths:
-      - ./
-
 build:web-dev:
-  needs: ["protos"]
+  needs: []
   stage: build
   script:
     - docker pull $WEB_DEV_RELEASE_TAG || true
@@ -63,7 +49,7 @@ build:web-dev:
       - artifacts/web-dev/
 
 build:web:
-  needs: ["protos"]
+  needs: []
   stage: build
   script:
     - docker pull $WEB_RELEASE_TAG || true
@@ -76,7 +62,7 @@ build:web:
       - artifacts/web/
 
 build:web-next:
-  needs: ["protos"]
+  needs: []
   stage: build
   script:
     - docker pull $WEB_NEXT_RELEASE_TAG || true
@@ -203,8 +189,6 @@ wait:before-release:
   script:
     - echo "Done waiting."
   needs:
-    - job: protos
-      artifacts: false
     - job: build:web-dev
       artifacts: false
     - job: build:web

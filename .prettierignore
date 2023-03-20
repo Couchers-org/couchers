@@ -17,5 +17,5 @@ deployment/
 Makefile
 README.md
 docker-compose.yaml
-proto_may_27_2022.tar.gz
+typescript_protos.tar.gz
 tsconfig.tsbuildinfo
