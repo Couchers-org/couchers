@@ -269,7 +269,7 @@ preview:protos:
     - aws s3 cp app/proto/gen/ts.tgz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$ts_sum/ts.tgz
     - aws s3 cp app/proto/gen/descriptors.pb s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$pb_sum/descriptors.pb
     - >
-      echo '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>'
+      echo '<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:monospace}</style></head><body>'
       '<h1>Couchers generated protos @ <a href="https://github.com/Couchers-org/couchers/commit/'$CI_COMMIT_SHA'">'$CI_COMMIT_SHORT_SHA'</a>.</h1>'
       '<p>Generated at '$(TZ=UTC date)'.</p>'
       '<ul>'
