@@ -264,7 +264,7 @@ preview:protos:
   script:
     - echo '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><h1>Couchers generated protos @ <a href="https://github.com/Couchers-org/couchers/commit/'$(echo $CI_COMMIT_SHORT_SHA)'">'$(echo $CI_COMMIT_SHORT_SHA)'</a>. Generated '$(TZ=UTC date)'.</h1><ul><li><a href="./python.tgz">Python</a></li><li><a href="./ts.tgz">TypeScript</a></li><li><a href="./descriptors.pb">Descriptors</a></li></ul></body></html>' > app/proto/gen/index.html
     - aws s3 cp app/proto/gen/python.tgz s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_SHORT_SHA/
-    - aws s3 cp app/proto/gen/js.tgz s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_SHORT_SHA/
+    - aws s3 cp app/proto/gen/ts.tgz s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_SHORT_SHA/
     - aws s3 cp app/proto/gen/descriptors.pb s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_SHORT_SHA/
     - aws s3 cp app/proto/gen/index.html s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_SHORT_SHA/
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--protos.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--protos.$PREVIEW_DOMAIN/"
