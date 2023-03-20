@@ -262,9 +262,9 @@ preview:protos:
     # no docker login
     default: false
   script:
-    - python_sum=$(sha256sum app/proto/gen/python.tgz | head -c 40)
-    - ts_sum=$(sha256sum app/proto/gen/ts.tgz | head -c 40)
-    - pb_sum=$(sha256sum app/proto/gen/descriptors.pb | head -c 40)
+    - python_sum=$(sha256sum app/proto/gen/python.tgz | head -c 64)
+    - ts_sum=$(sha256sum app/proto/gen/ts.tgz | head -c 64)
+    - pb_sum=$(sha256sum app/proto/gen/descriptors.pb | head -c 64)
     - aws s3 cp app/proto/gen/python.tgz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$python_sum/python.tgz
     - aws s3 cp app/proto/gen/ts.tgz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$ts_sum/ts.tgz
     - aws s3 cp app/proto/gen/descriptors.pb s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$pb_sum/descriptors.pb
