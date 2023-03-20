@@ -19,7 +19,7 @@ COPY . .
 
 RUN tar -xf proto_may_27_2022.tar.gz && rm -f proto_may_27_2022.tar.gz
 
-RUN cp .env.${environment} env && \
+RUN cp .env.$environment env && \
     rm .env.* && \
     mv env .env.local
 
