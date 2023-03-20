@@ -7,15 +7,12 @@ node_modules
 _next/
 coverage/
 junit.xml
-ci-build-protos.sh
 *.log
 yarn.lock
 Dockerfile
 Dockerfile.prod
-generate_protos.sh
 deployment/
 Makefile
 README.md
-docker-compose.yaml
 typescript_protos.tar.gz
 tsconfig.tsbuildinfo
