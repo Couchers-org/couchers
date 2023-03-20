@@ -263,7 +263,7 @@ preview:protos:
     default: false
   script:
     - python_sum=$(sha256sum app/proto/gen/python.tgz)
-    - js_sum=$(sha256sum app/proto/gen/js.tgz)
+    - ts_sum=$(sha256sum app/proto/gen/ts.tgz)
     - pb_sum=$(sha256sum app/proto/gen/descriptors.pb)
     - aws s3 cp app/proto/gen/python.tgz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$(python_sum)/python.tgz
     - aws s3 cp app/proto/gen/ts.tgz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$(ts_sum)/ts.tgz
