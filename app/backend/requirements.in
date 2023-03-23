@@ -20,6 +20,6 @@ pyyaml
 requests
 sentry-sdk
 Shapely
+sqlalchemy
 sqlalchemy-utils
-sqlalchemy>=1.4,<2.1
 stripe>=2.58.0,<6.0
