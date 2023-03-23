@@ -5,7 +5,6 @@ tests/**
 .git*
 Docker*
 docker-compose.yml
-deployment
 documentation
 node_modules
 Dockerfile*

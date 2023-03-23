@@ -58,5 +58,4 @@ revision.txt
 .vscode
 
 # For gitlabci and helm stuff
-deployment/*/charts
 requirements.lock

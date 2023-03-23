@@ -55,4 +55,4 @@ _hint_: You can find a set of users for logging in at the [dummy data loaded in 
 
 7. Remember to also get review on your post-review changes.
 
-8. Once everything is resolved, you can merge the PR if you feel confident, or ask someone to merge for you. If there are merge conflicts, merge the base branch (probably `master`) into your branch first, and make sure everything is still okay.
+8. Once everything is resolved, you can merge the PR if you feel confident, or ask someone to merge for you. If there are merge conflicts, merge the base branch (probably `develop`) into your branch first, and make sure everything is still okay.

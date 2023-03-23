@@ -12,7 +12,7 @@ variables:
   GIT_DEPTH: 10
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
-  RELEASE_BRANCH: master
+  RELEASE_BRANCH: develop
   GRPC_TAG: registry.gitlab.com/couchers/grpc:latest
   WEB_DEV_RELEASE_TAG: $CI_REGISTRY_IMAGE/web-dev:latest
   WEB_RELEASE_TAG: $CI_REGISTRY_IMAGE/web:latest
