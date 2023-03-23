@@ -106,7 +106,6 @@ def test_VerifyPhone():
     user, token = generate_user()
     user_id = user.id
     with account_session(token) as account, api_session(token) as api:
-
         with pytest.raises(grpc.RpcError) as e:
             account.VerifyPhone(account_pb2.VerifyPhoneReq(token="123455"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -134,7 +133,6 @@ def test_VerifyPhone_antibrute():
     user, token = generate_user()
     user_id = user.id
     with account_session(token) as account, api_session(token) as api:
-
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == user_id)).scalar_one()
             user.phone_verification_token = "111112"
