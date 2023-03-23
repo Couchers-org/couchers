@@ -16,3 +16,4 @@ Makefile
 README.md
 typescript_protos.tar.gz
 tsconfig.tsbuildinfo
+update_protos.sh
