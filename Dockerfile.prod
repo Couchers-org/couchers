@@ -29,6 +29,9 @@ FROM node:14-slim as runner
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED 1
 
+ARG version
+ENV NEXT_PUBLIC_VERSION=$version
+
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
