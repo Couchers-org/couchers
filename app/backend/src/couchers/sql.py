@@ -24,7 +24,7 @@ See issue here: https://github.com/sqlalchemy/sqlalchemy/issues/6700
 
 
 def couchers_select(*expr):
-    return CouchersSelect._create_future_select(*expr)
+    return CouchersSelect(*expr)
 
 
 class CouchersSelect(Select):
