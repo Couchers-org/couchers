@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-alembic==1.9.3
+alembic==1.10.2
     # via -r requirements.in
 attrs==21.4.0
     # via pytest
@@ -126,7 +126,9 @@ toml==0.10.2
 tomli==2.0.0
     # via coverage
 typing-extensions==4.5.0
-    # via sqlalchemy
+    # via
+    #   alembic
+    #   sqlalchemy
 urllib3==1.26.8
     # via
     #   botocore
