@@ -77,7 +77,6 @@ services:
     networks:
       - backend_prometheus
   web:
-    # todo: fix this
     image: registry.gitlab.com/couchers/web-frontend/web
     restart: always
     expose:
