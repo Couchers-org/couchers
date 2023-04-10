@@ -279,7 +279,7 @@ preview:protos:
       '</ul></body></html>' > app/proto/gen/index.html
     - aws s3 cp app/proto/gen/index.html s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_SHORT_SHA/
     - aws s3 cp app/proto/gen/index.html s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_REF_SLUG/
-    - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--protos.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--protos.$PREVIEW_DOMAIN/"
+    - echo "Done, protos available at https://$CI_COMMIT_SHORT_SHA--protos.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--protos.$PREVIEW_DOMAIN/"
 
 # having this here stops us from having to list out all the needs in each release below. list out all that need to be waited for until releasing a new version
 wait:before-release:

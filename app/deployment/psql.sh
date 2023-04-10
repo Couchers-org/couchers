@@ -11,6 +11,6 @@ source backup.prod.env
 docker_image=${DB_DOCKER_IMAGE:-"postgis/postgis:15-3.3"}
 
 # --net=host is required so we can hit localhost from inside the container
-docker run --net=host -it $docker_image psql $DATABASE_CONNECTION_STRING
+docker run --log-driver none --net=host -it $docker_image psql $DATABASE_CONNECTION_STRING
 
 popd
