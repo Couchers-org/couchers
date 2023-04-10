@@ -105,7 +105,7 @@ requests==2.28.2
     #   stripe
 s3transfer==0.6.0
     # via boto3
-sentry-sdk==1.9.0
+sentry-sdk==1.19.1
     # via -r requirements.in
 shapely==2.0.1
     # via -r requirements.in
@@ -129,7 +129,7 @@ typing-extensions==4.5.0
     # via
     #   alembic
     #   sqlalchemy
-urllib3==1.26.8
+urllib3==1.26.15
     # via
     #   botocore
     #   requests
