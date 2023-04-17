@@ -6,8 +6,6 @@
 #
 alembic==1.10.2
     # via -r requirements.in
-attrs==21.4.0
-    # via pytest
 autoflake==1.5.3
     # via -r requirements.in
 black==23.1.0
@@ -85,7 +83,7 @@ pyflakes==2.4.0
     # via autoflake
 pynacl==1.5.0
     # via -r requirements.in
-pytest==7.2.2
+pytest==7.3.1
     # via
     #   -r requirements.in
     #   pytest-cov
