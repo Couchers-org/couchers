@@ -10,7 +10,7 @@ attrs==21.4.0
     # via pytest
 autoflake==1.5.3
     # via -r requirements.in
-black==23.1.0
+black==23.3.0
     # via -r requirements.in
 boto3==1.26.109
     # via -r requirements.in
