@@ -147,9 +147,6 @@ def process_event_creation_emails(payload):
     # don't send emails to global and regional events
     excluded_cluster_parent_node_ids = {
         "Global Community": 1,
-        "Americas": 4,
-        "Asia-Pacific": 7,
-        "Europe, Africa, and Middle East": 10,
     }
     # don't send emails to users more than max_radius away from an event if there are more than max_users subscribed
     max_users = 1000
