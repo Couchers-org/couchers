@@ -173,6 +173,9 @@ def process_event_creation_emails(payload):
                     "which is too large a community for sending emails."
                 )
                 return
+        if creator not in cluster.admins:
+            logger.info(f"User {creator.name=} created event {event.name=} but is not an admin of cluster {cluster.name=}.")
+            return
 
         users_subquery = session.execute(
             select(User)
