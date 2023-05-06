@@ -165,6 +165,8 @@ def process_event_creation_emails(payload):
 
         creator = event.creator_user
         if not creator.has_completed_profile():
+            # TODO: notify people once their profile is completed (maybe it makes more sense to just prevent
+            # incomplete user profiles from even being able to create events though via frontend logic)
             logger.info(f"User {creator.name=} created event {event.name=} but has an incomplete profile.")
             return
         for community_name, node_id in excluded_cluster_parent_node_ids.items():
