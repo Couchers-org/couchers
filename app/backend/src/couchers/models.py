@@ -274,6 +274,8 @@ class User(Base):
     # This column will be removed in the future when notifications are enabled for everyone and come out of preview
     new_notifications_enabled = Column(Boolean, nullable=False, server_default=text("false"))
 
+    send_event_notifications = Column(Boolean, nullable=False, server_default=text("true"))
+
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
     __table_args__ = (
@@ -1850,6 +1852,8 @@ class BackgroundJobType(enum.Enum):
     generate_message_notifications = enum.auto()
     # payload: google.protobuf.Empty
     update_recommendation_scores = enum.auto()
+    # payload: google.protobuf.Empty
+    refresh_materialized_views = enum.auto()
     # payload: jobs.SendEventCreationEmailPayload
     send_event_creation_email = enum.auto()
 
