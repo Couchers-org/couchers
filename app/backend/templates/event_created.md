@@ -9,3 +9,5 @@ Stuff: {{ event.organizers, event.creator_user, event.owner_cluster.name, event.
 {{ button("Go To Event", event_link)|couchers_safe}} or {{ link(event_link, html)|couchers_safe }}
 <{{ event_link|couchers_escape }}>
 Hi {{ host_request.host.name|couchers_escape }}!
+
+Unsubscribe from all event notifications at: {{ link(unsubscribe_link, html)|couchers_safe }}.
