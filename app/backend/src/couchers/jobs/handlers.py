@@ -174,7 +174,9 @@ def process_event_creation_emails(payload):
                 )
                 return
         if creator not in cluster.admins:
-            logger.info(f"User {creator.name=} created event {event.name=} but is not an admin of cluster {cluster.name=}.")
+            logger.info(
+                f"User {creator.name=} created event {event.name=} but is not an admin of cluster {cluster.name=}."
+            )
             return
 
         users_subquery = session.execute(
@@ -191,8 +193,15 @@ def process_event_creation_emails(payload):
             ).all()
 
         for user in users:
-            logger.info(f"Sending email for event {event.name=} to subscriber {user.name=} of cluster {cluster.name=}")
-            send_event_creation_email(user, event)
+            if user.send_event_notifications:
+                logger.info(
+                    f"Sending email for event {event.name=} to subscriber {user.name=} of cluster {cluster.name=}"
+                )
+                send_event_creation_email(user, event)
+            else:
+                logger.info(
+                    f"User {user.name=} has unsubscribed from event notifications, not sending email for event {event.name=}"
+                )
 
 
 def process_send_message_notifications(payload):

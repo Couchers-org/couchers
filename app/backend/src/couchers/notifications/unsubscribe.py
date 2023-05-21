@@ -54,6 +54,15 @@ def generate_unsub_topic_action(notification):
     )
 
 
+def generate_unsub_event_notifications(user_id):
+    return _generate_unsubscribe_link(
+        unsubscribe_pb2.UnsubscribePayload(
+            user_id=user_id,
+            event_notifications=unsubscribe_pb2.UnsubscribeEventNotifications(),
+        )
+    )
+
+
 def unsubscribe(request, context):
     """
     Returns a response string or uses context.abort upon error
@@ -97,3 +106,7 @@ def unsubscribe(request, context):
                 return "That group chat has been muted."
             else:
                 context.abort(grpc.StatusCode.UNIMPLEMENTED, errors.CANT_UNSUB_TOPIC)
+        if payload.HasField("event_notifications"):
+            logger.info(f"User {user.name} unsubscribing from event notifications")
+            user.send_event_notifications = False
+            return "You've been unsubscribed from all event notifications"

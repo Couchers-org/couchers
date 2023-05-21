@@ -22,6 +22,10 @@ message UnsubscribeTopicAction {
   string action = 2;
 }
 
+message UnsubscribeEventNotifications {
+  // unsubscribe from event notifications in PR #3362
+}
+
 message UnsubscribePayload {
   int64 user_id = 1;
 
@@ -29,5 +33,6 @@ message UnsubscribePayload {
     MuteAll all = 2;
     UnsubscribeTopicKey topic_key = 3;
     UnsubscribeTopicAction topic_action = 4;
+    UnsubscribeEventNotifications event_notifications = 5;
   }
 }
