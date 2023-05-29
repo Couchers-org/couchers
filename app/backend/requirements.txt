@@ -97,7 +97,7 @@ pytz==2023.3
     # via -r requirements.in
 pyyaml==6.0
     # via -r requirements.in
-requests==2.30.0
+requests==2.31.0
     # via
     #   -r requirements.in
     #   stripe
