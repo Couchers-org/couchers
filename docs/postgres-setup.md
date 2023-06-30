@@ -26,3 +26,9 @@ hostnossl       all     postgres        172.16.0.0/12           scram-sha-256
 
 host all all all reject
 ```
+
+## Reset password
+
+```
+alter role NAME_ro with password 'pwd';
+```
