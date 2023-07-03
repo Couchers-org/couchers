@@ -10,9 +10,9 @@ autoflake==1.5.3
     # via -r requirements.in
 black==23.3.0
     # via -r requirements.in
-boto3==1.26.160
+boto3==1.26.165
     # via -r requirements.in
-botocore==1.29.160
+botocore==1.29.165
     # via
     #   boto3
     #   s3transfer
