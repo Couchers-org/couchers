@@ -52,7 +52,7 @@ sentry-sdk==1.27.1
     # via -r requirements.in
 urllib3==1.26.14
     # via sentry-sdk
-uwsgi==2.0.21
+uwsgi==2.0.22
     # via -r requirements.in
 werkzeug==2.3.4
     # via flask
