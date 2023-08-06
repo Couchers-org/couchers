@@ -68,6 +68,8 @@ docker-compose up --build
 
 This will build the backend, database, and proxy, and start them up.
 
+On **macOS**, if you receive `Error response from daemon: Ports are not available: exposing port TCP 0.0.0.0:5000 -> 0.0.0.0:0: listen tcp 0.0.0.0:5000: bind: address already in use`, this could be because AirPlay Receiver is active, which binds to the same port 5000. You can confirm this with `lsof -i :5000`, which shows open files for active processes on port 5000, where `ControlCe` is listed as the command. Just [deactivate AirPlay Receiver](https://apple.stackexchange.com/questions/431154/controlcenter-app-listens-to-port-5000-tcp-on-monterey-os-is-that-normal-why-d) to continue.
+
 ## 4. Install and launch the web frontend with `yarn`
 
 Navigate to the `app/web` folder, and run the following commands to start the web frontend:
