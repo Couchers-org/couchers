@@ -1547,6 +1547,15 @@ class Event(Base):
     organizers = relationship(
         "User", backref="organized_events", secondary="event_organizers", lazy="dynamic", viewonly=True
     )
+    clusters = relationship(
+        "Cluster",
+        lazy="dynamic",
+        backref="event_clusters",
+        secondary="cluster_event_associations",
+        primaryjoin="Event.id == ClusterEventAssociation.event_id",
+        secondaryjoin="Cluster.id == ClusterEventAssociation.cluster_id",
+        viewonly=True,
+    )
     thread = relationship("Thread", backref="event", uselist=False)
     creator_user = relationship("User", backref="created_events", foreign_keys="Event.creator_user_id")
     owner_user = relationship("User", backref="owned_events", foreign_keys="Event.owner_user_id")
