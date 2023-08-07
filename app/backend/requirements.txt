@@ -8,7 +8,7 @@ alembic==1.11.1
     # via -r requirements.in
 autoflake==1.5.3
     # via -r requirements.in
-black==23.3.0
+black==23.7.0
     # via -r requirements.in
 boto3==1.28.1
     # via -r requirements.in
