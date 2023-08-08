@@ -6,7 +6,7 @@
 #
 alembic==1.11.1
     # via -r requirements.in
-autoflake==1.5.3
+autoflake==2.2.0
     # via -r requirements.in
 black==23.7.0
     # via -r requirements.in
@@ -79,7 +79,7 @@ psycopg2-binary==2.9.6
     # via -r requirements.in
 pycparser==2.21
     # via cffi
-pyflakes==2.4.0
+pyflakes==3.1.0
     # via autoflake
 pynacl==1.5.0
     # via -r requirements.in
@@ -119,8 +119,6 @@ sqlalchemy-utils==0.41.1
     # via -r requirements.in
 stripe==5.5.0
     # via -r requirements.in
-toml==0.10.2
-    # via autoflake
 tomli==2.0.0
     # via coverage
 typing-extensions==4.5.0
