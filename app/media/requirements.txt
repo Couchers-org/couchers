@@ -36,7 +36,7 @@ pillow==10.0.0
     # via -r requirements.in
 pluggy==1.0.0
     # via pytest
-protobuf==4.23.4
+protobuf==4.24.1
     # via -r requirements.in
 pycparser==2.21
     # via cffi
