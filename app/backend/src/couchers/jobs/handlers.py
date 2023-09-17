@@ -24,7 +24,6 @@ from couchers.models import (
     ClusterRole,
     ClusterSubscription,
     Event,
-    EventOccurrence,
     Float,
     GroupChat,
     GroupChatSubscription,
