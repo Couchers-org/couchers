@@ -1332,6 +1332,11 @@ class Cluster(Base):
         ),
     )
 
+    @property
+    def is_leaf(self) -> bool:
+        """Whether the cluster is a leaf node in the cluster hierarchy."""
+        return len(self.parent_node.child_nodes) == 0
+
 
 class NodeClusterAssociation(Base):
     """
