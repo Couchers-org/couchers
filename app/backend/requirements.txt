@@ -117,7 +117,7 @@ sqlalchemy==2.0.21
     #   sqlalchemy-utils
 sqlalchemy-utils==0.41.1
     # via -r requirements.in
-stripe==5.5.0
+stripe==6.7.0
     # via -r requirements.in
 toml==0.10.2
     # via autoflake
@@ -127,6 +127,7 @@ typing-extensions==4.5.0
     # via
     #   alembic
     #   sqlalchemy
+    #   stripe
 urllib3==1.26.15
     # via
     #   botocore
