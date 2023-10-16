@@ -32,7 +32,7 @@ markupsafe==2.1.2
     #   werkzeug
 packaging==21.3
     # via pytest
-pillow==10.0.0
+pillow==10.1.0
     # via -r requirements.in
 pluggy==1.0.0
     # via pytest
