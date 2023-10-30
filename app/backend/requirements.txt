@@ -28,6 +28,8 @@ click==8.0.3
     # via black
 coverage[toml]==6.3.1
     # via pytest-cov
+exceptiongroup==1.1.3
+    # via pytest
 geoalchemy2==0.13.3
     # via -r requirements.in
 greenlet==1.1.2
@@ -36,6 +38,10 @@ grpcio==1.54.2
     # via -r requirements.in
 idna==3.3
     # via requests
+importlib-metadata==6.8.0
+    # via alembic
+importlib-resources==6.1.0
+    # via alembic
 iniconfig==1.1.1
     # via pytest
 isort==5.12.0
@@ -117,18 +123,27 @@ sqlalchemy==2.0.21
     #   sqlalchemy-utils
 sqlalchemy-utils==0.41.1
     # via -r requirements.in
-stripe==5.5.0
+stripe==7.1.0
     # via -r requirements.in
 toml==0.10.2
     # via autoflake
 tomli==2.0.0
-    # via coverage
+    # via
+    #   black
+    #   coverage
+    #   pytest
 typing-extensions==4.5.0
     # via
     #   alembic
+    #   black
     #   sqlalchemy
+    #   stripe
 urllib3==1.26.15
     # via
     #   botocore
     #   requests
     #   sentry-sdk
+zipp==3.17.0
+    # via
+    #   importlib-metadata
+    #   importlib-resources
