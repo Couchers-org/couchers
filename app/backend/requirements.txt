@@ -10,9 +10,9 @@ autoflake==1.5.3
     # via -r requirements.in
 black==23.7.0
     # via -r requirements.in
-boto3==1.28.53
+boto3==1.28.78
     # via -r requirements.in
-botocore==1.31.53
+botocore==1.31.78
     # via
     #   boto3
     #   s3transfer
@@ -27,7 +27,11 @@ charset-normalizer==2.0.11
 click==8.0.3
     # via black
 coverage[toml]==6.3.1
-    # via pytest-cov
+    # via
+    #   coverage
+    #   pytest-cov
+exceptiongroup==1.1.3
+    # via pytest
 geoalchemy2==0.13.3
     # via -r requirements.in
 greenlet==1.1.2
@@ -36,6 +40,10 @@ grpcio==1.54.2
     # via -r requirements.in
 idna==3.3
     # via requests
+importlib-metadata==6.8.0
+    # via alembic
+importlib-resources==6.1.0
+    # via alembic
 iniconfig==1.1.1
     # via pytest
 isort==5.12.0
@@ -101,7 +109,7 @@ requests==2.31.0
     # via
     #   -r requirements.in
     #   stripe
-s3transfer==0.6.0
+s3transfer==0.7.0
     # via boto3
 sentry-sdk==1.31.0
     # via -r requirements.in
@@ -122,13 +130,21 @@ stripe==5.5.0
 toml==0.10.2
     # via autoflake
 tomli==2.0.0
-    # via coverage
+    # via
+    #   black
+    #   coverage
+    #   pytest
 typing-extensions==4.5.0
     # via
     #   alembic
+    #   black
     #   sqlalchemy
 urllib3==1.26.15
     # via
     #   botocore
     #   requests
     #   sentry-sdk
+zipp==3.17.0
+    # via
+    #   importlib-metadata
+    #   importlib-resources
