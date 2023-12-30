@@ -7,9 +7,8 @@ We collaborate on code through git, hosted on GitHub. If you are a software engi
 If you are looking for something to help with, have a look at the open issues! They are sorted by tags to help with filtering. Here are some examples:
 
 - [Good first issues](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
-- [Design changes in the web frontend: web, design](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Aweb+label%3Adesign)
 - [Bugs in the backend: backend, bug](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Abackend+label%3Abug+)
-- [New features in the web frontend, not currently waiting for backend: web, feature, !backend](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Aweb+label%3Afeature+-label%3Abackend)
+- [New features, design changes, bugs in the web frontend](https://github.com/Couchers-org/web-frontend/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)
 
 
 ## The development process
