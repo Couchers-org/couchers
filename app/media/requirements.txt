@@ -38,7 +38,7 @@ packaging==21.3
     # via pytest
 pillow==10.1.0
     # via -r requirements.in
-pluggy==1.0.0
+pluggy==1.4.0
     # via pytest
 protobuf==4.25.1
     # via -r requirements.in
@@ -48,7 +48,7 @@ pynacl==1.5.0
     # via -r requirements.in
 pyparsing==3.0.7
     # via packaging
-pytest==7.4.2
+pytest==8.0.0
     # via -r requirements.in
 pyvips==2.2.1
     # via -r requirements.in
