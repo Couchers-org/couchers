@@ -77,7 +77,7 @@ phonenumbers==8.13.18
     # via -r requirements.in
 platformdirs==2.4.1
     # via black
-pluggy==1.0.0
+pluggy==1.4.0
     # via pytest
 prometheus-client==0.18.0
     # via -r requirements.in
@@ -91,7 +91,7 @@ pyflakes==3.1.0
     # via autoflake
 pynacl==1.5.0
     # via -r requirements.in
-pytest==7.4.0
+pytest==8.0.0
     # via
     #   -r requirements.in
     #   pytest-cov
