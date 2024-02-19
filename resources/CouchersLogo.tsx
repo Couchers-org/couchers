@@ -1,5 +1,6 @@
 import { Chip, SvgIcon } from "@material-ui/core";
 import classNames from "classnames";
+import { useAuthContext } from "features/auth/AuthProvider";
 import Link from "next/link";
 import makeStyles from "utils/makeStyles";
 
@@ -26,8 +27,10 @@ export interface CouchersLogoProps {
 
 export default function CouchersLogo({ className }: CouchersLogoProps) {
   const classes = useStyles();
+  const { authState } = useAuthContext();
+
   return (
-    <Link href="/">
+    <Link href={authState.authenticated ? "/dashboard" : "/login"}>
       <a className={classes.root}>
         <SvgIcon
           className={classNames(classes.logo, className)}
