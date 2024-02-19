@@ -248,7 +248,7 @@ export default function ProfileTagInput({
           disablePortal
           options={options
             .concat(pendingValue.filter((item) => options.indexOf(item) < 0))
-            .sort((a, b) => -b[0].localeCompare(a[0]))}
+            .sort((a, b) => -b.localeCompare(a))}
           renderOption={(option, { selected }) => (
             <>
               <Checkbox
