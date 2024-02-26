@@ -16,17 +16,6 @@ If you need help with any of these, please ask :)
 - [ ] Run the backend locally and it works
 - [ ] Added migrations if there are any database changes, rebased onto `develop` if necessary for linear migration history
 
-**Web frontend checklist**
-- [ ] Formatted my code with `yarn format && yarn lint --fix`
-- [ ] There are no warnings from `yarn lint`
-- [ ] There are no console warnings when running the app
-- [ ] Added any new components to storybook
-- [ ] Added tests where relevant
-- [ ] All tests pass
-- [ ] Clicked around my changes running locally and it works
-- [ ] Checked Desktop, Mobile and Tablet screen sizes
-
-
 <!---
 Remember to request review from couchers-org/web, couchers-org/@backend or an individual.
 Once your code is approved, remember to merge it if you have write access
