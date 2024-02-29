@@ -94,7 +94,7 @@ def minimum_allowed_birthdate():
 
     This approximation works on leap days!
     """
-    return today() - timedelta(days=365.25*18)
+    return today() - timedelta(days=365.25 * 18)
 
 
 def today():

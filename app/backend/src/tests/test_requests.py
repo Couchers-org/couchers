@@ -92,7 +92,7 @@ def test_create_request(db):
         )
 
     today_ = today()
-    today_plus_one_year = today_.replace(year=today_.year + 1)
+    today_plus_one_year = today_ + timedelta(days=365)
     today_plus_one_year_plus_2 = (today_plus_one_year + timedelta(days=2)).isoformat()
     today_plus_one_year_plus_3 = (today_plus_one_year + timedelta(days=3)).isoformat()
     with pytest.raises(grpc.RpcError) as e:
