@@ -1,6 +1,6 @@
 import http.cookies
 import re
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from email.utils import formatdate
 
 import pytz
@@ -91,9 +91,10 @@ def now():
 def minimum_allowed_birthdate():
     """
     Most recent birthdate allowed to register (must be 18 years minimum)
+
+    This approximation works on leap days!
     """
-    today_ = today()
-    return today_.replace(today_.year - 18)
+    return today() - timedelta(days=365.25*18)
 
 
 def today():
