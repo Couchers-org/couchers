@@ -32,7 +32,7 @@ coverage[toml]==6.3.1
     #   pytest-cov
 exceptiongroup==1.1.3
     # via pytest
-geoalchemy2==0.13.3
+geoalchemy2==0.14.6
     # via -r requirements.in
 greenlet==1.1.2
     # via sqlalchemy
