@@ -133,6 +133,7 @@ message UserSearchReq {
   google.protobuf.BoolValue drinks_at_home = 25;
   google.protobuf.BoolValue parking = 26;
   google.protobuf.BoolValue camping_ok = 27;
+  google.protobuf.BoolValue profile_completed = 31;
 
   uint32 page_size = 1;
   string page_token = 2;

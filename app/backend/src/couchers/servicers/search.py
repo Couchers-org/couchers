@@ -458,6 +458,8 @@ class Search(search_pb2_grpc.SearchServicer):
 
             if request.only_with_references:
                 statement = statement.join(Reference, Reference.to_user_id == User.id)
+            if request.profile_completed:
+                statement = statement.where(User.has_completed_profile == True)
 
             # TODO:
             # google.protobuf.StringValue language = 11;
