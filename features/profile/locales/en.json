@@ -43,15 +43,15 @@
         "housemates": "Housemates",
         "housemate_details": "Housemate details",
         "kid_details": "Children details",
-        "last_minute": "Last-minute requests",
+        "last_minute": "Accept last-minute requests",
         "local_area": "Local area information",
-        "max_guests": "Max # of guests",
+        "max_guests": "Max number of guests",
         "my_home": "My home",
         "parking": "Parking available",
         "parking_details": "Parking details",
         "pet_details": "Pet details",
         "sleeping_arrangement": "Sleeping arrangement",
-        "space": "Private / shared space",
+        "space": "Sleeping privacy",
         "transportation": "Transportation, Parking, Accessibility",
         "wheelchair": "Wheelchair accessible",
         "other_info": "Additional information"
@@ -70,11 +70,11 @@
         "education": "Education"
     },
     "edit_home_questions": {
-        "accept_drinking": "Accept drinking",
-        "accept_pets": "Accept pets",
-        "accept_smoking": "Accept smoking",
-        "accept_kids": "Accept children",
-        "accept_camping": "Accept Camping"
+        "accept_drinking": "Okay with drinking",
+        "accept_pets": "Hosts pets",
+        "accept_smoking": "Okay with smoking",
+        "accept_kids": "Hosts children",
+        "accept_camping": "Tent camping available"
     },
     "unspecified_info": "Ask me",
     "smoking_location": {
@@ -84,8 +84,8 @@
         "yes": "Yes"
     },
     "sleeping_arrangement": {
-        "private": "Private",
-        "common": "Common",
+        "private": "Private space",
+        "common": "Common area",
         "shared_room": "Shared room",
         "shared_space": "Shared space"
     },
