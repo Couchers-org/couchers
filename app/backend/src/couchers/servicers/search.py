@@ -378,6 +378,8 @@ class Search(search_pb2_grpc.SearchServicer):
                             User.additional_information.ilike(f"%{request.query.value}%"),
                         )
                     )
+            if request.profile_completed:
+                statement = statement.where(User.has_completed_profile == True)
 
             if request.HasField("last_active"):
                 raw_dt = to_aware_datetime(request.last_active)
@@ -458,8 +460,7 @@ class Search(search_pb2_grpc.SearchServicer):
 
             if request.only_with_references:
                 statement = statement.join(Reference, Reference.to_user_id == User.id)
-            if request.profile_completed:
-                statement = statement.where(User.has_completed_profile == True)
+
 
             # TODO:
             # google.protobuf.StringValue language = 11;
