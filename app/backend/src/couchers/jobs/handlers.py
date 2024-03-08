@@ -23,6 +23,7 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    Event,
     Float,
     GroupChat,
     GroupChatSubscription,
@@ -39,7 +40,12 @@ from couchers.notifications.background import handle_email_digests, handle_email
 from couchers.notifications.notify import notify
 from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
-from couchers.tasks import enforce_community_memberships, send_onboarding_email, send_reference_reminder_email
+from couchers.tasks import (
+    enforce_community_memberships,
+    send_event_creation_email,
+    send_onboarding_email,
+    send_reference_reminder_email,
+)
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -129,6 +135,43 @@ def process_generate_message_notifications(payload):
                 content=message.text,
                 link=urls.chat_link(chat_id=message.conversation_id),
             )
+
+
+def process_event_creation_emails(payload):
+    """Sends out emails to all users subscribed to a newly created event's cluster."""
+    logger.info(f"Sending out emails for event_id = {payload.event_id}")
+
+    with session_scope() as session:
+        event = session.execute(select(Event).where(Event.id == payload.event_id)).one()
+        creator = event.creator_user
+
+        # can be replaced by the frontend preventing an incomplete profile from creating an event
+        if not creator.has_completed_profile():
+            logger.info(f"{creator.name=} can't send emails for {event.name=} because of an incomplete profile.")
+            return
+
+        subscribers: set[User] = set()
+        for cluster in event.clusters:
+            if cluster.parent_node_id == 1:
+                logger.info(f"The Global Community is too big for email notifications.")
+            elif cluster.is_leaf or creator in cluster.admins:
+                subscribers.update(cluster.members)
+            else:
+                max_radius = 20000
+                nearby_subscribers = session.execute(
+                    select(User)
+                    .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+                    .where(ClusterSubscription.cluster_id == cluster.id)
+                    .where(func.ST_Contains(func.ST_Buffer(event.occurrences[0].geom, max_radius), User.geom))
+                ).all()
+                subscribers.update(nearby_subscribers)
+
+        for subscriber in subscribers:
+            if subscriber.send_event_notifications:
+                logger.info(f"Sending email for {event.name=} to {subscriber.name=} of {cluster.name=}.")
+                send_event_creation_email(subscriber, event)
+            else:
+                logger.info(f"No email for {event.name=} to {subscriber.name=} because they have unsubscribed.")
 
 
 def process_send_message_notifications(payload):

@@ -5,6 +5,7 @@ from google.protobuf import empty_pb2
 from couchers.jobs.handlers import (
     process_add_users_to_email_list,
     process_enforce_community_membership,
+    process_event_creation_emails,
     process_generate_message_notifications,
     process_handle_email_digests,
     process_handle_email_notifications,
@@ -41,6 +42,10 @@ JOBS = {
     BackgroundJobType.generate_message_notifications: (
         jobs_pb2.GenerateMessageNotificationsPayload,
         process_generate_message_notifications,
+    ),
+    BackgroundJobType.send_event_creation_email: (
+        jobs_pb2.SendEventCreationEmailPayload,
+        process_event_creation_emails,
     ),
     BackgroundJobType.update_recommendation_scores: (empty_pb2.Empty, process_update_recommendation_scores),
     BackgroundJobType.refresh_materialized_views: (empty_pb2.Empty, process_refresh_materialized_views),

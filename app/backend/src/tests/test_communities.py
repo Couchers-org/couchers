@@ -188,7 +188,7 @@ def create_event(token, community_id, group_id, title, content, start_td):
                 timezone="UTC",
             )
         )
-        api.TransferEvent(
+        return api.TransferEvent(
             events_pb2.TransferEventReq(
                 event_id=res.event_id,
                 new_owner_community_id=community_id,

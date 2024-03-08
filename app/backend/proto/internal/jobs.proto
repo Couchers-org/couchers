@@ -20,3 +20,7 @@ message HandleNotificationPayload {
 message GenerateMessageNotificationsPayload {
   int64 message_id = 1;
 }
+
+message SendEventCreationEmailPayload {
+  int64 event_id = 1;
+}
