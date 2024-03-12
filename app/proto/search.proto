@@ -94,6 +94,7 @@ message UserSearchReq {
   google.protobuf.StringValue query = 3;
   // whether the query (if any) should only search through username and display name
   bool query_name_only = 30;
+  bool profile_completed = 31;
 
   // coarsened
   google.protobuf.Timestamp last_active = 4;
