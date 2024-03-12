@@ -85,17 +85,9 @@ def test_user_filter_complete_profile(db):
     user_incomplete_profile, token7 = generate_user(about_me=None, avatar_key="test_avatar_key_2")
 
     with search_session(token7) as api:
-        res = api.UserSearch(
-            search_pb2.UserSearchReq(
-                profile_completed=True
-            )
-        )
+        res = api.UserSearch(search_pb2.UserSearchReq(profile_completed=True))
     assert [result.user.user_id for result in res.results] == [user_complete_profile]
 
     with search_session(token7) as api:
-        res = api.UserSearch(
-            search_pb2.UserSearchReq(
-                profile_completed=False
-            )
-        )
+        res = api.UserSearch(search_pb2.UserSearchReq(profile_completed=False))
     assert [result.user.user_id for result in res.results] == [user_incomplete_profile]
