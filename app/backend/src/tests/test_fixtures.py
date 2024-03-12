@@ -220,7 +220,7 @@ def generate_user(*, delete_user=False, **kwargs):
         user_opts = {
             "username": username,
             "email": f"{username}@dev.couchers.org",
-            "avatar_key": "test",
+            "avatar": "test",
             # password is just 'password'
             # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
             "hashed_password": b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",

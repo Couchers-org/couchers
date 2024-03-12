@@ -80,22 +80,14 @@ def test_user_filter_complete_profile(db):
     Make sure the completed profile flag returns only completed user profile
     """
 
-    user_complete_profile, token6 = generate_user(about_me="this about me is not empty", avatar_key="test_avatar_key_1")
+    user_complete_profile, token6 = generate_user(about_me="this about me is not empty", avatar="test_avatar_1")
 
-    user_incomplete_profile, token7 = generate_user(about_me=None, avatar_key="test_avatar_key_2")
+    user_incomplete_profile, token7 = generate_user(about_me=None, avatar="test_avatar_2")
 
     with search_session(token7) as api:
-        res = api.UserSearch(
-            search_pb2.UserSearchReq(
-                profile_completed=True
-            )
-        )
+        res = api.UserSearch(search_pb2.UserSearchReq(profile_completed=True))
     assert [result.user.user_id for result in res.results] == [user_complete_profile]
 
     with search_session(token7) as api:
-        res = api.UserSearch(
-            search_pb2.UserSearchReq(
-                profile_completed=False
-            )
-        )
+        res = api.UserSearch(search_pb2.UserSearchReq(profile_completed=False))
     assert [result.user.user_id for result in res.results] == [user_incomplete_profile]
