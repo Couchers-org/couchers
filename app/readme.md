@@ -11,9 +11,6 @@ To **run the app locally**, you need to do **four things**:
 1. Get the code, navigate to the `app` folder and install `docker` and `docker-compose`
 2. Compile the protocol buffers
 3. Launch the backend with `docker-compose`
-4. Install and launch the web frontend with `yarn`
-
-Are you only developing on the web frontend? If you don't want to install docker, you can follow the alterative instructions in `web/readme.md`.
 
 ### Note for Windows users
 
@@ -67,17 +64,6 @@ docker-compose up --build
 ```
 
 This will build the backend, database, and proxy, and start them up.
-
-## 4. Install and launch the web frontend with `yarn`
-
-Navigate to the `app/web` folder, and run the following commands to start the web frontend:
-
-```sh
-yarn install
-yarn start
-```
-
-This will take a moment, after which you can go to <http://localhost:3000/>, and you should see the app there. The command might also open the page for you automatically.
 
 ## FAQ
 
