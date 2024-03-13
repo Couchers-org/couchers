@@ -246,7 +246,6 @@ def generate_user(*, delete_user=False, **kwargs):
             "onboarding_emails_sent": 1,
             "last_onboarding_email_sent": now(),
             "new_notifications_enabled": True,
-            "profile_completed": True,
         }
 
         for key, value in kwargs.items():

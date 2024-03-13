@@ -1,7 +1,11 @@
 import pytest
 
 from couchers.utils import create_coordinate
+from couchers.db import session_scope
+from couchers.crypto import random_hex
 from proto import search_pb2
+from couchers.models import Upload, User
+
 from tests.test_communities import testing_communities  # noqa
 from tests.test_fixtures import db, generate_user, search_session, testconfig  # noqa
 
@@ -79,10 +83,34 @@ def test_user_filter_complete_profile(db):
     """
     Make sure the completed profile flag returns only completed user profile
     """
+    uploader_user, _ = generate_user()
+    with session_scope() as session:
+        key = random_hex(32)
+        filename = random_hex(32) + ".jpg"
+        session.add(
+            Upload(
+                key=key,
+                filename=filename,
+                creator_user_id=uploader_user.id,
+            )
+        )
+        session.commit()
 
-    user_complete_profile, token6 = generate_user(profile_completed=True)
+    with session_scope() as session:
+        key2 = random_hex(32)
+        filename = random_hex(32) + ".jpg"
+        session.add(
+            Upload(
+                key=key2,
+                filename=filename,
+                creator_user_id=uploader_user.id,
+            )
+        )
+        session.commit()
 
-    user_incomplete_profile, token7 = generate_user(profile_completed=False)
+    user_complete_profile, token6 = generate_user(about_me="this profile is complete", avatar_key=key)
+
+    user_incomplete_profile, token7 = generate_user(about_me="", avatar_key=key2)
 
     with search_session(token6) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(profile_completed=True))
