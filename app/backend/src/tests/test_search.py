@@ -86,8 +86,8 @@ def test_user_filter_complete_profile(db):
 
     with search_session(token7) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(profile_completed=True))
-    assert [result.user.user_id for result in res.results] == [user_complete_profile]
+        assert [result.user.user_id for result in res.results] == [user_complete_profile]
 
     with search_session(token7) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(profile_completed=False))
-    assert [result.user.user_id for result in res.results] == [user_incomplete_profile]
+        assert [result.user.user_id for result in res.results] == [user_incomplete_profile]
