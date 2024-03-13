@@ -82,7 +82,7 @@ def test_user_filter_complete_profile(db):
 
     user_complete_profile, token6 = generate_user(about_me="this about me is not empty")
 
-    user_incomplete_profile, token7 = generate_user(about_me=None)
+    user_incomplete_profile, token7 = generate_user(about_me="")
 
     with search_session(token7) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(profile_completed=True))
