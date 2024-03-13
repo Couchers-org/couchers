@@ -408,7 +408,7 @@ class Search(search_pb2_grpc.SearchServicer):
                     User.parking_details.in_([parkingdetails2sql[det] for det in request.parking_details_filter])
                 )
             if request.HasField("profile_completed"):
-                statement = statement.where(User.profile_completed == request.profile_completed.value)
+                statement = statement.where(User.has_completed_profile == request.profile_completed.value)
             if request.HasField("guests"):
                 statement = statement.where(User.max_guests >= request.guests.value)
             if request.HasField("last_minute"):
