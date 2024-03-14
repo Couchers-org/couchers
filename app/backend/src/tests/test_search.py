@@ -118,9 +118,9 @@ def test_user_filter_complete_profile(db):
         req = search_pb2.UserSearchReq()
         req.profile_completed.CopyFrom(wrappers_pb2.BoolValue(value=True))
         res = api.UserSearch(req)
-        assert [result.user.user_id for result in res.results] == [user_complete_profile]
+        assert [result.user.user_id for result in res.results] == [user_complete_profile.id]
 
     with search_session(token7) as api:
         req = search_pb2.UserSearchReq()
         req.profile_completed.CopyFrom(wrappers_pb2.BoolValue(value=False))
-        assert [result.user.user_id for result in res.results] == [user_incomplete_profile]
+        assert [result.user.user_id for result in res.results] == [user_incomplete_profile.id]
