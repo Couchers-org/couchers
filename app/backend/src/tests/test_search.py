@@ -5,6 +5,8 @@ from couchers.db import session_scope
 from couchers.crypto import random_hex
 from proto import search_pb2
 from couchers.models import Upload, User
+from google.protobuf import wrappers_pb2
+
 
 from tests.test_communities import testing_communities  # noqa
 from tests.test_fixtures import db, generate_user, search_session, testconfig  # noqa
@@ -114,11 +116,11 @@ def test_user_filter_complete_profile(db):
 
     with search_session(token6) as api:
         req = search_pb2.UserSearchReq()
-        req.profile_completed = True
+        req.profile_completed = wrappers_pb2.BoolValue(value=True)
         res = api.UserSearch(req)
         assert [result.user.user_id for result in res.results] == [user_complete_profile]
 
     with search_session(token7) as api:
         req = search_pb2.UserSearchReq()
-        req.profile_completed = False
+        req.profile_completed = wrappers_pb2.BoolValue(value=False)
         assert [result.user.user_id for result in res.results] == [user_incomplete_profile]
