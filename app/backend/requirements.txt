@@ -27,9 +27,7 @@ charset-normalizer==2.0.11
 click==8.0.3
     # via black
 coverage[toml]==6.3.1
-    # via
-    #   coverage
-    #   pytest-cov
+    # via pytest-cov
 exceptiongroup==1.1.3
     # via pytest
 geoalchemy2==0.13.3
@@ -81,7 +79,7 @@ pluggy==1.0.0
     # via pytest
 prometheus-client==0.18.0
     # via -r requirements.in
-protobuf==4.23.4
+protobuf==5.26.0
     # via -r requirements.in
 psycopg2-binary==2.9.9
     # via -r requirements.in
