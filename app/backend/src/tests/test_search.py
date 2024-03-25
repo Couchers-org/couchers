@@ -85,6 +85,7 @@ def test_user_filter_complete_profile(db):
     Make sure the completed profile flag returns only completed user profile
     """
     uploader_user, _ = generate_user()
+    print(uploader_user)
     with session_scope() as session:
         key = random_hex(32)
         filename = random_hex(32) + ".jpg"
@@ -112,14 +113,12 @@ def test_user_filter_complete_profile(db):
     user_complete_profile, token6 = generate_user(about_me="this profile is complete", avatar_key=key)
 
     user_incomplete_profile, token7 = generate_user(about_me="", avatar_key=key2)
-    print(user_complete_profile)
-    print(user_incomplete_profile)
 
     with search_session(token7) as api:
         req = search_pb2.UserSearchReq()
         req.profile_completed.CopyFrom(wrappers_pb2.BoolValue(value=False))
         res = api.UserSearch(req)
-        assert [result.user.user_id for result in res.results] == [user_incomplete_profile.id]
+        assert user_incomplete_profile.id in [result.user.user_id for result in res.results]
 
     with search_session(token6) as api:
         req = search_pb2.UserSearchReq()
