@@ -1,12 +1,11 @@
 import pytest
-
-from couchers.utils import create_coordinate
-from couchers.db import session_scope
-from couchers.crypto import random_hex
-from proto import search_pb2
-from couchers.models import Upload, User
 from google.protobuf import wrappers_pb2
 
+from couchers.crypto import random_hex
+from couchers.db import session_scope
+from couchers.models import Upload
+from couchers.utils import create_coordinate
+from proto import search_pb2
 from tests.test_communities import testing_communities  # noqa
 from tests.test_fixtures import db, generate_user, search_session, testconfig  # noqa
 
