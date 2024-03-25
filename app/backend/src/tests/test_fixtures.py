@@ -12,7 +12,7 @@ from sqlalchemy.sql import or_, text
 from couchers.config import config
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import random_hex
-from couchers.db import get_engine, session_scope
+from couchers.db import get_engine, session_scope, clear_base_engine_cache
 from couchers.interceptors import AuthValidatorInterceptor, _try_get_and_update_user_details
 from couchers.models import (
     Base,
@@ -187,6 +187,7 @@ def recreate_database():
 
     # drop everything currently in the database
     drop_all()
+    clear_base_engine_cache() # to address errors like sqlalchemy.exc.InternalError: (psycopg2.errors.InternalError_) no spatial operator found for 'st_dwithin'
 
     # create everything from the current models, not incrementally through migrations
     create_schema_from_models()
