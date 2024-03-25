@@ -1,6 +1,7 @@
 """
 See //docs/search.md for overview.
 """
+
 import grpc
 from sqlalchemy.sql import func, or_
 
@@ -293,9 +294,9 @@ def _search_clusters(
     return [
         search_pb2.Result(
             rank=rank,
-            community=community_to_pb(cluster.official_cluster_for_node, context)
-            if cluster.is_official_cluster
-            else None,
+            community=(
+                community_to_pb(cluster.official_cluster_for_node, context) if cluster.is_official_cluster else None
+            ),
             group=group_to_pb(cluster, context) if not cluster.is_official_cluster else None,
             snippet=snippet,
         )
@@ -378,6 +379,8 @@ class Search(search_pb2_grpc.SearchServicer):
                             User.additional_information.ilike(f"%{request.query.value}%"),
                         )
                     )
+            # if request.profile_completed:
+            #     statement = statement.where(User.has_completed_profile == True)
 
             if request.HasField("last_active"):
                 raw_dt = to_aware_datetime(request.last_active)
@@ -404,7 +407,8 @@ class Search(search_pb2_grpc.SearchServicer):
                 statement = statement.where(
                     User.parking_details.in_([parkingdetails2sql[det] for det in request.parking_details_filter])
                 )
-
+            if request.HasField("profile_completed"):
+                statement = statement.where(User.has_completed_profile == request.profile_completed.value)
             if request.HasField("guests"):
                 statement = statement.where(User.max_guests >= request.guests.value)
             if request.HasField("last_minute"):
@@ -483,7 +487,7 @@ class Search(search_pb2_grpc.SearchServicer):
                     )
                     for user in users[:page_size]
                 ],
-                next_page_token=encrypt_page_token(str(users[-1].recommendation_score))
-                if len(users) > page_size
-                else None,
+                next_page_token=(
+                    encrypt_page_token(str(users[-1].recommendation_score)) if len(users) > page_size else None
+                ),
             )
