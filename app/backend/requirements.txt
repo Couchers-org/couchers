@@ -27,9 +27,7 @@ charset-normalizer==2.0.11
 click==8.0.3
     # via black
 coverage[toml]==6.3.1
-    # via
-    #   coverage
-    #   pytest-cov
+    # via pytest-cov
 exceptiongroup==1.1.3
     # via pytest
 geoalchemy2==0.13.3
@@ -117,7 +115,7 @@ shapely==2.0.1
     # via -r requirements.in
 six==1.16.0
     # via python-dateutil
-sqlalchemy==2.0.21
+sqlalchemy==2.0.29
     # via
     #   -r requirements.in
     #   alembic
@@ -133,7 +131,7 @@ tomli==2.0.1
     #   black
     #   coverage
     #   pytest
-typing-extensions==4.5.0
+typing-extensions==4.10.0
     # via
     #   alembic
     #   black
