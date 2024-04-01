@@ -28,8 +28,6 @@ Open a command line or terminal, and navigate to the `app` folder (where this `r
 
 Install `docker` from <https://docs.docker.com/engine/install/>.
 
-Install `docker-compose` from <https://docs.docker.com/compose/install/>.
-
 
 ## 2. Compile the protocol buffers
 
@@ -48,7 +46,7 @@ An alternative on **macOS** is to install the tools locally with `brew install g
 If you are on **Windows** (without WSL2), run the following command:
 
 ```sh
-docker run --pull always --rm -w /app -v %cd%:/app registry.gitlab.com/couchers/grpc sh -c "cat generate_protos.sh | dos2unix | sh"
+docker run -it --pull always --rm -w /app -v ${PWD}/app:/app registry.gitlab.com/couchers/grpc sh -c "apt-get update && apt-get install dos2unix && cat generate_protos.sh | dos2unix | sh"
 ```
 
 ### How to update the protocol buffers compiler
