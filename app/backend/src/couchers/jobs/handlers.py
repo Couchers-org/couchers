@@ -2,7 +2,6 @@
 Background job servicers
 """
 
-
 import logging
 from datetime import timedelta
 from math import sqrt

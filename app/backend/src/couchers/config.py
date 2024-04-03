@@ -1,6 +1,7 @@
 """
 A simple config system
 """
+
 import os
 
 # Allowed config options, as tuples (name, type, default).

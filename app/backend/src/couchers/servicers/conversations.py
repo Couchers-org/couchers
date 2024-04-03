@@ -44,27 +44,39 @@ def _message_to_pb(message: Message):
             message_id=message.id,
             author_user_id=message.author_id,
             time=Timestamp_from_datetime(message.time),
-            chat_created=conversations_pb2.MessageContentChatCreated()
-            if message.message_type == MessageType.chat_created
-            else None,
-            chat_edited=conversations_pb2.MessageContentChatEdited()
-            if message.message_type == MessageType.chat_edited
-            else None,
-            user_invited=conversations_pb2.MessageContentUserInvited(target_user_id=message.target_id)
-            if message.message_type == MessageType.user_invited
-            else None,
-            user_left=conversations_pb2.MessageContentUserLeft()
-            if message.message_type == MessageType.user_left
-            else None,
-            user_made_admin=conversations_pb2.MessageContentUserMadeAdmin(target_user_id=message.target_id)
-            if message.message_type == MessageType.user_made_admin
-            else None,
-            user_removed_admin=conversations_pb2.MessageContentUserRemovedAdmin(target_user_id=message.target_id)
-            if message.message_type == MessageType.user_removed_admin
-            else None,
-            group_chat_user_removed=conversations_pb2.MessageContentUserRemoved(target_user_id=message.target_id)
-            if message.message_type == MessageType.user_removed
-            else None,
+            chat_created=(
+                conversations_pb2.MessageContentChatCreated()
+                if message.message_type == MessageType.chat_created
+                else None
+            ),
+            chat_edited=(
+                conversations_pb2.MessageContentChatEdited()
+                if message.message_type == MessageType.chat_edited
+                else None
+            ),
+            user_invited=(
+                conversations_pb2.MessageContentUserInvited(target_user_id=message.target_id)
+                if message.message_type == MessageType.user_invited
+                else None
+            ),
+            user_left=(
+                conversations_pb2.MessageContentUserLeft() if message.message_type == MessageType.user_left else None
+            ),
+            user_made_admin=(
+                conversations_pb2.MessageContentUserMadeAdmin(target_user_id=message.target_id)
+                if message.message_type == MessageType.user_made_admin
+                else None
+            ),
+            user_removed_admin=(
+                conversations_pb2.MessageContentUserRemovedAdmin(target_user_id=message.target_id)
+                if message.message_type == MessageType.user_removed_admin
+                else None
+            ),
+            group_chat_user_removed=(
+                conversations_pb2.MessageContentUserRemoved(target_user_id=message.target_id)
+                if message.message_type == MessageType.user_removed
+                else None
+            ),
         )
 
 
@@ -202,9 +214,9 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     )
                     for result in results[:page_size]
                 ],
-                last_message_id=min(map(lambda g: g.Message.id if g.Message else 1, results[:page_size]))
-                if len(results) > 0
-                else 0,  # TODO
+                last_message_id=(
+                    min(map(lambda g: g.Message.id if g.Message else 1, results[:page_size])) if len(results) > 0 else 0
+                ),  # TODO
                 no_more=len(results) <= page_size,
             )
 
