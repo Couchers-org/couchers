@@ -1,6 +1,7 @@
 """
 See //docs/search.md for overview.
 """
+
 import grpc
 from sqlalchemy.sql import func, or_
 
@@ -293,9 +294,9 @@ def _search_clusters(
     return [
         search_pb2.Result(
             rank=rank,
-            community=community_to_pb(cluster.official_cluster_for_node, context)
-            if cluster.is_official_cluster
-            else None,
+            community=(
+                community_to_pb(cluster.official_cluster_for_node, context) if cluster.is_official_cluster else None
+            ),
             group=group_to_pb(cluster, context) if not cluster.is_official_cluster else None,
             snippet=snippet,
         )
@@ -483,7 +484,7 @@ class Search(search_pb2_grpc.SearchServicer):
                     )
                     for user in users[:page_size]
                 ],
-                next_page_token=encrypt_page_token(str(users[-1].recommendation_score))
-                if len(users) > page_size
-                else None,
+                next_page_token=(
+                    encrypt_page_token(str(users[-1].recommendation_score)) if len(users) > page_size else None
+                ),
             )

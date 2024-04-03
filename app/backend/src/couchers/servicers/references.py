@@ -6,6 +6,7 @@
 
 * TODO: Get bugged about writing reference 1 day after, 1 week after, 2weeks-2days
 """
+
 import grpc
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, literal, or_, union_all
@@ -39,9 +40,9 @@ def reference_to_pb(reference: Reference, context):
         reference_type=reftype2api[reference.reference_type],
         text=reference.text,
         written_time=Timestamp_from_datetime(reference.time.replace(hour=0, minute=0, second=0, microsecond=0)),
-        host_request_id=reference.host_request_id
-        if context.user_id in [reference.from_user_id, reference.to_user_id]
-        else None,
+        host_request_id=(
+            reference.host_request_id if context.user_id in [reference.from_user_id, reference.to_user_id] else None
+        ),
     )
 
 

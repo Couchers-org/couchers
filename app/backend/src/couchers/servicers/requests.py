@@ -61,14 +61,18 @@ def message_to_pb(message: Message):
             message_id=message.id,
             author_user_id=message.author_id,
             time=Timestamp_from_datetime(message.time),
-            chat_created=conversations_pb2.MessageContentChatCreated()
-            if message.message_type == MessageType.chat_created
-            else None,
-            host_request_status_changed=conversations_pb2.MessageContentHostRequestStatusChanged(
-                status=hostrequeststatus2api[message.host_request_status_target]
-            )
-            if message.message_type == MessageType.host_request_status_changed
-            else None,
+            chat_created=(
+                conversations_pb2.MessageContentChatCreated()
+                if message.message_type == MessageType.chat_created
+                else None
+            ),
+            host_request_status_changed=(
+                conversations_pb2.MessageContentHostRequestStatusChanged(
+                    status=hostrequeststatus2api[message.host_request_status_target]
+                )
+                if message.message_type == MessageType.host_request_status_changed
+                else None
+            ),
         )
 
 
@@ -194,9 +198,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 created=Timestamp_from_datetime(initial_message.time),
                 from_date=date_to_api(host_request.from_date),
                 to_date=date_to_api(host_request.to_date),
-                last_seen_message_id=host_request.surfer_last_seen_message_id
-                if context.user_id == host_request.surfer_user_id
-                else host_request.host_last_seen_message_id,
+                last_seen_message_id=(
+                    host_request.surfer_last_seen_message_id
+                    if context.user_id == host_request.surfer_user_id
+                    else host_request.host_last_seen_message_id
+                ),
                 latest_message=message_to_pb(latest_message),
             )
 
@@ -259,9 +265,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     created=Timestamp_from_datetime(result.Conversation.created),
                     from_date=date_to_api(result.HostRequest.from_date),
                     to_date=date_to_api(result.HostRequest.to_date),
-                    last_seen_message_id=result.HostRequest.surfer_last_seen_message_id
-                    if context.user_id == result.HostRequest.surfer_user_id
-                    else result.HostRequest.host_last_seen_message_id,
+                    last_seen_message_id=(
+                        result.HostRequest.surfer_last_seen_message_id
+                        if context.user_id == result.HostRequest.surfer_user_id
+                        else result.HostRequest.host_last_seen_message_id
+                    ),
                     latest_message=message_to_pb(result.Message),
                 )
                 for result in results[:pagination]

@@ -81,12 +81,14 @@ def page_to_pb(page: Page, context):
         content=current_version.content,
         photo_url=current_version.photo.full_url if current_version.photo_key else None,
         address=current_version.address,
-        location=pages_pb2.Coordinate(
-            lat=current_version.coordinates[0],
-            lng=current_version.coordinates[1],
-        )
-        if current_version.coordinates
-        else None,
+        location=(
+            pages_pb2.Coordinate(
+                lat=current_version.coordinates[0],
+                lng=current_version.coordinates[1],
+            )
+            if current_version.coordinates
+            else None
+        ),
         editor_user_ids=remove_duplicates_retain_order([version.editor_user_id for version in page.versions]),
         can_edit=_is_page_owner(page, context.user_id),
         can_moderate=_can_moderate_page(page, context.user_id),

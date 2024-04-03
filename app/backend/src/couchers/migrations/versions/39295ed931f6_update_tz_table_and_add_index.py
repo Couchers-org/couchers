@@ -5,6 +5,7 @@ Revises: 82289f7fdeab
 Create Date: 2022-02-14 13:18:46.176547
 
 """
+
 from alembic import op
 from sqlalchemy.orm.session import Session
 

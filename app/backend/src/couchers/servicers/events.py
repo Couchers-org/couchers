@@ -126,18 +126,22 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
         slug=event.slug,
         content=occurrence.content,
         photo_url=occurrence.photo.full_url if occurrence.photo else None,
-        online_information=events_pb2.OnlineEventInformation(
-            link=occurrence.link,
-        )
-        if occurrence.link
-        else None,
-        offline_information=events_pb2.OfflineEventInformation(
-            lat=occurrence.coordinates[0],
-            lng=occurrence.coordinates[1],
-            address=occurrence.address,
-        )
-        if occurrence.geom
-        else None,
+        online_information=(
+            events_pb2.OnlineEventInformation(
+                link=occurrence.link,
+            )
+            if occurrence.link
+            else None
+        ),
+        offline_information=(
+            events_pb2.OfflineEventInformation(
+                lat=occurrence.coordinates[0],
+                lng=occurrence.coordinates[1],
+                address=occurrence.address,
+            )
+            if occurrence.geom
+            else None
+        ),
         created=Timestamp_from_datetime(occurrence.created),
         last_edited=Timestamp_from_datetime(occurrence.last_edited),
         creator_user_id=occurrence.creator_user_id,
