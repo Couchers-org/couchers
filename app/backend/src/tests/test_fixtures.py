@@ -12,7 +12,7 @@ from sqlalchemy.sql import or_, text
 from couchers.config import config
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import random_hex
-from couchers.db import get_engine, session_scope, clear_base_engine_cache
+from couchers.db import clear_base_engine_cache, get_engine, session_scope
 from couchers.interceptors import AuthValidatorInterceptor, _try_get_and_update_user_details
 from couchers.models import (
     Base,
