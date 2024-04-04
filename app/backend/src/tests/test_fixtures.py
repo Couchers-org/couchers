@@ -187,7 +187,7 @@ def recreate_database():
 
     # drop everything currently in the database
     drop_all()
-    clear_base_engine_cache() # to address errors like sqlalchemy.exc.InternalError: (psycopg2.errors.InternalError_) no spatial operator found for 'st_dwithin'
+    clear_base_engine_cache()  # to address errors like sqlalchemy.exc.InternalError: (psycopg2.errors.InternalError_) no spatial operator found for 'st_dwithin'
 
     # create everything from the current models, not incrementally through migrations
     create_schema_from_models()
