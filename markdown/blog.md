@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [The importance of references (and how to write one)](/blog/2023/02/25/importance-of-references)
+
+2023/02/25.
+
+References are a powerful way to make communities safer - especially communities comprised of strangers traveling around the world. These tips will help you write better references, making Couchers a safer experience for everyone.
+
+[Read more.](/blog/2023/02/25/importance-of-references)
+
 ## [Couch surfing in a post-COVID world](/blog/2022/10/11/traveling-in-a-post-covid-world)
 
 2022/10/11.
