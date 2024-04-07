@@ -55,12 +55,12 @@ def process_job():
         try:
             ret = func(message_type.FromString(job.payload))
             job.state = BackgroundJobState.completed
-            jobs_counter.labels(job.job_type.name, job.state.name, str(job.try_count), "").inc()
+            jobs_counter.labels(job.job_type, job.state.name, str(job.try_count), "").inc()
             logger.info(f"Job #{job.id} complete on try number {job.try_count}")
         except Exception as e:
             logger.exception(e)
             sentry_sdk.set_tag("context", "job")
-            sentry_sdk.set_tag("job", job.job_type.name)
+            sentry_sdk.set_tag("job", job.job_type)
             sentry_sdk.capture_exception(e)
 
             if job.try_count >= job.max_tries:
@@ -73,7 +73,7 @@ def process_job():
                 job.next_attempt_after += timedelta(seconds=15 * (2**job.try_count))
                 logger.info(f"Job #{job.id} error on try number {job.try_count}, next try at {job.next_attempt_after}")
             # add some info for debugging
-            jobs_counter.labels(job.job_type.name, job.state.name, str(job.try_count), type(e).__name__).inc()
+            jobs_counter.labels(job.job_type, job.state.name, str(job.try_count), type(e).__name__).inc()
             job.failure_info = traceback.format_exc()
 
         # exiting ctx manager commits and releases the row lock

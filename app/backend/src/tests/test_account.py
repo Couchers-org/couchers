@@ -9,7 +9,7 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.models import AccountDeletionReason, AccountDeletionToken, BackgroundJob, BackgroundJobType, Upload, User
+from couchers.models import AccountDeletionReason, AccountDeletionToken, BackgroundJob, Upload, User
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 from proto import account_pb2, auth_pb2
@@ -751,11 +751,7 @@ def test_ChangeEmail_sends_proper_emails_has_password(db, fast_passwords):
         )
 
     with session_scope() as session:
-        jobs = (
-            session.execute(select(BackgroundJob).where(BackgroundJob.job_type == BackgroundJobType.send_email))
-            .scalars()
-            .all()
-        )
+        jobs = session.execute(select(BackgroundJob).where(BackgroundJob.job_type == "send_email")).scalars().all()
         assert len(jobs) == 2
         payload_for_notification_email = jobs[0].payload
         payload_for_confirmation_email_new_address = jobs[1].payload
@@ -782,11 +778,7 @@ def test_ChangeEmail_sends_proper_emails_no_password(db):
         )
 
     with session_scope() as session:
-        jobs = (
-            session.execute(select(BackgroundJob).where(BackgroundJob.job_type == BackgroundJobType.send_email))
-            .scalars()
-            .all()
-        )
+        jobs = session.execute(select(BackgroundJob).where(BackgroundJob.job_type == "send_email")).scalars().all()
         assert len(jobs) == 2
         payload_for_confirmation_email_old_address = jobs[0].payload
         payload_for_confirmation_email_new_address = jobs[1].payload

@@ -1817,43 +1817,6 @@ class Reply(Base):
     comment = relationship("Comment", backref="replies")
 
 
-class BackgroundJobType(enum.Enum):
-    # payload: jobs.SendEmailPayload
-    send_email = enum.auto()
-    # payload: google.protobuf.Empty
-    purge_login_tokens = enum.auto()
-    # payload: google.protobuf.Empty
-    purge_signup_tokens = enum.auto()
-    # payload: google.protobuf.Empty
-    purge_account_deletion_tokens = enum.auto()
-    # payload: google.protobuf.Empty
-    purge_password_reset_tokens = enum.auto()
-    # payload: google.protobuf.Empty
-    send_message_notifications = enum.auto()
-    # payload: google.protobuf.Empty
-    send_onboarding_emails = enum.auto()
-    # payload: google.protobuf.Empty
-    add_users_to_email_list = enum.auto()
-    # payload: google.protobuf.Empty
-    send_request_notifications = enum.auto()
-    # payload: google.protobuf.Empty
-    enforce_community_membership = enum.auto()
-    # payload: google.protobuf.Empty
-    send_reference_reminders = enum.auto()
-    # payload: jobs.HandleNotificationPayload
-    handle_notification = enum.auto()
-    # payload: google.protobuf.Empty
-    handle_email_notifications = enum.auto()
-    # payload: google.protobuf.Empty
-    handle_email_digests = enum.auto()
-    # payload: jobs.GenerateMessageNotificationsPayload
-    generate_message_notifications = enum.auto()
-    # payload: google.protobuf.Empty
-    update_recommendation_scores = enum.auto()
-    # payload: google.protobuf.Empty
-    refresh_materialized_views = enum.auto()
-
-
 class BackgroundJobState(enum.Enum):
     # job is fresh, waiting to be picked off the queue
     pending = enum.auto()
@@ -1875,7 +1838,7 @@ class BackgroundJob(Base):
     id = Column(BigInteger, primary_key=True)
 
     # used to discern which function should be triggered to service it
-    job_type = Column(Enum(BackgroundJobType), nullable=False)
+    job_type = Column(String, nullable=False)
     state = Column(Enum(BackgroundJobState), nullable=False, default=BackgroundJobState.pending)
 
     # time queued

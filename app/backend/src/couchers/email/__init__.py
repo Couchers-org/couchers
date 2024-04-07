@@ -6,7 +6,6 @@ from jinja2 import Environment, FileSystemLoader
 
 from couchers.config import config
 from couchers.jobs.enqueue import queue_job
-from couchers.models import BackgroundJobType
 from proto.internal import jobs_pb2
 
 loader = FileSystemLoader(Path(__file__).parent / ".." / ".." / ".." / "templates")
@@ -88,7 +87,7 @@ def queue_email(sender_name, sender_email, recipient, subject, plain, html):
         html=html,
     )
     queue_job(
-        job_type=BackgroundJobType.send_email,
+        job_type="send_email",
         payload=payload,
     )
 
