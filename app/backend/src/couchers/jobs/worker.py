@@ -5,6 +5,7 @@ Background job workers
 import logging
 import traceback
 from datetime import timedelta
+from inspect import getmembers, isfunction
 from multiprocessing import Process
 from sched import scheduler
 from time import monotonic, sleep
@@ -13,13 +14,22 @@ import sentry_sdk
 from google.protobuf import empty_pb2
 
 from couchers.db import get_engine, session_scope
-from couchers.jobs.definitions import JOBS, SCHEDULE
+from couchers.jobs import handlers
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import create_prometheus_server, job_process_registry, jobs_counter
 from couchers.models import BackgroundJob, BackgroundJobState
 from couchers.sql import couchers_select as select
 
 logger = logging.getLogger(__name__)
+
+JOBS = {}
+SCHEDULE = []
+
+for name, func in getmembers(handlers, isfunction):
+    if hasattr(func, "PAYLOAD"):
+        JOBS[name] = (func.PAYLOAD, func)
+        if hasattr(func, "SCHEDULE"):
+            SCHEDULE.append((name, func.SCHEDULE))
 
 
 def process_job():

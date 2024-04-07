@@ -7,6 +7,7 @@ from datetime import timedelta
 from math import sqrt
 
 import requests
+from google.protobuf import empty_pb2
 from sqlalchemy import Integer
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, cast, delete, distinct, extract, func, literal, not_, or_, select, union_all
@@ -43,6 +44,7 @@ from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.tasks import send_onboarding_email, send_reference_reminder_email
 from couchers.utils import now
+from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -64,10 +66,17 @@ def send_email(payload):
         session.add(email)
 
 
+send_email.PAYLOAD = jobs_pb2.SendEmailPayload
+
+
 def purge_login_tokens(payload):
     logger.info(f"Purging login tokens")
     with session_scope() as session:
         session.execute(delete(LoginToken).where(~LoginToken.is_valid).execution_options(synchronize_session=False))
+
+
+purge_login_tokens.PAYLOAD = empty_pb2.Empty
+purge_login_tokens.SCHEDULE = timedelta(hours=24)
 
 
 def purge_password_reset_tokens(payload):
@@ -78,6 +87,10 @@ def purge_password_reset_tokens(payload):
         )
 
 
+purge_password_reset_tokens.PAYLOAD = empty_pb2.Empty
+purge_password_reset_tokens.SCHEDULE = timedelta(hours=24)
+
+
 def purge_account_deletion_tokens(payload):
     logger.info(f"Purging account deletion tokens")
     with session_scope() as session:
@@ -86,6 +99,10 @@ def purge_account_deletion_tokens(payload):
             .where(~AccountDeletionToken.is_valid)
             .execution_options(synchronize_session=False)
         )
+
+
+purge_account_deletion_tokens.PAYLOAD = empty_pb2.Empty
+purge_account_deletion_tokens.SCHEDULE = timedelta(hours=24)
 
 
 def generate_message_notifications(payload):
@@ -131,6 +148,9 @@ def generate_message_notifications(payload):
                 content=message.text,
                 link=urls.chat_link(chat_id=message.conversation_id),
             )
+
+
+generate_message_notifications.PAYLOAD = jobs_pb2.GenerateMessageNotificationsPayload
 
 
 def send_message_notifications(payload):
@@ -210,6 +230,10 @@ def send_message_notifications(payload):
             )
 
 
+send_message_notifications.PAYLOAD = empty_pb2.Empty
+send_message_notifications.SCHEDULE = timedelta(minutes=3)
+
+
 def send_request_notifications(payload):
     """
     Sends out email notifications for unseen messages in host requests (as surfer or host)
@@ -272,6 +296,10 @@ def send_request_notifications(payload):
             )
 
 
+send_request_notifications.PAYLOAD = empty_pb2.Empty
+send_request_notifications.SCHEDULE = timedelta(minutes=3)
+
+
 def send_onboarding_emails(payload):
     """
     Sends out onboarding emails
@@ -309,6 +337,10 @@ def send_onboarding_emails(payload):
             user.onboarding_emails_sent = 2
             user.last_onboarding_email_sent = now()
             session.commit()
+
+
+send_onboarding_emails.PAYLOAD = empty_pb2.Empty
+send_onboarding_emails.SCHEDULE = timedelta(hours=1)
 
 
 def send_reference_reminders(payload):
@@ -397,6 +429,10 @@ def send_reference_reminders(payload):
                     session.commit()
 
 
+send_reference_reminders.PAYLOAD = empty_pb2.Empty
+send_reference_reminders.SCHEDULE = timedelta(hours=1)
+
+
 def add_users_to_email_list(payload):
     if not config.config["MAILCHIMP_ENABLED"]:
         logger.info(f"Not adding users to mailing list")
@@ -442,20 +478,39 @@ def add_users_to_email_list(payload):
             raise Exception("Failed to add users to mailing list")
 
 
+add_users_to_email_list.PAYLOAD = empty_pb2.Empty
+add_users_to_email_list.SCHEDULE = timedelta(hours=1)
+
+
 def enforce_community_membership(payload):
     tasks_enforce_community_memberships()
+
+
+enforce_community_membership.PAYLOAD = empty_pb2.Empty
+enforce_community_membership.SCHEDULE = timedelta(minutes=15)
 
 
 def handle_notification(payload):
     bg_handle_notification(payload.notification_id)
 
 
+handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
+
+
 def handle_email_notifications(payload):
     bg_handle_email_notifications()
 
 
+handle_email_notifications.PAYLOAD = empty_pb2.Empty
+handle_email_notifications.SCHEDULE = timedelta(minutes=1)
+
+
 def handle_email_digests(payload):
     bg_handle_email_digests()
+
+
+handle_email_digests.PAYLOAD = empty_pb2.Empty
+handle_email_digests.SCHEDULE = timedelta(minutes=15)
 
 
 def update_recommendation_scores(payload):
@@ -651,5 +706,13 @@ def update_recommendation_scores(payload):
     logger.info("Updated recommendation scores")
 
 
+update_recommendation_scores.PAYLOAD = empty_pb2.Empty
+update_recommendation_scores.SCHEDULE = timedelta(hours=24)
+
+
 def refresh_materialized_views(payload):
     mv_refresh_materialized_views()
+
+
+refresh_materialized_views.PAYLOAD = empty_pb2.Empty
+refresh_materialized_views.SCHEDULE = timedelta(minutes=5)
