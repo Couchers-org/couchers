@@ -16,7 +16,7 @@ from couchers import config, email, urls
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
-from couchers.materialized_views import refresh_materialized_views
+from couchers.materialized_views import refresh_materialized_views as mv_refresh_materialized_views
 from couchers.models import (
     AccountDeletionToken,
     Cluster,
@@ -34,17 +34,20 @@ from couchers.models import (
     Reference,
     User,
 )
-from couchers.notifications.background import handle_email_digests, handle_email_notifications, handle_notification
+from couchers.notifications.background import handle_email_digests as bg_handle_email_digests
+from couchers.notifications.background import handle_email_notifications as bg_handle_email_notifications
+from couchers.notifications.background import handle_notification as bg_handle_notification
 from couchers.notifications.notify import notify
 from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
-from couchers.tasks import enforce_community_memberships, send_onboarding_email, send_reference_reminder_email
+from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
+from couchers.tasks import send_onboarding_email, send_reference_reminder_email
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
 
-def process_send_email(payload):
+def send_email(payload):
     logger.info(f"Sending email with subject '{payload.subject}' to '{payload.recipient}'")
     # selects a "sender", which either prints the email to the logger or sends it out with SMTP
     sender = send_smtp_email if config.config["ENABLE_EMAIL"] else print_dev_email
@@ -61,13 +64,13 @@ def process_send_email(payload):
         session.add(email)
 
 
-def process_purge_login_tokens(payload):
+def purge_login_tokens(payload):
     logger.info(f"Purging login tokens")
     with session_scope() as session:
         session.execute(delete(LoginToken).where(~LoginToken.is_valid).execution_options(synchronize_session=False))
 
 
-def process_purge_password_reset_tokens(payload):
+def purge_password_reset_tokens(payload):
     logger.info(f"Purging login tokens")
     with session_scope() as session:
         session.execute(
@@ -75,7 +78,7 @@ def process_purge_password_reset_tokens(payload):
         )
 
 
-def process_purge_account_deletion_tokens(payload):
+def purge_account_deletion_tokens(payload):
     logger.info(f"Purging account deletion tokens")
     with session_scope() as session:
         session.execute(
@@ -85,7 +88,7 @@ def process_purge_account_deletion_tokens(payload):
         )
 
 
-def process_generate_message_notifications(payload):
+def generate_message_notifications(payload):
     """
     Generates notifications for a message sent to a group chat
     """
@@ -130,7 +133,7 @@ def process_generate_message_notifications(payload):
             )
 
 
-def process_send_message_notifications(payload):
+def send_message_notifications(payload):
     """
     Sends out email notifications for messages that have been unseen for a long enough time
     """
@@ -207,7 +210,7 @@ def process_send_message_notifications(payload):
             )
 
 
-def process_send_request_notifications(payload):
+def send_request_notifications(payload):
     """
     Sends out email notifications for unseen messages in host requests (as surfer or host)
     """
@@ -269,7 +272,7 @@ def process_send_request_notifications(payload):
             )
 
 
-def process_send_onboarding_emails(payload):
+def send_onboarding_emails(payload):
     """
     Sends out onboarding emails
     """
@@ -308,7 +311,7 @@ def process_send_onboarding_emails(payload):
             session.commit()
 
 
-def process_send_reference_reminders(payload):
+def send_reference_reminders(payload):
     """
     Sends out reminders to write references after hosting/staying
     """
@@ -394,7 +397,7 @@ def process_send_reference_reminders(payload):
                     session.commit()
 
 
-def process_add_users_to_email_list(payload):
+def add_users_to_email_list(payload):
     if not config.config["MAILCHIMP_ENABLED"]:
         logger.info(f"Not adding users to mailing list")
         return
@@ -439,23 +442,23 @@ def process_add_users_to_email_list(payload):
             raise Exception("Failed to add users to mailing list")
 
 
-def process_enforce_community_membership(payload):
-    enforce_community_memberships()
+def enforce_community_membership(payload):
+    tasks_enforce_community_memberships()
 
 
-def process_handle_notification(payload):
-    handle_notification(payload.notification_id)
+def handle_notification(payload):
+    bg_handle_notification(payload.notification_id)
 
 
-def process_handle_email_notifications(payload):
-    handle_email_notifications()
+def handle_email_notifications(payload):
+    bg_handle_email_notifications()
 
 
-def process_handle_email_digests(payload):
-    handle_email_digests()
+def handle_email_digests(payload):
+    bg_handle_email_digests()
 
 
-def process_update_recommendation_scores(payload):
+def update_recommendation_scores(payload):
     text_fields = [
         User.hometown,
         User.occupation,
@@ -648,5 +651,5 @@ def process_update_recommendation_scores(payload):
     logger.info("Updated recommendation scores")
 
 
-def process_refresh_materialized_views(payload):
-    refresh_materialized_views()
+def refresh_materialized_views(payload):
+    mv_refresh_materialized_views()
