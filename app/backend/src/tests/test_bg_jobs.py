@@ -14,12 +14,12 @@ from couchers.email import queue_email
 from couchers.email.dev import print_dev_email
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import (
-    process_add_users_to_email_list,
-    process_send_message_notifications,
-    process_send_onboarding_emails,
-    process_send_reference_reminders,
-    process_send_request_notifications,
-    process_update_recommendation_scores,
+    add_users_to_email_list,
+    send_message_notifications,
+    send_onboarding_emails,
+    send_reference_reminders,
+    send_request_notifications,
+    update_recommendation_scores,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.metrics import create_prometheus_server, job_process_registry
@@ -473,7 +473,7 @@ def test_no_jobs_no_problem(db):
         assert session.execute(select(func.count()).select_from(BackgroundJob)).scalar_one() == 0
 
 
-def test_process_send_message_notifications_basic(db):
+def test_send_message_notifications_basic(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -482,7 +482,7 @@ def test_process_send_message_notifications_basic(db):
     make_friends(user1, user3)
     make_friends(user2, user3)
 
-    process_send_message_notifications(empty_pb2.Empty())
+    send_message_notifications(empty_pb2.Empty())
 
     # should find no jobs, since there's no messages
     with session_scope() as session:
@@ -509,7 +509,7 @@ def test_process_send_message_notifications_basic(db):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 5"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
 
-    process_send_message_notifications(empty_pb2.Empty())
+    send_message_notifications(empty_pb2.Empty())
 
     # no emails sent out
     with session_scope() as session:
@@ -522,7 +522,7 @@ def test_process_send_message_notifications_basic(db):
 
     # this should generate emails for both user2 and user3
     with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        process_send_message_notifications(empty_pb2.Empty())
+        send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
         assert (
@@ -536,7 +536,7 @@ def test_process_send_message_notifications_basic(db):
 
     # shouldn't generate any more emails
     with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        process_send_message_notifications(empty_pb2.Empty())
+        send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
         assert (
@@ -547,7 +547,7 @@ def test_process_send_message_notifications_basic(db):
         )
 
 
-def test_process_send_message_notifications_muted(db):
+def test_send_message_notifications_muted(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -556,7 +556,7 @@ def test_process_send_message_notifications_muted(db):
     make_friends(user1, user3)
     make_friends(user2, user3)
 
-    process_send_message_notifications(empty_pb2.Empty())
+    send_message_notifications(empty_pb2.Empty())
 
     # should find no jobs, since there's no messages
     with session_scope() as session:
@@ -589,7 +589,7 @@ def test_process_send_message_notifications_muted(db):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 5"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
 
-    process_send_message_notifications(empty_pb2.Empty())
+    send_message_notifications(empty_pb2.Empty())
 
     # no emails sent out
     with session_scope() as session:
@@ -602,7 +602,7 @@ def test_process_send_message_notifications_muted(db):
 
     # this should generate emails for both user2 and NOT user3
     with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        process_send_message_notifications(empty_pb2.Empty())
+        send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
         assert (
@@ -616,7 +616,7 @@ def test_process_send_message_notifications_muted(db):
 
     # shouldn't generate any more emails
     with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-        process_send_message_notifications(empty_pb2.Empty())
+        send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
         assert (
@@ -627,14 +627,14 @@ def test_process_send_message_notifications_muted(db):
         )
 
 
-def test_process_send_request_notifications_host_request(db):
+def test_send_request_notifications_host_request(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
 
-    process_send_request_notifications(empty_pb2.Empty())
+    send_request_notifications(empty_pb2.Empty())
 
     # should find no jobs, since there's no messages
     with session_scope() as session:
@@ -652,9 +652,9 @@ def test_process_send_request_notifications_host_request(db):
         # delete send_email BackgroundJob created by CreateHostRequest
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
-        # check process_send_request_notifications successfully creates background job
+        # check send_request_notifications successfully creates background job
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-            process_send_request_notifications(empty_pb2.Empty())
+            send_request_notifications(empty_pb2.Empty())
         assert (
             session.execute(
                 select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
@@ -666,7 +666,7 @@ def test_process_send_request_notifications_host_request(db):
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-            process_send_request_notifications(empty_pb2.Empty())
+            send_request_notifications(empty_pb2.Empty())
         # should find no messages since host has already been notified
         assert (
             session.execute(
@@ -689,9 +689,9 @@ def test_process_send_request_notifications_host_request(db):
         # delete send_email BackgroundJob created by RespondHostRequest
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
-        # check process_send_request_notifications successfully creates background job
+        # check send_request_notifications successfully creates background job
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-            process_send_request_notifications(empty_pb2.Empty())
+            send_request_notifications(empty_pb2.Empty())
         assert (
             session.execute(
                 select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
@@ -703,7 +703,7 @@ def test_process_send_request_notifications_host_request(db):
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-            process_send_request_notifications(empty_pb2.Empty())
+            send_request_notifications(empty_pb2.Empty())
         # should find no messages since guest has already been notified
         assert (
             session.execute(
@@ -713,13 +713,13 @@ def test_process_send_request_notifications_host_request(db):
         )
 
 
-def test_process_send_message_notifications_seen(db):
+def test_send_message_notifications_seen(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
     make_friends(user1, user2)
 
-    process_send_message_notifications(empty_pb2.Empty())
+    send_message_notifications(empty_pb2.Empty())
 
     # should find no jobs, since there's no messages
     with session_scope() as session:
@@ -746,7 +746,7 @@ def test_process_send_message_notifications_seen(db):
             conversations_pb2.MarkLastSeenGroupChatReq(group_chat_id=group_chat_id, last_seen_message_id=m_id)
         )
 
-    process_send_message_notifications(empty_pb2.Empty())
+    send_message_notifications(empty_pb2.Empty())
 
     # no emails sent out
     with session_scope() as session:
@@ -762,7 +762,7 @@ def test_process_send_message_notifications_seen(db):
 
     # still shouldn't generate emails as user2 has seen all messages
     with patch("couchers.jobs.handlers.now", now_30_min_in_future):
-        process_send_message_notifications(empty_pb2.Empty())
+        send_message_notifications(empty_pb2.Empty())
 
     with session_scope() as session:
         assert (
@@ -773,11 +773,11 @@ def test_process_send_message_notifications_seen(db):
         )
 
 
-def test_process_send_onboarding_emails(db):
+def test_send_onboarding_emails(db):
     # needs to get first onboarding email
     user1, token1 = generate_user(onboarding_emails_sent=0, last_onboarding_email_sent=None)
 
-    process_send_onboarding_emails(empty_pb2.Empty())
+    send_onboarding_emails(empty_pb2.Empty())
 
     with session_scope() as session:
         assert (
@@ -790,7 +790,7 @@ def test_process_send_onboarding_emails(db):
     # needs to get second onboarding email, but not yet
     user2, token2 = generate_user(onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=6))
 
-    process_send_onboarding_emails(empty_pb2.Empty())
+    send_onboarding_emails(empty_pb2.Empty())
 
     with session_scope() as session:
         assert (
@@ -803,7 +803,7 @@ def test_process_send_onboarding_emails(db):
     # needs to get second onboarding email
     user3, token3 = generate_user(onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=8))
 
-    process_send_onboarding_emails(empty_pb2.Empty())
+    send_onboarding_emails(empty_pb2.Empty())
 
     with session_scope() as session:
         assert (
@@ -814,14 +814,14 @@ def test_process_send_onboarding_emails(db):
         )
 
 
-def test_process_send_reference_reminders(db):
+def test_send_reference_reminders(db):
     # need to test:
     # case 1: bidirectional (no emails)
     # case 2: host left ref (surfer needs an email)
     # case 3: surfer left ref (host needs an email)
     # case 4: neither left ref (host & surfer need an email)
 
-    process_send_reference_reminders(empty_pb2.Empty())
+    send_reference_reminders(empty_pb2.Empty())
 
     # case 1: bidirectional (no emails)
     user1, token1 = generate_user(email="user1@couchers.org.invalid", name="User 1")
@@ -879,7 +879,7 @@ def test_process_send_reference_reminders(db):
         ("user8@couchers.org.invalid", "[TEST] You have 14 days to write a reference for User 7!"),
     ]
 
-    process_send_reference_reminders(empty_pb2.Empty())
+    send_reference_reminders(empty_pb2.Empty())
 
     while process_job():
         pass
@@ -896,7 +896,7 @@ def test_process_send_reference_reminders(db):
         assert emails == expected_emails
 
 
-def test_process_add_users_to_email_list(db):
+def test_add_users_to_email_list(db):
     new_config = config.copy()
     new_config["MAILCHIMP_ENABLED"] = True
     new_config["MAILCHIMP_API_KEY"] = "dummy_api_key"
@@ -905,7 +905,7 @@ def test_process_add_users_to_email_list(db):
 
     with patch("couchers.config.config", new_config):
         with patch("couchers.jobs.handlers.requests.post") as mock:
-            process_add_users_to_email_list(empty_pb2.Empty())
+            add_users_to_email_list(empty_pb2.Empty())
         mock.assert_not_called()
 
         generate_user(added_to_mailing_list=False, email="testing1@couchers.invalid", name="Tester1")
@@ -915,7 +915,7 @@ def test_process_add_users_to_email_list(db):
         with patch("couchers.jobs.handlers.requests.post") as mock:
             ret = mock.return_value
             ret.status_code = 200
-            process_add_users_to_email_list(empty_pb2.Empty())
+            add_users_to_email_list(empty_pb2.Empty())
 
         mock.assert_called_once_with(
             "https://dc99.api.mailchimp.com/3.0/lists/dummy_list_id",
@@ -943,9 +943,9 @@ def test_process_add_users_to_email_list(db):
         )
 
         with patch("couchers.jobs.handlers.requests.post") as mock:
-            process_add_users_to_email_list(empty_pb2.Empty())
+            add_users_to_email_list(empty_pb2.Empty())
         mock.assert_not_called()
 
 
-def test_process_update_recommendation_scores(db):
-    process_update_recommendation_scores(empty_pb2.Empty())
+def test_update_recommendation_scores(db):
+    update_recommendation_scores(empty_pb2.Empty())
