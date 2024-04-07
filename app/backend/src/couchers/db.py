@@ -66,6 +66,13 @@ def _get_base_engine():
     )
 
 
+def clear_base_engine_cache():
+    """
+    This needs to be done when the public schema is dropped.
+    """
+    _get_base_engine.cache_clear()
+
+
 def get_engine(isolation_level=None):
     """
     Creates an engine with the given isolation level.
