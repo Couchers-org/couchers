@@ -95,7 +95,7 @@ pytest==8.1.1
     #   pytest-cov
 pytest-cov==4.1.0
     # via -r requirements.in
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via
     #   -r requirements.in
     #   botocore
