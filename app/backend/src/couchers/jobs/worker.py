@@ -5,6 +5,7 @@ Background job workers
 import logging
 import traceback
 from datetime import timedelta
+from inspect import getmembers, isfunction
 from multiprocessing import Process
 from sched import scheduler
 from time import monotonic, sleep
@@ -13,13 +14,22 @@ import sentry_sdk
 from google.protobuf import empty_pb2
 
 from couchers.db import get_engine, session_scope
-from couchers.jobs.definitions import JOBS, SCHEDULE
+from couchers.jobs import handlers
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import create_prometheus_server, job_process_registry, jobs_counter
 from couchers.models import BackgroundJob, BackgroundJobState
 from couchers.sql import couchers_select as select
 
 logger = logging.getLogger(__name__)
+
+JOBS = {}
+SCHEDULE = []
+
+for name, func in getmembers(handlers, isfunction):
+    if hasattr(func, "PAYLOAD"):
+        JOBS[name] = (func.PAYLOAD, func)
+        if hasattr(func, "SCHEDULE"):
+            SCHEDULE.append((name, func.SCHEDULE))
 
 
 def process_job():
@@ -55,12 +65,12 @@ def process_job():
         try:
             ret = func(message_type.FromString(job.payload))
             job.state = BackgroundJobState.completed
-            jobs_counter.labels(job.job_type.name, job.state.name, str(job.try_count), "").inc()
+            jobs_counter.labels(job.job_type, job.state.name, str(job.try_count), "").inc()
             logger.info(f"Job #{job.id} complete on try number {job.try_count}")
         except Exception as e:
             logger.exception(e)
             sentry_sdk.set_tag("context", "job")
-            sentry_sdk.set_tag("job", job.job_type.name)
+            sentry_sdk.set_tag("job", job.job_type)
             sentry_sdk.capture_exception(e)
 
             if job.try_count >= job.max_tries:
@@ -73,7 +83,7 @@ def process_job():
                 job.next_attempt_after += timedelta(seconds=15 * (2**job.try_count))
                 logger.info(f"Job #{job.id} error on try number {job.try_count}, next try at {job.next_attempt_after}")
             # add some info for debugging
-            jobs_counter.labels(job.job_type.name, job.state.name, str(job.try_count), type(e).__name__).inc()
+            jobs_counter.labels(job.job_type, job.state.name, str(job.try_count), type(e).__name__).inc()
             job.failure_info = traceback.format_exc()
 
         # exiting ctx manager commits and releases the row lock

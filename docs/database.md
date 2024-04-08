@@ -28,9 +28,9 @@ rm -rf ./data/postgres/pgdata
 # windows command line, not in Linux (and not in powershell), then switch back.
 # *********
 # start the postgres container in the background
-docker-compose up -d --no-deps postgres
+docker compose up -d --no-deps postgres
 # and the backend container in the foreground. this will create the database to the current state using migrations from `develop`
-docker-compose up --build --no-deps backend
+docker compose up --build --no-deps backend
 # kill it with some Ctrl+C when it's done creating (and you'll end up with backend errors because your tables are out of date)
 
 # If you're using a virtual environment for couchers, enter it
@@ -46,7 +46,7 @@ autoflake -r -i --remove-all-unused-imports src && isort . && black .
 
 # finally double check that the backend comes online and works correctly with the migration
 cd ..
-docker-compose up --build --no-deps backend
+docker compose up --build --no-deps backend
 ```
 
 The procedure is funky because Alembic creates migrations by comparing the current state of a database to what's in the models.

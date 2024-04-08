@@ -1,6 +1,6 @@
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
-from couchers.models import BackgroundJobType, Notification
+from couchers.models import Notification
 from couchers.notifications.utils import enum_from_topic_action
 from proto.internal import jobs_pb2
 
@@ -47,7 +47,7 @@ def notify(
         notification_id = notification.id
 
     queue_job(
-        job_type=BackgroundJobType.handle_notification,
+        job_type="handle_notification",
         payload=jobs_pb2.HandleNotificationPayload(
             notification_id=notification_id,
         ),
