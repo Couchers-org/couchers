@@ -1,5 +1,9 @@
 import pytest
+from google.protobuf import wrappers_pb2
 
+from couchers.crypto import random_hex
+from couchers.db import session_scope
+from couchers.models import Upload
 from couchers.utils import create_coordinate
 from proto import search_pb2
 from tests.test_communities import testing_communities  # noqa
@@ -73,3 +77,48 @@ def test_regression_search_in_area(db):
             )
         )
         assert [result.user.user_id for result in res.results] == [user3.id, user4.id]
+
+
+def test_user_filter_complete_profile(db):
+    """
+    Make sure the completed profile flag returns only completed user profile
+    """
+    uploader_user, _ = generate_user()
+    print(uploader_user)
+    with session_scope() as session:
+        key = random_hex(32)
+        filename = random_hex(32) + ".jpg"
+        session.add(
+            Upload(
+                key=key,
+                filename=filename,
+                creator_user_id=uploader_user.id,
+            )
+        )
+
+    with session_scope() as session:
+        key2 = random_hex(32)
+        filename = random_hex(32) + ".jpg"
+        session.add(
+            Upload(
+                key=key2,
+                filename=filename,
+                creator_user_id=uploader_user.id,
+            )
+        )
+
+    user_complete_profile, token6 = generate_user(about_me="this profile is complete", avatar_key=key)
+
+    user_incomplete_profile, token7 = generate_user(about_me="", avatar_key=key2)
+
+    with search_session(token7) as api:
+        req = search_pb2.UserSearchReq()
+        req.profile_completed.CopyFrom(wrappers_pb2.BoolValue(value=False))
+        res = api.UserSearch(req)
+        assert user_incomplete_profile.id in [result.user.user_id for result in res.results]
+
+    with search_session(token6) as api:
+        req = search_pb2.UserSearchReq()
+        req.profile_completed.CopyFrom(wrappers_pb2.BoolValue(value=True))
+        res = api.UserSearch(req)
+        assert [result.user.user_id for result in res.results] == [user_complete_profile.id]

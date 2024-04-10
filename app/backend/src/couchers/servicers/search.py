@@ -379,6 +379,8 @@ class Search(search_pb2_grpc.SearchServicer):
                             User.additional_information.ilike(f"%{request.query.value}%"),
                         )
                     )
+            # if request.profile_completed:
+            #     statement = statement.where(User.has_completed_profile == True)
 
             if request.HasField("last_active"):
                 raw_dt = to_aware_datetime(request.last_active)
@@ -405,7 +407,8 @@ class Search(search_pb2_grpc.SearchServicer):
                 statement = statement.where(
                     User.parking_details.in_([parkingdetails2sql[det] for det in request.parking_details_filter])
                 )
-
+            if request.HasField("profile_completed"):
+                statement = statement.where(User.has_completed_profile == request.profile_completed.value)
             if request.HasField("guests"):
                 statement = statement.where(User.max_guests >= request.guests.value)
             if request.HasField("last_minute"):
