@@ -55,11 +55,11 @@ def test_regression_search_in_area(db):
     At the equator/prime meridian intersection (0,0), one degree is roughly 111 km.
     """
 
-    # # outside
-    # user1, token1 = generate_user(geom=create_coordinate(1, 0), geom_radius=100)
-    # # outside
-    # user2, token2 = generate_user(geom=create_coordinate(0, 1), geom_radius=100)
-    # # inside
+    # outside
+    user1, token1 = generate_user(geom=create_coordinate(1, 0), geom_radius=100)
+    # outside
+    user2, token2 = generate_user(geom=create_coordinate(0, 1), geom_radius=100)
+    # inside
     user3, token3 = generate_user(geom=create_coordinate(0.1, 0), geom_radius=100)
     # inside
     user4, token4 = generate_user(geom=create_coordinate(0, 0.1), geom_radius=100)
@@ -95,7 +95,6 @@ def test_user_filter_complete_profile(db):
                 creator_user_id=uploader_user.id,
             )
         )
-        session.commit()
 
     with session_scope() as session:
         key2 = random_hex(32)
@@ -107,7 +106,6 @@ def test_user_filter_complete_profile(db):
                 creator_user_id=uploader_user.id,
             )
         )
-        session.commit()
 
     user_complete_profile, token6 = generate_user(about_me="this profile is complete", avatar_key=key)
 
