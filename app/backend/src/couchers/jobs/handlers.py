@@ -45,9 +45,12 @@ from couchers.models import (
     User,
     UserBadge,
 )
-from couchers.notifications.background import handle_email_digests as bg_handle_email_digests
-from couchers.notifications.background import handle_email_notifications as bg_handle_email_notifications
-from couchers.notifications.background import handle_notification as bg_handle_notification
+from couchers.notifications.background import (
+    fan_notifications,
+    handle_email_digests,
+    handle_email_notifications,
+    handle_notification,
+)
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.blocking import are_blocked
@@ -58,6 +61,17 @@ from couchers.utils import now
 from proto.internal import jobs_pb2, verification_pb2
 
 logger = logging.getLogger(__name__)
+
+# these were straight up imported
+handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
+
+handle_email_notifications.PAYLOAD = empty_pb2.Empty
+handle_email_notifications.SCHEDULE = timedelta(minutes=1)
+
+handle_email_digests.PAYLOAD = empty_pb2.Empty
+handle_email_digests.SCHEDULE = timedelta(minutes=15)
+
+fan_notifications.PAYLOAD = jobs_pb2.FanNotifications
 
 
 def send_email(payload):
@@ -494,29 +508,6 @@ def enforce_community_membership(payload):
 
 enforce_community_membership.PAYLOAD = empty_pb2.Empty
 enforce_community_membership.SCHEDULE = timedelta(minutes=15)
-
-
-def handle_notification(payload):
-    bg_handle_notification(payload.notification_id)
-
-
-handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
-
-
-def handle_email_notifications(payload):
-    bg_handle_email_notifications()
-
-
-handle_email_notifications.PAYLOAD = empty_pb2.Empty
-handle_email_notifications.SCHEDULE = timedelta(minutes=1)
-
-
-def handle_email_digests(payload):
-    bg_handle_email_digests()
-
-
-handle_email_digests.PAYLOAD = empty_pb2.Empty
-handle_email_digests.SCHEDULE = timedelta(minutes=15)
 
 
 def update_recommendation_scores(payload):

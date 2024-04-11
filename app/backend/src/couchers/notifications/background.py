@@ -13,10 +13,29 @@ from couchers.models import (
     NotificationTopicAction,
     User,
 )
+from couchers.notifications import fan_funcs
+from couchers.notifications.notify import notify
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_digest_email, send_notification_email
 
 logger = logging.getLogger(__name__)
+
+
+def fan_notifications(payload):
+    fan_func = getattr(fan_funcs, payload.fan_func)
+    user_ids = fan_func(payload.fan_func_data)
+    for user_id in user_ids:
+        notify(
+            user_id=user_id,
+            topic=payload.topic,
+            key=payload.key,
+            action=payload.action,
+            title=payload.title,
+            link=payload.link,
+            avatar_key=payload.avatar_key or None,
+            icon=payload.icon or None,
+            content=payload.content or None,
+        )
 
 
 def get_notification_preference(
@@ -42,9 +61,11 @@ def get_notification_preference(
     return [dt for dt in NotificationDeliveryType if overrides.get(dt, dt in topic_action.defaults)]
 
 
-def handle_notification(notification_id):
+def handle_notification(payload):
     with session_scope() as session:
-        notification = session.execute(select(Notification).where(Notification.id == notification_id)).scalar_one()
+        notification = session.execute(
+            select(Notification).where(Notification.id == payload.notification_id)
+        ).scalar_one()
 
         # ignore this notification if the user hasn't enabled new notifications
         user = session.execute(select(User).where(User.id == notification.user_id)).scalar_one()
@@ -78,7 +99,7 @@ def handle_notification(notification_id):
                 logger.info("Supposed to send push notification")
 
 
-def handle_email_notifications():
+def handle_email_notifications(payload):
     """
     Sends out emails for notifications
     """
@@ -139,7 +160,7 @@ def handle_email_notifications():
             session.commit()
 
 
-def handle_email_digests():
+def handle_email_digests(payload):
     """
     Sends out email digests
     """

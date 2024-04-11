@@ -52,3 +52,36 @@ def notify(
             notification_id=notification_id,
         ),
     )
+
+
+def fan_notify(
+    *,
+    fan_func: str,
+    fan_func_data: str,
+    topic,
+    key,
+    action,
+    title,
+    link,
+    avatar_key=None,
+    icon=None,
+    content=None,
+):
+    """
+    Like notify, but this time we pass into a background job and call fan_func(fan_func_data) in order to figure out who to send this notification to
+    """
+    queue_job(
+        job_type="fan_notifications",
+        payload=jobs_pb2.FanNotifications(
+            topic=topic,
+            action=action,
+            key=key,
+            avatar_key=avatar_key,
+            icon=icon,
+            title=title,
+            content=content,
+            link=link,
+            fan_func=fan_func,
+            fan_func_data=fan_func_data,
+        ),
+    )

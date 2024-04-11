@@ -1,18 +1,20 @@
+import logging
 from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func, or_
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.db import session_scope
-from couchers.jobs.enqueue import queue_job
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
+from couchers.notifications.notify import fan_notify
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now
 from proto import conversations_pb2, conversations_pb2_grpc
-from proto.internal import jobs_pb2
+
+logger = logging.getLogger(__name__)
 
 # TODO: Still needs custom pagination: GetUpdates
 DEFAULT_PAGINATION_LENGTH = 20
@@ -126,11 +128,16 @@ def _add_message_to_subscription(session, subscription, **kwargs):
     subscription.last_seen_message_id = message.id
 
     # generate notifications in the background
-    queue_job(
-        job_type="generate_message_notifications",
-        payload=jobs_pb2.GenerateMessageNotificationsPayload(
-            message_id=message.id,
-        ),
+    fan_notify(
+        fan_func="fan_message_notifications",
+        fan_func_data=str(message.id),
+        topic="chat",
+        key=str(message.conversation_id),
+        action="message",
+        icon="message",
+        title=f"{message.author.name} sent a message in {subscription.group_chat.title}",
+        content=message.text,
+        link=urls.chat_link(chat_id=message.conversation_id),
     )
 
     return message
