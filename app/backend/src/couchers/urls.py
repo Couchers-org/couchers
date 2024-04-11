@@ -55,6 +55,10 @@ def chat_link(*, chat_id):
     return f"{config['BASE_URL']}/messages/chats/{chat_id}"
 
 
+def event_link(*, occurrence_id, slug="e"):
+    return f"{config['BASE_URL']}/event/{occurrence_id}/{slug}"
+
+
 def leave_reference_link(*, reference_type, to_user_id, host_request_id=None):
     assert reference_type in ["friend", "surfed", "hosted"]
     if host_request_id:

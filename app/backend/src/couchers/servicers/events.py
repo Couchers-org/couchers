@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 
 import grpc
@@ -7,6 +8,7 @@ from sqlalchemy.sql import and_, func, or_, update
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
+from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     AttendeeStatus,
     Cluster,
@@ -32,6 +34,9 @@ from couchers.utils import (
     to_aware_datetime,
 )
 from proto import events_pb2, events_pb2_grpc
+from proto.internal import jobs_pb2
+
+logger = logging.getLogger(__name__)
 
 attendancestate2sql = {
     events_pb2.AttendanceState.ATTENDANCE_STATE_NOT_GOING: None,
@@ -253,26 +258,36 @@ class Events(events_pb2_grpc.EventsServicer):
             )
             session.add(occurrence)
 
-            organizer = EventOrganizer(
-                user_id=context.user_id,
-                event=event,
+            session.add(
+                EventOrganizer(
+                    user_id=context.user_id,
+                    event=event,
+                )
             )
-            session.add(organizer)
 
-            subscription = EventSubscription(
-                user_id=context.user_id,
-                event=event,
+            session.add(
+                EventSubscription(
+                    user_id=context.user_id,
+                    event=event,
+                )
             )
-            session.add(subscription)
 
-            attendee = EventOccurrenceAttendee(
-                user_id=context.user_id,
-                occurrence=occurrence,
-                attendee_status=AttendeeStatus.going,
+            session.add(
+                EventOccurrenceAttendee(
+                    user_id=context.user_id,
+                    occurrence=occurrence,
+                    attendee_status=AttendeeStatus.going,
+                )
             )
-            session.add(attendee)
 
             session.commit()
+
+            queue_job(
+                job_type="generate_create_event_notification",
+                payload=jobs_pb2.GenerateCreateEventNotificationsPayload(
+                    occurrence_id=occurrence.id,
+                ),
+            )
 
             return event_to_pb(session, occurrence, context)
 
@@ -354,12 +369,13 @@ class Events(events_pb2_grpc.EventsServicer):
             )
             session.add(occurrence)
 
-            attendee = EventOccurrenceAttendee(
-                user_id=context.user_id,
-                occurrence=occurrence,
-                attendee_status=AttendeeStatus.going,
+            session.add(
+                EventOccurrenceAttendee(
+                    user_id=context.user_id,
+                    occurrence=occurrence,
+                    attendee_status=AttendeeStatus.going,
+                )
             )
-            session.add(attendee)
 
             session.flush()
 
@@ -383,9 +399,13 @@ class Events(events_pb2_grpc.EventsServicer):
             if not _can_edit_event(session, event, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
 
+            # the things that were updated and need to be notified about
+            notify_updated = []
+
             occurrence_update = {"last_edited": now()}
 
             if request.HasField("title"):
+                notify_updated.append("title")
                 event.title = request.title.value
                 event.last_edited = now()
 
@@ -396,12 +416,14 @@ class Events(events_pb2_grpc.EventsServicer):
                 occurrence_update["photo_key"] = request.photo_key.value
 
             if request.HasField("online_information"):
+                notify_updated.append("online_information")
                 if not request.online_information.link:
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ONLINE_EVENT_REQUIRES_LINK)
                 occurrence_update["link"] = request.online_information.link
                 occurrence_update["geom"] = None
                 occurrence_update["address"] = None
             elif request.HasField("offline_information"):
+                notify_updated.append("offline_information")
                 occurrence_update["link"] = None
                 if request.offline_information.lat == 0 and request.offline_information.lng == 0:
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
@@ -414,10 +436,12 @@ class Events(events_pb2_grpc.EventsServicer):
                 if request.update_all_future:
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.EVENT_CANT_UPDATE_ALL_TIMES)
                 if request.HasField("start_time"):
+                    notify_updated.append("start_time")
                     start_time = to_aware_datetime(request.start_time)
                 else:
                     start_time = occurrence.start_time
                 if request.HasField("end_time"):
+                    notify_updated.append("end_time")
                     end_time = to_aware_datetime(request.end_time)
                 else:
                     end_time = occurrence.end_time
@@ -468,9 +492,18 @@ class Events(events_pb2_grpc.EventsServicer):
                     .execution_options(synchronize_session=False)
                 )
 
-            # TODO notify
-
             session.flush()
+
+            if notify_updated:
+                logger.info(f"Fields {','.join(notify_updated)} updated in event {event.id=}, notifying")
+                queue_job(
+                    job_type="generate_update_event_notification",
+                    payload=jobs_pb2.GenerateUpdateEventNotificationsPayload(
+                        occurrence_id=occurrence.id,
+                        updater_user_id=context.user_id,
+                        updated_fields=notify_updated,
+                    ),
+                )
 
             # since we have synchronize_session=False, we have to refresh the object
             session.refresh(occurrence)

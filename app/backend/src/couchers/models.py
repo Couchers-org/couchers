@@ -2132,6 +2132,12 @@ class NotificationTopicAction(enum.Enum):
     # group chats
     chat__message = ("chat", "message", [dt.email, dt.push, dt.digest])
 
+    # events
+    event__create = ("event", "create", [dt.push, dt.digest])
+    event__update = ("event", "update", [dt.push, dt.digest])
+    event__commented = ("event", "commented", [dt.push, dt.digest])
+    event__invite_organizer = ("event", "invite_organizer", [dt.email, dt.push, dt.digest])
+
 
 class NotificationPreference(Base):
     __tablename__ = "notification_preferences"

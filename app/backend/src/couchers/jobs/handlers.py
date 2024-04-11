@@ -26,6 +26,8 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    Event,
+    EventOccurrence,
     Float,
     GroupChat,
     GroupChatSubscription,
@@ -843,3 +845,92 @@ def finalize_strong_verification(payload):
 
 
 finalize_strong_verification.PAYLOAD = jobs_pb2.FinalizeStrongVerificationPayload
+def _get_users_to_notify_for_event_creation(session, event, occurrence, creator):
+    subscribers: set[User] = set()
+    cluster = event.parent_node.official_cluster
+    if cluster.parent_node_id == 1:
+        logger.info(f"The Global Community is too big for email notifications.")
+    elif creator in cluster.admins:
+        subscribers.update(cluster.members)
+    elif cluster.is_leaf:
+        subscribers.update(cluster.members)
+    else:
+        max_radius = 20000  # m
+        subscribers.update(
+            session.execute(
+                select(User)
+                .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+                .where(ClusterSubscription.cluster_id == cluster.id)
+                .where(func.ST_DWithin(User.geom, occurrence.geom, max_radius / 111111))
+            ).all()
+        )
+    return subscribers
+
+
+def generate_create_event_notification(payload):
+    """Sends out notifications to all users subscribed to a newly created event's cluster."""
+    logger.info(f"Sending out notifications for event occurrence id = {payload.occurrence_id}")
+
+    with session_scope() as session:
+        event, occurrence = session.execute(
+            select(Event, EventOccurrence)
+            .where(EventOccurrence.id == payload.occurrence_id)
+            .where(EventOccurrence.event_id == Event.id)
+        ).one()
+        creator = occurrence.creator_user
+
+        if not creator.has_completed_profile:
+            logger.info(
+                f"{creator.name=} can't send notifications for {event.title=} because of an incomplete profile."
+            )
+            return
+
+        for subscriber in _get_users_to_notify_for_event_creation(session, event, occurrence, creator):
+            logger.info(f"Notifying {subscriber.name=} of {event.title=}")
+            notify(
+                user_id=subscriber.id,
+                topic="event",
+                key=str(occurrence.id),
+                action="create",
+                icon="create",
+                title=f'A new event, "{event.title}" was created by {creator.name}',
+                content=occurrence.content,
+                link=urls.event_link(occurrence_id=occurrence.id, slug=event.slug),
+            )
+
+
+generate_create_event_notification.PAYLOAD = jobs_pb2.GenerateCreateEventNotificationsPayload
+
+
+def generate_update_event_notification(payload):
+    # TODO: this is very incomplete
+    """Sends out notifications to all users subscribed of an updated event."""
+    logger.info(
+        f"Sending out update notifications for event occurrence id = {payload.occurrence_id}, updated fields: {', '.join(payload.updated_fields)}"
+    )
+
+    with session_scope() as session:
+        event, occurrence = session.execute(
+            select(Event, EventOccurrence)
+            .where(EventOccurrence.id == payload.occurrence_id)
+            .where(EventOccurrence.event_id == Event.id)
+        ).one()
+        updater = session.execute(select(User).where(User.id == payload.updater_user_id)).scalar_one()
+
+        for subscriber in event.subscribers:
+            logger.info(f"Notifying {subscriber.name=} of change to {event.title=}")
+            if len(payload.updated_fields) == 1:
+                pass
+            notify(
+                user_id=subscriber.id,
+                topic="event",
+                key=str(occurrence.id),
+                action="create",
+                icon="create",
+                title=f'A new event, "{event.title}" was created by {creator.name}',
+                content=occurrence.content,
+                link=urls.event_link(occurrence_id=occurrence.id, slug=event.slug),
+            )
+
+
+generate_update_event_notification.PAYLOAD = jobs_pb2.GenerateUpdateEventNotificationsPayload

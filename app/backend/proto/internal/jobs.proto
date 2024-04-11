@@ -24,3 +24,13 @@ message GenerateMessageNotificationsPayload {
 message FinalizeStrongVerificationPayload {
   int64 verification_attempt_id = 1;
 }
+
+message GenerateCreateEventNotificationsPayload {
+  int64 occurrence_id = 1;
+}
+
+message GenerateUpdateEventNotificationsPayload {
+  int64 occurrence_id = 1;
+  int64 updater_user_id = 2;
+  repeated string updated_fields = 3;
+}
