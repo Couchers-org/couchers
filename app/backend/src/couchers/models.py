@@ -1743,7 +1743,6 @@ class Event(Base):
     organizers = relationship(
         "User", backref="organized_events", secondary="event_organizers", lazy="dynamic", viewonly=True
     )
-    thread = relationship("Thread", backref="event", uselist=False)
     creator_user = relationship("User", backref="created_events", foreign_keys="Event.creator_user_id")
     owner_user = relationship("User", backref="owned_events", foreign_keys="Event.owner_user_id")
     owner_cluster = relationship(
@@ -2135,7 +2134,6 @@ class NotificationTopicAction(enum.Enum):
     # events
     event__create = ("event", "create", [dt.push, dt.digest])
     event__update = ("event", "update", [dt.push, dt.digest])
-    event__commented = ("event", "commented", [dt.push, dt.digest])
     event__invite_organizer = ("event", "invite_organizer", [dt.email, dt.push, dt.digest])
 
 

@@ -22,7 +22,7 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.notifications.notify import fan_notify
+from couchers.notifications.notify import fan_notify, notify
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (

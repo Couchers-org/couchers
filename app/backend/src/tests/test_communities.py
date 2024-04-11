@@ -214,7 +214,7 @@ def get_group_id(session, group_name):
 
 
 @pytest.fixture(scope="class")
-def testing_communities():
+def testing_communities(testconfig):
     recreate_database()
     user1, token1 = generate_user(username="user1", geom=create_1d_point(1), geom_radius=0.1)
     user2, token2 = generate_user(username="user2", geom=create_1d_point(2), geom_radius=0.1)
