@@ -6,9 +6,8 @@ from google.protobuf import empty_pb2
 from psycopg2.extras import DateTimeTZRange
 from sqlalchemy.sql import and_, func, or_, update
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
-from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     AttendeeStatus,
     Cluster,
@@ -23,6 +22,7 @@ from couchers.models import (
     Upload,
     User,
 )
+from couchers.notifications.notify import fan_notify
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
@@ -34,7 +34,6 @@ from couchers.utils import (
     to_aware_datetime,
 )
 from proto import events_pb2, events_pb2_grpc
-from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -217,6 +216,7 @@ class Events(events_pb2_grpc.EventsServicer):
         _check_occurrence_time_validity(start_time, end_time, context)
 
         with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             if request.parent_community_id:
                 parent_node = session.execute(
                     select(Node).where(Node.id == request.parent_community_id)
@@ -282,11 +282,16 @@ class Events(events_pb2_grpc.EventsServicer):
 
             session.commit()
 
-            queue_job(
-                job_type="generate_create_event_notification",
-                payload=jobs_pb2.GenerateCreateEventNotificationsPayload(
-                    occurrence_id=occurrence.id,
-                ),
+            fan_notify(
+                fan_func="fan_create_event_notifications",
+                fan_func_data=str(occurrence.id),
+                topic="event",
+                key=str(occurrence.id),
+                action="create",
+                icon="create",
+                title=f'A new event, "{event.title}" was created by {user.name}',
+                content=occurrence.content,
+                link=urls.event_link(occurrence_id=occurrence.id, slug=event.slug),
             )
 
             return event_to_pb(session, occurrence, context)
@@ -385,6 +390,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
     def UpdateEvent(self, request, context):
         with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             res = session.execute(
                 select(Event, EventOccurrence)
                 .where(EventOccurrence.id == request.event_id)
@@ -496,13 +502,17 @@ class Events(events_pb2_grpc.EventsServicer):
 
             if notify_updated:
                 logger.info(f"Fields {','.join(notify_updated)} updated in event {event.id=}, notifying")
-                queue_job(
-                    job_type="generate_update_event_notification",
-                    payload=jobs_pb2.GenerateUpdateEventNotificationsPayload(
-                        occurrence_id=occurrence.id,
-                        updater_user_id=context.user_id,
-                        updated_fields=notify_updated,
-                    ),
+                # TODO: prettier message
+                fan_notify(
+                    fan_func="fan_to_occurrence_subscribers_and_attendees",
+                    fan_func_data=str(occurrence.id),
+                    topic="event",
+                    key=str(occurrence.id),
+                    action="update",
+                    icon="update",
+                    title=f'"{event.title}" was updated by {user.name}',
+                    content="The following were updated: " + ", ".join(notify_updated),
+                    link=urls.event_link(occurrence_id=occurrence.id, slug=event.slug),
                 )
 
             # since we have synchronize_session=False, we have to refresh the object
@@ -835,6 +845,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
     def InviteEventOrganizer(self, request, context):
         with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             res = session.execute(
                 select(Event, EventOccurrence)
                 .where(EventOccurrence.id == request.event_id)
@@ -854,14 +865,23 @@ class Events(events_pb2_grpc.EventsServicer):
             ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.USER_NOT_FOUND)
 
-            organizer = EventOrganizer(
-                user_id=request.user_id,
-                event=event,
+            session.add(
+                EventOrganizer(
+                    user_id=request.user_id,
+                    event=event,
+                )
             )
-            session.add(organizer)
             session.flush()
 
-            # TODO: notify
+            notify(
+                user_id=request.user_id,
+                topic="event",
+                key=str(event.id),
+                action="invite_organizer",
+                icon="plusone",
+                title=f"{user.name} invited you as an organizer to the event {event.name}",
+                link=urls.event_link(occurrence_id=occurrence.id, slug=event.slug),
+            )
 
             return empty_pb2.Empty()
 
