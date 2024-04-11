@@ -67,9 +67,9 @@ handle_email_notifications.PAYLOAD = empty_pb2.Empty
 handle_email_notifications.SCHEDULE = timedelta(minutes=1)
 
 handle_email_digests.PAYLOAD = empty_pb2.Empty
-handle_email_digests.SCHEDULE = timedelta(minutes=15)
+handle_email_digests.SCHEDULE = timedelta(seconds=6)
 
-fan_notifications.PAYLOAD = jobs_pb2.FanNotifications
+fan_notifications.PAYLOAD = jobs_pb2.FanNotificationsPayload
 
 
 def send_email(payload):
@@ -126,54 +126,6 @@ def purge_account_deletion_tokens(payload):
 
 purge_account_deletion_tokens.PAYLOAD = empty_pb2.Empty
 purge_account_deletion_tokens.SCHEDULE = timedelta(hours=24)
-
-
-def generate_message_notifications(payload):
-    """
-    Generates notifications for a message sent to a group chat
-    """
-    logger.info(f"Sending out notifications for message_id = {payload.message_id}")
-
-    with session_scope() as session:
-        message, group_chat = session.execute(
-            select(Message, GroupChat)
-            .join(GroupChat, GroupChat.conversation_id == Message.conversation_id)
-            .where(Message.id == payload.message_id)
-        ).one()
-
-        if message.message_type != MessageType.text:
-            logger.info(f"Not a text message, not notifying. message_id = {payload.message_id}")
-            return
-
-        subscriptions = (
-            session.execute(
-                select(GroupChatSubscription)
-                .join(User, User.id == GroupChatSubscription.user_id)
-                .where(GroupChatSubscription.group_chat_id == message.conversation_id)
-                .where(User.is_visible)
-                .where(User.id != message.author_id)
-                .where(GroupChatSubscription.left == None)
-                .where(not_(GroupChatSubscription.is_muted))
-            )
-            .scalars()
-            .all()
-        )
-
-        for subscription in subscriptions:
-            logger.info(f"Notifying user_id = {subscription.user_id}")
-            notify(
-                user_id=subscription.user_id,
-                topic="chat",
-                key=str(message.conversation_id),
-                action="message",
-                icon="message",
-                title=f"{message.author.name} sent a message in {group_chat.title}",
-                content=message.text,
-                link=urls.chat_link(chat_id=message.conversation_id),
-            )
-
-
-generate_message_notifications.PAYLOAD = jobs_pb2.GenerateMessageNotificationsPayload
 
 
 def send_message_notifications(payload):

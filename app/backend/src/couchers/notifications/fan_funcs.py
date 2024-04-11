@@ -4,10 +4,19 @@ Contains "fan functions" that given some data decide who to notify. Needs to ret
 
 import logging
 
-from sqlalchemy.sql import not_, select
+from sqlalchemy.sql import func, not_, select
 
 from couchers.db import session_scope
-from couchers.models import Event, EventOccurrence, GroupChat, GroupChatSubscription, Message, MessageType, User
+from couchers.models import (
+    ClusterSubscription,
+    Event,
+    EventOccurrence,
+    GroupChat,
+    GroupChatSubscription,
+    Message,
+    MessageType,
+    User,
+)
 from couchers.sql import couchers_select as select
 
 logger = logging.getLogger(__name__)
@@ -83,7 +92,9 @@ def fan_create_event_notifications(occurrence_id_str):
                     .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
                     .where(ClusterSubscription.cluster_id == cluster.id)
                     .where(func.ST_DWithin(User.geom, occurrence.geom, max_radius / 111111))
-                ).all()
+                )
+                .scalars()
+                .all()
             )
 
         return [subscriber.id for subscriber in subscribers]

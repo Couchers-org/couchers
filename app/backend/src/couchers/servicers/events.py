@@ -879,7 +879,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 key=str(event.id),
                 action="invite_organizer",
                 icon="plusone",
-                title=f"{user.name} invited you as an organizer to the event {event.name}",
+                title=f"{user.name} invited you as an organizer to the event {event.title}",
                 link=urls.event_link(occurrence_id=occurrence.id, slug=event.slug),
             )
 

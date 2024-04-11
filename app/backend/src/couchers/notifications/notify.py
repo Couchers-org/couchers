@@ -72,7 +72,7 @@ def fan_notify(
     """
     queue_job(
         job_type="fan_notifications",
-        payload=jobs_pb2.FanNotifications(
+        payload=jobs_pb2.FanNotificationsPayload(
             topic=topic,
             action=action,
             key=key,

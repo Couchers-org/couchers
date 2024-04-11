@@ -28,3 +28,6 @@ DATETIME_MINUS_INFINITY = pytz.UTC.localize(datetime(1, 1, 1))
 DATETIME_INFINITY = pytz.UTC.localize(datetime(9876, 12, 31, hour=23, minute=59, second=59))
 
 SERVER_THREADS = 128
+
+# default digest settings
+DIGEST_FREQUENCY = timedelta(hours=48)

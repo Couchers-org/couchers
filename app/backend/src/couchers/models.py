@@ -221,7 +221,7 @@ class User(Base):
     # opted out of the newsletter
     opt_out_of_newsletter = Column(Boolean, nullable=False, server_default="false")
 
-    last_digest_sent = Column(DateTime(timezone=True), nullable=True)
+    last_digest_sent = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
 
     # for changing their email
     new_email = Column(String, nullable=True)
@@ -1517,6 +1517,11 @@ class Cluster(Base):
         uselist=False,
     )
 
+    @property
+    def is_leaf(self) -> bool:
+        """Whether the cluster is a leaf node in the cluster hierarchy."""
+        return len(self.parent_node.child_nodes) == 0
+
     __table_args__ = (
         # Each node can have at most one official cluster
         Index(
@@ -2217,6 +2222,12 @@ class NotificationDelivery(Base):
             "ix_notification_deliveries_delivery_type",
             delivery_type,
             postgresql_where=(delivered != None),
+        ),
+        Index(
+            "ix_notification_deliveries_dt_ni_dnull",
+            delivery_type,
+            notification_id,
+            delivered == None,
         ),
     )
 

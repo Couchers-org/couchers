@@ -17,25 +17,11 @@ message HandleNotificationPayload {
   int64 notification_id = 1;
 }
 
-message GenerateMessageNotificationsPayload {
-  int64 message_id = 1;
-}
-
 message FinalizeStrongVerificationPayload {
   int64 verification_attempt_id = 1;
 }
 
-message GenerateCreateEventNotificationsPayload {
-  int64 occurrence_id = 1;
-}
-
-message GenerateUpdateEventNotificationsPayload {
-  int64 occurrence_id = 1;
-  int64 updater_user_id = 2;
-  repeated string updated_fields = 3;
-}
-
-message FanNotifications {
+message FanNotificationsPayload {
   string topic = 1;
   string action = 2;
   string key = 3;
