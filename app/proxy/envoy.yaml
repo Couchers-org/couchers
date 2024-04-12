@@ -18,6 +18,7 @@ static_resources:
               "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
           route_config:
             name: local_route
+            max_direct_response_body_size_bytes: 10485760
             virtual_hosts:
             - name: local_service
               domains: ["*"]
@@ -31,6 +32,16 @@ static_resources:
                       in building the next-generation couch surfing platform with us, or if you're
                       just interested in API access, please contact us through https://couchers.org
                       or come help out on GitHub at https://github.com/Couchers-org.
+              - match: { path: "/descriptors.pb" }
+                direct_response:
+                  status: 200
+                  body:
+                    filename: "/etc/envoy/descriptors.pb"
+                response_headers_to_add:
+                  - header:
+                      key: content-type
+                      value: application/octet-stream
+                    append: false
               - match: { prefix: "/" }
                 route:
                   cluster: couchers_service
@@ -90,7 +101,7 @@ static_resources:
           - name: envoy.filters.http.grpc_json_transcoder
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
-              proto_descriptor: "/tmp/envoy/descriptors.pb"
+              proto_descriptor: "/etc/envoy/descriptors.pb"
               services:
                 - org.couchers.auth.Auth
                 - org.couchers.json.GIS
