@@ -129,7 +129,7 @@ export default function LoginForm() {
         <div className={classes.loginOptions}>
           <FormControlLabel
             className={classes.rememberSwitch}
-            control={<Switch size="small" checked="true" />}
+            control={<Switch size="small" />}
             label={t("auth:login_page.form.remember_me")}
           />
           {!loginWithLink && (
