@@ -2,8 +2,10 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from google.protobuf import empty_pb2
 
 from couchers.config import config
+from couchers.crypto import random_hex
 from proto import bugs_pb2
 from tests.test_fixtures import bugs_session, db, generate_user, testconfig  # noqa
 
@@ -144,3 +146,29 @@ def test_bugs_fails_on_network_error(db):
                         )
                     )
                 assert e.value.code() == grpc.StatusCode.INTERNAL
+
+
+def test_version():
+    with bugs_session() as bugs:
+        res = bugs.Version(empty_pb2.Empty())
+        assert res.version == "testing_version"
+
+
+def test_status(db):
+    for _ in range(5):
+        generate_user()
+
+    with bugs_session() as bugs:
+        nonce = random_hex()
+        res = bugs.Status(bugs_pb2.StatusReq(nonce=nonce))
+        assert res.nonce == nonce
+        assert res.version == "testing_version"
+        assert res.coucher_count == 5
+
+
+def test_GetDescriptors():
+    with bugs_session() as bugs:
+        res = bugs.GetDescriptors(empty_pb2.Empty())
+        # test we got something roughly binary back
+        assert res.content_type == "application/octet-stream"
+        assert len(res.data) > 2**12

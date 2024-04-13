@@ -3,6 +3,7 @@ syntax = "proto3";
 package org.couchers.bugs;
 
 import "google/api/annotations.proto";
+import "google/api/httpbody.proto";
 import "google/protobuf/empty.proto";
 
 import "annotations.proto";
@@ -19,6 +20,20 @@ service Bugs {
 
   rpc ReportBug(ReportBugReq) returns (ReportBugRes) {
     // Report a bug
+  }
+
+  rpc Status(StatusReq) returns (StatusRes) {
+    // Hits database, can be used to check the backend is up and working
+    option (google.api.http) = {
+      get : "/status"
+    };
+  }
+
+  rpc GetDescriptors(google.protobuf.Empty) returns (google.api.HttpBody) {
+    // Returns the proto descriptors the backend is using
+    option (google.api.http) = {
+      get : "/descriptors.pb"
+    };
   }
 }
 
@@ -39,4 +54,14 @@ message ReportBugReq {
 message ReportBugRes {
   string bug_id = 2;
   string bug_url = 3;
+}
+
+message StatusReq {
+  string nonce = 1;
+}
+
+message StatusRes {
+  string nonce = 1;
+  string version = 2;
+  uint64 coucher_count = 3;
 }
