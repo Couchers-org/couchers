@@ -1,11 +1,14 @@
 import grpc
 import requests
+from sqlalchemy.sql import func
 
 from couchers.config import config
 from couchers.db import session_scope
+from couchers.descriptor_pool import get_descriptors_pb
 from couchers.models import User
 from couchers.sql import couchers_select as select
 from proto import bugs_pb2, bugs_pb2_grpc
+from proto.google.api import httpbody_pb2
 
 
 class Bugs(bugs_pb2_grpc.BugsServicer):
@@ -56,4 +59,20 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
 
         return bugs_pb2.ReportBugRes(
             bug_id=f"#{issue_number}", bug_url=f"https://github.com/{repo}/issues/{issue_number}"
+        )
+
+    def Status(self, request, context):
+        with session_scope() as session:
+            coucher_count = session.execute(select(func.count()).select_from(User).where(User.is_visible)).scalar_one()
+
+        return bugs_pb2.StatusRes(
+            nonce=request.nonce,
+            version=self._version(),
+            coucher_count=coucher_count,
+        )
+
+    def GetDescriptors(self, request, context):
+        return httpbody_pb2.HttpBody(
+            content_type="application/octet-stream",
+            data=get_descriptors_pb(),
         )
