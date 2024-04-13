@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package org.couchers.notifications;
 
+import "google/protobuf/timestamp.proto";
+
 import "annotations.proto";
 
 service Notifications {
@@ -10,6 +12,8 @@ service Notifications {
   rpc GetNotificationSettings(GetNotificationSettingsReq) returns (GetNotificationSettingsRes);
 
   rpc SetNotificationSettings(SetNotificationSettingsReq) returns (SetNotificationSettingsRes);
+
+  rpc ListNotifications(ListNotificationsReq) returns (ListNotificationsRes);
 }
 
 message GetNotificationSettingsReq {}
@@ -23,3 +27,27 @@ message SetNotificationSettingsReq {
 }
 
 message SetNotificationSettingsRes {}
+
+message Notification {
+  int64 notification_id = 1;
+  google.protobuf.Timestamp created = 2;
+  string topic = 3;
+  string action = 4;
+  string key = 5;
+  string avatar_key = 6;
+  string icon = 7;
+  string title = 8;
+  string content = 9;
+  string link = 10;
+}
+
+message ListNotificationsReq {
+  uint32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListNotificationsRes {
+  repeated Notification notifications = 1;
+
+  string next_page_token = 2;
+}

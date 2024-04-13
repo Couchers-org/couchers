@@ -128,6 +128,11 @@ def _add_message_to_subscription(session, subscription, **kwargs):
     subscription.last_seen_message_id = message.id
 
     # generate notifications in the background
+    if subscription.group_chat.is_dm:
+        title = f"{message.author.name} sent you a message"
+    else:
+        title = f"{message.author.name} sent a message in {subscription.group_chat.title}"
+
     fan_notify(
         fan_func="fan_message_notifications",
         fan_func_data=str(message.id),
@@ -135,7 +140,7 @@ def _add_message_to_subscription(session, subscription, **kwargs):
         key=str(message.conversation_id),
         action="message",
         icon="message",
-        title=f"{message.author.name} sent a message in {subscription.group_chat.title}",
+        title=title,
         content=message.text,
         link=urls.chat_link(chat_id=message.conversation_id),
     )
