@@ -26,7 +26,7 @@ NEXT_PUBLIC_TILE_URL="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 NEXT_PUBLIC_TILE_ATTRIBUTION="Map data &copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors"
 NEXT_PUBLIC_IS_VERIFICATION_ENABLED=true
 NEXT_PUBLIC_IS_COMMUNITIES_PART2_ENABLED=true
-NEXT_PUBLIC_STRIPE_KEY="pk_test_51IQLEzE5kUmYuPWzpJH9otfZ2Lxt4UpJOhDklbdjfxfHdNjZciaoVX94JDPV1gUg6bufiRrFYSkJLyxD6ojMLBax00BrUzTxjm"
+NEXT_PUBLIC_STRIPE_KEY="pk_test_51KEzByIfR5z29g5khFE5samD8XKOGLcCrM1lhCkfOomGPUFAEYOw8uAqI2Nkv33wYdPM2FgTQNTC07IiNfHY1kLJ00Jqm8Ppai"
 ```
 
 4. Run the new frontend

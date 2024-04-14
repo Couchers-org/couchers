@@ -7,10 +7,9 @@ import stripe
 from couchers import errors, urls
 from couchers.config import config
 from couchers.db import session_scope
-from couchers.models import Invoice, OneTimeDonation, RecurringDonation, User
+from couchers.models import DonationInitiation, DonationType, Invoice, User
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_donation_email
-from couchers.utils import now
 from proto import donations_pb2, donations_pb2_grpc, stripe_pb2_grpc
 from proto.google.api import httpbody_pb2
 
@@ -26,7 +25,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
             if request.amount < 2:
-                # we don't want to waste *all* the donations on processing fees
+                # we don't want to waste *all* of the donation on processing fees
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DONATION_TOO_SMALL)
 
             if not user.stripe_customer_id:
@@ -71,32 +70,25 @@ class Donations(donations_pb2_grpc.DonationsServicer):
                 api_key=config["STRIPE_API_KEY"],
             )
 
-            if request.recurring:
-                session.add(
-                    RecurringDonation(
-                        user_id=user.id,
-                        amount=request.amount,
-                        stripe_checkout_session_id=checkout_session.id,
-                    )
+            session.add(
+                DonationInitiation(
+                    user_id=user.id,
+                    amount=request.amount,
+                    stripe_checkout_session_id=checkout_session.id,
+                    donation_type=DonationType.recurring if request.recurring else DonationType.one_time,
                 )
-            else:
-                session.add(
-                    OneTimeDonation(
-                        user_id=user.id,
-                        amount=request.amount,
-                        stripe_checkout_session_id=checkout_session.id,
-                        stripe_payment_intent_id=checkout_session.payment_intent,
-                        paid=None,
-                    )
-                )
+            )
 
-            return donations_pb2.InitiateDonationRes(stripe_checkout_session_id=checkout_session.id)
+            return donations_pb2.InitiateDonationRes(
+                stripe_checkout_session_id=checkout_session.id, stripe_checkout_url=checkout_session.url
+            )
 
 
 class Stripe(stripe_pb2_grpc.StripeServicer):
     def Webhook(self, request, context):
         # We're set up to receive the following webhook events (with explanations from stripe docs):
-        # For both recurring and one-off donations, we get a `checkout.session.completed` event, and then a `payment_intent.succeeded` event
+        # For both recurring and one-off donations, we get a `charge.succeeded` event and we then send the user an
+        # invoice. There are other events too, but we don't handle them right now.
         headers = dict(context.invocation_metadata())
 
         event = stripe.Webhook.construct_event(
@@ -113,40 +105,18 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         # Get the type of webhook event sent - used to check the status of PaymentIntents.
         logger.info(f"Got signed Stripe webhook, {event_type=}, {event_id=}")
 
-        if event_type == "checkout.session.completed":
-            checkout_session_id = data_object["id"]
-            if data_object["payment_intent"]:
-                with session_scope() as session:
-                    donation = session.execute(
-                        select(OneTimeDonation).where(OneTimeDonation.stripe_checkout_session_id == checkout_session_id)
-                    ).scalar_one()
-                    if data_object["payment_status"] == "paid":
-                        donation.paid = now()
-                    else:
-                        raise Exception("Unknown payment status")
-            elif data_object["subscription"]:
-                with session_scope() as session:
-                    donation = session.execute(
-                        select(RecurringDonation).where(
-                            RecurringDonation.stripe_checkout_session_id == checkout_session_id
-                        )
-                    ).scalar_one()
-                    donation.stripe_subscription_id = data_object["subscription"]
-            else:
-                raise Exception("Unknown payment type")
-        elif event_type == "payment_intent.succeeded":
+        if event_type == "charge.succeeded":
             customer_id = data_object["customer"]
             with session_scope() as session:
                 user = session.execute(select(User).where(User.stripe_customer_id == customer_id)).scalar_one()
-                invoice_data = data_object["charges"]["data"][0]
                 # amount comes in cents
-                amount = int(float(invoice_data["amount"]) / 100)
-                receipt_url = invoice_data["receipt_url"]
+                amount = int(data_object["amount"]) // 100
+                receipt_url = data_object["receipt_url"]
                 session.add(
                     Invoice(
                         user_id=user.id,
                         amount=amount,
-                        stripe_payment_intent_id=invoice_data["payment_intent"],
+                        stripe_payment_intent_id=data_object["payment_intent"],
                         stripe_receipt_url=receipt_url,
                     )
                 )
