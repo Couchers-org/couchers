@@ -57,10 +57,14 @@ export default function FilterDialog({
   isOpen,
   onClose,
   searchFilters,
+  updateMapBoundingBox,
 }: {
   isOpen: boolean;
   onClose(): void;
   searchFilters: ReturnType<typeof useRouteWithSearchFilters>;
+  updateMapBoundingBox: (
+    newBoundingBox: [number, number, number, number] | undefined
+  ) => void;
 }) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
@@ -70,6 +74,9 @@ export default function FilterDialog({
     });
   const queryClient = useQueryClient();
   const onSubmit = handleSubmit((data) => {
+    if (data.location && data.location.bbox) {
+      updateMapBoundingBox(data.location?.bbox);
+    }
     if (data.location === "" || !data.location) {
       searchFilters.remove("location");
       searchFilters.remove("lat");
@@ -157,6 +164,7 @@ export default function FilterDialog({
                         searchFilters.active.lng ?? 0,
                         searchFilters.active.lat ?? 0
                       ),
+                      bbox: searchFilters.active.bbox as [0, 0, 0, 0],
                     }
                   : ""
               }

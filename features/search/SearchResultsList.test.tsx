@@ -61,6 +61,7 @@ describe("SearchResultsList", () => {
     getUserMock.mockImplementation(getUser);
     render(
       <SearchResultsList
+        updateMapBoundingBox={() => jest.fn()}
         selectedResult={1}
         handleResultClick={mockHandleResultClick}
         handleMapUserClick={mockHandleMapUserClick}
@@ -79,6 +80,7 @@ describe("SearchResultsList", () => {
   it("Is blank with no selection or query", () => {
     render(
       <SearchResultsList
+        updateMapBoundingBox={() => jest.fn()}
         selectedResult={undefined}
         handleResultClick={mockHandleResultClick}
         handleMapUserClick={mockHandleMapUserClick}
@@ -96,6 +98,7 @@ describe("SearchResultsList", () => {
     getUserMock.mockRejectedValue(new Error("fetch error"));
     render(
       <SearchResultsList
+        updateMapBoundingBox={() => jest.fn()}
         selectedResult={1}
         handleResultClick={mockHandleResultClick}
         handleMapUserClick={mockHandleMapUserClick}
@@ -113,6 +116,7 @@ describe("SearchResultsList", () => {
     beforeEach(() => {
       render(
         <SearchResultsList
+          updateMapBoundingBox={() => jest.fn()}
           handleResultClick={mockHandleResultClick}
           handleMapUserClick={mockHandleMapUserClick}
           map={mockMapRef}
@@ -150,6 +154,7 @@ describe("SearchResultsList", () => {
     userSearchMock.mockRejectedValueOnce(new Error("search error"));
     render(
       <SearchResultsList
+        updateMapBoundingBox={() => jest.fn()}
         handleResultClick={mockHandleResultClick}
         handleMapUserClick={mockHandleMapUserClick}
         map={mockMapRef}

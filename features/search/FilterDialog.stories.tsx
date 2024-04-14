@@ -16,6 +16,7 @@ const Template: Story<any> = () => {
   return (
     <>
       <FilterDialog
+        updateMapBoundingBox={() => jest.fn()}
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         searchFilters={searchFilters}

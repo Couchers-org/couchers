@@ -15,6 +15,7 @@ export interface UserSearchFilters {
   lastActive?: number; //within x days
   hostingStatusOptions?: HostingStatus[];
   numGuests?: number;
+  bbox?: [number, number, number, number];
 }
 
 export async function userSearch(

@@ -12,10 +12,10 @@ import { filterUsers } from "features/search/users";
 import { useUser } from "features/userQueries/useUsers";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
-import maplibregl, { LngLatBounds, Map as MaplibreMap } from "maplibre-gl";
+import maplibregl, { Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
-import { MutableRefObject, useRef } from "react";
+import { MutableRefObject } from "react";
 import { useInfiniteQuery } from "react-query";
 import { service } from "service";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
@@ -90,6 +90,9 @@ interface SearchResultsListProps {
   }): void;
   map: MutableRefObject<MaplibreMap | undefined>;
   selectedResult?: number;
+  updateMapBoundingBox: (
+    newBoundingBox: [number, number, number, number] | undefined
+  ) => void;
   searchFilters: ReturnType<typeof useRouteWithSearchFilters>;
 }
 
@@ -99,17 +102,16 @@ export default function SearchResultsList({
   map,
   selectedResult,
   searchFilters,
+  updateMapBoundingBox,
 }: SearchResultsListProps) {
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
-
   const selectedUser = useUser(selectedResult);
 
-  const { query, lat, lng, lastActive, hostingStatusOptions, numGuests } =
+  const { query, lat, lng, lastActive, hostingStatusOptions, numGuests, bbox } =
     searchFilters.active;
   const radius = 50000;
 
-  const isFirstQuery = useRef(true);
   const {
     data: results,
     error,
@@ -138,6 +140,7 @@ export default function SearchResultsList({
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
       onSuccess(results) {
         map.current?.stop();
+
         const resultUsers = results.pages
           .flatMap((page) => page.resultsList)
           .map((result) => {
@@ -156,37 +159,10 @@ export default function SearchResultsList({
               handleMapUserClick
             );
 
-          //don't zoom to map results for the very first query
-          //this allows people to press back and be in the right place
-          if (!isFirstQuery.current) {
-            //create a bounds that encompasses only the first user
-            const firstResult = resultUsers[0];
-            if (!firstResult) return;
-            if (firstResult.lat === 0 && firstResult.lng === 0) return;
-            const newBounds = new LngLatBounds([
-              [firstResult.lng, firstResult.lat],
-              [firstResult.lng, firstResult.lat],
-            ]);
-
-            resultUsers.forEach((user) => {
-              //skip if the user is already in the bounds or location is 0,0
-              if (newBounds.contains([user.lng, user.lat])) return;
-              if (user.lat === 0 && user.lng === 0) return;
-              //otherwise extend the bounds
-              newBounds.setSouthWest([
-                Math.min(user.lng, newBounds.getWest()),
-                Math.min(user.lat, newBounds.getSouth()),
-              ]);
-              newBounds.setNorthEast([
-                Math.max(user.lng, newBounds.getEast()),
-                Math.max(user.lat, newBounds.getNorth()),
-              ]);
-            });
-            map.current?.fitBounds(newBounds, {
-              padding: 64,
+          if (bbox && bbox.join() !== "0,0,0,0") {
+            map.current?.fitBounds(bbox, {
               maxZoom: selectedUserZoom,
             });
-            isFirstQuery.current = false;
           }
         };
 
@@ -204,7 +180,10 @@ export default function SearchResultsList({
     <Paper className={classes.mapResults}>
       {error && <Alert severity="error">{error.message}</Alert>}
       <Hidden smDown>
-        <SearchBox searchFilters={searchFilters} />
+        <SearchBox
+          searchFilters={searchFilters}
+          updateMapBoundingBox={updateMapBoundingBox}
+        />
       </Hidden>
       {isSearching ? (
         isLoading ? (

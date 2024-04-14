@@ -138,6 +138,7 @@ export default function EventForm({
             event.offlineInformation.lng,
             event.offlineInformation.lat
           ),
+          bbox: [0, 0, 0, 0] as [number, number, number, number],
         }
       : ("" as const)
   ).current;

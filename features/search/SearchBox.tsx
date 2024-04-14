@@ -45,9 +45,13 @@ const useStyles = makeStyles((theme) => ({
 export default function SearchBox({
   className,
   searchFilters,
+  updateMapBoundingBox,
 }: {
   className?: string;
   searchFilters: ReturnType<typeof useRouteWithSearchFilters>;
+  updateMapBoundingBox: (
+    newBoundingBox: [number, number, number, number] | undefined
+  ) => void;
 }) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
@@ -76,6 +80,9 @@ export default function SearchBox({
       searchFilters.change("location", value.simplifiedName);
       searchFilters.change("lat", value.location.lat);
       searchFilters.change("lng", value.location.lng);
+      searchFilters.change("bbox", value.bbox);
+
+      updateMapBoundingBox(value.bbox);
     }
     //necessary because we don't want to cache every search for each filter
     //but we do want react-query to handle pagination
@@ -89,7 +96,10 @@ export default function SearchBox({
     searchFilters.remove("location");
     searchFilters.remove("lat");
     searchFilters.remove("lng");
+    searchFilters.remove("bbox");
+
     setValue("location", "");
+
     if (event === "") {
       searchFilters.remove("query");
     } else {
@@ -114,6 +124,7 @@ export default function SearchBox({
 
   const filterDialog = (
     <FilterDialog
+      updateMapBoundingBox={updateMapBoundingBox}
       isOpen={isFiltersOpen}
       onClose={() => setIsFiltersOpen(false)}
       searchFilters={searchFilters}
@@ -152,6 +163,7 @@ export default function SearchBox({
                     searchFilters.active.lng ?? 0,
                     searchFilters.active.lat ?? 0
                   ),
+                  bbox: searchFilters.active.bbox ?? [0, 0, 0, 0],
                 }
               : ""
           }

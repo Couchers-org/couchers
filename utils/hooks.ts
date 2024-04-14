@@ -65,6 +65,7 @@ export interface GeocodeResult {
   name: string;
   simplifiedName: string;
   location: LngLat;
+  bbox: [number, number, number, number];
   isRegion?: boolean;
 }
 
@@ -109,12 +110,23 @@ const useGeocodeQuery = () => {
           setResults([]);
         } else {
           const filteredResults = filterDuplicatePlaces(nominatimResults);
-          const formattedResults = filteredResults.map((result) => ({
-            location: new LngLat(Number(result["lon"]), Number(result["lat"])),
-            name: result["display_name"],
-            simplifiedName: simplifyPlaceDisplayName(result),
-            isRegion: !nonRegionKeys.some((k) => k in result.address),
-          }));
+          const formattedResults = filteredResults.map((result) => {
+            const firstElem = result["boundingbox"].shift() as number;
+            const lastElem = result["boundingbox"].pop() as number;
+            result["boundingbox"].push(firstElem);
+            result["boundingbox"].unshift(lastElem);
+
+            return {
+              location: new LngLat(
+                Number(result["lon"]),
+                Number(result["lat"])
+              ),
+              name: result["display_name"],
+              simplifiedName: simplifyPlaceDisplayName(result),
+              isRegion: !nonRegionKeys.some((k) => k in result.address),
+              bbox: result["boundingbox"],
+            };
+          });
 
           setResults(formattedResults);
         }

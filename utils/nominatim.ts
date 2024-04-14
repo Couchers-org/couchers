@@ -7,7 +7,7 @@ export interface NominatimPlace {
     country: string;
     country_code: string;
   };
-  boundingbox: Array<string>;
+  boundingbox: [number, number, number, number];
   category: string;
   display_name: string;
   icon: string;

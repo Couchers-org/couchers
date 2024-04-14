@@ -24,7 +24,7 @@ export const getLastActiveOptions = (t: TFunction) => [
   { label: t("search:last_active_options.last_3_months"), value: 93 },
 ];
 
-export const selectedUserZoom = 12;
+export const selectedUserZoom = 10;
 
 export type MapClickedCallback = (
   ev: maplibregl.MapMouseEvent & {

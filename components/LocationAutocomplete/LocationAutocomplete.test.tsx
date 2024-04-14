@@ -76,6 +76,7 @@ describe("LocationAutocomplete component", () => {
             simplifiedName: "test city, test country",
             location: { lng: 1.0, lat: 2.0 },
             isRegion: false,
+            bbox: [1, 1, 1, 1],
           },
         }),
         expect.anything()
@@ -134,6 +135,7 @@ describe("LocationAutocomplete component", () => {
         name: "test location",
         simplifiedName: "test location",
         location: new LngLat(1, 2),
+        bbox: [1, 1, 1, 1],
       },
       onChange
     );
@@ -188,6 +190,7 @@ describe("LocationAutocomplete component", () => {
                 lon: 1.0,
                 lat: 2.0,
                 display_name: "test county, test country",
+                boundingbox: [1, 1, 1, 1],
               },
             ])
           );

@@ -70,15 +70,28 @@ export default function SearchPage() {
 
   const searchFilters = useRouteWithSearchFilters(searchRoute);
 
+  const updateMapBoundingBox = (
+    newBindingBox: [number, number, number, number] | undefined
+  ) => {
+    if (newBindingBox && newBindingBox.join() !== "0,0,0,0") {
+      map.current?.fitBounds(newBindingBox);
+    }
+  };
+
   useEffect(() => {
     if (showResults.current !== searchFilters.any) {
       showResults.current = searchFilters.any;
-      setTimeout(
-        () => map.current?.resize(),
-        theme.transitions.duration.standard
-      );
+      setTimeout(() => {
+        map.current?.resize();
+        updateMapBoundingBox(searchFilters.active.bbox);
+      }, theme.transitions.duration.standard);
     }
-  }, [searchFilters.any, selectedResult, theme.transitions.duration.standard]);
+  }, [
+    searchFilters.any,
+    selectedResult,
+    theme.transitions.duration.standard,
+    searchFilters.active.bbox,
+  ]);
 
   const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
     map.current?.stop();
@@ -194,6 +207,7 @@ export default function SearchPage() {
             handleResultClick={setSelectedResult}
             handleMapUserClick={handleMapUserClick}
             map={map}
+            updateMapBoundingBox={updateMapBoundingBox}
             selectedResult={selectedResult?.userId}
             searchFilters={searchFilters}
           />
@@ -207,6 +221,7 @@ export default function SearchPage() {
             <SearchResultsList
               handleResultClick={setSelectedResult}
               handleMapUserClick={handleMapUserClick}
+              updateMapBoundingBox={updateMapBoundingBox}
               map={map}
               selectedResult={selectedResult?.userId}
               searchFilters={searchFilters}
@@ -225,6 +240,7 @@ export default function SearchPage() {
             <SearchBox
               className={classes.searchMobile}
               searchFilters={searchFilters}
+              updateMapBoundingBox={updateMapBoundingBox}
             />
           </Hidden>
         </div>
