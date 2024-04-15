@@ -6,7 +6,7 @@
 #
 alembic==1.13.1
     # via -r requirements.in
-autoflake==2.2.1
+autoflake==2.3.1
     # via -r requirements.in
 black==24.3.0
     # via -r requirements.in
