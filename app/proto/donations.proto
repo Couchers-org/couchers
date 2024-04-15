@@ -24,4 +24,5 @@ message InitiateDonationReq {
 
 message InitiateDonationRes {
   string stripe_checkout_session_id = 1;
+  string stripe_checkout_url = 2;
 }
