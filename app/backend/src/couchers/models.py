@@ -416,28 +416,34 @@ class User(Base):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
 
 
-class DonationType(enum.Enum):
-    one_time = enum.auto()
-    recurring = enum.auto()
-
-
-class DonationInitiation(Base):
-    """
-    Whenever someone initiaties a donation through the platform
-    """
-
-    __tablename__ = "donation_initiations"
+class OneTimeDonation(Base):
+    __tablename__ = "one_time_donations"
     id = Column(BigInteger, primary_key=True)
 
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
-
-    amount = Column(Integer, nullable=False)
+    amount = Column(Float, nullable=False)
     stripe_checkout_session_id = Column(String, nullable=False)
+    stripe_payment_intent_id = Column(String, nullable=False)
+    paid = Column(DateTime(timezone=True), nullable=True)
 
-    donation_type = Column(Enum(DonationType), nullable=False)
+    user = relationship("User", backref="one_time_donations")
 
-    user = relationship("User", backref="donation_initiations")
+
+class RecurringDonation(Base):
+    __tablename__ = "recurring_donations"
+
+    id = Column(BigInteger, primary_key=True)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+    amount = Column(Float, nullable=False)
+    stripe_checkout_session_id = Column(String, nullable=False)
+    # for some silly reason the events come unordered from stripe
+    # e.g. sub_JjonjdfUIeZyn0
+    stripe_subscription_id = Column(String, nullable=True)
+
+    user = relationship("User", backref="recurring_donations")
 
 
 class Invoice(Base):
