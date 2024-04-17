@@ -27,7 +27,8 @@
         "hobbies_section": "What I do in my free time",
         "additional_information_section": "Additional information",
         "travel_section": "Travelled to",
-        "lived_section": "Lived in"
+        "lived_section": "Lived in",
+        "map_section": "Travel map"
     },
     "section_tabs_a11y_label": "tabs for user's details",
     "home_info_headings": {
