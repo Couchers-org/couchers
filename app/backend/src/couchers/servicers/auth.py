@@ -372,6 +372,15 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     send_login_email(session, user)
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL)
             else:  # user not found
+                # check if this is an email and they tried to sign up but didn't complete
+                signup_flow = session.execute(
+                    select(SignupFlow).where_username_or_email(request.user, model=SignupFlow)
+                ).scalar_one_or_none()
+                if signup_flow:
+                    send_signup_email(signup_flow)
+                    session.commit()
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP)
+
                 logger.debug(f"Didn't find user")
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 

@@ -1,4 +1,5 @@
 import http.cookies
+from unittest.mock import patch
 
 import grpc
 import pytest
@@ -291,6 +292,79 @@ def test_basic_login(db):
         auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
 
 
+def test_login_part_signed_up_verified_email(db):
+    """
+    If you try to log in but didn't finish singing up, we send you a new email and ask you to finish signing up.
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"))
+        )
+
+    flow_token = res.flow_token
+    assert res.need_verify_email
+
+    # verify the email
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        flow_token = flow.flow_token
+        email_token = flow.email_token
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    with patch("couchers.email.queue_email") as mock:
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            with pytest.raises(grpc.RpcError) as e:
+                res = auth_api.Login(auth_pb2.LoginReq(user="email@couchers.org.invalid"))
+            assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
+
+    assert mock.call_count == 1
+    (_, _, recipient, _, plain, html), _ = mock.call_args
+    assert recipient == "email@couchers.org.invalid"
+    assert flow_token in plain
+    assert flow_token in html
+
+
+def test_login_part_signed_up_not_verified_email(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="frodo",
+                    password="a very insecure password",
+                    birthdate="1999-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+            )
+        )
+
+    flow_token = res.flow_token
+    assert res.need_verify_email
+
+    with patch("couchers.email.queue_email") as mock:
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            with pytest.raises(grpc.RpcError) as e:
+                res = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
+            assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        email_token = flow.email_token
+
+    assert mock.call_count == 1
+    (_, _, recipient, _, plain, html), _ = mock.call_args
+    assert recipient == "email@couchers.org.invalid"
+    assert email_token in plain
+    assert email_token in html
+
+
 def test_basic_login_without_password(db):
     # Create our test user using signup
     _quick_signup()
@@ -364,7 +438,7 @@ def test_banned_user(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
-        assert e.value.details() == "Your account is suspended."
+        assert e.value.details() == errors.ACCOUNT_SUSPENDED
 
 
 def test_banned_user_without_password(db):
@@ -387,7 +461,7 @@ def test_banned_user_without_password(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
-        assert e.value.details() == "Your account is suspended."
+        assert e.value.details() == errors.ACCOUNT_SUSPENDED
 
 
 def test_deleted_user(db):
