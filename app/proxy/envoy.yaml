@@ -36,53 +36,55 @@ static_resources:
                   cluster: couchers_service
                   max_stream_duration:
                     grpc_timeout_header_max: 0s
-              cors:
-                allow_origin_string_match:
-                # main site
-                - exact: https://couchers.org
-                # deploy preview sites
-                - exact: https://next.couchershq.org
-                - suffix: .preview.couchershq.org
-                # react
-                - exact: http://127.0.0.1:3000
-                - exact: http://localhost:3000
-                # for vercel previews
-                - suffix: -couchers-org.vercel.app
-                allow_methods: GET, PUT, DELETE, POST, OPTIONS
-                allow_headers: keep-alive,user-agent,cache-control,content-type,content-transfer-encoding,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent,x-grpc-web,grpc-timeout,authorization,cookie,accept-language
-                max_age: "1728000"
-                allow_credentials: true
-                expose_headers: grpc-status,grpc-message,set-cookie
-                allow_credentials: true
+              typed_per_filter_config:
+                envoy.filters.http.cors:
+                  "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.CorsPolicy
+                  allow_origin_string_match:
+                  # main site
+                  - exact: https://couchers.org
+                  # deploy preview sites
+                  - exact: https://next.couchershq.org
+                  - suffix: .preview.couchershq.org
+                  # react
+                  - exact: http://127.0.0.1:3000
+                  - exact: http://localhost:3000
+                  # for vercel previews
+                  - suffix: -couchers-org.vercel.app
+                  allow_methods: GET, PUT, DELETE, POST, OPTIONS
+                  allow_headers: keep-alive,user-agent,cache-control,content-type,content-transfer-encoding,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent,x-grpc-web,grpc-timeout,authorization,cookie,accept-language
+                  max_age: "1728000"
+                  allow_credentials: true
+                  expose_headers: grpc-status,grpc-message,set-cookie
+                  allow_credentials: true
             response_headers_to_add:
               - header:
                   key: x-help-wanted
                   value: Come help build the next generation platform for couch surfers at https://github.com/Couchers-org
-                append: false
+                append_action: OVERWRITE_IF_EXISTS_OR_ADD
               - header:
                   key: strict-transport-security
                   value: max-age=15552000; includeSubdomains; preload
-                append: false
+                append_action: OVERWRITE_IF_EXISTS_OR_ADD
               - header:
                   key: referrer-policy
                   value: origin-when-cross-origin
-                append: false
+                append_action: OVERWRITE_IF_EXISTS_OR_ADD
               - header:
                   key: x-content-type-options
                   value: nosniff
-                append: false
+                append_action: OVERWRITE_IF_EXISTS_OR_ADD
               - header:
                   key: x-frame-options
                   value: DENY
-                append: false
+                append_action: OVERWRITE_IF_EXISTS_OR_ADD
               - header:
                   key: x-xss-protection
                   value: 1; mode=block
-                append: false
+                append_action: OVERWRITE_IF_EXISTS_OR_ADD
               - header:
                   key: x-fact
                   value: Kilroy was here.
-                append: false
+                append_action: OVERWRITE_IF_EXISTS_OR_ADD
           http_filters:
           - name: envoy.filters.http.grpc_web
             typed_config:
@@ -90,7 +92,7 @@ static_resources:
           - name: envoy.filters.http.grpc_json_transcoder
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
-              proto_descriptor: "/tmp/envoy/descriptors.pb"
+              proto_descriptor: "/etc/envoy/descriptors.pb"
               services:
                 - org.couchers.auth.Auth
                 - org.couchers.json.GIS
