@@ -11,6 +11,7 @@ from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.models import (
     AccountDeletionToken,
+    Cluster,
     ClusterRole,
     ClusterSubscription,
     LoginToken,
@@ -472,11 +473,22 @@ def enforce_community_memberships_for_user(session, user):
     """
     Adds a given user to all the communities they belong in based on their location.
     """
-    nodes = session.execute(select(Node).where(func.ST_Contains(Node.geom, user.geom))).scalars().all()
-    for node in nodes:
-        node.official_cluster.cluster_subscriptions.append(
+    cluster_ids = (
+        session.execute(
+            select(Cluster.id)
+            .join(Node, Node.id == Cluster.parent_node_id)
+            .where(Cluster.is_official_cluster)
+            .where(func.ST_Contains(Node.geom, user.geom))
+        )
+        .scalars()
+        .all()
+    )
+
+    for cluster_id in cluster_ids:
+        session.add(
             ClusterSubscription(
                 user=user,
+                cluster_id=cluster_id,
                 role=ClusterRole.member,
             )
         )
