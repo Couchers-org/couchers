@@ -195,7 +195,7 @@ test:backend-format:
     default: false
   script:
     - cd app/backend
-    - autoflake -r -i --remove-all-unused-imports --check src
+    - autoflake --exclude src/proto -r -i --remove-all-unused-imports --check src
     - isort --check --diff .
     - black --check --diff .
   rules:
