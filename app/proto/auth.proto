@@ -96,6 +96,14 @@ service Auth {
 
   rpc CompletePasswordReset(CompletePasswordResetReq) returns (google.protobuf.Empty) {
     // Triggered when the user goes to the link sent in the forgot password email
+    //
+    // Clears the user's password, which then causes them to have to set one through the jail mechanism right after
+  }
+
+  rpc CompletePasswordResetV2(CompletePasswordResetV2Req) returns (google.protobuf.Empty) {
+    // Triggered when the user goes to the link sent in the forgot password email
+    //
+    // Actually changes the user's password
   }
 
   rpc ConfirmChangeEmail(ConfirmChangeEmailReq) returns (ConfirmChangeEmailRes) {
@@ -220,6 +228,12 @@ message ResetPasswordReq {
 
 message CompletePasswordResetReq {
   string password_reset_token = 1 [ (sensitive) = true ];
+}
+
+message CompletePasswordResetV2Req {
+  string password_reset_token = 1 [ (sensitive) = true ];
+  // the frontend should ask for the password twice and whatnot
+  string new_password = 2 [ (sensitive) = true ];
 }
 
 message ConfirmChangeEmailReq {

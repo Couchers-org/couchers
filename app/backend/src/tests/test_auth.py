@@ -511,6 +511,39 @@ def test_password_reset(db):
         assert not user.has_password
 
 
+def test_password_reset_v2(db):
+    user, token = generate_user(hashed_password=hash_password("mypassword"))
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.ResetPassword(auth_pb2.ResetPasswordReq(user=user.username))
+
+    with session_scope() as session:
+        token = session.execute(select(PasswordResetToken)).scalar_one().token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # make sure bad password are caught
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.CompletePasswordResetV2(
+                auth_pb2.CompletePasswordResetV2Req(password_reset_token=token, new_password="password")
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.INSECURE_PASSWORD
+
+        # make sure we can set a good password
+        pwd = random_hex()
+        res = auth_api.CompletePasswordResetV2(
+            auth_pb2.CompletePasswordResetV2Req(password_reset_token=token, new_password=pwd)
+        )
+
+        # make sure we can't set a password again
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.CompletePasswordResetV2(
+                auth_pb2.CompletePasswordResetV2Req(password_reset_token=token, new_password=random_hex())
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.INVALID_TOKEN
+
+
 def test_password_reset_no_such_user(db):
     user, token = generate_user()
 
@@ -540,6 +573,27 @@ def test_password_reset_invalid_token(db):
 
     with auth_api_session() as (auth_api, metadata_interceptor), pytest.raises(grpc.RpcError) as e:
         res = auth_api.CompletePasswordReset(auth_pb2.CompletePasswordResetReq(password_reset_token="wrongtoken"))
+    assert e.value.code() == grpc.StatusCode.NOT_FOUND
+    assert e.value.details() == errors.INVALID_TOKEN
+
+    with session_scope() as session:
+        user = session.execute(select(User)).scalar_one()
+        assert user.hashed_password == hash_password(password)
+
+
+def test_password_reset_invalid_token_v2(db):
+    password = random_hex()
+    user, token = generate_user(hashed_password=hash_password(password))
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.ResetPassword(
+            auth_pb2.ResetPasswordReq(
+                user=user.username,
+            )
+        )
+
+    with auth_api_session() as (auth_api, metadata_interceptor), pytest.raises(grpc.RpcError) as e:
+        res = auth_api.CompletePasswordResetV2(auth_pb2.CompletePasswordResetV2Req(password_reset_token="wrongtoken"))
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
     assert e.value.details() == errors.INVALID_TOKEN
 

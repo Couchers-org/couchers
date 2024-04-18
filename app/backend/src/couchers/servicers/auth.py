@@ -30,6 +30,7 @@ from couchers.tasks import (
     send_account_recovered_email,
     send_login_email,
     send_onboarding_email,
+    send_password_changed_email,
     send_password_reset_email,
     send_signup_email,
 )
@@ -531,6 +532,39 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     link=urls.account_settings_link(),
                 )
 
+                return empty_pb2.Empty()
+            else:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+
+    def CompletePasswordResetV2(self, request, context):
+        """
+        Completes the password reset: just clears the user's password
+        """
+        with session_scope() as session:
+            res = session.execute(
+                select(PasswordResetToken, User)
+                .join(User, User.id == PasswordResetToken.user_id)
+                .where(PasswordResetToken.token == request.password_reset_token)
+                .where(PasswordResetToken.is_valid)
+            ).one_or_none()
+            if res:
+                password_reset_token, user = res
+                abort_on_invalid_password(request.new_password, context)
+                user.hashed_password = hash_password(request.new_password)
+                session.delete(password_reset_token)
+                send_password_changed_email(user)
+
+                notify(
+                    user_id=user.id,
+                    topic="account_recovery",
+                    key="",
+                    action="complete",
+                    icon="wrench",
+                    title=f"Password reset completed",
+                    link=urls.account_settings_link(),
+                )
+
+                session.commit()
                 return empty_pb2.Empty()
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
