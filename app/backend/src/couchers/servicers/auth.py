@@ -355,7 +355,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         If the user has a password, returns NEED_PASSWORD.
 
-        If the user exists but does not have a password, generates a login token, send it in the email and returns SENT_LOGIN_EMAIL.
+        If the user exists but does not have a password, generates a login token, send it in the email and returns SENT_LOGIN_EMAIL.
         """
         logger.debug(f"Attempting login for {request.user=}")
         with session_scope() as session:

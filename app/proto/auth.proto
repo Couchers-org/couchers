@@ -73,7 +73,7 @@ service Auth {
     //
     // If the user has a password, returns NEED_PASSWORD.
     //
-    // If the user exists but does not have a password, generates a login token, send it in the email and returns
+    // If the user exists but does not have a password, generates a login token, send it in the email and returns
     // SENT_LOGIN_EMAIL.
   }
 

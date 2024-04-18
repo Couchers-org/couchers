@@ -23,7 +23,7 @@ def notify(
     Notifications are sent to user identified by user_id, and are collapsed/grouped based on the combination of
     (topic, key).
 
-    For example, topic may be "chat" for a group chat/direct message, and the key might be the chat id; so that messages
+    For example, topic may be "chat" for a group chat/direct message, and the key might be the chat id; so that messages
     in the same group chat show up in one group.
 
     The action is a simple identifier describing the action that caused the notification. For the above example, the
