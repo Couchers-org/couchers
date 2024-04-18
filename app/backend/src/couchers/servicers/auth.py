@@ -84,7 +84,7 @@ def create_session(context, session, user, long_lived, is_api_key=False, duratio
         token=token,
         user=user,
         long_lived=long_lived,
-        ip_address=headers.get("x-forwarded-for"),
+        ip_address=headers.get("x-couchers-real-ip"),
         user_agent=headers.get("user-agent"),
         is_api_key=is_api_key,
     )
