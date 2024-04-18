@@ -274,7 +274,7 @@ def generate_user(*, delete_user=False, **kwargs):
             def invocation_metadata(self):
                 return {}
 
-        token, _ = create_session(_DummyContext(), session, user, False)
+        token, _ = create_session(_DummyContext(), session, user, False, set_cookie=False)
 
         # deleted user aborts session creation, hence this follows and necessitates a second commit
         if delete_user:

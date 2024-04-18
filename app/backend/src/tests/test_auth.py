@@ -283,6 +283,7 @@ def test_basic_login(db):
                 .join(User, UserSession.user_id == User.id)
                 .where(User.username == "frodo")
                 .where(UserSession.token == reply_token)
+                .where(UserSession.is_valid)
             ).scalar_one_or_none()
         ).token
         assert token
@@ -394,6 +395,7 @@ def test_basic_login_without_password(db):
                 .join(User, UserSession.user_id == User.id)
                 .where(User.username == "frodo")
                 .where(UserSession.token == reply_token)
+                .where(UserSession.is_valid)
             ).scalar_one_or_none()
         ).token
         assert token
@@ -520,8 +522,8 @@ def test_password_reset_v2(db):
     with session_scope() as session:
         token = session.execute(select(PasswordResetToken)).scalar_one().token
 
+    # make sure bad password are caught
     with auth_api_session() as (auth_api, metadata_interceptor):
-        # make sure bad password are caught
         with pytest.raises(grpc.RpcError) as e:
             auth_api.CompletePasswordResetV2(
                 auth_pb2.CompletePasswordResetV2Req(password_reset_token=token, new_password="password")
@@ -529,19 +531,39 @@ def test_password_reset_v2(db):
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.INSECURE_PASSWORD
 
-        # make sure we can set a good password
+    # make sure we can set a good password
+    with auth_api_session() as (auth_api, metadata_interceptor):
         pwd = random_hex()
         res = auth_api.CompletePasswordResetV2(
             auth_pb2.CompletePasswordResetV2Req(password_reset_token=token, new_password=pwd)
         )
 
-        # make sure we can't set a password again
+    session_token = get_session_cookie_token(metadata_interceptor)
+
+    with session_scope() as session:
+        token = (
+            session.execute(
+                select(UserSession)
+                .join(User, UserSession.user_id == User.id)
+                .where(User.username == user.username)
+                .where(UserSession.token == session_token)
+                .where(UserSession.is_valid)
+            ).scalar_one_or_none()
+        ).token
+        assert token
+
+    # make sure we can't set a password again
+    with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             auth_api.CompletePasswordResetV2(
                 auth_pb2.CompletePasswordResetV2Req(password_reset_token=token, new_password=random_hex())
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.INVALID_TOKEN
+
+    with session_scope() as session:
+        user = session.execute(select(User)).scalar_one()
+        assert user.hashed_password == hash_password(pwd)
 
 
 def test_password_reset_no_such_user(db):

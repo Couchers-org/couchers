@@ -54,7 +54,7 @@ def _auth_res(user):
     return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
 
 
-def create_session(context, session, user, long_lived, is_api_key=False, duration=None):
+def create_session(context, session, user, long_lived, is_api_key=False, duration=None, set_cookie=True):
     """
     Creates a session for the given user and returns the token and expiry.
 
@@ -67,7 +67,6 @@ def create_session(context, session, user, long_lived, is_api_key=False, duratio
 
     ```py3
     token, expiry = create_session(...)
-    context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry)),])
     ```
     """
     if user.is_banned:
@@ -95,6 +94,9 @@ def create_session(context, session, user, long_lived, is_api_key=False, duratio
     session.commit()
 
     logger.debug(f"Handing out {token=} to {user=}")
+
+    if set_cookie:
+        context.send_initial_metadata([("set-cookie", create_session_cookie(token, user_session.expiry))])
     return token, user_session.expiry
 
 
@@ -322,12 +324,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 send_onboarding_email(user, email_number=1)
 
-                token, expiry = create_session(context, session, user, False)
-                context.send_initial_metadata(
-                    [
-                        ("set-cookie", create_session_cookie(token, expiry)),
-                    ]
-                )
+                create_session(context, session, user, False)
                 return auth_pb2.SignupFlowRes(
                     auth_res=_auth_res(user),
                 )
@@ -408,12 +405,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.commit()
 
                 # create a session
-                token, expiry = create_session(context, session, user, False)
-                context.send_initial_metadata(
-                    [
-                        ("set-cookie", create_session_cookie(token, expiry)),
-                    ]
-                )
+                create_session(context, session, user, False)
                 return _auth_res(user)
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
@@ -437,12 +429,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if verify_password(user.hashed_password, request.password):
                     logger.debug(f"Right password")
                     # correct password
-                    token, expiry = create_session(context, session, user, request.remember_device)
-                    context.send_initial_metadata(
-                        [
-                            ("set-cookie", create_session_cookie(token, expiry)),
-                        ]
-                    )
+                    create_session(context, session, user, request.remember_device)
                     return _auth_res(user)
                 else:
                     logger.debug(f"Wrong password")
@@ -564,8 +551,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     link=urls.account_settings_link(),
                 )
 
-                session.commit()
-                return empty_pb2.Empty()
+                create_session(context, session, user, False)
+                return _auth_res(user)
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 

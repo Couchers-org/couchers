@@ -100,8 +100,8 @@ service Auth {
     // Clears the user's password, which then causes them to have to set one through the jail mechanism right after
   }
 
-  rpc CompletePasswordResetV2(CompletePasswordResetV2Req) returns (google.protobuf.Empty) {
-    // Triggered when the user goes to the link sent in the forgot password email
+  rpc CompletePasswordResetV2(CompletePasswordResetV2Req) returns (AuthRes) {
+    // Triggered when the user goes to the link sent in the forgot password email, and logs the user in
     //
     // Actually changes the user's password
   }

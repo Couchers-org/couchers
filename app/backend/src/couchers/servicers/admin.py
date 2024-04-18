@@ -101,7 +101,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             token, expiry = create_session(
-                context, session, user, long_lived=True, is_api_key=True, duration=timedelta(days=365)
+                context, session, user, long_lived=True, is_api_key=True, duration=timedelta(days=365), set_cookie=False
             )
             send_api_key_email(session, user, token, expiry)
 
