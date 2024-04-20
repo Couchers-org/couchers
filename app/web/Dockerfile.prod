@@ -16,8 +16,6 @@ RUN yarn install --frozen-lockfile
 
 COPY . .
 
-RUN tar xf typescript_protos.tar.gz && rm -f typescript_protos.tar.gz
-
 RUN cp .env.$environment env && \
     rm .env.* && \
     mv env .env.local
