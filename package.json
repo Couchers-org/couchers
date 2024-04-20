@@ -32,6 +32,7 @@
     "@sentry/react": "^7.7.0",
     "@stripe/stripe-js": "^1.32.0",
     "@toast-ui/editor": "^3.1.7",
+    "@types/react-simple-maps": "^3.0.4",
     "classnames": "^2.3.1",
     "dayjs": "^1.11.3",
     "frontmatter-markdown-loader": "^3.7.0",
@@ -53,6 +54,7 @@
     "react-lines-ellipsis": "^0.15.0",
     "react-phone-number-input": "^3.2.11",
     "react-query": "^3.39.1",
+    "react-simple-maps": "^3.0.0",
     "seamless-scroll-polyfill": "^2.1.8",
     "sharp": "^0.30.7"
   },
