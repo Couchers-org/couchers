@@ -1,0 +1,32 @@
+[
+  {
+    "discussionId": 1,
+    "slug": "what-is-there-to-do-in-amsterdam",
+    "created": { "seconds": 1577900000, "nanos": 0 },
+    "creatorUserId": 1,
+    "ownerCommunityId": 1,
+    "ownerGroupId": 0,
+    "title": "What is there to do in Amsterdam?",
+    "content": "# Hi everyone,\nI'm looking for *fun* activities to do here!",
+    "thread": {
+      "threadId": 2,
+      "numResponses": 5
+    },
+    "canModerate": true
+  },
+  {
+    "discussionId": 2,
+    "slug": "general-amsterdam-discussion-rules",
+    "created": { "seconds": 1577900000, "nanos": 0 },
+    "creatorUserId": 2,
+    "ownerCommunityId": 1,
+    "ownerGroupId": 0,
+    "title": "General rules for the Amsterdam discussion forum",
+    "content": "Some rules you need to know...",
+    "thread": {
+      "threadId": 3,
+      "numResponses": 0
+    },
+    "canModerate": false
+  }
+]

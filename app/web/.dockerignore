@@ -1,0 +1,11 @@
+temp/**
+seed_data/**
+migrations/**
+tests/**
+.git*
+Docker*
+docker-compose.yml
+documentation
+node_modules
+Dockerfile*
+*.diff
