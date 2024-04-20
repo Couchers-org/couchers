@@ -6,7 +6,7 @@ import {
 } from "@material-ui/pickers";
 import { useTranslation } from "i18n";
 import { Control, Controller, UseControllerOptions } from "react-hook-form";
-import dayjs, { Dayjs } from "utils/dayjs";
+import { Dayjs } from "utils/dayjs";
 
 import { dateFormats } from "./constants";
 
@@ -19,7 +19,7 @@ const getLocaleFormat = () => {
 interface DatepickerProps {
   className?: string;
   control: Control;
-  defaultValue?: Dayjs;
+  defaultValue?: Dayjs | null;
   error: boolean;
   helperText: React.ReactNode;
   id: string;
@@ -52,7 +52,7 @@ export default function Datepicker({
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Controller
         control={control}
-        defaultValue={defaultValue ?? dayjs()}
+        defaultValue={defaultValue}
         name={name}
         rules={rules}
         render={({ onChange, value }) => (

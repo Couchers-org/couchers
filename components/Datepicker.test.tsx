@@ -69,7 +69,7 @@ describe("DatePicker", () => {
     );
 
     await waitFor(() => {
-      expect(date?.format().split("T")[0]).toBe("2021-03-20");
+      expect(date?.format().split("T")[0]).toBe(undefined);
     });
     timezoneMock.unregister();
     spy.mockRestore();

@@ -144,11 +144,14 @@
     "request_form": {
         "send_request": "Send {{name}} a request",
         "arrival_date": "Arrival Date",
+        "arrival_date_empty": "Please specify an arrival Date",
         "departure_date": "Departure Date",
+        "departure_date_empty": "Please specify a departure Date",
         "meetup_only": "Meet up only",
         "overnight_stay": "Overnight stay",
         "request": "Request",
         "request_description": "Share your plans for the visit and include why you're requesting to stay with this particular host",
+        "request_description_empty": "Please write a request message",
         "stay_type_a11y_text": "stay type",
         "success": "Request sent!"
     },
