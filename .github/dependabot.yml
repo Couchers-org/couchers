@@ -20,3 +20,14 @@ updates:
       - "dependencies"
     reviewers:
       - "aapeliv"
+
+  - package-ecosystem: "npm"
+    directory: "/app/web"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "web"
+      - "dependencies"
+    reviewers:
+      - "darrenvong"
+      - "lucaslcode"
