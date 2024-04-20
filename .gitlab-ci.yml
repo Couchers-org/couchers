@@ -1,3 +1,2 @@
-#  See: https://github.com/couchers-org/web-frontend for frontend
 include:
   - local: /app/.gitlab-ci.yml

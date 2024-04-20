@@ -89,7 +89,7 @@ services:
     networks:
       - backend_prometheus
   web:
-    image: registry.gitlab.com/couchers/web-frontend/web
+    image: registry.gitlab.com/couchers/couchers/web
     restart: always
     expose:
       - 3000
