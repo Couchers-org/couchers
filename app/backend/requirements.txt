@@ -123,7 +123,7 @@ sqlalchemy==2.0.29
     #   sqlalchemy-utils
 sqlalchemy-utils==0.41.2
     # via -r requirements.in
-stripe==8.1.0
+stripe==9.3.0
     # via -r requirements.in
 tomli==2.0.1
     # via
