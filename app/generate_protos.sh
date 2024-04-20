@@ -7,7 +7,7 @@ mkdir -p proto/gen/python/proto
 mkdir -p proto/gen/ts/proto
 mkdir -p backend/src/proto/
 mkdir -p media/src/proto/
-mkdir -p web-frontend/proto/
+mkdir -p web/proto/
 mkdir -p client/src/couchers/proto/google/api
 touch client/src/couchers/proto/__init__.py
 touch client/src/couchers/proto/google/__init__.py
@@ -35,8 +35,8 @@ find proto -name '*.proto' | protoc -I proto \
   --js_out="import_style=commonjs,binary:proto/gen/ts/proto" \
   --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:proto/gen/ts/proto" \
   \
-  --js_out="import_style=commonjs,binary:web-frontend/proto" \
-  --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:web-frontend/proto" \
+  --js_out="import_style=commonjs,binary:web/proto" \
+  --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:web/proto" \
   \
   $(xargs)
 

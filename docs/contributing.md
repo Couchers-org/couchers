@@ -8,7 +8,7 @@ If you are looking for something to help with, have a look at the open issues! T
 
 - [Good first issues](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
 - [Bugs in the backend: backend, bug](https://github.com/Couchers-org/couchers/issues?q=is%3Aopen+is%3Aissue+label%3Abackend+label%3Abug+)
-- [New features, design changes, bugs in the web frontend](https://github.com/Couchers-org/web-frontend/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)
+- [New features, design changes, bugs in the web frontend](https://github.com/Couchers-org/couchers/issues?q=is%3Aissue+label%3Aweb+is%3Aopen+sort%3Aupdated-desc)
 
 
 ## The development process

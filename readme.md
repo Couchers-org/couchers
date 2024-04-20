@@ -2,8 +2,6 @@
 
 [![pipeline status](https://gitlab.com/couchers/couchers/badges/develop/pipeline.svg)](https://gitlab.com/couchers/couchers/-/pipelines) [![coverage report](https://gitlab.com/couchers/couchers/badges/develop/coverage.svg)](https://develop--bcov.preview.couchershq.org)
 
-Note that the frontend has been split into [Couchers-org/web-frontend](https://github.com/Couchers-org/web-frontend), backend work continues here.
-
 ## Join us as we build the new alternative to Couchsurfing™
 
 Free forever. Community‑led. Non‑profit. Modern.
