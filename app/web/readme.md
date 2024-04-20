@@ -62,18 +62,6 @@ If you're getting logged out right after logging in, it's possible that 3rd part
 - Safari is all-or-nothing, in Preferences > Privacy > Prevent cross-site tracking. You have to disable it.
 </details>
 
-### Option 3: Use Gitpod and develop in the browser
-
-If you don't want to install the repo and still contribute, you can get started by doing the following:
-
-- Open the repo in your browser via Gitpod:
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/Couchers-org/couchers)
-
-- Wait a few minutes until you see "Success! You can now launch the frontend..." message to show up in the browser's VS Code "Instructions" terminal
-- You should see a preview of the web app that's been spun up in Gitpod in the "Simple Browser" tab in the browser's VS Code
-- Start developing away in the browser as if VS Code is installed on your machine!
-
 ### Then
 
 You should then have the gRPC code in `couchers/app/web/src/proto`, and you can use the below `yarn` commands to run the web frontend.
