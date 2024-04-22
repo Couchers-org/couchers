@@ -258,3 +258,45 @@ def test_GetChats(db):
         with real_admin_session(super_token) as api:
             res = api.GetChats(admin_pb2.GetChatsReq(user=normal_user.username))
         assert res.response
+
+
+def test_badges(db):
+    with session_scope() as session:
+        super_user, super_token = generate_user(is_superuser=True)
+        normal_user, normal_token = generate_user()
+
+        with real_admin_session(super_token) as api:
+            # can add a badge
+            assert "volunteer" not in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
+            res = api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="volunteer"))
+            # assert "volunteer" in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
+            assert "volunteer" in res.badges
+
+            # can't add/edit special tags
+            with pytest.raises(grpc.RpcError) as e:
+                api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="founder"))
+            assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+            assert e.value.details() == errors.ADMIN_CANNOT_EDIT_BADGE
+
+            # double add badge
+            with pytest.raises(grpc.RpcError) as e:
+                api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="volunteer"))
+            assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+            assert e.value.details() == errors.USER_ALREADY_HAS_BADGE
+
+            # can remove badge
+            assert "volunteer" in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
+            res = api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="volunteer"))
+            assert "volunteer" not in res.badges
+
+            # not found on user
+            with pytest.raises(grpc.RpcError) as e:
+                api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="volunteer"))
+            assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+            assert e.value.details() == errors.USER_DOES_NOT_HAVE_BADGE
+
+            # not found in general
+            with pytest.raises(grpc.RpcError) as e:
+                api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="nonexistentbadge"))
+            assert e.value.code() == grpc.StatusCode.NOT_FOUND
+            assert e.value.details() == errors.BADGE_NOT_FOUND

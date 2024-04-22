@@ -28,6 +28,10 @@ service Admin {
   rpc CreateCommunity(CreateCommunityReq) returns (org.couchers.api.communities.Community) {}
 
   rpc GetChats(GetChatsReq) returns (GetChatsRes) {}
+
+  rpc AddBadge(AddBadgeReq) returns (UserDetails) {}
+
+  rpc RemoveBadge(RemoveBadgeReq) returns (UserDetails) {}
 }
 
 message UserDetails {
@@ -38,6 +42,7 @@ message UserDetails {
   string birthdate = 7;
   bool banned = 5;
   bool deleted = 6;
+  repeated string badges = 8;
 }
 
 message GetUserDetailsReq {
@@ -95,4 +100,14 @@ message GetChatsReq {
 
 message GetChatsRes {
   string response = 2;
+}
+
+message AddBadgeReq {
+  string user = 1;
+  string badge_id = 2;
+}
+
+message RemoveBadgeReq {
+  string user = 1;
+  string badge_id = 2;
 }

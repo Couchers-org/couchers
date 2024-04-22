@@ -30,6 +30,10 @@ service Resources {
   rpc GetLanguages(google.protobuf.Empty) returns (GetLanguagesRes) {
     // Returns a list of allowed languages. This is a subset of the full ISO639-3 table.
   }
+
+  rpc GetBadges(google.protobuf.Empty) returns (GetBadgesRes) {
+    // Returns a list of possible profile badges
+  }
 }
 
 message GetTermsOfServiceRes {
@@ -62,4 +66,15 @@ message Language {
 
 message GetLanguagesRes {
   repeated Language languages = 1;
+}
+
+message Badge {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string color = 4;
+}
+
+message GetBadgesRes {
+  repeated Badge badges = 1;
 }

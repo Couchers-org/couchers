@@ -1,0 +1,44 @@
+[
+  {
+    "id": "founder",
+    "name": "Founder",
+    "description": "This user is one of the two founders of Couchers.org",
+    "color": "#e47701",
+    "admin_editable": false
+  },
+  {
+    "id": "board_member",
+    "name": "Board Member",
+    "description": "This user serves on the Board of the Couchers, Inc. non-profit",
+    "color": "#b536c9",
+    "admin_editable": false
+  },
+  {
+    "id": "volunteer",
+    "name": "Active Volunteer",
+    "description": "This user is an active volunteer for Couchers.org",
+    "color": "#00a398",
+    "admin_editable": true
+  },
+  {
+    "id": "past_volunteer",
+    "name": "Past Volunteer",
+    "description": "This user was a volunteer for Couchers.org",
+    "color": "#6bc4a6",
+    "admin_editable": true
+  },
+  {
+    "id": "donor",
+    "name": "Donor",
+    "description": "This user has contributed funds to the project",
+    "color": "#af931f",
+    "admin_editable": false
+  },
+  {
+    "id": "phone_verified",
+    "name": "Verified Phone",
+    "description": "This user has verified their phone number",
+    "color": "#1ac302",
+    "admin_editable": false
+  }
+]

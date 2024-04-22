@@ -416,6 +416,26 @@ class User(Base):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
 
 
+class UserBadge(Base):
+    """
+    A badge on a user's profile
+    """
+
+    __tablename__ = "user_badges"
+    __table_args__ = (UniqueConstraint("user_id", "badge_id"),)
+
+    id = Column(BigInteger, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    # corresponds to "id" in badges.json
+    badge_id = Column(String, nullable=False, index=True)
+
+    # take this with a grain of salt, someone may get then lose a badge for whatever reason
+    last_assigned = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    user = relationship("User", backref="badges")
+
+
 class DonationType(enum.Enum):
     one_time = enum.auto()
     recurring = enum.auto()
@@ -1921,6 +1941,9 @@ class NotificationTopicAction(enum.Enum):
     gender__change = ("gender", "change", [dt.email, dt.push, dt.digest])
     birthdate__change = ("birthdate", "change", [dt.email, dt.push, dt.digest])
     api_key__create = ("api_key", "create", [dt.email, dt.push, dt.digest])
+
+    badge__add = ("badge", "add", [dt.push, dt.digest])
+    badge__remove = ("badge", "remove", [dt.push, dt.digest])
 
     # group chats
     chat__message = ("chat", "message", [dt.email, dt.push, dt.digest])

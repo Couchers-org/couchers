@@ -70,6 +70,16 @@ def get_language_dict():
         return {language.code: language.name for language in session.execute(select(Language)).scalars().all()}
 
 
+@functools.lru_cache
+def get_badge_dict():
+    """
+    Get list of profile badges in form {id: Badge}
+    """
+    with open(resources_folder / "badges.json", "r") as f:
+        badge_json = json.load(f)
+    return {badge["id"]: badge for badge in badge_json}
+
+
 def language_is_allowed(code):
     """
     Check a language code is valid
