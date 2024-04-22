@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Couchers, Inc. Announces new Board members](/blog/2024/04/30/new-board-members)
+
+2024/04/30.
+
+The outgoing board of Couchers, Inc. has approved three new Directors to the Board of Trustees of the 501(c)3 non-profit backing the Couchers.org project. Learn more about the Board of Directors and some minor tweaks to our governance.
+
+[Read more.](/blog/2024/04/30/new-board-members)
+
 ## [The importance of references (and how to write one)](/blog/2023/02/25/importance-of-references)
 
 2023/02/25.

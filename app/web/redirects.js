@@ -25,6 +25,12 @@ module.exports = {
       permanent: false,
     },
     {
+      source: "/foundation/bylaws.pdf",
+      destination:
+        "https://github.com/Couchers-org/couchers/raw/develop/foundation/bylaws/bylaws.pdf",
+      permanent: false,
+    },
+    {
       source: "/contributors/backend-meeting.ics",
       destination:
         "https://github.com/Couchers-org/couchers/raw/develop/docs/meetings/backend-meeting.ics",
