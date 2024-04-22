@@ -768,5 +768,5 @@ def update_badges(payload):
         update_badge("phone_verified", session.execute(select(User.id).where(User.phone_is_verified)).scalars().all())
 
 
-refresh_materialized_views.PAYLOAD = empty_pb2.Empty
-refresh_materialized_views.SCHEDULE = timedelta(minutes=15)
+update_badges.PAYLOAD = empty_pb2.Empty
+update_badges.SCHEDULE = timedelta(minutes=15)
