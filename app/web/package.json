@@ -55,7 +55,7 @@
     "react-phone-number-input": "^3.2.11",
     "react-query": "^3.39.1",
     "react-simple-maps": "^3.0.0",
-    "seamless-scroll-polyfill": "^2.1.8",
+    "seamless-scroll-polyfill": "^2.3.4",
     "sharp": "^0.30.7"
   },
   "devDependencies": {
