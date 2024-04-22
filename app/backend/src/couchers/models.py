@@ -431,7 +431,7 @@ class UserBadge(Base):
     badge_id = Column(String, nullable=False, index=True)
 
     # take this with a grain of salt, someone may get then lose a badge for whatever reason
-    last_assigned = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     user = relationship("User", backref="badges")
 

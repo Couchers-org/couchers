@@ -2,11 +2,13 @@ import json
 from unittest.mock import patch
 
 import pytest
+from google.protobuf import empty_pb2
 
 import couchers.servicers.donations
 from couchers.config import config
 from couchers.db import session_scope
-from couchers.models import DonationInitiation, DonationType, Invoice
+from couchers.jobs.handlers import update_badges
+from couchers.models import DonationInitiation, DonationType, Invoice, UserBadge
 from couchers.sql import couchers_select as select
 from proto import donations_pb2
 from proto.google.api import httpbody_pb2
@@ -106,6 +108,16 @@ def test_one_time_donation_flow(db, monkeypatch):
         assert (
             invoice.stripe_receipt_url
             == "https://pay.stripe.com/receipts/payment/CAcaFwoVYWNjdF8xS0V6QnlJZlI1ejI5ZzVrKIqF7LAGMgbtNxpJulk6LBaePNy_2Q2RzXJsbk7t1jLwK26AQlG05P-4EPhG7AIIcqsQLgC09iDJ2srs"
+        )
+
+    # check they get a badge
+    update_badges(empty_pb2.Empty())
+    with session_scope() as session:
+        assert (
+            session.execute(select(UserBadge).where(UserBadge.user_id == user_id, UserBadge.badge_id == "donor"))
+            .scalar_one()
+            .user_id
+            == user_id
         )
 
 
@@ -217,6 +229,16 @@ def test_recurring_donation_flow(db, monkeypatch):
         assert (
             invoice.stripe_receipt_url
             == "https://pay.stripe.com/receipts/invoices/CAcaFwoVYWNjdF8xS0V6QnlJZlI1ejI5ZzVrKIOG7LAGMgYTBIebo2c6LBYFs4BgdV7T4S5nHXQyHt4uh5azZ3_ss_S2wi27m52wbg4yQAoirZ9eBhbH?s=ap"
+        )
+
+    # check they get a badge
+    update_badges(empty_pb2.Empty())
+    with session_scope() as session:
+        assert (
+            session.execute(select(UserBadge).where(UserBadge.user_id == user_id, UserBadge.badge_id == "donor"))
+            .scalar_one()
+            .user_id
+            == user_id
         )
 
 

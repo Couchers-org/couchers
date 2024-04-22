@@ -107,7 +107,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 topic="badge",
                 key="",
                 action="remove",
-                icon="wrench",
+                icon="label",
                 title=f'An admin added the "{badge["name"]}" badge to your profile',
                 link=urls.profile_link(),
             )
@@ -141,7 +141,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 topic="badge",
                 key="",
                 action="remove",
-                icon="wrench",
+                icon="label",
                 title=f'An admin removed the "{badge["name"]}" badge from your profile',
                 link=urls.profile_link(),
             )

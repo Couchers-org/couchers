@@ -844,7 +844,7 @@ def user_model_to_pb(db_user, session, context):
         sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
         parking_details=parkingdetails2api[db_user.parking_details],
         avatar_url=db_user.avatar.full_url if db_user.avatar else None,
-        badges=[badge.id for badge in db_user.badges],
+        badges=[badge.badge_id for badge in db_user.badges],
     )
 
     if db_user.max_guests is not None:

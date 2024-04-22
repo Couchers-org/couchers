@@ -6,6 +6,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
+from couchers.jobs.handlers import update_badges
 from couchers.models import FriendRelationship, FriendStatus
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, to_aware_datetime
@@ -957,3 +958,17 @@ def test_hosting_preferences(db):
         assert not res.HasField("parking")
         assert res.parking_details == api_pb2.PARKING_DETAILS_UNKNOWN
         assert not res.HasField("camping_ok")
+
+
+def test_badges(db):
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    user4, token = generate_user()
+
+    update_badges(empty_pb2.Empty())
+
+    with api_session(token) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).badges == ["founder", "board_member"]
+        assert api.GetUser(api_pb2.GetUserReq(user=user2.username)).badges == ["founder", "board_member"]
+        assert api.GetUser(api_pb2.GetUserReq(user=user3.username)).badges == []

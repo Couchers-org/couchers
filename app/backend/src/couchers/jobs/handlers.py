@@ -5,6 +5,7 @@ Background job servicers
 import logging
 from datetime import timedelta
 from math import sqrt
+from typing import List
 
 import requests
 from google.protobuf import empty_pb2
@@ -28,17 +29,20 @@ from couchers.models import (
     GroupChatSubscription,
     HostingStatus,
     HostRequest,
+    Invoice,
     LoginToken,
     Message,
     MessageType,
     PasswordResetToken,
     Reference,
     User,
+    UserBadge,
 )
 from couchers.notifications.background import handle_email_digests as bg_handle_email_digests
 from couchers.notifications.background import handle_email_notifications as bg_handle_email_notifications
 from couchers.notifications.background import handle_notification as bg_handle_notification
 from couchers.notifications.notify import notify
+from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
@@ -716,3 +720,53 @@ def refresh_materialized_views(payload):
 
 refresh_materialized_views.PAYLOAD = empty_pb2.Empty
 refresh_materialized_views.SCHEDULE = timedelta(minutes=5)
+
+
+def update_badges(payload):
+    with session_scope() as session:
+
+        def update_badge(badge_id: str, members: List[int]):
+            badge = get_badge_dict()[badge_id]
+            user_ids = session.execute(select(UserBadge.user_id).where(UserBadge.badge_id == badge_id)).scalars().all()
+            # in case the user ids don't exist in the db
+            actual_members = session.execute(select(User.id).where(User.id.in_(members))).scalars().all()
+            # we should add the badge to these
+            add = set(actual_members) - set(user_ids)
+            # we should remove the badge from these
+            remove = set(user_ids) - set(actual_members)
+            for user_id in add:
+                session.add(UserBadge(user_id=user_id, badge_id=badge_id))
+
+                notify(
+                    user_id=user_id,
+                    topic="badge",
+                    key="",
+                    action="add",
+                    icon="label",
+                    title=f'The "{badge["name"]}" badge was added to your profile',
+                    link=urls.profile_link(),
+                )
+
+            session.execute(delete(UserBadge).where(UserBadge.user_id.in_(remove), UserBadge.badge_id == badge["id"]))
+
+            for user_id in remove:
+                notify(
+                    user_id=user_id,
+                    topic="badge",
+                    key="",
+                    action="remove",
+                    icon="label",
+                    title=f'The "{badge["name"]}" badge was removed from your profile',
+                    link=urls.profile_link(),
+                )
+
+        update_badge("founder", get_static_badge_dict()["founder"])
+        update_badge("board_member", get_static_badge_dict()["board_member"])
+        update_badge(
+            "donor", session.execute(select(User.id).join(Invoice, Invoice.user_id == User.id)).scalars().all()
+        )
+        update_badge("phone_verified", session.execute(select(User.id).where(User.phone_is_verified)).scalars().all())
+
+
+refresh_materialized_views.PAYLOAD = empty_pb2.Empty
+refresh_materialized_views.SCHEDULE = timedelta(minutes=15)
