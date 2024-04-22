@@ -30,11 +30,11 @@ def couchers_select(*expr):
 class CouchersSelect(Select):
     inherit_cache = True
 
-    def where_username_or_email(self, field):
+    def where_username_or_email(self, field, model=User):
         if is_valid_username(field):
-            return self.where(User.username == field)
+            return self.where(model.username == field)
         elif is_valid_email(field):
-            return self.where(User.email == field)
+            return self.where(model.email == field)
         # no fields match, this will return no rows
         return self.where(False)
 

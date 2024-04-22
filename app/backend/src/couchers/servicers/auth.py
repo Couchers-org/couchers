@@ -30,6 +30,7 @@ from couchers.tasks import (
     send_account_recovered_email,
     send_login_email,
     send_onboarding_email,
+    send_password_changed_email,
     send_password_reset_email,
     send_signup_email,
 )
@@ -53,7 +54,7 @@ def _auth_res(user):
     return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
 
 
-def create_session(context, session, user, long_lived, is_api_key=False, duration=None):
+def create_session(context, session, user, long_lived, is_api_key=False, duration=None, set_cookie=True):
     """
     Creates a session for the given user and returns the token and expiry.
 
@@ -66,7 +67,6 @@ def create_session(context, session, user, long_lived, is_api_key=False, duratio
 
     ```py3
     token, expiry = create_session(...)
-    context.send_initial_metadata([("set-cookie", create_session_cookie(token, expiry)),])
     ```
     """
     if user.is_banned:
@@ -83,7 +83,7 @@ def create_session(context, session, user, long_lived, is_api_key=False, duratio
         token=token,
         user=user,
         long_lived=long_lived,
-        ip_address=headers.get("x-forwarded-for"),
+        ip_address=headers.get("x-couchers-real-ip"),
         user_agent=headers.get("user-agent"),
         is_api_key=is_api_key,
     )
@@ -94,6 +94,9 @@ def create_session(context, session, user, long_lived, is_api_key=False, duratio
     session.commit()
 
     logger.debug(f"Handing out {token=} to {user=}")
+
+    if set_cookie:
+        context.send_initial_metadata([("set-cookie", create_session_cookie(token, user_session.expiry))])
     return token, user_session.expiry
 
 
@@ -321,12 +324,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 send_onboarding_email(user, email_number=1)
 
-                token, expiry = create_session(context, session, user, False)
-                context.send_initial_metadata(
-                    [
-                        ("set-cookie", create_session_cookie(token, expiry)),
-                    ]
-                )
+                create_session(context, session, user, False)
                 return auth_pb2.SignupFlowRes(
                     auth_res=_auth_res(user),
                 )
@@ -372,6 +370,15 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     send_login_email(session, user)
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL)
             else:  # user not found
+                # check if this is an email and they tried to sign up but didn't complete
+                signup_flow = session.execute(
+                    select(SignupFlow).where_username_or_email(request.user, model=SignupFlow)
+                ).scalar_one_or_none()
+                if signup_flow:
+                    send_signup_email(signup_flow)
+                    session.commit()
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP)
+
                 logger.debug(f"Didn't find user")
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -398,12 +405,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.commit()
 
                 # create a session
-                token, expiry = create_session(context, session, user, False)
-                context.send_initial_metadata(
-                    [
-                        ("set-cookie", create_session_cookie(token, expiry)),
-                    ]
-                )
+                create_session(context, session, user, False)
                 return _auth_res(user)
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
@@ -427,12 +429,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if verify_password(user.hashed_password, request.password):
                     logger.debug(f"Right password")
                     # correct password
-                    token, expiry = create_session(context, session, user, request.remember_device)
-                    context.send_initial_metadata(
-                        [
-                            ("set-cookie", create_session_cookie(token, expiry)),
-                        ]
-                    )
+                    create_session(context, session, user, request.remember_device)
                     return _auth_res(user)
                 else:
                     logger.debug(f"Wrong password")
@@ -523,6 +520,39 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 )
 
                 return empty_pb2.Empty()
+            else:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+
+    def CompletePasswordResetV2(self, request, context):
+        """
+        Completes the password reset: just clears the user's password
+        """
+        with session_scope() as session:
+            res = session.execute(
+                select(PasswordResetToken, User)
+                .join(User, User.id == PasswordResetToken.user_id)
+                .where(PasswordResetToken.token == request.password_reset_token)
+                .where(PasswordResetToken.is_valid)
+            ).one_or_none()
+            if res:
+                password_reset_token, user = res
+                abort_on_invalid_password(request.new_password, context)
+                user.hashed_password = hash_password(request.new_password)
+                session.delete(password_reset_token)
+                send_password_changed_email(user)
+
+                notify(
+                    user_id=user.id,
+                    topic="account_recovery",
+                    key="",
+                    action="complete",
+                    icon="wrench",
+                    title=f"Password reset completed",
+                    link=urls.account_settings_link(),
+                )
+
+                create_session(context, session, user, False)
+                return _auth_res(user)
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 

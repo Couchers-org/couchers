@@ -757,7 +757,7 @@ class UserSession(Base):
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     # the expiry of the session: the session *cannot* be refreshed past this
-    expiry = Column(DateTime(timezone=True), nullable=False, server_default=func.now() + text("interval '90 days'"))
+    expiry = Column(DateTime(timezone=True), nullable=False, server_default=func.now() + text("interval '730 days'"))
 
     # the time at which the token was invalidated, allows users to delete sessions
     deleted = Column(DateTime(timezone=True), nullable=True, default=None)
