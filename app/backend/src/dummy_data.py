@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from datetime import date
+from datetime import date, timedelta
 
 from dateutil import parser
 from sqlalchemy.sql import func
@@ -35,6 +35,7 @@ from couchers.models import (
     User,
 )
 from couchers.servicers.api import hostingstatus2sql
+from couchers.servicers.auth import create_session
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, create_polygon_lng_lat, geojson_to_geom, to_multi
 from proto.api_pb2 import HostingStatus
@@ -80,6 +81,7 @@ def add_dummy_users():
                 new_notifications_enabled=True,
                 accepted_tos=TOS_VERSION,
                 accepted_community_guidelines=GUIDELINES_VERSION,
+                is_superuser=user.get("is_superuser", False),
             )
             session.add(new_user)
             session.flush()
@@ -94,6 +96,26 @@ def add_dummy_users():
                 session.add(RegionVisited(user_id=new_user.id, region_code=region))
             for region in user["regions_lived"]:
                 session.add(RegionLived(user_id=new_user.id, region_code=region))
+
+            class _DummyContext:
+                def invocation_metadata(self):
+                    return {}
+
+            if user.get("make_api_key", False):
+                token, _ = create_session(
+                    _DummyContext(),
+                    session,
+                    new_user,
+                    long_lived=True,
+                    is_api_key=True,
+                    duration=timedelta(days=365),
+                    set_cookie=False,
+                )
+                logger.info(f"API key for {new_user.username}: {token}")
+
+            if user.get("make_session", False):
+                token, _ = create_session(_DummyContext(), session, new_user, long_lived=False, set_cookie=False)
+                logger.info(f"Session cookie for {new_user.username}: {token}")
 
         session.commit()
 
