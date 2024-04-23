@@ -22,7 +22,7 @@ Check it out here:
 
 {{ button("Friend Requests", friend_requests_link)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(friend_requests_link, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(friend_requests_link, html)|couchers_safe }}
 
 {% else %}
 <{{ friend_requests_link|couchers_escape }}>

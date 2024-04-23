@@ -13,7 +13,7 @@ We are so glad you decided to stay! To log back in, click the following link:
 
 {{ button("Log in", app_link)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(app_link, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(app_link, html)|couchers_safe }}
 
 {% else %}
 

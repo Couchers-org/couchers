@@ -11,7 +11,7 @@ Here's a login link for Couchers.org:
 
 {{ button("Sign in", login_link)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(login_link, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(login_link, html)|couchers_safe }}
 
 {% else %}
 

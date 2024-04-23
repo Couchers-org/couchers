@@ -13,7 +13,7 @@ To complete this process, please confirm by clicking the following link:
 
 {{ button("Delete Account", deletion_link)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(deletion_link, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(deletion_link, html)|couchers_safe }}
 
 {% else %}
 

@@ -15,7 +15,7 @@ Please confirm you requested this change by clicking the following link:
 
 {{ button("Confirm new email", confirmation_link)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(confirmation_link, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(confirmation_link, html)|couchers_safe }}
 
 {% else %}
 

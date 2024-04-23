@@ -22,7 +22,7 @@ Check it out here:
 
 {{ button("Friend Profile", to_user_user_link)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(to_user_user_link, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(to_user_user_link, html)|couchers_safe }}
 
 {% else %}
 <{{ to_user_user_link|couchers_escape }}>

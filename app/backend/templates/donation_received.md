@@ -15,7 +15,7 @@ You can download an invoice and receipt for the donation here:
 {% if html %}
 {{ button("Invoice", receipt_url)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(receipt_url, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(receipt_url, html)|couchers_safe }}
 {% else %}
 <{{ receipt_url|couchers_escape }}>
 {% endif %}

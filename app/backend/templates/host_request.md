@@ -24,7 +24,7 @@ Check it out here:
 
 {{ button("Host Requests", host_request_link)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(host_request_link, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(host_request_link, html)|couchers_safe }}
 
 {% else %}
 <{{ host_request_link|couchers_escape }}>

@@ -13,7 +13,7 @@ Leave a reference here:
 {% if html %}
 {{ button("Leave a reference", leave_reference_link)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(leave_reference_link, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(leave_reference_link, html)|couchers_safe }}
 {% else %}
 <{{ leave_reference_link|couchers_escape }}>
 {% endif %}
