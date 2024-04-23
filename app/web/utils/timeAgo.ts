@@ -59,20 +59,32 @@ export function timeAgo(input: Date | string, fuzzy?: FuzzySpec) {
   return "" + (diffMillis / yearMillis).toFixed() + " years ago";
 }
 
+export interface FuzzySpecT {
+  millis: number;
+  translationKey: Parameters<TFunction<"global", undefined>>[0];
+}
+
 export function timeAgoI18n({
   input,
   t,
+  fuzzy = undefined,
 }: {
   input: Date | string;
   t: TFunction<"global", undefined>;
+  fuzzy?: FuzzySpecT;
 }) {
   if (input === undefined) return "";
   const date = new Date(input);
   const diffMillis = Date.now() - date.getTime();
 
-  if (diffMillis <= minuteMillis)
+  if (fuzzy && diffMillis < fuzzy.millis) {
+    // if fuzzyMillis and fuzzyText are both set, then for times less than fuzzyMillis, we return fuzzyText
+    return t(fuzzy.translationKey);
+  }
+
+  if (diffMillis < minuteMillis)
     return t("relative_time.less_than_a_minute_ago");
-  if (diffMillis <= twoMinuteMillis) return t("relative_time.one_minute_ago");
+  if (diffMillis < twoMinuteMillis) return t("relative_time.one_minute_ago");
   if (diffMillis < hourMillis)
     return t("relative_time.x_minutes_ago", {
       date: (diffMillis / minuteMillis).toFixed(),
