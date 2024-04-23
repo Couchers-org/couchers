@@ -1,4 +1,4 @@
-import { Chip } from "@material-ui/core";
+import { Chip, Tooltip } from "@material-ui/core";
 import { User } from "proto/api_pb";
 import makeStyles from "utils/makeStyles";
 
@@ -11,10 +11,10 @@ interface Props {
 const useStyles = makeStyles((theme) => ({
   badgeContainer: {
     marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1),
   },
   badge: {
     marginInlineStart: theme.spacing(1),
+    marginBottom: theme.spacing(1),
   },
 }));
 
@@ -32,12 +32,13 @@ export const Badges = ({ user }: Props) => {
       {(user.badgesList || []).map((badgeId) => {
         const badge = (badges || {})[badgeId];
         return (
-          <Chip
-            key={badge.id}
-            className={classes.badge}
-            label={badge.name}
-            style={{ background: badge.color }}
-          />
+          <Tooltip key={badge.id} title={badge.description}>
+            <Chip
+              className={classes.badge}
+              label={badge.name}
+              style={{ background: badge.color }}
+            />
+          </Tooltip>
         );
       })}
     </div>
