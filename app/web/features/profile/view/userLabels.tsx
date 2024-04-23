@@ -8,7 +8,7 @@ import { useQuery } from "react-query";
 import { service } from "service";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
-import { timeAgoI18n } from "utils/timeAgo";
+import { hourMillis, timeAgoI18n } from "utils/timeAgo";
 
 interface Props {
   user: User.AsObject;
@@ -31,6 +31,10 @@ export const ReferencesLastActiveLabels = ({ user }: Props) => {
             ? timeAgoI18n({
                 input: timestamp2Date(user.lastActive),
                 t: tGlobal,
+                fuzzy: {
+                  millis: hourMillis,
+                  translationKey: "relative_time.less_than_one_hour_ago",
+                },
               })
             : t("last_active_false")
         }
