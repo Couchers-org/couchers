@@ -1,7 +1,7 @@
 """Add new notification types
 
 Revision ID: 1c999dea180d
-Revises: b9791722e1c0
+Revises: 69ce91d4db5e
 Create Date: 2024-04-11 10:00:14.627154
 
 """
@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "1c999dea180d"
-down_revision = "b9791722e1c0"
+down_revision = "69ce91d4db5e"
 branch_labels = None
 depends_on = None
 
