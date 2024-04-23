@@ -91,14 +91,20 @@ export default function useAuthStore() {
       async passwordLogin({
         username,
         password,
+        rememberDevice,
       }: {
         username: string;
         password: string;
+        rememberDevice: boolean;
       }) {
         setError(null);
         setLoading(true);
         try {
-          const auth = await service.user.passwordLogin(username, password);
+          const auth = await service.user.passwordLogin(
+            username,
+            password,
+            rememberDevice
+          );
           setUserId(auth.userId);
           Sentry.setUser({ id: auth.userId.toString() });
 

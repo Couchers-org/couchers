@@ -54,10 +54,15 @@ export type HostingPreferenceData = Omit<
 /**
  * Login user using password
  */
-export async function passwordLogin(username: string, password: string) {
+export async function passwordLogin(
+  username: string,
+  password: string,
+  rememberDevice: boolean
+) {
   const req = new AuthReq();
   req.setUser(username);
   req.setPassword(password);
+  req.setRememberDevice(rememberDevice);
 
   const res = await client.auth.authenticate(req);
   return res.toObject();
