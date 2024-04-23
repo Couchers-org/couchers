@@ -21,7 +21,6 @@ const useStyles = makeStyles((theme) => ({
 export const Badges = ({ user }: Props) => {
   const classes = useStyles();
   const { badges } = useBadges();
-  console.log(user);
 
   if (badges === undefined) {
     return <></>;
