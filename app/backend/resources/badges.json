@@ -11,7 +11,7 @@
       "id": "board_member",
       "name": "Board Member",
       "description": "This user serves on the Board of the Couchers, Inc. non-profit",
-      "color": "#b536c9",
+      "color": "#d671be",
       "admin_editable": false
     },
     {
@@ -46,7 +46,7 @@
       "id": "phone_verified",
       "name": "Verified Phone",
       "description": "This user has verified their phone number",
-      "color": "#1ac302",
+      "color": "#71b768",
       "admin_editable": false
     }
   ],

@@ -20,3 +20,8 @@ export async function getLanguages() {
   const languages = await client.resources.getLanguages(new Empty());
   return languages.toObject();
 }
+
+export async function getBadges() {
+  const badges = await client.resources.getBadges(new Empty());
+  return badges.toObject();
+}

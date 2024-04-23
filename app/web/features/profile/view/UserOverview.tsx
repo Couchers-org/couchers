@@ -15,6 +15,7 @@ import React from "react";
 import makeStyles from "utils/makeStyles";
 
 import { useProfileUser } from "../hooks/useProfileUser";
+import { Badges } from "./Badges";
 import { ReferencesLastActiveLabels, ResponseRateLabel } from "./userLabels";
 
 const useStyles = makeStyles((theme) => ({
@@ -95,6 +96,7 @@ export default function UserOverview({
         <Typography variant="body1" className={classes.intro}>
           {user.city}
         </Typography>
+        <Badges user={user} />
       </div>
 
       <Divider />
