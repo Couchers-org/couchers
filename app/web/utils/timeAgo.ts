@@ -79,7 +79,7 @@ export function timeAgoI18n({
 
   if (fuzzy && diffMillis < fuzzy.millis) {
     // if fuzzyMillis and fuzzyText are both set, then for times less than fuzzyMillis, we return fuzzyText
-    return t(fuzzy.translationKey);
+    return t(fuzzy.translationKey) as string;
   }
 
   if (diffMillis < minuteMillis)
