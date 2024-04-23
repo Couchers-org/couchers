@@ -140,7 +140,6 @@ export default function LoginForm() {
             render={({ onChange, value }) => (
               <FormControlLabel
                 className={classes.rememberSwitch}
-                value="rememberDevice"
                 control={
                   <Switch
                     size="small"
