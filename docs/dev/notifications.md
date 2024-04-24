@@ -1,6 +1,6 @@
 # Design doc for unified, real-time push notification system
 
-# TODO
+## TODO
 
 * Link to object!
 * Etc

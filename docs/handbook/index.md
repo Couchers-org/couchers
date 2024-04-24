@@ -1,0 +1,7 @@
+# The Handbook
+
+```{toctree}
+:glob:
+
+*
+```

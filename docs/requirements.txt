@@ -1,0 +1,5 @@
+git+https://github.com/Couchers-org/docs-theme.git
+myst-parser
+sphinx
+sphinx-copybutton
+sphinxext-opengraph
