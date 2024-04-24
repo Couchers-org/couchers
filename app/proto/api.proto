@@ -254,6 +254,8 @@ message User {
 
   string avatar_url = 32;
   repeated LanguageAbility language_abilities = 37;
+
+  repeated string badges = 38;
 }
 
 message GetUserReq {

@@ -48,5 +48,6 @@
   "sleepingArrangement": 2,
   "parkingDetails": 3,
   "smokingAllowed": 1,
-  "avatarUrl": "https://loremflickr.com/200/200?user1"
+  "avatarUrl": "https://loremflickr.com/200/200?user1",
+  "badgesList": ["volunteer"]
 }

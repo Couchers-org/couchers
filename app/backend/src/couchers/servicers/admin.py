@@ -9,8 +9,9 @@ from sqlalchemy.sql import or_, select
 from couchers import errors, urls
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
-from couchers.models import GroupChat, GroupChatSubscription, HostRequest, Message, User
+from couchers.models import GroupChat, GroupChatSubscription, HostRequest, Message, User, UserBadge
 from couchers.notifications.notify import notify
+from couchers.resources import get_badge_dict
 from couchers.servicers.auth import create_session
 from couchers.servicers.communities import community_to_pb
 from couchers.sql import couchers_select as select
@@ -30,6 +31,7 @@ def _user_to_details(user):
         birthdate=date_to_api(user.birthdate),
         banned=user.is_banned,
         deleted=user.is_deleted,
+        badges=[badge.badge_id for badge in user.badges],
     )
 
 
@@ -47,6 +49,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.gender = request.gender
+            session.commit()
 
             notify(
                 user_id=user.id,
@@ -66,6 +69,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.birthdate = parse_date(request.birthdate)
+            session.commit()
 
             notify(
                 user_id=user.id,
@@ -75,6 +79,71 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 icon="wrench",
                 title=f"An admin changed your birth date",
                 link=urls.account_settings_link(),
+            )
+
+            return _user_to_details(user)
+
+    def AddBadge(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+            badge = get_badge_dict().get(request.badge_id)
+            if not badge:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.BADGE_NOT_FOUND)
+
+            if not badge["admin_editable"]:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ADMIN_CANNOT_EDIT_BADGE)
+
+            if badge["id"] in [b.badge_id for b in user.badges]:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_ALREADY_HAS_BADGE)
+
+            session.add(UserBadge(user_id=user.id, badge_id=badge["id"]))
+            session.commit()
+
+            notify(
+                user_id=user.id,
+                topic="badge",
+                key="",
+                action="remove",
+                icon="label",
+                title=f'An admin added the "{badge["name"]}" badge to your profile',
+                link=urls.profile_link(),
+            )
+
+            return _user_to_details(user)
+
+    def RemoveBadge(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+            badge = get_badge_dict().get(request.badge_id)
+            if not badge:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.BADGE_NOT_FOUND)
+
+            if not badge["admin_editable"]:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ADMIN_CANNOT_EDIT_BADGE)
+
+            user_badge = session.execute(
+                select(UserBadge).where(UserBadge.user_id == user.id, UserBadge.badge_id == badge["id"])
+            ).scalar_one_or_none()
+            if not user_badge:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_DOES_NOT_HAVE_BADGE)
+
+            session.delete(user_badge)
+            session.commit()
+
+            notify(
+                user_id=user.id,
+                topic="badge",
+                key="",
+                action="remove",
+                icon="label",
+                title=f'An admin removed the "{badge["name"]}" badge from your profile',
+                link=urls.profile_link(),
             )
 
             return _user_to_details(user)

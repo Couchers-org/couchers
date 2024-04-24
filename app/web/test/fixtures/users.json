@@ -39,7 +39,8 @@
     "sleepingArrangement": 2,
     "parkingDetails": 3,
     "smokingAllowed": 1,
-    "avatarUrl": "https://loremflickr.com/200/200?user1"
+    "avatarUrl": "https://loremflickr.com/200/200?user1",
+    "badgesList": ["founder", "donor"]
   },
   {
     "name": "Funny Dog",
@@ -81,7 +82,8 @@
     "sleepingArrangement": 2,
     "parkingDetails": 3,
     "smokingAllowed": 1,
-    "avatarUrl": ""
+    "avatarUrl": "",
+    "badgesList": []
   },
   {
     "name": "Funny Kid",
@@ -123,7 +125,8 @@
     "sleepingArrangement": 2,
     "parkingDetails": 3,
     "smokingAllowed": 1,
-    "avatarUrl": "https://loremflickr.com/200/200?user3"
+    "avatarUrl": "https://loremflickr.com/200/200?user3",
+    "badgesList": ["phone_verified"]
   },
   {
     "name": "Funny Chicken",
@@ -165,7 +168,8 @@
     "sleepingArrangement": 2,
     "parkingDetails": 3,
     "smokingAllowed": 1,
-    "avatarUrl": "https://loremflickr.com/200/200?user4"
+    "avatarUrl": "https://loremflickr.com/200/200?user4",
+    "badgesList": ["volunteer"]
   },
   {
     "name": "Friendly Cow",
@@ -207,6 +211,7 @@
     "sleepingArrangement": 2,
     "parkingDetails": 3,
     "smokingAllowed": 1,
-    "avatarUrl": "https://loremflickr.com/200/200?user5"
+    "avatarUrl": "https://loremflickr.com/200/200?user5",
+    "badgesList": []
   }
 ]

@@ -1,11 +1,13 @@
 # CAUTION! Changing these messages may break clients.
 
 ACCOUNT_SUSPENDED = "Your account is suspended."
+ADMIN_CANNOT_EDIT_BADGE = "Admins cannot edit that badge."
 ALREADY_ADMIN = "That user is already an admin."
 ALREADY_HAS_PASSWORD = "That account already has a password."
 ALREADY_IN_CHAT = "That user is already in the chat."
 ALREADY_IN_COMMUNITY = "You're already in that community."
 ALREADY_IN_GROUP = "You're already in that group."
+BADGE_NOT_FOUND = "Badge not found."
 CANNOT_LEAVE_CONTAINING_COMMUNITY = "You are inside this community, so you cannot leave it."
 CANT_ADD_SELF = "You can't add yourself to a group chat."
 CANT_BLOCK_SELF = "You can't block yourself."
@@ -127,6 +129,8 @@ UNKNOWN_ERROR = "An unknown backend error occurred. Please consider filing a bug
 UNRECOGNIZED_PHONE_NUMBER = "Your mobile phone number is not recognized. Please double-check it and contact support if this error persists."  # fmt: skip
 UNSUPPORTED_OPERATOR = "Your mobile phone operator is not supported."
 USER_ALREADY_BLOCKED = "Target user has already been blocked."
+USER_ALREADY_HAS_BADGE = "The user already has that badge."
+USER_DOES_NOT_HAVE_BADGE = "The user does not have that badge."
 USER_NOT_ADMIN = "That user is not an admin."
 USER_NOT_BLOCKED = "Target user is not blocked."
 USER_NOT_FOUND = "Couldn't find that user."

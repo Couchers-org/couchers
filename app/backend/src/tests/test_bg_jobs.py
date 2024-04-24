@@ -19,6 +19,7 @@ from couchers.jobs.handlers import (
     send_onboarding_emails,
     send_reference_reminders,
     send_request_notifications,
+    update_badges,
     update_recommendation_scores,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
@@ -30,6 +31,7 @@ from couchers.models import (
     Email,
     LoginToken,
     PasswordResetToken,
+    UserBadge,
 )
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_login_email
@@ -949,3 +951,30 @@ def test_add_users_to_email_list(db):
 
 def test_update_recommendation_scores(db):
     update_recommendation_scores(empty_pb2.Empty())
+
+
+def test_update_badges(db):
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    user4, _ = generate_user(phone="+15555555555", phone_verification_verified=func.now())
+    user5, _ = generate_user(phone="+15555555556", phone_verification_verified=func.now())
+    user6, _ = generate_user()
+
+    update_badges(empty_pb2.Empty())
+
+    with session_scope() as session:
+        badge_tuples = session.execute(
+            select(UserBadge.user_id, UserBadge.badge_id).order_by(UserBadge.user_id.asc(), UserBadge.id.asc())
+        ).all()
+
+    expected = [
+        (user1.id, "founder"),
+        (user1.id, "board_member"),
+        (user2.id, "founder"),
+        (user2.id, "board_member"),
+        (user4.id, "phone_verified"),
+        (user5.id, "phone_verified"),
+    ]
+
+    assert badge_tuples == expected

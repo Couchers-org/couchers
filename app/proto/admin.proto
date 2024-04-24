@@ -14,6 +14,10 @@ service Admin {
 
   rpc ChangeUserBirthdate(ChangeUserBirthdateReq) returns (UserDetails) {}
 
+  rpc AddBadge(AddBadgeReq) returns (UserDetails) {}
+
+  rpc RemoveBadge(RemoveBadgeReq) returns (UserDetails) {}
+
   rpc BanUser(BanUserReq) returns (UserDetails) {}
 
   rpc DeleteUser(DeleteUserReq) returns (UserDetails) {}
@@ -38,6 +42,7 @@ message UserDetails {
   string birthdate = 7;
   bool banned = 5;
   bool deleted = 6;
+  repeated string badges = 8;
 }
 
 message GetUserDetailsReq {
@@ -55,6 +60,16 @@ message ChangeUserBirthdateReq {
   // username, email, or user id
   string user = 1;
   string birthdate = 2; // in YYYY-MM-DD format
+}
+
+message AddBadgeReq {
+  string user = 1;
+  string badge_id = 2;
+}
+
+message RemoveBadgeReq {
+  string user = 1;
+  string badge_id = 2;
 }
 
 message BanUserReq {
