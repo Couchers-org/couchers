@@ -3,6 +3,7 @@ import { ReferenceType } from "proto/references_pb";
 // profiles/users
 export const languagesKey = "languages";
 export const regionsKey = "regions";
+export const badgesKey = "badges";
 export const contributorFormInfoQueryKey = "contributorFormInfo";
 export const accountInfoQueryKey = "accountInfo";
 export const notificationSettingsQueryKey = "notificationSettings";
