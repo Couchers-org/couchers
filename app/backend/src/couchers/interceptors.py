@@ -1,7 +1,6 @@
 import logging
 from copy import deepcopy
 from datetime import timedelta
-from random import random
 from time import perf_counter_ns
 from traceback import format_exception
 
@@ -231,7 +230,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
 
         def tracing_function(request, context):
             try:
-                with CouchersProfiler(do_profile=random() < 0.05) as prof:
+                with CouchersProfiler(do_profile=False) as prof:
                     start = perf_counter_ns()
                     res = prev_func(request, context)
                     finished = perf_counter_ns()
