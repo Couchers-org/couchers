@@ -231,8 +231,8 @@ class TracingInterceptor(grpc.ServerInterceptor):
 
         def tracing_function(request, context):
             try:
+                start = perf_counter_ns()
                 with CouchersProfiler(do_profile=random() < 0.05) as prof:
-                    start = perf_counter_ns()
                     res = prev_func(request, context)
                     finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
