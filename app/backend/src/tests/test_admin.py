@@ -155,9 +155,13 @@ def test_CreateApiKey(db):
             == 0
         )
 
-    with patch("couchers.email.enqueue_email_from_template") as mock:
+    with patch("couchers.email.queue_email") as mock:
         with real_admin_session(super_token) as api:
             res = api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=normal_user.username))
+
+    mock.assert_called_once()
+    (_, _, _, subject, plain, html), _ = mock.call_args
+    assert subject == "[TEST] Your API key for Couchers.org"
 
     with session_scope() as session:
         api_key = session.execute(
@@ -167,11 +171,8 @@ def test_CreateApiKey(db):
             .where(UserSession.user_id == normal_user.id)
         ).scalar_one()
 
-        assert mock.called_once_with(
-            normal_user.email,
-            "api_key",
-            template_args={"user": normal_user, "token": api_key.token, "expiry": api_key.expiry},
-        )
+        assert api_key.token in plain
+        assert api_key.token in html
 
 
 VALID_GEOJSON_MULTIPOLYGON = """
