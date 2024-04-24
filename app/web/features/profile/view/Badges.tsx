@@ -22,7 +22,7 @@ export const Badges = ({ user }: Props) => {
   const classes = useStyles();
   const { badges } = useBadges();
 
-  if (badges === undefined) {
+  if (badges === undefined || user.badgesList === undefined) {
     return <></>;
   }
 
