@@ -15,6 +15,13 @@
       "admin_editable": false
     },
     {
+      "id": "past_board_member",
+      "name": "Past Board Member",
+      "description": "This user served on the Board of the Couchers, Inc. non-profit",
+      "color": "#c68ece",
+      "admin_editable": false
+    },
+    {
       "id": "volunteer",
       "name": "Active Volunteer",
       "description": "This user is an active volunteer for Couchers.org",
@@ -45,6 +52,7 @@
   ],
   "static_badges": {
     "founder": [1, 2],
-    "board_member": [1, 2, 57, 4137]
+    "board_member": [1, 2, 57, 4137],
+    "past_board_member": [4141]
   }
 }

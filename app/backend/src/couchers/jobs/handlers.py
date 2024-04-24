@@ -762,6 +762,7 @@ def update_badges(payload):
 
         update_badge("founder", get_static_badge_dict()["founder"])
         update_badge("board_member", get_static_badge_dict()["board_member"])
+        update_badge("past_board_member", get_static_badge_dict()["past_board_member"])
         update_badge(
             "donor", session.execute(select(User.id).join(Invoice, Invoice.user_id == User.id)).scalars().all()
         )
