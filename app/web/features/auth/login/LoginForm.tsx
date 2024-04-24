@@ -10,7 +10,7 @@ import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { LoginRes } from "proto/auth_pb";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { resetPasswordRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
@@ -46,10 +46,15 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [loginWithLink, setLoginWithLink] = useState(true);
 
-  const { handleSubmit, register } = useForm<{ username: string }>();
+  const { handleSubmit, register, control } =
+    useForm<{ username: string; rememberDevice: boolean }>();
 
   const onSubmit = handleSubmit(
-    async (data: { username: string; password: string }) => {
+    async (data: {
+      username: string;
+      password: string;
+      rememberDevice: boolean;
+    }) => {
       setLoading(true);
       authActions.clearError();
       try {
@@ -67,8 +72,9 @@ export default function LoginForm() {
 
         if (!loginWithLink) {
           authActions.passwordLogin({
-            password: data.password,
             username: sanitizedUsername,
+            password: data.password,
+            rememberDevice: data.rememberDevice,
           });
         }
       } catch (e) {
@@ -127,10 +133,23 @@ export default function LoginForm() {
           </>
         )}
         <div className={classes.loginOptions}>
-          <FormControlLabel
-            className={classes.rememberSwitch}
-            control={<Switch size="small" />}
-            label={t("auth:login_page.form.remember_me")}
+          <Controller
+            control={control}
+            name="rememberDevice"
+            defaultValue={true}
+            render={({ onChange, value }) => (
+              <FormControlLabel
+                className={classes.rememberSwitch}
+                control={
+                  <Switch
+                    size="small"
+                    checked={value}
+                    onChange={(e, checked) => onChange(checked)}
+                  />
+                }
+                label={t("auth:login_page.form.remember_me")}
+              />
+            )}
           />
           {!loginWithLink && (
             <StyledLink href={resetPasswordRoute}>

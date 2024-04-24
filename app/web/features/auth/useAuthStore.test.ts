@@ -105,6 +105,7 @@ describe("passwordLogin action", () => {
       result.current.authActions.passwordLogin({
         password: "pass",
         username: "user",
+        rememberDevice: true,
       })
     );
     expect(result.current.authState.authenticated).toBe(true);
@@ -120,6 +121,7 @@ describe("passwordLogin action", () => {
       result.current.authActions.passwordLogin({
         password: "pass",
         username: "user",
+        rememberDevice: true,
       })
     );
     expect(result.current.authState.authenticated).toBe(false);
