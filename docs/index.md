@@ -14,3 +14,10 @@ handbook/index
 dev/index
 dev/meetings/index
 ```
+
+```{toctree}
+:caption: Misc
+:hidden:
+
+about
+```
