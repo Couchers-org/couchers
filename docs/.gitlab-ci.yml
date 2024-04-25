@@ -16,6 +16,9 @@ build:docs:
   image: python:3.12-bullseye
   script:
     - cd docs/ && pip install -r requirements.txt && sphinx-build -M html . _build
+  artifacts:
+    paths:
+      - docs/_build
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -25,7 +28,7 @@ build:docs:
       - docs/**/*
 
 
-preview:protos:
+preview:docs:
   needs: ["build:docs"]
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
