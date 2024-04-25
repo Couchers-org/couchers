@@ -1,0 +1,35 @@
+stages:
+  - build
+  - preview
+
+variables:
+  PREVIEW_DOMAIN: preview.couchershq.org
+  GIT_DEPTH: 10
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  RELEASE_BRANCH: develop
+  SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+
+
+build:docs:
+  stage: build
+  image: python:3.12-bullseye
+  script:
+    - cd docs/ && pip install -r requirements.txt && sphinx-build -M html . _build
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+      - docs/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+      - docs/**/*
+
+
+preview:protos:
+  needs: ["build:docs"]
+  stage: preview
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  script:
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/docs/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp docs/_build/html/ s3://$AWS_PREVIEW_BUCKET/docs/$CI_COMMIT_SHORT_SHA/ --recursive
+    - echo "Done, docs available at https://$CI_COMMIT_SHORT_SHA--docs.$PREVIEW_DOMAIN/"

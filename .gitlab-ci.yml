@@ -1,2 +1,3 @@
 include:
   - local: /app/.gitlab-ci.yml
+  - local: /docs/.gitlab-ci.yml
