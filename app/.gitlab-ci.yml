@@ -1,21 +1,8 @@
-stages:
-  - protos
-  - build
-  - test
-  - preview
-  - wait
-  - release
-
 variables:
   # whether to do checks or only build & deploy
   DO_CHECKS: "true"
   # whether to build web since it's very slow
   BUILD_WEB: "true"
-  PREVIEW_DOMAIN: preview.couchershq.org
-  GIT_DEPTH: 10
-  DOCKER_HOST: tcp://docker:2376
-  DOCKER_TLS_CERTDIR: "/certs"
-  RELEASE_BRANCH: develop
   GRPC_TAG: registry.gitlab.com/couchers/grpc:latest
   PROXY_RELEASE_TAG: $CI_REGISTRY_IMAGE/proxy:latest
   NGINX_RELEASE_TAG: $CI_REGISTRY_IMAGE/nginx:latest
@@ -26,7 +13,6 @@ variables:
   WEB_DEV_RELEASE_TAG: $CI_REGISTRY_IMAGE/web-dev:latest
   WEB_RELEASE_TAG: $CI_REGISTRY_IMAGE/web:latest
   WEB_NEXT_RELEASE_TAG: $CI_REGISTRY_IMAGE/web-next:latest
-  SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROXY_TAG: $CI_REGISTRY_IMAGE/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   NGINX_TAG: $CI_REGISTRY_IMAGE/nginx:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   NGINX_NEXT_TAG: $CI_REGISTRY_IMAGE/nginx-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA

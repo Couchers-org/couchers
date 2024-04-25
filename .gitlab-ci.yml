@@ -1,3 +1,19 @@
+stages:
+  - protos
+  - build
+  - test
+  - preview
+  - wait
+  - release
+
+variables:
+  PREVIEW_DOMAIN: preview.couchershq.org
+  GIT_DEPTH: 10
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  RELEASE_BRANCH: develop
+  SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+
 include:
   - local: /app/.gitlab-ci.yml
   - local: /docs/.gitlab-ci.yml
