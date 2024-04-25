@@ -1,6 +1,9 @@
 build:docs:
   stage: build
   image: python:3.12-bullseye
+  inherit:
+    # no docker login
+    default: false
   script:
     - cd docs/ && pip install -r requirements.txt && sphinx-build -M html . _build
   artifacts:

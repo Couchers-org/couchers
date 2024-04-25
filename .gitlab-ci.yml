@@ -14,6 +14,13 @@ variables:
   RELEASE_BRANCH: develop
   SLUG: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
 
+default:
+  image: docker
+  services:
+    - docker:19.03.12-dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
 include:
   - local: /app/.gitlab-ci.yml
   - local: /docs/.gitlab-ci.yml
