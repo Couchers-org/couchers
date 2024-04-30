@@ -15,13 +15,15 @@ You can find the details of Couchers, Inc. through the [IRS Tax Exempt Organizat
 
 You can also find our details on the [Florida Department of State website](https://search.sunbiz.org/Inquiry/CorporationSearch/SearchResultDetail?inquirytype=FeiNumber&directionType=Initial&searchNameOrder=871734577N210000086330&aggregateId=domnp-n21000008633-9f9a169a-3a18-44ea-9bbf-07966335007d&searchTerm=871734577&listNameOrder=871734577N210000086330), and check our Solicitation of Contributions registration on the [Florida Check-A-Charity page](https://csapp.fdacs.gov/CSPublicApp/CheckACharity/CheckACharity.aspx), our registration number is CH66240.
 
-Donations to Couchers, Inc., including through our [donation page](https://couchers.org/donate) are tax exempt to the full extent of the law.
+Donations to Couchers, Inc., including through our [donation page](/donate) are tax exempt to the full extent of the law.
+
+The bylaws of Couchers, Inc. are available [here](/foundation/bylaws.pdf).
 
 ## Couchers.org Foundation (Australia)
 
 The project is also supported by the Couchers.org Foundation, a not-for-profit company limited by guarantee for charitable purposes based in New South Wales, Australia. The Couchers.org Foundation supports the project financially and operationally.
 
-The [constitution of Couchers.org Foundation](https://couchers.org/foundation/constitution.pdf) includes a not-for-profit clause, meaning that the foundation can't sell its surplus assets to a for-profit company, and cannot itself change into an entity that is not a not-for-profit.
+The [constitution of Couchers.org Foundation](/foundation/constitution.pdf) includes a not-for-profit clause, meaning that the foundation can't sell its surplus assets to a for-profit company, and cannot itself change into an entity that is not a not-for-profit.
 
 You can search for registration details on the [Australian Securities and Investments Commission register](https://connectonline.asic.gov.au/RegistrySearch/faces/landing/SearchRegisters.jspx). We have an Australian Business Number of 20 643 340 309, which you can find on the [Australian Business Registrer](https://abr.business.gov.au/ABN/View?id=20643340309). The Australian Company Number is 643 340 309.
 
