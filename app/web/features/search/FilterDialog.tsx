@@ -78,7 +78,7 @@ export default function FilterDialog({
   const onSubmit = handleSubmit((data) => {
     if (data.location && data.location.bbox) {
       setTimeout(() => {
-        updateMapBoundingBox(data.location?.bbox);
+        updateMapBoundingBox((data.location as GeocodeResult)?.bbox);
       }, theme.transitions.duration.standard);
     }
     if (data.location === "" || !data.location) {
