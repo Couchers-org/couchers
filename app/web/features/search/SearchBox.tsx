@@ -81,7 +81,7 @@ export default function SearchBox({
       searchFilters.change("lat", value.location.lat);
       searchFilters.change("lng", value.location.lng);
       searchFilters.change("bbox", value.bbox);
-      
+
       setTimeout(() => {
         updateMapBoundingBox(value.bbox);
       }, theme.transitions.duration.standard);
