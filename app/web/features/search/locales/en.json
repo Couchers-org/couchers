@@ -15,11 +15,11 @@
         "location_field_label": "Near location",
         "missing_location_validation_error": "Specify a location to use this filter",
         "keywords": {
-            "field_label": "Profile keywords",
+            "field_label": "Name, profile keywords, or username",
             "clear_field_action_a11y_label": "Clear search"
         },
         "by_location_filter_label": "By location",
-        "by_keyword_filter_label": "By keyword",
+        "by_keyword_filter_label": "By keyword or name",
         "host_filters": {
             "title": "Host filters",
             "last_active_field_label": "Last active",
