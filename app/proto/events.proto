@@ -28,6 +28,10 @@ service Events {
     // Gets an event
   }
 
+  rpc CancelEvent(CancelEventReq) returns (google.protobuf.Empty) {
+    // Cancels an event
+  }
+
   rpc ListEventOccurrences(ListEventOccurrencesReq) returns (ListEventOccurrencesRes) {
     // List all occurrences of a recurring event
   }
@@ -98,6 +102,7 @@ message Event {
   // whether this is the next occurrence of this particular event
   // e.g. if this is a recurring event
   bool is_next = 2;
+  bool is_cancelled = 3;
 
   string title = 5;
   // a short URL fragment generated from the name, e.g. "New York City: weekly meetup" might become
@@ -206,6 +211,10 @@ message UpdateEventReq {
 }
 
 message GetEventReq {
+  int64 event_id = 1;
+}
+
+message CancelEventReq {
   int64 event_id = 1;
 }
 

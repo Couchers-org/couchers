@@ -122,6 +122,7 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
     return events_pb2.Event(
         event_id=occurrence.id,
         is_next=False if not next_occurrence else occurrence.id == next_occurrence.id,
+        is_cancelled=event.is_cancelled,
         title=event.title,
         slug=event.slug,
         content=occurrence.content,
@@ -487,6 +488,21 @@ class Events(events_pb2_grpc.EventsServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
 
             return event_to_pb(session, occurrence, context)
+
+    def CancelEvent(self, request, context):
+        with session_scope() as session:
+            occurrence: EventOccurrence | None = session.execute(
+                select(EventOccurrence).where(EventOccurrence.id == request.event_id)
+            ).scalar_one_or_none()
+
+            if not occurrence:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+
+            occurrence.is_cancelled = True
+
+            # TODO: Notify attendees
+
+        return empty_pb2.Empty()
 
     def ListEventOccurrences(self, request, context):
         with session_scope() as session:
