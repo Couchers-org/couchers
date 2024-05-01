@@ -35,6 +35,8 @@ Yannic was introduced to the idea of couch surfing in 2011 while backpacking thr
 
 **Couchers.org Profile:** [@natalia](/user/natalia)
 
+Natalia has been a couch surfer since ca. 2015 and was a volunteer at the earlier stages of Couchers, assisting in the logo design and forum moderation. She enjoys attending local couch surfing events, dabbles in website development for various purposes, and her favorite hobbies are karate and various musical instruments.
+
 ### Paul
 
 *Paul serves as the Treasurer of Couchers, Inc.*
