@@ -183,10 +183,6 @@ def handle_email_digests(payload):
     logger.info(f"Sending out email digests")
 
     with session_scope() as session:
-        # needed?
-        # # so that if this runs for a long time, we don't mess up if new notifications come at the same time
-        # digest_time = now()
-
         # already sent email notifications
         delivered_email_notifications = (
             select(
