@@ -41,7 +41,8 @@ from couchers.tasks import (
     send_signup_email,
 )
 from couchers.utils import now
-from tests.test_fixtures import db, generate_user, testconfig  # noqa
+from proto import notifications_pb2
+from tests.test_fixtures import db, generate_user, notifications_session, session_scope, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)
@@ -525,6 +526,63 @@ def test_account_recovery_successful_email(db):
         assert unique_string in html
         assert "support@couchers.org" in plain
         assert "support@couchers.org" in html
+
+
+def test_do_not_email_security(db):
+    _, token = generate_user()
+
+    with notifications_session(token) as notifications:
+        notifications.SetDoNotEmail(notifications_pb2.SetDoNotEmailReq(enable_do_not_email=True))
+
+    # make sure we still get security emails
+    with session_scope() as session:
+        user = session.execute(select(User)).scalar_one()
+
+        with patch("couchers.email.queue_email") as mock:
+            password_reset_token = send_password_reset_email(session, user)
+
+        assert mock.call_count == 1
+        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+        assert recipient == user.email
+        assert "reset" in subject.lower()
+        assert password_reset_token.token in plain
+        assert password_reset_token.token in html
+        unique_string = "You asked for your password to be reset on Couchers.org."
+        assert unique_string in plain
+        assert unique_string in html
+        assert f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token.token}" in plain
+        assert f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token.token}" in html
+        assert "support@couchers.org" in plain
+        assert "support@couchers.org" in html
+
+
+def test_do_not_email_non_security(db):
+    _, token = generate_user()
+
+    with notifications_session(token) as notifications:
+        notifications.SetDoNotEmail(notifications_pb2.SetDoNotEmailReq(enable_do_not_email=True))
+
+    with session_scope() as session:
+        to_user = session.execute(select(User)).scalar_one()
+        # little trick here to get the upload correctly without invalidating users
+        key = random_hex(32)
+        filename = random_hex(32) + ".jpg"
+        session.add(
+            Upload(
+                key=key,
+                filename=filename,
+                creator_user_id=to_user.id,
+            )
+        )
+        session.commit()
+        from_user, api_token_from = generate_user(avatar_key=key)
+        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
+        session.add(friend_relationship)
+
+        with patch("couchers.email.queue_email") as mock:
+            send_friend_request_email(friend_relationship)
+
+        assert mock.call_count == 0
 
 
 def test_email_prefix_config(db, monkeypatch):

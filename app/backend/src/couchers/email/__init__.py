@@ -1,3 +1,4 @@
+import logging
 from html import escape
 from pathlib import Path
 
@@ -8,6 +9,8 @@ from couchers.config import config
 from couchers.jobs.enqueue import queue_job
 from couchers.notifications.unsubscribe import generate_do_not_email
 from proto.internal import jobs_pb2
+
+logger = logging.getLogger(__name__)
 
 loader = FileSystemLoader(Path(__file__).parent / ".." / ".." / ".." / "templates")
 env = Environment(loader=loader, trim_blocks=True)
