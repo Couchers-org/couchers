@@ -120,5 +120,6 @@ def enqueue_email_from_template_to_user(user, template_file, template_args={}, i
         user.email,
         template_file,
         template_args=template_args,
-        _footer_unsub_link=generate_do_not_email(user.id),
+        # don't include the link on security emails
+        _footer_unsub_link=generate_do_not_email(user.id) if not is_critical_email else None,
     )

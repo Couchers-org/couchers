@@ -255,6 +255,20 @@ def test_unsubscribe(db):
     assert mock.call_count == 0
 
 
+def test_notifications_do_not_email(db):
+    _, token = generate_user()
+
+    with notifications_session(token) as notifications:
+        notifications.SetDoNotEmail(notifications_pb2.SetDoNotEmailReq(enable_do_not_email=True))
+
+        with pytest.raises(grpc.RpcError) as e:
+            notifications.SetNotificationSettings(
+                notifications_pb2.SetNotificationSettingsReq(enable_new_notifications=True)
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.DO_NOT_EMAIL_CANNOT_ENABLE_NEW_NOTIFICATIONS
+
+
 def test_GetDoNotEmail(db):
     _, token = generate_user()
 

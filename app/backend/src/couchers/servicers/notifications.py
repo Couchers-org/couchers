@@ -42,6 +42,8 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
     def SetNotificationSettings(self, request, context):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            if user.do_not_email:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DO_NOT_EMAIL_CANNOT_ENABLE_NEW_NOTIFICATIONS)
             user.new_notifications_enabled = request.enable_new_notifications
             for preference in request.preferences:
                 topic_action = enum_from_topic_action.get((preference.topic, preference.action), None)

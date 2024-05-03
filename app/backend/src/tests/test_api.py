@@ -10,7 +10,7 @@ from couchers.jobs.handlers import update_badges
 from couchers.models import FriendRelationship, FriendStatus
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, to_aware_datetime
-from proto import api_pb2, jail_pb2
+from proto import api_pb2, jail_pb2, notifications_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
     blocking_session,
@@ -19,6 +19,7 @@ from tests.test_fixtures import (  # noqa
     make_friends,
     make_user_block,
     make_user_invisible,
+    notifications_session,
     real_api_session,
     real_jail_session,
     testconfig,
@@ -281,6 +282,24 @@ def test_update_profile(db):
         assert not user_details.regions_visited
         assert not user_details.regions_lived
         assert not user_details.additional_information
+
+
+def test_update_profile_do_not_email(db):
+    user, token = generate_user()
+
+    with notifications_session(token) as notifications:
+        notifications.SetDoNotEmail(notifications_pb2.SetDoNotEmailReq(enable_do_not_email=True))
+
+    with api_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(api_pb2.UpdateProfileReq(hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.DO_NOT_EMAIL_CANNOT_HOST
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateProfile(api_pb2.UpdateProfileReq(meetup_status=api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.DO_NOT_EMAIL_CANNOT_MEET
 
 
 def test_language_abilities(db):

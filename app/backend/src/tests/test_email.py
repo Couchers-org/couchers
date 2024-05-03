@@ -555,6 +555,9 @@ def test_do_not_email_security(db):
         assert "support@couchers.org" in plain
         assert "support@couchers.org" in html
 
+        assert "/unsubscribe?payload=" not in plain
+        assert "/unsubscribe?payload=" not in html
+
 
 def test_do_not_email_non_security(db):
     _, token = generate_user()
@@ -583,6 +586,35 @@ def test_do_not_email_non_security(db):
             send_friend_request_email(friend_relationship)
 
         assert mock.call_count == 0
+
+
+def test_do_not_email_non_security_unsublink(db):
+    _, token = generate_user()
+
+    with session_scope() as session:
+        to_user = session.execute(select(User)).scalar_one()
+        # little trick here to get the upload correctly without invalidating users
+        key = random_hex(32)
+        filename = random_hex(32) + ".jpg"
+        session.add(
+            Upload(
+                key=key,
+                filename=filename,
+                creator_user_id=to_user.id,
+            )
+        )
+        session.commit()
+        from_user, api_token_from = generate_user(avatar_key=key)
+        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
+        session.add(friend_relationship)
+
+        with patch("couchers.email.queue_email") as mock:
+            send_friend_request_email(friend_relationship)
+
+        assert mock.call_count == 1
+        (_, _, _, _, plain, html), _ = mock.call_args
+        assert "/unsubscribe?payload=" in plain
+        assert "/unsubscribe?payload=" in html
 
 
 def test_email_prefix_config(db, monkeypatch):
