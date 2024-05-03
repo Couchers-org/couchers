@@ -13,7 +13,7 @@ To complete this change, please confirm your email by clicking the following lin
 
 {{ button("Confirm new email", confirmation_link)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(confirmation_link, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(confirmation_link, html)|couchers_safe }}
 
 {% else %}
 

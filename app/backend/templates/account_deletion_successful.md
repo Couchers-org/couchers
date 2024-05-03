@@ -15,7 +15,7 @@ If you change your mind, you have {{ days|couchers_escape }} days to retrieve yo
 
 {{ button("Recover Account", undelete_link)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(undelete_link, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(undelete_link, html)
 
 {% else %}
 

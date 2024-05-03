@@ -13,7 +13,7 @@
       <hr />
       <p>You're receiving this email because you signed up for Couchers.org. If you have any issues, email us at <a href="mailto:support@couchers.org">support@couchers.org</a>.</p>
       {% if _footer_unsub_link %}
-      <p>If you wish to stop receiving emails from Couchers, click on this link: <a href="{{ _footer_unsub_link|couchers_escape }}">unsubscribe all</a>.</p>
+      <p>If you wish to stop receiving emails from Couchers, click on this link: <a href="{{ _footer_unsub_link|couchers_safe }}">unsubscribe all</a>.</p>
       {% endif %}
   </body>
 </html>
