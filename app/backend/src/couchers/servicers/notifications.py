@@ -60,6 +60,21 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 groups=get_user_setting_groups(user.id),
             )
 
+    def GetDoNotEmail(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            return notifications_pb2.GetDoNotEmailRes(do_not_email_enabled=user.do_not_email)
+
+    def SetDoNotEmail(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            user.do_not_email = request.enable_do_not_email
+            if request.enable_do_not_email:
+                user.new_notifications_enabled = False
+                user.hosting_status = HostingStatus.cant_host
+                user.meetup_status = HostingStatus.does_not_want_to_meetup
+        return notifications_pb2.SetDoNotEmailRes()
+
     def ListNotifications(self, request, context):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)

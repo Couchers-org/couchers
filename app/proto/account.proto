@@ -66,11 +66,7 @@ service Account {
     // Sends email with confirmation link containing token to delete account
   }
 
-  rpc GetDoNotEmail(google.protobuf.Empty) returns (DoNotEmailRes) {
-    // Gets the do not email flag
-  }
-
-  rpc SetDoNotEmail(SetDoNotEmailReq) returns (DoNotEmailRes) {
+  rpc SetDoNotEmail(SetDoNotEmailReq) returns (google.protobuf.Empty) {
     // Sets the do not email flag
   }
 }
@@ -105,6 +101,9 @@ message GetAccountInfoRes {
   bool has_strong_verification = 10;
   org.couchers.api.core.BirthdateVerificationStatus birthdate_verification_status = 11;
   org.couchers.api.core.GenderVerificationStatus gender_verification_status = 12;
+
+  // whether the user has all non-security emails off
+  bool do_not_email = 13;
 }
 
 message ChangePasswordReq {
@@ -170,9 +169,5 @@ message DeleteAccountReq {
 }
 
 message SetDoNotEmailReq {
-  bool do_not_email = 1;
-}
-
-message DoNotEmailRes {
   bool do_not_email = 1;
 }

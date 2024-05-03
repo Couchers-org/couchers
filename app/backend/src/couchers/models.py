@@ -346,7 +346,7 @@ class User(Base):
         ),
         # If the user disabled all emails, then they can't host or meet up
         CheckConstraint(
-            "(do_not_email IS FALSE) OR ((hosting_status = 'cant_host') AND (meetup_status = 'does_not_want_to_meetup'))",
+            "(do_not_email IS FALSE) OR ((new_notifications_enabled IS FALSE) AND (hosting_status = 'cant_host') AND (meetup_status = 'does_not_want_to_meetup'))",
             name="do_not_email_inactive",
         ),
     )

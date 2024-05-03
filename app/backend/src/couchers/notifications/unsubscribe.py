@@ -6,7 +6,7 @@ from couchers import errors, urls
 from couchers.constants import DATETIME_INFINITY
 from couchers.crypto import UNSUBSCRIBE_KEY_NAME, b64encode, generate_hash_signature, get_secret, verify_hash_signature
 from couchers.db import session_scope
-from couchers.models import GroupChatSubscription, NotificationDeliveryType, User
+from couchers.models import GroupChatSubscription, HostingStatus, NotificationDeliveryType, User
 from couchers.notifications import settings
 from couchers.notifications.utils import enum_from_topic_action
 from couchers.sql import couchers_select as select
@@ -79,7 +79,8 @@ def unsubscribe(request, context):
             return "You've been unsubscribed from all non-security notifications"
         if payload.HasField("do_not_email"):
             logger.info(f"User {user.name} turning of emails")
-            user.do_not_email = False
+            user.do_not_email = True
+            user.new_notifications_enabled = False
             user.hosting_status = HostingStatus.cant_host
             user.meetup_status = HostingStatus.does_not_want_to_meetup
             return "You will not receive any non-security emails. You may still receive the newsletter, and need to unsubscribe separately there, sorry!"

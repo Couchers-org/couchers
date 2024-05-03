@@ -42,11 +42,13 @@ service Admin {
 message UserDetails {
   int64 user_id = 1;
   string username = 2;
+  string name = 9;
   string email = 3;
   string gender = 4;
   string birthdate = 7;
   bool banned = 5;
   bool deleted = 6;
+  string do_not_email = 10;
   repeated string badges = 8;
 
   bool has_strong_verification = 9;

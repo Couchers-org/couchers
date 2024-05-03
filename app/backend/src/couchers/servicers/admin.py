@@ -27,11 +27,13 @@ def _user_to_details(user):
     return admin_pb2.UserDetails(
         user_id=user.id,
         username=user.username,
+        name=user.name,
         email=user.email,
         gender=user.gender,
         birthdate=date_to_api(user.birthdate),
         banned=user.is_banned,
         deleted=user.is_deleted,
+        do_not_email=user.do_not_email,
         badges=[badge.badge_id for badge in user.badges],
         **get_strong_verification_fields(user),
         has_passport_sex_gender_exception=user.has_passport_sex_gender_exception,

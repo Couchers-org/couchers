@@ -6,6 +6,18 @@
     "current_password": "Current password",
     "new_email": "New email"
   },
+  "do_not_email": {
+    "title": "Do not email me",
+    "status": {
+      "no_emails_enabled_message": "Emails are currently <2>disabled</2> for your account.",
+      "no_emails_disabled_message": "Emails are currently <2>enabled</2> for your account."
+    },
+    "action_button": {
+      "no_emails_enable_text": "Do not email me",
+      "no_emails_disable_text": "Re-enable emails from Couchers"
+    },
+    "caveat": "By enabling this setting, your account will be set to not accept host requests. You will still receive security emails (such as those for resetting your password). You may still receive the newsletter, you can unsubscribe from it using the link in the newsletter footer."
+  },
   "change_email_confirmation": {
     "change_in_progress": "Email change in progress…",
     "success_message": "Your email has been changed successfully!",

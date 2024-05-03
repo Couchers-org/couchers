@@ -13,6 +13,10 @@ service Notifications {
 
   rpc SetNotificationSettings(SetNotificationSettingsReq) returns (GetNotificationSettingsRes);
 
+  rpc GetDoNotEmail(GetDoNotEmailReq) returns (GetDoNotEmailRes);
+
+  rpc SetDoNotEmail(SetDoNotEmailReq) returns (SetDoNotEmailRes);
+
   rpc ListNotifications(ListNotificationsReq) returns (ListNotificationsRes);
 }
 
@@ -67,6 +71,18 @@ message SetNotificationSettingsReq {
   // an arbitray list of these, they are applied consequtively, any errors will error out the whole thing
   repeated SingleNotificationPreference preferences = 2;
 }
+
+message GetDoNotEmailReq {}
+
+message GetDoNotEmailRes {
+  bool do_not_email_enabled = 1;
+}
+
+message SetDoNotEmailReq {
+  bool enable_do_not_email = 1;
+}
+
+message SetDoNotEmailRes {}
 
 message Notification {
   int64 notification_id = 1;
