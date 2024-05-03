@@ -83,15 +83,9 @@ export default function SearchPage() {
       showResults.current = searchFilters.any;
       setTimeout(() => {
         map.current?.resize();
-        updateMapBoundingBox(searchFilters.active.bbox);
       }, theme.transitions.duration.standard);
     }
-  }, [
-    searchFilters.any,
-    selectedResult,
-    theme.transitions.duration.standard,
-    searchFilters.active.bbox,
-  ]);
+  }, [searchFilters.any, selectedResult, theme.transitions.duration.standard]);
 
   const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
     map.current?.stop();
