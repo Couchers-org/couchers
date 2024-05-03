@@ -30,6 +30,15 @@ def generate_mute_all(user_id):
     )
 
 
+def generate_do_not_email(user_id):
+    return _generate_unsubscribe_link(
+        unsubscribe_pb2.UnsubscribePayload(
+            user_id=user_id,
+            do_not_email=unsubscribe_pb2.DoNotEmail(),
+        )
+    )
+
+
 def generate_unsub_topic_key(notification):
     return _generate_unsubscribe_link(
         unsubscribe_pb2.UnsubscribePayload(
@@ -68,6 +77,12 @@ def unsubscribe(request, context):
             # todo: some other system when out of preview
             user.new_notifications_enabled = False
             return "You've been unsubscribed from all non-security notifications"
+        if payload.HasField("do_not_email"):
+            logger.info(f"User {user.name} turning of emails")
+            user.do_not_email = False
+            user.hosting_status = HostingStatus.cant_host
+            user.meetup_status = HostingStatus.does_not_want_to_meetup
+            return "You will not receive any non-security emails. You may still receive the newsletter, and need to unsubscribe separately there, sorry!"
         if payload.HasField("topic_action"):
             logger.info(f"User {user.name} unsubscribing from topic_action")
             topic = payload.topic_action.topic

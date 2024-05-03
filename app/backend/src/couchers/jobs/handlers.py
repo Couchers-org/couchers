@@ -191,8 +191,8 @@ def send_message_notifications(payload):
 
             total_unseen_message_count = sum(count for _, _, count in unseen_messages)
 
-            email.enqueue_email_from_template(
-                user.email,
+            email.enqueue_email_from_template_to_user(
+                user,
                 "unseen_messages",
                 template_args={
                     "user": user,
@@ -246,8 +246,8 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.commit()
 
-            email.enqueue_email_from_template(
-                user.email,
+            email.enqueue_email_from_template_to_user(
+                user,
                 "unseen_message_guest",
                 template_args={
                     "user": user,
@@ -260,8 +260,8 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.commit()
 
-            email.enqueue_email_from_template(
-                user.email,
+            email.enqueue_email_from_template_to_user(
+                user,
                 "unseen_message_host",
                 template_args={
                     "user": user,

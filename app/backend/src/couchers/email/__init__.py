@@ -6,6 +6,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from couchers.config import config
 from couchers.jobs.enqueue import queue_job
+from couchers.notifications.unsubscribe import generate_do_not_email
 from proto.internal import jobs_pb2
 
 loader = FileSystemLoader(Path(__file__).parent / ".." / ".." / ".." / "templates")
@@ -101,4 +102,15 @@ def enqueue_email_from_template(recipient, template_file, template_args={}):
         config["NOTIFICATION_EMAIL_PREFIX"] + frontmatter["subject"],
         plain,
         html,
+    )
+
+
+def enqueue_email_from_template_to_user(user, template_file, template_args={}, is_critical_email=False):
+    if user.do_not_email and not is_critical_email:
+        logger.info(f"Not emailing {user} based on template {template_file} due to emails turned off")
+        return
+    enqueue_email_from_template(
+        user.email,
+        template_file,
+        template_args={**template_args, **{"_footer_unsub_link": generate_do_not_email(user.id)}},
     )
