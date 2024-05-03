@@ -4,7 +4,7 @@ import grpc
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Notification, NotificationDeliveryType, User
+from couchers.models import HostingStatus, MeetupStatus, Notification, NotificationDeliveryType, User
 from couchers.notifications.settings import PreferenceNotUserEditableError, get_user_setting_groups, set_preference
 from couchers.notifications.utils import enum_from_topic_action
 from couchers.sql import couchers_select as select
@@ -72,7 +72,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             if request.enable_do_not_email:
                 user.new_notifications_enabled = False
                 user.hosting_status = HostingStatus.cant_host
-                user.meetup_status = HostingStatus.does_not_want_to_meetup
+                user.meetup_status = MeetupStatus.does_not_want_to_meetup
         return notifications_pb2.SetDoNotEmailRes()
 
     def ListNotifications(self, request, context):
