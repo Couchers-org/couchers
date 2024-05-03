@@ -48,7 +48,7 @@ message UserDetails {
   string birthdate = 7;
   bool banned = 5;
   bool deleted = 6;
-  string do_not_email = 10;
+  bool do_not_email = 10;
   repeated string badges = 8;
 
   bool has_strong_verification = 9;
