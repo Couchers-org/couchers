@@ -1,21 +1,14 @@
 import logging
 from datetime import timedelta
-from typing import List
 
 from sqlalchemy.sql import and_, func
 
 from couchers.constants import DIGEST_FREQUENCY
 from couchers.db import session_scope
-from couchers.models import (
-    Notification,
-    NotificationDelivery,
-    NotificationDeliveryType,
-    NotificationPreference,
-    NotificationTopicAction,
-    User,
-)
+from couchers.models import Notification, NotificationDelivery, NotificationDeliveryType, User
 from couchers.notifications import fan_funcs
 from couchers.notifications.notify import notify
+from couchers.notifications.settings import get_preference
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_digest_email, send_notification_email
 
@@ -39,29 +32,6 @@ def fan_notifications(payload):
         )
 
 
-def get_notification_preference(
-    session, user_id: int, topic_action: NotificationTopicAction
-) -> List[NotificationDeliveryType]:
-    """
-    Gets the user's preference from the DB or otherwise falls back to defaults
-
-    Must be done in session scope
-
-    Returns list of delivery types
-    """
-    overrides = {
-        res.delivery_type: res.deliver
-        for res in session.execute(
-            select(NotificationPreference)
-            .where(NotificationPreference.id == user_id)
-            .where(NotificationPreference.topic_action == topic_action)
-        )
-        .scalars()
-        .all()
-    }
-    return [dt for dt in NotificationDeliveryType if overrides.get(dt, dt in topic_action.defaults)]
-
-
 def handle_notification(payload):
     with session_scope() as session:
         notification = session.execute(
@@ -75,7 +45,7 @@ def handle_notification(payload):
             return
 
         topic, action = notification.topic_action.unpack()
-        delivery_types = get_notification_preference(session, notification.user.id, notification.topic_action)
+        delivery_types = get_preference(session, notification.user.id, notification.topic_action)
         for delivery_type in delivery_types:
             logger.info(f"Should notify by {delivery_type}")
             if delivery_type == NotificationDeliveryType.email:

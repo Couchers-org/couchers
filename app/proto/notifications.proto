@@ -11,22 +11,62 @@ service Notifications {
 
   rpc GetNotificationSettings(GetNotificationSettingsReq) returns (GetNotificationSettingsRes);
 
-  rpc SetNotificationSettings(SetNotificationSettingsReq) returns (SetNotificationSettingsRes);
+  rpc SetNotificationSettings(SetNotificationSettingsReq) returns (GetNotificationSettingsRes);
 
   rpc ListNotifications(ListNotificationsReq) returns (ListNotificationsRes);
 }
 
 message GetNotificationSettingsReq {}
 
+message NotificationItem {
+  // e.g. "complete" for account recovery
+  string action = 1;
+  // e.g. "Password reset is completed"
+  string description = 2;
+  // whether this is user editable
+  bool user_editable = 3;
+  bool push = 4;
+  bool email = 5;
+  bool digest = 6;
+}
+
+message NotificationTopic {
+  // e.g. "account_recovery"
+  string topic = 1;
+  // e.g. "Account recovery"
+  string name = 2;
+
+  // items in this topic
+  repeated NotificationItem items = 3;
+}
+
+message NotificationGroup {
+  // a set of notification topics grouped together, e.g. "Account Settings"
+  string heading = 1;
+  repeated NotificationTopic topics = 2;
+}
+
+message SingleNotificationPreference {
+  string topic = 1;
+  string action = 2;
+  // one of "push"/"email"/"digest"
+  string delivery_method = 3;
+  bool enabled = 4;
+}
+
 message GetNotificationSettingsRes {
   bool new_notifications_enabled = 1;
+
+  bool email_digest_enabled = 2;
+  repeated NotificationGroup groups = 3;
 }
 
 message SetNotificationSettingsReq {
   bool enable_new_notifications = 1;
-}
 
-message SetNotificationSettingsRes {}
+  // an arbitray list of these, they are applied consequtively, any errors will error out the whole thing
+  repeated SingleNotificationPreference preferences = 2;
+}
 
 message Notification {
   int64 notification_id = 1;

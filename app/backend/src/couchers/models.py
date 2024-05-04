@@ -2096,50 +2096,55 @@ dt = NotificationDeliveryType
 
 
 class NotificationTopicAction(enum.Enum):
-    def __init__(self, topic, action, defaults):
+    def __init__(self, topic, action, defaults, user_editable):
         self.topic = topic
         self.action = action
         self.defaults = defaults
+        # for now user editable == not a security notification
+        self.user_editable = user_editable
+
+        if not self.user_editable:
+            assert self.defaults == [dt.email, dt.push, dt.digest], (topic, action)
 
     def unpack(self):
         return self.topic, self.action
 
     # topic, action, default delivery types
-    friend_request__send = ("friend_request", "send", [dt.email, dt.push, dt.digest])
-    friend_request__accept = ("friend_request", "accept", [dt.push, dt.digest])
+    friend_request__send = ("friend_request", "send", [dt.email, dt.push, dt.digest], True)
+    friend_request__accept = ("friend_request", "accept", [dt.push, dt.digest], True)
 
     # host requests
-    host_request__create = ("host_request", "create", [dt.email, dt.push, dt.digest])
-    host_request__accept = ("host_request", "accept", [dt.email, dt.push, dt.digest])
-    host_request__reject = ("host_request", "reject", [dt.push, dt.digest])
-    host_request__confirm = ("host_request", "confirm", [dt.email, dt.push, dt.digest])
-    host_request__cancel = ("host_request", "cancel", [dt.push, dt.digest])
-    host_request__message = ("host_request", "message", [dt.push, dt.digest])
+    host_request__create = ("host_request", "create", [dt.email, dt.push, dt.digest], True)
+    host_request__accept = ("host_request", "accept", [dt.email, dt.push, dt.digest], True)
+    host_request__reject = ("host_request", "reject", [dt.push, dt.digest], True)
+    host_request__confirm = ("host_request", "confirm", [dt.email, dt.push, dt.digest], True)
+    host_request__cancel = ("host_request", "cancel", [dt.push, dt.digest], True)
+    host_request__message = ("host_request", "message", [dt.push, dt.digest], True)
 
     # account settings
-    password__change = ("password", "change", [dt.email, dt.push, dt.digest])
-    email_address__change = ("email_address", "change", [dt.email, dt.push, dt.digest])
-    phone_number__change = ("phone_number", "change", [dt.email, dt.push, dt.digest])
-    phone_number__verify = ("phone_number", "verify", [dt.email, dt.push, dt.digest])
+    password__change = ("password", "change", [dt.email, dt.push, dt.digest], False)
+    email_address__change = ("email_address", "change", [dt.email, dt.push, dt.digest], False)
+    phone_number__change = ("phone_number", "change", [dt.email, dt.push, dt.digest], False)
+    phone_number__verify = ("phone_number", "verify", [dt.email, dt.push, dt.digest], False)
     # reset password
-    account_recovery__start = ("account_recovery", "start", [dt.email, dt.push, dt.digest])
-    account_recovery__complete = ("account_recovery", "complete", [dt.email, dt.push, dt.digest])
+    account_recovery__start = ("account_recovery", "start", [dt.email, dt.push, dt.digest], False)
+    account_recovery__complete = ("account_recovery", "complete", [dt.email, dt.push, dt.digest], False)
 
     # admin actions
-    gender__change = ("gender", "change", [dt.email, dt.push, dt.digest])
-    birthdate__change = ("birthdate", "change", [dt.email, dt.push, dt.digest])
-    api_key__create = ("api_key", "create", [dt.email, dt.push, dt.digest])
+    gender__change = ("gender", "change", [dt.email, dt.push, dt.digest], True)
+    birthdate__change = ("birthdate", "change", [dt.email, dt.push, dt.digest], True)
+    api_key__create = ("api_key", "create", [dt.email, dt.push, dt.digest], False)
 
-    badge__add = ("badge", "add", [dt.push, dt.digest])
-    badge__remove = ("badge", "remove", [dt.push, dt.digest])
+    badge__add = ("badge", "add", [dt.push, dt.digest], True)
+    badge__remove = ("badge", "remove", [dt.push, dt.digest], True)
 
     # group chats
-    chat__message = ("chat", "message", [dt.email, dt.push, dt.digest])
+    chat__message = ("chat", "message", [dt.email, dt.push, dt.digest], True)
 
     # events
-    event__create = ("event", "create", [dt.push, dt.digest])
-    event__update = ("event", "update", [dt.push, dt.digest])
-    event__invite_organizer = ("event", "invite_organizer", [dt.email, dt.push, dt.digest])
+    event__create = ("event", "create", [dt.push, dt.digest], True)
+    event__update = ("event", "update", [dt.push, dt.digest], True)
+    event__invite_organizer = ("event", "invite_organizer", [dt.email, dt.push, dt.digest], True)
 
 
 class NotificationPreference(Base):
@@ -2153,6 +2158,8 @@ class NotificationPreference(Base):
     deliver = Column(Boolean, nullable=False)
 
     user = relationship("User", foreign_keys="NotificationPreference.user_id")
+
+    __table_args__ = (UniqueConstraint("user_id", "topic_action", "delivery_type"),)
 
 
 class Notification(Base):
