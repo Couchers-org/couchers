@@ -4,7 +4,7 @@ Contains "fan functions" that given some data decide who to notify. Needs to ret
 
 import logging
 
-from sqlalchemy.sql import func, not_, select
+from sqlalchemy.sql import func, not_, or_, select
 
 from couchers.db import session_scope
 from couchers.models import (
@@ -38,7 +38,7 @@ def fan_message_notifications(message_id_str):
 
         if message.message_type != MessageType.text:
             logger.info(f"Not a text message, not notifying. message_id = {message_id}")
-            return
+            return []
 
         subscriptions = (
             session.execute(
@@ -47,7 +47,8 @@ def fan_message_notifications(message_id_str):
                 .where(GroupChatSubscription.group_chat_id == message.conversation_id)
                 .where(User.is_visible)
                 .where(User.id != message.author_id)
-                .where(GroupChatSubscription.left == None)
+                .where(GroupChatSubscription.joined <= message.time)
+                .where(or_(GroupChatSubscription.left == None, GroupChatSubscription.left >= message.time))
                 .where(not_(GroupChatSubscription.is_muted))
             )
             .scalars()
