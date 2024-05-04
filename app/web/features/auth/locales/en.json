@@ -176,7 +176,8 @@
     "action_button": {
       "enable_text": "Enable new notifications system",
       "disable_text": "Disable new notifications system"
-    }
+    },
+    "edit_in_console": "You can change your notification settings <2>on this page</2>. We will soon move it here."
   },
   "unsubscribe": {
     "title": "Unsubscribe",
