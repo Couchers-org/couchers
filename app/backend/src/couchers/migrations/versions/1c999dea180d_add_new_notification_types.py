@@ -35,6 +35,11 @@ def upgrade():
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__create'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__update'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__invite_organizer'")
+    op.create_unique_constraint(
+        op.f("uq_notification_preferences_user_id"),
+        "notification_preferences",
+        ["user_id", "topic_action", "delivery_type"],
+    )
 
 
 def downgrade():
