@@ -85,9 +85,9 @@ settings_layout = [
                 [
                     ("create", "Someone sends you a host request"),
                     ("accept", "Someone accepts your host request"),
+                    ("confirm", "Someone confirms their host request"),
                     ("reject", "Someone rejects your host request"),
-                    ("confirm", "Someone confirms your host request"),
-                    ("cancel", "Someone cancels your host request"),
+                    ("cancel", "Someone cancels their host request"),
                     ("message", "Someone sends a message in a host request"),
                 ],
             ),
@@ -108,7 +108,7 @@ settings_layout = [
                 "Friend requests",
                 [
                     ("send", "Someone sends you a friend request"),
-                    ("accept", "Someone aceepts your friend request"),
+                    ("accept", "Someone accepts your friend request"),
                 ],
             ),
             (
@@ -140,14 +140,6 @@ settings_layout = [
                 ],
             ),
             (
-                "phone_number",
-                "Phone number changes",
-                [
-                    ("change", "Your phone number is changed"),
-                    ("verify", "Your phone number is verified"),
-                ],
-            ),
-            (
                 "account_recovery",
                 "Account recovery",
                 [
@@ -160,6 +152,14 @@ settings_layout = [
                 "API keys",
                 [
                     ("create", "An API key is created for your account"),
+                ],
+            ),
+            (
+                "phone_number",
+                "Phone number changes",
+                [
+                    ("change", "Your phone number is changed"),
+                    ("verify", "Your phone number is verified"),
                 ],
             ),
             (

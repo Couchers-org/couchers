@@ -2124,8 +2124,8 @@ class NotificationTopicAction(enum.Enum):
     # account settings
     password__change = ("password", "change", [dt.email, dt.push, dt.digest], False)
     email_address__change = ("email_address", "change", [dt.email, dt.push, dt.digest], False)
-    phone_number__change = ("phone_number", "change", [dt.email, dt.push, dt.digest], False)
-    phone_number__verify = ("phone_number", "verify", [dt.email, dt.push, dt.digest], False)
+    phone_number__change = ("phone_number", "change", [dt.email, dt.push, dt.digest], True)
+    phone_number__verify = ("phone_number", "verify", [dt.email, dt.push, dt.digest], True)
     # reset password
     account_recovery__start = ("account_recovery", "start", [dt.email, dt.push, dt.digest], False)
     account_recovery__complete = ("account_recovery", "complete", [dt.email, dt.push, dt.digest], False)
