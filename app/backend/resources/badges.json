@@ -22,6 +22,13 @@
       "admin_editable": false
     },
     {
+      "id": "moderator",
+      "name": "Moderator",
+      "description": "This user is a moderator of Couchers.org",
+      "color": "#c74f5b",
+      "admin_editable": false
+     },
+    {
       "id": "volunteer",
       "name": "Active Volunteer",
       "description": "This user is an active volunteer for Couchers.org",

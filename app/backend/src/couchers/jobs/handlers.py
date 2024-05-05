@@ -766,6 +766,7 @@ def update_badges(payload):
         update_badge(
             "donor", session.execute(select(User.id).join(Invoice, Invoice.user_id == User.id)).scalars().all()
         )
+        update_badge("moderator", session.execute(select(User.id).where(User.is_superuser)).scalars().all())
         update_badge("phone_verified", session.execute(select(User.id).where(User.phone_is_verified)).scalars().all())
 
 
