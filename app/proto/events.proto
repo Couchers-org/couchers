@@ -267,6 +267,8 @@ message ListMyEventsReq {
   // include events in the user's communities
   bool my_communities = 7;
 
+  bool include_cancelled = 8;
+
   uint32 page_size = 5;
   string page_token = 6;
 }
@@ -295,6 +297,8 @@ message ListEventOccurrencesReq {
   int64 event_id = 1;
   // whether to paginate backwards
   bool past = 2;
+
+  bool include_cancelled = 5;
 
   uint32 page_size = 3;
   string page_token = 4;
