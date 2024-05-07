@@ -1590,6 +1590,7 @@ class EventOccurrence(Base):
     photo_key = Column(ForeignKey("uploads.key"), nullable=True)
 
     is_cancelled = Column(Boolean, nullable=False, default=False)
+    is_deleted = Column(Boolean, nullable=False, default=False)
 
     # a null geom is an online-only event
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
