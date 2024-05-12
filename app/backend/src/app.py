@@ -11,14 +11,14 @@ from sentry_sdk.integrations.stdlib import StdlibIntegration
 from sentry_sdk.integrations.threading import ThreadingIntegration
 from sqlalchemy.sql import text
 
-from couchers.config import config
+from couchers.config import check_config, config
 from couchers.db import apply_migrations, session_scope
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
 from couchers.metrics import create_prometheus_server, main_process_registry
 from couchers.server import create_main_server, create_media_server
 from dummy_data import add_dummy_data
 
-config.check_config()
+check_config()
 
 logging.basicConfig(format="%(asctime)s: %(name)s: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
