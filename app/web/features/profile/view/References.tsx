@@ -33,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     justifyContent: "flex-end",
     marginInlineEnd: theme.spacing(2),
+    marginTop: theme.spacing(1),
   },
   referencesContainer: {
     display: "flex",
@@ -40,6 +41,9 @@ const useStyles = makeStyles((theme) => ({
   },
   header: {
     marginTop: 0,
+  },
+  headerParentContainer: {
+    width: "100%",
   },
   headerContainer: {
     alignItems: "center",
@@ -70,10 +74,31 @@ export default function References() {
 
   return (
     <div className={classes.referencesContainer}>
-      <div className={classes.headerContainer}>
-        <Typography className={classes.header} variant="h1">
-          {t("profile:heading.references")}
-        </Typography>
+      <div className={classes.headerParentContainer}>
+        <div className={classes.headerContainer}>
+          <Typography className={classes.header} variant="h1">
+            {t("profile:heading.references")}
+          </Typography>
+          <Select
+            classes={{ select: classes.referenceTypeSelect }}
+            displayEmpty
+            inputProps={{
+              "aria-label": t("profile:references_filter_a11y_label"),
+            }}
+            onChange={handleChange}
+            value={referenceType}
+          >
+            {Object.entries(referencesFilterLabels(t)).map(([key, label]) => {
+              const value =
+                key === "all" || key === "given" ? key : Number(key);
+              return (
+                <MenuItem key={value} value={value}>
+                  {label}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </div>
         {availableReferences?.canWriteFriendReference &&
           friends === User.FriendshipStatus.FRIENDS && (
             <div className={classes.buttonContainer}>
@@ -91,24 +116,6 @@ export default function References() {
               </Link>
             </div>
           )}
-        <Select
-          classes={{ select: classes.referenceTypeSelect }}
-          displayEmpty
-          inputProps={{
-            "aria-label": t("profile:references_filter_a11y_label"),
-          }}
-          onChange={handleChange}
-          value={referenceType}
-        >
-          {Object.entries(referencesFilterLabels(t)).map(([key, label]) => {
-            const value = key === "all" || key === "given" ? key : Number(key);
-            return (
-              <MenuItem key={value} value={value}>
-                {label}
-              </MenuItem>
-            );
-          })}
-        </Select>
       </div>
       {referenceType !== "given" ? (
         <ReferencesReceivedList referenceType={referenceType} />
