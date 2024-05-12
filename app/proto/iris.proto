@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package org.couchers.iris;
+
+import "google/api/annotations.proto";
+import "google/api/httpbody.proto";
+
+import "annotations.proto";
+
+service Iris {
+  // we do our own auth
+  option (auth_level) = AUTH_LEVEL_OPEN;
+
+  rpc Webhook(google.api.HttpBody) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      post : "/iris/webhook"
+    };
+  }
+}

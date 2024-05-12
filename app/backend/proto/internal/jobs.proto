@@ -20,3 +20,7 @@ message HandleNotificationPayload {
 message GenerateMessageNotificationsPayload {
   int64 message_id = 1;
 }
+
+message FinalizeStrongVerificationPayload {
+  int64 verification_attempt_id = 1;
+}

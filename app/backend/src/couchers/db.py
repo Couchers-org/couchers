@@ -12,7 +12,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import NullPool, SingletonThreadPool
 from sqlalchemy.sql import and_, func, literal, or_
 
-from couchers import config
+from couchers.config import config
 from couchers.constants import SERVER_THREADS
 from couchers.models import (
     Cluster,
@@ -45,7 +45,7 @@ def apply_migrations():
 
 @functools.lru_cache
 def _get_base_engine():
-    if config.config["IN_TEST"]:
+    if config["IN_TEST"]:
         pool_opts = {"poolclass": NullPool}
     else:
         pool_opts = {
@@ -59,7 +59,7 @@ def _get_base_engine():
     # `pool_pre_ping` checks that the connections in the pool are alive before using them, which avoids the "server
     # closed the connection unexpectedly" errors
     return create_engine(
-        config.config["DATABASE_CONNECTION_STRING"],
+        config["DATABASE_CONNECTION_STRING"],
         future=True,
         pool_pre_ping=True,
         **pool_opts,

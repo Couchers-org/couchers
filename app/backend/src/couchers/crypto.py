@@ -4,10 +4,12 @@ from base64 import urlsafe_b64decode, urlsafe_b64encode
 from typing import Optional
 
 import nacl.pwhash
+import nacl.utils
 from nacl.bindings import crypto_aead
 from nacl.bindings.crypto_generichash import generichash_blake2b_salt_personal
 from nacl.bindings.utils import sodium_memcmp
 from nacl.exceptions import InvalidkeyError
+from nacl.public import PrivateKey, PublicKey, SealedBox
 from nacl.utils import random as random_bytes
 
 from couchers.config import config
@@ -146,3 +148,19 @@ def encrypt_page_token(plaintext_page_token: str):
 
 def decrypt_page_token(encrypted_page_token: str):
     return simple_decrypt(PAGE_TOKEN_KEY_NAME, b64decode(encrypted_page_token)).decode("utf8")
+
+
+# Public key cryptography
+
+
+def asym_encrypt(public_key: bytes, data: bytes) -> bytes:
+    return SealedBox(PublicKey(public_key)).encrypt(data)
+
+
+def asym_decrypt(private_key: bytes, encrypted_data: bytes) -> bytes:
+    return SealedBox(PrivateKey(private_key)).decrypt(encrypted_data)
+
+
+def generate_asym_keypair():
+    skey = PrivateKey.generate()
+    return skey.encode(), skey.public_key.encode()

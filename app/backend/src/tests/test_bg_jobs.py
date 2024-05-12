@@ -905,7 +905,7 @@ def test_add_users_to_email_list(db):
     new_config["MAILCHIMP_DC"] = "dc99"
     new_config["MAILCHIMP_LIST_ID"] = "dummy_list_id"
 
-    with patch("couchers.config.config", new_config):
+    with patch("couchers.jobs.handlers.config", new_config):
         with patch("couchers.jobs.handlers.requests.post") as mock:
             add_users_to_email_list(empty_pb2.Empty())
         mock.assert_not_called()

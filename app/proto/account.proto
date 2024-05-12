@@ -53,6 +53,14 @@ service Account {
     // An incorrect code generates NOT_FOUND.
   }
 
+  rpc InitiateStrongVerification(google.protobuf.Empty) returns (InitiateStrongVerificationRes) {
+    // Initiates a strong verification (passport read)
+  }
+
+  rpc GetStrongVerificationAttemptStatus(GetStrongVerificationAttemptStatusReq) returns (GetStrongVerificationAttemptStatusRes) {
+    // Gets the status of a strong verification attempt
+  }
+
   rpc DeleteAccount(DeleteAccountReq) returns (google.protobuf.Empty) {
     // Sends email with confirmation link containing token to delete account
   }
@@ -117,6 +125,29 @@ message VerifyPhoneReq {
   // Should be a 6-digit string with Luhn algorithm mod 10 checksum equals 0.
   // Frontends could do that pre-check.
   string token = 1 [ (sensitive) = true ];
+}
+
+message InitiateStrongVerificationRes {
+  // use this token to check status
+  string verification_attempt_token = 1;
+  // the user should open this link which takes them to the Iris ID app
+  string iris_url = 2;
+}
+
+message GetStrongVerificationAttemptStatusReq {
+  string verification_attempt_token = 1;
+}
+
+enum StrongVerificationAttemptStatus {
+  STRONG_VERIFICATION_ATTEMPT_STATUS_UNKNOWN = 0;
+  STRONG_VERIFICATION_ATTEMPT_STATUS_SUCCEEDED = 1;
+  STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER = 2;
+  STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND = 3;
+  STRONG_VERIFICATION_ATTEMPT_STATUS_FAILED = 4;
+}
+
+message GetStrongVerificationAttemptStatusRes {
+  StrongVerificationAttemptStatus status = 1;
 }
 
 message DeleteAccountReq {

@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package verification;
+
+message VerificationReferencePayload {
+  string verification_attempt_token = 1;
+  int64 user_id = 2;
+}
