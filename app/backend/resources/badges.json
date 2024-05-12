@@ -55,6 +55,13 @@
       "description": "This user has verified their phone number",
       "color": "#71b768",
       "admin_editable": false
+    },
+    {
+      "id": "strong_verification",
+      "name": "Strong Verification",
+      "description": "This user has verified their gender and date of birth with a biometric passport",
+      "color": "#1b8aa0",
+      "admin_editable": false
     }
   ],
   "static_badges": {

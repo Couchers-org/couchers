@@ -12,17 +12,19 @@ from couchers import errors
 from couchers.config import config
 from couchers.crypto import asym_decrypt
 from couchers.db import session_scope
+from couchers.jobs.handlers import update_badges
 from couchers.jobs.worker import process_job
 from couchers.models import (
     PassportSex,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
     StrongVerificationCallbackEvent,
+    User,
 )
 from couchers.sql import couchers_select as select
-from proto import account_pb2
+from proto import account_pb2, api_pb2
 from proto.google.api import httpbody_pb2
-from tests.test_fixtures import account_session, db, generate_user, real_iris_session, testconfig  # noqa
+from tests.test_fixtures import account_session, api_session, db, generate_user, real_iris_session, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)
@@ -53,7 +55,12 @@ def test_strong_verification_happy_path(db, monkeypatch):
     monkeypatch.setattr(couchers.servicers.account, "config", new_config)
     monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
 
-    user, token = generate_user()
+    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+
+    update_badges(empty_pb2.Empty())
+
+    with api_session(token) as api:
+        assert "strong_verification" not in api.GetUser(api_pb2.GetUserReq(user=user.username)).badges
 
     with account_session(token) as account:
         # start by initiation
@@ -202,6 +209,43 @@ def test_strong_verification_happy_path(db, monkeypatch):
             .all()
         )
         assert callbacks == ["INITIATED", "COMPLETED", "APPROVED"]
+
+    update_badges(empty_pb2.Empty())
+
+    # the user should now have strong verification
+    with api_session(token) as api:
+        assert "strong_verification" in api.GetUser(api_pb2.GetUserReq(user=user.username)).badges
+
+    # wrong dob = no badge
+    with session_scope() as session:
+        user_ = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        user_.birthdate = date(1988, 1, 2)
+
+    update_badges(empty_pb2.Empty())
+
+    with api_session(token) as api:
+        assert "strong_verification" not in api.GetUser(api_pb2.GetUserReq(user=user.username)).badges
+
+    # bad gender-sex correspondence = no badge
+    with session_scope() as session:
+        user_ = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        user_.birthdate = date(1988, 1, 1)
+        user_.gender = "Woman"
+
+    update_badges(empty_pb2.Empty())
+
+    with api_session(token) as api:
+        assert "strong_verification" not in api.GetUser(api_pb2.GetUserReq(user=user.username)).badges
+
+    # back to shoudl have a badge
+    with session_scope() as session:
+        user_ = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        user_.gender = "Man"
+
+    update_badges(empty_pb2.Empty())
+
+    with api_session(token) as api:
+        assert "strong_verification" in api.GetUser(api_pb2.GetUserReq(user=user.username)).badges
 
 
 def test_strong_verification_disabled(db):
