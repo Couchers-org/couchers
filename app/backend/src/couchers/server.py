@@ -2,10 +2,10 @@ from concurrent import futures
 
 import grpc
 
-from couchers import config
+from couchers.config import config
 from couchers.constants import SERVER_THREADS
 from couchers.interceptors import AuthValidatorInterceptor, ErrorSanitizationInterceptor, TracingInterceptor
-from couchers.servicers.account import Account
+from couchers.servicers.account import Account, Iris
 from couchers.servicers.admin import Admin
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
@@ -42,6 +42,7 @@ from proto import (
     events_pb2_grpc,
     gis_pb2_grpc,
     groups_pb2_grpc,
+    iris_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
     notifications_pb2_grpc,
@@ -68,6 +69,7 @@ def create_main_server(port):
     server.add_insecure_port(f"[::]:{port}")
 
     account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
+    iris_pb2_grpc.add_IrisServicer_to_server(Iris(), server)
     admin_pb2_grpc.add_AdminServicer_to_server(Admin(), server)
     api_pb2_grpc.add_APIServicer_to_server(API(), server)
     auth_pb2_grpc.add_AuthServicer_to_server(Auth(), server)
@@ -96,7 +98,7 @@ def create_main_server(port):
 def create_media_server(port, threads=8):
     media_server = grpc.server(
         futures.ThreadPoolExecutor(threads),
-        interceptors=[TracingInterceptor(), get_media_auth_interceptor(config.config["MEDIA_SERVER_BEARER_TOKEN"])],
+        interceptors=[TracingInterceptor(), get_media_auth_interceptor(config["MEDIA_SERVER_BEARER_TOKEN"])],
     )
     media_server.add_insecure_port(f"[::]:{port}")
     media_pb2_grpc.add_MediaServicer_to_server(Media(), media_server)

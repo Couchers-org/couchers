@@ -1,14 +1,35 @@
+import json
 from datetime import timedelta
 
 import grpc
+import requests
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import update
 
 from couchers import errors, urls
+from couchers.config import config
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
-from couchers.crypto import hash_password, urlsafe_secure_token, verify_password, verify_token
+from couchers.crypto import (
+    b64decode,
+    b64encode,
+    hash_password,
+    simple_decrypt,
+    simple_encrypt,
+    urlsafe_secure_token,
+    verify_password,
+    verify_token,
+)
 from couchers.db import session_scope
-from couchers.models import AccountDeletionReason, ContributeOption, ContributorForm, User
+from couchers.jobs.enqueue import queue_job
+from couchers.models import (
+    AccountDeletionReason,
+    ContributeOption,
+    ContributorForm,
+    StrongVerificationAttempt,
+    StrongVerificationAttemptStatus,
+    StrongVerificationCallbackEvent,
+    User,
+)
 from couchers.notifications.notify import notify
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
@@ -23,7 +44,9 @@ from couchers.tasks import (
     send_password_changed_email,
 )
 from couchers.utils import is_valid_email, now
-from proto import account_pb2, account_pb2_grpc, auth_pb2
+from proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc
+from proto.google.api import httpbody_pb2
+from proto.internal import jobs_pb2, verification_pb2
 
 contributeoption2sql = {
     auth_pb2.CONTRIBUTE_OPTION_UNSPECIFIED: None,
@@ -326,6 +349,78 @@ class Account(account_pb2_grpc.AccountServicer):
 
         return empty_pb2.Empty()
 
+    def InitiateStrongVerification(self, request, context):
+        if not config["ENABLE_STRONG_VERIFICATION"]:
+            context.abort(grpc.StatusCode.UNAVAILABLE, errors.STRONG_VERIFICATION_DISABLED)
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            existing_verification = session.execute(
+                select(StrongVerificationAttempt)
+                .where(StrongVerificationAttempt.user_id == user.id)
+                .where(StrongVerificationAttempt.is_valid)
+            ).scalar_one_or_none()
+            if existing_verification:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.STRONG_VERIFICATION_ALREADY_VERIFIED)
+            verification_attempt_token = urlsafe_secure_token()
+            # this is the iris reference data, they will return this on every callback, it also doubles as webhook auth given lack of it otherwise
+            reference = b64encode(
+                simple_encrypt(
+                    "iris_callback",
+                    verification_pb2.VerificationReferencePayload(
+                        verification_attempt_token=verification_attempt_token,
+                        user_id=user.id,
+                    ).SerializeToString(),
+                )
+            )
+            response = requests.post(
+                "https://passportreader.app/api/v1/session.create",
+                auth=(config["IRIS_ID_PUBKEY"], config["IRIS_ID_SECRET"]),
+                json={
+                    "callback_url": f"{config['BACKEND_BASE_URL']}/iris/webhook",
+                    "face_verification": False,
+                    "reference": reference,
+                },
+                timeout=10,
+            )
+            if response.status_code != 200:
+                raise Exception(f"Iris didn't return 200: {response.text}")
+            iris_session_id = response.json()["id"]
+            token = response.json()["token"]
+            url = f"iris:///?token={token}"
+            verification_attempt = StrongVerificationAttempt(
+                user_id=user.id,
+                verification_attempt_token=verification_attempt_token,
+                iris_session_id=iris_session_id,
+                iris_token=token,
+            )
+            session.add(verification_attempt)
+            return account_pb2.InitiateStrongVerificationRes(
+                verification_attempt_token=verification_attempt_token,
+                iris_url=url,
+            )
+
+    def GetStrongVerificationAttemptStatus(self, request, context):
+        with session_scope() as session:
+            verification_attempt = session.execute(
+                select(StrongVerificationAttempt)
+                .where(StrongVerificationAttempt.user_id == context.user_id)
+                .where(StrongVerificationAttempt.is_visible)
+                .where(StrongVerificationAttempt.verification_attempt_token == request.verification_attempt_token)
+            ).scalar_one_or_none()
+            if not verification_attempt:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.STRONG_VERIFICATION_ATTEMPT_NOT_FOUND)
+            status_to_pb = {
+                StrongVerificationAttemptStatus.succeeded: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_SUCCEEDED,
+                StrongVerificationAttemptStatus.in_progress_waiting_on_user: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER,
+                StrongVerificationAttemptStatus.in_progress_waiting_on_backend: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND,
+                StrongVerificationAttemptStatus.failed: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_FAILED,
+            }
+            return account_pb2.GetStrongVerificationAttemptStatusRes(
+                status=status_to_pb.get(
+                    verification_attempt.status, account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_UNKNOWN
+                ),
+            )
+
     def DeleteAccount(self, request, context):
         """
         Triggers email with token to confirm deletion
@@ -349,3 +444,47 @@ class Account(account_pb2_grpc.AccountServicer):
             session.add(token)
 
         return empty_pb2.Empty()
+
+
+class Iris(iris_pb2_grpc.IrisServicer):
+    def Webhook(self, request, context):
+        json_data = json.loads(request.data)
+        reference_payload = verification_pb2.VerificationReferencePayload.FromString(
+            simple_decrypt("iris_callback", b64decode(json_data["session_referenace"]))
+        )
+        # if we make it past the decrypt, we consider this webhook authenticated
+        verification_attempt_token = reference_payload.verification_attempt_token
+        user_id = reference_payload.user_id
+        with session_scope() as session:
+            verification_attempt = session.execute(
+                select(StrongVerificationAttempt)
+                .where(StrongVerificationAttempt.user_id == reference_payload.user_id)
+                .where(StrongVerificationAttempt.status == StrongVerificationAttemptStatus.in_progress_waiting_on_user)
+                .where(
+                    StrongVerificationAttempt.verification_attempt_token == reference_payload.verification_attempt_token
+                )
+                .where(StrongVerificationAttempt.iris_session_id == json_data["session_id"])
+            ).scalar_one()
+            iris_status = json_data["session_state"]
+            session.add(
+                StrongVerificationCallbackEvent(
+                    verification_attempt_id=verification_attempt.id,
+                    iris_status=iris_status,
+                )
+            )
+            if iris_status == "APPROVED":
+                # background worker will go and sort this one out
+                verification_attempt.status = StrongVerificationAttemptStatus.in_progress_waiting_on_backend
+                session.commit()
+                queue_job(
+                    job_type="finalize_strong_verification",
+                    payload=jobs_pb2.FinalizeStrongVerificationPayload(verification_attempt_id=verification_attempt.id),
+                )
+            elif iris_status in ["FAILED", "ABORTED", "REJECTED"]:
+                verification_attempt.status = StrongVerificationAttemptStatus.failed
+
+        return httpbody_pb2.HttpBody(
+            content_type="application/json",
+            # json.dumps escapes non-ascii characters
+            data=json.dumps({"success": True}).encode("ascii"),
+        )

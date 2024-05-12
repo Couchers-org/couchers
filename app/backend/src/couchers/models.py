@@ -436,6 +436,152 @@ class UserBadge(Base):
     user = relationship("User", backref="badges")
 
 
+class StrongVerificationAttemptStatus(enum.Enum):
+    ## full data states
+    # completed, this now provides verification for a user
+    succeeded = enum.auto()
+
+    ## no data states
+    # started/in progress: waiting for user/iris
+    in_progress_waiting_on_user = enum.auto()
+    # in progress, waiting for backend to pull verification data
+    in_progress_waiting_on_backend = enum.auto()
+    # failed at iris end, no data
+    failed = enum.auto()
+
+    ## minimal data states
+    # the data, except minimal deduplication data, was deleted
+    deleted = enum.auto()
+
+
+class PassportSex(enum.Enum):
+    """
+    We don't care about sex, we use gender on the platform. But passports apparently do.
+    """
+
+    male = enum.auto()
+    female = enum.auto()
+    unspecified = enum.auto()
+
+
+class StrongVerificationAttempt(Base):
+    """
+    An attempt to perform strong verification
+    """
+
+    __tablename__ = "strong_verification_attempts"
+
+    # our verification id
+    id = Column(BigInteger, primary_key=True)
+
+    # this is returned in the callback, and we look up the attempt via this
+    verification_attempt_token = Column(String, nullable=False, unique=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    status = Column(
+        Enum(StrongVerificationAttemptStatus),
+        nullable=False,
+        default=StrongVerificationAttemptStatus.in_progress_waiting_on_user,
+    )
+
+    ## full data
+    has_full_data = Column(Boolean, nullable=False, default=False)
+    # the data returned from iris, encrypted with a public key whose private key is kept offline
+    passport_encrypted_data = Column(Binary, nullable=True)
+    # given_names + " " + surname
+    passport_name = Column(String, nullable=True)
+    passport_date_of_birth = Column(Date, nullable=True)
+    passport_sex = Column(Enum(PassportSex), nullable=True)
+
+    ## minimal data: this will not be deleted
+    has_minimal_data = Column(Boolean, nullable=False, default=False)
+    passport_expiry_date = Column(Date, nullable=True)
+    passport_nationality = Column(String, nullable=True)
+    # last three characters of the passport number
+    passport_last_three_document_chars = Column(String, nullable=True)
+
+    iris_token = Column(String, nullable=False, unique=True)
+    iris_session_id = Column(BigInteger, nullable=False, unique=True)
+
+    user = relationship("User", backref="strong_verification_attempts")
+
+    @hybrid_property
+    def is_valid(self):
+        return (self.status == StrongVerificationAttemptStatus.succeeded) & (self.passport_expiry_date >= now())
+
+    @hybrid_property
+    def is_visible(self):
+        return self.status != StrongVerificationAttemptStatus.deleted
+
+    __table_args__ = (
+        # used to look up verification status for a user
+        Index(
+            "ix_strong_verification_attempts_current",
+            user_id,
+            passport_expiry_date,
+            postgresql_where=status == StrongVerificationAttemptStatus.succeeded,
+        ),
+        # each passport can be verified only once
+        Index(
+            "ix_strong_verification_attempts_unique_succeeded",
+            passport_expiry_date,
+            passport_nationality,
+            passport_last_three_document_chars,
+            unique=True,
+            postgresql_where=(
+                (status == StrongVerificationAttemptStatus.succeeded)
+                | (status == StrongVerificationAttemptStatus.deleted)
+            ),
+        ),
+        # full data check
+        CheckConstraint(
+            "(has_full_data IS TRUE AND passport_encrypted_data IS NOT NULL AND passport_name IS NOT NULL AND passport_date_of_birth IS NOT NULL) OR \
+             (has_full_data IS FALSE AND passport_encrypted_data IS NULL AND passport_name IS NULL AND passport_date_of_birth IS NULL)",
+            name="full_data_status",
+        ),
+        # minimal data check
+        CheckConstraint(
+            "(has_minimal_data IS TRUE AND passport_expiry_date IS NOT NULL AND passport_nationality IS NOT NULL AND passport_last_three_document_chars IS NOT NULL) OR \
+             (has_minimal_data IS FALSE AND passport_expiry_date IS NULL AND passport_nationality IS NULL AND passport_last_three_document_chars IS NULL)",
+            name="minimal_data_status",
+        ),
+        # note on implications: p => q iff ~p OR q
+        # full data implies minimal data, has_minimal_data => has_full_data
+        CheckConstraint(
+            "(has_full_data IS FALSE) OR (has_minimal_data IS TRUE)",
+            name="full_data_implies_minimal_data",
+        ),
+        # succeeded implies full data
+        CheckConstraint(
+            "(NOT (status = 'succeeded')) OR (has_full_data IS TRUE)",
+            name="succeeded_implies_full_data",
+        ),
+        # in_progress/failed implies no_data
+        CheckConstraint(
+            "(NOT ((status = 'in_progress_waiting_on_user') OR (status = 'in_progress_waiting_on_backend') OR (status = 'failed'))) OR (has_minimal_data IS FALSE)",
+            name="in_progress_failed_iris_implies_no_data",
+        ),
+        # deleted implies minimal data
+        CheckConstraint(
+            "(NOT (status = 'deleted')) OR (has_minimal_data IS TRUE)",
+            name="deleted_implies_minimal_data",
+        ),
+    )
+
+
+class StrongVerificationCallbackEvent(Base):
+    __tablename__ = "strong_verification_callback_events"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    verification_attempt_id = Column(ForeignKey("strong_verification_attempts.id"), nullable=False, index=True)
+
+    iris_status = Column(String, nullable=False)
+
+
 class DonationType(enum.Enum):
     one_time = enum.auto()
     recurring = enum.auto()
