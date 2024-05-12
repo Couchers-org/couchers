@@ -773,6 +773,25 @@ def update_badges(payload):
         )
         update_badge("moderator", session.execute(select(User.id).where(User.is_superuser)).scalars().all())
         update_badge("phone_verified", session.execute(select(User.id).where(User.phone_is_verified)).scalars().all())
+        # strong verification requires passport on file + gender/sex correspondence and date of birth match
+        update_badge(
+            "strong_verification",
+            session.execute(
+                select(User.id)
+                .join(StrongVerificationAttempt, StrongVerificationAttempt.user_id == User.id)
+                .where(StrongVerificationAttempt.is_valid)
+                .where(StrongVerificationAttempt.passport_date_of_birth == User.birthdate)
+                .where(
+                    or_(
+                        and_(User.gender == "Woman", StrongVerificationAttempt.passport_sex == PassportSex.female),
+                        and_(User.gender == "Man", StrongVerificationAttempt.passport_sex == PassportSex.male),
+                        StrongVerificationAttempt.passport_sex == PassportSex.unspecified,
+                    )
+                )
+            )
+            .scalars()
+            .all(),
+        )
 
 
 update_badges.PAYLOAD = empty_pb2.Empty
@@ -818,4 +837,3 @@ def finalize_strong_verification(payload):
 
 
 finalize_strong_verification.PAYLOAD = jobs_pb2.FinalizeStrongVerificationPayload
-finalize_strong_verification.SCHEDULE = timedelta(seconds=30)
