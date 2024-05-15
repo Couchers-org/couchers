@@ -86,6 +86,9 @@ function setMocks({
             phone: "",
             phoneVerified: false,
             timezone: "America/New_York",
+            hasStrongVerification: true,
+            birthdateVerificationStatus: 2,
+            genderVerificationStatus: 2,
           })
       : Promise.reject(new Error("Error getting account info"));
   mockedService.account.changePassword = () =>
