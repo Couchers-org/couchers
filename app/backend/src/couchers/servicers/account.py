@@ -44,7 +44,7 @@ from couchers.tasks import (
     send_password_changed_email,
 )
 from couchers.utils import is_valid_email, now
-from proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc
+from proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc
 from proto.google.api import httpbody_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
@@ -80,6 +80,31 @@ def _check_password(user, field_name, request, context):
     elif request.HasField(field_name):
         # the user doesn't have a password, but one was supplied
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_PASSWORD)
+
+
+def get_strong_verification_fields(db_user):
+    out = dict(
+        birthdate_verification_status=api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,
+        gender_verification_status=api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED,
+        has_strong_verification=False,
+    )
+    if db_user.strong_verification is not None:
+        if db_user.strong_verification.matches_birthdate(db_user):
+            out["birthdate_verification_status"] = api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
+        else:
+            out["birthdate_verification_status"] = api_pb2.BIRTHDATE_VERIFICATION_STATUS_MISMATCH
+
+        if db_user.strong_verification.matches_gender(db_user):
+            out["gender_verification_status"] = api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
+        else:
+            out["gender_verification_status"] = api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
+
+        out["has_strong_verification"] = db_user.strong_verification.has_strong_verification(db_user)
+        assert out["has_strong_verification"] == (
+            out["birthdate_verification_status"] == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
+            and out["gender_verification_status"] == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
+        )
+    return out
 
 
 def abort_on_invalid_password(password, context):
@@ -121,6 +146,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 profile_complete=user.has_completed_profile,
                 timezone=user.timezone,
                 **auth_info,
+                **get_strong_verification_fields(user),
             )
 
     def ChangePassword(self, request, context):

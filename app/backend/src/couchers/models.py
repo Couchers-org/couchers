@@ -21,7 +21,7 @@ from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
 from sqlalchemy.sql import func
 from sqlalchemy.sql import select as sa_select
@@ -274,6 +274,8 @@ class User(Base):
     # This column will be removed in the future when notifications are enabled for everyone and come out of preview
     new_notifications_enabled = Column(Boolean, nullable=False, server_default=text("false"))
 
+    has_passport_sex_gender_exception = Column(Boolean, nullable=False, server_default=text("false"))
+
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
     __table_args__ = (
@@ -505,15 +507,45 @@ class StrongVerificationAttempt(Base):
     iris_token = Column(String, nullable=False, unique=True)
     iris_session_id = Column(BigInteger, nullable=False, unique=True)
 
-    user = relationship("User", backref="strong_verification_attempts")
+    passport_expiry_datetime = column_property(date_in_timezone(passport_expiry_date, "Etc/UTC"))
+
+    user = relationship(
+        "User",
+        backref=backref(
+            "strong_verification",
+            primaryjoin="and_(StrongVerificationAttempt.user_id == User.id, StrongVerificationAttempt.is_valid == True)",
+            viewonly=True,
+            uselist=False,
+        ),
+    )
 
     @hybrid_property
     def is_valid(self):
-        return (self.status == StrongVerificationAttemptStatus.succeeded) & (self.passport_expiry_date >= now())
+        """
+        This only checks whether the attempt is a success and the passport is not expired, use `has_strong_verification` for full check
+        """
+        return (self.status == StrongVerificationAttemptStatus.succeeded) & (self.passport_expiry_datetime >= now())
 
     @hybrid_property
     def is_visible(self):
         return self.status != StrongVerificationAttemptStatus.deleted
+
+    @hybrid_method
+    def matches_birthdate(self, user):
+        return self.is_valid & (self.passport_date_of_birth == user.birthdate)
+
+    @hybrid_method
+    def matches_gender(self, user):
+        return self.is_valid & (
+            ((user.gender == "Woman") & (self.passport_sex == PassportSex.female))
+            | ((user.gender == "Man") & (self.passport_sex == PassportSex.male))
+            | (self.passport_sex == PassportSex.unspecified)
+            | (user.has_passport_sex_gender_exception == True)
+        )
+
+    @hybrid_method
+    def has_strong_verification(self, user):
+        return self.is_valid & self.matches_birthdate(user) & self.matches_gender(user)
 
     __table_args__ = (
         # used to look up verification status for a user

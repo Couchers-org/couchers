@@ -3,6 +3,7 @@ syntax = "proto3";
 package org.couchers.admin;
 
 import "annotations.proto";
+import "api.proto";
 import "communities.proto";
 
 service Admin {
@@ -17,6 +18,8 @@ service Admin {
   rpc AddBadge(AddBadgeReq) returns (UserDetails) {}
 
   rpc RemoveBadge(RemoveBadgeReq) returns (UserDetails) {}
+
+  rpc SetPassportSexGenderException(SetPassportSexGenderExceptionReq) returns (UserDetails) {}
 
   rpc BanUser(BanUserReq) returns (UserDetails) {}
 
@@ -43,6 +46,11 @@ message UserDetails {
   bool banned = 5;
   bool deleted = 6;
   repeated string badges = 8;
+
+  bool has_strong_verification = 9;
+  org.couchers.api.core.BirthdateVerificationStatus birthdate_verification_status = 10;
+  org.couchers.api.core.GenderVerificationStatus gender_verification_status = 11;
+  bool has_passport_sex_gender_exception = 12;
 }
 
 message GetUserDetailsReq {
@@ -70,6 +78,11 @@ message AddBadgeReq {
 message RemoveBadgeReq {
   string user = 1;
   string badge_id = 2;
+}
+
+message SetPassportSexGenderExceptionReq {
+  string user = 1;
+  bool passport_sex_gender_exception = 2;
 }
 
 message BanUserReq {

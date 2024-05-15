@@ -86,6 +86,9 @@ function setMocks({
             phone: "+46701740605",
             phoneVerified: true,
             timezone: "Australia/Melbourne",
+            hasStrongVerification: true,
+            birthdateVerificationStatus: 2,
+            genderVerificationStatus: 2,
           })
       : Promise.reject(new Error("Error getting account info"));
   mockedService.account.changeEmail = () =>
