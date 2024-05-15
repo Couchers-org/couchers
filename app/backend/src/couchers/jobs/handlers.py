@@ -626,7 +626,6 @@ def update_recommendation_scores(payload):
         activeness_points = recently_active + 2 * very_recently_active + int_(messaging_subquery.c.messaging_points)
 
         # verification
-        phone_verified = int_(User.phone_is_verified)
         cb_subquery = (
             select(ClusterSubscription.user_id.label("user_id"), func.min(Cluster.parent_node_id).label("min_node_id"))
             .join(Cluster, Cluster.id == ClusterSubscription.cluster_id)
@@ -637,9 +636,32 @@ def update_recommendation_scores(payload):
         )
         min_node_id = cb_subquery.c.min_node_id
         cb = int_(min_node_id >= 1)
-        f = int_(User.id <= 2)
         wcb = int_(min_node_id == 1)
-        verification_points = 0.0 + 100 * f + 10 * wcb + 5 * cb
+        badge_points = {
+            "founder": 100,
+            "board_member": 20,
+            "past_board_member": 5,
+            "strong_verification": 3,
+            "volunteer": 3,
+            "past_volunteer": 2,
+            "donor": 1,
+            "phone_verified": 1,
+        }
+
+        badge_subquery = (
+            select(
+                UserBadge.user_id.label("user_id"),
+                func.sum(
+                    case(
+                        [(UserBadge.badge_id == badge_id, points) for badge_id, points in badge_points.items()], else_=0
+                    )
+                ).label("badge_points"),
+            )
+            .group_by(UserBadge.user_id)
+            .subquery()
+        )
+
+        other_points = 0.0 + 10 * wcb + 5 * cb + int_(badge_subquery.c.badge_points)
 
         # response rate
         t = (
@@ -694,7 +716,7 @@ def update_recommendation_scores(payload):
             profile_points
             + ref_score
             + activeness_points
-            + verification_points
+            + other_points
             + response_rate_points
             + 2 * poor_man_gaussian()
         )
@@ -703,6 +725,7 @@ def update_recommendation_scores(payload):
             select(User.id.label("user_id"), recommendation_score.label("score"))
             .outerjoin(messaging_subquery, messaging_subquery.c.user_id == User.id)
             .outerjoin(left_refs_subquery, left_refs_subquery.c.user_id == User.id)
+            .outerjoin(badge_subquery, badge_subquery.c.user_id == User.id)
             .outerjoin(received_ref_subquery, received_ref_subquery.c.user_id == User.id)
             .outerjoin(cb_subquery, cb_subquery.c.user_id == User.id)
             .outerjoin(hr_subquery, hr_subquery.c.user_id == User.id)
