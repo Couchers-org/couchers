@@ -11,7 +11,7 @@ import requests
 from google.protobuf import empty_pb2
 from sqlalchemy import Integer
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, cast, delete, distinct, extract, func, literal, not_, or_, select, union_all
+from sqlalchemy.sql import and_, case, cast, delete, distinct, extract, func, literal, not_, or_, select, union_all
 from sqlalchemy.sql.functions import percentile_disc
 
 from couchers import email, urls
