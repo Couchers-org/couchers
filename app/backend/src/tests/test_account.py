@@ -12,7 +12,7 @@ from couchers.db import session_scope
 from couchers.models import AccountDeletionReason, AccountDeletionToken, BackgroundJob, Upload, User
 from couchers.sql import couchers_select as select
 from couchers.utils import now
-from proto import account_pb2, auth_pb2
+from proto import account_pb2, api_pb2, auth_pb2
 from tests.test_fixtures import account_session, auth_api_session, db, fast_passwords, generate_user, testconfig  # noqa
 
 
@@ -31,6 +31,9 @@ def test_GetAccountInfo(db, fast_passwords):
         assert not res.has_password
         assert res.email == "funkybot@couchers.invalid"
         assert res.username == user1.username
+        assert not res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
 
     # with password
     user1, token1 = generate_user(hashed_password=hash_password(random_hex()), email="user@couchers.invalid")
@@ -41,6 +44,9 @@ def test_GetAccountInfo(db, fast_passwords):
         assert res.has_password
         assert res.email == "user@couchers.invalid"
         assert res.username == user1.username
+        assert not res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
 
 
 def test_GetAccountInfo_regression(db):

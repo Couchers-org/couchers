@@ -798,15 +798,7 @@ def update_badges(payload):
             session.execute(
                 select(User.id)
                 .join(StrongVerificationAttempt, StrongVerificationAttempt.user_id == User.id)
-                .where(StrongVerificationAttempt.is_valid)
-                .where(StrongVerificationAttempt.passport_date_of_birth == User.birthdate)
-                .where(
-                    or_(
-                        and_(User.gender == "Woman", StrongVerificationAttempt.passport_sex == PassportSex.female),
-                        and_(User.gender == "Man", StrongVerificationAttempt.passport_sex == PassportSex.male),
-                        StrongVerificationAttempt.passport_sex == PassportSex.unspecified,
-                    )
-                )
+                .where(StrongVerificationAttempt.has_strong_verification(User))
             )
             .scalars()
             .all(),

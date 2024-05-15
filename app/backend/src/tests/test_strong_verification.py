@@ -22,9 +22,17 @@ from couchers.models import (
     User,
 )
 from couchers.sql import couchers_select as select
-from proto import account_pb2, api_pb2
+from proto import account_pb2, admin_pb2, api_pb2
 from proto.google.api import httpbody_pb2
-from tests.test_fixtures import account_session, api_session, db, generate_user, real_iris_session, testconfig  # noqa
+from tests.test_fixtures import (  # noqa
+    account_session,
+    api_session,
+    db,
+    generate_user,
+    real_admin_session,
+    real_iris_session,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -56,11 +64,16 @@ def test_strong_verification_happy_path(db, monkeypatch):
     monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
 
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+    _, superuser_token = generate_user(is_superuser=True)
 
     update_badges(empty_pb2.Empty())
 
     with api_session(token) as api:
-        assert "strong_verification" not in api.GetUser(api_pb2.GetUserReq(user=user.username)).badges
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert "strong_verification" not in res.badges
+        assert not res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
 
     with account_session(token) as account:
         # start by initiation
@@ -214,7 +227,11 @@ def test_strong_verification_happy_path(db, monkeypatch):
 
     # the user should now have strong verification
     with api_session(token) as api:
-        assert "strong_verification" in api.GetUser(api_pb2.GetUserReq(user=user.username)).badges
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert "strong_verification" in res.badges
+        assert res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
 
     # wrong dob = no badge
     with session_scope() as session:
@@ -224,7 +241,11 @@ def test_strong_verification_happy_path(db, monkeypatch):
     update_badges(empty_pb2.Empty())
 
     with api_session(token) as api:
-        assert "strong_verification" not in api.GetUser(api_pb2.GetUserReq(user=user.username)).badges
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert "strong_verification" not in res.badges
+        assert not res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_MISMATCH
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
 
     # bad gender-sex correspondence = no badge
     with session_scope() as session:
@@ -235,9 +256,19 @@ def test_strong_verification_happy_path(db, monkeypatch):
     update_badges(empty_pb2.Empty())
 
     with api_session(token) as api:
-        assert "strong_verification" not in api.GetUser(api_pb2.GetUserReq(user=user.username)).badges
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert "strong_verification" not in res.badges
+        assert not res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
 
-    # back to shoudl have a badge
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert not res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
+
+    # back to should have a badge
     with session_scope() as session:
         user_ = session.execute(select(User).where(User.id == user.id)).scalar_one()
         user_.gender = "Man"
@@ -245,7 +276,61 @@ def test_strong_verification_happy_path(db, monkeypatch):
     update_badges(empty_pb2.Empty())
 
     with api_session(token) as api:
-        assert "strong_verification" in api.GetUser(api_pb2.GetUserReq(user=user.username)).badges
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert "strong_verification" in res.badges
+        assert res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
+
+    # check has_passport_sex_gender_exception
+    with real_admin_session(superuser_token) as admin:
+        res = admin.GetUserDetails(admin_pb2.GetUserDetailsReq(user=user.username))
+        assert "strong_verification" in res.badges
+        assert res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
+
+        admin.SetPassportSexGenderException(
+            admin_pb2.SetPassportSexGenderExceptionReq(user=user.username, passport_sex_gender_exception=True)
+        )
+        admin.ChangeUserGender(admin_pb2.ChangeUserGenderReq(user=user.username, gender="Woman"))
+
+    update_badges(empty_pb2.Empty())
+
+    with api_session(token) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert "strong_verification" in res.badges
+        assert res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
+
+    with real_admin_session(superuser_token) as admin:
+        res = admin.GetUserDetails(admin_pb2.GetUserDetailsReq(user=user.username))
+        assert "strong_verification" in res.badges
+        assert res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
+
+        # now turn exception off
+        admin.SetPassportSexGenderException(
+            admin_pb2.SetPassportSexGenderExceptionReq(user=user.username, passport_sex_gender_exception=False)
+        )
+
+    update_badges(empty_pb2.Empty())
+
+    with api_session(token) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert "strong_verification" not in res.badges
+        assert not res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
+
+    with real_admin_session(superuser_token) as admin:
+        res = admin.GetUserDetails(admin_pb2.GetUserDetailsReq(user=user.username))
+        assert "strong_verification" not in res.badges
+        assert not res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
 
 
 def test_strong_verification_disabled(db):

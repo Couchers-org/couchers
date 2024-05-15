@@ -12,6 +12,7 @@ from couchers.helpers.clusters import create_cluster, create_node
 from couchers.models import GroupChat, GroupChatSubscription, HostRequest, Message, User, UserBadge
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
+from couchers.servicers.api import get_strong_verification_fields
 from couchers.servicers.auth import create_session
 from couchers.servicers.communities import community_to_pb
 from couchers.sql import couchers_select as select
@@ -32,6 +33,8 @@ def _user_to_details(user):
         banned=user.is_banned,
         deleted=user.is_deleted,
         badges=[badge.badge_id for badge in user.badges],
+        **get_strong_verification_fields(user),
+        has_passport_sex_gender_exception=user.has_passport_sex_gender_exception,
     )
 
 
@@ -146,6 +149,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 link=urls.profile_link(),
             )
 
+            return _user_to_details(user)
+
+    def SetPassportSexGenderException(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            user.has_passport_sex_gender_exception = request.passport_sex_gender_exception
             return _user_to_details(user)
 
     def BanUser(self, request, context):
