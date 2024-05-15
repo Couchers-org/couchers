@@ -651,11 +651,7 @@ def update_recommendation_scores(payload):
         badge_subquery = (
             select(
                 UserBadge.user_id.label("user_id"),
-                func.sum(
-                    case(
-                        [(UserBadge.badge_id == badge_id, points) for badge_id, points in badge_points.items()], else_=0
-                    )
-                ).label("badge_points"),
+                func.sum(case(badge_points, value=UserBadge.badge_id, else_=0)).label("badge_points"),
             )
             .group_by(UserBadge.user_id)
             .subquery()
