@@ -522,30 +522,6 @@ class Events(events_pb2_grpc.EventsServicer):
         return empty_pb2.Empty()
 
 
-    def DeleteEvent(self, request, context):
-        with session_scope() as session:
-            res = session.execute(
-                select(Event, EventOccurrence)
-                .where(EventOccurrence.id == request.event_id)
-                .where(EventOccurrence.event_id == Event.id)
-                .where(~EventOccurrence.is_deleted)
-            ).one_or_none()
-
-            if not res:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
-
-            event, occurrence = res
-
-            if not _is_event_owner(event, context.user_id):
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
-
-            occurrence.is_deleted = True
-
-            # TODO: Notify attendees
-
-        return empty_pb2.Empty()
-
-
     def ListEventOccurrences(self, request, context):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)

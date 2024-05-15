@@ -32,6 +32,8 @@ service Admin {
   rpc CreateCommunity(CreateCommunityReq) returns (org.couchers.api.communities.Community) {}
 
   rpc GetChats(GetChatsReq) returns (GetChatsRes) {}
+
+  rpc DeleteEvent(DeleteEventReq) returns (google.protobuf.Empty) {}
 }
 
 message UserDetails {
@@ -110,4 +112,8 @@ message GetChatsReq {
 
 message GetChatsRes {
   string response = 2;
+}
+
+message DeleteEventReq {
+  int64 event_id = 1;
 }

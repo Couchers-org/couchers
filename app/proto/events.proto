@@ -32,10 +32,6 @@ service Events {
     // Cancels an event
   }
 
-  rpc DeleteEvent(DeleteEventReq) returns (google.protobuf.Empty) {
-    // Deletes an event (only admins)
-  }
-
   rpc ListEventOccurrences(ListEventOccurrencesReq) returns (ListEventOccurrencesRes) {
     // List all occurrences of a recurring event
   }
@@ -220,10 +216,6 @@ message GetEventReq {
 }
 
 message CancelEventReq {
-  int64 event_id = 1;
-}
-
-message DeleteEventReq {
   int64 event_id = 1;
 }
 

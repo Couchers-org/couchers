@@ -3,13 +3,14 @@ import logging
 from datetime import timedelta
 
 import grpc
+from google.protobuf import empty_pb2
 from shapely.geometry import shape
 from sqlalchemy.sql import or_, select
 
 from couchers import errors, urls
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
-from couchers.models import GroupChat, GroupChatSubscription, HostRequest, Message, User, UserBadge
+from couchers.models import Event, EventOccurrence, GroupChat, GroupChatSubscription, HostRequest, Message, User, UserBadge
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
 from couchers.servicers.auth import create_session
@@ -296,3 +297,21 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             return admin_pb2.GetChatsRes(response=format_all_chats_for_user(user.id))
+
+    def DeleteEvent(self, request, context):
+        with session_scope() as session:
+            res = session.execute(
+                select(Event, EventOccurrence)
+                .where(EventOccurrence.id == request.event_id)
+                .where(EventOccurrence.event_id == Event.id)
+                .where(~EventOccurrence.is_deleted)
+            ).one_or_none()
+
+            if not res:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+
+            event, occurrence = res
+
+            occurrence.is_deleted = True
+
+        return empty_pb2.Empty()
