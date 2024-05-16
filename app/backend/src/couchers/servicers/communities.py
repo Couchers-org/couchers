@@ -180,13 +180,16 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 admin_user_ids=[admin.id for admin in admins[:page_size]],
                 next_page_token=str(admins[-1].id) if len(admins) > page_size else None,
             )
+
     def AddAdmin(self, request, context):
         with session_scope() as session:
             user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            subscription = user.cluster_subscriptions.where(ClusterSubscription.cluster_id == request.community_id).one_or_none()
+            subscription = user.cluster_subscriptions.where(
+                ClusterSubscription.cluster_id == request.community_id
+            ).one_or_none()
             if not subscription:
                 # Can't upgrade a member to admin if they're not already a member
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_MEMBER)
@@ -203,7 +206,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-            subscription = user.cluster_subscriptions.where(ClusterSubscription.cluster_id == request.community_id).one_or_none()
+            subscription = user.cluster_subscriptions.where(
+                ClusterSubscription.cluster_id == request.community_id
+            ).one_or_none()
             if not subscription:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_MEMBER)
             if subscription.role == ClusterRole.member:
