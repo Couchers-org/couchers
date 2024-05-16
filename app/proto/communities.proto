@@ -5,7 +5,6 @@ package org.couchers.api.communities;
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
-import "admin.proto";
 import "annotations.proto";
 import "discussions.proto";
 import "events.proto";
@@ -31,11 +30,11 @@ service Communities {
     // Gets a paginated list of community admins only
   }
 
-  rpc AddAdmin(AddAdminReq) returns (UserDetails) {
+  rpc AddAdmin(AddAdminReq) returns (AddAdminRes) {
     // Makes a user a community builder
   }
 
-  rpc RemoveAdmin(RemoveAdminReq) returns (UserDetails) {
+  rpc RemoveAdmin(RemoveAdminReq) returns (RemoveAdminRes) {
     // Removes user as community builder
   }
 
@@ -166,10 +165,18 @@ message AddAdminReq {
   int64 community_id = 2;
 }
 
+message AddAdminRes {
+  int64 community_id = 1;
+}
+
 message RemoveAdminReq {
   // username, email, or user id
   string user = 1;
   int64 community_id = 2;
+}
+
+message RemoveAdminRes {
+  int64 community_id = 1;
 }
 
 message ListMembersReq {

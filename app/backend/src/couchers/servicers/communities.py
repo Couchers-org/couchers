@@ -20,7 +20,6 @@ from couchers.models import (
     PageType,
     User,
 )
-from couchers.servicers.admin import _user_to_details
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
@@ -198,7 +197,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
             subscription.role = ClusterRole.admin
 
-            return _user_to_details(user)
+            return communities_pb2.AddAdminRes(community_id=request.community_id)
 
     def RemoveAdmin(self, request, context):
         with session_scope() as session:
@@ -216,7 +215,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
             subscription.role = ClusterRole.member
 
-            return _user_to_details(user)
+            return communities_pb2.RemoveAdminRes(community_id=request.community_id)
 
     def ListMembers(self, request, context):
         with session_scope() as session:

@@ -588,9 +588,7 @@ class TestCommunities:
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
             assert err.value.details() == errors.USER_ALREADY_ADMIN
 
-            res = api.AddAdmin(communities_pb2.AddAdminReq(community_id=c1_id, user="user3"))
-            assert res.user_id == user3_id
-
+            api.AddAdmin(communities_pb2.AddAdminReq(community_id=c1_id, user="user3"))
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=c1_id))
             assert res.admin_user_ids == [user1_id, user2_id, user3_id]
 
@@ -619,9 +617,7 @@ class TestCommunities:
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
             assert err.value.details() == errors.USER_NOT_ADMIN
 
-            res = api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=c1_id, user="user1"))
-            assert res.user_id == user1_id
-
+            api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=c1_id, user="user1"))
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=c1_id))
             assert res.admin_user_ids == [user2_id]
 
