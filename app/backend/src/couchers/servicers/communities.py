@@ -195,7 +195,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             subscription = user.cluster_subscriptions.where(
-                ClusterSubscription.cluster_id == request.community_id
+                ClusterSubscription.cluster_id == node.official_cluster.id
             ).one_or_none()
             if not subscription:
                 # Can't upgrade a member to admin if they're not already a member
@@ -222,7 +222,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             subscription = user.cluster_subscriptions.where(
-                ClusterSubscription.cluster_id == request.community_id
+                ClusterSubscription.cluster_id == node.official_cluster.id
             ).one_or_none()
             if not subscription:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_MEMBER)
