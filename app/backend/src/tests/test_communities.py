@@ -594,7 +594,7 @@ class TestCommunities:
 
             api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
-            assert res.admin_user_ids == [user4_id, user5_id, user2_id]
+            assert res.admin_user_ids == [user2_id, user4_id, user5_id]
 
     @staticmethod
     def test_RemoveAdmin(testing_communities):
