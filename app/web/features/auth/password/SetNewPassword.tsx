@@ -1,7 +1,9 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { CircularProgress, Container } from "@material-ui/core";
 import stringOrFirstString from "utils/stringOrFirstString";
+import { useAuthContext } from "features/auth/AuthProvider";
+import { Container } from "@material-ui/core";
 import { Typography } from "@material-ui/core";
+import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import HtmlMeta from "components/HtmlMeta";
 import { useMutation } from "react-query";
@@ -12,6 +14,7 @@ import { AUTH } from "i18n/namespaces";
 import Button from "components/Button";
 import { useTranslation } from "i18n";
 import Alert from "components/Alert";
+import { loginRoute } from "routes";
 import { RpcError } from "grpc-web";
 import { service } from "service";
 
@@ -43,6 +46,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function SetNewPassword() {
+  const { authState } = useAuthContext();
   const { t } = useTranslation(AUTH);
   const formClass = useStyles();
   const { handleSubmit, register } = useForm<{ newPassword: string, newPasswordCheck: string }>();
@@ -55,7 +59,7 @@ export default function SetNewPassword() {
     error,
     isLoading,
     isSuccess,
-    mutate: CompletePasswordResetV2,
+    mutate,
   } = useMutation<Empty, RpcError, string>((newPassword) =>
     service.account.CompletePasswordResetV2(resetToken as string, newPassword)
   );
@@ -67,17 +71,21 @@ export default function SetNewPassword() {
       return;
     }
 
-    if (!isResetTokenOk) {
-      alert(t('missing_token'));
-      return;
-    }
-
-    CompletePasswordResetV2(newPassword);
+    mutate(newPassword);
   });
+
+  // TODO: needed?
+  if (authState.authenticated) {
+    return <Container className={formClass.standardContainer}>
+      <Alert severity="error">
+        Can't changed the password if you are logged in
+      </Alert>
+    </Container>
+  }
 
   return (
     <Container className={formClass.standardContainer}>
-      <HtmlMeta title={t("reset_password")} />
+      <HtmlMeta title={t("change_password_form.title")} />
 
       {!isResetTokenOk &&
         <Alert severity="error">{t("change_password_form.token_error")}</Alert>
@@ -85,16 +93,25 @@ export default function SetNewPassword() {
 
       {error && (
         <Alert severity="error">
-          {t("reset_password_error", {
+          {t("change_password_form.reset_password_error", {
             message: error.message,
           })}
         </Alert>
       )}
 
-      {isSuccess && <Alert severity="success">{t("reset_password_success")}</Alert>}
+      {isSuccess && (
+        <>
+          <Alert severity="success">{t("change_password_form.reset_password_success")}</Alert>
+          <StyledLink href={loginRoute}>{t("login_prompt")}</StyledLink>
+        </>
+      )}
 
       <Typography variant="h1" gutterBottom>
-        {t("reset_password")}
+        {t("change_password_form.title")}
+      </Typography>
+
+      <Typography variant="body1" gutterBottom>
+        {t("change_password_form.subtitle")}
       </Typography>
 
       <form className={formClass.form} onSubmit={onSubmit}>
@@ -121,7 +138,7 @@ export default function SetNewPassword() {
           margin="normal"
         />
 
-        <Button loading={isLoading} type="submit" disabled={isLoading}>
+        <Button loading={isLoading} type="submit" disabled={isLoading || !isResetTokenOk}>
           {t("global:submit")}
         </Button>
       </form>
