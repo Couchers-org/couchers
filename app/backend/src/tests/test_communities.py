@@ -569,10 +569,16 @@ class TestCommunities:
             user1_id, token1 = get_user_id_and_token(session, "user1")
             user2_id, _ = get_user_id_and_token(session, "user2")
             user3_id, _ = get_user_id_and_token(session, "user3")
-            user4_id, _ = get_user_id_and_token(session, "user4")
+            user4_id, token4 = get_user_id_and_token(session, "user4")
             c1_id = get_community_id(session, "Country 1")
             session.add(ClusterSubscription(user_id=user3_id, cluster_id=c1_id, role=ClusterRole.member))
             session.commit()
+
+        with communities_session(token4) as api:
+            with pytest.raises(grpc.RpcError) as err:
+                api.AddAdmin(communities_pb2.AddAdminReq(community_id=c1_id, user_id=user3_id))
+            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+            assert err.value.details() == errors.NODE_MODERATE_PERMISSION_DENIED
 
         with communities_session(token1) as api:
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=c1_id))
@@ -598,10 +604,16 @@ class TestCommunities:
             user1_id, token1 = get_user_id_and_token(session, "user1")
             user2_id, _ = get_user_id_and_token(session, "user2")
             user3_id, _ = get_user_id_and_token(session, "user3")
-            user4_id, _ = get_user_id_and_token(session, "user4")
+            user4_id, token4 = get_user_id_and_token(session, "user4")
             c1_id = get_community_id(session, "Country 1")
             session.add(ClusterSubscription(user_id=user3_id, cluster_id=c1_id, role=ClusterRole.member))
             session.commit()
+
+        with communities_session(token4) as api:
+            with pytest.raises(grpc.RpcError) as err:
+                api.AddAdmin(communities_pb2.AddAdminReq(community_id=c1_id, user_id=user3_id))
+            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+            assert err.value.details() == errors.NODE_MODERATE_PERMISSION_DENIED
 
         with communities_session(token1) as api:
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=c1_id))

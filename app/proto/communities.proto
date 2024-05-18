@@ -33,13 +33,18 @@ service Communities {
   rpc AddAdmin(AddAdminReq) returns (google.protobuf.Empty) {
     // Makes a user a community builder
     //
-    // Raises: FAILED_PRECONDITION if the user is already an admin of the community or is not a member of the community
+    // Raises: FAILED_PRECONDITION if
+    //   1. the active user cannot moderate the community node
+    //   2. the specified user is already an admin of the community
+    //   3. the specified user is not a member of the community
   }
 
   rpc RemoveAdmin(RemoveAdminReq) returns (google.protobuf.Empty) {
     // Removes user as community builder
     //
-    // Raises: FAILED_PRECONDITION if the user is not a community admin
+    // Raises: FAILED_PRECONDITION if
+    //   1. the active user cannot moderate the community node
+    //   2. the specified user is not an admin of the community
   }
 
   rpc ListMembers(ListMembersReq) returns (ListMembersRes) {
