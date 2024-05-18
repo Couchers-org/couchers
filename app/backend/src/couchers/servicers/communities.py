@@ -197,7 +197,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
             subscription.role = ClusterRole.admin
 
-            return communities_pb2.AddAdminRes(community_id=request.community_id)
+            return empty_pb2.Empty()
 
     def RemoveAdmin(self, request, context):
         with session_scope() as session:
@@ -215,7 +215,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
             subscription.role = ClusterRole.member
 
-            return communities_pb2.RemoveAdminRes(community_id=request.community_id)
+            return empty_pb2.Empty()
 
     def ListMembers(self, request, context):
         with session_scope() as session:
