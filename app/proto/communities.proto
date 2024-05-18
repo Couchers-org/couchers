@@ -164,14 +164,12 @@ message ListAdminsRes {
 }
 
 message AddAdminReq {
-  // username, email, or user id
-  string user = 1;
+  uint32 user_id = 1;
   int64 community_id = 2;
 }
 
 message RemoveAdminReq {
-  // username, email, or user id
-  string user = 1;
+  uint32 user_id = 1;
   int64 community_id = 2;
 }
 

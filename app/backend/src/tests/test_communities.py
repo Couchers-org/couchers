@@ -579,16 +579,16 @@ class TestCommunities:
             assert res.admin_user_ids == [user1_id, user2_id]
 
             with pytest.raises(grpc.RpcError) as err:
-                api.AddAdmin(communities_pb2.AddAdminReq(community_id=c1_id, user=user4_id))
+                api.AddAdmin(communities_pb2.AddAdminReq(community_id=c1_id, user_id=user4_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
             assert err.value.details() == errors.USER_NOT_MEMBER
 
             with pytest.raises(grpc.RpcError) as err:
-                api.AddAdmin(communities_pb2.AddAdminReq(community_id=c1_id, user="user1"))
+                api.AddAdmin(communities_pb2.AddAdminReq(community_id=c1_id, user_id=user1_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
             assert err.value.details() == errors.USER_ALREADY_ADMIN
 
-            api.AddAdmin(communities_pb2.AddAdminReq(community_id=c1_id, user="user3"))
+            api.AddAdmin(communities_pb2.AddAdminReq(community_id=c1_id, user_id=user3_id))
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=c1_id))
             assert res.admin_user_ids == [user1_id, user2_id, user3_id]
 
@@ -608,16 +608,16 @@ class TestCommunities:
             assert res.admin_user_ids == [user1_id, user2_id]
 
             with pytest.raises(grpc.RpcError) as err:
-                api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=c1_id, user=user4_id))
+                api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=c1_id, user_id=user4_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
             assert err.value.details() == errors.USER_NOT_MEMBER
 
             with pytest.raises(grpc.RpcError) as err:
-                api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=c1_id, user="user3"))
+                api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=c1_id, user_id=user3_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
             assert err.value.details() == errors.USER_NOT_ADMIN
 
-            api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=c1_id, user="user1"))
+            api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=c1_id, user_id=user1_id))
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=c1_id))
             assert res.admin_user_ids == [user2_id]
 

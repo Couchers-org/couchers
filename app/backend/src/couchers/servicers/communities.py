@@ -182,7 +182,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
     def AddAdmin(self, request, context):
         with session_scope() as session:
-            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            user = session.execute(select(User).where_users_visible(context).where(User.id == request.user_id)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
@@ -201,7 +201,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
     def RemoveAdmin(self, request, context):
         with session_scope() as session:
-            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            user = session.execute(select(User).where_users_visible(context).where(User.id == request.user_id)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
