@@ -249,6 +249,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     flow.geom = create_coordinate(request.account.lat, request.account.lng)
                     flow.geom_radius = request.account.radius
                     flow.accepted_tos = TOS_VERSION
+                    flow.opt_out_of_newsletter = request.account.opt_out_of_newsletter
                     session.flush()
 
                 if request.HasField("feedback"):
@@ -294,6 +295,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     accepted_community_guidelines=flow.accepted_community_guidelines,
                     onboarding_emails_sent=1,
                     last_onboarding_email_sent=func.now(),
+                    added_to_mailing_list=flow.opt_out_of_newsletter,
                 )
 
                 session.add(user)

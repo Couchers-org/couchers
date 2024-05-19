@@ -469,7 +469,8 @@ def add_users_to_email_list(payload):
                 },
                 timeout=10,
             )
-            if r.status_code == 200:
+            # the API returns if the user is already subscribed
+            if r.status_code == 200 or r.status_code == 409:
                 user.added_to_mailing_list = True
                 session.commit()
             else:

@@ -177,6 +177,8 @@ message SignupAccount {
   org.couchers.api.core.HostingStatus hosting_status = 5;
 
   bool accept_tos = 10;
+
+  bool opt_out_of_newsletter = 11;
 }
 
 message UsernameValidReq {
