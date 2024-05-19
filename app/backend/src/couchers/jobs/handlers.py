@@ -443,48 +443,37 @@ send_reference_reminders.SCHEDULE = timedelta(hours=1)
 
 
 def add_users_to_email_list(payload):
-    if not config["MAILCHIMP_ENABLED"]:
+    if not config["LISTMONK_ENABLED"]:
         logger.info(f"Not adding users to mailing list")
         return
 
     logger.info(f"Adding users to mailing list")
 
-    with session_scope() as session:
-        users = (
-            session.execute(select(User).where(User.is_visible).where(User.added_to_mailing_list == False).limit(100))
-            .scalars()
-            .all()
-        )
+    while True:
+        with session_scope() as session:
+            user = session.execute(
+                select(User).where(User.is_visible).where(User.added_to_mailing_list == False).limit(1)
+            ).scalar_one_or_none()
+            if not user:
+                logger.info(f"Finished adding users to mailing list")
+                return
 
-        if not users:
-            logger.info(f"No users to add to mailing list")
-            return
-
-        auth = ("apikey", config["MAILCHIMP_API_KEY"])
-
-        body = {
-            "members": [
-                {
-                    "email_address": user.email,
-                    "status_if_new": "subscribed",
-                    "status": "subscribed",
-                    "merge_fields": {
-                        "FNAME": user.name,
-                    },
-                }
-                for user in users
-            ]
-        }
-
-        dc = config["MAILCHIMP_DC"]
-        list_id = config["MAILCHIMP_LIST_ID"]
-        r = requests.post(f"https://{dc}.api.mailchimp.com/3.0/lists/{list_id}", auth=auth, json=body)
-        if r.status_code == 200:
-            for user in users:
+            r = requests.post(
+                config["LISTMONK_BASE_URL"] + "/api/subscribers",
+                auth=("listmonk", config["LISTMONK_API_KEY"]),
+                json={
+                    "email": user.email,
+                    "name": user.name,
+                    "list_uuids": [config["LISTMONK_LIST_UUID"]],
+                    "preconfirm_subscriptions": True,
+                },
+                timeout=10,
+            )
+            if r.status_code == 200:
                 user.added_to_mailing_list = True
-            session.commit()
-        else:
-            raise Exception("Failed to add users to mailing list")
+                session.commit()
+            else:
+                raise Exception("Failed to add users to mailing list")
 
 
 add_users_to_email_list.PAYLOAD = empty_pb2.Empty

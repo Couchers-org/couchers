@@ -69,11 +69,11 @@ CONFIG_OPTIONS = [
     # Sentry
     ("SENTRY_ENABLED", bool),
     ("SENTRY_URL", str),
-    # Mailchimp (mailing list)
-    ("MAILCHIMP_ENABLED", bool),
-    ("MAILCHIMP_API_KEY", str),
-    ("MAILCHIMP_DC", str),
-    ("MAILCHIMP_LIST_ID", str),
+    # Listmonk (mailing list)
+    ("LISTMONK_ENABLED", bool),
+    ("LISTMONK_BASE_URL", str),
+    ("LISTMONK_API_KEY", str),
+    ("LISTMONK_LIST_UUID", str),
     # Whether we're in test
     ("IN_TEST", bool, "0"),
 ]
