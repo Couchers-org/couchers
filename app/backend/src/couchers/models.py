@@ -278,6 +278,8 @@ class User(Base):
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
+    admin_note = Column(String, nullable=False, server_default=text("''"))
+
     __table_args__ = (
         # Verified phone numbers should be unique
         Index(

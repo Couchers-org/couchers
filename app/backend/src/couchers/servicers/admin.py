@@ -17,7 +17,7 @@ from couchers.servicers.auth import create_session
 from couchers.servicers.communities import community_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_api_key_email
-from couchers.utils import date_to_api, parse_date
+from couchers.utils import date_to_api, now, parse_date
 from proto import admin_pb2, admin_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -35,6 +35,7 @@ def _user_to_details(user):
         badges=[badge.badge_id for badge in user.badges],
         **get_strong_verification_fields(user),
         has_passport_sex_gender_exception=user.has_passport_sex_gender_exception,
+        admin_note=user.admin_note,
     )
 
 
@@ -165,6 +166,17 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.is_banned = True
+        return self.AddAdminNote(request, context)
+
+    def AddAdminNote(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            admin = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            user.admin_note += (
+                f"\n[{now().isoformat()}] (id: {admin.id}, username: {admin.username}) {request.admin_note}\n"
+            )
             return _user_to_details(user)
 
     def DeleteUser(self, request, context):
