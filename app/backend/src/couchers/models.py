@@ -16,6 +16,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    Interval,
 )
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
@@ -221,6 +222,8 @@ class User(Base):
     # opted out of the newsletter
     opt_out_of_newsletter = Column(Boolean, nullable=False, server_default="false")
 
+    # set to null to receive no digests
+    digest_frequency = Column(Interval, nullable=True)
     last_digest_sent = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
 
     # for changing their email

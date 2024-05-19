@@ -32,6 +32,7 @@ def upgrade():
         nullable=False,
         server_default=sa.text("to_timestamp(0)"),
     )
+    op.add_column("users", sa.Column("digest_frequency", sa.Interval(), nullable=True))
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__create'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__update'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__invite_organizer'")

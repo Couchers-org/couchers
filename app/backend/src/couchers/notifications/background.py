@@ -3,7 +3,6 @@ from datetime import timedelta
 
 from sqlalchemy.sql import and_, func
 
-from couchers.constants import DIGEST_FREQUENCY
 from couchers.db import session_scope
 from couchers.models import Notification, NotificationDelivery, NotificationDeliveryType, User
 from couchers.notifications import fan_funcs
@@ -172,7 +171,8 @@ def handle_email_digests(payload):
             session.execute(
                 (
                     select(User)
-                    .where(User.last_digest_sent < func.now() - DIGEST_FREQUENCY)
+                    .where(User.digest_frequency != None)
+                    .where(User.last_digest_sent < func.now() - User.digest_frequency)
                     # todo: tz
                     .join(Notification, Notification.user_id == User.id)
                     .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
