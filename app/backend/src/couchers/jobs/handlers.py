@@ -746,6 +746,7 @@ def update_badges(payload):
 update_badges.PAYLOAD = empty_pb2.Empty
 update_badges.SCHEDULE = timedelta(minutes=15)
 
+
 def finalize_strong_verification(payload):
     with session_scope() as session:
         verification_attempt = session.execute(
