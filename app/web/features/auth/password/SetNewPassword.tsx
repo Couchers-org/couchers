@@ -53,7 +53,7 @@ export default function SetNewPassword() {
 
   const router = useRouter();
   const resetToken = stringOrFirstString(router.query.token);
-  const isResetTokenOk = !!resetToken && typeof resetToken === "string" && resetToken !== "";
+  const isResetTokenOk = !!resetToken && typeof resetToken === "string" && resetToken !== ""; // TODO: needed??
 
   const {
     error,
