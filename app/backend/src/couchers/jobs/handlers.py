@@ -452,11 +452,16 @@ def add_users_to_email_list(payload):
     while True:
         with session_scope() as session:
             user = session.execute(
-                select(User).where(User.is_visible).where(User.added_to_mailing_list == False).limit(1)
+                select(User).where(User.is_visible).where(User.in_sync_with_newsletter == False).limit(1)
             ).scalar_one_or_none()
             if not user:
                 logger.info(f"Finished adding users to mailing list")
                 return
+
+            if user.opt_out_of_newsletter:
+                user.in_sync_with_newsletter = True
+                session.commit()
+                continue
 
             r = requests.post(
                 config["LISTMONK_BASE_URL"] + "/api/subscribers",
@@ -469,8 +474,9 @@ def add_users_to_email_list(payload):
                 },
                 timeout=10,
             )
-            if r.status_code == 200:
-                user.added_to_mailing_list = True
+            # the API returns if the user is already subscribed
+            if r.status_code == 200 or r.status_code == 409:
+                user.in_sync_with_newsletter = True
                 session.commit()
             else:
                 raise Exception("Failed to add users to mailing list")

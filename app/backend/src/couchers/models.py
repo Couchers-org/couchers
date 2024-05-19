@@ -216,7 +216,10 @@ class User(Base):
     onboarding_emails_sent = Column(Integer, nullable=False, server_default="0")
     last_onboarding_email_sent = Column(DateTime(timezone=True), nullable=True)
 
-    added_to_mailing_list = Column(Boolean, nullable=False, server_default="false")
+    # whether we need to sync the user's newsletter preferences with the newsletter server
+    in_sync_with_newsletter = Column(Boolean, nullable=False, server_default="false")
+    # opted out of the newsletter
+    opt_out_of_newsletter = Column(Boolean, nullable=False, server_default="false")
 
     last_digest_sent = Column(DateTime(timezone=True), nullable=True)
 
@@ -824,6 +827,8 @@ class SignupFlow(Base):
     accepted_tos = Column(Integer, nullable=True)
     accepted_community_guidelines = Column(Integer, nullable=False, server_default="0")
 
+    opt_out_of_newsletter = Column(Boolean, nullable=True)
+
     ## Feedback
     filled_feedback = Column(Boolean, nullable=False, default=False)
     ideas = Column(String, nullable=True)
@@ -848,6 +853,7 @@ class SignupFlow(Base):
             & (self.geom != None)
             & (self.geom_radius != None)
             & (self.accepted_tos != None)
+            & (self.opt_out_of_newsletter != None)
         )
 
     @hybrid_property

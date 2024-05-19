@@ -910,9 +910,12 @@ def test_add_users_to_email_list(db):
             add_users_to_email_list(empty_pb2.Empty())
         mock.assert_not_called()
 
-        generate_user(added_to_mailing_list=False, email="testing1@couchers.invalid", name="Tester1")
-        generate_user(added_to_mailing_list=True, email="testing2@couchers.invalid", name="Tester2")
-        generate_user(added_to_mailing_list=False, email="testing3@couchers.invalid", name="Tester3 von test")
+        generate_user(in_sync_with_newsletter=False, email="testing1@couchers.invalid", name="Tester1")
+        generate_user(in_sync_with_newsletter=True, email="testing2@couchers.invalid", name="Tester2")
+        generate_user(in_sync_with_newsletter=False, email="testing3@couchers.invalid", name="Tester3 von test")
+        generate_user(
+            in_sync_with_newsletter=False, email="testing4@couchers.invalid", name="Tester4", opt_out_of_newsletter=True
+        )
 
         with patch("couchers.jobs.handlers.requests.post") as mock:
             ret = mock.return_value
