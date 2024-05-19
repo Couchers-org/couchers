@@ -196,6 +196,7 @@ def test_signup_incremental(db):
         assert form.contribute_ways == ["serving", "backend"]
         assert form.expertise == "I'd love to be your server: I can compute very fast, but only simple opcodes"
 
+
 def _quick_signup():
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.SignupFlow(
@@ -256,7 +257,6 @@ def _quick_signup():
             ).scalar_one()
         ).token
     assert get_session_cookie_token(metadata_interceptor) == token
-
 
 
 def test_signup(db):
@@ -1082,7 +1082,9 @@ def test_opt_out_of_newsletter(db, opt_out):
         )
 
     with session_scope() as session:
-        email_token = session.execute(select(SignupFlow).where(SignupFlow.flow_token == res.flow_token)).scalar_one().email_token
+        email_token = (
+            session.execute(select(SignupFlow).where(SignupFlow.flow_token == res.flow_token)).scalar_one().email_token
+        )
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
@@ -1091,7 +1093,8 @@ def test_opt_out_of_newsletter(db, opt_out):
 
     with session_scope() as session:
         user = session.execute(select(User).where(User.id == user_id)).scalar_one()
-        assert user.added_to_mailing_list == opt_out
+        assert not user.in_sync_with_newsletter
+        assert user.opt_out_of_newsletter == opt_out
 
 
 # tests for ConfirmChangeEmail within test_account.py tests for test_ChangeEmail_*

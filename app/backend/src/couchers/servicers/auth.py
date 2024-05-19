@@ -295,7 +295,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     accepted_community_guidelines=flow.accepted_community_guidelines,
                     onboarding_emails_sent=1,
                     last_onboarding_email_sent=func.now(),
-                    added_to_mailing_list=flow.opt_out_of_newsletter,
+                    opt_out_of_newsletter=flow.opt_out_of_newsletter,
                 )
 
                 session.add(user)
