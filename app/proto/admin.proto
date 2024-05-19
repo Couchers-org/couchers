@@ -23,6 +23,8 @@ service Admin {
 
   rpc BanUser(BanUserReq) returns (UserDetails) {}
 
+  rpc AddAdminNote(AddAdminNoteReq) returns (UserDetails) {}
+
   rpc DeleteUser(DeleteUserReq) returns (UserDetails) {}
 
   rpc RecoverDeletedUser(RecoverDeletedUserReq) returns (UserDetails) {}
@@ -51,6 +53,8 @@ message UserDetails {
   org.couchers.api.core.BirthdateVerificationStatus birthdate_verification_status = 10;
   org.couchers.api.core.GenderVerificationStatus gender_verification_status = 11;
   bool has_passport_sex_gender_exception = 12;
+
+  string admin_note = 13;
 }
 
 message GetUserDetailsReq {
@@ -88,6 +92,13 @@ message SetPassportSexGenderExceptionReq {
 message BanUserReq {
   // username, email, or user id
   string user = 1;
+  string admin_note = 2;
+}
+
+message AddAdminNoteReq {
+  // username, email, or user id
+  string user = 1;
+  string admin_note = 2;
 }
 
 message DeleteUserReq {
