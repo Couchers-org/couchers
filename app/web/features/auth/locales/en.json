@@ -78,6 +78,7 @@
       "non_binary": "Non-binary",
       "woman": "Woman"
     },
+    "opt_in_newsletter": "Subscribe to our occasional newsletter about community updates.",
     "tos_prompt": "To continue, please read and accept the <1></1>.",
     "tos_accept_label": "I Accept the Terms of Service."
   },

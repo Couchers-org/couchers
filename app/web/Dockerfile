@@ -16,7 +16,7 @@ RUN yarn install --frozen-lockfile
 
 COPY . .
 
-ENV PROTOS_SHA=87f07f532c28d2480cced5814849ef2c1c7787a56bbc6c8b00353c858f86b5dc
+ENV PROTOS_SHA=a38dc17c0cb945ee0764e988f6478d5944ac7c5cf576d517db29022203f7c1c3
 
 RUN wget https://protos--by-sha.preview.couchershq.org/$PROTOS_SHA/ts.tar.gz
 RUN tar xf ts.tar.gz && rm -f typescript_protos.tar.gz
