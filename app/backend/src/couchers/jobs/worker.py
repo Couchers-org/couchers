@@ -57,7 +57,7 @@ def process_job():
             return False
 
         # we've got a lock for a job now, it's "pending" until we commit or the lock is gone
-        logger.info(f"Job #{job.id} grabbed")
+        logger.info(f"Job #{job.id} of type {job.job_type} grabbed")
         job.try_count += 1
 
         message_type, func = JOBS[job.job_type]

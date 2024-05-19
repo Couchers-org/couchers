@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Link, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
@@ -6,10 +6,7 @@ import { notificationSettingsQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import {
-  GetNotificationSettingsRes,
-  SetNotificationSettingsRes,
-} from "proto/notifications_pb";
+import { GetNotificationSettingsRes } from "proto/notifications_pb";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { service } from "service";
 
@@ -35,7 +32,7 @@ export default function NotificationSettings({
   );
 
   const mutation = useMutation<
-    SetNotificationSettingsRes.AsObject,
+    GetNotificationSettingsRes.AsObject,
     RpcError,
     NotificationSettingFormData
   >(
@@ -88,6 +85,15 @@ export default function NotificationSettings({
                 ? t("notification_settings.action_button.disable_text")
                 : t("notification_settings.action_button.enable_text")}
             </Button>
+          </Typography>
+          <Typography variant="body1">
+            <Trans t={t} i18nKey="notification_settings.edit_in_console">
+              You can change your notification settings{" "}
+              <Link href="https://console.couchers.org/notifications">
+                on this page
+              </Link>
+              . We will soon move it here.
+            </Trans>
           </Typography>
         </>
       )}

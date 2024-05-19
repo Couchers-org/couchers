@@ -17,10 +17,20 @@ message HandleNotificationPayload {
   int64 notification_id = 1;
 }
 
-message GenerateMessageNotificationsPayload {
-  int64 message_id = 1;
-}
-
 message FinalizeStrongVerificationPayload {
   int64 verification_attempt_id = 1;
+}
+
+message FanNotificationsPayload {
+  string topic = 1;
+  string action = 2;
+  string key = 3;
+  string avatar_key = 4;
+  string icon = 5;
+  string title = 6;
+  string content = 7;
+  string link = 8;
+
+  string fan_func = 9;
+  string fan_func_data = 10;
 }

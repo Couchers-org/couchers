@@ -367,12 +367,12 @@ def maybe_send_contributor_form_email(form):
         )
 
 
-def send_digest_email(notifications: List[Notification]):
-    logger.info(f"Sending digest email to {notification.user=}:")
+def send_digest_email(user, notifications: List[Notification]):
+    logger.info(f"Sending digest email to {user=}:")
     email.enqueue_email_from_template(
-        notification.user.email,
+        user.email,
         "digest",
-        template_args={"notifications": notifications},
+        template_args={"user": user, "notifications": notifications},
     )
 
 
