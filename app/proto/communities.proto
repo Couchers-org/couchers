@@ -30,6 +30,23 @@ service Communities {
     // Gets a paginated list of community admins only
   }
 
+  rpc AddAdmin(AddAdminReq) returns (google.protobuf.Empty) {
+    // Makes a user a community builder
+    //
+    // Raises: FAILED_PRECONDITION if
+    //   1. the active user cannot moderate the community node
+    //   2. the specified user is already an admin of the community
+    //   3. the specified user is not a member of the community
+  }
+
+  rpc RemoveAdmin(RemoveAdminReq) returns (google.protobuf.Empty) {
+    // Removes user as community builder
+    //
+    // Raises: FAILED_PRECONDITION if
+    //   1. the active user cannot moderate the community node
+    //   2. the specified user is not an admin of the community
+  }
+
   rpc ListMembers(ListMembersReq) returns (ListMembersRes) {
     // Gets a paginated list of community members, including admins
   }
@@ -149,6 +166,16 @@ message ListAdminsRes {
   repeated int64 admin_user_ids = 1;
 
   string next_page_token = 2;
+}
+
+message AddAdminReq {
+  int64 user_id = 1;
+  int64 community_id = 2;
+}
+
+message RemoveAdminReq {
+  int64 user_id = 1;
+  int64 community_id = 2;
 }
 
 message ListMembersReq {

@@ -564,6 +564,76 @@ class TestCommunities:
             assert res.admin_user_ids == [user4_id, user5_id]
 
     @staticmethod
+    def test_AddAdmin(testing_communities):
+        with session_scope() as session:
+            user4_id, token4 = get_user_id_and_token(session, "user4")
+            user5_id, _ = get_user_id_and_token(session, "user5")
+            user2_id, _ = get_user_id_and_token(session, "user2")
+            user8_id, token8 = get_user_id_and_token(session, "user8")
+            node_id = get_community_id(session, "Country 1, Region 1, City 2")
+
+        with communities_session(token8) as api:
+            with pytest.raises(grpc.RpcError) as err:
+                api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
+            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+            assert err.value.details() == errors.NODE_MODERATE_PERMISSION_DENIED
+
+        with communities_session(token4) as api:
+            res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
+            assert res.admin_user_ids == [user4_id, user5_id]
+
+            with pytest.raises(grpc.RpcError) as err:
+                api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user8_id))
+            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+            assert err.value.details() == errors.USER_NOT_MEMBER
+
+            with pytest.raises(grpc.RpcError) as err:
+                api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user5_id))
+            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+            assert err.value.details() == errors.USER_ALREADY_ADMIN
+
+            api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
+            res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
+            assert res.admin_user_ids == [user2_id, user4_id, user5_id]
+            # Cleanup because database changes do not roll back
+            api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user2_id))
+
+    @staticmethod
+    def test_RemoveAdmin(testing_communities):
+        with session_scope() as session:
+            user4_id, token4 = get_user_id_and_token(session, "user4")
+            user5_id, _ = get_user_id_and_token(session, "user5")
+            user2_id, _ = get_user_id_and_token(session, "user2")
+            user8_id, token8 = get_user_id_and_token(session, "user8")
+            node_id = get_community_id(session, "Country 1, Region 1, City 2")
+
+        with communities_session(token8) as api:
+            with pytest.raises(grpc.RpcError) as err:
+                api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
+            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+            assert err.value.details() == errors.NODE_MODERATE_PERMISSION_DENIED
+
+        with communities_session(token4) as api:
+            res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
+            assert res.admin_user_ids == [user4_id, user5_id]
+
+            with pytest.raises(grpc.RpcError) as err:
+                api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user8_id))
+            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+            assert err.value.details() == errors.USER_NOT_MEMBER
+
+            with pytest.raises(grpc.RpcError) as err:
+                api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user2_id))
+            assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+            assert err.value.details() == errors.USER_NOT_ADMIN
+
+            api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user5_id))
+            res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
+            assert res.admin_user_ids == [user4_id]
+            # Cleanup because database changes do not roll back
+            api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user5_id))
+
+    @staticmethod
     def test_ListMembers(testing_communities):
         with session_scope() as session:
             user1_id, token1 = get_user_id_and_token(session, "user1")
