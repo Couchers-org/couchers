@@ -36,7 +36,10 @@ export function completePasswordReset(resetToken: string) {
   return client.auth.completePasswordReset(req);
 }
 
-export function CompletePasswordResetV2(resetToken:string, newPassword:string) {
+export function CompletePasswordResetV2(
+  resetToken: string,
+  newPassword: string
+) {
   const req = new CompletePasswordResetV2Req();
   req.setPasswordResetToken(resetToken);
   req.setNewPassword(newPassword);

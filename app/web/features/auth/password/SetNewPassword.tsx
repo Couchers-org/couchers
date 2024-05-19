@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
       [theme.breakpoints.up("md")]: {
         width: theme.typography.pxToRem(400),
       },
-    }
+    },
   },
 }));
 
@@ -49,25 +49,25 @@ export default function SetNewPassword() {
   const { authState } = useAuthContext();
   const { t } = useTranslation(AUTH);
   const formClass = useStyles();
-  const { handleSubmit, register } = useForm<{ newPassword: string, newPasswordCheck: string }>();
+  const { handleSubmit, register } =
+    useForm<{ newPassword: string; newPasswordCheck: string }>();
 
   const router = useRouter();
   const resetToken = stringOrFirstString(router.query.token);
-  const isResetTokenOk = !!resetToken && typeof resetToken === "string" && resetToken !== ""; // TODO: needed??
+  const isResetTokenOk =
+    !!resetToken && typeof resetToken === "string" && resetToken !== ""; // TODO: needed??
 
-  const {
-    error,
-    isLoading,
-    isSuccess,
-    mutate,
-  } = useMutation<Empty, RpcError, string>((newPassword) =>
+  const { error, isLoading, isSuccess, mutate } = useMutation<
+    Empty,
+    RpcError,
+    string
+  >((newPassword) =>
     service.account.CompletePasswordResetV2(resetToken as string, newPassword)
   );
 
   const onSubmit = handleSubmit(({ newPassword, newPasswordCheck }) => {
-
     if (newPassword !== newPasswordCheck) {
-      alert(t('change_password_form.password_mismatch_error'))
+      alert(t("change_password_form.password_mismatch_error"));
       return;
     }
 
@@ -76,20 +76,22 @@ export default function SetNewPassword() {
 
   // TODO: needed?
   if (authState.authenticated) {
-    return <Container className={formClass.standardContainer}>
-      <Alert severity="error">
-        Can't changed the password if you are logged in
-      </Alert>
-    </Container>
+    return (
+      <Container className={formClass.standardContainer}>
+        <Alert severity="error">
+          Can't changed the password if you are logged in
+        </Alert>
+      </Container>
+    );
   }
 
   return (
     <Container className={formClass.standardContainer}>
       <HtmlMeta title={t("change_password_form.title")} />
 
-      {!isResetTokenOk &&
+      {!isResetTokenOk && (
         <Alert severity="error">{t("change_password_form.token_error")}</Alert>
-      }
+      )}
 
       {error && (
         <Alert severity="error">
@@ -101,7 +103,9 @@ export default function SetNewPassword() {
 
       {isSuccess && (
         <>
-          <Alert severity="success">{t("change_password_form.reset_password_success")}</Alert>
+          <Alert severity="success">
+            {t("change_password_form.reset_password_success")}
+          </Alert>
           <StyledLink href={loginRoute}>{t("login_prompt")}</StyledLink>
         </>
       )}
@@ -138,7 +142,11 @@ export default function SetNewPassword() {
           margin="normal"
         />
 
-        <Button loading={isLoading} type="submit" disabled={isLoading || !isResetTokenOk}>
+        <Button
+          loading={isLoading}
+          type="submit"
+          disabled={isLoading || !isResetTokenOk}
+        >
           {t("global:submit")}
         </Button>
       </form>

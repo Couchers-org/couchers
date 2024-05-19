@@ -8,11 +8,12 @@ import { service } from "service";
 
 import SetNewPassword from "./SetNewPassword";
 
-const setNewPasswordMock = service.account.CompletePasswordResetV2 as MockedService<
+const setNewPasswordMock = service.account
+  .CompletePasswordResetV2 as MockedService<
   typeof service.account.CompletePasswordResetV2
 >;
 
-jest.mock('next/router', () => ({
+jest.mock("next/router", () => ({
   useRouter: jest.fn(),
 }));
 
@@ -23,7 +24,7 @@ describe("SetNewPassword page", () => {
     setNewPasswordMock.mockResolvedValue(new AuthRes());
 
     mockUseRouter.mockReturnValue({
-      query: {token: 'aaa123'},
+      query: { token: "aaa123" },
     });
   });
 
@@ -31,7 +32,10 @@ describe("SetNewPassword page", () => {
     render(<SetNewPassword />, { wrapper });
 
     expect(
-      screen.getByRole("heading", { level: 1, name: t("auth:change_password_form.title") })
+      screen.getByRole("heading", {
+        level: 1,
+        name: t("auth:change_password_form.title"),
+      })
     ).toBeVisible();
 
     expect(
@@ -45,8 +49,8 @@ describe("SetNewPassword page", () => {
 
   it("shows a warning when empty token", () => {
     mockUseRouter.mockReturnValue({
-      query: {token: ''},
-    })
+      query: { token: "" },
+    });
 
     render(<SetNewPassword />, { wrapper });
 
@@ -55,7 +59,7 @@ describe("SetNewPassword page", () => {
     ).toBeInTheDocument();
   });
 
-  it("don't show a warning when valid token", () => {    
+  it("don't show a warning when valid token", () => {
     render(<SetNewPassword />, { wrapper });
 
     expect(
@@ -95,8 +99,8 @@ describe("SetNewPassword page", () => {
 
   it("submits the reset password request successfully", async () => {
     mockUseRouter.mockReturnValue({
-      query: {token: 'aaa123'},
-    })
+      query: { token: "aaa123" },
+    });
 
     render(<SetNewPassword />, { wrapper });
 
@@ -113,7 +117,9 @@ describe("SetNewPassword page", () => {
     userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
 
     expect(
-      await screen.findByText(t("auth:change_password_form.reset_password_success"))
+      await screen.findByText(
+        t("auth:change_password_form.reset_password_success")
+      )
     ).toBeVisible();
 
     expect(setNewPasswordMock).toHaveBeenCalledTimes(1);
@@ -124,8 +130,8 @@ describe("SetNewPassword page", () => {
     setNewPasswordMock.mockRejectedValue(new Error("GRPC error"));
 
     mockUseRouter.mockReturnValue({
-      query: {token: 'aaa123'},
-    })
+      query: { token: "aaa123" },
+    });
 
     render(<SetNewPassword />, { wrapper });
 
