@@ -14,7 +14,7 @@ COPY sites-enabled/ /etc/nginx/sites-enabled/
 
 WORKDIR /scripts
 
-ENV ACME_SH_VERSION=2.8.8
+ENV ACME_SH_VERSION=3.0.7
 
 RUN wget https://github.com/acmesh-official/acme.sh/archive/${ACME_SH_VERSION}.tar.gz \
        && tar xf ${ACME_SH_VERSION}.tar.gz \
