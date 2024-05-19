@@ -595,6 +595,8 @@ class TestCommunities:
             api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
             assert res.admin_user_ids == [user2_id, user4_id, user5_id]
+            # Cleanup because database changes do not roll back
+            api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user2_id))
 
     @staticmethod
     def test_RemoveAdmin(testing_communities):
@@ -628,6 +630,8 @@ class TestCommunities:
             api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user5_id))
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
             assert res.admin_user_ids == [user4_id]
+            # Cleanup because database changes do not roll back
+            api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user5_id))
 
     @staticmethod
     def test_ListMembers(testing_communities):
