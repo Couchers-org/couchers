@@ -757,10 +757,10 @@ def testconfig():
     config["BUG_TOOL_GITHUB_USERNAME"] = "user"
     config["BUG_TOOL_GITHUB_TOKEN"] = "token"
 
-    config["MAILCHIMP_ENABLED"] = False
-    config["MAILCHIMP_API_KEY"] = "f..."
-    config["MAILCHIMP_DC"] = "us10"
-    config["MAILCHIMP_LIST_ID"] = "b..."
+    config["LISTMONK_ENABLED"] = False
+    config["LISTMONK_BASE_URL"] = "https://localhost"
+    config["LISTMONK_API_KEY"] = "..."
+    config["LISTMONK_LIST_UUID"] = "..."
 
     yield None
 
