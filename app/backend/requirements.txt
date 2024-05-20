@@ -65,7 +65,7 @@ packaging==24.0
     #   pytest
 pathspec==0.12.1
     # via black
-phonenumbers==8.13.36
+phonenumbers==8.13.37
     # via -r requirements.in
 platformdirs==4.2.1
     # via black
