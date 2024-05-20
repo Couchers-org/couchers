@@ -471,6 +471,17 @@ class Account(account_pb2_grpc.AccountServicer):
 
         return empty_pb2.Empty()
 
+    def GetDoNotEmail(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            return account_pb2.DoNotEmailRes(do_not_email=user.do_not_email)
+
+    def SetDoNotEmail(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            user.do_not_email = request.do_not_email
+            return account_pb2.DoNotEmailRes(do_not_email=user.do_not_email)
+
 
 class Iris(iris_pb2_grpc.IrisServicer):
     def Webhook(self, request, context):

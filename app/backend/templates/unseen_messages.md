@@ -27,10 +27,10 @@ Check it out here:
 
 {{ button("See Messages", group_chats_link)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(group_chats_link, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(group_chats_link, html)|couchers_safe }}
 
 {% else %}
-<{{ group_chats_link|couchers_escape }}>
+<{{ group_chats_link|couchers_safe }}>
 {% endif %}
 
 The Couchers.org team

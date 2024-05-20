@@ -15,12 +15,12 @@ You can download an invoice and receipt for the donation here:
 {% if html %}
 {{ button("Invoice", receipt_url)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(receipt_url, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(receipt_url, html)|couchers_safe }}
 {% else %}
-<{{ receipt_url|couchers_escape }}>
+<{{ receipt_url|couchers_safe }}>
 {% endif %}
 
-If you have any questions about your donation, please email us at {{ email_link("donations@couchers.org", html)|couchers_safe }}.
+If you have any questions about your donation, please email us at {{ email_link("donations@couchers.org", html)|couchers_safe }}
 
 Your generosity will help deliver the platform for everyone.
 

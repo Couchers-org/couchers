@@ -278,9 +278,13 @@ class API(api_pb2_grpc.APIServicer):
                     user.about_place = request.about_place.value
 
             if request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED:
+                if user.do_not_email and request.hosting_status != api_pb2.HOSTING_STATUS_CANT_HOST:
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DO_NOT_EMAIL_CANNOT_HOST)
                 user.hosting_status = hostingstatus2sql[request.hosting_status]
 
             if request.meetup_status != api_pb2.MEETUP_STATUS_UNSPECIFIED:
+                if user.do_not_email and request.meetup_status != api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP:
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DO_NOT_EMAIL_CANNOT_MEET)
                 user.meetup_status = meetupstatus2sql[request.meetup_status]
 
             if request.HasField("language_abilities"):

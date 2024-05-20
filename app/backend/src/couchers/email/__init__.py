@@ -1,3 +1,4 @@
+import logging
 from html import escape
 from pathlib import Path
 
@@ -6,7 +7,10 @@ from jinja2 import Environment, FileSystemLoader
 
 from couchers.config import config
 from couchers.jobs.enqueue import queue_job
+from couchers.notifications.unsubscribe import generate_do_not_email
 from proto.internal import jobs_pb2
+
+logger = logging.getLogger(__name__)
 
 loader = FileSystemLoader(Path(__file__).parent / ".." / ".." / ".." / "templates")
 env = Environment(loader=loader, trim_blocks=True)
@@ -32,7 +36,7 @@ def render_html(text):
     return "\n\n".join(f"<p>{paragraph.strip()}</p>" for paragraph in stripped_paragraphs)
 
 
-def _render_email(template_file, template_args={}):
+def _render_email(template_file, template_args, _footer_unsub_link):
     """
     Renders both a plain-text and a HTML version of an email, and embeds both in their base templates
 
@@ -71,8 +75,12 @@ def _render_email(template_file, template_args={}):
     plain_content = template.render({**template_args, "frontmatter": frontmatter}, plain=True, html=False)
     html_content = render_html(template.render({**template_args, "frontmatter": frontmatter}, plain=False, html=True))
 
-    plain = plain_base_template.render(frontmatter=frontmatter, content=plain_content)
-    html = html_base_template.render(frontmatter=frontmatter, content=html_content)
+    plain = plain_base_template.render(
+        frontmatter=frontmatter, content=plain_content, _footer_unsub_link=_footer_unsub_link
+    )
+    html = html_base_template.render(
+        frontmatter=frontmatter, content=html_content, _footer_unsub_link=_footer_unsub_link
+    )
 
     return frontmatter, plain, html
 
@@ -92,8 +100,8 @@ def queue_email(sender_name, sender_email, recipient, subject, plain, html):
     )
 
 
-def enqueue_email_from_template(recipient, template_file, template_args={}):
-    frontmatter, plain, html = _render_email(template_file, template_args)
+def enqueue_email_from_template(recipient, template_file, template_args={}, _footer_unsub_link=None):
+    frontmatter, plain, html = _render_email(template_file, template_args, _footer_unsub_link=_footer_unsub_link)
     queue_email(
         config["NOTIFICATION_EMAIL_SENDER"],
         config["NOTIFICATION_EMAIL_ADDRESS"],
@@ -101,4 +109,17 @@ def enqueue_email_from_template(recipient, template_file, template_args={}):
         config["NOTIFICATION_EMAIL_PREFIX"] + frontmatter["subject"],
         plain,
         html,
+    )
+
+
+def enqueue_email_from_template_to_user(user, template_file, template_args={}, is_critical_email=False):
+    if user.do_not_email and not is_critical_email:
+        logger.info(f"Not emailing {user} based on template {template_file} due to emails turned off")
+        return
+    enqueue_email_from_template(
+        user.email,
+        template_file,
+        template_args=template_args,
+        # don't include the link on security emails
+        _footer_unsub_link=generate_do_not_email(user.id) if not is_critical_email else None,
     )

@@ -11,7 +11,7 @@ Please finish signing up for Couchers.org.
 
 {{ button("Continue signing up", signup_link)|couchers_safe }}
 
-Please click on the above button to continue, or click the following link: {{ link(signup_link, html)|couchers_safe }}.
+Please click on the above button to continue, or click the following link: {{ link(signup_link, html)|couchers_safe }}
 
 {% else %}
 

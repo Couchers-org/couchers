@@ -19,6 +19,6 @@ This token is unique to your account; do not share it with anyone, it gives comp
 
 Please remember to abide by our Terms of Service, our Community Guidelines, and other policies while using our APIs. All access is logged and analyzed, and we may terminate your access or account if you abuse the service.
 
-For any questions, please contact us at {{ support_email(html)|couchers_safe }}.
+For any questions, please contact us at {{ support_email(html)|couchers_safe }}
 
 The Couchers.org team

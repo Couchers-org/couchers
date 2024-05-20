@@ -11,7 +11,7 @@ You've received a friend request from {{ friend_relationship.from_user.name|couc
 {% if html %}
 
 {% if friend_relationship.from_user.avatar %}
-<img src="{{ friend_relationship.from_user.avatar.thumbnail_url|couchers_escape }}" alt="Your New Friend's Profile Picture" >
+<img src="{{ friend_relationship.from_user.avatar.thumbnail_url|couchers_safe }}" alt="Your New Friend's Profile Picture" >
 {% endif %}
 
 {% endif %}
@@ -22,10 +22,10 @@ Check it out here:
 
 {{ button("Friend Requests", friend_requests_link)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(friend_requests_link, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(friend_requests_link, html)|couchers_safe }}
 
 {% else %}
-<{{ friend_requests_link|couchers_escape }}>
+<{{ friend_requests_link|couchers_safe }}>
 {% endif %}
 
 We hope you make a new friend!

@@ -4,7 +4,7 @@ import grpc
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Notification, NotificationDeliveryType, User
+from couchers.models import HostingStatus, MeetupStatus, Notification, NotificationDeliveryType, User
 from couchers.notifications.settings import PreferenceNotUserEditableError, get_user_setting_groups, set_preference
 from couchers.notifications.utils import enum_from_topic_action
 from couchers.sql import couchers_select as select
@@ -42,6 +42,8 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
     def SetNotificationSettings(self, request, context):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            if user.do_not_email:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DO_NOT_EMAIL_CANNOT_ENABLE_NEW_NOTIFICATIONS)
             user.new_notifications_enabled = request.enable_new_notifications
             for preference in request.preferences:
                 topic_action = enum_from_topic_action.get((preference.topic, preference.action), None)
@@ -59,6 +61,21 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 new_notifications_enabled=user.new_notifications_enabled,
                 groups=get_user_setting_groups(user.id),
             )
+
+    def GetDoNotEmail(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            return notifications_pb2.GetDoNotEmailRes(do_not_email_enabled=user.do_not_email)
+
+    def SetDoNotEmail(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            user.do_not_email = request.enable_do_not_email
+            if request.enable_do_not_email:
+                user.new_notifications_enabled = False
+                user.hosting_status = HostingStatus.cant_host
+                user.meetup_status = MeetupStatus.does_not_want_to_meetup
+        return notifications_pb2.SetDoNotEmailRes()
 
     def ListNotifications(self, request, context):
         with session_scope() as session:

@@ -26,6 +26,7 @@ const accountWithPassword = {
   hasStrongVerification: true,
   birthdateVerificationStatus: 2,
   genderVerificationStatus: 2,
+  doNotEmail: false,
 };
 
 const accountWithLink = {
@@ -40,6 +41,7 @@ const accountWithLink = {
   hasStrongVerification: true,
   birthdateVerificationStatus: 2,
   genderVerificationStatus: 2,
+  doNotEmail: false,
 };
 
 describe("ChangePassword", () => {
