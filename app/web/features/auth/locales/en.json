@@ -16,12 +16,13 @@
   },
   "change_password_form": {
     "title": "Change password",
-    "subtitle": "Please change password",
+    "subtitle": "Use this form to reset your login password.",
     "confirm_password": "Confirm password",
+    "password_changed_success": "Your new password has been set and a notification was sent to your email.",
     "new_password": "New password",
     "password_mismatch_error": "The passwords don't match.",
-    "token_error": "The're was a error processing the token from the email, please report the issue.",
-    "reset_password_success": "Your password has been changed successfully!.",
+    "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
+    "reset_password_success": "Your password has been changed successfully!",
     "reset_password_error": "Error resetting password: {{message}}"
   },
   "jail_set_password_form": {
