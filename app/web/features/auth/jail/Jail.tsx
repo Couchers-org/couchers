@@ -17,8 +17,6 @@ import { loginRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
-import PasswordSection from "./PasswordSection";
-
 const useStyles = makeStyles((theme) => ({
   bottomMargin: { marginBottom: theme.spacing(4) },
   section: { marginBottom: theme.spacing(4) },
@@ -80,12 +78,9 @@ export default function Jail() {
           className={classes.section}
         />
       )}
-      {jailInfo?.hasNotSetPassword && (
-        <PasswordSection
-          updateJailed={updateJailed}
-          className={classes.section}
-        />
-      )}
     </>
   );
+}
+{
+  /* We should make sure that the user can't be jailed when he resets its password! */
 }
