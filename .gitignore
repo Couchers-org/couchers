@@ -9,3 +9,6 @@
 pyrightconfig.json
 
 /private/
+
+# TODO: temp
+app/web-frontend/proto/
