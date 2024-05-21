@@ -73,4 +73,4 @@ Title: Password reset page / forgot password
 URL:  https://couchers.org/password-reset
 
 Title: Complete password reset / set new password page
-URL: https://couchers.org/set-new-password?token=abc123
+URL: https://couchers.org/complete-password-reset?token=abc123
