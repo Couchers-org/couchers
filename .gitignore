@@ -1,11 +1,14 @@
+# general
 .vscode
 .idea
 *.code-workspace
 .DS_Store
+._.DS_Store
 
 # helps Lennart configure his vim
 pyrightconfig.json
 
-.DS_Store
-._.DS_Store
 /private/
+
+# protos
+app/web-frontend/proto/
