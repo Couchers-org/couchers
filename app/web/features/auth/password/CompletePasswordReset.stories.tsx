@@ -3,7 +3,7 @@ import { Meta, Story } from "@storybook/react";
 import { mockedService } from "stories/serviceMocks";
 import React from "react";
 
-import SetNewPassword from "./SetNewPassword";
+import SetNewPassword from "./CompletePasswordReset";
 
 export default {
   component: SetNewPassword,

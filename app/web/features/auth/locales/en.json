@@ -25,6 +25,7 @@
     "reset_password_success": "Your password has been changed successfully!",
     "reset_password_error": "Error resetting password: {{message}}"
   },
+  "reset_password_success": "Your password has been changed successfully!",
   "jail_set_password_form": {
     "title": "Set a password",
     "explanation": "You have not previously set a password for your account. Please create one now to continue."
@@ -133,6 +134,7 @@
   "unhandled_sign_up_state": "Error: unhandled signup flow state.",
   "login_prompt": "Click here to log in",
   "about_us": "About us",
+  "reset_password": "Reset password",
   "introduction_subtitle": "Free forever. Community-led. Non-profit. Modern.",
   "introduction_title": "Join and help grow the new alternative to Couchsurfing™",
   "account_settings_page": {

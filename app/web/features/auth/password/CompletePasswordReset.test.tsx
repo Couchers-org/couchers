@@ -6,9 +6,9 @@ import { useRouter } from "next/router";
 import wrapper from "test/hookWrapper";
 import { service } from "service";
 
-import SetNewPassword from "./SetNewPassword";
+import CompletePasswordReset from "./CompletePasswordReset";
 
-const setNewPasswordMock = service.account
+const CompletePasswordResetMock = service.account
   .CompletePasswordResetV2 as MockedService<
   typeof service.account.CompletePasswordResetV2
 >;
@@ -19,9 +19,9 @@ jest.mock("next/router", () => ({
 
 const mockUseRouter = useRouter as jest.Mock;
 
-describe("SetNewPassword page", () => {
+describe("CompletePasswordReset page", () => {
   beforeEach(() => {
-    setNewPasswordMock.mockResolvedValue(new AuthRes());
+    CompletePasswordResetMock.mockResolvedValue(new AuthRes());
 
     mockUseRouter.mockReturnValue({
       query: { token: "aaa123" },
@@ -29,7 +29,7 @@ describe("SetNewPassword page", () => {
   });
 
   it("shows the set new password form correctly", async () => {
-    render(<SetNewPassword />, { wrapper });
+    render(<CompletePasswordReset />, { wrapper });
 
     expect(
       screen.getByRole("heading", {
@@ -52,7 +52,7 @@ describe("SetNewPassword page", () => {
       query: { token: "" },
     });
 
-    render(<SetNewPassword />, { wrapper });
+    render(<CompletePasswordReset />, { wrapper });
 
     expect(
       screen.queryByText(t("auth:change_password_form.token_error"))
@@ -60,7 +60,7 @@ describe("SetNewPassword page", () => {
   });
 
   it("don't show a warning when valid token", () => {
-    render(<SetNewPassword />, { wrapper });
+    render(<CompletePasswordReset />, { wrapper });
 
     expect(
       screen.queryByText(t("auth:change_password_form.token_error"))
@@ -68,17 +68,17 @@ describe("SetNewPassword page", () => {
   });
 
   it("does not submit if empty form", async () => {
-    render(<SetNewPassword />, { wrapper });
+    render(<CompletePasswordReset />, { wrapper });
 
     userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
-      expect(setNewPasswordMock).not.toHaveBeenCalled();
+      expect(CompletePasswordResetMock).not.toHaveBeenCalled();
     });
   });
 
   it("does not submit if password don't match", async () => {
-    render(<SetNewPassword />, { wrapper });
+    render(<CompletePasswordReset />, { wrapper });
 
     userEvent.type(
       screen.getByLabelText(t("auth:change_password_form.new_password")),
@@ -93,7 +93,7 @@ describe("SetNewPassword page", () => {
     userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
-      expect(setNewPasswordMock).not.toHaveBeenCalled();
+      expect(CompletePasswordResetMock).not.toHaveBeenCalled();
     });
   });
 
@@ -102,7 +102,7 @@ describe("SetNewPassword page", () => {
       query: { token: "aaa123" },
     });
 
-    render(<SetNewPassword />, { wrapper });
+    render(<CompletePasswordReset />, { wrapper });
 
     userEvent.type(
       screen.getByLabelText(t("auth:change_password_form.new_password")),
@@ -122,18 +122,18 @@ describe("SetNewPassword page", () => {
       )
     ).toBeVisible();
 
-    expect(setNewPasswordMock).toHaveBeenCalledTimes(1);
+    expect(CompletePasswordResetMock).toHaveBeenCalledTimes(1);
   });
 
   it("shows an error alert if the reset password request failed", async () => {
     jest.spyOn(console, "error").mockReturnValue(undefined);
-    setNewPasswordMock.mockRejectedValue(new Error("GRPC error"));
+    CompletePasswordResetMock.mockRejectedValue(new Error("GRPC error"));
 
     mockUseRouter.mockReturnValue({
       query: { token: "aaa123" },
     });
 
-    render(<SetNewPassword />, { wrapper });
+    render(<CompletePasswordReset />, { wrapper });
 
     userEvent.type(
       screen.getByLabelText(t("auth:change_password_form.new_password")),

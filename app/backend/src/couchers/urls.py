@@ -36,7 +36,7 @@ def account_settings_link():
 
 
 def password_reset_link(*, password_reset_token):
-    return f"{config['BASE_URL']}/set-new-password?token={password_reset_token}"
+    return f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token}"
 
 
 def host_request_link_host():

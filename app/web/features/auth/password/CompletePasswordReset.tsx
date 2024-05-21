@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SetNewPassword() {
+export default function CompletePasswordReset() {
   const { authState } = useAuthContext();
   const { t } = useTranslation(AUTH);
   const formClass = useStyles();
@@ -121,10 +121,10 @@ export default function SetNewPassword() {
         <TextField
           className={formClass.textField}
           id="newPassword"
-          type="password"
           inputRef={register({ required: true })}
           label={t("change_password_form.new_password")}
           name="newPassword"
+          type="password"
           variant="outlined"
         />
 
@@ -135,10 +135,7 @@ export default function SetNewPassword() {
           label={t("change_password_form.confirm_password")}
           name="newPasswordCheck"
           type="password"
-          fullWidth={false}
           variant="outlined"
-          multiline
-          margin="normal"
         />
 
         <Button
