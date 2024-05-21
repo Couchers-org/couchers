@@ -28,7 +28,7 @@ export default function ConfirmDeleteAccount() {
   >(
     async ({ token }) => {
       if (token === undefined) {
-        throw Error(t("auth:delete_account.request.missing_token"));
+        throw Error(t("auth:delete_account.missing_token"));
       }
       return await service.auth.confirmDeleteAccount(token);
     },

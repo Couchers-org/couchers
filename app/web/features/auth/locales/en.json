@@ -211,8 +211,7 @@
       "username_mismatch": "Username doesn't match.",
       "reason_explanation": "Please help us improve the platform by telling us why you've chosen to delete your account.",
       "reason_label": "Reason for account deletion",
-      "success_message": "Account deletion initiated. To complete account deletion, please confirm through the email we sent you.",
-      "missing_token": "Error: missing token"
+      "success_message": "Account deletion initiated. To complete account deletion, please confirm through the email we sent you."
     },
     "confirm": {
       "title": "Confirm account deletion",
@@ -225,6 +224,7 @@
       "error_message": "Failed to recover account: {{message}}",
       "button_text": "Recover your account",
       "success": "Your account has been recovered, you can log back in. We're excited to have you back!"
-    }
+    },
+    "missing_token": "Error: missing token"
   }
 }
