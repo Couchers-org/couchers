@@ -1,8 +1,7 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import stringOrFirstString from "utils/stringOrFirstString";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { Container } from "@material-ui/core";
-import { Typography } from "@material-ui/core";
+import { Typography, Container } from "@material-ui/core";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import HtmlMeta from "components/HtmlMeta";
