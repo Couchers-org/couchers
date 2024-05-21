@@ -10,5 +10,5 @@ pyrightconfig.json
 
 /private/
 
-# TODO: temp
+# protos
 app/web-frontend/proto/
