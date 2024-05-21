@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import wrapper from "test/hookWrapper";
 import { service } from "service";
 
-import CompletePasswordReset from "./CompletePasswordReset";
+import CompletePasswordReset from "./CompleteResetPassword";
 
 const CompletePasswordResetMock = service.account
   .CompletePasswordResetV2 as MockedService<

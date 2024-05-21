@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function CompletePasswordReset() {
+export default function CompleteResetPassword() {
   const { authState } = useAuthContext();
   const { t } = useTranslation(AUTH);
   const formClass = useStyles();
