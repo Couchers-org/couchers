@@ -72,6 +72,7 @@ export default function Jail() {
           className={classes.section}
         />
       )}
+      { /* pontentially dead code */ }
       {jailInfo?.hasNotAddedLocation && (
         <LocationSection
           updateJailed={updateJailed}
@@ -80,7 +81,4 @@ export default function Jail() {
       )}
     </>
   );
-}
-{
-  /* We should make sure that the user can't be jailed when he resets its password! */
 }

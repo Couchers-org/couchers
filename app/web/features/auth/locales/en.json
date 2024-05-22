@@ -20,6 +20,7 @@
     "confirm_password": "Confirm password",
     "password_changed_success": "Your new password has been set and a notification was sent to your email.",
     "new_password": "New password",
+    "old_password": "Old password",
     "password_mismatch_error": "The passwords don't match.",
     "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
     "reset_password_success": "Your password has been changed successfully!",
