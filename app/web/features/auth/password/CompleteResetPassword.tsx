@@ -9,7 +9,7 @@ import { useMutation } from "react-query";
 import { useForm } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
 import { useRouter } from "next/router";
-import { AUTH } from "i18n/namespaces";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 import Button from "components/Button";
 import { useTranslation } from "i18n";
 import Alert from "components/Alert";
@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function CompleteResetPassword() {
   const { authState } = useAuthContext();
-  const { t } = useTranslation(AUTH);
+  const { t } = useTranslation([AUTH, GLOBAL]);
   const formClass = useStyles();
   const { handleSubmit, register } =
     useForm<{ newPassword: string; newPasswordCheck: string }>();
@@ -66,7 +66,7 @@ export default function CompleteResetPassword() {
 
   const onSubmit = handleSubmit(({ newPassword, newPasswordCheck }) => {
     if (newPassword !== newPasswordCheck) {
-      alert(t("change_password_form.password_mismatch_error"));
+      alert(t("auth:change_password_form.password_mismatch_error"));
       return;
     }
 
@@ -86,15 +86,15 @@ export default function CompleteResetPassword() {
 
   return (
     <Container className={formClass.standardContainer}>
-      <HtmlMeta title={t("change_password_form.title")} />
+      <HtmlMeta title={t("auth:change_password_form.title")} />
 
       {!isResetTokenOk && (
-        <Alert severity="error">{t("change_password_form.token_error")}</Alert>
+        <Alert severity="error">{t("auth:change_password_form.token_error")}</Alert>
       )}
 
       {error && (
         <Alert severity="error">
-          {t("change_password_form.reset_password_error", {
+          {t("auth:change_password_form.reset_password_error", {
             message: error.message,
           })}
         </Alert>
@@ -103,18 +103,18 @@ export default function CompleteResetPassword() {
       {isSuccess && (
         <>
           <Alert severity="success">
-            {t("change_password_form.reset_password_success")}
+            {t("auth:change_password_form.reset_password_success")}
           </Alert>
-          <StyledLink href={loginRoute}>{t("login_prompt")}</StyledLink>
+          <StyledLink href={loginRoute}>{t("auth:login_prompt")}</StyledLink>
         </>
       )}
 
       <Typography variant="h1" gutterBottom>
-        {t("change_password_form.title")}
+        {t("auth:change_password_form.title")}
       </Typography>
 
       <Typography variant="body1" gutterBottom>
-        {t("change_password_form.subtitle")}
+        {t("auth:change_password_form.subtitle")}
       </Typography>
 
       <form className={formClass.form} onSubmit={onSubmit}>
@@ -122,7 +122,7 @@ export default function CompleteResetPassword() {
           className={formClass.textField}
           id="newPassword"
           inputRef={register({ required: true })}
-          label={t("change_password_form.new_password")}
+          label={t("auth:change_password_form.new_password")}
           name="newPassword"
           type="password"
           variant="outlined"
@@ -132,7 +132,7 @@ export default function CompleteResetPassword() {
           className={formClass.textField}
           id="newPasswordCheck"
           inputRef={register({ required: true })}
-          label={t("change_password_form.confirm_password")}
+          label={t("auth:change_password_form.confirm_password")}
           name="newPasswordCheck"
           type="password"
           variant="outlined"

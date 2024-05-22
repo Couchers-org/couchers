@@ -76,8 +76,8 @@ export default function Jail() {
       )}
       {jailInfo?.hasNotAddedLocation && (
         <LocationSection
-        updateJailed={updateJailed}
-        className={classes.section}
+          updateJailed={updateJailed}
+          className={classes.section}
         />
       )}
       { /* pontentially dead code */ }
