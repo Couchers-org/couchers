@@ -31,24 +31,6 @@ module.exports = {
       permanent: false,
     },
     {
-      source: "/contributors/backend-meeting.ics",
-      destination:
-        "https://github.com/Couchers-org/couchers/raw/develop/docs/meetings/backend-meeting.ics",
-      permanent: false,
-    },
-    {
-      source: "/contributors/web-meeting.ics",
-      destination:
-        "https://github.com/Couchers-org/couchers/raw/develop/docs/meetings/web-meeting.ics",
-      permanent: false,
-    },
-    {
-      source: "/contributors/product-meeting.ics",
-      destination:
-        "https://github.com/Couchers-org/couchers/raw/develop/docs/meetings/product-meeting.ics",
-      permanent: false,
-    },
-    {
       source: "/contributors",
       destination: "https://couchers.org/documents/",
       permanent: false,
@@ -90,11 +72,6 @@ module.exports = {
       permanent: false,
     },
     {
-      source: "/backend-developer-chat",
-      destination: "https://calendly.com/farley_neonsurge/couchers",
-      permanent: false,
-    },
-    {
       source: "/chat-aapeli",
       destination: "https://calendly.com/couchers/chat-aapeli",
       permanent: false,
@@ -102,11 +79,6 @@ module.exports = {
     {
       source: "/chat-itsi",
       destination: "https://calendly.com/couchers/chat-with-itsi",
-      permanent: false,
-    },
-    {
-      source: "/frontend-developer-chat",
-      destination: "https://calendly.com/farley_neonsurge/couchers",
       permanent: false,
     },
     {
