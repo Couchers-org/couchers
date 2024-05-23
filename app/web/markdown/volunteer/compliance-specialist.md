@@ -9,7 +9,7 @@ description: "Apply to become the Compliance Specialist for Couchers.org"
 
 **This is a remote position**
 
-We are recruiting Compliance Specialists to provide our 501(c)3 non-profit organization and volunteer teams with guidance in the area of regulatory compliance and risk management. Compliance Specialists should have expertise in one or more specific areas in one of our key markets. This is a role-sharing/collaborative volunteer position in which several Compliance Specialists may work together. The Compliance Specialist reports to the Community & Support Team Leader.community.
+We are recruiting Compliance Specialists to provide our 501(c)(3) non-profit organization and volunteer teams with guidance in the area of regulatory compliance and risk management. Compliance Specialists should have expertise in one or more specific areas in one of our key markets. This is a role-sharing/collaborative volunteer position in which several Compliance Specialists may work together. The Compliance Specialist reports to the Community & Support Team Leader.community.
 
 ### Duties:
 - Specific duties may vary depending on the area of specialty;
@@ -26,7 +26,7 @@ An ideal candidate would have the following skills:
 - Expertise in at least one area of law or risk management (generalists also welcome);
 - Experience investigating regulations or other legal concerns;
 - Familiarity with data privacy requirements of GDPR, CCPA, or similar are a plus;
-- Familiarity with 501(c)3 non-profit organizations or other volunteer organizations is a plus;
+- Familiarity with 501(c)(3) non-profit organizations or other volunteer organizations is a plus;
 - Excellent communication, interpersonal and organizational skills;
 - Fluency in both written and spoken English; additional languages a plus.
 

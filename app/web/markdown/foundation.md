@@ -11,7 +11,7 @@ The Couchers.org project is supported by Couchers, Inc. worldwide, and the Couch
 
 Couchers, Inc. is a 501(c)(3) non-profit organization incorporated in the State of Florida in the United States and operates the Couchers.org service and project.
 
-You can find the details of Couchers, Inc. through the [IRS Tax Exempt Organization Search](https://apps.irs.gov/app/eos/): our EIN (tax number) is [87-1734577](https://apps.irs.gov/app/eos/detailsPage?ein=871734577&name=Couchers%20Inc.&city=Fort%20Myers&state=FL&countryAbbr=US&dba=&type=CHARITIES,%20DETERMINATIONLETTERS&orgTags=CHARITIES&orgTags=DETERMINATIONLETTERS). This information is also on [GuideStar](https://www.guidestar.org/profile/87-1734577).
+You can find the details of Couchers, Inc. through the [IRS Tax Exempt Organization Search](https://apps.irs.gov/app/eos/): our EIN (tax number) is **87-1734577**. This information is also on [GuideStar](https://www.guidestar.org/profile/87-1734577).
 
 You can also find our details on the [Florida Department of State website](https://search.sunbiz.org/Inquiry/CorporationSearch/SearchResultDetail?inquirytype=FeiNumber&directionType=Initial&searchNameOrder=871734577N210000086330&aggregateId=domnp-n21000008633-9f9a169a-3a18-44ea-9bbf-07966335007d&searchTerm=871734577&listNameOrder=871734577N210000086330), and check our Solicitation of Contributions registration on the [Florida Check-A-Charity page](https://csapp.fdacs.gov/CSPublicApp/CheckACharity/CheckACharity.aspx), our registration number is CH66240.
 
