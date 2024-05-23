@@ -1,6 +1,7 @@
 import {
   Card,
   CircularProgress,
+  darken,
   Link as MuiLink,
   Theme,
   Typography,
@@ -9,6 +10,7 @@ import { eventImagePlaceholderUrl } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HeaderButton from "components/HeaderButton";
+import CancelEventDialog from "features/communities/events/CancelEventDialog";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
@@ -21,7 +23,7 @@ import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
@@ -34,6 +36,7 @@ import AttendanceMenu from "./AttendanceMenu";
 import EventAttendees from "./EventAttendees";
 import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
+import LeaveDialog from "../../messages/groupchats/LeaveDialog";
 
 export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
   (theme) => ({
@@ -87,6 +90,13 @@ export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
       columnGap: theme.spacing(1),
       gridArea: "actionButtons",
       justifySelf: "start",
+    },
+    cancelButton: {
+      flexShrink: 0,
+      "&:hover": {
+        backgroundColor: darken(theme.palette.error.main, 0.1),
+      },
+      backgroundColor: theme.palette.error.main,
     },
     eventTypeText: {
       color: theme.palette.grey[600],
@@ -177,6 +187,8 @@ export default function EventPage({
     }
   );
 
+  const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
+
   useEffect(() => {
     if (event?.slug && event.slug !== eventSlug) {
       router.replace(routeToEvent(event.eventId, event.slug));
@@ -245,6 +257,24 @@ export default function EventPage({
                       {t("communities:edit_event")}
                     </Button>
                   </Link>
+                ) : null}
+
+                {event.canEdit ? (
+                  <>
+                    <Button
+                      onClick={() => setCancelDialogIsOpen(true)}
+                      variant="contained"
+                      color="primary"
+                      classes={{ containedPrimary: classes.cancelButton }}
+                    >
+                      {t("communities:cancel_event")}
+                    </Button>
+                    <CancelEventDialog
+                      open={cancelDialogIsOpen}
+                      onClose={() => setCancelDialogIsOpen(false)}
+                      eventId={eventId}
+                    />
+                  </>
                 ) : null}
 
                 <AttendanceMenu
