@@ -126,8 +126,8 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
     return events_pb2.Event(
         event_id=occurrence.id,
         is_next=False if not next_occurrence else occurrence.id == next_occurrence.id,
-        is_cancelled=event.is_cancelled,
-        is_deleted=event.is_deleted,
+        is_cancelled=occurrence.is_cancelled,
+        is_deleted=occurrence.is_deleted,
         title=event.title,
         slug=event.slug,
         content=occurrence.content,

@@ -1263,7 +1263,7 @@ def test_CancelEvent(db):
             api.UpdateEvent(
                 events_pb2.UpdateEventReq(
                     event_id=event_id,
-                    title="New title",
+                    title=wrappers_pb2.StringValue(value="New Title"),
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED

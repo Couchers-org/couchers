@@ -13,6 +13,7 @@ from couchers.sql import couchers_select as select
 from couchers.utils import parse_date, now, timedelta, Timestamp_from_datetime
 from proto import admin_pb2, events_pb2
 from tests.test_fixtures import db, events_session, generate_user, get_user_id_and_token, real_admin_session, testconfig  # noqa
+from tests.test_communities import create_community
 
 
 @pytest.fixture(autouse=True)
@@ -337,6 +338,9 @@ def test_DeleteEvent(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
 
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [normal_user], [], None)
+
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)
     with events_session(normal_token) as api:
@@ -356,6 +360,7 @@ def test_DeleteEvent(db):
             )
         )
         event_id = res.event_id
+        assert not res.is_deleted
 
     with session_scope() as session:
         with real_admin_session(super_token) as api:
