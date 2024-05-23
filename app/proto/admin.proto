@@ -3,6 +3,7 @@ syntax = "proto3";
 package org.couchers.admin;
 
 import "annotations.proto";
+import "api.proto";
 import "communities.proto";
 
 service Admin {
@@ -18,7 +19,11 @@ service Admin {
 
   rpc RemoveBadge(RemoveBadgeReq) returns (UserDetails) {}
 
+  rpc SetPassportSexGenderException(SetPassportSexGenderExceptionReq) returns (UserDetails) {}
+
   rpc BanUser(BanUserReq) returns (UserDetails) {}
+
+  rpc AddAdminNote(AddAdminNoteReq) returns (UserDetails) {}
 
   rpc DeleteUser(DeleteUserReq) returns (UserDetails) {}
 
@@ -39,12 +44,21 @@ service Admin {
 message UserDetails {
   int64 user_id = 1;
   string username = 2;
+  string name = 14;
   string email = 3;
   string gender = 4;
   string birthdate = 7;
   bool banned = 5;
   bool deleted = 6;
+  bool do_not_email = 15;
   repeated string badges = 8;
+
+  bool has_strong_verification = 9;
+  org.couchers.api.core.BirthdateVerificationStatus birthdate_verification_status = 10;
+  org.couchers.api.core.GenderVerificationStatus gender_verification_status = 11;
+  bool has_passport_sex_gender_exception = 12;
+
+  string admin_note = 13;
 }
 
 message GetUserDetailsReq {
@@ -74,9 +88,21 @@ message RemoveBadgeReq {
   string badge_id = 2;
 }
 
+message SetPassportSexGenderExceptionReq {
+  string user = 1;
+  bool passport_sex_gender_exception = 2;
+}
+
 message BanUserReq {
   // username, email, or user id
   string user = 1;
+  string admin_note = 2;
+}
+
+message AddAdminNoteReq {
+  // username, email, or user id
+  string user = 1;
+  string admin_note = 2;
 }
 
 message DeleteUserReq {

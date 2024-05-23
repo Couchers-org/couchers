@@ -470,10 +470,10 @@ class Search(search_pb2_grpc.SearchServicer):
             # google.protobuf.UInt32Value age_max = 15;
 
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-            next_user_id = float(decrypt_page_token(request.page_token)) if request.page_token else 1e10
+            next_recommendation_score = float(decrypt_page_token(request.page_token)) if request.page_token else 1e10
 
             statement = (
-                statement.where(User.recommendation_score <= next_user_id)
+                statement.where(User.recommendation_score <= next_recommendation_score)
                 .order_by(User.recommendation_score.desc())
                 .limit(page_size + 1)
             )

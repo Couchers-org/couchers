@@ -16,12 +16,13 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    Interval,
 )
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
 from sqlalchemy.sql import func
 from sqlalchemy.sql import select as sa_select
@@ -216,9 +217,14 @@ class User(Base):
     onboarding_emails_sent = Column(Integer, nullable=False, server_default="0")
     last_onboarding_email_sent = Column(DateTime(timezone=True), nullable=True)
 
-    added_to_mailing_list = Column(Boolean, nullable=False, server_default="false")
+    # whether we need to sync the user's newsletter preferences with the newsletter server
+    in_sync_with_newsletter = Column(Boolean, nullable=False, server_default="false")
+    # opted out of the newsletter
+    opt_out_of_newsletter = Column(Boolean, nullable=False, server_default="false")
 
-    last_digest_sent = Column(DateTime(timezone=True), nullable=True)
+    # set to null to receive no digests
+    digest_frequency = Column(Interval, nullable=True)
+    last_digest_sent = Column(DateTime(timezone=True), nullable=False, server_default=text("to_timestamp(0)"))
 
     # for changing their email
     new_email = Column(String, nullable=True)
@@ -274,7 +280,14 @@ class User(Base):
     # This column will be removed in the future when notifications are enabled for everyone and come out of preview
     new_notifications_enabled = Column(Boolean, nullable=False, server_default=text("false"))
 
+    has_passport_sex_gender_exception = Column(Boolean, nullable=False, server_default=text("false"))
+
+    # whether this user has all emails turned off
+    do_not_email = Column(Boolean, nullable=False, server_default=text("false"))
+
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
+
+    admin_note = Column(String, nullable=False, server_default=text("''"))
 
     __table_args__ = (
         # Verified phone numbers should be unique
@@ -330,6 +343,11 @@ class User(Base):
         CheckConstraint(
             "((undelete_token IS NULL) = (undelete_until IS NULL)) AND ((undelete_token IS NULL) OR is_deleted)",
             name="undelete_nullity",
+        ),
+        # If the user disabled all emails, then they can't host or meet up
+        CheckConstraint(
+            "(do_not_email IS FALSE) OR ((new_notifications_enabled IS FALSE) AND (hosting_status = 'cant_host') AND (meetup_status = 'does_not_want_to_meetup'))",
+            name="do_not_email_inactive",
         ),
     )
 
@@ -505,15 +523,45 @@ class StrongVerificationAttempt(Base):
     iris_token = Column(String, nullable=False, unique=True)
     iris_session_id = Column(BigInteger, nullable=False, unique=True)
 
-    user = relationship("User", backref="strong_verification_attempts")
+    passport_expiry_datetime = column_property(date_in_timezone(passport_expiry_date, "Etc/UTC"))
+
+    user = relationship(
+        "User",
+        backref=backref(
+            "strong_verification",
+            primaryjoin="and_(StrongVerificationAttempt.user_id == User.id, StrongVerificationAttempt.is_valid == True)",
+            viewonly=True,
+            uselist=False,
+        ),
+    )
 
     @hybrid_property
     def is_valid(self):
-        return (self.status == StrongVerificationAttemptStatus.succeeded) & (self.passport_expiry_date >= now())
+        """
+        This only checks whether the attempt is a success and the passport is not expired, use `has_strong_verification` for full check
+        """
+        return (self.status == StrongVerificationAttemptStatus.succeeded) & (self.passport_expiry_datetime >= now())
 
     @hybrid_property
     def is_visible(self):
         return self.status != StrongVerificationAttemptStatus.deleted
+
+    @hybrid_method
+    def matches_birthdate(self, user):
+        return self.is_valid & (self.passport_date_of_birth == user.birthdate)
+
+    @hybrid_method
+    def matches_gender(self, user):
+        return self.is_valid & (
+            ((user.gender == "Woman") & (self.passport_sex == PassportSex.female))
+            | ((user.gender == "Man") & (self.passport_sex == PassportSex.male))
+            | (self.passport_sex == PassportSex.unspecified)
+            | (user.has_passport_sex_gender_exception == True)
+        )
+
+    @hybrid_method
+    def has_strong_verification(self, user):
+        return self.is_valid & self.matches_birthdate(user) & self.matches_gender(user)
 
     __table_args__ = (
         # used to look up verification status for a user
@@ -790,6 +838,8 @@ class SignupFlow(Base):
     accepted_tos = Column(Integer, nullable=True)
     accepted_community_guidelines = Column(Integer, nullable=False, server_default="0")
 
+    opt_out_of_newsletter = Column(Boolean, nullable=True)
+
     ## Feedback
     filled_feedback = Column(Boolean, nullable=False, default=False)
     ideas = Column(String, nullable=True)
@@ -814,6 +864,7 @@ class SignupFlow(Base):
             & (self.geom != None)
             & (self.geom_radius != None)
             & (self.accepted_tos != None)
+            & (self.opt_out_of_newsletter != None)
         )
 
     @hybrid_property
@@ -1477,6 +1528,11 @@ class Cluster(Base):
         uselist=False,
     )
 
+    @property
+    def is_leaf(self) -> bool:
+        """Whether the cluster is a leaf node in the cluster hierarchy."""
+        return len(self.parent_node.child_nodes) == 0
+
     __table_args__ = (
         # Each node can have at most one official cluster
         Index(
@@ -1703,7 +1759,6 @@ class Event(Base):
     organizers = relationship(
         "User", backref="organized_events", secondary="event_organizers", lazy="dynamic", viewonly=True
     )
-    thread = relationship("Thread", backref="event", uselist=False)
     creator_user = relationship("User", backref="created_events", foreign_keys="Event.creator_user_id")
     owner_user = relationship("User", backref="owned_events", foreign_keys="Event.owner_user_id")
     owner_cluster = relationship(
@@ -1808,7 +1863,7 @@ class EventOccurrence(Base):
 
 class EventSubscription(Base):
     """
-    users subscriptions to events
+    Users' subscriptions to events
     """
 
     __tablename__ = "event_subscriptions"
@@ -2055,45 +2110,55 @@ dt = NotificationDeliveryType
 
 
 class NotificationTopicAction(enum.Enum):
-    def __init__(self, topic, action, defaults):
+    def __init__(self, topic, action, defaults, user_editable):
         self.topic = topic
         self.action = action
         self.defaults = defaults
+        # for now user editable == not a security notification
+        self.user_editable = user_editable
+
+        if not self.user_editable:
+            assert self.defaults == [dt.email, dt.push, dt.digest], (topic, action)
 
     def unpack(self):
         return self.topic, self.action
 
     # topic, action, default delivery types
-    friend_request__send = ("friend_request", "send", [dt.email, dt.push, dt.digest])
-    friend_request__accept = ("friend_request", "accept", [dt.push, dt.digest])
+    friend_request__send = ("friend_request", "send", [dt.email, dt.push, dt.digest], True)
+    friend_request__accept = ("friend_request", "accept", [dt.push, dt.digest], True)
 
     # host requests
-    host_request__create = ("host_request", "create", [dt.email, dt.push, dt.digest])
-    host_request__accept = ("host_request", "accept", [dt.email, dt.push, dt.digest])
-    host_request__reject = ("host_request", "reject", [dt.push, dt.digest])
-    host_request__confirm = ("host_request", "confirm", [dt.email, dt.push, dt.digest])
-    host_request__cancel = ("host_request", "cancel", [dt.push, dt.digest])
-    host_request__message = ("host_request", "message", [dt.push, dt.digest])
+    host_request__create = ("host_request", "create", [dt.email, dt.push, dt.digest], True)
+    host_request__accept = ("host_request", "accept", [dt.email, dt.push, dt.digest], True)
+    host_request__reject = ("host_request", "reject", [dt.push, dt.digest], True)
+    host_request__confirm = ("host_request", "confirm", [dt.email, dt.push, dt.digest], True)
+    host_request__cancel = ("host_request", "cancel", [dt.push, dt.digest], True)
+    host_request__message = ("host_request", "message", [dt.push, dt.digest], True)
 
     # account settings
-    password__change = ("password", "change", [dt.email, dt.push, dt.digest])
-    email_address__change = ("email_address", "change", [dt.email, dt.push, dt.digest])
-    phone_number__change = ("phone_number", "change", [dt.email, dt.push, dt.digest])
-    phone_number__verify = ("phone_number", "verify", [dt.email, dt.push, dt.digest])
+    password__change = ("password", "change", [dt.email, dt.push, dt.digest], False)
+    email_address__change = ("email_address", "change", [dt.email, dt.push, dt.digest], False)
+    phone_number__change = ("phone_number", "change", [dt.email, dt.push, dt.digest], True)
+    phone_number__verify = ("phone_number", "verify", [dt.email, dt.push, dt.digest], True)
     # reset password
-    account_recovery__start = ("account_recovery", "start", [dt.email, dt.push, dt.digest])
-    account_recovery__complete = ("account_recovery", "complete", [dt.email, dt.push, dt.digest])
+    account_recovery__start = ("account_recovery", "start", [dt.email, dt.push, dt.digest], False)
+    account_recovery__complete = ("account_recovery", "complete", [dt.email, dt.push, dt.digest], False)
 
     # admin actions
-    gender__change = ("gender", "change", [dt.email, dt.push, dt.digest])
-    birthdate__change = ("birthdate", "change", [dt.email, dt.push, dt.digest])
-    api_key__create = ("api_key", "create", [dt.email, dt.push, dt.digest])
+    gender__change = ("gender", "change", [dt.email, dt.push, dt.digest], True)
+    birthdate__change = ("birthdate", "change", [dt.email, dt.push, dt.digest], True)
+    api_key__create = ("api_key", "create", [dt.email, dt.push, dt.digest], False)
 
-    badge__add = ("badge", "add", [dt.push, dt.digest])
-    badge__remove = ("badge", "remove", [dt.push, dt.digest])
+    badge__add = ("badge", "add", [dt.push, dt.digest], True)
+    badge__remove = ("badge", "remove", [dt.push, dt.digest], True)
 
     # group chats
-    chat__message = ("chat", "message", [dt.email, dt.push, dt.digest])
+    chat__message = ("chat", "message", [dt.email, dt.push, dt.digest], True)
+
+    # events
+    event__create = ("event", "create", [dt.push, dt.digest], True)
+    event__update = ("event", "update", [dt.push, dt.digest], True)
+    event__invite_organizer = ("event", "invite_organizer", [dt.email, dt.push, dt.digest], True)
 
 
 class NotificationPreference(Base):
@@ -2107,6 +2172,8 @@ class NotificationPreference(Base):
     deliver = Column(Boolean, nullable=False)
 
     user = relationship("User", foreign_keys="NotificationPreference.user_id")
+
+    __table_args__ = (UniqueConstraint("user_id", "topic_action", "delivery_type"),)
 
 
 class Notification(Base):
@@ -2176,6 +2243,12 @@ class NotificationDelivery(Base):
             "ix_notification_deliveries_delivery_type",
             delivery_type,
             postgresql_where=(delivered != None),
+        ),
+        Index(
+            "ix_notification_deliveries_dt_ni_dnull",
+            delivery_type,
+            notification_id,
+            delivered == None,
         ),
     )
 

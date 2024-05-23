@@ -11,11 +11,11 @@ You asked for your password to be reset on Couchers.org.
 
 {{ button("Reset password", password_reset_link)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(password_reset_link, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(password_reset_link, html)|couchers_safe }}
 
 {% else %}
 
-<{{ password_reset_link|couchers_escape }}>
+<{{ password_reset_link|couchers_safe }}>
 
 {% endif %}
 

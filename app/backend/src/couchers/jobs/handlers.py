@@ -43,9 +43,12 @@ from couchers.models import (
     User,
     UserBadge,
 )
-from couchers.notifications.background import handle_email_digests as bg_handle_email_digests
-from couchers.notifications.background import handle_email_notifications as bg_handle_email_notifications
-from couchers.notifications.background import handle_notification as bg_handle_notification
+from couchers.notifications.background import (
+    fan_notifications,
+    handle_email_digests,
+    handle_email_notifications,
+    handle_notification,
+)
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.blocking import are_blocked
@@ -56,6 +59,17 @@ from couchers.utils import now
 from proto.internal import jobs_pb2, verification_pb2
 
 logger = logging.getLogger(__name__)
+
+# these were straight up imported
+handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
+
+handle_email_notifications.PAYLOAD = empty_pb2.Empty
+handle_email_notifications.SCHEDULE = timedelta(minutes=1)
+
+handle_email_digests.PAYLOAD = empty_pb2.Empty
+handle_email_digests.SCHEDULE = timedelta(seconds=6)
+
+fan_notifications.PAYLOAD = jobs_pb2.FanNotificationsPayload
 
 
 def send_email(payload):
@@ -112,54 +126,6 @@ def purge_account_deletion_tokens(payload):
 
 purge_account_deletion_tokens.PAYLOAD = empty_pb2.Empty
 purge_account_deletion_tokens.SCHEDULE = timedelta(hours=24)
-
-
-def generate_message_notifications(payload):
-    """
-    Generates notifications for a message sent to a group chat
-    """
-    logger.info(f"Sending out notifications for message_id = {payload.message_id}")
-
-    with session_scope() as session:
-        message, group_chat = session.execute(
-            select(Message, GroupChat)
-            .join(GroupChat, GroupChat.conversation_id == Message.conversation_id)
-            .where(Message.id == payload.message_id)
-        ).one()
-
-        if message.message_type != MessageType.text:
-            logger.info(f"Not a text message, not notifying. message_id = {payload.message_id}")
-            return
-
-        subscriptions = (
-            session.execute(
-                select(GroupChatSubscription)
-                .join(User, User.id == GroupChatSubscription.user_id)
-                .where(GroupChatSubscription.group_chat_id == message.conversation_id)
-                .where(User.is_visible)
-                .where(User.id != message.author_id)
-                .where(GroupChatSubscription.left == None)
-                .where(not_(GroupChatSubscription.is_muted))
-            )
-            .scalars()
-            .all()
-        )
-
-        for subscription in subscriptions:
-            logger.info(f"Notifying user_id = {subscription.user_id}")
-            notify(
-                user_id=subscription.user_id,
-                topic="chat",
-                key=str(message.conversation_id),
-                action="message",
-                icon="message",
-                title=f"{message.author.name} sent a message in {group_chat.title}",
-                content=message.text,
-                link=urls.chat_link(chat_id=message.conversation_id),
-            )
-
-
-generate_message_notifications.PAYLOAD = jobs_pb2.GenerateMessageNotificationsPayload
 
 
 def send_message_notifications(payload):
@@ -225,8 +191,8 @@ def send_message_notifications(payload):
 
             total_unseen_message_count = sum(count for _, _, count in unseen_messages)
 
-            email.enqueue_email_from_template(
-                user.email,
+            email.enqueue_email_from_template_to_user(
+                user,
                 "unseen_messages",
                 template_args={
                     "user": user,
@@ -280,8 +246,8 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.commit()
 
-            email.enqueue_email_from_template(
-                user.email,
+            email.enqueue_email_from_template_to_user(
+                user,
                 "unseen_message_guest",
                 template_args={
                     "user": user,
@@ -294,8 +260,8 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.commit()
 
-            email.enqueue_email_from_template(
-                user.email,
+            email.enqueue_email_from_template_to_user(
+                user,
                 "unseen_message_host",
                 template_args={
                     "user": user,
@@ -443,48 +409,43 @@ send_reference_reminders.SCHEDULE = timedelta(hours=1)
 
 
 def add_users_to_email_list(payload):
-    if not config["MAILCHIMP_ENABLED"]:
+    if not config["LISTMONK_ENABLED"]:
         logger.info(f"Not adding users to mailing list")
         return
 
     logger.info(f"Adding users to mailing list")
 
-    with session_scope() as session:
-        users = (
-            session.execute(select(User).where(User.is_visible).where(User.added_to_mailing_list == False).limit(100))
-            .scalars()
-            .all()
-        )
+    while True:
+        with session_scope() as session:
+            user = session.execute(
+                select(User).where(User.is_visible).where(User.in_sync_with_newsletter == False).limit(1)
+            ).scalar_one_or_none()
+            if not user:
+                logger.info(f"Finished adding users to mailing list")
+                return
 
-        if not users:
-            logger.info(f"No users to add to mailing list")
-            return
+            if user.opt_out_of_newsletter:
+                user.in_sync_with_newsletter = True
+                session.commit()
+                continue
 
-        auth = ("apikey", config["MAILCHIMP_API_KEY"])
-
-        body = {
-            "members": [
-                {
-                    "email_address": user.email,
-                    "status_if_new": "subscribed",
-                    "status": "subscribed",
-                    "merge_fields": {
-                        "FNAME": user.name,
-                    },
-                }
-                for user in users
-            ]
-        }
-
-        dc = config["MAILCHIMP_DC"]
-        list_id = config["MAILCHIMP_LIST_ID"]
-        r = requests.post(f"https://{dc}.api.mailchimp.com/3.0/lists/{list_id}", auth=auth, json=body)
-        if r.status_code == 200:
-            for user in users:
-                user.added_to_mailing_list = True
-            session.commit()
-        else:
-            raise Exception("Failed to add users to mailing list")
+            r = requests.post(
+                config["LISTMONK_BASE_URL"] + "/api/subscribers",
+                auth=("listmonk", config["LISTMONK_API_KEY"]),
+                json={
+                    "email": user.email,
+                    "name": user.name,
+                    "list_uuids": [config["LISTMONK_LIST_UUID"]],
+                    "preconfirm_subscriptions": True,
+                },
+                timeout=10,
+            )
+            # the API returns if the user is already subscribed
+            if r.status_code == 200 or r.status_code == 409:
+                user.in_sync_with_newsletter = True
+                session.commit()
+            else:
+                raise Exception("Failed to add users to mailing list")
 
 
 add_users_to_email_list.PAYLOAD = empty_pb2.Empty
@@ -497,29 +458,6 @@ def enforce_community_membership(payload):
 
 enforce_community_membership.PAYLOAD = empty_pb2.Empty
 enforce_community_membership.SCHEDULE = timedelta(minutes=15)
-
-
-def handle_notification(payload):
-    bg_handle_notification(payload.notification_id)
-
-
-handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
-
-
-def handle_email_notifications(payload):
-    bg_handle_email_notifications()
-
-
-handle_email_notifications.PAYLOAD = empty_pb2.Empty
-handle_email_notifications.SCHEDULE = timedelta(minutes=1)
-
-
-def handle_email_digests(payload):
-    bg_handle_email_digests()
-
-
-handle_email_digests.PAYLOAD = empty_pb2.Empty
-handle_email_digests.SCHEDULE = timedelta(minutes=15)
 
 
 def update_recommendation_scores(payload):
@@ -798,15 +736,7 @@ def update_badges(payload):
             session.execute(
                 select(User.id)
                 .join(StrongVerificationAttempt, StrongVerificationAttempt.user_id == User.id)
-                .where(StrongVerificationAttempt.is_valid)
-                .where(StrongVerificationAttempt.passport_date_of_birth == User.birthdate)
-                .where(
-                    or_(
-                        and_(User.gender == "Woman", StrongVerificationAttempt.passport_sex == PassportSex.female),
-                        and_(User.gender == "Man", StrongVerificationAttempt.passport_sex == PassportSex.male),
-                        StrongVerificationAttempt.passport_sex == PassportSex.unspecified,
-                    )
-                )
+                .where(StrongVerificationAttempt.has_strong_verification(User))
             )
             .scalars()
             .all(),

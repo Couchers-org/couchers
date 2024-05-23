@@ -180,6 +180,20 @@ message NullableStringValue {
   string value = 2;
 }
 
+enum BirthdateVerificationStatus {
+  BIRTHDATE_VERIFICATION_STATUS_UNSPECIFIED = 0;
+  BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED = 1;
+  BIRTHDATE_VERIFICATION_STATUS_VERIFIED = 2;
+  BIRTHDATE_VERIFICATION_STATUS_MISMATCH = 3;
+}
+
+enum GenderVerificationStatus {
+  GENDER_VERIFICATION_STATUS_UNSPECIFIED = 0;
+  GENDER_VERIFICATION_STATUS_UNVERIFIED = 1;
+  GENDER_VERIFICATION_STATUS_VERIFIED = 2;
+  GENDER_VERIFICATION_STATUS_MISMATCH = 3;
+}
+
 message User {
   enum FriendshipStatus {
     NOT_FRIENDS = 0;
@@ -256,6 +270,10 @@ message User {
   repeated LanguageAbility language_abilities = 37;
 
   repeated string badges = 38;
+
+  bool has_strong_verification = 39;
+  BirthdateVerificationStatus birthdate_verification_status = 42;
+  GenderVerificationStatus gender_verification_status = 43;
 }
 
 message GetUserReq {

@@ -40,7 +40,7 @@ iniconfig==2.0.0
     # via pytest
 isort==5.13.2
     # via -r requirements.in
-jinja2==3.1.3
+jinja2==3.1.4
     # via -r requirements.in
 jmespath==1.0.1
     # via
@@ -65,7 +65,7 @@ packaging==24.0
     #   pytest
 pathspec==0.12.1
     # via black
-phonenumbers==8.13.36
+phonenumbers==8.13.37
     # via -r requirements.in
 platformdirs==4.2.1
     # via black
@@ -83,7 +83,7 @@ pyflakes==3.2.0
     # via autoflake
 pynacl==1.5.0
     # via -r requirements.in
-pytest==8.2.0
+pytest==8.2.1
     # via
     #   -r requirements.in
     #   pytest-cov
@@ -117,7 +117,7 @@ sqlalchemy==2.0.30
     #   sqlalchemy-utils
 sqlalchemy-utils==0.41.2
     # via -r requirements.in
-stripe==9.6.0
+stripe==9.7.0
     # via -r requirements.in
 typing-extensions==4.11.0
     # via

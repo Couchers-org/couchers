@@ -40,7 +40,10 @@
     "parkingDetails": 3,
     "smokingAllowed": 1,
     "avatarUrl": "https://loremflickr.com/200/200?user1",
-    "badgesList": ["founder", "donor"]
+    "badgesList": ["founder", "donor", "strong_verification"],
+    "hasStrongVerification": true,
+    "birthdateVerificationStatus": 2,
+    "genderVerificationStatus": 2
   },
   {
     "name": "Funny Dog",
@@ -83,7 +86,10 @@
     "parkingDetails": 3,
     "smokingAllowed": 1,
     "avatarUrl": "",
-    "badgesList": []
+    "badgesList": ["strong_verification"],
+    "hasStrongVerification": true,
+    "birthdateVerificationStatus": 2,
+    "genderVerificationStatus": 2
   },
   {
     "name": "Funny Kid",
@@ -126,7 +132,10 @@
     "parkingDetails": 3,
     "smokingAllowed": 1,
     "avatarUrl": "https://loremflickr.com/200/200?user3",
-    "badgesList": ["phone_verified"]
+    "badgesList": ["phone_verified"],
+    "hasStrongVerification": false,
+    "birthdateVerificationStatus": 1,
+    "genderVerificationStatus": 1
   },
   {
     "name": "Funny Chicken",
@@ -169,7 +178,10 @@
     "parkingDetails": 3,
     "smokingAllowed": 1,
     "avatarUrl": "https://loremflickr.com/200/200?user4",
-    "badgesList": ["volunteer"]
+    "badgesList": ["volunteer"],
+    "hasStrongVerification": false,
+    "birthdateVerificationStatus": 1,
+    "genderVerificationStatus": 3
   },
   {
     "name": "Friendly Cow",
@@ -212,6 +224,9 @@
     "parkingDetails": 3,
     "smokingAllowed": 1,
     "avatarUrl": "https://loremflickr.com/200/200?user5",
-    "badgesList": []
+    "badgesList": [],
+    "hasStrongVerification": false,
+    "birthdateVerificationStatus": 3,
+    "genderVerificationStatus": 1
   }
 ]

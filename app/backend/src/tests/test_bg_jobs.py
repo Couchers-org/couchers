@@ -1,5 +1,5 @@
 from datetime import timedelta
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 import pytest
 import requests
@@ -900,48 +900,53 @@ def test_send_reference_reminders(db):
 
 def test_add_users_to_email_list(db):
     new_config = config.copy()
-    new_config["MAILCHIMP_ENABLED"] = True
-    new_config["MAILCHIMP_API_KEY"] = "dummy_api_key"
-    new_config["MAILCHIMP_DC"] = "dc99"
-    new_config["MAILCHIMP_LIST_ID"] = "dummy_list_id"
+    new_config["LISTMONK_ENABLED"] = True
+    new_config["LISTMONK_BASE_URL"] = "https://example.com"
+    new_config["LISTMONK_API_KEY"] = "dummy_api_key"
+    new_config["LISTMONK_LIST_UUID"] = "baf96eaa-5e70-409d-b776-f5c16fb091b9"
 
     with patch("couchers.jobs.handlers.config", new_config):
         with patch("couchers.jobs.handlers.requests.post") as mock:
             add_users_to_email_list(empty_pb2.Empty())
         mock.assert_not_called()
 
-        generate_user(added_to_mailing_list=False, email="testing1@couchers.invalid", name="Tester1")
-        generate_user(added_to_mailing_list=True, email="testing2@couchers.invalid", name="Tester2")
-        generate_user(added_to_mailing_list=False, email="testing3@couchers.invalid", name="Tester3 von test")
+        generate_user(in_sync_with_newsletter=False, email="testing1@couchers.invalid", name="Tester1")
+        generate_user(in_sync_with_newsletter=True, email="testing2@couchers.invalid", name="Tester2")
+        generate_user(in_sync_with_newsletter=False, email="testing3@couchers.invalid", name="Tester3 von test")
+        generate_user(
+            in_sync_with_newsletter=False, email="testing4@couchers.invalid", name="Tester4", opt_out_of_newsletter=True
+        )
 
         with patch("couchers.jobs.handlers.requests.post") as mock:
             ret = mock.return_value
             ret.status_code = 200
             add_users_to_email_list(empty_pb2.Empty())
-
-        mock.assert_called_once_with(
-            "https://dc99.api.mailchimp.com/3.0/lists/dummy_list_id",
-            auth=("apikey", "dummy_api_key"),
-            json={
-                "members": [
-                    {
-                        "email_address": "testing1@couchers.invalid",
-                        "status_if_new": "subscribed",
-                        "status": "subscribed",
-                        "merge_fields": {
-                            "FNAME": "Tester1",
-                        },
+        mock.assert_has_calls(
+            [
+                call(
+                    "https://example.com/api/subscribers",
+                    auth=("listmonk", "dummy_api_key"),
+                    json={
+                        "email": "testing1@couchers.invalid",
+                        "name": "Tester1",
+                        "list_uuids": ["baf96eaa-5e70-409d-b776-f5c16fb091b9"],
+                        "preconfirm_subscriptions": True,
                     },
-                    {
-                        "email_address": "testing3@couchers.invalid",
-                        "status_if_new": "subscribed",
-                        "status": "subscribed",
-                        "merge_fields": {
-                            "FNAME": "Tester3 von test",
-                        },
+                    timeout=10,
+                ),
+                call(
+                    "https://example.com/api/subscribers",
+                    auth=("listmonk", "dummy_api_key"),
+                    json={
+                        "email": "testing3@couchers.invalid",
+                        "name": "Tester3 von test",
+                        "list_uuids": ["baf96eaa-5e70-409d-b776-f5c16fb091b9"],
+                        "preconfirm_subscriptions": True,
                     },
-                ]
-            },
+                    timeout=10,
+                ),
+            ],
+            any_order=True,
         )
 
         with patch("couchers.jobs.handlers.requests.post") as mock:

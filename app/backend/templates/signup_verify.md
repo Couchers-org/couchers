@@ -11,11 +11,11 @@ Thanks for signing up for Couchers.org!
 
 {{ button("Confirm your email address", signup_link)|couchers_safe }}
 
-To finish setting up your account, please click on the above button, or click the following link: {{ link(signup_link, html)|couchers_safe }}.
+To finish setting up your account, please click on the above button, or click the following link: {{ link(signup_link, html)|couchers_safe }}
 
 {% else %}
 
-To finish setting up your account, please click on this link to confirm your email address: <{{ signup_link|couchers_escape }}>.
+To finish setting up your account, please click on this link to confirm your email address: <{{ signup_link|couchers_safe }}>.
 
 {% endif %}
 

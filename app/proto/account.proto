@@ -6,6 +6,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
+import "api.proto";
 import "auth.proto";
 
 service Account {
@@ -64,6 +65,10 @@ service Account {
   rpc DeleteAccount(DeleteAccountReq) returns (google.protobuf.Empty) {
     // Sends email with confirmation link containing token to delete account
   }
+
+  rpc SetDoNotEmail(SetDoNotEmailReq) returns (google.protobuf.Empty) {
+    // Sets the do not email flag
+  }
 }
 
 message GetAccountInfoRes {
@@ -91,6 +96,14 @@ message GetAccountInfoRes {
 
   // the user's timezone name identifier, derived from their coordinates, for example "Australia/Melbourne"
   string timezone = 6;
+
+  // strong verification info
+  bool has_strong_verification = 10;
+  org.couchers.api.core.BirthdateVerificationStatus birthdate_verification_status = 11;
+  org.couchers.api.core.GenderVerificationStatus gender_verification_status = 12;
+
+  // whether the user has all non-security emails off
+  bool do_not_email = 13;
 }
 
 message ChangePasswordReq {
@@ -153,4 +166,8 @@ message GetStrongVerificationAttemptStatusRes {
 message DeleteAccountReq {
   bool confirm = 1;
   string reason = 2;
+}
+
+message SetDoNotEmailReq {
+  bool do_not_email = 1;
 }

@@ -44,6 +44,7 @@ type SignupAccountInputs = {
   birthdate: Dayjs;
   gender: string;
   acceptTOS: boolean;
+  optInToNewsletter: boolean;
   hostingStatus: HostingStatus;
   location: ApproximateLocation;
 };
@@ -83,6 +84,7 @@ export default function AccountForm() {
       birthdate,
       gender,
       acceptTOS,
+      optInToNewsletter,
       hostingStatus,
       location,
     }) => {
@@ -93,6 +95,7 @@ export default function AccountForm() {
         birthdate: birthdate.format().split("T")[0],
         gender,
         acceptTOS,
+        optOutOfNewsletter: !optInToNewsletter,
         hostingStatus,
         city: location.address,
         lat: location.lat,
@@ -354,6 +357,23 @@ export default function AccountForm() {
             />
           }
           label={t("auth:account_form.tos_accept_label")}
+        />
+        <FormControlLabel
+          control={
+            <Controller
+              control={control}
+              name="optInToNewsletter"
+              defaultValue={true}
+              render={({ onChange, value }) => (
+                <Checkbox
+                  value={value}
+                  defaultChecked={true}
+                  onChange={(event) => onChange(event.target.checked)}
+                />
+              )}
+            />
+          }
+          label={t("auth:account_form.opt_in_newsletter")}
         />
         <Button
           classes={{

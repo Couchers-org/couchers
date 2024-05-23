@@ -23,6 +23,10 @@ const accountWithPassword = {
   phone: "",
   phoneVerified: false,
   timezone: "America/New_York",
+  hasStrongVerification: true,
+  birthdateVerificationStatus: 2,
+  genderVerificationStatus: 2,
+  doNotEmail: false,
 };
 
 const accountWithLink = {
@@ -34,6 +38,10 @@ const accountWithLink = {
   phone: "+46701740605",
   phoneVerified: true,
   timezone: "America/New_York",
+  hasStrongVerification: true,
+  birthdateVerificationStatus: 2,
+  genderVerificationStatus: 2,
+  doNotEmail: false,
 };
 
 describe("ChangePassword", () => {

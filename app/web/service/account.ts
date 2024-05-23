@@ -6,6 +6,7 @@ import {
   ChangePhoneReq,
   DeleteAccountReq,
   FillContributorFormReq,
+  SetDoNotEmailReq,
   VerifyPhoneReq,
 } from "proto/account_pb";
 import {
@@ -55,6 +56,12 @@ export function changeEmail(newEmail: string, currentPassword?: string) {
   }
 
   return client.account.changeEmail(req);
+}
+
+export function setDoNotEmail(newValue: boolean) {
+  const req = new SetDoNotEmailReq();
+  req.setDoNotEmail(newValue);
+  return client.account.setDoNotEmail(req);
 }
 
 export async function confirmChangeEmail(resetToken: string) {

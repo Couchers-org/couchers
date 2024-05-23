@@ -1057,4 +1057,44 @@ def test_signup_token_regression(db):
         assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
 
 
+@pytest.mark.parametrize("opt_out", [True, False])
+def test_opt_out_of_newsletter(db, opt_out):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="frodo",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                    opt_out_of_newsletter=opt_out,
+                ),
+                feedback=auth_pb2.ContributorForm(),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+            )
+        )
+
+    with session_scope() as session:
+        email_token = (
+            session.execute(select(SignupFlow).where(SignupFlow.flow_token == res.flow_token)).scalar_one().email_token
+        )
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    user_id = res.auth_res.user_id
+
+    with session_scope() as session:
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert not user.in_sync_with_newsletter
+        assert user.opt_out_of_newsletter == opt_out
+
+
 # tests for ConfirmChangeEmail within test_account.py tests for test_ChangeEmail_*

@@ -8,6 +8,10 @@ message MuteAll {
   // essential: not security stuff, etc
 }
 
+message DoNotEmail {
+  // do not email me, also turns hosting and "wants to meet" off
+}
+
 message UnsubscribeTopicKey {
   // unsubscribe from a given topic for a given key
   // e.g. a given event or group chat
@@ -29,5 +33,6 @@ message UnsubscribePayload {
     MuteAll all = 2;
     UnsubscribeTopicKey topic_key = 3;
     UnsubscribeTopicAction topic_action = 4;
+    DoNotEmail do_not_email = 5;
   }
 }

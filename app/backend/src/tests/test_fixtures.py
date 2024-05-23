@@ -702,7 +702,7 @@ def media_session(bearer_token):
             server.stop(None).wait()
 
 
-@pytest.fixture()
+@pytest.fixture(scope="class")
 def testconfig():
     prevconfig = config.copy()
     config.clear()
@@ -750,17 +750,17 @@ def testconfig():
         "91e29bbacc74fa7e23c5d5f34cca5015cb896e338a620003de94a502a461f4bc"
     )
     config["MEDIA_SERVER_BEARER_TOKEN"] = "c02d383897d3b82774ced09c9e17802164c37e7e105d8927553697bf4550e91e"
-    config["MEDIA_SERVER_BASE_URL"] = "http://127.0.0.1:5000"
+    config["MEDIA_SERVER_BASE_URL"] = "http://localhost:5000"
 
     config["BUG_TOOL_ENABLED"] = False
     config["BUG_TOOL_GITHUB_REPO"] = "org/repo"
     config["BUG_TOOL_GITHUB_USERNAME"] = "user"
     config["BUG_TOOL_GITHUB_TOKEN"] = "token"
 
-    config["MAILCHIMP_ENABLED"] = False
-    config["MAILCHIMP_API_KEY"] = "f..."
-    config["MAILCHIMP_DC"] = "us10"
-    config["MAILCHIMP_LIST_ID"] = "b..."
+    config["LISTMONK_ENABLED"] = False
+    config["LISTMONK_BASE_URL"] = "https://localhost"
+    config["LISTMONK_API_KEY"] = "..."
+    config["LISTMONK_LIST_UUID"] = "..."
 
     yield None
 

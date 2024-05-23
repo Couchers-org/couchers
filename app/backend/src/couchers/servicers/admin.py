@@ -13,11 +13,12 @@ from couchers.helpers.clusters import create_cluster, create_node
 from couchers.models import Event, EventOccurrence, GroupChat, GroupChatSubscription, HostRequest, Message, User, UserBadge
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
+from couchers.servicers.api import get_strong_verification_fields
 from couchers.servicers.auth import create_session
 from couchers.servicers.communities import community_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_api_key_email
-from couchers.utils import date_to_api, parse_date
+from couchers.utils import date_to_api, now, parse_date
 from proto import admin_pb2, admin_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -27,12 +28,17 @@ def _user_to_details(user):
     return admin_pb2.UserDetails(
         user_id=user.id,
         username=user.username,
+        name=user.name,
         email=user.email,
         gender=user.gender,
         birthdate=date_to_api(user.birthdate),
         banned=user.is_banned,
         deleted=user.is_deleted,
+        do_not_email=user.do_not_email,
         badges=[badge.badge_id for badge in user.badges],
+        **get_strong_verification_fields(user),
+        has_passport_sex_gender_exception=user.has_passport_sex_gender_exception,
+        admin_note=user.admin_note,
     )
 
 
@@ -149,12 +155,31 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             return _user_to_details(user)
 
+    def SetPassportSexGenderException(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            user.has_passport_sex_gender_exception = request.passport_sex_gender_exception
+            return _user_to_details(user)
+
     def BanUser(self, request, context):
         with session_scope() as session:
             user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.is_banned = True
+        return self.AddAdminNote(request, context)
+
+    def AddAdminNote(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            admin = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            user.admin_note += (
+                f"\n[{now().isoformat()}] (id: {admin.id}, username: {admin.username}) {request.admin_note}\n"
+            )
             return _user_to_details(user)
 
     def DeleteUser(self, request, context):

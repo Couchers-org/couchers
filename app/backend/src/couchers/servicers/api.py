@@ -31,6 +31,7 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.resources import language_is_allowed, region_is_allowed
+from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
@@ -277,9 +278,13 @@ class API(api_pb2_grpc.APIServicer):
                     user.about_place = request.about_place.value
 
             if request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED:
+                if user.do_not_email and request.hosting_status != api_pb2.HOSTING_STATUS_CANT_HOST:
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DO_NOT_EMAIL_CANNOT_HOST)
                 user.hosting_status = hostingstatus2sql[request.hosting_status]
 
             if request.meetup_status != api_pb2.MEETUP_STATUS_UNSPECIFIED:
+                if user.do_not_email and request.meetup_status != api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP:
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DO_NOT_EMAIL_CANNOT_MEET)
                 user.meetup_status = meetupstatus2sql[request.meetup_status]
 
             if request.HasField("language_abilities"):
@@ -845,6 +850,7 @@ def user_model_to_pb(db_user, session, context):
         parking_details=parkingdetails2api[db_user.parking_details],
         avatar_url=db_user.avatar.full_url if db_user.avatar else None,
         badges=[badge.badge_id for badge in db_user.badges],
+        **get_strong_verification_fields(db_user),
     )
 
     if db_user.max_guests is not None:

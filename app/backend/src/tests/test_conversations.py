@@ -6,10 +6,18 @@ from google.protobuf import wrappers_pb2
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import GroupChatRole, GroupChatSubscription
+from couchers.jobs.worker import process_job
+from couchers.models import (
+    GroupChatRole,
+    GroupChatSubscription,
+    Notification,
+    NotificationDelivery,
+    NotificationDeliveryType,
+    NotificationTopicAction,
+)
 from couchers.sql import couchers_select as select
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
-from proto import api_pb2, conversations_pb2
+from proto import api_pb2, conversations_pb2, notifications_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
     conversations_session,
@@ -18,6 +26,7 @@ from tests.test_fixtures import (  # noqa
     make_friends,
     make_user_block,
     make_user_invisible,
+    notifications_session,
     testconfig,
 )
 
@@ -1390,3 +1399,112 @@ def test_muting(db):
         assert res.mute_info.HasField("muted_until")
         assert to_aware_datetime(res.mute_info.muted_until) >= now() + timedelta(hours=1, minutes=59)
         assert to_aware_datetime(res.mute_info.muted_until) <= now() + timedelta(hours=2, minutes=1)
+
+
+def test_chat_notifications(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    # notifs off
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+    user5, token5 = generate_user()
+    user6, token6 = generate_user()
+
+    make_friends(user1, user2)
+    make_friends(user1, user3)
+    make_friends(user1, user4)
+    make_friends(user4, user5)
+    make_friends(user4, user6)
+
+    # have some of them enable/disable notifs (all three are the same)
+    topic_action = NotificationTopicAction.chat__message
+    for token, enabled in [
+        (token1, True),
+        (token2, True),
+        (token3, False),
+        (token4, True),
+        (token5, True),
+        (token6, True),
+    ]:
+        with notifications_session(token) as notifications:
+            notifications.SetNotificationSettings(
+                notifications_pb2.SetNotificationSettingsReq(
+                    enable_new_notifications=True,
+                    preferences=[
+                        notifications_pb2.SingleNotificationPreference(
+                            topic=topic_action.topic,
+                            action=topic_action.action,
+                            delivery_method=delivery_method,
+                            enabled=enabled,
+                        )
+                        for delivery_method in ["push", "email", "digest"]
+                    ],
+                )
+            )
+
+    group_chat_id = None
+
+    def send_msg(c, i):
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=f"Test message {i}"))
+
+    with conversations_session(token1) as c:
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id, user4.id]))
+        group_chat_id = res.group_chat_id
+        c.EditGroupChat(
+            conversations_pb2.EditGroupChatReq(
+                group_chat_id=group_chat_id, only_admins_invite=wrappers_pb2.BoolValue(value=False)
+            )
+        )
+        send_msg(c, i=1)
+        send_msg(c, i=2)
+
+    with conversations_session(token4) as c:
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user5.id))
+        send_msg(c, i=3)
+        c.InviteToGroupChat(conversations_pb2.InviteToGroupChatReq(group_chat_id=group_chat_id, user_id=user6.id))
+        send_msg(c, i=4)
+        send_msg(c, i=5)
+
+    with conversations_session(token3) as c:
+        send_msg(c, i=6)
+        c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
+
+    with conversations_session(token2) as c:
+        send_msg(c, i=7)
+        c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=group_chat_id))
+
+    with conversations_session(token6) as c:
+        send_msg(c, i=8)
+
+    # go through all bg jobs
+    while process_job():
+        pass
+
+    # now check notifs...
+    expected_notifs = [
+        (user1, "user1", [3, 4, 5, 6, 7, 8]),
+        (user2, "user2", [1, 2, 3, 4, 5, 6]),
+        (user3, "user3", []),  # notifs off
+        (user4, "user4", [1, 2, 6, 7, 8]),
+        (user5, "user5", [3, 4, 5, 6, 7, 8]),
+        (user6, "user6", [4, 5, 6, 7]),
+    ]
+
+    with session_scope() as session:
+        for user, label, expected_msgs in expected_notifs:
+            deliv = (
+                session.execute(
+                    select(Notification.content)
+                    .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
+                    .where(Notification.user_id == user.id)
+                    .where(Notification.topic_action == topic_action)
+                    .where(NotificationDelivery.delivery_type == NotificationDeliveryType.push)
+                    .order_by(Notification.created)
+                )
+                .scalars()
+                .all()
+            )
+
+            print(deliv)
+
+            assert [f"Test message {i}" for i in expected_msgs] == deliv, f"Wrong messages for {label}"

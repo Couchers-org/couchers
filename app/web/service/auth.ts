@@ -37,6 +37,7 @@ interface AccountSignupData {
   birthdate: string;
   gender: string;
   acceptTOS: boolean;
+  optOutOfNewsletter: boolean;
   hostingStatus: HostingStatus;
   city: string;
   lat: number;
@@ -51,6 +52,7 @@ export async function signupFlowAccount({
   birthdate,
   gender,
   acceptTOS,
+  optOutOfNewsletter,
   hostingStatus,
   city,
   lat,
@@ -64,6 +66,7 @@ export async function signupFlowAccount({
   account.setBirthdate(birthdate);
   account.setGender(gender);
   account.setAcceptTos(acceptTOS);
+  account.setOptOutOfNewsletter(optOutOfNewsletter);
   account.setHostingStatus(hostingStatus);
   account.setCity(city);
   account.setLat(lat);

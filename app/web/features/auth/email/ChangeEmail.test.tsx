@@ -23,6 +23,10 @@ const accountInfo = {
   phone: "+46701740605",
   phoneVerified: true,
   timezone: "Australia/Melbourne",
+  hasStrongVerification: false,
+  birthdateVerificationStatus: 1,
+  genderVerificationStatus: 3,
+  doNotEmail: false,
 };
 
 const accountWithLink = {
@@ -34,6 +38,10 @@ const accountWithLink = {
   phone: "+46701740605",
   phoneVerified: true,
   timezone: "America/New_York",
+  hasStrongVerification: true,
+  birthdateVerificationStatus: 2,
+  genderVerificationStatus: 2,
+  doNotEmail: false,
 };
 
 describe("ChangeEmail", () => {

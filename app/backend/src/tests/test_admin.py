@@ -1,4 +1,5 @@
 from datetime import date
+from re import match
 from unittest.mock import patch
 
 import grpc
@@ -109,12 +110,15 @@ def test_ChangeUserBirthdate(db):
 
 
 def test_BanUser(db):
-    with session_scope() as session:
+    with session_scope():
         super_user, super_token = generate_user(is_superuser=True)
-        normal_user, normal_token = generate_user()
+        normal_user, _ = generate_user()
+        admin_note = "A good reason"
+        utc_regex = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00"
+        prefix_regex = rf"\n\[{utc_regex}\] \(id: {super_user.id}, username: {super_user.username}\)"
 
         with real_admin_session(super_token) as api:
-            res = api.BanUser(admin_pb2.BanUserReq(user=normal_user.username))
+            res = api.BanUser(admin_pb2.BanUserReq(user=normal_user.username, admin_note=admin_note))
         assert res.user_id == normal_user.id
         assert res.username == normal_user.username
         assert res.email == normal_user.email
@@ -122,6 +126,32 @@ def test_BanUser(db):
         assert parse_date(res.birthdate) == normal_user.birthdate
         assert res.banned
         assert not res.deleted
+        assert match(rf"^{prefix_regex} {admin_note}\n$", res.admin_note)
+
+
+def test_AddAdminNote(db):
+    with session_scope():
+        super_user, super_token = generate_user(is_superuser=True)
+        normal_user, _ = generate_user()
+        admin_note1 = "User reported strange behavior"
+        admin_note2 = "Insert private information here"
+        utc_regex = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00"
+        prefix_regex = rf"\n\[{utc_regex}\] \(id: {super_user.id}, username: {super_user.username}\)"
+
+        with real_admin_session(super_token) as api:
+            res = api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note=admin_note1))
+        assert res.user_id == normal_user.id
+        assert res.username == normal_user.username
+        assert res.email == normal_user.email
+        assert res.gender == normal_user.gender
+        assert parse_date(res.birthdate) == normal_user.birthdate
+        assert not res.banned
+        assert not res.deleted
+        assert match(rf"^{prefix_regex} {admin_note1}\n$", res.admin_note)
+
+        with real_admin_session(super_token) as api:
+            res = api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note=admin_note2))
+        assert match(rf"^{prefix_regex} {admin_note1}\n{prefix_regex} {admin_note2}\n$", res.admin_note)
 
 
 def test_DeleteUser(db):

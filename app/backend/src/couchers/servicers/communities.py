@@ -180,6 +180,63 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 next_page_token=str(admins[-1].id) if len(admins) > page_size else None,
             )
 
+    def AddAdmin(self, request, context):
+        with session_scope() as session:
+            node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+            if not node:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            if not can_moderate_node(session, context.user_id, node.id):
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NODE_MODERATE_PERMISSION_DENIED)
+
+            user = session.execute(
+                select(User).where_users_visible(context).where(User.id == request.user_id)
+            ).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+            subscription = session.execute(
+                select(ClusterSubscription)
+                .where(ClusterSubscription.user_id == user.id)
+                .where(ClusterSubscription.cluster_id == node.official_cluster.id)
+            ).scalar_one_or_none()
+            if not subscription:
+                # Can't upgrade a member to admin if they're not already a member
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_MEMBER)
+            if subscription.role == ClusterRole.admin:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_ALREADY_ADMIN)
+
+            subscription.role = ClusterRole.admin
+
+            return empty_pb2.Empty()
+
+    def RemoveAdmin(self, request, context):
+        with session_scope() as session:
+            node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+            if not node:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            if not can_moderate_node(session, context.user_id, node.id):
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NODE_MODERATE_PERMISSION_DENIED)
+
+            user = session.execute(
+                select(User).where_users_visible(context).where(User.id == request.user_id)
+            ).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+            subscription = session.execute(
+                select(ClusterSubscription)
+                .where(ClusterSubscription.user_id == user.id)
+                .where(ClusterSubscription.cluster_id == node.official_cluster.id)
+            ).scalar_one_or_none()
+            if not subscription:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_MEMBER)
+            if subscription.role == ClusterRole.member:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_ADMIN)
+
+            subscription.role = ClusterRole.member
+
+            return empty_pb2.Empty()
+
     def ListMembers(self, request, context):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)

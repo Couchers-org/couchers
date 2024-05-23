@@ -1,13 +1,13 @@
 ---
 title: "Couchers, Inc. Announces new Board members"
 slug: new-board-members
-description: The outgoing Board of Couchers, Inc. has approved three new Directors to the Board of Directors of the 501(c)3 non-profit backing the Couchers.org project. Learn more about the Board of Directors and some minor tweaks to our governance.
+description: The outgoing Board of Couchers, Inc. has approved three new Directors to the Board of Directors of the 501(c)(3) non-profit backing the Couchers.org project. Learn more about the Board of Directors and some minor tweaks to our governance.
 date: 2024/04/30
 author: Aapeli
 share_image: https://couchers.org/img/share.jpg
 ---
 
-The Couchers.org project is developed and operated by Couchers, Inc., a US-based 501(c)3 tax-exempt non-profit organization. The non-profit fulfills many important functions for the project: it maintains bank accounts, owns the intellectual property of the project (such as the brand and designs), and owns and operates the database. Additionally, it oversees the volunteering for the project, and helps set long-term goals such as the mission and vision of the organization.
+The Couchers.org project is developed and operated by Couchers, Inc., a US-based 501(c)(3) tax-exempt non-profit organization. The non-profit fulfills many important functions for the project: it maintains bank accounts, owns the intellectual property of the project (such as the brand and designs), and owns and operates the database. Additionally, it oversees the volunteering for the project, and helps set long-term goals such as the mission and vision of the organization.
 
 The outgoing Board had our Annual Genral Meeting on the 24th of April. This blog post outlines the changes in the Board of Directors as well as some other governance changes.
 

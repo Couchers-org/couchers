@@ -13,7 +13,7 @@ You've received a host request!
 {% if html %}
 
 {% if host_request.surfer.avatar %}
-<img src="{{ host_request.surfer.avatar.thumbnail_url|couchers_escape }}" alt="Your Guest's Profile Picture" >
+<img src="{{ host_request.surfer.avatar.thumbnail_url|couchers_safe }}" alt="Your Guest's Profile Picture" >
 {% endif %}
 
 {% endif %}
@@ -24,10 +24,10 @@ Check it out here:
 
 {{ button("Host Requests", host_request_link)|couchers_safe }}
 
-Alternatively, click the following link: {{ link(host_request_link, html)|couchers_safe }}.
+Alternatively, click the following link: {{ link(host_request_link, html)|couchers_safe }}
 
 {% else %}
-<{{ host_request_link|couchers_escape }}>
+<{{ host_request_link|couchers_safe }}>
 {% endif %}
 
 Thanks for using Couchers!
