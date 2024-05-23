@@ -10,7 +10,16 @@ from sqlalchemy.sql import or_, select
 from couchers import errors, urls
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
-from couchers.models import Event, EventOccurrence, GroupChat, GroupChatSubscription, HostRequest, Message, User, UserBadge
+from couchers.models import (
+    Event,
+    EventOccurrence,
+    GroupChat,
+    GroupChatSubscription,
+    HostRequest,
+    Message,
+    User,
+    UserBadge,
+)
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
 from couchers.servicers.api import get_strong_verification_fields

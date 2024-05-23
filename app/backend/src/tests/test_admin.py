@@ -10,10 +10,17 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Cluster, EventOccurrence, UserSession
 from couchers.sql import couchers_select as select
-from couchers.utils import parse_date, now, timedelta, Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
 from proto import admin_pb2, events_pb2
-from tests.test_fixtures import db, events_session, generate_user, get_user_id_and_token, real_admin_session, testconfig  # noqa
 from tests.test_communities import create_community
+from tests.test_fixtures import (  # noqa
+    db,
+    events_session,
+    generate_user,
+    get_user_id_and_token,
+    real_admin_session,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)

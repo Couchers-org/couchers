@@ -1286,17 +1286,14 @@ def test_CancelEvent(db):
 
     with events_session(token3) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.SetEventSubscription(
-                events_pb2.SetEventSubscriptionReq(
-                    event_id=event_id,
-                    subscribe=True
-                )
-            )
+            api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         assert e.value.details() == errors.EVENT_CANT_UPDATE_CANCELLED_EVENT
 
         with pytest.raises(grpc.RpcError) as e:
-            api.SetEventAttendance(events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING))
+            api.SetEventAttendance(
+                events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+            )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         assert e.value.details() == errors.EVENT_CANT_UPDATE_CANCELLED_EVENT
 

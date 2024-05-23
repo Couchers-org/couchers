@@ -564,7 +564,6 @@ class Events(events_pb2_grpc.EventsServicer):
 
         return empty_pb2.Empty()
 
-
     def ListEventOccurrences(self, request, context):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
@@ -576,7 +575,9 @@ class Events(events_pb2_grpc.EventsServicer):
             if not occurrence:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
 
-            occurrences = select(EventOccurrence).where(EventOccurrence.event_id == Event.id).where(~EventOccurrence.is_deleted)
+            occurrences = (
+                select(EventOccurrence).where(EventOccurrence.event_id == Event.id).where(~EventOccurrence.is_deleted)
+            )
 
             if not request.include_cancelled:
                 occurrences = occurrences.where(~EventOccurrence.is_cancelled)
@@ -803,7 +804,11 @@ class Events(events_pb2_grpc.EventsServicer):
             # the page token is a unix timestamp of where we left off
             page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
-            occurrences = select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(~EventOccurrence.is_deleted)
+            occurrences = (
+                select(EventOccurrence)
+                .join(Event, Event.id == EventOccurrence.event_id)
+                .where(~EventOccurrence.is_deleted)
+            )
 
             include_all = not (request.subscribed or request.attending or request.organizing or request.my_communities)
             include_subscribed = request.subscribed or include_all
@@ -877,7 +882,11 @@ class Events(events_pb2_grpc.EventsServicer):
             # the page token is a unix timestamp of where we left off
             page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
-            occurrences = select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(~EventOccurrence.is_deleted)
+            occurrences = (
+                select(EventOccurrence)
+                .join(Event, Event.id == EventOccurrence.event_id)
+                .where(~EventOccurrence.is_deleted)
+            )
 
             if not request.past:
                 occurrences = occurrences.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
