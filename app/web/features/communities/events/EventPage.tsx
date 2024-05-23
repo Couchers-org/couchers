@@ -253,7 +253,11 @@ export default function EventPage({
                     href={routeToEditEvent(event.eventId, event.slug)}
                     passHref
                   >
-                    <Button component="a" variant="outlined">
+                    <Button
+                      component="a"
+                      variant="outlined"
+                      disabled={event.isCancelled}
+                    >
                       {t("communities:edit_event")}
                     </Button>
                   </Link>
@@ -266,6 +270,7 @@ export default function EventPage({
                       variant="contained"
                       color="primary"
                       classes={{ containedPrimary: classes.cancelButton }}
+                      disabled={event.isCancelled}
                     >
                       {t("communities:cancel_event")}
                     </Button>
@@ -284,6 +289,7 @@ export default function EventPage({
                   }
                   attendanceState={event.attendanceState}
                   id="event-page-attendance"
+                  disabled={event.isCancelled}
                 />
               </div>
 

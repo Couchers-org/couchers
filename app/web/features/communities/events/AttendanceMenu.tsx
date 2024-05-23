@@ -20,11 +20,13 @@ export default function AttendanceMenu({
   onChangeAttendanceState,
   attendanceState,
   id,
+  disabled = false,
 }: {
   loading: boolean;
   onChangeAttendanceState: (attendanceState: AttendanceState) => void;
   attendanceState: AttendanceState;
   id: string;
+  disabled: boolean;
 }) {
   const { t } = useTranslation([COMMUNITIES]);
   const classes = useStyles();
@@ -63,6 +65,7 @@ export default function AttendanceMenu({
         onClick={handleClick}
         loading={loading}
         variant={isAttending ? "outlined" : "contained"}
+        disabled={disabled}
       >
         {isAttending
           ? t("communities:going_to_event")
