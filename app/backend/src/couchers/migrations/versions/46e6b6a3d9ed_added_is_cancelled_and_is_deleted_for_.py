@@ -1,0 +1,25 @@
+"""Added is_cancelled and is_deleted for Events
+
+Revision ID: 46e6b6a3d9ed
+Revises: 88b6bb559332
+Create Date: 2024-05-16 00:44:01.904266
+
+"""
+from alembic import op
+import sqlalchemy as sa
+
+# revision identifiers, used by Alembic.
+revision = '46e6b6a3d9ed'
+down_revision = '88b6bb559332'
+branch_labels = None
+depends_on = None
+
+
+def upgrade():
+    op.add_column('event_occurrences', sa.Column('is_cancelled', sa.Boolean(), nullable=False))
+    op.add_column('event_occurrences', sa.Column('is_deleted', sa.Boolean(), nullable=False))
+
+
+def downgrade():
+    op.drop_column('event_occurrences', 'is_deleted')
+    op.drop_column('event_occurrences', 'is_cancelled')
