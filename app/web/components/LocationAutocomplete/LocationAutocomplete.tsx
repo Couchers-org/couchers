@@ -74,9 +74,6 @@ export default function LocationAutocomplete({
     if (value === controller.field.value?.simplifiedName) return;
 
     controller.field.onChange(value ?? "");
-    if (typeof value === "object" || value === "" || value === null) {
-      onChange?.(value ?? "");
-    }
   };
 
   const searchSubmit = (

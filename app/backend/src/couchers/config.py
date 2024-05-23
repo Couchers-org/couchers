@@ -14,8 +14,10 @@ CONFIG_OPTIONS = [
     ("ROLE", ["api", "scheduler", "worker", "all"], "all"),
     # Version string
     ("VERSION", str, "unknown"),
-    # Base URL
+    # Base URL of frontend, e.g. https://couchers.org
     ("BASE_URL", str),
+    # URL of the backend, e.g. https://api.couchers.org
+    ("BACKEND_BASE_URL", str),
     # Used to generate a variety of secrets
     ("SECRET", bytes),
     # Domain that cookies should set as their domain value
@@ -29,6 +31,11 @@ CONFIG_OPTIONS = [
     ("STRIPE_API_KEY", str),
     ("STRIPE_WEBHOOK_SECRET", str),
     ("STRIPE_RECURRING_PRODUCT_ID", str),
+    # Strong verification through Iris ID
+    ("ENABLE_STRONG_VERIFICATION", bool),
+    ("IRIS_ID_PUBKEY", str),
+    ("IRIS_ID_SECRET", str),
+    ("VERIFICATION_DATA_PUBLIC_KEY", bytes),
     # SMS
     ("ENABLE_SMS", bool),
     ("SMS_SENDER_ID", str),
@@ -135,3 +142,7 @@ def check_config():
             or not config["STRIPE_RECURRING_PRODUCT_ID"]
         ):
             raise Exception("No Stripe API key/recurring donation ID but donations enabled")
+
+    if config["ENABLE_STRONG_VERIFICATION"]:
+        if not config["IRIS_ID_PUBKEY"] or not config["IRIS_ID_SECRET"] or not config["VERIFICATION_DATA_PUBLIC_KEY"]:
+            raise Exception("No Iris ID pubkey/secret or verification data pubkey but strong verification enabled")

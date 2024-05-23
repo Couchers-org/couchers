@@ -29,7 +29,7 @@ from couchers.models import (
     UserBlock,
     UserSession,
 )
-from couchers.servicers.account import Account
+from couchers.servicers.account import Account, Iris
 from couchers.servicers.admin import Admin
 from couchers.servicers.api import API
 from couchers.servicers.auth import Auth, create_session
@@ -66,6 +66,7 @@ from proto import (
     donations_pb2_grpc,
     events_pb2_grpc,
     groups_pb2_grpc,
+    iris_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
     notifications_pb2_grpc,
@@ -565,6 +566,23 @@ def real_stripe_session():
 
 
 @contextmanager
+def real_iris_session():
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        iris_pb2_grpc.add_IrisServicer_to_server(Iris(), server)
+        server.start()
+
+        creds = grpc.local_channel_credentials()
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", creds) as channel:
+                yield iris_pb2_grpc.IrisStub(channel)
+        finally:
+            server.stop(None).wait()
+
+
+@contextmanager
 def pages_session(token):
     channel = fake_channel(token)
     pages_pb2_grpc.add_PagesServicer_to_server(Pages(), channel)
@@ -696,6 +714,7 @@ def testconfig():
     config["SECRET"] = bytes.fromhex("448697d3886aec65830a1ea1497cdf804981e0c260d2f812cf2787c4ed1a262b")
     config["VERSION"] = "testing_version"
     config["BASE_URL"] = "http://localhost:3000"
+    config["BACKEND_BASE_URL"] = "http://localhost:8888"
     config["COOKIE_DOMAIN"] = "localhost"
 
     config["ENABLE_SMS"] = False
@@ -712,6 +731,14 @@ def testconfig():
     config["STRIPE_API_KEY"] = ""
     config["STRIPE_WEBHOOK_SECRET"] = ""
     config["STRIPE_RECURRING_PRODUCT_ID"] = ""
+
+    config["ENABLE_STRONG_VERIFICATION"] = False
+    config["IRIS_ID_PUBKEY"] = ""
+    config["IRIS_ID_SECRET"] = ""
+    # corresponds to private key e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272
+    config["VERIFICATION_DATA_PUBLIC_KEY"] = bytes.fromhex(
+        "dd740a2b2a35bf05041a28257ea439b30f76f056f3698000b71e6470cd82275f"
+    )
 
     config["SMTP_HOST"] = "localhost"
     config["SMTP_PORT"] = 587

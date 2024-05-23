@@ -5,6 +5,7 @@ import {
   Theme,
   Typography,
   useMediaQuery,
+  useTheme,
 } from "@material-ui/core";
 import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
@@ -68,6 +69,7 @@ export default function FilterDialog({
 }) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
+  const theme = useTheme();
   const { control, handleSubmit, register, setValue, getValues, errors } =
     useForm<FilterDialogFormData>({
       mode: "onBlur",
@@ -75,7 +77,9 @@ export default function FilterDialog({
   const queryClient = useQueryClient();
   const onSubmit = handleSubmit((data) => {
     if (data.location && data.location.bbox) {
-      updateMapBoundingBox(data.location?.bbox);
+      setTimeout(() => {
+        updateMapBoundingBox((data.location as GeocodeResult)?.bbox);
+      }, theme.transitions.duration.standard);
     }
     if (data.location === "" || !data.location) {
       searchFilters.remove("location");

@@ -82,7 +82,9 @@ export default function SearchBox({
       searchFilters.change("lng", value.location.lng);
       searchFilters.change("bbox", value.bbox);
 
-      updateMapBoundingBox(value.bbox);
+      setTimeout(() => {
+        updateMapBoundingBox(value.bbox);
+      }, theme.transitions.duration.standard);
     }
     //necessary because we don't want to cache every search for each filter
     //but we do want react-query to handle pagination

@@ -22,6 +22,13 @@
       "admin_editable": false
     },
     {
+      "id": "moderator",
+      "name": "Moderator",
+      "description": "This user is a moderator of Couchers.org",
+      "color": "#c74f5b",
+      "admin_editable": false
+     },
+    {
       "id": "volunteer",
       "name": "Active Volunteer",
       "description": "This user is an active volunteer for Couchers.org",
@@ -48,11 +55,18 @@
       "description": "This user has verified their phone number",
       "color": "#71b768",
       "admin_editable": false
+    },
+    {
+      "id": "strong_verification",
+      "name": "Strong Verification",
+      "description": "This user has verified their gender and date of birth with a biometric passport",
+      "color": "#1b8aa0",
+      "admin_editable": false
     }
   ],
   "static_badges": {
     "founder": [1, 2],
-    "board_member": [1, 2, 57, 4137],
-    "past_board_member": [4141]
+    "board_member": [1, 2, 17, 57, 135, 198, 464],
+    "past_board_member": [25, 4137, 4141]
   }
 }

@@ -3,7 +3,7 @@ Background job servicers
 """
 
 import logging
-from datetime import timedelta
+from datetime import date, timedelta
 from math import sqrt
 from typing import List
 
@@ -11,10 +11,12 @@ import requests
 from google.protobuf import empty_pb2
 from sqlalchemy import Integer
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, cast, delete, distinct, extract, func, literal, not_, or_, select, union_all
+from sqlalchemy.sql import and_, case, cast, delete, distinct, extract, func, literal, not_, or_, select, union_all
 from sqlalchemy.sql.functions import percentile_disc
 
-from couchers import config, email, urls
+from couchers import email, urls
+from couchers.config import config
+from couchers.crypto import asym_encrypt, b64decode, simple_decrypt
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
@@ -33,8 +35,11 @@ from couchers.models import (
     LoginToken,
     Message,
     MessageType,
+    PassportSex,
     PasswordResetToken,
     Reference,
+    StrongVerificationAttempt,
+    StrongVerificationAttemptStatus,
     User,
     UserBadge,
 )
@@ -48,7 +53,7 @@ from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.tasks import send_onboarding_email, send_reference_reminder_email
 from couchers.utils import now
-from proto.internal import jobs_pb2
+from proto.internal import jobs_pb2, verification_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +61,7 @@ logger = logging.getLogger(__name__)
 def send_email(payload):
     logger.info(f"Sending email with subject '{payload.subject}' to '{payload.recipient}'")
     # selects a "sender", which either prints the email to the logger or sends it out with SMTP
-    sender = send_smtp_email if config.config["ENABLE_EMAIL"] else print_dev_email
+    sender = send_smtp_email if config["ENABLE_EMAIL"] else print_dev_email
     # the sender must return a models.Email object that can be added to the database
     email = sender(
         sender_name=payload.sender_name,
@@ -438,7 +443,7 @@ send_reference_reminders.SCHEDULE = timedelta(hours=1)
 
 
 def add_users_to_email_list(payload):
-    if not config.config["MAILCHIMP_ENABLED"]:
+    if not config["MAILCHIMP_ENABLED"]:
         logger.info(f"Not adding users to mailing list")
         return
 
@@ -455,7 +460,7 @@ def add_users_to_email_list(payload):
             logger.info(f"No users to add to mailing list")
             return
 
-        auth = ("apikey", config.config["MAILCHIMP_API_KEY"])
+        auth = ("apikey", config["MAILCHIMP_API_KEY"])
 
         body = {
             "members": [
@@ -471,8 +476,8 @@ def add_users_to_email_list(payload):
             ]
         }
 
-        dc = config.config["MAILCHIMP_DC"]
-        list_id = config.config["MAILCHIMP_LIST_ID"]
+        dc = config["MAILCHIMP_DC"]
+        list_id = config["MAILCHIMP_LIST_ID"]
         r = requests.post(f"https://{dc}.api.mailchimp.com/3.0/lists/{list_id}", auth=auth, json=body)
         if r.status_code == 200:
             for user in users:
@@ -621,7 +626,6 @@ def update_recommendation_scores(payload):
         activeness_points = recently_active + 2 * very_recently_active + int_(messaging_subquery.c.messaging_points)
 
         # verification
-        phone_verified = int_(User.phone_is_verified)
         cb_subquery = (
             select(ClusterSubscription.user_id.label("user_id"), func.min(Cluster.parent_node_id).label("min_node_id"))
             .join(Cluster, Cluster.id == ClusterSubscription.cluster_id)
@@ -632,9 +636,28 @@ def update_recommendation_scores(payload):
         )
         min_node_id = cb_subquery.c.min_node_id
         cb = int_(min_node_id >= 1)
-        f = int_(User.id <= 2)
         wcb = int_(min_node_id == 1)
-        verification_points = 0.0 + 100 * f + 10 * wcb + 5 * cb
+        badge_points = {
+            "founder": 100,
+            "board_member": 20,
+            "past_board_member": 5,
+            "strong_verification": 3,
+            "volunteer": 3,
+            "past_volunteer": 2,
+            "donor": 1,
+            "phone_verified": 1,
+        }
+
+        badge_subquery = (
+            select(
+                UserBadge.user_id.label("user_id"),
+                func.sum(case(badge_points, value=UserBadge.badge_id, else_=0)).label("badge_points"),
+            )
+            .group_by(UserBadge.user_id)
+            .subquery()
+        )
+
+        other_points = 0.0 + 10 * wcb + 5 * cb + int_(badge_subquery.c.badge_points)
 
         # response rate
         t = (
@@ -689,7 +712,7 @@ def update_recommendation_scores(payload):
             profile_points
             + ref_score
             + activeness_points
-            + verification_points
+            + other_points
             + response_rate_points
             + 2 * poor_man_gaussian()
         )
@@ -698,6 +721,7 @@ def update_recommendation_scores(payload):
             select(User.id.label("user_id"), recommendation_score.label("score"))
             .outerjoin(messaging_subquery, messaging_subquery.c.user_id == User.id)
             .outerjoin(left_refs_subquery, left_refs_subquery.c.user_id == User.id)
+            .outerjoin(badge_subquery, badge_subquery.c.user_id == User.id)
             .outerjoin(received_ref_subquery, received_ref_subquery.c.user_id == User.id)
             .outerjoin(cb_subquery, cb_subquery.c.user_id == User.id)
             .outerjoin(hr_subquery, hr_subquery.c.user_id == User.id)
@@ -766,8 +790,69 @@ def update_badges(payload):
         update_badge(
             "donor", session.execute(select(User.id).join(Invoice, Invoice.user_id == User.id)).scalars().all()
         )
+        update_badge("moderator", session.execute(select(User.id).where(User.is_superuser)).scalars().all())
         update_badge("phone_verified", session.execute(select(User.id).where(User.phone_is_verified)).scalars().all())
+        # strong verification requires passport on file + gender/sex correspondence and date of birth match
+        update_badge(
+            "strong_verification",
+            session.execute(
+                select(User.id)
+                .join(StrongVerificationAttempt, StrongVerificationAttempt.user_id == User.id)
+                .where(StrongVerificationAttempt.is_valid)
+                .where(StrongVerificationAttempt.passport_date_of_birth == User.birthdate)
+                .where(
+                    or_(
+                        and_(User.gender == "Woman", StrongVerificationAttempt.passport_sex == PassportSex.female),
+                        and_(User.gender == "Man", StrongVerificationAttempt.passport_sex == PassportSex.male),
+                        StrongVerificationAttempt.passport_sex == PassportSex.unspecified,
+                    )
+                )
+            )
+            .scalars()
+            .all(),
+        )
 
 
 update_badges.PAYLOAD = empty_pb2.Empty
 update_badges.SCHEDULE = timedelta(minutes=15)
+
+
+def finalize_strong_verification(payload):
+    with session_scope() as session:
+        verification_attempt = session.execute(
+            select(StrongVerificationAttempt)
+            .where(StrongVerificationAttempt.id == payload.verification_attempt_id)
+            .where(StrongVerificationAttempt.status == StrongVerificationAttemptStatus.in_progress_waiting_on_backend)
+        ).scalar_one()
+        response = requests.post(
+            "https://passportreader.app/api/v1/session.get",
+            auth=(config["IRIS_ID_PUBKEY"], config["IRIS_ID_SECRET"]),
+            json={"id": verification_attempt.iris_session_id},
+            timeout=10,
+        )
+        if response.status_code != 200:
+            raise Exception(f"Iris didn't return 200: {response.text}")
+        json_data = response.json()
+        reference_payload = verification_pb2.VerificationReferencePayload.FromString(
+            simple_decrypt("iris_callback", b64decode(json_data["reference"]))
+        )
+        assert verification_attempt.user_id == reference_payload.user_id
+        assert verification_attempt.verification_attempt_token == reference_payload.verification_attempt_token
+        assert verification_attempt.iris_session_id == json_data["id"]
+        assert json_data["state"] == "APPROVED"
+        assert json_data["document_type"] == "PASSPORT"
+        verification_attempt.has_full_data = True
+        verification_attempt.passport_encrypted_data = asym_encrypt(
+            config["VERIFICATION_DATA_PUBLIC_KEY"], response.text.encode("utf8")
+        )
+        verification_attempt.passport_name = json_data["given_names"] + " " + json_data["surname"]
+        verification_attempt.passport_date_of_birth = date.fromisoformat(json_data["date_of_birth"])
+        verification_attempt.passport_sex = PassportSex[json_data["sex"].lower()]
+        verification_attempt.has_minimal_data = True
+        verification_attempt.passport_expiry_date = date.fromisoformat(json_data["expiry_date"])
+        verification_attempt.passport_nationality = json_data["nationality"]
+        verification_attempt.passport_last_three_document_chars = json_data["document_number"][-3:]
+        verification_attempt.status = StrongVerificationAttemptStatus.succeeded
+
+
+finalize_strong_verification.PAYLOAD = jobs_pb2.FinalizeStrongVerificationPayload
