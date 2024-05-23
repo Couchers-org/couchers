@@ -17,6 +17,8 @@
       "threadId": 21,
       "numResponses": 0
     },
+    "isCancelled": false,
+    "isDeleted": false,
     "canEdit": false,
     "canModerate": false,
     "isNext": false,
@@ -52,6 +54,8 @@
       "threadId": 31,
       "numResponses": 0
     },
+    "isCancelled": false,
+    "isDeleted": false,
     "canEdit": false,
     "canModerate": false,
     "isNext": false,
@@ -85,6 +89,8 @@
       "threadId": 41,
       "numResponses": 0
     },
+    "isCancelled": false,
+    "isDeleted": false,
     "canEdit": false,
     "canModerate": false,
     "isNext": false,
