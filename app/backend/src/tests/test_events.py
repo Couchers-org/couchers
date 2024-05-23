@@ -1198,7 +1198,7 @@ def test_GetEvent(db):
         assert not res.can_moderate
 
 
-4def test_CancelEvent(db):
+def test_CancelEvent(db):
     # event creator
     user1, token1 = generate_user()
     # community moderator
