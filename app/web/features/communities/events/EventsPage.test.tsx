@@ -42,7 +42,7 @@ describe("Events page", () => {
       await screen.findByRole("heading", { name: t("communities:upcoming") })
     ).toBeVisible();
 
-    // Check that there are 3 events cards in success case
+    // Check that there are 3 events cards in success case (by default 1 cancelled not shown)
     expect(screen.getAllByRole("link")).toHaveLength(3);
   });
 
@@ -95,6 +95,24 @@ describe("Events page", () => {
     expect(
       screen.queryByText(t("communities:events_empty_state"))
     ).not.toBeInTheDocument();
+  });
+
+  it(`shows cancelled events if "${t(
+    "communities:show_cancelled_events"
+  )}" is checked`, async () => {
+    render(<EventsPage />, { wrapper });
+    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+    expect(screen.getAllByRole("link")).toHaveLength(3);
+
+    const switchSpan = screen.getByRole("checkbox", {
+      name: t("communities:show_cancelled_events"),
+    });
+
+    userEvent.click(switchSpan);
+
+    // Check that there are 4 events cards in success case (3 + 1 cancelled)
+    expect(screen.getAllByRole("link")).toHaveLength(4);
   });
 
   describe("when there are more than one page of events", () => {

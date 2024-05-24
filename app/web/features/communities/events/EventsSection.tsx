@@ -56,6 +56,7 @@ export default function EventsSection({
           <HorizontalScroller className={classes.cardContainer}>
             {data.pages
               .flatMap((page) => page.eventsList)
+              .filter((event) => !event.isCancelled)
               .map((event) => (
                 <EventCard
                   key={event.eventId}
