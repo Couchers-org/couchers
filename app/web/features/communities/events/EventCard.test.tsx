@@ -94,7 +94,9 @@ describe("Event card", () => {
   });
 
   it("renders a badge for cancelled event card", () => {
-    const { container } = render(<EventCard event={cancelledEvent} />, { wrapper });
+    const { container } = render(<EventCard event={cancelledEvent} />, {
+      wrapper,
+    });
 
     expect(
       screen.getByRole("heading", { name: cancelledEvent.title })

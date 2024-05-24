@@ -76,7 +76,9 @@ describe("My events", () => {
     it('shows the the next page of events when the "See more events" button is clicked', async () => {
       listMyEventsMock.mockImplementation(async ({ pageToken }) => {
         return {
-          eventsList: pageToken ? nonCancelledEvents.slice(2) : nonCancelledEvents.slice(0, 2),
+          eventsList: pageToken
+            ? nonCancelledEvents.slice(2)
+            : nonCancelledEvents.slice(0, 2),
           nextPageToken: pageToken ? "" : "2",
         };
       });
@@ -110,7 +112,9 @@ describe("My events", () => {
       window.matchMedia = createMatchMedia(window.innerWidth);
       listMyEventsMock.mockImplementation(async ({ pageToken }) => {
         return {
-          eventsList: pageToken ? nonCancelledEvents.slice(2) : nonCancelledEvents.slice(0, 2),
+          eventsList: pageToken
+            ? nonCancelledEvents.slice(2)
+            : nonCancelledEvents.slice(0, 2),
           nextPageToken: pageToken ? "" : "2",
         };
       });
