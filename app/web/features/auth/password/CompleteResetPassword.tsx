@@ -88,7 +88,9 @@ export default function CompleteResetPassword() {
       <HtmlMeta title={t("auth:change_password_form.title")} />
 
       {!isResetTokenOk && (
-        <Alert severity="error">{t("auth:change_password_form.token_error")}</Alert>
+        <Alert severity="error">
+          {t("auth:change_password_form.token_error")}
+        </Alert>
       )}
 
       {error && (
