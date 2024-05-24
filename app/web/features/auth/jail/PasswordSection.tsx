@@ -79,7 +79,7 @@ export default function PasswordSection({
         <Alert severity="success">
           {setPasswordVariables?.password
             ? t("auth:change_password_form.password_changed_success")
-            : t("auth:reset_password_success")}
+            : t("auth:change_password_form.reset_password_success")}
         </Alert>
       )}
       <form className={classes.form} onSubmit={onSubmit}>

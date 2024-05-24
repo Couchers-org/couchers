@@ -54,7 +54,7 @@ export default function CompleteResetPassword() {
   const router = useRouter();
   const resetToken = stringOrFirstString(router.query.token);
   const isResetTokenOk =
-    !!resetToken && typeof resetToken === "string" && resetToken !== ""; // TODO: needed??
+    !!resetToken && typeof resetToken === "string" && resetToken !== "";
 
   const { error, isLoading, isSuccess, mutate } = useMutation<
     Empty,
@@ -73,7 +73,6 @@ export default function CompleteResetPassword() {
     mutate(newPassword);
   });
 
-  // TODO: needed?
   if (authState.authenticated) {
     return (
       <Container className={formClass.standardContainer}>
@@ -141,7 +140,7 @@ export default function CompleteResetPassword() {
         <Button
           loading={isLoading}
           type="submit"
-          disabled={isLoading || !isResetTokenOk}
+          disabled={isLoading || !isResetTokenOk || authState.authenticated}
         >
           {t("global:submit")}
         </Button>

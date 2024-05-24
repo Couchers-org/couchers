@@ -19,14 +19,13 @@
     "subtitle": "Use this form to reset your login password.",
     "confirm_password": "Confirm password",
     "password_changed_success": "Your new password has been set and a notification was sent to your email.",
-    "new_password": "New password",
     "old_password": "Old password",
+    "new_password": "New password",
     "password_mismatch_error": "The passwords don't match.",
     "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
     "reset_password_success": "Your password has been changed successfully!",
     "reset_password_error": "Error resetting password: {{message}}"
   },
-  "reset_password_success": "Your password has been changed successfully!",
   "jail_set_password_form": {
     "title": "Set a password",
     "explanation": "You have not previously set a password for your account. Please create one now to continue."
@@ -214,6 +213,7 @@
       "reason_label": "Reason for account deletion",
       "success_message": "Account deletion initiated. To complete account deletion, please confirm through the email we sent you."
     },
+    "missing_token": "Error: missing token",
     "confirm": {
       "title": "Confirm account deletion",
       "error_message": "Failed to confirm account deletion: {{message}}",
@@ -225,7 +225,6 @@
       "error_message": "Failed to recover account: {{message}}",
       "button_text": "Recover your account",
       "success": "Your account has been recovered, you can log back in. We're excited to have you back!"
-    },
-    "missing_token": "Error: missing token"
+    }
   }
 }
