@@ -560,7 +560,16 @@ class Events(events_pb2_grpc.EventsServicer):
 
             occurrence.is_cancelled = True
 
-            # TODO: Notify attendees
+            fan_notify(
+                fan_func="fan_to_occurrence_subscribers_and_attendees",
+                fan_func_data=str(occurrence.id),
+                topic="event",
+                key=str(occurrence.id),
+                action="cancel",
+                icon="cancel",
+                title=f'"{event.title}" was cancelled by an organizer.',
+                link=urls.event_link(occurrence_id=occurrence.id, slug=event.slug),
+            )
 
         return empty_pb2.Empty()
 

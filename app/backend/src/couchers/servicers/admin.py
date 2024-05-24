@@ -20,7 +20,7 @@ from couchers.models import (
     User,
     UserBadge,
 )
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import fan_notify, notify
 from couchers.resources import get_badge_dict
 from couchers.servicers.api import get_strong_verification_fields
 from couchers.servicers.auth import create_session
@@ -347,5 +347,16 @@ class Admin(admin_pb2_grpc.AdminServicer):
             event, occurrence = res
 
             occurrence.is_deleted = True
+
+            fan_notify(
+                fan_func="fan_to_occurrence_subscribers_and_attendees",
+                fan_func_data=str(occurrence.id),
+                topic="event",
+                key=str(occurrence.id),
+                action="delete",
+                icon="cancel",
+                title=f'"{event.title}" was deleted by an admin.',
+                link=urls.event_link(occurrence_id=occurrence.id, slug=event.slug),
+            )
 
         return empty_pb2.Empty()
