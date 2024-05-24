@@ -117,6 +117,8 @@ settings_layout = [
                 [
                     ("create", "An event is created in your community"),
                     ("update", "An event you are attending is updated"),
+                    ("cancel", "An event you were attending has been cancelled"),
+                    ("delete", "An event you were attending has been deleted"),
                     ("invite_organizer", "Someone invites you to co-organize an event"),
                 ],
             ),

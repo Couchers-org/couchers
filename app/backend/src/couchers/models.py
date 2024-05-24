@@ -2158,6 +2158,8 @@ class NotificationTopicAction(enum.Enum):
     # events
     event__create = ("event", "create", [dt.push, dt.digest], True)
     event__update = ("event", "update", [dt.push, dt.digest], True)
+    event__cancel = ("event", "cancel", [dt.email, dt.push, dt.digest], True)
+    event__delete = ("event", "delete", [dt.email, dt.push, dt.digest], True)
     event__invite_organizer = ("event", "invite_organizer", [dt.email, dt.push, dt.digest], True)
 
 
