@@ -17,8 +17,8 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column("event_occurrences", sa.Column("is_cancelled", sa.Boolean(), nullable=False))
-    op.add_column("event_occurrences", sa.Column("is_deleted", sa.Boolean(), nullable=False))
+    op.add_column("event_occurrences", sa.Column("is_cancelled", sa.Boolean(), nullable=False, server_default=sa.text("false")))
+    op.add_column("event_occurrences", sa.Column("is_deleted", sa.Boolean(), nullable=False, server_default=sa.text("false")))
 
 
 def downgrade():
