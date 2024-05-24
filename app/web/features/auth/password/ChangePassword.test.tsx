@@ -151,7 +151,9 @@ describe("ChangePassword", () => {
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
-      expect(successAlert).toHaveTextContent(t("auth:change_password_form.reset_password_success"));
+      expect(successAlert).toHaveTextContent(
+        t("auth:change_password_form.reset_password_success")
+      );
       expect(changePasswordMock).toHaveBeenCalledTimes(1);
       expect(changePasswordMock).toHaveBeenCalledWith("old_password", "");
 
