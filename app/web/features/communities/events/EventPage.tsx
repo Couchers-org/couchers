@@ -10,7 +10,6 @@ import { eventImagePlaceholderUrl } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HeaderButton from "components/HeaderButton";
-import CancelEventDialog from "features/communities/events/CancelEventDialog";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
@@ -33,10 +32,10 @@ import makeStyles from "utils/makeStyles";
 
 import CommentTree from "../discussions/CommentTree";
 import AttendanceMenu from "./AttendanceMenu";
+import CancelEventDialog from "./CancelEventDialog";
 import EventAttendees from "./EventAttendees";
 import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
-import LeaveDialog from "../../messages/groupchats/LeaveDialog";
 
 export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
   (theme) => ({
