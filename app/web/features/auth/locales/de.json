@@ -76,8 +76,8 @@
     "password_changed_success": "Dein neues Passwort wurde akzeptiert und eine Benachrichtigung wurde an deine E-Mail-Adresse gesendet.",
     "old_password": "Altes Passwort",
     "new_password": "Neues Passwort",
-    "subtitle": "Use this form to reset your login password",
-    "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
+    "subtitle": "Verwenden Sie dieses Formular, um Ihr Login-Passwort zurückzusetzen",
+    "token_error": "Bei der Verarbeitung des Passwort-Reset-Tokens ist ein Fehler aufgetreten. Bitte versuchen Sie, den Link aus der E-Mail erneut zu öffnen.",
     "reset_password_success": "Dein Passwort wurde erfolgreich geändert! Dir wird jetzt ein magischer Link an deine E-Mail-Adresse gesendet, sobald du dich mit Benutzername oder E-Mail-Adresse einloggst.",
     "reset_password_error": "Fehler beim Zurücksetzen des Passworts: {{message}}",
     "password_mismatch_error": "Dies stimmt nicht mit dem Passwort, das du oben eingegeben hast, überein."

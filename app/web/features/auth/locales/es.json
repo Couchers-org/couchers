@@ -67,8 +67,8 @@
     "old_password": "Contraseña antigua",
     "new_password": "Nueva contraseña",
     "reset_password_error": "Error al restablecer la contraseña: {{message}}",
-    "subtitle": "Use this form to reset your login password",
-    "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
+    "subtitle": "Utilice este formulario para restablecer su contraseña.",
+    "token_error": "Se ha producido un error al procesar el token de cambio de contraseña. Intente abrir de nuevo el enlace desde el correo electrónico.",
     "reset_password_success": "Tu contraseña ha sido restablecida con éxito. Recibirás un enlace mágico por correo electrónico cuando te conectes con tu nombre de usuario o correo electrónico.",
     "password_mismatch_error": "Esto no coincide con la nueva contraseña que has tecleado arriba."
   },
