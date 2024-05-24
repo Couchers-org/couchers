@@ -76,6 +76,10 @@
     "password_changed_success": "Dein neues Passwort wurde akzeptiert und eine Benachrichtigung wurde an deine E-Mail-Adresse gesendet.",
     "old_password": "Altes Passwort",
     "new_password": "Neues Passwort",
+    "subtitle": "Use this form to reset your login password",
+    "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
+    "reset_password_success": "Dein Passwort wurde erfolgreich geändert! Dir wird jetzt ein magischer Link an deine E-Mail-Adresse gesendet, sobald du dich mit Benutzername oder E-Mail-Adresse einloggst.",
+    "reset_password_error": "Fehler beim Zurücksetzen des Passworts: {{message}}",
     "password_mismatch_error": "Dies stimmt nicht mit dem Passwort, das du oben eingegeben hast, überein."
   },
   "reset_password_form": {
@@ -101,13 +105,11 @@
   },
   "sign_up_completed_title": "Danke, dass du uns beigetreten bist!",
   "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche, dich einzuloggen.",
-  "reset_password_success": "Dein Passwort wurde erfolgreich geändert! Dir wird jetzt ein magischer Link an deine E-Mail-Adresse gesendet, sobald du dich mit Benutzername oder E-Mail-Adresse einloggst.",
   "login_prompt": "Klicke hier, um dich einzuloggen",
   "about_us": "Über uns",
   "introduction_subtitle": "Auf ewig kostenlos. Von der Community geleitet. Gemeinnützig. Modern.",
   "introduction_title": "Tritt uns bei und unterstütze uns darin, die neue Alternative zu Couchsurfing™ wachsen zu lassen",
   "reset_password": "Passwort zurücksetzen",
-  "reset_password_error": "Fehler beim Zurücksetzen des Passworts: {{message}}",
   "account_settings_page": {
     "birth_date_section": {
       "explanation": "Die Admins werden dir behilfreich sein, dein Geburtsdatum zu ändern. Bitte kontaktiere support@couchers.org!",

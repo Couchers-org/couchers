@@ -66,6 +66,10 @@
     "password_changed_success": "Se ha establecido tu nueva contraseña y se ha enviado una notificación a tu correo electrónico.",
     "old_password": "Contraseña antigua",
     "new_password": "Nueva contraseña",
+    "reset_password_error": "Error al restablecer la contraseña: {{message}}",
+    "subtitle": "Use this form to reset your login password",
+    "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
+    "reset_password_success": "Tu contraseña ha sido restablecida con éxito. Recibirás un enlace mágico por correo electrónico cuando te conectes con tu nombre de usuario o correo electrónico.",
     "password_mismatch_error": "Esto no coincide con la nueva contraseña que has tecleado arriba."
   },
   "reset_password_form": {
@@ -145,8 +149,6 @@
   "introduction_subtitle": "Gratis para siempre. Gestionada por la comunidad. Sin ánimo de lucro. Moderna.",
   "introduction_title": "Únete y ayuda a que crezca la nueva alternativa a Couchsurfing™",
   "login_prompt": "Haz clic aquí para iniciar sesión",
-  "reset_password_error": "Error al restablecer la contraseña: {{message}}",
-  "reset_password_success": "Tu contraseña ha sido restablecida con éxito. Recibirás un enlace mágico por correo electrónico cuando te conectes con tu nombre de usuario o correo electrónico.",
   "community_guidelines_form": {
     "guideline": {
       "checkbox_label": "Entendido",

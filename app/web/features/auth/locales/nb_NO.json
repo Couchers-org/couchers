@@ -18,6 +18,10 @@
     "title": "Endre passord",
     "old_password": "Gammelt passord",
     "new_password": "Nytt passord",
+    "reset_password_error": "Kunne ikke tilbakestille passordet: {{message}}",
+    "subtitle": "Use this form to reset your login password",
+    "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
+    "reset_password_success": "Passordet ditt har blitt tilbakestilt. Du vil nå få en magisk lenke når du logger inn med brukernavn eller e-postadresse.",
     "password_mismatch_error": "Passordene samsvarer ikke.",
     "confirm_password": "Bekreft passord",
     "password_changed_success": "Ditt nye passord er satt, og en merknad ble send til deg per e-post."
@@ -119,9 +123,7 @@
   },
   "sign_up_completed_title": "Takk for at du registrerer deg!",
   "reset_password": "Tilbakestill passord",
-  "reset_password_error": "Kunne ikke tilbakestille passordet: {{message}}",
   "sign_up_completed_prompt": "En e-post inneholdende bekreftelseslenken ble send til deg. Klikk på den for å aktivere kontoen din.",
-  "reset_password_success": "Passordet ditt har blitt tilbakestilt. Du vil nå få en magisk lenke når du logger inn med brukernavn eller e-postadresse.",
   "introduction_subtitle": "Alltid fritt. Gemenskapsdrevet. Veldedig. Moderne.",
   "jail_set_password_form": {
     "title": "Lag et passord",

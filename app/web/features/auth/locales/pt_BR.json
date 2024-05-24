@@ -18,6 +18,10 @@
     "title": "Alteração de senha",
     "confirm_password": "Confirmar senha",
     "new_password": "Nova senha",
+    "reset_password_error": "Erro ao redefinir senha: {{message}}",
+    "subtitle": "Use this form to reset your login password",
+    "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
+    "reset_password_success": "Sua senha foi alterada com sucesso! Você receberá um e-mail com um link mágico quando fizer login com seu nome de usuário ou e-mail.",
     "password_mismatch_error": "A senha não corresponde com a digitada anteriormente.",
     "password_changed_success": "Sua senha foi definida e uma notificação foi enviada para o seu e-mail.",
     "old_password": "Antiga senha"
@@ -157,7 +161,6 @@
   "introduction_subtitle": "Grátis para sempre. Construído pela Comunidade. Sem fins lucrativos. Moderno.",
   "introduction_title": "Junte-se a nós e ajude a nova alternativa ao Couchsurfing™ a crescer",
   "reset_password": "Redefinir senha",
-  "reset_password_error": "Erro ao redefinir senha: {{message}}",
   "vercel_logo_alt_text": "Desenvolvido por Vercel",
   "community_guidelines_form": {
     "guideline": {
@@ -167,7 +170,6 @@
     "header": "Orientações da Comunidade"
   },
   "unhandled_sign_up_state": "Erro: estado de fluxo de registo não tratado.",
-  "reset_password_success": "Sua senha foi alterada com sucesso! Você receberá um e-mail com um link mágico quando fizer login com seu nome de usuário ou e-mail.",
   "login_prompt": "Clique aqui para entrar",
   "logged_out_message": "Sua sessão foi encerrada.",
   "feedback_form": {

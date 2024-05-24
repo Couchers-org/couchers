@@ -20,6 +20,10 @@
     "password_changed_success": "您的密碼已設定完成且確認信已發送至您的電子郵件地址。",
     "old_password": "先前的密碼",
     "new_password": "新的密碼",
+    "reset_password_error": "重設密碼錯誤：{{message}}",
+    "subtitle": "Use this form to reset your login password",
+    "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
+    "reset_password_success": "您的密碼已經被重新設置成功！我們會給您發一封郵件---點擊郵件裡的連結，就能見證奇跡。",
     "password_mismatch_error": "這與您在上面輸入的密碼不一樣。"
   },
   "reset_password_form": {
@@ -104,7 +108,6 @@
   "login_prompt": "點擊此處登入",
   "about_us": "關於我們",
   "sign_up_completed_prompt": "我們已寄給您一封附有確認連結的電子郵件。請點擊連結以啟用您的帳號。",
-  "reset_password_success": "您的密碼已經被重新設置成功！我們會給您發一封郵件---點擊郵件裡的連結，就能見證奇跡。",
   "change_phone": {
     "phone_label": "您的電話號碼",
     "title": "電話號碼",
@@ -173,6 +176,5 @@
       "description": "您的時區是<1>{{timezone}}</1>。根據這個資訊，您的當地時間大約是<4>{{time}}</4>。",
       "explanation": "此時間和時區是根據您的住家位置決定的。如果它不正确，請回報錯誤。"
     }
-  },
-  "reset_password_error": "重設密碼錯誤：{{message}}"
+  }
 }

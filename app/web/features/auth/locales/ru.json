@@ -4,6 +4,10 @@
     "confirm_password": "Подтвердить пароль",
     "old_password": "Старый пароль",
     "new_password": "Новый пароль",
+    "reset_password_error": "Ошибка при изменении пароля: {{message}}",
+    "subtitle": "Use this form to reset your login password",
+    "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
+    "reset_password_success": "Пароль успешно сброшен! Попробуйте заново войти на сайт по имени пользователя или электронному адресу, и мы вышлем вам ссылку для установки нового пароля.",
     "password_changed_success": "Новый пароль сохранен. Уведомление выслано на ваш электронный адрес.",
     "password_mismatch_error": "Не совпадает с введенным выше новым паролем."
   },
@@ -105,7 +109,6 @@
   "sign_up_completed_title": "Спасибо, что зарегистрировались!",
   "login_prompt": "Нажмите, чтобы войти",
   "reset_password": "Изменить пароль",
-  "reset_password_error": "Ошибка при изменении пароля: {{message}}",
   "jail_set_password_form": {
     "explanation": "Вы не установили пароль для своего аккаунта. Пожалуйста, сделайте это, чтобы продолжить.",
     "title": "Установите пароль"
@@ -221,6 +224,5 @@
     "missing_token": "Ошибка: missing token"
   },
   "vercel_logo_alt_text": "Работает на Vercel",
-  "introduction_title": "Присоединяйтесь — и помогите развить новую альтернативу Couchsurfing™",
-  "reset_password_success": "Пароль успешно сброшен! Попробуйте заново войти на сайт по имени пользователя или электронному адресу, и мы вышлем вам ссылку для установки нового пароля."
+  "introduction_title": "Присоединяйтесь — и помогите развить новую альтернативу Couchsurfing™"
 }

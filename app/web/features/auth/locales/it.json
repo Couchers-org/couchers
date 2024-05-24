@@ -20,6 +20,10 @@
     "password_changed_success": "La tua nuova password è stata impostata e una notifica è stata inviata al tuo indirizzo e-mail.",
     "old_password": "Vecchia password",
     "new_password": "Nuova password",
+    "reset_password_error": "Errore durante il ripristino della password: {{message}}",
+    "subtitle": "Use this form to reset your login password",
+    "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
+    "reset_password_success": "La tua password è stata ripristinata correttamente! Ti verrà ora inviato un collegamento magico quando accedi con il tuo nome utente o indirizzo e-mail.",
     "password_mismatch_error": "Le password non corrispondono."
   },
   "reset_password_form": {
@@ -112,9 +116,7 @@
   "introduction_subtitle": "Gratuito, per sempre. Guidato dalla comunità. No profit. Moderno.",
   "introduction_title": "Unisciti ed aiuta a crescere la nuova alternativa a Couchsurfing™",
   "reset_password": "Ripristina password",
-  "reset_password_error": "Errore durante il ripristino della password: {{message}}",
   "sign_up_completed_prompt": "Abbiamo inviato una e-mail con un collegamento per la verifica del tuo indirizzo e-mail. Per favore, clicca il collegamento per attivare la tua utenza.",
-  "reset_password_success": "La tua password è stata ripristinata correttamente! Ti verrà ora inviato un collegamento magico quando accedi con il tuo nome utente o indirizzo e-mail.",
   "feature_preview": {
     "title": "Anteprima caratteristica",
     "explanation": "Questa pagina ti permette di provare caratteristiche che sono ancora in sviluppo prima che siano pronte per l'uso di tutti.",
