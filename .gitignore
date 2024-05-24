@@ -9,6 +9,3 @@
 pyrightconfig.json
 
 /private/
-
-# protos
-app/web-frontend/proto/
