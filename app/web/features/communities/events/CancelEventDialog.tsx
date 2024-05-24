@@ -12,7 +12,7 @@ import { eventKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
-import { COMMUNITIES,GLOBAL } from "i18n/namespaces";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";

@@ -1,5 +1,6 @@
 import {
   Card,
+  Chip,
   CircularProgress,
   darken,
   Link as MuiLink,
@@ -96,6 +97,11 @@ export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
         backgroundColor: darken(theme.palette.error.main, 0.1),
       },
       backgroundColor: theme.palette.error.main,
+    },
+    cancelledChip: {
+      backgroundColor: theme.palette.error.main,
+      color: theme.palette.common.white,
+      fontWeight: "bold",
     },
     eventTypeText: {
       color: theme.palette.grey[600],
@@ -244,6 +250,12 @@ export default function EventPage({
                   <Typography className={classes.eventTypeText} variant="body1">
                     {event.offlineInformation?.address}
                   </Typography>
+                )}
+                {event.isCancelled && (
+                  <Chip
+                    classes={{ root: classes.cancelledChip }}
+                    label={t("communities:cancelled")}
+                  />
                 )}
               </div>
               <div className={classes.actionButtons}>
