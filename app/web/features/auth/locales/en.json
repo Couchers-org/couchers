@@ -134,9 +134,9 @@
   "unhandled_sign_up_state": "Error: unhandled signup flow state.",
   "login_prompt": "Click here to log in",
   "about_us": "About us",
-  "reset_password": "Reset password",
   "introduction_subtitle": "Free forever. Community-led. Non-profit. Modern.",
   "introduction_title": "Join and help grow the new alternative to Couchsurfing™",
+  "reset_password": "Reset password",
   "account_settings_page": {
     "title": "Account settings",
     "gender_section": {
