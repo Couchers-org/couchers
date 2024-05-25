@@ -460,8 +460,10 @@ class StrongVerificationAttemptStatus(enum.Enum):
     succeeded = enum.auto()
 
     ## no data states
-    # started/in progress: waiting for user/iris
-    in_progress_waiting_on_user = enum.auto()
+    # in progress: waiting for the user to scan the Iris code or open the app
+    in_progress_waiting_on_user_to_open_app = enum.auto()
+    # in progress: waiting for the user to scan MRZ or NFC/chip
+    in_progress_waiting_on_user_in_app = enum.auto()
     # in progress, waiting for backend to pull verification data
     in_progress_waiting_on_backend = enum.auto()
     # failed at iris end, no data
@@ -501,7 +503,7 @@ class StrongVerificationAttempt(Base):
     status = Column(
         Enum(StrongVerificationAttemptStatus),
         nullable=False,
-        default=StrongVerificationAttemptStatus.in_progress_waiting_on_user,
+        default=StrongVerificationAttemptStatus.in_progress_waiting_on_user_to_open_app,
     )
 
     ## full data
@@ -608,7 +610,7 @@ class StrongVerificationAttempt(Base):
         ),
         # in_progress/failed implies no_data
         CheckConstraint(
-            "(NOT ((status = 'in_progress_waiting_on_user') OR (status = 'in_progress_waiting_on_backend') OR (status = 'failed'))) OR (has_minimal_data IS FALSE)",
+            "(NOT ((status = 'in_progress_waiting_on_user_to_open_app') OR (status = 'in_progress_waiting_on_user_in_app') OR (status = 'in_progress_waiting_on_backend') OR (status = 'failed'))) OR (has_minimal_data IS FALSE)",
             name="in_progress_failed_iris_implies_no_data",
         ),
         # deleted implies minimal data
