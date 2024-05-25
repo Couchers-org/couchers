@@ -113,11 +113,20 @@ def test_strong_verification_happy_path(db, monkeypatch):
             account.GetStrongVerificationAttemptStatus(
                 account_pb2.GetStrongVerificationAttemptStatusReq(verification_attempt_token=verification_attempt_token)
             ).status
-            == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER
+            == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_TO_OPEN_APP
         )
 
     # ok, now the user downloads the app, scans their id, and Iris ID sends callbacks to the server
     _emulate_iris_callback(5731012934821983, "INITIATED", reference_data)
+
+    with account_session(token) as account:
+        assert (
+            account.GetStrongVerificationAttemptStatus(
+                account_pb2.GetStrongVerificationAttemptStatusReq(verification_attempt_token=verification_attempt_token)
+            ).status
+            == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_IN_APP
+        )
+
     _emulate_iris_callback(5731012934821983, "COMPLETED", reference_data)
 
     with account_session(token) as account:
@@ -125,7 +134,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
             account.GetStrongVerificationAttemptStatus(
                 account_pb2.GetStrongVerificationAttemptStatusReq(verification_attempt_token=verification_attempt_token)
             ).status
-            == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER
+            == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND
         )
 
     _emulate_iris_callback(5731012934821983, "APPROVED", reference_data)
