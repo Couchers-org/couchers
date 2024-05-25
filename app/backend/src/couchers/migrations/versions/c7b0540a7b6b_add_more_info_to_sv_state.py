@@ -26,7 +26,7 @@ def upgrade():
     # enum values have to be committed before they can be used
     op.execute("COMMIT")
     op.create_check_constraint(
-        "ck_strong_verification_attempts_in_progress_failed_iris_implies_no_data",
+        "in_progress_failed_iris_implies_no_data",
         "strong_verification_attempts",
         "(NOT ((status = 'in_progress_waiting_on_user_to_open_app') OR (status = 'in_progress_waiting_on_user_in_app') OR (status = 'in_progress_waiting_on_backend') OR (status = 'failed'))) OR (has_minimal_data IS FALSE)",
     )
