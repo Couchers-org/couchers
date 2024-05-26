@@ -3,7 +3,7 @@ See //docs/search.md for overview.
 """
 
 import grpc
-from sqlalchemy.sql import func, or_
+from sqlalchemy.sql import func, not_, or_
 
 from couchers import errors
 from couchers.crypto import decrypt_page_token, encrypt_page_token
@@ -288,7 +288,7 @@ def _search_clusters(
         .join(PageVersion, PageVersion.page_id == Page.id)
         .join(latest_pages, latest_pages.c.id == PageVersion.id)
         .where(Cluster.is_official_cluster if include_communities and not include_groups else True)
-        .where(~Cluster.is_official_cluster if not include_communities and include_groups else True),
+        .where(not_(Cluster.is_official_cluster) if not include_communities and include_groups else True),
     )
 
     return [

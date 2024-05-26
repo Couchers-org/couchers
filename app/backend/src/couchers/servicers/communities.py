@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import delete, func, or_
+from sqlalchemy.sql import delete, func, not_, or_
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_node_parents_recursively, session_scope
@@ -140,7 +140,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             clusters = (
                 session.execute(
                     select(Cluster)
-                    .where(~Cluster.is_official_cluster)  # not an official group
+                    .where(not_(Cluster.is_official_cluster))  # not an official group
                     .where(Cluster.parent_node_id == request.community_id)
                     .where(Cluster.id >= next_cluster_id)
                     .order_by(Cluster.id)

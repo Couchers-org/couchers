@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import delete, func
+from sqlalchemy.sql import delete, func, not_
 
 from couchers import errors, urls
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
@@ -361,7 +361,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         with session_scope() as session:
             # if the user is banned, they can get past this but get an error later in login flow
             user = session.execute(
-                select(User).where_username_or_email(request.user).where(~User.is_deleted)
+                select(User).where_username_or_email(request.user).where(not_(User.is_deleted))
             ).scalar_one_or_none()
             if user:
                 if user.has_password:
@@ -421,7 +421,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         logger.debug(f"Logging in with {request.user=}, password=*******")
         with session_scope() as session:
             user = session.execute(
-                select(User).where_username_or_email(request.user).where(~User.is_deleted)
+                select(User).where_username_or_email(request.user).where(not_(User.is_deleted))
             ).scalar_one_or_none()
             if user:
                 logger.debug(f"Found user")
@@ -474,7 +474,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         with session_scope() as session:
             user = session.execute(
-                select(User).where_username_or_email(request.user).where(~User.is_deleted)
+                select(User).where_username_or_email(request.user).where(not_(User.is_deleted))
             ).scalar_one_or_none()
             if user:
                 send_password_reset_email(session, user)

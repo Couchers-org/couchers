@@ -1,4 +1,5 @@
 import grpc
+from sqlalchemy.sql import not_
 
 from couchers import errors
 from couchers.db import can_moderate_at, can_moderate_node, get_parent_node_at_location, session_scope
@@ -270,7 +271,9 @@ class Pages(pages_pb2_grpc.PagesServicer):
 
             if request.WhichOneof("new_owner") == "new_owner_group_id":
                 cluster = session.execute(
-                    select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.new_owner_group_id)
+                    select(Cluster)
+                    .where(not_(Cluster.is_official_cluster))
+                    .where(Cluster.id == request.new_owner_group_id)
                 ).scalar_one_or_none()
             elif request.WhichOneof("new_owner") == "new_owner_community_id":
                 cluster = session.execute(

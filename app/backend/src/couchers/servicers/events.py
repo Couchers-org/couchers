@@ -4,7 +4,7 @@ from datetime import timedelta
 import grpc
 from google.protobuf import empty_pb2
 from psycopg2.extras import DateTimeTZRange
-from sqlalchemy.sql import and_, func, or_, update
+from sqlalchemy.sql import and_, func, not_, or_, update
 
 from couchers import errors, urls
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
@@ -663,7 +663,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
             if request.WhichOneof("new_owner") == "new_owner_group_id":
                 cluster = session.execute(
-                    select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.new_owner_group_id)
+                    select(Cluster)
+                    .where(not_(Cluster.is_official_cluster))
+                    .where(Cluster.id == request.new_owner_group_id)
                 ).scalar_one_or_none()
             elif request.WhichOneof("new_owner") == "new_owner_community_id":
                 cluster = session.execute(

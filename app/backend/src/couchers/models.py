@@ -24,7 +24,7 @@ from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
-from sqlalchemy.sql import func
+from sqlalchemy.sql import and_, func, not_, or_
 from sqlalchemy.sql import select as sa_select
 from sqlalchemy.sql import text
 
@@ -300,7 +300,7 @@ class User(Base):
         Index(
             "ix_users_active",
             id,
-            postgresql_where=~is_banned & ~is_deleted,
+            postgresql_where=and_(not_(is_banned), not_(is_deleted)),
         ),
         # create index on users(geom, id, username) where not is_banned and not is_deleted and geom is not null;
         Index(
@@ -308,7 +308,7 @@ class User(Base):
             geom,
             id,
             username,
-            postgresql_where=~is_banned & ~is_deleted & (geom != None),
+            postgresql_where=and_(not_(is_banned), not_(is_deleted), (geom != None)),
         ),
         # There are three possible states for need_to_confirm_via_old_email, old_email_token, old_email_token_created, and old_email_token_expiry
         # 1) All None (default)
@@ -353,11 +353,11 @@ class User(Base):
 
     @hybrid_property
     def has_completed_profile(self):
-        return self.avatar_key is not None and self.about_me is not None and len(self.about_me) >= 20
+        return and_(self.avatar_key is not None, self.about_me is not None, len(self.about_me) >= 20)
 
     @has_completed_profile.expression
     def has_completed_profile(cls):
-        return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 20)
+        return and_((cls.avatar_key != None), (func.character_length(cls.about_me) >= 20))
 
     @property
     def has_password(self):
@@ -365,20 +365,20 @@ class User(Base):
 
     @hybrid_property
     def is_jailed(self):
-        return (
-            (self.accepted_tos < TOS_VERSION)
-            | (self.accepted_community_guidelines < GUIDELINES_VERSION)
-            | self.is_missing_location
-            | (self.hashed_password == None)
+        return or_(
+            self.accepted_tos < TOS_VERSION,
+            self.accepted_community_guidelines < GUIDELINES_VERSION,
+            self.is_missing_location,
+            self.hashed_password == None,
         )
 
     @hybrid_property
     def is_missing_location(self):
-        return (self.geom == None) | (self.geom_radius == None)
+        return or_(self.geom == None, self.geom_radius == None)
 
     @hybrid_property
     def is_visible(self):
-        return ~(self.is_banned | self.is_deleted)
+        return and_(not_(is_banned), not_(is_deleted))
 
     @property
     def coordinates(self):
@@ -415,15 +415,16 @@ class User(Base):
 
     @hybrid_property
     def phone_is_verified(self):
-        return (
-            self.phone_verification_verified is not None
-            and now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
+        return and_(
+            self.phone_verification_verified is not None,
+            now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME,
         )
 
     @phone_is_verified.expression
     def phone_is_verified(cls):
-        return (cls.phone_verification_verified != None) & (
-            now() - cls.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
+        return and_(
+            cls.phone_verification_verified != None,
+            now() - cls.phone_verification_verified < PHONE_VERIFICATION_LIFETIME,
         )
 
     @hybrid_property
@@ -542,7 +543,7 @@ class StrongVerificationAttempt(Base):
         """
         This only checks whether the attempt is a success and the passport is not expired, use `has_strong_verification` for full check
         """
-        return (self.status == StrongVerificationAttemptStatus.succeeded) & (self.passport_expiry_datetime >= now())
+        return and_(self.status == StrongVerificationAttemptStatus.succeeded, self.passport_expiry_datetime >= now())
 
     @hybrid_property
     def is_visible(self):
@@ -550,20 +551,23 @@ class StrongVerificationAttempt(Base):
 
     @hybrid_method
     def matches_birthdate(self, user):
-        return self.is_valid & (self.passport_date_of_birth == user.birthdate)
+        return and_(self.is_valid, self.passport_date_of_birth == user.birthdate)
 
     @hybrid_method
     def matches_gender(self, user):
-        return self.is_valid & (
-            ((user.gender == "Woman") & (self.passport_sex == PassportSex.female))
-            | ((user.gender == "Man") & (self.passport_sex == PassportSex.male))
-            | (self.passport_sex == PassportSex.unspecified)
-            | (user.has_passport_sex_gender_exception == True)
+        return and_(
+            self.is_valid,
+            or_(
+                and_(user.gender == "Woman", self.passport_sex == PassportSex.female),
+                and_(user.gender == "Man", self.passport_sex == PassportSex.male),
+                self.passport_sex == PassportSex.unspecified,
+                user.has_passport_sex_gender_exception == True,
+            ),
         )
 
     @hybrid_method
     def has_strong_verification(self, user):
-        return self.is_valid & self.matches_birthdate(user) & self.matches_gender(user)
+        return and_(self.is_valid, self.matches_birthdate(user), self.matches_gender(user))
 
     __table_args__ = (
         # used to look up verification status for a user
@@ -580,9 +584,8 @@ class StrongVerificationAttempt(Base):
             passport_nationality,
             passport_last_three_document_chars,
             unique=True,
-            postgresql_where=(
-                (status == StrongVerificationAttemptStatus.succeeded)
-                | (status == StrongVerificationAttemptStatus.deleted)
+            postgresql_where=or_(
+                status == StrongVerificationAttemptStatus.succeeded, status == StrongVerificationAttemptStatus.deleted
             ),
         ),
         # full data check
@@ -782,13 +785,13 @@ class ContributorForm(Base):
         """
         Whether the form counts as having been filled
         """
-        return (
-            (self.ideas != None)
-            | (self.features != None)
-            | (self.experience != None)
-            | (self.contribute != None)
-            | (self.contribute_ways != [])
-            | (self.expertise != None)
+        return or_(
+            self.ideas != None,
+            self.features != None,
+            self.experience != None,
+            self.contribute != None,
+            self.contribute_ways != [],
+            self.expertise != None,
         )
 
     @property
@@ -798,7 +801,9 @@ class ContributorForm(Base):
 
         We currently send if expertise is listed, or if they list a way to help outside of a set list
         """
-        return (self.expertise != None) | (not set(self.contribute_ways).issubset(set(["community", "blog", "other"])))
+        return or_(
+            self.expertise != None, not_(set(self.contribute_ways).issubset(set(["community", "blog", "other"])))
+        )
 
 
 class SignupFlow(Base):
@@ -853,29 +858,29 @@ class SignupFlow(Base):
 
     @hybrid_property
     def token_is_valid(self):
-        return (self.email_token != None) & (self.email_token_expiry >= now())
+        return and_(self.email_token != None, self.email_token_expiry >= now())
 
     @hybrid_property
     def account_is_filled(self):
-        return (
-            (self.username != None)
-            & (self.birthdate != None)
-            & (self.gender != None)
-            & (self.hosting_status != None)
-            & (self.city != None)
-            & (self.geom != None)
-            & (self.geom_radius != None)
-            & (self.accepted_tos != None)
-            & (self.opt_out_of_newsletter != None)
+        return and_(
+            self.username != None,
+            self.birthdate != None,
+            self.gender != None,
+            self.hosting_status != None,
+            self.city != None,
+            self.geom != None,
+            self.geom_radius != None,
+            self.accepted_tos != None,
+            self.opt_out_of_newsletter != None,
         )
 
     @hybrid_property
     def is_completed(self):
-        return (
-            self.email_verified
-            & self.account_is_filled
-            & self.filled_feedback
-            & (self.accepted_community_guidelines == GUIDELINES_VERSION)
+        return and_(
+            self.email_verified,
+            self.account_is_filled,
+            self.filled_feedback,
+            self.accepted_community_guidelines == GUIDELINES_VERSION,
         )
 
 
@@ -897,7 +902,7 @@ class LoginToken(Base):
 
     @hybrid_property
     def is_valid(self):
-        return (self.created <= now()) & (self.expiry >= now())
+        return and_(self.created <= now(), self.expiry >= now())
 
     def __repr__(self):
         return f"LoginToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
@@ -916,7 +921,7 @@ class PasswordResetToken(Base):
 
     @hybrid_property
     def is_valid(self):
-        return (self.created <= now()) & (self.expiry >= now())
+        return and_(self.created <= now(), self.expiry >= now())
 
     def __repr__(self):
         return f"PasswordResetToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
@@ -936,7 +941,7 @@ class AccountDeletionToken(Base):
 
     @hybrid_property
     def is_valid(self):
-        return (self.created <= now()) & (self.expiry >= now())
+        return and_(self.created <= now(), self.expiry >= now())
 
     def __repr__(self):
         return f"AccountDeletionToken(token={self.token}, user_id={self.user_id}, created={self.created}, expiry={self.expiry})"
@@ -1003,11 +1008,11 @@ class UserSession(Base):
 
         TODO: this probably won't run in python (instance level), only in sql (class level)
         """
-        return (
-            (self.created <= func.now())
-            & (self.expiry >= func.now())
-            & (self.deleted == None)
-            & (self.long_lived | (func.now() - self.last_seen < text("interval '168 hours'")))
+        return and_(
+            self.created <= func.now(),
+            self.expiry >= func.now(),
+            self.deleted == None,
+            or_(self.long_lived, func.now() - self.last_seen < text("interval '168 hours'")),
         )
 
 
@@ -1287,18 +1292,18 @@ class HostRequest(Base):
 
     @hybrid_property
     def can_write_reference(self):
-        return (
-            ((self.status == HostRequestStatus.confirmed) | (self.status == HostRequestStatus.accepted))
-            & (now() >= self.start_time_to_write_reference)
-            & (now() <= self.end_time_to_write_reference)
+        return and_(
+            or_(self.status == HostRequestStatus.confirmed, self.status == HostRequestStatus.accepted),
+            now() >= self.start_time_to_write_reference,
+            now() <= self.end_time_to_write_reference,
         )
 
     @can_write_reference.expression
     def can_write_reference(cls):
-        return (
-            ((cls.status == HostRequestStatus.confirmed) | (cls.status == HostRequestStatus.accepted))
-            & (func.now() >= cls.start_time_to_write_reference)
-            & (func.now() <= cls.end_time_to_write_reference)
+        return and_(
+            or_(cls.status == HostRequestStatus.confirmed, cls.status == HostRequestStatus.accepted),
+            func.now() >= cls.start_time_to_write_reference,
+            func.now() <= cls.end_time_to_write_reference,
         )
 
     def __repr__(self):
@@ -1399,7 +1404,7 @@ class InitiatedUpload(Base):
 
     @hybrid_property
     def is_valid(self):
-        return (self.created <= func.now()) & (self.expiry >= func.now())
+        return and_(self.created <= func.now(), self.expiry >= func.now())
 
 
 class Upload(Base):
@@ -2080,16 +2085,16 @@ class BackgroundJob(Base):
             "ix_background_jobs_lookup",
             next_attempt_after,
             (max_tries - try_count),
-            postgresql_where=((state == BackgroundJobState.pending) | (state == BackgroundJobState.error)),
+            postgresql_where=or_(state == BackgroundJobState.pending, state == BackgroundJobState.error),
         ),
     )
 
     @hybrid_property
     def ready_for_retry(self):
-        return (
-            (self.next_attempt_after <= func.now())
-            & (self.try_count < self.max_tries)
-            & ((self.state == BackgroundJobState.pending) | (self.state == BackgroundJobState.error))
+        return and_(
+            self.next_attempt_after <= func.now(),
+            self.try_count < self.max_tries,
+            or_(self.state == BackgroundJobState.pending, self.state == BackgroundJobState.error),
         )
 
     def __repr__(self):

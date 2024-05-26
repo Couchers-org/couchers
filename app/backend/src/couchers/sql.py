@@ -1,5 +1,5 @@
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import Select, union
+from sqlalchemy.sql import Select, not_, union
 
 from couchers.models import User, UserBlock
 from couchers.utils import is_valid_email, is_valid_user_id, is_valid_username
@@ -64,7 +64,7 @@ class CouchersSelect(Select):
         Filters the given table, assuming it's already joined/selected from
         """
         hidden_users = _relevant_user_blocks(context.user_id)
-        return self.where(table.is_visible).where(~table.id.in_(hidden_users))
+        return self.where(table.is_visible).where(not_(table.id.in_(hidden_users)))
 
     def where_users_column_visible(self, context, column):
         """
@@ -75,5 +75,5 @@ class CouchersSelect(Select):
         return (
             self.join(aliased_user, aliased_user.id == column)
             .where(aliased_user.is_visible)
-            .where(~aliased_user.id.in_(hidden_users))
+            .where(not_(aliased_user.id.in_(hidden_users)))
         )

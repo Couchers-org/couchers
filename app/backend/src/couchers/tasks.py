@@ -2,7 +2,7 @@ import logging
 from datetime import timedelta
 from typing import List
 
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, not_
 
 from couchers import email, urls
 from couchers.config import config
@@ -416,7 +416,7 @@ def enforce_community_memberships():
                     select(User)
                     .where(User.is_visible)
                     .where(func.ST_Contains(node.geom, User.geom))
-                    .where(~User.id.in_(existing_users))
+                    .where(not_(User.id.in_(existing_users)))
                 )
                 .scalars()
                 .all()

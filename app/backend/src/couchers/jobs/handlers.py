@@ -95,7 +95,9 @@ send_email.PAYLOAD = jobs_pb2.SendEmailPayload
 def purge_login_tokens(payload):
     logger.info(f"Purging login tokens")
     with session_scope() as session:
-        session.execute(delete(LoginToken).where(~LoginToken.is_valid).execution_options(synchronize_session=False))
+        session.execute(
+            delete(LoginToken).where(not_(LoginToken.is_valid)).execution_options(synchronize_session=False)
+        )
 
 
 purge_login_tokens.PAYLOAD = empty_pb2.Empty
@@ -106,7 +108,9 @@ def purge_password_reset_tokens(payload):
     logger.info(f"Purging login tokens")
     with session_scope() as session:
         session.execute(
-            delete(PasswordResetToken).where(~PasswordResetToken.is_valid).execution_options(synchronize_session=False)
+            delete(PasswordResetToken)
+            .where(not_(PasswordResetToken.is_valid))
+            .execution_options(synchronize_session=False)
         )
 
 
@@ -119,7 +123,7 @@ def purge_account_deletion_tokens(payload):
     with session_scope() as session:
         session.execute(
             delete(AccountDeletionToken)
-            .where(~AccountDeletionToken.is_valid)
+            .where(not_(AccountDeletionToken.is_valid))
             .execution_options(synchronize_session=False)
         )
 
@@ -522,7 +526,7 @@ def update_recommendation_scores(payload):
         ref_count_expr = int_(func.count(Reference.id)).label("ref_count")
         ref_avg_expr = func.avg(1.4 * (Reference.rating - 0.3)).label("ref_avg")
         has_multiple_types_expr = int_(func.count(distinct(Reference.reference_type)) >= 2).label("has_multiple_types")
-        has_bad_ref_expr = int_(func.sum(int_((Reference.rating <= 0.2) | (~Reference.was_appropriate))) >= 1).label(
+        has_bad_ref_expr = int_(func.sum(int_((Reference.rating <= 0.2) | not_(Reference.was_appropriate))) >= 1).label(
             "has_bad_ref"
         )
         received_ref_subquery = (

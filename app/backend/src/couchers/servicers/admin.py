@@ -215,7 +215,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         with session_scope() as session:
             geom = shape(json.loads(request.geojson))
 
-            if geom.type != "MultiPolygon":
+            if geom.geom_type != "MultiPolygon":
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_MULTIPOLYGON)
 
             parent_node_id = request.parent_node_id if request.parent_node_id != 0 else None

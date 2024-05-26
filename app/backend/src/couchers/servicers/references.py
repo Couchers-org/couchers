@@ -9,7 +9,7 @@
 
 import grpc
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, func, literal, or_, union_all
+from sqlalchemy.sql import and_, func, literal, not_, or_, union_all
 
 from couchers import errors
 from couchers.db import session_scope
@@ -73,19 +73,15 @@ class References(references_pb2_grpc.ReferencesServicer):
                 # join the to_users, because only interested if the recipient is visible
                 statement = (
                     statement.join(to_users, Reference.to_user_id == to_users.id)
-                    .where(
-                        ~to_users.is_banned
-                    )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
-                    .where(Reference.from_user_id == request.from_user_id)
+                    # instead of where_users_visible; if user is deleted or blocked, reference still visible
+                    .where(not_(to_users.is_banned)).where(Reference.from_user_id == request.from_user_id)
                 )
             if request.to_user_id:
                 # join the from_users, because only interested if the writer is visible
                 statement = (
                     statement.join(from_users, Reference.from_user_id == from_users.id)
-                    .where(
-                        ~from_users.is_banned
-                    )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
-                    .where(Reference.to_user_id == request.to_user_id)
+                    # instead of where_users_visible; if user is deleted or blocked, reference still visible
+                    .where(not_(from_users.is_banned)).where(Reference.to_user_id == request.to_user_id)
                 )
             if len(request.reference_type_filter) > 0:
                 statement = statement.where(

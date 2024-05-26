@@ -3,6 +3,7 @@ from datetime import timedelta
 import grpc
 import pytest
 from google.protobuf import wrappers_pb2
+from sqlalchemy.sql import not_
 
 from couchers import errors
 from couchers.db import session_scope
@@ -207,7 +208,7 @@ def get_community_id(session, community_name):
 
 def get_group_id(session, group_name):
     return (
-        session.execute(select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.name == group_name))
+        session.execute(select(Cluster).where(not_(Cluster.is_official_cluster)).where(Cluster.name == group_name))
         .scalar_one()
         .id
     )
