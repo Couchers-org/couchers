@@ -2346,6 +2346,10 @@ class APICall(Base):
     # human readable perf report
     perf_report = Column(String, nullable=True)
 
+    # details of the browser, if available
+    ip_address = Column(String, nullable=True)
+    user_agent = Column(String, nullable=True)
+
 
 class AccountDeletionReason(Base):
     __tablename__ = "account_deletion_reason"
