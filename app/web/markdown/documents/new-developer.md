@@ -34,19 +34,13 @@ We have plenty more documentation in the [//docs](https://github.com/Couchers-or
 
 Once you've made a start digging around the codebase and found something to work on, we'd love to meet with you over video call. That way we can get to know each other, and figure out how you can best contribute to the project!
 
-To schedule a meeting, head over to the link below and book a time:
-
-* [Backend meeting scheduling](https://couchers.org/backend-developer-chat)
-* [Frontend meeting scheduling](https://couchers.org/frontend-developer-chat)
+To schedule a meeting, please email Aapeli at aapeli (at) our domain (dot) org.
 
 Once we've met you on video call, we can invite you to Slack and add you as a contributor to the GitHub organization.
 
-## Step 3: join our biweekly development meetings
+## Step 3: join our weekly development meeting
 
-We coordinate a lot of our work through meetings. Meetings are on Wednesdays at 20:00 UTC, and we alternate between backend and web meetings, so that each runs once every two weeks. Meeting notes are posted on GitHub after the meeting. You can find the calendar invites below:
-
-* [Backend meeting calendar invite](https://couchers.org/contributors/backend-meeting.ics)
-* [Frontend meeting calendar invite](https://couchers.org/contributors/web-meeting.ics)
+We coordinate a lot of our work through meetings. As of May 2024, we meet on Tuesdays at 20:00 UTC. Meeting notes are posted on GitHub after the meeting.
 
 ## How to get help
 
