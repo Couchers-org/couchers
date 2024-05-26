@@ -77,7 +77,7 @@ export default function CompleteResetPassword() {
     return (
       <Container className={formClass.standardContainer}>
         <Alert severity="error">
-          Can't changed the password if you are logged in
+          {t("auth:change_password_form.user_logged_error")}
         </Alert>
       </Container>
     );

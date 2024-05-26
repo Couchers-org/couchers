@@ -3,20 +3,20 @@ import { Meta, Story } from "@storybook/react";
 import { mockedService } from "stories/serviceMocks";
 import React from "react";
 
-import SetNewPassword from "./CompleteResetPassword";
+import CompleteResetPassword from "./CompleteResetPassword";
 
 export default {
-  component: SetNewPassword,
-  title: "Me/Auth/SetNewPasswordPage",
+  component: CompleteResetPassword,
+  title: "Me/Auth/CompleteResetPasswordPage",
 } as Meta;
 
-interface SetNewPasswordArgs {
+interface CompleteResetPasswordArgs {
   shouldSucceed?: boolean;
 }
 
-const Template: Story<SetNewPasswordArgs> = ({ shouldSucceed = true } = {}) => {
+const Template: Story<CompleteResetPasswordArgs> = ({ shouldSucceed = true } = {}) => {
   setMocks({ shouldSucceed });
-  return <SetNewPassword />;
+  return <CompleteResetPassword />;
 };
 
 export const Success = Template.bind({});
@@ -26,7 +26,7 @@ Failed.args = {
   shouldSucceed: false,
 };
 
-function setMocks({ shouldSucceed }: Required<SetNewPasswordArgs>) {
+function setMocks({ shouldSucceed }: Required<CompleteResetPasswordArgs>) {
   mockedService.account.resetPassword = () =>
     shouldSucceed
       ? Promise.resolve(new Empty())

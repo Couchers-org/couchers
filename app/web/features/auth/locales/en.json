@@ -22,6 +22,7 @@
     "old_password": "Old password",
     "new_password": "New password",
     "password_mismatch_error": "The passwords don't match.",
+    "user_logged_error": "You cannot reset your password if you are logged in. You can change your password in settings or log out to reset it.",
     "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
     "reset_password_success": "Your password has been changed successfully!",
     "reset_password_error": "Error resetting password: {{message}}"
