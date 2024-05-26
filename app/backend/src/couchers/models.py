@@ -308,7 +308,7 @@ class User(Base):
             geom,
             id,
             username,
-            postgresql_where=and_(not_(is_banned), not_(is_deleted), (geom != None)),
+            postgresql_where=and_(not_(is_banned), not_(is_deleted), geom.is_not(None)),
         ),
         # There are three possible states for need_to_confirm_via_old_email, old_email_token, old_email_token_created, and old_email_token_expiry
         # 1) All None (default)
@@ -353,7 +353,7 @@ class User(Base):
 
     @hybrid_property
     def has_completed_profile(self):
-        return and_(self.avatar_key is not None, self.about_me is not None, len(self.about_me) >= 20)
+        return (self.avatar_key is not None) and (self.about_me is not None) and (len(self.about_me) >= 20)
 
     @has_completed_profile.expression
     def has_completed_profile(cls):
@@ -415,15 +415,15 @@ class User(Base):
 
     @hybrid_property
     def phone_is_verified(self):
-        return (self.phone_verification_verified is not None) and (
-            now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
+        return (
+            self.phone_verification_verified is not None
+            and now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )
 
     @phone_is_verified.expression
     def phone_is_verified(cls):
-        return and_(
-            cls.phone_verification_verified != None,
-            now() - cls.phone_verification_verified < PHONE_VERIFICATION_LIFETIME,
+        return and_(cls.phone_verification_verified != None,
+            now() - cls.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )
 
     @hybrid_property
