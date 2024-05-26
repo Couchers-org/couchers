@@ -378,7 +378,7 @@ class User(Base):
 
     @hybrid_property
     def is_visible(self):
-        return and_(not_(is_banned), not_(is_deleted))
+        return and_(not_(self.is_banned), not_(self.is_deleted))
 
     @property
     def coordinates(self):
@@ -415,9 +415,8 @@ class User(Base):
 
     @hybrid_property
     def phone_is_verified(self):
-        return and_(
-            self.phone_verification_verified is not None,
-            now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME,
+        return (self.phone_verification_verified is not None) and (
+            now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )
 
     @phone_is_verified.expression
