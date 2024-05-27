@@ -2197,7 +2197,7 @@ class NotificationTopicAction(enum.Enum):
     # events
     # approved by mods
     event__create_approved = ("event", "create_approved", [dt.email, dt.push, dt.digest], True)
-    # any approved
+    # any user creates any event, default to no notifications
     event__create_any = ("event", "create_any", [], True)
     event__update = ("event", "update", [dt.push, dt.digest], True)
     event__invite_organizer = ("event", "invite_organizer", [dt.email, dt.push, dt.digest], True)
