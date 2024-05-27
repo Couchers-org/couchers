@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 import grpc
 import pytest
@@ -8,7 +9,8 @@ from sqlalchemy.sql.expression import update
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import EventOccurrence
+from couchers.models import EventCommunityInviteRequest, EventOccurrence
+from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
 from proto import events_pb2, threads_pb2
 from tests.test_communities import create_community, create_group
@@ -2046,7 +2048,7 @@ def test_can_overlap_other_events_update_regression(db):
 
 
 def test_list_past_events_regression(db):
-    # test for a bug where listing past events didn't work if they didn't have a future occurence
+    # test for a bug where listing past events didn't work if they didn't have a future occurrence
     user, token = generate_user()
 
     with session_scope() as session:
@@ -2079,3 +2081,74 @@ def test_list_past_events_regression(db):
     with events_session(token) as api:
         res = api.ListAllEvents(events_pb2.ListAllEventsReq(past=True))
         assert len(res.events) == 1
+
+
+def test_community_invite_requests(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user1, user3, user4], [], None).id
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                parent_community_id=c_id,
+                online_information=events_pb2.OnlineEventInformation(
+                    link="https://couchers.org/meet/",
+                ),
+                start_time=Timestamp_from_datetime(now() + timedelta(hours=3)),
+                end_time=Timestamp_from_datetime(now() + timedelta(hours=4)),
+                timezone="UTC",
+            )
+        )
+        user_url = f"http://localhost:3000/user/{user1.username}"
+        event_url = f"http://localhost:3000/event/{res.event_id}/{res.slug}"
+
+        with patch("couchers.email.queue_email") as mock:
+            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=res.event_id))
+        assert mock.call_count == 1
+        (_, _, recipient, subject, plain, html), _ = mock.call_args
+        assert recipient == "mods@couchers.org.invalid"
+
+        assert user_url in plain
+        assert user_url in html
+
+        assert event_url in plain
+        assert event_url in html
+
+        # can't send another req
+        with pytest.raises(grpc.RpcError) as e:
+            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=res.event_id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.EVENT_COMMUNITY_INVITE_ALREADY_REQUESTED
+
+    # another user can send one though
+    with events_session(token3) as api:
+        api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=res.event_id))
+
+    # but not a non-admin
+    with events_session(token2) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=res.event_id))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.EVENT_EDIT_PERMISSION_DENIED
+
+    # todo: use api to approve
+    with session_scope() as session:
+        req = session.execute(
+            select(EventCommunityInviteRequest).where(EventCommunityInviteRequest.id == 2)
+        ).scalar_one()
+        req.decided = now()
+        req.approved = True
+
+    # not after approve
+    with events_session(token4) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=res.event_id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.EVENT_COMMUNITY_INVITE_ALREADY_APPROVED

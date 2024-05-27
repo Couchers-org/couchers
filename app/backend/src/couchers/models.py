@@ -24,7 +24,7 @@ from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
-from sqlalchemy.sql import func
+from sqlalchemy.sql import and_, func
 from sqlalchemy.sql import select as sa_select
 from sqlalchemy.sql import text
 
@@ -1918,6 +1918,44 @@ class EventOccurrenceAttendee(Base):
 
     user = relationship("User")
     occurrence = relationship("EventOccurrence", backref=backref("attendees", lazy="dynamic"))
+
+
+class EventCommunityInviteRequest(Base):
+    """
+    Requests to send out invitation notifications/emails to the community for a given event occurrence
+    """
+
+    __tablename__ = "event_community_invite_requests"
+
+    id = Column(BigInteger, primary_key=True)
+
+    occurrence_id = Column(ForeignKey("event_occurrences.id"), nullable=False, index=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    decided = Column(DateTime(timezone=True), nullable=True)
+    approved = Column(Boolean, nullable=True)
+
+    occurrence = relationship("EventOccurrence", backref=backref("community_invite_requests", lazy="dynamic"))
+    user = relationship("User")
+
+    __table_args__ = (
+        # each user can only request once
+        UniqueConstraint("occurrence_id", "user_id"),
+        # each event can only have one notification sent out
+        Index(
+            "ix_event_community_invite_requests_unique",
+            occurrence_id,
+            unique=True,
+            postgresql_where=and_(approved.is_not(None), approved == True),
+        ),
+        # decided and approved ought to be null simultaneously
+        CheckConstraint(
+            "(decided IS NULL) = (approved IS NULL)",
+            name="decided_approved",
+        ),
+    )
 
 
 class ClusterDiscussionAssociation(Base):
