@@ -109,7 +109,8 @@ export const AgeGenderLanguagesLabels = ({ user }: Props) => {
           user.pronouns ? `(${user.pronouns})` : ""
         }`}
         trailingTextContent={
-          user.genderVerificationStatus && user.birthdateVerificationStatus ? (
+          user.genderVerificationStatus === 2 &&
+          user.birthdateVerificationStatus === 2 ? (
             <Tooltip title={t("heading.age_and_gender_verification")}>
               <CheckIcon color="primary" fontSize="inherit" />
             </Tooltip>
