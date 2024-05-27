@@ -2195,7 +2195,10 @@ class NotificationTopicAction(enum.Enum):
     chat__message = ("chat", "message", [dt.email, dt.push, dt.digest], True)
 
     # events
-    event__create = ("event", "create", [dt.push, dt.digest], True)
+    # approved by mods
+    event__create_approved = ("event", "create_approved", [dt.email, dt.push, dt.digest], True)
+    # any approved
+    event__create_any = ("event", "create_any", [], True)
     event__update = ("event", "update", [dt.push, dt.digest], True)
     event__invite_organizer = ("event", "invite_organizer", [dt.email, dt.push, dt.digest], True)
 

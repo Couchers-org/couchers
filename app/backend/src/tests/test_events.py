@@ -9,8 +9,7 @@ from sqlalchemy.sql.expression import update
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import EventCommunityInviteRequest, EventOccurrence
-from couchers.sql import couchers_select as select
+from couchers.models import EventOccurrence
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
 from proto import admin_pb2, events_pb2, threads_pb2
@@ -2161,13 +2160,19 @@ def test_community_invite_requests(db):
         assert res.requests[1].user_id == user3.id
         assert res.requests[1].approx_users_to_notify == 3
 
-    with session_scope() as session:
-        req = session.execute(
-            select(EventCommunityInviteRequest).where(EventCommunityInviteRequest.id == 2)
-        ).scalar_one()
-        req.decided = now()
-        req.decided_by_user_id = user1.id
-        req.approved = True
+        admin.DecideEventCommunityInviteRequest(
+            admin_pb2.DecideEventCommunityInviteRequestReq(
+                event_community_invite_request_id=res.requests[0].event_community_invite_request_id,
+                approve=False,
+            )
+        )
+
+        admin.DecideEventCommunityInviteRequest(
+            admin_pb2.DecideEventCommunityInviteRequestReq(
+                event_community_invite_request_id=res.requests[1].event_community_invite_request_id,
+                approve=True,
+            )
+        )
 
     # not after approve
     with events_session(token4) as api:

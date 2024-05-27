@@ -289,7 +289,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 fan_func_data=str(occurrence.id),
                 topic="event",
                 key=str(occurrence.id),
-                action="create",
+                action="create_any",
                 icon="create",
                 title=f'A new event, "{event.title}" was created by {user.name}',
                 content=occurrence.content,

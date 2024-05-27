@@ -4,7 +4,7 @@ from datetime import timedelta
 
 import grpc
 from shapely.geometry import shape
-from sqlalchemy.sql import or_, select
+from sqlalchemy.sql import or_, select, update
 
 from couchers import errors, urls
 from couchers.db import session_scope
@@ -19,7 +19,7 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.notifications.fan_funcs import fan_create_event_notifications
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import fan_notify, notify
 from couchers.resources import get_badge_dict
 from couchers.servicers.api import get_strong_verification_fields
 from couchers.servicers.auth import create_session
@@ -367,3 +367,51 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 ],
                 next_page_token=str(requests[-1].id) if len(requests) > page_size else None,
             )
+
+    def DecideEventCommunityInviteRequest(self, request, context):
+        with session_scope() as session:
+            req = session.execute(
+                select(EventCommunityInviteRequest).where(
+                    EventCommunityInviteRequest.id == request.event_community_invite_request_id
+                )
+            ).scalar_one_or_none()
+
+            if not req:
+                context.abort(grpc.StatusCode.NOT_FOUND, EVENT_COMMUNITY_INVITE_ALREADY_NOT_FOUND)
+
+            if req.decided:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, EVENT_COMMUNITY_INVITE_ALREADY_ALREADY_DECIDED)
+
+            decided = now()
+            req.decided = decided
+            req.decided_by_user_id = context.user_id
+            req.approved = request.approve
+
+            # deny other reqs for the same event
+            if request.approve:
+                session.execute(
+                    update(EventCommunityInviteRequest)
+                    .where(EventCommunityInviteRequest.occurrence_id == req.occurrence_id)
+                    .where(EventCommunityInviteRequest.decided.is_(None))
+                    .values(decided=decided, decided_by_user_id=context.user_id, approved=False)
+                )
+
+            session.flush()
+
+            # todo: actually send the notifications
+
+            if request.approve:
+                occurrence = req.occurrence
+                fan_notify(
+                    fan_func="fan_create_event_notifications",
+                    fan_func_data=str(occurrence.id),
+                    topic="event",
+                    key=str(occurrence.id),
+                    action="create_approved",
+                    icon="create",
+                    title=f'A new event, "{occurrence.event.title}" was created by {req.user.name}',
+                    content=occurrence.content,
+                    link=urls.event_link(occurrence_id=occurrence.id, slug=occurrence.event.slug),
+                )
+
+            return admin_pb2.DecideEventCommunityInviteRequestRes()

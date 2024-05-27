@@ -115,7 +115,8 @@ settings_layout = [
                 "event",
                 "Events",
                 [
-                    ("create", "An event is created in your community"),
+                    ("create_approved", "An event is created in your community, and an admin approves it"),
+                    ("create_any", "An user creates any event in your community (not checked by an admin)"),
                     ("update", "An event you are attending is updated"),
                     ("invite_organizer", "Someone invites you to co-organize an event"),
                 ],
