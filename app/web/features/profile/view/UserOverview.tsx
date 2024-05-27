@@ -98,7 +98,7 @@ export default function UserOverview({
       <div className={classes.wrapper}>
         <Typography variant="h1" className={classes.intro}>
           {user.name}
-          {user.hasStrongVerification || true ? (
+          {user.hasStrongVerification ? (
             <span className={classes.strongVerificationBadge}>
               <Tooltip title={t("profile:heading.strong_verification")}>
                 <VerifiedUser fontSize="inherit" color="primary" />
