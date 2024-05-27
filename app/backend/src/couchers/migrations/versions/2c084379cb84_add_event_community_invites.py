@@ -62,16 +62,9 @@ def upgrade():
     op.create_index(
         op.f("ix_event_community_invite_requests_user_id"), "event_community_invite_requests", ["user_id"], unique=False
     )
+    op.execute("ALTER TYPE notificationtopicaction RENAME VALUE 'event__create' TO 'event__create_any'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__create_approved'")
 
 
 def downgrade():
-    op.drop_index(op.f("ix_event_community_invite_requests_user_id"), table_name="event_community_invite_requests")
-    op.drop_index(
-        "ix_event_community_invite_requests_unique",
-        table_name="event_community_invite_requests",
-        postgresql_where=sa.text("approved IS NOT NULL AND approved = true"),
-    )
-    op.drop_index(
-        op.f("ix_event_community_invite_requests_occurrence_id"), table_name="event_community_invite_requests"
-    )
-    op.drop_table("event_community_invite_requests")
+    raise Exception("Can't downgrade")

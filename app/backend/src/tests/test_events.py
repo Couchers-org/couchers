@@ -2151,7 +2151,6 @@ def test_community_invite_requests(db):
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         assert e.value.details() == errors.EVENT_EDIT_PERMISSION_DENIED
 
-    # todo: use api to approve
     with real_admin_session(token5) as admin:
         res = admin.ListEventCommunityInviteRequests(admin_pb2.ListEventCommunityInviteRequestsReq())
         assert len(res.requests) == 2
