@@ -15,20 +15,16 @@ const useStyles = makeStyles((theme) => ({
   },
   flexItem: {
     flex: "1 1 50%",
+    display: "flex",
   },
 }));
 
 export interface LabelAndTextProps {
   label: string;
-  text: string;
-  trailingTextContent?: JSX.Element;
+  text: string | React.ReactNode;
 }
 
-export default function LabelAndText({
-  label,
-  text,
-  trailingTextContent,
-}: LabelAndTextProps) {
+export default function LabelAndText({ label, text }: LabelAndTextProps) {
   const classes = useStyles();
 
   return (
@@ -39,10 +35,7 @@ export default function LabelAndText({
       >
         {label}
       </Typography>
-      <TextBody className={classes.flexItem}>
-        {text}
-        <span>{trailingTextContent}</span>
-      </TextBody>
+      <TextBody className={classes.flexItem}>{text}</TextBody>
     </div>
   );
 }

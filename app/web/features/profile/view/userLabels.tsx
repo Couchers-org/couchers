@@ -1,11 +1,16 @@
 import { Tooltip } from "@material-ui/core";
-import { CheckIcon } from "components/Icons";
+import { makeStyles } from "@material-ui/core/styles";
+import { CheckIcon, ErrorIcon } from "components/Icons";
 import LabelAndText from "components/LabelAndText";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { responseRateKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
-import { User } from "proto/api_pb";
+import {
+  BirthdateVerificationStatus,
+  GenderVerificationStatus,
+  User,
+} from "proto/api_pb";
 import { useQuery } from "react-query";
 import { service } from "service";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
@@ -97,6 +102,83 @@ export const ResponseRateLabel = ({ user }: Props) => {
   );
 };
 
+const useStyles = makeStyles((theme) => ({
+  iconStyles: {
+    margin: theme.spacing(0.5),
+    alignSelf: "center",
+  },
+}));
+
+const getBirthdateVerificationIcon = (status: BirthdateVerificationStatus) => {
+  const { iconStyles } = useStyles();
+  const { t } = useTranslation("profile");
+
+  switch (status) {
+    case BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_VERIFIED:
+      return (
+        <Tooltip title={t("heading.age_verification_verified")}>
+          <CheckIcon
+            color="primary"
+            className={iconStyles}
+            fontSize="inherit"
+          />
+        </Tooltip>
+      );
+    case BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_MISMATCH:
+      return (
+        <Tooltip title={t("heading.age_verification_mismatch")}>
+          <ErrorIcon color="error" className={iconStyles} fontSize="inherit" />
+        </Tooltip>
+      );
+    default:
+      return null;
+  }
+};
+
+const getGenderVerificationIcon = (status: GenderVerificationStatus) => {
+  const { iconStyles } = useStyles();
+  const { t } = useTranslation("profile");
+  switch (status) {
+    case GenderVerificationStatus.GENDER_VERIFICATION_STATUS_VERIFIED:
+      return (
+        <Tooltip title={t("heading.gender_verification_verified")}>
+          <CheckIcon
+            color="primary"
+            className={iconStyles}
+            fontSize="inherit"
+          />
+        </Tooltip>
+      );
+    case GenderVerificationStatus.GENDER_VERIFICATION_STATUS_MISMATCH:
+      return (
+        <Tooltip title={t("heading.gender_verification_mismatch")}>
+          <ErrorIcon color="error" className={iconStyles} fontSize="inherit" />
+        </Tooltip>
+      );
+    default:
+      return null;
+  }
+};
+
+const AgeAndGenderRenderer = ({ user }: Props) => {
+  const {
+    birthdateVerificationStatus,
+    genderVerificationStatus,
+    age,
+    gender,
+    pronouns,
+  } = user;
+
+  return (
+    <>
+      {age}
+      {getBirthdateVerificationIcon(birthdateVerificationStatus)} / {gender}
+      {getGenderVerificationIcon(genderVerificationStatus)}
+      {pronouns && ` (${pronouns})`}
+    </>
+  );
+};
+
 export const AgeGenderLanguagesLabels = ({ user }: Props) => {
   const { t } = useTranslation("profile");
   const { languages } = useLanguages();
@@ -105,17 +187,7 @@ export const AgeGenderLanguagesLabels = ({ user }: Props) => {
     <>
       <LabelAndText
         label={t("heading.age_gender")}
-        text={`${user.age} / ${user.gender} ${
-          user.pronouns ? `(${user.pronouns})` : ""
-        }`}
-        trailingTextContent={
-          user.genderVerificationStatus === 2 &&
-          user.birthdateVerificationStatus === 2 ? (
-            <Tooltip title={t("heading.age_and_gender_verification")}>
-              <CheckIcon color="primary" fontSize="inherit" />
-            </Tooltip>
-          ) : undefined
-        }
+        text={<AgeAndGenderRenderer user={user} />}
       />
       {languages && (
         <LabelAndText
