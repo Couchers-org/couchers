@@ -12,6 +12,7 @@ from jinja2 import Environment, FileSystemLoader
 from couchers.config import config
 from couchers.jobs.enqueue import queue_job
 from couchers.notifications.unsubscribe import generate_do_not_email
+from couchers.utils import get_tz_as_text, now
 from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
@@ -59,6 +60,9 @@ def email_user(user, template_name, template_args={}, is_critical_email=False):
 
     if not frontmatter["is_critical"]:
         template_args["_footer_unsub_link"] = generate_do_not_email(user.id)
+
+    template_args["_year"] = now().year
+    template_args["_timezone_display"] = get_tz_as_text(user.timezone or "Etc/UTC")
 
     plain_template = env.get_template(f"{template_name}.txt")
     html_template = env.get_template(f"generated_html/{template_name}.html")

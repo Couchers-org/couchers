@@ -7,7 +7,7 @@
       <mj-include path="./mjml_include/header.mjml" />
       <mj-section padding="0px">
         <mj-column>
-          <mj-text>Dear {{ name|v2esc }},</mj-text>
+          <mj-text>Dear {{ user.name|v2esc }},</mj-text>
           <mj-text>Thank you so much for your donation of ${{ amount|v2esc }} to Couchers.org.</mj-text>
           <mj-text>Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.</mj-text>
           <mj-text>You can download an invoice and receipt for the donation here:</mj-text>

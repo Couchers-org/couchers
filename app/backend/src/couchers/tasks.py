@@ -330,9 +330,7 @@ def send_onboarding_email(user, email_number):
 
 
 def send_donation_email(user, amount, receipt_url):
-    email_user(
-        user, "donation_received", template_args={"name": user.name, "amount": amount, "receipt_url": receipt_url}
-    )
+    email_user(user, "donation_received", template_args={"user": user, "amount": amount, "receipt_url": receipt_url})
 
 
 def send_content_report_email(content_report):
@@ -447,13 +445,7 @@ def send_account_deletion_confirmation_email(user):
     logger.info(f"Email for {user.username=} sent to {user.email}.")
     token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
     deletion_link = urls.delete_account_link(account_deletion_token=token.token)
-    email.enqueue_email_from_template_to_user(
-        user,
-        "account_deletion_confirmation",
-        template_args={"user": user, "deletion_link": deletion_link},
-        is_critical_email=True,
-    )
-
+    email_user(user, "account_deletion_confirmation", template_args={"user": user, "deletion_link": deletion_link})
     return token
 
 
@@ -461,23 +453,17 @@ def send_account_deletion_successful_email(user, undelete_days):
     logger.info(f"Sending account deletion successful email to {user=}.")
     logger.info(f"Email for {user.username=} sent to {user.email}.")
     undelete_link = urls.recover_account_link(account_undelete_token=user.undelete_token)
-    email.enqueue_email_from_template_to_user(
+    email_user(
         user,
         "account_deletion_successful",
         template_args={"user": user, "undelete_link": undelete_link, "days": undelete_days},
-        is_critical_email=True,
     )
 
 
 def send_account_recovered_email(user):
     logger.info(f"Sending account recovered successful email to {user=}.")
     logger.info(f"Email for {user.username=} sent to {user.email}.")
-    email.enqueue_email_from_template_to_user(
-        user,
-        "account_recovered_successful",
-        template_args={"user": user, "app_link": urls.app_link()},
-        is_critical_email=True,
-    )
+    email_user(user, "account_recovery_successful", template_args={"user": user, "app_link": urls.app_link()})
 
 
 def send_account_deletion_report_email(reason):
