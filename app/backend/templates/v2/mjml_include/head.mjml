@@ -1,0 +1,8 @@
+<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-text color="#333" />
+    </mj-attributes>
+    <mj-style inline="inline"> a { color: #00a398; } .unsub a { color: #777; text-decoration: underline; text-decoration-color: #ccc; } </mj-style>
+  </mj-head>
+</mjml>
