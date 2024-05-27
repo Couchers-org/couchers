@@ -13,6 +13,7 @@ from couchers.models import (
     Cluster,
     ClusterSubscription,
     Event,
+    EventCommunityInviteRequest,
     EventOccurrence,
     EventOccurrenceAttendee,
     EventOrganizer,
@@ -25,6 +26,7 @@ from couchers.models import (
 from couchers.notifications.notify import fan_notify, notify
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
+from couchers.tasks import send_event_community_invite_request_email
 from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
@@ -287,7 +289,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 fan_func_data=str(occurrence.id),
                 topic="event",
                 key=str(occurrence.id),
-                action="create",
+                action="create_any",
                 icon="create",
                 title=f'A new event, "{event.title}" was created by {user.name}',
                 content=occurrence.content,
@@ -530,6 +532,46 @@ class Events(events_pb2_grpc.EventsServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
 
             return event_to_pb(session, occurrence, context)
+
+    def RequestCommunityInvite(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            res = session.execute(
+                select(Event, EventOccurrence)
+                .where(EventOccurrence.id == request.event_id)
+                .where(EventOccurrence.event_id == Event.id)
+            ).one_or_none()
+
+            if not res:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+
+            event, occurrence = res
+
+            if not _can_edit_event(session, event, context.user_id):
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
+
+            this_user_reqs = [req for req in occurrence.community_invite_requests if req.user_id == context.user_id]
+
+            if len(this_user_reqs) > 0:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_COMMUNITY_INVITE_ALREADY_REQUESTED)
+
+            approved_reqs = [req for req in occurrence.community_invite_requests if req.approved]
+
+            print(occurrence.community_invite_requests)
+
+            if len(approved_reqs) > 0:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_COMMUNITY_INVITE_ALREADY_APPROVED)
+
+            request = EventCommunityInviteRequest(
+                occurrence_id=request.event_id,
+                user_id=context.user_id,
+            )
+            session.add(request)
+            session.flush()
+
+            send_event_community_invite_request_email(request)
+
+            return empty_pb2.Empty()
 
     def ListEventOccurrences(self, request, context):
         with session_scope() as session:
@@ -863,7 +905,7 @@ class Events(events_pb2_grpc.EventsServicer):
             if not session.execute(
                 select(User).where_users_visible(context).where(User.id == request.user_id)
             ).scalar_one_or_none():
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.USER_NOT_FOUND)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             session.add(
                 EventOrganizer(

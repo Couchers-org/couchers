@@ -14,6 +14,7 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    EventCommunityInviteRequest,
     LoginToken,
     Node,
     Notification,
@@ -375,6 +376,17 @@ def maybe_send_contributor_form_email(form):
             "contributor_form",
             template_args={"form": form, "user_link": urls.user_link(username=form.user.username)},
         )
+
+
+def send_event_community_invite_request_email(request: EventCommunityInviteRequest):
+    email.enqueue_email_from_template(
+        config["MODS_EMAIL_RECIPIENT"],
+        "event_community_invite_request",
+        template_args={
+            "event_link": urls.event_link(occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug),
+            "user_link": urls.user_link(username=request.user.username),
+        },
+    )
 
 
 def send_digest_email(user, notifications: List[Notification]):

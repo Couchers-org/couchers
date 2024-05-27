@@ -28,6 +28,10 @@ service Events {
     // Gets an event
   }
 
+  rpc RequestCommunityInvite(RequestCommunityInviteReq) returns (google.protobuf.Empty) {
+    // Requests that a notification/email invitation about the event is sent out to the community
+  }
+
   rpc ListEventOccurrences(ListEventOccurrencesReq) returns (ListEventOccurrencesRes) {
     // List all occurrences of a recurring event
   }
@@ -206,6 +210,10 @@ message UpdateEventReq {
 }
 
 message GetEventReq {
+  int64 event_id = 1;
+}
+
+message RequestCommunityInviteReq {
   int64 event_id = 1;
 }
 

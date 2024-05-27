@@ -51,6 +51,8 @@ CONFIG_OPTIONS = [
     ("REPORTS_EMAIL_RECIPIENT", str),
     # Address to send contributor forms when users sign up/fill the form
     ("CONTRIBUTOR_FORM_EMAIL_RECIPIENT", str),
+    # Address to moderation notifications
+    ("MODS_EMAIL_RECIPIENT", str),
     # SMTP settings
     ("SMTP_HOST", str),
     ("SMTP_PORT", int),
