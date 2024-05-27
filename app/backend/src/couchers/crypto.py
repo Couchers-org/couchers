@@ -72,6 +72,14 @@ def generate_hash_signature(message: bytes, key: bytes) -> bytes:
     return generichash_blake2b_salt_personal(message, key=key, digest_size=32)
 
 
+def simple_hash_signature(message: Union[bytes, str], key_name: str) -> str:
+    if isinstance(message, str):
+        msg_bytes = message.encode("utf8")
+    else:
+        msg_bytes = message
+    return b64encode(generate_hash_signature(message=msg_bytes, key=get_secret(key_name)))
+
+
 def verify_hash_signature(message: bytes, key: bytes, sig: bytes) -> bool:
     """
     Verifies a hash signature generated with generate_hash_signature.
@@ -102,6 +110,7 @@ def get_secret(name: str):
 
 
 UNSUBSCRIBE_KEY_NAME = "unsubscribe"
+EMAIL_SOURCE_DATA_KEY_NAME = "email-source-data"
 PAGE_TOKEN_KEY_NAME = "pagination"
 
 

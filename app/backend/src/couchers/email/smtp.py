@@ -4,11 +4,11 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from couchers.config import config
-from couchers.crypto import random_hex
+from couchers.crypto import EMAIL_SOURCE_DATA_KEY_NAME, random_hex, simple_hash_signature
 from couchers.models import Email
 
 
-def send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
+def send_smtp_email(sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data):
     """
     Sends out the email through SMTP, settings from config.
 
@@ -20,6 +20,13 @@ def send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
     msg["From"] = email.utils.formataddr((sender_name, sender_email))
     msg["To"] = recipient
     msg["X-Couchers-ID"] = message_id
+
+    if list_unsubscribe_header:
+        msg["List-Unsubscribe"] = list_unsubscribe_header
+
+    if source_data:
+        msg["X-Couchers-Source-Data"] = source_data
+        msg["X-Couchers-Source-Sig"] = simple_hash_signature(source_data, EMAIL_SOURCE_DATA_KEY_NAME)
 
     msg.attach(MIMEText(plain, "plain"))
     msg.attach(MIMEText(html, "html"))
@@ -40,4 +47,6 @@ def send_smtp_email(sender_name, sender_email, recipient, subject, plain, html):
         subject=subject,
         plain=plain,
         html=html,
+        list_unsubscribe_header=list_unsubscribe_header,
+        source_data=source_data,
     )

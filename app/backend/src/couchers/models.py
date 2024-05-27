@@ -1226,6 +1226,9 @@ class Email(Base):
     plain = Column(String, nullable=False)
     html = Column(String, nullable=False)
 
+    list_unsubscribe_header = Column(String, nullable=True)
+    source_data = Column(String, nullable=True)
+
 
 class SMS(Base):
     """
