@@ -14,7 +14,9 @@ interface CompleteResetPasswordArgs {
   shouldSucceed?: boolean;
 }
 
-const Template: Story<CompleteResetPasswordArgs> = ({ shouldSucceed = true } = {}) => {
+const Template: Story<CompleteResetPasswordArgs> = ({
+  shouldSucceed = true,
+} = {}) => {
   setMocks({ shouldSucceed });
   return <CompleteResetPassword />;
 };
