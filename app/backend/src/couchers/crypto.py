@@ -1,7 +1,7 @@
 import functools
 import secrets
 from base64 import urlsafe_b64decode, urlsafe_b64encode
-from typing import Optional
+from typing import Optional, Union
 
 import nacl.pwhash
 import nacl.utils
