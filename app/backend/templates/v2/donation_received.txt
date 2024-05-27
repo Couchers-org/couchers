@@ -1,13 +1,13 @@
-Dear {{ name|v2esc }},
+Dear {{ name }},
 
-Thank you so much for your donation of ${{ amount|v2esc }} to Couchers.org.
+Thank you so much for your donation of ${{ amount }} to Couchers.org.
 
 Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.
 
 
 You can download an invoice and receipt for the donation here:
 
-<{{ receipt_url|v2url }}>
+<{{ receipt_url }}>
 
 If you have any questions about your donation, please email us at <donations@couchers.org>.
 

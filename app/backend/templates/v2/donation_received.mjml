@@ -1,9 +1,5 @@
 <mjml>
   <mj-include path="./mjml_include/head.mjml" />
-  <mj-head>
-    <mj-title>Thank you for your donation to Couchers.org!</mj-title>
-    <mj-preview>Thank you so much for your donation of ${{ amount|v2esc }} to Couchers.org.</mj-preview>
-  </mj-head>
   <mj-body background-color="#eee">
     <mj-section>
     </mj-section>

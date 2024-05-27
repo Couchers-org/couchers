@@ -1,0 +1,3 @@
+subject: Thank you for your donation to Couchers.org!
+is_critical: True
+preview: Thank you so much for your donation of ${{ amount|v2esc }} to Couchers.org.

@@ -1,6 +1,6 @@
 <mj-section>
   <mj-column>
-    <mj-image src="img/couchers-inline-logo-with-couchers.org-small.png" alt="Couchers.org" width="300px"></mj-image>
+    <mj-image src="attachment_imgs/logo-with-couchers.org-small.png" alt="Couchers.org" width="300px"></mj-image>
     <mj-divider border-color="#00a398" border-width="1px"></mj-divider>
   </mj-column>
 </mj-section>

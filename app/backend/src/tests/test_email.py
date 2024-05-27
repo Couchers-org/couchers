@@ -4,12 +4,15 @@ from unittest.mock import patch
 import pytest
 
 import couchers.email
+import couchers.jobs.handlers
 from couchers.config import config
 from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import session_scope
+from couchers.jobs.worker import process_job
 from couchers.models import (
     ContentReport,
     Conversation,
+    Email,
     FriendRelationship,
     FriendStatus,
     HostRequest,
@@ -30,6 +33,7 @@ from couchers.tasks import (
     send_account_recovered_email,
     send_api_key_email,
     send_content_report_email,
+    send_donation_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
@@ -647,3 +651,52 @@ def test_email_prefix_config(db, monkeypatch):
     assert sender_name == "TestCo"
     assert sender_email == "testco@testing.co.invalid"
     assert subject == "Couchers.org email change requested"
+
+
+def test_send_donation_email(db, monkeypatch):
+    user, _ = generate_user(name="Testy von Test", email="testing@couchers.org.invalid")
+
+    new_config = config.copy()
+    new_config["ENABLE_EMAIL"] = True
+
+    monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
+
+    send_donation_email(user, 20, "https://example.com/receipt/12345")
+    with patch("couchers.email.smtp.smtplib.SMTP") as mock:
+        while process_job():
+            pass
+
+    with session_scope() as session:
+        email = session.execute(select(Email)).scalar_one()
+        assert email.subject == "[TEST] Thank you for your donation to Couchers.org!"
+        assert (
+            email.plain
+            == """Dear Testy von Test,
+
+Thank you so much for your donation of $20 to Couchers.org.
+
+Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.
+
+
+You can download an invoice and receipt for the donation here:
+
+<https://example.com/receipt/12345>
+
+If you have any questions about your donation, please email us at <donations@couchers.org>.
+
+Your generosity will help deliver the platform for everyone.
+
+
+Thank you!
+
+Aapeli and Itsi,
+Couchers.org Founders"""
+        )
+
+        assert "Thank you so much for your donation of $20 to Couchers.org." in email.html
+        assert email.sender_name == "Couchers.org"
+        assert email.sender_email == "notify@couchers.org.invalid"
+        assert email.recipient == "testing@couchers.org.invalid"
+        assert "https://example.com/receipt/12345" in email.html
+        assert not email.list_unsubscribe_header
+        assert email.source_data == "testing_version/donation_received"

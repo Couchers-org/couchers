@@ -13,6 +13,7 @@ from time import monotonic, sleep
 import sentry_sdk
 from google.protobuf import empty_pb2
 
+from couchers.config import config
 from couchers.db import get_engine, session_scope
 from couchers.jobs import handlers
 from couchers.jobs.enqueue import queue_job
@@ -85,6 +86,9 @@ def process_job():
             # add some info for debugging
             jobs_counter.labels(job.job_type, job.state.name, str(job.try_count), type(e).__name__).inc()
             job.failure_info = traceback.format_exc()
+
+            if config["IN_TEST"]:
+                raise e
 
         # exiting ctx manager commits and releases the row lock
     return True

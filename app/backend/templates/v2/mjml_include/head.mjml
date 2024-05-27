@@ -1,5 +1,7 @@
 <mjml>
   <mj-head>
+    <mj-title>{{ subject }}</mj-title>
+    <mj-preview>{{ preview }}</mj-preview>
     <mj-attributes>
       <mj-text color="#333" />
     </mj-attributes>

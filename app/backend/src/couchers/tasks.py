@@ -9,6 +9,7 @@ from couchers.config import config
 from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
+from couchers.email.v2 import email_user
 from couchers.models import (
     AccountDeletionToken,
     Cluster,
@@ -329,10 +330,8 @@ def send_onboarding_email(user, email_number):
 
 
 def send_donation_email(user, amount, receipt_url):
-    email.enqueue_email_from_template_to_user(
-        user,
-        "donation_received",
-        template_args={"user": user, "amount": amount, "receipt_url": receipt_url},
+    email_user(
+        user, "donation_received", template_args={"name": user.name, "amount": amount, "receipt_url": receipt_url}
     )
 
 
