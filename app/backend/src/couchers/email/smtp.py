@@ -1,7 +1,6 @@
-import email.utils
 import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+from email.headerregistry import Address
+from email.message import EmailMessage
 
 from couchers.config import config
 from couchers.crypto import EMAIL_SOURCE_DATA_KEY_NAME, random_hex, simple_hash_signature
@@ -15,10 +14,10 @@ def send_smtp_email(sender_name, sender_email, recipient, subject, plain, html, 
     Returns a models.Email object that can be straight away added to the database.
     """
     message_id = random_hex()
-    msg = MIMEMultipart("alternative")
+    msg = EmailMessage()
     msg["Subject"] = subject
-    msg["From"] = email.utils.formataddr((sender_name, sender_email))
-    msg["To"] = recipient
+    msg["From"] = Address(sender_name, addr_spec=sender_email)
+    msg["To"] = Address(addr_spec=recipient)
     msg["X-Couchers-ID"] = message_id
 
     if list_unsubscribe_header:
@@ -28,8 +27,8 @@ def send_smtp_email(sender_name, sender_email, recipient, subject, plain, html, 
         msg["X-Couchers-Source-Data"] = source_data
         msg["X-Couchers-Source-Sig"] = simple_hash_signature(source_data, EMAIL_SOURCE_DATA_KEY_NAME)
 
-    msg.attach(MIMEText(plain, "plain"))
-    msg.attach(MIMEText(html, "html"))
+    msg.set_content(plain)
+    msg.add_alternative(html, subtype="html")
 
     with smtplib.SMTP(config["SMTP_HOST"], config["SMTP_PORT"]) as server:
         server.ehlo()
