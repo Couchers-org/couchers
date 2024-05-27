@@ -1935,10 +1935,11 @@ class EventCommunityInviteRequest(Base):
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     decided = Column(DateTime(timezone=True), nullable=True)
+    decided_by_user_id = Column(ForeignKey("users.id"), nullable=True)
     approved = Column(Boolean, nullable=True)
 
     occurrence = relationship("EventOccurrence", backref=backref("community_invite_requests", lazy="dynamic"))
-    user = relationship("User")
+    user = relationship("User", foreign_keys="EventCommunityInviteRequest.user_id")
 
     __table_args__ = (
         # each user can only request once
@@ -1952,7 +1953,8 @@ class EventCommunityInviteRequest(Base):
         ),
         # decided and approved ought to be null simultaneously
         CheckConstraint(
-            "(decided IS NULL) = (approved IS NULL)",
+            "((decided IS NULL) AND (decided_by_user_id IS NULL) AND (approved IS NULL)) OR \
+             ((decided IS NOT NULL) AND (decided_by_user_id IS NOT NULL) AND (approved IS NOT NULL))",
             name="decided_approved",
         ),
     )

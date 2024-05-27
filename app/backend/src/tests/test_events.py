@@ -11,10 +11,18 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import EventCommunityInviteRequest, EventOccurrence
 from couchers.sql import couchers_select as select
+from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
-from proto import events_pb2, threads_pb2
+from proto import admin_pb2, events_pb2, threads_pb2
 from tests.test_communities import create_community, create_group
-from tests.test_fixtures import db, events_session, generate_user, testconfig, threads_session  # noqa
+from tests.test_fixtures import (  # noqa
+    db,
+    events_session,
+    generate_user,
+    real_admin_session,
+    testconfig,
+    threads_session,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -2084,13 +2092,17 @@ def test_list_past_events_regression(db):
 
 
 def test_community_invite_requests(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=True)
     user2, token2 = generate_user()
     user3, token3 = generate_user()
     user4, token4 = generate_user()
+    user5, token5 = generate_user(is_superuser=True)
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user1, user3, user4], [], None).id
+        w = create_community(session, 0, 2, "World Community", [user5], [], None)
+        c_id = create_community(session, 0, 2, "Community", [user1, user3, user4], [], w).id
+
+    enforce_community_memberships()
 
     with events_session(token1) as api:
         res = api.CreateEvent(
@@ -2109,8 +2121,10 @@ def test_community_invite_requests(db):
         user_url = f"http://localhost:3000/user/{user1.username}"
         event_url = f"http://localhost:3000/event/{res.event_id}/{res.slug}"
 
+        event_id = res.event_id
+
         with patch("couchers.email.queue_email") as mock:
-            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=res.event_id))
+            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
         assert mock.call_count == 1
         (_, _, recipient, subject, plain, html), _ = mock.call_args
         assert recipient == "mods@couchers.org.invalid"
@@ -2123,32 +2137,41 @@ def test_community_invite_requests(db):
 
         # can't send another req
         with pytest.raises(grpc.RpcError) as e:
-            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=res.event_id))
+            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.EVENT_COMMUNITY_INVITE_ALREADY_REQUESTED
 
     # another user can send one though
     with events_session(token3) as api:
-        api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=res.event_id))
+        api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
 
     # but not a non-admin
     with events_session(token2) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=res.event_id))
+            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
         assert e.value.details() == errors.EVENT_EDIT_PERMISSION_DENIED
 
     # todo: use api to approve
+    with real_admin_session(token5) as admin:
+        res = admin.ListEventCommunityInviteRequests(admin_pb2.ListEventCommunityInviteRequestsReq())
+        assert len(res.requests) == 2
+        assert res.requests[0].user_id == user1.id
+        assert res.requests[0].approx_users_to_notify == 3
+        assert res.requests[1].user_id == user3.id
+        assert res.requests[1].approx_users_to_notify == 3
+
     with session_scope() as session:
         req = session.execute(
             select(EventCommunityInviteRequest).where(EventCommunityInviteRequest.id == 2)
         ).scalar_one()
         req.decided = now()
+        req.decided_by_user_id = user1.id
         req.approved = True
 
     # not after approve
     with events_session(token4) as api:
         with pytest.raises(grpc.RpcError) as e:
-            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=res.event_id))
+            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.EVENT_COMMUNITY_INVITE_ALREADY_APPROVED

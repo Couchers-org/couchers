@@ -9,7 +9,16 @@ from sqlalchemy.sql import or_, select
 from couchers import errors, urls
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
-from couchers.models import GroupChat, GroupChatSubscription, HostRequest, Message, User, UserBadge
+from couchers.models import (
+    EventCommunityInviteRequest,
+    GroupChat,
+    GroupChatSubscription,
+    HostRequest,
+    Message,
+    User,
+    UserBadge,
+)
+from couchers.notifications.fan_funcs import fan_create_event_notifications
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
 from couchers.servicers.api import get_strong_verification_fields
@@ -21,6 +30,8 @@ from couchers.utils import date_to_api, now, parse_date
 from proto import admin_pb2, admin_pb2_grpc
 
 logger = logging.getLogger(__name__)
+
+MAX_PAGINATION_LENGTH = 250
 
 
 def _user_to_details(user):
@@ -321,3 +332,38 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
             return admin_pb2.GetChatsRes(response=format_all_chats_for_user(user.id))
+
+    def ListEventCommunityInviteRequests(self, request, context):
+        with session_scope() as session:
+            # req.decided = now()
+            # req.decided_by_user_id = user1.id
+            # req.approved = True
+
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            next_request_id = int(request.page_token) if request.page_token else 0
+            requests = (
+                session.execute(
+                    select(EventCommunityInviteRequest)
+                    .where(EventCommunityInviteRequest.approved.is_(None))
+                    .where(EventCommunityInviteRequest.id >= next_request_id)
+                    .order_by(EventCommunityInviteRequest.id)
+                    .limit(page_size + 1)
+                )
+                .scalars()
+                .all()
+            )
+
+            return admin_pb2.ListEventCommunityInviteRequestsRes(
+                requests=[
+                    admin_pb2.EventCommunityInviteRequest(
+                        event_community_invite_request_id=request.id,
+                        user_id=request.user_id,
+                        event_url=urls.event_link(
+                            occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug
+                        ),
+                        approx_users_to_notify=len(fan_create_event_notifications(str(request.occurrence.id))),
+                    )
+                    for request in requests[:page_size]
+                ],
+                next_page_token=str(requests[-1].id) if len(requests) > page_size else None,
+            )

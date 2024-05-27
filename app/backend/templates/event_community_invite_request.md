@@ -8,4 +8,4 @@ Profile: {{ link(user_link, html)|couchers_safe }}
 
 Event Link: {{ link(event_link, html)|couchers_safe }}
 
-Approve/deny here: <https://console.couchers.org/admin>
+Approve/deny here: {{ link("https://console.couchers.org/admin", html)|couchers_safe }}

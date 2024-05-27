@@ -331,3 +331,6 @@ def test_badges(db):
                 api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="nonexistentbadge"))
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
             assert e.value.details() == errors.BADGE_NOT_FOUND
+
+
+# community invite feature tested in test_events.py
