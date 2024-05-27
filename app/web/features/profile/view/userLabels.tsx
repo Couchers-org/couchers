@@ -1,3 +1,5 @@
+import { Tooltip } from "@material-ui/core";
+import { CheckIcon } from "components/Icons";
 import LabelAndText from "components/LabelAndText";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { responseRateKey } from "features/queryKeys";
@@ -106,6 +108,15 @@ export const AgeGenderLanguagesLabels = ({ user }: Props) => {
         text={`${user.age} / ${user.gender} ${
           user.pronouns ? `(${user.pronouns})` : ""
         }`}
+        trailingTextContent={
+          user.genderVerificationStatus && user.birthdateVerificationStatus ? (
+            <Tooltip
+              title={`${user.name} has verified their age and date of birth.`}
+            >
+              <CheckIcon color="primary" fontSize="inherit" />
+            </Tooltip>
+          ) : undefined
+        }
       />
       {languages && (
         <LabelAndText
