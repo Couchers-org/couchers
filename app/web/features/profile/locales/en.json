@@ -30,7 +30,10 @@
     "lived_section": "Lived in",
     "map_section": "Travel map",
     "strong_verification": "This user has verified their identity using a biometric passport",
-    "age_and_gender_verification": "This user has verified their gender and date of birth."
+    "age_verification_verified": "This user has verified their date of birth",
+    "age_verification_mismatch": "User provided date of birth does not match verified date of birth",
+    "gender_verification_verified": "This user has verified their gender",
+    "gender_verification_mismatch": "User provided gender does not match verified gender"
   },
   "section_tabs_a11y_label": "tabs for user's details",
   "home_info_headings": {
