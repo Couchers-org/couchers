@@ -9,12 +9,9 @@ import grpc
 import pyvips
 import sentry_sdk
 from flask import Flask, abort, request, send_file
-from sentry_sdk.integrations.atexit import AtexitIntegration
-from sentry_sdk.integrations.dedupe import DedupeIntegration
-from sentry_sdk.integrations.logging import LoggingIntegration
-from sentry_sdk.integrations.modules import ModulesIntegration
-from sentry_sdk.integrations.stdlib import StdlibIntegration
-from sentry_sdk.integrations.threading import ThreadingIntegration
+from sentry_sdk.integrations import argv, atexit, dedupe
+from sentry_sdk.integrations import logging as sentry_logging
+from sentry_sdk.integrations import modules, stdlib, threading
 from werkzeug.utils import secure_filename
 
 from media.crypto import verify_hash_signature
@@ -33,12 +30,13 @@ if SENTRY_URL:
         release=os.environ.get("VERSION", "unknown"),
         default_integrations=False,
         integrations=[
-            LoggingIntegration(),
-            StdlibIntegration(),
-            DedupeIntegration(),
-            AtexitIntegration(),
-            ModulesIntegration(),
-            ThreadingIntegration(),
+            argv.ArgvIntegration(),
+            atexit.AtexitIntegration(),
+            dedupe.DedupeIntegration(),
+            sentry_logging.LoggingIntegration(),
+            modules.ModulesIntegration(),
+            stdlib.StdlibIntegration(),
+            threading.ThreadingIntegration(),
         ],
     )
 
