@@ -9,11 +9,13 @@ from couchers.config import config
 from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
+from couchers.email.v2 import email_user
 from couchers.models import (
     AccountDeletionToken,
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    EventCommunityInviteRequest,
     LoginToken,
     Node,
     Notification,
@@ -276,9 +278,7 @@ def send_email_changed_notification_email(user):
     logger.info(
         f"Sending email changed (notification) email to {user=} (old email: {user.email=}, new email: {user.new_email=})"
     )
-    email.enqueue_email_from_template_to_user(
-        user, "email_changed_notification", template_args={"user": user}, is_critical_email=True
-    )
+    email_user(user, "email_changed_notification", template_args={"user": user})
 
 
 def send_email_changed_confirmation_to_old_email(user):
@@ -290,11 +290,10 @@ def send_email_changed_confirmation_to_old_email(user):
     )
 
     confirmation_link = urls.change_email_link(confirmation_token=user.old_email_token)
-    email.enqueue_email_from_template_to_user(
+    email_user(
         user,
         "email_changed_confirmation_old_email",
         template_args={"user": user, "confirmation_link": confirmation_link},
-        is_critical_email=True,
     )
 
 
@@ -307,10 +306,11 @@ def send_email_changed_confirmation_to_new_email(user):
     )
 
     confirmation_link = urls.change_email_link(confirmation_token=user.new_email_token)
-    email.enqueue_email_from_template(
-        user.new_email,
+    email_user(
+        user,
         "email_changed_confirmation_new_email",
         template_args={"user": user, "confirmation_link": confirmation_link},
+        override_recipient=user.new_email,
     )
 
 
@@ -328,11 +328,7 @@ def send_onboarding_email(user, email_number):
 
 
 def send_donation_email(user, amount, receipt_url):
-    email.enqueue_email_from_template_to_user(
-        user,
-        "donation_received",
-        template_args={"user": user, "amount": amount, "receipt_url": receipt_url},
-    )
+    email_user(user, "donation_received", template_args={"user": user, "amount": amount, "receipt_url": receipt_url})
 
 
 def send_content_report_email(content_report):
@@ -375,6 +371,17 @@ def maybe_send_contributor_form_email(form):
             "contributor_form",
             template_args={"form": form, "user_link": urls.user_link(username=form.user.username)},
         )
+
+
+def send_event_community_invite_request_email(request: EventCommunityInviteRequest):
+    email.enqueue_email_from_template(
+        config["MODS_EMAIL_RECIPIENT"],
+        "event_community_invite_request",
+        template_args={
+            "event_link": urls.event_link(occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug),
+            "user_link": urls.user_link(username=request.user.username),
+        },
+    )
 
 
 def send_digest_email(user, notifications: List[Notification]):
@@ -436,13 +443,7 @@ def send_account_deletion_confirmation_email(user):
     logger.info(f"Email for {user.username=} sent to {user.email}.")
     token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
     deletion_link = urls.delete_account_link(account_deletion_token=token.token)
-    email.enqueue_email_from_template_to_user(
-        user,
-        "account_deletion_confirmation",
-        template_args={"user": user, "deletion_link": deletion_link},
-        is_critical_email=True,
-    )
-
+    email_user(user, "account_deletion_confirmation", template_args={"user": user, "deletion_link": deletion_link})
     return token
 
 
@@ -450,23 +451,17 @@ def send_account_deletion_successful_email(user, undelete_days):
     logger.info(f"Sending account deletion successful email to {user=}.")
     logger.info(f"Email for {user.username=} sent to {user.email}.")
     undelete_link = urls.recover_account_link(account_undelete_token=user.undelete_token)
-    email.enqueue_email_from_template_to_user(
+    email_user(
         user,
         "account_deletion_successful",
         template_args={"user": user, "undelete_link": undelete_link, "days": undelete_days},
-        is_critical_email=True,
     )
 
 
 def send_account_recovered_email(user):
     logger.info(f"Sending account recovered successful email to {user=}.")
     logger.info(f"Email for {user.username=} sent to {user.email}.")
-    email.enqueue_email_from_template_to_user(
-        user,
-        "account_recovered_successful",
-        template_args={"user": user, "app_link": urls.app_link()},
-        is_critical_email=True,
-    )
+    email_user(user, "account_recovery_successful", template_args={"user": user, "app_link": urls.app_link()})
 
 
 def send_account_deletion_report_email(reason):

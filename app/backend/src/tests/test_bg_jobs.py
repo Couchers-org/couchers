@@ -72,12 +72,16 @@ def test_login_email_full(db):
     with session_scope() as session:
         login_token = send_login_email(session, user)
 
-        def mock_print_dev_email(sender_name, sender_email, recipient, subject, plain, html):
+        def mock_print_dev_email(
+            sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data
+        ):
             assert recipient == user.email
             assert "login" in subject.lower()
             assert login_token.token in plain
             assert login_token.token in html
-            return print_dev_email(sender_name, sender_email, recipient, subject, plain, html)
+            return print_dev_email(
+                sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data
+            )
 
         with patch("couchers.jobs.handlers.print_dev_email", mock_print_dev_email):
             process_job()
@@ -104,14 +108,18 @@ def test_login_email_full(db):
 def test_email_job(db):
     queue_email("sender_name", "sender_email", "recipient", "subject", "plain", "html")
 
-    def mock_print_dev_email(sender_name, sender_email, recipient, subject, plain, html):
+    def mock_print_dev_email(
+        sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data
+    ):
         assert sender_name == "sender_name"
         assert sender_email == "sender_email"
         assert recipient == "recipient"
         assert subject == "subject"
         assert plain == "plain"
         assert html == "html"
-        return print_dev_email(sender_name, sender_email, recipient, subject, plain, html)
+        return print_dev_email(
+            sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data
+        )
 
     with patch("couchers.jobs.handlers.print_dev_email", mock_print_dev_email):
         process_job()
@@ -415,7 +423,12 @@ def test_job_retry(db):
         "purge_login_tokens": (empty_pb2.Empty, mock_handler),
     }
     create_prometheus_server(registry=job_process_registry, port=8001)
-    with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
+
+    # if IN_TEST is true, then the bg worker will raise on exceptions
+    new_config = config.copy()
+    new_config["IN_TEST"] = False
+
+    with patch("couchers.jobs.worker.config", new_config), patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
         process_job()
         with session_scope() as session:
             assert (

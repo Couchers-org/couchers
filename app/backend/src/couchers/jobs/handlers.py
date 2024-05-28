@@ -67,7 +67,7 @@ handle_email_notifications.PAYLOAD = empty_pb2.Empty
 handle_email_notifications.SCHEDULE = timedelta(minutes=1)
 
 handle_email_digests.PAYLOAD = empty_pb2.Empty
-handle_email_digests.SCHEDULE = timedelta(seconds=6)
+handle_email_digests.SCHEDULE = timedelta(minutes=15)
 
 fan_notifications.PAYLOAD = jobs_pb2.FanNotificationsPayload
 
@@ -84,6 +84,8 @@ def send_email(payload):
         subject=payload.subject,
         plain=payload.plain,
         html=payload.html,
+        list_unsubscribe_header=payload.list_unsubscribe_header,
+        source_data=payload.source_data,
     )
     with session_scope() as session:
         session.add(email)

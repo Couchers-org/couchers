@@ -3,12 +3,9 @@ import signal
 import sys
 
 import sentry_sdk
-from sentry_sdk.integrations.atexit import AtexitIntegration
-from sentry_sdk.integrations.dedupe import DedupeIntegration
-from sentry_sdk.integrations.logging import LoggingIntegration
-from sentry_sdk.integrations.modules import ModulesIntegration
-from sentry_sdk.integrations.stdlib import StdlibIntegration
-from sentry_sdk.integrations.threading import ThreadingIntegration
+from sentry_sdk.integrations import argv, atexit, dedupe
+from sentry_sdk.integrations import logging as sentry_logging
+from sentry_sdk.integrations import modules, stdlib, threading
 from sqlalchemy.sql import text
 
 from couchers.config import check_config, config
@@ -36,12 +33,13 @@ if config["SENTRY_ENABLED"]:
         integrations=[
             # we need to manually list out the integrations, there is no other way of disabling the global excepthook integration
             # we want to disable that because it seems to be picking up already handled gRPC errors (e.g. grpc.StatusCode.NOT_FOUND)
-            LoggingIntegration(),
-            StdlibIntegration(),
-            DedupeIntegration(),
-            AtexitIntegration(),
-            ModulesIntegration(),
-            ThreadingIntegration(),
+            argv.ArgvIntegration(),
+            atexit.AtexitIntegration(),
+            dedupe.DedupeIntegration(),
+            sentry_logging.LoggingIntegration(),
+            modules.ModulesIntegration(),
+            stdlib.StdlibIntegration(),
+            threading.ThreadingIntegration(),
         ],
     )
 

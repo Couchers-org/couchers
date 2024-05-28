@@ -40,6 +40,10 @@ service Admin {
 
   rpc GetChats(GetChatsReq) returns (GetChatsRes) {}
 
+  rpc ListEventCommunityInviteRequests(ListEventCommunityInviteRequestsReq) returns (ListEventCommunityInviteRequestsRes) {}
+
+  rpc DecideEventCommunityInviteRequest(DecideEventCommunityInviteRequestReq) returns (DecideEventCommunityInviteRequestRes) {}
+
   rpc DeleteEvent(DeleteEventReq) returns (google.protobuf.Empty) {}
 }
 
@@ -141,6 +145,36 @@ message GetChatsReq {
 message GetChatsRes {
   string response = 2;
 }
+
+message ListEventCommunityInviteRequestsReq {
+  uint32 page_size = 1;
+  string page_token = 2;
+}
+
+message EventCommunityInviteRequest {
+  int64 event_community_invite_request_id = 1;
+
+  int64 user_id = 2;
+  string event_url = 3;
+
+  // assuming they have notifs enabled
+  uint32 approx_users_to_notify = 4;
+}
+
+message ListEventCommunityInviteRequestsRes {
+  repeated EventCommunityInviteRequest requests = 1;
+
+  string next_page_token = 2;
+}
+
+message DecideEventCommunityInviteRequestReq {
+  int64 event_community_invite_request_id = 1;
+
+  // whether to approve or deny it
+  bool approve = 2;
+}
+
+message DecideEventCommunityInviteRequestRes {}
 
 message DeleteEventReq {
   int64 event_id = 1;

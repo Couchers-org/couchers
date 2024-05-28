@@ -25,6 +25,7 @@ from couchers.models import (
     Region,
     RegionLived,
     RegionVisited,
+    Upload,
     User,
     UserBlock,
     UserSession,
@@ -206,7 +207,7 @@ def db():
     recreate_database()
 
 
-def generate_user(*, delete_user=False, **kwargs):
+def generate_user(*, delete_user=False, complete_profile=False, **kwargs):
     """
     Create a new user, return session token
 
@@ -283,10 +284,30 @@ def generate_user(*, delete_user=False, **kwargs):
 
         user.recommendation_score = 1e10 - user.id
 
+        if complete_profile:
+            key = random_hex(32)
+            filename = random_hex(32) + ".jpg"
+            session.add(
+                Upload(
+                    key=key,
+                    filename=filename,
+                    creator_user_id=user.id,
+                )
+            )
+            session.flush()
+            user.avatar_key = key
+            user.about_me = "I have a complete profile!\n" * 10
+
         session.commit()
+
+        assert user.has_completed_profile == complete_profile
 
         # refresh it, undoes the expiry
         session.refresh(user)
+
+        # this loads the user's timezone info which is lazy loaded, otherwise we'll get issues if we try to refer to it
+        user.timezone
+
         # allows detaches the user from the session, allowing its use outside this session
         session.expunge(user)
 
@@ -726,6 +747,7 @@ def testconfig():
     config["NOTIFICATION_EMAIL_PREFIX"] = "[TEST] "
     config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
     config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"] = "forms@couchers.org.invalid"
+    config["MODS_EMAIL_RECIPIENT"] = "mods@couchers.org.invalid"
 
     config["ENABLE_DONATIONS"] = False
     config["STRIPE_API_KEY"] = ""

@@ -437,7 +437,8 @@ class Account(account_pb2_grpc.AccountServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.STRONG_VERIFICATION_ATTEMPT_NOT_FOUND)
             status_to_pb = {
                 StrongVerificationAttemptStatus.succeeded: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_SUCCEEDED,
-                StrongVerificationAttemptStatus.in_progress_waiting_on_user: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER,
+                StrongVerificationAttemptStatus.in_progress_waiting_on_user_to_open_app: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_TO_OPEN_APP,
+                StrongVerificationAttemptStatus.in_progress_waiting_on_user_in_app: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_IN_APP,
                 StrongVerificationAttemptStatus.in_progress_waiting_on_backend: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND,
                 StrongVerificationAttemptStatus.failed: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_FAILED,
             }
@@ -496,7 +497,6 @@ class Iris(iris_pb2_grpc.IrisServicer):
             verification_attempt = session.execute(
                 select(StrongVerificationAttempt)
                 .where(StrongVerificationAttempt.user_id == reference_payload.user_id)
-                .where(StrongVerificationAttempt.status == StrongVerificationAttemptStatus.in_progress_waiting_on_user)
                 .where(
                     StrongVerificationAttempt.verification_attempt_token == reference_payload.verification_attempt_token
                 )
@@ -509,10 +509,15 @@ class Iris(iris_pb2_grpc.IrisServicer):
                     iris_status=iris_status,
                 )
             )
-            if iris_status == "APPROVED":
-                # background worker will go and sort this one out
+            if iris_status == "INITIATED":
+                # the user opened the session in the app
+                verification_attempt.status = StrongVerificationAttemptStatus.in_progress_waiting_on_user_in_app
+            elif iris_status == "COMPLETED":
+                verification_attempt.status = StrongVerificationAttemptStatus.in_progress_waiting_on_backend
+            elif iris_status == "APPROVED":
                 verification_attempt.status = StrongVerificationAttemptStatus.in_progress_waiting_on_backend
                 session.commit()
+                # background worker will go and sort this one out
                 queue_job(
                     job_type="finalize_strong_verification",
                     payload=jobs_pb2.FinalizeStrongVerificationPayload(verification_attempt_id=verification_attempt.id),

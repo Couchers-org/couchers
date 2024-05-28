@@ -198,7 +198,20 @@ class TracingInterceptor(grpc.ServerInterceptor):
     def _observe_in_histogram(self, method, status_code, exception_type, duration):
         servicer_duration_histogram.labels(method, status_code, exception_type).observe(duration)
 
-    def _store_log(self, method, status_code, duration, user_id, is_api_key, request, response, traceback, perf_report):
+    def _store_log(
+        self,
+        method,
+        status_code,
+        duration,
+        user_id,
+        is_api_key,
+        request,
+        response,
+        traceback,
+        perf_report,
+        ip_address,
+        user_agent,
+    ):
         req_bytes = self._sanitized_bytes(request)
         res_bytes = self._sanitized_bytes(response)
         with session_scope() as session:
@@ -219,6 +232,8 @@ class TracingInterceptor(grpc.ServerInterceptor):
                     response_truncated=response_truncated,
                     traceback=traceback,
                     perf_report=perf_report,
+                    ip_address=ip_address,
+                    user_agent=user_agent,
                 )
             )
         logger.debug(f"{user_id=}, {method=}, {duration=} ms")
@@ -227,6 +242,10 @@ class TracingInterceptor(grpc.ServerInterceptor):
         handler = continuation(handler_call_details)
         prev_func = handler.unary_unary
         method = handler_call_details.method
+
+        headers = dict(handler_call_details.invocation_metadata)
+        ip_address = headers.get("x-couchers-real-ip")
+        user_agent = headers.get("user-agent")
 
         def tracing_function(request, context):
             try:
@@ -237,7 +256,9 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 duration = (finished - start) / 1e6  # ms
                 user_id = getattr(context, "user_id", None)
                 is_api_key = getattr(context, "is_api_key", None)
-                self._store_log(method, None, duration, user_id, is_api_key, request, res, None, prof.report)
+                self._store_log(
+                    method, None, duration, user_id, is_api_key, request, res, None, prof.report, ip_address, user_agent
+                )
                 self._observe_in_histogram(method, "", "", duration)
             except Exception as e:
                 finished = perf_counter_ns()
@@ -246,7 +267,9 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 traceback = "".join(format_exception(type(e), e, e.__traceback__))
                 user_id = getattr(context, "user_id", None)
                 is_api_key = getattr(context, "is_api_key", None)
-                self._store_log(method, code, duration, user_id, is_api_key, request, None, traceback, None)
+                self._store_log(
+                    method, code, duration, user_id, is_api_key, request, None, traceback, None, ip_address, user_agent
+                )
                 self._observe_in_histogram(method, code or "", type(e).__name__, duration)
 
                 if not code:

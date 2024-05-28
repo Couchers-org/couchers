@@ -24,7 +24,7 @@ from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
-from sqlalchemy.sql import func
+from sqlalchemy.sql import and_, func
 from sqlalchemy.sql import select as sa_select
 from sqlalchemy.sql import text
 
@@ -460,8 +460,10 @@ class StrongVerificationAttemptStatus(enum.Enum):
     succeeded = enum.auto()
 
     ## no data states
-    # started/in progress: waiting for user/iris
-    in_progress_waiting_on_user = enum.auto()
+    # in progress: waiting for the user to scan the Iris code or open the app
+    in_progress_waiting_on_user_to_open_app = enum.auto()
+    # in progress: waiting for the user to scan MRZ or NFC/chip
+    in_progress_waiting_on_user_in_app = enum.auto()
     # in progress, waiting for backend to pull verification data
     in_progress_waiting_on_backend = enum.auto()
     # failed at iris end, no data
@@ -501,7 +503,7 @@ class StrongVerificationAttempt(Base):
     status = Column(
         Enum(StrongVerificationAttemptStatus),
         nullable=False,
-        default=StrongVerificationAttemptStatus.in_progress_waiting_on_user,
+        default=StrongVerificationAttemptStatus.in_progress_waiting_on_user_to_open_app,
     )
 
     ## full data
@@ -608,7 +610,7 @@ class StrongVerificationAttempt(Base):
         ),
         # in_progress/failed implies no_data
         CheckConstraint(
-            "(NOT ((status = 'in_progress_waiting_on_user') OR (status = 'in_progress_waiting_on_backend') OR (status = 'failed'))) OR (has_minimal_data IS FALSE)",
+            "(NOT ((status = 'in_progress_waiting_on_user_to_open_app') OR (status = 'in_progress_waiting_on_user_in_app') OR (status = 'in_progress_waiting_on_backend') OR (status = 'failed'))) OR (has_minimal_data IS FALSE)",
             name="in_progress_failed_iris_implies_no_data",
         ),
         # deleted implies minimal data
@@ -1223,6 +1225,9 @@ class Email(Base):
 
     plain = Column(String, nullable=False)
     html = Column(String, nullable=False)
+
+    list_unsubscribe_header = Column(String, nullable=True)
+    source_data = Column(String, nullable=True)
 
 
 class SMS(Base):
@@ -1921,6 +1926,46 @@ class EventOccurrenceAttendee(Base):
     occurrence = relationship("EventOccurrence", backref=backref("attendees", lazy="dynamic"))
 
 
+class EventCommunityInviteRequest(Base):
+    """
+    Requests to send out invitation notifications/emails to the community for a given event occurrence
+    """
+
+    __tablename__ = "event_community_invite_requests"
+
+    id = Column(BigInteger, primary_key=True)
+
+    occurrence_id = Column(ForeignKey("event_occurrences.id"), nullable=False, index=True)
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    decided = Column(DateTime(timezone=True), nullable=True)
+    decided_by_user_id = Column(ForeignKey("users.id"), nullable=True)
+    approved = Column(Boolean, nullable=True)
+
+    occurrence = relationship("EventOccurrence", backref=backref("community_invite_requests", lazy="dynamic"))
+    user = relationship("User", foreign_keys="EventCommunityInviteRequest.user_id")
+
+    __table_args__ = (
+        # each user can only request once
+        UniqueConstraint("occurrence_id", "user_id"),
+        # each event can only have one notification sent out
+        Index(
+            "ix_event_community_invite_requests_unique",
+            occurrence_id,
+            unique=True,
+            postgresql_where=and_(approved.is_not(None), approved == True),
+        ),
+        # decided and approved ought to be null simultaneously
+        CheckConstraint(
+            "((decided IS NULL) AND (decided_by_user_id IS NULL) AND (approved IS NULL)) OR \
+             ((decided IS NOT NULL) AND (decided_by_user_id IS NOT NULL) AND (approved IS NOT NULL))",
+            name="decided_approved",
+        ),
+    )
+
+
 class ClusterDiscussionAssociation(Base):
     """
     discussions related to clusters
@@ -2156,7 +2201,10 @@ class NotificationTopicAction(enum.Enum):
     chat__message = ("chat", "message", [dt.email, dt.push, dt.digest], True)
 
     # events
-    event__create = ("event", "create", [dt.push, dt.digest], True)
+    # approved by mods
+    event__create_approved = ("event", "create_approved", [dt.email, dt.push, dt.digest], True)
+    # any user creates any event, default to no notifications
+    event__create_any = ("event", "create_any", [], True)
     event__update = ("event", "update", [dt.push, dt.digest], True)
     event__cancel = ("event", "cancel", [dt.email, dt.push, dt.digest], True)
     event__delete = ("event", "delete", [dt.email, dt.push, dt.digest], True)
@@ -2348,6 +2396,10 @@ class APICall(Base):
 
     # human readable perf report
     perf_report = Column(String, nullable=True)
+
+    # details of the browser, if available
+    ip_address = Column(String, nullable=True)
+    user_agent = Column(String, nullable=True)
 
 
 class AccountDeletionReason(Base):

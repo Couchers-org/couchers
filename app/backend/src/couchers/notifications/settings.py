@@ -115,7 +115,8 @@ settings_layout = [
                 "event",
                 "Events",
                 [
-                    ("create", "An event is created in your community"),
+                    ("create_approved", "An event that is approved by the moderators is created in your community"),
+                    ("create_any", "A user creates any event in your community (not checked by an admin)"),
                     ("update", "An event you are attending is updated"),
                     ("cancel", "An event you were attending has been cancelled"),
                     ("delete", "An event you were attending has been deleted"),

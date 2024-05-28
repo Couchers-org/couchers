@@ -85,7 +85,9 @@ def _render_email(template_file, template_args, _footer_unsub_link):
     return frontmatter, plain, html
 
 
-def queue_email(sender_name, sender_email, recipient, subject, plain, html):
+def queue_email(
+    sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header=None, source_data=None
+):
     payload = jobs_pb2.SendEmailPayload(
         sender_name=sender_name,
         sender_email=sender_email,
@@ -93,6 +95,8 @@ def queue_email(sender_name, sender_email, recipient, subject, plain, html):
         subject=subject,
         plain=plain,
         html=html,
+        list_unsubscribe_header=list_unsubscribe_header,
+        source_data=source_data,
     )
     queue_job(
         job_type="send_email",
