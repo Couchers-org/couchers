@@ -1,6 +1,6 @@
 import { Tooltip } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { CheckIcon, ErrorIcon } from "components/Icons";
+import { CheckCircleIcon, ErrorIcon } from "components/Icons";
 import LabelAndText from "components/LabelAndText";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { responseRateKey } from "features/queryKeys";
@@ -109,57 +109,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const getBirthdateVerificationIcon = (status: BirthdateVerificationStatus) => {
-  const { iconStyles } = useStyles();
-  const { t } = useTranslation("profile");
-
-  switch (status) {
-    case BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_VERIFIED:
-      return (
-        <Tooltip title={t("heading.age_verification_verified")}>
-          <CheckIcon
-            color="primary"
-            className={iconStyles}
-            fontSize="inherit"
-          />
-        </Tooltip>
-      );
-    case BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_MISMATCH:
-      return (
-        <Tooltip title={t("heading.age_verification_mismatch")}>
-          <ErrorIcon color="error" className={iconStyles} fontSize="inherit" />
-        </Tooltip>
-      );
-    default:
-      return null;
-  }
-};
-
-const getGenderVerificationIcon = (status: GenderVerificationStatus) => {
-  const { iconStyles } = useStyles();
-  const { t } = useTranslation("profile");
-  switch (status) {
-    case GenderVerificationStatus.GENDER_VERIFICATION_STATUS_VERIFIED:
-      return (
-        <Tooltip title={t("heading.gender_verification_verified")}>
-          <CheckIcon
-            color="primary"
-            className={iconStyles}
-            fontSize="inherit"
-          />
-        </Tooltip>
-      );
-    case GenderVerificationStatus.GENDER_VERIFICATION_STATUS_MISMATCH:
-      return (
-        <Tooltip title={t("heading.gender_verification_mismatch")}>
-          <ErrorIcon color="error" className={iconStyles} fontSize="inherit" />
-        </Tooltip>
-      );
-    default:
-      return null;
-  }
-};
-
 const AgeAndGenderRenderer = ({ user }: Props) => {
   const {
     birthdateVerificationStatus,
@@ -168,7 +117,64 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
     gender,
     pronouns,
   } = user;
+  const { iconStyles } = useStyles();
+  const { t } = useTranslation("profile");
 
+  const getBirthdateVerificationIcon = (
+    status: BirthdateVerificationStatus
+  ) => {
+    switch (status) {
+      case BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_VERIFIED:
+        return (
+          <Tooltip title={t("heading.age_verification_verified")}>
+            <CheckCircleIcon
+              color="primary"
+              className={iconStyles}
+              fontSize="inherit"
+            />
+          </Tooltip>
+        );
+      case BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_MISMATCH:
+        return (
+          <Tooltip title={t("heading.age_verification_mismatch")}>
+            <ErrorIcon
+              color="error"
+              className={iconStyles}
+              fontSize="inherit"
+            />
+          </Tooltip>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const getGenderVerificationIcon = (status: GenderVerificationStatus) => {
+    switch (status) {
+      case GenderVerificationStatus.GENDER_VERIFICATION_STATUS_VERIFIED:
+        return (
+          <Tooltip title={t("heading.gender_verification_verified")}>
+            <CheckCircleIcon
+              color="primary"
+              className={iconStyles}
+              fontSize="inherit"
+            />
+          </Tooltip>
+        );
+      case GenderVerificationStatus.GENDER_VERIFICATION_STATUS_MISMATCH:
+        return (
+          <Tooltip title={t("heading.gender_verification_mismatch")}>
+            <ErrorIcon
+              color="error"
+              className={iconStyles}
+              fontSize="inherit"
+            />
+          </Tooltip>
+        );
+      default:
+        return null;
+    }
+  };
   return (
     <>
       {age}
