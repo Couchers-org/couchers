@@ -444,22 +444,22 @@ def test_password_reset_email(db):
 def test_account_deletion_confirmation_email(db):
     user, api_token = generate_user()
 
-    with patch("couchers.email.queue_email") as mock:
+    with patch("couchers.email.v2.queue_email") as mock:
         account_deletion_token = send_account_deletion_confirmation_email(user)
         assert mock.call_count == 1
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == user.email
-        assert "account deletion" in subject.lower()
-        assert account_deletion_token.token in plain
-        assert account_deletion_token.token in html
+        _, kwargs = mock.call_args
+        assert kwargs["recipient"] == user.email
+        assert "account deletion" in kwargs["subject"].lower()
+        assert account_deletion_token.token in kwargs["plain"]
+        assert account_deletion_token.token in kwargs["html"]
         unique_string = "You requested that we delete your account from Couchers.org."
-        assert unique_string in plain
-        assert unique_string in html
+        assert unique_string in kwargs["plain"]
+        assert unique_string in kwargs["html"]
         url = f"{config['BASE_URL']}/delete-account?token={account_deletion_token.token}"
-        assert url in plain
-        assert url in html
-        assert "support@couchers.org" in plain
-        assert "support@couchers.org" in html
+        assert url in kwargs["plain"]
+        assert url in kwargs["html"]
+        assert "support@couchers.org" in kwargs["plain"]
+        assert "support@couchers.org" in kwargs["html"]
 
 
 def test_api_key_email(db):
@@ -496,40 +496,40 @@ def test_account_deletion_successful_email(db):
         user.undelete_until = now()
         user.is_deleted = True
 
-    with patch("couchers.email.queue_email") as mock:
+    with patch("couchers.email.v2.queue_email") as mock:
         send_account_deletion_successful_email(user, 7)
 
         assert mock.call_count == 1
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == user.email
-        assert "account has been deleted" in subject.lower()
+        _, kwargs = mock.call_args
+        assert kwargs["recipient"] == user.email
+        assert "account has been deleted" in kwargs["subject"].lower()
         unique_string = "You have successfully deleted your account from Couchers.org."
-        assert unique_string in plain
-        assert unique_string in html
-        assert "7 days" in plain
-        assert "7 days" in html
+        assert unique_string in kwargs["plain"]
+        assert unique_string in kwargs["html"]
+        assert "7 days" in kwargs["plain"]
+        assert "7 days" in kwargs["html"]
         url = f"{config['BASE_URL']}/recover-account?token={user.undelete_token}"
-        assert url in plain
-        assert url in html
-        assert "support@couchers.org" in plain
-        assert "support@couchers.org" in html
+        assert url in kwargs["plain"]
+        assert url in kwargs["html"]
+        assert "support@couchers.org" in kwargs["plain"]
+        assert "support@couchers.org" in kwargs["html"]
 
 
 def test_account_recovery_successful_email(db):
     user, api_token = generate_user()
 
-    with patch("couchers.email.queue_email") as mock:
+    with patch("couchers.email.v2.queue_email") as mock:
         send_account_recovered_email(user)
 
         assert mock.call_count == 1
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == user.email
-        assert "account has been recovered" in subject.lower()
-        unique_string = "You have successfully recovered your account on Couchers.org!"
-        assert unique_string in plain
-        assert unique_string in html
-        assert "support@couchers.org" in plain
-        assert "support@couchers.org" in html
+        _, kwargs = mock.call_args
+        assert kwargs["recipient"] == user.email
+        assert "account has been recovered" in kwargs["subject"].lower()
+        unique_string = "We have successfully recovered your account on Couchers.org!"
+        assert unique_string in kwargs["plain"]
+        assert unique_string in kwargs["html"]
+        assert "support@couchers.org" in kwargs["plain"]
+        assert "support@couchers.org" in kwargs["html"]
 
 
 def test_do_not_email_security(db):
@@ -690,7 +690,11 @@ Your generosity will help deliver the platform for everyone.
 Thank you!
 
 Aapeli and Itsi,
-Couchers.org Founders"""
+Couchers.org Founders
+
+---
+
+This is a security email, you cannot unsubscribe from it."""
         )
 
         assert "Thank you so much for your donation of $20 to Couchers.org." in email.html

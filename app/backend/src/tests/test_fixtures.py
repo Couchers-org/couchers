@@ -304,6 +304,10 @@ def generate_user(*, delete_user=False, complete_profile=False, **kwargs):
 
         # refresh it, undoes the expiry
         session.refresh(user)
+
+        # this loads the user's timezone info which is lazy loaded, otherwise we'll get issues if we try to refer to it
+        assert user.timezone
+
         # allows detaches the user from the session, allowing its use outside this session
         session.expunge(user)
 

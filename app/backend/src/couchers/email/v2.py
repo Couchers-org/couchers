@@ -10,10 +10,9 @@ import yaml
 from jinja2 import Environment, FileSystemLoader
 
 from couchers.config import config
-from couchers.jobs.enqueue import queue_job
+from couchers.email import queue_email
 from couchers.notifications.unsubscribe import generate_do_not_email
 from couchers.utils import get_tz_as_text, now
-from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -74,15 +73,12 @@ def email_user(user, template_name, template_args={}, is_critical_email=False):
         logger.info(f"Not emailing {user} based on template {template_name} due to emails turned off")
         return
 
-    queue_job(
-        job_type="send_email",
-        payload=jobs_pb2.SendEmailPayload(
-            sender_name=config["NOTIFICATION_EMAIL_SENDER"],
-            sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
-            recipient=user.email,
-            subject=config["NOTIFICATION_EMAIL_PREFIX"] + frontmatter["subject"],
-            plain=plain,
-            html=html,
-            source_data=config["VERSION"] + f"/{template_name}",
-        ),
+    queue_email(
+        sender_name=config["NOTIFICATION_EMAIL_SENDER"],
+        sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
+        recipient=user.email,
+        subject=config["NOTIFICATION_EMAIL_PREFIX"] + frontmatter["subject"],
+        plain=plain,
+        html=html,
+        source_data=config["VERSION"] + f"/{template_name}",
     )
