@@ -84,6 +84,8 @@ def send_email(payload):
         subject=payload.subject,
         plain=payload.plain,
         html=payload.html,
+        list_unsubscribe_header=payload.list_unsubscribe_header,
+        source_data=payload.source_data,
     )
     with session_scope() as session:
         session.add(email)

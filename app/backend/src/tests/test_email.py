@@ -4,12 +4,15 @@ from unittest.mock import patch
 import pytest
 
 import couchers.email
+import couchers.jobs.handlers
 from couchers.config import config
 from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import session_scope
+from couchers.jobs.worker import process_job
 from couchers.models import (
     ContentReport,
     Conversation,
+    Email,
     FriendRelationship,
     FriendStatus,
     HostRequest,
@@ -30,6 +33,7 @@ from couchers.tasks import (
     send_account_recovered_email,
     send_api_key_email,
     send_content_report_email,
+    send_donation_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
@@ -248,8 +252,8 @@ def test_host_request_email(db):
         assert to_date in html
         assert surfer.avatar.thumbnail_url not in plain
         assert surfer.avatar.thumbnail_url in html
-        assert f"{config['BASE_URL']}/messages/hosting/" in plain
-        assert f"{config['BASE_URL']}/messages/hosting/" in html
+        assert f"http://localhost:3000/messages/hosting/" in plain
+        assert f"http://localhost:3000/messages/hosting/" in html
 
 
 def test_friend_request_email(db):
@@ -284,8 +288,8 @@ def test_friend_request_email(db):
         assert from_user.name in html
         assert from_user.avatar.thumbnail_url not in plain
         assert from_user.avatar.thumbnail_url in html
-        assert f"{config['BASE_URL']}/connections/friends/" in plain
-        assert f"{config['BASE_URL']}/connections/friends/" in html
+        assert f"http://localhost:3000/connections/friends/" in plain
+        assert f"http://localhost:3000/connections/friends/" in html
 
 
 def test_friend_request_accepted_email(db):
@@ -320,8 +324,8 @@ def test_friend_request_accepted_email(db):
         assert to_user.name in html
         assert to_user.avatar.thumbnail_url not in plain
         assert to_user.avatar.thumbnail_url in html
-        assert f"{config['BASE_URL']}/user/{to_user.username}" in plain
-        assert f"{config['BASE_URL']}/user/{to_user.username}" in html
+        assert f"http://localhost:3000/user/{to_user.username}" in plain
+        assert f"http://localhost:3000/user/{to_user.username}" in html
 
 
 def test_email_patching_fails(db):
@@ -350,21 +354,21 @@ def test_email_patching_fails(db):
 def test_email_changed_notification_email(db):
     user, token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
-    with patch("couchers.email.queue_email") as mock:
+    with patch("couchers.email.v2.queue_email") as mock:
         send_email_changed_notification_email(user)
 
     assert mock.call_count == 1
-    (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-    assert "change requested" in subject
-    assert recipient == user.email
-    assert user.name in plain
-    assert user.name in html
-    assert user.new_email in plain
-    assert user.new_email in html
-    assert "A confirmation was sent to that email address" in plain
-    assert "A confirmation was sent to that email address" in html
-    assert "support@couchers.org" in plain
-    assert "support@couchers.org" in html
+    _, kwargs = mock.call_args
+    assert "change requested" in kwargs["subject"]
+    assert kwargs["recipient"] == user.email
+    assert user.name in kwargs["plain"]
+    assert user.name in kwargs["html"]
+    assert user.new_email in kwargs["plain"]
+    assert user.new_email in kwargs["html"]
+    assert "A confirmation was sent to that email address" in kwargs["plain"]
+    assert "A confirmation was sent to that email address" in kwargs["html"]
+    assert "support@couchers.org" in kwargs["plain"]
+    assert "support@couchers.org" in kwargs["html"]
 
 
 def test_email_changed_confirmation_sent_to_old_email(db):
@@ -372,23 +376,23 @@ def test_email_changed_confirmation_sent_to_old_email(db):
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
     user.old_email_token = confirmation_token
-    with patch("couchers.email.queue_email") as mock:
+    with patch("couchers.email.v2.queue_email") as mock:
         send_email_changed_confirmation_to_old_email(user)
 
     assert mock.call_count == 1
-    (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-    assert "new email" in subject
-    assert recipient == user.email
-    assert user.name in plain
-    assert user.name in html
-    assert user.new_email in plain
-    assert user.new_email in html
-    assert "via a similar email sent to your new email address" in plain
-    assert "via a similar email sent to your new email address" in html
-    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in plain
-    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in html
-    assert "support@couchers.org" in plain
-    assert "support@couchers.org" in html
+    _, kwargs = mock.call_args
+    assert "Confirm your email change for Couchers.org" in kwargs["subject"]
+    assert kwargs["recipient"] == user.email
+    assert user.name in kwargs["plain"]
+    assert user.name in kwargs["html"]
+    assert user.new_email in kwargs["plain"]
+    assert user.new_email in kwargs["html"]
+    assert "confirmed this change via your new email address" in kwargs["plain"]
+    assert "confirmed this change via your new email address" in kwargs["html"]
+    assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in kwargs["plain"]
+    assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in kwargs["html"]
+    assert "support@couchers.org" in kwargs["plain"]
+    assert "support@couchers.org" in kwargs["html"]
 
 
 def test_email_changed_confirmation_sent_to_new_email(db):
@@ -396,23 +400,23 @@ def test_email_changed_confirmation_sent_to_new_email(db):
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
     user.new_email_token = confirmation_token
-    with patch("couchers.email.queue_email") as mock:
+    with patch("couchers.email.v2.queue_email") as mock:
         send_email_changed_confirmation_to_new_email(user)
 
     assert mock.call_count == 1
-    (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-    assert "new email" in subject
-    assert recipient == user.new_email
-    assert user.name in plain
-    assert user.name in html
-    assert user.email in plain
-    assert user.email in html
-    assert "via a similar email sent to your old email address" in plain
-    assert "via a similar email sent to your old email address" in html
-    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in plain
-    assert f"{config['BASE_URL']}/confirm-email?token={confirmation_token}" in html
-    assert "support@couchers.org" in plain
-    assert "support@couchers.org" in html
+    _, kwargs = mock.call_args
+    assert "new email" in kwargs["subject"]
+    assert kwargs["recipient"] == user.new_email
+    assert user.name in kwargs["plain"]
+    assert user.name in kwargs["html"]
+    assert user.email in kwargs["plain"]
+    assert user.email in kwargs["html"]
+    assert "Your old email address is" in kwargs["plain"]
+    assert "Your old email address is" in kwargs["html"]
+    assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in kwargs["plain"]
+    assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in kwargs["html"]
+    assert "support@couchers.org" in kwargs["plain"]
+    assert "support@couchers.org" in kwargs["html"]
 
 
 def test_password_reset_email(db):
@@ -431,8 +435,8 @@ def test_password_reset_email(db):
         unique_string = "You asked for your password to be reset on Couchers.org."
         assert unique_string in plain
         assert unique_string in html
-        assert f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token.token}" in plain
-        assert f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token.token}" in html
+        assert f"http://localhost:3000/complete-password-reset?token={password_reset_token.token}" in plain
+        assert f"http://localhost:3000/complete-password-reset?token={password_reset_token.token}" in html
         assert "support@couchers.org" in plain
         assert "support@couchers.org" in html
 
@@ -440,22 +444,22 @@ def test_password_reset_email(db):
 def test_account_deletion_confirmation_email(db):
     user, api_token = generate_user()
 
-    with patch("couchers.email.queue_email") as mock:
+    with patch("couchers.email.v2.queue_email") as mock:
         account_deletion_token = send_account_deletion_confirmation_email(user)
         assert mock.call_count == 1
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == user.email
-        assert "account deletion" in subject.lower()
-        assert account_deletion_token.token in plain
-        assert account_deletion_token.token in html
+        _, kwargs = mock.call_args
+        assert kwargs["recipient"] == user.email
+        assert "account deletion" in kwargs["subject"].lower()
+        assert account_deletion_token.token in kwargs["plain"]
+        assert account_deletion_token.token in kwargs["html"]
         unique_string = "You requested that we delete your account from Couchers.org."
-        assert unique_string in plain
-        assert unique_string in html
-        url = f"{config['BASE_URL']}/delete-account?token={account_deletion_token.token}"
-        assert url in plain
-        assert url in html
-        assert "support@couchers.org" in plain
-        assert "support@couchers.org" in html
+        assert unique_string in kwargs["plain"]
+        assert unique_string in kwargs["html"]
+        url = f"http://localhost:3000/delete-account?token={account_deletion_token.token}"
+        assert url in kwargs["plain"]
+        assert url in kwargs["html"]
+        assert "support@couchers.org" in kwargs["plain"]
+        assert "support@couchers.org" in kwargs["html"]
 
 
 def test_api_key_email(db):
@@ -492,40 +496,40 @@ def test_account_deletion_successful_email(db):
         user.undelete_until = now()
         user.is_deleted = True
 
-    with patch("couchers.email.queue_email") as mock:
+    with patch("couchers.email.v2.queue_email") as mock:
         send_account_deletion_successful_email(user, 7)
 
         assert mock.call_count == 1
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == user.email
-        assert "account has been deleted" in subject.lower()
+        _, kwargs = mock.call_args
+        assert kwargs["recipient"] == user.email
+        assert "account has been deleted" in kwargs["subject"].lower()
         unique_string = "You have successfully deleted your account from Couchers.org."
-        assert unique_string in plain
-        assert unique_string in html
-        assert "7 days" in plain
-        assert "7 days" in html
-        url = f"{config['BASE_URL']}/recover-account?token={user.undelete_token}"
-        assert url in plain
-        assert url in html
-        assert "support@couchers.org" in plain
-        assert "support@couchers.org" in html
+        assert unique_string in kwargs["plain"]
+        assert unique_string in kwargs["html"]
+        assert "7 days" in kwargs["plain"]
+        assert "7 days" in kwargs["html"]
+        url = f"http://localhost:3000/recover-account?token={user.undelete_token}"
+        assert url in kwargs["plain"]
+        assert url in kwargs["html"]
+        assert "support@couchers.org" in kwargs["plain"]
+        assert "support@couchers.org" in kwargs["html"]
 
 
 def test_account_recovery_successful_email(db):
     user, api_token = generate_user()
 
-    with patch("couchers.email.queue_email") as mock:
+    with patch("couchers.email.v2.queue_email") as mock:
         send_account_recovered_email(user)
 
         assert mock.call_count == 1
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == user.email
-        assert "account has been recovered" in subject.lower()
-        unique_string = "You have successfully recovered your account on Couchers.org!"
-        assert unique_string in plain
-        assert unique_string in html
-        assert "support@couchers.org" in plain
-        assert "support@couchers.org" in html
+        _, kwargs = mock.call_args
+        assert kwargs["recipient"] == user.email
+        assert "account has been recovered" in kwargs["subject"].lower()
+        unique_string = "We have successfully recovered your account on Couchers.org!"
+        assert unique_string in kwargs["plain"]
+        assert unique_string in kwargs["html"]
+        assert "support@couchers.org" in kwargs["plain"]
+        assert "support@couchers.org" in kwargs["html"]
 
 
 def test_do_not_email_security(db):
@@ -550,8 +554,8 @@ def test_do_not_email_security(db):
         unique_string = "You asked for your password to be reset on Couchers.org."
         assert unique_string in plain
         assert unique_string in html
-        assert f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token.token}" in plain
-        assert f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token.token}" in html
+        assert f"http://localhost:3000/complete-password-reset?token={password_reset_token.token}" in plain
+        assert f"http://localhost:3000/complete-password-reset?token={password_reset_token.token}" in html
         assert "support@couchers.org" in plain
         assert "support@couchers.org" in html
 
@@ -621,29 +625,82 @@ def test_email_prefix_config(db, monkeypatch):
     user, token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
 
-    with patch("couchers.email.queue_email") as mock:
+    with patch("couchers.email.v2.queue_email") as mock:
         send_email_changed_notification_email(user)
 
     assert mock.call_count == 1
-    (sender_name, sender_email, _, subject, _, _), _ = mock.call_args
+    _, kwargs = mock.call_args
 
-    assert sender_name == "Couchers.org"
-    assert sender_email == "notify@couchers.org.invalid"
-    assert subject == "[TEST] Couchers.org email change requested"
+    assert kwargs["sender_name"] == "Couchers.org"
+    assert kwargs["sender_email"] == "notify@couchers.org.invalid"
+    assert kwargs["subject"] == "[TEST] Couchers.org email change requested"
 
     new_config = config.copy()
     new_config["NOTIFICATION_EMAIL_SENDER"] = "TestCo"
     new_config["NOTIFICATION_EMAIL_ADDRESS"] = "testco@testing.co.invalid"
     new_config["NOTIFICATION_EMAIL_PREFIX"] = ""
 
-    monkeypatch.setattr(couchers.email, "config", new_config)
+    monkeypatch.setattr(couchers.email.v2, "config", new_config)
 
-    with patch("couchers.email.queue_email") as mock:
+    with patch("couchers.email.v2.queue_email") as mock:
         send_email_changed_notification_email(user)
 
     assert mock.call_count == 1
-    (sender_name, sender_email, _, subject, _, _), _ = mock.call_args
+    _, kwargs = mock.call_args
 
-    assert sender_name == "TestCo"
-    assert sender_email == "testco@testing.co.invalid"
-    assert subject == "Couchers.org email change requested"
+    assert kwargs["sender_name"] == "TestCo"
+    assert kwargs["sender_email"] == "testco@testing.co.invalid"
+    assert kwargs["subject"] == "Couchers.org email change requested"
+
+
+def test_send_donation_email(db, monkeypatch):
+    user, _ = generate_user(name="Testy von Test", email="testing@couchers.org.invalid")
+
+    new_config = config.copy()
+    new_config["ENABLE_EMAIL"] = True
+
+    monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
+
+    send_donation_email(user, 20, "https://example.com/receipt/12345")
+    with patch("couchers.email.smtp.smtplib.SMTP") as mock:
+        while process_job():
+            pass
+
+    with session_scope() as session:
+        email = session.execute(select(Email)).scalar_one()
+        assert email.subject == "[TEST] Thank you for your donation to Couchers.org!"
+        assert (
+            email.plain
+            == """Dear Testy von Test,
+
+Thank you so much for your donation of $20 to Couchers.org.
+
+Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.
+
+
+You can download an invoice and receipt for the donation here:
+
+<https://example.com/receipt/12345>
+
+If you have any questions about your donation, please email us at <donations@couchers.org>.
+
+Your generosity will help deliver the platform for everyone.
+
+
+Thank you!
+
+Aapeli and Itsi,
+Couchers.org Founders
+
+---
+
+This is a security email, you cannot unsubscribe from it."""
+        )
+
+        assert "Thank you so much for your donation of $20 to Couchers.org." in email.html
+        assert email.sender_name == "Couchers.org"
+        assert email.sender_email == "notify@couchers.org.invalid"
+        assert email.recipient == "testing@couchers.org.invalid"
+        assert "https://example.com/receipt/12345" in email.html
+        assert not email.list_unsubscribe_header
+        assert email.source_data == "testing_version/donation_received"

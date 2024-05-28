@@ -10,6 +10,10 @@ message SendEmailPayload {
   string subject = 4;
   string plain = 5;
   string html = 6;
+  // list-unsubscribe email header
+  string list_unsubscribe_header = 7;
+  // source data as to where this email came from
+  string source_data = 8;
 }
 
 message HandleNotificationPayload {

@@ -1,0 +1,18 @@
+Hi {{ user.name }}!
+
+You requested that your email be changed to this email address on Couchers.org. Your old email address is {{ user.email }}. This is the final step in the process.
+
+To complete this change, please confirm your email by clicking the following link:
+
+
+<{{ confirmation_link }}>
+
+
+If this wasn't you, please contact us by emailing <support@couchers.org> so we can sort this out as soon as possible!
+
+Best,
+The Couchers.org team
+
+---
+
+This is a security email, you cannot unsubscribe from it.
