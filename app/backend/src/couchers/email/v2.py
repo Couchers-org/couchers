@@ -48,7 +48,7 @@ def __render_email(template_name, template_args, _footer_unsub_link):
     return frontmatter, plain, html
 
 
-def email_user(user, template_name, template_args={}, is_critical_email=False):
+def email_user(user, template_name, template_args={}, override_recipient=None):
     # Titles/config are from {template_name}.yaml, plaintext from {template_name}.txt, and html from generated_html/{template_name}.html (generated from {template_name}.mjml)
     frontmatter_template = env.get_template(f"{template_name}.yaml")
     rendered_frontmatter = frontmatter_template.render(**template_args)
@@ -76,7 +76,7 @@ def email_user(user, template_name, template_args={}, is_critical_email=False):
     queue_email(
         sender_name=config["NOTIFICATION_EMAIL_SENDER"],
         sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
-        recipient=user.email,
+        recipient=user.email if not override_recipient else override_recipient,
         subject=config["NOTIFICATION_EMAIL_PREFIX"] + frontmatter["subject"],
         plain=plain,
         html=html,

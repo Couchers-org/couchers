@@ -278,9 +278,7 @@ def send_email_changed_notification_email(user):
     logger.info(
         f"Sending email changed (notification) email to {user=} (old email: {user.email=}, new email: {user.new_email=})"
     )
-    email.enqueue_email_from_template_to_user(
-        user, "email_changed_notification", template_args={"user": user}, is_critical_email=True
-    )
+    email_user(user, "email_changed_notification", template_args={"user": user})
 
 
 def send_email_changed_confirmation_to_old_email(user):
@@ -292,11 +290,10 @@ def send_email_changed_confirmation_to_old_email(user):
     )
 
     confirmation_link = urls.change_email_link(confirmation_token=user.old_email_token)
-    email.enqueue_email_from_template_to_user(
+    email_user(
         user,
         "email_changed_confirmation_old_email",
         template_args={"user": user, "confirmation_link": confirmation_link},
-        is_critical_email=True,
     )
 
 
@@ -309,10 +306,11 @@ def send_email_changed_confirmation_to_new_email(user):
     )
 
     confirmation_link = urls.change_email_link(confirmation_token=user.new_email_token)
-    email.enqueue_email_from_template(
-        user.new_email,
+    email_user(
+        user,
         "email_changed_confirmation_new_email",
         template_args={"user": user, "confirmation_link": confirmation_link},
+        override_recipient=user.new_email,
     )
 
 
