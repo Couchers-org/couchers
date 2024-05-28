@@ -28,9 +28,10 @@ from couchers.models import (
     SleepingArrangement,
     SmokingLocation,
     User,
+    UserBadge,
 )
 from couchers.notifications.notify import notify
-from couchers.resources import language_is_allowed, region_is_allowed
+from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email
@@ -740,6 +741,16 @@ class API(api_pb2_grpc.APIServicer):
             upload_url=urls.media_upload_url(path=path),
             expiry=Timestamp_from_datetime(expiry),
         )
+
+    def ListBadgeUsers(self, request, context):
+        with session_scope() as session:
+            badge = get_badge_dict().get(request.badge_id)
+            if not badge:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.BADGE_NOT_FOUND)
+
+            user_badges = session.execute(select(UserBadge).where(UserBadge.badge_id == badge["id"])).scalars().all()
+
+            return api_pb2.ListBadgeUsersRes(user_ids=[user_badge.user_id for user_badge in user_badges])
 
 
 def user_model_to_pb(db_user, session, context):

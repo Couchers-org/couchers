@@ -42,6 +42,8 @@ service API {
   rpc InitiateMediaUpload(google.protobuf.Empty) returns (InitiateMediaUploadRes) {
     // Initiate a media upload
   }
+
+  rpc ListBadgeUsers(ListBadgeUsersReq) returns (ListBadgeUsersRes);
 }
 
 message SendFriendRequestReq {
@@ -353,4 +355,12 @@ message InitiateMediaUploadRes {
   // URL to POST the data to
   string upload_url = 1;
   google.protobuf.Timestamp expiry = 2;
+}
+
+message ListBadgeUsersReq {
+  string badge_id = 1;
+}
+
+message ListBadgeUsersRes {
+  repeated int64 user_ids = 1;
 }
