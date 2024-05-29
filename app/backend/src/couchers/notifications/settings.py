@@ -107,7 +107,7 @@ settings_layout = [
                 "friend_request",
                 "Friend requests",
                 [
-                    ("send", "Someone sends you a friend request"),
+                    ("create", "Someone sends you a friend request"),
                     ("accept", "Someone accepts your friend request"),
                 ],
             ),
@@ -207,7 +207,9 @@ def check_settings():
             actions_by_topic_check[topic] = actions
 
     for topic, actions in actions_by_topic.items():
-        assert sorted(actions) == sorted(actions_by_topic_check[topic])
+        assert sorted(actions) == sorted(
+            actions_by_topic_check[topic]
+        ), f"Expected {actions} == {actions_by_topic_check[topic]} for {topic}"
     assert sorted(actions_by_topic.keys()) == sorted(actions_by_topic_check.keys())
 
 

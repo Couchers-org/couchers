@@ -98,6 +98,7 @@ def send_password_reset_email(session, user):
 
 
 def send_new_host_request_email(host_request):
+    # todo(notify2): replace with notification
     logger.info(f"Sending host request email to {host_request.host=}:")
     logger.info(f"Host request sent by {host_request.surfer}")
     logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
@@ -113,6 +114,7 @@ def send_new_host_request_email(host_request):
 
 
 def send_host_request_accepted_email_to_guest(host_request):
+    # todo(notify2): replace with notification
     logger.info(f"Sending host request accepted email to guest: {host_request.surfer=}:")
     logger.info(f"Email for {host_request.surfer.username=} sent to {host_request.surfer.email=}")
 
@@ -127,6 +129,7 @@ def send_host_request_accepted_email_to_guest(host_request):
 
 
 def send_host_request_rejected_email_to_guest(host_request):
+    # todo(notify2): replace with notification
     logger.info(f"Sending host request rejected email to guest: {host_request.surfer=}:")
     logger.info(f"Email for {host_request.surfer.username=} sent to {host_request.surfer.email=}")
 
@@ -141,6 +144,7 @@ def send_host_request_rejected_email_to_guest(host_request):
 
 
 def send_host_request_confirmed_email_to_host(host_request):
+    # todo(notify2): replace with notification
     logger.info(f"Sending host request confirmed email to host: {host_request.host=}:")
     logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
 
@@ -155,6 +159,7 @@ def send_host_request_confirmed_email_to_host(host_request):
 
 
 def send_host_request_cancelled_email_to_host(host_request):
+    # todo(notify2): replace with notification
     logger.info(f"Sending host request cancelled email to host: {host_request.host=}:")
     logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
 
@@ -169,6 +174,7 @@ def send_host_request_cancelled_email_to_host(host_request):
 
 
 def send_friend_request_email(friend_relationship):
+    # todo(notify2): replace with notification
     friend_requests_link = urls.friend_requests_link()
 
     logger.info(f"Sending friend request email to {friend_relationship.to_user=}:")
@@ -186,6 +192,7 @@ def send_friend_request_email(friend_relationship):
 
 
 def send_friend_request_accepted_email(friend_relationship):
+    # todo(notify2): replace with notification
     logger.info(f"Sending friend request acceptance email to {friend_relationship.from_user=}:")
     logger.info(f"Email for {friend_relationship.from_user.username=} sent to {friend_relationship.from_user.email=}")
 
@@ -203,6 +210,7 @@ def send_host_reference_email(reference, both_written):
     """
     both_written == true if both the surfer and hoster wrote a reference
     """
+    # todo(notify2): replace with notification
     assert reference.host_request_id
 
     logger.info(f"Sending host reference email to {reference.to_user=} for {reference.id=}")
@@ -227,6 +235,7 @@ def send_host_reference_email(reference, both_written):
 
 
 def send_friend_reference_email(reference):
+    # todo(notify2): replace with notification
     assert not reference.host_request_id
 
     logger.info(f"Sending friend reference email to {reference.to_user=} for {reference.id=}")
@@ -241,6 +250,7 @@ def send_friend_reference_email(reference):
 
 
 def send_reference_reminder_email(user, other_user, host_request, surfed, time_left_text):
+    # todo(notify2): replace with notification
     logger.info(f"Sending host reference email to {user=}, they have {time_left_text} left to write a ref")
 
     email.enqueue_email_from_template_to_user(
@@ -265,6 +275,7 @@ def send_password_changed_email(user):
     """
     Send the user an email saying their password has been changed.
     """
+    # todo(notify2): replace with notification
     logger.info(f"Sending password changed (notification) email to {user=}")
     email.enqueue_email_from_template_to_user(
         user, "password_changed", template_args={"user": user}, is_critical_email=True
@@ -275,6 +286,7 @@ def send_email_changed_notification_email(user):
     """
     Send an email to user's original address notifying that it has been changed
     """
+    # todo(notify2): replace with notification
     logger.info(
         f"Sending email changed (notification) email to {user=} (old email: {user.email=}, new email: {user.new_email=})"
     )
@@ -315,6 +327,7 @@ def send_email_changed_confirmation_to_new_email(user):
 
 
 def send_onboarding_email(user, email_number):
+    # todo(notify2): replace with notification
     email.enqueue_email_from_template_to_user(
         user,
         f"onboarding{email_number}",
@@ -328,6 +341,7 @@ def send_onboarding_email(user, email_number):
 
 
 def send_donation_email(user, amount, receipt_url):
+    # todo(notify2): replace with notification
     email_user(user, "donation_received", template_args={"user": user, "amount": amount, "receipt_url": receipt_url})
 
 
@@ -459,6 +473,7 @@ def send_account_deletion_successful_email(user, undelete_days):
 
 
 def send_account_recovered_email(user):
+    # todo(notify2): replace with notification
     logger.info(f"Sending account recovered successful email to {user=}.")
     logger.info(f"Email for {user.username=} sent to {user.email}.")
     email_user(user, "account_recovery_successful", template_args={"user": user, "app_link": urls.app_link()})

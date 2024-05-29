@@ -6,7 +6,7 @@ from sqlalchemy.sql import and_, func
 from couchers.db import session_scope
 from couchers.models import Notification, NotificationDelivery, NotificationDeliveryType, User
 from couchers.notifications import fan_funcs
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import notify_v2
 from couchers.notifications.settings import get_preference
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_digest_email, send_notification_email
@@ -18,16 +18,11 @@ def fan_notifications(payload):
     fan_func = getattr(fan_funcs, payload.fan_func)
     user_ids = fan_func(payload.fan_func_data)
     for user_id in user_ids:
-        notify(
+        notify_v2(
             user_id=user_id,
-            topic=payload.topic,
+            topic_action=payload.topic_action,
             key=payload.key,
-            action=payload.action,
-            title=payload.title,
-            link=payload.link,
-            avatar_key=payload.avatar_key or None,
-            icon=payload.icon or None,
-            content=payload.content or None,
+            data=payload.data,
         )
 
 

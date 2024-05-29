@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package notification_data;
+
+message UserInfo {
+  int64 user_id = 1;
+  string avatar_key = 2;
+  string name = 3;
+  int32 age = 4;
+  int32 location = 5;
+}
+
+message HostRequestInfo {
+  int64 host_request_id = 1;
+  string from_date = 2;
+  string to_date = 3;
+}
+
+message EventInfo {
+  // todo
+}
+
+message ChatMessage {
+  // todo
+}
+
+message HostRequestCreate {
+  HostRequestInfo host_request_info = 1;
+  UserInfo surfer_info = 2;
+  string text = 3;
+}
+
+message HostRequestAccept {
+  HostRequestInfo host_request_info = 1;
+  UserInfo host_info = 2;
+}
+
+message HostRequestReject {
+  HostRequestInfo host_request_info = 1;
+  UserInfo host_info = 2;
+}
+
+message HostRequestConfirm {
+  HostRequestInfo host_request_info = 1;
+  UserInfo surfer_info = 2;
+}
+
+message HostRequestCancel {
+  HostRequestInfo host_request_info = 1;
+  UserInfo surfer_info = 2;
+}
+
+message HostRequestMessage {
+  HostRequestInfo host_request_info = 1;
+  UserInfo user_info = 2;
+  string text = 3;
+  bool am_host = 4;
+}
+
+message BadgeAdd {
+  string badge_id = 1;
+  string badge_name = 2;
+  string badge_description = 3;
+}
+
+message BadgeRemove {
+  string badge_id = 1;
+  string badge_name = 2;
+  string badge_description = 3;
+}
+
+message GenderChange {
+  string gender = 1;
+}
+
+message BirthdateChange {
+  string gender = 2;
+}
+
+message FriendRequestCreate {
+  UserInfo friend_user_info = 1;
+}
+
+message FriendRequestAccept {
+  UserInfo friend_user_info = 1;
+}
+
+message EventInviteOrganizer {
+  UserInfo inviter_user_info = 1;
+  EventInfo event_info = 2;
+}
+
+message EventCreateApproved {
+  EventInfo event_info = 1;
+}
+
+message EventCreateAny {
+  EventInfo event_info = 1;
+}
+
+message EventUpdate {
+  EventInfo event_info = 1;
+}

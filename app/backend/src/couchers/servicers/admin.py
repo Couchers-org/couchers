@@ -19,7 +19,7 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.notifications.fan_funcs import fan_create_event_notifications
-from couchers.notifications.notify import fan_notify, notify
+from couchers.notifications.notify import fan_notify_v2, notify_v2
 from couchers.resources import get_badge_dict
 from couchers.servicers.api import get_strong_verification_fields
 from couchers.servicers.auth import create_session
@@ -28,6 +28,7 @@ from couchers.sql import couchers_select as select
 from couchers.tasks import send_api_key_email
 from couchers.utils import date_to_api, now, parse_date
 from proto import admin_pb2, admin_pb2_grpc
+from proto.internal import notification_data_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -68,14 +69,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
             user.gender = request.gender
             session.commit()
 
-            notify(
+            notify_v2(
                 user_id=user.id,
-                topic="gender",
-                key="",
-                action="change",
-                icon="wrench",
-                title=f"An admin changed your gender",
-                link=urls.account_settings_link(),
+                topic_action="gender:change",
+                data=notification_data_pb2.GenderChange(
+                    gender=request.gender,
+                ),
             )
 
             return _user_to_details(user)
@@ -88,14 +87,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
             user.birthdate = parse_date(request.birthdate)
             session.commit()
 
-            notify(
+            notify_v2(
                 user_id=user.id,
-                topic="birthdate",
-                key="",
-                action="change",
-                icon="wrench",
-                title=f"An admin changed your birth date",
-                link=urls.account_settings_link(),
+                topic_action="birthdate:change",
+                data=notification_data_pb2.BirthdateChange(
+                    birthdate=request.birthdate,
+                ),
             )
 
             return _user_to_details(user)
@@ -119,14 +116,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
             session.add(UserBadge(user_id=user.id, badge_id=badge["id"]))
             session.commit()
 
-            notify(
+            notify_v2(
                 user_id=user.id,
-                topic="badge",
-                key="",
-                action="remove",
-                icon="label",
-                title=f'An admin added the "{badge["name"]}" badge to your profile',
-                link=urls.profile_link(),
+                topic_action="badge:add",
+                data=notification_data_pb2.BadgeAdd(
+                    badge_id=badge["id"],
+                    badge_name=badge["name"],
+                    badge_description=badge["description"],
+                ),
             )
 
             return _user_to_details(user)
@@ -153,14 +150,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
             session.delete(user_badge)
             session.commit()
 
-            notify(
+            notify_v2(
                 user_id=user.id,
-                topic="badge",
-                key="",
-                action="remove",
-                icon="label",
-                title=f'An admin removed the "{badge["name"]}" badge from your profile',
-                link=urls.profile_link(),
+                topic_action="badge:remove",
+                data=notification_data_pb2.BadgeRemove(
+                    badge_id=badge["id"],
+                    badge_name=badge["name"],
+                    badge_description=badge["description"],
+                ),
             )
 
             return _user_to_details(user)
@@ -210,14 +207,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
             send_api_key_email(session, user, token, expiry)
 
-            notify(
+            notify_v2(
                 user_id=user.id,
-                topic="api_key",
-                key="",
-                action="create",
-                icon="wrench",
-                title=f"An admin created an API key for you, please check your email",
-                link=urls.account_settings_link(),
+                topic_action="api_key:create",
             )
 
             return _user_to_details(user)
@@ -402,16 +394,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             if request.approve:
                 occurrence = req.occurrence
-                fan_notify(
+                fan_notify_v2(
                     fan_func="fan_create_event_notifications",
                     fan_func_data=str(occurrence.id),
-                    topic="event",
-                    key=str(occurrence.id),
-                    action="create_approved",
-                    icon="create",
-                    title=f'A new event, "{occurrence.event.title}" was created by {req.user.name}',
-                    content=occurrence.content,
-                    link=urls.event_link(occurrence_id=occurrence.id, slug=occurrence.event.slug),
+                    topic_action="event:create_approved",
+                    key=occurrence.id,
+                    data=notification_data_pb2.EventCreateApproved(
+                        event_info=make_event_info(occurrence),
+                    ),
                 )
 
             return admin_pb2.DecideEventCommunityInviteRequestRes()

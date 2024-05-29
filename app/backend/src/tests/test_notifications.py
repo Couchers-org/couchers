@@ -5,7 +5,7 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2
 
-from couchers import errors, urls
+from couchers import errors
 from couchers.crypto import b64decode
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.worker import process_job
@@ -18,9 +18,10 @@ from couchers.models import (
     NotificationTopicAction,
     User,
 )
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import notify_v2
 from couchers.sql import couchers_select as select
 from proto import auth_pb2, notifications_pb2
+from proto.internal import notification_data_pb2
 from tests.test_fixtures import (  # noqa
     auth_api_session,
     db,
@@ -93,10 +94,10 @@ def test_SetNotificationSettings(db):
 
 @pytest.mark.parametrize("enabled", [True, False])
 def test_SetNotificationSettings_preferences_respected_editable(db, enabled):
-    user, token = generate_user()
+    user, token = generate_user(gender="Man")
 
     # enable a notification type and check it gets delivered
-    topic_action = NotificationTopicAction.friend_request__accept
+    topic_action = NotificationTopicAction.gender__change
 
     with notifications_session(token) as notifications:
         notifications.SetNotificationSettings(
@@ -113,15 +114,10 @@ def test_SetNotificationSettings_preferences_respected_editable(db, enabled):
             )
         )
 
-    notify(
+    notify_v2(
         user_id=user.id,
-        topic=topic_action.topic,
-        key="1",
-        action=topic_action.action,
-        avatar_key=None,
-        icon="person",
-        title=f"**Dummy** accepted your friend request",
-        link=urls.user_link(username="dummy"),
+        topic_action=topic_action.as_user_display(),
+        data=notification_data_pb2.GenderChange(gender="Woman"),
     )
 
     process_job()
@@ -171,7 +167,7 @@ def test_unsubscribe(db):
 
     user, token = generate_user()
 
-    topic_action = NotificationTopicAction.friend_request__accept
+    topic_action = NotificationTopicAction.gender__change
 
     # first enable email notifs
     with notifications_session(token) as notifications:
@@ -190,16 +186,12 @@ def test_unsubscribe(db):
             )
         )
 
-    notify(
+    notify_v2(
         user_id=user.id,
-        topic=topic_action.topic,
-        key="1",
-        action=topic_action.action,
-        avatar_key=None,
-        icon="person",
-        title=f"**Dummy** accepted your friend request",
-        link=urls.user_link(username="dummy"),
+        topic_action=topic_action.as_user_display(),
+        data=notification_data_pb2.GenderChange(gender="Woman"),
     )
+
     queue_job("handle_email_notifications", empty_pb2.Empty())
 
     with patch("couchers.email.queue_email") as mock:
@@ -236,16 +228,12 @@ def test_unsubscribe(db):
                 if topic == topic_action.topic and item == topic_action.action:
                     assert not item.email
 
-    notify(
+    notify_v2(
         user_id=user.id,
-        topic=topic_action.topic,
-        key="1",
-        action=topic_action.action,
-        avatar_key=None,
-        icon="person",
-        title=f"**Dummy** accepted your friend request",
-        link=urls.user_link(username="dummy"),
+        topic_action=topic_action.as_user_display(),
+        data=notification_data_pb2.GenderChange(gender="Man"),
     )
+
     queue_job("handle_email_notifications", empty_pb2.Empty())
 
     with patch("couchers.email.queue_email") as mock:
