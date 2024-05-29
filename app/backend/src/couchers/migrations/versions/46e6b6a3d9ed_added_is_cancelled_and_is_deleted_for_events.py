@@ -1,4 +1,4 @@
-"""Added is_cancelled and is_deleted for Events
+"""Added is_cancelled and is_deleted for Events and update notification action enum
 
 Revision ID: 46e6b6a3d9ed
 Revises: 88b6bb559332
@@ -23,8 +23,12 @@ def upgrade():
     op.add_column(
         "event_occurrences", sa.Column("is_deleted", sa.Boolean(), nullable=False, server_default=sa.text("false"))
     )
+    with op.get_context().autocommit_block():
+        op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__cancel'")
+        op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__delete'")
 
 
 def downgrade():
-    op.drop_column("event_occurrences", "is_deleted")
-    op.drop_column("event_occurrences", "is_cancelled")
+    # op.drop_column("event_occurrences", "is_deleted")
+    # op.drop_column("event_occurrences", "is_cancelled")
+    raise Exception("Can't downgrade")
