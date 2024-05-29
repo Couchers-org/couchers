@@ -3,6 +3,7 @@ from calendar import monthrange
 from datetime import date
 
 from geoalchemy2.types import Geometry
+from google.protobuf import empty_pb2
 from sqlalchemy import (
     ARRAY,
     BigInteger,
@@ -39,6 +40,7 @@ from couchers.constants import (
     TOS_VERSION,
 )
 from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
+from proto.internal import notification_data_pb2
 
 meta = MetaData(
     naming_convention={
@@ -2149,12 +2151,14 @@ class NotificationDeliveryType(enum.Enum):
 
 
 dt = NotificationDeliveryType
+nd = notification_data_pb2
+
+dt_all = [dt.email, dt.push, dt.digest]
 
 
 class NotificationTopicAction(enum.Enum):
-    def __init__(self, topic, action, defaults, user_editable):
-        self.topic = topic
-        self.action = action
+    def __init__(self, topic_action, defaults, user_editable, data_type):
+        self.topic, self.action = topic_action.split(":")
         self.defaults = defaults
         # for now user editable == not a security notification
         self.user_editable = user_editable
@@ -2162,48 +2166,53 @@ class NotificationTopicAction(enum.Enum):
         if not self.user_editable:
             assert self.defaults == [dt.email, dt.push, dt.digest], (topic, action)
 
+        self.data_type = data_type
+
     def unpack(self):
         return self.topic, self.action
 
+    def as_user_display(self):
+        return f"{self.topic}:{self.action}"
+
     # topic, action, default delivery types
-    friend_request__send = ("friend_request", "send", [dt.email, dt.push, dt.digest], True)
-    friend_request__accept = ("friend_request", "accept", [dt.push, dt.digest], True)
+    friend_request__create = ("friend_request:create", dt_all, True, nd.FriendRequestCreate)
+    friend_request__accept = ("friend_request:accept", [dt.push, dt.digest], True, nd.FriendRequestAccept)
 
     # host requests
-    host_request__create = ("host_request", "create", [dt.email, dt.push, dt.digest], True)
-    host_request__accept = ("host_request", "accept", [dt.email, dt.push, dt.digest], True)
-    host_request__reject = ("host_request", "reject", [dt.push, dt.digest], True)
-    host_request__confirm = ("host_request", "confirm", [dt.email, dt.push, dt.digest], True)
-    host_request__cancel = ("host_request", "cancel", [dt.push, dt.digest], True)
-    host_request__message = ("host_request", "message", [dt.push, dt.digest], True)
+    host_request__create = ("host_request:create", dt_all, True, nd.HostRequestCreate)
+    host_request__accept = ("host_request:accept", dt_all, True, nd.HostRequestAccept)
+    host_request__reject = ("host_request:reject", [dt.push, dt.digest], True, nd.HostRequestReject)
+    host_request__confirm = ("host_request:confirm", dt_all, True, nd.HostRequestConfirm)
+    host_request__cancel = ("host_request:cancel", [dt.push, dt.digest], True, nd.HostRequestCancel)
+    host_request__message = ("host_request:message", dt_all, True, nd.HostRequestMessage)
 
     # account settings
-    password__change = ("password", "change", [dt.email, dt.push, dt.digest], False)
-    email_address__change = ("email_address", "change", [dt.email, dt.push, dt.digest], False)
-    phone_number__change = ("phone_number", "change", [dt.email, dt.push, dt.digest], True)
-    phone_number__verify = ("phone_number", "verify", [dt.email, dt.push, dt.digest], True)
+    password__change = ("password:change", dt_all, False, empty_pb2.Empty)
+    email_address__change = ("email_address:change", dt_all, False, empty_pb2.Empty)
+    phone_number__change = ("phone_number:change", dt_all, True, empty_pb2.Empty)
+    phone_number__verify = ("phone_number:verify", dt_all, False, empty_pb2.Empty)
     # reset password
-    account_recovery__start = ("account_recovery", "start", [dt.email, dt.push, dt.digest], False)
-    account_recovery__complete = ("account_recovery", "complete", [dt.email, dt.push, dt.digest], False)
+    account_recovery__start = ("account_recovery:start", dt_all, False, empty_pb2.Empty)
+    account_recovery__complete = ("account_recovery:complete", dt_all, False, empty_pb2.Empty)
 
     # admin actions
-    gender__change = ("gender", "change", [dt.email, dt.push, dt.digest], True)
-    birthdate__change = ("birthdate", "change", [dt.email, dt.push, dt.digest], True)
-    api_key__create = ("api_key", "create", [dt.email, dt.push, dt.digest], False)
+    gender__change = ("gender:change", dt_all, True, nd.GenderChange)
+    birthdate__change = ("birthdate:change", dt_all, True, nd.BirthdateChange)
+    api_key__create = ("api_key:create", dt_all, False, empty_pb2.Empty)
 
-    badge__add = ("badge", "add", [dt.push, dt.digest], True)
-    badge__remove = ("badge", "remove", [dt.push, dt.digest], True)
+    badge__add = ("badge:add", [dt.push, dt.digest], True, nd.BadgeAdd)
+    badge__remove = ("badge:remove", [dt.push, dt.digest], True, nd.BadgeRemove)
 
     # group chats
-    chat__message = ("chat", "message", [dt.email, dt.push, dt.digest], True)
+    chat__message = ("chat:message", dt_all, True, nd.ChatMessage)
 
     # events
     # approved by mods
-    event__create_approved = ("event", "create_approved", [dt.email, dt.push, dt.digest], True)
+    event__create_approved = ("event:create_approved", dt_all, True, nd.EventCreateApproved)
     # any user creates any event, default to no notifications
-    event__create_any = ("event", "create_any", [], True)
-    event__update = ("event", "update", [dt.push, dt.digest], True)
-    event__invite_organizer = ("event", "invite_organizer", [dt.email, dt.push, dt.digest], True)
+    event__create_any = ("event:create_any", [], True, nd.EventCreateAny)
+    event__update = ("event:update", [dt.push, dt.digest], True, nd.EventUpdate)
+    event__invite_organizer = ("event:invite_organizer", dt_all, True, nd.EventInviteOrganizer)
 
 
 class NotificationPreference(Base):
@@ -2237,11 +2246,7 @@ class Notification(Base):
     topic_action = Column(Enum(NotificationTopicAction), nullable=False)
     key = Column(String, nullable=False)
 
-    avatar_key = Column(String, nullable=True)
-    icon = Column(String, nullable=True)  # the name (excluding .svg) in the resources/icons folder
-    title = Column(String, nullable=True)  # bold markup surrounded by double asterisks allowed, otherwise plain text
-    content = Column(String, nullable=True)  # bold markup surrounded by double asterisks allowed, otherwise plain text
-    link = Column(String, nullable=True)
+    data = Column(Binary, nullable=False)
 
     user = relationship("User", foreign_keys="Notification.user_id")
 
@@ -2260,11 +2265,6 @@ class Notification(Base):
     @property
     def action(self):
         return self.topic_action.action
-
-    @property
-    def plain_title(self):
-        # only bold is allowed
-        return self.title.replace("**", "")
 
 
 class NotificationDelivery(Base):

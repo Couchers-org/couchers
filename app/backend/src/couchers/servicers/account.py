@@ -6,7 +6,7 @@ import requests
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import update
 
-from couchers import errors, urls
+from couchers import errors
 from couchers.config import config
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.crypto import (
@@ -30,7 +30,7 @@ from couchers.models import (
     StrongVerificationCallbackEvent,
     User,
 )
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import notify_v2
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.sql import couchers_select as select
@@ -40,8 +40,6 @@ from couchers.tasks import (
     send_account_deletion_report_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
-    send_email_changed_notification_email,
-    send_password_changed_email,
 )
 from couchers.utils import is_valid_email, now
 from proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc
@@ -174,16 +172,9 @@ class Account(account_pb2_grpc.AccountServicer):
 
             session.commit()
 
-            send_password_changed_email(user)
-
-            notify(
+            notify_v2(
                 user_id=user.id,
-                topic="password",
-                key="",
-                action="change",
-                icon="wrench",
-                title=f"Your password was changed",
-                link=urls.account_settings_link(),
+                topic_action="password:change",
             )
 
         return empty_pb2.Empty()
@@ -223,17 +214,11 @@ class Account(account_pb2_grpc.AccountServicer):
                 user.old_email_token_created = None
                 user.old_email_token_expiry = None
                 user.need_to_confirm_via_old_email = False
-                send_email_changed_notification_email(user)
                 send_email_changed_confirmation_to_new_email(user)
 
-                notify(
+                notify_v2(
                     user_id=user.id,
-                    topic="email_address",
-                    key="",
-                    action="change",
-                    icon="wrench",
-                    title=f"Your email was changed",
-                    link=urls.account_settings_link(),
+                    topic_action="email_address:change",
                 )
             else:
                 user.old_email_token = urlsafe_secure_token()
@@ -309,14 +294,9 @@ class Account(account_pb2_grpc.AccountServicer):
                 user.phone_verification_sent = now()
                 user.phone_verification_attempts = 0
 
-                notify(
+                notify_v2(
                     user_id=user.id,
-                    topic="phone_number",
-                    key="",
-                    action="change",
-                    icon="wrench",
-                    title=f"Your phone number was changed",
-                    link=urls.account_settings_link(),
+                    topic_action="phone_number:change",
                 )
 
                 return empty_pb2.Empty()
@@ -363,14 +343,9 @@ class Account(account_pb2_grpc.AccountServicer):
             user.phone_verification_verified = now()
             user.phone_verification_attempts = 0
 
-            notify(
+            notify_v2(
                 user_id=user.id,
-                topic="phone_number",
-                key="",
-                action="verify",
-                icon="wrench",
-                title=f"Your phone number was verified",
-                link=urls.account_settings_link(),
+                topic_action="phone_number:verify",
             )
 
         return empty_pb2.Empty()

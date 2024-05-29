@@ -26,14 +26,9 @@ message FinalizeStrongVerificationPayload {
 }
 
 message FanNotificationsPayload {
-  string topic = 1;
-  string action = 2;
+  string topic_action = 1;
   string key = 3;
-  string avatar_key = 4;
-  string icon = 5;
-  string title = 6;
-  string content = 7;
-  string link = 8;
+  bytes data = 11;
 
   string fan_func = 9;
   string fan_func_data = 10;

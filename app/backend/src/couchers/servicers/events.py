@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2
 from psycopg2.extras import DateTimeTZRange
 from sqlalchemy.sql import and_, func, or_, update
 
-from couchers import errors, urls
+from couchers import errors
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
 from couchers.models import (
     AttendeeStatus,
@@ -23,7 +23,7 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.notifications.notify import fan_notify, notify
+from couchers.notifications.notify import fan_notify_v2, notify_v2
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_event_community_invite_request_email
@@ -36,6 +36,7 @@ from couchers.utils import (
     to_aware_datetime,
 )
 from proto import events_pb2, events_pb2_grpc
+from proto.internal import notification_data_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -284,16 +285,14 @@ class Events(events_pb2_grpc.EventsServicer):
 
             session.commit()
 
-            fan_notify(
+            fan_notify_v2(
                 fan_func="fan_create_event_notifications",
                 fan_func_data=str(occurrence.id),
-                topic="event",
-                key=str(occurrence.id),
-                action="create_any",
-                icon="create",
-                title=f'A new event, "{event.title}" was created by {user.name}',
-                content=occurrence.content,
-                link=urls.event_link(occurrence_id=occurrence.id, slug=event.slug),
+                topic_action="event:create_any",
+                key=occurrence.id,
+                data=notification_data_pb2.EventCreateAny(
+                    event_info=make_event_info(occurrence),
+                ),
             )
 
             return event_to_pb(session, occurrence, context)
@@ -504,17 +503,16 @@ class Events(events_pb2_grpc.EventsServicer):
 
             if notify_updated:
                 logger.info(f"Fields {','.join(notify_updated)} updated in event {event.id=}, notifying")
-                # TODO: prettier message
-                fan_notify(
+
+                fan_notify_v2(
                     fan_func="fan_to_occurrence_subscribers_and_attendees",
                     fan_func_data=str(occurrence.id),
-                    topic="event",
-                    key=str(occurrence.id),
-                    action="update",
-                    icon="update",
-                    title=f'"{event.title}" was updated by {user.name}',
-                    content="The following were updated: " + ", ".join(notify_updated),
-                    link=urls.event_link(occurrence_id=occurrence.id, slug=event.slug),
+                    topic_action="event:update",
+                    key=occurrence.id,
+                    data=notification_data_pb2.EventUpdate(
+                        event_info=make_event_info(occurrence),
+                        updated=notify_updated,
+                    ),
                 )
 
             # since we have synchronize_session=False, we have to refresh the object
@@ -915,14 +913,14 @@ class Events(events_pb2_grpc.EventsServicer):
             )
             session.flush()
 
-            notify(
+            notify_v2(
                 user_id=request.user_id,
-                topic="event",
-                key=str(event.id),
-                action="invite_organizer",
-                icon="plusone",
-                title=f"{user.name} invited you as an organizer to the event {event.title}",
-                link=urls.event_link(occurrence_id=occurrence.id, slug=event.slug),
+                topic_action="event:invite_organizer",
+                key=event.id,
+                data=notification_data_pb2.EventInviteOrganizer(
+                    inviter_user_info=make_user_info(user),
+                    event_info=make_event_info(event),
+                ),
             )
 
             return empty_pb2.Empty()

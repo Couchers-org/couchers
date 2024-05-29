@@ -5,14 +5,15 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func, or_
 
-from couchers import errors, urls
+from couchers import errors
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.db import session_scope
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
-from couchers.notifications.notify import fan_notify
+from couchers.notifications.notify import fan_notify_v2
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now
 from proto import conversations_pb2, conversations_pb2_grpc
+from proto.internal import notification_data_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -133,16 +134,15 @@ def _add_message_to_subscription(session, subscription, **kwargs):
     else:
         title = f"{message.author.name} sent a message in {subscription.group_chat.title}"
 
-    fan_notify(
+    fan_notify_v2(
         fan_func="fan_message_notifications",
-        fan_func_data=str(message.id),
-        topic="chat",
-        key=str(message.conversation_id),
-        action="message",
-        icon="message",
-        title=title,
-        content=message.text,
-        link=urls.chat_link(chat_id=message.conversation_id),
+        fan_func_data=str(occurrence.id),
+        topic_action="chat:message",
+        key=message.conversation_id.id,
+        data=notification_data_pb2.ChatMessage(
+            author_info=make_user_info(message.author),
+            # todo
+        ),
     )
 
     return message

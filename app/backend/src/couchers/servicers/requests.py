@@ -8,18 +8,11 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 from sqlalchemy.sql.functions import percentile_disc
 
-from couchers import errors, urls
+from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
-from couchers.notifications.notify import notify
+from couchers.notifications.notify import notify_v2
 from couchers.sql import couchers_select as select
-from couchers.tasks import (
-    send_host_request_accepted_email_to_guest,
-    send_host_request_cancelled_email_to_host,
-    send_host_request_confirmed_email_to_host,
-    send_host_request_rejected_email_to_guest,
-    send_new_host_request_email,
-)
 from couchers.utils import (
     Duration_from_timedelta,
     Timestamp_from_datetime,
@@ -29,6 +22,7 @@ from couchers.utils import (
     today_in_timezone,
 )
 from proto import conversations_pb2, requests_pb2, requests_pb2_grpc
+from proto.internal import notification_data_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -148,17 +142,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session.add(host_request)
             session.commit()
 
-            send_new_host_request_email(host_request)
-
-            notify(
+            notify_v2(
                 user_id=host_request.host_user_id,
-                topic="host_request",
-                action="create",
-                key=str(host_request.surfer_user_id),
-                avatar_key=host_request.surfer.avatar.thumbnail_url if host_request.surfer.avatar else None,
-                title=f"**{host_request.surfer.name}** sent you a hosting request",
-                content=request.text,
-                link=urls.host_request_link_host(),
+                topic_action="host_request:create",
+                key=host_request.id,
+                data=notification_data_pb2.HostRequestAccept(
+                    host_request_info=make_host_request_info(host_request),
+                    surfer_info=make_user_info(host_request.surfer),
+                    text=request.text,
+                ),
             )
 
             return requests_pb2.CreateHostRequestRes(host_request_id=host_request.conversation_id)
@@ -319,17 +311,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
                 control_message.host_request_status_target = HostRequestStatus.accepted
                 host_request.status = HostRequestStatus.accepted
+                session.flush()
 
-                send_host_request_accepted_email_to_guest(host_request)
-
-                notify(
+                notify_v2(
                     user_id=host_request.surfer_user_id,
-                    topic="host_request",
-                    action="accept",
-                    key=str(host_request.host_user_id),
-                    avatar_key=host_request.host.avatar.thumbnail_url if host_request.host.avatar else None,
-                    title=f"**{host_request.host.name}** accepted your host request",
-                    link=urls.host_request_link_guest(),
+                    topic_action="host_request:accept",
+                    key=host_request.id,
+                    data=notification_data_pb2.HostRequestAccept(
+                        host_request_info=make_host_request_info(host_request),
+                        host_info=make_user_info(host_request.host),
+                    ),
                 )
 
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED:
@@ -344,21 +335,20 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
                 control_message.host_request_status_target = HostRequestStatus.rejected
                 host_request.status = HostRequestStatus.rejected
+                session.flush()
 
-                send_host_request_rejected_email_to_guest(host_request)
-
-                notify(
+                notify_v2(
                     user_id=host_request.surfer_user_id,
-                    topic="host_request",
-                    action="reject",
-                    key=str(host_request.host_user_id),
-                    avatar_key=host_request.host.avatar.thumbnail_url if host_request.host.avatar else None,
-                    title=f"**{host_request.host.name}** rejected your host request",
-                    link=urls.host_request_link_guest(),
+                    topic_action="host_request:reject",
+                    key=host_request.id,
+                    data=notification_data_pb2.HostRequestReject(
+                        host_request_info=make_host_request_info(host_request),
+                        host_info=make_user_info(host_request.host),
+                    ),
                 )
 
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED:
-                # only hostee can confirm
+                # only surfer can confirm
                 if context.user_id != host_request.surfer_user_id:
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
                 # can only confirm an accepted request
@@ -366,21 +356,20 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
                 control_message.host_request_status_target = HostRequestStatus.confirmed
                 host_request.status = HostRequestStatus.confirmed
+                session.flush()
 
-                send_host_request_confirmed_email_to_host(host_request)
-
-                notify(
+                notify_v2(
                     user_id=host_request.host_user_id,
-                    topic="host_request",
-                    action="confirm",
-                    key=str(host_request.surfer_user_id),
-                    avatar_key=host_request.surfer.avatar.thumbnail_url if host_request.surfer.avatar else None,
-                    title=f"**{host_request.surfer.name}** confirmed their host request",
-                    link=urls.host_request_link_host(),
+                    topic_action="host_request:confirm",
+                    key=host_request.id,
+                    data=notification_data_pb2.HostRequestConfirm(
+                        host_request_info=make_host_request_info(host_request),
+                        surfer_info=make_user_info(host_request.surfer),
+                    ),
                 )
 
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED:
-                # only hostee can cancel
+                # only surfer can cancel
                 if context.user_id != host_request.surfer_user_id:
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
                 # can't' cancel an already cancelled or rejected request
@@ -391,17 +380,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
                 control_message.host_request_status_target = HostRequestStatus.cancelled
                 host_request.status = HostRequestStatus.cancelled
+                session.flush()
 
-                send_host_request_cancelled_email_to_host(host_request)
-
-                notify(
+                notify_v2(
                     user_id=host_request.host_user_id,
-                    topic="host_request",
-                    action="cancel",
-                    key=str(host_request.surfer_user_id),
-                    avatar_key=host_request.surfer.avatar.thumbnail_url if host_request.surfer.avatar else None,
-                    title=f"**{host_request.surfer.name}** cancelled their host request",
-                    link=urls.host_request_link_host(),
+                    topic_action="host_request:cancel",
+                    key=host_request.id,
+                    data=notification_data_pb2.HostRequestCancel(
+                        host_request_info=make_host_request_info(host_request),
+                        surfer_info=make_user_info(host_request.surfer),
+                    ),
                 )
 
             control_message.message_type = MessageType.host_request_status_changed
@@ -497,27 +485,31 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if host_request.surfer_user_id == context.user_id:
                 host_request.surfer_last_seen_message_id = message.id
 
-                notify(
+                notify_v2(
                     user_id=host_request.host_user_id,
-                    topic="host_request",
-                    action="message",
-                    key=str(host_request.surfer_user_id),
-                    avatar_key=host_request.surfer.avatar.thumbnail_url if host_request.surfer.avatar else None,
-                    title=f"**{host_request.surfer.name}** sent a message in their host request",
-                    link=urls.host_request_link_host(),
+                    topic_action="host_request:message",
+                    key=host_request.id,
+                    data=notification_data_pb2.HostRequestMessage(
+                        host_request_info=make_host_request_info(host_request),
+                        user_info=make_user_info(host_request.surfer),
+                        text=message.text,
+                        am_host=True,
+                    ),
                 )
 
             else:
                 host_request.host_last_seen_message_id = message.id
 
-                notify(
+                notify_v2(
                     user_id=host_request.surfer_user_id,
-                    topic="host_request",
-                    action="message",
-                    key=str(host_request.host_user_id),
-                    avatar_key=host_request.host.avatar.thumbnail_url if host_request.host.avatar else None,
-                    title=f"**{host_request.host.name}** sent a message in your host request",
-                    link=urls.host_request_link_guest(),
+                    topic_action="host_request:message",
+                    key=host_request.id,
+                    data=notification_data_pb2.HostRequestMessage(
+                        host_request_info=make_host_request_info(host_request),
+                        user_info=make_user_info(host_request.host),
+                        text=message.text,
+                        am_host=False,
+                    ),
                 )
 
             session.commit()

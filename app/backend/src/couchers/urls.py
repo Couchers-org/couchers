@@ -47,6 +47,10 @@ def host_request_link_guest():
     return f"{config['BASE_URL']}/messages/surfing/"
 
 
+def host_request(*, host_request_id):
+    return f"{config['BASE_URL']}/messages/request/{host_request_id}"
+
+
 def messages_link():
     return f"{config['BASE_URL']}/messages/"
 

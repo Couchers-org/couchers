@@ -1,3 +1,5 @@
+from google.protobuf import empty_pb2
+
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Notification
@@ -5,17 +7,12 @@ from couchers.notifications.utils import enum_from_topic_action
 from proto.internal import jobs_pb2
 
 
-def notify(
+def notify_v2(
     *,
     user_id,
-    topic,
-    key,
-    action,
-    title,
-    link,
-    avatar_key=None,
-    icon=None,
-    content=None,
+    topic_action,
+    key="",
+    data=None,
 ):
     """
     Queues a notification given the notification and a target, i.e. a tuple (user_id, topic, key), and an action.
@@ -31,16 +28,13 @@ def notify(
 
     Each different notification type should have its own action.
     """
+    topic, action = topic_action.split(":")
     with session_scope() as session:
         notification = Notification(
             user_id=user_id,
             topic_action=enum_from_topic_action[topic, action],
             key=key,
-            avatar_key=avatar_key,
-            icon=icon,
-            title=title,
-            content=content,
-            link=link,
+            data=(data or empty_pb2.Empty()).SerializeToString(),
         )
         session.add(notification)
         session.flush()
@@ -54,18 +48,13 @@ def notify(
     )
 
 
-def fan_notify(
+def fan_notify_v2(
     *,
     fan_func: str,
     fan_func_data: str,
-    topic,
-    key,
-    action,
-    title,
-    link,
-    avatar_key=None,
-    icon=None,
-    content=None,
+    topic_action,
+    key="",
+    data=None,
 ):
     """
     Like notify, but this time we pass into a background job and call fan_func(fan_func_data) in order to figure out who to send this notification to
@@ -73,14 +62,9 @@ def fan_notify(
     queue_job(
         job_type="fan_notifications",
         payload=jobs_pb2.FanNotificationsPayload(
-            topic=topic,
-            action=action,
+            topic_action=topic_action,
             key=key,
-            avatar_key=avatar_key,
-            icon=icon,
-            title=title,
-            content=content,
-            link=link,
+            data=(data or empty_pb2.Empty()).SerializeToString(),
             fan_func=fan_func,
             fan_func_data=fan_func_data,
         ),
