@@ -2,7 +2,7 @@ import { Chip, Tooltip } from "@material-ui/core";
 import { User } from "proto/api_pb";
 import makeStyles from "utils/makeStyles";
 
-import { useBadges } from "../hooks/useBadges";
+import { useBadges } from "features/badges/useBadges";
 
 interface Props {
   user: User.AsObject;
