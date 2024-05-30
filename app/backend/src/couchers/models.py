@@ -2301,6 +2301,51 @@ class NotificationDelivery(Base):
     )
 
 
+class PushNotificationSubscription(Base):
+    __tablename__ = "push_notification_subscriptions"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # which user this is connected to
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    # these come from https://developer.mozilla.org/en-US/docs/Web/API/PushSubscription
+    # the endpoint
+    endpoint = Column(String, nullable=False)
+    # the "auth" key
+    auth_key = Column(Binary, nullable=False)
+    # the "p256dh" key
+    p256dh_key = Column(Binary, nullable=False)
+
+    full_subscription_info = Column(String, nullable=False)
+
+    # when it was disabled
+    disabled_at = Column(DateTime(timezone=True), nullable=False, server_default=DATETIME_INFINITY.isoformat())
+
+    user = relationship("User")
+
+
+class PushNotificationDeliveryAttempt(Base):
+    __tablename__ = "push_notification_delivery_attempt"
+
+    id = Column(BigInteger, primary_key=True)
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    push_notification_subscription_id = Column(
+        ForeignKey("push_notification_subscriptions.id"), nullable=False, index=True
+    )
+
+    success = Column(Boolean, nullable=False)
+    # the HTTP status code, 201 is success
+    status_code = Column(Integer, nullable=False)
+
+    # can be null if it was a success
+    response = Column(String, nullable=True)
+
+    push_notification_subscription = relationship("PushNotificationSubscription")
+
+
 class Language(Base):
     """
     Table of allowed languages (a subset of ISO639-3)

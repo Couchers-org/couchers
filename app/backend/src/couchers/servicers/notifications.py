@@ -1,14 +1,26 @@
+import json
 import logging
 
 import grpc
+from google.protobuf import empty_pb2
+from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import HostingStatus, MeetupStatus, Notification, NotificationDeliveryType, User
+from couchers.models import (
+    HostingStatus,
+    MeetupStatus,
+    Notification,
+    NotificationDeliveryType,
+    PushNotificationSubscription,
+    User,
+)
+from couchers.notifications.push import get_vapid_public_key, send_push_notification
+from couchers.notifications.push_api import decode_key
 from couchers.notifications.settings import PreferenceNotUserEditableError, get_user_setting_groups, set_preference
 from couchers.notifications.utils import enum_from_topic_action
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, now_in_timezone
 from proto import notifications_pb2, notifications_pb2_grpc
 
 logger = logging.getLogger(__name__)
@@ -96,3 +108,43 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 notifications=[notification_to_pb(notification) for notification in notifications[:page_size]],
                 next_page_token=str(notifications[-1].id) if len(notifications) > page_size else None,
             )
+
+    def GetVapidPublicKey(self, request, context):
+        return notifications_pb2.GetVapidPublicKeyRes(vapid_public_key=get_vapid_public_key())
+
+    def RegisterPushNotification(self, request, context):
+        with session_scope() as session:
+            subscription = PushNotificationSubscription(
+                user_id=context.user_id,
+                endpoint=request.endpoint,
+                p256dh_key=decode_key(request.p256dh_key),
+                auth_key=decode_key(request.auth_key),
+                full_subscription_info=request.full_subscription_json,
+            )
+            session.add(subscription)
+        return empty_pb2.Empty()
+
+    def SendTestPushNotification(self, request, context):
+        with session_scope() as session:
+            subs = (
+                session.execute(
+                    select(PushNotificationSubscription)
+                    .where(PushNotificationSubscription.user_id == context.user_id)
+                    .where(PushNotificationSubscription.disabled_at > func.now())
+                )
+                .scalars()
+                .all()
+            )
+            for ix, sub in enumerate(subs):
+                try:
+                    data = json.dumps(
+                        {
+                            "title": "This is a test push notification",
+                            "body": f"It is {now_in_timezone(sub.user.timezone).strftime('%H:%M')}, and you are sub #{ix+1}/{len(subs)}",
+                            "icon": "https://couchers.org/logo512.png",
+                        }
+                    ).encode("utf8")
+                    send_push_notification(data, sub)
+                except Exception as e:
+                    logger.exception(e)
+        return empty_pb2.Empty()

@@ -71,6 +71,10 @@ CONFIG_OPTIONS = [
     # Sentry
     ("SENTRY_ENABLED", bool),
     ("SENTRY_URL", str),
+    # Push notifications
+    ("PUSH_NOTIFICATIONS_ENABLED", bool),
+    ("PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY", str),
+    ("PUSH_NOTIFICATIONS_VAPID_SUBJECT", str),
     # Listmonk (mailing list)
     ("LISTMONK_ENABLED", bool),
     ("LISTMONK_BASE_URL", str),

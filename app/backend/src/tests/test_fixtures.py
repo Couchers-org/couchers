@@ -784,6 +784,10 @@ def testconfig():
     config["LISTMONK_API_KEY"] = "..."
     config["LISTMONK_LIST_UUID"] = "..."
 
+    config["PUSH_NOTIFICATIONS_ENABLED"] = True
+    config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"] = "uI1DCR4G1AdlmMlPfRLemMxrz9f3h4kvjfnI8K9WsVI"
+    config["PUSH_NOTIFICATIONS_VAPID_SUBJECT"] = "mailto:testing@couchers.org.invalid"
+
     yield None
 
     config.clear()
