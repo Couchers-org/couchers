@@ -4,6 +4,8 @@
 .DS_Store
 ._.DS_Store
 
+.envrc
+
 # helps Lennart configure his vim
 pyrightconfig.json
 
