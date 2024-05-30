@@ -1,3 +1,15 @@
+"""
+for each notification type:
+
+* payload
+* email renderer
+* sms/push renderer
+* settings info
+* default settings
+* unsubscribe rules?
+
+"""
+
 import logging
 
 from google.protobuf import empty_pb2

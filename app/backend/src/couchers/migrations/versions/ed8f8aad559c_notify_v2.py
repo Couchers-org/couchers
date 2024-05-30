@@ -25,6 +25,49 @@ def upgrade():
     op.drop_column("notifications", "title")
     op.execute("ALTER TYPE notificationtopicaction RENAME VALUE 'friend_request__send' TO 'friend_request__create'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'email_address__verify'")
+    op.create_table(
+        "push_notification_subscriptions",
+        sa.Column("id", sa.BigInteger(), nullable=False),
+        sa.Column("created", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column("user_id", sa.BigInteger(), nullable=False),
+        sa.Column("endpoint", sa.String(), nullable=False),
+        sa.Column("auth_key", sa.LargeBinary(), nullable=False),
+        sa.Column("p256dh_key", sa.LargeBinary(), nullable=False),
+        sa.Column("full_subscription_info", sa.String(), nullable=False),
+        sa.Column(
+            "disabled_at", sa.DateTime(timezone=True), server_default="9876-12-31T23:59:59+00:00", nullable=False
+        ),
+        sa.ForeignKeyConstraint(
+            ["user_id"], ["users.id"], name=op.f("fk_push_notification_subscriptions_user_id_users")
+        ),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_push_notification_subscriptions")),
+    )
+    op.create_index(
+        op.f("ix_push_notification_subscriptions_user_id"), "push_notification_subscriptions", ["user_id"], unique=False
+    )
+    op.create_table(
+        "push_notification_delivery_attempt",
+        sa.Column("id", sa.BigInteger(), nullable=False),
+        sa.Column("time", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column("push_notification_subscription_id", sa.BigInteger(), nullable=False),
+        sa.Column("success", sa.Boolean(), nullable=False),
+        sa.Column("status_code", sa.Integer(), nullable=False),
+        sa.Column("response", sa.String(), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["push_notification_subscription_id"],
+            ["push_notification_subscriptions.id"],
+            name=op.f(
+                "fk_push_notification_delivery_attempt_push_notification_subscription_id_push_notification_subscriptions"
+            ),
+        ),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_push_notification_delivery_attempt")),
+    )
+    op.create_index(
+        op.f("ix_push_notification_delivery_attempt_push_notification_subscription_id"),
+        "push_notification_delivery_attempt",
+        ["push_notification_subscription_id"],
+        unique=False,
+    )
 
 
 def downgrade():
