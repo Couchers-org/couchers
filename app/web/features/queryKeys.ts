@@ -154,3 +154,6 @@ export const searchQueryKey = (query?: string) =>
 export const userCommunitiesKey = "userCommunities";
 export const myEventsKey = (type: EventsType) => ["myEvents", { type }];
 export const activeLoginsKey = "activeLogins";
+
+// Badges
+export const badgeUsers = "badgeUsers";
