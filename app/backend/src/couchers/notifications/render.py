@@ -13,30 +13,33 @@ def get_template_and_args(notification, data):
     if notification.topic == "host_request":
         args = {
             "view_link": urls.host_request(host_request_id=data.host_request_info.host_request_id),
+            "host_request_info": data.host_request_info,
         }
         if notification.action == "create":
             args["other"] = data.surfer_info
             args["text"] = data.text
-            args["label"] = "sent you a host request"
-            return "host_request__create", args
+            args["message"] = "sent you a host request"
+            return "host_request__message", args
         elif notification.action == "message":
             args["other"] = data.user_info
             args["text"] = data.text
-            args["label"] = "sent you a message in " + ("their" if data.am_host else "your")
+            args["message"] = "sent you a message in " + ("their" if data.am_host else "your") + " host request"
             return "host_request__message", args
         elif notification.action in ["accept", "reject", "confirm", "cancel"]:
             if notification.action in ["accept", "reject"]:
                 args["other"] = data.host_info
-                args["their_your"] = "your"
+                their_your = "your"
             else:
                 args["other"] = data.surfer_info
-                args["their_your"] = "their"
-            args["actioned"] = {
+                their_your = "their"
+            actioned = {
                 "accept": "accepted",
                 "reject": "rejected",
                 "confirm": "confirmed",
                 "cancel": "cancelled",
             }[notification.action]
+            # "Aapeli rejected your host request", or similar
+            args["message"] = f"{actioned} {their_your} host request"
             return "host_request__plain", args
     elif notification.topic_action.display == "password:change":
         args = {
@@ -89,7 +92,7 @@ def get_template_and_args(notification, data):
     elif notification.topic_action.display in ["badge:add", "badge:remove"]:
         args = {
             "badge_name": data.badge_name,
-            "actioned": "added" if notification.action == "add" else "removed",
+            "actioned": "added to" if notification.action == "add" else "removed from",
             "unsub_type": "badge additions" if notification.action == "add" else "badge removals",
         }
         return "badge", args

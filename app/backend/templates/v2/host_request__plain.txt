@@ -1,0 +1,22 @@
+Hi {{ user.name }},
+
+{{ other.name }} {{ message }} at {{ time|v2time(user) }}.
+
+Request details:
+
+{{ other.name }}, {{ other.age }}
+{{ other.location }}.
+Dates: {{ host_request_info.from_date|v2date(user) }} to {{ host_request_info.to_date|v2date(user) }}.
+
+
+
+You can view the request here: <{{ view_link }}>
+
+
+Do not reply to this email. Log in to your account to reply to this request.
+
+---
+
+Edit your notification settings at <{{ _manage_notification_settings }}>
+
+Do not email me (disables hosting): <{{ _unsub("do_not_email") }}>

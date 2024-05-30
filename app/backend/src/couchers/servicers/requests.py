@@ -11,6 +11,7 @@ from sqlalchemy.sql.functions import percentile_disc
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
+from couchers.notifications.helpers import make_host_request_info, make_user_info
 from couchers.notifications.notify import notify_v2
 from couchers.sql import couchers_select as select
 from couchers.utils import (
@@ -145,8 +146,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             notify_v2(
                 user_id=host_request.host_user_id,
                 topic_action="host_request:create",
-                key=host_request.id,
-                data=notification_data_pb2.HostRequestAccept(
+                key=host_request.conversation_id,
+                data=notification_data_pb2.HostRequestCreate(
                     host_request_info=make_host_request_info(host_request),
                     surfer_info=make_user_info(host_request.surfer),
                     text=request.text,
@@ -316,7 +317,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 notify_v2(
                     user_id=host_request.surfer_user_id,
                     topic_action="host_request:accept",
-                    key=host_request.id,
+                    key=host_request.conversation_id,
                     data=notification_data_pb2.HostRequestAccept(
                         host_request_info=make_host_request_info(host_request),
                         host_info=make_user_info(host_request.host),
@@ -340,7 +341,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 notify_v2(
                     user_id=host_request.surfer_user_id,
                     topic_action="host_request:reject",
-                    key=host_request.id,
+                    key=host_request.conversation_id,
                     data=notification_data_pb2.HostRequestReject(
                         host_request_info=make_host_request_info(host_request),
                         host_info=make_user_info(host_request.host),
@@ -361,7 +362,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 notify_v2(
                     user_id=host_request.host_user_id,
                     topic_action="host_request:confirm",
-                    key=host_request.id,
+                    key=host_request.conversation_id,
                     data=notification_data_pb2.HostRequestConfirm(
                         host_request_info=make_host_request_info(host_request),
                         surfer_info=make_user_info(host_request.surfer),
@@ -385,7 +386,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 notify_v2(
                     user_id=host_request.host_user_id,
                     topic_action="host_request:cancel",
-                    key=host_request.id,
+                    key=host_request.conversation_id,
                     data=notification_data_pb2.HostRequestCancel(
                         host_request_info=make_host_request_info(host_request),
                         surfer_info=make_user_info(host_request.surfer),
@@ -488,11 +489,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 notify_v2(
                     user_id=host_request.host_user_id,
                     topic_action="host_request:message",
-                    key=host_request.id,
+                    key=host_request.conversation_id,
                     data=notification_data_pb2.HostRequestMessage(
                         host_request_info=make_host_request_info(host_request),
                         user_info=make_user_info(host_request.surfer),
-                        text=message.text,
+                        text=request.text,
                         am_host=True,
                     ),
                 )
@@ -503,11 +504,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 notify_v2(
                     user_id=host_request.surfer_user_id,
                     topic_action="host_request:message",
-                    key=host_request.id,
+                    key=host_request.conversation_id,
                     data=notification_data_pb2.HostRequestMessage(
                         host_request_info=make_host_request_info(host_request),
                         user_info=make_user_info(host_request.host),
-                        text=message.text,
+                        text=request.text,
                         am_host=False,
                     ),
                 )

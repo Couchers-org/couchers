@@ -1,3 +1,5 @@
+import logging
+
 from google.protobuf import empty_pb2
 
 from couchers.db import session_scope
@@ -5,6 +7,8 @@ from couchers.jobs.enqueue import queue_job
 from couchers.models import Notification
 from couchers.notifications.utils import enum_from_topic_action
 from proto.internal import jobs_pb2
+
+logger = logging.getLogger(__name__)
 
 
 def notify_v2(
@@ -28,6 +32,7 @@ def notify_v2(
 
     Each different notification type should have its own action.
     """
+    logger.info(f"Generating notification of type {topic_action} for user {user_id}")
     topic, action = topic_action.split(":")
     with session_scope() as session:
         notification = Notification(

@@ -8,26 +8,16 @@
       <mj-section padding="0px">
         <mj-column>
           <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-          <mj-text>The {{ badge_name|v2esc }} badge was {{ actioned|v2esc }} to your profile.</mj-text>
+          <mj-text>The <b>{{ badge_name|v2esc }}</b> badge was {{ actioned|v2esc }} your profile.</mj-text>
         </mj-column>
       </mj-section>
       <mj-include path="./mjml_include/footer.mjml" />
     </mj-wrapper>
     <mj-section>
       <mj-column>
-        <mj-text css-class="unsub" align="center" font-size="10px" line-height="16px" color="#777" padding="0px"><a href="{{ _unsub_do_not_email|v2url }}">Do not email me (disables hosting)</a>.<br />Turn off emails for: <a href="{{ _unsub_topic_action|v2url }}">{{ unsub_type|v2esc }}</a>.<br /><a href="{{ _manage_notification_settings }}">Manage notification preferences</a>.</mj-text>
+        <mj-text css-class="unsub" align="center" font-size="10px" line-height="16px" color="#777" padding="0px"><a href="{{ _unsub("do_not_email")|v2url }}">Do not email me (disables hosting)</a>.<br />Turn off emails for: <a href="{{ _unsub("topic_action")|v2url }}">{{ unsub_type|v2esc }}</a>.<br /><a href="{{ _manage_notification_settings }}">Manage notification preferences</a>.</mj-text>
         <mj-include path="./mjml_include/couch.mjml" />
       </mj-column>
     </mj-section>
   </mj-body>
 </mjml>
-Hi {{ user.name }}!
-
-
-
-
----
-
-Edit your notification settings at <{{ _edit_notification_settings }}>
-
-Do not email me (disables hosting): <{{ _unsub_do_not_email }}>

@@ -11,7 +11,6 @@ from zoneinfo import ZoneInfo
 import yaml
 from jinja2 import Environment, FileSystemLoader
 
-from couchers import urls
 from couchers.config import config
 from couchers.email import queue_email
 from couchers.notifications.unsubscribe import generate_do_not_email
@@ -27,6 +26,10 @@ env = Environment(loader=loader, trim_blocks=True)
 
 def v2esc(value):
     return escape(str(value))
+
+
+def v2multiline(value):
+    return "<br />".join(value.splitlines())
 
 
 def v2sf(value):
@@ -50,23 +53,31 @@ def v2date(value, user):
 
 def v2time(value, user):
     tz = ZoneInfo(user.timezone or "Etc/UTC")
-    if isinstance(value, datetime):
-        return value.astimezone(tz=tz)
-    else:
-        return datetime.fromisoformat(str(value)).astimezone(tz=tz)
+    if isinstance(value, str):
+        value = datetime.fromisoformat(str(value))
+    return value.astimezone(tz=tz).strftime("%-I:%M %p (%H:%M)")
 
 
 def v2avatar(value):
-    return urls.media_url_thumbnail(filename=value)
+    return value
+
+
+def v2quote(value):
+    """
+    Multiline quote
+    """
+    return "\n> ".join([""] + value.splitlines())
 
 
 env.filters["v2esc"] = v2esc
+env.filters["v2multiline"] = v2multiline
 env.filters["v2sf"] = v2sf
 env.filters["v2url"] = v2url
 env.filters["v2phone"] = v2phone
 env.filters["v2date"] = v2date
 env.filters["v2time"] = v2time
 env.filters["v2avatar"] = v2avatar
+env.filters["v2quote"] = v2quote
 
 
 def email_user(user, template_name, template_args={}, override_recipient=None):

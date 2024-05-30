@@ -172,7 +172,7 @@
                               </tr>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">The {{ badge_name|v2esc }} badge was {{ actioned|v2esc }} to your profile.</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">The <b>{{ badge_name|v2esc }}</b> badge was {{ actioned|v2esc }} your profile.</div>
                                 </td>
                               </tr>
                             </tbody>
@@ -246,7 +246,7 @@
                   <tbody>
                     <tr>
                       <td align="center" class="unsub" style="font-size:0px;padding:0px;word-break:break-word;">
-                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:16px;text-align:center;color:#777777;"><a href="{{ _unsub_do_not_email|v2url }}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Do not email me (disables hosting)</a>.<br>Turn off emails for: <a href="{{ _unsub_topic_action|v2url }}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{ unsub_type|v2esc }}</a>.<br><a href="{{ _manage_notification_settings }}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Manage notification preferences</a>.</div>
+                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:16px;text-align:center;color:#777777;"><a href="{{ _unsub("do_not_email")|v2url }}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Do not email me (disables hosting)</a>.<br>Turn off emails for: <a href="{{ _unsub("topic_action")|v2url }}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{ unsub_type|v2esc }}</a>.<br><a href="{{ _manage_notification_settings }}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Manage notification preferences</a>.</div>
                       </td>
                     </tr>
                     <tr>

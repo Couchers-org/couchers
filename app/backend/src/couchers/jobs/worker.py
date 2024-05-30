@@ -87,7 +87,7 @@ def process_job():
             jobs_counter.labels(job.job_type, job.state.name, str(job.try_count), type(e).__name__).inc()
             job.failure_info = traceback.format_exc()
 
-            if config["IN_TEST"]:
+            if config["IN_TEST"] or True:
                 raise e
 
         # exiting ctx manager commits and releases the row lock

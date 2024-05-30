@@ -4,10 +4,10 @@ package notification_data;
 
 message UserInfo {
   int64 user_id = 1;
-  string avatar_key = 2;
+  string avatar_url = 2;
   string name = 3;
   int32 age = 4;
-  int32 location = 5;
+  string location = 5;
 }
 
 message HostRequestInfo {

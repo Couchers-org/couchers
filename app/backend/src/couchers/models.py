@@ -29,6 +29,7 @@ from sqlalchemy.sql import and_, func
 from sqlalchemy.sql import select as sa_select
 from sqlalchemy.sql import text
 
+from couchers import urls
 from couchers.config import config
 from couchers.constants import (
     DATETIME_INFINITY,

@@ -8,15 +8,15 @@
       <mj-section padding="0px">
         <mj-column>
           <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-          <mj-text><b>{{ other.name|v2esc }} {{ actioned|v2esc }} {{ their_your|v2esc }} host request</b> at {{ time|v2time(user) }}.</mj-text>
+          <mj-text><b>{{ other.name|v2esc }} {{ message|v2esc }}</b> at {{ time|v2time(user) }}.</mj-text>
         </mj-column>
       </mj-section>
       <mj-section padding="0px" text-align="left">
-        <mj-column width="100px">
-          <mj-image src="{{ other.avatar_key|v2avatar }}" width="100px" />
+        <mj-column width="120px">
+          <mj-image border-radius="200px" src="{{ other.avatar_url|v2avatar }}" />
         </mj-column>
-        <mj-column width="420px">
-          <mj-text padding="15px 0px 0px 0px" line-height="20px"><b>{{ other.name|v2esc }}, {{ other.age|v2esc }}</b>, {{ other.location|v2esc }}<br />From <b>{{ host_request_info.from_date|v2date(user) }}</b> to <b>{{ host_request_info.to_date|v2date(user) }}</b>.</mj-text>
+        <mj-column width="440px">
+          <mj-text padding="15px 0px 0px 0px" line-height="20px"><b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br />{{ other.location|v2esc }}<br />From <b>{{ host_request_info.from_date|v2date(user) }}</b> to <b>{{ host_request_info.to_date|v2date(user) }}</b>.</mj-text>
         </mj-column>
       </mj-section>
       <mj-section padding="0px">
