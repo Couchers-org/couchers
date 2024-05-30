@@ -1,8 +1,7 @@
-import { Chip, Tooltip } from "@material-ui/core";
 import { User } from "proto/api_pb";
 import makeStyles from "utils/makeStyles";
-
 import { useBadges } from "features/badges/hooks";
+import Badge from "features/badges/Badge";
 
 interface Props {
   user: User.AsObject;
@@ -30,15 +29,7 @@ export const Badges = ({ user }: Props) => {
     <div className={classes.badgeContainer}>
       {(user.badgesList || []).map((badgeId) => {
         const badge = (badges || {})[badgeId];
-        return (
-          <Tooltip key={badge.id} title={badge.description}>
-            <Chip
-              className={classes.badge}
-              label={badge.name}
-              style={{ background: badge.color }}
-            />
-          </Tooltip>
-        );
+        return <Badge key={badge.id} badge={badge} toolChipLinkProps={{ chipProps: { className: classes.badge } }} />;
       })}
     </div>
   );
