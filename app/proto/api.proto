@@ -359,8 +359,13 @@ message InitiateMediaUploadRes {
 
 message ListBadgeUsersReq {
   string badge_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
 }
 
 message ListBadgeUsersRes {
   repeated int64 user_ids = 1;
+
+  string next_page_token = 2;
 }
