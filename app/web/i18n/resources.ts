@@ -1,4 +1,5 @@
 import auth from "features/auth/locales/en.json";
+import badges from "features/badges/locales/en.json";
 import communities from "features/communities/locales/en.json";
 import connections from "features/connections/locales/en.json";
 import dashboard from "features/dashboard/locales/en.json";
@@ -11,6 +12,7 @@ import global from "resources/locales/en.json";
 
 const resources = {
   auth,
+  badges,
   communities,
   connections,
   dashboard,
