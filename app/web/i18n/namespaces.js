@@ -33,6 +33,7 @@ const NAMESPACES = [
 
 module.exports = {
   AUTH,
+  BADGES,
   COMMUNITIES,
   CONNECTIONS,
   DASHBOARD,
