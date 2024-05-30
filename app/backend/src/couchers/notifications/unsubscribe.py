@@ -63,6 +63,19 @@ def generate_unsub_topic_action(notification):
     )
 
 
+def generate_unsub(user, notification, type, one_click):
+    if one_click:
+        raise NotImplementedError("One click unsubscribe not implemented yet")
+    if type == "do_not_email":
+        return generate_do_not_email(user.id)
+    elif type == "topic_key":
+        return generate_unsub_topic_key(notification)
+    elif type == "topic_action":
+        return generate_unsub_topic_action(notification)
+    else:
+        return ValueError("Unknown unsub type")
+
+
 def unsubscribe(request, context):
     """
     Returns a response string or uses context.abort upon error
@@ -83,7 +96,7 @@ def unsubscribe(request, context):
             user.new_notifications_enabled = False
             user.hosting_status = HostingStatus.cant_host
             user.meetup_status = MeetupStatus.does_not_want_to_meetup
-            return "You will not receive any non-security emails. You may still receive the newsletter, and need to unsubscribe separately there, sorry!"
+            return "You will not receive any non-security emails. You may still receive the newsletter, and need to unsubscribe from it separately!"
         if payload.HasField("topic_action"):
             logger.info(f"User {user.name} unsubscribing from topic_action")
             topic = payload.topic_action.topic

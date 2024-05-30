@@ -1425,7 +1425,7 @@ class Upload(Base):
     creator_user = relationship("User", backref="uploads", foreign_keys="Upload.creator_user_id")
 
     def _url(self, size):
-        return f"{config['MEDIA_SERVER_BASE_URL']}/img/{size}/{self.filename}"
+        return urls.media_url(filename=self.filename, size=size)
 
     @property
     def thumbnail_url(self):
@@ -2171,7 +2171,8 @@ class NotificationTopicAction(enum.Enum):
     def unpack(self):
         return self.topic, self.action
 
-    def as_user_display(self):
+    @property
+    def display(self):
         return f"{self.topic}:{self.action}"
 
     # topic, action, default delivery types
@@ -2188,16 +2189,17 @@ class NotificationTopicAction(enum.Enum):
 
     # account settings
     password__change = ("password:change", dt_all, False, empty_pb2.Empty)
-    email_address__change = ("email_address:change", dt_all, False, empty_pb2.Empty)
-    phone_number__change = ("phone_number:change", dt_all, True, empty_pb2.Empty)
+    email_address__change = ("email_address:change", dt_all, False, nd.EmailAddressChange)
+    email_address__verify = ("email_address:verify", dt_all, False, empty_pb2.Empty)
+    phone_number__change = ("phone_number:change", dt_all, False, empty_pb2.Empty)
     phone_number__verify = ("phone_number:verify", dt_all, False, empty_pb2.Empty)
     # reset password
     account_recovery__start = ("account_recovery:start", dt_all, False, empty_pb2.Empty)
     account_recovery__complete = ("account_recovery:complete", dt_all, False, empty_pb2.Empty)
 
     # admin actions
-    gender__change = ("gender:change", dt_all, True, nd.GenderChange)
-    birthdate__change = ("birthdate:change", dt_all, True, nd.BirthdateChange)
+    gender__change = ("gender:change", dt_all, False, nd.GenderChange)
+    birthdate__change = ("birthdate:change", dt_all, False, nd.BirthdateChange)
     api_key__create = ("api_key:create", dt_all, False, empty_pb2.Empty)
 
     badge__add = ("badge:add", [dt.push, dt.digest], True, nd.BadgeAdd)

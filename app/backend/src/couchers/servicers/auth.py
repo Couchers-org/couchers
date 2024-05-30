@@ -580,7 +580,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 notify_v2(
                     user_id=user.id,
-                    topic_action="email_address:change",
+                    topic_action="email_address:verify",
                 )
 
                 return auth_pb2.ConfirmChangeEmailRes(state=auth_pb2.EMAIL_CONFIRMATION_STATE_SUCCESS)

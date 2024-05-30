@@ -35,6 +35,10 @@ def account_settings_link():
     return f"{config['BASE_URL']}/account-settings"
 
 
+def feature_preview_link():
+    return f"{config['BASE_URL']}/preview"
+
+
 def password_reset_link(*, password_reset_token):
     return f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token}"
 
@@ -101,3 +105,15 @@ def recover_account_link(*, account_undelete_token):
 
 def unsubscribe_link(*, payload, sig):
     return f"{config['BASE_URL']}/unsubscribe?payload={payload}&sig={sig}"
+
+
+def media_url(*, filename, size):
+    return f"{config['MEDIA_SERVER_BASE_URL']}/img/{size}/{filename}"
+
+
+def media_url_thumbnail(*, filename):
+    return media_url(filename=filename, size="thumbnail")
+
+
+def media_url_full(*, filename):
+    return media_url(filename=filename, size="full")

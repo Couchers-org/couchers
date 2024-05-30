@@ -137,7 +137,8 @@ settings_layout = [
                 "email_address",
                 "Email address changes",
                 [
-                    ("change", "Your email is changed"),
+                    ("change", "Email change is initiated"),
+                    ("verify", "Your new email is verified"),
                 ],
             ),
             (

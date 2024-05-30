@@ -216,9 +216,13 @@ class Account(account_pb2_grpc.AccountServicer):
                 user.need_to_confirm_via_old_email = False
                 send_email_changed_confirmation_to_new_email(user)
 
+                # will still go into old email
                 notify_v2(
                     user_id=user.id,
                     topic_action="email_address:change",
+                    data=notification_data_pb2.EmailAddressChange(
+                        new_email=request.new_email,
+                    ),
                 )
             else:
                 user.old_email_token = urlsafe_secure_token()
