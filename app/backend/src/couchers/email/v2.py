@@ -3,12 +3,15 @@ template mailer v2
 """
 
 import logging
+from datetime import date, datetime
 from html import escape
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import yaml
 from jinja2 import Environment, FileSystemLoader
 
+from couchers import urls
 from couchers.config import config
 from couchers.email import queue_email
 from couchers.notifications.unsubscribe import generate_do_not_email
@@ -34,18 +37,36 @@ def v2url(value):
     return value
 
 
+def v2phone(value):
+    return phonenumbers.format_number(phonenumbers.parse(value), phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+
+
+def v2date(value, user):
+    # todo: user locale-based date formatting
+    if isinstance(value, str):
+        value = date.fromisoformat(value)
+    return value.strftime("%A %-d %B %Y")
+
+
+def v2time(value, user):
+    tz = ZoneInfo(user.timezone or "Etc/UTC")
+    if isinstance(value, datetime):
+        return value.astimezone(tz=tz)
+    else:
+        return datetime.fromisoformat(str(value)).astimezone(tz=tz)
+
+
+def v2avatar(value):
+    return urls.media_url_thumbnail(filename=value)
+
+
 env.filters["v2esc"] = v2esc
 env.filters["v2sf"] = v2sf
 env.filters["v2url"] = v2url
-
-
-def render_html(text):
-    stripped_paragraphs = text.strip().split("\n\n")
-    return "\n\n".join(f"<p>{paragraph.strip()}</p>" for paragraph in stripped_paragraphs)
-
-
-def __render_email(template_name, template_args, _footer_unsub_link):
-    return frontmatter, plain, html
+env.filters["v2phone"] = v2phone
+env.filters["v2date"] = v2date
+env.filters["v2time"] = v2time
+env.filters["v2avatar"] = v2avatar
 
 
 def email_user(user, template_name, template_args={}, override_recipient=None):
@@ -73,6 +94,11 @@ def email_user(user, template_name, template_args={}, override_recipient=None):
         logger.info(f"Not emailing {user} based on template {template_name} due to emails turned off")
         return
 
+    list_unsubscribe_header = None
+    if "list_unsubscribe_url" in frontmatter:
+        url = frontmatter["list_unsubscribe_url"]
+        list_unsubscribe_header = f"<{url}>"
+
     queue_email(
         sender_name=config["NOTIFICATION_EMAIL_SENDER"],
         sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
@@ -81,4 +107,5 @@ def email_user(user, template_name, template_args={}, override_recipient=None):
         plain=plain,
         html=html,
         source_data=config["VERSION"] + f"/{template_name}",
+        list_unsubscribe_header=list_unsubscribe_header,
     )

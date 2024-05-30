@@ -1,3 +1,4 @@
+import re
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
@@ -21,7 +22,7 @@ from couchers.models import (
 from couchers.notifications.notify import notify_v2
 from couchers.sql import couchers_select as select
 from proto import auth_pb2, notifications_pb2
-from proto.internal import notification_data_pb2
+from proto.internal import notification_data_pb2, unsubscribe_pb2
 from tests.test_fixtures import (  # noqa
     auth_api_session,
     db,
@@ -94,10 +95,10 @@ def test_SetNotificationSettings(db):
 
 @pytest.mark.parametrize("enabled", [True, False])
 def test_SetNotificationSettings_preferences_respected_editable(db, enabled):
-    user, token = generate_user(gender="Man")
+    user, token = generate_user()
 
     # enable a notification type and check it gets delivered
-    topic_action = NotificationTopicAction.gender__change
+    topic_action = NotificationTopicAction.badge__add
 
     with notifications_session(token) as notifications:
         notifications.SetNotificationSettings(
@@ -116,8 +117,12 @@ def test_SetNotificationSettings_preferences_respected_editable(db, enabled):
 
     notify_v2(
         user_id=user.id,
-        topic_action=topic_action.as_user_display(),
-        data=notification_data_pb2.GenderChange(gender="Woman"),
+        topic_action=topic_action.display,
+        data=notification_data_pb2.BadgeAdd(
+            badge_id="volunteer",
+            badge_name="Active Volunteer",
+            badge_description="This user is an active volunteer for Couchers.org",
+        ),
     )
 
     process_job()
@@ -167,7 +172,7 @@ def test_unsubscribe(db):
 
     user, token = generate_user()
 
-    topic_action = NotificationTopicAction.gender__change
+    topic_action = NotificationTopicAction.badge__add
 
     # first enable email notifs
     with notifications_session(token) as notifications:
@@ -188,36 +193,44 @@ def test_unsubscribe(db):
 
     notify_v2(
         user_id=user.id,
-        topic_action=topic_action.as_user_display(),
-        data=notification_data_pb2.GenderChange(gender="Woman"),
+        topic_action=topic_action.display,
+        data=notification_data_pb2.BadgeAdd(
+            badge_id="volunteer",
+            badge_name="Active Volunteer",
+            badge_description="This user is an active volunteer for Couchers.org",
+        ),
     )
 
     queue_job("handle_email_notifications", empty_pb2.Empty())
 
-    with patch("couchers.email.queue_email") as mock:
+    with patch("couchers.email.v2.queue_email") as mock:
         while process_job():
             pass
 
     assert mock.call_count == 1
-    (_, _, recipient, _, plain, html), _ = mock.call_args
-    assert recipient == user.email
+    _, kwargs = mock.call_args
+    assert kwargs["recipient"] == user.email
     # very ugly
-    start = "To unsubscribe from these types of notifications click on this link: <"
-    ix_s = plain.find(start) + len(start)
-    ix_e = plain.find(">", ix_s)
-    # should look something like
     # http://localhost:3000/unsubscribe?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
-    topic_action_unsub_url = plain[ix_s:ix_e]
-    url_parts = urlparse(topic_action_unsub_url)
-    params = parse_qs(url_parts.query)
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.Unsubscribe(
-            auth_pb2.UnsubscribeReq(
-                payload=b64decode(params["payload"][0]),
-                sig=b64decode(params["sig"][0]),
-            )
-        )
+    for link in re.findall(r'<a href="(.*?)"', kwargs["html"]):
+        if "payload" not in link:
+            continue
+        print(link)
+        url_parts = urlparse(link)
+        params = parse_qs(url_parts.query)
+        print(params["payload"][0])
+        payload = unsubscribe_pb2.UnsubscribePayload.FromString(b64decode(params["payload"][0]))
+        if payload.HasField("topic_action"):
+            with auth_api_session() as (auth_api, metadata_interceptor):
+                res = auth_api.Unsubscribe(
+                    auth_pb2.UnsubscribeReq(
+                        payload=b64decode(params["payload"][0]),
+                        sig=b64decode(params["sig"][0]),
+                    )
+                )
+            break
+    else:
+        raise Exception("Didn't find link")
 
     with notifications_session(token) as notifications:
         res = notifications.GetNotificationSettings(notifications_pb2.GetNotificationSettingsReq())
@@ -230,13 +243,17 @@ def test_unsubscribe(db):
 
     notify_v2(
         user_id=user.id,
-        topic_action=topic_action.as_user_display(),
-        data=notification_data_pb2.GenderChange(gender="Man"),
+        topic_action=topic_action.display,
+        data=notification_data_pb2.BadgeAdd(
+            badge_id="volunteer",
+            badge_name="Active Volunteer",
+            badge_description="This user is an active volunteer for Couchers.org",
+        ),
     )
 
     queue_job("handle_email_notifications", empty_pb2.Empty())
 
-    with patch("couchers.email.queue_email") as mock:
+    with patch("couchers.email.v2.queue_email") as mock:
         while process_job():
             pass
 

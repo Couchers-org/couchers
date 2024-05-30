@@ -69,12 +69,20 @@ message BadgeRemove {
   string badge_description = 3;
 }
 
+message PhoneVerify {
+  string phone = 1;
+}
+
+message PhoneChange {
+  string phone = 1;
+}
+
 message GenderChange {
   string gender = 1;
 }
 
 message BirthdateChange {
-  string gender = 2;
+  string birthdate = 2;
 }
 
 message FriendRequestCreate {
@@ -100,4 +108,8 @@ message EventCreateAny {
 
 message EventUpdate {
   EventInfo event_info = 1;
+}
+
+message EmailAddressChange {
+  string new_email = 1;
 }

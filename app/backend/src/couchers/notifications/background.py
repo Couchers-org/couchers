@@ -7,9 +7,10 @@ from couchers.db import session_scope
 from couchers.models import Notification, NotificationDelivery, NotificationDeliveryType, User
 from couchers.notifications import fan_funcs
 from couchers.notifications.notify import notify_v2
+from couchers.notifications.render import send_email_notification
 from couchers.notifications.settings import get_preference
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_digest_email, send_notification_email
+from couchers.tasks import send_digest_email
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +130,7 @@ def handle_email_notifications(payload):
             assert notification_delivery.delivery_type == NotificationDeliveryType.email
             assert not notification_delivery.delivered
             assert notification_delivery.notification_id == notification_id
-            send_notification_email(notification_delivery.notification)
+            send_email_notification(user, notification_delivery.notification)
             notification_delivery.delivered = func.now()
             session.commit()
 

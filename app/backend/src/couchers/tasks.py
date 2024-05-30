@@ -408,7 +408,6 @@ def send_digest_email(user, notifications: List[Notification]):
 
 
 def send_notification_email(notification: Notification):
-    friend_requests_link = urls.friend_requests_link()
     logger.info(f"Sending notification email to {notification.user=}:")
 
     email.enqueue_email_from_template_to_user(
