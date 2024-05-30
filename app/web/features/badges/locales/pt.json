@@ -1,0 +1,44 @@
+{
+  "badges": {
+    "founder": {
+      "title": "Fundador",
+      "description": "Reservado para os dois membros fundadores do Couchers.org"
+    },
+    "board_member": {
+      "title": "Membro do Conselho",
+      "description": "Serve atualmente no Conselho da Couchers, Inc. organização sem fins lucrativos"
+    },
+    "past_board_member": {
+      "title": "Antigo Membro do Conselho",
+      "description": "Serviu anteriormente no Conselho da Couchers, Inc. organização sem fins lucrativos"
+    },
+    "moderator": {
+      "title": "Moderador",
+      "description": "Modera atualmente eventos comunitários e fóruns no Couchers.org e em plataformas afiliadas"
+    },
+    "volunteer": {
+      "title": "Voluntário Ativo",
+      "description": "Voluntaria-se atualmente em uma das diversas equipes do Couchers.org"
+    },
+    "past_volunteer": {
+      "title": "Antigo Voluntário",
+      "description": "Voluntariou-se anteriormente em uma das diversas equipes do Couchers.org"
+    },
+    "donor": {
+      "title": "Doador",
+      "description": "Contribuiu com fundos diretamente para o  Couchers.org"
+    },
+    "phone_verified": {
+      "title": "Telefone Verificado",
+      "description": "Verificou seu número de telefone"
+    },
+    "strong_verification": {
+      "title": "Verificação Robusta",
+      "description": "Verificou seu gênero e data de nascimento com um passaporte biométrico"
+    }
+  },
+  "index": {
+    "title": "Explorar distintivos do Couchers.org",
+    "subtitle": "Conhecer os distintivos de usuário, quem os possui, e como você também pode obter um"
+  }
+}
