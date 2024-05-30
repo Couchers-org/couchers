@@ -1,10 +1,10 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   CancelFriendRequestReq,
+  ListBadgeUsersReq,
   PingReq,
   RespondFriendRequestReq,
   SendFriendRequestReq,
-  ListBadgeUsersReq,
 } from "proto/api_pb";
 import {
   FETCH_FAILED,
@@ -107,7 +107,7 @@ export async function listBadgeUsers({
   pageToken,
 }: ListBadgeUsersInput) {
   const req = new ListBadgeUsersReq();
-  req.setBadgeId(badgeId)
+  req.setBadgeId(badgeId);
   if (pageSize) {
     req.setPageSize(pageSize);
   }

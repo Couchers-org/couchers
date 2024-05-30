@@ -27,10 +27,14 @@ export const useBadges = () => {
   };
 };
 
-export function useBadgeUsers({ badgeId, pageSize }: Omit<ListBadgeUsersInput, "pageToken">) {
+export function useBadgeUsers({
+  badgeId,
+  pageSize,
+}: Omit<ListBadgeUsersInput, "pageToken">) {
   return useInfiniteQuery<ListBadgeUsersRes.AsObject, RpcError>({
     queryKey: badgeUsersKey,
-    queryFn: ({ pageParam }) => service.api.listUserBadges({ badgeId, pageSize, pageToken: pageParam }),
+    queryFn: ({ pageParam }) =>
+      service.api.listUserBadges({ badgeId, pageSize, pageToken: pageParam }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken ?? undefined,
   });
 }
