@@ -1,0 +1,44 @@
+{
+  "badges": {
+    "founder": {
+      "title": "Founder",
+      "description": "Reserved for the two founding members of Couchers.org"
+    },
+    "board_member": {
+      "title": "Board Member",
+      "description": "Actively serving on the Board of Couchers, Inc. non-profit"
+    },
+    "past_board_member": {
+      "title": "Past Board Member",
+      "description": "Previously served on the Board of Couchers, Inc. non-profit"
+    },
+    "moderator": {
+      "title": "Moderator",
+      "description": "Actively moderates community events and forums on couchers.org and affiliated platforms"
+    },
+    "volunteer": {
+      "title": "Active Volunteer",
+      "description": "Volunteers actively on one of Couchers.org's many teams"
+    },
+    "past_volunteer": {
+      "title": "Past Volunteer",
+      "description": "Previously volunteered on one of Couchers.org's many teams"
+    },
+    "donor": {
+      "title": "Donor",
+      "description": "Contributed funds directly to Couchers.org"
+    },
+    "phone_verified": {
+      "title": "Verified Phone",
+      "description": "Verified their phone number with the platform"
+    },
+    "strong_verification": {
+      "title": "Strong Verification",
+      "description": "Verified their gender and date of birth with a biometric passport"
+    }
+  },
+  "index": {
+    "title": "Explore Couchers.org badges",
+    "subtitle": "Learn about user badges, who has them, and how you can too"
+  }
+}
