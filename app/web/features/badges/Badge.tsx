@@ -9,11 +9,11 @@ export interface BadgeProps {
 
 export default function Badge({ badge, toolChipLinkProps = {} }: BadgeProps) {
   const toolChipLink = {
-      label: badge.name,
-      description: badge.description,
-      href: routeToBadge(badge.id),
-      color: badge.color,
-      ...toolChipLinkProps,
-  }
+    label: badge.name,
+    description: badge.description,
+    href: routeToBadge(badge.id),
+    color: badge.color,
+    ...toolChipLinkProps,
+  };
   return <ToolChipLink {...toolChipLink} />;
 }

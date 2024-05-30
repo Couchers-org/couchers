@@ -1,4 +1,9 @@
-import { Chip, Tooltip, type TooltipProps, type ChipProps } from "@material-ui/core";
+import {
+  type ChipProps,
+  type TooltipProps,
+  Chip,
+  Tooltip,
+} from "@material-ui/core";
 import Link, { type LinkProps } from "next/link";
 
 export interface ToolChipLinkProps {
@@ -22,7 +27,12 @@ export default function ToolChipLink({
 }: ToolChipLinkProps) {
   const tooltip = { title: description, ...tooltipProps };
   const link = { href, passHref: true, ...linkProps };
-  const chip = { label, clickable: true, style: !!color ? { background: color } : {}, ...chipProps };
+  const chip = {
+    label,
+    clickable: true,
+    style: !!color ? { background: color } : {},
+    ...chipProps,
+  };
 
   // The <a> element is necessary to show the URL on hover
   return (

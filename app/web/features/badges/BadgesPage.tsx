@@ -1,10 +1,10 @@
 import { Divider, List, ListItem, Typography } from "@material-ui/core";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
+import Badge from "features/badges/Badge";
+import { useBadges } from "features/badges/hooks";
 import { useTranslation } from "i18n";
 import { BADGES, GLOBAL } from "i18n/namespaces";
-import { useBadges } from "features/badges/hooks";
-import Badge from "features/badges/Badge";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -30,9 +30,11 @@ export default function BadgesPage() {
       <Divider className={classes.divider} />
       <List>
         {Object.values(badges).map((badge) => (
-          <ListItem key={badge.id} className={classes.item} >
+          <ListItem key={badge.id} className={classes.item}>
             <Badge badge={badge} />
-            <Typography variant="body1">{t(`badges:badges.${badge.id}.description`)}</Typography>
+            <Typography variant="body1">
+              {t(`badges:badges.${badge.id}.description`)}
+            </Typography>
           </ListItem>
         ))}
       </List>

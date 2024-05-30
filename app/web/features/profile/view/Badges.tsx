@@ -1,7 +1,7 @@
+import Badge from "features/badges/Badge";
+import { useBadges } from "features/badges/hooks";
 import { User } from "proto/api_pb";
 import makeStyles from "utils/makeStyles";
-import { useBadges } from "features/badges/hooks";
-import Badge from "features/badges/Badge";
 
 interface Props {
   user: User.AsObject;
@@ -29,7 +29,13 @@ export const Badges = ({ user }: Props) => {
     <div className={classes.badgeContainer}>
       {(user.badgesList || []).map((badgeId) => {
         const badge = (badges || {})[badgeId];
-        return <Badge key={badge.id} badge={badge} toolChipLinkProps={{ chipProps: { className: classes.badge } }} />;
+        return (
+          <Badge
+            key={badge.id}
+            badge={badge}
+            toolChipLinkProps={{ chipProps: { className: classes.badge } }}
+          />
+        );
       })}
     </div>
   );
