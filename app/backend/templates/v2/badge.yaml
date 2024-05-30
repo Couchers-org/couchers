@@ -1,4 +1,4 @@
-subject: The {{ badge_name|v2esc }} badge was {{ actioned|v2esc }} to your profile
+subject: The {{ badge_name|v2esc }} badge was {{ actioned|v2esc }} your profile
 is_critical: false
-preview: The {{ badge_name|v2esc }} badge was {{ actioned|v2esc }} to your profile
+preview: The {{ badge_name|v2esc }} badge was {{ actioned|v2esc }} your profile
 list_unsubscribe_url: {{ _unsub("topic_action")|v2url }}

@@ -64,7 +64,7 @@ logger = logging.getLogger(__name__)
 handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
 
 handle_email_notifications.PAYLOAD = empty_pb2.Empty
-handle_email_notifications.SCHEDULE = timedelta(minutes=1)
+handle_email_notifications.SCHEDULE = timedelta(seconds=5)
 
 handle_email_digests.PAYLOAD = empty_pb2.Empty
 handle_email_digests.SCHEDULE = timedelta(minutes=15)
@@ -705,9 +705,9 @@ def update_badges(payload):
                     user_id=user_id,
                     topic_action="badge:add",
                     data=notification_data_pb2.BadgeAdd(
-                        badge_id=badge_id,
-                        badge_name=badge_name,
-                        badge_description=badge_description,
+                        badge_id=badge["id"],
+                        badge_name=badge["name"],
+                        badge_description=badge["description"],
                     ),
                 )
 
@@ -718,9 +718,9 @@ def update_badges(payload):
                     user_id=user_id,
                     topic_action="badge:remove",
                     data=notification_data_pb2.BadgeRemove(
-                        badge_id=badge_id,
-                        badge_name=badge_name,
-                        badge_description=badge_description,
+                        badge_id=badge["id"],
+                        badge_name=badge["name"],
+                        badge_description=badge["description"],
                     ),
                 )
 

@@ -1,0 +1,3 @@
+subject: {{ other.name|v2esc }} {{ message|v2esc }}
+preview: {{ other.name|v2esc }} {{ message|v2esc }}
+is_critical: false

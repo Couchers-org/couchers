@@ -71,14 +71,14 @@
         max-width: 100%;
       }
 
-      .mj-column-px-100 {
-        width: 100px !important;
-        max-width: 100px;
+      .mj-column-px-120 {
+        width: 120px !important;
+        max-width: 120px;
       }
 
-      .mj-column-px-420 {
-        width: 420px !important;
-        max-width: 420px;
+      .mj-column-px-440 {
+        width: 440px !important;
+        max-width: 440px;
       }
     }
 
@@ -89,14 +89,14 @@
       max-width: 100%;
     }
 
-    .moz-text-html .mj-column-px-100 {
-      width: 100px !important;
-      max-width: 100px;
+    .moz-text-html .mj-column-px-120 {
+      width: 120px !important;
+      max-width: 120px;
     }
 
-    .moz-text-html .mj-column-px-420 {
-      width: 420px !important;
-      max-width: 420px;
+    .moz-text-html .mj-column-px-440 {
+      width: 440px !important;
+      max-width: 440px;
     }
 
   </style>
@@ -192,7 +192,7 @@
                               </tr>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">{{ other.name|v2esc }} {{ label|v2esc }} at {{ time|v2time(user) }}.</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;"><b>{{ other.name|v2esc }} {{ message|v2esc }}</b> at {{ time|v2time(user) }}.</div>
                                 </td>
                               </tr>
                             </tbody>
@@ -210,8 +210,8 @@
                   <tbody>
                     <tr>
                       <td style="direction:ltr;font-size:0px;padding:0px;text-align:left;">
-                        <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:100px;" ><![endif]-->
-                        <div class="mj-column-px-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                        <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:120px;" ><![endif]-->
+                        <div class="mj-column-px-120 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
                             <tbody>
                               <tr>
@@ -219,8 +219,8 @@
                                   <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;border-spacing:0px;">
                                     <tbody>
                                       <tr>
-                                        <td style="width:50px;">
-                                          <img alt src="{{ other.avatar_key|v2avatar }}" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;" width="50" height="auto">
+                                        <td style="width:70px;">
+                                          <img alt src="{{ other.avatar_url|v2avatar }}" style="border:0;border-radius:200px;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;" width="70" height="auto">
                                         </td>
                                       </tr>
                                     </tbody>
@@ -230,13 +230,13 @@
                             </tbody>
                           </table>
                         </div>
-                        <!--[if mso | IE]></td><td class="" style="vertical-align:top;width:420px;" ><![endif]-->
-                        <div class="mj-column-px-420 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                        <!--[if mso | IE]></td><td class="" style="vertical-align:top;width:440px;" ><![endif]-->
+                        <div class="mj-column-px-440 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
                             <tbody>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:15px 0px 0px 0px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:20px;text-align:left;color:#333333;"><b>{{ other.name|v2esc }}, {{ other.age|v2esc }}</b>, {{ other.location|v2esc }}<br>From <b>{{ host_request_info.from_date|v2date(user) }}</b> to <b>{{ host_request_info.to_date|v2date(user) }}</b>.</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:20px;text-align:left;color:#333333;"><b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br>{{ other.location|v2esc }}<br>From <b>{{ host_request_info.from_date|v2date(user) }}</b> to <b>{{ host_request_info.to_date|v2date(user) }}</b>.</div>
                                 </td>
                               </tr>
                             </tbody>
@@ -264,7 +264,7 @@
                                     <tbody>
                                       <tr>
                                         <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                          <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">{{ text|v2esc }}</div>
+                                          <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">{{ text|v2esc|v2multiline }}</div>
                                         </td>
                                       </tr>
                                     </tbody>
