@@ -40,3 +40,9 @@ message SendPushNotificationPayload {
   string body = 3;
   string icon = 4;
 }
+
+message SendRawPushNotificationPayload {
+  int64 push_notification_subscription_id = 1;
+  bytes data = 2;
+  uint32 ttl = 3;
+}

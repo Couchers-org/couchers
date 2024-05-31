@@ -1,22 +1,33 @@
 import logging
 from datetime import timedelta
 
+from google.protobuf import empty_pb2
 from sqlalchemy.sql import and_, func
 
+from couchers.config import config
 from couchers.db import session_scope
-from couchers.models import Notification, NotificationDelivery, NotificationDeliveryType, User
+from couchers.models import (
+    Notification,
+    NotificationDelivery,
+    NotificationDeliveryType,
+    PushNotificationDeliveryAttempt,
+    PushNotificationSubscription,
+    User,
+)
 from couchers.notifications import fan_funcs
 from couchers.notifications.notify import notify_v2
-from couchers.notifications.push import send_push_notification_raw
-from couchers.notifications.render import send_email_notification
+from couchers.notifications.push_api import send_push
+from couchers.notifications.render import send_email_notification, send_push_notification
 from couchers.notifications.settings import get_preference
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_digest_email
+from couchers.utils import now
+from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
 
-def fan_notifications(payload):
+def fan_notifications(payload: jobs_pb2.FanNotificationsPayload):
     fan_func = getattr(fan_funcs, payload.fan_func)
     user_ids = fan_func(payload.fan_func_data)
     for user_id in user_ids:
@@ -28,7 +39,7 @@ def fan_notifications(payload):
         )
 
 
-def handle_notification(payload):
+def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
     with session_scope() as session:
         notification = session.execute(
             select(Notification).where(Notification.id == payload.notification_id)
@@ -72,43 +83,51 @@ def handle_notification(payload):
                     )
                 )
                 # todo
-                logger.info("Supposed to send push notification")
+                send_push_notification(user, notification)
 
 
-def send_push_notification(payload):
+def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload):
     with session_scope() as session:
-        data = json.dumps(
-            {
-                "title": payload.title[:500],
-                "body": payload.body[:2000],
-                "icon": payload.icon,
-            }
-        ).encode("utf8")
-        if len(data) > 3072:
-            raise Exception("Data too long")
-        subs = (
-            session.execute(
-                select(PushNotificationSubscription)
-                .where(PushNotificationSubscription.user_id == payload.user_id)
-                .where(PushNotificationSubscription.disabled_at > func.now())
+        if len(payload.data) > 3072:
+            raise Exception(f"Data too long for push notification to sub {payload.push_notification_subscription_id}")
+        sub = session.execute(
+            select(PushNotificationSubscription).where(
+                PushNotificationSubscription.id == payload.push_notification_subscription_id
             )
-            .scalars()
-            .all()
+        ).scalar_one()
+        if sub.disabled_at < now():
+            logger.error(f"Tried to send push to disabled subscription: {sub.id}. Disabled at {sub.disabled_at}.")
+            return
+        # this of requests.response
+        resp = send_push(
+            payload.data,
+            sub.endpoint,
+            sub.auth_key,
+            sub.p256dh_key,
+            config["PUSH_NOTIFICATIONS_VAPID_SUBJECT"],
+            config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"],
+            ttl=payload.ttl,
         )
-        for ix, sub in enumerate(subs):
-            try:
-                session.add(
-                    PushNotificationDeliveryAttempt(
-                        # todo
-                    )
-                )
-                send_push_notification_raw(data, sub)
-            except Exception as e:
-                logger.exception(e)
-    return empty_pb2.Empty()
+        session.add(
+            PushNotificationDeliveryAttempt(
+                push_notification_subscription_id=sub.id,
+                success=resp.status_code == 201,
+                status_code=resp.status_code,
+                response=resp.text,
+            )
+        )
+        if resp.status_code == 201:
+            # success
+            logger.debug(f"Successfully sent push to sub {sub.id} for user {sub.user}")
+        elif resp.status_code == 410:
+            # gone
+            logger.error(f"Push sub {sub.id} for user {sub.user} is gone! Disabling.")
+            sub.disabled_at = func.now()
+        else:
+            raise Exception(f"Failed to deliver push to {sub.id}, code: {resp.status_code}. Response: {resp.text}")
 
 
-def handle_email_notifications(payload):
+def handle_email_notifications(payload: empty_pb2.Empty):
     """
     Sends out emails for notifications
     """
@@ -169,7 +188,7 @@ def handle_email_notifications(payload):
             session.commit()
 
 
-def handle_email_digests(payload):
+def handle_email_digests(payload: empty_pb2.Empty):
     """
     Sends out email digests
 

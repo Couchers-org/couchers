@@ -35,16 +35,12 @@ def generate_vapid_authorization(endpoint, vapid_sub, vapid_private_key):
     return Vapid.from_string(private_key=vapid_private_key).sign(vapid_claim)["Authorization"]
 
 
-class PushException(Exception):
-    pass
-
-
-def send_push(data, endpoint, auth_key, receiver_key, vapid_sub, vapid_private_key):
+def send_push(data, endpoint, auth_key, receiver_key, vapid_sub, vapid_private_key, ttl=0):
     logger.debug(f"Sending {len(data)} bytes to {endpoint[:20]}...")
     headers = {
         "authorization": generate_vapid_authorization(endpoint, vapid_sub, vapid_private_key),
         "content-encoding": "aes128gcm",
-        "ttl": "0",
+        "ttl": str(ttl),
     }
 
     encrypted = http_ece.encrypt(
@@ -54,17 +50,12 @@ def send_push(data, endpoint, auth_key, receiver_key, vapid_sub, vapid_private_k
         dh=receiver_key,
     )
 
-    resp = requests.post(
+    return requests.post(
         endpoint,
         timeout=20,
         data=encrypted,
         headers=headers,
     )
-
-    if resp.status_code != 201:
-        raise PushException(f"Push failed: {resp.status_code}/{resp.text}")
-
-    return resp
 
 
 def decode_key(value):

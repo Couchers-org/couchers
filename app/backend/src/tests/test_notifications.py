@@ -21,8 +21,8 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify_v2
 from couchers.sql import couchers_select as select
-from proto import auth_pb2, notifications_pb2
-from proto.internal import notification_data_pb2, unsubscribe_pb2
+from proto import auth_pb2, notification_data_pb2, notifications_pb2
+from proto.internal import unsubscribe_pb2
 from tests.test_fixtures import (  # noqa
     auth_api_session,
     db,
@@ -203,7 +203,7 @@ def test_unsubscribe(db):
 
     queue_job("handle_email_notifications", empty_pb2.Empty())
 
-    with patch("couchers.email.v2.queue_email") as mock:
+    with patch("couchers.templates.v2.queue_email") as mock:
         while process_job():
             pass
 
@@ -253,7 +253,7 @@ def test_unsubscribe(db):
 
     queue_job("handle_email_notifications", empty_pb2.Empty())
 
-    with patch("couchers.email.v2.queue_email") as mock:
+    with patch("couchers.templates.v2.queue_email") as mock:
         while process_job():
             pass
 

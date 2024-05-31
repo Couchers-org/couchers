@@ -818,7 +818,7 @@ def test_DeleteAccount_start(db):
     user, token = generate_user()
 
     with account_session(token) as account:
-        with patch("couchers.email.v2.queue_email") as mock:
+        with patch("couchers.templates.v2.queue_email") as mock:
             account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=None))
         mock.assert_called_once()
         _, kwargs = mock.call_args
@@ -859,7 +859,7 @@ def test_full_delete_account_with_recovery(db):
         assert e.value.details() == errors.MUST_CONFIRM_ACCOUNT_DELETE
 
         # Check the right email is sent
-        with patch("couchers.email.v2.queue_email") as mock:
+        with patch("couchers.templates.v2.queue_email") as mock:
             account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
         mock.assert_called_once()
         _, kwargs = mock.call_args

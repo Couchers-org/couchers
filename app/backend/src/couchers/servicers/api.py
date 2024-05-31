@@ -35,8 +35,7 @@ from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_friend_request_accepted_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
-from proto import api_pb2, api_pb2_grpc, media_pb2
-from proto.internal import notification_data_pb2
+from proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2
 
 hostingstatus2sql = {
     api_pb2.HOSTING_STATUS_UNKNOWN: None,
@@ -599,7 +598,7 @@ class API(api_pb2_grpc.APIServicer):
                 topic_action="friend_request:create",
                 key=friend_relationship.from_user_id,
                 data=notification_data_pb2.FriendRequestCreate(
-                    friend_user_info=make_user_info(friend_reference.from_user),
+                    friend_user_info=user_model_to_pb(friend_reference.from_user, session, context),
                 ),
             )
 
@@ -678,7 +677,7 @@ class API(api_pb2_grpc.APIServicer):
                     topic_action="friend_request:accept",
                     key=friend_relationship.to_user_id,
                     data=notification_data_pb2.FriendRequestAccept(
-                        friend_user_info=make_user_info(friend_request.to_user),
+                        friend_user_info=user_model_to_pb(friend_request.to_user, session, context),
                     ),
                 )
 
@@ -844,6 +843,7 @@ def user_model_to_pb(db_user, session, context):
         sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
         parking_details=parkingdetails2api[db_user.parking_details],
         avatar_url=db_user.avatar.full_url if db_user.avatar else None,
+        avatar_thumbnail_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
         badges=[badge.badge_id for badge in db_user.badges],
         **get_strong_verification_fields(db_user),
     )

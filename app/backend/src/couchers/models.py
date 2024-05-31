@@ -41,7 +41,7 @@ from couchers.constants import (
     TOS_VERSION,
 )
 from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
-from proto.internal import notification_data_pb2
+from proto import notification_data_pb2
 
 meta = MetaData(
     naming_convention={
@@ -2175,6 +2175,9 @@ class NotificationTopicAction(enum.Enum):
     @property
     def display(self):
         return f"{self.topic}:{self.action}"
+
+    def __str__(self):
+        return self.display
 
     # topic, action, default delivery types
     friend_request__create = ("friend_request:create", dt_all, True, nd.FriendRequestCreate)

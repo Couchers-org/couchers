@@ -11,6 +11,10 @@ def app_link():
     return f"{config['BASE_URL']}/"
 
 
+def icon_url():
+    return f"{config['BASE_URL']}/logo512.png"
+
+
 def profile_link():
     return f"{config['BASE_URL']}/profile"
 
@@ -109,11 +113,3 @@ def unsubscribe_link(*, payload, sig):
 
 def media_url(*, filename, size):
     return f"{config['MEDIA_SERVER_BASE_URL']}/img/{size}/{filename}"
-
-
-def media_url_thumbnail(*, filename):
-    return media_url(filename=filename, size="thumbnail")
-
-
-def media_url_full(*, filename):
-    return media_url(filename=filename, size="full")

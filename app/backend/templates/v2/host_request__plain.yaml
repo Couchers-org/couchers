@@ -1,3 +1,6 @@
 subject: {{ other.name|v2esc }} {{ message|v2esc }}
 preview: {{ other.name|v2esc }} {{ message|v2esc }}
 is_critical: false
+push_title: {{ other.name|v2esc }} {{ message|v2esc }}
+push_body: {{ text|v2esc }}
+push_icon: {{ other|v2avatar }}

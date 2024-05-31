@@ -24,11 +24,11 @@ from couchers.resources import get_badge_dict
 from couchers.servicers.api import get_strong_verification_fields
 from couchers.servicers.auth import create_session
 from couchers.servicers.communities import community_to_pb
+from couchers.servicers.events import event_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_api_key_email
 from couchers.utils import date_to_api, now, parse_date
-from proto import admin_pb2, admin_pb2_grpc
-from proto.internal import notification_data_pb2
+from proto import admin_pb2, admin_pb2_grpc, notification_data_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -392,6 +392,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             # todo: actually send the notifications
 
+            # TODO TODO TODO
+            class DummyContext:
+                user_id = 1
+
             if request.approve:
                 occurrence = req.occurrence
                 fan_notify_v2(
@@ -400,7 +404,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                     topic_action="event:create_approved",
                     key=occurrence.id,
                     data=notification_data_pb2.EventCreateApproved(
-                        event_info=make_event_info(occurrence),
+                        event_info=event_to_pb(session, occurrence, DummyContext()),
                     ),
                 )
 

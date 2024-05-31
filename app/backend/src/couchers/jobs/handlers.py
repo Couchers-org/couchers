@@ -48,7 +48,7 @@ from couchers.notifications.background import (
     handle_email_digests,
     handle_email_notifications,
     handle_notification,
-    send_push_notification,
+    send_raw_push_notification,
 )
 from couchers.notifications.notify import notify_v2
 from couchers.resources import get_badge_dict, get_static_badge_dict
@@ -57,7 +57,8 @@ from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.tasks import send_onboarding_email, send_reference_reminder_email
 from couchers.utils import now
-from proto.internal import jobs_pb2, notification_data_pb2, verification_pb2
+from proto import notification_data_pb2
+from proto.internal import jobs_pb2, verification_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,7 @@ handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
 handle_email_notifications.PAYLOAD = empty_pb2.Empty
 handle_email_notifications.SCHEDULE = timedelta(seconds=5)
 
-send_push_notification.PAYLOAD = jobs_pb2.SendPushNotificationPayload
+send_raw_push_notification.PAYLOAD = jobs_pb2.SendRawPushNotificationPayload
 
 handle_email_digests.PAYLOAD = empty_pb2.Empty
 handle_email_digests.SCHEDULE = timedelta(minutes=15)

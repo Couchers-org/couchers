@@ -1,5 +1,6 @@
+import logging
+
 from couchers import urls
-from couchers.email.v2 import email_user
 from couchers.models import Notification, User
 from couchers.notifications.unsubscribe import (
     generate_do_not_email,
@@ -7,6 +8,9 @@ from couchers.notifications.unsubscribe import (
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
+from couchers.templates.v2 import email_user, push_user
+
+logger = logging.getLogger(__name__)
 
 
 def get_template_and_args(notification, data):
@@ -120,3 +124,14 @@ def send_email_notification(user: User, notification: Notification):
         "_manage_notification_settings": urls.feature_preview_link(),
     }
     email_user(user, template_name, {**default_args, **args})
+
+
+def send_push_notification(user: User, notification: Notification):
+    logger.debug(f"Formatting push notification for {user}")
+
+    data = notification.topic_action.data_type.FromString(notification.data)
+    template_name, args = get_template_and_args(notification, data)
+
+    default_args = {"user": user, "time": notification.created, "_unsub": lambda _: ""}
+
+    push_user(user, template_name, {**default_args, **args})

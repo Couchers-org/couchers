@@ -35,8 +35,7 @@ from couchers.utils import (
     now,
     to_aware_datetime,
 )
-from proto import events_pb2, events_pb2_grpc
-from proto.internal import notification_data_pb2
+from proto import events_pb2, events_pb2_grpc, notification_data_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -919,7 +918,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 key=event.id,
                 data=notification_data_pb2.EventInviteOrganizer(
                     inviter_user_info=make_user_info(user),
-                    event_info=make_event_info(event),
+                    event_info=make_event_info(occurrence),
                 ),
             )
 
