@@ -2,7 +2,6 @@
 template mailer/push notification formatter v2
 """
 
-from couchers import urls
 import logging
 from datetime import date, datetime
 from html import escape
@@ -12,9 +11,9 @@ from zoneinfo import ZoneInfo
 import yaml
 from jinja2 import Environment, FileSystemLoader
 
+from couchers import urls
 from couchers.config import config
 from couchers.email import queue_email
-from couchers.notifications.push import push_to_user
 from couchers.notifications.unsubscribe import generate_do_not_email
 from couchers.utils import get_tz_as_text, now
 
@@ -84,14 +83,15 @@ env.filters["v2avatar"] = v2avatar
 env.filters["v2quote"] = v2quote
 
 
-def email_user(user, template_name, template_args={}, override_recipient=None):
-    # Titles/config are from {template_name}.yaml, plaintext from {template_name}.txt, and html from generated_html/{template_name}.html (generated from {template_name}.mjml)
-    frontmatter_template = env.get_template(f"{template_name}.yaml")
-    rendered_frontmatter = frontmatter_template.render(**template_args)
-    frontmatter = yaml.load(rendered_frontmatter, Loader=yaml.FullLoader)
-    assert "subject" in frontmatter
-    assert "is_critical" in frontmatter
-    assert "preview" in frontmatter
+def email_user(user, template_name, template_args={}, frontmatter=None, override_recipient=None):
+    if not frontmatter:
+        # Titles/config are from {template_name}.yaml, plaintext from {template_name}.txt, and html from generated_html/{template_name}.html (generated from {template_name}.mjml)
+        frontmatter_template = env.get_template(f"{template_name}.yaml")
+        rendered_frontmatter = frontmatter_template.render(**template_args)
+        frontmatter = yaml.load(rendered_frontmatter, Loader=yaml.FullLoader)
+        assert "subject" in frontmatter
+        assert "is_critical" in frontmatter
+        assert "preview" in frontmatter
 
     if not frontmatter["is_critical"]:
         template_args["_footer_unsub_link"] = generate_do_not_email(user.id)
@@ -123,21 +123,4 @@ def email_user(user, template_name, template_args={}, override_recipient=None):
         html=html,
         source_data=config["VERSION"] + f"/{template_name}",
         list_unsubscribe_header=list_unsubscribe_header,
-    )
-
-
-def push_user(user, template_name, template_args={}):
-    # Titles/config are from {template_name}.yaml, plaintext from {template_name}.txt, and html from generated_html/{template_name}.html (generated from {template_name}.mjml)
-    frontmatter_template = env.get_template(f"{template_name}.yaml")
-    rendered_frontmatter = frontmatter_template.render(**template_args)
-    frontmatter = yaml.load(rendered_frontmatter, Loader=yaml.FullLoader)
-
-    assert "push_title" in frontmatter
-    assert "push_body" in frontmatter
-
-    push_to_user(
-        user.id,
-        title=frontmatter["push_title"],
-        body=frontmatter["push_body"],
-        icon=frontmatter.get("push_icon"),
     )

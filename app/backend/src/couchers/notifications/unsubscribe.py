@@ -63,7 +63,7 @@ def generate_unsub_topic_action(notification):
     )
 
 
-def generate_unsub(user, notification, type, one_click):
+def generate_unsub(user, notification, type, one_click=False):
     if one_click:
         raise NotImplementedError("One click unsubscribe not implemented yet")
     if type == "do_not_email":

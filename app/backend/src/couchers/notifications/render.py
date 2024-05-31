@@ -1,40 +1,79 @@
 import logging
+from dataclasses import dataclass
 
 from couchers import urls
 from couchers.models import Notification, User
+from couchers.notifications.push import push_to_user
 from couchers.notifications.unsubscribe import (
     generate_do_not_email,
     generate_unsub,
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
-from couchers.templates.v2 import email_user, push_user
+from couchers.templates.v2 import email_user, v2avatar, v2date, v2phone
 
 logger = logging.getLogger(__name__)
 
 
-def get_template_and_args(notification, data):
+@dataclass
+class NotificationData:
+    # whether the notification is critical and cannot be turned off
+    is_critical: bool
+    # email subject
+    email_subject: str
+    # shows up when listing emails in many clients
+    email_preview: str
+    # corresponds to .mjml + .txt file in templates/v2
+    email_template_name: str
+    # other template args
+    email_template_args: dict
+    # push notification title
+    push_title: str
+    # push notification content
+    push_body: str
+    # url to an icon for push notifications
+    push_icon: str
+    # url to where clicking on the notification should take you
+    push_url: str
+    # url to unsubscribe with one click
+    list_unsubscribe_url: str = None
+
+
+def get_notification_data(user, notification, data) -> NotificationData:
     if notification.topic == "host_request":
-        args = {
-            "view_link": urls.host_request(host_request_id=data.host_request_info.host_request_id),
-            "host_request_info": data.host_request_info,
-        }
-        if notification.action == "create":
-            args["other"] = data.surfer_info
-            args["text"] = data.text
-            args["message"] = "sent you a host request"
-            return "host_request__message", args
-        elif notification.action == "message":
-            args["other"] = data.user_info
-            args["text"] = data.text
-            args["message"] = "sent you a message in " + ("their" if data.am_host else "your") + " host request"
-            return "host_request__message", args
+        view_link = urls.host_request(host_request_id=data.host_request_info.host_request_id)
+        if notification.action in ["create", "message"]:
+            if notification.action == "create":
+                other = data.surfer_info
+                message = f"{other.name} sent you a host request"
+            elif notification.action == "message":
+                other = data.user_info
+                message = (
+                    f"{other.name} sent you a message in " + ("their" if data.am_host else "your") + " host request"
+                )
+            return NotificationData(
+                is_critical=False,
+                email_subject=message,
+                email_preview=message,
+                email_template_name="host_request__message",
+                email_template_args={
+                    "view_link": view_link,
+                    "host_request_info": data.host_request_info,
+                    "message": message,
+                    "other": other,
+                    "text": data.text,
+                },
+                push_title=f"{message}",
+                push_body=f"Dates: {v2date(data.host_request_info.from_date,user)} to {v2date(data.host_request_info.to_date,user)}.\n\n{data.text}",
+                push_icon=v2avatar(other),
+                push_url=view_link,
+            )
         elif notification.action in ["accept", "reject", "confirm", "cancel"]:
             if notification.action in ["accept", "reject"]:
-                args["other"] = data.host_info
+                other = data.host_info
                 their_your = "your"
             else:
-                args["other"] = data.surfer_info
+                other = data.surfer_info
                 their_your = "their"
             actioned = {
                 "accept": "accepted",
@@ -42,64 +81,169 @@ def get_template_and_args(notification, data):
                 "confirm": "confirmed",
                 "cancel": "cancelled",
             }[notification.action]
-            # "Aapeli rejected your host request", or similar
-            args["message"] = f"{actioned} {their_your} host request"
-            return "host_request__plain", args
+            # "rejected your host request", or similar
+            message = f"{other.name} {actioned} {their_your} host request"
+            return NotificationData(
+                is_critical=False,
+                email_subject=message,
+                email_preview=message,
+                email_template_name="host_request__plain",
+                email_template_args={
+                    "view_link": view_link,
+                    "host_request_info": data.host_request_info,
+                    "message": message,
+                    "other": other,
+                },
+                push_title=message,
+                push_body="Check the app for more info.",
+                push_icon=v2avatar(other),
+                push_url=view_link,
+            )
     elif notification.topic_action.display == "password:change":
-        args = {
-            "title": "Your password was changed",
-            "message": "Your login password for Couchers.org was changed.",
-        }
-        return "security", args
+        title = "Your password was changed"
+        message = "Your login password for Couchers.org was changed."
+        return NotificationData(
+            is_critical=True,
+            email_subject=title,
+            email_preview=message,
+            email_template_name="security",
+            email_template_args={
+                "title": title,
+                "message": message,
+            },
+            push_title=title,
+            push_body=message,
+            push_icon=urls.icon_url(),
+            push_url=urls.account_settings_link(),
+        )
     elif notification.topic_action.display == "email_address:change":
-        args = {
-            "title": "Email change was initiated",
-            "message": f"An email change to the email <b>{data.new_email}</b> was initiated on your account.",
-            "preview": f"An email change was initiated on your account.",
-        }
-        return "security", args
+        title = "An email change was initiated on your account"
+        message = f"An email change to the email <b>{data.new_email}</b> was initiated on your account."
+        message_plain = f"An email change to the email {data.new_email} was initiated on your account."
+        return NotificationData(
+            is_critical=True,
+            email_subject=title,
+            email_preview=title,
+            email_template_name="security",
+            email_template_args={
+                "title": title,
+                "message": message,
+            },
+            push_title=title,
+            push_body=message_plain,
+            push_icon=urls.icon_url(),
+            push_url=urls.account_settings_link(),
+        )
     elif notification.topic_action.display == "email_address:verify":
-        args = {
-            "title": "Email change completed",
-            "message": f"Your new email address has been verified.",
-            "preview": f"Your new email address has been verified.",
-        }
-        return "security", args
+        title = "Email change completed"
+        message = "Your new email address has been verified."
+        return NotificationData(
+            is_critical=True,
+            email_subject=title,
+            email_preview=message,
+            email_template_name="security",
+            email_template_args={
+                "title": title,
+                "message": message,
+            },
+            push_title=title,
+            push_body=message,
+            push_icon=urls.icon_url(),
+            push_url=urls.account_settings_link(),
+        )
     elif notification.topic_action.display == "phone_number:change":
-        args = {
-            "title": "Phone verification started",
-            "message": f"You started phone number verification with the number <b>{data.phone}</b>.",
-            "preview": f"You started phone number verification.",
-        }
-        return "security", args
+        title = "Phone verification started"
+        message = f"You started phone number verification with the number <b>{v2phone(data.phone)}</b>."
+        message_plain = f"You started phone number verification with the number {v2phone(data.phone)}."
+        return NotificationData(
+            is_critical=True,
+            email_subject=title,
+            email_preview=message,
+            email_template_name="security",
+            email_template_args={
+                "title": title,
+                "message": message,
+            },
+            push_title=title,
+            push_body=message,
+            push_icon=urls.icon_url(),
+            push_url=urls.feature_preview_link(),
+        )
     elif notification.topic_action.display == "phone_number:verify":
-        args = {
-            "title": "Phone verification successful",
-            "message": f"Your phone was successfully verified as <b>{data.phone}</b> on Couchers.org.",
-            "preview": f"Your phone was successfully verified.",
-        }
-        return "security", args
+        title = "Phone successfully verified"
+        message = f"Your phone was successfully verified as <b>{v2phone(data.phone)}</b> on Couchers.org."
+        message_plain = f"Your phone was successfully verified as {v2phone(data.phone)} on Couchers.org."
+        return NotificationData(
+            is_critical=True,
+            email_subject=title,
+            email_preview=message_plain,
+            email_template_name="security",
+            email_template_args={
+                "title": title,
+                "message": message,
+            },
+            push_title=title,
+            push_body=message_plain,
+            push_icon=urls.icon_url(),
+            push_url=urls.feature_preview_link(),
+        )
     elif notification.topic_action.display == "gender:change":
-        args = {
-            "title": "Your gender was changed",
-            "message": f"Your gender on Couchers.org was changed by an admin to <b>{data.gender}</b>.",
-            "preview": f"Your gender on Couchers.org was changed by an admin.",
-        }
-        return "security", args
+        title = "Your gender was changed"
+        message = f"Your gender on Couchers.org was changed by an admin to <b>{data.gender}</b>."
+        message_plain = f"Your gender on Couchers.org was changed by an admin to {data.gender}."
+        return NotificationData(
+            is_critical=True,
+            email_subject=title,
+            email_preview=message_plain,
+            email_template_name="security",
+            email_template_args={
+                "title": title,
+                "message": message,
+            },
+            push_title=title,
+            push_body=message_plain,
+            push_icon=urls.icon_url(),
+            push_url=urls.account_settings_link(),
+        )
     elif notification.topic_action.display == "birthdate:change":
-        args = {
-            "title": "Your date of birth was changed",
-            "message": f"Your date of birth on Couchers.org was changed by an admin to <b>{data.birthdate}</b>.",
-            "preview": f"Your date of birth on Couchers.org was changed by an admin.",
-        }
-        return "security", args
+        title = "Your date of birth was changed"
+        message = (
+            f"Your date of birth on Couchers.org was changed by an admin to <b>{v2date(data.birthdate, user)}</b>."
+        )
+        message_plain = f"Your date of birth on Couchers.org was changed by an admin to {v2date(data.birthdate)}."
+        return NotificationData(
+            is_critical=True,
+            email_subject=title,
+            email_preview=message_plain,
+            email_template_name="security",
+            email_template_args={
+                "title": title,
+                "message": message,
+            },
+            push_title=title,
+            push_body=message_plain,
+            push_icon=urls.icon_url(),
+            push_url=urls.account_settings_link(),
+        )
     elif notification.topic_action.display in ["badge:add", "badge:remove"]:
-        args = {
-            "badge_name": data.badge_name,
-            "actioned": "added to" if notification.action == "add" else "removed from",
-            "unsub_type": "badge additions" if notification.action == "add" else "badge removals",
-        }
-        return "badge", args
+        actioned = "added to" if notification.action == "add" else "removed from"
+        title = f"The {data.badge_name} badge was {actioned} your profile"
+        return NotificationData(
+            is_critical=False,
+            email_subject=title,
+            email_preview=title,
+            email_template_name="badge",
+            email_template_args={
+                "badge_name": data.badge_name,
+                "actioned": actioned,
+                "unsub_type": "badge additions" if notification.action == "add" else "badge removals",
+            },
+            push_title=title,
+            push_body="Check out your profile to see the new badge!",
+            push_icon=urls.icon_url(),
+            push_url=urls.profile_link(),
+            list_unsubscribe_url=generate_unsub(user, notification, "topic_action"),
+        )
     else:
         raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
 
@@ -113,7 +257,7 @@ def send_email_notification(user: User, notification: Notification):
         return generate_unsub(user, notification, type, one_click)
 
     data = notification.topic_action.data_type.FromString(notification.data)
-    template_name, args = get_template_and_args(notification, data)
+    notification_data = get_notification_data(user, notification, data)
     default_args = {
         "user": user,
         "time": notification.created,
@@ -123,15 +267,31 @@ def send_email_notification(user: User, notification: Notification):
         "_unsub_topic_action": generate_unsub_topic_action(notification),
         "_manage_notification_settings": urls.feature_preview_link(),
     }
-    email_user(user, template_name, {**default_args, **args})
+
+    frontmatter = {
+        "is_critical": notification_data.is_critical,
+        "subject": notification_data.email_subject,
+        "preview": notification_data.email_preview,
+    }
+
+    email_user(
+        user,
+        notification_data.email_template_name,
+        {**default_args, **notification_data.email_template_args},
+        frontmatter=frontmatter,
+    )
 
 
 def send_push_notification(user: User, notification: Notification):
     logger.debug(f"Formatting push notification for {user}")
 
     data = notification.topic_action.data_type.FromString(notification.data)
-    template_name, args = get_template_and_args(notification, data)
+    notification_data = get_notification_data(user, notification, data)
 
-    default_args = {"user": user, "time": notification.created, "_unsub": lambda _: ""}
-
-    push_user(user, template_name, {**default_args, **args})
+    push_to_user(
+        user.id,
+        title=notification_data.push_title,
+        body=notification_data.push_body,
+        icon=notification_data.push_icon,
+        # url=notification_data.push_url,
+    )

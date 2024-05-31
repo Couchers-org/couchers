@@ -1,6 +1,0 @@
-subject: {{ other.name|v2esc }} {{ message|v2esc }} {{ message|v2esc }}
-preview: {{ other.name|v2esc }} {{ message|v2esc }}
-is_critical: false
-push_title: {{ other.name|v2esc }} {{ message|v2esc }} from {{ host_request_info.from_date|v2date(user) }} to {{ host_request_info.to_date|v2date(user) }}
-push_body: {{ text|v2esc }}
-push_icon: {{ other|v2avatar }}
