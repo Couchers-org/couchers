@@ -9,7 +9,7 @@ def get_vapid_public_key():
     return get_vapid_public_key_from_private_key(config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"])
 
 
-def send_push_notification(data, sub):
+def send_push_notification_raw(data, sub):
     send_push(
         data,
         sub.endpoint,

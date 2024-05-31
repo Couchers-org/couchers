@@ -48,6 +48,7 @@ from couchers.notifications.background import (
     handle_email_digests,
     handle_email_notifications,
     handle_notification,
+    send_push_notification,
 )
 from couchers.notifications.notify import notify_v2
 from couchers.resources import get_badge_dict, get_static_badge_dict
@@ -65,6 +66,8 @@ handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
 
 handle_email_notifications.PAYLOAD = empty_pb2.Empty
 handle_email_notifications.SCHEDULE = timedelta(seconds=5)
+
+send_push_notification.PAYLOAD = jobs_pb2.SendPushNotificationPayload
 
 handle_email_digests.PAYLOAD = empty_pb2.Empty
 handle_email_digests.SCHEDULE = timedelta(minutes=15)
