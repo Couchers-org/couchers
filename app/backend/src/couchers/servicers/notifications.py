@@ -139,6 +139,6 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         push_to_user(
             context.user_id,
             title="Checking push notifications work!",
-            body=f"Hi, thanks for enabling push notifications!",
+            body=f"If you see this, then it's working :)",
         )
         return empty_pb2.Empty()

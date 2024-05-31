@@ -1,3 +1,0 @@
-subject: {{ title }}
-is_critical: true
-preview: {{ preview }}
