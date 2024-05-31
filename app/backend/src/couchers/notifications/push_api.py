@@ -61,10 +61,10 @@ def send_push(data, endpoint, auth_key, receiver_key, vapid_sub, vapid_private_k
         headers=headers,
     )
 
-    logger.info(resp)
-
     if resp.status_code != 201:
         raise PushException(f"Push failed: {resp.status_code}/{resp.text}")
+
+    return resp
 
 
 def decode_key(value):

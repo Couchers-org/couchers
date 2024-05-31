@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package org.couchers.notifications;
 
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 import "annotations.proto";
@@ -18,6 +19,12 @@ service Notifications {
   rpc SetDoNotEmail(SetDoNotEmailReq) returns (SetDoNotEmailRes);
 
   rpc ListNotifications(ListNotificationsReq) returns (ListNotificationsRes);
+
+  rpc GetVapidPublicKey(google.protobuf.Empty) returns (GetVapidPublicKeyRes);
+
+  rpc RegisterPushNotification(RegisterPushNotificationReq) returns (google.protobuf.Empty);
+
+  rpc SendTestPushNotification(google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
 message GetNotificationSettingsReq {}
@@ -106,4 +113,19 @@ message ListNotificationsRes {
   repeated Notification notifications = 1;
 
   string next_page_token = 2;
+}
+
+message GetVapidPublicKeyRes {
+  string vapid_public_key = 1;
+}
+
+message RegisterPushNotificationReq {
+  // these are returned by a call to ServiceWorkerRegistration.pushManager.subscribe
+  // see also: https://developer.mozilla.org/en-US/docs/Web/API/PushSubscription
+  string endpoint = 1;
+  string auth_key = 2;
+  string p256dh_key = 3;
+
+  // for debug purposes
+  string full_subscription_json = 4;
 }

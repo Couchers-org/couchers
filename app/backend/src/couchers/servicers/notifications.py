@@ -15,7 +15,7 @@ from couchers.models import (
     PushNotificationSubscription,
     User,
 )
-from couchers.notifications.push import get_vapid_public_key, send_push_notification
+from couchers.notifications.push import get_vapid_public_key, send_push_notification_raw
 from couchers.notifications.push_api import decode_key
 from couchers.notifications.settings import PreferenceNotUserEditableError, get_user_setting_groups, set_preference
 from couchers.notifications.utils import enum_from_topic_action
@@ -144,7 +144,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                             "icon": "https://couchers.org/logo512.png",
                         }
                     ).encode("utf8")
-                    send_push_notification(data, sub)
+                    send_push_notification_raw(data, sub)
                 except Exception as e:
                     logger.exception(e)
         return empty_pb2.Empty()

@@ -7,6 +7,7 @@ from couchers.db import session_scope
 from couchers.models import Notification, NotificationDelivery, NotificationDeliveryType, User
 from couchers.notifications import fan_funcs
 from couchers.notifications.notify import notify_v2
+from couchers.notifications.push import send_push_notification_raw
 from couchers.notifications.render import send_email_notification
 from couchers.notifications.settings import get_preference
 from couchers.sql import couchers_select as select
@@ -72,6 +73,39 @@ def handle_notification(payload):
                 )
                 # todo
                 logger.info("Supposed to send push notification")
+
+
+def send_push_notification(payload):
+    with session_scope() as session:
+        data = json.dumps(
+            {
+                "title": payload.title[:500],
+                "body": payload.body[:2000],
+                "icon": payload.icon,
+            }
+        ).encode("utf8")
+        if len(data) > 3072:
+            raise Exception("Data too long")
+        subs = (
+            session.execute(
+                select(PushNotificationSubscription)
+                .where(PushNotificationSubscription.user_id == payload.user_id)
+                .where(PushNotificationSubscription.disabled_at > func.now())
+            )
+            .scalars()
+            .all()
+        )
+        for ix, sub in enumerate(subs):
+            try:
+                session.add(
+                    PushNotificationDeliveryAttempt(
+                        # todo
+                    )
+                )
+                send_push_notification_raw(data, sub)
+            except Exception as e:
+                logger.exception(e)
+    return empty_pb2.Empty()
 
 
 def handle_email_notifications(payload):

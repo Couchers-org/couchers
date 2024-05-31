@@ -33,3 +33,10 @@ message FanNotificationsPayload {
   string fan_func = 9;
   string fan_func_data = 10;
 }
+
+message SendPushNotificationPayload {
+  int64 user_id = 1;
+  string title = 2;
+  string body = 3;
+  string icon = 4;
+}
