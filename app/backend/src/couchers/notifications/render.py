@@ -64,7 +64,7 @@ def get_notification_data(user, notification, data) -> NotificationData:
                     "text": data.text,
                 },
                 push_title=f"{message}",
-                push_body=f"Dates: {v2date(data.host_request_info.from_date,user)} to {v2date(data.host_request_info.to_date,user)}.\n\n{data.text}",
+                push_body=f"Dates: {v2date(data.host_request_info.from_date, user)} to {v2date(data.host_request_info.to_date, user)}.\n\n{data.text}",
                 push_icon=v2avatar(other),
                 push_url=view_link,
             )
@@ -189,8 +189,8 @@ def get_notification_data(user, notification, data) -> NotificationData:
         )
     elif notification.topic_action.display == "gender:change":
         title = "Your gender was changed"
-        message = f"Your gender on Couchers.org was changed by an admin to <b>{data.gender}</b>."
-        message_plain = f"Your gender on Couchers.org was changed by an admin to {data.gender}."
+        message = f"Your gender on Couchers.org was changed to <b>{data.gender}</b> by an admin."
+        message_plain = f"Your gender on Couchers.org was changed to {data.gender} by an admin."
         return NotificationData(
             is_critical=True,
             email_subject=title,
@@ -208,9 +208,9 @@ def get_notification_data(user, notification, data) -> NotificationData:
     elif notification.topic_action.display == "birthdate:change":
         title = "Your date of birth was changed"
         message = (
-            f"Your date of birth on Couchers.org was changed by an admin to <b>{v2date(data.birthdate, user)}</b>."
+            f"Your date of birth on Couchers.org was changed to <b>{v2date(data.birthdate, user)}</b> by an admin."
         )
-        message_plain = f"Your date of birth on Couchers.org was changed by an admin to {v2date(data.birthdate)}."
+        message_plain = f"Your date of birth on Couchers.org was changed to {v2date(data.birthdate, user)} by an admin."
         return NotificationData(
             is_critical=True,
             email_subject=title,
