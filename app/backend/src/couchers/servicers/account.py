@@ -42,7 +42,7 @@ from couchers.tasks import (
     send_email_changed_confirmation_to_old_email,
 )
 from couchers.utils import is_valid_email, now
-from proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc
+from proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc, notification_data_pb2
 from proto.google.api import httpbody_pb2
 from proto.internal import jobs_pb2, verification_pb2
 

@@ -9,7 +9,6 @@ from couchers.config import config
 from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
-from couchers.email.v2 import email_user
 from couchers.models import (
     AccountDeletionToken,
     Cluster,
@@ -24,6 +23,7 @@ from couchers.models import (
 )
 from couchers.notifications.unsubscribe import generate_mute_all, generate_unsub_topic_action, generate_unsub_topic_key
 from couchers.sql import couchers_select as select
+from couchers.templates.v2 import email_user
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)

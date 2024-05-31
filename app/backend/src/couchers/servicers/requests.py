@@ -11,8 +11,8 @@ from sqlalchemy.sql.functions import percentile_disc
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
-from couchers.notifications.helpers import make_host_request_info, make_user_info
 from couchers.notifications.notify import notify_v2
+from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
     Duration_from_timedelta,
@@ -22,8 +22,7 @@ from couchers.utils import (
     parse_date,
     today_in_timezone,
 )
-from proto import conversations_pb2, requests_pb2, requests_pb2_grpc
-from proto.internal import notification_data_pb2
+from proto import conversations_pb2, notification_data_pb2, requests_pb2, requests_pb2_grpc
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +68,38 @@ def message_to_pb(message: Message):
                 else None
             ),
         )
+
+
+def host_request_to_pb(host_request: HostRequest, session, context):
+    initial_message = session.execute(
+        select(Message)
+        .where(Message.conversation_id == host_request.conversation_id)
+        .order_by(Message.id.asc())
+        .limit(1)
+    ).scalar_one()
+
+    latest_message = session.execute(
+        select(Message)
+        .where(Message.conversation_id == host_request.conversation_id)
+        .order_by(Message.id.desc())
+        .limit(1)
+    ).scalar_one()
+
+    return requests_pb2.HostRequest(
+        host_request_id=host_request.conversation_id,
+        surfer_user_id=host_request.surfer_user_id,
+        host_user_id=host_request.host_user_id,
+        status=hostrequeststatus2api[host_request.status],
+        created=Timestamp_from_datetime(initial_message.time),
+        from_date=date_to_api(host_request.from_date),
+        to_date=date_to_api(host_request.to_date),
+        last_seen_message_id=(
+            host_request.surfer_last_seen_message_id
+            if context.user_id == host_request.surfer_user_id
+            else host_request.host_last_seen_message_id
+        ),
+        latest_message=message_to_pb(latest_message),
+    )
 
 
 class Requests(requests_pb2_grpc.RequestsServicer):
@@ -148,8 +179,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 topic_action="host_request:create",
                 key=host_request.conversation_id,
                 data=notification_data_pb2.HostRequestCreate(
-                    host_request_info=make_host_request_info(host_request),
-                    surfer_info=make_user_info(host_request.surfer),
+                    host_request_info=host_request_to_pb(host_request, session, context),
+                    surfer_info=user_model_to_pb(host_request.surfer, session, context),
                     text=request.text,
                 ),
             )
@@ -169,35 +200,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if not host_request:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
 
-            initial_message = session.execute(
-                select(Message)
-                .where(Message.conversation_id == host_request.conversation_id)
-                .order_by(Message.id.asc())
-                .limit(1)
-            ).scalar_one()
-
-            latest_message = session.execute(
-                select(Message)
-                .where(Message.conversation_id == host_request.conversation_id)
-                .order_by(Message.id.desc())
-                .limit(1)
-            ).scalar_one()
-
-            return requests_pb2.HostRequest(
-                host_request_id=host_request.conversation_id,
-                surfer_user_id=host_request.surfer_user_id,
-                host_user_id=host_request.host_user_id,
-                status=hostrequeststatus2api[host_request.status],
-                created=Timestamp_from_datetime(initial_message.time),
-                from_date=date_to_api(host_request.from_date),
-                to_date=date_to_api(host_request.to_date),
-                last_seen_message_id=(
-                    host_request.surfer_last_seen_message_id
-                    if context.user_id == host_request.surfer_user_id
-                    else host_request.host_last_seen_message_id
-                ),
-                latest_message=message_to_pb(latest_message),
-            )
+            return host_request_to_pb(host_request, session, context)
 
     def ListHostRequests(self, request, context):
         if request.only_sent and request.only_received:
@@ -319,8 +322,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     topic_action="host_request:accept",
                     key=host_request.conversation_id,
                     data=notification_data_pb2.HostRequestAccept(
-                        host_request_info=make_host_request_info(host_request),
-                        host_info=make_user_info(host_request.host),
+                        host_request_info=host_request_to_pb(host_request, session, context),
+                        host_info=user_model_to_pb(host_request.host, session, context),
                     ),
                 )
 
@@ -343,8 +346,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     topic_action="host_request:reject",
                     key=host_request.conversation_id,
                     data=notification_data_pb2.HostRequestReject(
-                        host_request_info=make_host_request_info(host_request),
-                        host_info=make_user_info(host_request.host),
+                        host_request_info=host_request_to_pb(host_request, session, context),
+                        host_info=user_model_to_pb(host_request.host, session, context),
                     ),
                 )
 
@@ -364,8 +367,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     topic_action="host_request:confirm",
                     key=host_request.conversation_id,
                     data=notification_data_pb2.HostRequestConfirm(
-                        host_request_info=make_host_request_info(host_request),
-                        surfer_info=make_user_info(host_request.surfer),
+                        host_request_info=host_request_to_pb(host_request, session, context),
+                        surfer_info=user_model_to_pb(host_request.surfer, session, context),
                     ),
                 )
 
@@ -388,8 +391,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     topic_action="host_request:cancel",
                     key=host_request.conversation_id,
                     data=notification_data_pb2.HostRequestCancel(
-                        host_request_info=make_host_request_info(host_request),
-                        surfer_info=make_user_info(host_request.surfer),
+                        host_request_info=host_request_to_pb(host_request, session, context),
+                        surfer_info=user_model_to_pb(host_request.surfer, session, context),
                     ),
                 )
 
@@ -491,8 +494,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     topic_action="host_request:message",
                     key=host_request.conversation_id,
                     data=notification_data_pb2.HostRequestMessage(
-                        host_request_info=make_host_request_info(host_request),
-                        user_info=make_user_info(host_request.surfer),
+                        host_request_info=host_request_to_pb(host_request, session, context),
+                        user_info=user_model_to_pb(host_request.surfer, session, context),
                         text=request.text,
                         am_host=True,
                     ),
@@ -506,8 +509,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     topic_action="host_request:message",
                     key=host_request.conversation_id,
                     data=notification_data_pb2.HostRequestMessage(
-                        host_request_info=make_host_request_info(host_request),
-                        user_info=make_user_info(host_request.host),
+                        host_request_info=host_request_to_pb(host_request, session, context),
+                        user_info=user_model_to_pb(host_request.host, session, context),
                         text=request.text,
                         am_host=False,
                     ),

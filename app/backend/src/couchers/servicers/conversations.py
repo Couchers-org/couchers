@@ -10,10 +10,10 @@ from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.db import session_scope
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.notifications.notify import fan_notify_v2
+from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now
-from proto import conversations_pb2, conversations_pb2_grpc
-from proto.internal import notification_data_pb2
+from proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -140,7 +140,7 @@ def _add_message_to_subscription(session, subscription, **kwargs):
         topic_action="chat:message",
         key=message.conversation_id.id,
         data=notification_data_pb2.ChatMessage(
-            author_info=make_user_info(message.author),
+            author_info=user_model_to_pb(message.author, session, context),
             # todo
         ),
     )
