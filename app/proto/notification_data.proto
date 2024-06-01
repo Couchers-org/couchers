@@ -13,10 +13,6 @@ message EventInfo {
   repeated org.couchers.api.core.User organizers = 2;
 }
 
-message ChatMessage {
-  // todo
-}
-
 message HostRequestCreate {
   org.couchers.api.requests.HostRequest host_request_info = 1;
   org.couchers.api.core.User surfer_info = 2;
@@ -86,23 +82,6 @@ message FriendRequestAccept {
   org.couchers.api.core.User other_user_info = 1;
 }
 
-message EventInviteOrganizer {
-  org.couchers.api.core.User inviter_user_info = 1;
-  EventInfo event_info = 2;
-}
-
-message EventCreateApproved {
-  EventInfo event_info = 1;
-}
-
-message EventCreateAny {
-  EventInfo event_info = 1;
-}
-
-message EventUpdate {
-  EventInfo event_info = 1;
-}
-
 message EmailAddressChange {
   string new_email = 1;
 }
@@ -125,4 +104,28 @@ message AccountDeletionComplete {
 message ApiKeyCreate {
   string api_key = 1;
   google.protobuf.Timestamp expiry = 2;
+}
+
+message EventInviteOrganizer {
+  org.couchers.api.core.User inviter_user_info = 1;
+  EventInfo event_info = 2;
+}
+
+message EventCreateApproved {
+  EventInfo event_info = 1;
+}
+
+message EventCreateAny {
+  EventInfo event_info = 1;
+}
+
+message EventUpdate {
+  EventInfo event_info = 1;
+}
+
+message ChatMessage {
+  org.couchers.api.core.User author_info = 1;
+  string message = 2;
+  string text = 3;
+  uint64 group_chat_id = 4;
 }

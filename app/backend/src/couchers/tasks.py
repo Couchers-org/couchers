@@ -96,22 +96,6 @@ def send_password_reset_email(session, user):
     return password_reset_token
 
 
-def send_new_host_request_email(host_request):
-    # todo(notify2): replace with notification
-    logger.info(f"Sending host request email to {host_request.host=}:")
-    logger.info(f"Host request sent by {host_request.surfer}")
-    logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
-
-    email.enqueue_email_from_template_to_user(
-        host_request.host,
-        "host_request",
-        template_args={
-            "host_request": host_request,
-            "host_request_link": urls.host_request_link_host(),
-        },
-    )
-
-
 def send_host_reference_email(reference, both_written):
     """
     both_written == true if both the surfer and hoster wrote a reference

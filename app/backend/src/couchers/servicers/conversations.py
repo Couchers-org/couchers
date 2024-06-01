@@ -8,12 +8,12 @@ from sqlalchemy.sql import func, or_
 from couchers import errors
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.db import session_scope
+from couchers.jobs.enqueue import queue_job
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
-from couchers.notifications.notify import fan_notify_v2
-from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now
-from proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
+from proto import conversations_pb2, conversations_pb2_grpc
+from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -128,20 +128,10 @@ def _add_message_to_subscription(session, subscription, **kwargs):
 
     subscription.last_seen_message_id = message.id
 
-    # generate notifications in the background
-    if subscription.group_chat.is_dm:
-        title = f"{message.author.name} sent you a message"
-    else:
-        title = f"{message.author.name} sent a message in {subscription.group_chat.title}"
-
-    fan_notify_v2(
-        fan_func="fan_message_notifications",
-        fan_func_data=str(occurrence.id),
-        topic_action="chat:message",
-        key=message.conversation_id.id,
-        data=notification_data_pb2.ChatMessage(
-            author_info=user_model_to_pb(message.author, session, context),
-            # todo
+    queue_job(
+        job_type="generate_message_notifications",
+        payload=jobs_pb2.GenerateMessageNotificationsPayload(
+            message_id=message.id,
         ),
     )
 

@@ -351,5 +351,22 @@ def render_notification(user, notification, data) -> RenderedNotification:
             push_icon=urls.icon_url(),
             push_url=urls.app_link(),
         )
+    elif notification.topic_action.display == "chat:message":
+        return RenderedNotification(
+            is_critical=True,
+            email_subject=data.message,
+            email_preview=f"You received a message on Couchers.org!",
+            email_template_name="chat_message",
+            email_template_args={
+                "author": data.author_info,
+                "message": data.message,
+                "text": data.text,
+                "view_link": urls.chat_link(chat_id=data.group_chat_id),
+            },
+            push_title=data.message,
+            push_body=data.text,
+            push_icon=v2avatar(data.author_info),
+            push_url=urls.chat_link(chat_id=data.group_chat_id),
+        )
     else:
         raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")

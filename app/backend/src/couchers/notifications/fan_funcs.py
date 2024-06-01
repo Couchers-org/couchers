@@ -3,6 +3,7 @@ Contains "fan functions" that given some data decide who to notify. Needs to ret
 """
 
 import logging
+from types import SimpleNamespace
 
 from sqlalchemy.sql import func, not_, or_, select
 
@@ -17,27 +18,30 @@ from couchers.models import (
     MessageType,
     User,
 )
+from couchers.notifications.notify import notify_v2
+from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
+from proto import notification_data_pb2
+from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
 
-def fan_message_notifications(message_id_str):
+def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotificationsPayload):
     """
     Generates notifications for a message sent to a group chat
     """
-    message_id = int(message_id_str)
-    logger.info(f"Fanning notifications for message_id = {message_id}")
+    logger.info(f"Fanning notifications for message_id = {payload.message_id}")
 
     with session_scope() as session:
         message, group_chat = session.execute(
             select(Message, GroupChat)
             .join(GroupChat, GroupChat.conversation_id == Message.conversation_id)
-            .where(Message.id == message_id)
+            .where(Message.id == payload.message_id)
         ).one()
 
         if message.message_type != MessageType.text:
-            logger.info(f"Not a text message, not notifying. message_id = {message_id}")
+            logger.info(f"Not a text message, not notifying. message_id = {payload.message_id}")
             return []
 
         subscriptions = (
@@ -55,7 +59,25 @@ def fan_message_notifications(message_id_str):
             .all()
         )
 
-        return [subscription.user_id for subscription in subscriptions]
+        if group_chat.is_dm:
+            msg = f"{message.author.name} sent you a message"
+        else:
+            msg = f"{message.author.name} sent a message in {group_chat.title}"
+
+        for subscription in subscriptions:
+            notify_v2(
+                user_id=subscription.user_id,
+                topic_action="chat:message",
+                key=message.conversation_id,
+                data=notification_data_pb2.ChatMessage(
+                    author_info=user_model_to_pb(
+                        message.author, session, SimpleNamespace(user_id=subscription.user_id)
+                    ),
+                    message=msg,
+                    text=message.text,
+                    group_chat_id=message.conversation_id,
+                ),
+            )
 
 
 def fan_create_event_notifications(occurrence_id_str):
