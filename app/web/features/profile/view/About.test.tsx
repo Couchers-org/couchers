@@ -20,7 +20,7 @@ beforeEach(() => {
 });
 
 function renderAbout(user?: User.AsObject) {
-  render(<About user={user || defaultUser} />, { wrapper });
+  return render(<About user={user || defaultUser} />, { wrapper });
 }
 describe("About (user)", () => {
   it("displays both visited and lived regions", async () => {
@@ -34,6 +34,70 @@ describe("About (user)", () => {
     expect(
       (await screen.findAllByText("Sweden", { exact: false })).length
     ).toBe(1);
+  });
+
+  it("should display age and gender without verification icons when unspecified ", async () => {
+    renderAbout({
+      ...defaultUser,
+      genderVerificationStatus: 0,
+      birthdateVerificationStatus: 0,
+    });
+    expect(await screen.findByText("30 / Man (He/him)")).toBeVisible();
+
+    const checkIcon = screen.queryByTestId("check-circle-icon");
+    expect(checkIcon).toBeNull();
+    const errorIcon = screen.queryByTestId("error-icon");
+    expect(errorIcon).toBeNull();
+  });
+  it("should display age and gender without verification icons when unverified", async () => {
+    renderAbout({
+      ...defaultUser,
+      genderVerificationStatus: 1,
+      birthdateVerificationStatus: 1,
+    });
+
+    expect(
+      await screen.findByText("30 / Man (He/him)", { exact: true })
+    ).toBeVisible();
+
+    const checkIcon = screen.queryByTestId("check-circle-icon");
+    expect(checkIcon).toBeNull();
+    const errorIcon = screen.queryByTestId("error-icon");
+    expect(errorIcon).toBeNull();
+  });
+
+  it("should display verification ticks when verified", async () => {
+    renderAbout({
+      ...defaultUser,
+      genderVerificationStatus: 2,
+      birthdateVerificationStatus: 2,
+    });
+
+    expect(
+      await screen.findByText("30 / Man (He/him)", { exact: true })
+    ).toBeVisible();
+
+    const checkIcons = screen.queryAllByTestId("check-circle-icon");
+    expect(checkIcons.length).toEqual(2);
+    const errorIcon = screen.queryByTestId("error-icon");
+    expect(errorIcon).toBeNull();
+  });
+
+  it("should display error icons when mismatched", async () => {
+    renderAbout({
+      ...defaultUser,
+      genderVerificationStatus: 3,
+      birthdateVerificationStatus: 3,
+    });
+
+    expect(
+      await screen.findByText("30 / Man (He/him)", { exact: true })
+    ).toBeVisible();
+
+    const checkIcons = screen.queryByTestId("check-circle-icon");
+    expect(checkIcons).toBeNull();
+    const errorIcons = screen.queryAllByTestId("error-icon");
+    expect(errorIcons.length).toEqual(2);
   });
 
   it("displays None when there are no regions", async () => {

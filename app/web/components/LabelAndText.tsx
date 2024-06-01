@@ -16,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
   flexItem: {
     flex: "1 1 50%",
     display: "flex",
+    alignItems: "center",
   },
 }));
 
