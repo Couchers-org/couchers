@@ -3,7 +3,7 @@ template mailer/push notification formatter v2
 """
 
 import logging
-from datetime import date, datetime
+from datetime import date
 from html import escape
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -15,7 +15,7 @@ from couchers import urls
 from couchers.config import config
 from couchers.email import queue_email
 from couchers.notifications.unsubscribe import generate_do_not_email
-from couchers.utils import get_tz_as_text, now
+from couchers.utils import get_tz_as_text, now, to_aware_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -54,9 +54,12 @@ def v2date(value, user):
 
 def v2time(value, user):
     tz = ZoneInfo(user.timezone or "Etc/UTC")
-    if isinstance(value, str):
-        value = datetime.fromisoformat(str(value))
     return value.astimezone(tz=tz).strftime("%-I:%M %p (%H:%M)")
+
+
+def v2timestamp(value, user):
+    tz = ZoneInfo(user.timezone or "Etc/UTC")
+    return to_aware_datetime(value).astimezone(tz=tz).strftime("%A %-d %B %Y at %-I:%M %p (%H:%M)")
 
 
 def v2avatar(user):
@@ -79,6 +82,7 @@ env.filters["v2url"] = v2url
 env.filters["v2phone"] = v2phone
 env.filters["v2date"] = v2date
 env.filters["v2time"] = v2time
+env.filters["v2timestamp"] = v2timestamp
 env.filters["v2avatar"] = v2avatar
 env.filters["v2quote"] = v2quote
 

@@ -33,7 +33,6 @@ from couchers.notifications.notify import notify_v2
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_friend_request_accepted_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
 from proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2
 
@@ -591,14 +590,14 @@ class API(api_pb2_grpc.APIServicer):
 
             friend_relationship = FriendRelationship(from_user=user, to_user=to_user, status=FriendStatus.pending)
             session.add(friend_relationship)
-            session.commit()
+            session.flush()
 
             notify_v2(
                 user_id=friend_relationship.to_user_id,
                 topic_action="friend_request:create",
                 key=friend_relationship.from_user_id,
                 data=notification_data_pb2.FriendRequestCreate(
-                    friend_user_info=user_model_to_pb(friend_reference.from_user, session, context),
+                    other_user_info=user_model_to_pb(friend_relationship.from_user, session, context),
                 ),
             )
 
@@ -666,18 +665,15 @@ class API(api_pb2_grpc.APIServicer):
             friend_request.status = FriendStatus.accepted if request.accept else FriendStatus.rejected
             friend_request.time_responded = func.now()
 
-            if friend_request.status == FriendStatus.accepted:
-                send_friend_request_accepted_email(friend_request)
-
-            session.commit()
+            session.flush()
 
             if friend_request.status == FriendStatus.accepted:
                 notify_v2(
-                    user_id=friend_relationship.from_user_id,
+                    user_id=friend_request.from_user_id,
                     topic_action="friend_request:accept",
-                    key=friend_relationship.to_user_id,
+                    key=friend_request.to_user_id,
                     data=notification_data_pb2.FriendRequestAccept(
-                        friend_user_info=user_model_to_pb(friend_request.to_user, session, context),
+                        other_user_info=user_model_to_pb(friend_request.to_user, session, context),
                     ),
                 )
 

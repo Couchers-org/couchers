@@ -10,7 +10,6 @@ from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.models import (
-    AccountDeletionToken,
     Cluster,
     ClusterRole,
     ClusterSubscription,
@@ -109,99 +108,6 @@ def send_new_host_request_email(host_request):
         template_args={
             "host_request": host_request,
             "host_request_link": urls.host_request_link_host(),
-        },
-    )
-
-
-def send_host_request_accepted_email_to_guest(host_request):
-    # todo(notify2): replace with notification
-    logger.info(f"Sending host request accepted email to guest: {host_request.surfer=}:")
-    logger.info(f"Email for {host_request.surfer.username=} sent to {host_request.surfer.email=}")
-
-    email.enqueue_email_from_template_to_user(
-        host_request.surfer,
-        "host_request_accepted_guest",
-        template_args={
-            "host_request": host_request,
-            "host_request_link": urls.host_request_link_guest(),
-        },
-    )
-
-
-def send_host_request_rejected_email_to_guest(host_request):
-    # todo(notify2): replace with notification
-    logger.info(f"Sending host request rejected email to guest: {host_request.surfer=}:")
-    logger.info(f"Email for {host_request.surfer.username=} sent to {host_request.surfer.email=}")
-
-    email.enqueue_email_from_template_to_user(
-        host_request.surfer,
-        "host_request_rejected_guest",
-        template_args={
-            "host_request": host_request,
-            "host_request_link": urls.host_request_link_guest(),
-        },
-    )
-
-
-def send_host_request_confirmed_email_to_host(host_request):
-    # todo(notify2): replace with notification
-    logger.info(f"Sending host request confirmed email to host: {host_request.host=}:")
-    logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
-
-    email.enqueue_email_from_template_to_user(
-        host_request.host,
-        "host_request_confirmed_host",
-        template_args={
-            "host_request": host_request,
-            "host_request_link": urls.host_request_link_host(),
-        },
-    )
-
-
-def send_host_request_cancelled_email_to_host(host_request):
-    # todo(notify2): replace with notification
-    logger.info(f"Sending host request cancelled email to host: {host_request.host=}:")
-    logger.info(f"Email for {host_request.host.username=} sent to {host_request.host.email=}")
-
-    email.enqueue_email_from_template_to_user(
-        host_request.host,
-        "host_request_cancelled_host",
-        template_args={
-            "host_request": host_request,
-            "host_request_link": urls.host_request_link_host(),
-        },
-    )
-
-
-def send_friend_request_email(friend_relationship):
-    # todo(notify2): replace with notification
-    friend_requests_link = urls.friend_requests_link()
-
-    logger.info(f"Sending friend request email to {friend_relationship.to_user=}:")
-    logger.info(f"Email for {friend_relationship.to_user.username=} sent to {friend_relationship.to_user.email=}")
-    logger.info(f"Friend request sent by {friend_relationship.from_user.username=}")
-
-    email.enqueue_email_from_template_to_user(
-        friend_relationship.to_user,
-        "friend_request",
-        template_args={
-            "friend_relationship": friend_relationship,
-            "friend_requests_link": friend_requests_link,
-        },
-    )
-
-
-def send_friend_request_accepted_email(friend_relationship):
-    # todo(notify2): replace with notification
-    logger.info(f"Sending friend request acceptance email to {friend_relationship.from_user=}:")
-    logger.info(f"Email for {friend_relationship.from_user.username=} sent to {friend_relationship.from_user.email=}")
-
-    email.enqueue_email_from_template_to_user(
-        friend_relationship.from_user,
-        "friend_request_accepted",
-        template_args={
-            "friend_relationship": friend_relationship,
-            "to_user_user_link": urls.user_link(username=friend_relationship.to_user.username),
         },
     )
 
@@ -340,11 +246,6 @@ def send_onboarding_email(user, email_number):
     )
 
 
-def send_donation_email(user, amount, receipt_url):
-    # todo(notify2): replace with notification
-    email_user(user, "donation_received", template_args={"user": user, "amount": amount, "receipt_url": receipt_url})
-
-
 def send_content_report_email(content_report):
     target_email = config["REPORTS_EMAIL_RECIPIENT"]
 
@@ -449,33 +350,6 @@ def enforce_community_memberships():
                     )
                 )
             session.commit()
-
-
-def send_account_deletion_confirmation_email(user):
-    logger.info(f"Sending account deletion confirmation email to {user=}.")
-    logger.info(f"Email for {user.username=} sent to {user.email}.")
-    token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
-    deletion_link = urls.delete_account_link(account_deletion_token=token.token)
-    email_user(user, "account_deletion_confirmation", template_args={"user": user, "deletion_link": deletion_link})
-    return token
-
-
-def send_account_deletion_successful_email(user, undelete_days):
-    logger.info(f"Sending account deletion successful email to {user=}.")
-    logger.info(f"Email for {user.username=} sent to {user.email}.")
-    undelete_link = urls.recover_account_link(account_undelete_token=user.undelete_token)
-    email_user(
-        user,
-        "account_deletion_successful",
-        template_args={"user": user, "undelete_link": undelete_link, "days": undelete_days},
-    )
-
-
-def send_account_recovered_email(user):
-    # todo(notify2): replace with notification
-    logger.info(f"Sending account recovered successful email to {user=}.")
-    logger.info(f"Email for {user.username=} sent to {user.email}.")
-    email_user(user, "account_recovery_successful", template_args={"user": user, "app_link": urls.app_link()})
 
 
 def send_account_deletion_report_email(reason):

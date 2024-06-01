@@ -42,9 +42,9 @@ message NotificationItem {
 }
 
 message NotificationTopic {
-  // e.g. "account_recovery"
+  // e.g. "badge"
   string topic = 1;
-  // e.g. "Account recovery"
+  // e.g. "Profile badges"
   string name = 2;
 
   // items in this topic

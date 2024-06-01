@@ -2154,7 +2154,7 @@ class NotificationDeliveryType(enum.Enum):
 dt = NotificationDeliveryType
 nd = notification_data_pb2
 
-dt_all = [dt.email, dt.push, dt.digest]
+dt_sec = [dt.email, dt.push]
 
 
 class NotificationTopicAction(enum.Enum):
@@ -2164,8 +2164,8 @@ class NotificationTopicAction(enum.Enum):
         # for now user editable == not a security notification
         self.user_editable = user_editable
 
-        if not self.user_editable:
-            assert self.defaults == [dt.email, dt.push, dt.digest], (topic, action)
+        # if not self.user_editable:
+        #     assert self.defaults == [dt.email, dt.push, dt.digest], (topic, action)
 
         self.data_type = data_type
 
@@ -2180,45 +2180,54 @@ class NotificationTopicAction(enum.Enum):
         return self.display
 
     # topic, action, default delivery types
-    friend_request__create = ("friend_request:create", dt_all, True, nd.FriendRequestCreate)
+    friend_request__create = ("friend_request:create", dt_sec, True, nd.FriendRequestCreate)
     friend_request__accept = ("friend_request:accept", [dt.push, dt.digest], True, nd.FriendRequestAccept)
 
     # host requests
-    host_request__create = ("host_request:create", dt_all, True, nd.HostRequestCreate)
-    host_request__accept = ("host_request:accept", dt_all, True, nd.HostRequestAccept)
+    host_request__create = ("host_request:create", dt_sec, True, nd.HostRequestCreate)
+    host_request__accept = ("host_request:accept", dt_sec, True, nd.HostRequestAccept)
     host_request__reject = ("host_request:reject", [dt.push, dt.digest], True, nd.HostRequestReject)
-    host_request__confirm = ("host_request:confirm", dt_all, True, nd.HostRequestConfirm)
+    host_request__confirm = ("host_request:confirm", dt_sec, True, nd.HostRequestConfirm)
     host_request__cancel = ("host_request:cancel", [dt.push, dt.digest], True, nd.HostRequestCancel)
-    host_request__message = ("host_request:message", dt_all, True, nd.HostRequestMessage)
+    host_request__message = ("host_request:message", dt_sec, True, nd.HostRequestMessage)
 
     # account settings
-    password__change = ("password:change", dt_all, False, empty_pb2.Empty)
-    email_address__change = ("email_address:change", dt_all, False, nd.EmailAddressChange)
-    email_address__verify = ("email_address:verify", dt_all, False, empty_pb2.Empty)
-    phone_number__change = ("phone_number:change", dt_all, False, empty_pb2.Empty)
-    phone_number__verify = ("phone_number:verify", dt_all, False, empty_pb2.Empty)
+    password__change = ("password:change", dt_sec, False, empty_pb2.Empty)
+    email_address__change = ("email_address:change", dt_sec, False, nd.EmailAddressChange)
+    email_address__verify = ("email_address:verify", dt_sec, False, empty_pb2.Empty)
+    phone_number__change = ("phone_number:change", dt_sec, False, empty_pb2.Empty)
+    phone_number__verify = ("phone_number:verify", dt_sec, False, empty_pb2.Empty)
     # reset password
-    account_recovery__start = ("account_recovery:start", dt_all, False, empty_pb2.Empty)
-    account_recovery__complete = ("account_recovery:complete", dt_all, False, empty_pb2.Empty)
+    password_reset__start = ("password_reset:start", dt_sec, False, empty_pb2.Empty)
+    password_reset__complete = ("password_reset:complete", [dt.email], False, empty_pb2.Empty)
+
+    # account deletion
+    account_deletion__start = ("account_deletion:start", dt_sec, False, nd.AccountDeletionStart)
+    # no more pushing to do
+    account_deletion__complete = ("account_deletion:complete", dt_sec, False, nd.AccountDeletionComplete)
+    # undeleted
+    account_deletion__recovered = ("account_deletion:recovered", dt_sec, False, empty_pb2.Empty)
 
     # admin actions
-    gender__change = ("gender:change", dt_all, False, nd.GenderChange)
-    birthdate__change = ("birthdate:change", dt_all, False, nd.BirthdateChange)
-    api_key__create = ("api_key:create", dt_all, False, empty_pb2.Empty)
+    gender__change = ("gender:change", dt_sec, False, nd.GenderChange)
+    birthdate__change = ("birthdate:change", dt_sec, False, nd.BirthdateChange)
+    api_key__create = ("api_key:create", dt_sec, False, nd.ApiKeyCreate)
 
     badge__add = ("badge:add", [dt.push, dt.digest], True, nd.BadgeAdd)
     badge__remove = ("badge:remove", [dt.push, dt.digest], True, nd.BadgeRemove)
 
     # group chats
-    chat__message = ("chat:message", dt_all, True, nd.ChatMessage)
+    chat__message = ("chat:message", dt_sec, True, nd.ChatMessage)
 
     # events
     # approved by mods
-    event__create_approved = ("event:create_approved", dt_all, True, nd.EventCreateApproved)
+    event__create_approved = ("event:create_approved", dt_sec, True, nd.EventCreateApproved)
     # any user creates any event, default to no notifications
     event__create_any = ("event:create_any", [], True, nd.EventCreateAny)
     event__update = ("event:update", [dt.push, dt.digest], True, nd.EventUpdate)
-    event__invite_organizer = ("event:invite_organizer", dt_all, True, nd.EventInviteOrganizer)
+    event__invite_organizer = ("event:invite_organizer", dt_sec, True, nd.EventInviteOrganizer)
+
+    donation__received = ("donation:received", dt_sec, True, nd.DonationReceived)
 
 
 class NotificationPreference(Base):

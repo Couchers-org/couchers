@@ -33,7 +33,6 @@ from couchers.tasks import (
     send_account_recovered_email,
     send_api_key_email,
     send_content_report_email,
-    send_donation_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
@@ -661,7 +660,15 @@ def test_send_donation_email(db, monkeypatch):
 
     monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
 
-    send_donation_email(user, 20, "https://example.com/receipt/12345")
+    notify_v2(
+        user_id=user.id,
+        topic_action="donation:received",
+        data=notification_data_pb2.DonationReceived(
+            amount=20,
+            receipt_url="https://example.com/receipt/12345",
+        ),
+    )
+
     with patch("couchers.email.smtp.smtplib.SMTP") as mock:
         while process_job():
             pass

@@ -142,11 +142,20 @@ settings_layout = [
                 ],
             ),
             (
-                "account_recovery",
-                "Account recovery",
+                "password_reset",
+                "Password reset",
                 [
                     ("start", "Password reset is initiated"),
                     ("complete", "Password reset is completed"),
+                ],
+            ),
+            (
+                "account_deletion",
+                "Account deletion",
+                [
+                    ("start", "You initiate account deletion"),
+                    ("complete", "Your account is deleted"),
+                    ("recovered", "Your account is recovered (undeleted)"),
                 ],
             ),
             (
@@ -166,7 +175,7 @@ settings_layout = [
             ),
             (
                 "badge",
-                "Updates to Badges",
+                "Updates to Badges on your profile",
                 [
                     ("add", "A badge is added to your account"),
                     ("remove", "A badge is removed from your account"),
@@ -184,6 +193,13 @@ settings_layout = [
                 "Displayed gender change",
                 [
                     ("change", "The gender displayed on your profile is changed"),
+                ],
+            ),
+            (
+                "donation",
+                "Donations",
+                [
+                    ("received", "Your donation is received"),
                 ],
             ),
         ],

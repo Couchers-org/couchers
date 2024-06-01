@@ -4,6 +4,7 @@ from datetime import timedelta
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import and_, func
 
+from couchers import urls
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import (
@@ -16,11 +17,19 @@ from couchers.models import (
 )
 from couchers.notifications import fan_funcs
 from couchers.notifications.notify import notify_v2
+from couchers.notifications.push import push_to_user
 from couchers.notifications.push_api import send_push
-from couchers.notifications.render import send_email_notification, send_push_notification
+from couchers.notifications.render import render_notification
 from couchers.notifications.settings import get_preference
+from couchers.notifications.unsubscribe import (
+    generate_do_not_email,
+    generate_unsub,
+    generate_unsub_topic_action,
+    generate_unsub_topic_key,
+)
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_digest_email
+from couchers.templates.v2 import email_user
 from couchers.utils import now
 from proto.internal import jobs_pb2
 
@@ -37,6 +46,54 @@ def fan_notifications(payload: jobs_pb2.FanNotificationsPayload):
             key=payload.key,
             data=payload.data,
         )
+
+
+def _send_email_notification(user: User, notification: Notification):
+    def _generate_unsub(type, one_click=False):
+        return generate_unsub(user, notification, type, one_click)
+
+    data = notification.topic_action.data_type.FromString(notification.data)
+    rendered = render_notification(user, notification, data)
+    default_args = {
+        "user": user,
+        "time": notification.created,
+        "_unsub": _generate_unsub,
+        "_unsub_do_not_email": generate_do_not_email(notification.user_id),
+        "_unsub_topic_key": generate_unsub_topic_key(notification),
+        "_unsub_topic_action": generate_unsub_topic_action(notification),
+        "_manage_notification_settings": urls.feature_preview_link(),
+    }
+
+    frontmatter = {
+        "is_critical": rendered.is_critical,
+        "subject": rendered.email_subject,
+        "preview": rendered.email_preview,
+    }
+
+    email_user(
+        user,
+        rendered.email_template_name,
+        {**default_args, **rendered.email_template_args},
+        frontmatter=frontmatter,
+    )
+
+
+def _send_push_notification(user: User, notification: Notification):
+    logger.debug(f"Formatting push notification for {user}")
+
+    data = notification.topic_action.data_type.FromString(notification.data)
+    rendered = render_notification(user, notification, data)
+
+    if not rendered.push_title:
+        raise Exception(f"Tried to send push notification to {user} but didn't have ")
+
+    push_to_user(
+        user.id,
+        title=rendered.push_title,
+        body=rendered.push_body,
+        icon=rendered.push_icon,
+        # url=rendered.push_url,
+    )
 
 
 def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
@@ -82,8 +139,7 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
                         delivery_type=NotificationDeliveryType.push,
                     )
                 )
-                # todo
-                send_push_notification(user, notification)
+                _send_push_notification(user, notification)
 
 
 def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload):
@@ -183,7 +239,7 @@ def handle_email_notifications(payload: empty_pb2.Empty):
             assert notification_delivery.delivery_type == NotificationDeliveryType.email
             assert not notification_delivery.delivered
             assert notification_delivery.notification_id == notification_id
-            send_email_notification(user, notification_delivery.notification)
+            _send_email_notification(user, notification_delivery.notification)
             notification_delivery.delivered = func.now()
             session.commit()
 
