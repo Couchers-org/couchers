@@ -25,15 +25,6 @@ message FinalizeStrongVerificationPayload {
   int64 verification_attempt_id = 1;
 }
 
-message FanNotificationsPayload {
-  string topic_action = 1;
-  string key = 3;
-  bytes data = 11;
-
-  string fan_func = 9;
-  string fan_func_data = 10;
-}
-
 message SendPushNotificationPayload {
   int64 user_id = 1;
   string title = 2;
@@ -45,4 +36,17 @@ message SendRawPushNotificationPayload {
   int64 push_notification_subscription_id = 1;
   bytes data = 2;
   uint32 ttl = 3;
+}
+
+message FanNotificationsPayload {
+  string topic_action = 1;
+  string key = 3;
+  bytes data = 11;
+
+  string fan_func = 9;
+  string fan_func_data = 10;
+}
+
+message GenerateMessageNotificationsPayload {
+  uint64 message_id = 1;
 }

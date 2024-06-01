@@ -50,6 +50,7 @@ from couchers.notifications.background import (
     handle_notification,
     send_raw_push_notification,
 )
+from couchers.notifications.fan_funcs import generate_message_notifications
 from couchers.notifications.notify import notify_v2
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.blocking import are_blocked
@@ -74,6 +75,8 @@ handle_email_digests.PAYLOAD = empty_pb2.Empty
 handle_email_digests.SCHEDULE = timedelta(minutes=15)
 
 fan_notifications.PAYLOAD = jobs_pb2.FanNotificationsPayload
+
+generate_message_notifications.PAYLOAD = jobs_pb2.GenerateMessageNotificationsPayload
 
 
 def send_email(payload):
