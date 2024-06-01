@@ -8,9 +8,9 @@ from couchers import errors, urls
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import DonationInitiation, DonationType, Invoice, User
+from couchers.notifications.notify import notify_v2
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_donation_email
-from proto import donations_pb2, donations_pb2_grpc, stripe_pb2_grpc
+from proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
 from proto.google.api import httpbody_pb2
 
 logger = logging.getLogger(__name__)
@@ -120,7 +120,15 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                         stripe_receipt_url=receipt_url,
                     )
                 )
-                send_donation_email(user, amount, receipt_url)
+
+                notify_v2(
+                    user_id=user.id,
+                    topic_action="donation:received",
+                    data=notification_data_pb2.DonationReceived(
+                        amount=amount,
+                        receipt_url=receipt_url,
+                    ),
+                )
         else:
             logger.info(f"Unhandled event from Stripe: {event_type}")
 

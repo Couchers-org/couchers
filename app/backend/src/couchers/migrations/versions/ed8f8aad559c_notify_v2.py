@@ -25,6 +25,14 @@ def upgrade():
     op.drop_column("notifications", "title")
     op.execute("ALTER TYPE notificationtopicaction RENAME VALUE 'friend_request__send' TO 'friend_request__create'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'email_address__verify'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'donation__received'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'account_deletion__start'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'account_deletion__complete'")
+    op.execute("ALTER TYPE notificationtopicaction RENAME VALUE 'account_recovery__start' TO 'password_reset__start'")
+    op.execute(
+        "ALTER TYPE notificationtopicaction RENAME VALUE 'account_recovery__complete' TO 'password_reset__complete'"
+    )
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'account_deletion__recovered'")
     op.create_table(
         "push_notification_subscriptions",
         sa.Column("id", sa.BigInteger(), nullable=False),

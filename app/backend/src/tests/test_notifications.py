@@ -146,7 +146,7 @@ def test_SetNotificationSettings_preferences_not_editable(db):
     user, token = generate_user()
 
     # enable a notification type and check it gets delivered
-    topic_action = NotificationTopicAction.account_recovery__start
+    topic_action = NotificationTopicAction.password_reset__start
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:

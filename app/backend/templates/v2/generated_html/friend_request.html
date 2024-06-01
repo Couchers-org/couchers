@@ -192,7 +192,7 @@
                               </tr>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;"><b>{{ message|v2esc }}</b> at {{ time|v2time(user) }}.</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;"><b>You've received a friend request from {{ other.name|v2esc }}</b> at {{ time|v2time(user) }}!</div>
                                 </td>
                               </tr>
                             </tbody>
@@ -236,7 +236,7 @@
                             <tbody>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:15px 0px 0px 0px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:20px;text-align:left;color:#333333;"><b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br>{{ other.city|v2esc }}<br>From <b>{{ host_request_info.from_date|v2date(user) }}</b> to <b>{{ host_request_info.to_date|v2date(user) }}</b>.</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:20px;text-align:left;color:#333333;"><b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br>{{ other.city|v2esc }}</div>
                                 </td>
                               </tr>
                             </tbody>
@@ -264,8 +264,8 @@
                                     <tbody>
                                       <tr>
                                         <td align="center" bgcolor="#00a398" role="presentation" style="border:none;border-radius:5px;cursor:auto;mso-padding-alt:10px 25px;background:#00a398;" valign="middle">
-                                          <a href="{{ view_link|v2url }}" style="display: inline-block; background: #00a398; color: white; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: normal; line-height: 120%; margin: 0; text-decoration: none; text-transform: none; padding: 10px 25px; mso-padding-alt: 0px; border-radius: 5px;" target="_blank">
-                                            <b>View host request</b>
+                                          <a href="{{ friend_requests_link|v2url }}" style="display: inline-block; background: #00a398; color: white; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: normal; line-height: 120%; margin: 0; text-decoration: none; text-transform: none; padding: 10px 25px; mso-padding-alt: 0px; border-radius: 5px;" target="_blank">
+                                            <b>View friend requests</b>
                                           </a>
                                         </td>
                                       </tr>
@@ -292,6 +292,11 @@
                         <div class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
                             <tbody>
+                              <tr>
+                                <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">We hope you make a new friend!</div>
+                                </td>
+                              </tr>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                                   <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;"><b>Do not reply to this email.</b> Use one of the buttons above, or log in to your account to reply to this request.</div>
@@ -368,7 +373,7 @@
                   <tbody>
                     <tr>
                       <td align="center" class="unsub" style="font-size:0px;padding:0px;word-break:break-word;">
-                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:16px;text-align:center;color:#777777;"><a href style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Do not email me (disables hosting)</a>.<br>Turn off emails for: <a href style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">all new host requests</a> / <a href style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">this host request</a>.<br><a href style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Manage notification preferences</a>.</div>
+                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:16px;text-align:center;color:#777777;"><a href style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Do not email me (disables hosting)</a>.<br>Turn off emails for: <a href style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">new friend requests</a>.<br><a href style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Manage notification preferences</a>.</div>
                       </td>
                     </tr>
                     <tr>

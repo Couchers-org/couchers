@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package org.couchers.notification_data;
 
+import "google/protobuf/timestamp.proto";
+
 import "api.proto";
 import "events.proto";
 import "requests.proto";
@@ -77,11 +79,11 @@ message BirthdateChange {
 }
 
 message FriendRequestCreate {
-  org.couchers.api.core.User friend_user_info = 1;
+  org.couchers.api.core.User other_user_info = 1;
 }
 
 message FriendRequestAccept {
-  org.couchers.api.core.User friend_user_info = 1;
+  org.couchers.api.core.User other_user_info = 1;
 }
 
 message EventInviteOrganizer {
@@ -103,4 +105,24 @@ message EventUpdate {
 
 message EmailAddressChange {
   string new_email = 1;
+}
+
+message DonationReceived {
+  // whole dollar amount
+  int64 amount = 1;
+  string receipt_url = 2;
+}
+
+message AccountDeletionStart {
+  string deletion_token = 1;
+}
+
+message AccountDeletionComplete {
+  string undelete_token = 1;
+  uint32 undelete_days = 2;
+}
+
+message ApiKeyCreate {
+  string api_key = 1;
+  google.protobuf.Timestamp expiry = 2;
 }

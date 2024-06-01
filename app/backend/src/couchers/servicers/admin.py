@@ -26,8 +26,7 @@ from couchers.servicers.auth import create_session
 from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_api_key_email
-from couchers.utils import date_to_api, now, parse_date
+from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
 from proto import admin_pb2, admin_pb2_grpc, notification_data_pb2
 
 logger = logging.getLogger(__name__)
@@ -205,11 +204,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
             token, expiry = create_session(
                 context, session, user, long_lived=True, is_api_key=True, duration=timedelta(days=365), set_cookie=False
             )
-            send_api_key_email(session, user, token, expiry)
 
             notify_v2(
                 user_id=user.id,
                 topic_action="api_key:create",
+                data=notification_data_pb2.ApiKeyCreate(
+                    api_key=token,
+                    expiry=Timestamp_from_datetime(expiry),
+                ),
             )
 
             return _user_to_details(user)

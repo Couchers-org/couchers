@@ -23,6 +23,7 @@ from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     AccountDeletionReason,
+    AccountDeletionToken,
     ContributeOption,
     ContributorForm,
     StrongVerificationAttempt,
@@ -36,7 +37,6 @@ from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
     maybe_send_contributor_form_email,
-    send_account_deletion_confirmation_email,
     send_account_deletion_report_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
@@ -443,10 +443,18 @@ class Account(account_pb2_grpc.AccountServicer):
             if reason:
                 reason = AccountDeletionReason(user_id=user.id, reason=reason)
                 session.add(reason)
-                session.commit()
+                session.flush()
                 send_account_deletion_report_email(reason)
 
-            token = send_account_deletion_confirmation_email(user)
+            token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
+
+            notify_v2(
+                user_id=user.id,
+                topic_action="account_deletion:start",
+                data=notification_data_pb2.AccountDeletionStart(
+                    deletion_token=token.token,
+                ),
+            )
             session.add(token)
 
         return empty_pb2.Empty()

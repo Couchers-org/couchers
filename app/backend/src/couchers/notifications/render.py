@@ -2,21 +2,14 @@ import logging
 from dataclasses import dataclass
 
 from couchers import urls
-from couchers.models import Notification, User
-from couchers.notifications.push import push_to_user
-from couchers.notifications.unsubscribe import (
-    generate_do_not_email,
-    generate_unsub,
-    generate_unsub_topic_action,
-    generate_unsub_topic_key,
-)
-from couchers.templates.v2 import email_user, v2avatar, v2date, v2phone
+from couchers.notifications.unsubscribe import generate_unsub
+from couchers.templates.v2 import v2avatar, v2date, v2phone
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class NotificationData:
+class RenderedNotification:
     # whether the notification is critical and cannot be turned off
     is_critical: bool
     # email subject
@@ -39,7 +32,7 @@ class NotificationData:
     list_unsubscribe_url: str = None
 
 
-def get_notification_data(user, notification, data) -> NotificationData:
+def render_notification(user, notification, data) -> RenderedNotification:
     if notification.topic == "host_request":
         view_link = urls.host_request(host_request_id=data.host_request_info.host_request_id)
         if notification.action in ["create", "message"]:
@@ -51,7 +44,7 @@ def get_notification_data(user, notification, data) -> NotificationData:
                 message = (
                     f"{other.name} sent you a message in " + ("their" if data.am_host else "your") + " host request"
                 )
-            return NotificationData(
+            return RenderedNotification(
                 is_critical=False,
                 email_subject=message,
                 email_preview=message,
@@ -83,7 +76,7 @@ def get_notification_data(user, notification, data) -> NotificationData:
             }[notification.action]
             # "rejected your host request", or similar
             message = f"{other.name} {actioned} {their_your} host request"
-            return NotificationData(
+            return RenderedNotification(
                 is_critical=False,
                 email_subject=message,
                 email_preview=message,
@@ -102,7 +95,7 @@ def get_notification_data(user, notification, data) -> NotificationData:
     elif notification.topic_action.display == "password:change":
         title = "Your password was changed"
         message = "Your login password for Couchers.org was changed."
-        return NotificationData(
+        return RenderedNotification(
             is_critical=True,
             email_subject=title,
             email_preview=message,
@@ -120,7 +113,7 @@ def get_notification_data(user, notification, data) -> NotificationData:
         title = "An email change was initiated on your account"
         message = f"An email change to the email <b>{data.new_email}</b> was initiated on your account."
         message_plain = f"An email change to the email {data.new_email} was initiated on your account."
-        return NotificationData(
+        return RenderedNotification(
             is_critical=True,
             email_subject=title,
             email_preview=title,
@@ -137,7 +130,7 @@ def get_notification_data(user, notification, data) -> NotificationData:
     elif notification.topic_action.display == "email_address:verify":
         title = "Email change completed"
         message = "Your new email address has been verified."
-        return NotificationData(
+        return RenderedNotification(
             is_critical=True,
             email_subject=title,
             email_preview=message,
@@ -155,7 +148,7 @@ def get_notification_data(user, notification, data) -> NotificationData:
         title = "Phone verification started"
         message = f"You started phone number verification with the number <b>{v2phone(data.phone)}</b>."
         message_plain = f"You started phone number verification with the number {v2phone(data.phone)}."
-        return NotificationData(
+        return RenderedNotification(
             is_critical=True,
             email_subject=title,
             email_preview=message,
@@ -173,7 +166,7 @@ def get_notification_data(user, notification, data) -> NotificationData:
         title = "Phone successfully verified"
         message = f"Your phone was successfully verified as <b>{v2phone(data.phone)}</b> on Couchers.org."
         message_plain = f"Your phone was successfully verified as {v2phone(data.phone)} on Couchers.org."
-        return NotificationData(
+        return RenderedNotification(
             is_critical=True,
             email_subject=title,
             email_preview=message_plain,
@@ -191,7 +184,7 @@ def get_notification_data(user, notification, data) -> NotificationData:
         title = "Your gender was changed"
         message = f"Your gender on Couchers.org was changed to <b>{data.gender}</b> by an admin."
         message_plain = f"Your gender on Couchers.org was changed to {data.gender} by an admin."
-        return NotificationData(
+        return RenderedNotification(
             is_critical=True,
             email_subject=title,
             email_preview=message_plain,
@@ -211,7 +204,7 @@ def get_notification_data(user, notification, data) -> NotificationData:
             f"Your date of birth on Couchers.org was changed to <b>{v2date(data.birthdate, user)}</b> by an admin."
         )
         message_plain = f"Your date of birth on Couchers.org was changed to {v2date(data.birthdate, user)} by an admin."
-        return NotificationData(
+        return RenderedNotification(
             is_critical=True,
             email_subject=title,
             email_preview=message_plain,
@@ -225,10 +218,25 @@ def get_notification_data(user, notification, data) -> NotificationData:
             push_icon=urls.icon_url(),
             push_url=urls.account_settings_link(),
         )
+    elif notification.topic_action.display == "api_key:create":
+        return RenderedNotification(
+            is_critical=True,
+            email_subject="Your Couchers.org API key",
+            email_preview="We have issued you an API key as per your request.",
+            email_template_name="api_key",
+            email_template_args={
+                "api_key": data.api_key,
+                "expiry": data.expiry,
+            },
+            push_title="An API key was created for your account",
+            push_body="Details were sent to you via email.",
+            push_icon=urls.icon_url(),
+            push_url=urls.app_link(),
+        )
     elif notification.topic_action.display in ["badge:add", "badge:remove"]:
         actioned = "added to" if notification.action == "add" else "removed from"
         title = f"The {data.badge_name} badge was {actioned} your profile"
-        return NotificationData(
+        return RenderedNotification(
             is_critical=False,
             email_subject=title,
             email_preview=title,
@@ -244,54 +252,104 @@ def get_notification_data(user, notification, data) -> NotificationData:
             push_url=urls.profile_link(),
             list_unsubscribe_url=generate_unsub(user, notification, "topic_action"),
         )
+    elif notification.topic_action.display == "donation:received":
+        title = f"Thank you for your donation to Couchers.org!"
+        message = f"Thank you so much for your donation of ${amount} to Couchers.org."
+        return RenderedNotification(
+            is_critical=True,
+            email_subject=title,
+            email_preview=message,
+            email_template_name="donation_received",
+            email_template_args={
+                "amount": data.amount,
+                "receipt_url": data.receipt_url,
+            },
+            push_title=title,
+            push_body=message,
+            push_icon=urls.icon_url(),
+            push_url=data.receipt_url,
+        )
+    elif notification.topic_action.display == "friend_request:create":
+        other = data.other_user_info
+        title = f"{other.name} wants to be your friend on Couchers.org!"
+        preview = f"You've received a friend request from {other.name}"
+        return RenderedNotification(
+            is_critical=False,
+            email_subject=title,
+            email_preview=preview,
+            email_template_name="friend_request",
+            email_template_args={
+                "friend_requests_link": urls.friend_requests_link(),
+                "other": other,
+            },
+            push_title=title,
+            push_body=preview,
+            push_icon=v2avatar(other),
+            push_url=urls.friend_requests_link(),
+        )
+    elif notification.topic_action.display == "friend_request:accept":
+        other = data.other_user_info
+        title = f"{other.name} accepted your friend request!"
+        preview = f"{other.name} has accepted your friend request"
+        return RenderedNotification(
+            is_critical=False,
+            email_subject=title,
+            email_preview=preview,
+            email_template_name="friend_request_accepted",
+            email_template_args={
+                "other_user_link": urls.user_link(username=other.username),
+                "other": other,
+            },
+            push_title=title,
+            push_body=preview,
+            push_icon=v2avatar(other),
+            push_url=urls.user_link(username=other.username),
+        )
+    elif notification.topic_action.display == "account_deletion:start":
+        return RenderedNotification(
+            is_critical=True,
+            email_subject="Confirm your Couchers.org account deletion",
+            email_preview="Please confirm that you want to delete your Couchers.org account.",
+            email_template_name="account_deletion_start",
+            email_template_args={
+                "deletion_link": urls.delete_account_link(account_deletion_token=data.deletion_token),
+            },
+            push_title="Account deletion initiated",
+            push_body="Someone initiated the deletion of your Couchers.org account. To delete your account, please follow the link in the email we sent you.",
+            push_icon=urls.icon_url(),
+            push_url=urls.app_link(),
+        )
+    elif notification.topic_action.display == "account_deletion:complete":
+        title = f"Your Couchers.org account has been deleted"
+        return RenderedNotification(
+            is_critical=True,
+            email_subject=title,
+            email_preview="We have deleted your Couchers.org account, to undo, follow the link in this email.",
+            email_template_name="account_deletion_complete",
+            email_template_args={
+                "undelete_link": urls.recover_account_link(account_undelete_token=data.undelete_token),
+                "days": data.undelete_days,
+            },
+            push_title=title,
+            push_body=f"You can still undo this by following the link we emailed to you within {data.undelete_days} days.",
+            push_icon=urls.icon_url(),
+            push_url=urls.app_link(),
+        )
+    elif notification.topic_action.display == "account_deletion:recovered":
+        title = f"Your Couchers.org account has been recovered!"
+        subtitle = f"We have recovered your Couchers.org account as per your request! Welcome back!"
+        return RenderedNotification(
+            is_critical=True,
+            email_subject=title,
+            email_preview=subtitle,
+            email_template_name="account_deletion_recovered",
+            email_template_args={
+                "app_link": urls.app_link(),
+            },
+            push_title=title,
+            push_body=subtitle,
+            push_icon=urls.icon_url(),
+            push_url=urls.app_link(),
+        )
     else:
         raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
-
-
-def _render_template(notification):
-    pass
-
-
-def send_email_notification(user: User, notification: Notification):
-    def _generate_unsub(type, one_click=False):
-        return generate_unsub(user, notification, type, one_click)
-
-    data = notification.topic_action.data_type.FromString(notification.data)
-    notification_data = get_notification_data(user, notification, data)
-    default_args = {
-        "user": user,
-        "time": notification.created,
-        "_unsub": _generate_unsub,
-        "_unsub_do_not_email": generate_do_not_email(notification.user_id),
-        "_unsub_topic_key": generate_unsub_topic_key(notification),
-        "_unsub_topic_action": generate_unsub_topic_action(notification),
-        "_manage_notification_settings": urls.feature_preview_link(),
-    }
-
-    frontmatter = {
-        "is_critical": notification_data.is_critical,
-        "subject": notification_data.email_subject,
-        "preview": notification_data.email_preview,
-    }
-
-    email_user(
-        user,
-        notification_data.email_template_name,
-        {**default_args, **notification_data.email_template_args},
-        frontmatter=frontmatter,
-    )
-
-
-def send_push_notification(user: User, notification: Notification):
-    logger.debug(f"Formatting push notification for {user}")
-
-    data = notification.topic_action.data_type.FromString(notification.data)
-    notification_data = get_notification_data(user, notification, data)
-
-    push_to_user(
-        user.id,
-        title=notification_data.push_title,
-        body=notification_data.push_body,
-        icon=notification_data.push_icon,
-        # url=notification_data.push_url,
-    )

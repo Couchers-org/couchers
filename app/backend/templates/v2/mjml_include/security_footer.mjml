@@ -1,0 +1,6 @@
+<mj-section>
+  <mj-column>
+    <mj-text css-class="unsub" align="center" font-size="10px" line-height="16px" color="#777" padding="0px">This is a security email, you cannot unsubscribe from it.</mj-text>
+    <mj-include path="./couch.mjml" />
+  </mj-column>
+</mj-section>

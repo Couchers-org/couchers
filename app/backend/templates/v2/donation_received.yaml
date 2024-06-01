@@ -1,5 +1,0 @@
-subject: Thank you for your donation to Couchers.org!
-is_critical: true
-preview: Thank you so much for your donation of ${{ amount|v2esc }} to Couchers.org.
-push_title: Thank you for your donation to Couchers.org!
-push_body: Thank you so much for your donation of ${{ amount|v2esc }} to Couchers.org.
