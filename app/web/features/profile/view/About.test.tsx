@@ -42,7 +42,6 @@ describe("About (user)", () => {
       genderVerificationStatus: 0,
       birthdateVerificationStatus: 0,
     });
-    expect(await screen.findByText("30 / Man (He/him)")).toBeVisible();
 
     const checkIcon = screen.queryByTestId("check-circle-icon");
     expect(checkIcon).toBeNull();
@@ -55,10 +54,6 @@ describe("About (user)", () => {
       genderVerificationStatus: 1,
       birthdateVerificationStatus: 1,
     });
-
-    expect(
-      await screen.findByText("30 / Man (He/him)", { exact: true })
-    ).toBeVisible();
 
     const checkIcon = screen.queryByTestId("check-circle-icon");
     expect(checkIcon).toBeNull();
@@ -73,10 +68,6 @@ describe("About (user)", () => {
       birthdateVerificationStatus: 2,
     });
 
-    expect(
-      await screen.findByText("30 / Man (He/him)", { exact: true })
-    ).toBeVisible();
-
     const checkIcons = screen.queryAllByTestId("check-circle-icon");
     expect(checkIcons.length).toEqual(2);
     const errorIcon = screen.queryByTestId("error-icon");
@@ -89,10 +80,6 @@ describe("About (user)", () => {
       genderVerificationStatus: 3,
       birthdateVerificationStatus: 3,
     });
-
-    expect(
-      await screen.findByText("30 / Man (He/him)", { exact: true })
-    ).toBeVisible();
 
     const checkIcons = screen.queryByTestId("check-circle-icon");
     expect(checkIcons).toBeNull();

@@ -147,7 +147,7 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
           </Tooltip>
         );
       default:
-        return null;
+        return <>&nbsp;</>;
     }
   };
 
@@ -176,14 +176,14 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
           </Tooltip>
         );
       default:
-        return null;
+        return <>&nbsp;</>;
     }
   };
   return (
     <>
-      <span>{age}</span>&nbsp;
+      <span>{age}</span>
       {getBirthdateVerificationIcon(birthdateVerificationStatus)} /&nbsp;
-      <span> {gender}</span>&nbsp;
+      <span>{gender}</span>
       {getGenderVerificationIcon(genderVerificationStatus)}
       <span> {pronouns && ` (${pronouns})`}</span>
     </>
