@@ -1923,7 +1923,7 @@ class EventOccurrenceAttendee(Base):
     attendee_status = Column(Enum(AttendeeStatus), nullable=False)
 
     user = relationship("User")
-    occurrence = relationship("EventOccurrence", backref=backref("attendees", lazy="dynamic"))
+    occurrence = relationship("EventOccurrence", backref=backref("attendances", lazy="dynamic"))
 
 
 class EventCommunityInviteRequest(Base):

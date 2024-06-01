@@ -368,39 +368,82 @@ def render_notification(user, notification, data) -> RenderedNotification:
             push_icon=v2avatar(data.author_info),
             push_url=urls.chat_link(chat_id=data.group_chat_id),
         )
-    elif notification.topic_action.display in ["event:create_approved", "event:create_any"]:
+    elif notification.topic == "event":
         event = data.event_info.event
-        time_display = f"{v2timestamp(event.start_time, user)} - {v2timestamp(event.start_time, user)}"
-        body = f"<b>{time_display}</b>\n"
-        body += f"Invited by {data.inviting_user.name}\n\n"
-        body += event.content
+        time_display = f"{v2timestamp(event.start_time, user)} - {v2timestamp(event.end_time, user)}"
         event_link = urls.event_link(occurrence_id=event.event_id, slug=event.slug)
-        community_link = (
-            urls.community_link(node_id=data.in_community.community_id, slug=data.in_community.slug)
-            if data.in_community
-            else None
-        )
-        return RenderedNotification(
-            is_critical=False,
-            email_subject=f'{data.inviting_user.name} invited you to "{event.title}"',
-            email_preview=f"You've been invited to a new event on Couchers.org!",
-            email_template_name="event_create",
-            email_template_args={
-                "inviting_user": data.inviting_user,
-                "time_display": time_display,
-                "nearby": "nearby" if data.nearby else None,
-                "community": data.in_community if data.in_community else None,
-                "community_link": community_link,
-                "nearby_or_community_text_plain": (
-                    "nearby" if data.nearby else f"in the {data.in_community.name} community"
-                ),
-                "event": event,
-                "view_link": event_link,
-            },
-            push_title=f'{data.inviting_user.name} invited you to "{event.title}"',
-            push_body=body,
-            push_icon=v2avatar(data.inviting_user),
-            push_url=event_link,
-        )
+        if notification.action in ["create_approved", "create_any"]:
+            body = f"<b>{time_display}</b>\n"
+            body += f"Invited by {data.inviting_user.name}\n\n"
+            body += event.content
+            community_link = (
+                urls.community_link(node_id=data.in_community.community_id, slug=data.in_community.slug)
+                if data.in_community
+                else None
+            )
+            return RenderedNotification(
+                is_critical=False,
+                email_subject=f'{data.inviting_user.name} invited you to "{event.title}"',
+                email_preview=f"You've been invited to a new event on Couchers.org!",
+                email_template_name="event_create",
+                email_template_args={
+                    "inviting_user": data.inviting_user,
+                    "time_display": time_display,
+                    "nearby": "nearby" if data.nearby else None,
+                    "community": data.in_community if data.in_community else None,
+                    "community_link": community_link,
+                    "nearby_or_community_text_plain": (
+                        "nearby" if data.nearby else f"in the {data.in_community.name} community"
+                    ),
+                    "event": event,
+                    "view_link": event_link,
+                },
+                push_title=f'{data.inviting_user.name} invited you to "{event.title}"',
+                push_body=body,
+                push_icon=v2avatar(data.inviting_user),
+                push_url=event_link,
+            )
+        elif notification.action == "update":
+            updated_text = ", ".join(data.updated_items)
+            body = f"<b>{time_display}</b>\n"
+            body += f"{data.updating_user.name} updated: {updated_text}\n\n"
+            body += event.content
+            return RenderedNotification(
+                is_critical=False,
+                email_subject=f'{data.updating_user.name} updated "{event.title}"',
+                email_preview=f"An event you are subscribed to was updated.",
+                email_template_name="event_update",
+                email_template_args={
+                    "updating_user": data.updating_user,
+                    "time_display": time_display,
+                    "event": event,
+                    "updated_text": updated_text,
+                    "view_link": event_link,
+                },
+                push_title=f'{data.updating_user.name} updated "{event.title}"',
+                push_body=body,
+                push_icon=v2avatar(data.updating_user),
+                push_url=event_link,
+            )
+        elif notification.action == "invite_organizer":
+            body = f"<b>{time_display}</b>\n"
+            body += f"Invited to co-organize by {data.inviting_user.name}\n\n"
+            body += event.content
+            return RenderedNotification(
+                is_critical=False,
+                email_subject=f'{data.inviting_user.name} invited you to co-organize "{event.title}"',
+                email_preview=f"You were invited to co-organize an event on Couchers.org.",
+                email_template_name="event_invite_organizer",
+                email_template_args={
+                    "inviting_user": data.inviting_user,
+                    "time_display": time_display,
+                    "event": event,
+                    "view_link": event_link,
+                },
+                push_title=f'{data.inviting_user.name} invited you to co-organize "{event.title}"',
+                push_body=body,
+                push_icon=v2avatar(data.inviting_user),
+                push_url=event_link,
+            )
     else:
         raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")

@@ -108,8 +108,8 @@ message EventInfo {
 }
 
 message EventInviteOrganizer {
-  org.couchers.api.core.User inviter_user_info = 1;
-  EventInfo event_info = 2;
+  EventInfo event_info = 1;
+  org.couchers.api.core.User inviting_user = 2;
 }
 
 message EventCreate {
@@ -123,6 +123,8 @@ message EventCreate {
 
 message EventUpdate {
   EventInfo event_info = 1;
+  org.couchers.api.core.User updating_user = 2;
+  repeated string updated_items = 3;
 }
 
 message ChatMessage {
