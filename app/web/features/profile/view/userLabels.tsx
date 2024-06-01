@@ -129,6 +129,7 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
           <Tooltip title={t("heading.age_verification_verified")}>
             <CheckCircleIcon
               color="primary"
+              data-testid="check-circle-icon"
               className={iconStyles}
               fontSize="inherit"
             />
@@ -139,6 +140,7 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
           <Tooltip title={t("heading.age_verification_mismatch")}>
             <ErrorIcon
               color="error"
+              data-testid="error-icon"
               className={iconStyles}
               fontSize="inherit"
             />
@@ -156,6 +158,7 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
           <Tooltip title={t("heading.gender_verification_verified")}>
             <CheckCircleIcon
               color="primary"
+              data-testid="check-circle-icon"
               className={iconStyles}
               fontSize="inherit"
             />
@@ -166,6 +169,7 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
           <Tooltip title={t("heading.gender_verification_mismatch")}>
             <ErrorIcon
               color="error"
+              data-testid="error-icon"
               className={iconStyles}
               fontSize="inherit"
             />
@@ -177,10 +181,11 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
   };
   return (
     <>
-      {age}
-      {getBirthdateVerificationIcon(birthdateVerificationStatus)} / {gender}
+      <span>{age}</span>&nbsp;
+      {getBirthdateVerificationIcon(birthdateVerificationStatus)} /&nbsp;
+      <span> {gender}</span>&nbsp;
       {getGenderVerificationIcon(genderVerificationStatus)}
-      {pronouns && ` (${pronouns})`}
+      <span> {pronouns && ` (${pronouns})`}</span>
     </>
   );
 };

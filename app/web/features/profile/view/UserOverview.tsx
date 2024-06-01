@@ -101,7 +101,11 @@ export default function UserOverview({
           {user.hasStrongVerification ? (
             <span className={classes.strongVerificationBadge}>
               <Tooltip title={t("profile:heading.strong_verification")}>
-                <VerifiedUser fontSize="inherit" color="primary" />
+                <VerifiedUser
+                  data-testid="strong-verification-id"
+                  fontSize="inherit"
+                  color="primary"
+                />
               </Tooltip>
             </span>
           ) : null}
