@@ -2155,6 +2155,7 @@ dt = NotificationDeliveryType
 nd = notification_data_pb2
 
 dt_sec = [dt.email, dt.push]
+dt_all = [dt.email, dt.push, dt.digest]
 
 
 class NotificationTopicAction(enum.Enum):
@@ -2180,16 +2181,30 @@ class NotificationTopicAction(enum.Enum):
         return self.display
 
     # topic, action, default delivery types
-    friend_request__create = ("friend_request:create", dt_sec, True, nd.FriendRequestCreate)
+    friend_request__create = ("friend_request:create", dt_all, True, nd.FriendRequestCreate)
     friend_request__accept = ("friend_request:accept", [dt.push, dt.digest], True, nd.FriendRequestAccept)
 
     # host requests
-    host_request__create = ("host_request:create", dt_sec, True, nd.HostRequestCreate)
-    host_request__accept = ("host_request:accept", dt_sec, True, nd.HostRequestAccept)
+    host_request__create = ("host_request:create", dt_all, True, nd.HostRequestCreate)
+    host_request__accept = ("host_request:accept", dt_all, True, nd.HostRequestAccept)
     host_request__reject = ("host_request:reject", [dt.push, dt.digest], True, nd.HostRequestReject)
-    host_request__confirm = ("host_request:confirm", dt_sec, True, nd.HostRequestConfirm)
+    host_request__confirm = ("host_request:confirm", dt_all, True, nd.HostRequestConfirm)
     host_request__cancel = ("host_request:cancel", [dt.push, dt.digest], True, nd.HostRequestCancel)
-    host_request__message = ("host_request:message", dt_sec, True, nd.HostRequestMessage)
+    host_request__message = ("host_request:message", dt_all, True, nd.HostRequestMessage)
+
+    badge__add = ("badge:add", [dt.push, dt.digest], True, nd.BadgeAdd)
+    badge__remove = ("badge:remove", [dt.push, dt.digest], True, nd.BadgeRemove)
+
+    # group chats
+    chat__message = ("chat:message", dt_all, True, nd.ChatMessage)
+
+    # events
+    # approved by mods
+    event__create_approved = ("event:create_approved", dt_sec, True, nd.EventCreate)
+    # any user creates any event, default to no notifications
+    event__create_any = ("event:create_any", [], True, nd.EventCreate)
+    event__update = ("event:update", [dt.push, dt.digest], True, nd.EventUpdate)
+    event__invite_organizer = ("event:invite_organizer", dt_sec, True, nd.EventInviteOrganizer)
 
     # account settings
     password__change = ("password:change", dt_sec, False, empty_pb2.Empty)
@@ -2212,20 +2227,6 @@ class NotificationTopicAction(enum.Enum):
     gender__change = ("gender:change", dt_sec, False, nd.GenderChange)
     birthdate__change = ("birthdate:change", dt_sec, False, nd.BirthdateChange)
     api_key__create = ("api_key:create", dt_sec, False, nd.ApiKeyCreate)
-
-    badge__add = ("badge:add", [dt.push, dt.digest], True, nd.BadgeAdd)
-    badge__remove = ("badge:remove", [dt.push, dt.digest], True, nd.BadgeRemove)
-
-    # group chats
-    chat__message = ("chat:message", dt_sec, True, nd.ChatMessage)
-
-    # events
-    # approved by mods
-    event__create_approved = ("event:create_approved", dt_sec, True, nd.EventCreateApproved)
-    # any user creates any event, default to no notifications
-    event__create_any = ("event:create_any", [], True, nd.EventCreateAny)
-    event__update = ("event:update", [dt.push, dt.digest], True, nd.EventUpdate)
-    event__invite_organizer = ("event:invite_organizer", dt_sec, True, nd.EventInviteOrganizer)
 
     donation__received = ("donation:received", dt_sec, True, nd.DonationReceived)
 

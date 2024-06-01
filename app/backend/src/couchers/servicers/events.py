@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+from types import SimpleNamespace
 
 import grpc
 from google.protobuf import empty_pb2
@@ -8,6 +9,7 @@ from sqlalchemy.sql import and_, func, or_, update
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
+from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     AttendeeStatus,
     Cluster,
@@ -24,6 +26,8 @@ from couchers.models import (
     User,
 )
 from couchers.notifications.notify import fan_notify_v2, notify_v2
+from couchers.servicers.api import user_model_to_pb
+from couchers.servicers.blocking import are_blocked
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_event_community_invite_request_email
@@ -36,6 +40,7 @@ from couchers.utils import (
     to_aware_datetime,
 )
 from proto import events_pb2, events_pb2_grpc, notification_data_pb2
+from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -183,6 +188,87 @@ def _check_occurrence_time_validity(start_time, end_time, context):
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.EVENT_TOO_FAR_IN_FUTURE)
 
 
+def get_users_to_notify_for_new_event(session, occurrence):
+    """
+    Returns the users to notify, as well as a flag about whether this was a nearby geom search or not
+    """
+    cluster = occurrence.event.parent_node.official_cluster
+    if cluster.parent_node_id == 1:
+        logger.info(f"The Global Community is too big for email notifications.")
+        return [], False
+    elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
+        return list(cluster.members), False
+    else:
+        logger.info("got this")
+        max_radius = 20000  # m
+        users = (
+            session.execute(
+                select(User)
+                .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+                .where(ClusterSubscription.cluster_id == cluster.id)
+                .where(func.ST_DWithin(User.geom, occurrence.geom, max_radius / 111111))
+            )
+            .scalars()
+            .all()
+        )
+        return users, True
+
+
+def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNotifications):
+    """
+    Background job to generated/fan out event notifications
+    """
+    from couchers.servicers.communities import community_to_pb
+
+    logger.info(f"Fanning out notifications for event occurrence id = {payload.occurrence_id}")
+
+    with session_scope() as session:
+        event, occurrence = session.execute(
+            select(Event, EventOccurrence)
+            .where(EventOccurrence.id == payload.occurrence_id)
+            .where(EventOccurrence.event_id == Event.id)
+        ).one()
+        creator = occurrence.creator_user
+
+        community_node = None
+        users, is_geom_search = get_users_to_notify_for_new_event(session, occurrence)
+
+        inviting_user = session.execute(select(User).where(User.id == payload.inviting_user_id)).scalar_one_or_none()
+
+        if not inviting_user:
+            logger.error(f"Inviting user {payload.inviting_user_id} is gone while trying to send event notification?")
+            return
+
+        for user in users:
+            if are_blocked(session, user.id, creator.id):
+                continue
+            context = SimpleNamespace(user_id=user.id)
+            organizers = (
+                session.execute(
+                    select(User)
+                    .where_users_visible(context)
+                    .join(EventOrganizer, EventOrganizer.user_id == User.id)
+                    .where(EventOrganizer.event_id == event.id)
+                )
+                .scalars()
+                .all()
+            )
+            notify_v2(
+                user_id=user.id,
+                topic_action="event:create_approved" if payload.approved else "event:create_any",
+                key=payload.occurrence_id,
+                data=notification_data_pb2.EventCreate(
+                    event_info=notification_data_pb2.EventInfo(
+                        event=event_to_pb(session, occurrence, context),
+                        organizers=[user_model_to_pb(organizer, session, context) for organizer in organizers],
+                    ),
+                    inviting_user=user_model_to_pb(inviting_user, session, context),
+                    nearby=True if is_geom_search else None,
+                    in_community=community_to_pb(event.parent_node, context) if not is_geom_search else None,
+                ),
+            )
+
+
 class Events(events_pb2_grpc.EventsServicer):
     def CreateEvent(self, request, context):
         if not request.title:
@@ -284,15 +370,15 @@ class Events(events_pb2_grpc.EventsServicer):
 
             session.commit()
 
-            fan_notify_v2(
-                fan_func="fan_create_event_notifications",
-                fan_func_data=str(occurrence.id),
-                topic_action="event:create_any",
-                key=occurrence.id,
-                data=notification_data_pb2.EventCreateAny(
-                    event_info=make_event_info(occurrence),
-                ),
-            )
+            if user.has_completed_profile:
+                queue_job(
+                    "generate_event_create_notifications",
+                    payload=jobs_pb2.GenerateEventCreateNotifications(
+                        inviting_user_id=user.id,
+                        occurrence_id=occurrence.id,
+                        approved=False,
+                    ),
+                )
 
             return event_to_pb(session, occurrence, context)
 

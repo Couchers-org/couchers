@@ -50,3 +50,10 @@ message FanNotificationsPayload {
 message GenerateMessageNotificationsPayload {
   uint64 message_id = 1;
 }
+
+message GenerateEventCreateNotifications {
+  int64 inviting_user_id = 1;
+  int64 occurrence_id = 2;
+  // whether this was approved by an admin or just any user created an event
+  bool approved = 3;
+}
