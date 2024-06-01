@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import grpc
 from google.protobuf import empty_pb2
 from psycopg2.extras import DateTimeTZRange
-from sqlalchemy.sql import and_, func, or_, update
+from sqlalchemy.sql import and_, func, or_, select, update
 
 from couchers import errors
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
@@ -25,7 +25,7 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.notifications.notify import fan_notify_v2, notify_v2
+from couchers.notifications.notify import notify_v2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import are_blocked
 from couchers.servicers.threads import thread_to_pb
@@ -97,7 +97,7 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
         else:
             owner_group_id = event.owner_cluster.id
 
-    attendance = occurrence.attendees.where(EventOccurrenceAttendee.user_id == context.user_id).one_or_none()
+    attendance = occurrence.attendances.where(EventOccurrenceAttendee.user_id == context.user_id).one_or_none()
     attendance_state = attendance.attendee_status if attendance else None
 
     can_moderate = _can_moderate_event(session, event, context.user_id)
@@ -265,6 +265,49 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
                     inviting_user=user_model_to_pb(inviting_user, session, context),
                     nearby=True if is_geom_search else None,
                     in_community=community_to_pb(event.parent_node, context) if not is_geom_search else None,
+                ),
+            )
+
+
+def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNotifications):
+    with session_scope() as session:
+        event, occurrence = session.execute(
+            select(Event, EventOccurrence)
+            .where(EventOccurrence.id == payload.occurrence_id)
+            .where(EventOccurrence.event_id == Event.id)
+        ).one()
+
+        updating_user = session.execute(select(User).where(User.id == payload.updating_user_id)).scalar_one_or_none()
+
+        subscribed_user_ids = [user.id for user in event.subscribers]
+        attending_user_ids = [user.user_id for user in occurrence.attendances]
+
+        for user_id in set(subscribed_user_ids + attending_user_ids):
+            logger.info(user_id)
+            if are_blocked(session, user_id, updating_user.id):
+                continue
+            context = SimpleNamespace(user_id=user_id)
+            organizers = (
+                session.execute(
+                    select(User)
+                    .where_users_visible(context)
+                    .join(EventOrganizer, EventOrganizer.user_id == User.id)
+                    .where(EventOrganizer.event_id == event.id)
+                )
+                .scalars()
+                .all()
+            )
+            notify_v2(
+                user_id=user_id,
+                topic_action="event:update",
+                key=payload.occurrence_id,
+                data=notification_data_pb2.EventUpdate(
+                    event_info=notification_data_pb2.EventInfo(
+                        event=event_to_pb(session, occurrence, context),
+                        organizers=[user_model_to_pb(organizer, session, context) for organizer in organizers],
+                    ),
+                    updating_user=user_model_to_pb(updating_user, session, context),
+                    updated_items=payload.updated_items,
                 ),
             )
 
@@ -502,20 +545,21 @@ class Events(events_pb2_grpc.EventsServicer):
                 event.last_edited = now()
 
             if request.HasField("content"):
+                notify_updated.append("content")
                 occurrence_update["content"] = request.content.value
 
             if request.HasField("photo_key"):
                 occurrence_update["photo_key"] = request.photo_key.value
 
             if request.HasField("online_information"):
-                notify_updated.append("online_information")
+                notify_updated.append("location")
                 if not request.online_information.link:
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ONLINE_EVENT_REQUIRES_LINK)
                 occurrence_update["link"] = request.online_information.link
                 occurrence_update["geom"] = None
                 occurrence_update["address"] = None
             elif request.HasField("offline_information"):
-                notify_updated.append("offline_information")
+                notify_updated.append("location")
                 occurrence_update["link"] = None
                 if request.offline_information.lat == 0 and request.offline_information.lng == 0:
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
@@ -528,12 +572,12 @@ class Events(events_pb2_grpc.EventsServicer):
                 if request.update_all_future:
                     context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.EVENT_CANT_UPDATE_ALL_TIMES)
                 if request.HasField("start_time"):
-                    notify_updated.append("start_time")
+                    notify_updated.append("start time")
                     start_time = to_aware_datetime(request.start_time)
                 else:
                     start_time = occurrence.start_time
                 if request.HasField("end_time"):
-                    notify_updated.append("end_time")
+                    notify_updated.append("end time")
                     end_time = to_aware_datetime(request.end_time)
                 else:
                     end_time = occurrence.end_time
@@ -589,14 +633,12 @@ class Events(events_pb2_grpc.EventsServicer):
             if notify_updated:
                 logger.info(f"Fields {','.join(notify_updated)} updated in event {event.id=}, notifying")
 
-                fan_notify_v2(
-                    fan_func="fan_to_occurrence_subscribers_and_attendees",
-                    fan_func_data=str(occurrence.id),
-                    topic_action="event:update",
-                    key=occurrence.id,
-                    data=notification_data_pb2.EventUpdate(
-                        event_info=make_event_info(occurrence),
-                        updated=notify_updated,
+                queue_job(
+                    "generate_event_update_notifications",
+                    payload=jobs_pb2.GenerateEventUpdateNotifications(
+                        updating_user_id=user.id,
+                        occurrence_id=occurrence.id,
+                        updated_items=notify_updated,
                     ),
                 )
 
@@ -998,13 +1040,30 @@ class Events(events_pb2_grpc.EventsServicer):
             )
             session.flush()
 
+            other_user_context = SimpleNamespace(user_id=request.user_id)
+
+            organizers = (
+                session.execute(
+                    select(User)
+                    .where_users_visible(other_user_context)
+                    .join(EventOrganizer, EventOrganizer.user_id == User.id)
+                    .where(EventOrganizer.event_id == event.id)
+                )
+                .scalars()
+                .all()
+            )
             notify_v2(
                 user_id=request.user_id,
                 topic_action="event:invite_organizer",
                 key=event.id,
                 data=notification_data_pb2.EventInviteOrganizer(
-                    inviter_user_info=make_user_info(user),
-                    event_info=make_event_info(occurrence),
+                    event_info=notification_data_pb2.EventInfo(
+                        event=event_to_pb(session, occurrence, other_user_context),
+                        organizers=[
+                            user_model_to_pb(organizer, session, other_user_context) for organizer in organizers
+                        ],
+                    ),
+                    inviting_user=user_model_to_pb(user, session, other_user_context),
                 ),
             )
 

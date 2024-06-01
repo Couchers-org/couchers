@@ -57,3 +57,9 @@ message GenerateEventCreateNotifications {
   // whether this was approved by an admin or just any user created an event
   bool approved = 3;
 }
+
+message GenerateEventUpdateNotifications {
+  int64 updating_user_id = 1;
+  int64 occurrence_id = 2;
+  repeated string updated_items = 3;
+}

@@ -15,8 +15,6 @@ from couchers.models import (
     PushNotificationSubscription,
     User,
 )
-from couchers.notifications import fan_funcs
-from couchers.notifications.notify import notify_v2
 from couchers.notifications.push import push_to_user
 from couchers.notifications.push_api import send_push
 from couchers.notifications.render import render_notification
@@ -37,15 +35,16 @@ logger = logging.getLogger(__name__)
 
 
 def fan_notifications(payload: jobs_pb2.FanNotificationsPayload):
-    fan_func = getattr(fan_funcs, payload.fan_func)
-    user_ids = fan_func(payload.fan_func_data)
-    for user_id in user_ids:
-        notify_v2(
-            user_id=user_id,
-            topic_action=payload.topic_action,
-            key=payload.key,
-            data=payload.data,
-        )
+    raise Exception("nothing here")
+    # fan_func = getattr(fan_funcs, payload.fan_func)
+    # user_ids = fan_func(payload.fan_func_data)
+    # for user_id in user_ids:
+    #     notify_v2(
+    #         user_id=user_id,
+    #         topic_action=payload.topic_action,
+    #         key=payload.key,
+    #         data=payload.data,
+    #     )
 
 
 def _send_email_notification(user: User, notification: Notification):
