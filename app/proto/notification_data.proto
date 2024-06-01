@@ -5,13 +5,9 @@ package org.couchers.notification_data;
 import "google/protobuf/timestamp.proto";
 
 import "api.proto";
+import "communities.proto";
 import "events.proto";
 import "requests.proto";
-
-message EventInfo {
-  org.couchers.api.events.Event event = 1;
-  repeated org.couchers.api.core.User organizers = 2;
-}
 
 message HostRequestCreate {
   org.couchers.api.requests.HostRequest host_request_info = 1;
@@ -106,17 +102,23 @@ message ApiKeyCreate {
   google.protobuf.Timestamp expiry = 2;
 }
 
+message EventInfo {
+  org.couchers.api.events.Event event = 1;
+  repeated org.couchers.api.core.User organizers = 2;
+}
+
 message EventInviteOrganizer {
   org.couchers.api.core.User inviter_user_info = 1;
   EventInfo event_info = 2;
 }
 
-message EventCreateApproved {
+message EventCreate {
   EventInfo event_info = 1;
-}
-
-message EventCreateAny {
-  EventInfo event_info = 1;
+  org.couchers.api.core.User inviting_user = 2;
+  oneof notification_reason {
+    bool nearby = 3;
+    org.couchers.api.communities.Community in_community = 4;
+  }
 }
 
 message EventUpdate {

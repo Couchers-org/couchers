@@ -9,6 +9,7 @@ from sqlalchemy.sql import or_, select, update
 from couchers import errors, urls
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
+from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     EventCommunityInviteRequest,
     GroupChat,
@@ -18,16 +19,16 @@ from couchers.models import (
     User,
     UserBadge,
 )
-from couchers.notifications.fan_funcs import fan_create_event_notifications
-from couchers.notifications.notify import fan_notify_v2, notify_v2
+from couchers.notifications.notify import notify_v2
 from couchers.resources import get_badge_dict
 from couchers.servicers.api import get_strong_verification_fields
 from couchers.servicers.auth import create_session
 from couchers.servicers.communities import community_to_pb
-from couchers.servicers.events import event_to_pb
+from couchers.servicers.events import get_users_to_notify_for_new_event
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
 from proto import admin_pb2, admin_pb2_grpc, notification_data_pb2
+from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -355,7 +356,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                         event_url=urls.event_link(
                             occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug
                         ),
-                        approx_users_to_notify=len(fan_create_event_notifications(str(request.occurrence.id))),
+                        approx_users_to_notify=len(get_users_to_notify_for_new_event(session, request.occurrence)[0]),
                     )
                     for request in requests[:page_size]
                 ],
@@ -371,10 +372,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
             ).scalar_one_or_none()
 
             if not req:
-                context.abort(grpc.StatusCode.NOT_FOUND, EVENT_COMMUNITY_INVITE_ALREADY_NOT_FOUND)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_COMMUNITY_INVITE_NOT_FOUND)
 
             if req.decided:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, EVENT_COMMUNITY_INVITE_ALREADY_ALREADY_DECIDED)
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_COMMUNITY_INVITE_ALREADY_DECIDED)
 
             decided = now()
             req.decided = decided
@@ -392,21 +393,13 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             session.flush()
 
-            # todo: actually send the notifications
-
-            # TODO TODO TODO
-            class DummyContext:
-                user_id = 1
-
             if request.approve:
-                occurrence = req.occurrence
-                fan_notify_v2(
-                    fan_func="fan_create_event_notifications",
-                    fan_func_data=str(occurrence.id),
-                    topic_action="event:create_approved",
-                    key=occurrence.id,
-                    data=notification_data_pb2.EventCreateApproved(
-                        event_info=event_to_pb(session, occurrence, DummyContext()),
+                queue_job(
+                    "generate_event_create_notifications",
+                    payload=jobs_pb2.GenerateEventCreateNotifications(
+                        inviting_user_id=req.user_id,
+                        occurrence_id=req.occurrence_id,
+                        approved=True,
                     ),
                 )
 

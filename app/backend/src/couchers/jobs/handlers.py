@@ -50,10 +50,11 @@ from couchers.notifications.background import (
     handle_notification,
     send_raw_push_notification,
 )
-from couchers.notifications.fan_funcs import generate_message_notifications
 from couchers.notifications.notify import notify_v2
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.blocking import are_blocked
+from couchers.servicers.conversations import generate_message_notifications
+from couchers.servicers.events import generate_event_create_notifications
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.tasks import send_onboarding_email, send_reference_reminder_email
@@ -77,6 +78,8 @@ handle_email_digests.SCHEDULE = timedelta(minutes=15)
 fan_notifications.PAYLOAD = jobs_pb2.FanNotificationsPayload
 
 generate_message_notifications.PAYLOAD = jobs_pb2.GenerateMessageNotificationsPayload
+
+generate_event_create_notifications.PAYLOAD = jobs_pb2.GenerateEventCreateNotifications
 
 
 def send_email(payload):

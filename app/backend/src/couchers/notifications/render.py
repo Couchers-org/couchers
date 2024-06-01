@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from couchers import urls
 from couchers.notifications.unsubscribe import generate_unsub
-from couchers.templates.v2 import v2avatar, v2date, v2phone
+from couchers.templates.v2 import v2avatar, v2date, v2phone, v2timestamp
 
 logger = logging.getLogger(__name__)
 
@@ -367,6 +367,40 @@ def render_notification(user, notification, data) -> RenderedNotification:
             push_body=data.text,
             push_icon=v2avatar(data.author_info),
             push_url=urls.chat_link(chat_id=data.group_chat_id),
+        )
+    elif notification.topic_action.display in ["event:create_approved", "event:create_any"]:
+        event = data.event_info.event
+        time_display = f"{v2timestamp(event.start_time, user)} - {v2timestamp(event.start_time, user)}"
+        body = f"<b>{time_display}</b>\n"
+        body += f"Invited by {data.inviting_user.name}\n\n"
+        body += event.content
+        event_link = urls.event_link(occurrence_id=event.event_id, slug=event.slug)
+        community_link = (
+            urls.community_link(node_id=data.in_community.community_id, slug=data.in_community.slug)
+            if data.in_community
+            else None
+        )
+        return RenderedNotification(
+            is_critical=False,
+            email_subject=f'{data.inviting_user.name} invited you to "{event.title}"',
+            email_preview=f"You've been invited to a new event on Couchers.org!",
+            email_template_name="event_create",
+            email_template_args={
+                "inviting_user": data.inviting_user,
+                "time_display": time_display,
+                "nearby": "nearby" if data.nearby else None,
+                "community": data.in_community if data.in_community else None,
+                "community_link": community_link,
+                "nearby_or_community_text_plain": (
+                    "nearby" if data.nearby else f"in the {data.in_community.name} community"
+                ),
+                "event": event,
+                "view_link": event_link,
+            },
+            push_title=f'{data.inviting_user.name} invited you to "{event.title}"',
+            push_body=body,
+            push_icon=v2avatar(data.inviting_user),
+            push_url=event_link,
         )
     else:
         raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
