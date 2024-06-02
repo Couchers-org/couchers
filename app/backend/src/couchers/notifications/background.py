@@ -1,12 +1,15 @@
 import logging
 from datetime import timedelta
+from pathlib import Path
 
 from google.protobuf import empty_pb2
+from jinja2 import Environment, FileSystemLoader
 from sqlalchemy.sql import and_, func
 
 from couchers import urls
 from couchers.config import config
 from couchers.db import session_scope
+from couchers.email import queue_email
 from couchers.models import (
     Notification,
     NotificationDelivery,
@@ -19,32 +22,22 @@ from couchers.notifications.push import push_to_user
 from couchers.notifications.push_api import send_push
 from couchers.notifications.render import render_notification
 from couchers.notifications.settings import get_preference
-from couchers.notifications.unsubscribe import (
-    generate_do_not_email,
-    generate_unsub,
-    generate_unsub_topic_action,
-    generate_unsub_topic_key,
-)
+from couchers.notifications.unsubscribe import generate_unsub
 from couchers.sql import couchers_select as select
 from couchers.tasks import send_digest_email
-from couchers.templates.v2 import email_user
-from couchers.utils import now
+from couchers.templates.v2 import add_filters
+from couchers.utils import get_tz_as_text, now
 from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
 
-def fan_notifications(payload: jobs_pb2.FanNotificationsPayload):
-    raise Exception("nothing here")
-    # fan_func = getattr(fan_funcs, payload.fan_func)
-    # user_ids = fan_func(payload.fan_func_data)
-    # for user_id in user_ids:
-    #     notify_v2(
-    #         user_id=user_id,
-    #         topic_action=payload.topic_action,
-    #         key=payload.key,
-    #         data=payload.data,
-    #     )
+template_folder = Path(__file__).parent / ".." / ".." / ".." / "templates" / "v2"
+
+loader = FileSystemLoader(template_folder)
+env = Environment(loader=loader, trim_blocks=True)
+
+add_filters(env)
 
 
 def _send_email_notification(user: User, notification: Notification):
@@ -53,27 +46,64 @@ def _send_email_notification(user: User, notification: Notification):
 
     data = notification.topic_action.data_type.FromString(notification.data)
     rendered = render_notification(user, notification, data)
-    default_args = {
+    template_args = {
         "user": user,
         "time": notification.created,
-        "_unsub": _generate_unsub,
-        "_unsub_do_not_email": generate_do_not_email(notification.user_id),
-        "_unsub_topic_key": generate_unsub_topic_key(notification),
-        "_unsub_topic_action": generate_unsub_topic_action(notification),
-        "_manage_notification_settings": urls.feature_preview_link(),
+        "__unsub": _generate_unsub,
+        **rendered.email_template_args,
     }
 
-    frontmatter = {
-        "is_critical": rendered.is_critical,
-        "subject": rendered.email_subject,
-        "preview": rendered.email_preview,
-    }
+    manage_link = urls.feature_preview_link()
 
-    email_user(
-        user,
-        rendered.email_template_name,
-        {**default_args, **rendered.email_template_args},
-        frontmatter=frontmatter,
+    template_args["_year"] = now().year
+    template_args["_timezone_display"] = get_tz_as_text(user.timezone or "Etc/UTC")
+
+    plain_unsub_section = "\n\n---\n\n"
+    if rendered.is_critical:
+        plain_unsub_section += "This is a security email, you cannot unsubscribe from it."
+        html_unsub_section = "This is a security email, you cannot unsubscribe from it."
+    else:
+        plain_unsub_section += f"Edit your notification settings at <{manage_link}>"
+        html_unsub_section = f'<a href="{manage_link}">Manage notification preferences</a>.'
+        unsub_options = []
+        ta = rendered.email_topic_action_unsubscribe_text
+        tk = rendered.email_topic_key_unsubscribe_text
+        ta_link = _generate_unsub("topic_action")
+        tk_link = _generate_unsub("topic_key")
+        if ta:
+            plain_unsub_section += f"\n\nTurn off emails for {ta}: <{ta_link}>"
+            unsub_options.append(f'<a href="{ta_link}">{ta}</a>')
+        if tk:
+            plain_unsub_section += f"\n\nTurn off emails for {tk}: <{tk_link}>"
+            unsub_options.append(f'<a href="{tk_link}">{tk}</a>')
+        if unsub_options:
+            html_unsub_section += f'<br />Turn off emails for: {" / ".join(unsub_options)}.'
+        dne_link = _generate_unsub("do_not_email")
+        plain_unsub_section += f"\n\nDo not email me (disables hosting): <{dne_link}>"
+        html_unsub_section += f'<br /><a href="{dne_link}">Do not email me (disables hosting)</a>.'
+
+    plain_tmplt = (template_folder / f"{rendered.email_template_name}.txt").read_text()
+    plain = env.from_string(plain_tmplt + plain_unsub_section).render(template_args)
+    html_tmplt = (template_folder / "generated_html" / f"{rendered.email_template_name}.html").read_text()
+    html = env.from_string(html_tmplt.replace("___UNSUB_SECTION___", html_unsub_section)).render(template_args)
+
+    if user.do_not_email and not rendered.is_critical:
+        logger.info(f"Not emailing {user} based on template {rendered.email_template_name} due to emails turned off")
+        return
+
+    list_unsubscribe_header = None
+    if rendered.email_list_unsubscribe_url:
+        list_unsubscribe_header = f"<{rendered.email_list_unsubscribe_url}>"
+
+    queue_email(
+        sender_name=config["NOTIFICATION_EMAIL_SENDER"],
+        sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
+        recipient=user.email,
+        subject=config["NOTIFICATION_EMAIL_PREFIX"] + rendered.email_subject,
+        plain=plain,
+        html=html,
+        source_data=config["VERSION"] + f"/{rendered.email_template_name}",
+        list_unsubscribe_header=list_unsubscribe_header,
     )
 
 

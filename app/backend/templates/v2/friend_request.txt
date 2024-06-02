@@ -6,9 +6,3 @@ You've received a friend request from {{ other.name }}! Check it out here:
 
 
 We hope you make a new friend!
-
----
-
-Edit your notification settings at <{{ _manage_notification_settings }}>
-
-Do not email me (disables hosting): <{{ _unsub("do_not_email") }}>

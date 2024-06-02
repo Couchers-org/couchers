@@ -524,7 +524,7 @@ def test_account_recovery_successful_email(db):
         _, kwargs = mock.call_args
         assert kwargs["recipient"] == user.email
         assert "account has been recovered" in kwargs["subject"].lower()
-        unique_string = "We have successfully recovered your account on Couchers.org!"
+        unique_string = "Your account on Couchers.org has been successfully recovered!"
         assert unique_string in kwargs["plain"]
         assert unique_string in kwargs["html"]
         assert "support@couchers.org" in kwargs["plain"]

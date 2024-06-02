@@ -1,32 +1,20 @@
-<mjml>
-  <mj-include path="./mjml_include/head.mjml" />
-  <mj-body background-color="#eee">
-    <mj-section>
-    </mj-section>
-    <mj-wrapper background-color="#fff" border-radius="5px" padding="20px" css-class="body">
-      <mj-include path="./mjml_include/header.mjml" />
-      <mj-section padding="0px">
-        <mj-column>
-          <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-          <mj-text>You requested that your email be changed to this email address on Couchers.org. Your old email address is <code>{{ user.email|v2esc }}</code>. This is the final step in the process.</mj-text>
-          <mj-text>To complete this change, please confirm your email by clicking the following link:</mj-text>
-        </mj-column>
-      </mj-section>
-      <mj-section padding="0px">
-        <mj-column>
-          <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ confirmation_link|v2url }}">
-            <b>Confirm new email</b>
-          </mj-button>
-        </mj-column>
-      </mj-section>
-      <mj-section padding="0px">
-        <mj-column>
-          <mj-text>If this wasn't you, please contact us by emailing <a href="mailto:support@couchers.org">support@couchers.org</a> so we can sort this out as soon as possible!</mj-text>
-          <mj-text>Best,<br />The Couchers.org Team</mj-text>
-        </mj-column>
-      </mj-section>
-      <mj-include path="./mjml_include/footer.mjml" />
-    </mj-wrapper>
-    <mj-include path="./mjml_include/security_footer.mjml" />
-  </mj-body>
-</mjml>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text>You requested that your email be changed to this email address on Couchers.org. Your old email address is <code>{{ user.email|v2esc }}</code>. This is the final step in the process.</mj-text>
+    <mj-text>To complete this change, please confirm your email by clicking the following link:</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ confirmation_link|v2url }}">
+      <b>Confirm new email</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>If this wasn't you, please contact us by emailing <a href="mailto:support@couchers.org">support@couchers.org</a> so we can sort this out as soon as possible!</mj-text>
+    <mj-text>Best,<br />The Couchers.org Team</mj-text>
+  </mj-column>
+</mj-section>
