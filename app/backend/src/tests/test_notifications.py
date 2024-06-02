@@ -41,61 +41,6 @@ def _(testconfig):
     pass
 
 
-def test_GetNotificationSettings(db):
-    _, token = generate_user()
-
-    with session_scope() as session:
-        user = session.execute(select(User)).scalar_one()
-        user.new_notifications_enabled = False
-
-    with notifications_session(token) as notifications:
-        res = notifications.GetNotificationSettings(notifications_pb2.GetNotificationSettingsReq())
-    assert not res.new_notifications_enabled
-
-    with session_scope() as session:
-        user = session.execute(select(User)).scalar_one()
-        user.new_notifications_enabled = True
-
-    with notifications_session(token) as notifications:
-        res = notifications.GetNotificationSettings(notifications_pb2.GetNotificationSettingsReq())
-    assert res.new_notifications_enabled
-
-
-def test_SetNotificationSettings(db):
-    _, token = generate_user()
-
-    with session_scope() as session:
-        user = session.execute(select(User)).scalar_one()
-        user.new_notifications_enabled = False
-
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(enable_new_notifications=False)
-        )
-
-    with session_scope() as session:
-        user = session.execute(select(User)).scalar_one()
-        assert not user.new_notifications_enabled
-
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(enable_new_notifications=True)
-        )
-
-    with session_scope() as session:
-        user = session.execute(select(User)).scalar_one()
-        assert user.new_notifications_enabled
-
-    with notifications_session(token) as notifications:
-        notifications.SetNotificationSettings(
-            notifications_pb2.SetNotificationSettingsReq(enable_new_notifications=False)
-        )
-
-    with session_scope() as session:
-        user = session.execute(select(User)).scalar_one()
-        assert not user.new_notifications_enabled
-
-
 @pytest.mark.parametrize("enabled", [True, False])
 def test_SetNotificationSettings_preferences_respected_editable(db, enabled):
     user, token = generate_user()
@@ -106,7 +51,6 @@ def test_SetNotificationSettings_preferences_respected_editable(db, enabled):
     with notifications_session(token) as notifications:
         notifications.SetNotificationSettings(
             notifications_pb2.SetNotificationSettingsReq(
-                enable_new_notifications=True,
                 preferences=[
                     notifications_pb2.SingleNotificationPreference(
                         topic=topic_action.topic,
@@ -155,7 +99,6 @@ def test_SetNotificationSettings_preferences_not_editable(db):
         with pytest.raises(grpc.RpcError) as e:
             notifications.SetNotificationSettings(
                 notifications_pb2.SetNotificationSettingsReq(
-                    enable_new_notifications=True,
                     preferences=[
                         notifications_pb2.SingleNotificationPreference(
                             topic=topic_action.topic,
@@ -181,7 +124,6 @@ def test_unsubscribe(db):
     with notifications_session(token) as notifications:
         notifications.SetNotificationSettings(
             notifications_pb2.SetNotificationSettingsReq(
-                enable_new_notifications=True,
                 preferences=[
                     notifications_pb2.SingleNotificationPreference(
                         topic=topic_action.topic,
@@ -231,7 +173,7 @@ def test_unsubscribe(db):
 
     with notifications_session(token) as notifications:
         res = notifications.GetNotificationSettings(notifications_pb2.GetNotificationSettingsReq())
-    assert res.new_notifications_enabled
+
     for group in res.groups:
         for topic in group.topics:
             for item in topic.items:
@@ -296,21 +238,7 @@ def test_unsubscribe_do_not_email(db):
         assert user_.do_not_email
 
 
-def test_notifications_do_not_email(db):
-    _, token = generate_user()
-
-    with notifications_session(token) as notifications:
-        notifications.SetDoNotEmail(notifications_pb2.SetDoNotEmailReq(enable_do_not_email=True))
-
-        with pytest.raises(grpc.RpcError) as e:
-            notifications.SetNotificationSettings(
-                notifications_pb2.SetNotificationSettingsReq(enable_new_notifications=True)
-            )
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.DO_NOT_EMAIL_CANNOT_ENABLE_NEW_NOTIFICATIONS
-
-
-def test_GetDoNotEmail(db):
+def test_get_do_not_email(db):
     _, token = generate_user()
 
     with session_scope() as session:
@@ -318,7 +246,7 @@ def test_GetDoNotEmail(db):
         user.do_not_email = False
 
     with notifications_session(token) as notifications:
-        res = notifications.GetDoNotEmail(notifications_pb2.GetDoNotEmailReq())
+        res = notifications.GetNotificationSettings(notifications_pb2.GetNotificationSettingsReq())
     assert not res.do_not_email_enabled
 
     with session_scope() as session:
@@ -329,11 +257,11 @@ def test_GetDoNotEmail(db):
         user.new_notifications_enabled = False
 
     with notifications_session(token) as notifications:
-        res = notifications.GetDoNotEmail(notifications_pb2.GetDoNotEmailReq())
+        res = notifications.GetNotificationSettings(notifications_pb2.GetNotificationSettingsReq())
     assert res.do_not_email_enabled
 
 
-def test_SetDoNotEmail(db):
+def test_set_do_not_email(db):
     _, token = generate_user()
 
     with session_scope() as session:
@@ -341,27 +269,25 @@ def test_SetDoNotEmail(db):
         user.do_not_email = False
         user.hosting_status = HostingStatus.can_host
         user.meetup_status = MeetupStatus.wants_to_meetup
-        user.new_notifications_enabled = True
 
     with notifications_session(token) as notifications:
-        notifications.SetDoNotEmail(notifications_pb2.SetDoNotEmailReq(enable_do_not_email=False))
+        notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=False))
 
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()
         assert not user.do_not_email
 
     with notifications_session(token) as notifications:
-        notifications.SetDoNotEmail(notifications_pb2.SetDoNotEmailReq(enable_do_not_email=True))
+        notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=True))
 
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()
         assert user.do_not_email
         assert user.hosting_status == HostingStatus.cant_host
         assert user.meetup_status == MeetupStatus.does_not_want_to_meetup
-        assert user.new_notifications_enabled == False
 
     with notifications_session(token) as notifications:
-        notifications.SetDoNotEmail(notifications_pb2.SetDoNotEmailReq(enable_do_not_email=False))
+        notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=False))
 
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()
