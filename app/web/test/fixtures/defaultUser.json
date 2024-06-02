@@ -49,6 +49,7 @@
   "parkingDetails": 3,
   "smokingAllowed": 1,
   "avatarUrl": "https://loremflickr.com/200/200?user1",
+  "avatarThumbnailUrl": "https://loremflickr.com/50/50?user1",
   "badgesList": ["volunteer", "strong_verification"],
   "hasStrongVerification": true,
   "birthdateVerificationStatus": 2,
