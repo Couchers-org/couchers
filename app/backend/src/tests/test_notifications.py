@@ -1,5 +1,5 @@
+import json
 import re
-from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
 
 import grpc
@@ -8,7 +8,6 @@ from google.protobuf import empty_pb2
 
 from couchers import errors
 from couchers.crypto import b64decode
-from couchers.jobs.enqueue import queue_job
 from couchers.jobs.worker import process_job
 from couchers.models import (
     HostingStatus,
@@ -26,8 +25,11 @@ from proto.internal import unsubscribe_pb2
 from tests.test_fixtures import (  # noqa
     auth_api_session,
     db,
+    email_fields,
     generate_user,
+    mock_notification_email,
     notifications_session,
+    push_collector,
     session_scope,
     testconfig,
 )
@@ -191,28 +193,22 @@ def test_unsubscribe(db):
             )
         )
 
-    notify_v2(
-        user_id=user.id,
-        topic_action=topic_action.display,
-        data=notification_data_pb2.BadgeAdd(
-            badge_id="volunteer",
-            badge_name="Active Volunteer",
-            badge_description="This user is an active volunteer for Couchers.org",
-        ),
-    )
-
-    queue_job("handle_email_notifications", empty_pb2.Empty())
-
-    with patch("couchers.templates.v2.queue_email") as mock:
-        while process_job():
-            pass
+    with mock_notification_email() as mock:
+        notify_v2(
+            user_id=user.id,
+            topic_action=topic_action.display,
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer for Couchers.org",
+            ),
+        )
 
     assert mock.call_count == 1
-    _, kwargs = mock.call_args
-    assert kwargs["recipient"] == user.email
+    assert email_fields(mock).recipient == user.email
     # very ugly
     # http://localhost:3000/unsubscribe?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
-    for link in re.findall(r'<a href="(.*?)"', kwargs["html"]):
+    for link in re.findall(r'<a href="(.*?)"', email_fields(mock).html):
         if "payload" not in link:
             continue
         print(link)
@@ -241,21 +237,16 @@ def test_unsubscribe(db):
                 if topic == topic_action.topic and item == topic_action.action:
                     assert not item.email
 
-    notify_v2(
-        user_id=user.id,
-        topic_action=topic_action.display,
-        data=notification_data_pb2.BadgeAdd(
-            badge_id="volunteer",
-            badge_name="Active Volunteer",
-            badge_description="This user is an active volunteer for Couchers.org",
-        ),
-    )
-
-    queue_job("handle_email_notifications", empty_pb2.Empty())
-
-    with patch("couchers.templates.v2.queue_email") as mock:
-        while process_job():
-            pass
+    with mock_notification_email() as mock:
+        notify_v2(
+            user_id=user.id,
+            topic_action=topic_action.display,
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer for Couchers.org",
+            ),
+        )
 
     assert mock.call_count == 0
 
@@ -330,3 +321,51 @@ def test_SetDoNotEmail(db):
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()
         assert not user.do_not_email
+
+
+def test_GetVapidPublicKey(db):
+    _, token = generate_user()
+
+    with notifications_session(token) as notifications:
+        assert (
+            notifications.GetVapidPublicKey(empty_pb2.Empty()).vapid_public_key
+            == "BApMo2tGuon07jv-pEaAKZmVo6E_d4HfcdDeV6wx2k9wV8EovJ0ve00bdLzZm9fizDrGZXRYJFqCcRJUfBcgA0A"
+        )
+
+
+def test_RegisterPushNotification(db):
+    _, token = generate_user()
+
+    subscription_info = {
+        "endpoint": "https://updates.push.services.mozilla.com/wpush/v2/gAAAAABmW2_iYKVyZRJPhAhktbkXd6Bc8zjIUvtVi5diYL7ZYn8FHka94kIdF46Mp8DwCDWlACnbKOEo97ikaa7JYowGLiGz3qsWL7Vo19LaV4I71mUDUOIKxWIsfp_kM77MlRJQKDUddv-sYyiffOyg63d1lnc_BMIyLXt69T5SEpfnfWTNb6I",
+        "expirationTime": None,
+        "keys": {
+            "auth": "TnuEJ1OdfEkf6HKcUovl0Q",
+            "p256dh": "BK7Rp8og3eFJPqm0ofR8F-l2mtNCCCWYo6f_5kSs8jPEFiKetnZHNOglvC6IrgU9vHmgFHlG7gHGtB1HM599sy0",
+        },
+    }
+
+    with notifications_session(token) as notifications:
+        res = notifications.RegisterPushNotification(
+            notifications_pb2.RegisterPushNotificationReq(
+                endpoint=subscription_info["endpoint"],
+                auth_key=subscription_info["keys"]["auth"],
+                p256dh_key=subscription_info["keys"]["p256dh"],
+                full_subscription_json=json.dumps(subscription_info),
+            )
+        )
+
+
+def test_SendTestPushNotification(db):
+    user, token = generate_user()
+
+    with push_collector() as collector:
+        with notifications_session(token) as notifications:
+            notifications.SendTestPushNotification(empty_pb2.Empty())
+
+    assert len(collector.by_user(user.id)) == 1
+
+    notif = collector.by_user(user.id)[0]
+
+    assert notif.title == "Checking push notifications work!"
+    assert notif.body == "If you see this, then it's working :)"

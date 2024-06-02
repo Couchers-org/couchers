@@ -1,4 +1,5 @@
 from datetime import timedelta
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
@@ -25,6 +26,9 @@ from couchers.models import (
     Upload,
     User,
 )
+from couchers.notifications.notify import notify_v2
+from couchers.servicers.api import user_model_to_pb
+from couchers.servicers.requests import host_request_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
     maybe_send_reference_report_email,
@@ -36,9 +40,18 @@ from couchers.tasks import (
     send_password_reset_email,
     send_signup_email,
 )
+from couchers.templates.v2 import v2date
 from couchers.utils import now
-from proto import notifications_pb2
-from tests.test_fixtures import db, generate_user, notifications_session, session_scope, testconfig  # noqa
+from proto import notification_data_pb2, notifications_pb2
+from tests.test_fixtures import (  # noqa
+    db,
+    email_fields,
+    generate_user,
+    mock_notification_email,
+    notifications_session,
+    session_scope,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -208,10 +221,11 @@ def test_host_request_email(db):
         to_date = "2020-01-05"
 
         conversation = Conversation()
+        text = random_hex(64)
         message = Message(
             conversation=conversation,
             author_id=surfer.id,
-            text=random_hex(64),
+            text=text,
             message_type=MessageType.text,
         )
 
@@ -226,26 +240,38 @@ def test_host_request_email(db):
         )
 
         session.add(host_request)
+        session.commit()
 
-        with patch("couchers.email.queue_email") as mock:
-            send_new_host_request_email(host_request)
+        context = SimpleNamespace(user_id=surfer.id)
 
-        assert mock.call_count == 1
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == host.email
-        assert "host request" in subject.lower()
-        assert host.name in plain
-        assert host.name in html
-        assert surfer.name in plain
-        assert surfer.name in html
-        assert from_date in plain
-        assert from_date in html
-        assert to_date in plain
-        assert to_date in html
-        assert surfer.avatar.thumbnail_url not in plain
-        assert surfer.avatar.thumbnail_url in html
-        assert f"http://localhost:3000/messages/hosting/" in plain
-        assert f"http://localhost:3000/messages/hosting/" in html
+        with mock_notification_email() as mock:
+            notify_v2(
+                user_id=host_request.host_user_id,
+                topic_action="host_request:create",
+                key=host_request.conversation_id,
+                data=notification_data_pb2.HostRequestCreate(
+                    host_request=host_request_to_pb(host_request, session, context),
+                    surfer=user_model_to_pb(host_request.surfer, session, context),
+                    text=text,
+                ),
+            )
+
+        mock.assert_called_once
+        e = email_fields(mock)
+        assert e.recipient == host.email
+        assert "host request" in e.subject.lower()
+        assert host.name in e.plain
+        assert host.name in e.html
+        assert surfer.name in e.plain
+        assert surfer.name in e.html
+        assert v2date(from_date, host) in e.plain
+        assert v2date(from_date, host) in e.html
+        assert v2date(to_date, host) in e.plain
+        assert v2date(to_date, host) in e.html
+        assert surfer.avatar.thumbnail_url not in e.plain
+        assert surfer.avatar.thumbnail_url in e.html
+        assert f"http://localhost:3000/messages/request/{host_request.conversation_id}" in e.plain
+        assert f"http://localhost:3000/messages/request/{host_request.conversation_id}" in e.html
 
 
 def test_friend_request_email(db):
