@@ -101,14 +101,8 @@
         "paid_onsite": "Paid onsite parking",
         "paid_offsite": "Paid offsite parking"
     },
-    "gender": {
-        "man": "Man",
-        "woman": "Woman"
-    },
-    "pronouns": {
-        "man": "he / him",
-        "woman": "she / her"
-    },
+    "gender": { "man": "Man", "woman": "Woman" },
+    "pronouns": { "man": "he / him", "woman": "she / her" },
     "edit_profile_tab_bar_a11y_label": "tabs to edit different parts of your profile",
     "info_unanswered": "Ask me",
     "my_connections": "My connections",
