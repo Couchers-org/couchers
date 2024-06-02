@@ -6,7 +6,7 @@ import requests
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import update
 
-from couchers import errors, urls
+from couchers import errors
 from couchers.config import config
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.crypto import (
@@ -23,6 +23,7 @@ from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     AccountDeletionReason,
+    AccountDeletionToken,
     ContributeOption,
     ContributorForm,
     StrongVerificationAttempt,
@@ -36,15 +37,12 @@ from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
     maybe_send_contributor_form_email,
-    send_account_deletion_confirmation_email,
     send_account_deletion_report_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
-    send_email_changed_notification_email,
-    send_password_changed_email,
 )
 from couchers.utils import is_valid_email, now
-from proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc
+from proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc, notification_data_pb2
 from proto.google.api import httpbody_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
@@ -174,16 +172,9 @@ class Account(account_pb2_grpc.AccountServicer):
 
             session.commit()
 
-            send_password_changed_email(user)
-
             notify(
                 user_id=user.id,
-                topic="password",
-                key="",
-                action="change",
-                icon="wrench",
-                title=f"Your password was changed",
-                link=urls.account_settings_link(),
+                topic_action="password:change",
             )
 
         return empty_pb2.Empty()
@@ -223,17 +214,15 @@ class Account(account_pb2_grpc.AccountServicer):
                 user.old_email_token_created = None
                 user.old_email_token_expiry = None
                 user.need_to_confirm_via_old_email = False
-                send_email_changed_notification_email(user)
                 send_email_changed_confirmation_to_new_email(user)
 
+                # will still go into old email
                 notify(
                     user_id=user.id,
-                    topic="email_address",
-                    key="",
-                    action="change",
-                    icon="wrench",
-                    title=f"Your email was changed",
-                    link=urls.account_settings_link(),
+                    topic_action="email_address:change",
+                    data=notification_data_pb2.EmailAddressChange(
+                        new_email=request.new_email,
+                    ),
                 )
             else:
                 user.old_email_token = urlsafe_secure_token()
@@ -311,12 +300,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
                 notify(
                     user_id=user.id,
-                    topic="phone_number",
-                    key="",
-                    action="change",
-                    icon="wrench",
-                    title=f"Your phone number was changed",
-                    link=urls.account_settings_link(),
+                    topic_action="phone_number:change",
                 )
 
                 return empty_pb2.Empty()
@@ -365,12 +349,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
             notify(
                 user_id=user.id,
-                topic="phone_number",
-                key="",
-                action="verify",
-                icon="wrench",
-                title=f"Your phone number was verified",
-                link=urls.account_settings_link(),
+                topic_action="phone_number:verify",
             )
 
         return empty_pb2.Empty()
@@ -464,24 +443,21 @@ class Account(account_pb2_grpc.AccountServicer):
             if reason:
                 reason = AccountDeletionReason(user_id=user.id, reason=reason)
                 session.add(reason)
-                session.commit()
+                session.flush()
                 send_account_deletion_report_email(reason)
 
-            token = send_account_deletion_confirmation_email(user)
+            token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
+
+            notify(
+                user_id=user.id,
+                topic_action="account_deletion:start",
+                data=notification_data_pb2.AccountDeletionStart(
+                    deletion_token=token.token,
+                ),
+            )
             session.add(token)
 
         return empty_pb2.Empty()
-
-    def GetDoNotEmail(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            return account_pb2.DoNotEmailRes(do_not_email=user.do_not_email)
-
-    def SetDoNotEmail(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            user.do_not_email = request.do_not_email
-            return account_pb2.DoNotEmailRes(do_not_email=user.do_not_email)
 
 
 class Iris(iris_pb2_grpc.IrisServicer):

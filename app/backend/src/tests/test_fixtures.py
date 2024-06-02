@@ -1,12 +1,14 @@
 import os
 from concurrent import futures
 from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 from unittest.mock import patch
 
 import grpc
 import pytest
+from google.protobuf import empty_pb2
 from sqlalchemy.sql import or_, text
 
 from couchers.config import config
@@ -14,6 +16,8 @@ from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import random_hex
 from couchers.db import clear_base_engine_cache, get_engine, session_scope
 from couchers.interceptors import AuthValidatorInterceptor, _try_get_and_update_user_details
+from couchers.jobs.enqueue import queue_job
+from couchers.jobs.worker import process_job
 from couchers.models import (
     Base,
     FriendRelationship,
@@ -248,7 +252,6 @@ def generate_user(*, delete_user=False, complete_profile=False, **kwargs):
             "geom_radius": 100,
             "onboarding_emails_sent": 1,
             "last_onboarding_email_sent": now(),
-            "new_notifications_enabled": True,
         }
 
         for key, value in kwargs.items():
@@ -736,6 +739,7 @@ def testconfig():
     config["VERSION"] = "testing_version"
     config["BASE_URL"] = "http://localhost:3000"
     config["BACKEND_BASE_URL"] = "http://localhost:8888"
+    config["CONSOLE_BASE_URL"] = "http://localhost:8888"
     config["COOKIE_DOMAIN"] = "localhost"
 
     config["ENABLE_SMS"] = False
@@ -784,6 +788,10 @@ def testconfig():
     config["LISTMONK_API_KEY"] = "..."
     config["LISTMONK_LIST_UUID"] = "..."
 
+    config["PUSH_NOTIFICATIONS_ENABLED"] = True
+    config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"] = "uI1DCR4G1AdlmMlPfRLemMxrz9f3h4kvjfnI8K9WsVI"
+    config["PUSH_NOTIFICATIONS_VAPID_SUBJECT"] = "mailto:testing@couchers.org.invalid"
+
     yield None
 
     config.clear()
@@ -804,3 +812,94 @@ def fast_passwords():
     with patch("couchers.crypto.nacl.pwhash.verify", fast_verify):
         with patch("couchers.crypto.nacl.pwhash.str", fast_hash):
             yield
+
+
+def handle_notifications_bg():
+    queue_job("handle_email_notifications", empty_pb2.Empty())
+    while process_job():
+        pass
+
+
+@contextmanager
+def mock_notification_email():
+    with patch("couchers.notifications.background.queue_email") as mock:
+        yield mock
+        handle_notifications_bg()
+
+
+@dataclass
+class EmailData:
+    sender_name: str
+    sender_email: str
+    recipient: str
+    subject: str
+    plain: str
+    html: str
+    source_data: str
+    list_unsubscribe_header: str
+
+
+def email_fields(mock, call_ix=0):
+    _, kw = mock.call_args_list[call_ix]
+    return EmailData(
+        sender_name=kw.get("sender_name"),
+        sender_email=kw.get("sender_email"),
+        recipient=kw.get("recipient"),
+        subject=kw.get("subject"),
+        plain=kw.get("plain"),
+        html=kw.get("html"),
+        source_data=kw.get("source_data"),
+        list_unsubscribe_header=kw.get("list_unsubscribe_header"),
+    )
+
+
+@pytest.fixture
+def push_collector():
+    """
+    See test_SendTestPushNotification for an example on how to use this fixture
+    """
+
+    class Push:
+        """
+        This allows nice access to the push info via e.g. push.title instead of push["title"]
+        """
+
+        def __init__(self, kwargs):
+            self.kwargs = kwargs
+
+        def __getattr__(self, attr):
+            try:
+                return self.kwargs[attr]
+            except KeyError:
+                raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{attr}'")
+
+    class PushCollector:
+        def __init__(self):
+            # pairs of (user_id, push)
+            self.pushes = []
+
+        def by_user(self, user_id):
+            return [kwargs for uid, kwargs in self.pushes if uid == user_id]
+
+        def push_to_user(self, user_id, **kwargs):
+            self.pushes.append((user_id, Push(kwargs=kwargs)))
+
+        def assert_user_has_count(self, user_id, count):
+            assert len(self.by_user(user_id)) == count
+
+        def assert_user_push_matches_fields(self, user_id, ix=0, **kwargs):
+            push = self.by_user(user_id)[ix]
+            for kwarg in kwargs:
+                assert kwarg in push.kwargs, f"Push notification {user_id=}, {ix=} missing field '{kwarg}'"
+                assert (
+                    push.kwargs[kwarg] == kwargs[kwarg]
+                ), f"Push notification {user_id=}, {ix=} mismatch in field '{kwarg}', expected '{kwargs[kwarg]}' but got '{push.kwargs[kwarg]}'"
+
+        def assert_user_has_single_matching(self, user_id, **kwargs):
+            self.assert_user_has_count(user_id, 1)
+            self.assert_user_push_matches_fields(user_id, ix=0, **kwargs)
+
+    collector = PushCollector()
+
+    with patch("couchers.notifications.push._push_to_user", collector.push_to_user) as mock:
+        yield collector

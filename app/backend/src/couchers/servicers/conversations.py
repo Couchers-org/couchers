@@ -1,18 +1,23 @@
 import logging
 from datetime import timedelta
+from types import SimpleNamespace
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import func, or_
+from sqlalchemy.sql import func, not_, or_, select
 
-from couchers import errors, urls
+from couchers import errors
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.db import session_scope
+from couchers.jobs.enqueue import queue_job
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
-from couchers.notifications.notify import fan_notify
+from couchers.notifications.notify import notify
+from couchers.servicers.api import user_model_to_pb
+from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now
-from proto import conversations_pb2, conversations_pb2_grpc
+from proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
+from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -114,6 +119,63 @@ def _get_visible_admins_for_subscription(subscription):
         ]
 
 
+def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotificationsPayload):
+    """
+    Background job to generate notifications for a message sent to a group chat
+    """
+    logger.info(f"Fanning notifications for message_id = {payload.message_id}")
+
+    with session_scope() as session:
+        message, group_chat = session.execute(
+            select(Message, GroupChat)
+            .join(GroupChat, GroupChat.conversation_id == Message.conversation_id)
+            .where(Message.id == payload.message_id)
+        ).one()
+
+        if message.message_type != MessageType.text:
+            logger.info(f"Not a text message, not notifying. message_id = {payload.message_id}")
+            return []
+
+        subscriptions = (
+            session.execute(
+                select(GroupChatSubscription)
+                .join(User, User.id == GroupChatSubscription.user_id)
+                .where(GroupChatSubscription.group_chat_id == message.conversation_id)
+                .where(User.is_visible)
+                .where(User.id != message.author_id)
+                .where(GroupChatSubscription.joined <= message.time)
+                .where(or_(GroupChatSubscription.left == None, GroupChatSubscription.left >= message.time))
+                .where(not_(GroupChatSubscription.is_muted))
+            )
+            .scalars()
+            .all()
+        )
+
+        if group_chat.is_dm:
+            msg = f"{message.author.name} sent you a message"
+        else:
+            msg = f"{message.author.name} sent a message in {group_chat.title}"
+
+        for subscription in subscriptions:
+            if are_blocked(session, subscription.user_id, message.author.id):
+                continue
+            notify(
+                user_id=subscription.user_id,
+                topic_action="chat:message",
+                key=message.conversation_id,
+                data=notification_data_pb2.ChatMessage(
+                    author=user_model_to_pb(
+                        message.author,
+                        session,
+                        SimpleNamespace(user_id=subscription.user_id),
+                    ),
+                    message=msg,
+                    text=message.text,
+                    group_chat_id=message.conversation_id,
+                ),
+            )
+
+
 def _add_message_to_subscription(session, subscription, **kwargs):
     """
     Creates a new message for a subscription, from the user whose subscription that is. Updates last seen message id
@@ -127,22 +189,11 @@ def _add_message_to_subscription(session, subscription, **kwargs):
 
     subscription.last_seen_message_id = message.id
 
-    # generate notifications in the background
-    if subscription.group_chat.is_dm:
-        title = f"{message.author.name} sent you a message"
-    else:
-        title = f"{message.author.name} sent a message in {subscription.group_chat.title}"
-
-    fan_notify(
-        fan_func="fan_message_notifications",
-        fan_func_data=str(message.id),
-        topic="chat",
-        key=str(message.conversation_id),
-        action="message",
-        icon="message",
-        title=title,
-        content=message.text,
-        link=urls.chat_link(chat_id=message.conversation_id),
+    queue_job(
+        job_type="generate_message_notifications",
+        payload=jobs_pb2.GenerateMessageNotificationsPayload(
+            message_id=message.id,
+        ),
     )
 
     return message

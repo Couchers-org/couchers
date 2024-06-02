@@ -33,9 +33,8 @@ from couchers.notifications.notify import notify
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_friend_request_accepted_email, send_friend_request_email
 from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
-from proto import api_pb2, api_pb2_grpc, media_pb2
+from proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2
 
 hostingstatus2sql = {
     api_pb2.HOSTING_STATUS_UNKNOWN: None,
@@ -591,19 +590,15 @@ class API(api_pb2_grpc.APIServicer):
 
             friend_relationship = FriendRelationship(from_user=user, to_user=to_user, status=FriendStatus.pending)
             session.add(friend_relationship)
-            session.commit()
-
-            send_friend_request_email(friend_relationship)
+            session.flush()
 
             notify(
                 user_id=friend_relationship.to_user_id,
-                topic="friend_request",
-                key=str(friend_relationship.from_user_id),
-                action="send",
-                avatar_key=user.avatar.thumbnail_url if user.avatar else None,
-                icon="person",
-                title=f"**{user.name}** sent you a friend request",
-                link=urls.friend_requests_link(),
+                topic_action="friend_request:create",
+                key=friend_relationship.from_user_id,
+                data=notification_data_pb2.FriendRequestCreate(
+                    other_user=user_model_to_pb(friend_relationship.from_user, session, context),
+                ),
             )
 
             return empty_pb2.Empty()
@@ -670,21 +665,16 @@ class API(api_pb2_grpc.APIServicer):
             friend_request.status = FriendStatus.accepted if request.accept else FriendStatus.rejected
             friend_request.time_responded = func.now()
 
-            if friend_request.status == FriendStatus.accepted:
-                send_friend_request_accepted_email(friend_request)
-
-            session.commit()
+            session.flush()
 
             if friend_request.status == FriendStatus.accepted:
                 notify(
                     user_id=friend_request.from_user_id,
-                    topic="friend_request",
-                    key=str(friend_request.to_user_id),
-                    action="accept",
-                    avatar_key=friend_request.to_user.avatar.thumbnail_url if friend_request.to_user.avatar else None,
-                    icon="person",
-                    title=f"**{friend_request.from_user.name}** accepted your friend request",
-                    link=urls.user_link(username=friend_request.to_user.username),
+                    topic_action="friend_request:accept",
+                    key=friend_request.to_user_id,
+                    data=notification_data_pb2.FriendRequestAccept(
+                        other_user=user_model_to_pb(friend_request.to_user, session, context),
+                    ),
                 )
 
             return empty_pb2.Empty()
@@ -849,6 +839,7 @@ def user_model_to_pb(db_user, session, context):
         sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
         parking_details=parkingdetails2api[db_user.parking_details],
         avatar_url=db_user.avatar.full_url if db_user.avatar else None,
+        avatar_thumbnail_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
         badges=[badge.badge_id for badge in db_user.badges],
         **get_strong_verification_fields(db_user),
     )

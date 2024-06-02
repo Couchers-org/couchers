@@ -19,6 +19,7 @@ git clone git@github.com:Couchers-org/web-frontend.git
 NEXT_PUBLIC_COUCHERS_ENV=dev
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8888
 NEXT_PUBLIC_MEDIA_BASE_URL="http://localhost:5000"
+NEXT_PUBLIC_CONSOLE_BASE_URL="http://localhost:10027"
 NEXT_PUBLIC_IS_POST_BETA_ENABLED=true
 NEXT_PUBLIC_MAPBOX_KEY="pk.eyJ1IjoiY291Y2hlcnMiLCJhIjoiY2tpYzY4eHd2MGVpcTJ0bGdhdGhvbHhlbiJ9.u5zvDeFE9H8itTK_dNp7Pg"
 NEXT_PUBLIC_NOMINATIM_URL="https://nominatim.openstreetmap.org/"

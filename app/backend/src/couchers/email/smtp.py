@@ -57,10 +57,11 @@ def send_smtp_email(sender_name, sender_email, recipient, subject, plain, html, 
 
     with smtplib.SMTP(config["SMTP_HOST"], config["SMTP_PORT"]) as server:
         server.ehlo()
-        server.starttls()
-        # stmplib docs recommend calling ehlo() before and after starttls()
-        server.ehlo()
-        server.login(config["SMTP_USERNAME"], config["SMTP_PASSWORD"])
+        if not config["DEV"]:
+            server.starttls()
+            # stmplib docs recommend calling ehlo() before and after starttls()
+            server.ehlo()
+            server.login(config["SMTP_USERNAME"], config["SMTP_PASSWORD"])
         server.sendmail(sender_email, recipient, msg.as_string())
 
     return Email(

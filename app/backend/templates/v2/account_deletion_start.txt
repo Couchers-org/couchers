@@ -1,0 +1,13 @@
+Hi {{ user.name }},
+
+You requested that we delete your account from Couchers.org.
+
+To complete this process, please confirm by clicking the following link:
+
+<{{ deletion_link }}>
+
+
+If this wasn't you, please contact us by emailing <support@couchers.org> so we can sort this out as soon as possible!
+
+Best,
+The Couchers.org team

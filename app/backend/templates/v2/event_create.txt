@@ -1,0 +1,17 @@
+Hi {{ user.name }},
+
+A new event was created {{ nearby_or_community_text_plain }}:
+
+{{ event.title }}
+{{ time_display }}
+
+{% if event.online_information.link %}Online at <{{ event.online_information.link }}>{% endif %}{% if event.offline_information.address %}{{ event.offline_information.address }}{% endif %}
+
+Invited by {{ inviting_user.name }}
+
+
+{{ event.content|v2quote }}
+
+
+
+You can view the event here: <{{ view_link }}>

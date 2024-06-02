@@ -11,6 +11,10 @@ def app_link():
     return f"{config['BASE_URL']}/"
 
 
+def icon_url():
+    return f"{config['BASE_URL']}/logo512.png"
+
+
 def profile_link():
     return f"{config['BASE_URL']}/profile"
 
@@ -35,6 +39,10 @@ def account_settings_link():
     return f"{config['BASE_URL']}/account-settings"
 
 
+def feature_preview_link():
+    return f"{config['BASE_URL']}/preview"
+
+
 def password_reset_link(*, password_reset_token):
     return f"{config['BASE_URL']}/complete-password-reset?token={password_reset_token}"
 
@@ -47,6 +55,10 @@ def host_request_link_guest():
     return f"{config['BASE_URL']}/messages/surfing/"
 
 
+def host_request(*, host_request_id):
+    return f"{config['BASE_URL']}/messages/request/{host_request_id}"
+
+
 def messages_link():
     return f"{config['BASE_URL']}/messages/"
 
@@ -57,6 +69,10 @@ def chat_link(*, chat_id):
 
 def event_link(*, occurrence_id, slug="e"):
     return f"{config['BASE_URL']}/event/{occurrence_id}/{slug}"
+
+
+def community_link(*, node_id, slug="e"):
+    return f"{config['BASE_URL']}/community/{node_id}/{slug}"
 
 
 def leave_reference_link(*, reference_type, to_user_id, host_request_id=None):
@@ -97,3 +113,11 @@ def recover_account_link(*, account_undelete_token):
 
 def unsubscribe_link(*, payload, sig):
     return f"{config['BASE_URL']}/unsubscribe?payload={payload}&sig={sig}"
+
+
+def media_url(*, filename, size):
+    return f"{config['MEDIA_SERVER_BASE_URL']}/img/{size}/{filename}"
+
+
+def console_link(*, page):
+    return f"{config['CONSOLE_BASE_URL']}/{page}"

@@ -13,7 +13,18 @@ from couchers.models import AccountDeletionReason, AccountDeletionToken, Backgro
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 from proto import account_pb2, api_pb2, auth_pb2
-from tests.test_fixtures import account_session, auth_api_session, db, fast_passwords, generate_user, testconfig  # noqa
+from tests.test_fixtures import (  # noqa
+    account_session,
+    auth_api_session,
+    db,
+    email_fields,
+    fast_passwords,
+    generate_user,
+    handle_notifications_bg,
+    mock_notification_email,
+    push_collector,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -77,14 +88,16 @@ def test_ChangePassword_normal(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with patch("couchers.servicers.account.send_password_changed_email") as mock:
+        with mock_notification_email() as mock:
             account.ChangePassword(
                 account_pb2.ChangePasswordReq(
                     old_password=wrappers_pb2.StringValue(value=old_password),
                     new_password=wrappers_pb2.StringValue(value=new_password),
                 )
             )
+
         mock.assert_called_once()
+        assert email_fields(mock).subject == "[TEST] Your password was changed"
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -242,13 +255,14 @@ def test_ChangePassword_add(db, fast_passwords):
     user, token = generate_user(hashed_password=None)
 
     with account_session(token) as account:
-        with patch("couchers.servicers.account.send_password_changed_email") as mock:
+        with mock_notification_email() as mock:
             account.ChangePassword(
                 account_pb2.ChangePasswordReq(
                     new_password=wrappers_pb2.StringValue(value=new_password),
                 )
             )
         mock.assert_called_once()
+        assert email_fields(mock).subject == "[TEST] Your password was changed"
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -296,13 +310,14 @@ def test_ChangePassword_remove(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with patch("couchers.servicers.account.send_password_changed_email") as mock:
+        with mock_notification_email() as mock:
             account.ChangePassword(
                 account_pb2.ChangePasswordReq(
                     old_password=wrappers_pb2.StringValue(value=old_password),
                 )
             )
         mock.assert_called_once()
+        assert email_fields(mock).subject == "[TEST] Your password was changed"
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -756,19 +771,19 @@ def test_ChangeEmail_sends_proper_emails_has_password(db, fast_passwords):
             )
         )
 
+    handle_notifications_bg()
+
     with session_scope() as session:
         jobs = session.execute(select(BackgroundJob).where(BackgroundJob.job_type == "send_email")).scalars().all()
         assert len(jobs) == 2
         payload_for_notification_email = jobs[0].payload
         payload_for_confirmation_email_new_address = jobs[1].payload
-        unique_string_notification_email_as_bytes = b"You requested that your email on Couchers.org be changed to"
-        unique_string_for_confirmation_email_new_email_address_as_bytes = (
-            b"You requested that your email be changed to this email address on Couchers.org"
+        uq_str1 = b"An email change to the email"
+        uq_str2 = (
+            b"You requested that your email be changed to this email address on Couchers.org. Your old email address is"
         )
-        assert unique_string_notification_email_as_bytes in payload_for_notification_email
-        assert (
-            unique_string_for_confirmation_email_new_email_address_as_bytes
-            in payload_for_confirmation_email_new_address
+        assert (uq_str1 in jobs[0].payload and uq_str2 in jobs[1].payload) or (
+            uq_str2 in jobs[0].payload and uq_str1 in jobs[1].payload
         )
 
 
@@ -818,11 +833,10 @@ def test_DeleteAccount_start(db):
     user, token = generate_user()
 
     with account_session(token) as account:
-        with patch("couchers.email.v2.queue_email") as mock:
+        with mock_notification_email() as mock:
             account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=None))
         mock.assert_called_once()
-        _, kwargs = mock.call_args
-        assert kwargs["subject"] == "[TEST] Confirm your Couchers.org account deletion"
+        assert email_fields(mock).subject == "[TEST] Confirm your Couchers.org account deletion"
 
     with session_scope() as session:
         deletion_token = session.execute(
@@ -848,7 +862,7 @@ def test_DeleteAccount_message_storage(db):
         assert session.execute(select(func.count()).select_from(AccountDeletionReason)).scalar_one() == 3
 
 
-def test_full_delete_account_with_recovery(db):
+def test_full_delete_account_with_recovery(db, push_collector):
     user, token = generate_user()
     user_id = user.id
 
@@ -859,46 +873,109 @@ def test_full_delete_account_with_recovery(db):
         assert e.value.details() == errors.MUST_CONFIRM_ACCOUNT_DELETE
 
         # Check the right email is sent
-        with patch("couchers.email.v2.queue_email") as mock:
+        with mock_notification_email() as mock:
             account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
-        mock.assert_called_once()
-        _, kwargs = mock.call_args
-        assert kwargs["subject"] == "[TEST] Confirm your Couchers.org account deletion"
+
+    push_collector.assert_user_push_matches_fields(
+        user_id,
+        ix=0,
+        title="Account deletion initiated",
+        body="Someone initiated the deletion of your Couchers.org account. To delete your account, please follow the link in the email we sent you.",
+    )
+
+    mock.assert_called_once()
+    e = email_fields(mock)
 
     with session_scope() as session:
         token_o = session.execute(select(AccountDeletionToken)).scalar_one()
         token = token_o.token
 
-        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
-        assert token_o.user == user
-        assert not user.is_deleted
-        assert not user.undelete_token
-        assert not user.undelete_until
+        user_ = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert token_o.user == user_
+        assert not user_.is_deleted
+        assert not user_.undelete_token
+        assert not user_.undelete_until
 
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        auth_api.ConfirmDeleteAccount(
-            auth_pb2.ConfirmDeleteAccountReq(
-                token=token,
+    assert email_fields(mock).subject == "[TEST] Confirm your Couchers.org account deletion"
+    assert e.recipient == user.email
+    assert "account deletion" in e.subject.lower()
+    assert token in e.plain
+    assert token in e.html
+    unique_string = "You requested that we delete your account from Couchers.org."
+    assert unique_string in e.plain
+    assert unique_string in e.html
+    url = f"http://localhost:3000/delete-account?token={token}"
+    assert url in e.plain
+    assert url in e.html
+    assert "support@couchers.org" in e.plain
+    assert "support@couchers.org" in e.html
+
+    with mock_notification_email() as mock:
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.ConfirmDeleteAccount(
+                auth_pb2.ConfirmDeleteAccountReq(
+                    token=token,
+                )
             )
-        )
+
+    push_collector.assert_user_push_matches_fields(
+        user_id,
+        ix=1,
+        title="Your Couchers.org account has been deleted",
+        body="You can still undo this by following the link we emailed to you within 7 days.",
+    )
+
+    mock.assert_called_once()
+    e = email_fields(mock)
 
     with session_scope() as session:
         assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
 
-    with session_scope() as session:
-        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
-        assert user.is_deleted
-        assert user.undelete_token
-        assert user.undelete_until > now()
+        user_ = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert user_.is_deleted
+        assert user_.undelete_token
+        assert user_.undelete_until > now()
 
-        undelete_token = user.undelete_token
+        undelete_token = user_.undelete_token
 
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        auth_api.RecoverAccount(
-            auth_pb2.RecoverAccountReq(
-                token=undelete_token,
+    assert e.recipient == user.email
+    assert "account has been deleted" in e.subject.lower()
+    unique_string = "You have successfully deleted your account from Couchers.org."
+    assert unique_string in e.plain
+    assert unique_string in e.html
+    assert "7 days" in e.plain
+    assert "7 days" in e.html
+    url = f"http://localhost:3000/recover-account?token={undelete_token}"
+    assert url in e.plain
+    assert url in e.html
+    assert "support@couchers.org" in e.plain
+    assert "support@couchers.org" in e.html
+
+    with mock_notification_email() as mock:
+        with auth_api_session() as (auth_api, metadata_interceptor):
+            auth_api.RecoverAccount(
+                auth_pb2.RecoverAccountReq(
+                    token=undelete_token,
+                )
             )
-        )
+
+    push_collector.assert_user_push_matches_fields(
+        user_id,
+        ix=2,
+        title="Your Couchers.org account has been recovered!",
+        body="We have recovered your Couchers.org account as per your request! Welcome back!",
+    )
+
+    mock.assert_called_once()
+    e = email_fields(mock)
+
+    assert e.recipient == user.email
+    assert "account has been recovered" in e.subject.lower()
+    unique_string = "Your account on Couchers.org has been successfully recovered!"
+    assert unique_string in e.plain
+    assert unique_string in e.html
+    assert "support@couchers.org" in e.plain
+    assert "support@couchers.org" in e.html
 
     with session_scope() as session:
         assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()

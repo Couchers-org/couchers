@@ -1,6 +1,5 @@
 from datetime import date
 from re import match
-from unittest.mock import patch
 
 import grpc
 import pytest
@@ -12,7 +11,16 @@ from couchers.models import Cluster, UserSession
 from couchers.sql import couchers_select as select
 from couchers.utils import parse_date
 from proto import admin_pb2
-from tests.test_fixtures import db, generate_user, get_user_id_and_token, real_admin_session, testconfig  # noqa
+from tests.test_fixtures import (  # noqa
+    db,
+    email_fields,
+    generate_user,
+    get_user_id_and_token,
+    mock_notification_email,
+    push_collector,
+    real_admin_session,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -170,7 +178,7 @@ def test_DeleteUser(db):
         assert res.deleted
 
 
-def test_CreateApiKey(db):
+def test_CreateApiKey(db, push_collector):
     with session_scope() as session:
         super_user, super_token = generate_user(is_superuser=True)
         normal_user, normal_token = generate_user()
@@ -185,13 +193,13 @@ def test_CreateApiKey(db):
             == 0
         )
 
-    with patch("couchers.email.queue_email") as mock:
+    with mock_notification_email() as mock:
         with real_admin_session(super_token) as api:
             res = api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=normal_user.username))
 
     mock.assert_called_once()
-    (_, _, _, subject, plain, html), _ = mock.call_args
-    assert subject == "[TEST] Your API key for Couchers.org"
+    e = email_fields(mock)
+    assert e.subject == "[TEST] Your API key for Couchers.org"
 
     with session_scope() as session:
         api_key = session.execute(
@@ -201,8 +209,20 @@ def test_CreateApiKey(db):
             .where(UserSession.user_id == normal_user.id)
         ).scalar_one()
 
-        assert api_key.token in plain
-        assert api_key.token in html
+        assert api_key.token in e.plain
+        assert api_key.token in e.html
+
+    assert e.recipient == normal_user.email
+    assert "api key" in e.subject.lower()
+    unique_string = "We've issued you with the following API key:"
+    assert unique_string in e.plain
+    assert unique_string in e.html
+    assert "support@couchers.org" in e.plain
+    assert "support@couchers.org" in e.html
+
+    push_collector.assert_user_has_single_matching(
+        normal_user.id, title="An API key was created for your account", body="Details were sent to you via email."
+    )
 
 
 VALID_GEOJSON_MULTIPOLYGON = """

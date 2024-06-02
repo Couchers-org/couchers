@@ -1,0 +1,15 @@
+Hi {{ user.name }}!
+
+Your account on Couchers.org has been successfully recovered!
+
+We are so glad you decided to stay! To log back in, click the following link:
+
+<{{ app_link }}>
+
+If you change your mind, you can delete your account at any time.
+
+
+If this wasn't you, please contact us by emailing <support@couchers.org> so we can sort this out as soon as possible!
+
+Best,
+The Couchers.org team

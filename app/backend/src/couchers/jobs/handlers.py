@@ -44,18 +44,21 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.notifications.background import (
-    fan_notifications,
     handle_email_digests,
     handle_email_notifications,
     handle_notification,
+    send_raw_push_notification,
 )
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.blocking import are_blocked
+from couchers.servicers.conversations import generate_message_notifications
+from couchers.servicers.events import generate_event_create_notifications, generate_event_update_notifications
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.tasks import send_onboarding_email, send_reference_reminder_email
 from couchers.utils import now
+from proto import notification_data_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
 logger = logging.getLogger(__name__)
@@ -64,12 +67,18 @@ logger = logging.getLogger(__name__)
 handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
 
 handle_email_notifications.PAYLOAD = empty_pb2.Empty
-handle_email_notifications.SCHEDULE = timedelta(minutes=1)
+handle_email_notifications.SCHEDULE = timedelta(seconds=5)
+
+send_raw_push_notification.PAYLOAD = jobs_pb2.SendRawPushNotificationPayload
 
 handle_email_digests.PAYLOAD = empty_pb2.Empty
 handle_email_digests.SCHEDULE = timedelta(minutes=15)
 
-fan_notifications.PAYLOAD = jobs_pb2.FanNotificationsPayload
+generate_message_notifications.PAYLOAD = jobs_pb2.GenerateMessageNotificationsPayload
+
+generate_event_create_notifications.PAYLOAD = jobs_pb2.GenerateEventCreateNotificationsPayload
+
+generate_event_update_notifications.PAYLOAD = jobs_pb2.GenerateEventUpdateNotificationsPayload
 
 
 def send_email(payload):
@@ -703,12 +712,12 @@ def update_badges(payload):
 
                 notify(
                     user_id=user_id,
-                    topic="badge",
-                    key="",
-                    action="add",
-                    icon="label",
-                    title=f'The "{badge["name"]}" badge was added to your profile',
-                    link=urls.profile_link(),
+                    topic_action="badge:add",
+                    data=notification_data_pb2.BadgeAdd(
+                        badge_id=badge["id"],
+                        badge_name=badge["name"],
+                        badge_description=badge["description"],
+                    ),
                 )
 
             session.execute(delete(UserBadge).where(UserBadge.user_id.in_(remove), UserBadge.badge_id == badge["id"]))
@@ -716,12 +725,12 @@ def update_badges(payload):
             for user_id in remove:
                 notify(
                     user_id=user_id,
-                    topic="badge",
-                    key="",
-                    action="remove",
-                    icon="label",
-                    title=f'The "{badge["name"]}" badge was removed from your profile',
-                    link=urls.profile_link(),
+                    topic_action="badge:remove",
+                    data=notification_data_pb2.BadgeRemove(
+                        badge_id=badge["id"],
+                        badge_name=badge["name"],
+                        badge_description=badge["description"],
+                    ),
                 )
 
         update_badge("founder", get_static_badge_dict()["founder"])

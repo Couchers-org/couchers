@@ -78,7 +78,6 @@ def add_dummy_users():
                         user["hosting_status"] if "hosting_status" in user else "HOSTING_STATUS_CANT_HOST"
                     )
                 ],
-                new_notifications_enabled=True,
                 accepted_tos=TOS_VERSION,
                 accepted_community_guidelines=GUIDELINES_VERSION,
                 is_superuser=user.get("is_superuser", False),

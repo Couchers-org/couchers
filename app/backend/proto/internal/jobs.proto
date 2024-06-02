@@ -25,16 +25,32 @@ message FinalizeStrongVerificationPayload {
   int64 verification_attempt_id = 1;
 }
 
-message FanNotificationsPayload {
-  string topic = 1;
-  string action = 2;
-  string key = 3;
-  string avatar_key = 4;
-  string icon = 5;
-  string title = 6;
-  string content = 7;
-  string link = 8;
+message SendPushNotificationPayload {
+  int64 user_id = 1;
+  string title = 2;
+  string body = 3;
+  string icon = 4;
+}
 
-  string fan_func = 9;
-  string fan_func_data = 10;
+message SendRawPushNotificationPayload {
+  int64 push_notification_subscription_id = 1;
+  bytes data = 2;
+  uint32 ttl = 3;
+}
+
+message GenerateMessageNotificationsPayload {
+  uint64 message_id = 1;
+}
+
+message GenerateEventCreateNotificationsPayload {
+  int64 inviting_user_id = 1;
+  int64 occurrence_id = 2;
+  // whether this was approved by an admin or just any user created an event
+  bool approved = 3;
+}
+
+message GenerateEventUpdateNotificationsPayload {
+  int64 updating_user_id = 1;
+  int64 occurrence_id = 2;
+  repeated string updated_items = 3;
 }
