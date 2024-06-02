@@ -1,6 +1,5 @@
 from datetime import date
 from re import match
-from unittest.mock import patch
 
 import grpc
 import pytest
@@ -12,7 +11,15 @@ from couchers.models import Cluster, UserSession
 from couchers.sql import couchers_select as select
 from couchers.utils import parse_date
 from proto import admin_pb2
-from tests.test_fixtures import db, generate_user, get_user_id_and_token, real_admin_session, testconfig  # noqa
+from tests.test_fixtures import (  # noqa
+    db,
+    email_fields,
+    generate_user,
+    get_user_id_and_token,
+    mock_notification_email,
+    real_admin_session,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -185,13 +192,12 @@ def test_CreateApiKey(db):
             == 0
         )
 
-    with patch("couchers.email.queue_email") as mock:
+    with mock_notification_email() as mock:
         with real_admin_session(super_token) as api:
             res = api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=normal_user.username))
 
     mock.assert_called_once()
-    (_, _, _, subject, plain, html), _ = mock.call_args
-    assert subject == "[TEST] Your API key for Couchers.org"
+    assert email_fields(mock).subject == "[TEST] Your API key for Couchers.org"
 
     with session_scope() as session:
         api_key = session.execute(
@@ -201,8 +207,8 @@ def test_CreateApiKey(db):
             .where(UserSession.user_id == normal_user.id)
         ).scalar_one()
 
-        assert api_key.token in plain
-        assert api_key.token in html
+        assert api_key.token in email_fields(mock).plain
+        assert api_key.token in email_fields(mock).html
 
 
 VALID_GEOJSON_MULTIPOLYGON = """

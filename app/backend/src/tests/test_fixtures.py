@@ -1,12 +1,14 @@
 import os
 from concurrent import futures
 from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 from unittest.mock import patch
 
 import grpc
 import pytest
+from google.protobuf import empty_pb2
 from sqlalchemy.sql import or_, text
 
 from couchers.config import config
@@ -14,6 +16,8 @@ from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import random_hex
 from couchers.db import clear_base_engine_cache, get_engine, session_scope
 from couchers.interceptors import AuthValidatorInterceptor, _try_get_and_update_user_details
+from couchers.jobs.enqueue import queue_job
+from couchers.jobs.worker import process_job
 from couchers.models import (
     Base,
     FriendRelationship,
@@ -808,3 +812,42 @@ def fast_passwords():
     with patch("couchers.crypto.nacl.pwhash.verify", fast_verify):
         with patch("couchers.crypto.nacl.pwhash.str", fast_hash):
             yield
+
+
+def handle_notifications_bg():
+    queue_job("handle_email_notifications", empty_pb2.Empty())
+    while process_job():
+        pass
+
+
+@contextmanager
+def mock_notification_email():
+    with patch("couchers.notifications.background.queue_email") as mock:
+        yield mock
+        handle_notifications_bg()
+
+
+@dataclass
+class EmailData:
+    sender_name: str
+    sender_email: str
+    recipient: str
+    subject: str
+    plain: str
+    html: str
+    source_data: str
+    list_unsubscribe_header: str
+
+
+def email_fields(mock):
+    _, kw = mock.call_args
+    return EmailData(
+        sender_name=kw.get("sender_name"),
+        sender_email=kw.get("sender_email"),
+        recipient=kw.get("recipient"),
+        subject=kw.get("subject"),
+        plain=kw.get("plain"),
+        html=kw.get("html"),
+        source_data=kw.get("source_data"),
+        list_unsubscribe_header=kw.get("list_unsubscribe_header"),
+    )
