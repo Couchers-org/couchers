@@ -739,6 +739,7 @@ def testconfig():
     config["VERSION"] = "testing_version"
     config["BASE_URL"] = "http://localhost:3000"
     config["BACKEND_BASE_URL"] = "http://localhost:8888"
+    config["CONSOLE_BASE_URL"] = "http://localhost:8888"
     config["COOKIE_DOMAIN"] = "localhost"
 
     config["ENABLE_SMS"] = False

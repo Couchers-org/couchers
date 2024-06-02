@@ -81,11 +81,10 @@ message Notification {
   string topic = 3;
   string action = 4;
   string key = 5;
-  string avatar_key = 6;
-  string icon = 7;
-  string title = 8;
-  string content = 9;
-  string link = 10;
+  string title = 6;
+  string body = 7;
+  string icon = 8;
+  string url = 9;
 }
 
 message ListNotificationsReq {

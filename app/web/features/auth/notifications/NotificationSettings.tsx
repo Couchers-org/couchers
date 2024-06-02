@@ -15,7 +15,9 @@ export default function NotificationSettings({
       <Typography variant="body1">
         <Trans t={t} i18nKey="notification_settings.edit_in_console">
           You can change your notification settings{" "}
-          <Link href="https://console.couchers.org/notifications">
+          <Link
+            href={process.env.NEXT_PUBLIC_CONSOLE_BASE_URL + "/notifications"}
+          >
             on this page
           </Link>
           . We will soon move it here.

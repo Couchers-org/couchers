@@ -17,7 +17,7 @@ from couchers.models import (
     SignupFlow,
     User,
 )
-from couchers.notifications.notify import notify_v2
+from couchers.notifications.notify import notify
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
     maybe_send_reference_report_email,
@@ -406,7 +406,7 @@ def test_send_donation_email(db, monkeypatch):
 
     monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
 
-    notify_v2(
+    notify(
         user_id=user.id,
         topic_action="donation:received",
         data=notification_data_pb2.DonationReceived(

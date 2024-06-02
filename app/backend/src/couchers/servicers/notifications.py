@@ -15,6 +15,7 @@ from couchers.models import (
 )
 from couchers.notifications.push import get_vapid_public_key, push_to_subscription, push_to_user
 from couchers.notifications.push_api import decode_key
+from couchers.notifications.render import render_notification
 from couchers.notifications.settings import PreferenceNotUserEditableError, get_user_setting_groups, set_preference
 from couchers.notifications.utils import enum_from_topic_action
 from couchers.sql import couchers_select as select
@@ -25,18 +26,18 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 100
 
 
-def notification_to_pb(notification: Notification):
+def notification_to_pb(user, notification: Notification):
+    rendered = render_notification(user, notification)
     return notifications_pb2.Notification(
         notification_id=notification.id,
         created=Timestamp_from_datetime(notification.created),
         topic=notification.topic_action.topic,
         action=notification.topic_action.action,
         key=notification.key,
-        avatar_key=notification.avatar_key,
-        icon=notification.icon,
-        title=notification.title,
-        content=notification.content,
-        link=notification.link,
+        title=rendered.push_title,
+        body=rendered.push_body,
+        icon=rendered.push_icon,
+        url=rendered.push_url,
     )
 
 
@@ -75,6 +76,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
 
     def ListNotifications(self, request, context):
         with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_notification_id = int(request.page_token) if request.page_token else 2**50
             notifications = (
@@ -89,7 +91,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 .all()
             )
             return notifications_pb2.ListNotificationsRes(
-                notifications=[notification_to_pb(notification) for notification in notifications[:page_size]],
+                notifications=[notification_to_pb(user, notification) for notification in notifications[:page_size]],
                 next_page_token=str(notifications[-1].id) if len(notifications) > page_size else None,
             )
 

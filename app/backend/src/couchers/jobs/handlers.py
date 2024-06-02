@@ -49,7 +49,7 @@ from couchers.notifications.background import (
     handle_notification,
     send_raw_push_notification,
 )
-from couchers.notifications.notify import notify_v2
+from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.blocking import are_blocked
 from couchers.servicers.conversations import generate_message_notifications
@@ -710,7 +710,7 @@ def update_badges(payload):
             for user_id in add:
                 session.add(UserBadge(user_id=user_id, badge_id=badge_id))
 
-                notify_v2(
+                notify(
                     user_id=user_id,
                     topic_action="badge:add",
                     data=notification_data_pb2.BadgeAdd(
@@ -723,7 +723,7 @@ def update_badges(payload):
             session.execute(delete(UserBadge).where(UserBadge.user_id.in_(remove), UserBadge.badge_id == badge["id"]))
 
             for user_id in remove:
-                notify_v2(
+                notify(
                     user_id=user_id,
                     topic_action="badge:remove",
                     data=notification_data_pb2.BadgeRemove(

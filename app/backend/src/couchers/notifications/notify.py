@@ -23,7 +23,7 @@ from proto.internal import jobs_pb2
 logger = logging.getLogger(__name__)
 
 
-def notify_v2(
+def notify(
     *,
     user_id,
     topic_action,

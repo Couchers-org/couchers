@@ -36,7 +36,8 @@ class RenderedNotification:
     push_url: str
 
 
-def render_notification(user, notification, data) -> RenderedNotification:
+def render_notification(user, notification) -> RenderedNotification:
+    data = notification.topic_action.data_type.FromString(notification.data)
     if notification.topic == "host_request":
         view_link = urls.host_request(host_request_id=data.host_request.host_request_id)
         if notification.action in ["create", "message"]:

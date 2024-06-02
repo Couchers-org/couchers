@@ -11,7 +11,7 @@ from sqlalchemy.sql.functions import percentile_disc
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
-from couchers.notifications.notify import notify_v2
+from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
@@ -174,7 +174,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session.add(host_request)
             session.commit()
 
-            notify_v2(
+            notify(
                 user_id=host_request.host_user_id,
                 topic_action="host_request:create",
                 key=host_request.conversation_id,
@@ -317,7 +317,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 host_request.status = HostRequestStatus.accepted
                 session.flush()
 
-                notify_v2(
+                notify(
                     user_id=host_request.surfer_user_id,
                     topic_action="host_request:accept",
                     key=host_request.conversation_id,
@@ -341,7 +341,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 host_request.status = HostRequestStatus.rejected
                 session.flush()
 
-                notify_v2(
+                notify(
                     user_id=host_request.surfer_user_id,
                     topic_action="host_request:reject",
                     key=host_request.conversation_id,
@@ -362,7 +362,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 host_request.status = HostRequestStatus.confirmed
                 session.flush()
 
-                notify_v2(
+                notify(
                     user_id=host_request.host_user_id,
                     topic_action="host_request:confirm",
                     key=host_request.conversation_id,
@@ -386,7 +386,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 host_request.status = HostRequestStatus.cancelled
                 session.flush()
 
-                notify_v2(
+                notify(
                     user_id=host_request.host_user_id,
                     topic_action="host_request:cancel",
                     key=host_request.conversation_id,
@@ -489,7 +489,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if host_request.surfer_user_id == context.user_id:
                 host_request.surfer_last_seen_message_id = message.id
 
-                notify_v2(
+                notify(
                     user_id=host_request.host_user_id,
                     topic_action="host_request:message",
                     key=host_request.conversation_id,
@@ -504,7 +504,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             else:
                 host_request.host_last_seen_message_id = message.id
 
-                notify_v2(
+                notify(
                     user_id=host_request.surfer_user_id,
                     topic_action="host_request:message",
                     key=host_request.conversation_id,

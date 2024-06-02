@@ -18,7 +18,7 @@ from couchers.models import (
     User,
     UserSession,
 )
-from couchers.notifications.notify import notify_v2
+from couchers.notifications.notify import notify
 from couchers.notifications.unsubscribe import unsubscribe
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
@@ -476,7 +476,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             if user:
                 send_password_reset_email(session, user)
 
-                notify_v2(
+                notify(
                     user_id=user.id,
                     topic_action="password_reset:start",
                 )
@@ -503,7 +503,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 user.hashed_password = None
                 session.commit()
 
-                notify_v2(
+                notify(
                     user_id=user.id,
                     topic_action="password_reset:complete",
                 )
@@ -529,7 +529,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 user.hashed_password = hash_password(request.new_password)
                 session.delete(password_reset_token)
 
-                notify_v2(
+                notify(
                     user_id=user.id,
                     topic_action="password_reset:complete",
                 )
@@ -576,7 +576,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 user.need_to_confirm_via_old_email = None
                 user.need_to_confirm_via_new_email = None
 
-                notify_v2(
+                notify(
                     user_id=user.id,
                     topic_action="email_address:verify",
                 )
@@ -616,7 +616,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             session.flush()
 
-            notify_v2(
+            notify(
                 user_id=user.id,
                 topic_action="account_deletion:complete",
                 data=notification_data_pb2.AccountDeletionComplete(
@@ -643,7 +643,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user.undelete_token = None
             user.undelete_until = None
 
-            notify_v2(
+            notify(
                 user_id=user.id,
                 topic_action="account_deletion:recovered",
             )

@@ -4,6 +4,7 @@ declare namespace NodeJS {
     NEXT_PUBLIC_COUCHERS_ENV: "prod" | "preview" | "dev";
     NEXT_PUBLIC_API_BASE_URL: string;
     NEXT_PUBLIC_MEDIA_BASE_URL: string;
+    NEXT_PUBLIC_CONSOLE_BASE_URL: string;
     NEXT_PUBLIC_IS_POST_BETA_ENABLED?: "true";
     NEXT_PUBLIC_VERSION: string;
     NEXT_PUBLIC_IS_VERIFICATION_ENABLED?: "true";

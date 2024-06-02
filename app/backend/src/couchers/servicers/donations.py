@@ -8,7 +8,7 @@ from couchers import errors, urls
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import DonationInitiation, DonationType, Invoice, User
-from couchers.notifications.notify import notify_v2
+from couchers.notifications.notify import notify
 from couchers.sql import couchers_select as select
 from proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
 from proto.google.api import httpbody_pb2
@@ -121,7 +121,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                     )
                 )
 
-                notify_v2(
+                notify(
                     user_id=user.id,
                     topic_action="donation:received",
                     data=notification_data_pb2.DonationReceived(

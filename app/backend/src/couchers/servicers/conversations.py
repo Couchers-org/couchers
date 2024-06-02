@@ -11,7 +11,7 @@ from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
-from couchers.notifications.notify import notify_v2
+from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import are_blocked
 from couchers.sql import couchers_select as select
@@ -159,7 +159,7 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
         for subscription in subscriptions:
             if are_blocked(session, subscription.user_id, message.author.id):
                 continue
-            notify_v2(
+            notify(
                 user_id=subscription.user_id,
                 topic_action="chat:message",
                 key=message.conversation_id,

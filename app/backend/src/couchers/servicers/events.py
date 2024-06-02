@@ -25,7 +25,7 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.notifications.notify import notify_v2
+from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import are_blocked
 from couchers.servicers.threads import thread_to_pb
@@ -243,7 +243,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
             if are_blocked(session, user.id, creator.id):
                 continue
             context = SimpleNamespace(user_id=user.id)
-            notify_v2(
+            notify(
                 user_id=user.id,
                 topic_action="event:create_approved" if payload.approved else "event:create_any",
                 key=payload.occurrence_id,
@@ -274,7 +274,7 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
             if are_blocked(session, user_id, updating_user.id):
                 continue
             context = SimpleNamespace(user_id=user_id)
-            notify_v2(
+            notify(
                 user_id=user_id,
                 topic_action="event:update",
                 key=payload.occurrence_id,
@@ -1016,7 +1016,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
             other_user_context = SimpleNamespace(user_id=request.user_id)
 
-            notify_v2(
+            notify(
                 user_id=request.user_id,
                 topic_action="event:invite_organizer",
                 key=event.id,
