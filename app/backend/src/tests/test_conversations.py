@@ -17,7 +17,7 @@ from couchers.models import (
 )
 from couchers.sql import couchers_select as select
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
-from proto import api_pb2, conversations_pb2, notifications_pb2
+from proto import api_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
     conversations_session,
@@ -1416,7 +1416,7 @@ def test_chat_notifications(db):
     make_friends(user4, user5)
     make_friends(user4, user6)
 
-    # have some of them enable/disable notifs (all three are the same)
+    # have some of them enable/disable notifs
     topic_action = NotificationTopicAction.chat__message
     for token, enabled in [
         (token1, True),
@@ -1494,7 +1494,7 @@ def test_chat_notifications(db):
         for user, label, expected_msgs in expected_notifs:
             deliv = (
                 session.execute(
-                    select(Notification.content)
+                    select(Notification.data)
                     .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
                     .where(Notification.user_id == user.id)
                     .where(Notification.topic_action == topic_action)
@@ -1505,6 +1505,11 @@ def test_chat_notifications(db):
                 .all()
             )
 
-            print(deliv)
+            def parse_message_payload(data):
+                return notification_data_pb2.ChatMessage.FromString(data).text
 
-            assert [f"Test message {i}" for i in expected_msgs] == deliv, f"Wrong messages for {label}"
+            contents = [parse_message_payload(d) for d in deliv]
+
+            print(contents)
+
+            assert [f"Test message {i}" for i in expected_msgs] == contents, f"Wrong messages for {label}"

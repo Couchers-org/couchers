@@ -121,7 +121,7 @@ def _send_push_notification(user: User, notification: Notification):
         title=rendered.push_title,
         body=rendered.push_body,
         icon=rendered.push_icon,
-        # url=rendered.push_url,
+        url=rendered.push_url,
     )
 
 

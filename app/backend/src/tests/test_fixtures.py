@@ -851,3 +851,36 @@ def email_fields(mock):
         source_data=kw.get("source_data"),
         list_unsubscribe_header=kw.get("list_unsubscribe_header"),
     )
+
+
+@contextmanager
+def push_collector():
+    class Push:
+        """
+        This allows nice access to the push info via e.g. push.title instead of push["title"]
+        """
+
+        def __init__(self, kwargs):
+            self.kwargs = kwargs
+
+        def __getattr__(self, attr):
+            try:
+                return self.kwargs[attr]
+            except KeyError:
+                raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{attr}'")
+
+    class PushCollector:
+        def __init__(self):
+            # pairs of (user_id, push)
+            self.pushes = []
+
+        def by_user(self, user_id):
+            return [kwargs for uid, kwargs in self.pushes if uid == user_id]
+
+        def push_to_user(self, user_id, **kwargs):
+            self.pushes.append((user_id, Push(kwargs=kwargs)))
+
+    collector = PushCollector()
+
+    with patch("couchers.notifications.push._push_to_user", collector.push_to_user) as mock:
+        yield collector

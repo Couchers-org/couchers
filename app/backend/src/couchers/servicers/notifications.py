@@ -1,10 +1,9 @@
-import json
 import logging
 
 import grpc
 from google.protobuf import empty_pb2
 
-from couchers import errors, urls
+from couchers import errors
 from couchers.db import session_scope
 from couchers.models import (
     HostingStatus,
@@ -123,15 +122,10 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             session.add(subscription)
             session.flush()
             sub_id = subscription.id
-        data = json.dumps(
-            {
-                "icon": urls.icon_url(),
-            }
-        ).encode("utf8")
         push_to_subscription(
             sub_id,
             title="Checking push notifications work!",
-            body=f"Hi, thanks for enabling push notifications!",
+            body="Hi, thanks for enabling push notifications!",
         )
         return empty_pb2.Empty()
 

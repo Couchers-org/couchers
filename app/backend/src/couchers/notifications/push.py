@@ -19,7 +19,7 @@ def get_vapid_public_key():
 
 
 def push_to_subscription(
-    push_notification_subscription_id: int, *, title: str, body: str, icon: str = None, ttl: int = 0
+    push_notification_subscription_id: int, *, title: str, body: str, icon: str = None, url: str = None, ttl: int = 0
 ):
     queue_job(
         job_type="send_raw_push_notification",
@@ -29,6 +29,7 @@ def push_to_subscription(
                     "title": title[:500],
                     "body": body[:2000],
                     "icon": icon or urls.icon_url(),
+                    "url": url,
                 }
             ).encode("utf8"),
             push_notification_subscription_id=push_notification_subscription_id,
@@ -37,7 +38,7 @@ def push_to_subscription(
     )
 
 
-def push_to_user(user_id, **kwargs):
+def _push_to_user(user_id, **kwargs):
     """
     Same as above but for a given user
     """
@@ -53,3 +54,10 @@ def push_to_user(user_id, **kwargs):
         )
         for sub_id in sub_ids:
             push_to_subscription(sub_id, **kwargs)
+
+
+def push_to_user(user_id, **kwargs):
+    """
+    This indirection is so that this can be easily mocked. Not sure how to do it better :(
+    """
+    _push_to_user(user_id, **kwargs)
