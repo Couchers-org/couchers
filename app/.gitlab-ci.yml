@@ -496,10 +496,13 @@ wait:before-release:
       artifacts: false
     - job: build:web-dev
       artifacts: false
+      optional: true
     - job: build:web
       artifacts: false
+      optional: true
     - job: build:web-next
       artifacts: false
+      optional: true
     - job: build:nginx-next
       artifacts: false
     - job: test:backend
