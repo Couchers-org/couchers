@@ -38,27 +38,18 @@ message SendRawPushNotificationPayload {
   uint32 ttl = 3;
 }
 
-message FanNotificationsPayload {
-  string topic_action = 1;
-  string key = 3;
-  bytes data = 11;
-
-  string fan_func = 9;
-  string fan_func_data = 10;
-}
-
 message GenerateMessageNotificationsPayload {
   uint64 message_id = 1;
 }
 
-message GenerateEventCreateNotifications {
+message GenerateEventCreateNotificationsPayload {
   int64 inviting_user_id = 1;
   int64 occurrence_id = 2;
   // whether this was approved by an admin or just any user created an event
   bool approved = 3;
 }
 
-message GenerateEventUpdateNotifications {
+message GenerateEventUpdateNotificationsPayload {
   int64 updating_user_id = 1;
   int64 occurrence_id = 2;
   repeated string updated_items = 3;

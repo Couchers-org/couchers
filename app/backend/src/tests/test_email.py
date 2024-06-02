@@ -28,18 +28,11 @@ from couchers.models import (
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
     maybe_send_reference_report_email,
-    send_account_deletion_confirmation_email,
-    send_account_deletion_successful_email,
-    send_account_recovered_email,
-    send_api_key_email,
     send_content_report_email,
     send_email_changed_confirmation_to_new_email,
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
-    send_friend_request_accepted_email,
-    send_friend_request_email,
     send_login_email,
-    send_new_host_request_email,
     send_password_reset_email,
     send_signup_email,
 )

@@ -236,7 +236,7 @@
                             <tbody>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:15px 0px 0px 0px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:20px;text-align:left;color:#333333;"><b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br>{{ other.city|v2esc }}<br>From <b>{{ host_request_info.from_date|v2date(user) }}</b> to <b>{{ host_request_info.to_date|v2date(user) }}</b>.</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:20px;text-align:left;color:#333333;"><b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br>{{ other.city|v2esc }}<br>From <b>{{ host_request.from_date|v2date(user) }}</b> to <b>{{ host_request.to_date|v2date(user) }}</b>.</div>
                                 </td>
                               </tr>
                             </tbody>

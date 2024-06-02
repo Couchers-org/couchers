@@ -38,17 +38,18 @@ class RenderedNotification:
 
 def render_notification(user, notification, data) -> RenderedNotification:
     if notification.topic == "host_request":
-        view_link = urls.host_request(host_request_id=data.host_request_info.host_request_id)
+        view_link = urls.host_request(host_request_id=data.host_request.host_request_id)
         if notification.action in ["create", "message"]:
             if notification.action == "create":
-                other = data.surfer_info
+                other = data.surfer
                 message = f"{other.name} sent you a host request"
                 topic_action_unsub_text = "new host requests"
             elif notification.action == "message":
-                other = data.user_info
-                message = (
-                    f"{other.name} sent you a message in " + ("their" if data.am_host else "your") + " host request"
-                )
+                other = data.user
+                if data.am_host:
+                    message = f"{other.name} sent you a message in their host request"
+                else:
+                    message = f"{other.name} sent you a message in your host request"
                 topic_action_unsub_text = "messages in host request"
             return RenderedNotification(
                 email_subject=message,
@@ -56,23 +57,23 @@ def render_notification(user, notification, data) -> RenderedNotification:
                 email_template_name="host_request__message",
                 email_template_args={
                     "view_link": view_link,
-                    "host_request_info": data.host_request_info,
+                    "host_request": data.host_request,
                     "message": message,
                     "other": other,
                     "text": data.text,
                 },
                 email_topic_action_unsubscribe_text=topic_action_unsub_text,
                 push_title=f"{message}",
-                push_body=f"Dates: {v2date(data.host_request_info.from_date, user)} to {v2date(data.host_request_info.to_date, user)}.\n\n{data.text}",
+                push_body=f"Dates: {v2date(data.host_request.from_date, user)} to {v2date(data.host_request.to_date, user)}.\n\n{data.text}",
                 push_icon=v2avatar(other),
                 push_url=view_link,
             )
         elif notification.action in ["accept", "reject", "confirm", "cancel"]:
             if notification.action in ["accept", "reject"]:
-                other = data.host_info
+                other = data.host
                 their_your = "your"
             else:
-                other = data.surfer_info
+                other = data.surfer
                 their_your = "their"
             actioned = {
                 "accept": "accepted",
@@ -88,7 +89,7 @@ def render_notification(user, notification, data) -> RenderedNotification:
                 email_template_name="host_request__plain",
                 email_template_args={
                     "view_link": view_link,
-                    "host_request_info": data.host_request_info,
+                    "host_request": data.host_request,
                     "message": message,
                     "other": other,
                 },
@@ -164,7 +165,7 @@ def render_notification(user, notification, data) -> RenderedNotification:
                 "message": message,
             },
             push_title=title,
-            push_body=message,
+            push_body=message_plain,
             push_icon=urls.icon_url(),
             push_url=urls.feature_preview_link(),
         )
@@ -253,7 +254,11 @@ def render_notification(user, notification, data) -> RenderedNotification:
             },
             email_topic_action_unsubscribe_text="badge additions" if notification.action == "add" else "badge removals",
             push_title=title,
-            push_body="Check out your profile to see the new badge!",
+            push_body=(
+                "Check out your profile to see the new badge!"
+                if notification.action == "add"
+                else "You can see all your badges on your profile."
+            ),
             push_icon=urls.icon_url(),
             push_url=urls.profile_link(),
             email_list_unsubscribe_url=generate_unsub(user, notification, "topic_action"),
@@ -276,7 +281,7 @@ def render_notification(user, notification, data) -> RenderedNotification:
             push_url=data.receipt_url,
         )
     elif notification.topic_action.display == "friend_request:create":
-        other = data.other_user_info
+        other = data.other_user
         title = f"{other.name} wants to be your friend on Couchers.org!"
         preview = f"You've received a friend request from {other.name}"
         return RenderedNotification(
@@ -294,7 +299,7 @@ def render_notification(user, notification, data) -> RenderedNotification:
             push_url=urls.friend_requests_link(),
         )
     elif notification.topic_action.display == "friend_request:accept":
-        other = data.other_user_info
+        other = data.other_user
         title = f"{other.name} accepted your friend request!"
         preview = f"{other.name} has accepted your friend request"
         return RenderedNotification(
@@ -363,7 +368,7 @@ def render_notification(user, notification, data) -> RenderedNotification:
             email_preview=f"You received a message on Couchers.org!",
             email_template_name="chat_message",
             email_template_args={
-                "author": data.author_info,
+                "author": data.author,
                 "message": data.message,
                 "text": data.text,
                 "view_link": urls.chat_link(chat_id=data.group_chat_id),
@@ -372,11 +377,11 @@ def render_notification(user, notification, data) -> RenderedNotification:
             email_topic_key_unsubscribe_text="this chat (mute)",
             push_title=data.message,
             push_body=data.text,
-            push_icon=v2avatar(data.author_info),
+            push_icon=v2avatar(data.author),
             push_url=urls.chat_link(chat_id=data.group_chat_id),
         )
     elif notification.topic == "event":
-        event = data.event_info.event
+        event = data.event
         time_display = f"{v2timestamp(event.start_time, user)} - {v2timestamp(event.end_time, user)}"
         event_link = urls.event_link(occurrence_id=event.event_id, slug=event.slug)
         if notification.action in ["create_approved", "create_any"]:

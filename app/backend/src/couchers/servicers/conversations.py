@@ -164,7 +164,7 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
                 topic_action="chat:message",
                 key=message.conversation_id,
                 data=notification_data_pb2.ChatMessage(
-                    author_info=user_model_to_pb(
+                    author=user_model_to_pb(
                         message.author,
                         session,
                         SimpleNamespace(user_id=subscription.user_id),

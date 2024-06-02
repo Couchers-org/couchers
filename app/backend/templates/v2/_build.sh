@@ -1,4 +1,4 @@
-docker build -t couchers/mjml .
+docker build -f _Dockerfile -t couchers/mjml .
 mkdir _temp
 for filename in $(find . -maxdepth 1 -type f -name "*.mjml" ! -name "_*.mjml"); do
   basename=$(basename "$filename" .mjml)
