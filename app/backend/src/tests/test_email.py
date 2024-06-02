@@ -1,5 +1,3 @@
-from datetime import timedelta
-from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
@@ -9,26 +7,17 @@ import couchers.jobs.handlers
 from couchers.config import config
 from couchers.crypto import random_hex, urlsafe_secure_token
 from couchers.db import session_scope
-from couchers.jobs.worker import process_job
 from couchers.models import (
     ContentReport,
-    Conversation,
     Email,
     FriendRelationship,
     FriendStatus,
-    HostRequest,
-    HostRequestStatus,
-    Message,
-    MessageType,
     Reference,
     ReferenceType,
     SignupFlow,
-    Upload,
     User,
 )
 from couchers.notifications.notify import notify_v2
-from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.requests import host_request_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
     maybe_send_reference_report_email,
@@ -40,15 +29,16 @@ from couchers.tasks import (
     send_password_reset_email,
     send_signup_email,
 )
-from couchers.templates.v2 import v2date
-from couchers.utils import now
-from proto import notification_data_pb2, notifications_pb2
+from proto import api_pb2, notification_data_pb2, notifications_pb2
 from tests.test_fixtures import (  # noqa
+    api_session,
     db,
     email_fields,
     generate_user,
+    handle_notifications_bg,
     mock_notification_email,
     notifications_session,
+    push_collector,
     session_scope,
     testconfig,
 )
@@ -202,150 +192,6 @@ def test_reference_report_email(db):
         assert "friend" in html.lower()
 
 
-def test_host_request_email(db):
-    with session_scope() as session:
-        host, api_token_to = generate_user()
-        # little trick here to get the upload correctly without invalidating users
-        key = random_hex(32)
-        filename = random_hex(32) + ".jpg"
-        session.add(
-            Upload(
-                key=key,
-                filename=filename,
-                creator_user_id=host.id,
-            )
-        )
-        session.commit()
-        surfer, api_token_from = generate_user(avatar_key=key)
-        from_date = "2020-01-01"
-        to_date = "2020-01-05"
-
-        conversation = Conversation()
-        text = random_hex(64)
-        message = Message(
-            conversation=conversation,
-            author_id=surfer.id,
-            text=text,
-            message_type=MessageType.text,
-        )
-
-        host_request = HostRequest(
-            conversation=conversation,
-            surfer=surfer,
-            host=host,
-            from_date=from_date,
-            to_date=to_date,
-            status=HostRequestStatus.pending,
-            surfer_last_seen_message_id=message.id,
-        )
-
-        session.add(host_request)
-        session.commit()
-
-        context = SimpleNamespace(user_id=surfer.id)
-
-        with mock_notification_email() as mock:
-            notify_v2(
-                user_id=host_request.host_user_id,
-                topic_action="host_request:create",
-                key=host_request.conversation_id,
-                data=notification_data_pb2.HostRequestCreate(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    surfer=user_model_to_pb(host_request.surfer, session, context),
-                    text=text,
-                ),
-            )
-
-        mock.assert_called_once
-        e = email_fields(mock)
-        assert e.recipient == host.email
-        assert "host request" in e.subject.lower()
-        assert host.name in e.plain
-        assert host.name in e.html
-        assert surfer.name in e.plain
-        assert surfer.name in e.html
-        assert v2date(from_date, host) in e.plain
-        assert v2date(from_date, host) in e.html
-        assert v2date(to_date, host) in e.plain
-        assert v2date(to_date, host) in e.html
-        assert surfer.avatar.thumbnail_url not in e.plain
-        assert surfer.avatar.thumbnail_url in e.html
-        assert f"http://localhost:3000/messages/request/{host_request.conversation_id}" in e.plain
-        assert f"http://localhost:3000/messages/request/{host_request.conversation_id}" in e.html
-
-
-def test_friend_request_email(db):
-    with session_scope() as session:
-        to_user, api_token_to = generate_user()
-        # little trick here to get the upload correctly without invalidating users
-        key = random_hex(32)
-        filename = random_hex(32) + ".jpg"
-        session.add(
-            Upload(
-                key=key,
-                filename=filename,
-                creator_user_id=to_user.id,
-            )
-        )
-        session.commit()
-        from_user, api_token_from = generate_user(avatar_key=key)
-        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
-        session.add(friend_relationship)
-
-        with patch("couchers.email.queue_email") as mock:
-            send_friend_request_email(friend_relationship)
-
-        assert mock.call_count == 1
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == to_user.email
-        assert "friend" in subject.lower()
-        assert to_user.name in plain
-        assert to_user.name in html
-        assert from_user.name in subject
-        assert from_user.name in plain
-        assert from_user.name in html
-        assert from_user.avatar.thumbnail_url not in plain
-        assert from_user.avatar.thumbnail_url in html
-        assert f"http://localhost:3000/connections/friends/" in plain
-        assert f"http://localhost:3000/connections/friends/" in html
-
-
-def test_friend_request_accepted_email(db):
-    with session_scope() as session:
-        from_user, api_token_from = generate_user()
-        to_user, api_token_to = generate_user()
-        key = random_hex(32)
-        filename = random_hex(32) + ".jpg"
-        session.add(
-            Upload(
-                key=key,
-                filename=filename,
-                creator_user_id=from_user.id,
-            )
-        )
-        session.commit()
-        to_user, api_token_to = generate_user(avatar_key=key)
-        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.accepted)
-        session.add(friend_relationship)
-
-        with patch("couchers.email.queue_email") as mock:
-            send_friend_request_accepted_email(friend_relationship)
-
-        assert mock.call_count == 1
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == from_user.email
-        assert "friend" in subject.lower()
-        assert from_user.name in plain
-        assert from_user.name in html
-        assert to_user.name in subject
-        assert to_user.name in plain
-        assert to_user.name in html
-        assert to_user.avatar.thumbnail_url not in plain
-        assert to_user.avatar.thumbnail_url in html
-        assert f"http://localhost:3000/user/{to_user.username}" in plain
-        assert f"http://localhost:3000/user/{to_user.username}" in html
-
-
 def test_email_patching_fails(db):
     """
     There was a problem where the mocking wasn't happening and the email dev
@@ -353,19 +199,20 @@ def test_email_patching_fails(db):
     actually done
     """
     with session_scope() as session:
-        from_user, api_token_from = generate_user()
-        to_user, api_token_to = generate_user()
-        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
-        session.add(friend_relationship)
+        to_user, to_token = generate_user()
+        from_user, from_token = generate_user()
 
         patched_msg = random_hex(64)
 
-        def mock_queue_email(sender_name, sender_email, recipient, subject, plain, html):
+        def mock_queue_email(**kwargs):
             raise Exception(patched_msg)
 
-        with pytest.raises(Exception) as e:
-            with patch("couchers.email.queue_email", mock_queue_email):
-                send_friend_request_email(friend_relationship)
+        with patch("couchers.notifications.background.queue_email", mock_queue_email) as mock:
+            with pytest.raises(Exception) as e:
+                with api_session(from_token) as api:
+                    api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=to_user.id))
+                handle_notifications_bg()
+
         assert str(e.value) == patched_msg
 
 
@@ -459,97 +306,6 @@ def test_password_reset_email(db):
         assert "support@couchers.org" in html
 
 
-def test_account_deletion_confirmation_email(db):
-    user, api_token = generate_user()
-
-    with patch("couchers.templates.v2.queue_email") as mock:
-        account_deletion_token = send_account_deletion_confirmation_email(user)
-        assert mock.call_count == 1
-        _, kwargs = mock.call_args
-        assert kwargs["recipient"] == user.email
-        assert "account deletion" in kwargs["subject"].lower()
-        assert account_deletion_token.token in kwargs["plain"]
-        assert account_deletion_token.token in kwargs["html"]
-        unique_string = "You requested that we delete your account from Couchers.org."
-        assert unique_string in kwargs["plain"]
-        assert unique_string in kwargs["html"]
-        url = f"http://localhost:3000/delete-account?token={account_deletion_token.token}"
-        assert url in kwargs["plain"]
-        assert url in kwargs["html"]
-        assert "support@couchers.org" in kwargs["plain"]
-        assert "support@couchers.org" in kwargs["html"]
-
-
-def test_api_key_email(db):
-    user, api_token = generate_user()
-
-    token = random_hex(64)
-    expiry = now() + timedelta(days=90)
-
-    with session_scope() as session:
-        with patch("couchers.email.queue_email") as mock:
-            send_api_key_email(session, user, token, expiry)
-
-        assert mock.call_count == 1
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == user.email
-        assert "api key" in subject.lower()
-        assert token in plain
-        assert token in html
-        assert str(expiry) in plain
-        assert str(expiry) in html
-        unique_string = "We've issued you with the following API key:"
-        assert unique_string in plain
-        assert unique_string in html
-        assert "support@couchers.org" in plain
-        assert "support@couchers.org" in html
-
-
-def test_account_deletion_successful_email(db):
-    user, api_token = generate_user()
-
-    with session_scope() as session:
-        user_ = session.execute(select(User)).scalar_one()
-        user.undelete_token = "token"
-        user.undelete_until = now()
-        user.is_deleted = True
-
-    with patch("couchers.templates.v2.queue_email") as mock:
-        send_account_deletion_successful_email(user, 7)
-
-        assert mock.call_count == 1
-        _, kwargs = mock.call_args
-        assert kwargs["recipient"] == user.email
-        assert "account has been deleted" in kwargs["subject"].lower()
-        unique_string = "You have successfully deleted your account from Couchers.org."
-        assert unique_string in kwargs["plain"]
-        assert unique_string in kwargs["html"]
-        assert "7 days" in kwargs["plain"]
-        assert "7 days" in kwargs["html"]
-        url = f"http://localhost:3000/recover-account?token={user.undelete_token}"
-        assert url in kwargs["plain"]
-        assert url in kwargs["html"]
-        assert "support@couchers.org" in kwargs["plain"]
-        assert "support@couchers.org" in kwargs["html"]
-
-
-def test_account_recovery_successful_email(db):
-    user, api_token = generate_user()
-
-    with patch("couchers.templates.v2.queue_email") as mock:
-        send_account_recovered_email(user)
-
-        assert mock.call_count == 1
-        _, kwargs = mock.call_args
-        assert kwargs["recipient"] == user.email
-        assert "account has been recovered" in kwargs["subject"].lower()
-        unique_string = "Your account on Couchers.org has been successfully recovered!"
-        assert unique_string in kwargs["plain"]
-        assert unique_string in kwargs["html"]
-        assert "support@couchers.org" in kwargs["plain"]
-        assert "support@couchers.org" in kwargs["html"]
-
-
 def test_do_not_email_security(db):
     _, token = generate_user()
 
@@ -582,61 +338,32 @@ def test_do_not_email_security(db):
 
 
 def test_do_not_email_non_security(db):
-    _, token = generate_user()
+    user, token1 = generate_user(complete_profile=True)
+    _, token2 = generate_user(complete_profile=True)
 
-    with notifications_session(token) as notifications:
+    with notifications_session(token1) as notifications:
         notifications.SetDoNotEmail(notifications_pb2.SetDoNotEmailReq(enable_do_not_email=True))
 
-    with session_scope() as session:
-        to_user = session.execute(select(User)).scalar_one()
-        # little trick here to get the upload correctly without invalidating users
-        key = random_hex(32)
-        filename = random_hex(32) + ".jpg"
-        session.add(
-            Upload(
-                key=key,
-                filename=filename,
-                creator_user_id=to_user.id,
-            )
-        )
-        session.commit()
-        from_user, api_token_from = generate_user(avatar_key=key)
-        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
-        session.add(friend_relationship)
+    with mock_notification_email() as mock:
+        with api_session(token2) as api:
+            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
 
-        with patch("couchers.email.queue_email") as mock:
-            send_friend_request_email(friend_relationship)
-
-        assert mock.call_count == 0
+    assert mock.call_count == 0
 
 
 def test_do_not_email_non_security_unsublink(db):
-    _, token = generate_user()
+    user, _ = generate_user(complete_profile=True)
+    _, token2 = generate_user(complete_profile=True)
 
-    with session_scope() as session:
-        to_user = session.execute(select(User)).scalar_one()
-        # little trick here to get the upload correctly without invalidating users
-        key = random_hex(32)
-        filename = random_hex(32) + ".jpg"
-        session.add(
-            Upload(
-                key=key,
-                filename=filename,
-                creator_user_id=to_user.id,
-            )
-        )
-        session.commit()
-        from_user, api_token_from = generate_user(avatar_key=key)
-        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.pending)
-        session.add(friend_relationship)
+    with mock_notification_email() as mock:
+        with api_session(token2) as api:
+            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
 
-        with patch("couchers.email.queue_email") as mock:
-            send_friend_request_email(friend_relationship)
+    assert mock.call_count == 1
+    e = email_fields(mock)
 
-        assert mock.call_count == 1
-        (_, _, _, _, plain, html), _ = mock.call_args
-        assert "/unsubscribe?payload=" in plain
-        assert "/unsubscribe?payload=" in html
+    assert "/unsubscribe?payload=" in e.plain
+    assert "/unsubscribe?payload=" in e.html
 
 
 def test_email_prefix_config(db, monkeypatch):
@@ -689,8 +416,7 @@ def test_send_donation_email(db, monkeypatch):
     )
 
     with patch("couchers.email.smtp.smtplib.SMTP") as mock:
-        while process_job():
-            pass
+        handle_notifications_bg()
 
     with session_scope() as session:
         email = session.execute(select(Email)).scalar_one()
@@ -717,6 +443,7 @@ Thank you!
 
 Aapeli and Itsi,
 Couchers.org Founders
+
 
 ---
 

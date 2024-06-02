@@ -839,8 +839,8 @@ class EmailData:
     list_unsubscribe_header: str
 
 
-def email_fields(mock):
-    _, kw = mock.call_args
+def email_fields(mock, call_ix=0):
+    _, kw = mock.call_args_list[call_ix]
     return EmailData(
         sender_name=kw.get("sender_name"),
         sender_email=kw.get("sender_email"),
@@ -853,8 +853,12 @@ def email_fields(mock):
     )
 
 
-@contextmanager
+@pytest.fixture
 def push_collector():
+    """
+    See test_SendTestPushNotification for an example on how to use this fixture
+    """
+
     class Push:
         """
         This allows nice access to the push info via e.g. push.title instead of push["title"]
@@ -879,6 +883,21 @@ def push_collector():
 
         def push_to_user(self, user_id, **kwargs):
             self.pushes.append((user_id, Push(kwargs=kwargs)))
+
+        def assert_user_has_count(self, user_id, count):
+            assert len(self.by_user(user_id)) == count
+
+        def assert_user_push_matches_fields(self, user_id, ix=0, **kwargs):
+            push = self.by_user(user_id)[ix]
+            for kwarg in kwargs:
+                assert kwarg in push.kwargs, f"Push notification {user_id=}, {ix=} missing field '{kwarg}'"
+                assert (
+                    push.kwargs[kwarg] == kwargs[kwarg]
+                ), f"Push notification {user_id=}, {ix=} mismatch in field '{kwarg}', expected '{kwargs[kwarg]}' but got '{push.kwargs[kwarg]}'"
+
+        def assert_user_has_single_matching(self, user_id, **kwargs):
+            self.assert_user_has_count(user_id, 1)
+            self.assert_user_push_matches_fields(user_id, ix=0, **kwargs)
 
     collector = PushCollector()
 

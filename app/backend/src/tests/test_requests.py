@@ -7,6 +7,7 @@ from sqlalchemy.sql import select
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import Message, MessageType
+from couchers.templates.v2 import v2date
 from couchers.utils import now, today
 from proto import api_pb2, conversations_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
@@ -15,6 +16,7 @@ from tests.test_fixtures import (  # noqa
     email_fields,
     generate_user,
     mock_notification_email,
+    push_collector,
     requests_session,
     testconfig,
 )
@@ -956,3 +958,75 @@ def test_response_rate(db):
         assert res.HasField("almost_all")
         assert res.almost_all.response_time_p33.ToTimedelta() == timedelta(hours=4)
         assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
+
+
+def test_request_notifications(db, push_collector):
+    host, host_token = generate_user(complete_profile=True)
+    surfer, surfer_token = generate_user(complete_profile=True)
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    with requests_session(surfer_token) as api:
+        with mock_notification_email() as mock:
+            hr_id = api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=host.id,
+                    from_date=today_plus_2,
+                    to_date=today_plus_3,
+                    text="can i stay plz",
+                )
+            ).host_request_id
+
+    mock.assert_called_once
+    e = email_fields(mock)
+    assert e.recipient == host.email
+    assert "host request" in e.subject.lower()
+    assert host.name in e.plain
+    assert host.name in e.html
+    assert surfer.name in e.plain
+    assert surfer.name in e.html
+    assert v2date(today_plus_2, host) in e.plain
+    assert v2date(today_plus_2, host) in e.html
+    assert v2date(today_plus_3, host) in e.plain
+    assert v2date(today_plus_3, host) in e.html
+    assert "http://localhost:5000/img/thumbnail/" not in e.plain
+    assert "http://localhost:5000/img/thumbnail/" in e.html
+    assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
+    assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
+
+    push_collector.assert_user_has_single_matching(
+        host.id,
+        title=f"{surfer.name} sent you a host request",
+    )
+
+    with requests_session(host_token) as api:
+        with mock_notification_email() as mock:
+            api.RespondHostRequest(
+                requests_pb2.RespondHostRequestReq(
+                    host_request_id=hr_id,
+                    status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                    text="Accepting host request",
+                )
+            )
+
+    e = email_fields(mock)
+    assert e.recipient == surfer.email
+    assert "host request" in e.subject.lower()
+    assert host.name in e.plain
+    assert host.name in e.html
+    assert surfer.name in e.plain
+    assert surfer.name in e.html
+    assert v2date(today_plus_2, surfer) in e.plain
+    assert v2date(today_plus_2, surfer) in e.html
+    assert v2date(today_plus_3, surfer) in e.plain
+    assert v2date(today_plus_3, surfer) in e.html
+    assert "http://localhost:5000/img/thumbnail/" not in e.plain
+    assert "http://localhost:5000/img/thumbnail/" in e.html
+    assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
+    assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
+
+    push_collector.assert_user_has_single_matching(
+        surfer.id,
+        title=f"{host.name} accepted your host request",
+    )

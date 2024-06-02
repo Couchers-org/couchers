@@ -265,7 +265,7 @@ def render_notification(user, notification, data) -> RenderedNotification:
         )
     elif notification.topic_action.display == "donation:received":
         title = f"Thank you for your donation to Couchers.org!"
-        message = f"Thank you so much for your donation of ${amount} to Couchers.org."
+        message = f"Thank you so much for your donation of ${data.amount} to Couchers.org."
         return RenderedNotification(
             is_critical=True,
             email_subject=title,
@@ -282,10 +282,9 @@ def render_notification(user, notification, data) -> RenderedNotification:
         )
     elif notification.topic_action.display == "friend_request:create":
         other = data.other_user
-        title = f"{other.name} wants to be your friend on Couchers.org!"
         preview = f"You've received a friend request from {other.name}"
         return RenderedNotification(
-            email_subject=title,
+            email_subject=f"{other.name} wants to be your friend on Couchers.org!",
             email_preview=preview,
             email_template_name="friend_request",
             email_template_args={
@@ -293,7 +292,7 @@ def render_notification(user, notification, data) -> RenderedNotification:
                 "other": other,
             },
             email_topic_action_unsubscribe_text="new friend requests",
-            push_title=title,
+            push_title=f"{other.name} wants to be your friend",
             push_body=preview,
             push_icon=v2avatar(other),
             push_url=urls.friend_requests_link(),
