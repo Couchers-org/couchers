@@ -75,16 +75,20 @@ def v2quote(value):
     return "\n> ".join([""] + value.splitlines())
 
 
-env.filters["v2esc"] = v2esc
-env.filters["v2multiline"] = v2multiline
-env.filters["v2sf"] = v2sf
-env.filters["v2url"] = v2url
-env.filters["v2phone"] = v2phone
-env.filters["v2date"] = v2date
-env.filters["v2time"] = v2time
-env.filters["v2timestamp"] = v2timestamp
-env.filters["v2avatar"] = v2avatar
-env.filters["v2quote"] = v2quote
+def add_filters(env):
+    env.filters["v2esc"] = v2esc
+    env.filters["v2multiline"] = v2multiline
+    env.filters["v2sf"] = v2sf
+    env.filters["v2url"] = v2url
+    env.filters["v2phone"] = v2phone
+    env.filters["v2date"] = v2date
+    env.filters["v2time"] = v2time
+    env.filters["v2timestamp"] = v2timestamp
+    env.filters["v2avatar"] = v2avatar
+    env.filters["v2quote"] = v2quote
+
+
+add_filters(env)
 
 
 def email_user(user, template_name, template_args={}, frontmatter=None, override_recipient=None):

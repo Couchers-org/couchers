@@ -63,26 +63,3 @@ def notify_v2(
             notification_id=notification_id,
         ),
     )
-
-
-def fan_notify_v2(
-    *,
-    fan_func: str,
-    fan_func_data: str,
-    topic_action,
-    key="",
-    data=None,
-):
-    """
-    Like notify, but this time we pass into a background job and call fan_func(fan_func_data) in order to figure out who to send this notification to
-    """
-    queue_job(
-        job_type="fan_notifications",
-        payload=jobs_pb2.FanNotificationsPayload(
-            topic_action=topic_action,
-            key=key,
-            data=(data or empty_pb2.Empty()).SerializeToString(),
-            fan_func=fan_func,
-            fan_func_data=fan_func_data,
-        ),
-    )

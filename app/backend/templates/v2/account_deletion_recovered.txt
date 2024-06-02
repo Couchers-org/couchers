@@ -1,6 +1,6 @@
 Hi {{ user.name }}!
 
-We have successfully recovered your account on Couchers.org!
+Your account on Couchers.org has been successfully recovered!
 
 We are so glad you decided to stay! To log back in, click the following link:
 
@@ -13,7 +13,3 @@ If this wasn't you, please contact us by emailing <support@couchers.org> so we c
 
 Best,
 The Couchers.org team
-
----
-
-This is a security email, you cannot unsubscribe from it.

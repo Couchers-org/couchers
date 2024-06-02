@@ -8,10 +8,10 @@ from couchers.templates.v2 import v2avatar, v2date, v2phone, v2timestamp
 logger = logging.getLogger(__name__)
 
 
-@dataclass
+@dataclass(kw_only=True)
 class RenderedNotification:
     # whether the notification is critical and cannot be turned off
-    is_critical: bool
+    is_critical: bool = False
     # email subject
     email_subject: str
     # shows up when listing emails in many clients
@@ -20,6 +20,12 @@ class RenderedNotification:
     email_template_name: str
     # other template args
     email_template_args: dict
+    # the link label on the topic_action unsubscribe link
+    email_topic_action_unsubscribe_text: str = None
+    # the link label on the topic_key unsubscribe link
+    email_topic_key_unsubscribe_text: str = None
+    # url to unsubscribe with one click
+    email_list_unsubscribe_url: str = None
     # push notification title
     push_title: str
     # push notification content
@@ -28,8 +34,6 @@ class RenderedNotification:
     push_icon: str
     # url to where clicking on the notification should take you
     push_url: str
-    # url to unsubscribe with one click
-    list_unsubscribe_url: str = None
 
 
 def render_notification(user, notification, data) -> RenderedNotification:
@@ -39,13 +43,14 @@ def render_notification(user, notification, data) -> RenderedNotification:
             if notification.action == "create":
                 other = data.surfer_info
                 message = f"{other.name} sent you a host request"
+                topic_action_unsub_text = "new host requests"
             elif notification.action == "message":
                 other = data.user_info
                 message = (
                     f"{other.name} sent you a message in " + ("their" if data.am_host else "your") + " host request"
                 )
+                topic_action_unsub_text = "messages in host request"
             return RenderedNotification(
-                is_critical=False,
                 email_subject=message,
                 email_preview=message,
                 email_template_name="host_request__message",
@@ -56,6 +61,7 @@ def render_notification(user, notification, data) -> RenderedNotification:
                     "other": other,
                     "text": data.text,
                 },
+                email_topic_action_unsubscribe_text=topic_action_unsub_text,
                 push_title=f"{message}",
                 push_body=f"Dates: {v2date(data.host_request_info.from_date, user)} to {v2date(data.host_request_info.to_date, user)}.\n\n{data.text}",
                 push_icon=v2avatar(other),
@@ -77,7 +83,6 @@ def render_notification(user, notification, data) -> RenderedNotification:
             # "rejected your host request", or similar
             message = f"{other.name} {actioned} {their_your} host request"
             return RenderedNotification(
-                is_critical=False,
                 email_subject=message,
                 email_preview=message,
                 email_template_name="host_request__plain",
@@ -87,6 +92,7 @@ def render_notification(user, notification, data) -> RenderedNotification:
                     "message": message,
                     "other": other,
                 },
+                email_topic_action_unsubscribe_text=f"{actioned} host requests",
                 push_title=message,
                 push_body="Check the app for more info.",
                 push_icon=v2avatar(other),
@@ -237,7 +243,6 @@ def render_notification(user, notification, data) -> RenderedNotification:
         actioned = "added to" if notification.action == "add" else "removed from"
         title = f"The {data.badge_name} badge was {actioned} your profile"
         return RenderedNotification(
-            is_critical=False,
             email_subject=title,
             email_preview=title,
             email_template_name="badge",
@@ -246,11 +251,12 @@ def render_notification(user, notification, data) -> RenderedNotification:
                 "actioned": actioned,
                 "unsub_type": "badge additions" if notification.action == "add" else "badge removals",
             },
+            email_topic_action_unsubscribe_text="badge additions" if notification.action == "add" else "badge removals",
             push_title=title,
             push_body="Check out your profile to see the new badge!",
             push_icon=urls.icon_url(),
             push_url=urls.profile_link(),
-            list_unsubscribe_url=generate_unsub(user, notification, "topic_action"),
+            email_list_unsubscribe_url=generate_unsub(user, notification, "topic_action"),
         )
     elif notification.topic_action.display == "donation:received":
         title = f"Thank you for your donation to Couchers.org!"
@@ -274,7 +280,6 @@ def render_notification(user, notification, data) -> RenderedNotification:
         title = f"{other.name} wants to be your friend on Couchers.org!"
         preview = f"You've received a friend request from {other.name}"
         return RenderedNotification(
-            is_critical=False,
             email_subject=title,
             email_preview=preview,
             email_template_name="friend_request",
@@ -282,6 +287,7 @@ def render_notification(user, notification, data) -> RenderedNotification:
                 "friend_requests_link": urls.friend_requests_link(),
                 "other": other,
             },
+            email_topic_action_unsubscribe_text="new friend requests",
             push_title=title,
             push_body=preview,
             push_icon=v2avatar(other),
@@ -292,7 +298,6 @@ def render_notification(user, notification, data) -> RenderedNotification:
         title = f"{other.name} accepted your friend request!"
         preview = f"{other.name} has accepted your friend request"
         return RenderedNotification(
-            is_critical=False,
             email_subject=title,
             email_preview=preview,
             email_template_name="friend_request_accepted",
@@ -300,6 +305,7 @@ def render_notification(user, notification, data) -> RenderedNotification:
                 "other_user_link": urls.user_link(username=other.username),
                 "other": other,
             },
+            email_topic_action_unsubscribe_text="accepted friend requests",
             push_title=title,
             push_body=preview,
             push_icon=v2avatar(other),
@@ -353,7 +359,6 @@ def render_notification(user, notification, data) -> RenderedNotification:
         )
     elif notification.topic_action.display == "chat:message":
         return RenderedNotification(
-            is_critical=True,
             email_subject=data.message,
             email_preview=f"You received a message on Couchers.org!",
             email_template_name="chat_message",
@@ -363,6 +368,8 @@ def render_notification(user, notification, data) -> RenderedNotification:
                 "text": data.text,
                 "view_link": urls.chat_link(chat_id=data.group_chat_id),
             },
+            email_topic_action_unsubscribe_text="new chat messages",
+            email_topic_key_unsubscribe_text="this chat (mute)",
             push_title=data.message,
             push_body=data.text,
             push_icon=v2avatar(data.author_info),
@@ -382,7 +389,6 @@ def render_notification(user, notification, data) -> RenderedNotification:
                 else None
             )
             return RenderedNotification(
-                is_critical=False,
                 email_subject=f'{data.inviting_user.name} invited you to "{event.title}"',
                 email_preview=f"You've been invited to a new event on Couchers.org!",
                 email_template_name="event_create",
@@ -398,6 +404,11 @@ def render_notification(user, notification, data) -> RenderedNotification:
                     "event": event,
                     "view_link": event_link,
                 },
+                email_topic_action_unsubscribe_text=(
+                    "new events by community members"
+                    if notification.action == "create_any"
+                    else "new events approved by moderators"
+                ),
                 push_title=f'{data.inviting_user.name} invited you to "{event.title}"',
                 push_body=body,
                 push_icon=v2avatar(data.inviting_user),
@@ -409,7 +420,6 @@ def render_notification(user, notification, data) -> RenderedNotification:
             body += f"{data.updating_user.name} updated: {updated_text}\n\n"
             body += event.content
             return RenderedNotification(
-                is_critical=False,
                 email_subject=f'{data.updating_user.name} updated "{event.title}"',
                 email_preview=f"An event you are subscribed to was updated.",
                 email_template_name="event_update",
@@ -420,6 +430,7 @@ def render_notification(user, notification, data) -> RenderedNotification:
                     "updated_text": updated_text,
                     "view_link": event_link,
                 },
+                email_topic_action_unsubscribe_text="event updates",
                 push_title=f'{data.updating_user.name} updated "{event.title}"',
                 push_body=body,
                 push_icon=v2avatar(data.updating_user),
@@ -430,7 +441,6 @@ def render_notification(user, notification, data) -> RenderedNotification:
             body += f"Invited to co-organize by {data.inviting_user.name}\n\n"
             body += event.content
             return RenderedNotification(
-                is_critical=False,
                 email_subject=f'{data.inviting_user.name} invited you to co-organize "{event.title}"',
                 email_preview=f"You were invited to co-organize an event on Couchers.org.",
                 email_template_name="event_invite_organizer",
@@ -440,6 +450,7 @@ def render_notification(user, notification, data) -> RenderedNotification:
                     "event": event,
                     "view_link": event_link,
                 },
+                email_topic_action_unsubscribe_text="invitations to co-organize",
                 push_title=f'{data.inviting_user.name} invited you to co-organize "{event.title}"',
                 push_body=body,
                 push_icon=v2avatar(data.inviting_user),

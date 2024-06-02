@@ -1,48 +1,31 @@
-<mjml>
-  <mj-include path="./mjml_include/head.mjml" />
-  <mj-body background-color="#eee">
-    <mj-section>
-    </mj-section>
-    <mj-wrapper background-color="#fff" border-radius="5px" padding="20px" css-class="body">
-      <mj-include path="./mjml_include/header.mjml" />
-      <mj-section padding="0px">
-        <mj-column>
-          <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-          <mj-text><b>{{ message|v2esc }}</b> at {{ time|v2time(user) }}.</mj-text>
-        </mj-column>
-      </mj-section>
-      <mj-section padding="0px" text-align="left">
-        <mj-column width="120px">
-          <mj-image border-radius="200px" src="{{ other|v2avatar }}" />
-        </mj-column>
-        <mj-column width="440px">
-          <mj-text padding="15px 0px 0px 0px" line-height="20px"><b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br />{{ other.city|v2esc }}<br />From <b>{{ host_request_info.from_date|v2date(user) }}</b> to <b>{{ host_request_info.to_date|v2date(user) }}</b>.</mj-text>
-        </mj-column>
-      </mj-section>
-      <mj-section padding="10px 20px" text-align="left">
-        <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
-          <mj-text>{{ text|v2esc|v2multiline }}</mj-text>
-        </mj-column>
-      </mj-section>
-      <mj-section padding="0px">
-        <mj-column>
-          <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ view_link|v2url }}">
-            <b>View host request</b>
-          </mj-button>
-        </mj-column>
-      </mj-section>
-      <mj-section padding="0px">
-        <mj-column>
-          <mj-text><b>Do not reply to this email.</b> Use one of the buttons above, or log in to your account to reply to this request.</mj-text>
-        </mj-column>
-      </mj-section>
-      <mj-include path="./mjml_include/footer.mjml" />
-    </mj-wrapper>
-    <mj-section>
-      <mj-column>
-        <mj-text css-class="unsub" align="center" font-size="10px" line-height="16px" color="#777" padding="0px"><a href="">Do not email me (disables hosting)</a>.<br />Turn off emails for: <a href="">new host requests</a>.<br /><a href="">Manage notification preferences</a>.</mj-text>
-        <mj-include path="./mjml_include/couch.mjml" />
-      </mj-column>
-    </mj-section>
-  </mj-body>
-</mjml>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text><b>{{ message|v2esc }}</b> at {{ time|v2time(user) }}.</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px" text-align="left">
+  <mj-column width="120px">
+    <mj-image border-radius="200px" src="{{ other|v2avatar }}" />
+  </mj-column>
+  <mj-column width="440px">
+    <mj-text padding="15px 0px 0px 0px" line-height="20px"><b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br />{{ other.city|v2esc }}<br />From <b>{{ host_request_info.from_date|v2date(user) }}</b> to <b>{{ host_request_info.to_date|v2date(user) }}</b>.</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="10px 20px" text-align="left">
+  <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
+    <mj-text>{{ text|v2esc|v2multiline }}</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ view_link|v2url }}">
+      <b>View host request</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text><b>Do not reply to this email.</b> Use one of the buttons above, or log in to your account to reply to this request.</mj-text>
+  </mj-column>
+</mj-section>

@@ -44,7 +44,6 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.notifications.background import (
-    fan_notifications,
     handle_email_digests,
     handle_email_notifications,
     handle_notification,
@@ -74,8 +73,6 @@ send_raw_push_notification.PAYLOAD = jobs_pb2.SendRawPushNotificationPayload
 
 handle_email_digests.PAYLOAD = empty_pb2.Empty
 handle_email_digests.SCHEDULE = timedelta(minutes=15)
-
-fan_notifications.PAYLOAD = jobs_pb2.FanNotificationsPayload
 
 generate_message_notifications.PAYLOAD = jobs_pb2.GenerateMessageNotificationsPayload
 

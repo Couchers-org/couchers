@@ -6,9 +6,3 @@ Hi {{ user.name }}!
 
 
 We hope you continue making new friends!
-
----
-
-Edit your notification settings at <{{ _manage_notification_settings }}>
-
-Do not email me (disables hosting): <{{ _unsub("do_not_email") }}>
