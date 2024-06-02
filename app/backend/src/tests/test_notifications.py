@@ -20,9 +20,10 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify_v2
 from couchers.sql import couchers_select as select
-from proto import auth_pb2, notification_data_pb2, notifications_pb2
+from proto import api_pb2, auth_pb2, notification_data_pb2, notifications_pb2
 from proto.internal import unsubscribe_pb2
 from tests.test_fixtures import (  # noqa
+    api_session,
     auth_api_session,
     db,
     email_fields,
@@ -251,6 +252,50 @@ def test_unsubscribe(db):
     assert mock.call_count == 0
 
 
+def test_unsubscribe_do_not_email(db):
+    user, token = generate_user()
+
+    _, token2 = generate_user(complete_profile=True)
+    with mock_notification_email() as mock:
+        with api_session(token2) as api:
+            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
+
+    assert mock.call_count == 1
+    assert email_fields(mock).recipient == user.email
+    # very ugly
+    # http://localhost:3000/unsubscribe?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
+    for link in re.findall(r'<a href="(.*?)"', email_fields(mock).html):
+        if "payload" not in link:
+            continue
+        print(link)
+        url_parts = urlparse(link)
+        params = parse_qs(url_parts.query)
+        print(params["payload"][0])
+        payload = unsubscribe_pb2.UnsubscribePayload.FromString(b64decode(params["payload"][0]))
+        if payload.HasField("do_not_email"):
+            with auth_api_session() as (auth_api, metadata_interceptor):
+                res = auth_api.Unsubscribe(
+                    auth_pb2.UnsubscribeReq(
+                        payload=b64decode(params["payload"][0]),
+                        sig=b64decode(params["sig"][0]),
+                    )
+                )
+            break
+    else:
+        raise Exception("Didn't find link")
+
+    _, token3 = generate_user(complete_profile=True)
+    with mock_notification_email() as mock:
+        with api_session(token3) as api:
+            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
+
+    assert mock.call_count == 0
+
+    with session_scope() as session:
+        user_ = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        assert user_.do_not_email
+
+
 def test_notifications_do_not_email(db):
     _, token = generate_user()
 
@@ -356,16 +401,23 @@ def test_RegisterPushNotification(db):
         )
 
 
-def test_SendTestPushNotification(db):
+def test_SendTestPushNotification(db, push_collector):
     user, token = generate_user()
 
-    with push_collector() as collector:
-        with notifications_session(token) as notifications:
-            notifications.SendTestPushNotification(empty_pb2.Empty())
+    with notifications_session(token) as notifications:
+        notifications.SendTestPushNotification(empty_pb2.Empty())
 
-    assert len(collector.by_user(user.id)) == 1
+    push_collector.assert_user_has_count(user.id, 1)
+    push_collector.assert_user_push_matches_fields(
+        user.id,
+        title="Checking push notifications work!",
+        body="If you see this, then it's working :)",
+    )
 
-    notif = collector.by_user(user.id)[0]
+    # the above two are equivalent to this
 
-    assert notif.title == "Checking push notifications work!"
-    assert notif.body == "If you see this, then it's working :)"
+    push_collector.assert_user_has_single_matching(
+        user.id,
+        title="Checking push notifications work!",
+        body="If you see this, then it's working :)",
+    )

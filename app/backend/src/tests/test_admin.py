@@ -17,6 +17,7 @@ from tests.test_fixtures import (  # noqa
     generate_user,
     get_user_id_and_token,
     mock_notification_email,
+    push_collector,
     real_admin_session,
     testconfig,
 )
@@ -177,7 +178,7 @@ def test_DeleteUser(db):
         assert res.deleted
 
 
-def test_CreateApiKey(db):
+def test_CreateApiKey(db, push_collector):
     with session_scope() as session:
         super_user, super_token = generate_user(is_superuser=True)
         normal_user, normal_token = generate_user()
@@ -197,7 +198,8 @@ def test_CreateApiKey(db):
             res = api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=normal_user.username))
 
     mock.assert_called_once()
-    assert email_fields(mock).subject == "[TEST] Your API key for Couchers.org"
+    e = email_fields(mock)
+    assert e.subject == "[TEST] Your API key for Couchers.org"
 
     with session_scope() as session:
         api_key = session.execute(
@@ -207,8 +209,20 @@ def test_CreateApiKey(db):
             .where(UserSession.user_id == normal_user.id)
         ).scalar_one()
 
-        assert api_key.token in email_fields(mock).plain
-        assert api_key.token in email_fields(mock).html
+        assert api_key.token in e.plain
+        assert api_key.token in e.html
+
+    assert e.recipient == normal_user.email
+    assert "api key" in e.subject.lower()
+    unique_string = "We've issued you with the following API key:"
+    assert unique_string in e.plain
+    assert unique_string in e.html
+    assert "support@couchers.org" in e.plain
+    assert "support@couchers.org" in e.html
+
+    push_collector.assert_user_has_single_matching(
+        normal_user.id, title="An API key was created for your account", body="Details were sent to you via email."
+    )
 
 
 VALID_GEOJSON_MULTIPOLYGON = """

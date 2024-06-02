@@ -2184,7 +2184,7 @@ class NotificationTopicAction(enum.Enum):
 
     # topic, action, default delivery types
     friend_request__create = ("friend_request:create", dt_all, True, nd.FriendRequestCreate, False)
-    friend_request__accept = ("friend_request:accept", [dt.push, dt.digest], True, nd.FriendRequestAccept, False)
+    friend_request__accept = ("friend_request:accept", dt_all, True, nd.FriendRequestAccept, False)
 
     # host requests
     host_request__create = ("host_request:create", dt_all, True, nd.HostRequestCreate, True)
