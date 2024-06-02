@@ -17,6 +17,7 @@ depends_on = None
 
 
 def upgrade():
+    op.execute("TRUNCATE TABLE notifications CASCADE")
     op.add_column("notifications", sa.Column("data", sa.LargeBinary(), nullable=False))
     op.drop_column("notifications", "content")
     op.drop_column("notifications", "link")
