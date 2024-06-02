@@ -45,16 +45,17 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             return notifications_pb2.GetNotificationSettingsRes(
-                new_notifications_enabled=user.new_notifications_enabled,
+                do_not_email_enabled=user.do_not_email,
                 groups=get_user_setting_groups(user.id),
             )
 
     def SetNotificationSettings(self, request, context):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            if user.do_not_email:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DO_NOT_EMAIL_CANNOT_ENABLE_NEW_NOTIFICATIONS)
-            user.new_notifications_enabled = request.enable_new_notifications
+            user.do_not_email = request.enable_do_not_email
+            if request.enable_do_not_email:
+                user.hosting_status = HostingStatus.cant_host
+                user.meetup_status = MeetupStatus.does_not_want_to_meetup
             for preference in request.preferences:
                 topic_action = enum_from_topic_action.get((preference.topic, preference.action), None)
                 if not topic_action:
@@ -68,24 +69,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 except PreferenceNotUserEditableError as e:
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANNOT_EDIT_THAT_NOTIFICATION_PREFERENCE)
             return notifications_pb2.GetNotificationSettingsRes(
-                new_notifications_enabled=user.new_notifications_enabled,
+                do_not_email_enabled=user.do_not_email,
                 groups=get_user_setting_groups(user.id),
             )
-
-    def GetDoNotEmail(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            return notifications_pb2.GetDoNotEmailRes(do_not_email_enabled=user.do_not_email)
-
-    def SetDoNotEmail(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            user.do_not_email = request.enable_do_not_email
-            if request.enable_do_not_email:
-                user.new_notifications_enabled = False
-                user.hosting_status = HostingStatus.cant_host
-                user.meetup_status = MeetupStatus.does_not_want_to_meetup
-        return notifications_pb2.SetDoNotEmailRes()
 
     def ListNotifications(self, request, context):
         with session_scope() as session:

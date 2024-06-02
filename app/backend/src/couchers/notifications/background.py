@@ -133,9 +133,6 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
 
         # ignore this notification if the user hasn't enabled new notifications
         user = session.execute(select(User).where(User.id == notification.user_id)).scalar_one()
-        if not user.new_notifications_enabled:
-            logger.info(f"Skipping notification delivery for {user} due to new notifications being disabled")
-            return
 
         topic, action = notification.topic_action.unpack()
         delivery_types = get_preference(session, notification.user.id, notification.topic_action)

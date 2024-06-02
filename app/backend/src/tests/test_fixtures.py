@@ -252,7 +252,6 @@ def generate_user(*, delete_user=False, complete_profile=False, **kwargs):
             "geom_radius": 100,
             "onboarding_emails_sent": 1,
             "last_onboarding_email_sent": now(),
-            "new_notifications_enabled": True,
         }
 
         for key, value in kwargs.items():

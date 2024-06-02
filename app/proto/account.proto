@@ -65,10 +65,6 @@ service Account {
   rpc DeleteAccount(DeleteAccountReq) returns (google.protobuf.Empty) {
     // Sends email with confirmation link containing token to delete account
   }
-
-  rpc SetDoNotEmail(SetDoNotEmailReq) returns (google.protobuf.Empty) {
-    // Sets the do not email flag
-  }
 }
 
 message GetAccountInfoRes {
@@ -167,8 +163,4 @@ message GetStrongVerificationAttemptStatusRes {
 message DeleteAccountReq {
   bool confirm = 1;
   string reason = 2;
-}
-
-message SetDoNotEmailReq {
-  bool do_not_email = 1;
 }
