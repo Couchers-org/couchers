@@ -18,16 +18,18 @@ from couchers.models import (
     NotificationTopicAction,
     User,
 )
-from couchers.notifications.notify import notify_v2
+from couchers.notifications.notify import notify
 from couchers.sql import couchers_select as select
-from proto import api_pb2, auth_pb2, notification_data_pb2, notifications_pb2
+from proto import api_pb2, auth_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
 from proto.internal import unsubscribe_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
     auth_api_session,
+    conversations_session,
     db,
     email_fields,
     generate_user,
+    handle_notifications_bg,
     mock_notification_email,
     notifications_session,
     push_collector,
@@ -62,7 +64,7 @@ def test_SetNotificationSettings_preferences_respected_editable(db, enabled):
             )
         )
 
-    notify_v2(
+    notify(
         user_id=user.id,
         topic_action=topic_action.display,
         data=notification_data_pb2.BadgeAdd(
@@ -137,7 +139,7 @@ def test_unsubscribe(db):
         )
 
     with mock_notification_email() as mock:
-        notify_v2(
+        notify(
             user_id=user.id,
             topic_action=topic_action.display,
             data=notification_data_pb2.BadgeAdd(
@@ -181,7 +183,7 @@ def test_unsubscribe(db):
                     assert not item.email
 
     with mock_notification_email() as mock:
-        notify_v2(
+        notify(
             user_id=user.id,
             topic_action=topic_action.display,
             data=notification_data_pb2.BadgeAdd(
@@ -291,6 +293,55 @@ def test_set_do_not_email(db):
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()
         assert not user.do_not_email
+
+
+def test_list_notifications(db, push_collector):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with api_session(token2) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+
+    with notifications_session(token1) as notifications:
+        res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
+        assert len(res.notifications) == 1
+
+        n = res.notifications[0]
+
+    assert n.topic == "friend_request"
+    assert n.action == "create"
+    assert n.key == "2"
+    assert n.title == f"{user2.name} wants to be your friend"
+    assert n.body == f"You've received a friend request from {user2.name}"
+    assert n.icon == "http://localhost:3000/logo512.png"
+    assert n.url == "http://localhost:3000/connections/friends/"
+
+    with conversations_session(token2) as c:
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id]))
+        group_chat_id = res.group_chat_id
+        for i in range(17):
+            c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=f"Test message {i}"))
+
+    handle_notifications_bg()
+
+    all_notifs = []
+    with notifications_session(token1) as notifications:
+        page_token = None
+        for _ in range(100):
+            res = notifications.ListNotifications(
+                notifications_pb2.ListNotificationsReq(
+                    page_size=5,
+                    page_token=page_token,
+                )
+            )
+            assert len(res.notifications) == 5 or not res.next_page_token
+            all_notifs += res.notifications
+            page_token = res.next_page_token
+            if not page_token:
+                break
+
+    bodys = [f"Test message {16-i}" for i in range(17)] + [f"You've received a friend request from {user2.name}"]
+    assert bodys == [n.body for n in all_notifs]
 
 
 def test_GetVapidPublicKey(db):

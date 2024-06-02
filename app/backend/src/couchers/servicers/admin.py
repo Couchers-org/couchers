@@ -19,7 +19,7 @@ from couchers.models import (
     User,
     UserBadge,
 )
-from couchers.notifications.notify import notify_v2
+from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
 from couchers.servicers.api import get_strong_verification_fields
 from couchers.servicers.auth import create_session
@@ -69,7 +69,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             user.gender = request.gender
             session.commit()
 
-            notify_v2(
+            notify(
                 user_id=user.id,
                 topic_action="gender:change",
                 data=notification_data_pb2.GenderChange(
@@ -87,7 +87,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             user.birthdate = parse_date(request.birthdate)
             session.commit()
 
-            notify_v2(
+            notify(
                 user_id=user.id,
                 topic_action="birthdate:change",
                 data=notification_data_pb2.BirthdateChange(
@@ -116,7 +116,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             session.add(UserBadge(user_id=user.id, badge_id=badge["id"]))
             session.commit()
 
-            notify_v2(
+            notify(
                 user_id=user.id,
                 topic_action="badge:add",
                 data=notification_data_pb2.BadgeAdd(
@@ -150,7 +150,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             session.delete(user_badge)
             session.commit()
 
-            notify_v2(
+            notify(
                 user_id=user.id,
                 topic_action="badge:remove",
                 data=notification_data_pb2.BadgeRemove(
@@ -206,7 +206,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 context, session, user, long_lived=True, is_api_key=True, duration=timedelta(days=365), set_cookie=False
             )
 
-            notify_v2(
+            notify(
                 user_id=user.id,
                 topic_action="api_key:create",
                 data=notification_data_pb2.ApiKeyCreate(

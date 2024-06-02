@@ -44,8 +44,7 @@ def _send_email_notification(user: User, notification: Notification):
     def _generate_unsub(type, one_click=False):
         return generate_unsub(user, notification, type, one_click)
 
-    data = notification.topic_action.data_type.FromString(notification.data)
-    rendered = render_notification(user, notification, data)
+    rendered = render_notification(user, notification)
     template_args = {
         "user": user,
         "time": notification.created,
@@ -110,8 +109,7 @@ def _send_email_notification(user: User, notification: Notification):
 def _send_push_notification(user: User, notification: Notification):
     logger.debug(f"Formatting push notification for {user}")
 
-    data = notification.topic_action.data_type.FromString(notification.data)
-    rendered = render_notification(user, notification, data)
+    rendered = render_notification(user, notification)
 
     if not rendered.push_title:
         raise Exception(f"Tried to send push notification to {user} but didn't have push info")

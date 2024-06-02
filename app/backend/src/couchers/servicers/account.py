@@ -31,7 +31,7 @@ from couchers.models import (
     StrongVerificationCallbackEvent,
     User,
 )
-from couchers.notifications.notify import notify_v2
+from couchers.notifications.notify import notify
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.sql import couchers_select as select
@@ -172,7 +172,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
             session.commit()
 
-            notify_v2(
+            notify(
                 user_id=user.id,
                 topic_action="password:change",
             )
@@ -217,7 +217,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 send_email_changed_confirmation_to_new_email(user)
 
                 # will still go into old email
-                notify_v2(
+                notify(
                     user_id=user.id,
                     topic_action="email_address:change",
                     data=notification_data_pb2.EmailAddressChange(
@@ -298,7 +298,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 user.phone_verification_sent = now()
                 user.phone_verification_attempts = 0
 
-                notify_v2(
+                notify(
                     user_id=user.id,
                     topic_action="phone_number:change",
                 )
@@ -347,7 +347,7 @@ class Account(account_pb2_grpc.AccountServicer):
             user.phone_verification_verified = now()
             user.phone_verification_attempts = 0
 
-            notify_v2(
+            notify(
                 user_id=user.id,
                 topic_action="phone_number:verify",
             )
@@ -448,7 +448,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
             token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
 
-            notify_v2(
+            notify(
                 user_id=user.id,
                 topic_action="account_deletion:start",
                 data=notification_data_pb2.AccountDeletionStart(

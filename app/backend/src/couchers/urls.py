@@ -117,3 +117,7 @@ def unsubscribe_link(*, payload, sig):
 
 def media_url(*, filename, size):
     return f"{config['MEDIA_SERVER_BASE_URL']}/img/{size}/{filename}"
+
+
+def console_link(*, page):
+    return f"{config['CONSOLE_BASE_URL']}/{page}"

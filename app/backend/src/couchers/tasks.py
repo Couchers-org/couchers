@@ -272,6 +272,7 @@ def send_event_community_invite_request_email(request: EventCommunityInviteReque
         template_args={
             "event_link": urls.event_link(occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug),
             "user_link": urls.user_link(username=request.user.username),
+            "view_link": urls.console_link(page="api/org.couchers.admin.Admin"),
         },
     )
 

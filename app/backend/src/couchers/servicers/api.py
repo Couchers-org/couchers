@@ -29,7 +29,7 @@ from couchers.models import (
     SmokingLocation,
     User,
 )
-from couchers.notifications.notify import notify_v2
+from couchers.notifications.notify import notify
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
@@ -592,7 +592,7 @@ class API(api_pb2_grpc.APIServicer):
             session.add(friend_relationship)
             session.flush()
 
-            notify_v2(
+            notify(
                 user_id=friend_relationship.to_user_id,
                 topic_action="friend_request:create",
                 key=friend_relationship.from_user_id,
@@ -668,7 +668,7 @@ class API(api_pb2_grpc.APIServicer):
             session.flush()
 
             if friend_request.status == FriendStatus.accepted:
-                notify_v2(
+                notify(
                     user_id=friend_request.from_user_id,
                     topic_action="friend_request:accept",
                     key=friend_request.to_user_id,
