@@ -23,6 +23,13 @@ def upgrade():
     op.drop_column("notifications", "icon")
     op.drop_column("notifications", "avatar_key")
     op.drop_column("notifications", "title")
+    op.drop_column("users", "new_notifications_enabled")
+    # this constraint is automatically dropped, so recreate without new notification column
+    op.create_check_constraint(
+        constraint_name="do_not_email_inactive",
+        table_name="users",
+        condition="(do_not_email IS FALSE) OR ((hosting_status = 'cant_host') AND (meetup_status = 'does_not_want_to_meetup'))",
+    )
     op.execute("ALTER TYPE notificationtopicaction RENAME VALUE 'friend_request__send' TO 'friend_request__create'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'email_address__verify'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'donation__received'")

@@ -1429,7 +1429,6 @@ def test_chat_notifications(db):
         with notifications_session(token) as notifications:
             notifications.SetNotificationSettings(
                 notifications_pb2.SetNotificationSettingsReq(
-                    enable_new_notifications=True,
                     preferences=[
                         notifications_pb2.SingleNotificationPreference(
                             topic=topic_action.topic,

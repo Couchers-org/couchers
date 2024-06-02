@@ -88,12 +88,11 @@ def unsubscribe(request, context):
         if payload.HasField("all"):
             logger.info(f"User {user.name} unsubscribing from all")
             # todo: some other system when out of preview
-            user.new_notifications_enabled = False
+            raise Exception("I don't think we can end up here")
             return "You've been unsubscribed from all non-security notifications."
         if payload.HasField("do_not_email"):
             logger.info(f"User {user.name} turning of emails")
             user.do_not_email = True
-            user.new_notifications_enabled = False
             user.hosting_status = HostingStatus.cant_host
             user.meetup_status = MeetupStatus.does_not_want_to_meetup
             return "You will not receive any non-security emails, and your hosting status has been turned off. You may still receive the newsletter, and need to unsubscribe from it separately."

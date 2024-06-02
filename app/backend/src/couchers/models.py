@@ -279,10 +279,6 @@ class User(Base):
     # for old AU entity
     stripe_customer_id_old = Column(String, nullable=True)
 
-    # True if the user has opted in to get notifications using the new notification system
-    # This column will be removed in the future when notifications are enabled for everyone and come out of preview
-    new_notifications_enabled = Column(Boolean, nullable=False, server_default=text("false"))
-
     has_passport_sex_gender_exception = Column(Boolean, nullable=False, server_default=text("false"))
 
     # whether this user has all emails turned off
@@ -349,7 +345,7 @@ class User(Base):
         ),
         # If the user disabled all emails, then they can't host or meet up
         CheckConstraint(
-            "(do_not_email IS FALSE) OR ((new_notifications_enabled IS FALSE) AND (hosting_status = 'cant_host') AND (meetup_status = 'does_not_want_to_meetup'))",
+            "(do_not_email IS FALSE) OR ((hosting_status = 'cant_host') AND (meetup_status = 'does_not_want_to_meetup'))",
             name="do_not_email_inactive",
         ),
     )
