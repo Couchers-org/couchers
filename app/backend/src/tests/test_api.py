@@ -291,7 +291,7 @@ def test_update_profile_do_not_email(db):
     user, token = generate_user()
 
     with notifications_session(token) as notifications:
-        notifications.SetDoNotEmail(notifications_pb2.SetDoNotEmailReq(enable_do_not_email=True))
+        notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=True))
 
     with api_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:

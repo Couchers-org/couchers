@@ -254,7 +254,6 @@ def test_get_do_not_email(db):
         user.do_not_email = True
         user.hosting_status = HostingStatus.cant_host
         user.meetup_status = MeetupStatus.does_not_want_to_meetup
-        user.new_notifications_enabled = False
 
     with notifications_session(token) as notifications:
         res = notifications.GetNotificationSettings(notifications_pb2.GetNotificationSettingsReq())

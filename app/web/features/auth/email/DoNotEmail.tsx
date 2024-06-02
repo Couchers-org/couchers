@@ -6,7 +6,7 @@ import { doNotEmailQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import { GetDoNotEmailRes, SetDoNotEmailRes } from "proto/notifications_pb";
+import { GetNotificationSettingsRes } from "proto/notifications_pb";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { service } from "service";
 
@@ -20,17 +20,17 @@ export default function DoNotEmail({ className }: { className: string }) {
   const queryClient = useQueryClient();
 
   const { data, error, isLoading } = useQuery<
-    GetDoNotEmailRes.AsObject,
+    GetNotificationSettingsRes.AsObject,
     RpcError
-  >(doNotEmailQueryKey, service.notifications.getDoNotEmail);
+  >(doNotEmailQueryKey, service.notifications.getNotificationSettings);
 
   const mutation = useMutation<
-    SetDoNotEmailRes.AsObject,
+    GetNotificationSettingsRes.AsObject,
     RpcError,
     DoNotEmailFormData
   >(
     ({ doNotEmailEnabled }) =>
-      service.notifications.setDoNotEmail(doNotEmailEnabled),
+      service.notifications.setNotificationSettings(doNotEmailEnabled),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(doNotEmailQueryKey);
@@ -38,7 +38,7 @@ export default function DoNotEmail({ className }: { className: string }) {
     }
   );
 
-  const toggleNewNotifications = async () => {
+  const toggleDoNotEmail = async () => {
     if (!data) return;
     mutation.mutate({
       doNotEmailEnabled: !data.doNotEmailEnabled,
@@ -71,7 +71,7 @@ export default function DoNotEmail({ className }: { className: string }) {
           </Typography>
           <Typography variant="body1">
             <Button
-              onClick={() => toggleNewNotifications()}
+              onClick={() => toggleDoNotEmail()}
               loading={mutation.isLoading}
             >
               {data.doNotEmailEnabled
