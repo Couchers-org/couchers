@@ -76,9 +76,9 @@ handle_email_digests.SCHEDULE = timedelta(minutes=15)
 
 generate_message_notifications.PAYLOAD = jobs_pb2.GenerateMessageNotificationsPayload
 
-generate_event_create_notifications.PAYLOAD = jobs_pb2.GenerateEventCreateNotifications
+generate_event_create_notifications.PAYLOAD = jobs_pb2.GenerateEventCreateNotificationsPayload
 
-generate_event_update_notifications.PAYLOAD = jobs_pb2.GenerateEventUpdateNotifications
+generate_event_update_notifications.PAYLOAD = jobs_pb2.GenerateEventUpdateNotificationsPayload
 
 
 def send_email(payload):

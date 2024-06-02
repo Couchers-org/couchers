@@ -9,6 +9,7 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
+from couchers.jobs.worker import process_job
 from couchers.models import AccountDeletionReason, AccountDeletionToken, BackgroundJob, Upload, User
 from couchers.sql import couchers_select as select
 from couchers.utils import now
@@ -77,14 +78,20 @@ def test_ChangePassword_normal(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with patch("couchers.servicers.account.send_password_changed_email") as mock:
+        with patch("couchers.notifications.background.queue_email") as mock:
             account.ChangePassword(
                 account_pb2.ChangePasswordReq(
                     old_password=wrappers_pb2.StringValue(value=old_password),
                     new_password=wrappers_pb2.StringValue(value=new_password),
                 )
             )
+
+            while process_job():
+                pass
+
         mock.assert_called_once()
+        _, kwargs = mock.call_args
+        assert kwargs["subject"] == "[DEV] Your password was changed"
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()

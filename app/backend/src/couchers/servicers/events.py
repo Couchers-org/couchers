@@ -214,7 +214,7 @@ def get_users_to_notify_for_new_event(session, occurrence):
         return users, True
 
 
-def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNotifications):
+def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNotificationsPayload):
     """
     Background job to generated/fan out event notifications
     """
@@ -243,25 +243,12 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
             if are_blocked(session, user.id, creator.id):
                 continue
             context = SimpleNamespace(user_id=user.id)
-            organizers = (
-                session.execute(
-                    select(User)
-                    .where_users_visible(context)
-                    .join(EventOrganizer, EventOrganizer.user_id == User.id)
-                    .where(EventOrganizer.event_id == event.id)
-                )
-                .scalars()
-                .all()
-            )
             notify_v2(
                 user_id=user.id,
                 topic_action="event:create_approved" if payload.approved else "event:create_any",
                 key=payload.occurrence_id,
                 data=notification_data_pb2.EventCreate(
-                    event_info=notification_data_pb2.EventInfo(
-                        event=event_to_pb(session, occurrence, context),
-                        organizers=[user_model_to_pb(organizer, session, context) for organizer in organizers],
-                    ),
+                    event=event_to_pb(session, occurrence, context),
                     inviting_user=user_model_to_pb(inviting_user, session, context),
                     nearby=True if is_geom_search else None,
                     in_community=community_to_pb(event.parent_node, context) if not is_geom_search else None,
@@ -269,7 +256,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
             )
 
 
-def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNotifications):
+def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNotificationsPayload):
     with session_scope() as session:
         event, occurrence = session.execute(
             select(Event, EventOccurrence)
@@ -287,25 +274,12 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
             if are_blocked(session, user_id, updating_user.id):
                 continue
             context = SimpleNamespace(user_id=user_id)
-            organizers = (
-                session.execute(
-                    select(User)
-                    .where_users_visible(context)
-                    .join(EventOrganizer, EventOrganizer.user_id == User.id)
-                    .where(EventOrganizer.event_id == event.id)
-                )
-                .scalars()
-                .all()
-            )
             notify_v2(
                 user_id=user_id,
                 topic_action="event:update",
                 key=payload.occurrence_id,
                 data=notification_data_pb2.EventUpdate(
-                    event_info=notification_data_pb2.EventInfo(
-                        event=event_to_pb(session, occurrence, context),
-                        organizers=[user_model_to_pb(organizer, session, context) for organizer in organizers],
-                    ),
+                    event=event_to_pb(session, occurrence, context),
                     updating_user=user_model_to_pb(updating_user, session, context),
                     updated_items=payload.updated_items,
                 ),
@@ -416,7 +390,7 @@ class Events(events_pb2_grpc.EventsServicer):
             if user.has_completed_profile:
                 queue_job(
                     "generate_event_create_notifications",
-                    payload=jobs_pb2.GenerateEventCreateNotifications(
+                    payload=jobs_pb2.GenerateEventCreateNotificationsPayload(
                         inviting_user_id=user.id,
                         occurrence_id=occurrence.id,
                         approved=False,
@@ -635,7 +609,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
                 queue_job(
                     "generate_event_update_notifications",
-                    payload=jobs_pb2.GenerateEventUpdateNotifications(
+                    payload=jobs_pb2.GenerateEventUpdateNotificationsPayload(
                         updating_user_id=user.id,
                         occurrence_id=occurrence.id,
                         updated_items=notify_updated,
@@ -1042,27 +1016,12 @@ class Events(events_pb2_grpc.EventsServicer):
 
             other_user_context = SimpleNamespace(user_id=request.user_id)
 
-            organizers = (
-                session.execute(
-                    select(User)
-                    .where_users_visible(other_user_context)
-                    .join(EventOrganizer, EventOrganizer.user_id == User.id)
-                    .where(EventOrganizer.event_id == event.id)
-                )
-                .scalars()
-                .all()
-            )
             notify_v2(
                 user_id=request.user_id,
                 topic_action="event:invite_organizer",
                 key=event.id,
                 data=notification_data_pb2.EventInviteOrganizer(
-                    event_info=notification_data_pb2.EventInfo(
-                        event=event_to_pb(session, occurrence, other_user_context),
-                        organizers=[
-                            user_model_to_pb(organizer, session, other_user_context) for organizer in organizers
-                        ],
-                    ),
+                    event=event_to_pb(session, occurrence, other_user_context),
                     inviting_user=user_model_to_pb(user, session, other_user_context),
                 ),
             )

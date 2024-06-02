@@ -10,34 +10,34 @@ import "events.proto";
 import "requests.proto";
 
 message HostRequestCreate {
-  org.couchers.api.requests.HostRequest host_request_info = 1;
-  org.couchers.api.core.User surfer_info = 2;
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User surfer = 2;
   string text = 3;
 }
 
 message HostRequestAccept {
-  org.couchers.api.requests.HostRequest host_request_info = 1;
-  org.couchers.api.core.User host_info = 2;
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User host = 2;
 }
 
 message HostRequestReject {
-  org.couchers.api.requests.HostRequest host_request_info = 1;
-  org.couchers.api.core.User host_info = 2;
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User host = 2;
 }
 
 message HostRequestConfirm {
-  org.couchers.api.requests.HostRequest host_request_info = 1;
-  org.couchers.api.core.User surfer_info = 2;
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User surfer = 2;
 }
 
 message HostRequestCancel {
-  org.couchers.api.requests.HostRequest host_request_info = 1;
-  org.couchers.api.core.User surfer_info = 2;
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User surfer = 2;
 }
 
 message HostRequestMessage {
-  org.couchers.api.requests.HostRequest host_request_info = 1;
-  org.couchers.api.core.User user_info = 2;
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User user = 2;
   string text = 3;
   bool am_host = 4;
 }
@@ -71,11 +71,11 @@ message BirthdateChange {
 }
 
 message FriendRequestCreate {
-  org.couchers.api.core.User other_user_info = 1;
+  org.couchers.api.core.User other_user = 1;
 }
 
 message FriendRequestAccept {
-  org.couchers.api.core.User other_user_info = 1;
+  org.couchers.api.core.User other_user = 1;
 }
 
 message EmailAddressChange {
@@ -102,18 +102,13 @@ message ApiKeyCreate {
   google.protobuf.Timestamp expiry = 2;
 }
 
-message EventInfo {
-  org.couchers.api.events.Event event = 1;
-  repeated org.couchers.api.core.User organizers = 2;
-}
-
 message EventInviteOrganizer {
-  EventInfo event_info = 1;
+  org.couchers.api.events.Event event = 1;
   org.couchers.api.core.User inviting_user = 2;
 }
 
 message EventCreate {
-  EventInfo event_info = 1;
+  org.couchers.api.events.Event event = 1;
   org.couchers.api.core.User inviting_user = 2;
   oneof notification_reason {
     bool nearby = 3;
@@ -122,13 +117,13 @@ message EventCreate {
 }
 
 message EventUpdate {
-  EventInfo event_info = 1;
+  org.couchers.api.events.Event event = 1;
   org.couchers.api.core.User updating_user = 2;
   repeated string updated_items = 3;
 }
 
 message ChatMessage {
-  org.couchers.api.core.User author_info = 1;
+  org.couchers.api.core.User author = 1;
   string message = 2;
   string text = 3;
   uint64 group_chat_id = 4;

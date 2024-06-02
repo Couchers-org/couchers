@@ -396,7 +396,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if request.approve:
                 queue_job(
                     "generate_event_create_notifications",
-                    payload=jobs_pb2.GenerateEventCreateNotifications(
+                    payload=jobs_pb2.GenerateEventCreateNotificationsPayload(
                         inviting_user_id=req.user_id,
                         occurrence_id=req.occurrence_id,
                         approved=True,

@@ -114,7 +114,7 @@ def _send_push_notification(user: User, notification: Notification):
     rendered = render_notification(user, notification, data)
 
     if not rendered.push_title:
-        raise Exception(f"Tried to send push notification to {user} but didn't have ")
+        raise Exception(f"Tried to send push notification to {user} but didn't have push info")
 
     push_to_user(
         user.id,
@@ -248,10 +248,8 @@ def handle_email_notifications(payload: empty_pb2.Empty):
                 .outerjoin(
                     subquery,
                     and_(
-                        and_(
-                            subquery.c.user_id == Notification.user_id,
-                            subquery.c.topic_action == Notification.topic_action,
-                        ),
+                        subquery.c.user_id == Notification.user_id,
+                        subquery.c.topic_action == Notification.topic_action,
                         subquery.c.key == Notification.key,
                     ),
                 )
