@@ -410,17 +410,17 @@ def test_scheduler(db, monkeypatch):
 
 
 def test_job_retry(db):
-    queue_job("purge_login_tokens", empty_pb2.Empty())
+    queue_job("mock_job", empty_pb2.Empty())
 
     called_count = 0
 
-    def mock_handler(payload):
+    def mock_job(payload):
         nonlocal called_count
         called_count += 1
         raise Exception()
 
     MOCK_JOBS = {
-        "purge_login_tokens": (empty_pb2.Empty, mock_handler),
+        "mock_job": (empty_pb2.Empty, mock_job),
     }
     create_prometheus_server(registry=job_process_registry, port=8001)
 
@@ -474,8 +474,8 @@ def test_job_retry(db):
             == 0
         )
 
-    _check_job_counter("purge_login_tokens", "error", "4", "Exception")
-    _check_job_counter("purge_login_tokens", "failed", "5", "Exception")
+    _check_job_counter("mock_job", "error", "4", "Exception")
+    _check_job_counter("mock_job", "failed", "5", "Exception")
 
 
 def test_no_jobs_no_problem(db):

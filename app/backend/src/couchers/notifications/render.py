@@ -228,7 +228,7 @@ def render_notification(user, notification, data) -> RenderedNotification:
     elif notification.topic_action.display == "api_key:create":
         return RenderedNotification(
             is_critical=True,
-            email_subject="Your Couchers.org API key",
+            email_subject="Your API key for Couchers.org",
             email_preview="We have issued you an API key as per your request.",
             email_template_name="api_key",
             email_template_args={

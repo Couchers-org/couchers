@@ -9,12 +9,21 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.jobs.worker import process_job
 from couchers.models import AccountDeletionReason, AccountDeletionToken, BackgroundJob, Upload, User
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 from proto import account_pb2, api_pb2, auth_pb2
-from tests.test_fixtures import account_session, auth_api_session, db, fast_passwords, generate_user, testconfig  # noqa
+from tests.test_fixtures import (  # noqa
+    account_session,
+    auth_api_session,
+    db,
+    email_fields,
+    fast_passwords,
+    generate_user,
+    handle_notifications_bg,
+    mock_notification_email,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -78,7 +87,7 @@ def test_ChangePassword_normal(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with patch("couchers.notifications.background.queue_email") as mock:
+        with mock_notification_email() as mock:
             account.ChangePassword(
                 account_pb2.ChangePasswordReq(
                     old_password=wrappers_pb2.StringValue(value=old_password),
@@ -86,12 +95,8 @@ def test_ChangePassword_normal(db, fast_passwords):
                 )
             )
 
-            while process_job():
-                pass
-
         mock.assert_called_once()
-        _, kwargs = mock.call_args
-        assert kwargs["subject"] == "[DEV] Your password was changed"
+        assert email_fields(mock).subject == "[TEST] Your password was changed"
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -249,13 +254,14 @@ def test_ChangePassword_add(db, fast_passwords):
     user, token = generate_user(hashed_password=None)
 
     with account_session(token) as account:
-        with patch("couchers.servicers.account.send_password_changed_email") as mock:
+        with mock_notification_email() as mock:
             account.ChangePassword(
                 account_pb2.ChangePasswordReq(
                     new_password=wrappers_pb2.StringValue(value=new_password),
                 )
             )
         mock.assert_called_once()
+        assert email_fields(mock).subject == "[TEST] Your password was changed"
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -303,13 +309,14 @@ def test_ChangePassword_remove(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        with patch("couchers.servicers.account.send_password_changed_email") as mock:
+        with mock_notification_email() as mock:
             account.ChangePassword(
                 account_pb2.ChangePasswordReq(
                     old_password=wrappers_pb2.StringValue(value=old_password),
                 )
             )
         mock.assert_called_once()
+        assert email_fields(mock).subject == "[TEST] Your password was changed"
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -763,19 +770,19 @@ def test_ChangeEmail_sends_proper_emails_has_password(db, fast_passwords):
             )
         )
 
+    handle_notifications_bg()
+
     with session_scope() as session:
         jobs = session.execute(select(BackgroundJob).where(BackgroundJob.job_type == "send_email")).scalars().all()
         assert len(jobs) == 2
         payload_for_notification_email = jobs[0].payload
         payload_for_confirmation_email_new_address = jobs[1].payload
-        unique_string_notification_email_as_bytes = b"You requested that your email on Couchers.org be changed to"
-        unique_string_for_confirmation_email_new_email_address_as_bytes = (
-            b"You requested that your email be changed to this email address on Couchers.org"
+        uq_str1 = b"An email change to the email"
+        uq_str2 = (
+            b"You requested that your email be changed to this email address on Couchers.org. Your old email address is"
         )
-        assert unique_string_notification_email_as_bytes in payload_for_notification_email
-        assert (
-            unique_string_for_confirmation_email_new_email_address_as_bytes
-            in payload_for_confirmation_email_new_address
+        assert (uq_str1 in jobs[0].payload and uq_str2 in jobs[1].payload) or (
+            uq_str2 in jobs[0].payload and uq_str1 in jobs[1].payload
         )
 
 
@@ -825,11 +832,10 @@ def test_DeleteAccount_start(db):
     user, token = generate_user()
 
     with account_session(token) as account:
-        with patch("couchers.templates.v2.queue_email") as mock:
+        with mock_notification_email() as mock:
             account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True, reason=None))
         mock.assert_called_once()
-        _, kwargs = mock.call_args
-        assert kwargs["subject"] == "[TEST] Confirm your Couchers.org account deletion"
+        assert email_fields(mock).subject == "[TEST] Confirm your Couchers.org account deletion"
 
     with session_scope() as session:
         deletion_token = session.execute(
@@ -866,11 +872,10 @@ def test_full_delete_account_with_recovery(db):
         assert e.value.details() == errors.MUST_CONFIRM_ACCOUNT_DELETE
 
         # Check the right email is sent
-        with patch("couchers.templates.v2.queue_email") as mock:
+        with mock_notification_email() as mock:
             account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
         mock.assert_called_once()
-        _, kwargs = mock.call_args
-        assert kwargs["subject"] == "[TEST] Confirm your Couchers.org account deletion"
+        assert email_fields(mock).subject == "[TEST] Confirm your Couchers.org account deletion"
 
     with session_scope() as session:
         token_o = session.execute(select(AccountDeletionToken)).scalar_one()
