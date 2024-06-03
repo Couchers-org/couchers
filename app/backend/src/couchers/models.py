@@ -2211,8 +2211,8 @@ class NotificationTopicAction(enum.Enum):
     phone_number__change = ("phone_number:change", dt_sec, False, empty_pb2.Empty, False)
     phone_number__verify = ("phone_number:verify", dt_sec, False, empty_pb2.Empty, False)
     # reset password
-    password_reset__start = ("password_reset:start", dt_sec, False, empty_pb2.Empty, False)
-    password_reset__complete = ("password_reset:complete", [dt.email], False, empty_pb2.Empty, False)
+    password_reset__start = ("password_reset:start", dt_sec, False, nd.PasswordResetStart, False)
+    password_reset__complete = ("password_reset:complete", dt_sec, False, empty_pb2.Empty, False)
 
     # account deletion
     account_deletion__start = ("account_deletion:start", dt_sec, False, nd.AccountDeletionStart, False)

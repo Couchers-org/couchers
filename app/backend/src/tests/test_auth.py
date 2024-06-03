@@ -24,8 +24,11 @@ from tests.test_fixtures import (  # noqa
     api_session,
     auth_api_session,
     db,
+    email_fields,
     fast_passwords,
     generate_user,
+    mock_notification_email,
+    push_collector,
     real_api_session,
     testconfig,
 )
@@ -492,41 +495,97 @@ def test_invalid_token(db):
     assert e.value.details() == "Unauthorized"
 
 
-def test_password_reset(db):
+def test_password_reset(db, push_collector):
     user, token = generate_user(hashed_password=hash_password("mypassword"))
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ResetPassword(
-            auth_pb2.ResetPasswordReq(
-                user=user.username,
+        with mock_notification_email() as mock:
+            res = auth_api.ResetPassword(
+                auth_pb2.ResetPasswordReq(
+                    user=user.username,
+                )
             )
-        )
 
     with session_scope() as session:
-        token = session.execute(select(PasswordResetToken)).scalar_one().token
+        password_reset_token = session.execute(select(PasswordResetToken)).scalar_one().token
+
+    assert mock.call_count == 1
+    e = email_fields(mock)
+    assert e.recipient == user.email
+    assert "reset" in e.subject.lower()
+    assert password_reset_token in e.plain
+    assert password_reset_token in e.html
+    unique_string = "You asked for your password to be reset on Couchers.org."
+    assert unique_string in e.plain
+    assert unique_string in e.html
+    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.plain
+    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.html
+    assert "support@couchers.org" in e.plain
+    assert "support@couchers.org" in e.html
+
+    push_collector.assert_user_push_matches_fields(
+        user.id,
+        title="A password reset was initiated on your account",
+        body="Someone initiated a password change on your account.",
+    )
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.CompletePasswordReset(auth_pb2.CompletePasswordResetReq(password_reset_token=token))
+        with mock_notification_email() as mock:
+            res = auth_api.CompletePasswordReset(
+                auth_pb2.CompletePasswordResetReq(password_reset_token=password_reset_token)
+            )
+
+    assert mock.call_count == 1
 
     with session_scope() as session:
-        user = session.execute(select(User)).scalar_one()
-        assert not user.has_password
+        user_ = session.execute(select(User)).scalar_one()
+        assert not user_.has_password
+
+    print(push_collector.by_user(user.id))
+
+    push_collector.assert_user_push_matches_fields(
+        user.id,
+        ix=1,
+        title="Your password was successfully reset",
+        body="Your password on Couchers.org was changed. If that was you, then no further action is needed.",
+    )
 
 
-def test_password_reset_v2(db):
+def test_password_reset_v2(db, push_collector):
     user, token = generate_user(hashed_password=hash_password("mypassword"))
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ResetPassword(auth_pb2.ResetPasswordReq(user=user.username))
+        with mock_notification_email() as mock:
+            res = auth_api.ResetPassword(auth_pb2.ResetPasswordReq(user=user.username))
 
     with session_scope() as session:
-        token = session.execute(select(PasswordResetToken)).scalar_one().token
+        password_reset_token = session.execute(select(PasswordResetToken)).scalar_one().token
+
+    assert mock.call_count == 1
+    e = email_fields(mock)
+    assert e.recipient == user.email
+    assert "reset" in e.subject.lower()
+    assert password_reset_token in e.plain
+    assert password_reset_token in e.html
+    unique_string = "You asked for your password to be reset on Couchers.org."
+    assert unique_string in e.plain
+    assert unique_string in e.html
+    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.plain
+    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.html
+    assert "support@couchers.org" in e.plain
+    assert "support@couchers.org" in e.html
+
+    push_collector.assert_user_push_matches_fields(
+        user.id,
+        title="A password reset was initiated on your account",
+        body="Someone initiated a password change on your account.",
+    )
 
     # make sure bad password are caught
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             auth_api.CompletePasswordResetV2(
-                auth_pb2.CompletePasswordResetV2Req(password_reset_token=token, new_password="password")
+                auth_pb2.CompletePasswordResetV2Req(password_reset_token=password_reset_token, new_password="password")
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.INSECURE_PASSWORD
@@ -534,14 +593,22 @@ def test_password_reset_v2(db):
     # make sure we can set a good password
     with auth_api_session() as (auth_api, metadata_interceptor):
         pwd = random_hex()
-        res = auth_api.CompletePasswordResetV2(
-            auth_pb2.CompletePasswordResetV2Req(password_reset_token=token, new_password=pwd)
-        )
+        with mock_notification_email() as mock:
+            res = auth_api.CompletePasswordResetV2(
+                auth_pb2.CompletePasswordResetV2Req(password_reset_token=password_reset_token, new_password=pwd)
+            )
+
+    push_collector.assert_user_push_matches_fields(
+        user.id,
+        ix=1,
+        title="Your password was successfully reset",
+        body="Your password on Couchers.org was changed. If that was you, then no further action is needed.",
+    )
 
     session_token = get_session_cookie_token(metadata_interceptor)
 
     with session_scope() as session:
-        token = (
+        other_session_token = (
             session.execute(
                 select(UserSession)
                 .join(User, UserSession.user_id == User.id)
@@ -550,13 +617,15 @@ def test_password_reset_v2(db):
                 .where(UserSession.is_valid)
             ).scalar_one_or_none()
         ).token
-        assert token
+        assert other_session_token
 
     # make sure we can't set a password again
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             auth_api.CompletePasswordResetV2(
-                auth_pb2.CompletePasswordResetV2Req(password_reset_token=token, new_password=random_hex())
+                auth_pb2.CompletePasswordResetV2Req(
+                    password_reset_token=password_reset_token, new_password=random_hex()
+                )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.INVALID_TOKEN

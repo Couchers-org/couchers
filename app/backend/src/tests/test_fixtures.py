@@ -873,6 +873,10 @@ def push_collector():
             except KeyError:
                 raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{attr}'")
 
+        def __repr__(self):
+            kwargs_disp = ", ".join(f"'{key}'='{val}'" for key, val in self.kwargs.items())
+            return f"Push({kwargs_disp})"
+
     class PushCollector:
         def __init__(self):
             # pairs of (user_id, push)
