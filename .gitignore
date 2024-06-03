@@ -2,6 +2,7 @@
 .idea
 *.code-workspace
 .DS_Store
+.envrc
 
 # helps Lennart configure his vim
 pyrightconfig.json

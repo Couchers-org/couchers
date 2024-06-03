@@ -1,6 +1,7 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   CancelFriendRequestReq,
+  ListBadgeUsersReq,
   PingReq,
   RespondFriendRequestReq,
   SendFriendRequestReq,
@@ -93,4 +94,27 @@ export async function uploadFile(file: File): Promise<ImageInputValues> {
     ...responseJson,
     file: file,
   };
+}
+
+export interface ListBadgeUsersInput {
+  badgeId: number;
+  pageSize?: number;
+  pageToken?: string;
+}
+export async function listBadgeUsers({
+  badgeId,
+  pageSize,
+  pageToken,
+}: ListBadgeUsersInput) {
+  const req = new ListBadgeUsersReq();
+  req.setBadgeId(badgeId);
+  if (pageSize) {
+    req.setPageSize(pageSize);
+  }
+  if (pageToken) {
+    req.setPageToken(pageToken);
+  }
+
+  const res = await client.api.listBadgeUsers(req);
+  return res.toObject().userIdsList;
 }
