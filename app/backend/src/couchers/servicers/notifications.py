@@ -4,6 +4,7 @@ import grpc
 from google.protobuf import empty_pb2
 
 from couchers import errors
+from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import (
     HostingStatus,
@@ -96,9 +97,15 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             )
 
     def GetVapidPublicKey(self, request, context):
+        if not config["PUSH_NOTIFICATIONS_ENABLED"]:
+            context.abort(grpc.StatusCode.UNAVAILABLE, errors.PUSH_NOTIFICATIONS_DISABLED)
+
         return notifications_pb2.GetVapidPublicKeyRes(vapid_public_key=get_vapid_public_key())
 
     def RegisterPushNotification(self, request, context):
+        if not config["PUSH_NOTIFICATIONS_ENABLED"]:
+            context.abort(grpc.StatusCode.UNAVAILABLE, errors.PUSH_NOTIFICATIONS_DISABLED)
+
         with session_scope() as session:
             subscription = PushNotificationSubscription(
                 user_id=context.user_id,
@@ -118,6 +125,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         return empty_pb2.Empty()
 
     def SendTestPushNotification(self, request, context):
+        if not config["PUSH_NOTIFICATIONS_ENABLED"]:
+            context.abort(grpc.StatusCode.UNAVAILABLE, errors.PUSH_NOTIFICATIONS_DISABLED)
+
         push_to_user(
             context.user_id,
             title="Checking push notifications work!",

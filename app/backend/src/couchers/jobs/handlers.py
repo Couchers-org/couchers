@@ -67,7 +67,7 @@ logger = logging.getLogger(__name__)
 handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
 
 handle_email_notifications.PAYLOAD = empty_pb2.Empty
-handle_email_notifications.SCHEDULE = timedelta(seconds=5)
+handle_email_notifications.SCHEDULE = timedelta(minutes=1)
 
 send_raw_push_notification.PAYLOAD = jobs_pb2.SendRawPushNotificationPayload
 
