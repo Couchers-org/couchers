@@ -28,7 +28,6 @@ from couchers.tasks import (
     maybe_send_contributor_form_email,
     send_login_email,
     send_onboarding_email,
-    send_password_reset_email,
     send_signup_email,
 )
 from couchers.utils import (
@@ -474,13 +473,19 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 select(User).where_username_or_email(request.user).where(~User.is_deleted)
             ).scalar_one_or_none()
             if user:
-                send_password_reset_email(session, user)
+                password_reset_token = PasswordResetToken(
+                    token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2)
+                )
+                session.add(password_reset_token)
+                session.flush()
 
                 notify(
                     user_id=user.id,
                     topic_action="password_reset:start",
+                    data=notification_data_pb2.PasswordResetStart(
+                        password_reset_token=password_reset_token.token,
+                    ),
                 )
-
             else:  # user not found
                 logger.debug(f"Didn't find user")
 
@@ -528,6 +533,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 abort_on_invalid_password(request.new_password, context)
                 user.hashed_password = hash_password(request.new_password)
                 session.delete(password_reset_token)
+
+                session.flush()
 
                 notify(
                     user_id=user.id,

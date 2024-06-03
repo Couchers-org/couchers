@@ -26,7 +26,6 @@ from couchers.tasks import (
     send_email_changed_confirmation_to_old_email,
     send_email_changed_notification_email,
     send_login_email,
-    send_password_reset_email,
     send_signup_email,
 )
 from proto import api_pb2, notification_data_pb2, notifications_pb2
@@ -284,30 +283,10 @@ def test_email_changed_confirmation_sent_to_new_email(db):
     assert "support@couchers.org" in kwargs["html"]
 
 
-def test_password_reset_email(db):
-    user, api_token = generate_user()
-
-    with session_scope() as session:
-        with patch("couchers.email.queue_email") as mock:
-            password_reset_token = send_password_reset_email(session, user)
-
-        assert mock.call_count == 1
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == user.email
-        assert "reset" in subject.lower()
-        assert password_reset_token.token in plain
-        assert password_reset_token.token in html
-        unique_string = "You asked for your password to be reset on Couchers.org."
-        assert unique_string in plain
-        assert unique_string in html
-        assert f"http://localhost:3000/complete-password-reset?token={password_reset_token.token}" in plain
-        assert f"http://localhost:3000/complete-password-reset?token={password_reset_token.token}" in html
-        assert "support@couchers.org" in plain
-        assert "support@couchers.org" in html
-
-
 def test_do_not_email_security(db):
     _, token = generate_user()
+
+    password_reset_token = urlsafe_secure_token()
 
     with notifications_session(token) as notifications:
         notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=True))
@@ -316,25 +295,31 @@ def test_do_not_email_security(db):
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()
 
-        with patch("couchers.email.queue_email") as mock:
-            password_reset_token = send_password_reset_email(session, user)
+        with mock_notification_email() as mock:
+            notify(
+                user_id=user.id,
+                topic_action="password_reset:start",
+                data=notification_data_pb2.PasswordResetStart(
+                    password_reset_token=password_reset_token,
+                ),
+            )
 
         assert mock.call_count == 1
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == user.email
-        assert "reset" in subject.lower()
-        assert password_reset_token.token in plain
-        assert password_reset_token.token in html
+        e = email_fields(mock)
+        assert e.recipient == user.email
+        assert "reset" in e.subject.lower()
+        assert password_reset_token in e.plain
+        assert password_reset_token in e.html
         unique_string = "You asked for your password to be reset on Couchers.org."
-        assert unique_string in plain
-        assert unique_string in html
-        assert f"http://localhost:3000/complete-password-reset?token={password_reset_token.token}" in plain
-        assert f"http://localhost:3000/complete-password-reset?token={password_reset_token.token}" in html
-        assert "support@couchers.org" in plain
-        assert "support@couchers.org" in html
+        assert unique_string in e.plain
+        assert unique_string in e.html
+        assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.plain
+        assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.html
+        assert "support@couchers.org" in e.plain
+        assert "support@couchers.org" in e.html
 
-        assert "/unsubscribe?payload=" not in plain
-        assert "/unsubscribe?payload=" not in html
+        assert "/unsubscribe?payload=" not in e.plain
+        assert "/unsubscribe?payload=" not in e.html
 
 
 def test_do_not_email_non_security(db):
