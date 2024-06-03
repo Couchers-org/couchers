@@ -50,7 +50,7 @@ sentry-sdk==2.3.1
     # via -r requirements.in
 urllib3==2.2.1
     # via sentry-sdk
-uwsgi==2.0.25.1
+uwsgi==2.0.26
     # via -r requirements.in
 werkzeug==3.0.2
     # via flask
