@@ -19,7 +19,6 @@ from couchers.models import (
     Notification,
     User,
 )
-from couchers.notifications.unsubscribe import generate_mute_all, generate_unsub_topic_action, generate_unsub_topic_key
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import email_user
 from couchers.utils import now
@@ -156,22 +155,6 @@ def send_email_changed_notification_email(user):
     email_user(user, "email_changed_notification", template_args={"user": user})
 
 
-def send_email_changed_confirmation_to_old_email(user):
-    """
-    Send an email to user's original email address requesting confirmation of email change
-    """
-    logger.info(
-        f"Sending email changed (confirmation) email to {user=}'s old email address, (old email: {user.email}, new email: {user.new_email=})"
-    )
-
-    confirmation_link = urls.change_email_link(confirmation_token=user.old_email_token)
-    email_user(
-        user,
-        "email_changed_confirmation_old_email",
-        template_args={"user": user, "confirmation_link": confirmation_link},
-    )
-
-
 def send_email_changed_confirmation_to_new_email(user):
     """
     Send an email to user's new email address requesting confirmation of email change
@@ -263,21 +246,6 @@ def send_digest_email(user, notifications: List[Notification]):
         user,
         "digest",
         template_args={"user": user, "notifications": notifications},
-    )
-
-
-def send_notification_email(notification: Notification):
-    logger.info(f"Sending notification email to {notification.user=}:")
-
-    email.enqueue_email_from_template_to_user(
-        notification.user,
-        "notification",
-        template_args={
-            "notification": notification,
-            "unsub_all": generate_mute_all(notification.user_id),
-            "unsub_topic_key": generate_unsub_topic_key(notification),
-            "unsub_topic_action": generate_unsub_topic_action(notification),
-        },
     )
 
 

@@ -167,6 +167,9 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
 
 
 def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload):
+    if not config["PUSH_NOTIFICATIONS_ENABLED"]:
+        logger.info(f"Not sending push notification due to push notifications disabled")
+
     with session_scope() as session:
         if len(payload.data) > 3072:
             raise Exception(f"Data too long for push notification to sub {payload.push_notification_subscription_id}")

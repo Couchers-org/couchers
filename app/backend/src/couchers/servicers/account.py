@@ -39,7 +39,6 @@ from couchers.tasks import (
     maybe_send_contributor_form_email,
     send_account_deletion_report_email,
     send_email_changed_confirmation_to_new_email,
-    send_email_changed_confirmation_to_old_email,
 )
 from couchers.utils import is_valid_email, now
 from proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc, notification_data_pb2
@@ -209,28 +208,22 @@ class Account(account_pb2_grpc.AccountServicer):
             user.new_email_token_expiry = now() + timedelta(hours=2)
             user.need_to_confirm_via_new_email = True
 
-            if user.has_password:
-                user.old_email_token = None
-                user.old_email_token_created = None
-                user.old_email_token_expiry = None
-                user.need_to_confirm_via_old_email = False
-                send_email_changed_confirmation_to_new_email(user)
+            assert user.has_password
 
-                # will still go into old email
-                notify(
-                    user_id=user.id,
-                    topic_action="email_address:change",
-                    data=notification_data_pb2.EmailAddressChange(
-                        new_email=request.new_email,
-                    ),
-                )
-            else:
-                user.old_email_token = urlsafe_secure_token()
-                user.old_email_token_created = now()
-                user.old_email_token_expiry = now() + timedelta(hours=2)
-                user.need_to_confirm_via_old_email = True
-                send_email_changed_confirmation_to_old_email(user)
-                send_email_changed_confirmation_to_new_email(user)
+            user.old_email_token = None
+            user.old_email_token_created = None
+            user.old_email_token_expiry = None
+            user.need_to_confirm_via_old_email = False
+            send_email_changed_confirmation_to_new_email(user)
+
+            # will still go into old email
+            notify(
+                user_id=user.id,
+                topic_action="email_address:change",
+                data=notification_data_pb2.EmailAddressChange(
+                    new_email=request.new_email,
+                ),
+            )
 
         # session autocommit
         return empty_pb2.Empty()
