@@ -117,6 +117,38 @@ def render_notification(user, notification) -> RenderedNotification:
             push_icon=urls.icon_url(),
             push_url=urls.account_settings_link(),
         )
+    elif notification.topic_action.display == "password_reset:start":
+        message = "Someone initiated a password change on your account."
+        return RenderedNotification(
+            is_critical=True,
+            email_subject="Reset your Couchers.org password",
+            email_preview=message,
+            email_template_name="password_reset",
+            email_template_args={
+                "password_reset_link": urls.password_reset_link(password_reset_token=data.password_reset_token)
+            },
+            push_title="A password reset was initiated on your account",
+            push_body=message,
+            push_icon=urls.icon_url(),
+            push_url=urls.account_settings_link(),
+        )
+    elif notification.topic_action.display == "password_reset:complete":
+        title = "Your password was successfully reset"
+        message = "Your password on Couchers.org was changed. If that was you, then no further action is needed."
+        return RenderedNotification(
+            is_critical=True,
+            email_subject=title,
+            email_preview=title,
+            email_template_name="security",
+            email_template_args={
+                "title": title,
+                "message": message,
+            },
+            push_title=title,
+            push_body=message,
+            push_icon=urls.icon_url(),
+            push_url=urls.account_settings_link(),
+        )
     elif notification.topic_action.display == "email_address:change":
         title = "An email change was initiated on your account"
         message = f"An email change to the email <b>{data.new_email}</b> was initiated on your account."

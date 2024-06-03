@@ -88,6 +88,10 @@ message DonationReceived {
   string receipt_url = 2;
 }
 
+message PasswordResetStart {
+  string password_reset_token = 1;
+}
+
 message AccountDeletionStart {
   string deletion_token = 1;
 }

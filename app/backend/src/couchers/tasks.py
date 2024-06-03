@@ -17,7 +17,6 @@ from couchers.models import (
     LoginToken,
     Node,
     Notification,
-    PasswordResetToken,
     User,
 )
 from couchers.notifications.unsubscribe import generate_mute_all, generate_unsub_topic_action, generate_unsub_topic_key
@@ -68,25 +67,6 @@ def send_login_email(session, user):
     )
 
     return login_token
-
-
-def send_password_reset_email(session, user):
-    password_reset_token = PasswordResetToken(
-        token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2)
-    )
-    session.add(password_reset_token)
-
-    logger.info(f"Sending password reset email to {user=}:")
-    password_reset_link = urls.password_reset_link(password_reset_token=password_reset_token.token)
-    logger.info(f"Link is: {password_reset_link}")
-    email.enqueue_email_from_template_to_user(
-        user,
-        "password_reset",
-        template_args={"user": user, "password_reset_link": password_reset_link},
-        is_critical_email=True,
-    )
-
-    return password_reset_token
 
 
 def send_host_reference_email(reference, both_written):
