@@ -4,7 +4,7 @@ You have {{ days_left }} days left to write a reference for {{ other_user.name }
 
 Leave a reference here:
 
-<{{ leave_reference_link|couchers_safe }}>
+<{{ leave_reference_link }}>
 
 You can also leave a reference by going to the Messaging tab, locating the request, then clicking on the "Write Reference" button at the bottom of the conversation.
 
