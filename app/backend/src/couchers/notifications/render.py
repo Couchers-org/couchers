@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from couchers import urls
 from couchers.notifications.unsubscribe import generate_unsub
-from couchers.templates.v2 import v2avatar, v2date, v2phone, v2timestamp
+from couchers.templates.v2 import v2avatar, v2date, v2esc, v2phone, v2timestamp
 
 logger = logging.getLogger(__name__)
 
@@ -333,7 +333,7 @@ def render_notification(user, notification) -> RenderedNotification:
     elif notification.topic_action.display == "friend_request:accept":
         other = data.other_user
         title = f"{other.name} accepted your friend request!"
-        preview = f"{other.name} has accepted your friend request"
+        preview = f"{v2esc(other.name)} has accepted your friend request"
         return RenderedNotification(
             email_subject=title,
             email_preview=preview,
@@ -417,7 +417,7 @@ def render_notification(user, notification) -> RenderedNotification:
         time_display = f"{v2timestamp(event.start_time, user)} - {v2timestamp(event.end_time, user)}"
         event_link = urls.event_link(occurrence_id=event.event_id, slug=event.slug)
         if notification.action in ["create_approved", "create_any"]:
-            body = f"<b>{time_display}</b>\n"
+            body = f"{time_display}\n"
             body += f"Invited by {data.inviting_user.name}\n\n"
             body += event.content
             community_link = (
@@ -453,7 +453,7 @@ def render_notification(user, notification) -> RenderedNotification:
             )
         elif notification.action == "update":
             updated_text = ", ".join(data.updated_items)
-            body = f"<b>{time_display}</b>\n"
+            body = f"{time_display}\n"
             body += f"{data.updating_user.name} updated: {updated_text}\n\n"
             body += event.content
             return RenderedNotification(
@@ -474,7 +474,7 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_url=event_link,
             )
         elif notification.action == "invite_organizer":
-            body = f"<b>{time_display}</b>\n"
+            body = f"{time_display}\n"
             body += f"Invited to co-organize by {data.inviting_user.name}\n\n"
             body += event.content
             return RenderedNotification(
@@ -492,6 +492,80 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_body=body,
                 push_icon=v2avatar(data.inviting_user),
                 push_url=event_link,
+            )
+    elif notification.topic == "reference":
+        if notification.action == "receive_friend":
+            title = f"You've received a friend reference from {data.from_user}!"
+            return RenderedNotification(
+                email_subject=title,
+                email_preview=v2esc(data.text),
+                email_template_name="friend_reference",
+                email_template_args={
+                    "from_user": data.from_user,
+                    "profile_references_link": urls.profile_references_link(),
+                    "text": data.text,
+                },
+                email_topic_action_unsubscribe_text="new references from friends",
+                push_title=title,
+                push_body=data.text,
+                push_icon=v2avatar(data.from_user),
+                push_url=urls.profile_references_link(),
+            )
+        elif notification.action in ["receive_hosted", "receive_surfed"]:
+            title = f"You've received a reference from {data.from_user}!"
+            # what was my type? i surfed with them if i received a "hosted" request
+            surfed = (notification.action == "receive_hosted",)
+            leave_reference_link = urls.leave_reference_link(
+                "surfed" if surfed else "hosted", data.from_user.id, data.host_request_id
+            )
+            profile_references_link = urls.profile_references_link()
+            if data.text:
+                body = v2esc(data.text)
+                push_url = profile_references_link
+            else:
+                body = "Please go and write a reference for them too. It's a nice gesture and helps us build a community together!"
+                push_url = leave_reference_link
+            return RenderedNotification(
+                email_subject=title,
+                email_preview=body,
+                email_template_name="host_reference",
+                email_template_args={
+                    "from_user": data.from_user,
+                    "leave_reference_link": leave_reference_link,
+                    "profile_references_link": profile_references_link,
+                    "text": data.text,
+                    "both_written": True if data.text else False,
+                    "surfed": surfed,
+                },
+                email_topic_action_unsubscribe_text="new references from " + "hosts" if surfed else "surfers",
+                push_title=title,
+                push_body=body,
+                push_icon=v2avatar(data.from_user),
+                push_url=push_url,
+            )
+        elif notification.action in ["reminder_hosted", "reminder_surfed"]:
+            # what was my type? i surfed with them if i get a surfed reminder
+            surfed = (notification.action == "reminder_surfed",)
+            leave_reference_link = urls.leave_reference_link(
+                "surfed" if surfed else "hosted", data.other_user.id, data.host_request_id
+            )
+            title = f"You have {time_left_text} to write a reference for {other_user.name}!"
+            preview = "It's a nice gesture to write references and helps us build a community together! References will become visible 2 weeks after the stay, or when you've both written a reference for each other, whichever happens first."
+            return RenderedNotification(
+                email_subject=title,
+                email_preview=preview,
+                email_template_name="reference_reminder",
+                email_template_args={
+                    "other_user": data.other_user,
+                    "leave_reference_link": leave_reference_link,
+                    "days_left": str(data.days_left),
+                    "surfed": surfed,
+                },
+                email_topic_action_unsubscribe_text="surfed" if surfed else "hosted" + " reference reminders",
+                push_title=title,
+                push_body=preview,
+                push_icon=v2avatar(data.other_user),
+                push_url=leave_reference_link,
             )
     else:
         raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")

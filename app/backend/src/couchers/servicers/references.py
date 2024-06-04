@@ -7,6 +7,8 @@
 * TODO: Get bugged about writing reference 1 day after, 1 week after, 2weeks-2days
 """
 
+from types import SimpleNamespace
+
 import grpc
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, literal, or_, union_all
@@ -14,10 +16,11 @@ from sqlalchemy.sql import and_, func, literal, or_, union_all
 from couchers import errors
 from couchers.db import session_scope
 from couchers.models import HostRequest, Reference, ReferenceType, User
+from couchers.notifications.notify import notify
 from couchers.sql import couchers_select as select
-from couchers.tasks import maybe_send_reference_report_email, send_friend_reference_email, send_host_reference_email
+from couchers.tasks import maybe_send_reference_report_email
 from couchers.utils import Timestamp_from_datetime
-from proto import references_pb2, references_pb2_grpc
+from proto import notification_data_pb2, references_pb2, references_pb2_grpc
 
 reftype2sql = {
     references_pb2.ReferenceType.REFERENCE_TYPE_FRIEND: ReferenceType.friend,
@@ -151,11 +154,13 @@ class References(references_pb2_grpc.ReferencesServicer):
             ).scalar_one_or_none():
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
 
+            reference_text = request.text.strip()
+
             reference = Reference(
                 from_user_id=context.user_id,
                 to_user_id=request.to_user_id,
                 reference_type=ReferenceType.friend,
-                text=request.text.strip(),
+                text=reference_text,
                 private_text=request.private_text.strip(),
                 rating=request.rating,
                 was_appropriate=request.was_appropriate,
@@ -163,8 +168,15 @@ class References(references_pb2_grpc.ReferencesServicer):
             session.add(reference)
             session.commit()
 
-            # send the recipient of the reference an email
-            send_friend_reference_email(reference)
+            # send the recipient of the reference a reminder
+            notify(
+                user_id=request.to_user_id,
+                topic_action="reference:receive_friend",
+                data=notification_data_pb2.ReferenceReceiveFriend(
+                    from_user=user_model_to_pb(user, session, SimpleNamespace(user_id=request.to_user_id)),
+                    text=reference_text,
+                ),
+            )
 
             # possibly send out an alert to the mod team if the reference was bad
             maybe_send_reference_report_email(reference)
@@ -202,16 +214,20 @@ class References(references_pb2_grpc.ReferencesServicer):
                 .where(Reference.to_user_id == context.user_id)
             ).scalar_one_or_none()
 
+            reference_text = request.text.strip()
+
             reference = Reference(
                 from_user_id=context.user_id,
                 host_request_id=host_request.conversation_id,
-                text=request.text.strip(),
+                text=reference_text,
                 private_text=request.private_text.strip(),
                 rating=request.rating,
                 was_appropriate=request.was_appropriate,
             )
 
-            if host_request.surfer_user_id == context.user_id:
+            surfed = host_request.surfer_user_id == context.user_id
+
+            if surfed:
                 # we requested to surf with someone
                 reference.reference_type = ReferenceType.surfed
                 reference.to_user_id = host_request.host_user_id
@@ -225,8 +241,16 @@ class References(references_pb2_grpc.ReferencesServicer):
             session.add(reference)
             session.commit()
 
-            # send the recipient of the reference an email
-            send_host_reference_email(reference, both_written=other_reference is not None)
+            # send notification out
+            notify(
+                user_id=reference.to_user_id,
+                topic_action="reference:receive_surfed" if surfed else "reference:receive_hosted",
+                data=notification_data_pb2.ReferenceReceiveHostRequest(
+                    host_request_id=host_request.conversation_id,
+                    from_user=user_model_to_pb(user, session, SimpleNamespace(user_id=reference.to_user_id)),
+                    text=reference_text if other_reference is not None else None,
+                ),
+            )
 
             # possibly send out an alert to the mod team if the reference was bad
             maybe_send_reference_report_email(reference)

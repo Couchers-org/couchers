@@ -132,3 +132,23 @@ message ChatMessage {
   string text = 3;
   uint64 group_chat_id = 4;
 }
+
+message ReferenceReceiveFriend {
+  org.couchers.api.core.User from_user = 1;
+  string text = 2;
+}
+
+message ReferenceReceiveHostRequest {
+  int64 host_request_id = 1;
+  org.couchers.api.core.User from_user = 2;
+  // this is non-empty iff both have written a reference, so they are unhidden
+  string text = 3;
+}
+
+
+message ReferenceReminder {
+  int64 host_request_id = 1;
+  org.couchers.api.core.User other_user = 2;
+  // time left to write the req in days
+  uint32 days_left = 3;
+}

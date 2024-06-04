@@ -1,0 +1,21 @@
+Hi {{ user.name }}!
+
+{{ from_user.name }} just wrote a reference for you from when you {% if surfed %}surfed with{% else %}hosted{% endif %} them.
+
+{% if both_written %}
+This is what they wrote:
+
+{{ text|v2quote }}
+
+Thanks for using Couchers to organize this interaction! We hope you had an enjoyable, fulfilling time.
+
+You can see the reference on your profile: <{{ profile_references_link }}>
+{% else %}
+Please go and write a reference for them too. It's a nice gesture and helps us build a community together! When you've both written a reference, both references will become visible. Otherwise {{ from_user.name }}'s reference will become visible 2 weeks after the end of your interaction, after which you cannot write a reference back.
+
+You can write a reference for {{ from_user.name }} here:
+
+<{{ leave_reference_link }}>
+{% endif %}
+
+Thanks for using Couchers!

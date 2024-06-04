@@ -2185,6 +2185,18 @@ class NotificationTopicAction(enum.Enum):
     host_request__cancel = ("host_request:cancel", dt_all, True, nd.HostRequestCancel)
     host_request__message = ("host_request:message", [dt.push, dt.digest], True, nd.HostRequestMessage)
 
+    # you receive a friend ref
+    reference__receive_friend = ("reference:receive_friend", dt_all, True, nd.ReferenceReceiveFriend)
+    # you receive a reference from ... the host
+    reference__receive_hosted = ("reference:receive_hosted", dt_all, True, nd.ReferenceReceiveHostRequest)
+    # ... the surfer
+    reference__receive_surfed = ("reference:receive_surfed", dt_all, True, nd.ReferenceReceiveHostRequest)
+
+    # you hosted
+    reference__reminder_hosted = ("reference:reminder_hosted", dt_all, True, nd.ReferenceReminder)
+    # you surfed
+    reference__reminder_surfed = ("reference:reminder_surfed", dt_all, True, nd.ReferenceReminder)
+
     badge__add = ("badge:add", [dt.push, dt.digest], True, nd.BadgeAdd)
     badge__remove = ("badge:remove", [dt.push, dt.digest], True, nd.BadgeRemove)
 
