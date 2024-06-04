@@ -120,6 +120,8 @@ def _send_push_notification(user: User, notification: Notification):
         body=rendered.push_body,
         icon=rendered.push_icon,
         url=rendered.push_url,
+        # keep on server for at most an hour if the client is not around
+        ttl=3600,
     )
 
 
@@ -200,6 +202,7 @@ def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload)
                 response=resp.text,
             )
         )
+        session.commit()
         if success:
             logger.debug(f"Successfully sent push to sub {sub.id} for user {sub.user}")
         elif resp.status_code == 410:
