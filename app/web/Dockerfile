@@ -1,4 +1,4 @@
-FROM node:14-buster as builder
+FROM node:18-buster as builder
 
 ARG environment=development
 WORKDIR /app
