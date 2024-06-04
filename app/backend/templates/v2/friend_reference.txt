@@ -1,0 +1,14 @@
+Hi {{ user.name }}!
+
+{{ from_user.name }} just wrote a friend reference for you!
+
+This is what they wrote:
+
+{{ text|v2quote }}
+
+
+You can see it on your profile here:
+
+<{{ profile_references_link }}>
+
+Thanks for using Couchers!

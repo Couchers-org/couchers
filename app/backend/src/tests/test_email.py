@@ -23,8 +23,6 @@ from couchers.tasks import (
     maybe_send_reference_report_email,
     send_content_report_email,
     send_email_changed_confirmation_to_new_email,
-    send_email_changed_confirmation_to_old_email,
-    send_email_changed_notification_email,
     send_login_email,
     send_signup_email,
 )
@@ -215,50 +213,6 @@ def test_email_patching_fails(db):
         assert str(e.value) == patched_msg
 
 
-def test_email_changed_notification_email(db):
-    user, token = generate_user()
-    user.new_email = f"{random_hex(12)}@couchers.org.invalid"
-    with patch("couchers.templates.v2.queue_email") as mock:
-        send_email_changed_notification_email(user)
-
-    assert mock.call_count == 1
-    _, kwargs = mock.call_args
-    assert "change requested" in kwargs["subject"]
-    assert kwargs["recipient"] == user.email
-    assert user.name in kwargs["plain"]
-    assert user.name in kwargs["html"]
-    assert user.new_email in kwargs["plain"]
-    assert user.new_email in kwargs["html"]
-    assert "A confirmation was sent to that email address" in kwargs["plain"]
-    assert "A confirmation was sent to that email address" in kwargs["html"]
-    assert "support@couchers.org" in kwargs["plain"]
-    assert "support@couchers.org" in kwargs["html"]
-
-
-def test_email_changed_confirmation_sent_to_old_email(db):
-    confirmation_token = urlsafe_secure_token()
-    user, user_token = generate_user()
-    user.new_email = f"{random_hex(12)}@couchers.org.invalid"
-    user.old_email_token = confirmation_token
-    with patch("couchers.templates.v2.queue_email") as mock:
-        send_email_changed_confirmation_to_old_email(user)
-
-    assert mock.call_count == 1
-    _, kwargs = mock.call_args
-    assert "Confirm your email change for Couchers.org" in kwargs["subject"]
-    assert kwargs["recipient"] == user.email
-    assert user.name in kwargs["plain"]
-    assert user.name in kwargs["html"]
-    assert user.new_email in kwargs["plain"]
-    assert user.new_email in kwargs["html"]
-    assert "confirmed this change via your new email address" in kwargs["plain"]
-    assert "confirmed this change via your new email address" in kwargs["html"]
-    assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in kwargs["plain"]
-    assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in kwargs["html"]
-    assert "support@couchers.org" in kwargs["plain"]
-    assert "support@couchers.org" in kwargs["html"]
-
-
 def test_email_changed_confirmation_sent_to_new_email(db):
     confirmation_token = urlsafe_secure_token()
     user, user_token = generate_user()
@@ -352,35 +306,48 @@ def test_do_not_email_non_security_unsublink(db):
 
 
 def test_email_prefix_config(db, monkeypatch):
-    user, token = generate_user()
-    user.new_email = f"{random_hex(12)}@couchers.org.invalid"
+    user, _ = generate_user()
 
-    with patch("couchers.templates.v2.queue_email") as mock:
-        send_email_changed_notification_email(user)
+    with mock_notification_email() as mock:
+        notify(
+            user_id=user.id,
+            topic_action="donation:received",
+            data=notification_data_pb2.DonationReceived(
+                amount=20,
+                receipt_url="https://example.com/receipt/12345",
+            ),
+        )
 
     assert mock.call_count == 1
     _, kwargs = mock.call_args
 
     assert kwargs["sender_name"] == "Couchers.org"
     assert kwargs["sender_email"] == "notify@couchers.org.invalid"
-    assert kwargs["subject"] == "[TEST] Couchers.org email change requested"
+    assert kwargs["subject"] == "[TEST] Thank you for your donation to Couchers.org!"
 
     new_config = config.copy()
     new_config["NOTIFICATION_EMAIL_SENDER"] = "TestCo"
     new_config["NOTIFICATION_EMAIL_ADDRESS"] = "testco@testing.co.invalid"
     new_config["NOTIFICATION_EMAIL_PREFIX"] = ""
 
-    monkeypatch.setattr(couchers.templates.v2, "config", new_config)
+    monkeypatch.setattr(couchers.notifications.background, "config", new_config)
 
-    with patch("couchers.templates.v2.queue_email") as mock:
-        send_email_changed_notification_email(user)
+    with mock_notification_email() as mock:
+        notify(
+            user_id=user.id,
+            topic_action="donation:received",
+            data=notification_data_pb2.DonationReceived(
+                amount=20,
+                receipt_url="https://example.com/receipt/12345",
+            ),
+        )
 
     assert mock.call_count == 1
     _, kwargs = mock.call_args
 
     assert kwargs["sender_name"] == "TestCo"
     assert kwargs["sender_email"] == "testco@testing.co.invalid"
-    assert kwargs["subject"] == "Couchers.org email change requested"
+    assert kwargs["subject"] == "Thank you for your donation to Couchers.org!"
 
 
 def test_send_donation_email(db, monkeypatch):

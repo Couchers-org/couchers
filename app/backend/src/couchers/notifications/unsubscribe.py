@@ -21,15 +21,6 @@ def _generate_unsubscribe_link(payload):
     return urls.unsubscribe_link(payload=b64encode(msg), sig=b64encode(sig))
 
 
-def generate_mute_all(user_id):
-    return _generate_unsubscribe_link(
-        unsubscribe_pb2.UnsubscribePayload(
-            user_id=user_id,
-            all=unsubscribe_pb2.MuteAll(),
-        )
-    )
-
-
 def generate_do_not_email(user_id):
     return _generate_unsubscribe_link(
         unsubscribe_pb2.UnsubscribePayload(
@@ -85,11 +76,6 @@ def unsubscribe(request, context):
     payload = unsubscribe_pb2.UnsubscribePayload.FromString(request.payload)
     with session_scope() as session:
         user = session.execute(select(User).where(User.id == payload.user_id)).scalar_one()
-        if payload.HasField("all"):
-            logger.info(f"User {user.name} unsubscribing from all")
-            # todo: some other system when out of preview
-            raise Exception("I don't think we can end up here")
-            return "You've been unsubscribed from all non-security notifications."
         if payload.HasField("do_not_email"):
             logger.info(f"User {user.name} turning of emails")
             user.do_not_email = True

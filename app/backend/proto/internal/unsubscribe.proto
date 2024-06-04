@@ -2,12 +2,6 @@ syntax = "proto3";
 
 package unsubscribe;
 
-message MuteAll {
-  // mute all notifications except essential ones
-  // mute: don't wipe all settings
-  // essential: not security stuff, etc
-}
-
 message DoNotEmail {
   // do not email me, also turns hosting and "wants to meet" off
 }
@@ -30,7 +24,6 @@ message UnsubscribePayload {
   int64 user_id = 1;
 
   oneof type {
-    MuteAll all = 2;
     UnsubscribeTopicKey topic_key = 3;
     UnsubscribeTopicAction topic_action = 4;
     DoNotEmail do_not_email = 5;

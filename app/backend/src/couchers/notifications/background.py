@@ -1,10 +1,9 @@
 import logging
-from datetime import timedelta
 from pathlib import Path
 
 from google.protobuf import empty_pb2
 from jinja2 import Environment, FileSystemLoader
-from sqlalchemy.sql import and_, func
+from sqlalchemy.sql import func
 
 from couchers import urls
 from couchers.config import config
@@ -120,6 +119,8 @@ def _send_push_notification(user: User, notification: Notification):
         body=rendered.push_body,
         icon=rendered.push_icon,
         url=rendered.push_url,
+        # keep on server for at most an hour if the client is not around
+        ttl=3600,
     )
 
 
@@ -141,10 +142,11 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
                 session.add(
                     NotificationDelivery(
                         notification_id=notification.id,
-                        delivered=None,
+                        delivered=func.now(),
                         delivery_type=NotificationDeliveryType.email,
                     )
                 )
+                _send_email_notification(user, notification)
             elif delivery_type == NotificationDeliveryType.digest:
                 # for digest notifications, add to digest queue
                 session.add(
@@ -167,6 +169,9 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
 
 
 def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload):
+    if not config["PUSH_NOTIFICATIONS_ENABLED"]:
+        logger.info(f"Not sending push notification due to push notifications disabled")
+
     with session_scope() as session:
         if len(payload.data) > 3072:
             raise Exception(f"Data too long for push notification to sub {payload.push_notification_subscription_id}")
@@ -188,82 +193,24 @@ def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload)
             config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"],
             ttl=payload.ttl,
         )
+        success = resp.status_code in [200, 201, 202]
         session.add(
             PushNotificationDeliveryAttempt(
                 push_notification_subscription_id=sub.id,
-                success=resp.status_code == 201,
+                success=success,
                 status_code=resp.status_code,
                 response=resp.text,
             )
         )
-        if resp.status_code == 201:
-            # success
+        session.commit()
+        if success:
             logger.debug(f"Successfully sent push to sub {sub.id} for user {sub.user}")
         elif resp.status_code == 410:
             # gone
-            logger.error(f"Push sub {sub.id} for user {sub.user} is gone! Disabling.")
+            logger.info(f"Push sub {sub.id} for user {sub.user} is gone! Disabling.")
             sub.disabled_at = func.now()
         else:
             raise Exception(f"Failed to deliver push to {sub.id}, code: {resp.status_code}. Response: {resp.text}")
-
-
-def handle_email_notifications(payload: empty_pb2.Empty):
-    """
-    Sends out emails for notifications
-    """
-    logger.info(f"Sending out email notifications")
-
-    with session_scope() as session:
-        # delivered email notifications: we don't want to send emails for these
-        subquery = (
-            select(Notification.user_id, Notification.topic_action, Notification.key)
-            .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
-            .where(NotificationDelivery.delivery_type == NotificationDeliveryType.email)
-            .where(NotificationDelivery.delivered != None)
-            .where(Notification.created > func.now() - timedelta(hours=24))
-            .group_by(Notification.user_id, Notification.topic_action, Notification.key)
-            .subquery()
-        )
-
-        email_notifications_to_send = session.execute(
-            (
-                select(
-                    User,
-                    Notification.topic_action,
-                    Notification.key,
-                    func.min(Notification.id).label("notification_id"),
-                    func.min(NotificationDelivery.id).label("notification_delivery_id"),
-                )
-                .join(User, User.id == Notification.user_id)
-                .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
-                .where(NotificationDelivery.delivery_type == NotificationDeliveryType.email)
-                .where(Notification.created > func.now() - timedelta(hours=1))
-                .group_by(User, Notification.user_id, Notification.topic_action, Notification.key)
-                # pick the notifications that haven't been delivered
-                .outerjoin(
-                    subquery,
-                    and_(
-                        subquery.c.user_id == Notification.user_id,
-                        subquery.c.topic_action == Notification.topic_action,
-                        subquery.c.key == Notification.key,
-                    ),
-                )
-                .where(subquery.c.key == None)
-            )
-        ).all()
-
-        for user, topic_action, key, notification_id, notification_delivery_id in email_notifications_to_send:
-            topic, action = topic_action.unpack()
-            logger.info(f"Sending notification id {notification_id} to {user.id} ({topic}/{action}/{key})")
-            notification_delivery = session.execute(
-                select(NotificationDelivery).where(NotificationDelivery.id == notification_delivery_id)
-            ).scalar_one()
-            assert notification_delivery.delivery_type == NotificationDeliveryType.email
-            assert not notification_delivery.delivered
-            assert notification_delivery.notification_id == notification_id
-            _send_email_notification(user, notification_delivery.notification)
-            notification_delivery.delivered = func.now()
-            session.commit()
 
 
 def handle_email_digests(payload: empty_pb2.Empty):

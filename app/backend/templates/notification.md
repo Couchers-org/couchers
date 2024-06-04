@@ -15,6 +15,3 @@ Content: {{ notification.content|couchers_escape }}
 To unsubscribe from this item click on this link: {{ link(unsub_topic_key, html)|couchers_safe }}
 
 To unsubscribe from these types of notifications click on this link: {{ link(unsub_topic_action, html)|couchers_safe }}
-
-
-This notification was sent from the "new notification system" which is still a work on progress, and which you enabled in Feature Preview at {{ link("https://couchers.org/preview", html)|couchers_safe }}. To turn this setting off and stop receiving notifications from the new system, please follow this link: {{ link(unsub_all, html)|couchers_safe }}

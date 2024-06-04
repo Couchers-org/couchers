@@ -19,7 +19,6 @@ from couchers.models import (
     Notification,
     User,
 )
-from couchers.notifications.unsubscribe import generate_mute_all, generate_unsub_topic_action, generate_unsub_topic_key
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import email_user
 from couchers.utils import now
@@ -67,109 +66,6 @@ def send_login_email(session, user):
     )
 
     return login_token
-
-
-def send_host_reference_email(reference, both_written):
-    """
-    both_written == true if both the surfer and hoster wrote a reference
-    """
-    # todo(notify2): replace with notification
-    assert reference.host_request_id
-
-    logger.info(f"Sending host reference email to {reference.to_user=} for {reference.id=}")
-
-    surfed = reference.host_request.surfer_user_id != reference.from_user_id
-
-    email.enqueue_email_from_template_to_user(
-        reference.to_user,
-        "host_reference",
-        template_args={
-            "reference": reference,
-            "leave_reference_link": urls.leave_reference_link(
-                reference_type="surfed" if surfed else "hosted",
-                to_user_id=reference.from_user_id,
-                host_request_id=reference.host_request.conversation_id,
-            ),
-            # if this reference was written by the surfer, then the recipient hosted
-            "surfed": surfed,
-            "both_written": both_written,
-        },
-    )
-
-
-def send_friend_reference_email(reference):
-    # todo(notify2): replace with notification
-    assert not reference.host_request_id
-
-    logger.info(f"Sending friend reference email to {reference.to_user=} for {reference.id=}")
-
-    email.enqueue_email_from_template_to_user(
-        reference.to_user,
-        "friend_reference",
-        template_args={
-            "reference": reference,
-        },
-    )
-
-
-def send_reference_reminder_email(user, other_user, host_request, surfed, time_left_text):
-    # todo(notify2): replace with notification
-    logger.info(f"Sending host reference email to {user=}, they have {time_left_text} left to write a ref")
-
-    email.enqueue_email_from_template_to_user(
-        user,
-        "reference_reminder",
-        template_args={
-            "user": user,
-            "other_user": other_user,
-            "host_request": host_request,
-            "leave_reference_link": urls.leave_reference_link(
-                reference_type="surfed" if surfed else "hosted",
-                to_user_id=other_user.id,
-                host_request_id=host_request.conversation_id,
-            ),
-            "surfed": surfed,
-            "time_left_text": time_left_text,
-        },
-    )
-
-
-def send_password_changed_email(user):
-    """
-    Send the user an email saying their password has been changed.
-    """
-    # todo(notify2): replace with notification
-    logger.info(f"Sending password changed (notification) email to {user=}")
-    email.enqueue_email_from_template_to_user(
-        user, "password_changed", template_args={"user": user}, is_critical_email=True
-    )
-
-
-def send_email_changed_notification_email(user):
-    """
-    Send an email to user's original address notifying that it has been changed
-    """
-    # todo(notify2): replace with notification
-    logger.info(
-        f"Sending email changed (notification) email to {user=} (old email: {user.email=}, new email: {user.new_email=})"
-    )
-    email_user(user, "email_changed_notification", template_args={"user": user})
-
-
-def send_email_changed_confirmation_to_old_email(user):
-    """
-    Send an email to user's original email address requesting confirmation of email change
-    """
-    logger.info(
-        f"Sending email changed (confirmation) email to {user=}'s old email address, (old email: {user.email}, new email: {user.new_email=})"
-    )
-
-    confirmation_link = urls.change_email_link(confirmation_token=user.old_email_token)
-    email_user(
-        user,
-        "email_changed_confirmation_old_email",
-        template_args={"user": user, "confirmation_link": confirmation_link},
-    )
 
 
 def send_email_changed_confirmation_to_new_email(user):
@@ -263,21 +159,6 @@ def send_digest_email(user, notifications: List[Notification]):
         user,
         "digest",
         template_args={"user": user, "notifications": notifications},
-    )
-
-
-def send_notification_email(notification: Notification):
-    logger.info(f"Sending notification email to {notification.user=}:")
-
-    email.enqueue_email_from_template_to_user(
-        notification.user,
-        "notification",
-        template_args={
-            "notification": notification,
-            "unsub_all": generate_mute_all(notification.user_id),
-            "unsub_topic_key": generate_unsub_topic_key(notification),
-            "unsub_topic_action": generate_unsub_topic_action(notification),
-        },
     )
 
 
