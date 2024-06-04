@@ -495,7 +495,7 @@ def render_notification(user, notification) -> RenderedNotification:
             )
     elif notification.topic == "reference":
         if notification.action == "receive_friend":
-            title = f"You've received a friend reference from {data.from_user}!"
+            title = f"You've received a friend reference from {data.from_user.name}!"
             return RenderedNotification(
                 email_subject=title,
                 email_preview=v2esc(data.text),
@@ -512,11 +512,13 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_url=urls.profile_references_link(),
             )
         elif notification.action in ["receive_hosted", "receive_surfed"]:
-            title = f"You've received a reference from {data.from_user}!"
+            title = f"You've received a reference from {data.from_user.name}!"
             # what was my type? i surfed with them if i received a "hosted" request
             surfed = (notification.action == "receive_hosted",)
             leave_reference_link = urls.leave_reference_link(
-                "surfed" if surfed else "hosted", data.from_user.id, data.host_request_id
+                reference_type="surfed" if surfed else "hosted",
+                to_user_id=data.from_user.user_id,
+                host_request_id=data.host_request_id,
             )
             profile_references_link = urls.profile_references_link()
             if data.text:
@@ -547,9 +549,11 @@ def render_notification(user, notification) -> RenderedNotification:
             # what was my type? i surfed with them if i get a surfed reminder
             surfed = (notification.action == "reminder_surfed",)
             leave_reference_link = urls.leave_reference_link(
-                "surfed" if surfed else "hosted", data.other_user.id, data.host_request_id
+                reference_type="surfed" if surfed else "hosted",
+                to_user_id=data.other_user.user_id,
+                host_request_id=data.host_request_id,
             )
-            title = f"You have {time_left_text} to write a reference for {other_user.name}!"
+            title = f"You have {data.days_left} days to write a reference for {data.other_user.name}!"
             preview = "It's a nice gesture to write references and helps us build a community together! References will become visible 2 weeks after the stay, or when you've both written a reference for each other, whichever happens first."
             return RenderedNotification(
                 email_subject=title,

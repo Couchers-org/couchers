@@ -3,8 +3,6 @@
 * Multiple of the other types (one for each stay)
 * Have 2 weeks to write a reference after hosting/surfing
 * References become visible after min{2 weeks, both reciprocal references written}
-
-* TODO: Get bugged about writing reference 1 day after, 1 week after, 2weeks-2days
 """
 
 from types import SimpleNamespace
@@ -17,6 +15,7 @@ from couchers import errors
 from couchers.db import session_scope
 from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.notifications.notify import notify
+from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import maybe_send_reference_report_email
 from couchers.utils import Timestamp_from_datetime
@@ -139,6 +138,8 @@ class References(references_pb2_grpc.ReferencesServicer):
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REFER_SELF)
 
         with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
             check_valid_reference(request, context)
 
             if not session.execute(
@@ -185,6 +186,8 @@ class References(references_pb2_grpc.ReferencesServicer):
 
     def WriteHostRequestReference(self, request, context):
         with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
             check_valid_reference(request, context)
 
             host_request = session.execute(

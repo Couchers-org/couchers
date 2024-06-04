@@ -22,8 +22,11 @@ from couchers.utils import now, to_aware_datetime, today
 from proto import conversations_pb2, references_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
     db,
+    email_fields,
     generate_user,
     make_user_block,
+    mock_notification_email,
+    push_collector,
     references_session,
     requests_session,
     testconfig,
@@ -420,24 +423,35 @@ def test_WriteFriendReference_with_empty_text(db):
     assert e.value.details() == errors.REFERENCE_NO_TEXT
 
 
-def test_WriteFriendReference_with_private_text(db):
+def test_WriteFriendReference_with_private_text(db, push_collector):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
     with references_session(token1) as api:
-        with patch("couchers.email.queue_email") as mock:
-            api.WriteFriendReference(
-                references_pb2.WriteFriendReferenceReq(
-                    to_user_id=user2.id,
-                    text="They were nice!",
-                    was_appropriate=True,
-                    rating=0.6,
-                    private_text="A bit of an odd ball, but a nice person nonetheless.",
+        with patch("couchers.email.queue_email") as mock1:
+            with mock_notification_email() as mock2:
+                api.WriteFriendReference(
+                    references_pb2.WriteFriendReferenceReq(
+                        to_user_id=user2.id,
+                        text="They were nice!",
+                        was_appropriate=True,
+                        rating=0.6,
+                        private_text="A bit of an odd ball, but a nice person nonetheless.",
+                    )
                 )
-            )
 
-        # make sure an email was sent to the user receiving the ref as well as the mods
-        assert mock.call_count == 2
+    # make sure an email was sent to the user receiving the ref as well as the mods
+    assert mock1.call_count == 1
+    assert mock2.call_count == 1
+    e = email_fields(mock2)
+    assert e.subject == f"[TEST] You've received a friend reference from {user1.name}!"
+    assert e.recipient == user2.email
+
+    push_collector.assert_user_has_single_matching(
+        user2.id,
+        title=f"You've received a friend reference from {user1.name}!",
+        body="They were nice!",
+    )
 
 
 def test_host_request_states_references(db):
@@ -604,7 +618,7 @@ def test_WriteHostRequestReference(db):
         )
 
 
-def test_WriteHostRequestReference_private_text(db):
+def test_WriteHostRequestReference_private_text(db, push_collector):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -612,19 +626,31 @@ def test_WriteHostRequestReference_private_text(db):
         hr = create_host_request(session, user1.id, user2.id, timedelta(days=10))
 
     with references_session(token1) as api:
-        with patch("couchers.email.queue_email") as mock:
-            api.WriteHostRequestReference(
-                references_pb2.WriteHostRequestReferenceReq(
-                    host_request_id=hr,
-                    text="Should work!",
-                    was_appropriate=True,
-                    rating=0.9,
-                    private_text="Something",
+        with patch("couchers.email.queue_email") as mock1:
+            with mock_notification_email() as mock2:
+                api.WriteHostRequestReference(
+                    references_pb2.WriteHostRequestReferenceReq(
+                        host_request_id=hr,
+                        text="Should work!",
+                        was_appropriate=True,
+                        rating=0.9,
+                        private_text="Something",
+                    )
                 )
-            )
 
-        # make sure an email was sent to the user receiving the ref as well as the mods
-        assert mock.call_count == 2
+    # make sure an email was sent to the user receiving the ref as well as the mods
+    assert mock1.call_count == 1
+    assert mock2.call_count == 1
+
+    e = email_fields(mock2)
+    assert e.subject == f"[TEST] You've received a reference from {user1.name}!"
+    assert e.recipient == user2.email
+
+    push_collector.assert_user_has_single_matching(
+        user2.id,
+        title=f"You've received a reference from {user1.name}!",
+        body="Please go and write a reference for them too. It's a nice gesture and helps us build a community together!",
+    )
 
 
 def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):

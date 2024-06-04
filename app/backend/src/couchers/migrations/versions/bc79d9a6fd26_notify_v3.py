@@ -18,7 +18,12 @@ depends_on = None
 
 def upgrade():
     op.add_column("push_notification_subscriptions", sa.Column("user_agent", sa.String(), nullable=True))
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'reference__receive_friend'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'reference__receive_hosted'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'reference__receive_surfed'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'reference__reminder_hosted'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'reference__reminder_surfed'")
 
 
 def downgrade():
-    op.drop_column("push_notification_subscriptions", "user_agent")
+    raise Exception("Can't downgrade")

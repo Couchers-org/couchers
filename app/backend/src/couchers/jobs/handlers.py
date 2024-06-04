@@ -401,7 +401,7 @@ def send_reference_reminders(payload):
                 # checked in sql
                 assert user.is_visible
                 if not are_blocked(session, user.id, other_user.id):
-                    context = SimpleNamespace(user_id=user_id)
+                    context = SimpleNamespace(user_id=user.id)
                     notify(
                         user_id=user.id,
                         topic_action="reference:reminder_surfed" if surfed else "reference:reminder_hosted",
