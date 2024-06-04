@@ -64,19 +64,16 @@ def _check_password(user, field_name, request, context):
     """
     Internal utility function: given a request with a StringValue `field_name` field, checks the password is correct or that the user does not have a password
     """
-    if user.has_password:
-        # the user has a password
-        if not request.HasField(field_name):
-            # no password supplied
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PASSWORD)
+    assert user.has_password
 
-        if not verify_password(user.hashed_password, getattr(request, field_name).value):
-            # wrong password
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME_OR_PASSWORD)
+    # the user has a password
+    if not request.HasField(field_name):
+        # no password supplied
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PASSWORD)
 
-    elif request.HasField(field_name):
-        # the user doesn't have a password, but one was supplied
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_PASSWORD)
+    if not verify_password(user.hashed_password, getattr(request, field_name).value):
+        # wrong password
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME_OR_PASSWORD)
 
 
 def get_strong_verification_fields(db_user):
@@ -125,16 +122,7 @@ class Account(account_pb2_grpc.AccountServicer):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
-            if not user.has_password:
-                auth_info = dict(
-                    login_method=account_pb2.GetAccountInfoRes.LoginMethod.MAGIC_LINK,
-                    has_password=False,
-                )
-            else:
-                auth_info = dict(
-                    login_method=account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD,
-                    has_password=True,
-                )
+            assert user.has_password
             return account_pb2.GetAccountInfoRes(
                 username=user.username,
                 email=user.email,
@@ -142,7 +130,8 @@ class Account(account_pb2_grpc.AccountServicer):
                 phone_verified=user.phone_is_verified,
                 profile_complete=user.has_completed_profile,
                 timezone=user.timezone,
-                **auth_info,
+                login_method=account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD,
+                has_password=True,
                 **get_strong_verification_fields(user),
             )
 
@@ -208,6 +197,7 @@ class Account(account_pb2_grpc.AccountServicer):
             user.new_email_token_expiry = now() + timedelta(hours=2)
             user.need_to_confirm_via_new_email = True
 
+            # this is guaranteed by not being jailed
             assert user.has_password
 
             user.old_email_token = None
