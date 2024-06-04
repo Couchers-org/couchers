@@ -98,6 +98,17 @@ settings_layout = [
                     ("message", "Someone sends you a message"),
                 ],
             ),
+            (
+                "reference",
+                "References",
+                [
+                    ("receive_hosted", "You receive a reference from someone who hosted you"),
+                    ("receive_surfed", "You receive a reference from someone you hosted"),
+                    ("receive_friend", "You received a reference from a friend"),
+                    ("reminder_hosted", "Reminder to write a reference to someone you hosted"),
+                    ("reminder_surfed", "Reminder to write a reference to someone you surfed with"),
+                ],
+            ),
         ],
     ),
     (
