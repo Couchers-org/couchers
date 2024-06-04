@@ -81,13 +81,14 @@ def test_GetUserDetails(db):
         assert not res.deleted
 
 
-def test_ChangeUserGender(db):
+def test_ChangeUserGender(db, push_collector):
     with session_scope():
         super_user, super_token = generate_user(is_superuser=True)
         normal_user, normal_token = generate_user()
 
         with real_admin_session(super_token) as api:
-            res = api.ChangeUserGender(admin_pb2.ChangeUserGenderReq(user=normal_user.username, gender="Machine"))
+            with mock_notification_email() as mock:
+                res = api.ChangeUserGender(admin_pb2.ChangeUserGenderReq(user=normal_user.username, gender="Machine"))
         assert res.user_id == normal_user.id
         assert res.username == normal_user.username
         assert res.email == normal_user.email
@@ -96,8 +97,21 @@ def test_ChangeUserGender(db):
         assert not res.banned
         assert not res.deleted
 
+        mock.assert_called_once()
+        e = email_fields(mock)
+        assert e.subject == "[TEST] Your gender was changed"
+        assert e.recipient == normal_user.email
+        assert "Machine" in e.plain
+        assert "Machine" in e.html
 
-def test_ChangeUserBirthdate(db):
+        push_collector.assert_user_has_single_matching(
+            normal_user.id,
+            title="Your gender was changed",
+            body="Your gender on Couchers.org was changed to Machine by an admin.",
+        )
+
+
+def test_ChangeUserBirthdate(db, push_collector):
     with session_scope():
         super_user, super_token = generate_user(is_superuser=True)
         normal_user, normal_token = generate_user(birthdate=date(year=2000, month=1, day=1))
@@ -106,9 +120,10 @@ def test_ChangeUserBirthdate(db):
             res = api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username))
             assert parse_date(res.birthdate) == date(year=2000, month=1, day=1)
 
-            res = api.ChangeUserBirthdate(
-                admin_pb2.ChangeUserBirthdateReq(user=normal_user.username, birthdate="1990-05-25")
-            )
+            with mock_notification_email() as mock:
+                res = api.ChangeUserBirthdate(
+                    admin_pb2.ChangeUserBirthdateReq(user=normal_user.username, birthdate="1990-05-25")
+                )
 
         assert res.user_id == normal_user.id
         assert res.username == normal_user.username
@@ -117,6 +132,19 @@ def test_ChangeUserBirthdate(db):
         assert res.gender == normal_user.gender
         assert not res.banned
         assert not res.deleted
+
+        mock.assert_called_once()
+        e = email_fields(mock)
+        assert e.subject == "[TEST] Your date of birth was changed"
+        assert e.recipient == normal_user.email
+        assert "1990" in e.plain
+        assert "1990" in e.html
+
+        push_collector.assert_user_has_single_matching(
+            normal_user.id,
+            title="Your date of birth was changed",
+            body="Your date of birth on Couchers.org was changed to Friday 25 May 1990 by an admin.",
+        )
 
 
 def test_BanUser(db):
@@ -321,9 +349,18 @@ def test_badges(db):
         with real_admin_session(super_token) as api:
             # can add a badge
             assert "volunteer" not in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
-            res = api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="volunteer"))
-            # assert "volunteer" in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
+            with mock_notification_email() as mock:
+                res = api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="volunteer"))
             assert "volunteer" in res.badges
+
+            # badge emails are disabled by default
+            mock.assert_not_called()
+
+            push_collector.assert_user_has_single_matching(
+                normal_user.id,
+                title="The Active Volunteer badge was added to your profile",
+                body="Check out your profile to see the new badge!",
+            )
 
             # can't add/edit special tags
             with pytest.raises(grpc.RpcError) as e:
@@ -339,8 +376,19 @@ def test_badges(db):
 
             # can remove badge
             assert "volunteer" in api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username)).badges
-            res = api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="volunteer"))
+            with mock_notification_email() as mock:
+                res = api.RemoveBadge(admin_pb2.RemoveBadgeReq(user=normal_user.username, badge_id="volunteer"))
             assert "volunteer" not in res.badges
+
+            # badge emails are disabled by default
+            mock.assert_not_called()
+
+            push_collector.assert_user_push_matches_fields(
+                normal_user.id,
+                ix=1,
+                title="The Active Volunteer badge was removed from your profile",
+                body="You can see all your badges on your profile.",
+            )
 
             # not found on user
             with pytest.raises(grpc.RpcError) as e:

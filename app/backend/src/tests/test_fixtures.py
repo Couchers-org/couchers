@@ -863,7 +863,7 @@ def fast_passwords():
             yield
 
 
-def handle_notifications_bg():
+def process_jobs():
     while process_job():
         pass
 
@@ -872,7 +872,7 @@ def handle_notifications_bg():
 def mock_notification_email():
     with patch("couchers.notifications.background.queue_email") as mock:
         yield mock
-        handle_notifications_bg()
+        process_jobs()
 
 
 @dataclass
