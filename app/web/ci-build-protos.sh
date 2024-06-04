@@ -11,8 +11,6 @@ chmod +x protoc-gen-grpc-web
 curl -L https://github.com/protocolbuffers/protobuf-javascript/releases/download/v3.21.2/protobuf-javascript-3.21.2-linux-x86_64.zip -o protobuf-javascript.zip
 unzip protobuf-javascript.zip
 
-ls -lah .
-
 popd
 
 # actually build the protos
