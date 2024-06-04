@@ -1,4 +1,4 @@
-FROM node:20-bookworm as builder
+FROM node:20-bullseye as builder
 
 ARG environment=development
 WORKDIR /app
