@@ -2331,6 +2331,9 @@ class PushNotificationSubscription(Base):
 
     full_subscription_info = Column(String, nullable=False)
 
+    # the browse user-agent, so we can tell the user what browser notifications are going to
+    user_agent = Column(String, nullable=True)
+
     # when it was disabled
     disabled_at = Column(DateTime(timezone=True), nullable=False, server_default=DATETIME_INFINITY.isoformat())
 
