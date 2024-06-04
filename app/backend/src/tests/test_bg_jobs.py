@@ -44,6 +44,8 @@ from tests.test_fixtures import (  # noqa
     generate_user,
     make_friends,
     make_user_block,
+    process_jobs,
+    push_collector,
     requests_session,
     testconfig,
 )
@@ -970,7 +972,7 @@ def test_update_recommendation_scores(db):
     update_recommendation_scores(empty_pb2.Empty())
 
 
-def test_update_badges(db):
+def test_update_badges(db, push_collector):
     user1, _ = generate_user()
     user2, _ = generate_user()
     user3, _ = generate_user()
@@ -978,7 +980,11 @@ def test_update_badges(db):
     user5, _ = generate_user(phone="+15555555556", phone_verification_verified=func.now())
     user6, _ = generate_user()
 
+    with session_scope() as session:
+        session.add(UserBadge(user_id=user5.id, badge_id="board_member"))
+
     update_badges(empty_pb2.Empty())
+    process_jobs()
 
     with session_scope() as session:
         badge_tuples = session.execute(
@@ -995,3 +1001,48 @@ def test_update_badges(db):
     ]
 
     assert badge_tuples == expected
+
+    print(push_collector.pushes)
+
+    push_collector.assert_user_push_matches_fields(
+        user1.id,
+        ix=0,
+        title="The Founder badge was added to your profile",
+        body="Check out your profile to see the new badge!",
+    )
+    push_collector.assert_user_push_matches_fields(
+        user1.id,
+        ix=1,
+        title="The Board Member badge was added to your profile",
+        body="Check out your profile to see the new badge!",
+    )
+    push_collector.assert_user_push_matches_fields(
+        user2.id,
+        ix=0,
+        title="The Founder badge was added to your profile",
+        body="Check out your profile to see the new badge!",
+    )
+    push_collector.assert_user_push_matches_fields(
+        user2.id,
+        ix=1,
+        title="The Board Member badge was added to your profile",
+        body="Check out your profile to see the new badge!",
+    )
+    push_collector.assert_user_push_matches_fields(
+        user4.id,
+        ix=0,
+        title="The Verified Phone badge was added to your profile",
+        body="Check out your profile to see the new badge!",
+    )
+    push_collector.assert_user_push_matches_fields(
+        user5.id,
+        ix=0,
+        title="The Board Member badge was removed from your profile",
+        body="You can see all your badges on your profile.",
+    )
+    push_collector.assert_user_push_matches_fields(
+        user5.id,
+        ix=1,
+        title="The Verified Phone badge was added to your profile",
+        body="Check out your profile to see the new badge!",
+    )

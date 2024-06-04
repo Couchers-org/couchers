@@ -20,8 +20,8 @@ from tests.test_fixtures import (  # noqa
     email_fields,
     fast_passwords,
     generate_user,
-    handle_notifications_bg,
     mock_notification_email,
+    process_jobs,
     push_collector,
     testconfig,
 )
@@ -68,7 +68,7 @@ def test_GetAccountInfo_regression(db):
         res = account.GetAccountInfo(empty_pb2.Empty())
 
 
-def test_ChangePassword_normal(db, fast_passwords):
+def test_ChangePassword_normal(db, fast_passwords, push_collector):
     # user has old password and is changing to new password
     old_password = random_hex()
     new_password = random_hex()
@@ -83,8 +83,12 @@ def test_ChangePassword_normal(db, fast_passwords):
                 )
             )
 
-        mock.assert_called_once()
-        assert email_fields(mock).subject == "[TEST] Your password was changed"
+    mock.assert_called_once()
+    assert email_fields(mock).subject == "[TEST] Your password was changed"
+
+    push_collector.assert_user_has_single_matching(
+        user.id, title="Your password was changed", body="Your login password for Couchers.org was changed."
+    )
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -550,7 +554,7 @@ def test_ChangeEmail_has_password(db, fast_passwords):
         assert not user.need_to_confirm_via_new_email
 
 
-def test_ChangeEmail_sends_proper_emails_has_password(db, fast_passwords):
+def test_ChangeEmail_sends_proper_emails_has_password(db, fast_passwords, push_collector):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
@@ -563,7 +567,7 @@ def test_ChangeEmail_sends_proper_emails_has_password(db, fast_passwords):
             )
         )
 
-    handle_notifications_bg()
+    process_jobs()
 
     with session_scope() as session:
         jobs = session.execute(select(BackgroundJob).where(BackgroundJob.job_type == "send_email")).scalars().all()
@@ -577,6 +581,12 @@ def test_ChangeEmail_sends_proper_emails_has_password(db, fast_passwords):
         assert (uq_str1 in jobs[0].payload and uq_str2 in jobs[1].payload) or (
             uq_str2 in jobs[0].payload and uq_str1 in jobs[1].payload
         )
+
+    push_collector.assert_user_has_single_matching(
+        user.id,
+        title="An email change was initiated on your account",
+        body=f"An email change to the email {new_email} was initiated on your account.",
+    )
 
 
 def test_contributor_form(db):

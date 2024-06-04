@@ -32,9 +32,9 @@ from tests.test_fixtures import (  # noqa
     db,
     email_fields,
     generate_user,
-    handle_notifications_bg,
     mock_notification_email,
     notifications_session,
+    process_jobs,
     push_collector,
     session_scope,
     testconfig,
@@ -208,7 +208,7 @@ def test_email_patching_fails(db):
             with pytest.raises(Exception) as e:
                 with api_session(from_token) as api:
                     api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=to_user.id))
-                handle_notifications_bg()
+                process_jobs()
 
         assert str(e.value) == patched_msg
 
@@ -368,7 +368,7 @@ def test_send_donation_email(db, monkeypatch):
     )
 
     with patch("couchers.email.smtp.smtplib.SMTP"):
-        handle_notifications_bg()
+        process_jobs()
 
     with session_scope() as session:
         email = session.execute(select(Email)).scalar_one()
