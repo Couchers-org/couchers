@@ -113,6 +113,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 p256dh_key=decode_key(request.p256dh_key),
                 auth_key=decode_key(request.auth_key),
                 full_subscription_info=request.full_subscription_json,
+                user_agent=request.user_agent,
             )
             session.add(subscription)
             session.flush()
