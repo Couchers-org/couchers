@@ -191,20 +191,20 @@ def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload)
             config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"],
             ttl=payload.ttl,
         )
+        success = resp.status_code in [200, 201, 202]
         session.add(
             PushNotificationDeliveryAttempt(
                 push_notification_subscription_id=sub.id,
-                success=resp.status_code == 201,
+                success=success,
                 status_code=resp.status_code,
                 response=resp.text,
             )
         )
-        if resp.status_code == 201:
-            # success
+        if success:
             logger.debug(f"Successfully sent push to sub {sub.id} for user {sub.user}")
         elif resp.status_code == 410:
             # gone
-            logger.error(f"Push sub {sub.id} for user {sub.user} is gone! Disabling.")
+            logger.info(f"Push sub {sub.id} for user {sub.user} is gone! Disabling.")
             sub.disabled_at = func.now()
         else:
             raise Exception(f"Failed to deliver push to {sub.id}, code: {resp.status_code}. Response: {resp.text}")
