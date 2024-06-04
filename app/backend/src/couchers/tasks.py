@@ -133,28 +133,6 @@ def send_reference_reminder_email(user, other_user, host_request, surfed, time_l
     )
 
 
-def send_password_changed_email(user):
-    """
-    Send the user an email saying their password has been changed.
-    """
-    # todo(notify2): replace with notification
-    logger.info(f"Sending password changed (notification) email to {user=}")
-    email.enqueue_email_from_template_to_user(
-        user, "password_changed", template_args={"user": user}, is_critical_email=True
-    )
-
-
-def send_email_changed_notification_email(user):
-    """
-    Send an email to user's original address notifying that it has been changed
-    """
-    # todo(notify2): replace with notification
-    logger.info(
-        f"Sending email changed (notification) email to {user=} (old email: {user.email=}, new email: {user.new_email=})"
-    )
-    email_user(user, "email_changed_notification", template_args={"user": user})
-
-
 def send_email_changed_confirmation_to_new_email(user):
     """
     Send an email to user's new email address requesting confirmation of email change
