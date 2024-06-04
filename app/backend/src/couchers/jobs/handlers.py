@@ -43,12 +43,7 @@ from couchers.models import (
     User,
     UserBadge,
 )
-from couchers.notifications.background import (
-    handle_email_digests,
-    handle_email_notifications,
-    handle_notification,
-    send_raw_push_notification,
-)
+from couchers.notifications.background import handle_email_digests, handle_notification, send_raw_push_notification
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.blocking import are_blocked
@@ -65,9 +60,6 @@ logger = logging.getLogger(__name__)
 
 # these were straight up imported
 handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
-
-handle_email_notifications.PAYLOAD = empty_pb2.Empty
-handle_email_notifications.SCHEDULE = timedelta(minutes=1)
 
 send_raw_push_notification.PAYLOAD = jobs_pb2.SendRawPushNotificationPayload
 
