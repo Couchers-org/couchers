@@ -15,6 +15,7 @@ from couchers.config import config
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import random_hex
 from couchers.db import clear_base_engine_cache, get_engine, session_scope
+from couchers.descriptor_pool import get_descriptor_pool
 from couchers.interceptors import AuthValidatorInterceptor, _try_get_and_update_user_details
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.worker import process_job
@@ -61,6 +62,7 @@ from couchers.utils import create_coordinate, now
 from proto import (
     account_pb2_grpc,
     admin_pb2_grpc,
+    annotations_pb2,
     api_pb2_grpc,
     auth_pb2_grpc,
     blocking_pb2_grpc,
@@ -376,48 +378,6 @@ class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
         callback((("cookie", f"couchers-sesh={self.token}"),), None)
 
 
-class FakeRpcError(grpc.RpcError):
-    def __init__(self, code, details):
-        self._code = code
-        self._details = details
-
-    def code(self):
-        return self._code
-
-    def details(self):
-        return self._details
-
-
-class FakeChannel:
-    def __init__(self, user_id=None):
-        self.handlers = {}
-        self.user_id = user_id
-
-    def abort(self, code, details):
-        raise FakeRpcError(code, details)
-
-    def add_generic_rpc_handlers(self, generic_rpc_handlers):
-        from grpc._server import _validate_generic_rpc_handlers
-
-        _validate_generic_rpc_handlers(generic_rpc_handlers)
-
-        self.handlers.update(generic_rpc_handlers[0]._method_handlers)
-
-    def unary_unary(self, uri, request_serializer, response_deserializer):
-        handler = self.handlers[uri]
-
-        def fake_handler(request):
-            # Do a full serialization cycle on the request and the
-            # response to catch accidental use of unserializable data.
-            request = handler.request_deserializer(request_serializer(request))
-
-            response = handler.unary_unary(request, self)
-
-            return response_deserializer(handler.response_serializer(response))
-
-        return fake_handler
-
-
 @contextmanager
 def auth_api_session():
     """
@@ -503,6 +463,27 @@ def real_admin_session(token):
 
 
 @contextmanager
+def real_account_session(token):
+    """
+    Create a Account service for testing, using TCP sockets, uses the token for auth
+    """
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
+        server.start()
+
+        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
+        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+                yield account_pb2_grpc.AccountStub(channel)
+        finally:
+            server.stop(None).wait()
+
+
+@contextmanager
 def real_jail_session(token):
     """
     Create a Jail service for testing, using TCP sockets, uses the token for auth
@@ -523,9 +504,82 @@ def real_jail_session(token):
             server.stop(None).wait()
 
 
-def fake_channel(token):
-    user_id, jailed, is_superuser = _try_get_and_update_user_details(token, is_api_key=False)
-    return FakeChannel(user_id=user_id)
+class FakeRpcError(grpc.RpcError):
+    def __init__(self, code, details):
+        self._code = code
+        self._details = details
+
+    def code(self):
+        return self._code
+
+    def details(self):
+        return self._details
+
+
+def _check_user_perms(method, user_id, is_jailed, is_superuser):
+    # method is of the form "/org.couchers.api.core.API/GetUser"
+    _, service_name, method_name = method.split("/")
+
+    service_options = get_descriptor_pool().FindServiceByName(service_name).GetOptions()
+    auth_level = service_options.Extensions[annotations_pb2.auth_level]
+    assert auth_level != annotations_pb2.AUTH_LEVEL_UNKNOWN
+    assert auth_level in [
+        annotations_pb2.AUTH_LEVEL_OPEN,
+        annotations_pb2.AUTH_LEVEL_JAILED,
+        annotations_pb2.AUTH_LEVEL_SECURE,
+        annotations_pb2.AUTH_LEVEL_ADMIN,
+    ]
+
+    if not user_id:
+        assert auth_level == annotations_pb2.AUTH_LEVEL_OPEN
+    else:
+        assert not (
+            auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser
+        ), "Non-superuser tried to call superuser API"
+        assert not (
+            is_jailed and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]
+        ), "User is jailed but tried to call non-open/non-jailed API"
+
+
+class FakeChannel:
+    def __init__(self, user_id=None, is_jailed=None, is_superuser=None):
+        self.handlers = {}
+        self.user_id = user_id
+        self._is_jailed = is_jailed
+        self._is_superuser = is_superuser
+
+    def abort(self, code, details):
+        raise FakeRpcError(code, details)
+
+    def add_generic_rpc_handlers(self, generic_rpc_handlers):
+        from grpc._server import _validate_generic_rpc_handlers
+
+        _validate_generic_rpc_handlers(generic_rpc_handlers)
+
+        self.handlers.update(generic_rpc_handlers[0]._method_handlers)
+
+    def unary_unary(self, uri, request_serializer, response_deserializer):
+        handler = self.handlers[uri]
+
+        _check_user_perms(uri, self.user_id, self._is_jailed, self._is_superuser)
+
+        def fake_handler(request):
+            # Do a full serialization cycle on the request and the
+            # response to catch accidental use of unserializable data.
+            request = handler.request_deserializer(request_serializer(request))
+
+            response = handler.unary_unary(request, self)
+
+            return response_deserializer(handler.response_serializer(response))
+
+        return fake_handler
+
+
+def fake_channel(token=None):
+    if token:
+        user_id, is_jailed, is_superuser = _try_get_and_update_user_details(token, is_api_key=False)
+        return FakeChannel(user_id=user_id, is_jailed=is_jailed, is_superuser=is_superuser)
+    return FakeChannel()
 
 
 @contextmanager
@@ -687,17 +741,14 @@ def events_session(token):
 
 @contextmanager
 def bugs_session(token=None):
-    if token:
-        channel = fake_channel(token)
-    else:
-        channel = FakeChannel()
+    channel = fake_channel(token)
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
     yield bugs_pb2_grpc.BugsStub(channel)
 
 
 @contextmanager
 def resources_session():
-    channel = FakeChannel()
+    channel = fake_channel()
     resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), channel)
     yield resources_pb2_grpc.ResourcesStub(channel)
 

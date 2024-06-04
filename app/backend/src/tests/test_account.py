@@ -33,19 +33,6 @@ def _(testconfig):
 
 
 def test_GetAccountInfo(db, fast_passwords):
-    # without password
-    user1, token1 = generate_user(hashed_password=None, email="funkybot@couchers.invalid")
-
-    with account_session(token1) as account:
-        res = account.GetAccountInfo(empty_pb2.Empty())
-        assert res.login_method == account_pb2.GetAccountInfoRes.LoginMethod.MAGIC_LINK
-        assert not res.has_password
-        assert res.email == "funkybot@couchers.invalid"
-        assert res.username == user1.username
-        assert not res.has_strong_verification
-        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
-        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
-
     # with password
     user1, token1 = generate_user(hashed_password=hash_password(random_hex()), email="user@couchers.invalid")
 
@@ -249,62 +236,6 @@ def test_ChangePassword_normal_no_passwords(db, fast_passwords):
         assert updated_user.hashed_password == hash_password(old_password)
 
 
-def test_ChangePassword_add(db, fast_passwords):
-    # user does not have an old password and is adding a new password
-    new_password = random_hex()
-    user, token = generate_user(hashed_password=None)
-
-    with account_session(token) as account:
-        with mock_notification_email() as mock:
-            account.ChangePassword(
-                account_pb2.ChangePasswordReq(
-                    new_password=wrappers_pb2.StringValue(value=new_password),
-                )
-            )
-        mock.assert_called_once()
-        assert email_fields(mock).subject == "[TEST] Your password was changed"
-
-    with session_scope() as session:
-        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        assert updated_user.hashed_password == hash_password(new_password)
-
-
-def test_ChangePassword_add_with_password(db, fast_passwords):
-    # user does not have an old password and is adding a new password, but supplied a password
-    new_password = random_hex()
-    user, token = generate_user(hashed_password=None)
-
-    with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
-            account.ChangePassword(
-                account_pb2.ChangePasswordReq(
-                    old_password=wrappers_pb2.StringValue(value="wrong password"),
-                    new_password=wrappers_pb2.StringValue(value=new_password),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.NO_PASSWORD
-
-    with session_scope() as session:
-        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        assert not updated_user.has_password
-
-
-def test_ChangePassword_add_no_passwords(db, fast_passwords):
-    # user does not have an old password and called with empty body
-    user, token = generate_user(hashed_password=None)
-
-    with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
-            account.ChangePassword(account_pb2.ChangePasswordReq())
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_BOTH_PASSWORDS
-
-    with session_scope() as session:
-        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        assert updated_user.hashed_password == None
-
-
 def test_ChangePassword_remove(db, fast_passwords):
     old_password = random_hex()
     user, token = generate_user(hashed_password=hash_password(old_password))
@@ -479,11 +410,12 @@ def test_ChangeEmail_no_change(db, fast_passwords):
 def test_ChangeEmail_wrong_token(db, fast_passwords):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
-    user, token = generate_user(hashed_password=None)
+    user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
         account.ChangeEmail(
             account_pb2.ChangeEmailReq(
+                password=wrappers_pb2.StringValue(value=password),
                 new_email=new_email,
             )
         )
@@ -510,12 +442,14 @@ def test_ChangeEmail_tokens_two_hour_window(db):
     def one_minute_ago():
         return now() - timedelta(minutes=1)
 
+    password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
-    user, token = generate_user(hashed_password=None)
+    user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
         account.ChangeEmail(
             account_pb2.ChangeEmailReq(
+                password=wrappers_pb2.StringValue(value=password),
                 new_email=new_email,
             )
         )
@@ -616,148 +550,6 @@ def test_ChangeEmail_has_password(db, fast_passwords):
         assert not user.need_to_confirm_via_new_email
 
 
-def test_ChangeEmail_no_password_confirm_with_old_email_first(db):
-    new_email = f"{random_hex()}@couchers.org.invalid"
-    user, token = generate_user(hashed_password=None)
-
-    with account_session(token) as account:
-        account.ChangeEmail(
-            account_pb2.ChangeEmailReq(
-                new_email=new_email,
-            )
-        )
-
-    with session_scope() as session:
-        user_updated = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        assert user_updated.email == user.email
-        assert user_updated.new_email == new_email
-        assert user_updated.old_email_token is not None
-        assert user_updated.old_email_token_created <= now()
-        assert user_updated.old_email_token_expiry >= now()
-        assert user_updated.need_to_confirm_via_old_email
-        assert user_updated.new_email_token is not None
-        assert user_updated.new_email_token_created <= now()
-        assert user_updated.new_email_token_expiry >= now()
-        assert user_updated.need_to_confirm_via_new_email
-
-        token = user_updated.old_email_token
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmail(
-            auth_pb2.ConfirmChangeEmailReq(
-                change_email_token=token,
-            )
-        )
-        assert res.state == auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL
-
-    with session_scope() as session:
-        user_updated = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        assert user_updated.email == user.email
-        assert user_updated.new_email == new_email
-        assert user_updated.old_email_token is None
-        assert user_updated.old_email_token_created is None
-        assert user_updated.old_email_token_expiry is None
-        assert not user_updated.need_to_confirm_via_old_email
-        assert user_updated.new_email_token is not None
-        assert user_updated.new_email_token_created <= now()
-        assert user_updated.new_email_token_expiry >= now()
-        assert user_updated.need_to_confirm_via_new_email
-
-        token = user_updated.new_email_token
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmail(
-            auth_pb2.ConfirmChangeEmailReq(
-                change_email_token=token,
-            )
-        )
-        assert res.state == auth_pb2.EMAIL_CONFIRMATION_STATE_SUCCESS
-
-    with session_scope() as session:
-        user = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        assert user.email == new_email
-        assert user.new_email is None
-        assert user.old_email_token is None
-        assert user.old_email_token_created is None
-        assert user.old_email_token_expiry is None
-        assert not user.need_to_confirm_via_old_email
-        assert user.new_email_token is None
-        assert user.new_email_token_created is None
-        assert user.new_email_token_expiry is None
-        assert not user.need_to_confirm_via_new_email
-
-
-def test_ChangeEmail_no_password_confirm_with_new_email_first(db):
-    new_email = f"{random_hex()}@couchers.org.invalid"
-    user, token = generate_user(hashed_password=None)
-
-    with account_session(token) as account:
-        account.ChangeEmail(
-            account_pb2.ChangeEmailReq(
-                new_email=new_email,
-            )
-        )
-
-    with session_scope() as session:
-        user_updated = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        assert user_updated.email == user.email
-        assert user_updated.new_email == new_email
-        assert user_updated.old_email_token is not None
-        assert user_updated.old_email_token_created <= now()
-        assert user_updated.old_email_token_expiry >= now()
-        assert user_updated.need_to_confirm_via_old_email
-        assert user_updated.new_email_token is not None
-        assert user_updated.new_email_token_created <= now()
-        assert user_updated.new_email_token_expiry >= now()
-        assert user_updated.need_to_confirm_via_new_email
-
-        token = user_updated.new_email_token
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmail(
-            auth_pb2.ConfirmChangeEmailReq(
-                change_email_token=token,
-            )
-        )
-        assert res.state == auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_OLD_EMAIL
-
-    with session_scope() as session:
-        user_updated = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        assert user_updated.email == user.email
-        assert user_updated.new_email == new_email
-        assert user_updated.old_email_token is not None
-        assert user_updated.old_email_token_created <= now()
-        assert user_updated.old_email_token_expiry >= now()
-        assert user_updated.need_to_confirm_via_old_email
-        assert user_updated.new_email_token is None
-        assert user_updated.new_email_token_created is None
-        assert user_updated.new_email_token_expiry is None
-        assert not user_updated.need_to_confirm_via_new_email
-
-        token = user_updated.old_email_token
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmail(
-            auth_pb2.ConfirmChangeEmailReq(
-                change_email_token=token,
-            )
-        )
-        assert res.state == auth_pb2.EMAIL_CONFIRMATION_STATE_SUCCESS
-
-    with session_scope() as session:
-        user = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        assert user.email == new_email
-        assert user.new_email is None
-        assert user.old_email_token is None
-        assert user.old_email_token_created is None
-        assert user.old_email_token_expiry is None
-        assert not user.need_to_confirm_via_old_email
-        assert user.new_email_token is None
-        assert user.new_email_token_created is None
-        assert user.new_email_token_expiry is None
-        assert not user.need_to_confirm_via_new_email
-
-
 def test_ChangeEmail_sends_proper_emails_has_password(db, fast_passwords):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
@@ -784,35 +576,6 @@ def test_ChangeEmail_sends_proper_emails_has_password(db, fast_passwords):
         )
         assert (uq_str1 in jobs[0].payload and uq_str2 in jobs[1].payload) or (
             uq_str2 in jobs[0].payload and uq_str1 in jobs[1].payload
-        )
-
-
-def test_ChangeEmail_sends_proper_emails_no_password(db):
-    new_email = f"{random_hex()}@couchers.org.invalid"
-    user, token = generate_user(hashed_password=None)
-
-    with account_session(token) as account:
-        account.ChangeEmail(
-            account_pb2.ChangeEmailReq(
-                new_email=new_email,
-            )
-        )
-
-    with session_scope() as session:
-        jobs = session.execute(select(BackgroundJob).where(BackgroundJob.job_type == "send_email")).scalars().all()
-        assert len(jobs) == 2
-        payload_for_confirmation_email_old_address = jobs[0].payload
-        payload_for_confirmation_email_new_address = jobs[1].payload
-        unique_string_for_confirmation_email_old_address_as_bytes = (
-            b"You requested that your email be changed on Couchers.org"
-        )
-        unique_string_for_confirmation_email_new_email_address_as_bytes = (
-            b"You requested that your email be changed to this email address on Couchers.org"
-        )
-        assert unique_string_for_confirmation_email_old_address_as_bytes in payload_for_confirmation_email_old_address
-        assert (
-            unique_string_for_confirmation_email_new_email_address_as_bytes
-            in payload_for_confirmation_email_new_address
         )
 
 
