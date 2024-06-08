@@ -1,18 +1,21 @@
-import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
-import HtmlMeta from "components/HtmlMeta";
-import Map from "components/Map";
 import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
-import { useTranslation } from "i18n";
-import { GLOBAL, SEARCH } from "i18n/namespaces";
 import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
-import { User } from "proto/api_pb";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { searchRoute } from "routes";
-import { usePrevious } from "utils/hooks";
-
-import NewSearchBox from "./new-search-box";
-import NewSearchList from "./new-search-list";
+import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { addClusteredUsersToMap, layers } from "../search/users";
+import { GLOBAL, SEARCH } from "i18n/namespaces";
+import NewSearchList from "./new-search-list";
+import NewSearchBox from "./new-search-box";
+import HtmlMeta from "components/HtmlMeta";
+import { usePrevious } from "utils/hooks";
+import { useTranslation } from "i18n";
+import { searchRoute } from "routes";
+import { User } from "proto/api_pb";
+import Map from "components/Map";
+import { Point } from "geojson";
+import NewMapWrapper from "./new-map-wrapper";
+
+import { mapContext } from "./new-search-page-controller";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -57,9 +60,7 @@ export default function NewSearchPage() {
   const theme = useTheme();
 
   const map = useRef<MaplibreMap>();
-  const [selectedResult, setSelectedResult] = useState<
-    Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
-  >(undefined);
+  const [selectedResult, setSelectedResult] = useState<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>(undefined);
 
   const previousResult = usePrevious(selectedResult);
 
@@ -69,7 +70,7 @@ export default function NewSearchPage() {
 
   // const searchFilters = useRouteWithSearchFilters(searchRoute);
 
-  const updateMapBoundingBox = alert("updated map bounding box");
+  // const updateMapBoundingBox = alert("updated map bounding box");
 
   /*
   useEffect(() => {
@@ -84,124 +85,25 @@ export default function NewSearchPage() {
 
   const flyToUser = () => { alert("pending to implement :)") };
 
-  useEffect(() => {
-    if (previousResult) {
-      //unset the old feature selection on the map for styling
-      areClustersLoaded &&
-        map.current?.setFeatureState(
-          { source: "clustered-users", id: previousResult.userId },
-          { selected: false }
-        );
-    }
-
-    if (selectedResult) {
-      flyToUser();
-      areClustersLoaded &&
-        map.current?.setFeatureState(
-          { source: "clustered-users", id: selectedResult.userId },
-          { selected: true }
-        );
-
-      //update result list
-      document
-        .getElementById(`search-result-${selectedResult.userId}`)
-        ?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [selectedResult, areClustersLoaded, previousResult, flyToUser]);
-
-  const handleMapUserClick = useCallback(
-    (
-      ev: maplibregl.MapMouseEvent & {
-        features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
-      } & EventData
-    ) => {
-      ev.preventDefault();
-      alert("user map click on map");
-    },
-    []
-  );
-
-  //detect when map data has been initially loaded
-  const handleMapSourceData = useCallback(() => {
-    if (
-      map.current &&
-      map.current.getSource("clustered-users") &&
-      map.current.isSourceLoaded("clustered-users")
-    ) {
-      setAreClustersLoaded(true);
-
-      // unbind the event
-      map.current.off("sourcedata", handleMapSourceData);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!map.current) return;
-    const handleMapClickAway = (e: EventData) => {
-      //defaultPrevented is true when a map feature has been clicked
-      if (!e.defaultPrevented) {
-        setSelectedResult(undefined);
-      }
-    };
-
-    //bind event handlers for map events (order matters!)
-    map.current.on(
-      "click",
-      layers.unclusteredPointLayer.id,
-      handleMapUserClick
-    );
-    map.current.on("click", handleMapClickAway);
-
-    map.current.on("sourcedata", handleMapSourceData);
-
-    return () => {
-      if (!map.current) return;
-
-      //unbind event handlers for map events
-      map.current.off("sourcedata", handleMapSourceData);
-      map.current.off("click", handleMapClickAway);
-      map.current.off(
-        "click",
-        layers.unclusteredPointLayer.id,
-        handleMapUserClick
-      );
-    };
-  }, [handleMapUserClick, handleMapSourceData]);
-
-  const initializeMap = (newMap: MaplibreMap) => {
-    map.current = newMap;
-    newMap.on("load", () => {
-      addClusteredUsersToMap(newMap);
-    });
-  };
-
   return (
     <>
       <HtmlMeta title={t("global:nav.map_search")} />
       <div className={classes.container}>
         <Hidden smDown>
-          <NewSearchList />
+          <NewSearchList /> {/* lista con resultados */}
         </Hidden>
         <Hidden mdUp>
           <Collapse
-            in={!!selectedResult}
+            in={true}
             timeout={theme.transitions.duration.standard}
             className={classes.mobileCollapse}
           >
-            <NewSearchList />
+            <NewSearchList /> {/* lista con resultados (mobil) */}
           </Collapse>
+          <NewSearchBox />
         </Hidden>
         <div className={classes.mapContainer}>
-          <Map
-            grow
-            initialCenter={new LngLat(0, 0)}
-            initialZoom={1}
-            postMapInitialize={initializeMap}
-            hash
-          />
-          <Hidden mdUp>
-            <NewSearchBox />
-          </Hidden>
+          <NewMapWrapper />
         </div>
       </div>
     </>

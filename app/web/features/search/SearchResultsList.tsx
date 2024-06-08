@@ -174,6 +174,8 @@ export default function SearchResultsList({
       },
     }
   );
+
+  const hasAtLeastOnePageResults = hasAtLeastOnePage(results, "resultsList");
   const isSearching = Object.keys(searchFilters.active).length !== 0;
 
   return (
@@ -186,9 +188,16 @@ export default function SearchResultsList({
         />
       </Hidden>
       {isSearching ? (
-        isLoading ? (
-          <CircularProgress className={classes.baseMargin} />
-        ) : hasAtLeastOnePage(results, "resultsList") ? (
+      <>
+        {isLoading && <CircularProgress className={classes.baseMargin} />}
+
+        {!isLoading && !hasAtLeastOnePageResults &&
+          <TextBody className={classes.baseMargin}>
+            {t("search_result.no_user_result_message")}
+          </TextBody>
+        }
+
+        {!isLoading && hasAtLeastOnePageResults &&
           <HorizontalScroller
             breakpoint="sm"
             className={classes.scroller}
@@ -211,11 +220,8 @@ export default function SearchResultsList({
                 ) : null
               )}
           </HorizontalScroller>
-        ) : (
-          <TextBody className={classes.baseMargin}>
-            {t("search_result.no_user_result_message")}
-          </TextBody>
-        )
+        }
+      </>
       ) : (
         selectedResult && (
           <>

@@ -1,5 +1,5 @@
 import { Hidden, makeStyles, Paper } from "@material-ui/core";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
@@ -9,6 +9,8 @@ import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import NewSearchBox from "./new-search-box";
 import { useEffect } from "react";
+
+import { mapContext } from "./new-search-page-controller";
 
 const useStyles = makeStyles((theme) => ({
   mapResults: {
@@ -74,10 +76,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function NewSearchList({ }) {
+  // out of the context
+  const {isLoading, results} = useContext(mapContext);
+
+  // const [results, setResults] = useContext(mapContext);
   const { t } = useTranslation(SEARCH);
-  const [isSearching, setIsSearching] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
-  const [results, setResults] = useState([] as any);
   const classes = useStyles();
   const hasAtLeastOnePageResults = true;
   const selectedResult = undefined;
@@ -151,134 +154,6 @@ export default function NewSearchList({ }) {
     message: ""
   };
 
-  useEffect(() => {
-    setTimeout(() => {
-      setIsSearching(false);
-      setIsLoading(false);
-      setResults([
-        {
-          "userId": 18436,
-          "username": "David 00",
-          "name": "david baqueiro 00",
-          "city": "Vigo, Galicia, España",
-          "hometown": "Vigo",
-          "timezone": "Europe/Madrid",
-          "lat": 42.237430861395445,
-          "lng": -8.725194502595514,
-          "radius": 250,
-          "verification": 0,
-          "communityStanding": 0,
-          "numReferences": 0,
-          "gender": "Man",
-          "pronouns": "",
-          "age": 27,
-          "joined": "{nanos: 0, seconds: 1660737600}",
-          "lastActive": "{nanos: 0, seconds: 1717682400}",
-          "hostingStatus": 3,
-          "meetupStatus": 3,
-          "occupation": "Software developer",
-          "education": "",
-          "aboutMe": "Daviiiid 0000!!!",
-          "myTravels": "",
-          "thingsILike": "",
-          "aboutPlace": "",
-          "regionsVisitedList": "[\"BEL\", \"FRA\", \"DEU\", \"ITA\", \"MEX\", \"PRT\", \"SGP\", \"…]",
-          "regionsLivedList": "[\"DEU\", \"ESP\"]",
-          "additionalInformation": "",
-          "friends": 3,
-          "lastMinute": "{value: false}",
-          "hasPets": "{value: false}",
-          "acceptsPets": "{value: false}",
-          "petDetails": "{value: \"\"}",
-          "hasKids": "{value: false}",
-          "acceptsKids": "{value: false}",
-          "kidDetails": "{value: \"\"}",
-          "hasHousemates": "{value: false}",
-          "housemateDetails": "{value: \"\"}",
-          "wheelchairAccessible": "{value: false}",
-          "smokingAllowed": 1,
-          "smokesAtHome": "{value: false}",
-          "drinkingAllowed": "{value: false}",
-          "drinksAtHome": "{value: false}",
-          "otherHostInfo": "{value: \"![Bildschirmfoto 2023-10-01 um 20.39.53.pn…}",
-          "sleepingArrangement": 1,
-          "sleepingDetails": "{value: \"\"}",
-          "area": "{value: \"\"}",
-          "houseRules": "{value: \"\"}",
-          "parking": "{value: false}",
-          "parkingDetails": 1,
-          "campingOk": "{value: false}",
-          "avatarUrl": "https://user-media.couchershq.org/media/img/full/af49ba999bfb8bcc94db4a18e0d251a67883452fd63476604b12dd5a35fee404.jpg",
-          "languageAbilitiesList": "[{code:\"deu\", fluency:3}]",
-          "badgesList": "[\"volunteer\"]",
-          "hasStrongVerification": false,
-          "birthdateVerificationStatus": 1,
-          "genderVerificationStatus": 1
-        },
-        {
-          "userId": 18436,
-          "username": "David 11",
-          "name": "david baqueiro",
-          "city": "Vigo, Galicia, España",
-          "hometown": "Vigo",
-          "timezone": "Europe/Madrid",
-          "lat": 42.237430861395445,
-          "lng": -8.725194502595514,
-          "radius": 250,
-          "verification": 0,
-          "communityStanding": 0,
-          "numReferences": 0,
-          "gender": "Man",
-          "pronouns": "",
-          "age": 27,
-          "joined": "{nanos: 0, seconds: 1660737600}",
-          "lastActive": "{nanos: 0, seconds: 1717682400}",
-          "hostingStatus": 3,
-          "meetupStatus": 3,
-          "occupation": "Software developer",
-          "education": "",
-          "aboutMe": "Daviiiid 1111!!!",
-          "myTravels": "",
-          "thingsILike": "",
-          "aboutPlace": "",
-          "regionsVisitedList": "[\"BEL\", \"FRA\", \"DEU\", \"ITA\", \"MEX\", \"PRT\", \"SGP\", \"…]",
-          "regionsLivedList": "[\"DEU\", \"ESP\"]",
-          "additionalInformation": "",
-          "friends": 3,
-          "lastMinute": "{value: false}",
-          "hasPets": "{value: false}",
-          "acceptsPets": "{value: false}",
-          "petDetails": "{value: \"\"}",
-          "hasKids": "{value: false}",
-          "acceptsKids": "{value: false}",
-          "kidDetails": "{value: \"\"}",
-          "hasHousemates": "{value: false}",
-          "housemateDetails": "{value: \"\"}",
-          "wheelchairAccessible": "{value: false}",
-          "smokingAllowed": 1,
-          "smokesAtHome": "{value: false}",
-          "drinkingAllowed": "{value: false}",
-          "drinksAtHome": "{value: false}",
-          "otherHostInfo": "{value: \"![Bildschirmfoto 2023-10-01 um 20.39.53.pn…}",
-          "sleepingArrangement": 1,
-          "sleepingDetails": "{value: \"\"}",
-          "area": "{value: \"\"}",
-          "houseRules": "{value: \"\"}",
-          "parking": "{value: false}",
-          "parkingDetails": 1,
-          "campingOk": "{value: false}",
-          "avatarUrl": "https://user-media.couchershq.org/media/img/full/af49ba999bfb8bcc94db4a18e0d251a67883452fd63476604b12dd5a35fee404.jpg",
-          "languageAbilitiesList": "[{code:\"deu\", fluency:3}]",
-          "badgesList": "[\"volunteer\"]",
-          "hasStrongVerification": false,
-          "birthdateVerificationStatus": 1,
-          "genderVerificationStatus": 1
-        }
-      ]
-      );
-    }, 10000)
-  }, []);
-
   return (
     <Paper className={classes.mapResults}>
       {error && <Alert severity="error">{error.message}</Alert>}
@@ -302,17 +177,16 @@ export default function NewSearchList({ }) {
             fetchNext={() => { }}
             hasMore={false}
           >
-            {results.length && results.map((result: any) =>
-              result.user ? (
-                <SearchResult
-                  id={`search-result-${result.user.userId}`}
-                  className={classes.searchResult}
-                  key={result.user.userId}
-                  user={result.user}
-                  onSelect={() => { alert("selected :)") }}
-                  highlight={result.user.userId === selectedResult}
-                />
-              ) : null
+            {!!results && results.length && results.map((result: any) => {
+              return <SearchResult
+                id={`search-result-${result.userId}`}
+                className={classes.searchResult}
+                key={result.userId}
+                user={result}
+                onSelect={() => { alert("selected :)") }}
+                highlight={result.userId === selectedResult}
+              />
+            }
             )}
           </HorizontalScroller>
         }
