@@ -296,7 +296,9 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
             .where(EventOccurrence.event_id == Event.id)
         ).one()
 
-        cancelling_user = session.execute(select(User).where(User.id == payload.cancelling_user_id)).scalar_one_or_none()
+        cancelling_user = session.execute(
+            select(User).where(User.id == payload.cancelling_user_id)
+        ).scalar_one_or_none()
 
         subscribed_user_ids = [user.id for user in event.subscribers]
         attending_user_ids = [user.user_id for user in occurrence.attendances]

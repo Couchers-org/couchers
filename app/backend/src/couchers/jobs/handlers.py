@@ -50,7 +50,12 @@ from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import are_blocked
 from couchers.servicers.conversations import generate_message_notifications
-from couchers.servicers.events import generate_event_create_notifications, generate_event_update_notifications, generate_event_cancel_notifications, generate_event_delete_notifications
+from couchers.servicers.events import (
+    generate_event_cancel_notifications,
+    generate_event_create_notifications,
+    generate_event_delete_notifications,
+    generate_event_update_notifications,
+)
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.tasks import send_onboarding_email

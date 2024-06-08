@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "46e6b6a3d9ed"
-down_revision = "3b63c4706f0d"
+down_revision = "bc79d9a6fd26"
 branch_labels = None
 depends_on = None
 
@@ -23,9 +23,8 @@ def upgrade():
     op.add_column(
         "event_occurrences", sa.Column("is_deleted", sa.Boolean(), nullable=False, server_default=sa.text("false"))
     )
-    with op.get_context().autocommit_block():
-        op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__cancel'")
-        op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__delete'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__cancel'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__delete'")
 
 
 def downgrade():
