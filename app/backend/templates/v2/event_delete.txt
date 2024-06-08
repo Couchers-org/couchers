@@ -5,6 +5,7 @@ An event you are subscribed to has been deleted by the moderators.
 {{ event.title }}
 {{ time_display }}
 
-{% if event.offline_information.address %}{{ event.offline_information.address }}{% endif %}
+{% if event.offline_information.address|v2esc %}{{ event.offline_information.address }}{% endif %}
 
-Do not reply to this email. Log in to your account to reply.
+Best,
+The Couchers.org team

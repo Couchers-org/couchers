@@ -4,7 +4,7 @@
     <mj-text><b>{{ inviting_user.name|v2esc }} invited you to co-organize "{{ event.title|v2esc }}".</b> The event information is below:</mj-text>
     <mj-text><b>{{ event.title|v2esc }}</b><br />
       {{ time_display|v2esc }}<br />
-      <i>{% if event.online_information.lnk %}<a href="{{ event.online_information.link }}">Online</a>{% endif %}{% if event.offline_information.address %}{{ event.offline_information.address }}{% endif %}</i>
+      <i>{% if event.online_information.link %}<a href="{{ event.online_information.link|v2url }}">Online</a>{% endif %}{% if event.offline_information.address|v2esc %}{{ event.offline_information.address }}{% endif %}</i>
     </mj-text>
   </mj-column>
 </mj-section>
