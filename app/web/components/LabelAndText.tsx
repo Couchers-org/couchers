@@ -1,7 +1,6 @@
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import classNames from "classnames";
-import React from "react";
 
 import TextBody from "./TextBody";
 
@@ -16,12 +15,14 @@ const useStyles = makeStyles((theme) => ({
   },
   flexItem: {
     flex: "1 1 50%",
+    display: "flex",
+    alignItems: "center",
   },
 }));
 
 export interface LabelAndTextProps {
   label: string;
-  text: string;
+  text: string | React.ReactNode;
 }
 
 export default function LabelAndText({ label, text }: LabelAndTextProps) {

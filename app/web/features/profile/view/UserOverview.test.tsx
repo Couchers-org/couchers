@@ -108,5 +108,29 @@ describe("UserOverview", () => {
       );
       expect(screen.getByText("Edit profile")).toBeInTheDocument();
     });
+    it("should not show badge when no strong verification", () => {
+      render(
+        <ProfileUserProvider
+          user={{ ...defaultUser, hasStrongVerification: false }}
+        >
+          <UserOverview showHostAndMeetAvailability={false} />
+        </ProfileUserProvider>,
+        { wrapper }
+      );
+
+      const verificationBadge = screen.queryByTestId("error-icon");
+      expect(verificationBadge).toBeNull();
+    });
+    it("should show badge when user has strong verification", () => {
+      render(
+        <ProfileUserProvider
+          user={{ ...defaultUser, hasStrongVerification: true }}
+        >
+          <UserOverview showHostAndMeetAvailability={false} />
+        </ProfileUserProvider>,
+        { wrapper }
+      );
+      expect(screen.getByTestId("strong-verification-id")).toBeInTheDocument();
+    });
   });
 });

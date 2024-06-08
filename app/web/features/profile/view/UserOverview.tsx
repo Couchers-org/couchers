@@ -1,4 +1,4 @@
-import { Card, CardActions, Typography } from "@material-ui/core";
+import { Card, CardActions, Tooltip, Typography } from "@material-ui/core";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
@@ -14,6 +14,7 @@ import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 
+import { VerifiedUser } from "@material-ui/icons";
 import { useProfileUser } from "../hooks/useProfileUser";
 import { Badges } from "./Badges";
 import { ReferencesLastActiveLabels, ResponseRateLabel } from "./userLabels";
@@ -66,6 +67,11 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "75%",
     margin: "0 auto",
   },
+  strongVerificationBadge: {
+    display: "flex",
+    alignItems: "center",
+    marginLeft: theme.spacing(0.5),
+  },
 }));
 
 type UserOverviewProps = {
@@ -92,6 +98,17 @@ export default function UserOverview({
       <div className={classes.wrapper}>
         <Typography variant="h1" className={classes.intro}>
           {user.name}
+          {user.hasStrongVerification ? (
+            <span className={classes.strongVerificationBadge}>
+              <Tooltip title={t("profile:heading.strong_verification")}>
+                <VerifiedUser
+                  data-testid="strong-verification-id"
+                  fontSize="inherit"
+                  color="primary"
+                />
+              </Tooltip>
+            </span>
+          ) : null}
         </Typography>
         <Typography variant="body1" className={classes.intro}>
           {user.city}
