@@ -490,7 +490,7 @@ def render_notification(user, notification) -> RenderedNotification:
                 email_topic_action_unsubscribe_text="event cancellations",
                 push_title=f'{data.cancelling_user.name} cancelled "{event.title}"',
                 push_body=body,
-                push_icon=v2avatar(data.updating_user),
+                push_icon=v2avatar(data.cancelling_user),
                 push_url=event_link,
             )
         elif notification.action == "delete":
@@ -505,8 +505,8 @@ def render_notification(user, notification) -> RenderedNotification:
                 email_topic_action_unsubscribe_text="event deletions",
                 push_title=f'A moderator deleted "{event.title}"',
                 push_body=f"{time_display}\nThe event has been deleted by the moderators.",
-                push_icon=v2avatar(data.updating_user),
-                push_url=event_link,
+                push_icon=urls.icon_url(),
+                push_url=urls.app_link(),
             )
         elif notification.action == "invite_organizer":
             body = f"{time_display}\n"
