@@ -133,7 +133,6 @@ message EventCancel {
 
 message EventDelete {
   org.couchers.api.events.Event event = 1;
-  org.couchers.api.core.User deleting_user = 2;
 }
 
 message ChatMessage {
