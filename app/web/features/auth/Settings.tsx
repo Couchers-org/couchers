@@ -4,6 +4,7 @@ import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import ChangeEmail from "features/auth/email/ChangeEmail";
 import DoNotEmail from "features/auth/email/DoNotEmail";
+import NotificationSettings from "features/auth/notifications/NotificationSettings";
 import { ChangePassword } from "features/auth/password";
 import Section from "features/auth/section/Section";
 import Timezone from "features/auth/timezone/Timezone";
@@ -67,6 +68,7 @@ export default function Settings() {
             email={accountInfo.email}
             hasPassword={accountInfo.hasPassword}
           />
+          <NotificationSettings className={classes.section} />
           <DoNotEmail className={classes.section} />
           <ChangePassword
             className={classes.section}

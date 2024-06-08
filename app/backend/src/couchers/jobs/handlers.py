@@ -5,6 +5,7 @@ Background job servicers
 import logging
 from datetime import date, timedelta
 from math import sqrt
+from types import SimpleNamespace
 from typing import List
 
 import requests
@@ -43,19 +44,18 @@ from couchers.models import (
     User,
     UserBadge,
 )
-from couchers.notifications.background import (
-    fan_notifications,
-    handle_email_digests,
-    handle_email_notifications,
-    handle_notification,
-)
+from couchers.notifications.background import handle_email_digests, handle_notification, send_raw_push_notification
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict, get_static_badge_dict
+from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import are_blocked
+from couchers.servicers.conversations import generate_message_notifications
+from couchers.servicers.events import generate_event_create_notifications, generate_event_update_notifications, generate_event_cancel_notifications, generate_event_delete_notifications
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
-from couchers.tasks import send_onboarding_email, send_reference_reminder_email
+from couchers.tasks import send_onboarding_email
 from couchers.utils import now
+from proto import notification_data_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
 logger = logging.getLogger(__name__)
@@ -63,13 +63,20 @@ logger = logging.getLogger(__name__)
 # these were straight up imported
 handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
 
-handle_email_notifications.PAYLOAD = empty_pb2.Empty
-handle_email_notifications.SCHEDULE = timedelta(minutes=1)
+send_raw_push_notification.PAYLOAD = jobs_pb2.SendRawPushNotificationPayload
 
 handle_email_digests.PAYLOAD = empty_pb2.Empty
 handle_email_digests.SCHEDULE = timedelta(minutes=15)
 
-fan_notifications.PAYLOAD = jobs_pb2.FanNotificationsPayload
+generate_message_notifications.PAYLOAD = jobs_pb2.GenerateMessageNotificationsPayload
+
+generate_event_create_notifications.PAYLOAD = jobs_pb2.GenerateEventCreateNotificationsPayload
+
+generate_event_update_notifications.PAYLOAD = jobs_pb2.GenerateEventUpdateNotificationsPayload
+
+generate_event_cancel_notifications.PAYLOAD = jobs_pb2.GenerateEventCancelNotificationsPayload
+
+generate_event_delete_notifications.PAYLOAD = jobs_pb2.GenerateEventDeleteNotificationsPayload
 
 
 def send_email(payload):
@@ -331,16 +338,16 @@ def send_reference_reminders(payload):
         # (number, timedelta before we stop being able to write a ref, text for how long they have left to write the ref)
         # the end time to write a reference is supposed to be midnight in the host's timezone
         # 8 pm ish on the last day of the stay
-        (1, timedelta(days=15) - timedelta(hours=20), "14 days"),
+        (1, timedelta(days=15) - timedelta(hours=20), 14),
         # 2 pm ish a week after stay
-        (2, timedelta(days=8) - timedelta(hours=14), "7 days"),
+        (2, timedelta(days=8) - timedelta(hours=14), 7),
         # 10 am ish 3 days before end of time to write ref
-        (3, timedelta(days=4) - timedelta(hours=10), "3 days"),
+        (3, timedelta(days=4) - timedelta(hours=10), 3),
     ]
 
     with session_scope() as session:
         # iterate the reminders in backwards order, so if we missed out on one we don't send duplicates
-        for reminder_no, reminder_time, reminder_text in reversed(reference_reminder_schedule):
+        for reminder_number, reminder_time, reminder_days_left in reversed(reference_reminder_schedule):
             user = aliased(User)
             other_user = aliased(User)
             # surfers needing to write a ref
@@ -360,7 +367,7 @@ def send_reference_reminders(payload):
                 .where(other_user.is_visible)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
-                .where(HostRequest.surfer_sent_reference_reminders < reminder_no)
+                .where(HostRequest.surfer_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
             )
 
@@ -381,7 +388,7 @@ def send_reference_reminders(payload):
                 .where(other_user.is_visible)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
-                .where(HostRequest.host_sent_reference_reminders < reminder_no)
+                .where(HostRequest.host_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
             )
 
@@ -398,11 +405,20 @@ def send_reference_reminders(payload):
                 # checked in sql
                 assert user.is_visible
                 if not are_blocked(session, user.id, other_user.id):
-                    send_reference_reminder_email(user, other_user, host_request, surfed, reminder_text)
+                    context = SimpleNamespace(user_id=user.id)
+                    notify(
+                        user_id=user.id,
+                        topic_action="reference:reminder_surfed" if surfed else "reference:reminder_hosted",
+                        data=notification_data_pb2.ReferenceReminder(
+                            host_request_id=host_request.conversation_id,
+                            other_user=user_model_to_pb(other_user, session, context),
+                            days_left=reminder_days_left,
+                        ),
+                    )
                     if surfed:
-                        host_request.surfer_sent_reference_reminders = reminder_no
+                        host_request.surfer_sent_reference_reminders = reminder_number
                     else:
-                        host_request.host_sent_reference_reminders = reminder_no
+                        host_request.host_sent_reference_reminders = reminder_number
                     session.commit()
 
 
@@ -703,12 +719,12 @@ def update_badges(payload):
 
                 notify(
                     user_id=user_id,
-                    topic="badge",
-                    key="",
-                    action="add",
-                    icon="label",
-                    title=f'The "{badge["name"]}" badge was added to your profile',
-                    link=urls.profile_link(),
+                    topic_action="badge:add",
+                    data=notification_data_pb2.BadgeAdd(
+                        badge_id=badge["id"],
+                        badge_name=badge["name"],
+                        badge_description=badge["description"],
+                    ),
                 )
 
             session.execute(delete(UserBadge).where(UserBadge.user_id.in_(remove), UserBadge.badge_id == badge["id"]))
@@ -716,12 +732,12 @@ def update_badges(payload):
             for user_id in remove:
                 notify(
                     user_id=user_id,
-                    topic="badge",
-                    key="",
-                    action="remove",
-                    icon="label",
-                    title=f'The "{badge["name"]}" badge was removed from your profile',
-                    link=urls.profile_link(),
+                    topic_action="badge:remove",
+                    data=notification_data_pb2.BadgeRemove(
+                        badge_id=badge["id"],
+                        badge_name=badge["name"],
+                        badge_description=badge["description"],
+                    ),
                 )
 
         update_badge("founder", get_static_badge_dict()["founder"])

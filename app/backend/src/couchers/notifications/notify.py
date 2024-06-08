@@ -1,21 +1,22 @@
+import logging
+
+from google.protobuf import empty_pb2
+
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Notification
 from couchers.notifications.utils import enum_from_topic_action
 from proto.internal import jobs_pb2
 
+logger = logging.getLogger(__name__)
+
 
 def notify(
     *,
     user_id,
-    topic,
-    key,
-    action,
-    title,
-    link,
-    avatar_key=None,
-    icon=None,
-    content=None,
+    topic_action,
+    key="",
+    data=None,
 ):
     """
     Queues a notification given the notification and a target, i.e. a tuple (user_id, topic, key), and an action.
@@ -31,16 +32,14 @@ def notify(
 
     Each different notification type should have its own action.
     """
+    logger.info(f"Generating notification of type {topic_action} for user {user_id}")
+    topic, action = topic_action.split(":")
     with session_scope() as session:
         notification = Notification(
             user_id=user_id,
             topic_action=enum_from_topic_action[topic, action],
             key=key,
-            avatar_key=avatar_key,
-            icon=icon,
-            title=title,
-            content=content,
-            link=link,
+            data=(data or empty_pb2.Empty()).SerializeToString(),
         )
         session.add(notification)
         session.flush()
@@ -50,38 +49,5 @@ def notify(
         job_type="handle_notification",
         payload=jobs_pb2.HandleNotificationPayload(
             notification_id=notification_id,
-        ),
-    )
-
-
-def fan_notify(
-    *,
-    fan_func: str,
-    fan_func_data: str,
-    topic,
-    key,
-    action,
-    title,
-    link,
-    avatar_key=None,
-    icon=None,
-    content=None,
-):
-    """
-    Like notify, but this time we pass into a background job and call fan_func(fan_func_data) in order to figure out who to send this notification to
-    """
-    queue_job(
-        job_type="fan_notifications",
-        payload=jobs_pb2.FanNotificationsPayload(
-            topic=topic,
-            action=action,
-            key=key,
-            avatar_key=avatar_key,
-            icon=icon,
-            title=title,
-            content=content,
-            link=link,
-            fan_func=fan_func,
-            fan_func_data=fan_func_data,
         ),
     )

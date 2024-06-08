@@ -10,6 +10,7 @@ from sqlalchemy.sql import or_, select, update
 from couchers import errors, urls
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
+from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     Event,
     EventCommunityInviteRequest,
@@ -21,16 +22,16 @@ from couchers.models import (
     User,
     UserBadge,
 )
-from couchers.notifications.fan_funcs import fan_create_event_notifications
-from couchers.notifications.notify import fan_notify, notify
+from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
 from couchers.servicers.api import get_strong_verification_fields
 from couchers.servicers.auth import create_session
 from couchers.servicers.communities import community_to_pb
+from couchers.servicers.events import get_users_to_notify_for_new_event
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_api_key_email
-from couchers.utils import date_to_api, now, parse_date
-from proto import admin_pb2, admin_pb2_grpc
+from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
+from proto import admin_pb2, admin_pb2_grpc, notification_data_pb2
+from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -73,12 +74,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             notify(
                 user_id=user.id,
-                topic="gender",
-                key="",
-                action="change",
-                icon="wrench",
-                title=f"An admin changed your gender",
-                link=urls.account_settings_link(),
+                topic_action="gender:change",
+                data=notification_data_pb2.GenderChange(
+                    gender=request.gender,
+                ),
             )
 
             return _user_to_details(user)
@@ -93,12 +92,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             notify(
                 user_id=user.id,
-                topic="birthdate",
-                key="",
-                action="change",
-                icon="wrench",
-                title=f"An admin changed your birth date",
-                link=urls.account_settings_link(),
+                topic_action="birthdate:change",
+                data=notification_data_pb2.BirthdateChange(
+                    birthdate=request.birthdate,
+                ),
             )
 
             return _user_to_details(user)
@@ -124,12 +121,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             notify(
                 user_id=user.id,
-                topic="badge",
-                key="",
-                action="remove",
-                icon="label",
-                title=f'An admin added the "{badge["name"]}" badge to your profile',
-                link=urls.profile_link(),
+                topic_action="badge:add",
+                data=notification_data_pb2.BadgeAdd(
+                    badge_id=badge["id"],
+                    badge_name=badge["name"],
+                    badge_description=badge["description"],
+                ),
             )
 
             return _user_to_details(user)
@@ -158,12 +155,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             notify(
                 user_id=user.id,
-                topic="badge",
-                key="",
-                action="remove",
-                icon="label",
-                title=f'An admin removed the "{badge["name"]}" badge from your profile',
-                link=urls.profile_link(),
+                topic_action="badge:remove",
+                data=notification_data_pb2.BadgeRemove(
+                    badge_id=badge["id"],
+                    badge_name=badge["name"],
+                    badge_description=badge["description"],
+                ),
             )
 
             return _user_to_details(user)
@@ -211,16 +208,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
             token, expiry = create_session(
                 context, session, user, long_lived=True, is_api_key=True, duration=timedelta(days=365), set_cookie=False
             )
-            send_api_key_email(session, user, token, expiry)
 
             notify(
                 user_id=user.id,
-                topic="api_key",
-                key="",
-                action="create",
-                icon="wrench",
-                title=f"An admin created an API key for you, please check your email",
-                link=urls.account_settings_link(),
+                topic_action="api_key:create",
+                data=notification_data_pb2.ApiKeyCreate(
+                    api_key=token,
+                    expiry=Timestamp_from_datetime(expiry),
+                ),
             )
 
             return _user_to_details(user)
@@ -364,7 +359,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                         event_url=urls.event_link(
                             occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug
                         ),
-                        approx_users_to_notify=len(fan_create_event_notifications(str(request.occurrence.id))),
+                        approx_users_to_notify=len(get_users_to_notify_for_new_event(session, request.occurrence)[0]),
                     )
                     for request in requests[:page_size]
                 ],
@@ -380,10 +375,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
             ).scalar_one_or_none()
 
             if not req:
-                context.abort(grpc.StatusCode.NOT_FOUND, EVENT_COMMUNITY_INVITE_ALREADY_NOT_FOUND)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_COMMUNITY_INVITE_NOT_FOUND)
 
             if req.decided:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, EVENT_COMMUNITY_INVITE_ALREADY_ALREADY_DECIDED)
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_COMMUNITY_INVITE_ALREADY_DECIDED)
 
             decided = now()
             req.decided = decided
@@ -401,20 +396,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             session.flush()
 
-            # todo: actually send the notifications
-
             if request.approve:
-                occurrence = req.occurrence
-                fan_notify(
-                    fan_func="fan_create_event_notifications",
-                    fan_func_data=str(occurrence.id),
-                    topic="event",
-                    key=str(occurrence.id),
-                    action="create_approved",
-                    icon="create",
-                    title=f'A new event, "{occurrence.event.title}" was created by {req.user.name}',
-                    content=occurrence.content,
-                    link=urls.event_link(occurrence_id=occurrence.id, slug=occurrence.event.slug),
+                queue_job(
+                    "generate_event_create_notifications",
+                    payload=jobs_pb2.GenerateEventCreateNotificationsPayload(
+                        inviting_user_id=req.user_id,
+                        occurrence_id=req.occurrence_id,
+                        approved=True,
+                    ),
                 )
 
             return admin_pb2.DecideEventCommunityInviteRequestRes()
@@ -435,15 +424,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             occurrence.is_deleted = True
 
-            fan_notify(
-                fan_func="fan_to_occurrence_subscribers_and_attendees",
-                fan_func_data=str(occurrence.id),
-                topic="event",
-                key=str(occurrence.id),
-                action="delete",
-                icon="cancel",
-                title=f'"{event.title}" was deleted by an admin.',
-                link=urls.event_link(occurrence_id=occurrence.id, slug=event.slug),
+            queue_job(
+                "generate_event_delete_notifications",
+                payload=jobs_pb2.GenerateEventDeleteNotificationsPayload(
+                    deleting_user_id=context.user_id,
+                    occurrence_id=occurrence.id,
+                ),
             )
 
         return empty_pb2.Empty()

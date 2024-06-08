@@ -21,15 +21,6 @@ def _generate_unsubscribe_link(payload):
     return urls.unsubscribe_link(payload=b64encode(msg), sig=b64encode(sig))
 
 
-def generate_mute_all(user_id):
-    return _generate_unsubscribe_link(
-        unsubscribe_pb2.UnsubscribePayload(
-            user_id=user_id,
-            all=unsubscribe_pb2.MuteAll(),
-        )
-    )
-
-
 def generate_do_not_email(user_id):
     return _generate_unsubscribe_link(
         unsubscribe_pb2.UnsubscribePayload(
@@ -63,6 +54,19 @@ def generate_unsub_topic_action(notification):
     )
 
 
+def generate_unsub(user, notification, type, one_click=False):
+    if one_click:
+        raise NotImplementedError("One click unsubscribe not implemented yet")
+    if type == "do_not_email":
+        return generate_do_not_email(user.id)
+    elif type == "topic_key":
+        return generate_unsub_topic_key(notification)
+    elif type == "topic_action":
+        return generate_unsub_topic_action(notification)
+    else:
+        return ValueError("Unknown unsub type")
+
+
 def unsubscribe(request, context):
     """
     Returns a response string or uses context.abort upon error
@@ -72,18 +76,12 @@ def unsubscribe(request, context):
     payload = unsubscribe_pb2.UnsubscribePayload.FromString(request.payload)
     with session_scope() as session:
         user = session.execute(select(User).where(User.id == payload.user_id)).scalar_one()
-        if payload.HasField("all"):
-            logger.info(f"User {user.name} unsubscribing from all")
-            # todo: some other system when out of preview
-            user.new_notifications_enabled = False
-            return "You've been unsubscribed from all non-security notifications"
         if payload.HasField("do_not_email"):
             logger.info(f"User {user.name} turning of emails")
             user.do_not_email = True
-            user.new_notifications_enabled = False
             user.hosting_status = HostingStatus.cant_host
             user.meetup_status = MeetupStatus.does_not_want_to_meetup
-            return "You will not receive any non-security emails. You may still receive the newsletter, and need to unsubscribe separately there, sorry!"
+            return "You will not receive any non-security emails, and your hosting status has been turned off. You may still receive the newsletter, and need to unsubscribe from it separately."
         if payload.HasField("topic_action"):
             logger.info(f"User {user.name} unsubscribing from topic_action")
             topic = payload.topic_action.topic
@@ -91,7 +89,7 @@ def unsubscribe(request, context):
             topic_action = enum_from_topic_action[topic, action]
             # disable emails for this type
             settings.set_preference(session, user.id, topic_action, NotificationDeliveryType.email, False)
-            return "You've been unsubscribed from all email notifications of that type"
+            return "You've been unsubscribed from email notifications of that type."
         if payload.HasField("topic_key"):
             logger.info(f"User {user.name} unsubscribing from topic_key")
             topic = payload.topic_key.topic

@@ -10,9 +10,9 @@ autoflake==2.3.1
     # via -r requirements.in
 black==24.4.2
     # via -r requirements.in
-boto3==1.34.103
+boto3==1.34.117
     # via -r requirements.in
-botocore==1.34.103
+botocore==1.34.117
     # via
     #   boto3
     #   s3transfer
@@ -21,18 +21,27 @@ certifi==2024.2.2
     #   requests
     #   sentry-sdk
 cffi==1.16.0
-    # via pynacl
+    # via
+    #   cryptography
+    #   pynacl
 charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via black
 coverage[toml]==7.5.0
     # via pytest-cov
+cryptography==42.0.7
+    # via
+    #   -r requirements.in
+    #   http-ece
+    #   py-vapid
 geoalchemy2==0.15.1
     # via -r requirements.in
 greenlet==3.0.3
     # via sqlalchemy
 grpcio==1.64.0
+    # via -r requirements.in
+http-ece==1.2.0
     # via -r requirements.in
 idna==3.7
     # via requests
@@ -77,6 +86,8 @@ protobuf==5.27.0
     # via -r requirements.in
 psycopg2-binary==2.9.9
     # via -r requirements.in
+py-vapid==1.9.1
+    # via -r requirements.in
 pycparser==2.22
     # via cffi
 pyflakes==3.2.0
@@ -97,7 +108,7 @@ pytz==2024.1
     # via -r requirements.in
 pyyaml==6.0.1
     # via -r requirements.in
-requests==2.32.2
+requests==2.32.3
     # via
     #   -r requirements.in
     #   stripe
@@ -117,7 +128,7 @@ sqlalchemy==2.0.30
     #   sqlalchemy-utils
 sqlalchemy-utils==0.41.2
     # via -r requirements.in
-stripe==9.8.0
+stripe==9.9.0
     # via -r requirements.in
 typing-extensions==4.11.0
     # via

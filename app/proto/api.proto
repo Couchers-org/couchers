@@ -267,6 +267,7 @@ message User {
   google.protobuf.BoolValue camping_ok = 121;
 
   string avatar_url = 32;
+  string avatar_thumbnail_url = 44;
   repeated LanguageAbility language_abilities = 37;
 
   repeated string badges = 38;

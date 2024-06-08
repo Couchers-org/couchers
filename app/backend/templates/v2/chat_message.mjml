@@ -1,0 +1,31 @@
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text><b>{{ message|v2esc }}</b> at {{ time|v2time(user) }}.</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px" text-align="left">
+  <mj-column width="120px">
+    <mj-image border-radius="200px" src="{{ author|v2avatar }}" />
+  </mj-column>
+  <mj-column width="440px">
+    <mj-text padding="15px 0px 0px 0px" line-height="20px"><b>{{ author.name|v2esc }}</b>, {{ author.age|v2esc }}<br />{{ author.city|v2esc }}</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="10px 20px" text-align="left">
+  <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
+    <mj-text>{{ text|v2esc|v2multiline }}</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ view_link|v2url }}">
+      <b>Go to messages</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text><b>Do not reply to this email.</b> Use one of the buttons above, or log in to your account to reply to this request.</mj-text>
+  </mj-column>
+</mj-section>

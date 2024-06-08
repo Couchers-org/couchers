@@ -1,0 +1,35 @@
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text><b>{{ inviting_user.name|v2esc }} invited you to co-organize "{{ event.title|v2esc }}".</b> The event information is below:</mj-text>
+    <mj-text><b>{{ event.title|v2esc }}</b><br />
+      {{ time_display|v2esc }}<br />
+      <i>{% if event.online_information.lnk %}<a href="{{ event.online_information.link }}">Online</a>{% endif %}{% if event.offline_information.address %}{{ event.offline_information.address }}{% endif %}</i>
+    </mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px" text-align="left">
+  <mj-column width="120px">
+    <mj-image border-radius="200px" src="{{ inviting_user|v2avatar }}" />
+  </mj-column>
+  <mj-column width="440px">
+    <mj-text padding="15px 0px 0px 0px" line-height="20px">Invited by <b>{{ inviting_user.name|v2esc }}</b>, {{ inviting_user.age|v2esc }}<br />{{ inviting_user.city|v2esc }}</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="10px 20px" text-align="left">
+  <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
+    <mj-text>{{ event.content|v2esc|v2multiline }}</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ view_link|v2url }}">
+      <b>View event</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text><b>Do not reply to this email.</b> Use one of the buttons above, or log in to your account to reply to this request.</mj-text>
+  </mj-column>
+</mj-section>

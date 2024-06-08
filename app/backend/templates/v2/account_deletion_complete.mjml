@@ -1,0 +1,21 @@
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text>You have successfully deleted your account from Couchers.org.</mj-text>
+    <mj-text>We are sad to see you go, but wish you the best in your future travels. You are always welcome back on the Couchers.org platform :)</mj-text>
+    <mj-text>If you change your mind, <b>you have {{ days|v2esc }} days to retrieve your account</b> by clicking the following link and following the prompt:</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ undelete_link|v2url }}">
+      <b>Recover Account</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>If this wasn't you, please contact us by emailing <a href="mailto:support@couchers.org">support@couchers.org</a> so we can sort this out as soon as possible!</mj-text>
+    <mj-text>Best,<br />The Couchers.org Team</mj-text>
+  </mj-column>
+</mj-section>

@@ -1,0 +1,16 @@
+Hi {{ user.name }},
+
+You recently requested an API key for Couchers.org. We've issued you with the following API key:
+
+{{ api_key }}
+
+The key expires {{ expiry|v2timestamp(user) }}.
+
+This API key is unique to your account; do not share it with anyone, it gives complete access to your account, and you are reponsible for any actions taken using this API key.</mj-text>
+
+Please remember to abide by our Terms of Service, our Community Guidelines, and other policies while using our APIs. All access is logged and analyzed, and we may terminate your access or account if you abuse the service.
+
+If you did not initiate this action, please contact us by emailing <support@couchers.org> so we can sort this out as soon as possible!
+
+Best,
+The Couchers.org Team

@@ -1,0 +1,19 @@
+<mjml>
+  <mj-head>
+    <mj-title>{{ subject }}</mj-title>
+    <mj-preview>{{ preview }}</mj-preview>
+    <mj-attributes>
+      <mj-text color="#333" />
+    </mj-attributes>
+    <mj-style inline="inline"> a { color: #00a398; } .unsub a { color: #777; text-decoration: underline; text-decoration-color: #ccc; } </mj-style>
+  </mj-head>
+  <mj-body background-color="#eee">
+    <mj-section>
+    </mj-section>
+    <mj-wrapper background-color="#fff" border-radius="5px" padding="20px" css-class="body">
+      <mj-section>
+        <mj-column>
+          <mj-image src="attachment_imgs/logo-with-couchers.org-small.png" alt="Couchers.org" width="300px"></mj-image>
+          <mj-divider border-color="#00a398" border-width="1px"></mj-divider>
+        </mj-column>
+      </mj-section>

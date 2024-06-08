@@ -42,3 +42,9 @@ services:
       - 5000:5000
     depends_on:
       - backend
+  maildev:
+    image: maildev/maildev
+    restart: unless-stopped
+    ports:
+      - 1025:1025
+      - 1080:1080

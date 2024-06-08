@@ -15,11 +15,14 @@ from tests.test_fixtures import (  # noqa
     api_session,
     blocking_session,
     db,
+    email_fields,
     generate_user,
     make_friends,
     make_user_block,
     make_user_invisible,
+    mock_notification_email,
     notifications_session,
+    push_collector,
     real_api_session,
     real_jail_session,
     testconfig,
@@ -288,7 +291,7 @@ def test_update_profile_do_not_email(db):
     user, token = generate_user()
 
     with notifications_session(token) as notifications:
-        notifications.SetDoNotEmail(notifications_pb2.SetDoNotEmailReq(enable_do_not_email=True))
+        notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=True))
 
     with api_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -466,14 +469,33 @@ def test_pending_friend_request_count(db):
         assert res.pending_friend_request_count == 0
 
 
-def test_friend_request_flow(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+def test_friend_request_flow(db, push_collector):
+    user1, token1 = generate_user(complete_profile=True)
+    user2, token2 = generate_user(complete_profile=True)
     user3, token3 = generate_user()
 
     # send friend request from user1 to user2
-    with api_session(token1) as api:
-        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+    with mock_notification_email() as mock:
+        with api_session(token1) as api:
+            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+
+    push_collector.assert_user_has_single_matching(
+        user2.id,
+        title=f"{user1.name} wants to be your friend",
+    )
+
+    mock.assert_called_once()
+    e = email_fields(mock)
+    assert e.recipient == user2.email
+    assert e.subject == f"[TEST] {user1.name} wants to be your friend on Couchers.org!"
+    assert user2.name in e.plain
+    assert user2.name in e.html
+    assert user1.name in e.plain
+    assert user1.name in e.html
+    assert "http://localhost:5000/img/thumbnail/" not in e.plain
+    assert "http://localhost:5000/img/thumbnail/" in e.html
+    assert "http://localhost:3000/connections/friends/" in e.plain
+    assert "http://localhost:3000/connections/friends/" in e.html
 
     with session_scope() as session:
         friend_request_id = (
@@ -506,7 +528,8 @@ def test_friend_request_flow(db):
         fr_id = res.received[0].friend_request_id
 
         # accept it
-        api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
+        with mock_notification_email() as mock:
+            api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
 
         # check it's gone
         res = api.ListFriendRequests(empty_pb2.Empty())
@@ -517,6 +540,25 @@ def test_friend_request_flow(db):
         res = api.ListFriends(empty_pb2.Empty())
         assert len(res.user_ids) == 1
         assert res.user_ids[0] == user1.id
+
+    push_collector.assert_user_has_count(user2.id, 1)
+    push_collector.assert_user_push_matches_fields(
+        user1.id,
+        title=f"{user2.name} accepted your friend request!",
+    )
+
+    mock.assert_called_once()
+    e = email_fields(mock)
+    assert e.recipient == user1.email
+    assert e.subject == f"[TEST] {user2.name} accepted your friend request!"
+    assert user1.name in e.plain
+    assert user1.name in e.html
+    assert user2.name in e.plain
+    assert user2.name in e.html
+    assert "http://localhost:5000/img/thumbnail/" not in e.plain
+    assert "http://localhost:5000/img/thumbnail/" in e.html
+    assert f"http://localhost:3000/user/{user2.username}" in e.plain
+    assert f"http://localhost:3000/user/{user2.username}" in e.html
 
     with api_session(token1) as api:
         # check it's gone

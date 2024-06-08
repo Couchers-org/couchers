@@ -1,0 +1,20 @@
+Hi {{ user.name }},
+
+{{ message }} at {{ time|v2time(user) }}.
+
+Request details:
+
+{{ other.name }}, {{ other.age }}
+{{ other.city }}.
+Dates: {{ host_request.from_date|v2date(user) }} to {{ host_request.to_date|v2date(user) }}.
+
+They wrote the following message:
+
+{{ text|v2quote }}
+
+
+
+You can view the request here: <{{ view_link }}>
+
+
+Do not reply to this email. Log in to your account to reply to this request.

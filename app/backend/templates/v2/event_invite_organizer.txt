@@ -1,0 +1,18 @@
+Hi {{ user.name }},
+
+{{ inviting_user.name }} invited you to co-organize their event "{{ event.title }}". The event information is below:
+
+{{ event.title }}
+{{ time_display }}
+
+{% if event.online_information.link %}Online at <{{ event.online_information.link }}>{% endif %}{% if event.offline_information.address %}{{ event.offline_information.address }}{% endif %}
+
+
+{{ event.content|v2quote }}
+
+
+
+You can view the event here: <{{ view_link }}>
+
+
+Do not reply to this email. Log in to your account to reply.

@@ -1,0 +1,28 @@
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text><b>You have {{ days_left|v2esc }} days left to write a reference for {{ other_user.name|v2esc }}</b> from when you {% if surfed %}surfed with{% else %}hosted{% endif %} them.</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px" text-align="left">
+  <mj-column width="120px">
+    <mj-image border-radius="200px" src="{{ other_user|v2avatar }}" />
+  </mj-column>
+  <mj-column width="440px">
+    <mj-text padding="15px 0px 0px 0px" line-height="20px"><b>{{ other_user.name|v2esc }}</b>, {{ other_user.age|v2esc }}<br />{{ other_user.city|v2esc }}</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ leave_reference_link|v2url }}">
+      <b>Write a reference for {{ other_user.name|v2esc }}</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>You can also leave a reference by going to the Messaging tab, locating the request, then clicking on the "Write Reference" button at the bottom of the conversation.</mj-text>
+    <mj-text>It's a nice gesture to write references and helps us build a community together! References will become visible 2 weeks after the stay, or when you've both written a reference for each other, whichever happens first.</mj-text>
+    <mj-text>Thanks for using Couchers!</mj-text>
+  </mj-column>
+</mj-section>

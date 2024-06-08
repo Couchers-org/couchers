@@ -1,0 +1,9 @@
+Hi {{ user.name }}!
+
+{{ message }}
+
+
+If you did not initiate this action, please contact us by emailing <support@couchers.org> so we can sort this out as soon as possible!
+
+Best,
+The Couchers.org team

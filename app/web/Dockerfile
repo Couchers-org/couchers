@@ -1,4 +1,4 @@
-FROM node:14-buster as builder
+FROM node:20-bullseye as builder
 
 ARG environment=development
 WORKDIR /app
@@ -16,7 +16,7 @@ RUN yarn install --frozen-lockfile
 
 COPY . .
 
-ENV PROTOS_SHA=c667e479c22dc8a41ba4daa79eeb4fbeb38746293e5259bd988287dbd581da45
+ENV PROTOS_SHA=df990726fc0e4d8e00aa2c19391b0b4cd4084660915e2c4d471b2977063b0e73
 
 RUN wget https://protos--by-sha.preview.couchershq.org/$PROTOS_SHA/ts.tar.gz
 RUN tar xf ts.tar.gz && rm -f typescript_protos.tar.gz

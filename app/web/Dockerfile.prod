@@ -1,4 +1,4 @@
-FROM node:14-buster as builder
+FROM node:20-bullseye as builder
 
 ARG environment=development
 WORKDIR /app
@@ -22,7 +22,7 @@ RUN cp .env.$environment env && \
 
 RUN yarn build
 
-FROM node:14-slim as runner
+FROM node:20-slim as runner
 
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED 1

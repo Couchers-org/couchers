@@ -1,0 +1,17 @@
+Hi {{ user.name }},
+
+You have successfully deleted your account from Couchers.org.
+
+We are sad to see you go, but wish you the best in your future travels. You are always welcome back on the Couchers.org platform :)
+
+If you change your mind, you have {{ days }} days to retrieve your account by clicking the following link and following the prompt:
+
+<{{ undelete_link }}>
+
+After {{ days }} days your account will be permanently irretrievable.
+
+
+If this wasn't you, please contact us by emailing <support@couchers.org> so we can sort this out as soon as possible!
+
+Best,
+The Couchers.org team

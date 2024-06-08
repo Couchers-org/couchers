@@ -1,0 +1,3 @@
+Hi {{ user.name }}!
+
+The {{ badge_name }} badge was {{ actioned }} your profile.

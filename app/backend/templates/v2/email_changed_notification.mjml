@@ -1,26 +1,9 @@
-<mjml>
-  <mj-include path="./mjml_include/head.mjml" />
-  <mj-body background-color="#eee">
-    <mj-section>
-    </mj-section>
-    <mj-wrapper background-color="#fff" border-radius="5px" padding="20px" css-class="body">
-      <mj-include path="./mjml_include/header.mjml" />
-      <mj-section padding="0px">
-        <mj-column>
-          <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-          <mj-text>You requested that your email on Couchers.org be changed to: <code>{{ user.new_email|v2esc }}</code>.</mj-text>
-          <mj-text>A confirmation was sent to that email address, and you'll need to confirm it to complete the change.</mj-text>
-          <mj-text>If this wasn't you, please contact us by emailing <a href="mailto:support@couchers.org">support@couchers.org</a> so we can sort this out as soon as possible!</mj-text>
-          <mj-text>Best,<br />The Couchers.org Team</mj-text>
-        </mj-column>
-      </mj-section>
-      <mj-include path="./mjml_include/footer.mjml" />
-    </mj-wrapper>
-    <mj-section>
-      <mj-column>
-        <mj-text css-class="unsub" align="center" font-size="10px" line-height="16px" color="#777" padding="0px">This is a security email, you cannot unsubscribe from it.</mj-text>
-        <mj-include path="./mjml_include/couch.mjml" />
-      </mj-column>
-    </mj-section>
-  </mj-body>
-</mjml>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text>You requested that your email on Couchers.org be changed to: <code>{{ user.new_email|v2esc }}</code>.</mj-text>
+    <mj-text>A confirmation was sent to that email address, and you'll need to confirm it to complete the change.</mj-text>
+    <mj-text>If this wasn't you, please contact us by emailing <a href="mailto:support@couchers.org">support@couchers.org</a> so we can sort this out as soon as possible!</mj-text>
+    <mj-text>Best,<br />The Couchers.org Team</mj-text>
+  </mj-column>
+</mj-section>

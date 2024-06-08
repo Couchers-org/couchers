@@ -1,0 +1,8 @@
+Hi {{ user.name }}!
+
+{{ other.name }} has accepted your friend request! Check it out here:
+
+<{{ other_user_link }}>
+
+
+We hope you continue making new friends!

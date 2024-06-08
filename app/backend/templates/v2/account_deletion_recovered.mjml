@@ -1,0 +1,21 @@
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text><b>Your account on Couchers.org has been successfully recovered!</b></mj-text>
+    <mj-text>We are so glad you decided to stay! To log back in, click the following link:</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ app_link|v2url }}">
+      <b>Log back in</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>If you change your mind, you can delete your account at any time.</mj-text>
+    <mj-text>If this wasn't you, please contact us by emailing <a href="mailto:support@couchers.org">support@couchers.org</a> so we can sort this out as soon as possible!</mj-text>
+    <mj-text>Best,<br />The Couchers.org Team</mj-text>
+  </mj-column>
+</mj-section>

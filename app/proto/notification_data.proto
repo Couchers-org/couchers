@@ -1,0 +1,164 @@
+syntax = "proto3";
+
+package org.couchers.notification_data;
+
+import "google/protobuf/timestamp.proto";
+
+import "api.proto";
+import "communities.proto";
+import "events.proto";
+import "requests.proto";
+
+message HostRequestCreate {
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User surfer = 2;
+  string text = 3;
+}
+
+message HostRequestAccept {
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User host = 2;
+}
+
+message HostRequestReject {
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User host = 2;
+}
+
+message HostRequestConfirm {
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User surfer = 2;
+}
+
+message HostRequestCancel {
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User surfer = 2;
+}
+
+message HostRequestMessage {
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User user = 2;
+  string text = 3;
+  bool am_host = 4;
+}
+
+message BadgeAdd {
+  string badge_id = 1;
+  string badge_name = 2;
+  string badge_description = 3;
+}
+
+message BadgeRemove {
+  string badge_id = 1;
+  string badge_name = 2;
+  string badge_description = 3;
+}
+
+message PhoneVerify {
+  string phone = 1;
+}
+
+message PhoneChange {
+  string phone = 1;
+}
+
+message GenderChange {
+  string gender = 1;
+}
+
+message BirthdateChange {
+  string birthdate = 2;
+}
+
+message FriendRequestCreate {
+  org.couchers.api.core.User other_user = 1;
+}
+
+message FriendRequestAccept {
+  org.couchers.api.core.User other_user = 1;
+}
+
+message EmailAddressChange {
+  string new_email = 1;
+}
+
+message DonationReceived {
+  // whole dollar amount
+  int64 amount = 1;
+  string receipt_url = 2;
+}
+
+message PasswordResetStart {
+  string password_reset_token = 1;
+}
+
+message AccountDeletionStart {
+  string deletion_token = 1;
+}
+
+message AccountDeletionComplete {
+  string undelete_token = 1;
+  uint32 undelete_days = 2;
+}
+
+message ApiKeyCreate {
+  string api_key = 1;
+  google.protobuf.Timestamp expiry = 2;
+}
+
+message EventInviteOrganizer {
+  org.couchers.api.events.Event event = 1;
+  org.couchers.api.core.User inviting_user = 2;
+}
+
+message EventCreate {
+  org.couchers.api.events.Event event = 1;
+  org.couchers.api.core.User inviting_user = 2;
+  oneof notification_reason {
+    bool nearby = 3;
+    org.couchers.api.communities.Community in_community = 4;
+  }
+}
+
+message EventUpdate {
+  org.couchers.api.events.Event event = 1;
+  org.couchers.api.core.User updating_user = 2;
+  repeated string updated_items = 3;
+}
+
+message EventCancel {
+  org.couchers.api.events.Event event = 1;
+  org.couchers.api.core.User cancelling_user = 2;
+}
+
+message EventDelete {
+  org.couchers.api.events.Event event = 1;
+  org.couchers.api.core.User deleting_user = 2;
+}
+
+message ChatMessage {
+  org.couchers.api.core.User author = 1;
+  string message = 2;
+  string text = 3;
+  uint64 group_chat_id = 4;
+}
+
+message ReferenceReceiveFriend {
+  org.couchers.api.core.User from_user = 1;
+  string text = 2;
+}
+
+message ReferenceReceiveHostRequest {
+  int64 host_request_id = 1;
+  org.couchers.api.core.User from_user = 2;
+  // this is non-empty iff both have written a reference, so they are unhidden
+  string text = 3;
+}
+
+
+message ReferenceReminder {
+  int64 host_request_id = 1;
+  org.couchers.api.core.User other_user = 2;
+  // time left to write the req in days
+  uint32 days_left = 3;
+}

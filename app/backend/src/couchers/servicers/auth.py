@@ -5,8 +5,8 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import delete, func
 
-from couchers import errors, urls
-from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
+from couchers import errors
+from couchers.constants import GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.db import session_scope
 from couchers.models import (
@@ -26,12 +26,8 @@ from couchers.sql import couchers_select as select
 from couchers.tasks import (
     enforce_community_memberships_for_user,
     maybe_send_contributor_form_email,
-    send_account_deletion_successful_email,
-    send_account_recovered_email,
     send_login_email,
     send_onboarding_email,
-    send_password_changed_email,
-    send_password_reset_email,
     send_signup_email,
 )
 from couchers.utils import (
@@ -45,7 +41,7 @@ from couchers.utils import (
     parse_date,
     parse_session_cookie,
 )
-from proto import auth_pb2, auth_pb2_grpc
+from proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -477,18 +473,19 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 select(User).where_username_or_email(request.user).where(~User.is_deleted)
             ).scalar_one_or_none()
             if user:
-                send_password_reset_email(session, user)
+                password_reset_token = PasswordResetToken(
+                    token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2)
+                )
+                session.add(password_reset_token)
+                session.flush()
 
                 notify(
                     user_id=user.id,
-                    topic="account_recovery",
-                    key="",
-                    action="start",
-                    icon="wrench",
-                    title=f"Password reset initiated",
-                    link=urls.account_settings_link(),
+                    topic_action="password_reset:start",
+                    data=notification_data_pb2.PasswordResetStart(
+                        password_reset_token=password_reset_token.token,
+                    ),
                 )
-
             else:  # user not found
                 logger.debug(f"Didn't find user")
 
@@ -513,12 +510,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 notify(
                     user_id=user.id,
-                    topic="account_recovery",
-                    key="",
-                    action="complete",
-                    icon="wrench",
-                    title=f"Password reset completed",
-                    link=urls.account_settings_link(),
+                    topic_action="password_reset:complete",
                 )
 
                 return empty_pb2.Empty()
@@ -541,16 +533,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 abort_on_invalid_password(request.new_password, context)
                 user.hashed_password = hash_password(request.new_password)
                 session.delete(password_reset_token)
-                send_password_changed_email(user)
+
+                session.flush()
 
                 notify(
                     user_id=user.id,
-                    topic="account_recovery",
-                    key="",
-                    action="complete",
-                    icon="wrench",
-                    title=f"Password reset completed",
-                    link=urls.account_settings_link(),
+                    topic_action="password_reset:complete",
                 )
 
                 create_session(context, session, user, False)
@@ -597,12 +585,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 notify(
                     user_id=user.id,
-                    topic="email_address",
-                    key="",
-                    action="change",
-                    icon="wrench",
-                    title=f"Your email was changed",
-                    link=urls.account_settings_link(),
+                    topic_action="email_address:verify",
                 )
 
                 return auth_pb2.ConfirmChangeEmailRes(state=auth_pb2.EMAIL_CONFIRMATION_STATE_SUCCESS)
@@ -634,12 +617,20 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             session.execute(delete(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id))
 
-            undelete_days = 7
             user.is_deleted = True
-            user.undelete_until = now() + timedelta(days=undelete_days)
+            user.undelete_until = now() + timedelta(days=UNDELETE_DAYS)
             user.undelete_token = urlsafe_secure_token()
 
-            send_account_deletion_successful_email(user, undelete_days)
+            session.flush()
+
+            notify(
+                user_id=user.id,
+                topic_action="account_deletion:complete",
+                data=notification_data_pb2.AccountDeletionComplete(
+                    undelete_token=user.undelete_token,
+                    undelete_days=UNDELETE_DAYS,
+                ),
+            )
 
         return empty_pb2.Empty()
 
@@ -658,7 +649,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user.is_deleted = False
             user.undelete_token = None
             user.undelete_until = None
-            send_account_recovered_email(user)
+
+            notify(
+                user_id=user.id,
+                topic_action="account_deletion:recovered",
+            )
 
             return empty_pb2.Empty()
 

@@ -18,6 +18,8 @@ CONFIG_OPTIONS = [
     ("BASE_URL", str),
     # URL of the backend, e.g. https://api.couchers.org
     ("BACKEND_BASE_URL", str),
+    # URL of the console, e.g. https://console.couchers.org
+    ("CONSOLE_BASE_URL", str),
     # Used to generate a variety of secrets
     ("SECRET", bytes),
     # Domain that cookies should set as their domain value
@@ -71,6 +73,10 @@ CONFIG_OPTIONS = [
     # Sentry
     ("SENTRY_ENABLED", bool),
     ("SENTRY_URL", str),
+    # Push notifications
+    ("PUSH_NOTIFICATIONS_ENABLED", bool),
+    ("PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY", str),
+    ("PUSH_NOTIFICATIONS_VAPID_SUBJECT", str),
     # Listmonk (mailing list)
     ("LISTMONK_ENABLED", bool),
     ("LISTMONK_BASE_URL", str),

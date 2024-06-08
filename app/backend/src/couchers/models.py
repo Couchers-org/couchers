@@ -3,6 +3,7 @@ from calendar import monthrange
 from datetime import date
 
 from geoalchemy2.types import Geometry
+from google.protobuf import empty_pb2
 from sqlalchemy import (
     ARRAY,
     BigInteger,
@@ -28,6 +29,7 @@ from sqlalchemy.sql import and_, func
 from sqlalchemy.sql import select as sa_select
 from sqlalchemy.sql import text
 
+from couchers import urls
 from couchers.config import config
 from couchers.constants import (
     DATETIME_INFINITY,
@@ -39,6 +41,7 @@ from couchers.constants import (
     TOS_VERSION,
 )
 from couchers.utils import date_in_timezone, get_coordinates, last_active_coarsen, now
+from proto import notification_data_pb2
 
 meta = MetaData(
     naming_convention={
@@ -276,10 +279,6 @@ class User(Base):
     # for old AU entity
     stripe_customer_id_old = Column(String, nullable=True)
 
-    # True if the user has opted in to get notifications using the new notification system
-    # This column will be removed in the future when notifications are enabled for everyone and come out of preview
-    new_notifications_enabled = Column(Boolean, nullable=False, server_default=text("false"))
-
     has_passport_sex_gender_exception = Column(Boolean, nullable=False, server_default=text("false"))
 
     # whether this user has all emails turned off
@@ -346,7 +345,7 @@ class User(Base):
         ),
         # If the user disabled all emails, then they can't host or meet up
         CheckConstraint(
-            "(do_not_email IS FALSE) OR ((new_notifications_enabled IS FALSE) AND (hosting_status = 'cant_host') AND (meetup_status = 'does_not_want_to_meetup'))",
+            "(do_not_email IS FALSE) OR ((hosting_status = 'cant_host') AND (meetup_status = 'does_not_want_to_meetup'))",
             name="do_not_email_inactive",
         ),
     )
@@ -1423,7 +1422,7 @@ class Upload(Base):
     creator_user = relationship("User", backref="uploads", foreign_keys="Upload.creator_user_id")
 
     def _url(self, size):
-        return f"{config['MEDIA_SERVER_BASE_URL']}/img/{size}/{self.filename}"
+        return urls.media_url(filename=self.filename, size=size)
 
     @property
     def thumbnail_url(self):
@@ -1923,7 +1922,7 @@ class EventOccurrenceAttendee(Base):
     attendee_status = Column(Enum(AttendeeStatus), nullable=False)
 
     user = relationship("User")
-    occurrence = relationship("EventOccurrence", backref=backref("attendees", lazy="dynamic"))
+    occurrence = relationship("EventOccurrence", backref=backref("attendances", lazy="dynamic"))
 
 
 class EventCommunityInviteRequest(Base):
@@ -2152,63 +2151,94 @@ class NotificationDeliveryType(enum.Enum):
 
 
 dt = NotificationDeliveryType
+nd = notification_data_pb2
+
+dt_sec = [dt.email, dt.push]
+dt_all = [dt.email, dt.push, dt.digest]
 
 
 class NotificationTopicAction(enum.Enum):
-    def __init__(self, topic, action, defaults, user_editable):
-        self.topic = topic
-        self.action = action
+    def __init__(self, topic_action, defaults, user_editable, data_type):
+        self.topic, self.action = topic_action.split(":")
         self.defaults = defaults
         # for now user editable == not a security notification
         self.user_editable = user_editable
 
-        if not self.user_editable:
-            assert self.defaults == [dt.email, dt.push, dt.digest], (topic, action)
+        self.data_type = data_type
 
     def unpack(self):
         return self.topic, self.action
 
+    @property
+    def display(self):
+        return f"{self.topic}:{self.action}"
+
+    def __str__(self):
+        return self.display
+
     # topic, action, default delivery types
-    friend_request__send = ("friend_request", "send", [dt.email, dt.push, dt.digest], True)
-    friend_request__accept = ("friend_request", "accept", [dt.push, dt.digest], True)
+    friend_request__create = ("friend_request:create", dt_all, True, nd.FriendRequestCreate)
+    friend_request__accept = ("friend_request:accept", dt_all, True, nd.FriendRequestAccept)
 
     # host requests
-    host_request__create = ("host_request", "create", [dt.email, dt.push, dt.digest], True)
-    host_request__accept = ("host_request", "accept", [dt.email, dt.push, dt.digest], True)
-    host_request__reject = ("host_request", "reject", [dt.push, dt.digest], True)
-    host_request__confirm = ("host_request", "confirm", [dt.email, dt.push, dt.digest], True)
-    host_request__cancel = ("host_request", "cancel", [dt.push, dt.digest], True)
-    host_request__message = ("host_request", "message", [dt.push, dt.digest], True)
+    host_request__create = ("host_request:create", dt_all, True, nd.HostRequestCreate)
+    host_request__accept = ("host_request:accept", dt_all, True, nd.HostRequestAccept)
+    host_request__reject = ("host_request:reject", dt_all, True, nd.HostRequestReject)
+    host_request__confirm = ("host_request:confirm", dt_all, True, nd.HostRequestConfirm)
+    host_request__cancel = ("host_request:cancel", dt_all, True, nd.HostRequestCancel)
+    host_request__message = ("host_request:message", [dt.push, dt.digest], True, nd.HostRequestMessage)
 
-    # account settings
-    password__change = ("password", "change", [dt.email, dt.push, dt.digest], False)
-    email_address__change = ("email_address", "change", [dt.email, dt.push, dt.digest], False)
-    phone_number__change = ("phone_number", "change", [dt.email, dt.push, dt.digest], True)
-    phone_number__verify = ("phone_number", "verify", [dt.email, dt.push, dt.digest], True)
-    # reset password
-    account_recovery__start = ("account_recovery", "start", [dt.email, dt.push, dt.digest], False)
-    account_recovery__complete = ("account_recovery", "complete", [dt.email, dt.push, dt.digest], False)
+    # you receive a friend ref
+    reference__receive_friend = ("reference:receive_friend", dt_all, True, nd.ReferenceReceiveFriend)
+    # you receive a reference from ... the host
+    reference__receive_hosted = ("reference:receive_hosted", dt_all, True, nd.ReferenceReceiveHostRequest)
+    # ... the surfer
+    reference__receive_surfed = ("reference:receive_surfed", dt_all, True, nd.ReferenceReceiveHostRequest)
 
-    # admin actions
-    gender__change = ("gender", "change", [dt.email, dt.push, dt.digest], True)
-    birthdate__change = ("birthdate", "change", [dt.email, dt.push, dt.digest], True)
-    api_key__create = ("api_key", "create", [dt.email, dt.push, dt.digest], False)
+    # you hosted
+    reference__reminder_hosted = ("reference:reminder_hosted", dt_all, True, nd.ReferenceReminder)
+    # you surfed
+    reference__reminder_surfed = ("reference:reminder_surfed", dt_all, True, nd.ReferenceReminder)
 
-    badge__add = ("badge", "add", [dt.push, dt.digest], True)
-    badge__remove = ("badge", "remove", [dt.push, dt.digest], True)
+    badge__add = ("badge:add", [dt.push, dt.digest], True, nd.BadgeAdd)
+    badge__remove = ("badge:remove", [dt.push, dt.digest], True, nd.BadgeRemove)
 
     # group chats
-    chat__message = ("chat", "message", [dt.email, dt.push, dt.digest], True)
+    chat__message = ("chat:message", [dt.push, dt.digest], True, nd.ChatMessage)
 
     # events
     # approved by mods
-    event__create_approved = ("event", "create_approved", [dt.email, dt.push, dt.digest], True)
+    event__create_approved = ("event:create_approved", dt_all, True, nd.EventCreate)
     # any user creates any event, default to no notifications
-    event__create_any = ("event", "create_any", [], True)
-    event__update = ("event", "update", [dt.push, dt.digest], True)
-    event__cancel = ("event", "cancel", [dt.email, dt.push, dt.digest], True)
-    event__delete = ("event", "delete", [dt.email, dt.push, dt.digest], True)
-    event__invite_organizer = ("event", "invite_organizer", [dt.email, dt.push, dt.digest], True)
+    event__create_any = ("event:create_any", [], True, nd.EventCreate)
+    event__update = ("event:update", dt_all, True, nd.EventUpdate)
+    event__cancel = ("event", "cancel", dt_all, True, nd.EventCancel)
+    event__delete = ("event", "delete", dt_all, True, nd.EventDelete)
+    event__invite_organizer = ("event:invite_organizer", dt_all, True, nd.EventInviteOrganizer)
+
+    # account settings
+    password__change = ("password:change", dt_sec, False, empty_pb2.Empty)
+    email_address__change = ("email_address:change", dt_sec, False, nd.EmailAddressChange)
+    email_address__verify = ("email_address:verify", dt_sec, False, empty_pb2.Empty)
+    phone_number__change = ("phone_number:change", dt_sec, False, empty_pb2.Empty)
+    phone_number__verify = ("phone_number:verify", dt_sec, False, empty_pb2.Empty)
+    # reset password
+    password_reset__start = ("password_reset:start", dt_sec, False, nd.PasswordResetStart)
+    password_reset__complete = ("password_reset:complete", dt_sec, False, empty_pb2.Empty)
+
+    # account deletion
+    account_deletion__start = ("account_deletion:start", dt_sec, False, nd.AccountDeletionStart)
+    # no more pushing to do
+    account_deletion__complete = ("account_deletion:complete", dt_sec, False, nd.AccountDeletionComplete)
+    # undeleted
+    account_deletion__recovered = ("account_deletion:recovered", dt_sec, False, empty_pb2.Empty)
+
+    # admin actions
+    gender__change = ("gender:change", dt_sec, False, nd.GenderChange)
+    birthdate__change = ("birthdate:change", dt_sec, False, nd.BirthdateChange)
+    api_key__create = ("api_key:create", dt_sec, False, nd.ApiKeyCreate)
+
+    donation__received = ("donation:received", dt_sec, True, nd.DonationReceived)
 
 
 class NotificationPreference(Base):
@@ -2242,11 +2272,7 @@ class Notification(Base):
     topic_action = Column(Enum(NotificationTopicAction), nullable=False)
     key = Column(String, nullable=False)
 
-    avatar_key = Column(String, nullable=True)
-    icon = Column(String, nullable=True)  # the name (excluding .svg) in the resources/icons folder
-    title = Column(String, nullable=True)  # bold markup surrounded by double asterisks allowed, otherwise plain text
-    content = Column(String, nullable=True)  # bold markup surrounded by double asterisks allowed, otherwise plain text
-    link = Column(String, nullable=True)
+    data = Column(Binary, nullable=False)
 
     user = relationship("User", foreign_keys="Notification.user_id")
 
@@ -2265,11 +2291,6 @@ class Notification(Base):
     @property
     def action(self):
         return self.topic_action.action
-
-    @property
-    def plain_title(self):
-        # only bold is allowed
-        return self.title.replace("**", "")
 
 
 class NotificationDelivery(Base):
@@ -2301,6 +2322,54 @@ class NotificationDelivery(Base):
             delivered == None,
         ),
     )
+
+
+class PushNotificationSubscription(Base):
+    __tablename__ = "push_notification_subscriptions"
+
+    id = Column(BigInteger, primary_key=True)
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # which user this is connected to
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    # these come from https://developer.mozilla.org/en-US/docs/Web/API/PushSubscription
+    # the endpoint
+    endpoint = Column(String, nullable=False)
+    # the "auth" key
+    auth_key = Column(Binary, nullable=False)
+    # the "p256dh" key
+    p256dh_key = Column(Binary, nullable=False)
+
+    full_subscription_info = Column(String, nullable=False)
+
+    # the browse user-agent, so we can tell the user what browser notifications are going to
+    user_agent = Column(String, nullable=True)
+
+    # when it was disabled
+    disabled_at = Column(DateTime(timezone=True), nullable=False, server_default=DATETIME_INFINITY.isoformat())
+
+    user = relationship("User")
+
+
+class PushNotificationDeliveryAttempt(Base):
+    __tablename__ = "push_notification_delivery_attempt"
+
+    id = Column(BigInteger, primary_key=True)
+    time = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    push_notification_subscription_id = Column(
+        ForeignKey("push_notification_subscriptions.id"), nullable=False, index=True
+    )
+
+    success = Column(Boolean, nullable=False)
+    # the HTTP status code, 201 is success
+    status_code = Column(Integer, nullable=False)
+
+    # can be null if it was a success
+    response = Column(String, nullable=True)
+
+    push_notification_subscription = relationship("PushNotificationSubscription")
 
 
 class Language(Base):

@@ -1,0 +1,15 @@
+Hi {{ user.name }},
+
+{{ message }} at {{ time|v2time(user) }}.
+
+
+The message is below:
+
+{{ text|v2quote }}
+
+
+
+You can view your messages here: <{{ view_link }}>
+
+
+Do not reply to this email. Log in to your account to reply.

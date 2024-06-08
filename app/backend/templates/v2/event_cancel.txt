@@ -1,0 +1,17 @@
+Hi {{ user.name }},
+
+An event you are subscribed to has been cancelled:
+
+{{ event.title }}
+{{ time_display }}
+
+{% if event.online_information.link %}Online at <{{ event.online_information.link }}>{% endif %}{% if event.offline_information.address %}{{ event.offline_information.address }}{% endif %}
+
+Cancelled by {{ cancelling_user.name }}
+
+
+
+You can still view the event here: <{{ view_link }}>
+
+
+Do not reply to this email. Log in to your account to reply.

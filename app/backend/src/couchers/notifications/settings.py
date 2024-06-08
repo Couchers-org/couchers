@@ -98,6 +98,17 @@ settings_layout = [
                     ("message", "Someone sends you a message"),
                 ],
             ),
+            (
+                "reference",
+                "References",
+                [
+                    ("receive_hosted", "You receive a reference from someone who hosted you"),
+                    ("receive_surfed", "You receive a reference from someone you hosted"),
+                    ("receive_friend", "You received a reference from a friend"),
+                    ("reminder_hosted", "Reminder to write a reference to someone you hosted"),
+                    ("reminder_surfed", "Reminder to write a reference to someone you surfed with"),
+                ],
+            ),
         ],
     ),
     (
@@ -107,7 +118,7 @@ settings_layout = [
                 "friend_request",
                 "Friend requests",
                 [
-                    ("send", "Someone sends you a friend request"),
+                    ("create", "Someone sends you a friend request"),
                     ("accept", "Someone accepts your friend request"),
                 ],
             ),
@@ -139,15 +150,25 @@ settings_layout = [
                 "email_address",
                 "Email address changes",
                 [
-                    ("change", "Your email is changed"),
+                    ("change", "Email change is initiated"),
+                    ("verify", "Your new email is verified"),
                 ],
             ),
             (
-                "account_recovery",
-                "Account recovery",
+                "password_reset",
+                "Password reset",
                 [
                     ("start", "Password reset is initiated"),
                     ("complete", "Password reset is completed"),
+                ],
+            ),
+            (
+                "account_deletion",
+                "Account deletion",
+                [
+                    ("start", "You initiate account deletion"),
+                    ("complete", "Your account is deleted"),
+                    ("recovered", "Your account is recovered (undeleted)"),
                 ],
             ),
             (
@@ -167,7 +188,7 @@ settings_layout = [
             ),
             (
                 "badge",
-                "Updates to Badges",
+                "Updates to Badges on your profile",
                 [
                     ("add", "A badge is added to your account"),
                     ("remove", "A badge is removed from your account"),
@@ -185,6 +206,13 @@ settings_layout = [
                 "Displayed gender change",
                 [
                     ("change", "The gender displayed on your profile is changed"),
+                ],
+            ),
+            (
+                "donation",
+                "Donations",
+                [
+                    ("received", "Your donation is received"),
                 ],
             ),
         ],
@@ -209,7 +237,9 @@ def check_settings():
             actions_by_topic_check[topic] = actions
 
     for topic, actions in actions_by_topic.items():
-        assert sorted(actions) == sorted(actions_by_topic_check[topic])
+        assert sorted(actions) == sorted(
+            actions_by_topic_check[topic]
+        ), f"Expected {actions} == {actions_by_topic_check[topic]} for {topic}"
     assert sorted(actions_by_topic.keys()) == sorted(actions_by_topic_check.keys())
 
 
