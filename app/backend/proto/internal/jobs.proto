@@ -61,6 +61,5 @@ message GenerateEventCancelNotificationsPayload {
 }
 
 message GenerateEventDeleteNotificationsPayload {
-  int64 deleting_user_id = 1;
-  int64 occurrence_id = 2;
+  int64 occurrence_id = 1;
 }

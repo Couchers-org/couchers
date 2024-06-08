@@ -16,6 +16,11 @@
     <mj-text padding="15px 0px 0px 0px" line-height="20px">Cancelled by <b>{{ cancelling_user.name|v2esc }}</b>, {{ cancelling_user.age|v2esc }}<br />{{ cancelling_user.city|v2esc }}</mj-text>
   </mj-column>
 </mj-section>
+<mj-section padding="10px 20px" text-align="left">
+  <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
+    <mj-text>{{ event.content|v2esc|v2multiline }}</mj-text>
+  </mj-column>
+</mj-section>
 <mj-section padding="0px">
   <mj-column>
     <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ view_link|v2url }}">

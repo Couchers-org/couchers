@@ -10,6 +10,8 @@ An event you are subscribed to has been cancelled:
 Cancelled by {{ cancelling_user.name }}
 
 
+{{ event.content|v2quote }}
+
 
 You can still view the event here: <{{ view_link }}>
 

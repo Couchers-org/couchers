@@ -1,12 +1,10 @@
 Hi {{ user.name }},
 
-An event you are subscribed to has been deleted by an admin.
+An event you are subscribed to has been deleted by the moderators.
 
 {{ event.title }}
 {{ time_display }}
 
 {% if event.offline_information.address %}{{ event.offline_information.address }}{% endif %}
-
-Deleted by {{ deleting_user.name }}
 
 Do not reply to this email. Log in to your account to reply.

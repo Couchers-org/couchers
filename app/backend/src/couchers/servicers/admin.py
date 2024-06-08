@@ -427,7 +427,6 @@ class Admin(admin_pb2_grpc.AdminServicer):
             queue_job(
                 "generate_event_delete_notifications",
                 payload=jobs_pb2.GenerateEventDeleteNotificationsPayload(
-                    deleting_user_id=context.user_id,
                     occurrence_id=occurrence.id,
                 ),
             )

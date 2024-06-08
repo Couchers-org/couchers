@@ -338,15 +338,11 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
             session, occurrence_id=payload.occurrence_id, include_deleted=True
         )
 
-        deleting_user = session.execute(select(User).where(User.id == payload.deleting_user_id)).scalar_one_or_none()
-
         subscribed_user_ids = [user.id for user in event.subscribers]
         attending_user_ids = [user.user_id for user in occurrence.attendances]
 
         for user_id in set(subscribed_user_ids + attending_user_ids):
             logger.info(user_id)
-            if are_blocked(session, user_id, deleting_user.id):
-                continue
             context = SimpleNamespace(user_id=user_id)
             notify(
                 user_id=user_id,
@@ -354,7 +350,6 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
                 key=payload.occurrence_id,
                 data=notification_data_pb2.EventDelete(
                     event=event_to_pb(session, occurrence, context),
-                    deleting_user=user_model_to_pb(deleting_user, session, context),
                 ),
             )
 
