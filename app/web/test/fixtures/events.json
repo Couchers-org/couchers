@@ -17,6 +17,8 @@
       "threadId": 21,
       "numResponses": 0
     },
+    "isCancelled": false,
+    "isDeleted": false,
     "canEdit": false,
     "canModerate": false,
     "isNext": false,
@@ -52,6 +54,8 @@
       "threadId": 31,
       "numResponses": 0
     },
+    "isCancelled": false,
+    "isDeleted": false,
     "canEdit": false,
     "canModerate": false,
     "isNext": false,
@@ -85,6 +89,8 @@
       "threadId": 41,
       "numResponses": 0
     },
+    "isCancelled": false,
+    "isDeleted": false,
     "canEdit": false,
     "canModerate": false,
     "isNext": false,
@@ -100,6 +106,43 @@
     "startTimeDisplay": "",
     "endTimeDisplay": "",
     "title": "Cherry Blossom Bike Ride around the entire Amsterdam because I like to write long event titles",
+    "timezone": "Europe/Amsterdam"
+  },
+  {
+    "attendanceState": 0,
+    "content": "This event has been cancelled.",
+    "creatorUserId": 4,
+    "eventId": 4,
+    "goingCount": 3,
+    "maybeCount": 10,
+    "organizerCount": 1,
+    "organizer": false,
+    "subscriber": false,
+    "subscriberCount": 0,
+    "ownerCommunityId": 2,
+    "ownerGroupId": 0,
+    "ownerUserId": 0,
+    "thread": {
+      "threadId": 41,
+      "numResponses": 0
+    },
+    "isCancelled": true,
+    "isDeleted": false,
+    "canEdit": false,
+    "canModerate": false,
+    "isNext": false,
+    "offlineInformation": {
+      "address": "Mayjor A. Colijnweg 68, Amstelveen",
+      "lat": 53,
+      "lng": 26
+    },
+    "photoUrl": "",
+    "slug": "cherry-blossom-bike-ride",
+    "startTime": { "nanos": 0, "seconds": 1625000420 },
+    "endTime": { "nanos": 0, "seconds": 1625018400 },
+    "startTimeDisplay": "",
+    "endTimeDisplay": "",
+    "title": "A cancelled event",
     "timezone": "Europe/Amsterdam"
   }
 ]

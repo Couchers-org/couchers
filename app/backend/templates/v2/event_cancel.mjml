@@ -1,8 +1,7 @@
 <mj-section padding="0px">
   <mj-column>
     <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-    <mj-text>An event you are subscribed to was updated.</mj-text>
-    <mj-text>The following information was updated: <b>{{ updated_text|v2esc }}</b>. Here is the updated event:</mj-text>
+    <mj-text>An event you are subscribed to has been cancelled:</mj-text>
     <mj-text><b>{{ event.title|v2esc }}</b><br />
       {{ time_display|v2esc }}<br />
       <i>{% if event.online_information.link %}<a href="{{ event.online_information.link|v2url }}">Online</a>{% endif %}{% if event.offline_information.address|v2esc %}{{ event.offline_information.address }}{% endif %}</i>
@@ -11,10 +10,10 @@
 </mj-section>
 <mj-section padding="0px" text-align="left">
   <mj-column width="120px">
-    <mj-image border-radius="200px" src="{{ updating_user|v2avatar }}" />
+    <mj-image border-radius="200px" src="{{ cancelling_user|v2avatar }}" />
   </mj-column>
   <mj-column width="440px">
-    <mj-text padding="15px 0px 0px 0px" line-height="20px">Updated by <b>{{ updating_user.name|v2esc }}</b>, {{ updating_user.age|v2esc }}<br />{{ updating_user.city|v2esc }}</mj-text>
+    <mj-text padding="15px 0px 0px 0px" line-height="20px">Cancelled by <b>{{ cancelling_user.name|v2esc }}</b>, {{ cancelling_user.age|v2esc }}<br />{{ cancelling_user.city|v2esc }}</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="10px 20px" text-align="left">

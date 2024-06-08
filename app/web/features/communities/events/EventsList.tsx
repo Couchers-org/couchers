@@ -66,6 +66,7 @@ export default function EventsList({ community }: EventsListProps) {
         ) : hasAtLeastOnePage(data, "eventsList") ? (
           data.pages
             .flatMap((page) => page.eventsList)
+            .filter((event) => !event.isCancelled)
             .map((event) => <LongEventCard event={event} key={event.eventId} />)
         ) : (
           !error && <TextBody>{t("communities:events_empty_state")}</TextBody>

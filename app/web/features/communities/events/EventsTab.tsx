@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { FormControlLabel, Switch, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -7,6 +7,7 @@ import TextBody from "components/TextBody";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import { newEventRoute } from "routes";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
@@ -54,9 +55,20 @@ export default function EventsTab({
   const { data, error, hasNextPage, fetchNextPage, isLoading } =
     useListAllEvents({ pastEvents });
 
+  const [showCancelled, setShowCancelled] = useState(false);
+
   return (
     <div className={classes.root}>
       <Typography variant="h2">{tabTitle}</Typography>
+      <FormControlLabel
+        control={
+          <Switch
+            checked={showCancelled}
+            onChange={() => setShowCancelled(!showCancelled)}
+          />
+        }
+        label={t("communities:show_cancelled_events")}
+      />
       {error && <Alert severity="error">{error.message}</Alert>}
       {!pastEvents && (
         <Button onClick={() => router.push(newEventRoute)}>
@@ -70,6 +82,7 @@ export default function EventsTab({
           <div className={classNames(classes.cardContainer, classes.container)}>
             {data.pages
               .flatMap((page) => page.eventsList)
+              .filter((event) => showCancelled || !event.isCancelled)
               .map((event) => (
                 <EventCard
                   key={event.eventId}

@@ -26,6 +26,15 @@ const useStyles = makeStyles<Theme, { eventImageSrc: string }>((theme) => ({
       backgroundColor: theme.palette.grey[50],
     },
   },
+  cancelledChip: {
+    backgroundColor: theme.palette.error.main,
+    color: theme.palette.common.white,
+    fontWeight: "bold",
+  },
+  cancelledEvent: {
+    opacity: 0.6,
+    backgroundColor: theme.palette.grey[200],
+  },
   image: {
     padding: theme.spacing(1),
     backgroundColor: theme.palette.grey[200],
@@ -93,7 +102,11 @@ export default function EventCard({ event, className }: EventCardProps) {
 
   return (
     <Card
-      className={classNames(className, classes.root)}
+      className={classNames(
+        className,
+        classes.root,
+        event.isCancelled ? classes.cancelledEvent : null
+      )}
       data-testid={EVENT_CARD_TEST_ID}
     >
       <Link href={routeToEvent(event.eventId, event.slug)}>
@@ -131,6 +144,13 @@ export default function EventCard({ event, className }: EventCardProps) {
                 ? event.offlineInformation.address
                 : t("communities:virtual_event_location_placeholder")}
             </Typography>
+
+            {event.isCancelled && (
+              <Chip
+                classes={{ root: classes.cancelledChip }}
+                label={t("communities:cancelled")}
+              />
+            )}
 
             <Divider spacing={1} />
 

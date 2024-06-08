@@ -19,6 +19,9 @@ import {
 
 import MyEvents from "./MyEvents";
 
+// ListMyEvents by default does not return cancelled events
+const nonCancelledEvents = events.filter((event) => !event.isCancelled);
+
 const listMyEventsMock = service.events.listMyEvents as jest.MockedFunction<
   typeof service.events.listMyEvents
 >;
@@ -26,7 +29,7 @@ const listMyEventsMock = service.events.listMyEvents as jest.MockedFunction<
 describe("My events", () => {
   beforeEach(() => {
     listMyEventsMock.mockResolvedValue({
-      eventsList: events,
+      eventsList: nonCancelledEvents,
       nextPageToken: "",
     });
   });
@@ -73,7 +76,9 @@ describe("My events", () => {
     it('shows the the next page of events when the "See more events" button is clicked', async () => {
       listMyEventsMock.mockImplementation(async ({ pageToken }) => {
         return {
-          eventsList: pageToken ? events.slice(2) : events.slice(0, 2),
+          eventsList: pageToken
+            ? nonCancelledEvents.slice(2)
+            : nonCancelledEvents.slice(0, 2),
           nextPageToken: pageToken ? "" : "2",
         };
       });
@@ -107,7 +112,9 @@ describe("My events", () => {
       window.matchMedia = createMatchMedia(window.innerWidth);
       listMyEventsMock.mockImplementation(async ({ pageToken }) => {
         return {
-          eventsList: pageToken ? events.slice(2) : events.slice(0, 2),
+          eventsList: pageToken
+            ? nonCancelledEvents.slice(2)
+            : nonCancelledEvents.slice(0, 2),
           nextPageToken: pageToken ? "" : "2",
         };
       });

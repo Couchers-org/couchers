@@ -3,6 +3,7 @@ import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import { ListEventsReq } from "proto/communities_pb";
 import {
   AttendanceState,
+  CancelEventReq,
   CreateEventReq,
   GetEventReq,
   ListAllEventsReq,
@@ -39,6 +40,12 @@ export async function getEvent(eventId: number) {
   req.setEventId(eventId);
   const res = await client.events.getEvent(req);
   return res.toObject();
+}
+
+export function cancelEvent(eventId: number) {
+  const req = new CancelEventReq();
+  req.setEventId(eventId);
+  return client.events.cancelEvent(req);
 }
 
 interface ListEventUsersInput {

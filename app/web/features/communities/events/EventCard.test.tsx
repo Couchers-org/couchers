@@ -6,7 +6,7 @@ import timezoneMock from "timezone-mock";
 
 import EventCard from "./EventCard";
 
-const [firstEvent, secondEvent, thirdEvent] = events;
+const [firstEvent, secondEvent, thirdEvent, cancelledEvent] = events;
 
 describe("Event card", () => {
   beforeEach(() => {
@@ -81,5 +81,29 @@ describe("Event card", () => {
       )
     ).toBeVisible();
     expect(screen.getByText(secondEvent.content)).toBeVisible();
+  });
+
+  it("does not render a badge for if the event is not cancelled", () => {
+    const { container } = render(<EventCard event={firstEvent} />, { wrapper });
+
+    expect(
+      screen.getByRole("heading", { name: firstEvent.title })
+    ).toBeVisible();
+
+    expect(container.getElementsByClassName("MuiChip-root")).toHaveLength(0);
+  });
+
+  it("renders a badge for cancelled event card", () => {
+    const { container } = render(<EventCard event={cancelledEvent} />, {
+      wrapper,
+    });
+
+    expect(
+      screen.getByRole("heading", { name: cancelledEvent.title })
+    ).toBeVisible();
+
+    const chip = container.getElementsByClassName("MuiChip-root")[0];
+    expect(chip).toBeVisible();
+    expect(chip).toHaveTextContent(t("communities:cancelled"));
   });
 });

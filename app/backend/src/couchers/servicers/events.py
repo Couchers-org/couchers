@@ -133,6 +133,8 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
     return events_pb2.Event(
         event_id=occurrence.id,
         is_next=False if not next_occurrence else occurrence.id == next_occurrence.id,
+        is_cancelled=occurrence.is_cancelled,
+        is_deleted=occurrence.is_deleted,
         title=event.title,
         slug=event.slug,
         content=occurrence.content,
@@ -175,6 +177,31 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
         can_edit=_is_event_owner(event, context.user_id),
         can_moderate=can_moderate,
     )
+
+
+def _get_event_and_occurrence_query(occurrence_id, include_deleted: bool):
+    query = (
+        select(Event, EventOccurrence)
+        .where(EventOccurrence.id == occurrence_id)
+        .where(EventOccurrence.event_id == Event.id)
+    )
+
+    if not include_deleted:
+        query = query.where(~EventOccurrence.is_deleted)
+
+    return query
+
+
+def _get_event_and_occurrence_one(
+    session, occurrence_id, include_deleted: bool = False
+) -> tuple[Event, EventOccurrence]:
+    return session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one()
+
+
+def _get_event_and_occurrence_one_or_none(
+    session, occurrence_id, include_deleted: bool = False
+) -> tuple[Event, EventOccurrence] | None:
+    return session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one_or_none()
 
 
 def _check_occurrence_time_validity(start_time, end_time, context):
@@ -223,11 +250,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
     logger.info(f"Fanning out notifications for event occurrence id = {payload.occurrence_id}")
 
     with session_scope() as session:
-        event, occurrence = session.execute(
-            select(Event, EventOccurrence)
-            .where(EventOccurrence.id == payload.occurrence_id)
-            .where(EventOccurrence.event_id == Event.id)
-        ).one()
+        event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
         creator = occurrence.creator_user
 
         community_node = None
@@ -258,11 +281,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
 
 def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNotificationsPayload):
     with session_scope() as session:
-        event, occurrence = session.execute(
-            select(Event, EventOccurrence)
-            .where(EventOccurrence.id == payload.occurrence_id)
-            .where(EventOccurrence.event_id == Event.id)
-        ).one()
+        event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
 
         updating_user = session.execute(select(User).where(User.id == payload.updating_user_id)).scalar_one_or_none()
 
@@ -282,6 +301,55 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
                     event=event_to_pb(session, occurrence, context),
                     updating_user=user_model_to_pb(updating_user, session, context),
                     updated_items=payload.updated_items,
+                ),
+            )
+
+
+def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNotificationsPayload):
+    with session_scope() as session:
+        event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
+
+        cancelling_user = session.execute(
+            select(User).where(User.id == payload.cancelling_user_id)
+        ).scalar_one_or_none()
+
+        subscribed_user_ids = [user.id for user in event.subscribers]
+        attending_user_ids = [user.user_id for user in occurrence.attendances]
+
+        for user_id in set(subscribed_user_ids + attending_user_ids):
+            logger.info(user_id)
+            if are_blocked(session, user_id, cancelling_user.id):
+                continue
+            context = SimpleNamespace(user_id=user_id)
+            notify(
+                user_id=user_id,
+                topic_action="event:cancel",
+                key=payload.occurrence_id,
+                data=notification_data_pb2.EventCancel(
+                    event=event_to_pb(session, occurrence, context),
+                    cancelling_user=user_model_to_pb(cancelling_user, session, context),
+                ),
+            )
+
+
+def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNotificationsPayload):
+    with session_scope() as session:
+        event, occurrence = _get_event_and_occurrence_one(
+            session, occurrence_id=payload.occurrence_id, include_deleted=True
+        )
+
+        subscribed_user_ids = [user.id for user in event.subscribers]
+        attending_user_ids = [user.user_id for user in occurrence.attendances]
+
+        for user_id in set(subscribed_user_ids + attending_user_ids):
+            logger.info(user_id)
+            context = SimpleNamespace(user_id=user_id)
+            notify(
+                user_id=user_id,
+                topic_action="event:delete",
+                key=payload.occurrence_id,
+                data=notification_data_pb2.EventDelete(
+                    event=event_to_pb(session, occurrence, context),
                 ),
             )
 
@@ -429,12 +497,7 @@ class Events(events_pb2_grpc.EventsServicer):
         _check_occurrence_time_validity(start_time, end_time, context)
 
         with session_scope() as session:
-            res = session.execute(
-                select(Event, EventOccurrence)
-                .where(EventOccurrence.id == request.event_id)
-                .where(EventOccurrence.event_id == Event.id)
-            ).one_or_none()
-
+            res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
             if not res:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
 
@@ -442,6 +505,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
             if not _can_edit_event(session, event, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
+
+            if occurrence.is_cancelled:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
 
             if (
                 request.photo_key
@@ -494,12 +560,7 @@ class Events(events_pb2_grpc.EventsServicer):
     def UpdateEvent(self, request, context):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            res = session.execute(
-                select(Event, EventOccurrence)
-                .where(EventOccurrence.id == request.event_id)
-                .where(EventOccurrence.event_id == Event.id)
-            ).one_or_none()
-
+            res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
             if not res:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
 
@@ -510,6 +571,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
             # the things that were updated and need to be notified about
             notify_updated = []
+
+            if occurrence.is_cancelled:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
 
             occurrence_update = {"last_edited": now()}
 
@@ -624,7 +688,7 @@ class Events(events_pb2_grpc.EventsServicer):
     def GetEvent(self, request, context):
         with session_scope() as session:
             occurrence = session.execute(
-                select(EventOccurrence).where(EventOccurrence.id == request.event_id)
+                select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
             ).scalar_one_or_none()
 
             if not occurrence:
@@ -632,15 +696,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
             return event_to_pb(session, occurrence, context)
 
-    def RequestCommunityInvite(self, request, context):
+    def CancelEvent(self, request, context):
         with session_scope() as session:
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            res = session.execute(
-                select(Event, EventOccurrence)
-                .where(EventOccurrence.id == request.event_id)
-                .where(EventOccurrence.event_id == Event.id)
-            ).one_or_none()
-
+            res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
             if not res:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
 
@@ -648,6 +706,33 @@ class Events(events_pb2_grpc.EventsServicer):
 
             if not _can_edit_event(session, event, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
+
+            occurrence.is_cancelled = True
+
+            queue_job(
+                "generate_event_cancel_notifications",
+                payload=jobs_pb2.GenerateEventCancelNotificationsPayload(
+                    cancelling_user_id=context.user_id,
+                    occurrence_id=occurrence.id,
+                ),
+            )
+
+        return empty_pb2.Empty()
+
+    def RequestCommunityInvite(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
+            if not res:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+
+            event, occurrence = res
+
+            if not _can_edit_event(session, event, context.user_id):
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
+
+            if occurrence.is_cancelled:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
 
             this_user_reqs = [req for req in occurrence.community_invite_requests if req.user_id == context.user_id]
 
@@ -678,12 +763,17 @@ class Events(events_pb2_grpc.EventsServicer):
             # the page token is a unix timestamp of where we left off
             page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
             occurrence = session.execute(
-                select(EventOccurrence).where(EventOccurrence.id == request.event_id)
+                select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
             ).scalar_one_or_none()
             if not occurrence:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
 
-            occurrences = select(EventOccurrence).where(EventOccurrence.event_id == Event.id)
+            occurrences = (
+                select(EventOccurrence).where(EventOccurrence.event_id == Event.id).where(~EventOccurrence.is_deleted)
+            )
+
+            if not request.include_cancelled:
+                occurrences = occurrences.where(~EventOccurrence.is_cancelled)
 
             if not request.past:
                 occurrences = occurrences.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
@@ -707,7 +797,7 @@ class Events(events_pb2_grpc.EventsServicer):
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_user_id = int(request.page_token) if request.page_token else 0
             occurrence = session.execute(
-                select(EventOccurrence).where(EventOccurrence.id == request.event_id)
+                select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
             ).scalar_one_or_none()
             if not occurrence:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
@@ -732,11 +822,7 @@ class Events(events_pb2_grpc.EventsServicer):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_user_id = int(request.page_token) if request.page_token else 0
-            res = session.execute(
-                select(Event, EventOccurrence)
-                .where(EventOccurrence.id == request.event_id)
-                .where(EventOccurrence.event_id == Event.id)
-            ).one_or_none()
+            res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
             if not res:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
             event, occurrence = res
@@ -761,11 +847,7 @@ class Events(events_pb2_grpc.EventsServicer):
         with session_scope() as session:
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_user_id = int(request.page_token) if request.page_token else 0
-            res = session.execute(
-                select(Event, EventOccurrence)
-                .where(EventOccurrence.id == request.event_id)
-                .where(EventOccurrence.event_id == Event.id)
-            ).one_or_none()
+            res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
             if not res:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
             event, occurrence = res
@@ -788,12 +870,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
     def TransferEvent(self, request, context):
         with session_scope() as session:
-            res = session.execute(
-                select(Event, EventOccurrence)
-                .where(EventOccurrence.id == request.event_id)
-                .where(EventOccurrence.event_id == Event.id)
-            ).one_or_none()
-
+            res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
             if not res:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
 
@@ -801,6 +878,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
             if not _can_edit_event(session, event, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_TRANSFER_PERMISSION_DENIED)
+
+            if occurrence.is_cancelled:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
 
             if request.WhichOneof("new_owner") == "new_owner_group_id":
                 cluster = session.execute(
@@ -824,16 +904,14 @@ class Events(events_pb2_grpc.EventsServicer):
 
     def SetEventSubscription(self, request, context):
         with session_scope() as session:
-            res = session.execute(
-                select(Event, EventOccurrence)
-                .where(EventOccurrence.id == request.event_id)
-                .where(EventOccurrence.event_id == Event.id)
-            ).one_or_none()
-
+            res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
             if not res:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
 
             event, occurrence = res
+
+            if occurrence.is_cancelled:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
 
             current_subscription = session.execute(
                 select(EventSubscription)
@@ -856,11 +934,14 @@ class Events(events_pb2_grpc.EventsServicer):
     def SetEventAttendance(self, request, context):
         with session_scope() as session:
             occurrence = session.execute(
-                select(EventOccurrence).where(EventOccurrence.id == request.event_id)
+                select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
             ).scalar_one_or_none()
 
             if not occurrence:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+
+            if occurrence.is_cancelled:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
 
             current_attendance = session.execute(
                 select(EventOccurrenceAttendee)
@@ -894,7 +975,11 @@ class Events(events_pb2_grpc.EventsServicer):
             # the page token is a unix timestamp of where we left off
             page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
-            occurrences = select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id)
+            occurrences = (
+                select(EventOccurrence)
+                .join(Event, Event.id == EventOccurrence.event_id)
+                .where(~EventOccurrence.is_deleted)
+            )
 
             include_all = not (request.subscribed or request.attending or request.organizing or request.my_communities)
             include_subscribed = request.subscribed or include_all
@@ -942,6 +1027,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
             occurrences = occurrences.where(or_(*where_))
 
+            if not request.include_cancelled:
+                occurrences = occurrences.where(~EventOccurrence.is_cancelled)
+
             if not request.past:
                 occurrences = occurrences.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
                     EventOccurrence.start_time.asc()
@@ -965,7 +1053,11 @@ class Events(events_pb2_grpc.EventsServicer):
             # the page token is a unix timestamp of where we left off
             page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
-            occurrences = select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id)
+            occurrences = (
+                select(EventOccurrence)
+                .join(Event, Event.id == EventOccurrence.event_id)
+                .where(~EventOccurrence.is_deleted)
+            )
 
             if not request.past:
                 occurrences = occurrences.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
@@ -987,12 +1079,7 @@ class Events(events_pb2_grpc.EventsServicer):
     def InviteEventOrganizer(self, request, context):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            res = session.execute(
-                select(Event, EventOccurrence)
-                .where(EventOccurrence.id == request.event_id)
-                .where(EventOccurrence.event_id == Event.id)
-            ).one_or_none()
-
+            res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
             if not res:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
 
@@ -1000,6 +1087,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
             if not _can_edit_event(session, event, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
+
+            if occurrence.is_cancelled:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
 
             if not session.execute(
                 select(User).where_users_visible(context).where(User.id == request.user_id)
@@ -1030,16 +1120,14 @@ class Events(events_pb2_grpc.EventsServicer):
 
     def RemoveEventOrganizer(self, request, context):
         with session_scope() as session:
-            res = session.execute(
-                select(Event, EventOccurrence)
-                .where(EventOccurrence.id == request.event_id)
-                .where(EventOccurrence.event_id == Event.id)
-            ).one_or_none()
-
+            res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
             if not res:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
 
             event, occurrence = res
+
+            if occurrence.is_cancelled:
+                context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
 
             if event.owner_user_id == context.user_id:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_REMOVE_OWNER_AS_ORGANIZER)

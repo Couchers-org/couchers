@@ -3,6 +3,7 @@ import logging
 from datetime import timedelta
 
 import grpc
+from google.protobuf import empty_pb2
 from shapely.geometry import shape
 from sqlalchemy.sql import or_, select, update
 
@@ -11,7 +12,9 @@ from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
+    Event,
     EventCommunityInviteRequest,
+    EventOccurrence,
     GroupChat,
     GroupChatSubscription,
     HostRequest,
@@ -404,3 +407,28 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 )
 
             return admin_pb2.DecideEventCommunityInviteRequestRes()
+
+    def DeleteEvent(self, request, context):
+        with session_scope() as session:
+            res = session.execute(
+                select(Event, EventOccurrence)
+                .where(EventOccurrence.id == request.event_id)
+                .where(EventOccurrence.event_id == Event.id)
+                .where(~EventOccurrence.is_deleted)
+            ).one_or_none()
+
+            if not res:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.EVENT_NOT_FOUND)
+
+            event, occurrence = res
+
+            occurrence.is_deleted = True
+
+            queue_job(
+                "generate_event_delete_notifications",
+                payload=jobs_pb2.GenerateEventDeleteNotificationsPayload(
+                    occurrence_id=occurrence.id,
+                ),
+            )
+
+        return empty_pb2.Empty()

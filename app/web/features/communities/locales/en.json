@@ -2,6 +2,14 @@
     "attendees_count": "{{count}} attendee",
     "attendees_count_plural": "{{count}} attendees",
     "by_creator": "By {{name}}",
+    "cancelled": "cancelled",
+    "cancel_event": "Cancel event",
+    "show_cancelled_events": "Show cancelled events",
+    "cancel_event_success_message": "The event has been successfully cancelled.",
+    "cancel_event_dialog": {
+        "title": "Cancel event?",
+        "message": "Are you sure you want to cancel this event?"
+    },
     "comment": "Comment",
     "comments": "Comments",
     "comments_count": "Comments | {{count}}",

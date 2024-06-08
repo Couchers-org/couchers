@@ -8,6 +8,7 @@ from html import escape
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import phonenumbers
 import yaml
 from jinja2 import Environment, FileSystemLoader
 

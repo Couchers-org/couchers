@@ -1207,6 +1207,129 @@ def test_GetEvent(db):
         assert not res.can_moderate
 
 
+def test_CancelEvent(db):
+    # event creator
+    user1, token1 = generate_user()
+    # community moderator
+    user2, token2 = generate_user()
+    # third parties
+    user3, token3 = generate_user()
+    user4, token4 = generate_user()
+    user5, token5 = generate_user()
+    user6, token6 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+
+        event_id = res.event_id
+
+    with events_session(token4) as api:
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+
+    with events_session(token5) as api:
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+        )
+
+    with events_session(token6) as api:
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_MAYBE)
+        )
+
+    with events_session(token1) as api:
+        res = api.CancelEvent(
+            events_pb2.CancelEventReq(
+                event_id=event_id,
+            )
+        )
+
+    with events_session(token1) as api:
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert res.is_cancelled
+
+    with events_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateEvent(
+                events_pb2.UpdateEventReq(
+                    event_id=event_id,
+                    title=wrappers_pb2.StringValue(value="New Title"),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.EVENT_CANT_UPDATE_CANCELLED_EVENT
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.InviteEventOrganizer(
+                events_pb2.InviteEventOrganizerReq(
+                    event_id=event_id,
+                    user_id=user3.id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.EVENT_CANT_UPDATE_CANCELLED_EVENT
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.TransferEvent(events_pb2.TransferEventReq(event_id=event_id, new_owner_community_id=c_id))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.EVENT_CANT_UPDATE_CANCELLED_EVENT
+
+    with events_session(token3) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.EVENT_CANT_UPDATE_CANCELLED_EVENT
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.SetEventAttendance(
+                events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+            )
+        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert e.value.details() == errors.EVENT_CANT_UPDATE_CANCELLED_EVENT
+
+    with events_session(token1) as api:
+        for include_cancelled in [True, False]:
+            res = api.ListEventOccurrences(
+                events_pb2.ListEventOccurrencesReq(
+                    event_id=event_id,
+                    include_cancelled=include_cancelled,
+                )
+            )
+            if include_cancelled:
+                assert len(res.events) > 0
+            else:
+                assert len(res.events) == 0
+
+            res = api.ListMyEvents(
+                events_pb2.ListMyEventsReq(
+                    include_cancelled=include_cancelled,
+                )
+            )
+            if include_cancelled:
+                assert len(res.events) > 0
+            else:
+                assert len(res.events) == 0
+
+
 def test_ListEventAttendees(db):
     # event creator
     user1, token1 = generate_user()

@@ -5,7 +5,7 @@ Hi {{ user.name }},
 {{ event.title }}
 {{ time_display }}
 
-{% if event.online_information.link %}Online at <{{ event.online_information.link }}>{% endif %}{% if event.offline_information.address %}{{ event.offline_information.address }}{% endif %}
+{% if event.online_information.link %}<a href="{{ event.online_information.link|v2url }}">Online</a>{% endif %}{% if event.offline_information.address|v2esc %}{{ event.offline_information.address }}{% endif %}
 
 
 {{ event.content|v2quote }}

@@ -7,13 +7,15 @@ from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, UserSession
+from couchers.models import Cluster, EventOccurrence, UserSession
 from couchers.sql import couchers_select as select
-from couchers.utils import parse_date
-from proto import admin_pb2
+from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
+from proto import admin_pb2, events_pb2
+from tests.test_communities import create_community
 from tests.test_fixtures import (  # noqa
     db,
     email_fields,
+    events_session,
     generate_user,
     get_user_id_and_token,
     mock_notification_email,
@@ -351,6 +353,45 @@ def test_badges(db):
                 api.AddBadge(admin_pb2.AddBadgeReq(user=normal_user.username, badge_id="nonexistentbadge"))
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
             assert e.value.details() == errors.BADGE_NOT_FOUND
+
+
+def test_DeleteEvent(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [normal_user], [], None)
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+    with events_session(normal_token) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                photo_key=None,
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+        event_id = res.event_id
+        assert not res.is_deleted
+
+    with session_scope() as session:
+        with real_admin_session(super_token) as api:
+            api.DeleteEvent(
+                admin_pb2.DeleteEventReq(
+                    event_id=event_id,
+                )
+            )
+            occurrence = session.get(EventOccurrence, ident=event_id)
+            assert occurrence.is_deleted
 
 
 # community invite feature tested in test_events.py

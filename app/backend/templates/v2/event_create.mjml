@@ -4,7 +4,7 @@
     <mj-text>A new event was created {% if community.name %}in the <a href="{{ community_link|v2url }}">{{ community.name|v2esc }}</a> community{% else %}nearby{% endif %}:</mj-text>
     <mj-text><b>{{ event.title|v2esc }}</b><br />
       {{ time_display|v2esc }}<br />
-      <i>{% if event.online_information.lnk %}<a href="{{ event.online_information.link }}">Online</a>{% endif %}{% if event.offline_information.address %}{{ event.offline_information.address }}{% endif %}</i>
+      <i>{% if event.online_information.link %}<a href="{{ event.online_information.link|v2url }}">Online</a>{% endif %}{% if event.offline_information.address|v2esc %}{{ event.offline_information.address }}{% endif %}</i>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -30,6 +30,6 @@
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-text><b>Do not reply to this email.</b> Use one of the buttons above, or log in to your account to reply to this request.</mj-text>
+    <mj-text>Best,<br />The Couchers.org Team</mj-text>
   </mj-column>
 </mj-section>
