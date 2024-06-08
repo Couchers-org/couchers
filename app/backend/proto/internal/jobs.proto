@@ -54,3 +54,12 @@ message GenerateEventUpdateNotificationsPayload {
   int64 occurrence_id = 2;
   repeated string updated_items = 3;
 }
+
+message GenerateEventCancelNotificationsPayload {
+  int64 cancelling_user_id = 1;
+  int64 occurrence_id = 2;
+}
+
+message GenerateEventDeleteNotificationsPayload {
+  int64 occurrence_id = 1;
+}

@@ -1,0 +1,15 @@
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text>An event you are subscribed to has been deleted by the moderators:</mj-text>
+    <mj-text><b>{{ event.title|v2esc }}</b><br />
+      {{ time_display|v2esc }}<br />
+      <i>{% if event.offline_information.address|v2esc %}{{ event.offline_information.address }}{% endif %}</i>
+    </mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Best,<br />The Couchers.org Team</mj-text>
+  </mj-column>
+</mj-section>

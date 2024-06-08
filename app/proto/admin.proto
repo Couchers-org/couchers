@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package org.couchers.admin;
 
+import "google/protobuf/empty.proto";
+
 import "annotations.proto";
 import "api.proto";
 import "communities.proto";
@@ -41,6 +43,8 @@ service Admin {
   rpc ListEventCommunityInviteRequests(ListEventCommunityInviteRequestsReq) returns (ListEventCommunityInviteRequestsRes) {}
 
   rpc DecideEventCommunityInviteRequest(DecideEventCommunityInviteRequestReq) returns (DecideEventCommunityInviteRequestRes) {}
+
+  rpc DeleteEvent(DeleteEventReq) returns (google.protobuf.Empty) {}
 }
 
 message UserDetails {
@@ -171,3 +175,7 @@ message DecideEventCommunityInviteRequestReq {
 }
 
 message DecideEventCommunityInviteRequestRes {}
+
+message DeleteEventReq {
+  int64 event_id = 1;
+}

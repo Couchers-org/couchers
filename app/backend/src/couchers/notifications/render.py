@@ -473,6 +473,41 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_icon=v2avatar(data.updating_user),
                 push_url=event_link,
             )
+        elif notification.action == "cancel":
+            body = f"{time_display}\n"
+            body += f"The event has been cancelled by {data.cancelling_user.name}.\n\n"
+            body += event.content
+            return RenderedNotification(
+                email_subject=f'{data.cancelling_user.name} cancelled "{event.title}"',
+                email_preview="An event you are subscribed to has been cancelled.",
+                email_template_name="event_cancel",
+                email_template_args={
+                    "cancelling_user": data.cancelling_user,
+                    "time_display": time_display,
+                    "event": event,
+                    "view_link": event_link,
+                },
+                email_topic_action_unsubscribe_text="event cancellations",
+                push_title=f'{data.cancelling_user.name} cancelled "{event.title}"',
+                push_body=body,
+                push_icon=v2avatar(data.cancelling_user),
+                push_url=event_link,
+            )
+        elif notification.action == "delete":
+            return RenderedNotification(
+                email_subject=f'A moderator deleted "{event.title}"',
+                email_preview="An event you are subscribed to has been deleted.",
+                email_template_name="event_delete",
+                email_template_args={
+                    "time_display": time_display,
+                    "event": event,
+                },
+                email_topic_action_unsubscribe_text="event deletions",
+                push_title=f'A moderator deleted "{event.title}"',
+                push_body=f"{time_display}\nThe event has been deleted by the moderators.",
+                push_icon=urls.icon_url(),
+                push_url=urls.app_link(),
+            )
         elif notification.action == "invite_organizer":
             body = f"{time_display}\n"
             body += f"Invited to co-organize by {data.inviting_user.name}\n\n"

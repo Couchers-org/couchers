@@ -28,6 +28,10 @@ service Events {
     // Gets an event
   }
 
+  rpc CancelEvent(CancelEventReq) returns (google.protobuf.Empty) {
+    // Cancels an event
+  }
+
   rpc RequestCommunityInvite(RequestCommunityInviteReq) returns (google.protobuf.Empty) {
     // Requests that a notification/email invitation about the event is sent out to the community
   }
@@ -102,6 +106,8 @@ message Event {
   // whether this is the next occurrence of this particular event
   // e.g. if this is a recurring event
   bool is_next = 2;
+  bool is_cancelled = 3;
+  bool is_deleted = 4;
 
   string title = 5;
   // a short URL fragment generated from the name, e.g. "New York City: weekly meetup" might become
@@ -213,6 +219,10 @@ message GetEventReq {
   int64 event_id = 1;
 }
 
+message CancelEventReq {
+  int64 event_id = 1;
+}
+
 message RequestCommunityInviteReq {
   int64 event_id = 1;
 }
@@ -266,6 +276,8 @@ message ListMyEventsReq {
   // include events in the user's communities
   bool my_communities = 7;
 
+  bool include_cancelled = 8;
+
   uint32 page_size = 5;
   string page_token = 6;
 }
@@ -294,6 +306,8 @@ message ListEventOccurrencesReq {
   int64 event_id = 1;
   // whether to paginate backwards
   bool past = 2;
+
+  bool include_cancelled = 5;
 
   uint32 page_size = 3;
   string page_token = 4;

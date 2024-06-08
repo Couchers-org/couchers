@@ -1,20 +1,20 @@
 Hi {{ user.name }},
 
-A new event was created {{ nearby_or_community_text_plain }}:
+An event you are subscribed to has been cancelled:
 
 {{ event.title }}
 {{ time_display }}
 
 {% if event.online_information.link %}<a href="{{ event.online_information.link|v2url }}">Online</a>{% endif %}{% if event.offline_information.address|v2esc %}{{ event.offline_information.address }}{% endif %}
 
-Invited by {{ inviting_user.name }}
+Cancelled by {{ cancelling_user.name }}
 
 
 {{ event.content|v2quote }}
 
 
+You can still view the event here: <{{ view_link }}>
 
-You can view the event here: <{{ view_link }}>
 
 Best,
 The Couchers.org team

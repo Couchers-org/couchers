@@ -126,6 +126,15 @@ message EventUpdate {
   repeated string updated_items = 3;
 }
 
+message EventCancel {
+  org.couchers.api.events.Event event = 1;
+  org.couchers.api.core.User cancelling_user = 2;
+}
+
+message EventDelete {
+  org.couchers.api.events.Event event = 1;
+}
+
 message ChatMessage {
   org.couchers.api.core.User author = 1;
   string message = 2;

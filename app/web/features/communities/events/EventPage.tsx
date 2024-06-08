@@ -1,6 +1,8 @@
 import {
   Card,
+  Chip,
   CircularProgress,
+  darken,
   Link as MuiLink,
   Theme,
   Typography,
@@ -21,7 +23,7 @@ import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
@@ -31,6 +33,7 @@ import makeStyles from "utils/makeStyles";
 
 import CommentTree from "../discussions/CommentTree";
 import AttendanceMenu from "./AttendanceMenu";
+import CancelEventDialog from "./CancelEventDialog";
 import EventAttendees from "./EventAttendees";
 import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
@@ -87,6 +90,18 @@ export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
       columnGap: theme.spacing(1),
       gridArea: "actionButtons",
       justifySelf: "start",
+    },
+    cancelButton: {
+      flexShrink: 0,
+      "&:hover": {
+        backgroundColor: darken(theme.palette.error.main, 0.1),
+      },
+      backgroundColor: theme.palette.error.main,
+    },
+    cancelledChip: {
+      backgroundColor: theme.palette.error.main,
+      color: theme.palette.common.white,
+      fontWeight: "bold",
     },
     eventTypeText: {
       color: theme.palette.grey[600],
@@ -177,6 +192,8 @@ export default function EventPage({
     }
   );
 
+  const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
+
   useEffect(() => {
     if (event?.slug && event.slug !== eventSlug) {
       router.replace(routeToEvent(event.eventId, event.slug));
@@ -234,6 +251,12 @@ export default function EventPage({
                     {event.offlineInformation?.address}
                   </Typography>
                 )}
+                {event.isCancelled && (
+                  <Chip
+                    classes={{ root: classes.cancelledChip }}
+                    label={t("communities:cancelled")}
+                  />
+                )}
               </div>
               <div className={classes.actionButtons}>
                 {event.canEdit || event.canModerate ? (
@@ -241,10 +264,33 @@ export default function EventPage({
                     href={routeToEditEvent(event.eventId, event.slug)}
                     passHref
                   >
-                    <Button component="a" variant="outlined">
+                    <Button
+                      component="a"
+                      variant="outlined"
+                      disabled={event.isCancelled}
+                    >
                       {t("communities:edit_event")}
                     </Button>
                   </Link>
+                ) : null}
+
+                {event.canEdit ? (
+                  <>
+                    <Button
+                      onClick={() => setCancelDialogIsOpen(true)}
+                      variant="contained"
+                      color="primary"
+                      classes={{ containedPrimary: classes.cancelButton }}
+                      disabled={event.isCancelled}
+                    >
+                      {t("communities:cancel_event")}
+                    </Button>
+                    <CancelEventDialog
+                      open={cancelDialogIsOpen}
+                      onClose={() => setCancelDialogIsOpen(false)}
+                      eventId={eventId}
+                    />
+                  </>
                 ) : null}
 
                 <AttendanceMenu
@@ -254,6 +300,7 @@ export default function EventPage({
                   }
                   attendanceState={event.attendanceState}
                   id="event-page-attendance"
+                  disabled={event.isCancelled}
                 />
               </div>
 

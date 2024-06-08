@@ -1792,6 +1792,9 @@ class EventOccurrence(Base):
     content = Column(String, nullable=False)  # CommonMark without images
     photo_key = Column(ForeignKey("uploads.key"), nullable=True)
 
+    is_cancelled = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+    is_deleted = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+
     # a null geom is an online-only event
     geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     # physical address, iff geom is not null
@@ -2209,6 +2212,8 @@ class NotificationTopicAction(enum.Enum):
     # any user creates any event, default to no notifications
     event__create_any = ("event:create_any", [], True, nd.EventCreate)
     event__update = ("event:update", dt_all, True, nd.EventUpdate)
+    event__cancel = ("event:cancel", dt_all, True, nd.EventCancel)
+    event__delete = ("event:delete", dt_all, True, nd.EventDelete)
     event__invite_organizer = ("event:invite_organizer", dt_all, True, nd.EventInviteOrganizer)
 
     # account settings
