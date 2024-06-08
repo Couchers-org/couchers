@@ -390,8 +390,8 @@ def test_DeleteEvent(db):
                     event_id=event_id,
                 )
             )
-            occurence = session.get(EventOccurrence, ident=event_id)
-            assert occurence.is_deleted
+            occurrence = session.get(EventOccurrence, ident=event_id)
+            assert occurrence.is_deleted
 
 
 # community invite feature tested in test_events.py
