@@ -17,7 +17,6 @@ repos:
       entry: check-added-large-files
       language: python
       args: ['--maxkb=350', '--enforce-all']
-      exclude: ^poetry.lock
     - id: detect-private-key
 
 -   repo: https://github.com/charliermarsh/ruff-pre-commit
@@ -25,8 +24,11 @@ repos:
     hooks:
       - id: ruff
         description: Linter checks (without import sorting)
+        files: ^app/backend/
         args: ['--ignore', 'I']
       - id: ruff
+        files: ^app/backend/
         args: ['--select', 'I', '--fix']
         description: Sort imports
       - id: ruff-format
+        files: ^app/backend/
