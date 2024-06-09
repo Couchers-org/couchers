@@ -799,7 +799,7 @@ class ContributorForm(Base):
 
         We currently send if expertise is listed, or if they list a way to help outside of a set list
         """
-        return (self.expertise != None) | (not set(self.contribute_ways).issubset(set("community", "blog", "other")))
+        return (self.expertise != None) | (not set(self.contribute_ways).issubset({"community", "blog", "other"}))
 
 
 class SignupFlow(Base):
