@@ -77,11 +77,11 @@ def _check_password(user, field_name, request, context):
 
 
 def get_strong_verification_fields(db_user):
-    out = dict(
-        birthdate_verification_status=api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,
-        gender_verification_status=api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED,
-        has_strong_verification=False,
-    )
+    out = {
+        "birthdate_verification_status": api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,
+        "gender_verification_status": api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED,
+        "has_strong_verification": False,
+    }
     if db_user.strong_verification is not None:
         if db_user.strong_verification.matches_birthdate(db_user):
             out["birthdate_verification_status"] = api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED

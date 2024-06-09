@@ -20,15 +20,15 @@ def test_node_constraints(db):
             node = Node(geom=to_multi(create_1d_polygon(0, 2)))
             session.add(node)
             cluster1 = Cluster(
-                name=f"Testing community, cluster 1",
-                description=f"Testing community description",
+                name="Testing community, cluster 1",
+                description="Testing community description",
                 parent_node=node,
                 is_official_cluster=True,
             )
             session.add(cluster1)
             cluster2 = Cluster(
-                name=f"Testing community, cluster 2",
-                description=f"Testing community description",
+                name="Testing community, cluster 2",
+                description="Testing community description",
                 parent_node=node,
                 is_official_cluster=True,
             )
@@ -58,7 +58,7 @@ def test_page_constraints(db):
                 PageVersion(
                     page=page,
                     editor_user_id=user.id,
-                    title=f"Title",
+                    title="Title",
                     content="Content",
                 )
             )
@@ -69,8 +69,8 @@ def test_page_constraints(db):
         node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])))
         session.add(node)
         cluster = Cluster(
-            name=f"Testing Community",
-            description=f"Description for testing community",
+            name="Testing Community",
+            description="Description for testing community",
             parent_node=node,
         )
         session.add(cluster)
@@ -94,7 +94,7 @@ def test_page_constraints(db):
                 PageVersion(
                     page=page,
                     editor_user_id=user.id,
-                    title=f"Title",
+                    title="Title",
                     content="Content",
                 )
             )
@@ -117,7 +117,7 @@ def test_page_constraints(db):
                 PageVersion(
                     page=main_page,
                     editor_user_id=user.id,
-                    title=f"Main page for the testing community",
+                    title="Main page for the testing community",
                     content="Empty.",
                 )
             )
@@ -139,7 +139,7 @@ def test_page_constraints(db):
                 PageVersion(
                     page=main_page1,
                     editor_user_id=user.id,
-                    title=f"Main page 1 for the testing community",
+                    title="Main page 1 for the testing community",
                     content="Empty.",
                 )
             )
@@ -155,7 +155,7 @@ def test_page_constraints(db):
                 PageVersion(
                     page=main_page2,
                     editor_user_id=user.id,
-                    title=f"Main page 2 for the testing community",
+                    title="Main page 2 for the testing community",
                     content="Empty.",
                 )
             )

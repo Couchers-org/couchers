@@ -68,7 +68,7 @@ def test_ping(db):
     assert res.user.about_me == user.about_me
     assert res.user.my_travels == user.my_travels
     assert res.user.things_i_like == user.things_i_like
-    assert set(language_ability.code for language_ability in res.user.language_abilities) == set(["fin", "fra"])
+    assert {language_ability.code for language_ability in res.user.language_abilities} == set("fin", "fra")
     assert res.user.about_place == user.about_place
     assert res.user.regions_visited == ["FIN", "REU", "CHE"]  # Tests alphabetization by region name
     assert res.user.regions_lived == ["EST", "FRA", "ESP"]  # Ditto

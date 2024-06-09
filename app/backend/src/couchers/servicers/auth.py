@@ -361,10 +361,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
             ).scalar_one_or_none()
             if user:
                 if user.has_password:
-                    logger.debug(f"Found user with password")
+                    logger.debug("Found user with password")
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.NEED_PASSWORD)
                 else:
-                    logger.debug(f"Found user without password, sending login email")
+                    logger.debug("Found user without password, sending login email")
                     send_login_email(session, user)
                     return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL)
             else:  # user not found
@@ -377,7 +377,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     session.commit()
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP)
 
-                logger.debug(f"Didn't find user")
+                logger.debug("Didn't find user")
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
     def CompleteTokenLogin(self, request, context):
@@ -420,21 +420,21 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 select(User).where_username_or_email(request.user).where(~User.is_deleted)
             ).scalar_one_or_none()
             if user:
-                logger.debug(f"Found user")
+                logger.debug("Found user")
                 if not user.has_password:
-                    logger.debug(f"User doesn't have a password!")
+                    logger.debug("User doesn't have a password!")
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PASSWORD)
                 if verify_password(user.hashed_password, request.password):
-                    logger.debug(f"Right password")
+                    logger.debug("Right password")
                     # correct password
                     create_session(context, session, user, request.remember_device)
                     return _auth_res(user)
                 else:
-                    logger.debug(f"Wrong password")
+                    logger.debug("Wrong password")
                     # wrong password
                     context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_USERNAME_OR_PASSWORD)
             else:  # user not found
-                logger.debug(f"Didn't find user")
+                logger.debug("Didn't find user")
                 # do about as much work as if the user was found, reduces timing based username enumeration attacks
                 hash_password(request.password)
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_USERNAME_OR_PASSWORD)
@@ -487,7 +487,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     ),
                 )
             else:  # user not found
-                logger.debug(f"Didn't find user")
+                logger.debug("Didn't find user")
 
         return empty_pb2.Empty()
 

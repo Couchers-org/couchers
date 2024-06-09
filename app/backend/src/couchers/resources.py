@@ -130,7 +130,7 @@ def copy_resources_to_database(session):
             raise Exception("Missing timezone_areas.sql and not running in dev")
 
         timezone_areas_file = resources_folder / "timezone_areas.sql-fake"
-        logger.info(f"Using fake timezone areas")
+        logger.info("Using fake timezone areas")
 
     with open(timezone_areas_file, "r") as f:
         tz_sql = f.read()

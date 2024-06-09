@@ -297,7 +297,7 @@ def render_notification(user, notification) -> RenderedNotification:
             email_list_unsubscribe_url=generate_unsub(user, notification, "topic_action"),
         )
     elif notification.topic_action.display == "donation:received":
-        title = f"Thank you for your donation to Couchers.org!"
+        title = "Thank you for your donation to Couchers.org!"
         message = f"Thank you so much for your donation of ${data.amount} to Couchers.org."
         return RenderedNotification(
             is_critical=True,
@@ -363,7 +363,7 @@ def render_notification(user, notification) -> RenderedNotification:
             push_url=urls.app_link(),
         )
     elif notification.topic_action.display == "account_deletion:complete":
-        title = f"Your Couchers.org account has been deleted"
+        title = "Your Couchers.org account has been deleted"
         return RenderedNotification(
             is_critical=True,
             email_subject=title,
@@ -379,8 +379,8 @@ def render_notification(user, notification) -> RenderedNotification:
             push_url=urls.app_link(),
         )
     elif notification.topic_action.display == "account_deletion:recovered":
-        title = f"Your Couchers.org account has been recovered!"
-        subtitle = f"We have recovered your Couchers.org account as per your request! Welcome back!"
+        title = "Your Couchers.org account has been recovered!"
+        subtitle = "We have recovered your Couchers.org account as per your request! Welcome back!"
         return RenderedNotification(
             is_critical=True,
             email_subject=title,
@@ -397,7 +397,7 @@ def render_notification(user, notification) -> RenderedNotification:
     elif notification.topic_action.display == "chat:message":
         return RenderedNotification(
             email_subject=data.message,
-            email_preview=f"You received a message on Couchers.org!",
+            email_preview="You received a message on Couchers.org!",
             email_template_name="chat_message",
             email_template_args={
                 "author": data.author,
@@ -427,7 +427,7 @@ def render_notification(user, notification) -> RenderedNotification:
             )
             return RenderedNotification(
                 email_subject=f'{data.inviting_user.name} invited you to "{event.title}"',
-                email_preview=f"You've been invited to a new event on Couchers.org!",
+                email_preview="You've been invited to a new event on Couchers.org!",
                 email_template_name="event_create",
                 email_template_args={
                     "inviting_user": data.inviting_user,
@@ -458,7 +458,7 @@ def render_notification(user, notification) -> RenderedNotification:
             body += event.content
             return RenderedNotification(
                 email_subject=f'{data.updating_user.name} updated "{event.title}"',
-                email_preview=f"An event you are subscribed to was updated.",
+                email_preview="An event you are subscribed to was updated.",
                 email_template_name="event_update",
                 email_template_args={
                     "updating_user": data.updating_user,
@@ -514,7 +514,7 @@ def render_notification(user, notification) -> RenderedNotification:
             body += event.content
             return RenderedNotification(
                 email_subject=f'{data.inviting_user.name} invited you to co-organize "{event.title}"',
-                email_preview=f"You were invited to co-organize an event on Couchers.org.",
+                email_preview="You were invited to co-organize an event on Couchers.org.",
                 email_template_name="event_invite_organizer",
                 email_template_args={
                     "inviting_user": data.inviting_user,

@@ -64,7 +64,7 @@ def test_one_time_donation_flow(db, monkeypatch):
                         "currency": "usd",
                         "unit_amount": 10000,
                         "product_data": {
-                            "name": f"Couchers financial supporter (one-time)",
+                            "name": "Couchers financial supporter (one-time)",
                             "images": ["https://couchers.org/img/share.jpg"],
                         },
                     },

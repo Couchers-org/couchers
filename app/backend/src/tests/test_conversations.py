@@ -609,7 +609,7 @@ def test_make_remove_group_chat_admin(db):
 
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
         assert user1.id in res.admin_user_ids
-        assert not user2.id in res.admin_user_ids
+        assert user2.id not in res.admin_user_ids
 
     with conversations_session(token2) as c:
         # shouldn't be able to make admin if not admin
@@ -682,7 +682,7 @@ def test_leave_invite_to_group_chat(db):
 
     with conversations_session(token2) as c:
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
-        assert not user3.id in res.member_user_ids
+        assert user3.id not in res.member_user_ids
 
         # only_admins_invite defaults to true so shouldn't be able to invite
         with pytest.raises(grpc.RpcError) as e:
@@ -1128,7 +1128,7 @@ def test_last_seen(db):
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert res.unseen_message_count == backward_offset
 
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text=f"test message ..."))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="test message ..."))
 
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert res.unseen_message_count == 0
@@ -1138,7 +1138,7 @@ def test_last_seen(db):
         # created + 7 normal
         assert res.unseen_message_count == 8
 
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text=f"test message ..."))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="test message ..."))
 
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
         assert res.unseen_message_count == 0
@@ -1257,7 +1257,7 @@ def test_total_unseen(db):
         gcid_distraction = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user4.id])
         ).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text=f"distraction..."))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text="distraction..."))
 
         gcid = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
@@ -1267,7 +1267,7 @@ def test_total_unseen(db):
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text=f"test message {i}"))
 
         # distractions
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text=f"distraction..."))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text="distraction..."))
 
     # messages are automatically marked as seen when you send a new message
     with api_session(token1) as api:
@@ -1287,14 +1287,14 @@ def test_total_unseen(db):
 
     with conversations_session(token1) as c:
         # distractions
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text=f"distraction..."))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text="distraction..."))
 
         # send more stuff without user 2
         for i in range(3):
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text=f"test message {i}"))
 
         # distractions
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text=f"distraction..."))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text="distraction..."))
 
     with api_session(token2) as api:
         # seen messages becomes 0 when leaving
@@ -1309,7 +1309,7 @@ def test_total_unseen(db):
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text=f"test message {i}"))
 
         # distractions
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text=f"distraction..."))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid_distraction, text="distraction..."))
 
     with api_session(token2) as api:
         # joined + 12 normal
@@ -1351,7 +1351,7 @@ def test_regression_ListGroupChats_pagination(db):
 
             seen_group_chat_ids.extend([chat.group_chat_id for chat in res.group_chats])
 
-        assert set(seen_group_chat_ids) == set(x[0] for x in group_chat_and_message_ids), "Not all group chats returned"
+        assert set(seen_group_chat_ids) == {x[0] for x in group_chat_and_message_ids}, "Not all group chats returned"
 
 
 def test_muting(db):

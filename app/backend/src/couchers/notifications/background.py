@@ -40,8 +40,8 @@ add_filters(env)
 
 
 def _send_email_notification(user: User, notification: Notification):
-    def _generate_unsub(type, one_click=False):
-        return generate_unsub(user, notification, type, one_click)
+    def _generate_unsub(unsub_type, one_click=False):
+        return generate_unsub(user, notification, unsub_type, one_click)
 
     rendered = render_notification(user, notification)
     template_args = {
@@ -170,7 +170,7 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
 
 def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload):
     if not config["PUSH_NOTIFICATIONS_ENABLED"]:
-        logger.info(f"Not sending push notification due to push notifications disabled")
+        logger.info("Not sending push notification due to push notifications disabled")
 
     with session_scope() as session:
         if len(payload.data) > 3072:
@@ -223,7 +223,7 @@ def handle_email_digests(payload: empty_pb2.Empty):
 
     That is, we don't send out an email unless there's something new, but if we do send one out, we send new and old stuff.
     """
-    logger.info(f"Sending out email digests")
+    logger.info("Sending out email digests")
 
     with session_scope() as session:
         # already sent email notifications
@@ -243,22 +243,20 @@ def handle_email_digests(payload: empty_pb2.Empty):
         # users who have unsent "digest" type notifications but not sent email notifications
         users_to_send_digests_to = (
             session.execute(
-                (
-                    select(User)
-                    .where(User.digest_frequency != None)
-                    .where(User.last_digest_sent < func.now() - User.digest_frequency)
-                    # todo: tz
-                    .join(Notification, Notification.user_id == User.id)
-                    .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
-                    .where(NotificationDelivery.delivery_type == NotificationDeliveryType.digest)
-                    .where(NotificationDelivery.delivered == None)
-                    .outerjoin(
-                        delivered_email_notifications,
-                        delivered_email_notifications.c.notification_id == Notification.id,
-                    )
-                    .where(delivered_email_notifications.c.notification_delivery_id == None)
-                    .group_by(User)
+                select(User)
+                .where(User.digest_frequency != None)
+                .where(User.last_digest_sent < func.now() - User.digest_frequency)
+                # todo: tz
+                .join(Notification, Notification.user_id == User.id)
+                .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
+                .where(NotificationDelivery.delivery_type == NotificationDeliveryType.digest)
+                .where(NotificationDelivery.delivered == None)
+                .outerjoin(
+                    delivered_email_notifications,
+                    delivered_email_notifications.c.notification_id == Notification.id,
                 )
+                .where(delivered_email_notifications.c.notification_delivery_id == None)
+                .group_by(User)
             )
             .scalars()
             .all()
@@ -269,14 +267,12 @@ def handle_email_digests(payload: empty_pb2.Empty):
         for user in users_to_send_digests_to:
             # digest notifications that haven't been delivered yet
             notifications_and_deliveries = session.execute(
-                (
-                    select(Notification, NotificationDelivery)
-                    .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
-                    .where(NotificationDelivery.delivery_type == NotificationDeliveryType.digest)
-                    .where(NotificationDelivery.delivered == None)
-                    .where(Notification.user_id == user.id)
-                    .order_by(Notification.created)
-                )
+                select(Notification, NotificationDelivery)
+                .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
+                .where(NotificationDelivery.delivery_type == NotificationDeliveryType.digest)
+                .where(NotificationDelivery.delivered == None)
+                .where(Notification.user_id == user.id)
+                .order_by(Notification.created)
             ).all()
 
             if notifications_and_deliveries:

@@ -221,7 +221,7 @@ def get_users_to_notify_for_new_event(session, occurrence):
     """
     cluster = occurrence.event.parent_node.official_cluster
     if cluster.parent_node_id == 1:
-        logger.info(f"The Global Community is too big for email notifications.")
+        logger.info("The Global Community is too big for email notifications.")
         return [], False
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
         return list(cluster.members), False

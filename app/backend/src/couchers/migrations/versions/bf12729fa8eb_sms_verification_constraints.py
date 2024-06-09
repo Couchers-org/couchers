@@ -24,4 +24,4 @@ def upgrade():
 
 
 def downgrade():
-    raise hell
+    raise hell  # noqa: F821

@@ -29,7 +29,7 @@ def generate_vapid_authorization(endpoint, vapid_sub, vapid_private_key):
     url = urlparse(endpoint)
     vapid_claim = {
         "sub": vapid_sub,
-        "aud": "{}://{}".format(url.scheme, url.netloc),
+        "aud": f"{url.scheme}://{url.netloc}",
         "exp": int(time()) + (12 * 60 * 60),
     }
     return Vapid.from_string(private_key=vapid_private_key).sign(vapid_claim)["Authorization"]

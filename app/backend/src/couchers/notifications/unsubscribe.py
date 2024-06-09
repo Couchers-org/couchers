@@ -54,14 +54,14 @@ def generate_unsub_topic_action(notification):
     )
 
 
-def generate_unsub(user, notification, type, one_click=False):
+def generate_unsub(user, notification, unsub_type, one_click=False):
     if one_click:
         raise NotImplementedError("One click unsubscribe not implemented yet")
-    if type == "do_not_email":
+    if unsub_type == "do_not_email":
         return generate_do_not_email(user.id)
-    elif type == "topic_key":
+    elif unsub_type == "topic_key":
         return generate_unsub_topic_key(notification)
-    elif type == "topic_action":
+    elif unsub_type == "topic_action":
         return generate_unsub_topic_action(notification)
     else:
         return ValueError("Unknown unsub type")

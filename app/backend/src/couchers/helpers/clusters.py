@@ -24,7 +24,7 @@ def create_cluster(
     admin_ids: List,
     is_community: bool,
 ):
-    type = "community" if is_community else "group"
+    cluster_type = "community" if is_community else "group"
     cluster = Cluster(
         name=name,
         description=description,
@@ -45,7 +45,7 @@ def create_cluster(
     page_version = PageVersion(
         page=main_page,
         editor_user_id=creator_user_id,
-        title=DEFAULT_PAGE_TITLE_TEMPLATE.format(name=name, type=type),
+        title=DEFAULT_PAGE_TITLE_TEMPLATE.format(name=name, type=cluster_type),
         content=DEFAULT_PAGE_CONTENT,
     )
     session.add(page_version)
