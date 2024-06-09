@@ -1,4 +1,3 @@
-autoflake
 build
 grpcio==1.38.0
 protobuf
