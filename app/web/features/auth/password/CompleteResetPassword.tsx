@@ -1,58 +1,152 @@
-import { CircularProgress, Container } from "@material-ui/core";
-import Alert from "components/Alert";
-import { useAppRouteStyles } from "components/AppRoute";
-import HtmlMeta from "components/HtmlMeta";
-import StyledLink from "components/StyledLink";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { AUTH } from "i18n/namespaces";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { useMutation } from "react-query";
-import { loginRoute } from "routes";
-import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";
+import { useAuthContext } from "features/auth/AuthProvider";
+import { Typography, Container } from "@material-ui/core";
+import StyledLink from "components/StyledLink";
+import TextField from "components/TextField";
+import HtmlMeta from "components/HtmlMeta";
+import { useMutation } from "react-query";
+import { useForm } from "react-hook-form";
+import makeStyles from "utils/makeStyles";
+import { useRouter } from "next/router";
+import { AUTH, GLOBAL } from "i18n/namespaces";
+import Button from "components/Button";
+import { useTranslation } from "i18n";
+import Alert from "components/Alert";
+import { loginRoute } from "routes";
+import { RpcError } from "grpc-web";
+import { service } from "service";
+
+const useStyles = makeStyles((theme) => ({
+  form: {
+    "& > * + *": {
+      marginBlockStart: theme.spacing(1),
+    },
+  },
+  standardContainer: {
+    marginTop: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    flex: 1,
+  },
+  main: {
+    padding: theme.spacing(0, 3),
+  },
+  textField: {
+    "& > div": {
+      width: "100%",
+      marginBottom: theme.spacing(2),
+      [theme.breakpoints.up("md")]: {
+        width: theme.typography.pxToRem(400),
+      },
+    },
+  },
+}));
 
 export default function CompleteResetPassword() {
-  const { t } = useTranslation(AUTH);
-  const classes = useAppRouteStyles();
+  const { authState } = useAuthContext();
+  const { t } = useTranslation([AUTH, GLOBAL]);
+  const formClass = useStyles();
+  const { handleSubmit, register } =
+    useForm<{ newPassword: string; newPasswordCheck: string }>();
 
   const router = useRouter();
   const resetToken = stringOrFirstString(router.query.token);
+  const isResetTokenOk =
+    !!resetToken && typeof resetToken === "string" && resetToken !== "";
 
-  const {
-    error,
-    isLoading,
-    isSuccess,
-    mutate: completePasswordReset,
-  } = useMutation<Empty, RpcError, string>((resetToken) =>
-    service.account.completePasswordReset(resetToken)
+  const { error, isLoading, isSuccess, mutate } = useMutation<
+    Empty,
+    RpcError,
+    string
+  >((newPassword) =>
+    service.account.CompletePasswordResetV2(resetToken as string, newPassword)
   );
 
-  useEffect(() => {
-    if (resetToken) {
-      completePasswordReset(resetToken);
+  const onSubmit = handleSubmit(({ newPassword, newPasswordCheck }) => {
+    if (newPassword !== newPasswordCheck) {
+      alert(t("auth:change_password_form.password_mismatch_error"));
+      return;
     }
-  }, [completePasswordReset, resetToken]);
+
+    mutate(newPassword);
+  });
+
+  if (authState.authenticated) {
+    return (
+      <Container className={formClass.standardContainer}>
+        <Alert severity="error">
+          {t("auth:change_password_form.user_logged_error")}
+        </Alert>
+      </Container>
+    );
+  }
 
   return (
-    <Container className={classes.standardContainer}>
-      <HtmlMeta title={t("reset_password")} />
-      {isLoading ? (
-        <CircularProgress />
-      ) : isSuccess ? (
-        <>
-          <Alert severity="success">{t("reset_password_success")}</Alert>
-          <StyledLink href={loginRoute}>{t("login_prompt")}</StyledLink>
-        </>
-      ) : error ? (
+    <Container className={formClass.standardContainer}>
+      <HtmlMeta title={t("auth:change_password_form.title")} />
+
+      {!isResetTokenOk && (
         <Alert severity="error">
-          {t("reset_password_error", { message: error.message })}
+          {t("auth:change_password_form.token_error")}
         </Alert>
-      ) : (
-        ""
       )}
+
+      {error && (
+        <Alert severity="error">
+          {t("auth:change_password_form.reset_password_error", {
+            message: error.message,
+          })}
+        </Alert>
+      )}
+
+      {isSuccess && (
+        <>
+          <Alert severity="success">
+            {t("auth:change_password_form.reset_password_success")}
+          </Alert>
+          <StyledLink href={loginRoute}>{t("auth:login_prompt")}</StyledLink>
+        </>
+      )}
+
+      <Typography variant="h1" gutterBottom>
+        {t("auth:change_password_form.title")}
+      </Typography>
+
+      <Typography variant="body1" gutterBottom>
+        {t("auth:change_password_form.subtitle")}
+      </Typography>
+
+      <form className={formClass.form} onSubmit={onSubmit}>
+        <TextField
+          className={formClass.textField}
+          id="newPassword"
+          inputRef={register({ required: true })}
+          label={t("auth:change_password_form.new_password")}
+          name="newPassword"
+          type="password"
+          variant="outlined"
+        />
+
+        <TextField
+          className={formClass.textField}
+          id="newPasswordCheck"
+          inputRef={register({ required: true })}
+          label={t("auth:change_password_form.confirm_password")}
+          name="newPasswordCheck"
+          type="password"
+          variant="outlined"
+        />
+
+        <Button
+          loading={isLoading}
+          type="submit"
+          disabled={isLoading || !isResetTokenOk || authState.authenticated}
+        >
+          {t("global:submit")}
+        </Button>
+      </form>
     </Container>
   );
 }

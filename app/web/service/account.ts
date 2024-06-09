@@ -10,6 +10,7 @@ import {
 } from "proto/account_pb";
 import {
   CompletePasswordResetReq,
+  CompletePasswordResetV2Req,
   ConfirmChangeEmailReq,
   ContributorForm as ContributorFormPb,
   ResetPasswordReq,
@@ -33,6 +34,17 @@ export function completePasswordReset(resetToken: string) {
   const req = new CompletePasswordResetReq();
   req.setPasswordResetToken(resetToken);
   return client.auth.completePasswordReset(req);
+}
+
+export function CompletePasswordResetV2(
+  resetToken: string,
+  newPassword: string
+) {
+  const req = new CompletePasswordResetV2Req();
+  req.setPasswordResetToken(resetToken);
+  req.setNewPassword(newPassword);
+
+  return client.auth.completePasswordResetV2(req);
 }
 
 export function changePassword(oldPassword?: string, newPassword?: string) {

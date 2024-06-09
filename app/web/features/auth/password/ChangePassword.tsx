@@ -78,7 +78,7 @@ export default function ChangePassword({
         <Alert severity="success">
           {changePasswordVariables?.newPassword
             ? t("auth:change_password_form.password_changed_success")
-            : t("auth:reset_password_success")}
+            : t("auth:change_password_form.reset_password_success")}
         </Alert>
       )}
       <form className={classes.form} onSubmit={onSubmit}>

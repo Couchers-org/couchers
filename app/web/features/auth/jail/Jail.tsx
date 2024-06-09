@@ -80,6 +80,7 @@ export default function Jail() {
           className={classes.section}
         />
       )}
+      {/* pontentially dead code */}
       {jailInfo?.hasNotSetPassword && (
         <PasswordSection
           updateJailed={updateJailed}

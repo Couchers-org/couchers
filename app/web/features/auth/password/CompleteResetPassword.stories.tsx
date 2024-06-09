@@ -1,7 +1,7 @@
-import { Meta, Story } from "@storybook/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import React from "react";
+import { Meta, Story } from "@storybook/react";
 import { mockedService } from "stories/serviceMocks";
+import React from "react";
 
 import CompleteResetPassword from "./CompleteResetPassword";
 
@@ -11,21 +11,14 @@ export default {
 } as Meta;
 
 interface CompleteResetPasswordArgs {
-  isLoading?: boolean;
   shouldSucceed?: boolean;
 }
 
 const Template: Story<CompleteResetPasswordArgs> = ({
-  isLoading = false,
   shouldSucceed = true,
 } = {}) => {
-  setMocks({ isLoading, shouldSucceed });
+  setMocks({ shouldSucceed });
   return <CompleteResetPassword />;
-};
-
-export const Loading = Template.bind({});
-Loading.args = {
-  isLoading: true,
 };
 
 export const Success = Template.bind({});
@@ -35,14 +28,9 @@ Failed.args = {
   shouldSucceed: false,
 };
 
-function setMocks({
-  isLoading,
-  shouldSucceed,
-}: Required<CompleteResetPasswordArgs>) {
-  mockedService.account.completePasswordReset = () =>
-    isLoading
-      ? new Promise(() => void 0)
-      : shouldSucceed
+function setMocks({ shouldSucceed }: Required<CompleteResetPasswordArgs>) {
+  mockedService.account.resetPassword = () =>
+    shouldSucceed
       ? Promise.resolve(new Empty())
-      : Promise.reject(new Error("Invalid token"));
+      : Promise.reject(new Error("API error"));
 }
