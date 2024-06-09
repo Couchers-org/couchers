@@ -28,11 +28,16 @@
   },
   "change_password_form": {
     "title": "Change password",
+    "subtitle": "Use this form to reset your login password.",
     "confirm_password": "Confirm password",
     "password_changed_success": "Your new password has been set and a notification was sent to your email.",
     "old_password": "Old password",
     "new_password": "New password",
-    "password_mismatch_error": "The passwords don't match."
+    "password_mismatch_error": "The passwords don't match.",
+    "user_logged_error": "You cannot reset your password if you are logged in. You can change your password in settings or log out to reset it.",
+    "token_error": "There was a error processing the password reset token, please try opening the link from the email again.",
+    "reset_password_success": "Your password has been changed successfully!",
+    "reset_password_error": "Error resetting password: {{message}}"
   },
   "jail_set_password_form": {
     "title": "Set a password",
@@ -142,13 +147,11 @@
   "sign_up_completed_prompt": "We have sent an email with a verification link to your email address. Please click the link to activate your account.",
   "sign_up_confirmed_prompt": "You're all done! If you are not redirected, try logging in.",
   "unhandled_sign_up_state": "Error: unhandled signup flow state.",
-  "reset_password_success": "Your password has been reset successfully! You will now be emailed a magic link when you log in with your username or email.",
   "login_prompt": "Click here to log in",
   "about_us": "About us",
   "introduction_subtitle": "Free forever. Community-led. Non-profit. Modern.",
   "introduction_title": "Join and help grow the new alternative to Couchsurfing™",
   "reset_password": "Reset password",
-  "reset_password_error": "Error resetting password: {{message}}",
   "account_settings_page": {
     "title": "Account settings",
     "gender_section": {
