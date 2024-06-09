@@ -60,7 +60,7 @@ def add_dummy_users():
             new_user = User(
                 username=user["username"],
                 email=user["email"],
-                hashed_password=hash_password(user["password"]) if user["password"] else None,
+                hashed_password=hash_password(f"{user['name']}'s password"),
                 name=user["name"],
                 city=user["location"]["city"],
                 geom=create_coordinate(user["location"]["lat"], user["location"]["lng"]),

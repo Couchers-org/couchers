@@ -60,22 +60,6 @@ contributeoption2api = {
 }
 
 
-def _check_password(user, field_name, request, context):
-    """
-    Internal utility function: given a request with a StringValue `field_name` field, checks the password is correct or that the user does not have a password
-    """
-    assert user.has_password
-
-    # the user has a password
-    if not request.HasField(field_name):
-        # no password supplied
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PASSWORD)
-
-    if not verify_password(user.hashed_password, getattr(request, field_name).value):
-        # wrong password
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME_OR_PASSWORD)
-
-
 def get_strong_verification_fields(session, db_user):
     out = dict(
         birthdate_verification_status=api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,
@@ -131,7 +115,6 @@ class Account(account_pb2_grpc.AccountServicer):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
-            assert user.has_password
             return account_pb2.GetAccountInfoRes(
                 username=user.username,
                 email=user.email,
@@ -139,12 +122,10 @@ class Account(account_pb2_grpc.AccountServicer):
                 phone_verified=user.phone_is_verified,
                 profile_complete=user.has_completed_profile,
                 timezone=user.timezone,
-                login_method=account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD,
-                has_password=True,
                 **get_strong_verification_fields(session, user),
             )
 
-    def ChangePassword(self, request, context):
+    def ChangePasswordV2(self, request, context):
         """
         Changes the user's password. They have to confirm their old password just in case.
 
@@ -153,19 +134,12 @@ class Account(account_pb2_grpc.AccountServicer):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
-            if not request.HasField("old_password") and not request.HasField("new_password"):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_BOTH_PASSWORDS)
+            if not verify_password(user.hashed_password, request.old_password):
+                # wrong password
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_PASSWORD)
 
-            _check_password(user, "old_password", request, context)
-
-            # password correct or no password
-
-            if not request.HasField("new_password"):
-                # the user wants to unset their password
-                user.hashed_password = None
-            else:
-                abort_on_invalid_password(request.new_password.value, context)
-                user.hashed_password = hash_password(request.new_password.value)
+            abort_on_invalid_password(request.new_password, context)
+            user.hashed_password = hash_password(request.new_password)
 
             session.commit()
 
@@ -176,7 +150,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         return empty_pb2.Empty()
 
-    def ChangeEmail(self, request, context):
+    def ChangeEmailV2(self, request, context):
         """
         Change the user's email address.
 
@@ -190,7 +164,9 @@ class Account(account_pb2_grpc.AccountServicer):
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
             # check password first
-            _check_password(user, "password", request, context)
+            if not verify_password(user.hashed_password, request.password):
+                # wrong password
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_PASSWORD)
 
             # not a valid email
             if not is_valid_email(request.new_email):
@@ -204,15 +180,7 @@ class Account(account_pb2_grpc.AccountServicer):
             user.new_email_token = urlsafe_secure_token()
             user.new_email_token_created = now()
             user.new_email_token_expiry = now() + timedelta(hours=2)
-            user.need_to_confirm_via_new_email = True
 
-            # this is guaranteed by not being jailed
-            assert user.has_password
-
-            user.old_email_token = None
-            user.old_email_token_created = None
-            user.old_email_token_expiry = None
-            user.need_to_confirm_via_old_email = False
             send_email_changed_confirmation_to_new_email(user)
 
             # will still go into old email

@@ -4,8 +4,7 @@
       "username": "aapeli",
       "email": "aapeli@couchers.org",
       "password": "Aapeli's password",
-      "display_name": "Aapeli",
-      "name": "Aapeli Vuorinen",
+      "name": "Aapeli",
       "location": {
         "city": "Morningside Heights, New York City",
         "lat": 40.8086,
@@ -40,8 +39,7 @@
       "username": "itsi",
       "email": "itsi@couchers.org",
       "password": null,
-      "display_name": "Itsi",
-      "name": "Itsi Weinstock",
+      "name": "Itsi",
       "location": {
         "city": "Sydney, New South Wales, Australia",
         "lat": -33.89079,
@@ -83,8 +81,7 @@
       "username": "lucas",
       "email": "lucas@couchers.org",
       "password": null,
-      "display_name": "Lucas",
-      "name": "Lucas Levin",
+      "name": "Lucas",
       "location": {
         "city": "London, UK",
         "lat": 51.5216,
@@ -111,7 +108,6 @@
       "username": "kellyt",
       "email": "kelly@couchers.org",
       "password": null,
-      "display_name": "Kelly",
       "name": "Kelly",
       "location": {
         "city": "Singapore",
@@ -139,8 +135,7 @@
       "username": "val",
       "email": "val@couchers.org",
       "password": null,
-      "display_name": "Val",
-      "name": "Val Natanelov",
+      "name": "Val",
       "location": {
         "city": "Gold Coast, Australia",
         "lat": -28.0033,
@@ -167,8 +162,7 @@
       "username": "misspoptart",
       "email": "vivian@couchers.org",
       "password": null,
-      "display_name": "Vivi",
-      "name": "Vivan",
+      "name": "Vivi",
       "location": {
         "city": "Portland, Maine, USA",
         "lat": 43.6614,
@@ -195,7 +189,6 @@
       "username": "debbie",
       "email": "debbie@couchers.org",
       "password": null,
-      "display_name": "debbie1",
       "name": "Deborah Barb",
       "location": {
         "city": "Canberra, ACT, Australia",
@@ -223,8 +216,7 @@
       "username": "joshua",
       "email": "mcdojj12@gmail.com",
       "password": null,
-      "display_name": "Josh Mc",
-      "name": "Joshua Mcdonald",
+      "name": "Josh Mc",
       "location": {
         "city": "Brisbane, Queensland, Australia",
         "lat": -27.47705,
@@ -251,8 +243,7 @@
       "username": "chagai",
       "email": "chagai95@gmail.com",
       "password": null,
-      "display_name": "Chagai Friedlander",
-      "name": "Chagai Friedlander",
+      "name": "Chagai",
       "location": {
         "city": "Bern, Switzerland",
         "lat": 46.9478,

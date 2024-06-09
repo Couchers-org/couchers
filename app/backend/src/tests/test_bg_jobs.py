@@ -34,7 +34,6 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_login_email
 from couchers.utils import now, today
 from proto import conversations_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
@@ -65,45 +64,6 @@ def _check_job_counter(job, status, attempt, exception):
     metrics_string = requests.get("http://localhost:8001").text
     string_to_check = f'attempt="{attempt}",exception="{exception}",job="{job}",status="{status}"'
     assert string_to_check in metrics_string
-
-
-def test_login_email_full(db):
-    user, api_token = generate_user()
-
-    with session_scope() as session:
-        login_token = send_login_email(session, user)
-
-        def mock_print_dev_email(
-            sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data
-        ):
-            assert recipient == user.email
-            assert "login" in subject.lower()
-            assert login_token.token in plain
-            assert login_token.token in html
-            return print_dev_email(
-                sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data
-            )
-
-        with patch("couchers.jobs.handlers.print_dev_email", mock_print_dev_email):
-            process_job()
-
-    with session_scope() as session:
-        assert (
-            session.execute(
-                select(func.count())
-                .select_from(BackgroundJob)
-                .where(BackgroundJob.state == BackgroundJobState.completed)
-            ).scalar_one()
-            == 1
-        )
-        assert (
-            session.execute(
-                select(func.count())
-                .select_from(BackgroundJob)
-                .where(BackgroundJob.state != BackgroundJobState.completed)
-            ).scalar_one()
-            == 0
-        )
 
 
 def test_email_job(db):

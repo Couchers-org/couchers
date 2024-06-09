@@ -2,17 +2,14 @@ import { FormControlLabel, InputLabel, Switch } from "@material-ui/core";
 import * as Sentry from "@sentry/nextjs";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
-import TextBody from "components/TextBody";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
-import { LoginRes } from "proto/auth_pb";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { resetPasswordRoute } from "routes";
-import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 import { lowercaseAndTrimField } from "utils/validation";
@@ -42,12 +39,10 @@ export default function LoginForm() {
   const authClasses = useAuthStyles();
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
-  const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [loginWithLink, setLoginWithLink] = useState(true);
 
   const { handleSubmit, register, control } =
-    useForm<{ username: string; rememberDevice: boolean }>();
+    useForm<{ username: string; password: string; rememberDevice: boolean }>();
 
   const onSubmit = handleSubmit(
     async (data: {
@@ -58,25 +53,11 @@ export default function LoginForm() {
       setLoading(true);
       authActions.clearError();
       try {
-        const sanitizedUsername = lowercaseAndTrimField(data.username);
-        const next = await service.auth.checkUsername(sanitizedUsername);
-        switch (next) {
-          case LoginRes.LoginStep.NEED_PASSWORD:
-            setLoginWithLink(false);
-            break;
-
-          case LoginRes.LoginStep.SENT_LOGIN_EMAIL:
-            setSent(true);
-            break;
-        }
-
-        if (!loginWithLink) {
-          authActions.passwordLogin({
-            username: sanitizedUsername,
-            password: data.password,
-            rememberDevice: data.rememberDevice,
-          });
-        }
+        authActions.passwordLogin({
+          username: lowercaseAndTrimField(data.username),
+          password: data.password,
+          rememberDevice: data.rememberDevice,
+        });
       } catch (e) {
         Sentry.captureException(e, {
           tags: {
@@ -93,45 +74,30 @@ export default function LoginForm() {
 
   return (
     <>
-      {sent && (
-        <TextBody className={authClasses.feedbackMessage}>
-          {t("auth:login_page.form.no_password_login_prompt")}
-        </TextBody>
-      )}
       <form className={authClasses.form} onSubmit={onSubmit}>
         <InputLabel className={authClasses.formLabel} htmlFor="username">
           {t("auth:login_page.form.username_field_label")}
         </InputLabel>
         <TextField
           className={authClasses.formField}
-          disabled={sent}
           fullWidth
           id="username"
           inputRef={register({ required: true })}
           name="username"
           variant="standard"
         />
-        {!loginWithLink && (
-          <>
-            <InputLabel className={authClasses.formLabel} htmlFor="password">
-              {t("auth:login_page.form.password_field_label")}
-            </InputLabel>
-            <TextField
-              className={authClasses.formField}
-              fullWidth
-              id="password"
-              name="password"
-              inputRef={(inputElement) => {
-                if (inputElement) {
-                  inputElement.focus();
-                }
-                register(inputElement, { required: true });
-              }}
-              type="password"
-              variant="standard"
-            />
-          </>
-        )}
+        <InputLabel className={authClasses.formLabel} htmlFor="password">
+          {t("auth:login_page.form.password_field_label")}
+        </InputLabel>
+        <TextField
+          className={authClasses.formField}
+          fullWidth
+          id="password"
+          name="password"
+          inputRef={register({ required: true })}
+          type="password"
+          variant="standard"
+        />
         <div className={classes.loginOptions}>
           <Controller
             control={control}
@@ -151,18 +117,15 @@ export default function LoginForm() {
               />
             )}
           />
-          {!loginWithLink && (
-            <StyledLink href={resetPasswordRoute}>
-              {t("auth:login_page.form.forgot_password")}
-            </StyledLink>
-          )}
+          <StyledLink href={resetPasswordRoute}>
+            {t("auth:login_page.form.forgot_password")}
+          </StyledLink>
         </div>
         <Button
           classes={{
             label: authClasses.buttonText,
           }}
           className={authClasses.button}
-          disabled={sent}
           loading={loading || authLoading}
           onClick={onSubmit}
           type="submit"

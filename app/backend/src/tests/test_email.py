@@ -24,7 +24,6 @@ from couchers.tasks import (
     maybe_send_reference_report_email,
     send_content_report_email,
     send_email_changed_confirmation_to_new_email,
-    send_login_email,
     send_signup_email,
 )
 from couchers.utils import Timestamp_from_datetime, now, timedelta
@@ -49,20 +48,6 @@ from tests.test_fixtures import (  # noqa
 @pytest.fixture(autouse=True)
 def _(testconfig):
     pass
-
-
-def test_login_email(db):
-    user, api_token = generate_user()
-
-    with session_scope() as session:
-        with mock_notification_email() as mock:
-            login_token = send_login_email(session, user)
-
-        assert mock.call_count == 1
-        e = email_fields(mock)
-        assert e.recipient == user.email
-        assert "login" in e.subject.lower()
-        assert login_token.token in e.plain
 
 
 def test_signup_verification_email(db):
