@@ -1,5 +1,4 @@
 import logging
-from datetime import timedelta
 
 from sqlalchemy.sql import func
 
@@ -13,7 +12,6 @@ from couchers.models import (
     ClusterRole,
     ClusterSubscription,
     EventCommunityInviteRequest,
-    LoginToken,
     Node,
     User,
 )
@@ -22,22 +20,6 @@ from couchers.templates.v2 import send_simple_pretty_email
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
-
-
-def send_login_email(session, user):
-    # This is going away soon
-    login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
-    session.add(login_token)
-
-    logger.info(f"Sending login email to {user=}:")
-    send_simple_pretty_email(
-        user.email,
-        "Your login link for Couchers.org",
-        "login_link",
-        template_args={"user": user, "login_link": urls.login_link(login_token=login_token.token)},
-    )
-
-    return login_token
 
 
 def send_signup_email(flow):

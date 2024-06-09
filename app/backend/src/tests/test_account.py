@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2, wrappers_pb2
+from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 from couchers import errors
@@ -38,8 +38,6 @@ def test_GetAccountInfo(db, fast_passwords):
 
     with account_session(token1) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
-        assert res.login_method == account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD
-        assert res.has_password
         assert res.email == "user@couchers.invalid"
         assert res.username == user1.username
         assert not res.has_strong_verification
@@ -68,7 +66,7 @@ def test_GetAccountInfo_regression(db):
         res = account.GetAccountInfo(empty_pb2.Empty())
 
 
-def test_ChangePassword_normal(db, fast_passwords, push_collector):
+def test_ChangePasswordV2_normal(db, fast_passwords, push_collector):
     # user has old password and is changing to new password
     old_password = random_hex()
     new_password = random_hex()
@@ -76,10 +74,10 @@ def test_ChangePassword_normal(db, fast_passwords, push_collector):
 
     with account_session(token) as account:
         with mock_notification_email() as mock:
-            account.ChangePassword(
-                account_pb2.ChangePasswordReq(
-                    old_password=wrappers_pb2.StringValue(value=old_password),
-                    new_password=wrappers_pb2.StringValue(value=new_password),
+            account.ChangePasswordV2(
+                account_pb2.ChangePasswordV2Req(
+                    old_password=old_password,
+                    new_password=new_password,
                 )
             )
 
@@ -95,7 +93,7 @@ def test_ChangePassword_normal(db, fast_passwords, push_collector):
         assert updated_user.hashed_password == hash_password(new_password)
 
 
-def test_ChangePassword_regression(db, fast_passwords):
+def test_ChangePasswordV2_regression(db, fast_passwords):
     # send_password_changed_email wasn't working
     # user has old password and is changing to new password
     old_password = random_hex()
@@ -103,10 +101,10 @@ def test_ChangePassword_regression(db, fast_passwords):
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
-        account.ChangePassword(
-            account_pb2.ChangePasswordReq(
-                old_password=wrappers_pb2.StringValue(value=old_password),
-                new_password=wrappers_pb2.StringValue(value=new_password),
+        account.ChangePasswordV2(
+            account_pb2.ChangePasswordV2Req(
+                old_password=old_password,
+                new_password=new_password,
             )
         )
 
@@ -115,7 +113,7 @@ def test_ChangePassword_regression(db, fast_passwords):
         assert updated_user.hashed_password == hash_password(new_password)
 
 
-def test_ChangePassword_normal_short_password(db, fast_passwords):
+def test_ChangePasswordV2_normal_short_password(db, fast_passwords):
     # user has old password and is changing to new password, but used short password
     old_password = random_hex()
     new_password = random_hex(length=1)
@@ -123,10 +121,10 @@ def test_ChangePassword_normal_short_password(db, fast_passwords):
 
     with account_session(token) as account:
         with pytest.raises(grpc.RpcError) as e:
-            account.ChangePassword(
-                account_pb2.ChangePasswordReq(
-                    old_password=wrappers_pb2.StringValue(value=old_password),
-                    new_password=wrappers_pb2.StringValue(value=new_password),
+            account.ChangePasswordV2(
+                account_pb2.ChangePasswordV2Req(
+                    old_password=old_password,
+                    new_password=new_password,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -137,7 +135,7 @@ def test_ChangePassword_normal_short_password(db, fast_passwords):
         assert updated_user.hashed_password == hash_password(old_password)
 
 
-def test_ChangePassword_normal_long_password(db, fast_passwords):
+def test_ChangePasswordV2_normal_long_password(db, fast_passwords):
     # user has old password and is changing to new password, but used short password
     old_password = random_hex()
     new_password = random_hex(length=1000)
@@ -145,10 +143,10 @@ def test_ChangePassword_normal_long_password(db, fast_passwords):
 
     with account_session(token) as account:
         with pytest.raises(grpc.RpcError) as e:
-            account.ChangePassword(
-                account_pb2.ChangePasswordReq(
-                    old_password=wrappers_pb2.StringValue(value=old_password),
-                    new_password=wrappers_pb2.StringValue(value=new_password),
+            account.ChangePasswordV2(
+                account_pb2.ChangePasswordV2Req(
+                    old_password=old_password,
+                    new_password=new_password,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -159,7 +157,7 @@ def test_ChangePassword_normal_long_password(db, fast_passwords):
         assert updated_user.hashed_password == hash_password(old_password)
 
 
-def test_ChangePassword_normal_insecure_password(db, fast_passwords):
+def test_ChangePasswordV2_normal_insecure_password(db, fast_passwords):
     # user has old password and is changing to new password, but used insecure password
     old_password = random_hex()
     new_password = "12345678"
@@ -167,10 +165,10 @@ def test_ChangePassword_normal_insecure_password(db, fast_passwords):
 
     with account_session(token) as account:
         with pytest.raises(grpc.RpcError) as e:
-            account.ChangePassword(
-                account_pb2.ChangePasswordReq(
-                    old_password=wrappers_pb2.StringValue(value=old_password),
-                    new_password=wrappers_pb2.StringValue(value=new_password),
+            account.ChangePasswordV2(
+                account_pb2.ChangePasswordV2Req(
+                    old_password=old_password,
+                    new_password=new_password,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -181,7 +179,7 @@ def test_ChangePassword_normal_insecure_password(db, fast_passwords):
         assert updated_user.hashed_password == hash_password(old_password)
 
 
-def test_ChangePassword_normal_wrong_password(db, fast_passwords):
+def test_ChangePasswordV2_normal_wrong_password(db, fast_passwords):
     # user has old password and is changing to new password, but used wrong old password
     old_password = random_hex()
     new_password = random_hex()
@@ -189,110 +187,51 @@ def test_ChangePassword_normal_wrong_password(db, fast_passwords):
 
     with account_session(token) as account:
         with pytest.raises(grpc.RpcError) as e:
-            account.ChangePassword(
-                account_pb2.ChangePasswordReq(
-                    old_password=wrappers_pb2.StringValue(value="wrong password"),
-                    new_password=wrappers_pb2.StringValue(value=new_password),
+            account.ChangePasswordV2(
+                account_pb2.ChangePasswordV2Req(
+                    old_password="wrong password",
+                    new_password=new_password,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
+        assert e.value.details() == errors.INVALID_PASSWORD
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert updated_user.hashed_password == hash_password(old_password)
 
 
-def test_ChangePassword_normal_no_password(db, fast_passwords):
-    # user has old password and is changing to new password, but didn't supply old password
-    old_password = random_hex()
-    new_password = random_hex()
-    user, token = generate_user(hashed_password=hash_password(old_password))
-
-    with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
-            account.ChangePassword(
-                account_pb2.ChangePasswordReq(
-                    new_password=wrappers_pb2.StringValue(value=new_password),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_PASSWORD
-
-    with session_scope() as session:
-        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        assert updated_user.hashed_password == hash_password(old_password)
-
-
-def test_ChangePassword_normal_no_passwords(db, fast_passwords):
+def test_ChangePasswordV2_normal_no_passwords(db, fast_passwords):
     # user has old password and called with empty body
     old_password = random_hex()
     user, token = generate_user(hashed_password=hash_password(old_password))
 
     with account_session(token) as account:
         with pytest.raises(grpc.RpcError) as e:
-            account.ChangePassword(account_pb2.ChangePasswordReq())
+            account.ChangePasswordV2(account_pb2.ChangePasswordV2Req(old_password=old_password))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_BOTH_PASSWORDS
+        assert e.value.details() == errors.PASSWORD_TOO_SHORT
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert updated_user.hashed_password == hash_password(old_password)
 
 
-def test_ChangePassword_remove(db, fast_passwords):
-    old_password = random_hex()
-    user, token = generate_user(hashed_password=hash_password(old_password))
-
-    with account_session(token) as account:
-        with mock_notification_email() as mock:
-            account.ChangePassword(
-                account_pb2.ChangePasswordReq(
-                    old_password=wrappers_pb2.StringValue(value=old_password),
-                )
-            )
-        mock.assert_called_once()
-        assert email_fields(mock).subject == "[TEST] Your password was changed"
-
-    with session_scope() as session:
-        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        assert not updated_user.has_password
-
-
-def test_ChangePassword_remove_wrong_password(db, fast_passwords):
-    old_password = random_hex()
-    user, token = generate_user(hashed_password=hash_password(old_password))
-
-    with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
-            account.ChangePassword(
-                account_pb2.ChangePasswordReq(
-                    old_password=wrappers_pb2.StringValue(value="wrong password"),
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
-
-    with session_scope() as session:
-        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        assert updated_user.hashed_password == hash_password(old_password)
-
-
-def test_ChangeEmail_wrong_password(db, fast_passwords):
+def test_ChangeEmailV2_wrong_password(db, fast_passwords):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
         with pytest.raises(grpc.RpcError) as e:
-            account.ChangeEmail(
-                account_pb2.ChangeEmailReq(
-                    password=wrappers_pb2.StringValue(value="wrong password"),
+            account.ChangeEmailV2(
+                account_pb2.ChangeEmailV2Req(
+                    password="wrong password",
                     new_email=new_email,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
+        assert e.value.details() == errors.INVALID_PASSWORD
 
     with session_scope() as session:
         assert (
@@ -305,21 +244,21 @@ def test_ChangeEmail_wrong_password(db, fast_passwords):
         ).scalar_one() == 0
 
 
-def test_ChangeEmail_wrong_email(db, fast_passwords):
+def test_ChangeEmailV2_wrong_email(db, fast_passwords):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
         with pytest.raises(grpc.RpcError) as e:
-            account.ChangeEmail(
-                account_pb2.ChangeEmailReq(
-                    password=wrappers_pb2.StringValue(value="wrong password"),
+            account.ChangeEmailV2(
+                account_pb2.ChangeEmailV2Req(
+                    password="wrong password",
                     new_email=new_email,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
+        assert e.value.details() == errors.INVALID_PASSWORD
 
     with session_scope() as session:
         assert (
@@ -332,15 +271,15 @@ def test_ChangeEmail_wrong_email(db, fast_passwords):
         ).scalar_one() == 0
 
 
-def test_ChangeEmail_invalid_email(db, fast_passwords):
+def test_ChangeEmailV2_invalid_email(db, fast_passwords):
     password = random_hex()
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
         with pytest.raises(grpc.RpcError) as e:
-            account.ChangeEmail(
-                account_pb2.ChangeEmailReq(
-                    password=wrappers_pb2.StringValue(value=password),
+            account.ChangeEmailV2(
+                account_pb2.ChangeEmailV2Req(
+                    password=password,
                     new_email="not a real email",
                 )
             )
@@ -358,16 +297,16 @@ def test_ChangeEmail_invalid_email(db, fast_passwords):
         ).scalar_one() == 0
 
 
-def test_ChangeEmail_email_in_use(db, fast_passwords):
+def test_ChangeEmailV2_email_in_use(db, fast_passwords):
     password = random_hex()
     user, token = generate_user(hashed_password=hash_password(password))
     user2, token2 = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
         with pytest.raises(grpc.RpcError) as e:
-            account.ChangeEmail(
-                account_pb2.ChangeEmailReq(
-                    password=wrappers_pb2.StringValue(value=password),
+            account.ChangeEmailV2(
+                account_pb2.ChangeEmailV2Req(
+                    password=password,
                     new_email=user2.email,
                 )
             )
@@ -385,15 +324,15 @@ def test_ChangeEmail_email_in_use(db, fast_passwords):
         ).scalar_one() == 0
 
 
-def test_ChangeEmail_no_change(db, fast_passwords):
+def test_ChangeEmailV2_no_change(db, fast_passwords):
     password = random_hex()
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
         with pytest.raises(grpc.RpcError) as e:
-            account.ChangeEmail(
-                account_pb2.ChangeEmailReq(
-                    password=wrappers_pb2.StringValue(value=password),
+            account.ChangeEmailV2(
+                account_pb2.ChangeEmailV2Req(
+                    password=password,
                     new_email=user.email,
                 )
             )
@@ -411,23 +350,23 @@ def test_ChangeEmail_no_change(db, fast_passwords):
         ).scalar_one() == 0
 
 
-def test_ChangeEmail_wrong_token(db, fast_passwords):
+def test_ChangeEmailV2_wrong_token(db, fast_passwords):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
-        account.ChangeEmail(
-            account_pb2.ChangeEmailReq(
-                password=wrappers_pb2.StringValue(value=password),
+        account.ChangeEmailV2(
+            account_pb2.ChangeEmailV2Req(
+                password=password,
                 new_email=new_email,
             )
         )
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
-            res = auth_api.ConfirmChangeEmail(
-                auth_pb2.ConfirmChangeEmailReq(
+            res = auth_api.ConfirmChangeEmailV2(
+                auth_pb2.ConfirmChangeEmailV2Req(
                     change_email_token="wrongtoken",
                 )
             )
@@ -439,7 +378,7 @@ def test_ChangeEmail_wrong_token(db, fast_passwords):
         assert user_updated.email == user.email
 
 
-def test_ChangeEmail_tokens_two_hour_window(db):
+def test_ChangeEmailV2_tokens_two_hour_window(db):
     def two_hours_one_minute_in_future():
         return now() + timedelta(hours=2, minutes=1)
 
@@ -451,32 +390,27 @@ def test_ChangeEmail_tokens_two_hour_window(db):
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
-        account.ChangeEmail(
-            account_pb2.ChangeEmailReq(
-                password=wrappers_pb2.StringValue(value=password),
+        account.ChangeEmailV2(
+            account_pb2.ChangeEmailV2Req(
+                password=password,
                 new_email=new_email,
             )
         )
 
     with session_scope() as session:
         user = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        old_email_token = user.old_email_token
         new_email_token = user.new_email_token
 
     with patch("couchers.servicers.auth.now", one_minute_ago):
         with auth_api_session() as (auth_api, metadata_interceptor):
             with pytest.raises(grpc.RpcError) as e:
-                auth_api.ConfirmChangeEmail(
-                    auth_pb2.ConfirmChangeEmailReq(
-                        change_email_token=old_email_token,
-                    )
-                )
+                auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
             assert e.value.details() == errors.INVALID_TOKEN
 
             with pytest.raises(grpc.RpcError) as e:
-                auth_api.ConfirmChangeEmail(
-                    auth_pb2.ConfirmChangeEmailReq(
+                auth_api.ConfirmChangeEmailV2(
+                    auth_pb2.ConfirmChangeEmailV2Req(
                         change_email_token=new_email_token,
                     )
                 )
@@ -486,17 +420,13 @@ def test_ChangeEmail_tokens_two_hour_window(db):
     with patch("couchers.servicers.auth.now", two_hours_one_minute_in_future):
         with auth_api_session() as (auth_api, metadata_interceptor):
             with pytest.raises(grpc.RpcError) as e:
-                auth_api.ConfirmChangeEmail(
-                    auth_pb2.ConfirmChangeEmailReq(
-                        change_email_token=old_email_token,
-                    )
-                )
+                auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
             assert e.value.details() == errors.INVALID_TOKEN
 
             with pytest.raises(grpc.RpcError) as e:
-                auth_api.ConfirmChangeEmail(
-                    auth_pb2.ConfirmChangeEmailReq(
+                auth_api.ConfirmChangeEmailV2(
+                    auth_pb2.ConfirmChangeEmailV2Req(
                         change_email_token=new_email_token,
                     )
                 )
@@ -504,16 +434,16 @@ def test_ChangeEmail_tokens_two_hour_window(db):
             assert e.value.details() == errors.INVALID_TOKEN
 
 
-def test_ChangeEmail_has_password(db, fast_passwords, push_collector):
+def test_ChangeEmailV2(db, fast_passwords, push_collector):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
     user_id = user.id
 
     with account_session(token) as account:
-        account.ChangeEmail(
-            account_pb2.ChangeEmailReq(
-                password=wrappers_pb2.StringValue(value=password),
+        account.ChangeEmailV2(
+            account_pb2.ChangeEmailV2Req(
+                password=password,
                 new_email=new_email,
             )
         )
@@ -522,14 +452,9 @@ def test_ChangeEmail_has_password(db, fast_passwords, push_collector):
         user_updated = session.execute(select(User).where(User.id == user_id)).scalar_one()
         assert user_updated.email == user.email
         assert user_updated.new_email == new_email
-        assert user_updated.old_email_token is None
-        assert not user_updated.old_email_token_created
-        assert not user_updated.old_email_token_expiry
-        assert not user_updated.need_to_confirm_via_old_email
         assert user_updated.new_email_token is not None
         assert user_updated.new_email_token_created <= now()
         assert user_updated.new_email_token_expiry >= now()
-        assert user_updated.need_to_confirm_via_new_email
 
         token = user_updated.new_email_token
 
@@ -542,25 +467,19 @@ def test_ChangeEmail_has_password(db, fast_passwords, push_collector):
     )
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmail(
-            auth_pb2.ConfirmChangeEmailReq(
+        res = auth_api.ConfirmChangeEmailV2(
+            auth_pb2.ConfirmChangeEmailV2Req(
                 change_email_token=token,
             )
         )
-        assert res.state == auth_pb2.EMAIL_CONFIRMATION_STATE_SUCCESS
 
     with session_scope() as session:
         user = session.execute(select(User).where(User.id == user_id)).scalar_one()
         assert user.email == new_email
         assert user.new_email is None
-        assert user.old_email_token is None
-        assert user.old_email_token_created is None
-        assert user.old_email_token_expiry is None
-        assert not user.need_to_confirm_via_old_email
         assert user.new_email_token is None
         assert user.new_email_token_created is None
         assert user.new_email_token_expiry is None
-        assert not user.need_to_confirm_via_new_email
 
     process_jobs()
     push_collector.assert_user_push_matches_fields(
@@ -571,15 +490,15 @@ def test_ChangeEmail_has_password(db, fast_passwords, push_collector):
     )
 
 
-def test_ChangeEmail_sends_proper_emails_has_password(db, fast_passwords, push_collector):
+def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
 
     with account_session(token) as account:
-        account.ChangeEmail(
-            account_pb2.ChangeEmailReq(
-                password=wrappers_pb2.StringValue(value=password),
+        account.ChangeEmailV2(
+            account_pb2.ChangeEmailV2Req(
+                password=password,
                 new_email=new_email,
             )
         )

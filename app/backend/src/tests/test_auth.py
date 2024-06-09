@@ -268,10 +268,6 @@ def test_basic_login(db):
     _quick_signup()
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
-    assert reply.next_step == auth_pb2.LoginRes.LoginStep.NEED_PASSWORD
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
 
     reply_token = get_session_cookie_token(metadata_interceptor)
@@ -316,7 +312,7 @@ def test_login_part_signed_up_verified_email(db):
     with mock_notification_email() as mock:
         with auth_api_session() as (auth_api, metadata_interceptor):
             with pytest.raises(grpc.RpcError) as e:
-                res = auth_api.Login(auth_pb2.LoginReq(user="email@couchers.org.invalid"))
+                auth_api.Authenticate(auth_pb2.AuthReq(user="email@couchers.org.invalid", password="wrong pwd"))
             assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
 
     assert mock.call_count == 1
@@ -352,7 +348,7 @@ def test_login_part_signed_up_not_verified_email(db):
     with mock_notification_email() as mock:
         with auth_api_session() as (auth_api, metadata_interceptor):
             with pytest.raises(grpc.RpcError) as e:
-                res = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
+                auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="wrong pwd"))
             assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
 
     with session_scope() as session:
@@ -366,73 +362,8 @@ def test_login_part_signed_up_not_verified_email(db):
     assert email_token in e.html
 
 
-def test_basic_login_without_password(db):
-    # Create our test user using signup
-    _quick_signup()
-
-    with session_scope() as session:
-        user = session.execute(select(User)).scalar_one()
-        user.hashed_password = None
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
-    assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
-
-    # backdoor to find login token
-    with session_scope() as session:
-        entry = session.execute(select(LoginToken)).scalar_one()
-        login_token = entry.token
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
-
-    reply_token = get_session_cookie_token(metadata_interceptor)
-
-    with session_scope() as session:
-        token = (
-            session.execute(
-                select(UserSession)
-                .join(User, UserSession.user_id == User.id)
-                .where(User.username == "frodo")
-                .where(UserSession.token == reply_token)
-                .where(UserSession.is_valid)
-            ).scalar_one_or_none()
-        ).token
-        assert token
-
-    # log out
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
-
-
-def test_login_tokens_invalidate_after_use(db):
-    _quick_signup()
-
-    with session_scope() as session:
-        user = session.execute(select(User)).scalar_one()
-        user.hashed_password = None
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
-    assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
-
-    with session_scope() as session:
-        login_token = session.execute(select(LoginToken)).scalar_one().token
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
-    session_token = get_session_cookie_token(metadata_interceptor)
-
-    with auth_api_session() as (auth_api, metadata_interceptor), pytest.raises(grpc.RpcError):
-        # check we can't login again
-        auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
-
-
 def test_banned_user(db):
     _quick_signup()
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
-    assert reply.next_step == auth_pb2.LoginRes.LoginStep.NEED_PASSWORD
 
     with session_scope() as session:
         session.execute(select(User)).scalar_one().is_banned = True
@@ -440,29 +371,7 @@ def test_banned_user(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
-        assert e.value.details() == errors.ACCOUNT_SUSPENDED
-
-
-def test_banned_user_without_password(db):
-    _quick_signup()
-
-    with session_scope() as session:
-        user = session.execute(select(User)).scalar_one()
-        user.hashed_password = None
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
-    assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
-
-    with session_scope() as session:
-        login_token = session.execute(select(LoginToken)).scalar_one().token
-
-    with session_scope() as session:
-        session.execute(select(User)).scalar_one().is_banned = True
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
-            auth_api.CompleteTokenLogin(auth_pb2.CompleteTokenLoginReq(login_token=login_token))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.ACCOUNT_SUSPENDED
 
 
@@ -474,9 +383,9 @@ def test_deleted_user(db):
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
-            reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
+            auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
+        assert e.value.details() == errors.ACCOUNT_NOT_FOUND
 
 
 def test_invalid_token(db):
@@ -490,62 +399,6 @@ def test_invalid_token(db):
 
     assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
     assert e.value.details() == "Unauthorized"
-
-
-def test_password_reset(db, push_collector):
-    user, token = generate_user(hashed_password=hash_password("mypassword"))
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        with mock_notification_email() as mock:
-            res = auth_api.ResetPassword(
-                auth_pb2.ResetPasswordReq(
-                    user=user.username,
-                )
-            )
-
-    with session_scope() as session:
-        password_reset_token = session.execute(select(PasswordResetToken)).scalar_one().token
-
-    assert mock.call_count == 1
-    e = email_fields(mock)
-    assert e.recipient == user.email
-    assert "reset" in e.subject.lower()
-    assert password_reset_token in e.plain
-    assert password_reset_token in e.html
-    unique_string = "You asked for your password to be reset on Couchers.org."
-    assert unique_string in e.plain
-    assert unique_string in e.html
-    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.plain
-    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.html
-    assert "support@couchers.org" in e.plain
-    assert "support@couchers.org" in e.html
-
-    push_collector.assert_user_push_matches_fields(
-        user.id,
-        title="A password reset was initiated on your account",
-        body="Someone initiated a password change on your account.",
-    )
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        with mock_notification_email() as mock:
-            res = auth_api.CompletePasswordReset(
-                auth_pb2.CompletePasswordResetReq(password_reset_token=password_reset_token)
-            )
-
-    assert mock.call_count == 1
-
-    with session_scope() as session:
-        user_ = session.execute(select(User)).scalar_one()
-        assert not user_.has_password
-
-    print(push_collector.by_user(user.id))
-
-    push_collector.assert_user_push_matches_fields(
-        user.id,
-        ix=1,
-        title="Your password was successfully reset",
-        body="Your password on Couchers.org was changed. If that was you, then no further action is needed.",
-    )
 
 
 def test_password_reset_v2(db, push_collector):
@@ -648,27 +501,6 @@ def test_password_reset_no_such_user(db):
     assert res is None
 
 
-def test_password_reset_invalid_token(db):
-    password = random_hex()
-    user, token = generate_user(hashed_password=hash_password(password))
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ResetPassword(
-            auth_pb2.ResetPasswordReq(
-                user=user.username,
-            )
-        )
-
-    with auth_api_session() as (auth_api, metadata_interceptor), pytest.raises(grpc.RpcError) as e:
-        res = auth_api.CompletePasswordReset(auth_pb2.CompletePasswordResetReq(password_reset_token="wrongtoken"))
-    assert e.value.code() == grpc.StatusCode.NOT_FOUND
-    assert e.value.details() == errors.INVALID_TOKEN
-
-    with session_scope() as session:
-        user = session.execute(select(User)).scalar_one()
-        assert user.hashed_password == hash_password(password)
-
-
 def test_password_reset_invalid_token_v2(db):
     password = random_hex()
     user, token = generate_user(hashed_password=hash_password(password))
@@ -693,10 +525,6 @@ def test_password_reset_invalid_token_v2(db):
 def test_logout_invalid_token(db):
     # Create our test user using signup
     _quick_signup()
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
-    assert reply.next_step == auth_pb2.LoginRes.LoginStep.NEED_PASSWORD
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
@@ -890,14 +718,14 @@ def test_unsuccessful_authenticate(db):
         with pytest.raises(grpc.RpcError) as e:
             reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password="incorrectpassword"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
+        assert e.value.details() == errors.INVALID_PASSWORD
 
     # Invalid username
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             reply = auth_api.Authenticate(auth_pb2.AuthReq(user="notarealusername", password="password"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
+        assert e.value.details() == errors.ACCOUNT_NOT_FOUND
 
     # Invalid email
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -906,67 +734,14 @@ def test_unsuccessful_authenticate(db):
                 auth_pb2.AuthReq(user=f"{random_hex(12)}@couchers.org.invalid", password="password")
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
+        assert e.value.details() == errors.ACCOUNT_NOT_FOUND
 
     # Invalid id
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
             reply = auth_api.Authenticate(auth_pb2.AuthReq(user="-1", password="password"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.INVALID_USERNAME_OR_PASSWORD
-
-    # No Password
-    user_without_pass, _ = generate_user(hashed_password=None)
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
-            reply = auth_api.Authenticate(auth_pb2.AuthReq(user=user_without_pass.username, password="password"))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.NO_PASSWORD
-
-
-def test_successful_login(db):
-    user, _ = generate_user()
-    # Valid email login
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user=user.email))
-    assert reply.next_step == auth_pb2.LoginRes.LoginStep.NEED_PASSWORD
-
-    # Valid username login
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user=user.username))
-    assert reply.next_step == auth_pb2.LoginRes.LoginStep.NEED_PASSWORD
-
-
-def test_unsuccessful_login(db):
-    # Invalid email, user doesn't exist
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
-            reply = auth_api.Login(auth_pb2.LoginReq(user=f"{random_hex(12)}@couchers.org.invalid"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
-
-    # Invalid id
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
-            reply = auth_api.Login(auth_pb2.LoginReq(user="-1"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
-
-    # Invalid username
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
-            reply = auth_api.Login(auth_pb2.LoginReq(user="notarealusername"))
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
-
-    testing_email = f"{random_hex(12)}@couchers.org.invalid"
-    # No Password
-    user_without_pass, _ = generate_user(hashed_password=None)
-
-    with auth_api_session() as (auth_api, metadata_interceptor):
-        reply = auth_api.Login(auth_pb2.LoginReq(user=user_without_pass.username))
-    assert reply.next_step == auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL
+        assert e.value.details() == errors.ACCOUNT_NOT_FOUND
 
 
 def test_complete_signup(db):

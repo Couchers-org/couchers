@@ -6,13 +6,13 @@ import { assertErrorAlert, t } from "test/utils";
 
 import Login from "./Login";
 
-const checkUsernameMock = service.auth.checkUsername as jest.MockedFunction<
-  typeof service.auth.checkUsername
+const passwordLoginMock = service.user.passwordLogin as jest.MockedFunction<
+  typeof service.user.passwordLogin
 >;
 
 it("shows the known gRPC error from the API", async () => {
   const errorMessage = "Couldn't find that user.";
-  checkUsernameMock.mockRejectedValue({
+  passwordLoginMock.mockRejectedValue({
     code: 5,
     message: errorMessage,
   });
@@ -24,13 +24,19 @@ it("shows the known gRPC error from the API", async () => {
     ),
     "invalid"
   );
+  userEvent.type(
+    await screen.findByLabelText(
+      t("auth:login_page.form.password_field_label")
+    ),
+    "wrongpwd"
+  );
   userEvent.click(screen.getByRole("button", { name: t("global:continue") }));
 
   await assertErrorAlert(errorMessage);
 });
 
 it("shows the fatal error message for unknown errors", async () => {
-  checkUsernameMock.mockRejectedValue({
+  passwordLoginMock.mockRejectedValue({
     message: "unknown error",
   });
   render(<Login />, { wrapper });
@@ -40,6 +46,12 @@ it("shows the fatal error message for unknown errors", async () => {
       t("auth:login_page.form.username_field_label")
     ),
     "invalid"
+  );
+  userEvent.type(
+    await screen.findByLabelText(
+      t("auth:login_page.form.password_field_label")
+    ),
+    "wrongpwd"
   );
   userEvent.click(screen.getByRole("button", { name: t("global:continue") }));
 
