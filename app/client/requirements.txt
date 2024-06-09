@@ -1,7 +1,6 @@
 autoflake
-black
 build
 grpcio==1.38.0
-isort
 protobuf
+ruff
 twine

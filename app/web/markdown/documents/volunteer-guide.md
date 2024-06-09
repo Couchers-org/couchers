@@ -26,11 +26,11 @@ To get started, do the following tasks:
 
 ## The Couchers.org Vision
 
-Please have a read through our [Mission and Values](/mission). They are very important to what we do. We think that both couch surfing and belonging to couch surfing communities improve people’s lives, and grow society to be more open, empathetic and tolerant. 
+Please have a read through our [Mission and Values](/mission). They are very important to what we do. We think that both couch surfing and belonging to couch surfing communities improve people’s lives, and grow society to be more open, empathetic and tolerant.
 
 The project was initially started by Aapeli and Itsi. In early 2020, they laid out a vision by identifying [issues with the current couch surfing landscape](/issues) and suggesting a [set of solutions](/plan). These form the basic "founding documents" and are the groundwork for the vision and plan on what we are building. Everyone who joins the team must agree on this unified vision in order for us to be on the same page on what we're working on. This also ensures that you know that any work you contribute now will not go towards any different vision in the future.
 
-In short: our goal is to replicate the good elements of existing platforms while making some fundamental improvements to fix systematic issues with them. Once we have reached this point, we will continue to further iterate and improve the platform. 
+In short: our goal is to replicate the good elements of existing platforms while making some fundamental improvements to fix systematic issues with them. Once we have reached this point, we will continue to further iterate and improve the platform.
 
 Our belief is that through good design and curation of the community, we can make couch surfing a far safer, accessible and easier experience for all members, and grow the couch surfing community to more and more people in the world. Over the long term we have an expansive and inclusive outset. We believe that couch surfing is a wonderful experience for individuals, and has a broader benefit to society in making people more generous, open-minded and trusting. We want to introduce as many people in the world as possible to couch surfing in a sustainable way that preserves the integrity of the overall community.
 

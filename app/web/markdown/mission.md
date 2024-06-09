@@ -51,7 +51,7 @@ We want others to benefit from the tools we build to the fullest extent possible
 
 ### Non-transactional
 
-People do not pay each other in money or in kind to participate in activities or the community. By surfing, you are not obligated to host in the future. 
+People do not pay each other in money or in kind to participate in activities or the community. By surfing, you are not obligated to host in the future.
 
 Note: people may pool together to cover external costs.
 

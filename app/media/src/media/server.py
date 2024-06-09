@@ -9,9 +9,8 @@ import grpc
 import pyvips
 import sentry_sdk
 from flask import Flask, abort, request, send_file
-from sentry_sdk.integrations import argv, atexit, dedupe
+from sentry_sdk.integrations import argv, atexit, dedupe, modules, stdlib, threading
 from sentry_sdk.integrations import logging as sentry_logging
-from sentry_sdk.integrations import modules, stdlib, threading
 from werkzeug.utils import secure_filename
 
 from media.crypto import verify_hash_signature
@@ -50,7 +49,6 @@ def create_app(
     media_upload_location: Path,
     thumbnail_size: int,
 ):
-
     # Create the directories
     media_upload_location.mkdir(exist_ok=True, parents=True)
     (media_upload_location / "full").mkdir(exist_ok=True, parents=True)

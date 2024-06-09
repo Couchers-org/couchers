@@ -11,7 +11,7 @@ description: "Apply to become the Head of Marketing for Couchers.org"
 
 As Marketing Lead, you’ll lead a team to market the Couchers.org brand to a global audience of both experienced and new couch surfers. You should have experience in developing cohesive marketing strategies spanning product or service-based digital marketing, public relations, content marketing, and social media management.
 
-### Duties 
+### Duties
 
 - Plan, present, implement, and manage marketing strategy to sustainably grow the number of users globally;
 - Set marketing goals and objectives;

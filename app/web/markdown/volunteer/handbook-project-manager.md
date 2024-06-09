@@ -14,7 +14,7 @@ We are recruiting a Project Manager to handle the development and maintenance of
 The Handbook Project Manager (HPM) will be responsible for developing, editing, publishing, and maintaining the Handbook and Help page on the Couchers website. The HPM will create and oversee a team of content writers with couch surfing experience to assist with these goals. The HPM reports to the Head of Community & Support.
 
 
-### Duties 
+### Duties
 
 - Design a framework for the development of the Handbook;
 - Use analytics and feedback from other teams and the community to curate, expand and improve content;

@@ -24,7 +24,7 @@ Am trimis un e-mail tuturor membrilor noștri prin care îi rugăm să ofere loc
 
 Te rugăm să te înregistrezi pentru [crearea unui cont](https://couchers.org/signup) pe Couchers.org. Adresa ta aproximativă va fi afișată pe o hartă pentru ca oamenii să te găsească. Te rugăm [editează-ți profilul](https://couchers.org/profile/edit) pentru a indica în mod vizibil în secțiunea "Cine sunt" că vei accepta refugiați care să stea în casa ta.
 
-Completează-ți profilul de gazdă cât mai clar posibil. Dacă cineva dorește să stea la tine, vei primi o alertă prin e-mail. Vei putea apoi să discuți pe platformă sau să faci schimb de numere de telefon pentru a stabili condițiile de cazare. 
+Completează-ți profilul de gazdă cât mai clar posibil. Dacă cineva dorește să stea la tine, vei primi o alertă prin e-mail. Vei putea apoi să discuți pe platformă sau să faci schimb de numere de telefon pentru a stabili condițiile de cazare.
 
 Nu vei putea solicita plată pentru cazare, iar oricine va face acest lucru va fi șters de pe site.
 

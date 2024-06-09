@@ -11,7 +11,7 @@ description: "Write for the Couchers.org blog!"
 
 Couchers.org is seeking one or two blog writers to write all kinds of topics for our [blog](/blog). We are looking for all kind of articles from in depth research, personal stories, and updates from the Couchers team!
 
-### Duties 
+### Duties
 
 - Work closely with the Web Content Specialist and Blog Editor to develop blog post topics and create blog content;
 - Write blog posts on a consistent basis per availability and agreement with the Blog Editor;

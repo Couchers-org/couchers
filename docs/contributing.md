@@ -58,6 +58,8 @@ We adhere to [PEP8](https://www.python.org/dev/peps/pep-0008/), but it's automat
 
 `ruff` is installed automatically if you install the requirements on your computer (or you can install it with `pip install ruff`, e.g. if you work with Docker). Run `ruff check --select I --fix . && ruff check . && ruff format .` in the `//app/backend` folder before you commit (or before asking for review) so that it picks up the config in `pyproject.toml`.
 
+You can run `ruff` linting and autoformatting automatically before each commit via `pre-commit` (It comes with the dependencies, or you can install it via `pip install pre-commit`). For this you have to once run `pre-commit install`. If you don't want to run the pre-commit hook, you can skip commit hooks with the `--no-verify` flag: `git commit --no-verify -m "commit message"`.
+
 Additionally, we strive to use the ["Google" docstring format](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html). We will auto-generate docs from code, so it's important to adhere to a uniform docstring style.
 
 If you have `clang-format` installed, you can format the proto files by running `clang-format --style=file -i *.proto` in `//app/proto`.
