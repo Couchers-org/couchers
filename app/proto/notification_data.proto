@@ -154,7 +154,6 @@ message ReferenceReceiveHostRequest {
   string text = 3;
 }
 
-
 message ReferenceReminder {
   int64 host_request_id = 1;
   org.couchers.api.core.User other_user = 2;
