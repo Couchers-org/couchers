@@ -205,7 +205,6 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert verification_attempt.status == StrongVerificationAttemptStatus.succeeded
         assert verification_attempt.has_full_data
         assert verification_attempt.passport_encrypted_data
-        assert verification_attempt.passport_name == "John Wayne Doe"
         assert verification_attempt.passport_date_of_birth == date(1988, 1, 1)
         assert verification_attempt.passport_sex == PassportSex.male
         assert verification_attempt.has_minimal_data

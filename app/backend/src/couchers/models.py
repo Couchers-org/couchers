@@ -511,8 +511,6 @@ class StrongVerificationAttempt(Base):
     has_full_data = Column(Boolean, nullable=False, default=False)
     # the data returned from iris, encrypted with a public key whose private key is kept offline
     passport_encrypted_data = Column(Binary, nullable=True)
-    # given_names + " " + surname
-    passport_name = Column(String, nullable=True)
     passport_date_of_birth = Column(Date, nullable=True)
     passport_sex = Column(Enum(PassportSex), nullable=True)
 
@@ -588,8 +586,8 @@ class StrongVerificationAttempt(Base):
         ),
         # full data check
         CheckConstraint(
-            "(has_full_data IS TRUE AND passport_encrypted_data IS NOT NULL AND passport_name IS NOT NULL AND passport_date_of_birth IS NOT NULL) OR \
-             (has_full_data IS FALSE AND passport_encrypted_data IS NULL AND passport_name IS NULL AND passport_date_of_birth IS NULL)",
+            "(has_full_data IS TRUE AND passport_encrypted_data IS NOT NULL AND passport_date_of_birth IS NOT NULL) OR \
+             (has_full_data IS FALSE AND passport_encrypted_data IS NULL AND passport_date_of_birth IS NULL)",
             name="full_data_status",
         ),
         # minimal data check
