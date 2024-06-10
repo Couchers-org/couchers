@@ -21,7 +21,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@date-io/dayjs": "1.x",
+    "@date-io/dayjs": "3.x",
     "@fontsource/mansalva": "^5.0.20",
     "@fontsource/ubuntu": "^5.0.13",
     "@material-ui/core": "^4.12.4",
