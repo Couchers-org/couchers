@@ -24,4 +24,4 @@ def upgrade():
 
 
 def downgrade():
-    raise hell  # noqa: F821
+    raise Exception("hell")

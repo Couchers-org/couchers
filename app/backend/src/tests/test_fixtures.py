@@ -953,5 +953,5 @@ def push_collector():
 
     collector = PushCollector()
 
-    with patch("couchers.notifications.push._push_to_user", collector.push_to_user) as mock:
+    with patch("couchers.notifications.push._push_to_user", collector.push_to_user):
         yield collector

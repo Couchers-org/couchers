@@ -1693,7 +1693,6 @@ def test_ListEventOccurrences(db):
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
-    time_before = now()
     start = now()
 
     event_ids = []

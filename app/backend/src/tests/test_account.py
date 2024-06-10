@@ -754,7 +754,6 @@ def test_multiple_delete_tokens(db):
     Make sure deletion tokens are deleted on delete
     """
     user, token = generate_user()
-    user_id = user.id
 
     with account_session(token) as account:
         account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))

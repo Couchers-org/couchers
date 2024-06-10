@@ -250,8 +250,6 @@ def _quick_signup():
     assert not res.need_feedback
     assert not res.need_verify_email
 
-    user_id = res.auth_res.user_id
-
     # make sure we got the right token in a cookie
     with session_scope() as session:
         token = (

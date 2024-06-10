@@ -46,7 +46,7 @@ def _build_tsv(A, B=None, C=None, D=None):
     """
     Given lists for A, B, C, and D, builds a tsvector from them.
     """
-    B = B if B else []
+    B = B or []
     C = C or []
     D = D or []
     tsv = func.setweight(func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in A])), "A")

@@ -13,6 +13,7 @@ select = [
 ]
 ignore = [
     "B007",   # Loop control variable not used within loop body
+    "C408",   # Unnecessary `dict` call (rewrite as a literal)
     "E501",   # Line too long
     "E711",   # Comparison to `None` should be `cond is None`
     "E712",   # Avoid equality comparisons to `True`; use `if approved:` for truth checks

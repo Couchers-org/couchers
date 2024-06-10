@@ -337,7 +337,6 @@ def test_get_group_chat_messages_joined_left(db):
     make_friends(user1, user2)
     make_friends(user1, user3)
     make_friends(user1, user4)
-    start_time = now()
 
     with conversations_session(token1) as c:
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user4.id]))
@@ -859,7 +858,6 @@ def test_search_messages_left_joined(db):
     make_friends(user1, user2)
     make_friends(user1, user3)
     make_friends(user1, user4)
-    start_time = now()
 
     with conversations_session(token1) as c:
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user4.id]))
@@ -1249,8 +1247,6 @@ def test_total_unseen(db):
 
     # distractions
     make_friends(user1, user4)
-
-    start_time = now()
 
     with conversations_session(token1) as c:
         # distractions

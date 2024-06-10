@@ -67,7 +67,6 @@ def _check_job_counter(job, status, attempt, exception):
 
 def test_login_email_full(db):
     user, api_token = generate_user()
-    user_email = user.email
 
     with session_scope() as session:
         login_token = send_login_email(session, user)
