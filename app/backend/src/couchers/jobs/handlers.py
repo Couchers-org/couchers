@@ -796,7 +796,6 @@ def finalize_strong_verification(payload):
         verification_attempt.passport_encrypted_data = asym_encrypt(
             config["VERIFICATION_DATA_PUBLIC_KEY"], response.text.encode("utf8")
         )
-        verification_attempt.passport_name = json_data["given_names"] + " " + json_data["surname"]
         verification_attempt.passport_date_of_birth = date.fromisoformat(json_data["date_of_birth"])
         verification_attempt.passport_sex = PassportSex[json_data["sex"].lower()]
         verification_attempt.has_minimal_data = True
