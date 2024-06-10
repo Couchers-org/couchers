@@ -6,7 +6,6 @@ export const regionsKey = "regions";
 export const badgesKey = "badges";
 export const contributorFormInfoQueryKey = "contributorFormInfo";
 export const accountInfoQueryKey = "accountInfo";
-export const notificationSettingsQueryKey = "notificationSettings";
 export const doNotEmailQueryKey = "doNotEmail";
 export const tosQueryKey = "tos";
 export const communityGuidelinesQueryKey = "communityGuidelines";

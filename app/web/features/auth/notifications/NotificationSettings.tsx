@@ -1,4 +1,5 @@
 import { Link, Typography } from "@material-ui/core";
+import Button from "components/Button";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 
@@ -22,6 +23,9 @@ export default function NotificationSettings({
           soon move it here.
         </Trans>
       </Typography>
+      <Button href={NOTIFICATION_SETTINGS_URL}>
+        {t("notification_settings.go_to_button")}
+      </Button>
     </div>
   );
 }
