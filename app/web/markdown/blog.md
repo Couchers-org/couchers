@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Introducing Strong Verification](/blog/2024/05/30/introducing-strong-verification)
+
+2024/05/30.
+
+We are excited to announce a new verification feature called "Strong Verification". This feature increases Trust and Safety on the platform by allowing users to verify their information using a biometric passport.
+
+[Read more.](/blog/2024/05/30/introducing-strong-verification)
+
 ## [Couchers, Inc. Announces new Board members](/blog/2024/04/30/new-board-members)
 
 2024/04/30.
