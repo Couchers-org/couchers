@@ -541,7 +541,11 @@ class StrongVerificationAttempt(Base):
         """
         This only checks whether the attempt is a success and the passport is not expired, use `has_strong_verification` for full check
         """
-        return (self.status == StrongVerificationAttemptStatus.succeeded) & (self.passport_expiry_datetime >= now())
+        return (self.status == StrongVerificationAttemptStatus.succeeded) and (self.passport_expiry_datetime >= now())
+
+    @is_valid.expression
+    def is_valid(cls):
+        return (cls.status == StrongVerificationAttemptStatus.succeeded) & (cls.passport_expiry_datetime >= now())
 
     @hybrid_property
     def is_visible(self):

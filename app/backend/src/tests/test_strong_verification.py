@@ -64,7 +64,7 @@ def do_and_check_sv(
     document_number,
     document_expiry,
     nationality,
-    return_after=None
+    return_after=None,
 ):
     iris_token_data = {
         "merchant_id": 5731012934821982,
@@ -511,7 +511,6 @@ def test_strong_verification_expiry(db, monkeypatch):
         )
 
         with api_session(token) as api:
-            print(api.GetUser(api_pb2.GetUserReq(user=user.username)))
             assert api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
 
 
@@ -530,7 +529,7 @@ def test_strong_verification_regression(db, monkeypatch):
         document_number="31195855",
         document_expiry=default_expiry,
         nationality="US",
-        return_after="INITIATED"
+        return_after="INITIATED",
     )
 
     # the user should now have strong verification

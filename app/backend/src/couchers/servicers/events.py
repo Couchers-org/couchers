@@ -738,8 +738,6 @@ class Events(events_pb2_grpc.EventsServicer):
 
             approved_reqs = [req for req in occurrence.community_invite_requests if req.approved]
 
-            print(occurrence.community_invite_requests)
-
             if len(approved_reqs) > 0:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_COMMUNITY_INVITE_ALREADY_APPROVED)
 
