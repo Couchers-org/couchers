@@ -184,15 +184,18 @@
   },
   "notification_settings": {
     "title": "Notification settings",
+    "edit_in_console": "You can change your notification settings <2>on this page</2>. We will soon move it here.",
+    "go_to_button": "Manage notification settings"
+  },
+  "strong_verification": {
+    "title": "Strong Verification",
+    "subtitle": "Strong Verification is an additional safety feature that allows you to verify your date of birth and gender using your biometric passport.",
     "status": {
-      "enabled_message": "The new notification system is currently <2>enabled</2> for your account.",
-      "disabled_message": "The new notification system is currently <2>disabled</2> for your account."
+      "enabled_message": "You <1>are currently</1> verified with Strong Verification.",
+      "disabled_message": "You <1>are currently not</1> verified with Strong Verification."
     },
-    "action_button": {
-      "enable_text": "Enable new notifications system",
-      "disable_text": "Disable new notifications system"
-    },
-    "edit_in_console": "You can change your notification settings <2>on this page</2>. We will soon move it here."
+    "complete_in_console": "You can complete Strong Verification <2>on this page</2>. We are working on improving the flow and implementing it fully in the platform.",
+    "go_to_button": "Go to Strong Verification settings"
   },
   "unsubscribe": {
     "title": "Unsubscribe",

@@ -8,6 +8,7 @@ import makeStyles from "utils/makeStyles";
 
 import ChangePhone from "./phone/ChangePhone";
 import useAccountInfo from "./useAccountInfo";
+import StrongVerification from "./verification/StrongVerification";
 
 const useStyles = makeStyles((theme) => ({
   section: {
@@ -44,6 +45,10 @@ export default function FeaturePreview() {
         <Alert severity="error">{accountInfoError.message}</Alert>
       ) : (
         <>
+          <StrongVerification
+            className={classes.section}
+            accountInfo={accountInfo!}
+          />
           <ChangePhone className={classes.section} accountInfo={accountInfo!} />
         </>
       )}
