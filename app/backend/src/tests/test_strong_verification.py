@@ -75,6 +75,10 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
 
+    # can remove SV data even if there is none, should do nothing
+    with account_session(token) as account:
+        account.DeleteStrongVerificationData(empty_pb2.Empty())
+
     with account_session(token) as account:
         # start by initiation
         with patch("couchers.servicers.account.requests.post") as mock:
@@ -339,6 +343,33 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert not res.has_strong_verification
         assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
+
+        # now turn exception back on
+        admin.SetPassportSexGenderException(
+            admin_pb2.SetPassportSexGenderExceptionReq(user=user.username, passport_sex_gender_exception=True)
+        )
+
+    update_badges(empty_pb2.Empty())
+
+    with real_admin_session(superuser_token) as admin:
+        res = admin.GetUserDetails(admin_pb2.GetUserDetailsReq(user=user.username))
+        assert "strong_verification" in res.badges
+        assert res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
+
+    # check removing SV data
+    with account_session(token) as account:
+        account.DeleteStrongVerificationData(empty_pb2.Empty())
+
+    update_badges(empty_pb2.Empty())
+
+    with api_session(token) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert "strong_verification" not in res.badges
+        assert not res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
 
 
 def test_strong_verification_disabled(db):

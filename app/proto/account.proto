@@ -62,6 +62,10 @@ service Account {
     // Gets the status of a strong verification attempt
   }
 
+  rpc DeleteStrongVerificationData(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    // Deletes full SV data (but not minimal data), see the ToS
+  }
+
   rpc DeleteAccount(DeleteAccountReq) returns (google.protobuf.Empty) {
     // Sends email with confirmation link containing token to delete account
   }
