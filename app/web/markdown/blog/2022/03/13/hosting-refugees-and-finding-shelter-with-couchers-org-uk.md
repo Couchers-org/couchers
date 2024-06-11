@@ -1,5 +1,5 @@
 ---
-title: Прийом біженців і пошук притулку за допомогою Couchers.org 
+title: Прийом біженців і пошук притулку за допомогою Couchers.org
 slug: hosting-refugees-and-finding-shelter-with-couchers-org-uk
 date: 2022/03/13
 author: Itsi

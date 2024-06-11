@@ -42,10 +42,13 @@ def _join_with_space(coalesces):
     return out
 
 
-def _build_tsv(A, B=[], C=[], D=[]):
+def _build_tsv(A, B=None, C=None, D=None):
     """
     Given lists for A, B, C, and D, builds a tsvector from them.
     """
+    B = B or []
+    C = C or []
+    D = D or []
     tsv = func.setweight(func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in A])), "A")
     if B:
         tsv = tsv.concat(
@@ -62,10 +65,13 @@ def _build_tsv(A, B=[], C=[], D=[]):
     return tsv
 
 
-def _build_doc(A, B=[], C=[], D=[]):
+def _build_doc(A, B=None, C=None, D=None):
     """
     Builds the raw document (without to_tsvector and weighting), used for extracting snippet
     """
+    B = B or []
+    C = C or []
+    D = D or []
     doc = _join_with_space([func.coalesce(bit, "") for bit in A])
     if B:
         doc += " " + _join_with_space([func.coalesce(bit, "") for bit in B])
@@ -80,7 +86,7 @@ def _similarity(statement, text):
     return func.word_similarity(func.unaccent(statement), func.unaccent(text))
 
 
-def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=[], C=[], D=[]):
+def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=None, C=None, D=None):
     """
     Given an sql statement and four sets of fields, (A, B, C, D), generates a bunch of postgres expressions for full text search.
 
@@ -90,6 +96,9 @@ def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=[], C
 
     If title_only=True, we only perform a trigram search against A only
     """
+    B = B or []
+    C = C or []
+    D = D or []
     if not title_only:
         # a postgres tsquery object that can be used to match against a tsvector
         tsq = func.websearch_to_tsquery(REGCONFIG, statement)
@@ -116,12 +125,10 @@ def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=[], C
             Does the right search filtering, limiting, and ordering for the initial statement
             """
             return session.execute(
-                (
-                    orig_statement.where(or_(tsv.op("@@")(tsq), sim > TRI_SIMILARITY_THRESHOLD))
-                    .where(rank <= next_rank if next_rank is not None else True)
-                    .order_by(rank.desc())
-                    .limit(page_size + 1)
-                )
+                orig_statement.where(or_(tsv.op("@@")(tsq), sim > TRI_SIMILARITY_THRESHOLD))
+                .where(rank <= next_rank if next_rank is not None else True)
+                .order_by(rank.desc())
+                .limit(page_size + 1)
             ).all()
 
     else:
@@ -145,12 +152,10 @@ def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=[], C
             Does the right search filtering, limiting, and ordering for the initial statement
             """
             return session.execute(
-                (
-                    orig_statement.where(sim > TRI_SIMILARITY_THRESHOLD)
-                    .where(rank <= next_rank if next_rank is not None else True)
-                    .order_by(rank.desc())
-                    .limit(page_size + 1)
-                )
+                orig_statement.where(sim > TRI_SIMILARITY_THRESHOLD)
+                .where(rank <= next_rank if next_rank is not None else True)
+                .order_by(rank.desc())
+                .limit(page_size + 1)
             ).all()
 
     return rank, snippet, execute_search_statement

@@ -9,7 +9,7 @@ share_image: https://couchers.org/img/share.jpg
 
 Now that the pandemic-related travel restrictions are all but lifted, travelers are again beginning to scratch their itch to get out and explore. This includes couch surfers who have begun to use couch surfing apps like Couchers.org to plan their accommodations.
 
-For some of you, writing a request to stay with someone else is a new experience. For others, it may have been a while since sending your last one. Here are some hints to writing a good couch request that has a better chance of being accepted. 
+For some of you, writing a request to stay with someone else is a new experience. For others, it may have been a while since sending your last one. Here are some hints to writing a good couch request that has a better chance of being accepted.
 
 
 ## 1. Use their name!
@@ -26,19 +26,19 @@ Hosts are individuals. They have different circumstances, likes/dislikes, schedu
 
 ## 3. State why you’d like to stay with them
 
-To many hosts, a request that simply says that a guest is coming and wants to stay for a certain number of nights and says nothing about why the guest is requesting to stay with them, is regarded as insulting. Hosts are not running hotels or hostels for the convenience of travelers. We signed up for this to have interaction with like-minded travelers. Mention something specific that you read in their profile (see #2) that you appreciate about them. This can start the bonding process. 
+To many hosts, a request that simply says that a guest is coming and wants to stay for a certain number of nights and says nothing about why the guest is requesting to stay with them, is regarded as insulting. Hosts are not running hotels or hostels for the convenience of travelers. We signed up for this to have interaction with like-minded travelers. Mention something specific that you read in their profile (see #2) that you appreciate about them. This can start the bonding process.
 
 
 ## 4. Include information about yourself (fill out your profile)
 
-Hotels, hostels, AirBnb hosts don’t really care about your personality, your hobbies, or your previous travels. They are simply about the monetary transaction. It’s not that your Couchers.org hosts are nosy, but they would like to know who you are, what you like, and get an idea of whether you would be a good fit or not before they accept your request. Don’t make them ask a lot of questions. This is also why it’s crucial to fill out your own profile. You can refer to that when making the request.  
+Hotels, hostels, AirBnb hosts don’t really care about your personality, your hobbies, or your previous travels. They are simply about the monetary transaction. It’s not that your Couchers.org hosts are nosy, but they would like to know who you are, what you like, and get an idea of whether you would be a good fit or not before they accept your request. Don’t make them ask a lot of questions. This is also why it’s crucial to fill out your own profile. You can refer to that when making the request.
 
 
 ## 5. Clearly state your intentions
 
 Hosts are often busy people with jobs and social lives. If you don’t give them specific dates that you wish to stay, or include some information about what you are planning to do during your stay, it’s difficult for them to know if they can accommodate you. If you plan to go clubbing in their city until the wee hours, it may interfere with their sleep to let you in when you finish. Or, maybe they would like to join you, but that’s best decided beforehand.
 
-Staying with hospitable strangers and hosting travelers can form lasting relationships. But these must be built on trust. The first step of that trust may be simply writing a good couch request. 
+Staying with hospitable strangers and hosting travelers can form lasting relationships. But these must be built on trust. The first step of that trust may be simply writing a good couch request.
 
 ## Any more questions?
 

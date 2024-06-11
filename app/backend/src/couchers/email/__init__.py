@@ -104,7 +104,8 @@ def queue_email(
     )
 
 
-def enqueue_email_from_template(recipient, template_file, template_args={}, _footer_unsub_link=None):
+def enqueue_email_from_template(recipient, template_file, template_args=None, _footer_unsub_link=None):
+    template_args = template_args or {}
     frontmatter, plain, html = _render_email(template_file, template_args, _footer_unsub_link=_footer_unsub_link)
     queue_email(
         config["NOTIFICATION_EMAIL_SENDER"],
@@ -116,7 +117,8 @@ def enqueue_email_from_template(recipient, template_file, template_args={}, _foo
     )
 
 
-def enqueue_email_from_template_to_user(user, template_file, template_args={}, is_critical_email=False):
+def enqueue_email_from_template_to_user(user, template_file, template_args=None, is_critical_email=False):
+    template_args = template_args or {}
     if user.do_not_email and not is_critical_email:
         logger.info(f"Not emailing {user} based on template {template_file} due to emails turned off")
         return

@@ -5,11 +5,28 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-[tool.black]
+[tool.ruff]
 line-length = 120
 
-[tool.isort]
-skip_gitignore = true
-include_trailing_comma = true
-multi_line_output = 3
-line_length = 120
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle
+    "F",   # pyflakes
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "A",   # flake8-builtins
+    "I",   # isort
+]
+ignore = [
+    "B007",   # Loop control variable not used within loop body
+    "E501",   # Line too long
+    "E711",   # Comparison to `None` should be `cond is None`
+    "E712",   # Avoid equality comparisons to `True`; use `if approved:` for truth checks
+    "F811",   # Redefinition of unused variable
+    "F841",   # Local variable is assigned to but never used
+    "UP015",  # Unnecessary open mode parameters
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["couchers"]

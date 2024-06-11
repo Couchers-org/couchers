@@ -53,7 +53,7 @@ index 3c2a0bf..833ede8 100644
 +++ b/Dockerfile.stage
 @@ -36,9 +36,7 @@ COPY . .
  # ADD http://couchers-dev-assets.s3.amazonaws.com/proto_may_27_2022.tar.gz /app/
- 
+
  # Expand our protos into place, set the right env vars into place, then build our static assets
 -RUN tar -xf proto_may_27_2022.tar.gz && \
 -    rm -f proto_may_27_2022.tar.gz && \

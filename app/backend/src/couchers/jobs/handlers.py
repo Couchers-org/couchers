@@ -107,7 +107,7 @@ send_email.PAYLOAD = jobs_pb2.SendEmailPayload
 
 
 def purge_login_tokens(payload):
-    logger.info(f"Purging login tokens")
+    logger.info("Purging login tokens")
     with session_scope() as session:
         session.execute(delete(LoginToken).where(~LoginToken.is_valid).execution_options(synchronize_session=False))
 
@@ -117,7 +117,7 @@ purge_login_tokens.SCHEDULE = timedelta(hours=24)
 
 
 def purge_password_reset_tokens(payload):
-    logger.info(f"Purging login tokens")
+    logger.info("Purging login tokens")
     with session_scope() as session:
         session.execute(
             delete(PasswordResetToken).where(~PasswordResetToken.is_valid).execution_options(synchronize_session=False)
@@ -129,7 +129,7 @@ purge_password_reset_tokens.SCHEDULE = timedelta(hours=24)
 
 
 def purge_account_deletion_tokens(payload):
-    logger.info(f"Purging account deletion tokens")
+    logger.info("Purging account deletion tokens")
     with session_scope() as session:
         session.execute(
             delete(AccountDeletionToken)
@@ -147,25 +147,23 @@ def send_message_notifications(payload):
     Sends out email notifications for messages that have been unseen for a long enough time
     """
     # very crude and dumb algorithm
-    logger.info(f"Sending out email notifications for unseen messages")
+    logger.info("Sending out email notifications for unseen messages")
 
     with session_scope() as session:
         # users who have unnotified messages older than 5 minutes in any group chat
         users = (
             session.execute(
-                (
-                    select(User)
-                    .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
-                    .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
-                    .where(not_(GroupChatSubscription.is_muted))
-                    .where(User.is_visible)
-                    .where(Message.time >= GroupChatSubscription.joined)
-                    .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-                    .where(Message.id > User.last_notified_message_id)
-                    .where(Message.id > GroupChatSubscription.last_seen_message_id)
-                    .where(Message.time < now() - timedelta(minutes=5))
-                    .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
-                )
+                select(User)
+                .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
+                .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .where(not_(GroupChatSubscription.is_muted))
+                .where(User.is_visible)
+                .where(Message.time >= GroupChatSubscription.joined)
+                .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                .where(Message.id > User.last_notified_message_id)
+                .where(Message.id > GroupChatSubscription.last_seen_message_id)
+                .where(Message.time < now() - timedelta(minutes=5))
+                .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
             )
             .scalars()
             .unique()
@@ -211,7 +209,7 @@ def send_message_notifications(payload):
                 template_args={
                     "user": user,
                     "total_unseen_message_count": total_unseen_message_count,
-                    "unseen_messages": [
+                    "unseen_messages": [  # noqa: C416
                         (group_chat, latest_message, count) for group_chat, latest_message, count in unseen_messages
                     ],
                     "group_chats_link": urls.messages_link(),
@@ -227,7 +225,7 @@ def send_request_notifications(payload):
     """
     Sends out email notifications for unseen messages in host requests (as surfer or host)
     """
-    logger.info(f"Sending out email notifications for unseen messages in host requests")
+    logger.info("Sending out email notifications for unseen messages in host requests")
 
     with session_scope() as session:
         # requests where this user is surfing
@@ -293,7 +291,7 @@ def send_onboarding_emails(payload):
     """
     Sends out onboarding emails
     """
-    logger.info(f"Sending out onboarding emails")
+    logger.info("Sending out onboarding emails")
 
     with session_scope() as session:
         # first onboarding email
@@ -336,7 +334,7 @@ def send_reference_reminders(payload):
     """
     Sends out reminders to write references after hosting/staying
     """
-    logger.info(f"Sending out reference reminder emails")
+    logger.info("Sending out reference reminder emails")
 
     # Keep this in chronological order!
     reference_reminder_schedule = [
@@ -433,10 +431,10 @@ send_reference_reminders.SCHEDULE = timedelta(hours=1)
 
 def add_users_to_email_list(payload):
     if not config["LISTMONK_ENABLED"]:
-        logger.info(f"Not adding users to mailing list")
+        logger.info("Not adding users to mailing list")
         return
 
-    logger.info(f"Adding users to mailing list")
+    logger.info("Adding users to mailing list")
 
     while True:
         with session_scope() as session:
@@ -444,7 +442,7 @@ def add_users_to_email_list(payload):
                 select(User).where(User.is_visible).where(User.in_sync_with_newsletter == False).limit(1)
             ).scalar_one_or_none()
             if not user:
-                logger.info(f"Finished adding users to mailing list")
+                logger.info("Finished adding users to mailing list")
                 return
 
             if user.opt_out_of_newsletter:

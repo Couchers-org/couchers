@@ -9,7 +9,7 @@ description: "Apply to become a Technical Support Analyst for Couchers.org"
 
 **This is a remote position**
 
-We are recruiting a Technical Support Analyst (TSA) to manage our technical support queue. The TSA will be responsible for reviewing, sorting and responding to technical support tickets in the context of user support and quality assurance of our product (the Couchers.org platform). 
+We are recruiting a Technical Support Analyst (TSA) to manage our technical support queue. The TSA will be responsible for reviewing, sorting and responding to technical support tickets in the context of user support and quality assurance of our product (the Couchers.org platform).
 
 The TSA will possess the skills to be able to identify the cause(s) of reported issues–whether poor design, potential bug, or simply user error–and the appropriate solution. In addition to recording, analyzing, and relaying data on reported issues, the TSA will be responsible for identifying ways to reduce the number of user errors and improve the efficiency and effectiveness of responses to tickets. The TSA reports to the Community & Support Team Leader.
 
@@ -27,13 +27,13 @@ The TSA will possess the skills to be able to identify the cause(s) of reported 
 ### Skills & Experience
 
 An ideal candidate would have the following skills:
-- Online customer support experience; 
-- Familiarity with the Couchers.org website, help page, and forum; 
-- Familiarity with some kind of ticketing system (OTRS, OTOBO, or GitHub a plus); 
-- Ability to organize and analyze data; 
-- Previous experience with a couch surfing platform; 
-- Experience with software development or QA/QC is a plus; 
-- Excellent communication, interpersonal and organizational skills; 
+- Online customer support experience;
+- Familiarity with the Couchers.org website, help page, and forum;
+- Familiarity with some kind of ticketing system (OTRS, OTOBO, or GitHub a plus);
+- Ability to organize and analyze data;
+- Previous experience with a couch surfing platform;
+- Experience with software development or QA/QC is a plus;
+- Excellent communication, interpersonal and organizational skills;
 - Native (C2) fluency of English both written and spoken; additional languages a plus.
 
 ### Expectations/Commitment

@@ -1,15 +1,13 @@
 alembic
-autoflake
-black
 boto3
 cryptography
 geoalchemy2
 grpcio
 http_ece
-isort
 Jinja2
 luhn
 phonenumbers
+pre-commit
 prometheus-client
 protobuf
 psycopg2-binary
@@ -21,6 +19,7 @@ python-dateutil
 pytz
 pyyaml
 requests
+ruff
 sentry-sdk
 Shapely
 sqlalchemy

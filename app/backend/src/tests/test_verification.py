@@ -139,7 +139,7 @@ def test_VerifyPhone_antibrute():
             user.phone_verification_sent = now()
             user.phone = "+46701740605"
 
-        for i in range(10):
+        for _ in range(10):
             with pytest.raises(grpc.RpcError) as e:
                 account.VerifyPhone(account_pb2.VerifyPhoneReq(token="123455"))
             if e.value.code() != grpc.StatusCode.NOT_FOUND:

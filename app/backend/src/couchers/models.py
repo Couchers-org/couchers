@@ -18,16 +18,18 @@ from sqlalchemy import (
     Index,
     Integer,
     Interval,
+    MetaData,
+    Sequence,
+    String,
+    UniqueConstraint,
 )
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import MetaData, Sequence, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
-from sqlalchemy.sql import and_, func
+from sqlalchemy.sql import and_, func, text
 from sqlalchemy.sql import select as sa_select
-from sqlalchemy.sql import text
 
 from couchers import urls
 from couchers.config import config
@@ -797,7 +799,7 @@ class ContributorForm(Base):
 
         We currently send if expertise is listed, or if they list a way to help outside of a set list
         """
-        return (self.expertise != None) | (not set(self.contribute_ways).issubset(set(["community", "blog", "other"])))
+        return (self.expertise != None) | (not set(self.contribute_ways).issubset({"community", "blog", "other"}))
 
 
 class SignupFlow(Base):

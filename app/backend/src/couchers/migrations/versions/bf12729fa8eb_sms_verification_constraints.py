@@ -24,4 +24,4 @@ def upgrade():
 
 
 def downgrade():
-    raise hell
+    raise Exception("hell")

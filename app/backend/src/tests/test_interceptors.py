@@ -110,7 +110,7 @@ def test_logging_interceptor_all_ignored():
         message = random_hex()
 
         def TestRpc(request, context):
-            context.abort(status_code, message)
+            context.abort(status_code, message)  # noqa: B023
 
         with interceptor_dummy_api(TestRpc, interceptors=[ErrorSanitizationInterceptor()]) as call_rpc:
             with pytest.raises(grpc.RpcError) as e:
@@ -121,7 +121,7 @@ def test_logging_interceptor_all_ignored():
 
 def test_logging_interceptor_assertion():
     def TestRpc(request, context):
-        assert False
+        raise AssertionError()
 
     with interceptor_dummy_api(TestRpc, interceptors=[ErrorSanitizationInterceptor()]) as call_rpc:
         with pytest.raises(grpc.RpcError) as e:
@@ -132,7 +132,7 @@ def test_logging_interceptor_assertion():
 
 def test_logging_interceptor_div0():
     def TestRpc(request, context):
-        1 / 0
+        1 / 0  # noqa: B018
 
     with interceptor_dummy_api(TestRpc, interceptors=[ErrorSanitizationInterceptor()]) as call_rpc:
         with pytest.raises(grpc.RpcError) as e:
@@ -223,7 +223,7 @@ def test_tracing_interceptor_exception(db):
         request_type=auth_pb2.SignupAccount,
         response_type=auth_pb2.AuthReq,
     ) as call_rpc:
-        with pytest.raises(Exception):
+        with pytest.raises(Exception, match="Some error message"):
             call_rpc(auth_pb2.SignupAccount(password="should be removed", username="not removed"))
 
     with session_scope() as session:
@@ -250,7 +250,7 @@ def test_tracing_interceptor_abort(db):
         request_type=auth_pb2.SignupAccount,
         response_type=auth_pb2.AuthReq,
     ) as call_rpc:
-        with pytest.raises(Exception):
+        with pytest.raises(Exception, match="now a grpc abort"):
             call_rpc(auth_pb2.SignupAccount(password="should be removed", username="not removed"))
 
     with session_scope() as session:

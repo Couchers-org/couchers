@@ -51,7 +51,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
                         "currency": "usd",
                         "unit_amount": request.amount * 100,  # input is in cents
                         "product_data": {
-                            "name": f"Couchers financial supporter (one-time)",
+                            "name": "Couchers financial supporter (one-time)",
                             "images": ["https://couchers.org/img/share.jpg"],
                         },
                     },

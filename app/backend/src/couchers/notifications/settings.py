@@ -228,7 +228,6 @@ def check_settings():
 
     actions_by_topic_check = {}
 
-    all_settings_topics = []
     for heading, group in settings_layout:
         for topic, name, items in group:
             actions = []

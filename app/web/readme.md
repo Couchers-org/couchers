@@ -55,7 +55,7 @@ Alternatively, you can use `yarn start` if you update your local environment var
 
 <details>
 <summary>Common problem: Getting logged out right after logging in</summary>
-  
+
 If you're getting logged out right after logging in, it's possible that 3rd party cookies are blocked in your browser. Since you're using localhost:3000, the cookie `couchers-sesh` coming from `https://dev-api.couchershq.org` is considered a 3rd party cookie.
 
 - Chrome allows to enable 3rd party cookies for specific websites in the cookie settings > Sites that can always use cookies. Enable "Including third-party cookies on this site"

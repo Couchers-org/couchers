@@ -306,7 +306,7 @@ class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
                 # the code is one of the RPC error codes if this was failed through abort(), otherwise it's None
                 if not code:
                     logger.exception(e)
-                    logger.info(f"Probably an unknown error! Sanitizing...")
+                    logger.info("Probably an unknown error! Sanitizing...")
                     context.abort(grpc.StatusCode.INTERNAL, errors.UNKNOWN_ERROR)
                 else:
                     logger.warning(f"RPC error: {code}")

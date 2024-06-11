@@ -3,9 +3,8 @@ import signal
 import sys
 
 import sentry_sdk
-from sentry_sdk.integrations import argv, atexit, dedupe
+from sentry_sdk.integrations import argv, atexit, dedupe, modules, stdlib, threading
 from sentry_sdk.integrations import logging as sentry_logging
-from sentry_sdk.integrations import modules, stdlib, threading
 from sqlalchemy.sql import text
 
 from couchers.config import check_config, config
@@ -58,28 +57,28 @@ def log_unhandled_exception(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = log_unhandled_exception
 
-logger.info(f"Checking DB connection")
+logger.info("Checking DB connection")
 
 with session_scope() as session:
     res = session.execute(text("SELECT 42;"))
     if list(res) != [(42,)]:
         raise Exception("Failed to connect to DB")
 
-logger.info(f"Running DB migrations")
+logger.info("Running DB migrations")
 
 apply_migrations()
 
 if config["ADD_DUMMY_DATA"]:
     add_dummy_data()
 
-logger.info(f"Starting")
+logger.info("Starting")
 
 if config["ROLE"] in ["api", "all"]:
     server = create_main_server(port=1751)
     server.start()
     media_server = create_media_server(port=1753)
     media_server.start()
-    logger.info(f"Serving on 1751 (secure) and 1753 (media)")
+    logger.info("Serving on 1751 (secure) and 1753 (media)")
 
 if config["ROLE"] in ["scheduler", "all"]:
     scheduler = start_jobs_scheduler()

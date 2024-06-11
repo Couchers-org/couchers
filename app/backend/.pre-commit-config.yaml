@@ -1,0 +1,33 @@
+default_language_version:
+  python: python3.12
+
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+    - id: end-of-file-fixer
+      exclude: ^(.*.csv|.*.json|.*.svg)
+    - id: trailing-whitespace
+    - id: check-toml
+    - id: check-yaml
+    - id: check-added-large-files
+      name: Check for added large files
+      description: Prevent giant files from being committed
+      entry: check-added-large-files
+      language: python
+      args: ['--maxkb=350', '--enforce-all']
+    - id: detect-private-key
+
+-   repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: 'v0.4.8'
+    hooks:
+      - id: ruff
+        description: Linter checks (without import sorting)
+        files: ^app/backend/
+        args: ['--ignore', 'I']
+      - id: ruff
+        files: ^app/backend/
+        args: ['--select', 'I', '--fix']
+        description: Sort imports
+      - id: ruff-format
+        files: ^app/backend/

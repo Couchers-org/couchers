@@ -64,7 +64,7 @@ def test_login_email(db):
 def test_signup_verification_email(db):
     request_email = f"{random_hex(12)}@couchers.org.invalid"
 
-    with session_scope() as session:
+    with session_scope():
         flow = SignupFlow(name="Frodo", email=request_email)
 
         with patch("couchers.email.queue_email") as mock:
@@ -195,7 +195,7 @@ def test_email_patching_fails(db):
     printing function was called instead, this makes sure the patching is
     actually done
     """
-    with session_scope() as session:
+    with session_scope():
         to_user, to_token = generate_user()
         from_user, from_token = generate_user()
 
@@ -204,7 +204,7 @@ def test_email_patching_fails(db):
         def mock_queue_email(**kwargs):
             raise Exception(patched_msg)
 
-        with patch("couchers.notifications.background.queue_email", mock_queue_email) as mock:
+        with patch("couchers.notifications.background.queue_email", mock_queue_email):
             with pytest.raises(Exception) as e:
                 with api_session(from_token) as api:
                     api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=to_user.id))
@@ -367,7 +367,7 @@ def test_send_donation_email(db, monkeypatch):
         ),
     )
 
-    with patch("couchers.email.smtp.smtplib.SMTP") as mock:
+    with patch("couchers.email.smtp.smtplib.SMTP"):
         handle_notifications_bg()
 
     with session_scope() as session:

@@ -38,7 +38,7 @@ def process_job():
     Attempt to process one job from the job queue. Returns False if no job was found, True if a job was processed,
     regardless of failure/success.
     """
-    logger.debug(f"Looking for a job")
+    logger.debug("Looking for a job")
 
     with session_scope(isolation_level="REPEATABLE READ") as session:
         # a combination of REPEATABLE READ and SELECT ... FOR UPDATE SKIP LOCKED makes sure that only one transaction
@@ -54,7 +54,7 @@ def process_job():
         )
 
         if not job:
-            logger.debug(f"No pending jobs")
+            logger.debug("No pending jobs")
             return False
 
         # we've got a lock for a job now, it's "pending" until we commit or the lock is gone
@@ -106,7 +106,7 @@ def service_jobs():
             if not process_job():
                 sleep(1)
     finally:
-        logger.info(f"Closing prometheus server")
+        logger.info("Closing prometheus server")
         t.server_close()
 
 

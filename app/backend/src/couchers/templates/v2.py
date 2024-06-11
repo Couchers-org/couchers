@@ -92,7 +92,8 @@ def add_filters(env):
 add_filters(env)
 
 
-def email_user(user, template_name, template_args={}, frontmatter=None, override_recipient=None):
+def email_user(user, template_name, template_args=None, frontmatter=None, override_recipient=None):
+    template_args = template_args or {}
     if not frontmatter:
         # Titles/config are from {template_name}.yaml, plaintext from {template_name}.txt, and html from generated_html/{template_name}.html (generated from {template_name}.mjml)
         frontmatter_template = env.get_template(f"{template_name}.yaml")
