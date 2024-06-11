@@ -76,14 +76,21 @@ def _check_password(user, field_name, request, context):
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME_OR_PASSWORD)
 
 
-def get_strong_verification_fields(db_user):
+def get_strong_verification_fields(session, db_user):
     out = dict(
         birthdate_verification_status=api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,
         gender_verification_status=api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED,
         has_strong_verification=False,
     )
-    attempt = db_user.strong_verification_attempts.first()
-    if attempt and attempt.is_valid:
+    attempt = session.execute(
+        select(StrongVerificationAttempt)
+        .where(StrongVerificationAttempt.user_id == db_user.id)
+        .where(StrongVerificationAttempt.is_valid)
+        .order_by(StrongVerificationAttempt.passport_expiry_datetime.desc())
+        .limit(1)
+    ).scalar_one_or_none()
+    if attempt:
+        assert attempt.is_valid
         if attempt.matches_birthdate(db_user):
             out["birthdate_verification_status"] = api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
         else:
@@ -134,7 +141,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 timezone=user.timezone,
                 login_method=account_pb2.GetAccountInfoRes.LoginMethod.PASSWORD,
                 has_password=True,
-                **get_strong_verification_fields(user),
+                **get_strong_verification_fields(session, user),
             )
 
     def ChangePassword(self, request, context):

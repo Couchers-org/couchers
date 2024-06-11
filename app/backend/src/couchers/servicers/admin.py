@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 250
 
 
-def _user_to_details(user):
+def _user_to_details(session, user):
     return admin_pb2.UserDetails(
         user_id=user.id,
         username=user.username,
@@ -51,7 +51,7 @@ def _user_to_details(user):
         deleted=user.is_deleted,
         do_not_email=user.do_not_email,
         badges=[badge.badge_id for badge in user.badges],
-        **get_strong_verification_fields(user),
+        **get_strong_verification_fields(session, user),
         has_passport_sex_gender_exception=user.has_passport_sex_gender_exception,
         admin_note=user.admin_note,
     )
@@ -63,7 +63,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-            return _user_to_details(user)
+            return _user_to_details(session, user)
 
     def ChangeUserGender(self, request, context):
         with session_scope() as session:
@@ -81,7 +81,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 ),
             )
 
-            return _user_to_details(user)
+            return _user_to_details(session, user)
 
     def ChangeUserBirthdate(self, request, context):
         with session_scope() as session:
@@ -99,7 +99,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 ),
             )
 
-            return _user_to_details(user)
+            return _user_to_details(session, user)
 
     def AddBadge(self, request, context):
         with session_scope() as session:
@@ -119,7 +119,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             user_add_badge(session, user.id, request.badge_id)
 
-            return _user_to_details(user)
+            return _user_to_details(session, user)
 
     def RemoveBadge(self, request, context):
         with session_scope() as session:
@@ -142,7 +142,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             user_remove_badge(session, user.id, request.badge_id)
 
-            return _user_to_details(user)
+            return _user_to_details(session, user)
 
     def SetPassportSexGenderException(self, request, context):
         with session_scope() as session:
@@ -150,7 +150,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.has_passport_sex_gender_exception = request.passport_sex_gender_exception
-            return _user_to_details(user)
+            return _user_to_details(session, user)
 
     def BanUser(self, request, context):
         with session_scope() as session:
@@ -169,7 +169,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             user.admin_note += (
                 f"\n[{now().isoformat()}] (id: {admin.id}, username: {admin.username}) {request.admin_note}\n"
             )
-            return _user_to_details(user)
+            return _user_to_details(session, user)
 
     def DeleteUser(self, request, context):
         with session_scope() as session:
@@ -177,7 +177,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             user.is_deleted = True
-            return _user_to_details(user)
+            return _user_to_details(session, user)
 
     def CreateApiKey(self, request, context):
         with session_scope() as session:
@@ -197,7 +197,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 ),
             )
 
-            return _user_to_details(user)
+            return _user_to_details(session, user)
 
     def CreateCommunity(self, request, context):
         with session_scope() as session:
