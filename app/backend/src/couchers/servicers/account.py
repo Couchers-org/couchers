@@ -410,6 +410,38 @@ class Account(account_pb2_grpc.AccountServicer):
                 ),
             )
 
+    def DeleteStrongVerificationData(self, request, context):
+        with session_scope() as session:
+            verification_attempts = (
+                session.execute(
+                    select(StrongVerificationAttempt)
+                    .where(StrongVerificationAttempt.user_id == context.user_id)
+                    .where(StrongVerificationAttempt.has_full_data)
+                )
+                .scalars()
+                .all()
+            )
+            for verification_attempt in verification_attempts:
+                verification_attempt.status = StrongVerificationAttemptStatus.deleted
+                verification_attempt.has_full_data = False
+                verification_attempt.passport_encrypted_data = None
+                verification_attempt.passport_date_of_birth = None
+                verification_attempt.passport_sex = None
+            session.flush()
+            # double check:
+            verification_attempts = (
+                session.execute(
+                    select(StrongVerificationAttempt)
+                    .where(StrongVerificationAttempt.user_id == context.user_id)
+                    .where(StrongVerificationAttempt.has_full_data)
+                )
+                .scalars()
+                .all()
+            )
+            assert len(verification_attempts) == 0
+
+            return empty_pb2.Empty()
+
     def DeleteAccount(self, request, context):
         """
         Triggers email with token to confirm deletion
