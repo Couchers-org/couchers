@@ -95,7 +95,7 @@ def get_strong_verification_fields(db_user):
             out["gender_verification_status"] = api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
 
         out["has_strong_verification"] = attempt.has_strong_verification(db_user)
-        print(attempt.has_strong_verification(db_user))
+
         assert out["has_strong_verification"] == (
             out["birthdate_verification_status"] == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
             and out["gender_verification_status"] == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
