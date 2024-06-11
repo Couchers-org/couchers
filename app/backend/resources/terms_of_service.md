@@ -1,12 +1,11 @@
 You must agree to these Terms to access the Couchers.org services and create an account.
 
-**Note: we'll update the Terms of Service as we approach the full launch and clarify the reasons and ways in which we may terminate or ban accounts as we develop these processes and solidify our moderation process.**
+*This is version 3.0 of the Terms of Service, last updated on 11th of June, 2024.*
 
-*This is version 2.2 of the Terms of Service, last updated on 20th of January, 2022.*
 
 # 1. Service provider
 
-Access to the Couchers.org platform ("platform", "service") is provided to you by the **Couchers, Inc.** ("Couchers.org", "we", "us"), a 501(c)(3) non-profit organization incorporated in the United States.
+Access to the Couchers.org platform ("platform", "service") is provided to you by **Couchers, Inc.** ("Couchers.org", "we", "us"), a 501(c)(3) non-profit organization incorporated in the United States.
 
 
 # 2. Eligibility
@@ -25,7 +24,7 @@ You must provide truthful and current information on your account. Your display 
 
 Couchers.org provides a platform for users to contact one another and organize activities together. You agree to not hold us liable or responsible for user-created content or for interactions between users, including online and in person. You are solely liable and responsible for your actions on the platform, including any interactions with other users and any content that you create.
 
-Although we are not legally responsible for user-created content, we actively moderate the platform to remove any content that is harmful, deceitful, or otherwise does not adhere to our rules. If you believe some content does not adhere to our rules, please report it to us via support@couchers.org.
+Although we are not legally responsible for user-created content, we actively moderate the platform to remove any content that is harmful, deceitful, or otherwise does not adhere to our rules. If you believe some content does not adhere to our rules, please report it to us via support@couchers.org, or via the flagging feature on the platform.
 
 When posting any image, you agree to obtain consent from any individual pictured in the image.
 
@@ -45,14 +44,26 @@ We do not sell any user data and will only use or process it for purposes in lin
 
 # 6. Our service providers
 
-Our platform is hosted on Amazon Web Services (AWS), and we use a variety of their products to provide this service to you, including hosting our servers, storing our backups, and sending transactional emails.
+Our platform is hosted on Amazon Web Services (AWS), and we use a variety of their products to provide this service to you, including hosting our servers, storing our backups, and sending emails.
 
-We manage a mailing list for our newsletter and general announcements using MailChimp. You agree to be added to our mailing list, but may unsubscribe at any time. We share minimal information with MailChimp including your email address and display name.
-
-We use Google Analytics for analytics purposes. We use Fastmail for our email hosting, Sentry for automatic bug reports, and GitHub for code hosting and bug reports.
+We use Google Analytics for analytics purposes. We use Google Workspace for our email hosting, Sentry for automatic bug reports, and GitHub for code hosting and bug reports.
 
 We may add additional service providers as needed, and will make an effort to update this document.
 
+
 # 7. Termination
 
-If you are in breach of these terms or any other policies in place, we may at our discretion suspend or terminate your account.
+If you are in breach of these terms or any other rules, guidelines, or policies in place, we may, at our discretion, suspend or terminate your account.
+
+
+# 8. Additional terms for Strong Verification
+
+This section contains additional terms for those members who complete Strong Verification. Strong Verification is an optional safety feature that allows you to verify your profile information by scanning a Biometric passport with a supported NFC enabled device.
+
+We use a trusted third-party application called [Iris ID](https://passportreader.app/) by Iris Development AB to read your passport if you choose to complete Strong Verification. The app processes your data and verifies it before passing it back to our server. As per their [Privacy policy](https://passportreader.app/privacy), they will delete your personal information within 24 hours. By completing Strong Verification, you agree to be bound by their [Privacy policy](https://passportreader.app/privacy) and [Terms & conditions](https://passportreader.app/terms).
+
+When you complete Strong Verification, the data retrieved from your passport is encrypted with an asymmetric keypair in such a way that the server can no longer access it. There is a mechanism for this data to be decrypted and retrieved manually, but the key is stored separately offline and requires human intervention to use. The following information is additionally stored on the server for continued verification purposes: country of nationality, sex, date of birth, passport expiry date, and the last three digits of the passport number.
+
+You can request for this Strong Verification data (except for the minimal anti-abuse data) to be deleted from the server at any time.
+
+The minimal anti-abuse data of nationality, passport expiry date, and the last three digits of the passport number is stored for all successful verifications and cannot be removed. This data is used for safety and moderation purposes in order to avoid banned users from recreating accounts. We believe this is an appropriate compromise between providing a safe platform for our users, while not storing sensitive personal information beyond what you wish to share with the platform and other users.
