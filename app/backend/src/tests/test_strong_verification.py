@@ -64,6 +64,7 @@ def do_and_check_sv(
     document_number,
     document_expiry,
     nationality,
+    return_after=None
 ):
     iris_token_data = {
         "merchant_id": 5731012934821982,
@@ -123,6 +124,9 @@ def do_and_check_sv(
             == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_IN_APP
         )
 
+    if return_after == "INITIATED":
+        return
+
     _emulate_iris_callback(verification_id, "COMPLETED", reference_data)
 
     with account_session(token) as account:
@@ -133,6 +137,9 @@ def do_and_check_sv(
             == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND
         )
 
+    if return_after == "COMPLETED":
+        return
+
     _emulate_iris_callback(verification_id, "APPROVED", reference_data)
 
     with account_session(token) as account:
@@ -142,6 +149,9 @@ def do_and_check_sv(
             ).status
             == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND
         )
+
+    if return_after == "APPROVED":
+        return
 
     with patch("couchers.jobs.handlers.requests.post") as mock:
         json_resp2 = {
@@ -503,6 +513,29 @@ def test_strong_verification_expiry(db, monkeypatch):
         with api_session(token) as api:
             print(api.GetUser(api_pb2.GetUserReq(user=user.username)))
             assert api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+
+
+def test_strong_verification_regression(db, monkeypatch):
+    monkeypatch_sv_config(monkeypatch)
+
+    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+
+    do_and_check_sv(
+        user,
+        token,
+        verification_id=5731012934821983,
+        sex="MALE",
+        dob="1988-01-01",
+        document_type="PASSPORT",
+        document_number="31195855",
+        document_expiry=default_expiry,
+        nationality="US",
+        return_after="INITIATED"
+    )
+
+    # the user should now have strong verification
+    with api_session(token) as api:
+        api.Ping(api_pb2.PingReq())
 
 
 def test_strong_verification_disabled(db):
