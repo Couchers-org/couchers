@@ -529,10 +529,10 @@ class StrongVerificationAttempt(Base):
     user = relationship(
         "User",
         backref=backref(
-            "strong_verification",
-            primaryjoin="and_(StrongVerificationAttempt.user_id == User.id, StrongVerificationAttempt.is_valid == True)",
+            "strong_verification_attempts",
+            lazy="dynamic",
+            order_by="StrongVerificationAttempt.passport_expiry_datetime.desc()",
             viewonly=True,
-            uselist=False,
         ),
     )
 

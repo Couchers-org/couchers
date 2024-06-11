@@ -23,6 +23,14 @@ def b64decode(data: str) -> bytes:
     return urlsafe_b64decode(data)
 
 
+def b64encode_unpadded(data: str) -> bytes:
+    return b64encode(data).replace("=", "")
+
+
+def b64decode_unpadded(data: bytes) -> str:
+    return b64decode(data + b"===="[len(data) % 4 :])
+
+
 def urlsafe_random_bytes(length=32) -> str:
     return b64encode(random_bytes(length))
 
