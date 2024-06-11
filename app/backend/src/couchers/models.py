@@ -526,15 +526,7 @@ class StrongVerificationAttempt(Base):
 
     passport_expiry_datetime = column_property(date_in_timezone(passport_expiry_date, "Etc/UTC"))
 
-    user = relationship(
-        "User",
-        backref=backref(
-            "strong_verification_attempts",
-            lazy="dynamic",
-            order_by="StrongVerificationAttempt.passport_expiry_datetime.desc()",
-            viewonly=True,
-        ),
-    )
+    user = relationship("User")
 
     @hybrid_property
     def is_valid(self):
@@ -545,7 +537,9 @@ class StrongVerificationAttempt(Base):
 
     @is_valid.expression
     def is_valid(cls):
-        return (cls.status == StrongVerificationAttemptStatus.succeeded) & (cls.passport_expiry_datetime >= now())
+        return (cls.status == StrongVerificationAttemptStatus.succeeded) & (
+            func.coalesce(cls.passport_expiry_datetime >= now(), False)
+        )
 
     @hybrid_property
     def is_visible(self):
