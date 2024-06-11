@@ -221,7 +221,7 @@ def get_users_to_notify_for_new_event(session, occurrence):
     """
     cluster = occurrence.event.parent_node.official_cluster
     if cluster.parent_node_id == 1:
-        logger.info(f"The Global Community is too big for email notifications.")
+        logger.info("The Global Community is too big for email notifications.")
         return [], False
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
         return list(cluster.members), False
@@ -253,7 +253,6 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
         event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
         creator = occurrence.creator_user
 
-        community_node = None
         users, is_geom_search = get_users_to_notify_for_new_event(session, occurrence)
 
         inviting_user = session.execute(select(User).where(User.id == payload.inviting_user_id)).scalar_one_or_none()
@@ -471,12 +470,10 @@ class Events(events_pb2_grpc.EventsServicer):
         if not request.content:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_CONTENT)
         if request.HasField("online_information"):
-            online = True
             geom = None
             address = None
             link = request.online_information.link
         elif request.HasField("offline_information"):
-            online = False
             if not (
                 request.offline_information.address
                 and request.offline_information.lat

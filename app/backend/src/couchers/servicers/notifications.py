@@ -68,7 +68,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 delivery_type = NotificationDeliveryType[preference.delivery_method]
                 try:
                     set_preference(session, user.id, topic_action, delivery_type, preference.enabled)
-                except PreferenceNotUserEditableError as e:
+                except PreferenceNotUserEditableError:
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANNOT_EDIT_THAT_NOTIFICATION_PREFERENCE)
             return notifications_pb2.GetNotificationSettingsRes(
                 do_not_email_enabled=user.do_not_email,
@@ -132,6 +132,6 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         push_to_user(
             context.user_id,
             title="Checking push notifications work!",
-            body=f"If you see this, then it's working :)",
+            body="If you see this, then it's working :)",
         )
         return empty_pb2.Empty()

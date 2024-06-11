@@ -1,6 +1,5 @@
 import io
 import json
-import os
 from base64 import urlsafe_b64encode
 from concurrent import futures
 from contextlib import contextmanager
@@ -18,7 +17,7 @@ from PIL import Image
 from PIL.JpegImagePlugin import JpegImageFile
 
 from media.server import create_app
-from proto import api_pb2, media_pb2, media_pb2_grpc
+from proto import media_pb2, media_pb2_grpc
 
 DATADIR = Path(__file__).parent / "data"
 

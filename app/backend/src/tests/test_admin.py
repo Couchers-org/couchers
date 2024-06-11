@@ -31,7 +31,7 @@ def _(testconfig):
 
 
 def test_access_by_normal_user(db):
-    with session_scope() as session:
+    with session_scope():
         normal_user, normal_token = generate_user()
 
         with real_admin_session(normal_token) as api:
@@ -46,7 +46,7 @@ def test_access_by_normal_user(db):
 
 
 def test_GetUserDetails(db):
-    with session_scope() as session:
+    with session_scope():
         super_user, super_token = generate_user(is_superuser=True)
         normal_user, normal_token = generate_user()
 
@@ -82,7 +82,7 @@ def test_GetUserDetails(db):
 
 
 def test_ChangeUserGender(db):
-    with session_scope() as session:
+    with session_scope():
         super_user, super_token = generate_user(is_superuser=True)
         normal_user, normal_token = generate_user()
 
@@ -98,7 +98,7 @@ def test_ChangeUserGender(db):
 
 
 def test_ChangeUserBirthdate(db):
-    with session_scope() as session:
+    with session_scope():
         super_user, super_token = generate_user(is_superuser=True)
         normal_user, normal_token = generate_user(birthdate=date(year=2000, month=1, day=1))
 
@@ -165,7 +165,7 @@ def test_AddAdminNote(db):
 
 
 def test_DeleteUser(db):
-    with session_scope() as session:
+    with session_scope():
         super_user, super_token = generate_user(is_superuser=True)
         normal_user, normal_token = generate_user()
 
@@ -266,7 +266,7 @@ POINT_GEOJSON = """
 
 
 def test_CreateCommunity_invalid_geojson(db):
-    with session_scope() as session:
+    with session_scope():
         super_user, super_token = generate_user(is_superuser=True)
         normal_user, normal_token = generate_user()
         with real_admin_session(super_token) as api:
@@ -304,7 +304,7 @@ def test_CreateCommunity(db):
 
 
 def test_GetChats(db):
-    with session_scope() as session:
+    with session_scope():
         super_user, super_token = generate_user(is_superuser=True)
         normal_user, normal_token = generate_user()
 
@@ -314,7 +314,7 @@ def test_GetChats(db):
 
 
 def test_badges(db):
-    with session_scope() as session:
+    with session_scope():
         super_user, super_token = generate_user(is_superuser=True)
         normal_user, normal_token = generate_user()
 

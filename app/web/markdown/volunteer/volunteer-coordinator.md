@@ -10,7 +10,7 @@ description: "Apply to become a Volunteer Coordinator for Couchers.org"
 
 **This is a remote position**
 
-We are recruiting up to four volunteers that will be coordinating the Volunteer Management Program (VMP). The main goal of the VMP is to ensure that Couchers.org has the volunteer capacity to fulfil its mission. To meet that goal, the group of Volunteer Coordinators must perform a variety of duties involving recruitment, training and program planning. 
+We are recruiting up to four volunteers that will be coordinating the Volunteer Management Program (VMP). The main goal of the VMP is to ensure that Couchers.org has the volunteer capacity to fulfil its mission. To meet that goal, the group of Volunteer Coordinators must perform a variety of duties involving recruitment, training and program planning.
 
 The VMP consists of 5 main areas:
 
@@ -20,9 +20,9 @@ The VMP consists of 5 main areas:
 4. Engagement & Retention: recognition and appreciation of volunteer efforts
 5. Offboarding
 
-This is a job-sharing/collaborative volunteer position. The group will be working together and reporting to the Executive Director. 
+This is a job-sharing/collaborative volunteer position. The group will be working together and reporting to the Executive Director.
 
-### Duties 
+### Duties
 
 - Helping to create process and procedures for the Volunteer Management Program
 - Recruiting, onboarding and supervising new volunteers

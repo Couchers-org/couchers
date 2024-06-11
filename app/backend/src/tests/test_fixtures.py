@@ -309,7 +309,7 @@ def generate_user(*, delete_user=False, complete_profile=False, **kwargs):
         session.refresh(user)
 
         # this loads the user's timezone info which is lazy loaded, otherwise we'll get issues if we try to refer to it
-        user.timezone
+        user.timezone  # noqa: B018
 
         # allows detaches the user from the session, allowing its use outside this session
         session.expunge(user)
@@ -919,7 +919,7 @@ def push_collector():
             try:
                 return self.kwargs[attr]
             except KeyError:
-                raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{attr}'")
+                raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{attr}'") from None
 
         def __repr__(self):
             kwargs_disp = ", ".join(f"'{key}'='{val}'" for key, val in self.kwargs.items())
@@ -953,5 +953,5 @@ def push_collector():
 
     collector = PushCollector()
 
-    with patch("couchers.notifications.push._push_to_user", collector.push_to_user) as mock:
+    with patch("couchers.notifications.push._push_to_user", collector.push_to_user):
         yield collector

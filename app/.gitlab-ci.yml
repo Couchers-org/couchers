@@ -266,9 +266,9 @@ test:backend-format:
     default: false
   script:
     - cd app/backend
-    - autoflake --exclude src/proto -r -i --remove-all-unused-imports --check src
-    - isort --check --diff .
-    - black --check --diff .
+    - ruff check .
+    - ruff check --diff .
+    - ruff format --diff .
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:

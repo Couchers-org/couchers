@@ -47,7 +47,7 @@ SRC_DIR = os.path.dirname(__file__)
 
 
 def add_dummy_users():
-    logger.info(f"Adding dummy users")
+    logger.info("Adding dummy users")
     with session_scope() as session:
         if session.execute(select(func.count()).select_from(User)).scalar_one() > 0:
             logger.info("Users not empty, not adding dummy users")
@@ -189,7 +189,7 @@ def add_dummy_users():
 
 
 def add_dummy_communities():
-    logger.info(f"Adding dummy communities")
+    logger.info("Adding dummy communities")
     with session_scope() as session:
         if session.execute(select(func.count()).select_from(Node)).scalar_one() > 0:
             logger.info("Nodes not empty, not adding dummy communities")

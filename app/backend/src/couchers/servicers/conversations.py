@@ -269,7 +269,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     for result in results[:page_size]
                 ],
                 last_message_id=(
-                    min(map(lambda g: g.Message.id if g.Message else 1, results[:page_size])) if len(results) > 0 else 0
+                    min(g.Message.id if g.Message else 1 for g in results[:page_size]) if len(results) > 0 else 0
                 ),  # TODO
                 no_more=len(results) <= page_size,
             )
@@ -487,16 +487,13 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def CreateGroupChat(self, request, context):
         with session_scope() as session:
-            recipient_user_ids = [
-                user_id
-                for user_id in (
-                    session.execute(
-                        select(User.id).where_users_visible(context).where(User.id.in_(request.recipient_user_ids))
-                    )
-                    .scalars()
-                    .all()
+            recipient_user_ids = list(
+                session.execute(
+                    select(User.id).where_users_visible(context).where(User.id.in_(request.recipient_user_ids))
                 )
-            ]
+                .scalars()
+                .all()
+            )
 
             # make sure all requested users are visible
             if len(recipient_user_ids) != len(request.recipient_user_ids):

@@ -15,7 +15,7 @@ The Couchers.org codebase is open-sourced under an MIT license and we accept occ
 
 We pride ourselves on good documentation, ease of contribution, and ability for contributors to make large impacts. You will be working alongside experienced professionals who are motivated to develop their skills, to meet other professionals, and to develop this critical platform for the couch surfing community.
 
-### Duties 
+### Duties
 
 - Developing and expanding features;
 - Improving UI based on wireframes;

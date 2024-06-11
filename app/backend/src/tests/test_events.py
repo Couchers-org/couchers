@@ -1693,7 +1693,6 @@ def test_ListEventOccurrences(db):
     with session_scope() as session:
         c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
 
-    time_before = now()
     start = now()
 
     event_ids = []
@@ -1802,7 +1801,7 @@ def test_ListMyEvents(db):
         e4 = api.CreateEvent(new_event(4, c_id, True)).event_id
 
     with events_session(token4) as api:
-        e6 = api.CreateEvent((new_event(6, c2_id, True))).event_id
+        e6 = api.CreateEvent(new_event(6, c2_id, True)).event_id
 
     with events_session(token1) as api:
         api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=e3, user_id=user3.id))

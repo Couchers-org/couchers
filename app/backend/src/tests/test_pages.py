@@ -574,8 +574,8 @@ def test_page_transfer(db):
         node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])))
         session.add(node)
         community_cluster = Cluster(
-            name=f"Testing Community",
-            description=f"Description for testing community",
+            name="Testing Community",
+            description="Description for testing community",
             parent_node=node,
             is_official_cluster=True,
         )
@@ -592,7 +592,7 @@ def test_page_transfer(db):
             PageVersion(
                 page=main_page,
                 editor_user_id=user2.id,
-                title=f"Main page for the testing community",
+                title="Main page for the testing community",
                 content="Empty.",
             )
         )
@@ -611,8 +611,8 @@ def test_page_transfer(db):
 
         # create a group
         group_cluster = Cluster(
-            name=f"Testing Group",
-            description=f"Description for testing group",
+            name="Testing Group",
+            description="Description for testing group",
             parent_node=node,
         )
         session.add(group_cluster)
@@ -628,7 +628,7 @@ def test_page_transfer(db):
             PageVersion(
                 page=main_page,
                 editor_user_id=user2.id,
-                title=f"Main page for the testing community",
+                title="Main page for the testing community",
                 content="Empty.",
             )
         )

@@ -159,7 +159,6 @@ message ResponseRateMost {
   google.protobuf.Duration response_time_p66 = 3;
 }
 
-
 message ResponseRateAlmostAll {
   // the 33rd percentile response time
   google.protobuf.Duration response_time_p33 = 2;

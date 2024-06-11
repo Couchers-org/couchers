@@ -15,10 +15,10 @@ The Couchers.org codebase is open-sourced under an MIT license and we accept occ
 
 We pride ourselves on good documentation, ease of contribution, and ability for contributors to make large impacts. You will be working alongside experienced professionals who are motivated to develop their skills, to meet other professionals, and to develop this critical platform for the couch surfing community.
 
-### Duties 
+### Duties
 
 - Providing strategic vision for mobile development including technical design;
-- Work with our backend, web, and UX teams as part of our software lifecycle; 
+- Work with our backend, web, and UX teams as part of our software lifecycle;
 - Lead a mobile team in delivering the mobile product, including mentoring and necessary training of engineers;
 - Assist in maintaining our documentation;
 - Assist in our recruitment process for the onboarding of mobile developers;

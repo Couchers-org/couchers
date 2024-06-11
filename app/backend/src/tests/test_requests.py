@@ -978,7 +978,7 @@ def test_request_notifications(db, push_collector):
                 )
             ).host_request_id
 
-    mock.assert_called_once
+    mock.assert_called_once()
     e = email_fields(mock)
     assert e.recipient == host.email
     assert "host request" in e.subject.lower()

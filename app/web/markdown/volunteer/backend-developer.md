@@ -16,7 +16,7 @@ The Couchers.org codebase is open-sourced under an MIT license and we accept occ
 
 We pride ourselves on good documentation, ease of contribution, and ability for contributors to make large impacts. You will be working alongside experienced professionals who are motivated to develop their skills, meet other professionals, and develop this critical platform for the couch surfing community.
 
-### Duties 
+### Duties
 
 - Developing and expanding features;
 - Debugging, documentation, and testing;
@@ -33,7 +33,7 @@ We pride ourselves on good documentation, ease of contribution, and ability for 
 
 - Good understanding of REST APIs;
 - Experience with React and Typescript for occasional frontend implementation;
-- Experience with PostgreSQL and SQLAlchemy; 
+- Experience with PostgreSQL and SQLAlchemy;
 
 
 ### Expectations/Commitment
