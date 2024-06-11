@@ -9,6 +9,7 @@ from sqlalchemy.sql import or_, select, update
 
 from couchers import errors, urls
 from couchers.db import session_scope
+from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
@@ -116,18 +117,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if badge["id"] in [b.badge_id for b in user.badges]:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_ALREADY_HAS_BADGE)
 
-            session.add(UserBadge(user_id=user.id, badge_id=badge["id"]))
-            session.commit()
-
-            notify(
-                user_id=user.id,
-                topic_action="badge:add",
-                data=notification_data_pb2.BadgeAdd(
-                    badge_id=badge["id"],
-                    badge_name=badge["name"],
-                    badge_description=badge["description"],
-                ),
-            )
+            user_add_badge(session, user.id, request.badge_id)
 
             return _user_to_details(user)
 
@@ -150,18 +140,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if not user_badge:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_DOES_NOT_HAVE_BADGE)
 
-            session.delete(user_badge)
-            session.commit()
-
-            notify(
-                user_id=user.id,
-                topic_action="badge:remove",
-                data=notification_data_pb2.BadgeRemove(
-                    badge_id=badge["id"],
-                    badge_name=badge["name"],
-                    badge_description=badge["description"],
-                ),
-            )
+            user_remove_badge(session, user.id, request.badge_id)
 
             return _user_to_details(user)
 
