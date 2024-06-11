@@ -1,4 +1,4 @@
-"""Notify v3
+"""Notify v2.1
 
 Revision ID: bc79d9a6fd26
 Revises: ed8f8aad559c
