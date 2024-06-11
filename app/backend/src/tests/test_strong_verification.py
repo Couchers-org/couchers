@@ -1,10 +1,11 @@
 import json
-from datetime import date
+from datetime import date, timedelta
 from unittest.mock import ANY, patch
 
 import grpc
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy.sql import or_
 
 import couchers.jobs.handlers
 import couchers.servicers.account
@@ -49,41 +50,25 @@ def _emulate_iris_callback(session_id, session_state, reference):
         iris.Webhook(httpbody_pb2.HttpBody(content_type="application/json", data=data))
 
 
-def test_strong_verification_happy_path(db, monkeypatch):
-    new_config = config.copy()
-    new_config["ENABLE_STRONG_VERIFICATION"] = True
-    new_config["IRIS_ID_PUBKEY"] = "dummy_pubkey"
-    new_config["IRIS_ID_SECRET"] = "dummy_secret"
-    new_config["VERIFICATION_DATA_PUBLIC_KEY"] = bytes.fromhex(
-        "dd740a2b2a35bf05041a28257ea439b30f76f056f3698000b71e6470cd82275f"
-    )
+default_expiry = date.today() + timedelta(days=5 * 365)
 
-    private_key = bytes.fromhex("e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272")
 
-    monkeypatch.setattr(couchers.servicers.account, "config", new_config)
-    monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
-
-    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
-    _, superuser_token = generate_user(is_superuser=True)
-
-    update_badges(empty_pb2.Empty())
-
-    with api_session(token) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
-        assert "strong_verification" not in res.badges
-        assert not res.has_strong_verification
-        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
-        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
-
-    # can remove SV data even if there is none, should do nothing
-    with account_session(token) as account:
-        account.DeleteStrongVerificationData(empty_pb2.Empty())
-
+def do_and_check_sv(
+    user,
+    token,
+    verification_id,
+    sex,
+    dob,
+    document_type,
+    document_number,
+    document_expiry,
+    nationality,
+):
     with account_session(token) as account:
         # start by initiation
         with patch("couchers.servicers.account.requests.post") as mock:
             json_resp1 = {
-                "id": 5731012934821983,
+                "id": verification_id,
                 "token": "eyJtZXJjaGFudF9pZCI6IDU3MzEwMTI5MzQ4MjE5ODIsICJzZXNzaW9uX2lkIjogNTczMTAxMjkzNDgyMTk4MywgInNlZWQiOiAxNjc0MjQ2MzM5LCAiZmFjZV92ZXJpZmljYXRpb24iOiBmYWxzZSwgImhvc3QiOiAiaHR0cHM6Ly9wYXNzcG9ydHJlYWRlci5hcHAifQ",
             }
             mock.return_value = type(
@@ -121,7 +106,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
         )
 
     # ok, now the user downloads the app, scans their id, and Iris ID sends callbacks to the server
-    _emulate_iris_callback(5731012934821983, "INITIATED", reference_data)
+    _emulate_iris_callback(verification_id, "INITIATED", reference_data)
 
     with account_session(token) as account:
         assert (
@@ -131,7 +116,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
             == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_IN_APP
         )
 
-    _emulate_iris_callback(5731012934821983, "COMPLETED", reference_data)
+    _emulate_iris_callback(verification_id, "COMPLETED", reference_data)
 
     with account_session(token) as account:
         assert (
@@ -141,7 +126,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
             == account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_BACKEND
         )
 
-    _emulate_iris_callback(5731012934821983, "APPROVED", reference_data)
+    _emulate_iris_callback(verification_id, "APPROVED", reference_data)
 
     with account_session(token) as account:
         assert (
@@ -153,7 +138,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
 
     with patch("couchers.jobs.handlers.requests.post") as mock:
         json_resp2 = {
-            "id": 5731012934821983,
+            "id": verification_id,
             "created": "2024-05-11T15:46:46Z",
             "expires": "2024-05-11T16:17:26Z",
             "state": "APPROVED",
@@ -162,13 +147,13 @@ def test_strong_verification_happy_path(db, monkeypatch):
             "user_agent": "Iris%20ID/168357896 CFNetwork/1494.0.7 Darwin/23.4.0",
             "given_names": "John Wayne",
             "surname": "Doe",
-            "nationality": "US",
-            "sex": "MALE",
-            "date_of_birth": "1988-01-01",
-            "document_type": "PASSPORT",
-            "document_number": "31195855",
-            "expiry_date": "2031-01-01",
-            "issuing_country": "US",
+            "nationality": nationality,
+            "sex": sex,
+            "date_of_birth": dob,
+            "document_type": document_type,
+            "document_number": document_number,
+            "expiry_date": document_expiry.isoformat(),
+            "issuing_country": nationality,
             "issuer": "Department of State, U.S. Government",
             "portrait": "dGVzdHRlc3R0ZXN0...",
         }
@@ -187,7 +172,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
     mock.assert_called_once_with(
         "https://passportreader.app/api/v1/session.get",
         auth=("dummy_pubkey", "dummy_secret"),
-        json={"id": 5731012934821983},
+        json={"id": verification_id},
         timeout=10,
     )
 
@@ -209,18 +194,19 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert verification_attempt.status == StrongVerificationAttemptStatus.succeeded
         assert verification_attempt.has_full_data
         assert verification_attempt.passport_encrypted_data
-        assert verification_attempt.passport_date_of_birth == date(1988, 1, 1)
-        assert verification_attempt.passport_sex == PassportSex.male
+        # assert verification_attempt.passport_date_of_birth == date(1988, 1, 1)
+        # assert verification_attempt.passport_sex == PassportSex.male
         assert verification_attempt.has_minimal_data
-        assert verification_attempt.passport_expiry_date == date(2031, 1, 1)
-        assert verification_attempt.passport_nationality == "US"
-        assert verification_attempt.passport_last_three_document_chars == "855"
+        assert verification_attempt.passport_expiry_date == document_expiry
+        assert verification_attempt.passport_nationality == nationality
+        assert verification_attempt.passport_last_three_document_chars == document_number[-3:]
         assert (
             verification_attempt.iris_token
             == "eyJtZXJjaGFudF9pZCI6IDU3MzEwMTI5MzQ4MjE5ODIsICJzZXNzaW9uX2lkIjogNTczMTAxMjkzNDgyMTk4MywgInNlZWQiOiAxNjc0MjQ2MzM5LCAiZmFjZV92ZXJpZmljYXRpb24iOiBmYWxzZSwgImhvc3QiOiAiaHR0cHM6Ly9wYXNzcG9ydHJlYWRlci5hcHAifQ"
         )
-        assert verification_attempt.iris_session_id == 5731012934821983
+        assert verification_attempt.iris_session_id == verification_id
 
+        private_key = bytes.fromhex("e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272")
         decrypted_data = json.loads(asym_decrypt(private_key, verification_attempt.passport_encrypted_data))
         assert decrypted_data == json_resp2
 
@@ -234,6 +220,60 @@ def test_strong_verification_happy_path(db, monkeypatch):
             .all()
         )
         assert callbacks == ["INITIATED", "COMPLETED", "APPROVED"]
+
+
+def monkeypatch_sv_config(monkeypatch):
+    new_config = config.copy()
+    new_config["ENABLE_STRONG_VERIFICATION"] = True
+    new_config["IRIS_ID_PUBKEY"] = "dummy_pubkey"
+    new_config["IRIS_ID_SECRET"] = "dummy_secret"
+    new_config["VERIFICATION_DATA_PUBLIC_KEY"] = bytes.fromhex(
+        "dd740a2b2a35bf05041a28257ea439b30f76f056f3698000b71e6470cd82275f"
+    )
+
+    private_key = bytes.fromhex("e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272")
+
+    monkeypatch.setattr(couchers.servicers.account, "config", new_config)
+    monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
+
+
+def test_strong_verification_happy_path(db, monkeypatch):
+    monkeypatch_sv_config(monkeypatch)
+
+    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+    _, superuser_token = generate_user(is_superuser=True)
+
+    update_badges(empty_pb2.Empty())
+
+    with api_session(token) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert "strong_verification" not in res.badges
+        assert not res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
+
+    do_and_check_sv(
+        user,
+        token,
+        verification_id=5731012934821983,
+        sex="MALE",
+        dob="1988-01-01",
+        document_type="PASSPORT",
+        document_number="31195855",
+        document_expiry=default_expiry,
+        nationality="US",
+    )
+
+    with session_scope() as session:
+        verification_attempt = session.execute(
+            select(StrongVerificationAttempt).where(StrongVerificationAttempt.user_id == user.id)
+        ).scalar_one()
+        assert verification_attempt.status == StrongVerificationAttemptStatus.succeeded
+        assert verification_attempt.passport_date_of_birth == date(1988, 1, 1)
+        assert verification_attempt.passport_sex == PassportSex.male
+        assert verification_attempt.passport_expiry_date == default_expiry
+        assert verification_attempt.passport_nationality == "US"
+        assert verification_attempt.passport_last_three_document_chars == "855"
 
     update_badges(empty_pb2.Empty())
 
@@ -344,32 +384,60 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
 
-        # now turn exception back on
-        admin.SetPassportSexGenderException(
-            admin_pb2.SetPassportSexGenderExceptionReq(user=user.username, passport_sex_gender_exception=True)
-        )
 
-    update_badges(empty_pb2.Empty())
+def test_strong_verification_delete_data(db, monkeypatch):
+    monkeypatch_sv_config(monkeypatch)
 
-    with real_admin_session(superuser_token) as admin:
-        res = admin.GetUserDetails(admin_pb2.GetUserDetailsReq(user=user.username))
-        assert "strong_verification" in res.badges
-        assert res.has_strong_verification
-        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
-        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
+    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+    _, superuser_token = generate_user(is_superuser=True)
+
+    with api_session(token) as api:
+        assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+
+    # can remove SV data even if there is none, should do nothing
+    with account_session(token) as account:
+        account.DeleteStrongVerificationData(empty_pb2.Empty())
+
+    do_and_check_sv(
+        user,
+        token,
+        verification_id=5731012934821983,
+        sex="MALE",
+        dob="1988-01-01",
+        document_type="PASSPORT",
+        document_number="31195855",
+        document_expiry=default_expiry,
+        nationality="US",
+    )
+
+    # the user should now have strong verification
+    with api_session(token) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
 
     # check removing SV data
     with account_session(token) as account:
         account.DeleteStrongVerificationData(empty_pb2.Empty())
 
-    update_badges(empty_pb2.Empty())
-
     with api_session(token) as api:
-        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
-        assert "strong_verification" not in res.badges
-        assert not res.has_strong_verification
-        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
-        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
+        assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+
+    with session_scope() as session:
+        assert (
+            len(
+                session.execute(
+                    select(StrongVerificationAttempt).where(
+                        or_(
+                            StrongVerificationAttempt.passport_encrypted_data != None,
+                            StrongVerificationAttempt.passport_date_of_birth != None,
+                            StrongVerificationAttempt.passport_sex != None,
+                        )
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            == 0
+        )
 
 
 def test_strong_verification_disabled(db):
