@@ -7,7 +7,8 @@ import requests
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 from py_vapid import Vapid
-from py_vapid.utils import b64urldecode, b64urlencode
+
+from couchers.crypto import b64decode_unpadded, b64encode_unpadded
 
 logger = logging.getLogger(__name__)
 
@@ -17,12 +18,14 @@ def gen_vapid_keys():
     pub_key = prv_key.public_key()
     prv = prv_key.private_numbers().private_value.to_bytes(length=32)
     pub = pub_key.public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)
-    return b64urlencode(prv), b64urlencode(pub)
+    return b64encode_unpadded(prv), b64encode_unpadded(pub)
 
 
 def get_vapid_public_key_from_private_key(private):
     pub = Vapid.from_string(private).public_key
-    return b64urlencode(pub.public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint))
+    return b64encode_unpadded(
+        pub.public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)
+    )
 
 
 def generate_vapid_authorization(endpoint, vapid_sub, vapid_private_key):
@@ -59,7 +62,7 @@ def send_push(data, endpoint, auth_key, receiver_key, vapid_sub, vapid_private_k
 
 
 def decode_key(value):
-    return b64urldecode(value.encode())
+    return b64decode_unpadded(value.encode())
 
 
 def parse_subscription_info(subscription_info):

@@ -11,7 +11,7 @@ import couchers.jobs.handlers
 import couchers.servicers.account
 from couchers import errors
 from couchers.config import config
-from couchers.crypto import asym_decrypt
+from couchers.crypto import asym_decrypt, b64encode_unpadded
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
 from couchers.jobs.worker import process_job
@@ -23,6 +23,7 @@ from couchers.models import (
     User,
 )
 from couchers.sql import couchers_select as select
+from couchers.utils import now
 from proto import account_pb2, admin_pb2, api_pb2
 from proto.google.api import httpbody_pb2
 from tests.test_fixtures import (  # noqa
@@ -64,12 +65,21 @@ def do_and_check_sv(
     document_expiry,
     nationality,
 ):
+    iris_token_data = {
+        "merchant_id": 5731012934821982,
+        "session_id": verification_id,
+        "seed": 1674246339,
+        "face_verification": False,
+        "host": "https://passportreader.app",
+    }
+    iris_token = b64encode_unpadded(json.dumps(iris_token_data).encode("utf8"))
+
     with account_session(token) as account:
         # start by initiation
         with patch("couchers.servicers.account.requests.post") as mock:
             json_resp1 = {
                 "id": verification_id,
-                "token": "eyJtZXJjaGFudF9pZCI6IDU3MzEwMTI5MzQ4MjE5ODIsICJzZXNzaW9uX2lkIjogNTczMTAxMjkzNDgyMTk4MywgInNlZWQiOiAxNjc0MjQ2MzM5LCAiZmFjZV92ZXJpZmljYXRpb24iOiBmYWxzZSwgImhvc3QiOiAiaHR0cHM6Ly9wYXNzcG9ydHJlYWRlci5hcHAifQ",
+                "token": iris_token,
             }
             mock.return_value = type(
                 "__MockResponse",
@@ -93,10 +103,7 @@ def do_and_check_sv(
         )
         reference_data = mock.call_args.kwargs["json"]["reference"]
         verification_attempt_token = res.verification_attempt_token
-        assert (
-            res.iris_url
-            == "iris:///?token=eyJtZXJjaGFudF9pZCI6IDU3MzEwMTI5MzQ4MjE5ODIsICJzZXNzaW9uX2lkIjogNTczMTAxMjkzNDgyMTk4MywgInNlZWQiOiAxNjc0MjQ2MzM5LCAiZmFjZV92ZXJpZmljYXRpb24iOiBmYWxzZSwgImhvc3QiOiAiaHR0cHM6Ly9wYXNzcG9ydHJlYWRlci5hcHAifQ"
-        )
+        assert res.iris_url == f"iris:///?token={iris_token}"
 
         assert (
             account.GetStrongVerificationAttemptStatus(
@@ -200,10 +207,7 @@ def do_and_check_sv(
         assert verification_attempt.passport_expiry_date == document_expiry
         assert verification_attempt.passport_nationality == nationality
         assert verification_attempt.passport_last_three_document_chars == document_number[-3:]
-        assert (
-            verification_attempt.iris_token
-            == "eyJtZXJjaGFudF9pZCI6IDU3MzEwMTI5MzQ4MjE5ODIsICJzZXNzaW9uX2lkIjogNTczMTAxMjkzNDgyMTk4MywgInNlZWQiOiAxNjc0MjQ2MzM5LCAiZmFjZV92ZXJpZmljYXRpb24iOiBmYWxzZSwgImhvc3QiOiAiaHR0cHM6Ly9wYXNzcG9ydHJlYWRlci5hcHAifQ"
-        )
+        assert verification_attempt.iris_token == iris_token
         assert verification_attempt.iris_session_id == verification_id
 
         private_key = bytes.fromhex("e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272")
@@ -438,6 +442,67 @@ def test_strong_verification_delete_data(db, monkeypatch):
             )
             == 0
         )
+
+
+def test_strong_verification_expiry(db, monkeypatch):
+    monkeypatch_sv_config(monkeypatch)
+
+    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+    _, superuser_token = generate_user(is_superuser=True)
+
+    with api_session(token) as api:
+        assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+
+    expiry = date.today() + timedelta(days=10)
+
+    do_and_check_sv(
+        user,
+        token,
+        verification_id=5731012934821983,
+        sex="MALE",
+        dob="1988-01-01",
+        document_type="PASSPORT",
+        document_number="31195855",
+        document_expiry=expiry,
+        nationality="US",
+    )
+
+    # the user should now have strong verification
+    with api_session(token) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
+
+    def after_expiry():
+        return now() + timedelta(days=15)
+
+    with patch("couchers.models.now", after_expiry):
+        with api_session(token) as api:
+            res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+            assert not res.has_strong_verification
+            assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
+            assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
+
+            res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+            assert not res.has_strong_verification
+            assert not res.has_strong_verification
+
+        do_and_check_sv(
+            user,
+            token,
+            verification_id=5731012934821985,
+            sex="MALE",
+            dob="1988-01-01",
+            document_type="PASSPORT",
+            document_number="PA41323412",
+            document_expiry=date.today() + timedelta(days=365),
+            nationality="AU",
+        )
+
+        with api_session(token) as api:
+            print(api.GetUser(api_pb2.GetUserReq(user=user.username)))
+            assert api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
 
 
 def test_strong_verification_disabled(db):

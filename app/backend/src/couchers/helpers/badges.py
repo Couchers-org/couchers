@@ -1,8 +1,6 @@
 from sqlalchemy.sql import delete
 
-from couchers.models import (
-    UserBadge,
-)
+from couchers.models import UserBadge
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
 from proto import notification_data_pb2
