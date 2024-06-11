@@ -82,18 +82,20 @@ def get_strong_verification_fields(db_user):
         gender_verification_status=api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED,
         has_strong_verification=False,
     )
-    if db_user.strong_verification is not None:
-        if db_user.strong_verification.matches_birthdate(db_user):
+    attempt = db_user.strong_verification_attempts.first()
+    if attempt and attempt.is_valid:
+        if attempt.matches_birthdate(db_user):
             out["birthdate_verification_status"] = api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
         else:
             out["birthdate_verification_status"] = api_pb2.BIRTHDATE_VERIFICATION_STATUS_MISMATCH
 
-        if db_user.strong_verification.matches_gender(db_user):
+        if attempt.matches_gender(db_user):
             out["gender_verification_status"] = api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
         else:
             out["gender_verification_status"] = api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
 
-        out["has_strong_verification"] = db_user.strong_verification.has_strong_verification(db_user)
+        out["has_strong_verification"] = attempt.has_strong_verification(db_user)
+        print(attempt.has_strong_verification(db_user))
         assert out["has_strong_verification"] == (
             out["birthdate_verification_status"] == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
             and out["gender_verification_status"] == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
@@ -409,6 +411,38 @@ class Account(account_pb2_grpc.AccountServicer):
                     verification_attempt.status, account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_UNKNOWN
                 ),
             )
+
+    def DeleteStrongVerificationData(self, request, context):
+        with session_scope() as session:
+            verification_attempts = (
+                session.execute(
+                    select(StrongVerificationAttempt)
+                    .where(StrongVerificationAttempt.user_id == context.user_id)
+                    .where(StrongVerificationAttempt.has_full_data)
+                )
+                .scalars()
+                .all()
+            )
+            for verification_attempt in verification_attempts:
+                verification_attempt.status = StrongVerificationAttemptStatus.deleted
+                verification_attempt.has_full_data = False
+                verification_attempt.passport_encrypted_data = None
+                verification_attempt.passport_date_of_birth = None
+                verification_attempt.passport_sex = None
+            session.flush()
+            # double check:
+            verification_attempts = (
+                session.execute(
+                    select(StrongVerificationAttempt)
+                    .where(StrongVerificationAttempt.user_id == context.user_id)
+                    .where(StrongVerificationAttempt.has_full_data)
+                )
+                .scalars()
+                .all()
+            )
+            assert len(verification_attempts) == 0
+
+            return empty_pb2.Empty()
 
     def DeleteAccount(self, request, context):
         """

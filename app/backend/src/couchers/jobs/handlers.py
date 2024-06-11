@@ -21,6 +21,7 @@ from couchers.crypto import asym_encrypt, b64decode, simple_decrypt
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
+from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.materialized_views import refresh_materialized_views as mv_refresh_materialized_views
 from couchers.models import (
     AccountDeletionToken,
@@ -718,30 +719,10 @@ def update_badges(payload):
             # we should remove the badge from these
             remove = set(user_ids) - set(actual_members)
             for user_id in add:
-                session.add(UserBadge(user_id=user_id, badge_id=badge_id))
-
-                notify(
-                    user_id=user_id,
-                    topic_action="badge:add",
-                    data=notification_data_pb2.BadgeAdd(
-                        badge_id=badge["id"],
-                        badge_name=badge["name"],
-                        badge_description=badge["description"],
-                    ),
-                )
-
-            session.execute(delete(UserBadge).where(UserBadge.user_id.in_(remove), UserBadge.badge_id == badge["id"]))
+                user_add_badge(session, user_id, badge_id)
 
             for user_id in remove:
-                notify(
-                    user_id=user_id,
-                    topic_action="badge:remove",
-                    data=notification_data_pb2.BadgeRemove(
-                        badge_id=badge["id"],
-                        badge_name=badge["name"],
-                        badge_description=badge["description"],
-                    ),
-                )
+                user_remove_badge(session, user_id, badge_id)
 
         update_badge("founder", get_static_badge_dict()["founder"])
         update_badge("board_member", get_static_badge_dict()["board_member"])
@@ -796,7 +777,6 @@ def finalize_strong_verification(payload):
         verification_attempt.passport_encrypted_data = asym_encrypt(
             config["VERIFICATION_DATA_PUBLIC_KEY"], response.text.encode("utf8")
         )
-        verification_attempt.passport_name = json_data["given_names"] + " " + json_data["surname"]
         verification_attempt.passport_date_of_birth = date.fromisoformat(json_data["date_of_birth"])
         verification_attempt.passport_sex = PassportSex[json_data["sex"].lower()]
         verification_attempt.has_minimal_data = True
@@ -804,6 +784,18 @@ def finalize_strong_verification(payload):
         verification_attempt.passport_nationality = json_data["nationality"]
         verification_attempt.passport_last_three_document_chars = json_data["document_number"][-3:]
         verification_attempt.status = StrongVerificationAttemptStatus.succeeded
+
+        session.flush()
+
+        user = verification_attempt.user
+        if verification_attempt.has_strong_verification(user):
+            badge_id = "strong_verification"
+            if session.execute(
+                select(UserBadge).where(UserBadge.user_id == user.id, UserBadge.badge_id == badge_id)
+            ).scalar_one_or_none():
+                return
+
+            user_add_badge(session, user.id, badge_id)
 
 
 finalize_strong_verification.PAYLOAD = jobs_pb2.FinalizeStrongVerificationPayload
