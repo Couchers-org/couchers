@@ -58,9 +58,9 @@
     </style>
     <![endif]-->
   <!--[if !mso]><!-->
-  <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700" rel="stylesheet" type="text/css">
+  <link href="https://couchers.org/static/fonts/ubuntu/ubuntu.css" rel="stylesheet" type="text/css">
   <style type="text/css">
-    @import url(https://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700);
+    @import url(https://couchers.org/static/fonts/ubuntu/ubuntu.css);
 
   </style>
   <!--<![endif]-->
@@ -70,16 +70,6 @@
         width: 100% !important;
         max-width: 100%;
       }
-
-      .mj-column-px-120 {
-        width: 120px !important;
-        max-width: 120px;
-      }
-
-      .mj-column-px-440 {
-        width: 440px !important;
-        max-width: 440px;
-      }
     }
 
   </style>
@@ -87,16 +77,6 @@
     .moz-text-html .mj-column-per-100 {
       width: 100% !important;
       max-width: 100%;
-    }
-
-    .moz-text-html .mj-column-px-120 {
-      width: 120px !important;
-      max-width: 120px;
-    }
-
-    .moz-text-html .mj-column-px-440 {
-      width: 440px !important;
-      max-width: 440px;
     }
 
   </style>
@@ -210,33 +190,23 @@
                   <tbody>
                     <tr>
                       <td style="direction:ltr;font-size:0px;padding:0px;text-align:left;">
-                        <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:120px;" ><![endif]-->
-                        <div class="mj-column-px-120 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                        <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:560px;" ><![endif]-->
+                        <div class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
                           <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
                             <tbody>
                               <tr>
-                                <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;border-spacing:0px;">
-                                    <tbody>
-                                      <tr>
-                                        <td style="width:70px;">
-                                          <img alt src="{{ other|v2avatar }}" style="border:0;border-radius:200px;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;" width="70" height="auto">
-                                        </td>
-                                      </tr>
-                                    </tbody>
+                                <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                  <table cellpadding="0" cellspacing="0" width="100%" border="0" style="color:#000000;font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
+                                    <tr>
+                                      <td style="width: 100px;">
+                                        <img width="80px" style="border-radius: 80px" src="{{ other|v2avatar }}">
+                                      </td>
+                                      <td>
+                                        <b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br>{{ other.city|v2esc }}
+                                        <br>From <b>{{ host_request.from_date|v2date(user) }}</b> to <b>{{ host_request.to_date|v2date(user) }}</b>.
+                                      </td>
+                                    </tr>
                                   </table>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                        <!--[if mso | IE]></td><td class="" style="vertical-align:top;width:440px;" ><![endif]-->
-                        <div class="mj-column-px-440 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
-                          <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
-                            <tbody>
-                              <tr>
-                                <td align="left" style="font-size:0px;padding:15px 0px 0px 0px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:20px;text-align:left;color:#333333;"><b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br>{{ other.city|v2esc }}<br>From <b>{{ host_request.from_date|v2date(user) }}</b> to <b>{{ host_request.to_date|v2date(user) }}</b>.</div>
                                 </td>
                               </tr>
                             </tbody>
