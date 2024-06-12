@@ -77,9 +77,8 @@ def test_ChangePhone(db, monkeypatch, push_collector):
             assert len(user.phone_verification_token) == 6
 
         process_jobs()
-        push_collector.assert_user_push_matches_fields(
+        push_collector.assert_user_has_single_matching(
             user_id,
-            ix=0,
             title="Phone verification started",
             body="You started phone number verification with the number +46 70 174 06 05.",
         )
@@ -91,14 +90,6 @@ def test_ChangePhone(db, monkeypatch, push_collector):
 
         # Remove phone number
         account.ChangePhone(account_pb2.ChangePhoneReq(phone=""))
-
-        process_jobs()
-        push_collector.assert_user_push_matches_fields(
-            user_id,
-            ix=1,
-            title="Phone successfully verified",
-            body="Your phone was successfully verified as +46 70 174 06 05 on Couchers.org.",
-        )
 
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == user_id)).scalar_one()
@@ -129,7 +120,7 @@ def test_ChangePhone_ratelimit(db, monkeypatch):
             assert len(user.phone_verification_token) == 6
 
 
-def test_VerifyPhone():
+def test_VerifyPhone(push_collector):
     user, token = generate_user()
     user_id = user.id
     with account_session(token) as account, api_session(token) as api:
@@ -147,6 +138,13 @@ def test_VerifyPhone():
             user.phone_verification_sent = now()
 
         account.VerifyPhone(account_pb2.VerifyPhoneReq(token="111112"))
+
+        process_jobs()
+        push_collector.assert_user_has_single_matching(
+            user_id,
+            title="Phone successfully verified",
+            body="Your phone was successfully verified as +46 70 174 06 05 on Couchers.org.",
+        )
 
         res = api.GetUser(api_pb2.GetUserReq(user=str(user_id)))
         assert res.verification == 1.0

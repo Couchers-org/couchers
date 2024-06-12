@@ -293,6 +293,9 @@ class Account(account_pb2_grpc.AccountServicer):
                 notify(
                     user_id=user.id,
                     topic_action="phone_number:change",
+                    data=notification_data_pb2.PhoneNumberChange(
+                        phone=phone,
+                    ),
                 )
 
                 return empty_pb2.Empty()
@@ -342,6 +345,9 @@ class Account(account_pb2_grpc.AccountServicer):
             notify(
                 user_id=user.id,
                 topic_action="phone_number:verify",
+                data=notification_data_pb2.PhoneNumberVerify(
+                    phone=user.phone,
+                ),
             )
 
         return empty_pb2.Empty()
