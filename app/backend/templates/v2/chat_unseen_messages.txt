@@ -1,0 +1,19 @@
+Hi {{ user.name }},
+
+You have unseen messages on Couchers.org, here's the latest:
+
+---
+
+{% for item in items %}
+
+{{ item.message }}.
+
+{{ item.text|v2quote }}
+
+View this message: <{{ item.view_link }}>
+
+---
+{% endfor %}
+
+
+Do not reply to this email. Log in to your account to reply.

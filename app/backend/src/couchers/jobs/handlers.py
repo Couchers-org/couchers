@@ -15,7 +15,6 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, case, cast, delete, distinct, extract, func, literal, not_, or_, select, union_all
 from sqlalchemy.sql.functions import percentile_disc
 
-from couchers import email, urls
 from couchers.config import config
 from couchers.crypto import asym_encrypt, b64decode, simple_decrypt
 from couchers.db import session_scope
@@ -57,6 +56,7 @@ from couchers.servicers.events import (
     generate_event_delete_notifications,
     generate_event_update_notifications,
 )
+from couchers.servicers.requests import host_request_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.utils import now
@@ -199,23 +199,33 @@ def send_message_notifications(payload):
             ).all()
 
             user.last_notified_message_id = max(message.id for _, message, _ in unseen_messages)
-            session.commit()
 
-            total_unseen_message_count = sum(count for _, _, count in unseen_messages)
+            def format_title(message, group_chat, count_unseen):
+                if group_chat.is_dm:
+                    return f"You missed {count_unseen} message(s) from {message.author.name}"
+                else:
+                    return f"You missed {count_unseen} message(s) in {group_chat.title}"
 
-            # todo(notify2)
-            email.enqueue_email_from_template_to_user(
-                user,
-                "unseen_messages",
-                template_args={
-                    "user": user,
-                    "total_unseen_message_count": total_unseen_message_count,
-                    "unseen_messages": [  # noqa: C416
-                        (group_chat, latest_message, count) for group_chat, latest_message, count in unseen_messages
+            notify(
+                user_id=user.id,
+                topic_action="chat:missed_messages",
+                data=notification_data_pb2.ChatMissedMessages(
+                    messages=[
+                        notification_data_pb2.ChatMessage(
+                            author=user_model_to_pb(
+                                message.author,
+                                session,
+                                SimpleNamespace(user_id=user.id),
+                            ),
+                            message=format_title(message, group_chat, count_unseen),
+                            text=message.text,
+                            group_chat_id=message.conversation_id,
+                        )
+                        for group_chat, message, count_unseen in unseen_messages
                     ],
-                    "group_chats_link": urls.messages_link(),
-                },
+                ),
             )
+            session.commit()
 
 
 send_message_notifications.PAYLOAD = empty_pb2.Empty
@@ -257,32 +267,34 @@ def send_request_notifications(payload):
 
         for user, host_request, max_message_id in surfing_reqs:
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
-            session.commit()
+            session.flush()
 
-            # todo(notify2)
-            email.enqueue_email_from_template_to_user(
-                user,
-                "unseen_message_guest",
-                template_args={
-                    "user": user,
-                    "host_request": host_request,
-                    "host_request_link": urls.host_request_link_guest(),
-                },
+            context = SimpleNamespace(user_id=user.id)
+            notify(
+                user_id=user.id,
+                topic_action="host_request:missed_messages",
+                key=host_request.conversation_id,
+                data=notification_data_pb2.HostRequestMissedMessages(
+                    host_request=host_request_to_pb(host_request, session, context),
+                    user=user_model_to_pb(host_request.host, session, context),
+                    am_host=False,
+                ),
             )
 
         for user, host_request, max_message_id in hosting_reqs:
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
-            session.commit()
+            session.flush()
 
-            # todo(notify2)
-            email.enqueue_email_from_template_to_user(
-                user,
-                "unseen_message_host",
-                template_args={
-                    "user": user,
-                    "host_request": host_request,
-                    "host_request_link": urls.host_request_link_host(),
-                },
+            context = SimpleNamespace(user_id=user.id)
+            notify(
+                user_id=user.id,
+                topic_action="host_request:missed_messages",
+                key=host_request.conversation_id,
+                data=notification_data_pb2.HostRequestMissedMessages(
+                    host_request=host_request_to_pb(host_request, session, context),
+                    user=user_model_to_pb(host_request.surfer, session, context),
+                    am_host=True,
+                ),
             )
 
 

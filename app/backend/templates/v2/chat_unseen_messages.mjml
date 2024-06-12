@@ -1,0 +1,38 @@
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text>You have unseen messages on Couchers.org, here's the latest:</mj-text>
+  </mj-column>
+</mj-section>
+<!-- {% for item in items %} -->
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text><b>{{ item.message|v2esc }}</b>.</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px" text-align="left">
+  <mj-column width="120px">
+    <mj-image border-radius="200px" src="{{ item.author|v2avatar }}" />
+  </mj-column>
+  <mj-column width="440px">
+    <mj-text padding="15px 0px 0px 0px" line-height="20px"><b>{{ item.author.name|v2esc }}</b>, {{ item.author.age|v2esc }}<br />{{ item.author.city|v2esc }}</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="10px 20px" text-align="left">
+  <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
+    <mj-text>{{ item.text|v2esc|v2multiline }}</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ item.view_link|v2url }}">
+      <b>View this message</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<!-- {% endfor %} -->
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text><b>Do not reply to this email.</b> Use one of the buttons above, or log in to your account to reply to this request.</mj-text>
+  </mj-column>
+</mj-section>

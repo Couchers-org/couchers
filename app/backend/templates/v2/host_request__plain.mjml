@@ -21,6 +21,6 @@
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-text><b>Do not reply to this email.</b> Use one of the buttons above, or log in to your account to reply to this request.</mj-text>
+    <mj-text><b>Do not reply to this email.</b> Use the buttons above, or log in to your account to reply to this request.</mj-text>
   </mj-column>
 </mj-section>
