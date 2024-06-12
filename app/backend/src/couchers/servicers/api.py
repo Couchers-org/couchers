@@ -841,7 +841,7 @@ def user_model_to_pb(db_user, session, context):
         avatar_url=db_user.avatar.full_url if db_user.avatar else None,
         avatar_thumbnail_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
         badges=[badge.badge_id for badge in db_user.badges],
-        **get_strong_verification_fields(db_user),
+        **get_strong_verification_fields(session, db_user),
     )
 
     if db_user.max_guests is not None:

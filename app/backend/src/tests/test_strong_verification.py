@@ -532,9 +532,42 @@ def test_strong_verification_regression(db, monkeypatch):
         return_after="INITIATED",
     )
 
-    # the user should now have strong verification
     with api_session(token) as api:
         api.Ping(api_pb2.PingReq())
+
+
+def test_strong_verification_regression2(db, monkeypatch):
+    monkeypatch_sv_config(monkeypatch)
+
+    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+
+    do_and_check_sv(
+        user,
+        token,
+        verification_id=5731012934821983,
+        sex="MALE",
+        dob="1988-01-01",
+        document_type="PASSPORT",
+        document_number="31195855",
+        document_expiry=default_expiry,
+        nationality="US",
+        return_after="INITIATED",
+    )
+
+    do_and_check_sv(
+        user,
+        token,
+        verification_id=5731012934821985,
+        sex="MALE",
+        dob="1988-01-01",
+        document_type="PASSPORT",
+        document_number="PA41323412",
+        document_expiry=default_expiry,
+        nationality="AU",
+    )
+
+    with api_session(token) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
 
 
 def test_strong_verification_disabled(db):
