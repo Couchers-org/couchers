@@ -146,6 +146,8 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
 
         def user_unaware_function(req, context):
             context.user_id = user_id
+            context.token = token
+            context.is_api_key = is_api_key
             return user_aware_function(req, context)
 
         return grpc.unary_unary_rpc_method_handler(

@@ -79,7 +79,7 @@ def send_email_changed_confirmation_to_new_email(user):
 
     confirmation_link = urls.change_email_link(confirmation_token=user.new_email_token)
     send_simple_pretty_email(
-        user.email,
+        user.new_email,
         "Confirm your new email for Couchers.org",
         "email_changed_confirmation_new_email",
         template_args={"user": user, "confirmation_link": confirmation_link},

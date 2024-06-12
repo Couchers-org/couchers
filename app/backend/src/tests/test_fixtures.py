@@ -870,7 +870,7 @@ def process_jobs():
 
 @contextmanager
 def mock_notification_email():
-    with patch("couchers.notifications.background.queue_email") as mock:
+    with patch("couchers.email._queue_email") as mock:
         yield mock
         process_jobs()
 

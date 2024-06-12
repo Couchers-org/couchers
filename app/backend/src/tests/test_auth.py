@@ -1,5 +1,4 @@
 import http.cookies
-from unittest.mock import patch
 
 import grpc
 import pytest
@@ -314,17 +313,17 @@ def test_login_part_signed_up_verified_email(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
 
-    with patch("couchers.email.queue_email") as mock:
+    with mock_notification_email() as mock:
         with auth_api_session() as (auth_api, metadata_interceptor):
             with pytest.raises(grpc.RpcError) as e:
                 res = auth_api.Login(auth_pb2.LoginReq(user="email@couchers.org.invalid"))
             assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
 
     assert mock.call_count == 1
-    (_, _, recipient, _, plain, html), _ = mock.call_args
-    assert recipient == "email@couchers.org.invalid"
-    assert flow_token in plain
-    assert flow_token in html
+    e = email_fields(mock)
+    assert e.recipient == "email@couchers.org.invalid"
+    assert flow_token in e.plain
+    assert flow_token in e.html
 
 
 def test_login_part_signed_up_not_verified_email(db):
@@ -350,7 +349,7 @@ def test_login_part_signed_up_not_verified_email(db):
     flow_token = res.flow_token
     assert res.need_verify_email
 
-    with patch("couchers.email.queue_email") as mock:
+    with mock_notification_email() as mock:
         with auth_api_session() as (auth_api, metadata_interceptor):
             with pytest.raises(grpc.RpcError) as e:
                 res = auth_api.Login(auth_pb2.LoginReq(user="frodo"))
@@ -361,10 +360,10 @@ def test_login_part_signed_up_not_verified_email(db):
         email_token = flow.email_token
 
     assert mock.call_count == 1
-    (_, _, recipient, _, plain, html), _ = mock.call_args
-    assert recipient == "email@couchers.org.invalid"
-    assert email_token in plain
-    assert email_token in html
+    e = email_fields(mock)
+    assert e.recipient == "email@couchers.org.invalid"
+    assert email_token in e.plain
+    assert email_token in e.html
 
 
 def test_basic_login_without_password(db):

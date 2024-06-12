@@ -499,6 +499,7 @@ def test_send_message_notifications_basic(db):
     make_friends(user2, user3)
 
     send_message_notifications(empty_pb2.Empty())
+    process_jobs()
 
     # should find no jobs, since there's no messages
     with session_scope() as session:
@@ -526,6 +527,7 @@ def test_send_message_notifications_basic(db):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
 
     send_message_notifications(empty_pb2.Empty())
+    process_jobs()
 
     # no emails sent out
     with session_scope() as session:
@@ -539,6 +541,7 @@ def test_send_message_notifications_basic(db):
     # this should generate emails for both user2 and user3
     with patch("couchers.jobs.handlers.now", now_5_min_in_future):
         send_message_notifications(empty_pb2.Empty())
+        process_jobs()
 
     with session_scope() as session:
         assert (
@@ -553,6 +556,7 @@ def test_send_message_notifications_basic(db):
     # shouldn't generate any more emails
     with patch("couchers.jobs.handlers.now", now_5_min_in_future):
         send_message_notifications(empty_pb2.Empty())
+        process_jobs()
 
     with session_scope() as session:
         assert (
@@ -573,6 +577,7 @@ def test_send_message_notifications_muted(db):
     make_friends(user2, user3)
 
     send_message_notifications(empty_pb2.Empty())
+    process_jobs()
 
     # should find no jobs, since there's no messages
     with session_scope() as session:
@@ -606,6 +611,7 @@ def test_send_message_notifications_muted(db):
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
 
     send_message_notifications(empty_pb2.Empty())
+    process_jobs()
 
     # no emails sent out
     with session_scope() as session:
@@ -619,6 +625,7 @@ def test_send_message_notifications_muted(db):
     # this should generate emails for both user2 and NOT user3
     with patch("couchers.jobs.handlers.now", now_5_min_in_future):
         send_message_notifications(empty_pb2.Empty())
+        process_jobs()
 
     with session_scope() as session:
         assert (
@@ -633,6 +640,7 @@ def test_send_message_notifications_muted(db):
     # shouldn't generate any more emails
     with patch("couchers.jobs.handlers.now", now_5_min_in_future):
         send_message_notifications(empty_pb2.Empty())
+        process_jobs()
 
     with session_scope() as session:
         assert (
@@ -651,6 +659,7 @@ def test_send_request_notifications_host_request(db):
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
 
     send_request_notifications(empty_pb2.Empty())
+    process_jobs()
 
     # should find no jobs, since there's no messages
     with session_scope() as session:
@@ -671,6 +680,7 @@ def test_send_request_notifications_host_request(db):
         # check send_request_notifications successfully creates background job
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
             send_request_notifications(empty_pb2.Empty())
+            process_jobs()
         assert (
             session.execute(
                 select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
@@ -683,6 +693,7 @@ def test_send_request_notifications_host_request(db):
 
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
             send_request_notifications(empty_pb2.Empty())
+            process_jobs()
         # should find no messages since host has already been notified
         assert (
             session.execute(
@@ -708,6 +719,7 @@ def test_send_request_notifications_host_request(db):
         # check send_request_notifications successfully creates background job
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
             send_request_notifications(empty_pb2.Empty())
+            process_jobs()
         assert (
             session.execute(
                 select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
@@ -720,6 +732,7 @@ def test_send_request_notifications_host_request(db):
 
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
             send_request_notifications(empty_pb2.Empty())
+            process_jobs()
         # should find no messages since guest has already been notified
         assert (
             session.execute(
@@ -794,6 +807,7 @@ def test_send_onboarding_emails(db):
     user1, token1 = generate_user(onboarding_emails_sent=0, last_onboarding_email_sent=None)
 
     send_onboarding_emails(empty_pb2.Empty())
+    process_jobs()
 
     with session_scope() as session:
         assert (
@@ -807,6 +821,7 @@ def test_send_onboarding_emails(db):
     user2, token2 = generate_user(onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=6))
 
     send_onboarding_emails(empty_pb2.Empty())
+    process_jobs()
 
     with session_scope() as session:
         assert (
@@ -820,6 +835,7 @@ def test_send_onboarding_emails(db):
     user3, token3 = generate_user(onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=8))
 
     send_onboarding_emails(empty_pb2.Empty())
+    process_jobs()
 
     with session_scope() as session:
         assert (

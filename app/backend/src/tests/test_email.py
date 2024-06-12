@@ -50,14 +50,14 @@ def test_login_email(db):
     user, api_token = generate_user()
 
     with session_scope() as session:
-        with patch("couchers.email.queue_email") as mock:
+        with mock_notification_email() as mock:
             login_token = send_login_email(session, user)
 
         assert mock.call_count == 1
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == user.email
-        assert "login" in subject.lower()
-        assert login_token.token in plain
+        e = email_fields(mock)
+        assert e.recipient == user.email
+        assert "login" in e.subject.lower()
+        assert login_token.token in e.plain
 
 
 def test_signup_verification_email(db):
@@ -65,14 +65,14 @@ def test_signup_verification_email(db):
 
     flow = SignupFlow(name="Frodo", email=request_email)
 
-    with patch("couchers.email.queue_email") as mock:
+    with mock_notification_email() as mock:
         send_signup_email(flow)
 
     assert mock.call_count == 1
-    (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-    assert recipient == request_email
-    assert flow.email_token in plain
-    assert flow.email_token in html
+    e = email_fields(mock)
+    assert e.recipient == request_email
+    assert flow.email_token in e.plain
+    assert flow.email_token in e.html
 
 
 def test_report_email(db):
@@ -89,22 +89,22 @@ def test_report_email(db):
         page="https://couchers.org/comment/123",
     )
 
-    with patch("couchers.email.queue_email") as mock:
+    with mock_notification_email() as mock:
         send_content_report_email(report)
 
     assert mock.call_count == 1
 
-    (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-    assert recipient == "reports@couchers.org.invalid"
-    assert report.author_user.username in plain
-    assert str(report.author_user.id) in plain
-    assert report.author_user.email in plain
-    assert report.reporting_user.username in plain
-    assert str(report.reporting_user.id) in plain
-    assert report.reporting_user.email in plain
-    assert report.reason in plain
-    assert report.description in plain
-    assert "report" in subject.lower()
+    e = email_fields(mock)
+    assert e.recipient == "reports@couchers.org.invalid"
+    assert report.author_user.username in e.plain
+    assert str(report.author_user.id) in e.plain
+    assert report.author_user.email in e.plain
+    assert report.reporting_user.username in e.plain
+    assert str(report.reporting_user.id) in e.plain
+    assert report.reporting_user.email in e.plain
+    assert report.reason in e.plain
+    assert report.description in e.plain
+    assert "report" in e.subject.lower()
 
 
 def test_reference_report_email_not_sent(db):
@@ -127,7 +127,7 @@ def test_reference_report_email_not_sent(db):
 
         # no email sent for a positive ref
 
-        with patch("couchers.email.queue_email") as mock:
+        with mock_notification_email() as mock:
             maybe_send_reference_report_email(reference)
 
         assert mock.call_count == 0
@@ -151,23 +151,22 @@ def test_reference_report_email(db):
             was_appropriate=False,
         )
 
-        with patch("couchers.email.queue_email") as mock:
+        with mock_notification_email() as mock:
             maybe_send_reference_report_email(reference)
 
         assert mock.call_count == 1
-
-        (sender_name, sender_email, recipient, subject, plain, _), _ = mock.call_args
-        assert recipient == "reports@couchers.org.invalid"
-        assert "report" in subject.lower()
-        assert "reference" in subject.lower()
-        assert reference.from_user.username in plain
-        assert str(reference.from_user.id) in plain
-        assert reference.from_user.email in plain
-        assert reference.to_user.username in plain
-        assert str(reference.to_user.id) in plain
-        assert reference.to_user.email in plain
-        assert reference.text in plain
-        assert "friend" in plain.lower()
+        e = email_fields(mock)
+        assert e.recipient == "reports@couchers.org.invalid"
+        assert "report" in e.subject.lower()
+        assert "reference" in e.subject.lower()
+        assert reference.from_user.username in e.plain
+        assert str(reference.from_user.id) in e.plain
+        assert reference.from_user.email in e.plain
+        assert reference.to_user.username in e.plain
+        assert str(reference.to_user.id) in e.plain
+        assert reference.to_user.email in e.plain
+        assert reference.text in e.plain
+        assert "friend" in e.plain.lower()
 
 
 def test_email_patching_fails(db):
@@ -184,7 +183,7 @@ def test_email_patching_fails(db):
     def mock_queue_email(**kwargs):
         raise Exception(patched_msg)
 
-    with patch("couchers.notifications.background.queue_email", mock_queue_email):
+    with patch("couchers.email._queue_email", mock_queue_email):
         with pytest.raises(Exception) as e:
             with api_session(from_token) as api:
                 api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=to_user.id))
@@ -198,23 +197,23 @@ def test_email_changed_confirmation_sent_to_new_email(db):
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
     user.new_email_token = confirmation_token
-    with patch("couchers.templates.v2.queue_email") as mock:
+    with mock_notification_email() as mock:
         send_email_changed_confirmation_to_new_email(user)
 
     assert mock.call_count == 1
-    _, kwargs = mock.call_args
-    assert "new email" in kwargs["subject"]
-    assert kwargs["recipient"] == user.new_email
-    assert user.name in kwargs["plain"]
-    assert user.name in kwargs["html"]
-    assert user.email in kwargs["plain"]
-    assert user.email in kwargs["html"]
-    assert "Your old email address is" in kwargs["plain"]
-    assert "Your old email address is" in kwargs["html"]
-    assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in kwargs["plain"]
-    assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in kwargs["html"]
-    assert "support@couchers.org" in kwargs["plain"]
-    assert "support@couchers.org" in kwargs["html"]
+    e = email_fields(mock)
+    assert "new email" in e.subject
+    assert e.recipient == user.new_email
+    assert user.name in e.plain
+    assert user.name in e.html
+    assert user.email in e.plain
+    assert user.email in e.html
+    assert "Your old email address is" in e.plain
+    assert "Your old email address is" in e.html
+    assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in e.plain
+    assert f"http://localhost:3000/confirm-email?token={confirmation_token}" in e.html
+    assert "support@couchers.org" in e.plain
+    assert "support@couchers.org" in e.html
 
 
 def test_do_not_email_security(db):
@@ -299,11 +298,10 @@ def test_email_prefix_config(db, monkeypatch):
         )
 
     assert mock.call_count == 1
-    _, kwargs = mock.call_args
-
-    assert kwargs["sender_name"] == "Couchers.org"
-    assert kwargs["sender_email"] == "notify@couchers.org.invalid"
-    assert kwargs["subject"] == "[TEST] Thank you for your donation to Couchers.org!"
+    e = email_fields(mock)
+    assert e.sender_name == "Couchers.org"
+    assert e.sender_email == "notify@couchers.org.invalid"
+    assert e.subject == "[TEST] Thank you for your donation to Couchers.org!"
 
     new_config = config.copy()
     new_config["NOTIFICATION_EMAIL_SENDER"] = "TestCo"
@@ -323,11 +321,10 @@ def test_email_prefix_config(db, monkeypatch):
         )
 
     assert mock.call_count == 1
-    _, kwargs = mock.call_args
-
-    assert kwargs["sender_name"] == "TestCo"
-    assert kwargs["sender_email"] == "testco@testing.co.invalid"
-    assert kwargs["subject"] == "Thank you for your donation to Couchers.org!"
+    e = email_fields(mock)
+    assert e.sender_name == "TestCo"
+    assert e.sender_email == "testco@testing.co.invalid"
+    assert e.subject == "Thank you for your donation to Couchers.org!"
 
 
 def test_send_donation_email(db, monkeypatch):
