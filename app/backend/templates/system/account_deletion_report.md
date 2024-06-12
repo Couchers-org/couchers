@@ -1,22 +1,20 @@
 ---
-subject: "Account deletion reason #{{ reason.id|couchers_escape }}"
+subject: "Account deletion reason #{{ reason.id }}"
 ---
-
-{% from "macros.html" import button, link, support_email, email_link, newline %}
 
 Someone deleted their account and wrote a reason.
 
 
-* Reason{{ newline(html)|couchers_safe }}
-{{ reason.reason|couchers_escape }}
+* Reason
+{{ reason.reason }}
 
 
-* Deleted user{{ newline(html)|couchers_safe }}
-Name: {{ reason.user.name|couchers_escape }}{{ newline(html)|couchers_safe }}
-Email: {{ reason.user.email|couchers_escape }}{{ newline(html)|couchers_safe }}
-Username: {{ reason.user.username|couchers_escape }}{{ newline(html)|couchers_safe }}
-User ID: {{ reason.user.id|couchers_escape }}{{ newline(html)|couchers_safe }}
+* Deleted user
+Name: {{ reason.user.name }}
+Email: {{ reason.user.email }}
+Username: {{ reason.user.username }}
+User ID: {{ reason.user.id }}
 
 
-* Time{{ newline(html)|couchers_safe }}
-{{ reason.created|couchers_escape }}
+* Time
+{{ reason.created }}

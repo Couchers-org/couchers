@@ -18,14 +18,29 @@ from couchers.models import (
     User,
 )
 from couchers.sql import couchers_select as select
-from couchers.templates.v2 import email_user
+from couchers.templates.v2 import send_simple_pretty_email
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
 
+def send_login_email(session, user):
+    # This is going away soon
+    login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
+    session.add(login_token)
+
+    logger.info(f"Sending login email to {user=}:")
+    send_simple_pretty_email(
+        user.email,
+        "Your login link for Couchers.org",
+        "login_link",
+        template_args={"user": user, "login_link": urls.login_link(login_token=login_token.token)},
+    )
+
+    return login_token
+
+
 def send_signup_email(flow):
-    # todo(notify2)
     logger.info(f"Sending signup email to {flow.email=}:")
 
     # whether we've sent an email at all yet
@@ -46,21 +61,12 @@ def send_signup_email(flow):
 
     flow.email_sent = True
 
-    logger.info(f"Link is: {signup_link}")
-    template = "signup_verify" if not email_sent_before else "signup_continue"
-    email.enqueue_email_from_template(flow.email, template, template_args={"flow": flow, "signup_link": signup_link})
-
-
-def send_login_email(session, user):
-    # This is going away soon
-    login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
-    session.add(login_token)
-
-    logger.info(f"Sending login email to {user=}:")
-    login_link = urls.login_link(login_token=login_token.token)
-    email.enqueue_plain_email(user.email, "login", template_args={"user": user, "login_link": login_link})
-
-    return login_token
+    send_simple_pretty_email(
+        flow.email,
+        "Finish signing up for Couchers.org",
+        "signup_verify" if not email_sent_before else "signup_continue",
+        template_args={"flow": flow, "signup_link": signup_link},
+    )
 
 
 def send_email_changed_confirmation_to_new_email(user):
@@ -72,11 +78,11 @@ def send_email_changed_confirmation_to_new_email(user):
     )
 
     confirmation_link = urls.change_email_link(confirmation_token=user.new_email_token)
-    email_user(
-        user,
+    send_simple_pretty_email(
+        user.email,
+        "Confirm your new email for Couchers.org",
         "email_changed_confirmation_new_email",
         template_args={"user": user, "confirmation_link": confirmation_link},
-        override_recipient=user.new_email,
     )
 
 

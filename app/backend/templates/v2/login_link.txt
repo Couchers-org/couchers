@@ -1,0 +1,10 @@
+Hi {{ user.name }}!
+
+Here's a login link for Couchers.org:
+
+<{{ login_link }}>
+
+See you in a bit :)
+
+Best,
+The Couchers.org team
