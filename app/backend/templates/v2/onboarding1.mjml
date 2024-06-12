@@ -17,7 +17,7 @@
 <mj-section padding="0px">
   <mj-column>
     <mj-text>Otherwise, please share the link with any of your couch surfing friends that you trust! This platform can only grow with your help bringing the best people to it.</mj-text>
-    <mj-text>Link: <{{ app_link|v2url }}></mj-text>
+    <mj-text>Link: <a href="{{ app_link|v2url }}">{{ app_link|v2url }}</a></mj-text>
     <mj-text>The platform is still under development, and features are actively being built by our amazing team of Couchers.org contributors around the world. We would like to hear your feedback and thoughts on what we've built and what we're working on. You can head on over to our forum at <https://community.couchers.org> if you'd like to join the conversation.</mj-text>
     <mj-text>Thanks so much for joining the platform. We're really excited to have you here and as part of our growing community!</mj-text>
     <mj-text>Best,<br />Aapeli<br />Couchers.org Co-founder<br /><a href="mailto:aapeli@couchers.org">aapeli@couchers.org</a> (feel free to shoot me an email at any time)<br /><br /><a href="https://couchers.org/user/aapeli">https://couchers.org/user/aapeli</a></mj-text>

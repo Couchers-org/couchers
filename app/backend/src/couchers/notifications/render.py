@@ -40,7 +40,28 @@ def render_notification(user, notification) -> RenderedNotification:
     data = notification.topic_action.data_type.FromString(notification.data)
     if notification.topic == "host_request":
         view_link = urls.host_request(host_request_id=data.host_request.host_request_id)
-        if notification.action in ["create", "message"]:
+        if notification.action == "missed_messages":
+            their_your = "their" if data.am_host else "your"
+            other = data.user
+            # "rejected your host request", or similar
+            message = f"{other.name} sent you message(s) in {their_your} host request"
+            return RenderedNotification(
+                email_subject=message,
+                email_preview=message,
+                email_template_name="host_request__plain",
+                email_template_args={
+                    "view_link": view_link,
+                    "host_request": data.host_request,
+                    "message": message,
+                    "other": other,
+                },
+                email_topic_action_unsubscribe_text="missed messages in host requests",
+                push_title=message,
+                push_body="Check the app for more info.",
+                push_icon=v2avatar(other),
+                push_url=view_link,
+            )
+        elif notification.action in ["create", "message"]:
             if notification.action == "create":
                 other = data.surfer
                 message = f"{other.name} sent you a host request"
@@ -411,6 +432,28 @@ def render_notification(user, notification) -> RenderedNotification:
             push_body=data.text,
             push_icon=v2avatar(data.author),
             push_url=urls.chat_link(chat_id=data.group_chat_id),
+        )
+    elif notification.topic_action.display == "chat:missed_messages":
+        return RenderedNotification(
+            email_subject="You have unseen messages on Couchers.org!",
+            email_preview="You missed some messages on the platform.",
+            email_template_name="chat_unseen_messages",
+            email_template_args={
+                "items": [
+                    {
+                        "author": item.author,
+                        "message": item.message,
+                        "text": item.text,
+                        "view_link": urls.chat_link(chat_id=item.group_chat_id),
+                    }
+                    for item in data.messages
+                ]
+            },
+            email_topic_action_unsubscribe_text="unseen chat messages",
+            push_title="You have unseen messages on Couchers.org",
+            push_body="Please check out any messages you missed.",
+            push_icon=urls.icon_url(),
+            push_url=urls.messages_link(),
         )
     elif notification.topic == "event":
         event = data.event

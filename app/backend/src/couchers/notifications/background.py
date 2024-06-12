@@ -50,7 +50,7 @@ def _send_email_notification(user: User, notification: Notification):
         **rendered.email_template_args,
     }
 
-    manage_link = urls.feature_preview_link()
+    manage_link = urls.account_settings_link()
 
     template_args["_year"] = now().year
     template_args["_timezone_display"] = get_tz_as_text(user.timezone or "Etc/UTC")
