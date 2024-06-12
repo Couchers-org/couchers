@@ -5,11 +5,18 @@
   </mj-column>
 </mj-section>
 <mj-section padding="0px" text-align="left">
-  <mj-column width="120px">
-    <mj-image border-radius="200px" src="{{ other|v2avatar }}" />
-  </mj-column>
-  <mj-column width="440px">
-    <mj-text padding="15px 0px 0px 0px" line-height="20px"><b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br />{{ other.city|v2esc }}<br />From <b>{{ host_request.from_date|v2date(user) }}</b> to <b>{{ host_request.to_date|v2date(user) }}</b>.</mj-text>
+  <mj-column>
+    <mj-table>
+      <tr>
+        <td style="width: 100px;">
+          <img width="80px" style="border-radius: 80px" src="{{ other|v2avatar }}" />
+        </td>
+        <td>
+          <b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br />{{ other.city|v2esc }}
+          <br />From <b>{{ host_request.from_date|v2date(user) }}</b> to <b>{{ host_request.to_date|v2date(user) }}</b>.
+        </td>
+      </tr>
+    </mj-table>
   </mj-column>
 </mj-section>
 <mj-section padding="0px">
