@@ -1,6 +1,5 @@
 import logging
 from datetime import timedelta
-from typing import List
 
 from sqlalchemy.sql import func
 
@@ -16,7 +15,6 @@ from couchers.models import (
     EventCommunityInviteRequest,
     LoginToken,
     Node,
-    Notification,
     User,
 )
 from couchers.sql import couchers_select as select
@@ -27,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 def send_signup_email(flow):
+    # todo(notify2)
     logger.info(f"Sending signup email to {flow.email=}:")
 
     # whether we've sent an email at all yet
@@ -53,17 +52,13 @@ def send_signup_email(flow):
 
 
 def send_login_email(session, user):
+    # This is going away soon
     login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
     session.add(login_token)
 
     logger.info(f"Sending login email to {user=}:")
-    logger.info(f"Email for {user.username=} to {user.email=}")
-    logger.info(f"Token: {login_token=} ({login_token.created=}")
     login_link = urls.login_link(login_token=login_token.token)
-    logger.info(f"Link is: {login_link}")
-    email.enqueue_email_from_template_to_user(
-        user, "login", template_args={"user": user, "login_link": login_link}, is_critical_email=True
-    )
+    email.enqueue_plain_email(user.email, "login", template_args={"user": user, "login_link": login_link})
 
     return login_token
 
@@ -85,26 +80,10 @@ def send_email_changed_confirmation_to_new_email(user):
     )
 
 
-def send_onboarding_email(user, email_number):
-    # todo(notify2): replace with notification
-    email.enqueue_email_from_template_to_user(
-        user,
-        f"onboarding{email_number}",
-        template_args={
-            "user": user,
-            "app_link": urls.app_link(),
-            "profile_link": urls.profile_link(),
-            "edit_profile_link": urls.edit_profile_link(),
-        },
-    )
-
-
 def send_content_report_email(content_report):
-    target_email = config["REPORTS_EMAIL_RECIPIENT"]
-
-    logger.info(f"Sending content report email to {target_email=}")
-    email.enqueue_email_from_template(
-        target_email,
+    logger.info("Sending content report email")
+    email.enqueue_system_email(
+        config["REPORTS_EMAIL_RECIPIENT"],
         "content_report",
         template_args={
             "report": content_report,
@@ -115,12 +94,10 @@ def send_content_report_email(content_report):
 
 
 def maybe_send_reference_report_email(reference):
-    target_email = config["REPORTS_EMAIL_RECIPIENT"]
-
     if reference.should_report:
-        logger.info(f"Sending reference report email to {target_email=}")
-        email.enqueue_email_from_template(
-            target_email,
+        logger.info("Sending reference report email")
+        email.enqueue_system_email(
+            config["REPORTS_EMAIL_RECIPIENT"],
             "reference_report",
             template_args={
                 "reference": reference,
@@ -131,18 +108,16 @@ def maybe_send_reference_report_email(reference):
 
 
 def maybe_send_contributor_form_email(form):
-    target_email = config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"]
-
     if form.should_notify:
-        email.enqueue_email_from_template(
-            target_email,
+        email.enqueue_system_email(
+            config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"],
             "contributor_form",
             template_args={"form": form, "user_link": urls.user_link(username=form.user.username)},
         )
 
 
 def send_event_community_invite_request_email(request: EventCommunityInviteRequest):
-    email.enqueue_email_from_template(
+    email.enqueue_system_email(
         config["MODS_EMAIL_RECIPIENT"],
         "event_community_invite_request",
         template_args={
@@ -153,12 +128,14 @@ def send_event_community_invite_request_email(request: EventCommunityInviteReque
     )
 
 
-def send_digest_email(user, notifications: List[Notification]):
-    logger.info(f"Sending digest email to {user=}:")
-    email.enqueue_email_from_template_to_user(
-        user,
-        "digest",
-        template_args={"user": user, "notifications": notifications},
+def send_account_deletion_report_email(reason):
+    logger.info("Sending account deletion report email")
+    email.enqueue_system_email(
+        config["REPORTS_EMAIL_RECIPIENT"],
+        "account_deletion_report",
+        template_args={
+            "reason": reason,
+        },
     )
 
 
@@ -189,19 +166,6 @@ def enforce_community_memberships():
                     )
                 )
             session.commit()
-
-
-def send_account_deletion_report_email(reason):
-    target_email = config["REPORTS_EMAIL_RECIPIENT"]
-
-    logger.info(f"Sending account deletion report email to {target_email=}")
-    email.enqueue_email_from_template(
-        target_email,
-        "account_deletion_report",
-        template_args={
-            "reason": reason,
-        },
-    )
 
 
 def enforce_community_memberships_for_user(session, user):

@@ -58,7 +58,6 @@ def test_login_email(db):
         assert recipient == user.email
         assert "login" in subject.lower()
         assert login_token.token in plain
-        assert login_token.token in html
 
 
 def test_signup_verification_email(db):
@@ -102,19 +101,11 @@ def test_report_email(db):
         assert report.author_user.username in plain
         assert str(report.author_user.id) in plain
         assert report.author_user.email in plain
-        assert report.author_user.username in html
-        assert str(report.author_user.id) in html
-        assert report.author_user.email in html
         assert report.reporting_user.username in plain
         assert str(report.reporting_user.id) in plain
         assert report.reporting_user.email in plain
-        assert report.reporting_user.username in html
-        assert str(report.reporting_user.id) in html
-        assert report.reporting_user.email in html
         assert report.reason in plain
-        assert report.reason in html
         assert report.description in plain
-        assert report.description in html
         assert "report" in subject.lower()
 
 
@@ -167,26 +158,18 @@ def test_reference_report_email(db):
 
         assert mock.call_count == 1
 
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+        (sender_name, sender_email, recipient, subject, plain, _), _ = mock.call_args
         assert recipient == "reports@couchers.org.invalid"
         assert "report" in subject.lower()
         assert "reference" in subject.lower()
         assert reference.from_user.username in plain
         assert str(reference.from_user.id) in plain
         assert reference.from_user.email in plain
-        assert reference.from_user.username in html
-        assert str(reference.from_user.id) in html
-        assert reference.from_user.email in html
         assert reference.to_user.username in plain
         assert str(reference.to_user.id) in plain
         assert reference.to_user.email in plain
-        assert reference.to_user.username in html
-        assert str(reference.to_user.id) in html
-        assert reference.to_user.email in html
         assert reference.text in plain
-        assert reference.text in html
         assert "friend" in plain.lower()
-        assert "friend" in html.lower()
 
 
 def test_email_patching_fails(db):

@@ -606,5 +606,35 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_icon=v2avatar(data.other_user),
                 push_url=leave_reference_link,
             )
+    elif notification.topic_action.display == "onboarding:reminder":
+        if notification.key == "1":
+            return RenderedNotification(
+                email_subject="Welcome to Couchers.org and the future of couch surfing",
+                email_preview="We are so excited to have you join our community!",
+                email_template_name="onboarding1",
+                email_template_args={
+                    "app_link": urls.app_link(),
+                    "edit_profile_link": urls.edit_profile_link(),
+                },
+                email_topic_action_unsubscribe_text="onboarding emails",
+                push_title="Welcome to Couchers.org and the future of couch surfing",
+                push_body=f"Hi {v2esc(user.name)}! We are excited that you have joined us! Please take a moment to complete your profile with a picture and a bit of text about yourself!",
+                push_icon=urls.icon_url(),
+                push_url=urls.edit_profile_link(),
+            )
+        elif notification.key == "2":
+            return RenderedNotification(
+                email_subject="Complete your profile on Couchers.org",
+                email_preview="We would ask one big favour of you: please fill out your profile by adding a photo and some text.",
+                email_template_name="onboarding2",
+                email_template_args={
+                    "edit_profile_link": urls.edit_profile_link(),
+                },
+                email_topic_action_unsubscribe_text="onboarding emails",
+                push_title="Please complete your profile on Couchers.org!",
+                push_body=f"Hi {v2esc(user.name)}! We would ask one big favour of you: please fill out your profile by adding a photo and some text.",
+                push_icon=urls.icon_url(),
+                push_url=urls.edit_profile_link(),
+            )
     else:
         raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")

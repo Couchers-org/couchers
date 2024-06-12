@@ -140,6 +140,13 @@ settings_layout = [
         "Account Settings",
         [
             (
+                "onboarding",
+                "Onboarding",
+                [
+                    ("reminder", "Reminder to complete your profile after signing up"),
+                ],
+            ),
+            (
                 "password",
                 "Password change",
                 [

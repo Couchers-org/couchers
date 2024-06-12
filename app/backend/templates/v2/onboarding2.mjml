@@ -1,0 +1,21 @@
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text>I hope you've taken a bit of time to look around the Couchers.org platform!</mj-text>
+    <mj-text>We would ask one big favour of you: please fill out your profile by adding a photo and some text.</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ edit_profile_link|v2url }}">
+      <b>Go to edit your profile</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>A big problem that some platforms have is that there are so many empty accounts, and we really want to avoid that!</mj-text>
+    <mj-text>We would really appreciate it if you could add a photo and fill in at least the "Who I am" section of your profile, although a full profile would be even better! It's an easy way to make this new platform look great, and it'll mean you're set up for when people start using the platform to start couch surfing.</mj-text>
+    <mj-text>Thank you so much!<br />Emily from Couchers.org<br /><a href="mailto:community@couchers.org">community@couchers.org</a><br /><br /><a href="https://couchers.org/user/emily">https://couchers.org/user/emily</a></mj-text>
+  </mj-column>
+</mj-section>

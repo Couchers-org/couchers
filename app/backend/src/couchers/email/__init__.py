@@ -104,6 +104,30 @@ def queue_email(
     )
 
 
+def enqueue_plain_email(recipient, template_name, template_args):
+    source, _, _ = loader.get_source(env, f"{template_name}.md")
+    _, frontmatter_source, text_source = source.split("---", 2)
+
+    rendered_frontmatter = env.from_string(frontmatter_source).render(**template_args, plain=True, html=False)
+    frontmatter = yaml.load(rendered_frontmatter, Loader=yaml.FullLoader)
+
+    plain = env.from_string(text_source).render({**template_args, "frontmatter": frontmatter}, plain=True, html=False)
+
+    queue_email(
+        config["NOTIFICATION_EMAIL_SENDER"],
+        config["NOTIFICATION_EMAIL_ADDRESS"],
+        recipient,
+        config["NOTIFICATION_EMAIL_PREFIX"] + frontmatter["subject"],
+        plain,
+        None,
+        source_data=template_name,
+    )
+
+
+def enqueue_system_email(recipient, template_name, template_args):
+    enqueue_plain_email(recipient, f"system/{template_name}", template_args)
+
+
 def enqueue_email_from_template(recipient, template_file, template_args=None, _footer_unsub_link=None):
     template_args = template_args or {}
     frontmatter, plain, html = _render_email(template_file, template_args, _footer_unsub_link=_footer_unsub_link)
