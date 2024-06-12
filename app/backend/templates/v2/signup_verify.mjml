@@ -1,0 +1,20 @@
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ flow.name|v2esc }},</mj-text>
+    <mj-text>Thanks for signing up for Couchers.org!</mj-text>
+    <mj-text>To finish setting up your account, please click on the following link to activate your email:</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ signup_link|v2url }}">
+      <b>Confirm your email address</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>See you in a bit :)</mj-text>
+    <mj-text>Best,<br />The Couchers.org Team</mj-text>
+  </mj-column>
+</mj-section>

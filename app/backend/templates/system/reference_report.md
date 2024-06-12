@@ -1,43 +1,41 @@
 ---
-subject: "Reference report about ref #{{ reference.id|couchers_escape }}"
+subject: "Reference report about ref #{{ reference.id }}"
 ---
-
-{% from "macros.html" import button, link, support_email, email_link, newline %}
 
 Someone wrote a bad reference.
 
 
-* Rating{{ newline(html)|couchers_safe }}
-{{ reference.rating|couchers_escape }}
+* Rating
+{{ reference.rating }}
 
 
-* Was appropriate?{{ newline(html)|couchers_safe }}
-{{ reference.was_appropriate|couchers_escape }}
+* Was appropriate?
+{{ reference.was_appropriate }}
 
 
-* Reference type{{ newline(html)|couchers_safe }}
-{{ reference.reference_type|couchers_escape }}
+* Reference type
+{{ reference.reference_type }}
 
 
-* Reference text{{ newline(html)|couchers_safe }}
-{{ reference.text|couchers_escape }}
+* Reference text
+{{ reference.text }}
 
 
-* User who wrote the reference{{ newline(html)|couchers_safe }}
-Name: {{ reference.from_user.name|couchers_escape }}{{ newline(html)|couchers_safe }}
-Email: {{ reference.from_user.email|couchers_escape }}{{ newline(html)|couchers_safe }}
-Username: {{ reference.from_user.username|couchers_escape }}{{ newline(html)|couchers_safe }}
-User ID: {{ reference.from_user.id|couchers_escape }}{{ newline(html)|couchers_safe }}
-Profile: {{ link(from_user_user_link, html)|couchers_safe }}
+* User who wrote the reference
+Name: {{ reference.from_user.name }}
+Email: {{ reference.from_user.email }}
+Username: {{ reference.from_user.username }}
+User ID: {{ reference.from_user.id }}
+Profile: <{{ from_user_user_link }}>
 
 
-* User who the reference is about{{ newline(html)|couchers_safe }}
-Name: {{ reference.to_user.name|couchers_escape }}{{ newline(html)|couchers_safe }}
-Email: {{ reference.to_user.email|couchers_escape }}{{ newline(html)|couchers_safe }}
-Username: {{ reference.to_user.username|couchers_escape }}{{ newline(html)|couchers_safe }}
-User ID: {{ reference.to_user.id|couchers_escape }}{{ newline(html)|couchers_safe }}
-Profile: {{ link(to_user_user_link, html)|couchers_safe }}
+* User who the reference is about
+Name: {{ reference.to_user.name }}
+Email: {{ reference.to_user.email }}
+Username: {{ reference.to_user.username }}
+User ID: {{ reference.to_user.id }}
+Profile: <{{ to_user_user_link }}>
 
 
-* Time{{ newline(html)|couchers_safe }}
-{{ reference.time|couchers_escape }}
+* Time
+{{ reference.time }}
