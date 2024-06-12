@@ -1,5 +1,4 @@
 from datetime import timedelta
-from unittest.mock import patch
 
 import grpc
 import pytest
@@ -16,8 +15,10 @@ from proto import admin_pb2, events_pb2, threads_pb2
 from tests.test_communities import create_community, create_group
 from tests.test_fixtures import (  # noqa
     db,
+    email_fields,
     events_session,
     generate_user,
+    mock_notification_email,
     real_admin_session,
     testconfig,
     threads_session,
@@ -2244,17 +2245,14 @@ def test_community_invite_requests(db):
 
         event_id = res.event_id
 
-        with patch("couchers.email.queue_email") as mock:
+        with mock_notification_email() as mock:
             api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
         assert mock.call_count == 1
-        (_, _, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == "mods@couchers.org.invalid"
+        e = email_fields(mock)
+        assert e.recipient == "mods@couchers.org.invalid"
 
-        assert user_url in plain
-        assert user_url in html
-
-        assert event_url in plain
-        assert event_url in html
+        assert user_url in e.plain
+        assert event_url in e.plain
 
         # can't send another req
         with pytest.raises(grpc.RpcError) as e:

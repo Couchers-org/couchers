@@ -14,9 +14,7 @@ loader = FileSystemLoader(Path(__file__).parent / ".." / ".." / ".." / "template
 env = Environment(loader=loader, trim_blocks=True)
 
 
-def queue_email(
-    sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header=None, source_data=None
-):
+def _queue_email(sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data):
     payload = jobs_pb2.SendEmailPayload(
         sender_name=sender_name,
         sender_email=sender_email,
@@ -30,6 +28,24 @@ def queue_email(
     queue_job(
         job_type="send_email",
         payload=payload,
+    )
+
+
+def queue_email(
+    sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header=None, source_data=None
+):
+    """
+    This indirection is so that this can be easily mocked. Not sure how to do it better :(
+    """
+    _queue_email(
+        sender_name=sender_name,
+        sender_email=sender_email,
+        recipient=recipient,
+        subject=subject,
+        plain=plain,
+        html=html,
+        list_unsubscribe_header=list_unsubscribe_header,
+        source_data=source_data,
     )
 
 
