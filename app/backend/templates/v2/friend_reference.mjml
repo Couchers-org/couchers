@@ -5,11 +5,17 @@
   </mj-column>
 </mj-section>
 <mj-section padding="0px" text-align="left">
-  <mj-column width="120px">
-    <mj-image border-radius="200px" src="{{ from_user|v2avatar }}" />
-  </mj-column>
-  <mj-column width="440px">
-    <mj-text padding="15px 0px 0px 0px" line-height="20px"><b>{{ from_user.name|v2esc }}</b>, {{ from_user.age|v2esc }}<br />{{ from_user.city|v2esc }}</mj-text>
+  <mj-column>
+    <mj-table>
+      <tr>
+        <td style="width: 100px;">
+          <img width="80px" style="border-radius: 80px" src="{{ from_user|v2avatar }}" />
+        </td>
+        <td>
+          <b>{{ from_user.name|v2esc }}</b>, {{ from_user.age|v2esc }}<br />{{ from_user.city|v2esc }}
+        </td>
+      </tr>
+    </mj-table>
   </mj-column>
 </mj-section>
 <mj-section padding="10px 20px" text-align="left">
