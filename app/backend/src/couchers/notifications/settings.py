@@ -149,18 +149,30 @@ settings_layout = [
                 ],
             ),
             (
+                "badge",
+                "Updates to Badges on your profile",
+                [
+                    ("add", "A badge is added to your account"),
+                    ("remove", "A badge is removed from your account"),
+                ],
+            ),
+            (
+                "donation",
+                "Donations",
+                [
+                    ("received", "Your donation is received"),
+                ],
+            ),
+        ],
+    ),
+    (
+        "Account Security",
+        [
+            (
                 "password",
                 "Password change",
                 [
                     ("change", "Your password is changed"),
-                ],
-            ),
-            (
-                "email_address",
-                "Email address changes",
-                [
-                    ("change", "Email change is initiated"),
-                    ("verify", "Your new email is verified"),
                 ],
             ),
             (
@@ -169,6 +181,14 @@ settings_layout = [
                 [
                     ("start", "Password reset is initiated"),
                     ("complete", "Password reset is completed"),
+                ],
+            ),
+            (
+                "email_address",
+                "Email address change",
+                [
+                    ("change", "Email change is initiated"),
+                    ("verify", "Your new email is verified"),
                 ],
             ),
             (
@@ -189,18 +209,10 @@ settings_layout = [
             ),
             (
                 "phone_number",
-                "Phone number changes",
+                "Phone number change",
                 [
                     ("change", "Your phone number is changed"),
                     ("verify", "Your phone number is verified"),
-                ],
-            ),
-            (
-                "badge",
-                "Updates to Badges on your profile",
-                [
-                    ("add", "A badge is added to your account"),
-                    ("remove", "A badge is removed from your account"),
                 ],
             ),
             (
@@ -215,13 +227,6 @@ settings_layout = [
                 "Displayed gender change",
                 [
                     ("change", "The gender displayed on your profile is changed"),
-                ],
-            ),
-            (
-                "donation",
-                "Donations",
-                [
-                    ("received", "Your donation is received"),
                 ],
             ),
         ],
