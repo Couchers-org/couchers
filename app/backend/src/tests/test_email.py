@@ -63,50 +63,48 @@ def test_login_email(db):
 def test_signup_verification_email(db):
     request_email = f"{random_hex(12)}@couchers.org.invalid"
 
-    with session_scope():
-        flow = SignupFlow(name="Frodo", email=request_email)
+    flow = SignupFlow(name="Frodo", email=request_email)
 
-        with patch("couchers.email.queue_email") as mock:
-            send_signup_email(flow)
+    with patch("couchers.email.queue_email") as mock:
+        send_signup_email(flow)
 
-        assert mock.call_count == 1
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == request_email
-        assert flow.email_token in plain
-        assert flow.email_token in html
+    assert mock.call_count == 1
+    (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+    assert recipient == request_email
+    assert flow.email_token in plain
+    assert flow.email_token in html
 
 
 def test_report_email(db):
-    with session_scope():
-        user_reporter, api_token_author = generate_user()
-        user_author, api_token_reported = generate_user()
+    user_reporter, api_token_author = generate_user()
+    user_author, api_token_reported = generate_user()
 
-        report = ContentReport(
-            reporting_user=user_reporter,
-            reason="spam",
-            description="I think this is spam and does not belong on couchers",
-            content_ref="comment/123",
-            author_user=user_author,
-            user_agent="n/a",
-            page="https://couchers.org/comment/123",
-        )
+    report = ContentReport(
+        reporting_user=user_reporter,
+        reason="spam",
+        description="I think this is spam and does not belong on couchers",
+        content_ref="comment/123",
+        author_user=user_author,
+        user_agent="n/a",
+        page="https://couchers.org/comment/123",
+    )
 
-        with patch("couchers.email.queue_email") as mock:
-            send_content_report_email(report)
+    with patch("couchers.email.queue_email") as mock:
+        send_content_report_email(report)
 
-        assert mock.call_count == 1
+    assert mock.call_count == 1
 
-        (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
-        assert recipient == "reports@couchers.org.invalid"
-        assert report.author_user.username in plain
-        assert str(report.author_user.id) in plain
-        assert report.author_user.email in plain
-        assert report.reporting_user.username in plain
-        assert str(report.reporting_user.id) in plain
-        assert report.reporting_user.email in plain
-        assert report.reason in plain
-        assert report.description in plain
-        assert "report" in subject.lower()
+    (sender_name, sender_email, recipient, subject, plain, html), _ = mock.call_args
+    assert recipient == "reports@couchers.org.invalid"
+    assert report.author_user.username in plain
+    assert str(report.author_user.id) in plain
+    assert report.author_user.email in plain
+    assert report.reporting_user.username in plain
+    assert str(report.reporting_user.id) in plain
+    assert report.reporting_user.email in plain
+    assert report.reason in plain
+    assert report.description in plain
+    assert "report" in subject.lower()
 
 
 def test_reference_report_email_not_sent(db):
@@ -178,22 +176,21 @@ def test_email_patching_fails(db):
     printing function was called instead, this makes sure the patching is
     actually done
     """
-    with session_scope():
-        to_user, to_token = generate_user()
-        from_user, from_token = generate_user()
+    to_user, to_token = generate_user()
+    from_user, from_token = generate_user()
 
-        patched_msg = random_hex(64)
+    patched_msg = random_hex(64)
 
-        def mock_queue_email(**kwargs):
-            raise Exception(patched_msg)
+    def mock_queue_email(**kwargs):
+        raise Exception(patched_msg)
 
-        with patch("couchers.notifications.background.queue_email", mock_queue_email):
-            with pytest.raises(Exception) as e:
-                with api_session(from_token) as api:
-                    api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=to_user.id))
-                process_jobs()
+    with patch("couchers.notifications.background.queue_email", mock_queue_email):
+        with pytest.raises(Exception) as e:
+            with api_session(from_token) as api:
+                api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=to_user.id))
+            process_jobs()
 
-        assert str(e.value) == patched_msg
+    assert str(e.value) == patched_msg
 
 
 def test_email_changed_confirmation_sent_to_new_email(db):
