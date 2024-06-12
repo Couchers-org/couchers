@@ -59,7 +59,6 @@ from couchers.servicers.events import (
 )
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
-from couchers.tasks import send_onboarding_email
 from couchers.utils import now
 from proto import notification_data_pb2
 from proto.internal import jobs_pb2, verification_pb2
@@ -204,6 +203,7 @@ def send_message_notifications(payload):
 
             total_unseen_message_count = sum(count for _, _, count in unseen_messages)
 
+            # todo(notify2)
             email.enqueue_email_from_template_to_user(
                 user,
                 "unseen_messages",
@@ -259,6 +259,7 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.commit()
 
+            # todo(notify2)
             email.enqueue_email_from_template_to_user(
                 user,
                 "unseen_message_guest",
@@ -273,6 +274,7 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.commit()
 
+            # todo(notify2)
             email.enqueue_email_from_template_to_user(
                 user,
                 "unseen_message_host",
@@ -301,7 +303,11 @@ def send_onboarding_emails(payload):
         )
 
         for user in users:
-            send_onboarding_email(user, email_number=1)
+            notify(
+                user_id=user.id,
+                topic_action="onboarding:reminder",
+                key="1",
+            )
             user.onboarding_emails_sent = 1
             user.last_onboarding_email_sent = now()
             session.commit()
@@ -321,7 +327,11 @@ def send_onboarding_emails(payload):
         )
 
         for user in users:
-            send_onboarding_email(user, email_number=2)
+            notify(
+                user_id=user.id,
+                topic_action="onboarding:reminder",
+                key="2",
+            )
             user.onboarding_emails_sent = 2
             user.last_onboarding_email_sent = now()
             session.commit()

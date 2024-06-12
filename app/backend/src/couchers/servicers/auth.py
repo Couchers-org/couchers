@@ -27,7 +27,6 @@ from couchers.tasks import (
     enforce_community_memberships_for_user,
     maybe_send_contributor_form_email,
     send_login_email,
-    send_onboarding_email,
     send_signup_email,
 )
 from couchers.utils import (
@@ -320,7 +319,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 maybe_send_contributor_form_email(form)
 
-                send_onboarding_email(user, email_number=1)
+                # sends onboarding email
+                notify(
+                    user_id=user.id,
+                    topic_action="onboarding:reminder",
+                    key="1",
+                )
 
                 create_session(context, session, user, False)
                 return auth_pb2.SignupFlowRes(
