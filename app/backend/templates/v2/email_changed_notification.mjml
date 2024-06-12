@@ -1,9 +1,0 @@
-<mj-section padding="0px">
-  <mj-column>
-    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-    <mj-text>You requested that your email on Couchers.org be changed to: <code>{{ user.new_email|v2esc }}</code>.</mj-text>
-    <mj-text>A confirmation was sent to that email address, and you'll need to confirm it to complete the change.</mj-text>
-    <mj-text>If this wasn't you, please contact us by emailing <a href="mailto:support@couchers.org">support@couchers.org</a> so we can sort this out as soon as possible!</mj-text>
-    <mj-text>Best,<br />The Couchers.org Team</mj-text>
-  </mj-column>
-</mj-section>

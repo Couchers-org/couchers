@@ -9,13 +9,11 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import phonenumbers
-import yaml
 from jinja2 import Environment, FileSystemLoader
 
 from couchers import urls
 from couchers.config import config
 from couchers.email import queue_email
-from couchers.notifications.unsubscribe import generate_do_not_email
 from couchers.utils import get_tz_as_text, now, to_aware_datetime
 
 logger = logging.getLogger(__name__)
@@ -92,45 +90,29 @@ def add_filters(env):
 add_filters(env)
 
 
-def email_user(user, template_name, template_args=None, frontmatter=None, override_recipient=None):
-    template_args = template_args or {}
-    if not frontmatter:
-        # Titles/config are from {template_name}.yaml, plaintext from {template_name}.txt, and html from generated_html/{template_name}.html (generated from {template_name}.mjml)
-        frontmatter_template = env.get_template(f"{template_name}.yaml")
-        rendered_frontmatter = frontmatter_template.render(**template_args)
-        frontmatter = yaml.load(rendered_frontmatter, Loader=yaml.FullLoader)
-        assert "subject" in frontmatter
-        assert "is_critical" in frontmatter
-        assert "preview" in frontmatter
+def send_simple_pretty_email(recipient, subject, template_name, template_args):
+    """
+    This is a simplified version of couchers.notifications.background._send_email_notification
 
-    if not frontmatter["is_critical"]:
-        template_args["_footer_unsub_link"] = generate_do_not_email(user.id)
-
+    It's for the few security emails where we don't have a user to email but send directly to an email address.
+    """
     template_args["_year"] = now().year
-    template_args["_timezone_display"] = get_tz_as_text(user.timezone or "Etc/UTC")
+    template_args["_timezone_display"] = get_tz_as_text("Etc/UTC")
 
-    plain_template = env.get_template(f"{template_name}.txt")
-    html_template = env.get_template(f"generated_html/{template_name}.html")
+    plain_unsub_section = "\n\n---\n\nThis is a security email, you cannot unsubscribe from it."
+    html_unsub_section = "This is a security email, you cannot unsubscribe from it."
 
-    plain = plain_template.render({**template_args, "frontmatter": frontmatter})
-    html = html_template.render({**template_args, "frontmatter": frontmatter})
-
-    if user.do_not_email and not frontmatter["is_critical"]:
-        logger.info(f"Not emailing {user} based on template {template_name} due to emails turned off")
-        return
-
-    list_unsubscribe_header = None
-    if "list_unsubscribe_url" in frontmatter:
-        url = frontmatter["list_unsubscribe_url"]
-        list_unsubscribe_header = f"<{url}>"
+    plain_tmplt = (template_folder / f"{template_name}.txt").read_text()
+    plain = env.from_string(plain_tmplt + plain_unsub_section).render(template_args)
+    html_tmplt = (template_folder / "generated_html" / f"{template_name}.html").read_text()
+    html = env.from_string(html_tmplt.replace("___UNSUB_SECTION___", html_unsub_section)).render(template_args)
 
     queue_email(
         sender_name=config["NOTIFICATION_EMAIL_SENDER"],
         sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
-        recipient=user.email if not override_recipient else override_recipient,
-        subject=config["NOTIFICATION_EMAIL_PREFIX"] + frontmatter["subject"],
+        recipient=recipient,
+        subject=config["NOTIFICATION_EMAIL_PREFIX"] + subject,
         plain=plain,
         html=html,
         source_data=config["VERSION"] + f"/{template_name}",
-        list_unsubscribe_header=list_unsubscribe_header,
     )

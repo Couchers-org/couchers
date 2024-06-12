@@ -482,6 +482,7 @@ def test_friend_request_flow(db, push_collector):
     push_collector.assert_user_has_single_matching(
         user2.id,
         title=f"{user1.name} wants to be your friend",
+        body=f"You've received a friend request from {user1.name}",
     )
 
     mock.assert_called_once()
@@ -545,6 +546,7 @@ def test_friend_request_flow(db, push_collector):
     push_collector.assert_user_push_matches_fields(
         user1.id,
         title=f"{user2.name} accepted your friend request!",
+        body=f"{user2.name} has accepted your friend request",
     )
 
     mock.assert_called_once()

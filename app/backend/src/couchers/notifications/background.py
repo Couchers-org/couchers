@@ -23,7 +23,6 @@ from couchers.notifications.render import render_notification
 from couchers.notifications.settings import get_preference
 from couchers.notifications.unsubscribe import generate_unsub
 from couchers.sql import couchers_select as select
-from couchers.tasks import send_digest_email
 from couchers.templates.v2 import add_filters
 from couchers.utils import get_tz_as_text, now
 from proto.internal import jobs_pb2
@@ -51,7 +50,7 @@ def _send_email_notification(user: User, notification: Notification):
         **rendered.email_template_args,
     }
 
-    manage_link = urls.feature_preview_link()
+    manage_link = urls.account_settings_link()
 
     template_args["_year"] = now().year
     template_args["_timezone_display"] = get_tz_as_text(user.timezone or "Etc/UTC")
@@ -278,7 +277,7 @@ def handle_email_digests(payload: empty_pb2.Empty):
             if notifications_and_deliveries:
                 notifications, deliveries = zip(*notifications_and_deliveries)
                 logger.info(f"Sending {user.id=} a digest with {len(notifications)} notifications")
-                send_digest_email(user, notifications)
+                logger.info("TODO: supposed to send digest email")
                 for delivery in deliveries:
                     delivery.delivered = func.now()
                 user.last_digest_sent = func.now()

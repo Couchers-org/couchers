@@ -2185,6 +2185,7 @@ class NotificationTopicAction(enum.Enum):
     host_request__confirm = ("host_request:confirm", dt_all, True, nd.HostRequestConfirm)
     host_request__cancel = ("host_request:cancel", dt_all, True, nd.HostRequestCancel)
     host_request__message = ("host_request:message", [dt.push, dt.digest], True, nd.HostRequestMessage)
+    host_request__missed_messages = ("host_request:missed_messages", [dt.email], True, nd.HostRequestMissedMessages)
 
     # you receive a friend ref
     reference__receive_friend = ("reference:receive_friend", dt_all, True, nd.ReferenceReceiveFriend)
@@ -2203,6 +2204,7 @@ class NotificationTopicAction(enum.Enum):
 
     # group chats
     chat__message = ("chat:message", [dt.push, dt.digest], True, nd.ChatMessage)
+    chat__missed_messages = ("chat:missed_messages", [dt.email], True, nd.ChatMissedMessages)
 
     # events
     # approved by mods
@@ -2237,6 +2239,8 @@ class NotificationTopicAction(enum.Enum):
     api_key__create = ("api_key:create", dt_sec, False, nd.ApiKeyCreate)
 
     donation__received = ("donation:received", dt_sec, True, nd.DonationReceived)
+
+    onboarding__reminder = ("onboarding:reminder", dt_sec, True, empty_pb2.Empty)
 
 
 class NotificationPreference(Base):

@@ -89,6 +89,7 @@ settings_layout = [
                     ("reject", "Someone rejects your host request"),
                     ("cancel", "Someone cancels their host request"),
                     ("message", "Someone sends a message in a host request"),
+                    ("missed_messages", "You miss messages in a host request"),
                 ],
             ),
             (
@@ -96,6 +97,7 @@ settings_layout = [
                 "Messaging",
                 [
                     ("message", "Someone sends you a message"),
+                    ("missed_messages", "You miss messages in a chat"),
                 ],
             ),
             (
@@ -139,6 +141,13 @@ settings_layout = [
     (
         "Account Settings",
         [
+            (
+                "onboarding",
+                "Onboarding",
+                [
+                    ("reminder", "Reminder to complete your profile after signing up"),
+                ],
+            ),
             (
                 "password",
                 "Password change",

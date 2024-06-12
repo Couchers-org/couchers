@@ -1,0 +1,30 @@
+Hi {{ user.name }}!
+
+Welcome to Couchers.org, and our growing worldwide community of couch surfers. We are excited that you have joined us!
+
+We are still a small platform and are growing quickly. As an early user, you have a vital role in shaping the future of the platform. You can help us set the scene and culture as we grow bigger, as well as test functionality and provide feedback as we develop new features.
+
+Please take some time to explore the platform. As a first step, please write a bit about yourself on your profile. Please upload a photo and fill in some profile text, you can even copy your description from your account on other platforms if you're feeling lazy :P
+
+To edit your profile, click on the following link:
+
+<{{ edit_profile_link }}>
+
+
+Otherwise, please share the link with any of your couch surfing friends that you trust! This platform can only grow with your help bringing the best people to it.
+
+Link: <{{ app_link }}>
+
+The platform is still under development, and features are actively being built by our amazing team of Couchers.org contributors around the world. We would like to hear your feedback and thoughts on what we've built and what we're working on. You can head on over to our forum at <https://community.couchers.org> if you'd like to join the conversation.
+
+
+Thanks so much for joining the platform. We're really excited to have you here and as part of our growing community!
+
+
+Best,
+
+Aapeli
+Couchers.org Co-founder
+aapeli@couchers.org (feel free to shoot me an email at any time)
+
+https://couchers.org/user/aapeli

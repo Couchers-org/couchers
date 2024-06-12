@@ -29,9 +29,9 @@ from tests.test_fixtures import (  # noqa
     db,
     email_fields,
     generate_user,
-    handle_notifications_bg,
     mock_notification_email,
     notifications_session,
+    process_jobs,
     push_collector,
     session_scope,
     testconfig,
@@ -322,7 +322,7 @@ def test_list_notifications(db, push_collector):
         for i in range(17):
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=f"Test message {i}"))
 
-    handle_notifications_bg()
+    process_jobs()
 
     all_notifs = []
     with notifications_session(token1) as notifications:

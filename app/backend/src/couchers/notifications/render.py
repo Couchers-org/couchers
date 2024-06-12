@@ -40,7 +40,28 @@ def render_notification(user, notification) -> RenderedNotification:
     data = notification.topic_action.data_type.FromString(notification.data)
     if notification.topic == "host_request":
         view_link = urls.host_request(host_request_id=data.host_request.host_request_id)
-        if notification.action in ["create", "message"]:
+        if notification.action == "missed_messages":
+            their_your = "their" if data.am_host else "your"
+            other = data.user
+            # "rejected your host request", or similar
+            message = f"{other.name} sent you message(s) in {their_your} host request"
+            return RenderedNotification(
+                email_subject=message,
+                email_preview=message,
+                email_template_name="host_request__plain",
+                email_template_args={
+                    "view_link": view_link,
+                    "host_request": data.host_request,
+                    "message": message,
+                    "other": other,
+                },
+                email_topic_action_unsubscribe_text="missed messages in host requests",
+                push_title=message,
+                push_body="Check the app for more info.",
+                push_icon=v2avatar(other),
+                push_url=view_link,
+            )
+        elif notification.action in ["create", "message"]:
             if notification.action == "create":
                 other = data.surfer
                 message = f"{other.name} sent you a host request"
@@ -412,6 +433,28 @@ def render_notification(user, notification) -> RenderedNotification:
             push_icon=v2avatar(data.author),
             push_url=urls.chat_link(chat_id=data.group_chat_id),
         )
+    elif notification.topic_action.display == "chat:missed_messages":
+        return RenderedNotification(
+            email_subject="You have unseen messages on Couchers.org!",
+            email_preview="You missed some messages on the platform.",
+            email_template_name="chat_unseen_messages",
+            email_template_args={
+                "items": [
+                    {
+                        "author": item.author,
+                        "message": item.message,
+                        "text": item.text,
+                        "view_link": urls.chat_link(chat_id=item.group_chat_id),
+                    }
+                    for item in data.messages
+                ]
+            },
+            email_topic_action_unsubscribe_text="unseen chat messages",
+            push_title="You have unseen messages on Couchers.org",
+            push_body="Please check out any messages you missed.",
+            push_icon=urls.icon_url(),
+            push_url=urls.messages_link(),
+        )
     elif notification.topic == "event":
         event = data.event
         time_display = f"{v2timestamp(event.start_time, user)} - {v2timestamp(event.end_time, user)}"
@@ -605,6 +648,36 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_body=preview,
                 push_icon=v2avatar(data.other_user),
                 push_url=leave_reference_link,
+            )
+    elif notification.topic_action.display == "onboarding:reminder":
+        if notification.key == "1":
+            return RenderedNotification(
+                email_subject="Welcome to Couchers.org and the future of couch surfing",
+                email_preview="We are so excited to have you join our community!",
+                email_template_name="onboarding1",
+                email_template_args={
+                    "app_link": urls.app_link(),
+                    "edit_profile_link": urls.edit_profile_link(),
+                },
+                email_topic_action_unsubscribe_text="onboarding emails",
+                push_title="Welcome to Couchers.org and the future of couch surfing",
+                push_body=f"Hi {v2esc(user.name)}! We are excited that you have joined us! Please take a moment to complete your profile with a picture and a bit of text about yourself!",
+                push_icon=urls.icon_url(),
+                push_url=urls.edit_profile_link(),
+            )
+        elif notification.key == "2":
+            return RenderedNotification(
+                email_subject="Complete your profile on Couchers.org",
+                email_preview="We would ask one big favour of you: please fill out your profile by adding a photo and some text.",
+                email_template_name="onboarding2",
+                email_template_args={
+                    "edit_profile_link": urls.edit_profile_link(),
+                },
+                email_topic_action_unsubscribe_text="onboarding emails",
+                push_title="Please complete your profile on Couchers.org!",
+                push_body=f"Hi {v2esc(user.name)}! We would ask one big favour of you: please fill out your profile by adding a photo and some text.",
+                push_icon=urls.icon_url(),
+                push_url=urls.edit_profile_link(),
             )
     else:
         raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
