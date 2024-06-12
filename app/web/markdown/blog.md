@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Where we are and where we are going](/blog/2024/06/12/where-we-are-and-where-we-are-going)
+
+2024/06/12.
+
+Read some discussion on the state of the Couchers.org project and our plans for the future from Couchers.org co-founder Aapeli.
+
+[Read more.](/blog/2024/06/12/where-we-are-and-where-we-are-going)
+
 ## [Couchers, Inc. Announces new Board members](/blog/2024/04/30/new-board-members)
 
 2024/04/30.
