@@ -504,10 +504,11 @@ def test_ChangeEmail_tokens_two_hour_window(db):
             assert e.value.details() == errors.INVALID_TOKEN
 
 
-def test_ChangeEmail_has_password(db, fast_passwords):
+def test_ChangeEmail_has_password(db, fast_passwords, push_collector):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
+    user_id = user.id
 
     with account_session(token) as account:
         account.ChangeEmail(
@@ -518,7 +519,7 @@ def test_ChangeEmail_has_password(db, fast_passwords):
         )
 
     with session_scope() as session:
-        user_updated = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        user_updated = session.execute(select(User).where(User.id == user_id)).scalar_one()
         assert user_updated.email == user.email
         assert user_updated.new_email == new_email
         assert user_updated.old_email_token is None
@@ -532,6 +533,14 @@ def test_ChangeEmail_has_password(db, fast_passwords):
 
         token = user_updated.new_email_token
 
+    process_jobs()
+    push_collector.assert_user_push_matches_fields(
+        user_id,
+        ix=0,
+        title="An email change was initiated on your account",
+        body=f"An email change to the email {new_email} was initiated on your account.",
+    )
+
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.ConfirmChangeEmail(
             auth_pb2.ConfirmChangeEmailReq(
@@ -541,7 +550,7 @@ def test_ChangeEmail_has_password(db, fast_passwords):
         assert res.state == auth_pb2.EMAIL_CONFIRMATION_STATE_SUCCESS
 
     with session_scope() as session:
-        user = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
         assert user.email == new_email
         assert user.new_email is None
         assert user.old_email_token is None
@@ -552,6 +561,14 @@ def test_ChangeEmail_has_password(db, fast_passwords):
         assert user.new_email_token_created is None
         assert user.new_email_token_expiry is None
         assert not user.need_to_confirm_via_new_email
+
+    process_jobs()
+    push_collector.assert_user_push_matches_fields(
+        user_id,
+        ix=1,
+        title="Email change completed",
+        body="Your new email address has been verified.",
+    )
 
 
 def test_ChangeEmail_sends_proper_emails_has_password(db, fast_passwords, push_collector):

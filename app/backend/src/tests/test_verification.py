@@ -12,7 +12,16 @@ from couchers.models import SMS, User
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 from proto import account_pb2, api_pb2
-from tests.test_fixtures import account_session, api_session, db, generate_user, testconfig  # noqa
+from tests.test_fixtures import (  # noqa
+    account_session,
+    api_session,
+    db,
+    generate_user,
+    notifications_session,
+    process_jobs,
+    push_collector,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -20,7 +29,7 @@ def _(testconfig):
     pass
 
 
-def test_ChangePhone(db, monkeypatch):
+def test_ChangePhone(db, monkeypatch, push_collector):
     user, token = generate_user()
     user_id = user.id
 
@@ -56,6 +65,8 @@ def test_ChangePhone(db, monkeypatch):
             assert phone == "+46701740605"
             return "success"
 
+        push_collector.assert_user_has_count(user_id, 0)
+
         monkeypatch.setattr(couchers.phone.sms, "send_sms", succeed)
 
         account.ChangePhone(account_pb2.ChangePhoneReq(phone="+46701740605"))
@@ -64,6 +75,13 @@ def test_ChangePhone(db, monkeypatch):
             user = session.execute(select(User).where(User.id == user_id)).scalar_one()
             assert user.phone == "+46701740605"
             assert len(user.phone_verification_token) == 6
+
+        process_jobs()
+        push_collector.assert_user_has_single_matching(
+            user_id,
+            title="Phone verification started",
+            body="You started phone number verification with the number +46 70 174 06 05.",
+        )
 
         # Phone number should show up but not be verified in your profile settings
         res = account.GetAccountInfo(empty_pb2.Empty())
@@ -102,7 +120,7 @@ def test_ChangePhone_ratelimit(db, monkeypatch):
             assert len(user.phone_verification_token) == 6
 
 
-def test_VerifyPhone():
+def test_VerifyPhone(push_collector):
     user, token = generate_user()
     user_id = user.id
     with account_session(token) as account, api_session(token) as api:
@@ -120,6 +138,13 @@ def test_VerifyPhone():
             user.phone_verification_sent = now()
 
         account.VerifyPhone(account_pb2.VerifyPhoneReq(token="111112"))
+
+        process_jobs()
+        push_collector.assert_user_has_single_matching(
+            user_id,
+            title="Phone successfully verified",
+            body="Your phone was successfully verified as +46 70 174 06 05 on Couchers.org.",
+        )
 
         res = api.GetUser(api_pb2.GetUserReq(user=str(user_id)))
         assert res.verification == 1.0

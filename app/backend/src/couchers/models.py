@@ -2220,8 +2220,8 @@ class NotificationTopicAction(enum.Enum):
     password__change = ("password:change", dt_sec, False, empty_pb2.Empty)
     email_address__change = ("email_address:change", dt_sec, False, nd.EmailAddressChange)
     email_address__verify = ("email_address:verify", dt_sec, False, empty_pb2.Empty)
-    phone_number__change = ("phone_number:change", dt_sec, False, empty_pb2.Empty)
-    phone_number__verify = ("phone_number:verify", dt_sec, False, empty_pb2.Empty)
+    phone_number__change = ("phone_number:change", dt_sec, False, nd.PhoneNumberChange)
+    phone_number__verify = ("phone_number:verify", dt_sec, False, nd.PhoneNumberVerify)
     # reset password
     password_reset__start = ("password_reset:start", dt_sec, False, nd.PasswordResetStart)
     password_reset__complete = ("password_reset:complete", dt_sec, False, empty_pb2.Empty)

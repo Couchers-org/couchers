@@ -60,11 +60,11 @@ message BadgeRemove {
   string badge_description = 3;
 }
 
-message PhoneVerify {
+message PhoneNumberChange {
   string phone = 1;
 }
 
-message PhoneChange {
+message PhoneNumberVerify {
   string phone = 1;
 }
 
