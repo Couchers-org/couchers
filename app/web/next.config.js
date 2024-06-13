@@ -64,6 +64,15 @@ module.exports = {
         },
       ],
     },
+    {
+      source: "/static/:path*",
+      headers: [
+        {
+          key: "access-control-allow-origin",
+          value: "*",
+        },
+      ],
+    },
   ],
   experimental: {
     outputStandalone: true,
