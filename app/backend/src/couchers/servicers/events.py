@@ -704,6 +704,9 @@ class Events(events_pb2_grpc.EventsServicer):
             if not _can_edit_event(session, event, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_EDIT_PERMISSION_DENIED)
 
+            if occurrence.end_time < now() - timedelta(hours=24):
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_CANCEL_OLD_EVENT)
+
             occurrence.is_cancelled = True
 
             queue_job(
@@ -730,6 +733,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
             if occurrence.is_cancelled:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
+
+            if occurrence.end_time < now() - timedelta(hours=24):
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
 
             this_user_reqs = [req for req in occurrence.community_invite_requests if req.user_id == context.user_id]
 
@@ -877,6 +883,9 @@ class Events(events_pb2_grpc.EventsServicer):
             if occurrence.is_cancelled:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
 
+            if occurrence.end_time < now() - timedelta(hours=24):
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
+
             if request.WhichOneof("new_owner") == "new_owner_group_id":
                 cluster = session.execute(
                     select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.new_owner_group_id)
@@ -908,6 +917,9 @@ class Events(events_pb2_grpc.EventsServicer):
             if occurrence.is_cancelled:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
 
+            if occurrence.end_time < now() - timedelta(hours=24):
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
+
             current_subscription = session.execute(
                 select(EventSubscription)
                 .where(EventSubscription.user_id == context.user_id)
@@ -937,6 +949,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
             if occurrence.is_cancelled:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
+
+            if occurrence.end_time < now() - timedelta(hours=24):
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
 
             current_attendance = session.execute(
                 select(EventOccurrenceAttendee)
@@ -1086,6 +1101,9 @@ class Events(events_pb2_grpc.EventsServicer):
             if occurrence.is_cancelled:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
 
+            if occurrence.end_time < now() - timedelta(hours=24):
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
+
             if not session.execute(
                 select(User).where_users_visible(context).where(User.id == request.user_id)
             ).scalar_one_or_none():
@@ -1123,6 +1141,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
             if occurrence.is_cancelled:
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.EVENT_CANT_UPDATE_CANCELLED_EVENT)
+
+            if occurrence.end_time < now() - timedelta(hours=24):
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_UPDATE_OLD_EVENT)
 
             if event.owner_user_id == context.user_id:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENT_CANT_REMOVE_OWNER_AS_ORGANIZER)
