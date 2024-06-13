@@ -61,9 +61,12 @@ describe("Event page", () => {
     getUserMock.mockImplementation(getUser);
     getThreadMock.mockImplementation(getThread);
     timezoneMock.register("UTC");
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date("2021-06-01 00:00"));
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     timezoneMock.unregister();
   });
 

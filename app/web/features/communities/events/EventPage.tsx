@@ -194,6 +194,10 @@ export default function EventPage({
 
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
 
+  const isPastEvent = event?.endTime
+    ? dayjs().isAfter(timestamp2Date(event.endTime))
+    : false;
+
   useEffect(() => {
     if (event?.slug && event.slug !== eventSlug) {
       router.replace(routeToEvent(event.eventId, event.slug));
@@ -267,7 +271,7 @@ export default function EventPage({
                     <Button
                       component="a"
                       variant="outlined"
-                      disabled={event.isCancelled}
+                      disabled={event.isCancelled || isPastEvent}
                     >
                       {t("communities:edit_event")}
                     </Button>
@@ -281,7 +285,7 @@ export default function EventPage({
                       variant="contained"
                       color="primary"
                       classes={{ containedPrimary: classes.cancelButton }}
-                      disabled={event.isCancelled}
+                      disabled={event.isCancelled || isPastEvent}
                     >
                       {t("communities:cancel_event")}
                     </Button>
@@ -300,7 +304,7 @@ export default function EventPage({
                   }
                   attendanceState={event.attendanceState}
                   id="event-page-attendance"
-                  disabled={event.isCancelled}
+                  disabled={event.isCancelled || isPastEvent}
                 />
               </div>
 
