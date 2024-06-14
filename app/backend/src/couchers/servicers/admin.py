@@ -280,9 +280,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
                     out += f"Chats for user {format_user(user)}\n"
                     host_request_ids = (
                         session.execute(
-                            select(HostRequest.conversation_id).where(
-                                or_(HostRequest.host_user_id == user_id, HostRequest.surfer_user_id == user_id)
-                            )
+                            select(HostRequest.conversation_id)
+                            .where(or_(HostRequest.host_user_id == user_id, HostRequest.surfer_user_id == user_id))
+                            .order_by(HostRequest.conversation_id)
                         )
                         .scalars()
                         .all()
