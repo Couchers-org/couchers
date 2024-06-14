@@ -1,16 +1,19 @@
 import { Hidden, makeStyles, Paper } from "@material-ui/core";
-import { useContext, useState } from "react";
-import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
-import TextBody from "components/TextBody";
+import CircularProgress from "components/CircularProgress";
 import SearchResult from "features/search/SearchResult";
-import { useTranslation } from "i18n";
-import { SEARCH } from "i18n/namespaces";
+import { useContext, useState } from "react";
 import NewSearchBox from "./new-search-box";
+import TextBody from "components/TextBody";
+import { SEARCH } from "i18n/namespaces";
+import { useTranslation } from "i18n";
+import Alert from "components/Alert";
 import { useEffect } from "react";
+import { InfiniteData } from "react-query";
+import { UserSearchRes } from "proto/search_pb";
 
-import { mapContext } from "./new-search-page-controller";
+import { mapContext } from "./new-search-page";
+import { o } from "msw/lib/glossary-58eca5a8";
 
 const useStyles = makeStyles((theme) => ({
   mapResults: {
@@ -75,9 +78,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function NewSearchList({ }) {
+interface mapWrapperProps {
+  isLoading: boolean,
+  results: InfiniteData<UserSearchRes.AsObject> | undefined
+}
+
+// InfiniteData<UserSearchRes.AsObject> | undefined
+
+export default function NewSearchList({isLoading, results}: mapWrapperProps) {
   // out of the context
-  const {isLoading, results} = useContext(mapContext);
+  // const {isLoading, results} = useContext(mapContext);
 
   // const [results, setResults] = useContext(mapContext);
   const { t } = useTranslation(SEARCH);
@@ -85,70 +95,7 @@ export default function NewSearchList({ }) {
   const hasAtLeastOnePageResults = true;
   const selectedResult = undefined;
 
-  /*
-  const {
-    data: results,
-    error,
-    isLoading,
-    fetchNextPage,
-    isFetching,
-    hasNextPage,
-  } = useInfiniteQuery<UserSearchRes.AsObject, Error>(
-    searchQueryKey(query || ""),
-    ({ pageParam }) => {
-      return service.search.userSearch(
-        {
-          lat,
-          lng,
-          radius,
-          query,
-          lastActive,
-          hostingStatusOptions,
-          numGuests,
-        },
-        pageParam
-      );
-    },
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-      onSuccess(results) {
-        map.current?.stop();
-
-        const resultUsers = results.pages
-          .flatMap((page) => page.resultsList)
-          .map((result) => {
-            return result.user;
-          })
-          //only return defined users
-          .filter((user): user is User.AsObject => !!user);
-
-        const setFilter = () => {
-          map.current &&
-            filterUsers(
-              map.current,
-              Object.keys(searchFilters.active).length > 0
-                ? resultUsers.map((user) => user.userId)
-                : null,
-              handleMapUserClick
-            );
-
-          if (bbox && bbox.join() !== "0,0,0,0") {
-            map.current?.fitBounds(bbox, {
-              maxZoom: selectedUserZoom,
-            });
-          }
-        };
-
-        if (map.current?.loaded()) {
-          setFilter();
-        } else {
-          map.current?.once("load", setFilter);
-        }
-      },
-    }
-  );
-  */
+  console.log(results);
 
   const error = {
     message: ""
@@ -156,10 +103,13 @@ export default function NewSearchList({ }) {
 
   return (
     <Paper className={classes.mapResults}>
+
       {error && <Alert severity="error">{error.message}</Alert>}
+      
       <Hidden smDown>
         <NewSearchBox />
       </Hidden>
+
       <>
         {isLoading && <CircularProgress className={classes.baseMargin} />}
 
@@ -177,16 +127,19 @@ export default function NewSearchList({ }) {
             fetchNext={() => { }}
             hasMore={false}
           >
-            {!!results && results.length && results.map((result: any) => {
-              return <SearchResult
-                id={`search-result-${result.userId}`}
+            {results && results.pages
+              .flatMap((page) => page.resultsList)
+              .map((result) =>
+                result.user ? (
+                <SearchResult
+                id={`search-result-${result.user.userId}`}
                 className={classes.searchResult}
-                key={result.userId}
-                user={result}
+                key={result.user.userId}
+                user={result.user}
                 onSelect={() => { alert("selected :)") }}
-                highlight={result.userId === selectedResult}
+                highlight={result.user.userId === selectedResult}
               />
-            }
+                ) : null
             )}
           </HorizontalScroller>
         }

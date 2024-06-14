@@ -1,17 +1,26 @@
 import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { addClusteredUsersToMap, layers } from "../search/users";
+import { addClusteredUsersToMap, layers } from "../search/users"; // TODO: here?
 import { usePrevious } from "utils/hooks";
+import { MutableRefObject } from "react";
 import { User } from "proto/api_pb";
 import Map from "components/Map";
 import { Point } from "geojson";
+import { Dispatch, SetStateAction } from "react";
 
-import { mapContext } from "./new-search-page-controller";
+import { mapContext } from "./new-search-page";
 
-export default function NewMapWrapper() {
-  const map = useRef<MaplibreMap>();
-  const [selectedResult, setSelectedResult] = useState<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>(undefined);
-  const [initialCoords] = useContext(mapContext);
+interface mapWrapperProps {
+  selectedResult: Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined,
+  setSelectedResult: Dispatch<SetStateAction<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>>,
+  map: MutableRefObject<MaplibreMap | undefined>;
+  handleMapUserClick: (ev: maplibregl.MapMouseEvent & {    features?: maplibregl.MapboxGeoJSONFeature[] | undefined;} & EventData) => void
+}
+
+export default function NewMapWrapper({map, selectedResult, setSelectedResult, handleMapUserClick}: mapWrapperProps) {
+
+  // const [selectedResult, setSelectedResult] = useState<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>(undefined);
+  const {locationResult} = useContext(mapContext); // if behavies weirdly, then use again the initialCoords context variable
   const previousResult = usePrevious(selectedResult);
 
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
@@ -59,28 +68,6 @@ export default function NewMapWrapper() {
         ?.scrollIntoView({ behavior: "smooth" });
     }
   }, [selectedResult, areClustersLoaded, previousResult, flyToUser]);
-
-  const handleMapUserClick = useCallback(
-    (
-      ev: maplibregl.MapMouseEvent & {
-        features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
-      } & EventData
-    ) => {
-      ev.preventDefault();
-
-      const props = ev.features?.[0].properties;
-      const geom = ev.features?.[0].geometry as Point;
-
-      if (!props || !geom) return;
-
-      const username = props.username;
-      const userId = props.id;
-
-      const [lng, lat] = geom.coordinates;
-      setSelectedResult({ username, userId, lng, lat });
-    },
-    []
-  );
 
   //detect when map data has been initially loaded
   const handleMapSourceData = useCallback(() => {
@@ -138,7 +125,7 @@ export default function NewMapWrapper() {
 
   return <Map
     grow
-    initialCenter={initialCoords}
+    initialCenter={locationResult.Location}
     initialZoom={5}
     postMapInitialize={initializeMap}
     hash
