@@ -21,8 +21,9 @@ import {
   import { Controller, useForm } from "react-hook-form";
   import { useQueryClient } from "react-query";
   import makeStyles from "utils/makeStyles";
-  import { useState } from "react";
+  import { useContext, useState } from "react";
   import NewFilterModal from "./new-filter-modal";
+  import { mapContext } from "./new-search-page";
 
   const useStyles = makeStyles((theme) => ({
     filterDialogButtonDesktop: {
@@ -44,12 +45,12 @@ import {
     const { t } = useTranslation([GLOBAL, SEARCH]);
     const classes = useStyles();
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-    const [searchType, setSearchType] = useState<"location" | "keyword">(() => "location");
+    const {searchType, setSearchType, locationResult, setLocationResult, queryName} = useContext(mapContext) //useState<"location" | "keyword">(() => "location");
     const theme = useTheme();
     const isSmDown = useMediaQuery(theme.breakpoints.down("sm"));
-    const queryClient = useQueryClient();
+    // const queryClient = useQueryClient();
   
-    const { control, setValue, errors } = useForm({ mode: "onChange" });
+    const { control, setValue, errors, register, handleSubmit } = useForm({ mode: "onChange" });
   
     const filterDialog = (
       <NewFilterModal
@@ -83,7 +84,7 @@ import {
             name="location"
             defaultValue={""}
             label={t("search:form.location_field_label")}
-            onChange={() => {alert("cliiiick")}}
+            onChange={(e) => {setLocationResult(e)}}
             fieldError={errors.location?.message}
             disableRegions
           />
@@ -168,4 +169,3 @@ import {
       </>
     );
   }
-  

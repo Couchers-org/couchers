@@ -97,6 +97,7 @@ export const layers: Record<LayerKeys, AnyLayer> = {
 
 const addPinImages = (map: MaplibreMap) => {
   if (map.hasImage("user-pin")) return;
+  
   map.loadImage(userPin.src, (error: Error, image: HTMLImageElement) => {
     if (error) {
       throw error;
@@ -115,6 +116,7 @@ const zoomCluster = (
   const map = ev.target;
   const cluster = ev.features?.[0];
   if (!cluster || !cluster.properties?.cluster_id) return;
+
   (map.getSource("clustered-users") as GeoJSONSource).getClusterExpansionZoom(
     cluster.properties.cluster_id,
     (_error, zoom) => {
@@ -130,14 +132,16 @@ export const addClusteredUsersToMap = (
   map: MaplibreMap,
   userClickedCallback?: MapClickedCallback
 ) => {
-  map.addSource("clustered-users", sources["clustered-users"]);
+  map.addSource("clustered-users", sources["clustered-users"]); // TODO: here users are added to the map
   addPinImages(map);
   map.addLayer(layers.clusterLayer);
   map.addLayer(layers.clusterCountLayer);
   map.addLayer(layers.unclusteredPointLayer);
+
   if (userClickedCallback) {
     map.on("click", layers.unclusteredPointLayer.id, userClickedCallback);
   }
+
   map.on("click", layers.clusterLayer.id, zoomCluster);
 };
 
@@ -152,6 +156,7 @@ export const filterUsers = (
     map.off("click", layers.unclusteredPointLayer.id, userClickedCallback);
     map.off("click", layers.clusterLayer.id, zoomCluster);
   }
+
   map.removeLayer(layers.clusterLayer.id);
   map.removeLayer(layers.clusterCountLayer.id);
   map.removeLayer(layers.unclusteredPointLayer.id);

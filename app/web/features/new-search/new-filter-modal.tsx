@@ -6,8 +6,9 @@ import {
     Typography,
     useMediaQuery,
     useTheme,
+    Select
   } from "@material-ui/core";
-  import Autocomplete from "components/Autocomplete";
+  import { MenuItem } from "components/Menu";
   import Button from "components/Button";
   import {
     Dialog,
@@ -20,7 +21,7 @@ import {
   import { CrossIcon } from "components/Icons";
   import LocationAutocomplete from "components/LocationAutocomplete";
   import TextField from "components/TextField";
-  import { hostingStatusLabels } from "features/profile/constants";
+  // import { hostingStatusLabels } from "features/profile/constants";
   import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
   import { useTranslation } from "i18n";
   import { GLOBAL, SEARCH } from "i18n/namespaces";
@@ -31,22 +32,27 @@ import {
   import { GeocodeResult } from "utils/hooks";
   import SearchFilters from "utils/searchFilters";
   import { TFunction } from "i18n";
+  import { referencesFilterLabels } from "features/profile/constants";
+import { useContext } from "react";
+import { mapContext } from "./new-search-page";
 
   const getLastActiveOptions = (t: TFunction) => [
-    { label: t("search:last_active_options.any"), value: null },
+    { label: t("search:last_active_options.any"), value: 0 },
     { label: t("search:last_active_options.last_day"), value: 1 },
     { label: t("search:last_active_options.last_week"), value: 7 },
     { label: t("search:last_active_options.last_2_weeks"), value: 14 },
     { label: t("search:last_active_options.last_month"), value: 31 },
     { label: t("search:last_active_options.last_3_months"), value: 93 },
   ];
-  
-  const hostingStatusOptions = [
-    HostingStatus.HOSTING_STATUS_CAN_HOST,
-    HostingStatus.HOSTING_STATUS_MAYBE,
-    HostingStatus.HOSTING_STATUS_CANT_HOST,
-  ];
-  
+
+  const hostingStatusLabels = (t: TFunction) => ({
+    [HostingStatus.HOSTING_STATUS_CAN_HOST]: t("global:hosting_status.can_host"),
+    [HostingStatus.HOSTING_STATUS_MAYBE]: t("global:hosting_status.maybe"),
+    [HostingStatus.HOSTING_STATUS_CANT_HOST]: t(
+      "global:hosting_status.cant_host"
+    ),
+  });
+   
   const useStyles = makeStyles((theme) => ({
     container: {
       "& > * + *": {
@@ -70,6 +76,7 @@ import {
   }) {
     const { t } = useTranslation([GLOBAL, SEARCH]);
     const classes = useStyles();
+    const {lastActiveFilter, setLastActiveFilter, hostingStatusFilter, setHostingStatusFilter, numberOfGuestsFilter, setNumberOfGuestsFilter} = useContext(mapContext)
     const { control, handleSubmit, register, setValue, getValues, errors } =
       useForm<FilterModalFormData>({
         mode: "onBlur",
@@ -137,58 +144,30 @@ import {
                 <Typography variant="h3">
                   {t("search:form.host_filters.title")}
                 </Typography>
-                <Controller
-                  control={control}
-                  name="lastActive"
-                  defaultValue={
-                    lastActiveOptions.find(
-                      (o) => o.value === null
-                    ) ?? lastActiveOptions[0]
-                  }
-                  render={({ onChange, value }) => (
-                    <Autocomplete
-                      id="last-active-filter"
-                      label={t(
-                        "search:form.host_filters.last_active_field_label"
-                      )}
-                      options={lastActiveOptions}
-                      getOptionLabel={(o) => o.label}
-                      onChange={(_e, option) => onChange(option)}
-                      value={value}
-                      disableClearable={true}
-                      freeSolo={false}
-                      multiple={false}
-                    />
-                  )}
-                  rules={{}}
-                />
-                <Controller
-                  control={control}
-                  name="hostingStatusOptions"
-                  defaultValue={[]}
-                  render={({ onChange, value }) => (
-                    <Autocomplete<HostingStatus, true, false, false>
-                      id="host-status-filter"
-                      label={t(
-                        "search:form.host_filters.hosting_status_field_label"
-                      )}
-                      options={hostingStatusOptions}
-                      onChange={(_e, options) => {
-                        onChange(options);
-                      }}
-                      value={value}
-                      getOptionLabel={(option) => hostingStatusLabels(t)[option]}
-                      disableClearable={false}
-                      freeSolo={false}
-                      multiple={true}
-                      error={
-                        //@ts-ignore weird nested field type issue
-                        errors.hostingStatusOptions?.message
-                      }
-                    />
-                  )}
-                  rules={{ }}
-                />
+               
+                {/* last active */}
+                <Select
+                  onChange={(e) => setLastActiveFilter(e.target.value)}
+                  value={lastActiveFilter}
+                >
+                  {Object.entries(getLastActiveOptions(t)).map(([index, {label, value}]) => {
+                    return <MenuItem key={index} value={value}>
+                      {label}
+                    </MenuItem>
+                  })}
+                </Select>
+
+                {/* can host */}
+                <Select
+                  onChange={(e) => setHostingStatusFilter(e.target.value)}
+                  value={hostingStatusFilter}
+                >
+                  {Object.entries(hostingStatusLabels(t)).map(([key, label]) => {
+                    return <MenuItem key={key} value={key}>
+                      {label}
+                    </MenuItem>
+                  })}
+                </Select>
               </Grid>
               <Grid item xs={12} md={6} className={classes.container}>
                 <Typography variant="h3">

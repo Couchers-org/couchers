@@ -136,8 +136,7 @@ export default function SearchResultsList({
       );
     },
     {
-      getNextPageParam: (lastPage) =>
-        lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+      getNextPageParam: (lastPage) => lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
       onSuccess(results) {
         map.current?.stop();
 
