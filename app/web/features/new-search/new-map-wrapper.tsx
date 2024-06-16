@@ -29,8 +29,6 @@ export default function NewMapWrapper({map, selectedResult, setSelectedResult, h
 
   // const searchFilters = useRouteWithSearchFilters(searchRoute);
 
-  // const updateMapBoundingBox = alert("updated map bounding box");
-
   /*
   useEffect(() => {
     if (showResults.current !== searchFilters.any) {
@@ -119,7 +117,7 @@ export default function NewMapWrapper({map, selectedResult, setSelectedResult, h
   const initializeMap = (newMap: MaplibreMap) => {
     map.current = newMap;
     newMap.on("load", () => {
-      addClusteredUsersToMap(newMap);
+      addClusteredUsersToMap(newMap); // TODO: remove this (we don't need to load the full map of users)
     });
   };
 

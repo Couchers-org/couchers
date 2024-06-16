@@ -45,7 +45,7 @@ import {
     const { t } = useTranslation([GLOBAL, SEARCH]);
     const classes = useStyles();
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-    const {searchType, setSearchType, locationResult, setLocationResult, queryName} = useContext(mapContext) //useState<"location" | "keyword">(() => "location");
+    const {searchType, setSearchType, setLocationResult} = useContext(mapContext) //useState<"location" | "keyword">(() => "location");
     const theme = useTheme();
     const isSmDown = useMediaQuery(theme.breakpoints.down("sm"));
     // const queryClient = useQueryClient();
@@ -84,7 +84,11 @@ import {
             name="location"
             defaultValue={""}
             label={t("search:form.location_field_label")}
-            onChange={(e) => {setLocationResult(e)}}
+            onChange={(e: any) => {
+              if (e) {
+                setLocationResult(e);
+              }
+            }}
             fieldError={errors.location?.message}
             disableRegions
           />

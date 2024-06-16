@@ -1,4 +1,7 @@
 import { MapClickedCallback } from "features/search/constants";
+import { UserSearchRes } from "proto/search_pb";
+import { InfiniteData } from "react-query";
+import { User } from "proto/api_pb";
 import { Point } from "geojson";
 import maplibregl, {
   AnyLayer,
@@ -128,6 +131,19 @@ const zoomCluster = (
   );
 };
 
+/**
+ * Filters the recieved data and format it's in a simple & usable way
+ */
+export const filterData = (data: InfiniteData<UserSearchRes.AsObject>) => {
+  return data.pages
+    .flatMap((page) => page.resultsList)
+    .map((result) => {
+      return result.user;
+    })
+    .filter((user): user is User.AsObject => !!user)
+    .map((user) => user.userId);
+}
+
 export const addClusteredUsersToMap = (
   map: MaplibreMap,
   userClickedCallback?: MapClickedCallback
@@ -145,6 +161,13 @@ export const addClusteredUsersToMap = (
   map.on("click", layers.clusterLayer.id, zoomCluster);
 };
 
+/**
+ * Deletes all the @map results (by cleaning a map layer), adds a new layer containing a new list of results (@ids) and then sets a callback when user click
+ * on one result
+ * @param map map to edit its results
+ * @param ids new list of results to add
+ * @param userClickedCallback callback to be executed when user clicks
+ */
 export const filterUsers = (
   map: MaplibreMap,
   ids: number[] | null,

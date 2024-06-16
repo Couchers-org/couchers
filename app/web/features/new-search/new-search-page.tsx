@@ -1,27 +1,25 @@
 import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
 import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
-import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { addClusteredUsersToMap, layers } from "../search/users";
+import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
+import { addClusteredUsersToMap, layers, filterData } from "../search/users";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { selectedUserZoom } from "features/search/constants";
+import { filterUsers } from "features/search/users";
+import { searchQueryKey } from "features/queryKeys";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
+import { UserSearchRes } from "proto/search_pb";
+import { useInfiniteQuery } from "react-query";
 import NewSearchList from "./new-search-list";
+import NewMapWrapper from "./new-map-wrapper";
 import NewSearchBox from "./new-search-box";
 import HtmlMeta from "components/HtmlMeta";
 import { usePrevious } from "utils/hooks";
 import { useTranslation } from "i18n";
 import { createContext } from "react";
-import { searchRoute } from "routes";
 import { User } from "proto/api_pb";
-import Map from "components/Map";
 import { Point } from "geojson";
-import { QueryClient, QueryClientProvider } from "react-query";
-import { selectedUserZoom } from "features/search/constants";
-import NewMapWrapper from "./new-map-wrapper";
-import { useInfiniteQuery } from "react-query";
-import { searchQueryKey } from "features/queryKeys";
-import { UserSearchRes } from "proto/search_pb";
 import { service } from "service";
-import { filterUsers } from "features/search/users";
 
 /**
  * Context which will be queried by the childs components
@@ -71,22 +69,22 @@ const useStyles = makeStyles((theme) => ({
  */
 export default function NewSearchPage() {
 
+  const theme = useTheme();
+  const classes = useStyles();
+  const map = useRef<MaplibreMap>();
+  const { t } = useTranslation([GLOBAL, SEARCH]);
+
   // query
   const queryClient = new QueryClient()
 
   // Context
-  //const [results, setResults] = useState([] as any[]);
-  //const [isLoadingContext, setIsLoadingContext] = useState(true);
-  const [boundingBox, setBoundingBox] = useState([0, 0, 0, 0] as [number, number, number, number]);
-  // const [initialCoords, setInitialCoords] = useState({ lng: 125, lat: 125 }); // TODO: this should came from the API
-
-  // Example location, this should be loaded at the beginning, using the users data
+  // TODO: get this values from the API endpoint
   const [locationResult, setLocationResult] = useState<any>({
     bbox: [-3.5179163, 40.6437293, -3.8889539, 40.3119774],
     isRegion: false,
-    location: {lng:-3.7035825, lat: 40.4167047},
+    location: { lng: -3.7035825, lat: 40.4167047 },
     name: "",
-    simplfiedName: ""
+    simplifiedName: ""
   });
   const [queryName, setQueryName] = useState(undefined);
   const [searchType, setSearchType] = useState('location');
@@ -118,9 +116,6 @@ export default function NewSearchPage() {
     []
   );
 
-  // Do not implement this infiniteQuery! this makes no sense to implement!
-  // Use just a simple query, not accumulative (with pages instead?)
-  
   const {
     data,
     error,
@@ -129,14 +124,18 @@ export default function NewSearchPage() {
     isFetching,
     hasNextPage,
   } = useInfiniteQuery<UserSearchRes.AsObject, Error>(
-    searchQueryKey(queryName || ""),
+    [
+      'userSearch',
+      queryName,
+      locationResult?.bbox,
+    ],
     ({ pageParam }) => {
       return service.search.userSearch(
         {
           query: queryName,
           lat: locationResult?.location?.lat,
           lng: locationResult?.location?.lng,
-          radius: 50000, // bbox here
+          radius: 50000, // TODO: bbox here
           lastActive: lastActiveFilter === 0 ? undefined : lastActiveFilter,
           hostingStatusOptions: hostingStatusFilter[0] === 0 ? undefined : hostingStatusFilter,
           numGuests: numberOfGuestsFilter,
@@ -146,50 +145,33 @@ export default function NewSearchPage() {
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-      onSuccess(results) {
-        // Updates the map with the results retrieved from the API
-        map.current?.stop();
-
-        const resultUsers = results.pages
-          .flatMap((page) => page.resultsList)
-          .map((result) => {
-            return result.user;
-          })
-          //only return defined users
-          .filter((user): user is User.AsObject => !!user);
-
-        const setFilter = () => {
-          map.current &&
-            filterUsers(
-              map.current,
-              Object.keys(lastActiveFilter).length > 0
-                ? resultUsers.map((user) => user.userId)
-                : null,
-              handleMapUserClick
-            );
-
-          if (boundingBox && boundingBox.join() !== "0,0,0,0") {
-            map.current?.fitBounds(boundingBox, {
-              maxZoom: selectedUserZoom,
-            });
-          }
-        };
-
-        if (map.current?.loaded()) {
-          setFilter();
-        } else {
-          map.current?.once("load", setFilter);
-        }
-      },
     }
   );
 
-  const { t } = useTranslation([GLOBAL, SEARCH]);
-  const classes = useStyles();
-  const theme = useTheme();
-  const map = useRef<MaplibreMap>();
+  useEffect(() => {
+    map.current?.fitBounds(locationResult.bbox, {
+      maxZoom: selectedUserZoom,
+    });
+  }, [locationResult.bbox]);
 
-  // const map = useRef<MaplibreMap>();
+  useEffect(() => {
+    if (map.current) {
+      map.current?.stop();
+
+      if (data) {
+        const resultUsers = filterData(data);
+
+        if (map.current?.loaded()) {
+          filterUsers(
+            map.current,
+            resultUsers,
+            handleMapUserClick
+          );
+        }
+      }
+    }
+  }, [data])
+
   // const [selectedResult, setSelectedResult] = useState<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>(undefined);
 
   const previousResult = usePrevious(selectedResult);
@@ -197,10 +179,7 @@ export default function NewSearchPage() {
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
 
   const showResults = useRef(false);
-
   // const searchFilters = useRouteWithSearchFilters(searchRoute);
-
-  // const updateMapBoundingBox = alert("updated map bounding box");
 
   /*
   useEffect(() => {
@@ -216,7 +195,7 @@ export default function NewSearchPage() {
   const flyToUser = () => { alert("pending to implement :)") };
 
   return (
-    <mapContext.Provider value={{ searchType, setSearchType, boundingBox, setBoundingBox, locationResult, setLocationResult, queryName, setQueryName, setExtraTags, lastActiveFilter, setLastActiveFilter, hostingStatusFilter, setHostingStatusFilter, numberOfGuestsFilter, setNumberOfGuestFilter }}>
+    <mapContext.Provider value={{ searchType, setSearchType, locationResult, setLocationResult, queryName, setQueryName, setExtraTags, lastActiveFilter, setLastActiveFilter, hostingStatusFilter, setHostingStatusFilter, numberOfGuestsFilter, setNumberOfGuestFilter }}>
       <QueryClientProvider client={queryClient}>
         <HtmlMeta title={t("global:nav.map_search")} />
         <div className={classes.container}>

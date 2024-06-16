@@ -86,16 +86,11 @@ interface mapWrapperProps {
 // InfiniteData<UserSearchRes.AsObject> | undefined
 
 export default function NewSearchList({isLoading, results}: mapWrapperProps) {
-  // out of the context
   // const {isLoading, results} = useContext(mapContext);
-
-  // const [results, setResults] = useContext(mapContext);
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
   const hasAtLeastOnePageResults = true;
   const selectedResult = undefined;
-
-  console.log(results);
 
   const error = {
     message: ""
@@ -132,13 +127,13 @@ export default function NewSearchList({isLoading, results}: mapWrapperProps) {
               .map((result) =>
                 result.user ? (
                 <SearchResult
-                id={`search-result-${result.user.userId}`}
-                className={classes.searchResult}
-                key={result.user.userId}
-                user={result.user}
-                onSelect={() => { alert("selected :)") }}
-                highlight={result.user.userId === selectedResult}
-              />
+                  id={`search-result-${result.user.userId}`}
+                  className={classes.searchResult}
+                  key={result.user.userId}
+                  user={result.user}
+                  onSelect={() => { alert("selected :)") }}
+                  highlight={result.user.userId === selectedResult}
+                />
                 ) : null
             )}
           </HorizontalScroller>
