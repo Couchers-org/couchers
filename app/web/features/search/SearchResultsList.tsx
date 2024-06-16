@@ -8,7 +8,7 @@ import { selectedUserZoom } from "features/search/constants";
 import SearchBox from "features/search/SearchBox";
 import SearchResult from "features/search/SearchResult";
 import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
-import { filterUsers } from "features/search/users";
+import { reRenderUsersOnMap } from "features/search/users";
 import { useUser } from "features/userQueries/useUsers";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
@@ -150,7 +150,7 @@ export default function SearchResultsList({
 
         const setFilter = () => {
           map.current &&
-            filterUsers(
+            reRenderUsersOnMap(
               map.current,
               Object.keys(searchFilters.active).length > 0
                 ? resultUsers.map((user) => user.userId)

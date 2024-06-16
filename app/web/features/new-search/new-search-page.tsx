@@ -1,17 +1,15 @@
-import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
-import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import maplibregl, { EventData, Map as MaplibreMap } from "maplibre-gl";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
-import { addClusteredUsersToMap, layers, filterData } from "../search/users";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { selectedUserZoom } from "features/search/constants";
-import { filterUsers } from "features/search/users";
-import { searchQueryKey } from "features/queryKeys";
+import { reRenderUsersOnMap } from "features/search/users";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { UserSearchRes } from "proto/search_pb";
 import { useInfiniteQuery } from "react-query";
 import NewSearchList from "./new-search-list";
 import NewMapWrapper from "./new-map-wrapper";
+import { filterData } from "../search/users";
 import NewSearchBox from "./new-search-box";
 import HtmlMeta from "components/HtmlMeta";
 import { usePrevious } from "utils/hooks";
@@ -88,7 +86,6 @@ export default function NewSearchPage() {
   });
   const [queryName, setQueryName] = useState(undefined);
   const [searchType, setSearchType] = useState('location');
-  const [extraTags, setExtraTags] = useState("");
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
   const [hostingStatusFilter, setHostingStatusFilter] = useState([0]);
   const [numberOfGuestsFilter, setNumberOfGuestFilter] = useState(undefined);
@@ -148,23 +145,25 @@ export default function NewSearchPage() {
     }
   );
 
+  // Update viewport everytime bbox value changes
   useEffect(() => {
     map.current?.fitBounds(locationResult.bbox, {
       maxZoom: selectedUserZoom,
     });
   }, [locationResult.bbox]);
 
+  // Re-render users on map
   useEffect(() => {
     if (map.current) {
       map.current?.stop();
 
       if (data) {
-        const resultUsers = filterData(data);
+        const usersToRender = filterData(data);
 
         if (map.current?.loaded()) {
-          filterUsers(
+          reRenderUsersOnMap(
             map.current,
-            resultUsers,
+            usersToRender,
             handleMapUserClick
           );
         }
@@ -172,13 +171,12 @@ export default function NewSearchPage() {
     }
   }, [data])
 
-  // const [selectedResult, setSelectedResult] = useState<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>(undefined);
-
   const previousResult = usePrevious(selectedResult);
 
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
 
   const showResults = useRef(false);
+
   // const searchFilters = useRouteWithSearchFilters(searchRoute);
 
   /*
@@ -195,8 +193,8 @@ export default function NewSearchPage() {
   const flyToUser = () => { alert("pending to implement :)") };
 
   return (
-    <mapContext.Provider value={{ searchType, setSearchType, locationResult, setLocationResult, queryName, setQueryName, setExtraTags, lastActiveFilter, setLastActiveFilter, hostingStatusFilter, setHostingStatusFilter, numberOfGuestsFilter, setNumberOfGuestFilter }}>
-      <QueryClientProvider client={queryClient}>
+    <mapContext.Provider value={{ searchType, setSearchType, locationResult, selectedResult, setSelectedResult, setLocationResult, queryName, setQueryName, lastActiveFilter, setLastActiveFilter, hostingStatusFilter, setHostingStatusFilter, numberOfGuestsFilter, setNumberOfGuestFilter }}>
+      <QueryClientProvider client={queryClient}> 
         <HtmlMeta title={t("global:nav.map_search")} />
         <div className={classes.container}>
           {/* Desktop */}

@@ -1,19 +1,16 @@
-import { Hidden, makeStyles, Paper } from "@material-ui/core";
 import HorizontalScroller from "components/HorizontalScroller";
+import { Hidden, makeStyles, Paper } from "@material-ui/core";
 import CircularProgress from "components/CircularProgress";
 import SearchResult from "features/search/SearchResult";
-import { useContext, useState } from "react";
+import { UserSearchRes } from "proto/search_pb";
+import { mapContext } from "./new-search-page";
+import { useContext } from "react";
 import NewSearchBox from "./new-search-box";
 import TextBody from "components/TextBody";
+import { InfiniteData } from "react-query";
 import { SEARCH } from "i18n/namespaces";
 import { useTranslation } from "i18n";
 import Alert from "components/Alert";
-import { useEffect } from "react";
-import { InfiniteData } from "react-query";
-import { UserSearchRes } from "proto/search_pb";
-
-import { mapContext } from "./new-search-page";
-import { o } from "msw/lib/glossary-58eca5a8";
 
 const useStyles = makeStyles((theme) => ({
   mapResults: {
@@ -83,14 +80,11 @@ interface mapWrapperProps {
   results: InfiniteData<UserSearchRes.AsObject> | undefined
 }
 
-// InfiniteData<UserSearchRes.AsObject> | undefined
-
-export default function NewSearchList({isLoading, results}: mapWrapperProps) {
-  // const {isLoading, results} = useContext(mapContext);
+export default function NewSearchList({ isLoading, results }: mapWrapperProps) {
+  const { selectedResult, setSelectedResult } = useContext(mapContext);
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
   const hasAtLeastOnePageResults = true;
-  const selectedResult = undefined;
 
   const error = {
     message: ""
@@ -100,7 +94,7 @@ export default function NewSearchList({isLoading, results}: mapWrapperProps) {
     <Paper className={classes.mapResults}>
 
       {error && <Alert severity="error">{error.message}</Alert>}
-      
+
       <Hidden smDown>
         <NewSearchBox />
       </Hidden>
@@ -126,16 +120,18 @@ export default function NewSearchList({isLoading, results}: mapWrapperProps) {
               .flatMap((page) => page.resultsList)
               .map((result) =>
                 result.user ? (
-                <SearchResult
-                  id={`search-result-${result.user.userId}`}
-                  className={classes.searchResult}
-                  key={result.user.userId}
-                  user={result.user}
-                  onSelect={() => { alert("selected :)") }}
-                  highlight={result.user.userId === selectedResult}
-                />
+                  <SearchResult
+                    id={`search-result-${result.user.userId}`}
+                    className={classes.searchResult}
+                    key={result.user.userId}
+                    user={result.user}
+                    onSelect={() => {
+                      setSelectedResult({ username: result.user?.username, userId: result.user?.userId, lng: result.user?.lng, lat: result.user?.lat })
+                    }}
+                    highlight={selectedResult && result.user.userId === selectedResult.userId}
+                  />
                 ) : null
-            )}
+              )}
           </HorizontalScroller>
         }
       </>
