@@ -8,7 +8,6 @@ import {
   VerifyPhoneReq,
 } from "proto/account_pb";
 import {
-  CompletePasswordResetReq,
   CompletePasswordResetV2Req,
   ConfirmChangeEmailV2Req,
   ContributorForm as ContributorFormPb,
@@ -27,12 +26,6 @@ export function resetPassword(userId: string) {
   const req = new ResetPasswordReq();
   req.setUser(userId);
   return client.auth.resetPassword(req);
-}
-
-export function completePasswordReset(resetToken: string) {
-  const req = new CompletePasswordResetReq();
-  req.setPasswordResetToken(resetToken);
-  return client.auth.completePasswordReset(req);
 }
 
 export function CompletePasswordResetV2(
