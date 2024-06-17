@@ -1,7 +1,6 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { StringValue } from "google-protobuf/google/protobuf/wrappers_pb";
 import {
-  ChangeEmailReq,
+  ChangeEmailV2Req,
   ChangePasswordV2Req,
   ChangePhoneReq,
   DeleteAccountReq,
@@ -55,14 +54,12 @@ export function changePassword(oldPassword: string, newPassword: string) {
   return client.account.changePasswordV2(req);
 }
 
-export function changeEmail(newEmail: string, currentPassword?: string) {
-  const req = new ChangeEmailReq();
+export function changeEmail(newEmail: string, currentPassword: string) {
+  const req = new ChangeEmailV2Req();
   req.setNewEmail(newEmail);
-  if (currentPassword) {
-    req.setPassword(new StringValue().setValue(currentPassword));
-  }
+  req.setPassword(currentPassword);
 
-  return client.account.changeEmail(req);
+  return client.account.changeEmailV2(req);
 }
 
 export async function confirmChangeEmail(resetToken: string) {
