@@ -3,7 +3,6 @@ import { HostingStatus } from "proto/api_pb";
 import {
   ConfirmDeleteAccountReq,
   ContributorForm as ContributorFormPb,
-  LoginReq,
   RecoverAccountReq,
   SignupAccount,
   SignupBasic,
@@ -12,13 +11,6 @@ import {
   UsernameValidReq,
 } from "proto/auth_pb";
 import client from "service/client";
-
-export async function checkUsername(username: string) {
-  const req = new LoginReq();
-  req.setUser(username);
-  const res = await client.auth.login(req);
-  return res.getNextStep();
-}
 
 export async function startSignup(name: string, email: string) {
   const req = new SignupFlowReq();

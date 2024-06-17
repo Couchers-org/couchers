@@ -12,7 +12,7 @@ import {
   UpdateProfileReq,
   User,
 } from "proto/api_pb";
-import { AuthReq, CompleteTokenLoginReq } from "proto/auth_pb";
+import { AuthReq } from "proto/auth_pb";
 import client from "service/client";
 import { ProtoToJsTypes } from "utils/types";
 
@@ -65,17 +65,6 @@ export async function passwordLogin(
   req.setRememberDevice(rememberDevice);
 
   const res = await client.auth.authenticate(req);
-  return res.toObject();
-}
-
-/**
- * Login user using a login token
- */
-export async function tokenLogin(loginToken: string) {
-  const req = new CompleteTokenLoginReq();
-  req.setLoginToken(loginToken);
-
-  const res = await client.auth.completeTokenLogin(req);
   return res.toObject();
 }
 
