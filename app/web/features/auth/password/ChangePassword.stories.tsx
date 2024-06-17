@@ -22,7 +22,7 @@ const Template: Story<ChangePasswordArgs> = ({
   return <ChangePassword />;
 };
 
-export const HasPassword = Template.bind({});
+export const Normal = Template.bind({});
 
 export const ErrorChangingPassword = Template.bind({});
 ErrorChangingPassword.args = {

@@ -50,7 +50,6 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
     isLoading: isChangePasswordLoading,
     isSuccess: isChangePasswordSuccess,
     mutate: changePassword,
-    variables: changePasswordVariables,
   } = useMutation<Empty, RpcError, ChangePasswordVariables>(
     ({ oldPassword, newPassword }) =>
       service.account.changePassword(oldPassword, newPassword),

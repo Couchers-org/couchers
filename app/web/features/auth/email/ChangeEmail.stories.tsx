@@ -28,7 +28,7 @@ const Template: Story<ChangeEmailArgs> = ({
   return <ChangeEmail email={"user@couchers.invalid"} />;
 };
 
-export const HasPassword = Template.bind({});
+export const Normal = Template.bind({});
 
 export const AccountInfoLoading = Template.bind({});
 AccountInfoLoading.args = {
