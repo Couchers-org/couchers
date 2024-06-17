@@ -63,11 +63,7 @@ export default function Settings() {
             className={classes.section}
             timezone={accountInfo.timezone}
           />
-          <ChangeEmail
-            className={classes.section}
-            email={accountInfo.email}
-            hasPassword={accountInfo.hasPassword}
-          />
+          <ChangeEmail className={classes.section} email={accountInfo.email} />
           <NotificationSettings className={classes.section} />
           <DoNotEmail className={classes.section} />
           <ChangePassword className={classes.section} />

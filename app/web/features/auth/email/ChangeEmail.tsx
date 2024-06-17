@@ -15,20 +15,15 @@ import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
 
 interface ChangeEmailFormData {
   newEmail: string;
-  currentPassword?: string;
+  currentPassword: string;
 }
 
 interface ChangeEmailProps {
   email: string;
-  hasPassword: boolean;
   className?: string;
 }
 
-export default function ChangeEmail({
-  className,
-  email,
-  hasPassword,
-}: ChangeEmailProps) {
+export default function ChangeEmail({ className, email }: ChangeEmailProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const formClasses = useChangeDetailsFormStyles();
   const theme = useTheme();
@@ -76,16 +71,14 @@ export default function ChangeEmail({
           </Alert>
         )}
         <form className={formClasses.form} onSubmit={onSubmit}>
-          {hasPassword && (
-            <TextField
-              id="currentPassword"
-              inputRef={register({ required: true })}
-              label={t("auth:change_email_form.current_password")}
-              name="currentPassword"
-              type="password"
-              fullWidth={!isMdOrWider}
-            />
-          )}
+          <TextField
+            id="currentPassword"
+            inputRef={register({ required: true })}
+            label={t("auth:change_email_form.current_password")}
+            name="currentPassword"
+            type="password"
+            fullWidth={!isMdOrWider}
+          />
           <TextField
             id="newEmail"
             inputRef={register({ required: true })}
