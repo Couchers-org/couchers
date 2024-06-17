@@ -1,7 +1,7 @@
 """Force passwords fully
 
 Revision ID: 461446320dfa
-Revises: 46e6b6a3d9ed
+Revises: f53ecea60964
 Create Date: 2024-06-08 22:03:05.229923
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "461446320dfa"
-down_revision = "46e6b6a3d9ed"
+down_revision = "f53ecea60964"
 branch_labels = None
 depends_on = None
 
