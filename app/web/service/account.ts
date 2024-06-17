@@ -10,7 +10,7 @@ import {
 import {
   CompletePasswordResetReq,
   CompletePasswordResetV2Req,
-  ConfirmChangeEmailReq,
+  ConfirmChangeEmailV2Req,
   ContributorForm as ContributorFormPb,
   ResetPasswordReq,
 } from "proto/auth_pb";
@@ -63,9 +63,9 @@ export function changeEmail(newEmail: string, currentPassword: string) {
 }
 
 export async function confirmChangeEmail(resetToken: string) {
-  const req = new ConfirmChangeEmailReq();
+  const req = new ConfirmChangeEmailV2Req();
   req.setChangeEmailToken(resetToken);
-  return (await client.auth.confirmChangeEmail(req)).toObject();
+  return client.auth.confirmChangeEmailV2(req);
 }
 
 export async function getContributorFormInfo() {
