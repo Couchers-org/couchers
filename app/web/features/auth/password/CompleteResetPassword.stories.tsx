@@ -1,7 +1,7 @@
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Meta, Story } from "@storybook/react";
-import { mockedService } from "stories/serviceMocks";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React from "react";
+import { mockedService } from "stories/serviceMocks";
 
 import CompleteResetPassword from "./CompleteResetPassword";
 
