@@ -1,3 +1,4 @@
+export { default as CommunityIcon } from "./CommunityIcon";
 export { default as AttendeesIcon } from "@material-ui/icons/AccountCircleOutlined";
 export { default as AddIcon } from "@material-ui/icons/AddOutlined";
 export { default as BackIcon } from "@material-ui/icons/ArrowBackOutlined";
@@ -26,8 +27,8 @@ export { default as CouchIcon } from "@material-ui/icons/HotelOutlined";
 export { default as InfoIcon } from "@material-ui/icons/InfoOutlined";
 export { default as GlobeIcon } from "@material-ui/icons/Language";
 export { default as LanguageIcon } from "@material-ui/icons/LanguageOutlined";
-export { default as LinkIcon } from "@material-ui/icons/LinkOutlined";
 export { default as LinkedInIcon } from "@material-ui/icons/LinkedIn";
+export { default as LinkIcon } from "@material-ui/icons/LinkOutlined";
 export { default as PinIcon } from "@material-ui/icons/LocationOn";
 export { default as LocationIcon } from "@material-ui/icons/LocationOnOutlined";
 export { default as MenuIcon } from "@material-ui/icons/Menu";
@@ -54,4 +55,3 @@ export { default as CommunityLeadersIcon } from "@material-ui/icons/SportsSoccer
 export { default as VerifiedUser } from "@material-ui/icons/VerifiedUser";
 export { default as MuteIcon } from "@material-ui/icons/VolumeOffOutlined";
 export { default as WorkIcon } from "@material-ui/icons/WorkOutlined";
-export { default as CommunityIcon } from "./CommunityIcon";

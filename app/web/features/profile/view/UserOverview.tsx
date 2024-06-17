@@ -1,4 +1,5 @@
 import { Card, CardActions, Tooltip, Typography } from "@material-ui/core";
+import { VerifiedUser } from "@material-ui/icons";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
@@ -14,7 +15,6 @@ import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 
-import { VerifiedUser } from "@material-ui/icons";
 import { useProfileUser } from "../hooks/useProfileUser";
 import { Badges } from "./Badges";
 import { ReferencesLastActiveLabels, ResponseRateLabel } from "./userLabels";

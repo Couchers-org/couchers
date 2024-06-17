@@ -70,10 +70,7 @@ export default function Settings() {
           />
           <NotificationSettings className={classes.section} />
           <DoNotEmail className={classes.section} />
-          <ChangePassword
-            className={classes.section}
-            hasPassword={accountInfo.hasPassword}
-          />
+          <ChangePassword className={classes.section} />
           <DeleteAccount
             className={classes.section}
             username={accountInfo.username}
