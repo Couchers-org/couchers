@@ -466,3 +466,5 @@ def test_email_deleted_users_regression(db):
                     approve=True,
                 )
             )
+
+        assert mock.call_count == 3
