@@ -21,7 +21,11 @@ from couchers.notifications.push import push_to_user
 from couchers.notifications.push_api import send_push
 from couchers.notifications.render import render_notification
 from couchers.notifications.settings import get_preference
-from couchers.notifications.unsubscribe import generate_unsub
+from couchers.notifications.unsubscribe import (
+    generate_do_not_email,
+    generate_unsub_topic_action,
+    generate_unsub_topic_key,
+)
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import add_filters
 from couchers.utils import get_tz_as_text, now
@@ -39,18 +43,12 @@ add_filters(env)
 
 
 def _send_email_notification(user: User, notification: Notification):
-    def _generate_unsub(unsub_type, one_click=False):
-        return generate_unsub(user, notification, unsub_type, one_click)
-
     rendered = render_notification(user, notification)
     template_args = {
         "user": user,
         "time": notification.created,
-        "__unsub": _generate_unsub,
         **rendered.email_template_args,
     }
-
-    manage_link = urls.account_settings_link()
 
     template_args["_year"] = now().year
     template_args["_timezone_display"] = get_tz_as_text(user.timezone or "Etc/UTC")
@@ -60,13 +58,14 @@ def _send_email_notification(user: User, notification: Notification):
         plain_unsub_section += "This is a security email, you cannot unsubscribe from it."
         html_unsub_section = "This is a security email, you cannot unsubscribe from it."
     else:
+        manage_link = urls.account_settings_link()
         plain_unsub_section += f"Edit your notification settings at <{manage_link}>"
         html_unsub_section = f'<a href="{manage_link}">Manage notification preferences</a>.'
         unsub_options = []
         ta = rendered.email_topic_action_unsubscribe_text
         tk = rendered.email_topic_key_unsubscribe_text
-        ta_link = _generate_unsub("topic_action")
-        tk_link = _generate_unsub("topic_key")
+        ta_link = generate_unsub_topic_action(notification)
+        tk_link = generate_unsub_topic_key(notification)
         if ta:
             plain_unsub_section += f"\n\nTurn off emails for {ta}: <{ta_link}>"
             unsub_options.append(f'<a href="{ta_link}">{ta}</a>')
@@ -75,7 +74,7 @@ def _send_email_notification(user: User, notification: Notification):
             unsub_options.append(f'<a href="{tk_link}">{tk}</a>')
         if unsub_options:
             html_unsub_section += f'<br />Turn off emails for: {" / ".join(unsub_options)}.'
-        dne_link = _generate_unsub("do_not_email")
+        dne_link = generate_do_not_email(user)
         plain_unsub_section += f"\n\nDo not email me (disables hosting): <{dne_link}>"
         html_unsub_section += f'<br /><a href="{dne_link}">Do not email me (disables hosting)</a>.'
 
@@ -84,9 +83,17 @@ def _send_email_notification(user: User, notification: Notification):
     html_tmplt = (template_folder / "generated_html" / f"{rendered.email_template_name}.html").read_text()
     html = env.from_string(html_tmplt.replace("___UNSUB_SECTION___", html_unsub_section)).render(template_args)
 
-    if user.do_not_email and not rendered.is_critical:
-        logger.info(f"Not emailing {user} based on template {rendered.email_template_name} due to emails turned off")
-        return
+    if not rendered.is_critical:
+        if user.do_not_email:
+            logger.info(
+                f"Not emailing {user} based on template {rendered.email_template_name} due to emails turned off"
+            )
+            return
+        if not user.is_visible:
+            logger.error(
+                f"Tried emailing {user}  based on template {rendered.email_template_name} but user not visible"
+            )
+            return
 
     list_unsubscribe_header = None
     if rendered.email_list_unsubscribe_url:
