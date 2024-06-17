@@ -1,4 +1,5 @@
 import logging
+from html import escape
 from pathlib import Path
 
 import yaml
@@ -58,12 +59,15 @@ def enqueue_system_email(recipient, template_name, template_args):
 
     plain = env.from_string(text_source).render({**template_args, "frontmatter": frontmatter}, plain=True, html=False)
 
+    # chatwoot won't show plaintext correctly, so wrap it in some HTML
+    html = f"<html><body><pre>{escape(plain)}</pre></body></html>"
+
     queue_email(
         config["NOTIFICATION_EMAIL_SENDER"],
         config["NOTIFICATION_EMAIL_ADDRESS"],
         recipient,
         config["NOTIFICATION_EMAIL_PREFIX"] + frontmatter["subject"],
         plain,
-        None,
+        html,
         source_data=template_name,
     )
