@@ -21,10 +21,10 @@ def _generate_unsubscribe_link(payload):
     return urls.unsubscribe_link(payload=b64encode(msg), sig=b64encode(sig))
 
 
-def generate_do_not_email(user_id):
+def generate_do_not_email(user):
     return _generate_unsubscribe_link(
         unsubscribe_pb2.UnsubscribePayload(
-            user_id=user_id,
+            user_id=user.id,
             do_not_email=unsubscribe_pb2.DoNotEmail(),
         )
     )
@@ -52,19 +52,6 @@ def generate_unsub_topic_action(notification):
             ),
         )
     )
-
-
-def generate_unsub(user, notification, unsub_type, one_click=False):
-    if one_click:
-        raise NotImplementedError("One click unsubscribe not implemented yet")
-    if unsub_type == "do_not_email":
-        return generate_do_not_email(user.id)
-    elif unsub_type == "topic_key":
-        return generate_unsub_topic_key(notification)
-    elif unsub_type == "topic_action":
-        return generate_unsub_topic_action(notification)
-    else:
-        return ValueError("Unknown unsub type")
 
 
 def unsubscribe(request, context):

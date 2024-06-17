@@ -224,14 +224,14 @@ def get_users_to_notify_for_new_event(session, occurrence):
         logger.info("The Global Community is too big for email notifications.")
         return [], False
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
-        return list(cluster.members), False
+        return list(cluster.members.where(User.is_visible)), False
     else:
-        logger.info("got this")
         max_radius = 20000  # m
         users = (
             session.execute(
                 select(User)
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
+                .where(User.is_visible)
                 .where(ClusterSubscription.cluster_id == cluster.id)
                 .where(func.ST_DWithin(User.geom, occurrence.geom, max_radius / 111111))
             )

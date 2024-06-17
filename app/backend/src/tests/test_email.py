@@ -20,22 +20,27 @@ from couchers.models import (
 from couchers.notifications.notify import notify
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
+    enforce_community_memberships,
     maybe_send_reference_report_email,
     send_content_report_email,
     send_email_changed_confirmation_to_new_email,
     send_login_email,
     send_signup_email,
 )
-from proto import api_pb2, notification_data_pb2, notifications_pb2
+from couchers.utils import Timestamp_from_datetime, now, timedelta
+from proto import admin_pb2, api_pb2, events_pb2, notification_data_pb2, notifications_pb2
+from tests.test_communities import create_community
 from tests.test_fixtures import (  # noqa
     api_session,
     db,
     email_fields,
+    events_session,
     generate_user,
     mock_notification_email,
     notifications_session,
     process_jobs,
     push_collector,
+    real_admin_session,
     session_scope,
     testconfig,
 )
@@ -386,3 +391,80 @@ This is a security email, you cannot unsubscribe from it."""
         assert "https://example.com/receipt/12345" in email.html
         assert not email.list_unsubscribe_header
         assert email.source_data == "testing_version/donation_received"
+
+
+def test_email_deleted_users_regression(db):
+    """
+    We introduced a bug in notify v2 where we would email deleted/banned users.
+    """
+    super_user, super_token = generate_user(is_superuser=True)
+    creating_user, creating_token = generate_user(complete_profile=True)
+
+    normal_user, _ = generate_user()
+    ban_user, _ = generate_user()
+    delete_user, _ = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 10, 2, "Global Community", [super_user], [], None)
+        create_community(
+            session,
+            0,
+            2,
+            "Non-global Community",
+            [super_user],
+            [creating_user, normal_user, ban_user, delete_user],
+            None,
+        )
+
+    enforce_community_memberships()
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+    with events_session(creating_token) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Dummy Title",
+                content="Dummy content.",
+                photo_key=None,
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+        event_id = res.event_id
+        assert not res.is_deleted
+
+        with mock_notification_email() as mock:
+            api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
+        assert mock.call_count == 1
+
+    with real_admin_session(super_token) as admin:
+        res = admin.ListEventCommunityInviteRequests(admin_pb2.ListEventCommunityInviteRequestsReq())
+        assert len(res.requests) == 1
+        # this will count everyone
+        assert res.requests[0].approx_users_to_notify == 5
+
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == ban_user.id)).scalar_one().is_banned = True
+        session.execute(select(User).where(User.id == delete_user.id)).scalar_one().is_deleted = True
+
+    with real_admin_session(super_token) as admin:
+        res = admin.ListEventCommunityInviteRequests(admin_pb2.ListEventCommunityInviteRequestsReq())
+        assert len(res.requests) == 1
+        # should only notify creating_user, super_user and normal_user
+        assert res.requests[0].approx_users_to_notify == 3
+
+        with mock_notification_email() as mock:
+            admin.DecideEventCommunityInviteRequest(
+                admin_pb2.DecideEventCommunityInviteRequestReq(
+                    event_community_invite_request_id=res.requests[0].event_community_invite_request_id,
+                    approve=True,
+                )
+            )
+
+        assert mock.call_count == 3

@@ -2,7 +2,7 @@ import logging
 from dataclasses import dataclass
 
 from couchers import urls
-from couchers.notifications.unsubscribe import generate_unsub
+from couchers.notifications.unsubscribe import generate_unsub_topic_action
 from couchers.templates.v2 import v2avatar, v2date, v2esc, v2phone, v2timestamp
 
 logger = logging.getLogger(__name__)
@@ -315,7 +315,7 @@ def render_notification(user, notification) -> RenderedNotification:
             ),
             push_icon=urls.icon_url(),
             push_url=urls.profile_link(),
-            email_list_unsubscribe_url=generate_unsub(user, notification, "topic_action"),
+            email_list_unsubscribe_url=generate_unsub_topic_action(notification),
         )
     elif notification.topic_action.display == "donation:received":
         title = "Thank you for your donation to Couchers.org!"
