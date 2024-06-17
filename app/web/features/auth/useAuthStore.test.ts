@@ -11,7 +11,6 @@ import useAuthStore, { usePersistedState } from "./useAuthStore";
 const getUserMock = service.user.getUser as jest.Mock;
 const getCurrentUserMock = service.user.getCurrentUser as jest.Mock;
 const passwordLoginMock = service.user.passwordLogin as jest.Mock;
-const tokenLoginMock = service.user.tokenLogin as jest.Mock;
 const getIsJailedMock = service.jail.getIsJailed as jest.Mock;
 const logoutMock = service.user.logout as jest.Mock;
 
@@ -128,28 +127,6 @@ describe("passwordLogin action", () => {
     expect(result.current.authState.error).toBe(
       "Invalid username or password."
     );
-  });
-});
-
-describe("tokenLogin action", () => {
-  it("sets authenticated correctly", async () => {
-    tokenLoginMock.mockResolvedValue({ userId: 1, jailed: false });
-    getCurrentUserMock.mockResolvedValue(defaultUser);
-    const { result } = renderHook(() => useAuthStore(), { wrapper });
-    expect(result.current.authState.authenticated).toBe(false);
-    await act(() => result.current.authActions.tokenLogin("token"));
-    expect(result.current.authState.authenticated).toBe(true);
-  });
-  it("sets error correctly for login fail", async () => {
-    tokenLoginMock.mockRejectedValue({
-      code: StatusCode.PERMISSION_DENIED,
-      message: "Invalid token.",
-    });
-    const { result } = renderHook(() => useAuthStore(), { wrapper });
-    expect(result.current.authState.authenticated).toBe(false);
-    await act(() => result.current.authActions.tokenLogin("token"));
-    expect(result.current.authState.authenticated).toBe(false);
-    expect(result.current.authState.error).toBe("Invalid token.");
   });
 });
 

@@ -139,26 +139,6 @@ export default function useAuthStore() {
         setJailed(res.jailed);
         setAuthenticated(true);
       },
-      async tokenLogin(loginToken: string) {
-        setError(null);
-        setLoading(true);
-        try {
-          const auth = await service.user.tokenLogin(loginToken);
-          setUserId(auth.userId);
-          Sentry.setUser({ id: auth.userId.toString() });
-          setJailed(auth.jailed);
-          setAuthenticated(true);
-        } catch (e) {
-          Sentry.captureException(e, {
-            tags: {
-              component: "auth/useAuthStore",
-              action: "tokenLogin",
-            },
-          });
-          setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
-        }
-        setLoading(false);
-      },
       async updateJailStatus() {
         setError(null);
         setLoading(true);
