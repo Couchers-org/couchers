@@ -111,7 +111,7 @@ requests==2.32.3
     # via
     #   -r requirements.in
     #   stripe
-ruff==0.4.8
+ruff==0.4.9
     # via -r requirements.in
 s3transfer==0.10.1
     # via boto3
