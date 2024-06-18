@@ -5,6 +5,7 @@ package org.couchers.jail;
 import "google/protobuf/empty.proto";
 
 import "annotations.proto";
+import "account.proto";
 
 service Jail {
   option (auth_level) = AUTH_LEVEL_JAILED;
@@ -37,6 +38,10 @@ service Jail {
   rpc AcceptCommunityGuidelines(AcceptCommunityGuidelinesReq) returns (JailInfoRes) {
     // Accept community guidelines
   }
+
+  rpc AcknowledgePendingModNote(AcknowledgePendingModNoteReq) returns (JailInfoRes) {
+    // Acknowledges a mod note
+  }
 }
 
 message JailInfoRes {
@@ -45,6 +50,11 @@ message JailInfoRes {
   bool has_not_accepted_tos = 2;
   bool has_not_added_location = 3;
   bool has_not_accepted_community_guidelines = 4;
+  bool has_pending_mod_notes = 6;
+
+  // the actual mod notes, if any
+  // will be empty iff has_mode_notes is false
+  repeated org.couchers.api.account.ModNote pending_mod_notes = 7;
 }
 
 message AcceptTOSReq {
@@ -60,4 +70,10 @@ message SetLocationReq {
 
 message AcceptCommunityGuidelinesReq {
   bool accept = 1;
+}
+
+message AcknowledgePendingModNoteReq {
+  uint64 note_id = 1;
+  // whether the user acknowledges the note or not
+  bool acknowledge = 2;
 }

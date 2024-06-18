@@ -679,5 +679,22 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_icon=urls.icon_url(),
                 push_url=urls.edit_profile_link(),
             )
+    elif notification.topic_action.display == "modnote:create":
+        title = "You have received a mod note"
+        message = "You have received an important note from the moderators. You must read and acknowledge it before continuing to use the platform."
+        return RenderedNotification(
+            is_critical=True,
+            email_subject=title,
+            email_preview=message,
+            email_template_name="security",
+            email_template_args={
+                "title": title,
+                "message": message,
+            },
+            push_title="You received a mod note",
+            push_body="You need to read and acknowledge the note before continuing to use the platform.",
+            push_icon=urls.icon_url(),
+            push_url=urls.app_link(),
+        )
     else:
         raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")

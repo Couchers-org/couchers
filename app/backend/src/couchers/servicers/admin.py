@@ -21,6 +21,7 @@ from couchers.models import (
     GroupChatSubscription,
     HostRequest,
     Message,
+    ModNote,
     User,
     UserBadge,
 )
@@ -55,6 +56,8 @@ def _user_to_details(session, user):
         **get_strong_verification_fields(session, user),
         has_passport_sex_gender_exception=user.has_passport_sex_gender_exception,
         admin_note=user.admin_note,
+        pending_mod_notes_count=user.mod_notes.where(ModNote.is_pending).count(),
+        acknowledged_mod_notes_count=user.mod_notes.where(~ModNote.is_pending).count(),
     )
 
 
@@ -237,6 +240,29 @@ class Admin(admin_pb2_grpc.AdminServicer):
             return admin_pb2.GetContentReportsForAuthorRes(
                 content_reports=[_content_report_to_pb(content_report) for content_report in content_reports],
             )
+
+    def SendModNote(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            session.add(
+                ModNote(
+                    user_id=user.id,
+                    internal_id=request.internal_id,
+                    creator_user_id=context.user_id,
+                    note_content=request.content,
+                )
+            )
+            session.flush()
+
+            notify(
+                session,
+                user_id=user.id,
+                topic_action="modnote:create",
+            )
+
+            return _user_to_details(session, user)
 
     def DeleteUser(self, request, context):
         with session_scope() as session:
