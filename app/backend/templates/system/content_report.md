@@ -22,7 +22,7 @@ Name: {{ report.reporting_user.name }}
 Email: {{ report.reporting_user.email }}
 Username: {{ report.reporting_user.username }}
 User ID: {{ report.reporting_user.id }}
-Profile: <{{ reporting_user_user_link }}
+Profile: <{{ reporting_user_user_link }}>
 
 
 * User who authored content
@@ -30,7 +30,7 @@ Name: {{ report.author_user.name }}
 Email: {{ report.author_user.email }}
 Username: {{ report.author_user.username }}
 User ID: {{ report.author_user.id }}
-Profile: <{{ author_user_user_link }}
+Profile: <{{ author_user_user_link }}>
 
 
 * Other info
