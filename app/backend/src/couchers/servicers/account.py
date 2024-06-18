@@ -66,6 +66,20 @@ contributeoption2api = {
 }
 
 
+def has_strong_verification(session, user):
+    attempt = session.execute(
+        select(StrongVerificationAttempt)
+        .where(StrongVerificationAttempt.user_id == user.id)
+        .where(StrongVerificationAttempt.is_valid)
+        .order_by(StrongVerificationAttempt.passport_expiry_datetime.desc())
+        .limit(1)
+    ).scalar_one_or_none()
+    if attempt:
+        assert attempt.is_valid
+        return attempt.has_strong_verification(user)
+    return False
+
+
 def get_strong_verification_fields(session, db_user):
     out = dict(
         birthdate_verification_status=api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,

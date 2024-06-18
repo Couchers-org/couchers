@@ -125,7 +125,7 @@ message UserSearchReq {
   repeated org.couchers.api.core.MeetupStatus meetup_status_filter = 32;
 
 
-  google.protobuf.StringValue gender = 9;
+  repeated string gender = 9;
   google.protobuf.UInt32Value guests = 10;
   // google.protobuf.StringValue language = 11;
   bool only_with_references = 12;
