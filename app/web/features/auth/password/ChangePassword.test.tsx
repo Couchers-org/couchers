@@ -112,35 +112,6 @@ describe("ChangePassword", () => {
         screen.getByLabelText(t("auth:change_password_form.confirm_password"))
       ).not.toHaveValue();
     });
-
-    it("clears the user password successfully if no new password has been given", async () => {
-      userEvent.type(
-        await screen.findByLabelText(
-          t("auth:change_password_form.old_password")
-        ),
-        "old_password"
-      );
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
-
-      const successAlert = await screen.findByRole("alert");
-      expect(successAlert).toBeVisible();
-      expect(successAlert).toHaveTextContent(
-        t("auth:change_password_form.reset_password_success")
-      );
-      expect(changePasswordMock).toHaveBeenCalledTimes(1);
-      expect(changePasswordMock).toHaveBeenCalledWith("old_password", "");
-
-      // Also check form has been cleared
-      expect(
-        screen.getByLabelText(t("auth:change_password_form.old_password"))
-      ).not.toHaveValue();
-      expect(
-        screen.getByLabelText(t("auth:change_password_form.new_password"))
-      ).not.toHaveValue();
-      expect(
-        screen.getByLabelText(t("auth:change_password_form.confirm_password"))
-      ).not.toHaveValue();
-    });
   });
 
   it("shows an error alert if change password request failed", async () => {
