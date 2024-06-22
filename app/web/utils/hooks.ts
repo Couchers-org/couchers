@@ -111,10 +111,6 @@ const useGeocodeQuery = () => {
         } else {
           const filteredResults = filterDuplicatePlaces(nominatimResults);
           const formattedResults = filteredResults.map((result) => {
-            const firstElem = result["boundingbox"].shift() as number;
-            const lastElem = result["boundingbox"].pop() as number;
-            result["boundingbox"].push(firstElem);
-            result["boundingbox"].unshift(lastElem);
 
             return {
               location: new LngLat(

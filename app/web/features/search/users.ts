@@ -168,7 +168,7 @@ export const addClusteredUsersToMap = (
  * @param ids new list of results to add
  * @param userClickedCallback callback to be executed when user clicks
  */
-export const filterUsers = (
+export const reRenderUsersOnMap = (
   map: MaplibreMap,
   ids: number[] | null,
   userClickedCallback?: MapClickedCallback

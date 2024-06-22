@@ -4,13 +4,13 @@ import CircularProgress from "components/CircularProgress";
 import SearchResult from "features/search/SearchResult";
 import { UserSearchRes } from "proto/search_pb";
 import { mapContext } from "./new-search-page";
-import { useContext } from "react";
 import NewSearchBox from "./new-search-box";
 import TextBody from "components/TextBody";
 import { InfiniteData } from "react-query";
 import { SEARCH } from "i18n/namespaces";
 import { useTranslation } from "i18n";
 import Alert from "components/Alert";
+import { useContext } from "react";
 
 const useStyles = makeStyles((theme) => ({
   mapResults: {
@@ -78,22 +78,19 @@ const useStyles = makeStyles((theme) => ({
 interface mapWrapperProps {
   isLoading: boolean,
   results: InfiniteData<UserSearchRes.AsObject> | undefined
+  error: string | undefined
 }
 
-export default function NewSearchList({ isLoading, results }: mapWrapperProps) {
+export default function NewSearchList({ isLoading, results, error }: mapWrapperProps) {
   const { selectedResult, setSelectedResult } = useContext(mapContext);
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
   const hasAtLeastOnePageResults = true;
 
-  const error = {
-    message: ""
-  };
-
   return (
     <Paper className={classes.mapResults}>
 
-      {error && <Alert severity="error">{error.message}</Alert>}
+      {error && <Alert severity="error">{error}</Alert>}
 
       <Hidden smDown>
         <NewSearchBox />

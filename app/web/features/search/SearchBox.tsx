@@ -88,7 +88,7 @@ export default function SearchBox({
     }
     //necessary because we don't want to cache every search for each filter
     //but we do want react-query to handle pagination
-    queryClient.removeQueries(searchQueryKey());
+    queryClient.removeQueries(searchQueryKey()); // TODO: por que??????????
     searchFilters.apply();
   };
 

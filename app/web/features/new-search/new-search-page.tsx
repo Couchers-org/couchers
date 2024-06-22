@@ -1,23 +1,21 @@
-import maplibregl, { EventData, Map as MaplibreMap } from "maplibre-gl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { QueryClient, QueryClientProvider, useInfiniteQuery } from "react-query";
+import { useCallback, useEffect, useRef, useState, createContext } from "react";
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
-import { QueryClient, QueryClientProvider } from "react-query";
+import maplibregl, { EventData, Map as MaplibreMap } from "maplibre-gl";
+import useCurrentUser from "features/userQueries/useCurrentUser";
 import { selectedUserZoom } from "features/search/constants";
 import { reRenderUsersOnMap } from "features/search/users";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { UserSearchRes } from "proto/search_pb";
-import { useInfiniteQuery } from "react-query";
 import NewSearchList from "./new-search-list";
 import NewMapWrapper from "./new-map-wrapper";
 import { filterData } from "../search/users";
 import NewSearchBox from "./new-search-box";
 import HtmlMeta from "components/HtmlMeta";
-import { usePrevious } from "utils/hooks";
 import { useTranslation } from "i18n";
-import { createContext } from "react";
 import { User } from "proto/api_pb";
-import { Point } from "geojson";
 import { service } from "service";
+import { Point } from "geojson";
 
 /**
  * Context which will be queried by the childs components
@@ -62,25 +60,24 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 /**
- * Here will contain the context and all the business logic of the search map page, then all the components will use the context from this controller
+ * Here will contain the context and all the business logic of the search map page, then all the components will use this context,
  * also the functions which call the API will be defined here, among other things, at the end will render the newSearchPage component 
  */
 export default function NewSearchPage() {
-
   const theme = useTheme();
   const classes = useStyles();
   const map = useRef<MaplibreMap>();
   const { t } = useTranslation([GLOBAL, SEARCH]);
+  const { data: userData, error: errorUser, isLoading: isLoadingUser } = useCurrentUser();
 
   // query
   const queryClient = new QueryClient()
 
   // Context
-  // TODO: get this values from the API endpoint
   const [locationResult, setLocationResult] = useState<any>({
-    bbox: [-3.5179163, 40.6437293, -3.8889539, 40.3119774],
+    bbox: [0, 0, 0, 0],
     isRegion: false,
-    location: { lng: -3.7035825, lat: 40.4167047 },
+    location: { lng: 0, lat: 0 },
     name: "",
     simplifiedName: ""
   });
@@ -124,6 +121,7 @@ export default function NewSearchPage() {
     [
       'userSearch',
       queryName,
+      locationResult?.name,
       locationResult?.bbox,
     ],
     ({ pageParam }) => {
@@ -145,7 +143,7 @@ export default function NewSearchPage() {
     }
   );
 
-  // Update viewport everytime bbox value changes
+  // Relocate map everytime boundingbox changes
   useEffect(() => {
     map.current?.fitBounds(locationResult.bbox, {
       maxZoom: selectedUserZoom,
@@ -154,43 +152,46 @@ export default function NewSearchPage() {
 
   // Re-render users on map
   useEffect(() => {
-    if (map.current) {
+    if (map.current && map.current?.loaded()) {
       map.current?.stop();
 
       if (data) {
         const usersToRender = filterData(data);
-
-        if (map.current?.loaded()) {
-          reRenderUsersOnMap(
-            map.current,
-            usersToRender,
-            handleMapUserClick
-          );
-        }
+        reRenderUsersOnMap(
+          map.current,
+          usersToRender,
+          handleMapUserClick
+        );
       }
     }
-  }, [data])
+  }, [data, map.current?.loaded()])
 
-  const previousResult = usePrevious(selectedResult);
-
-  const [areClustersLoaded, setAreClustersLoaded] = useState(false);
-
-  const showResults = useRef(false);
-
-  // const searchFilters = useRouteWithSearchFilters(searchRoute);
-
-  /*
+  // Initial bounding box
   useEffect(() => {
-    if (showResults.current !== searchFilters.any) {
-      showResults.current = searchFilters.any;
-      setTimeout(() => {
-        map.current?.resize();
-      }, theme.transitions.duration.standard);
-    }
-  }, [searchFilters.any, selectedResult, theme.transitions.duration.standard]);
-  */
+    if (isLoadingUser === false && userData) {
+      map.current?.fitBounds([userData.lng, userData.lat, userData.lng, userData.lat], {
+        maxZoom: 4,
+      });
 
-  const flyToUser = () => { alert("pending to implement :)") };
+      map.current?.fitBounds(map.current?.getBounds());
+    }
+  }, [isLoadingUser]);
+
+  /**
+   * TODO: boilerplate here, intended to be used in the 'search here' button
+   */
+  const showBounds = () => {
+    const bounds = map.current?.getBounds();
+  };
+
+  useEffect(() => {
+    map.current?.on('move', showBounds);
+  }, []);
+
+  let errorMessage = error?.message || undefined;
+  if (errorUser) {
+    errorMessage = `${errorMessage || ''} ${errorUser}`;
+  }
 
   return (
     <mapContext.Provider value={{ searchType, setSearchType, locationResult, selectedResult, setSelectedResult, setLocationResult, queryName, setQueryName, lastActiveFilter, setLastActiveFilter, hostingStatusFilter, setHostingStatusFilter, numberOfGuestsFilter, setNumberOfGuestFilter }}>
@@ -199,7 +200,7 @@ export default function NewSearchPage() {
         <div className={classes.container}>
           {/* Desktop */}
           <Hidden smDown>
-            <NewSearchList isLoading={isLoading} results={data as any} />
+            <NewSearchList error={errorMessage} isLoading={isLoading || isLoadingUser} results={data as any} />
           </Hidden>
           {/* Mobile */}
           <Hidden mdUp>
@@ -208,7 +209,7 @@ export default function NewSearchPage() {
               timeout={theme.transitions.duration.standard}
               className={classes.mobileCollapse}
             >
-              <NewSearchList isLoading={isLoading} results={data as any} />
+              <NewSearchList error={errorMessage} isLoading={isLoading || isLoadingUser} results={data as any} />
             </Collapse>
             <NewSearchBox />
           </Hidden>

@@ -14,13 +14,13 @@ interface mapWrapperProps {
   selectedResult: Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined,
   setSelectedResult: Dispatch<SetStateAction<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>>,
   map: MutableRefObject<MaplibreMap | undefined>;
-  handleMapUserClick: (ev: maplibregl.MapMouseEvent & {    features?: maplibregl.MapboxGeoJSONFeature[] | undefined;} & EventData) => void
+  handleMapUserClick: (ev: maplibregl.MapMouseEvent & { features?: maplibregl.MapboxGeoJSONFeature[] | undefined; } & EventData) => void
 }
 
-export default function NewMapWrapper({map, selectedResult, setSelectedResult, handleMapUserClick}: mapWrapperProps) {
+export default function NewMapWrapper({ map, selectedResult, setSelectedResult, handleMapUserClick }: mapWrapperProps) {
 
   // const [selectedResult, setSelectedResult] = useState<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>(undefined);
-  const {locationResult} = useContext(mapContext); // if behavies weirdly, then use again the initialCoords context variable
+  const { locationResult } = useContext(mapContext); // if behavies weirdly, then use again the initialCoords context variable
   const previousResult = usePrevious(selectedResult);
 
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
@@ -40,25 +40,32 @@ export default function NewMapWrapper({map, selectedResult, setSelectedResult, h
   }, [searchFilters.any, selectedResult, theme.transitions.duration.standard]);
   */
 
-  const flyToUser = () => { alert("pending to implement :)") };
+  const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
+    map.current?.stop();
+    map.current?.easeTo({
+      center: [user.lng, user.lat],
+    });
+  }, []);
 
   useEffect(() => {
     //unset the old feature selection on the map for styling
     if (previousResult) {
-      areClustersLoaded &&
+      if (areClustersLoaded) {
         map.current?.setFeatureState(
           { source: "clustered-users", id: previousResult.userId },
           { selected: false }
         );
+      }
     }
 
     if (selectedResult) {
-      flyToUser();
-      areClustersLoaded &&
+      flyToUser(selectedResult);
+      if (areClustersLoaded) {
         map.current?.setFeatureState(
           { source: "clustered-users", id: selectedResult.userId },
           { selected: true }
         );
+      }
 
       //update result list
       document
@@ -96,6 +103,7 @@ export default function NewMapWrapper({map, selectedResult, setSelectedResult, h
       layers.unclusteredPointLayer.id,
       handleMapUserClick
     );
+
     map.current.on("click", handleMapClickAway);
 
     map.current.on("sourcedata", handleMapSourceData);
