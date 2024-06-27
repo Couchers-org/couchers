@@ -3,7 +3,6 @@ See //docs/search.md for overview.
 """
 
 import grpc
-from app.backend.src.couchers.servicers.api import meetupstatus2sql
 from sqlalchemy.sql import func, or_
 
 from couchers import errors
@@ -16,6 +15,7 @@ from couchers.servicers.api import (
     sleepingarrangement2sql,
     smokinglocation2sql,
     user_model_to_pb,
+    meetupstatus2sql,
 )
 from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import event_to_pb
