@@ -93,6 +93,7 @@ def test_user_filter_complete_profile(db):
         res = api.UserSearch(search_pb2.UserSearchReq(profile_completed=wrappers_pb2.BoolValue(value=True)))
         assert [result.user.user_id for result in res.results] == [user_complete_profile.id]
 
+
 def test_user_filter_meetup_status(db):
     """
     Make sure the completed profile flag returns only completed user profile
