@@ -98,14 +98,14 @@ def test_user_filter_meetup_status(db):
     """
     Make sure the completed profile flag returns only completed user profile
     """
-    user_complete_profile, token7 = generate_user(meetup_status=MeetupStatus.open_to_meetup)
+    user_wants_to_meetup, token8 = generate_user(meetup_status=MeetupStatus.wants_to_meetup)
 
-    user_incomplete_profile, token8 = generate_user(meetup_status=MeetupStatus.does_not_want_to_meetup)
-
-    with search_session(token7) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(meetup_status=api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP))
-        assert user_incomplete_profile.id in [result.user.user_id for result in res.results]
+    user_does_not_want_to_meet, token9 = generate_user(meetup_status=MeetupStatus.does_not_want_to_meetup)
 
     with search_session(token8) as api:
+        res = api.UserSearch(search_pb2.UserSearchReq(meetup_status=api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP))
+        assert user_wants_to_meetup.id in [result.user.user_id for result in res.results]
+
+    with search_session(token9) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(meetup_status=api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP))
-        assert [result.user.user_id for result in res.results] == [user_complete_profile.id]
+        assert [result.user.user_id for result in res.results] == [user_does_not_want_to_meet.id]
