@@ -3,6 +3,7 @@ See //docs/search.md for overview.
 """
 
 import grpc
+from app.backend.src.couchers.servicers.api import meetupstatus2sql
 from sqlalchemy.sql import func, or_
 
 from couchers import errors
@@ -393,10 +394,13 @@ class Search(search_pb2_grpc.SearchServicer):
 
             if request.HasField("gender"):
                 statement = statement.where(User.gender.ilike(f"%{request.gender.value}%"))
-
             if len(request.hosting_status_filter) > 0:
                 statement = statement.where(
                     User.hosting_status.in_([hostingstatus2sql[status] for status in request.hosting_status_filter])
+                )
+            if len(request.meetup_status_filter) > 0:
+                statement = statement.where(
+                    User.hosting_status.in_([meetupstatus2sql[status] for status in request.meetup_status_filter])
                 )
             if len(request.smoking_location_filter) > 0:
                 statement = statement.where(

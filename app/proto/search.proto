@@ -110,6 +110,8 @@ message UserSearchReq {
   repeated org.couchers.api.core.SmokingLocation smoking_location_filter = 6;
   repeated org.couchers.api.core.SleepingArrangement sleeping_arrangement_filter = 7;
   repeated org.couchers.api.core.ParkingDetails parking_details_filter = 8;
+  repeated org.couchers.api.core.MeetupStatus meetup_status_filter = 32;
+
 
   google.protobuf.StringValue gender = 9;
   google.protobuf.UInt32Value guests = 10;
