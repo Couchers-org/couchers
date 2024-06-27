@@ -3,7 +3,7 @@ from google.protobuf import wrappers_pb2
 
 from couchers.models import MeetupStatus
 from couchers.utils import create_coordinate
-from proto import search_pb2
+from proto import api_pb2, search_pb2
 from tests.test_communities import testing_communities  # noqa
 from tests.test_fixtures import db, generate_user, search_session, testconfig  # noqa
 
@@ -103,9 +103,9 @@ def test_user_filter_meetup_status(db):
     user_incomplete_profile, token8 = generate_user(meetup_status=MeetupStatus.does_not_want_to_meetup)
 
     with search_session(token7) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(meetup_status=wrappers_pb2.api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP))
+        res = api.UserSearch(search_pb2.UserSearchReq(meetup_status=api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP))
         assert user_incomplete_profile.id in [result.user.user_id for result in res.results]
 
     with search_session(token8) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(meetup_status=wrappers_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP))
+        res = api.UserSearch(search_pb2.UserSearchReq(meetup_status=api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP))
         assert [result.user.user_id for result in res.results] == [user_complete_profile.id]
