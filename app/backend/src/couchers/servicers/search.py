@@ -11,11 +11,11 @@ from couchers.db import session_scope
 from couchers.models import Cluster, Event, EventOccurrence, Node, Page, PageType, PageVersion, Reference, User
 from couchers.servicers.api import (
     hostingstatus2sql,
+    meetupstatus2sql,
     parkingdetails2sql,
     sleepingarrangement2sql,
     smokinglocation2sql,
     user_model_to_pb,
-    meetupstatus2sql,
 )
 from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import event_to_pb
