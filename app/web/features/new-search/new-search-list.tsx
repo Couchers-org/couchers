@@ -77,11 +77,13 @@ const useStyles = makeStyles((theme) => ({
 
 interface mapWrapperProps {
   isLoading: boolean,
-  results: InfiniteData<UserSearchRes.AsObject> | undefined
-  error: string | undefined
+  results: InfiniteData<UserSearchRes.AsObject> | undefined,
+  error: string | undefined,
+  hasNext: any,
+  fetchNextPage: any
 }
 
-export default function NewSearchList({ isLoading, results, error }: mapWrapperProps) {
+export default function NewSearchList({ isLoading, results, error, hasNext, fetchNextPage }: mapWrapperProps) {
   const { selectedResult, setSelectedResult } = useContext(mapContext);
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
@@ -110,8 +112,8 @@ export default function NewSearchList({ isLoading, results, error }: mapWrapperP
             breakpoint="sm"
             className={classes.scroller}
             isFetching={isLoading}
-            fetchNext={() => { }}
-            hasMore={false}
+            fetchNext={fetchNextPage}
+            hasMore={hasNext}
           >
             {results && results.pages
               .flatMap((page) => page.resultsList)

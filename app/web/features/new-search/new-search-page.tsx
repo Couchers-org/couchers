@@ -200,7 +200,7 @@ export default function NewSearchPage() {
         <div className={classes.container}>
           {/* Desktop */}
           <Hidden smDown>
-            <NewSearchList error={errorMessage} isLoading={isLoading || isLoadingUser} results={data as any} />
+            <NewSearchList fetchNextPage={fetchNextPage} hasNext={hasNextPage} error={errorMessage} isLoading={isLoading || isLoadingUser || isFetching} results={data as any} />
           </Hidden>
           {/* Mobile */}
           <Hidden mdUp>
@@ -209,7 +209,7 @@ export default function NewSearchPage() {
               timeout={theme.transitions.duration.standard}
               className={classes.mobileCollapse}
             >
-              <NewSearchList error={errorMessage} isLoading={isLoading || isLoadingUser} results={data as any} />
+              <NewSearchList fetchNextPage={fetchNextPage} hasNext={hasNextPage} error={errorMessage} isLoading={isLoading || isLoadingUser || isFetching} results={data as any} />
             </Collapse>
             <NewSearchBox />
           </Hidden>
