@@ -103,9 +103,9 @@ def test_user_filter_meetup_status(db):
     user_does_not_want_to_meet, token9 = generate_user(meetup_status=MeetupStatus.does_not_want_to_meetup)
 
     with search_session(token8) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(meetup_status=api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP))
+        res = api.UserSearch(search_pb2.UserSearchReq(meetup_status_filter=api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP))
         assert user_wants_to_meetup.id in [result.user.user_id for result in res.results]
 
     with search_session(token9) as api:
-        res = api.UserSearch(search_pb2.UserSearchReq(meetup_status=api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP))
+        res = api.UserSearch(search_pb2.UserSearchReq(meetup_status_filter=api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP))
         assert [result.user.user_id for result in res.results] == [user_does_not_want_to_meet.id]
