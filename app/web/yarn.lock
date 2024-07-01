@@ -2459,22 +2459,13 @@
     regenerator-runtime "^0.13.7"
     ts-dedent "^2.0.0"
 
-"@storybook/addon-links@^6.5.10":
-  version "6.5.10"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-6.5.10.tgz#f66568fbc84b942032ac2de85f799d69fcf77922"
-  integrity sha512-r3WzYIPz7WjHiaPObC2Tg6bHuZRBb/Kt/X+Eitw+jTqBel7ksvkO36tn81q8Eyj61qIdNQmUWAaX/0aewT0kLA==
+"@storybook/addon-links@^8.1.11":
+  version "8.1.11"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-links/-/addon-links-8.1.11.tgz#3e15ac7fe1b7d298b7200f36b772baf6449a64c2"
+  integrity sha512-HlV2RQSrZyi+55W1B1a9eWNuJdNpWx0g3j7s2arNlNmbd6/kfWAp84axBstI1tL0nW4svut7bWlCsMSOIden+A==
   dependencies:
-    "@storybook/addons" "6.5.10"
-    "@storybook/client-logger" "6.5.10"
-    "@storybook/core-events" "6.5.10"
-    "@storybook/csf" "0.0.2--canary.4566f4d.1"
-    "@storybook/router" "6.5.10"
-    "@types/qs" "^6.9.5"
-    core-js "^3.8.2"
-    global "^4.4.0"
-    prop-types "^15.7.2"
-    qs "^6.10.0"
-    regenerator-runtime "^0.13.7"
+    "@storybook/csf" "^0.1.7"
+    "@storybook/global" "^5.0.0"
     ts-dedent "^2.0.0"
 
 "@storybook/addon-measure@6.5.10":
@@ -2991,6 +2982,13 @@
   dependencies:
     lodash "^4.17.15"
 
+"@storybook/csf@^0.1.7":
+  version "0.1.9"
+  resolved "https://registry.yarnpkg.com/@storybook/csf/-/csf-0.1.9.tgz#9de06eb4d3b9fc8c03323597a68fac175872f236"
+  integrity sha512-JlZ6v/iFn+iKohKGpYXnMeNeTiiAMeFoDhYnPLIC8GnyyIWqEI9wJYrOK9i9rxlJ8NZAH/ojGC/u/xVC41qSgQ==
+  dependencies:
+    type-fest "^2.19.0"
+
 "@storybook/docs-tools@6.5.10":
   version "6.5.10"
   resolved "https://registry.yarnpkg.com/@storybook/docs-tools/-/docs-tools-6.5.10.tgz#30baa62c1ca3a18b13625b6b305e23e39f404416"
@@ -3003,6 +3001,11 @@
     doctrine "^3.0.0"
     lodash "^4.17.21"
     regenerator-runtime "^0.13.7"
+
+"@storybook/global@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@storybook/global/-/global-5.0.0.tgz#b793d34b94f572c1d7d9e0f44fac4e0dbc9572ed"
+  integrity sha512-FcOqPAXACP0I3oJ/ws6/rrPT9WGhu915Cg8D02a9YxLo0DE9zI+a9A5gRGvmQ09fiWPukqI8ZAEoQEdWUKMQdQ==
 
 "@storybook/manager-webpack4@6.5.10":
   version "6.5.10"
@@ -14096,6 +14099,11 @@ type-fest@^1.2.2:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-1.4.0.tgz#e9fb813fe3bf1744ec359d55d1affefa76f14be1"
   integrity sha512-yGSza74xk0UG8k+pLh5oeoYirvIiWo5t0/o3zHHAO2tRDiZcxWP7fywNlXhqb6/r6sWvwi+RsyQMWhVLe4BVuA==
+
+type-fest@^2.19.0:
+  version "2.19.0"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-2.19.0.tgz#88068015bb33036a598b952e55e9311a60fd3a9b"
+  integrity sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==
 
 type-is@~1.6.18:
   version "1.6.18"
