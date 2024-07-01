@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-alembic==1.13.1
+alembic==1.13.2
     # via -r requirements.in
 boto3==1.34.136
     # via -r requirements.in
