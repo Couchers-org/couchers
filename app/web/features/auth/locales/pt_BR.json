@@ -8,9 +8,6 @@
   },
   "change_email_confirmation": {
     "success_message": "O teu e-mail foi alterado com sucesso!",
-    "requires_confirmation_from_new_email": "Obrigado por confirmar seu antigo endereço de e-mail. Para completar a alteração, você ainda precisa confirmar seu novo endereço de e-mail.",
-    "requires_confirmation_from_old_email": "Obrigado por confirmar o teu novo endereço de e-mail. Para completar a alteração, você ainda precisas de confirmar seu antigo endereço de e-mail.",
-    "invalid_confirmation_state": "Estado de confirmação de endereço de e-mail inválido",
     "error_message": "Erro ao alterar o e-mail: {{message}}",
     "change_in_progress": "Alteração de email em andamento…"
   },
@@ -143,21 +140,12 @@
     }
   },
   "notification_settings": {
-    "title": "Definições de notificações",
-    "action_button": {
-      "disable_text": "Desativar novo sistema de notificações",
-      "enable_text": "Ativar novo sistema de notificações"
-    },
-    "status": {
-      "enabled_message": "O novo sistema de notificações está atualmente <2>ativado</2> para sua conta.",
-      "disabled_message": "O novo sistema de notificações está atualmente <2>desativado</2> para sua conta."
-    }
+    "title": "Definições de notificações"
   },
   "about_us": "Sobre nós",
   "introduction_subtitle": "Grátis para sempre. Construído pela Comunidade. Sem fins lucrativos. Moderno.",
   "introduction_title": "Junte-se a nós e ajude a nova alternativa ao Couchsurfing™ a crescer",
   "reset_password": "Redefinir senha",
-  "reset_password_error": "Erro ao redefinir senha: {{message}}",
   "vercel_logo_alt_text": "Desenvolvido por Vercel",
   "community_guidelines_form": {
     "guideline": {
@@ -167,7 +155,6 @@
     "header": "Orientações da Comunidade"
   },
   "unhandled_sign_up_state": "Erro: estado de fluxo de registo não tratado.",
-  "reset_password_success": "Sua senha foi alterada com sucesso! Você receberá um e-mail com um link mágico quando fizer login com seu nome de usuário ou e-mail.",
   "login_prompt": "Clique aqui para entrar",
   "logged_out_message": "Sua sessão foi encerrada.",
   "feedback_form": {

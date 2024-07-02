@@ -8,10 +8,7 @@
   },
   "change_email_confirmation": {
     "success_message": "Tu correo electrónico ha sido cambiado con éxito!",
-    "requires_confirmation_from_new_email": "Gracias por confirmar tu antigua dirección de correo electrónico. Para completar el cambio, necesitas confirmar tu nueva dirección de correo electrónico.",
     "change_in_progress": "Cambio de correo electrónico en proceso …",
-    "requires_confirmation_from_old_email": "Gracias por confirmar tu nueva dirección de correo electrónico. Para completar el cambio, necesitas confirmar tu antigua dirección de correo electrónico.",
-    "invalid_confirmation_state": "Estado de confirmación de correo electrónico inválido",
     "error_message": "Error al cambiar el correo electrónico: {{message}}"
   },
   "account_form": {
@@ -145,8 +142,6 @@
   "introduction_subtitle": "Gratis para siempre. Gestionada por la comunidad. Sin ánimo de lucro. Moderna.",
   "introduction_title": "Únete y ayuda a que crezca la nueva alternativa a Couchsurfing™",
   "login_prompt": "Haz clic aquí para iniciar sesión",
-  "reset_password_error": "Error al restablecer la contraseña: {{message}}",
-  "reset_password_success": "Tu contraseña ha sido restablecida con éxito. Recibirás un enlace mágico por correo electrónico cuando te conectes con tu nombre de usuario o correo electrónico.",
   "community_guidelines_form": {
     "guideline": {
       "checkbox_label": "Entendido",
@@ -164,15 +159,7 @@
     "disclaimer": "Por favor, ten en cuenta que estas características son experimentales. Podrían no funcionar según lo previsto y podrían cambiar rápidamente según las desarrollamos. Siéntete libre de dar tu opinión en nuestro forum. ¡Por favor, reporta cualquier error!"
   },
   "notification_settings": {
-    "status": {
-      "enabled_message": "El nuevo sistema de notificaciones está <2>activado</2> para tu cuenta.",
-      "disabled_message": "El nuevo sistema de notificaciones está <2>disabled</2> para tu cuenta actualmente."
-    },
-    "title": "Configuración de notificaciones",
-    "action_button": {
-      "enable_text": "Activar el nuevo sistema de notificaciones",
-      "disable_text": "Desactivar el nuevo sistema de notificaciones"
-    }
+    "title": "Configuración de notificaciones"
   },
   "unsubscribe": {
     "button_text": "Confirmar anulación de suscripción",

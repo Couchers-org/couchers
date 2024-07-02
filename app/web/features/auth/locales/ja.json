@@ -8,11 +8,8 @@
   },
   "change_email_confirmation": {
     "success_message": "メールアドレスの変更が完了しました！",
-    "invalid_confirmation_state": "メールアドレスが確認できません",
     "error_message": "メールアドレスの変更エラー： {{message}}",
-    "change_in_progress": "メールアドレスを変更中です…",
-    "requires_confirmation_from_old_email": "新しいメールアドレスが確認できました。変更を完了するには、お使いのメールアドレスを承認する必要があります。",
-    "requires_confirmation_from_new_email": "お使いのメールアドレスが確認できました。変更を完了するには、新しいメールアドレスを承認する必要があります。"
+    "change_in_progress": "メールアドレスを変更中です…"
   },
   "change_password_form": {
     "title": "パスワードを変更する",
@@ -91,14 +88,12 @@
   },
   "sign_up_completed_title": "ご登録ありがとうございます！",
   "unhandled_sign_up_state": "未完了の登録ステップです。",
-  "reset_password_success": "パスワードは正常にリセットされました！ユーザーネームまたはメールアドレスでログインすると、メールボックスへ自動的にリンクが届きます。",
   "login_prompt": "ログインするにはこちらをクリック",
   "about_us": "私たちについて",
   "sign_up_confirmed_prompt": "設定が完了しました！リダイレクトしていなければ、ログインしてください。",
   "introduction_subtitle": "完全無料。コミュニティ第一。非営利団体。現代的。",
   "introduction_title": "登録して、Couchsurfing™に変わるコミュニティを作りましょう",
   "reset_password": "パスワードのリセット",
-  "reset_password_error": "パスワードのリセットエラー: {{message}}",
   "feature_preview": {
     "title": "機能のプレビュー",
     "explanation": "このページでは、開発途中の機能を試用することができます。",

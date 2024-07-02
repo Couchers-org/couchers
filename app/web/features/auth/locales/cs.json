@@ -9,10 +9,7 @@
   "change_email_confirmation": {
     "success_message": "Změna e-mailu proběhla úspěšně!",
     "change_in_progress": "Právě probíhá změna e-mailu…",
-    "requires_confirmation_from_old_email": "Děkujeme za potvrzení tvé nové e-mailové adresy. Pro dokončení změny musíš potvrdit i svou původní e-mailovou adresu.",
-    "error_message": "Nastala chyba při změně e-mailu: {{message}}",
-    "invalid_confirmation_state": "Potvrzení e-mailu neproběhlo správně",
-    "requires_confirmation_from_new_email": "Děkujeme za potvrzení tvé původní e-mailové adresy. Pro dokončení změny musíš potvrdit i svou novou e-mailovou adresu."
+    "error_message": "Nastala chyba při změně e-mailu: {{message}}"
   },
   "change_password_form": {
     "title": "Změnit heslo",
@@ -154,6 +151,5 @@
   },
   "logged_out_message": "Byl/a jsi odhlášen/a.",
   "sign_up_completed_title": "Děkujeme za přihlášení!",
-  "login_prompt": "Klikni zde pro přihlášení",
-  "reset_password_error": "Nastala chyba při resetovaní hesla: {{message}}"
+  "login_prompt": "Klikni zde pro přihlášení"
 }
