@@ -9,15 +9,7 @@ from couchers import errors
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.db import session_scope
-from couchers.models import (
-    AccountDeletionToken,
-    ContributorForm,
-    LoginToken,
-    PasswordResetToken,
-    SignupFlow,
-    User,
-    UserSession,
-)
+from couchers.models import AccountDeletionToken, ContributorForm, PasswordResetToken, SignupFlow, User, UserSession
 from couchers.notifications.notify import notify
 from couchers.notifications.unsubscribe import unsubscribe
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
@@ -26,7 +18,6 @@ from couchers.sql import couchers_select as select
 from couchers.tasks import (
     enforce_community_memberships_for_user,
     maybe_send_contributor_form_email,
-    send_login_email,
     send_signup_email,
 )
 from couchers.utils import (
@@ -345,73 +336,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         return auth_pb2.UsernameValidRes(valid=self._username_available(request.username.lower()))
 
-    def Login(self, request, context):
-        """
-        Does the first step of the Login flow.
-
-        The user is searched for using their id, username, or email.
-
-        If the user does not exist or has been deleted, throws a NOT_FOUND rpc error.
-
-        If the user has a password, returns NEED_PASSWORD.
-
-        If the user exists but does not have a password, generates a login token, send it in the email and returns SENT_LOGIN_EMAIL.
-        """
-        logger.debug(f"Attempting login for {request.user=}")
-        with session_scope() as session:
-            # if the user is banned, they can get past this but get an error later in login flow
-            user = session.execute(
-                select(User).where_username_or_email(request.user).where(~User.is_deleted)
-            ).scalar_one_or_none()
-            if user:
-                if user.has_password:
-                    logger.debug("Found user with password")
-                    return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.NEED_PASSWORD)
-                else:
-                    logger.debug("Found user without password, sending login email")
-                    send_login_email(session, user)
-                    return auth_pb2.LoginRes(next_step=auth_pb2.LoginRes.LoginStep.SENT_LOGIN_EMAIL)
-            else:  # user not found
-                # check if this is an email and they tried to sign up but didn't complete
-                signup_flow = session.execute(
-                    select(SignupFlow).where_username_or_email(request.user, model=SignupFlow)
-                ).scalar_one_or_none()
-                if signup_flow:
-                    send_signup_email(signup_flow)
-                    session.commit()
-                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP)
-
-                logger.debug("Didn't find user")
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-
-    def CompleteTokenLogin(self, request, context):
-        """
-        Second step of email-based login.
-
-        Validates the given LoginToken (sent in email), creates a new session and returns bearer token.
-
-        Or fails with grpc.NOT_FOUND if LoginToken is invalid.
-        """
-        with session_scope() as session:
-            res = session.execute(
-                select(LoginToken, User)
-                .join(User, User.id == LoginToken.user_id)
-                .where(LoginToken.token == request.login_token)
-                .where(LoginToken.is_valid)
-            ).one_or_none()
-            if res:
-                login_token, user = res
-
-                # delete the login token so it can't be reused
-                session.delete(login_token)
-                session.commit()
-
-                # create a session
-                create_session(context, session, user, False)
-                return _auth_res(user)
-            else:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
-
     def Authenticate(self, request, context):
         """
         Authenticates a classic password based login request.
@@ -425,9 +349,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
             ).scalar_one_or_none()
             if user:
                 logger.debug("Found user")
-                if not user.has_password:
-                    logger.debug("User doesn't have a password!")
-                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PASSWORD)
                 if verify_password(user.hashed_password, request.password):
                     logger.debug("Right password")
                     # correct password
@@ -436,12 +357,18 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 else:
                     logger.debug("Wrong password")
                     # wrong password
-                    context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_USERNAME_OR_PASSWORD)
+                    context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_PASSWORD)
             else:  # user not found
+                # check if this is an email and they tried to sign up but didn't complete
+                signup_flow = session.execute(
+                    select(SignupFlow).where_username_or_email(request.user, model=SignupFlow)
+                ).scalar_one_or_none()
+                if signup_flow:
+                    send_signup_email(signup_flow)
+                    session.commit()
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP)
                 logger.debug("Didn't find user")
-                # do about as much work as if the user was found, reduces timing based username enumeration attacks
-                hash_password(request.password)
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_USERNAME_OR_PASSWORD)
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.ACCOUNT_NOT_FOUND)
 
     def Deauthenticate(self, request, context):
         """
@@ -495,32 +422,6 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return empty_pb2.Empty()
 
-    def CompletePasswordReset(self, request, context):
-        """
-        Completes the password reset: just clears the user's password
-        """
-        with session_scope() as session:
-            res = session.execute(
-                select(PasswordResetToken, User)
-                .join(User, User.id == PasswordResetToken.user_id)
-                .where(PasswordResetToken.token == request.password_reset_token)
-                .where(PasswordResetToken.is_valid)
-            ).one_or_none()
-            if res:
-                password_reset_token, user = res
-                session.delete(password_reset_token)
-                user.hashed_password = None
-                session.commit()
-
-                notify(
-                    user_id=user.id,
-                    topic_action="password_reset:complete",
-                )
-
-                return empty_pb2.Empty()
-            else:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
-
     def CompletePasswordResetV2(self, request, context):
         """
         Completes the password reset: just clears the user's password
@@ -550,57 +451,30 @@ class Auth(auth_pb2_grpc.AuthServicer):
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
-    def ConfirmChangeEmail(self, request, context):
+    def ConfirmChangeEmailV2(self, request, context):
         with session_scope() as session:
-            user_with_valid_token_from_old_email = session.execute(
-                select(User)
-                .where(User.old_email_token == request.change_email_token)
-                .where(User.old_email_token_created <= now())
-                .where(User.old_email_token_expiry >= now())
-            ).scalar_one_or_none()
-            user_with_valid_token_from_new_email = session.execute(
+            user = session.execute(
                 select(User)
                 .where(User.new_email_token == request.change_email_token)
                 .where(User.new_email_token_created <= now())
                 .where(User.new_email_token_expiry >= now())
             ).scalar_one_or_none()
 
-            if user_with_valid_token_from_old_email:
-                user = user_with_valid_token_from_old_email
-                user.old_email_token = None
-                user.old_email_token_created = None
-                user.old_email_token_expiry = None
-                user.need_to_confirm_via_old_email = False
-            elif user_with_valid_token_from_new_email:
-                user = user_with_valid_token_from_new_email
-                user.new_email_token = None
-                user.new_email_token_created = None
-                user.new_email_token_expiry = None
-                user.need_to_confirm_via_new_email = False
-            else:
+            if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
 
-            # Using "___ is False" instead of "not ___" so that "None" doesn't pass
-            if user.need_to_confirm_via_old_email is False and user.need_to_confirm_via_new_email is False:
-                user.email = user.new_email
-                user.new_email = None
-                user.need_to_confirm_via_old_email = None
-                user.need_to_confirm_via_new_email = None
+            user.email = user.new_email
+            user.new_email = None
+            user.new_email_token = None
+            user.new_email_token_created = None
+            user.new_email_token_expiry = None
 
-                notify(
-                    user_id=user.id,
-                    topic_action="email_address:verify",
-                )
+            notify(
+                user_id=user.id,
+                topic_action="email_address:verify",
+            )
 
-                return auth_pb2.ConfirmChangeEmailRes(state=auth_pb2.EMAIL_CONFIRMATION_STATE_SUCCESS)
-            elif user.need_to_confirm_via_old_email:
-                return auth_pb2.ConfirmChangeEmailRes(
-                    state=auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_OLD_EMAIL
-                )
-            else:
-                return auth_pb2.ConfirmChangeEmailRes(
-                    state=auth_pb2.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL
-                )
+        return empty_pb2.Empty()
 
     def ConfirmDeleteAccount(self, request, context):
         """

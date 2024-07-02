@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
-import { ConfirmChangeEmailRes, EmailConfirmationState } from "proto/auth_pb";
 import { loginRoute } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
@@ -31,63 +31,9 @@ describe("ConfirmChangeEmail", () => {
     ).toBeVisible();
   });
 
-  describe("when it requires confirming new email", () => {
-    beforeEach(async () => {
-      confirmChangeEmailMock.mockResolvedValue(
-        new ConfirmChangeEmailRes()
-          .setState(
-            EmailConfirmationState.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL
-          )
-          .toObject()
-      );
-      renderPage();
-    });
-
-    it("shows the alert", async () => {
-      const successAlert = await screen.findByRole("alert");
-      expect(successAlert).toBeVisible();
-      expect(successAlert).toHaveTextContent(
-        t("auth:change_email_confirmation.requires_confirmation_from_new_email")
-      );
-      expect(confirmChangeEmailMock).toHaveBeenCalledTimes(1);
-      expect(confirmChangeEmailMock).toHaveBeenLastCalledWith(
-        "Em4iLR3seTtok3n"
-      );
-    });
-  });
-
-  describe("when it requires confirming old email", () => {
-    beforeEach(async () => {
-      confirmChangeEmailMock.mockResolvedValue(
-        new ConfirmChangeEmailRes()
-          .setState(
-            EmailConfirmationState.EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_OLD_EMAIL
-          )
-          .toObject()
-      );
-      renderPage();
-    });
-
-    it("shows the alert", async () => {
-      const successAlert = await screen.findByRole("alert");
-      expect(successAlert).toBeVisible();
-      expect(successAlert).toHaveTextContent(
-        t("auth:change_email_confirmation.requires_confirmation_from_old_email")
-      );
-      expect(confirmChangeEmailMock).toHaveBeenCalledTimes(1);
-      expect(confirmChangeEmailMock).toHaveBeenLastCalledWith(
-        "Em4iLR3seTtok3n"
-      );
-    });
-  });
-
   describe("when the change email completes successfully", () => {
     beforeEach(async () => {
-      confirmChangeEmailMock.mockResolvedValue(
-        new ConfirmChangeEmailRes()
-          .setState(EmailConfirmationState.EMAIL_CONFIRMATION_STATE_SUCCESS)
-          .toObject()
-      );
+      confirmChangeEmailMock.mockResolvedValue(new Empty());
       renderPage();
     });
 

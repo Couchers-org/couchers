@@ -13,23 +13,19 @@ import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 
 interface ChangePasswordVariables {
-  oldPassword?: string;
-  newPassword?: string;
+  oldPassword: string;
+  newPassword: string;
 }
 
 interface ChangePasswordFormData extends ChangePasswordVariables {
-  passwordConfirmation?: string;
+  passwordConfirmation: string;
 }
 
 interface ChangePasswordProps {
-  hasPassword: boolean;
   className?: string;
 }
 
-export default function ChangePassword({
-  className,
-  hasPassword,
-}: ChangePasswordProps) {
+export default function ChangePassword({ className }: ChangePasswordProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const classes = useChangeDetailsFormStyles();
   const theme = useTheme();
@@ -54,7 +50,6 @@ export default function ChangePassword({
     isLoading: isChangePasswordLoading,
     isSuccess: isChangePasswordSuccess,
     mutate: changePassword,
-    variables: changePasswordVariables,
   } = useMutation<Empty, RpcError, ChangePasswordVariables>(
     ({ oldPassword, newPassword }) =>
       service.account.changePassword(oldPassword, newPassword),
@@ -76,25 +71,21 @@ export default function ChangePassword({
       )}
       {isChangePasswordSuccess && (
         <Alert severity="success">
-          {changePasswordVariables?.newPassword
-            ? t("auth:change_password_form.password_changed_success")
-            : t("auth:change_password_form.reset_password_success")}
+          {t("auth:change_password_form.password_changed_success")}
         </Alert>
       )}
       <form className={classes.form} onSubmit={onSubmit}>
-        {hasPassword && (
-          <TextField
-            id="oldPassword"
-            inputRef={register({ required: true })}
-            label={t("auth:change_password_form.old_password")}
-            name="oldPassword"
-            type="password"
-            fullWidth={!isMdOrWider}
-          />
-        )}
+        <TextField
+          id="oldPassword"
+          inputRef={register({ required: true })}
+          label={t("auth:change_password_form.old_password")}
+          name="oldPassword"
+          type="password"
+          fullWidth={!isMdOrWider}
+        />
         <TextField
           id="newPassword"
-          inputRef={register({ required: !hasPassword })}
+          inputRef={register({ required: true })}
           label={t("auth:change_password_form.new_password")}
           name="newPassword"
           type="password"

@@ -63,17 +63,10 @@ export default function Settings() {
             className={classes.section}
             timezone={accountInfo.timezone}
           />
-          <ChangeEmail
-            className={classes.section}
-            email={accountInfo.email}
-            hasPassword={accountInfo.hasPassword}
-          />
+          <ChangeEmail className={classes.section} email={accountInfo.email} />
           <NotificationSettings className={classes.section} />
           <DoNotEmail className={classes.section} />
-          <ChangePassword
-            className={classes.section}
-            hasPassword={accountInfo.hasPassword}
-          />
+          <ChangePassword className={classes.section} />
           <DeleteAccount
             className={classes.section}
             username={accountInfo.username}

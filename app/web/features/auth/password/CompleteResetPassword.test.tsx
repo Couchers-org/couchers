@@ -1,10 +1,10 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MockedService, t } from "test/utils";
-import { AuthRes } from "proto/auth_pb";
 import { useRouter } from "next/router";
-import wrapper from "test/hookWrapper";
+import { AuthRes } from "proto/auth_pb";
 import { service } from "service";
+import wrapper from "test/hookWrapper";
+import { MockedService, t } from "test/utils";
 
 import CompletePasswordReset from "./CompleteResetPassword";
 

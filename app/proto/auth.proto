@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package org.couchers.auth;
 
-import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 
@@ -30,15 +29,9 @@ service Auth {
   session token (signup token is invalidated)
 
   The login flow is as follows:
-  * The user enters an identifier field and submits the form
-  * The backend finds the user based on either username/user id/email address
-  * If that user _does not_ have a password, we email a one-click signin token and return SENT_LOGIN_EMAIL
-  * If that user _does not_ have a password, they click that link and the app logs them in through a
-  CompleteTokenLoginReq (login token is invalidated)
-  * If that user _does_ have a password, the app asks for that password, and submits an Authenticate Call to log the
-  user in
+  * User types in username and password and the frontend calls Authenticate
 
-  Signup and login tokens expire after some time, and once used cannot be reused.
+  Signup tokens expire after some time, and once used cannot be reused.
 
   There can be multiple signup requests simultaneously with the same email address. Email address uniqueness is checked
   once when creating the signup request, and again when creating the user.
@@ -54,35 +47,14 @@ service Auth {
     // * You can only fill in each part once
     // * You can get info on the flow_token by sending an empty request with just the flow_token
     // * Once the flow completes, the user is logged in and the signup flow is destroyed
-    option (google.api.http) = {
-      post : "/auth/signup"
-      body : "*"
-    };
   }
 
   rpc UsernameValid(UsernameValidReq) returns (UsernameValidRes) {
     // Check whether the username is valid and available
   }
 
-  rpc Login(LoginReq) returns (LoginRes) {
-    // First step of login flow.
-    //
-    // The user is searched for using their id, username, or email.
-    //
-    // If the user does not exist or has been deleted, throws a NOT_FOUND rpc error.
-    //
-    // If the user has a password, returns NEED_PASSWORD.
-    //
-    // If the user exists but does not have a password, generates a login token, send it in the email and returns
-    // SENT_LOGIN_EMAIL.
-  }
-
-  rpc CompleteTokenLogin(CompleteTokenLoginReq) returns (AuthRes) {
-    // Complete a login after receiving an email with a login token
-  }
-
   rpc Authenticate(AuthReq) returns (AuthRes) {
-    // Auth a user with username + password
+    // Log in with username + password
   }
 
   rpc Deauthenticate(google.protobuf.Empty) returns (google.protobuf.Empty) {
@@ -94,19 +66,13 @@ service Auth {
     // guessing email addresses)
   }
 
-  rpc CompletePasswordReset(CompletePasswordResetReq) returns (google.protobuf.Empty) {
-    // Triggered when the user goes to the link sent in the forgot password email
-    //
-    // Clears the user's password, which then causes them to have to set one through the jail mechanism right after
-  }
-
   rpc CompletePasswordResetV2(CompletePasswordResetV2Req) returns (AuthRes) {
     // Triggered when the user goes to the link sent in the forgot password email, and logs the user in
     //
     // Actually changes the user's password
   }
 
-  rpc ConfirmChangeEmail(ConfirmChangeEmailReq) returns (ConfirmChangeEmailRes) {
+  rpc ConfirmChangeEmailV2(ConfirmChangeEmailV2Req) returns (google.protobuf.Empty) {
     // Triggered when the user goes to the link sent in the either email_changed_confirmation_*_email
   }
 
@@ -189,23 +155,6 @@ message UsernameValidRes {
   bool valid = 1;
 }
 
-message LoginReq {
-  string user = 1;
-}
-
-message LoginRes {
-  enum LoginStep {
-    NEED_PASSWORD = 0;
-    SENT_LOGIN_EMAIL = 1;
-  }
-
-  LoginStep next_step = 1;
-}
-
-message CompleteTokenLoginReq {
-  string login_token = 1 [ (sensitive) = true ];
-}
-
 message AuthReq {
   string user = 1;
   string password = 2 [ (sensitive) = true ];
@@ -228,29 +177,14 @@ message ResetPasswordReq {
   string user = 1;
 }
 
-message CompletePasswordResetReq {
-  string password_reset_token = 1 [ (sensitive) = true ];
-}
-
 message CompletePasswordResetV2Req {
   string password_reset_token = 1 [ (sensitive) = true ];
   // the frontend should ask for the password twice and whatnot
   string new_password = 2 [ (sensitive) = true ];
 }
 
-message ConfirmChangeEmailReq {
+message ConfirmChangeEmailV2Req {
   string change_email_token = 1 [ (sensitive) = true ];
-}
-
-enum EmailConfirmationState {
-  EMAIL_CONFIRMATION_STATE_UNKNOWN = 0;
-  EMAIL_CONFIRMATION_STATE_SUCCESS = 1;
-  EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_OLD_EMAIL = 2;
-  EMAIL_CONFIRMATION_STATE_REQUIRES_CONFIRMATION_FROM_NEW_EMAIL = 3;
-}
-
-message ConfirmChangeEmailRes {
-  EmailConfirmationState state = 1;
 }
 
 enum ContributeOption {

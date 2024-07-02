@@ -10,7 +10,7 @@ import Link from "next/link";
 import { GetAccountInfoRes } from "proto/account_pb";
 import React from "react";
 import { useQuery } from "react-query";
-import { routeToEditProfile, settingsRoute } from "routes";
+import { routeToEditProfile } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
@@ -56,18 +56,6 @@ export default function DashboardBanners() {
               <Typography variant="inherit">
                 {t("dashboard:complete_profile_explanation")}
               </Typography>
-            </MuiAlert>
-          )}
-          {!data.hasPassword && (
-            <MuiAlert className={classes.alert} severity="info">
-              <Typography className={classes.alertText} variant="inherit">
-                {t("dashboard:password_text_1")}
-              </Typography>
-              <Link href={settingsRoute} passHref>
-                <Button component="a" color="default" role="link">
-                  {t("dashboard:password_text_link")}
-                </Button>
-              </Link>
             </MuiAlert>
           )}
         </>

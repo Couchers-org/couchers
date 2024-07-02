@@ -20,14 +20,13 @@ const useStyles = makeStyles((theme) => ({}));
 
 export default function Login() {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const { authState, authActions } = useAuthContext();
+  const { authState } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
 
   const router = useRouter();
   const from = stringOrFirstString(router.query.from) ?? dashboardRoute;
   const redirectTo = from === "/" || from === "%2F" ? dashboardRoute : from;
-  const urlToken = stringOrFirstString(router.query.token);
 
   const authClasses = useAuthStyles();
   const classes = useStyles();
@@ -37,12 +36,6 @@ export default function Login() {
       router.push(redirectTo);
     }
   }, [authenticated, router, redirectTo]);
-  useEffect(() => {
-    // check for a login token
-    if (urlToken) {
-      authActions.tokenLogin(urlToken);
-    }
-  }, [urlToken, authActions]);
 
   return (
     <>
