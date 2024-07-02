@@ -81,7 +81,7 @@ pre-commit==3.7.1
     # via -r requirements.in
 prometheus-client==0.20.0
     # via -r requirements.in
-protobuf==5.27.1
+protobuf==5.27.2
     # via -r requirements.in
 psycopg2-binary==2.9.9
     # via -r requirements.in
