@@ -7,11 +7,8 @@
     "new_email": "新電子郵件地址"
   },
   "change_email_confirmation": {
-    "requires_confirmation_from_new_email": "非常感謝您確認先前的電子郵件地址。為了完成更改，您還需要確認新的電子郵件地址。",
     "change_in_progress": "電子郵件更改中...…",
     "success_message": "您的電子郵件信箱已經更改成功！",
-    "requires_confirmation_from_old_email": "非常感謝您確認新的電子郵件地址。為了完成更改，您還需要確認先前的電子郵件地址。",
-    "invalid_confirmation_state": "無效的電子郵件地址",
     "error_message": "更改電子郵件地址出錯了:"
   },
   "change_password_form": {
@@ -104,7 +101,6 @@
   "login_prompt": "點擊此處登入",
   "about_us": "關於我們",
   "sign_up_completed_prompt": "我們已寄給您一封附有確認連結的電子郵件。請點擊連結以啟用您的帳號。",
-  "reset_password_success": "您的密碼已經被重新設置成功！我們會給您發一封郵件---點擊郵件裡的連結，就能見證奇跡。",
   "change_phone": {
     "phone_label": "您的電話號碼",
     "title": "電話號碼",
@@ -173,6 +169,5 @@
       "description": "您的時區是<1>{{timezone}}</1>。根據這個資訊，您的當地時間大約是<4>{{time}}</4>。",
       "explanation": "此時間和時區是根據您的住家位置決定的。如果它不正确，請回報錯誤。"
     }
-  },
-  "reset_password_error": "重設密碼錯誤：{{message}}"
+  }
 }

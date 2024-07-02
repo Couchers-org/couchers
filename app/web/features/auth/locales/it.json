@@ -8,11 +8,8 @@
   },
   "change_email_confirmation": {
     "success_message": "La tua e-mail è stata modificate correttamente!",
-    "invalid_confirmation_state": "Stato conferma e-mail non valido",
     "error_message": "Errore nel cambio di e-mail: {{message}}",
-    "change_in_progress": "Modifica e-mail in corso…",
-    "requires_confirmation_from_new_email": "Grazie per aver confermato il tuo vecchio indirizzo e-mail. Per completare la modifica, devi solo confermare il tuo nuovo indirizzo e-mail.",
-    "requires_confirmation_from_old_email": "Grazie per aver confermato il tuo nuovo indirizzo e-mail. Per completare la modifica, devi ancora confermare il tuo vecchio indirizzo e-mail."
+    "change_in_progress": "Modifica e-mail in corso…"
   },
   "change_password_form": {
     "title": "Modifica password",
@@ -112,9 +109,7 @@
   "introduction_subtitle": "Gratuito, per sempre. Guidato dalla comunità. No profit. Moderno.",
   "introduction_title": "Unisciti ed aiuta a crescere la nuova alternativa a Couchsurfing™",
   "reset_password": "Ripristina password",
-  "reset_password_error": "Errore durante il ripristino della password: {{message}}",
   "sign_up_completed_prompt": "Abbiamo inviato una e-mail con un collegamento per la verifica del tuo indirizzo e-mail. Per favore, clicca il collegamento per attivare la tua utenza.",
-  "reset_password_success": "La tua password è stata ripristinata correttamente! Ti verrà ora inviato un collegamento magico quando accedi con il tuo nome utente o indirizzo e-mail.",
   "feature_preview": {
     "title": "Anteprima caratteristica",
     "explanation": "Questa pagina ti permette di provare caratteristiche che sono ancora in sviluppo prima che siano pronte per l'uso di tutti.",
@@ -129,15 +124,7 @@
     "explanation": "Non hai ancora indicato una password per il tuo conto. Per favore, creane una ora per continuare."
   },
   "notification_settings": {
-    "title": "Impostazioni notifiche",
-    "status": {
-      "disabled_message": "Il nuovo sistema di notifiche è attualmente <2>disabilitato</2> per il tuo conto.",
-      "enabled_message": "Il nuovo sistema di notifiche è attualmente <2>abilitato</2> per il tuo conto."
-    },
-    "action_button": {
-      "enable_text": "Abilita il nuovo sistema di notifiche",
-      "disable_text": "Disabilita il nuovo sistema di notifiche"
-    }
+    "title": "Impostazioni notifiche"
   },
   "jail": {
     "title": "Sono necessarie più informazioni",

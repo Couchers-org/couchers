@@ -17,10 +17,7 @@
   "change_email_confirmation": {
     "success_message": "आपका ईमेल सफलतापूर्वक बदल दिया गया है!",
     "change_in_progress": "ईमेल बदलना जारी है...",
-    "invalid_confirmation_state": "अमान्य ईमेल पुष्टिकरण स्थिति",
-    "error_message": "ईमेल बदलने में एरर: {{message}}",
-    "requires_confirmation_from_new_email": "अपने पुराने ईमेल की पुष्टि करने के लिए धन्यवाद। परिवर्तन को पूरा करने के लिए, आपको अभी भी अपने नए ईमेल की पुष्टि करनी होगी।",
-    "requires_confirmation_from_old_email": "अपने नए ईमेल की पुष्टि करने के लिए धन्यवाद। परिवर्तन को पूरा करने के लिए, आपको अभी भी अपने पुराने ईमेल की पुष्टि करनी होगी।"
+    "error_message": "ईमेल बदलने में एरर: {{message}}"
   },
   "jail_set_password_form": {
     "title": "पासवर्ड सेट करें",
