@@ -41,13 +41,12 @@ export default function NewSearchBox() {
   const className = ""; // initially were injected by props
   const worldWideViewPort = [-61, -57, 72, 73];
   const { t } = useTranslation([GLOBAL, SEARCH]);
-  const classes = useStyles();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const { searchType, setSearchType, locationResult, setLocationResult, setQueryName, queryName } = useContext(mapContext) //useState<"location" | "keyword">(() => "location");
+  const classes = useStyles();
   const theme = useTheme();
   const isSmDown = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // const queryClient = useQueryClient();
   const { control, setValue, errors, register, handleSubmit } = useForm({ mode: "onChange" });
 
   const filterDialog = (
@@ -84,7 +83,6 @@ export default function NewSearchBox() {
           label={t("search:form.location_field_label")}
           onChange={(e: any) => {
             if (e) {
-
               const firstElem = e["bbox"].shift() as number;
               const lastElem = e["bbox"].pop() as number;
               e["bbox"].push(firstElem);
@@ -116,7 +114,8 @@ export default function NewSearchBox() {
                     "search:form.keywords.clear_field_action_a11y_label"
                   )}
                   onClick={() => {
-                    alert('click');
+                    setQueryName('');
+                    setLocationResult({...locationResult, location: undefined, bbox: worldWideViewPort});
                   }}
                   size="small"
                 >

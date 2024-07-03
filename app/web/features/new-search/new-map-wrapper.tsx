@@ -13,8 +13,8 @@ import { mapContext } from "./new-search-page";
 interface mapWrapperProps {
   selectedResult: Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined,
   setSelectedResult: Dispatch<SetStateAction<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>>,
-  map: MutableRefObject<MaplibreMap | undefined>;
-  handleMapUserClick: (ev: maplibregl.MapMouseEvent & { features?: maplibregl.MapboxGeoJSONFeature[] | undefined; } & EventData) => void
+  map: MutableRefObject<MaplibreMap | undefined>,
+  handleMapUserClick: (ev: maplibregl.MapMouseEvent & { features?: maplibregl.MapboxGeoJSONFeature[] | undefined; } & EventData) => void,
 }
 
 export default function NewMapWrapper({ map, selectedResult, setSelectedResult, handleMapUserClick }: mapWrapperProps) {

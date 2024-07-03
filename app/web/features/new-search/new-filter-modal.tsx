@@ -5,6 +5,8 @@ import {
     Theme,
     Typography,
     useMediaQuery,
+    FormControlLabel,
+    Checkbox
   } from "@material-ui/core";
   import {
     Dialog,
@@ -60,6 +62,15 @@ import {
         marginBlockStart: theme.spacing(1),
       },
     },
+    marginBottom: {
+      marginBottom: theme.spacing(2),
+    },
+    noMargin: {
+      margin: 0,
+    },
+    noLeftPadding: {
+      paddingLeft: 0,
+    },
   }));
 
   interface FilterModalFormData
@@ -77,7 +88,7 @@ import {
   }) {
     const { t } = useTranslation([GLOBAL, SEARCH]);
     const classes = useStyles();
-    const {lastActiveFilter, setLastActiveFilter, hostingStatusFilter, setHostingStatusFilter, numberOfGuestsFilter, setNumberOfGuestsFilter} = useContext(mapContext)
+    const {lastActiveFilter, setLastActiveFilter, hostingStatusFilter, setHostingStatusFilter, setLocationResult, completeProfileFilter, setCompleteProfileFilter, numberOfGuestFilter, setNumberOfGuestFilter} = useContext(mapContext)
     const { control, handleSubmit, register, setValue, getValues, errors } =
       useForm<FilterModalFormData>({
         mode: "onBlur",
@@ -98,7 +109,7 @@ import {
             ? t("search:filter_dialog.mobile_title")
             : t("search:filter_dialog.desktop_title")}
         </DialogTitle>
-        <form onSubmit={(e) => {e.preventDefault()}}>
+        <form onSubmit={(e) => {e.preventDefault(); onClose()}}>
           <DialogContent>
             <div className={classes.container}>
               <LocationAutocomplete
@@ -106,6 +117,16 @@ import {
                 name="location"
                 defaultValue={""}
                 label={t("search:form.location_field_label")}
+                onChange={(e: any) => {
+                  if (e) {
+                    const firstElem = e["bbox"].shift() as number;
+                    const lastElem = e["bbox"].pop() as number;
+                    e["bbox"].push(firstElem);
+                    e["bbox"].unshift(lastElem);
+                   
+                    setLocationResult(e);
+                  }
+                }}
                 fieldError={errors.location?.message}
                 disableRegions
               />
@@ -145,6 +166,7 @@ import {
 
                 <Select
                   id='last_active_filter'
+                  className={classes.marginBottom}
                   value={lastActiveFilter}
                   onChange={(e) => setLastActiveFilter(e.target.value)}
                   label={t("search:form.host_filters.last_active_field_label")}
@@ -162,7 +184,9 @@ import {
                 <Select
                   id='can_host_status_filter'
                   value={hostingStatusFilter}
-                  onChange={(e) => setHostingStatusFilter(e.target.value)}
+                  onChange={(e) => {\
+                    setHostingStatusFilter(e.target.value);
+                  }}
                   label={t("search:form.host_filters.hosting_status_field_label")}
                   optionLabelMap={hostingStatusLabels(t)}
                   options={[
@@ -173,15 +197,34 @@ import {
                   ]}
                 />
 
+                <FormControlLabel
+                  className={classes.noMargin}
+                  control={
+                    <Checkbox
+                      className={classes.noLeftPadding}
+                      color="primary"
+                      checked={completeProfileFilter}
+                      onChange={() => {
+                        setCompleteProfileFilter(!completeProfileFilter)
+                      }} />
+                  }
+                  label={t('search:form.empty_profile_filters.title')}
+                />
+
               </Grid>
               <Grid item xs={12} md={6} className={classes.container}>
                 <Typography variant="h3">
                   {t("search:form.accommodation_filters.title")}
                 </Typography>
                 <TextField
+                  className={classes.noMargin}
                   type="number"
                   variant="standard"
                   id="num-guests-filter"
+                  value={numberOfGuestFilter}
+                  onChange={(e) => {
+                    setNumberOfGuestFilter(e.target.value);
+                  }}
                   inputRef={register({
                     valueAsNumber: true
                   })}

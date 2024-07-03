@@ -71,21 +71,22 @@ export default function NewSearchPage() {
   const { data: userData, error: errorUser, isLoading: isLoadingUser } = useCurrentUser();
 
   // query
-  const queryClient = new QueryClient()
+  const queryClient = new QueryClient();
 
   // Context
   const [locationResult, setLocationResult] = useState<any>({
     bbox: [0, 0, 0, 0],
     isRegion: false,
-    location: { lng: 0, lat: 0 },
+    location: { lng: undefined, lat: undefined },
     name: "",
     simplifiedName: ""
   });
   const [queryName, setQueryName] = useState(undefined);
   const [searchType, setSearchType] = useState('location');
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
-  const [hostingStatusFilter, setHostingStatusFilter] = useState([0]);
+  const [hostingStatusFilter, setHostingStatusFilter] = useState(0);
   const [numberOfGuestsFilter, setNumberOfGuestFilter] = useState(undefined);
+  const [completeProfileFilter, setCompleteProfileFilter] = useState(true);
   const [selectedResult, setSelectedResult] = useState<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>(undefined);
 
   const handleMapUserClick = useCallback(
@@ -123,17 +124,25 @@ export default function NewSearchPage() {
       queryName,
       locationResult?.name,
       locationResult?.bbox,
+      lastActiveFilter,
+      hostingStatusFilter,
+      numberOfGuestsFilter,
+      completeProfileFilter
     ],
     ({ pageParam }) => {
+      const lastActiveComparation = parseInt(lastActiveFilter as unknown as string);
+      const hostingStatusFilterComparation = parseInt(hostingStatusFilter as unknown as string);
+      
       return service.search.userSearch(
         {
           query: queryName,
-          lat: locationResult?.location?.lat,
-          lng: locationResult?.location?.lng,
-          radius: 50000, // TODO: bbox here
-          lastActive: lastActiveFilter === 0 ? undefined : lastActiveFilter,
-          hostingStatusOptions: hostingStatusFilter[0] === 0 ? undefined : hostingStatusFilter,
+          lat: locationResult.location.lat || undefined,
+          lng: locationResult.location.lng || undefined,
+          radius: 50000,
+          lastActive: lastActiveComparation === 0 ? undefined : lastActiveFilter,
+          hostingStatusOptions: hostingStatusFilterComparation === 0 ? undefined : [hostingStatusFilter],
           numGuests: numberOfGuestsFilter,
+          completeProfile: completeProfileFilter === false ? undefined : completeProfileFilter,
         },
         pageParam
       );
@@ -194,7 +203,7 @@ export default function NewSearchPage() {
   }
 
   return (
-    <mapContext.Provider value={{ searchType, setSearchType, locationResult, selectedResult, setSelectedResult, setLocationResult, queryName, setQueryName, lastActiveFilter, setLastActiveFilter, hostingStatusFilter, setHostingStatusFilter, numberOfGuestsFilter, setNumberOfGuestFilter }}>
+    <mapContext.Provider value={{ searchType, setSearchType, completeProfileFilter, setCompleteProfileFilter, locationResult, selectedResult, setSelectedResult, setLocationResult, queryName, setQueryName, lastActiveFilter, setLastActiveFilter, hostingStatusFilter, setHostingStatusFilter, numberOfGuestsFilter, setNumberOfGuestFilter }}>
       <QueryClientProvider client={queryClient}> 
         <HtmlMeta title={t("global:nav.map_search")} />
         <div className={classes.container}>
