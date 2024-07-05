@@ -10,6 +10,10 @@
         "title": "Cancel event?",
         "message": "Are you sure you want to cancel this event?"
     },
+    "invite_community_dialog": {
+        "title": "Add this event to its community",
+        "message": "link which describes what it does"
+    },
     "comment": "Comment",
     "comments": "Comments",
     "comments_count": "Comments | {{count}}",

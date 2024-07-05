@@ -37,6 +37,7 @@ import CancelEventDialog from "./CancelEventDialog";
 import EventAttendees from "./EventAttendees";
 import EventOrganizers from "./EventOrganizers";
 import { useEvent } from "./hooks";
+import InviteCommunityDialog from "./InviteCommunityDialog";
 
 export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
   (theme) => ({
@@ -193,6 +194,7 @@ export default function EventPage({
   );
 
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
+  const [inviteCommunityDialogIsOpen, setInviteCommunityDialogIsOpen] = useState(false);
 
   const isPastEvent = event?.endTime
     ? dayjs().isAfter(timestamp2Date(event.endTime))
@@ -292,6 +294,19 @@ export default function EventPage({
                     <CancelEventDialog
                       open={cancelDialogIsOpen}
                       onClose={() => setCancelDialogIsOpen(false)}
+                      eventId={eventId}
+                    />
+                    <Button
+                      onClick={() => setInviteCommunityDialogIsOpen(true)}
+                      variant="contained"
+                      color="secondary"
+                      disabled={event.isCancelled || isPastEvent}
+                    >
+                      {'invite communities'}
+                    </Button>
+                    <InviteCommunityDialog
+                      open={inviteCommunityDialogIsOpen}
+                      onClose={() => setInviteCommunityDialogIsOpen(false)}
                       eventId={eventId}
                     />
                   </>
