@@ -14,6 +14,7 @@ import {
   OnlineEventInformation,
   SetEventAttendanceReq,
   UpdateEventReq,
+  RequestCommunityInviteReq,
 } from "proto/events_pb";
 import client from "service/client";
 
@@ -46,6 +47,12 @@ export function cancelEvent(eventId: number) {
   const req = new CancelEventReq();
   req.setEventId(eventId);
   return client.events.cancelEvent(req);
+}
+
+export function RequestCommunityInvite(eventId: number) {
+  const req = new RequestCommunityInviteReq();
+  req.setEventId(eventId);
+  return client.events.requestCommunityInvite(req);
 }
 
 interface ListEventUsersInput {
