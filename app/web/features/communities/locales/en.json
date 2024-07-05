@@ -14,6 +14,7 @@
         "title": "Add this event to its community",
         "message": "link which describes what it does"
     },
+    "invite_community_button": "Invite community",
     "comment": "Comment",
     "comments": "Comments",
     "comments_count": "Comments | {{count}}",

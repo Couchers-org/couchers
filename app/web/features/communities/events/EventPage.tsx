@@ -302,7 +302,7 @@ export default function EventPage({
                       color="secondary"
                       disabled={event.isCancelled || isPastEvent}
                     >
-                      {'invite communities'}
+                      {t('communities:invite_community_button')}
                     </Button>
                     <InviteCommunityDialog
                       open={inviteCommunityDialogIsOpen}

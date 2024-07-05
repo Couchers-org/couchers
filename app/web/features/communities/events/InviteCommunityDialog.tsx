@@ -26,7 +26,7 @@ export default function InviteCommunityDialog({
   const inviteCommunityMutation = useMutation<Empty, RpcError, void>(
     () => service.events.RequestCommunityInvite(eventId),
     {
-      onSuccess: (e) => {
+      onSuccess: () => {
         queryClient.invalidateQueries(eventKey(eventId));
         if (props.onClose) props.onClose({}, "escapeKeyDown");
       },
