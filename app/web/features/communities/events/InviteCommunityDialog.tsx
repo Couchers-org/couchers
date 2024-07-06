@@ -42,7 +42,9 @@ export default function InviteCommunityDialog({
       </DialogTitle>
       <DialogContent>
         {inviteCommunityMutation.error && (
-          <Alert severity="error">{inviteCommunityMutation.error?.message}</Alert>
+          <Alert severity="error">
+            {inviteCommunityMutation.error?.message}
+          </Alert>
         )}
         <DialogContentText>
           {t("communities:invite_community_dialog.message")}

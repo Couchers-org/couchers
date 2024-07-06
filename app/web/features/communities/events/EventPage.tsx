@@ -194,7 +194,8 @@ export default function EventPage({
   );
 
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
-  const [inviteCommunityDialogIsOpen, setInviteCommunityDialogIsOpen] = useState(false);
+  const [inviteCommunityDialogIsOpen, setInviteCommunityDialogIsOpen] =
+    useState(false);
 
   const isPastEvent = event?.endTime
     ? dayjs().isAfter(timestamp2Date(event.endTime))
@@ -302,7 +303,7 @@ export default function EventPage({
                       color="secondary"
                       disabled={event.isCancelled || isPastEvent}
                     >
-                      {t('communities:invite_community_button')}
+                      {t("communities:invite_community_button")}
                     </Button>
                     <InviteCommunityDialog
                       open={inviteCommunityDialogIsOpen}
