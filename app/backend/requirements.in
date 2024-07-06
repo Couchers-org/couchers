@@ -24,4 +24,4 @@ sentry-sdk
 Shapely
 sqlalchemy
 sqlalchemy-utils
-stripe<10.0
+stripe<11.0
