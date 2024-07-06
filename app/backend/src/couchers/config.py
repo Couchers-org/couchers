@@ -108,12 +108,12 @@ for config_option in CONFIG_OPTIONS:
         else:
             value = default_value
 
-    if type_ == bool:
+    if type_ is bool:
         # 1 is true, 0 is false, everything else is illegal
         if value not in ["0", "1"]:
             raise ValueError(f'Invalid bool for {name}, need "0" or "1"')
         value = value == "1"
-    elif type_ == bytes:
+    elif type_ is bytes:
         # decode from hex
         value = bytes.fromhex(value)
     elif isinstance(type_, list):
