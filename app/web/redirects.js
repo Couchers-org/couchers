@@ -153,5 +153,11 @@ module.exports = {
         "https://zoom.us/j/2482842881?pwd=NWt3dit6cXRvbmcycUt0Mm1TMVdydz09",
       permanent: false,
     },
+    {
+      source: "/survey",
+      destination:
+        "https://docs.google.com/forms/d/e/1FAIpQLSceDmq5gQaPRJqly0NZbN2k1h7MyWgEXBL06lv1c-QCEz9zxw/viewform",
+      permanent: false,
+    },
   ],
 };
