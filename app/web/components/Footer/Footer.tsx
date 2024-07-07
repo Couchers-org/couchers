@@ -16,14 +16,12 @@ import {
   forumURL,
   foundationRoute,
   githubURL,
-  handbookRoute,
   missionRoute,
   planRoute,
-  sundaySocialURL,
+  helpCenterURL,
   teamRoute,
   tosRoute,
-  townHallURL,
-  tuesdaySocialURL,
+  contactRoute,
   volunteerRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";
@@ -130,9 +128,7 @@ export default function Footer() {
             <FooterLink href={planRoute}>{t("nav.our_plan")}</FooterLink>
             <FooterLink href={faqRoute}>{t("nav.faq")}</FooterLink>
             <FooterLink href={missionRoute}>{t("nav.mission")}</FooterLink>
-            <FooterLink href={handbookRoute}>{t("nav.handbook")}</FooterLink>
-            <FooterLink href={tosRoute}>{t("terms_of_service")}</FooterLink>
-            <FooterLink href={foundationRoute}>{t("legal_name")}</FooterLink>
+            <FooterLink href={helpCenterURL}>{t("nav.help_center")}</FooterLink>
           </div>
           <div>
             <Typography variant="h3" component="h2">
@@ -141,21 +137,17 @@ export default function Footer() {
             <FooterLink href={forumURL}>{t("nav.forum")}</FooterLink>
             <FooterLink href={blogRoute}>{t("nav.blog")}</FooterLink>
             <FooterLink href={teamRoute}>{t("nav.our_team")}</FooterLink>
-          </div>
-          <div>
-            <Typography variant="h3" component="h2">
-              {t("nav.events")}
-            </Typography>
-            <FooterLink href={townHallURL}>{t("nav.town_hall")}</FooterLink>
-            <FooterLink href={sundaySocialURL}>
-              {t("nav.weekly_social_sunday")}
-            </FooterLink>
-            <FooterLink href={tuesdaySocialURL}>
-              {t("nav.weekly_social_tuesday")}
-            </FooterLink>
             <FooterLink href={eventsRoute}>
               {t("nav.show_all_events")}
             </FooterLink>
+          </div>
+          <div>
+            <Typography variant="h3" component="h2">
+              {t("nav.legal_more")}
+            </Typography>
+            <FooterLink href={tosRoute}>{t("terms_of_service")}</FooterLink>
+            <FooterLink href={foundationRoute}>{t("legal_name")}</FooterLink>
+            <FooterLink href={contactRoute}>{t("nav.contact_us")}</FooterLink>
           </div>
           <div className={classes.buttonContainer}>
             <Link href={donationsRoute} passHref>

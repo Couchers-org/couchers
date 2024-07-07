@@ -2,10 +2,10 @@
   {
     "name": "Aapeli Vuorinen",
     "director": true,
-    "board_position": "Co-founder, Board Director",
-    "role": "President",
+    "board_position": "Board Member",
+    "role": "Co-founder, President & Chairman",
     "location": "New York City, USA",
-    "img": "/img/team/head-aapeli.jpg",
+    "img": "https://user-media.couchershq.org/media/img/full/8b2916c5458ca9c725083d6af02a7cb834d03d76f42b36b705cecfa7e6714ee0.jpg",
     "link": {
       "type": "website",
       "text": "aapelivuorinen.com",
@@ -15,10 +15,10 @@
   {
     "name": "Itsi Weinstock",
     "director": true,
-    "board_position": "Co-founder, Board Director",
-    "role": "Executive Director",
-    "location": "New York City, USA",
-    "img": "/img/team/head-itsi.jpg",
+    "board_position": "Board Member",
+    "role": "Co-founder",
+    "location": "San Francisco, USA",
+    "img": "https://user-media.couchershq.org/media/img/full/1135e446dc964993c41d9e3cc8c61728ee4e64db5b1864803a950f8eddf2d784.jpg",
     "link": {
       "type": "website",
       "text": "itsiweinstock.com",
@@ -26,29 +26,75 @@
     }
   },
   {
-    "name": "Andrea Woodard",
-    "director": true,
-    "board_position": "Board Director",
-    "role": "",
-    "location": "Orlando, USA",
-    "img": "/img/team/head-dea.jpg"
-  },
-  {
     "name": "Jesse Allhands",
-    "role": "Head of Community & Support",
+    "director": true,
+    "board_position": "Board Member",
+    "role": "Secretary",
     "location": "Berlin, Germany",
-    "img": "/img/team/head-jesse.jpg"
+    "img": "/img/team/head-jesse.jpg",
+    "link": {
+      "type": "couchers",
+      "text": "Couchers.org",
+      "url": "https://couchers.org/user/jesse"
+    }
   },
   {
-    "name": "Farley Farley",
-    "role": "Head of Product",
-    "location": "New Plymouth, New Zealand",
-    "img": "/img/team/head-farley.jpg",
+    "name": "Emily Damgali",
+    "director": true,
+    "board_position": "Board Member",
+    "role": "",
+    "location": "Berlin, Germany",
+    "img": "/img/team/head-emily.jpg",
     "link": {
-      "type": "website",
-      "text": "neonsurge.com",
-      "url": "https://neonsurge.com"
+      "type": "couchers",
+      "text": "Couchers.org",
+      "url": "https://couchers.org/user/emily"
     }
+  },
+  {
+    "name": "Yannic Spreen-Ledebur",
+    "director": true,
+    "board_position": "Board Member",
+    "role": "",
+    "location": "Berlin, Germany",
+    "img": "https://user-media.couchershq.org/media/img/full/db3866e3807402b100fd987e0f36cab6901bf33089c9a069837dbd6d79e1b27d.jpg",
+    "link": {
+      "type": "couchers",
+      "text": "Couchers.org",
+      "url": "https://couchers.org/user/spreeni"
+    }
+  },
+  {
+    "name": "Natalia Spitha",
+    "director": true,
+    "board_position": "Board Member",
+    "role": "",
+    "location": "Berlin, Germany",
+    "img": "https://user-media.couchershq.org/media/img/full/dccc6d88339d83b3b9b9daa352ea95cf4e9e902f2b05501ece6022b17bfcb311.jpg",
+    "link": {
+      "type": "couchers",
+      "text": "Couchers.org",
+      "url": "https://couchers.org/user/natalia"
+    }
+  },
+  {
+    "name": "Paul Rausch",
+    "director": true,
+    "board_position": "Board Member",
+    "role": "Treasurer",
+    "location": "The World",
+    "img": "https://user-media.couchershq.org/media/img/full/8806cd0b91672561182d9d30cba8cffe614f90aec446311d26d002cedf8b679f.jpg",
+    "link": {
+      "type": "couchers",
+      "text": "Couchers.org",
+      "url": "https://couchers.org/user/paul"
+    }
+  },
+  {
+    "name": "Andrea Woodard",
+    "role": "Past Board Member",
+    "location": "Berlin, Germany",
+    "img": "/img/team/head-dea.jpg"
   },
   {
     "name": "Dominic Nayan",
@@ -67,12 +113,6 @@
     "role": "Translations Lead",
     "location": "Japan",
     "img": "/img/team/head-mariana.jpg"
-  },
-  {
-    "name": "Hamish Fagg",
-    "role": "Backend Developer",
-    "location": "Hastings, New Zealand",
-    "img": "/img/team/head-hamish.jpg"
   },
   {
     "name": "Darren Vong",
@@ -96,12 +136,6 @@
       "text": "yi-chen-195482137",
       "url": "https://www.linkedin.com/in/yi-chen-195482137/"
     }
-  },
-  {
-    "name": "Emily Damgali",
-    "role": "Community Engagement",
-    "location": "Istanbul, Turkey",
-    "img": "/img/team/head-emily.jpg"
   },
   {
     "name": "Ben Weiner",
