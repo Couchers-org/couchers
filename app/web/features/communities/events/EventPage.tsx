@@ -6,6 +6,7 @@ import {
   Link as MuiLink,
   Theme,
   Typography,
+  Snackbar,
 } from "@material-ui/core";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Alert from "components/Alert";
@@ -75,6 +76,9 @@ export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
       gridArea: "backButton",
       width: "3.125rem",
       height: "3.125rem",
+    },
+    snackBar: {
+      fontSize: "0.9rem !important",
     },
     eventTitle: {
       gridArea: "eventTitle",
@@ -194,6 +198,8 @@ export default function EventPage({
   );
 
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
+  const [showInviteCommunitySuccess, setShowInviteCommunitySuccess] =
+    useState(false);
   const [inviteCommunityDialogIsOpen, setInviteCommunityDialogIsOpen] =
     useState(false);
 
@@ -211,9 +217,11 @@ export default function EventPage({
     eventImageSrc: event?.photoUrl || eventImagePlaceholderUrl,
   });
 
-  return !isValidEventId ? (
-    <NotFoundPage />
-  ) : (
+  if (!isValidEventId) {
+    return <NotFoundPage />;
+  }
+
+  return (
     <>
       <HtmlMeta title={event?.title} />
       {(eventError || setEventAttendanceError) && (
@@ -221,6 +229,20 @@ export default function EventPage({
           {eventError?.message || setEventAttendanceError?.message || ""}
         </Alert>
       )}
+
+      <Snackbar
+        className={classes.snackBar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={showInviteCommunitySuccess}
+        autoHideDuration={5000}
+        onClose={() => setShowInviteCommunitySuccess(false)}
+        children={
+          <Alert className={classes.snackBar} severity="success">
+            {t("communities:invite_community_dialog.toast_success")}
+          </Alert>
+        }
+      />
+
       {isLoading ? (
         <CircularProgress />
       ) : (
@@ -303,12 +325,15 @@ export default function EventPage({
                       color="secondary"
                       disabled={event.isCancelled || isPastEvent}
                     >
-                      {t("communities:invite_community_button")}
+                      {t("communities:invite_community_dialog_buttons.open")}
                     </Button>
                     <InviteCommunityDialog
                       open={inviteCommunityDialogIsOpen}
                       onClose={() => setInviteCommunityDialogIsOpen(false)}
                       eventId={eventId}
+                      afterSuccess={() => {
+                        setShowInviteCommunitySuccess(true);
+                      }}
                     />
                   </>
                 ) : null}

@@ -11,8 +11,15 @@
         "message": "Are you sure you want to cancel this event?"
     },
     "invite_community_dialog": {
-        "title": "Add this event to its community",
-        "message": "link which describes what it does"
+        "title": "Request a community invite for this event",
+        "message": "Use this form to request that the moderators send a notification about this event to all nearby users.",
+        "toast_success": "Thanks, the request has been submitted",
+        "link": "more info"
+    },
+    "invite_community_dialog_buttons": {
+        "open": "Invite the community",
+        "confirm": "Confirm",
+        "close": "Cancel"
     },
     "invite_community_button": "Invite community",
     "comment": "Comment",

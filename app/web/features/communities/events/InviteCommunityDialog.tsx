@@ -8,7 +8,7 @@ import {
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useMutation, useQueryClient } from "react-query";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
-import { DialogProps } from "@material-ui/core";
+import { DialogProps, Link as MuiLink } from "@material-ui/core";
 import { eventKey } from "features/queryKeys";
 import Button from "components/Button";
 import { useTranslation } from "i18n";
@@ -19,14 +19,16 @@ import React from "react";
 
 export default function InviteCommunityDialog({
   eventId,
+  afterSuccess,
   ...props
-}: DialogProps & { eventId: number }) {
+}: DialogProps & { eventId: number; afterSuccess: () => void }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const queryClient = useQueryClient();
   const inviteCommunityMutation = useMutation<Empty, RpcError, void>(
     () => service.events.RequestCommunityInvite(eventId),
     {
       onSuccess: () => {
+        afterSuccess();
         queryClient.invalidateQueries(eventKey(eventId));
         if (props.onClose) props.onClose({}, "escapeKeyDown");
       },
@@ -48,6 +50,18 @@ export default function InviteCommunityDialog({
         )}
         <DialogContentText>
           {t("communities:invite_community_dialog.message")}
+          <br />
+          <br />
+          <MuiLink
+            key={"link_invite_community"}
+            target="_blank"
+            rel="noreferrer"
+            href={
+              "https://help.couchers.org/hc/couchersorg-help-center/articles/1720304409-how-does-the-invite-the-community-feature-work"
+            }
+          >
+            {t("communities:invite_community_dialog.link")}
+          </MuiLink>
         </DialogContentText>
       </DialogContent>
       <DialogActions>
@@ -55,7 +69,7 @@ export default function InviteCommunityDialog({
           onClick={inviteCommunity}
           loading={inviteCommunityMutation.isLoading}
         >
-          {t("global:yes")}
+          {t("communities:invite_community_dialog_buttons.confirm")}
         </Button>
         <Button
           onClick={() =>
@@ -63,7 +77,7 @@ export default function InviteCommunityDialog({
           }
           loading={inviteCommunityMutation.isLoading}
         >
-          {t("global:no")}
+          {t("communities:invite_community_dialog_buttons.close")}
         </Button>
       </DialogActions>
     </Dialog>
