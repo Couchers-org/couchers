@@ -1,6 +1,11 @@
 module.exports = {
   redirects: [
     {
+      source: "/handbook",
+      destination: "https://help.couchers.org",
+      permanent: false,
+    },
+    {
       source: "/volunteer/form",
       destination:
         "https://forms.monday.com/forms/f87fe22951e9328f4ee1578d339cb927?r=use1",
@@ -122,18 +127,6 @@ module.exports = {
       source: "/solutions/the-build",
       destination: "/plan/the-build",
       permanent: true,
-    },
-    {
-      source: "/weekly-social",
-      destination:
-        "https://zoom.us/j/2482842880?pwd=UWxJWFQvZ0xpOTN1SlE4aFcxS3JPUT09",
-      permanent: false,
-    },
-    {
-      source: "/town-hall",
-      destination:
-        "https://zoom.us/j/2482842880?pwd=UWxJWFQvZ0xpOTN1SlE4aFcxS3JPUT09",
-      permanent: false,
     },
     {
       source: "/zoom",

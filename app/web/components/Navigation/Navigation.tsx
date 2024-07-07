@@ -32,7 +32,7 @@ import {
   faqRoute,
   featurePreviewRoute,
   forumURL,
-  handbookRoute,
+  helpCenterURL,
   loginRoute,
   logoutRoute,
   messagesRoute,
@@ -230,7 +230,7 @@ const loggedInMenuDropDown = (
   },
   {
     name: t("nav.help"),
-    route: handbookRoute,
+    route: helpCenterURL,
   },
   {
     name: t("nav.donate"),
