@@ -71,7 +71,7 @@ packaging==24.0
     # via
     #   geoalchemy2
     #   pytest
-phonenumbers==8.13.39
+phonenumbers==8.13.40
     # via -r requirements.in
 platformdirs==4.2.2
     # via virtualenv
