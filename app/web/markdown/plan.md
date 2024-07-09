@@ -32,7 +32,7 @@ We prioritize communities by building them into the foundation of the platform. 
 
 ### [Member accountability](/plan/creeps-and-freeloaders) <span class="tag tag-design">Design</span>
 
-The community can be made safer by introducing accountability measures. If everyone is publicly accountable for their behavior, then the community will be able to filter people out if they are seen to be detrimental. This will be our first positive step in making the community safer, especially for women. This will also be used to filter freeloaders out of the platform.
+The community can be made safer by introducing accountability measures. If everyone is publicly accountable for their behavior, then the community will be able to filter people detrimental to the community. This is important to make the community safer, especially for women. This will also be used to filter freeloaders out of the platform.
 
 ### [An improved review system](/plan/reviews) <span class="tag tag-design">Design</span>
 
@@ -44,4 +44,4 @@ We will build a system that encourages a healthy spread of surfers with differen
 
 ### [Build it right](/plan/the-build) <span class="tag tag-tech">Technology</span>
 
-Our platform is developer-led, and we prioritizes building it well and making it scalable from the start. Having open communication channels with the broader community allows us to prioritize and tackle bugs and other issues.
+Our platform is developer-led, and we prioritize building it well and making it scalable from the start. Having open communication channels with the broader community allows us to prioritize and tackle bugs and other issues.

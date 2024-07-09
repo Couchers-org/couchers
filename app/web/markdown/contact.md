@@ -15,6 +15,10 @@ Couchers, Inc. is run by a dedicated [team of volunteers](/team), which is ultim
 
 If you have a **technical issue** that does not include personal details: meaning that the website does not work or has errors or bugs, please use the red "Report a problem" button (on mobile this will render as an image of a bug on a red button).
 
+## How to report safety issues and violations of community guidelines
+
+To contact our team about a safety issue or a violation of community guidelines, please contact us at [safety@couchers.org](mailto:safety@couchers.org).
+
 ## How to report general issues
 
 If your problem is **not technical in scope or you have to share personal details**, please contact us at [support@couchers.org](mailto:support@couchers.org).
