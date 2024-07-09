@@ -7,9 +7,9 @@ author: Aapeli
 share_image: https://couchers.org/img/share.jpg
 ---
 
-The Couchers.org project is developed and operated by Couchers, Inc., a US-based 501(c)(3) tax-exempt non-profit organization. The non-profit fulfills many important functions for the project: it maintains bank accounts, owns the intellectual property of the project (such as the brand and designs), and owns and operates the database. Additionally, it oversees the volunteering for the project, and helps set long-term goals such as the mission and vision of the organization.
+The Couchers.org project is developed and operated by [Couchers, Inc.](/foundation), a US-based 501(c)(3) tax-exempt non-profit organization. The non-profit fulfills many important functions for the project: it maintains bank accounts, owns the intellectual property of the project (such as the brand and designs), and owns and operates the database. Additionally, it oversees the volunteering for the project, and helps set long-term goals such as the mission and vision of the organization.
 
-The outgoing Board had our Annual Genral Meeting on the 24th of April. This blog post outlines the changes in the Board of Directors as well as some other governance changes.
+The outgoing Board had our Annual General Meeting on the 24th of April. This blog post outlines the changes in the Board of Directors as well as some other governance changes.
 
 ## New Directors
 

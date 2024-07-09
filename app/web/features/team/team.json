@@ -91,6 +91,17 @@
     }
   },
   {
+    "name": "Krishna Gaurav",
+    "role": "Backend Developer",
+    "location": "New York City, USA",
+    "img": "/img/team/head-krishna.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "krishnagaurav",
+      "url": "https://www.linkedin.com/in/krishnagaurav/"
+    }
+  },
+  {
     "name": "Andrea Woodard",
     "role": "Past Board Member",
     "location": "Berlin, Germany",
