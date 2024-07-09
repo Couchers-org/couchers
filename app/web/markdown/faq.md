@@ -57,7 +57,7 @@ There are three main costs that Couchsurfing&#8482; needs to cover that we will 
 2. Developers
 3. Server hosting and third-party services
 
-We believe moderation can be built into the system where necessary so that more trusted members of the community can take charge of moderation actions, and we can rely on the volunteer efforts of moderators. This method is community-first, cost-effective, scalable and cements communities into the functioning of the platform.
+We believe moderation can be built into the system where necessary so that trusted members of the community can take charge of most moderation actions, and we can rely on the volunteer efforts of moderators. This method is community-first, cost-effective, scalable and cements communities into the functioning of the platform.
 
 On the development end, we will initially handle the [build and development](/plan/the-build) of the platform ourselves and have committed time to complete it. Over time, we wish to onboard more volunteers, and as time goes by, hope to hand over a number of development and maintenance tasks to individuals from the community.
 
