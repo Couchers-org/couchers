@@ -93,10 +93,7 @@
   "change_email_confirmation": {
     "success_message": "Udało się zmienić adres e-mail!",
     "change_in_progress": "Zmiana adresu e-mail jest w trakcie realizacji…",
-    "requires_confirmation_from_old_email": "Dziękujemy za potwierdzenie swojego nowego adresu e-mail. Aby dokończyć zmianę, musisz potwierdzić również swój stary adres.",
-    "error_message": "Błąd podczas zmiany adresu e-mail: {{message}}",
-    "requires_confirmation_from_new_email": "Dziękujemy za potwierdzenie swojego starego adresu e-mail. Aby dokończyć zmianę, musisz potwierdzić również swój nowy adres.",
-    "invalid_confirmation_state": "Adres e-mail nie został właściwie potwierdzony"
+    "error_message": "Błąd podczas zmiany adresu e-mail: {{message}}"
   },
   "account_settings_page": {
     "birth_date_section": {
@@ -107,7 +104,6 @@
     "title": "Ustaw hasło"
   },
   "reset_password": "Zresetuj hasło",
-  "reset_password_error": "Błąd podczas próby zresetowania hasła: {{message}}",
   "reset_password_form": {
     "success_message": "Sprawdź swoją skrzynkę e-mail, aby odebrać link do zresetowania hasła!"
   }

@@ -49,10 +49,7 @@
   "change_email_confirmation": {
     "change_in_progress": "Änderung der E-Mail-Adresse in Bearbeitung…",
     "success_message": "Deine E-Mail-Adresse wurde erfolgreich geändert!",
-    "invalid_confirmation_state": "Ungültiger Status der Bestätigung der E-Mail-Adresse",
-    "error_message": "Fehler beim Ändern der E-Mail-Adresse: {{message}}",
-    "requires_confirmation_from_new_email": "Danke, dass du deine alte E-Mail-Adresse bestätigt hast. Um die Änderung abzuschließen, musst du immer noch deine neue E-Mail-Adresse bestätigen.",
-    "requires_confirmation_from_old_email": "Danke, dass du deine neue E-Mail-Adresse bestätigt hast. Um die Änderung abzuschließen, musst du immer noch deine alte E-Mail-Adresse bestätigen."
+    "error_message": "Fehler beim Ändern der E-Mail-Adresse: {{message}}"
   },
   "basic_form": {
     "name": {
@@ -101,13 +98,11 @@
   },
   "sign_up_completed_title": "Danke, dass du uns beigetreten bist!",
   "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche, dich einzuloggen.",
-  "reset_password_success": "Dein Passwort wurde erfolgreich geändert! Dir wird jetzt ein magischer Link an deine E-Mail-Adresse gesendet, sobald du dich mit Benutzername oder E-Mail-Adresse einloggst.",
   "login_prompt": "Klicke hier, um dich einzuloggen",
   "about_us": "Über uns",
   "introduction_subtitle": "Auf ewig kostenlos. Von der Community geleitet. Gemeinnützig. Modern.",
   "introduction_title": "Tritt uns bei und unterstütze uns darin, die neue Alternative zu Couchsurfing™ wachsen zu lassen",
   "reset_password": "Passwort zurücksetzen",
-  "reset_password_error": "Fehler beim Zurücksetzen des Passworts: {{message}}",
   "account_settings_page": {
     "birth_date_section": {
       "explanation": "Die Admins werden dir behilfreich sein, dein Geburtsdatum zu ändern. Bitte kontaktiere support@couchers.org!",
@@ -128,11 +123,7 @@
     }
   },
   "notification_settings": {
-    "title": "Benachrichtigungseinstellungen",
-    "action_button": {
-      "enable_text": "Das neue Benachrichtigungssystem aktivieren",
-      "disable_text": "Das neue Benachrichtigungssystem deaktivieren"
-    }
+    "title": "Benachrichtigungseinstellungen"
   },
   "feature_preview": {
     "disclaimer": "Bitte beachte, dass diese Features experimentell sind. Sie werden vielleicht nicht wie vorhergesehen funktionieren und sich während der Entwicklung schnell ändern. Bitte gib uns Feedback dazu in unserem Forum und melde uns Bugs!",

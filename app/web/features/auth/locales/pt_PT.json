@@ -86,11 +86,8 @@
   },
   "change_email_confirmation": {
     "change_in_progress": "Alteração de e-mail em curso…",
-    "invalid_confirmation_state": "Estado de confirmação de e-mail inválido",
     "error_message": "Erro na alteração de e-mail: {{message}}",
-    "requires_confirmation_from_new_email": "Obrigado por confirmares o teu endereço de e-mail antigo. Para completar a alteração precisas ainda de confirmar o teu endereço de e-mail novo.",
-    "success_message": "O teu e-mail foi alterado com sucesso!",
-    "requires_confirmation_from_old_email": "Obrigado por confirmares o teu endereço de e-mail novo. Para completar a alteração precisas ainda de confirmar o teu endereço de e-mail antigo."
+    "success_message": "O teu e-mail foi alterado com sucesso!"
   },
   "change_password_form": {
     "old_password": "Palavra-passe antiga",
@@ -174,15 +171,7 @@
     "validation_error": "Por favor seleciona uma localização válida."
   },
   "notification_settings": {
-    "status": {
-      "disabled_message": "O novo sistema de notificações está atualmente <2>desativado</2> para a tua conta.",
-      "enabled_message": "O novo sistema de notificações está atualmente <2>ativado</2> para a tua conta."
-    },
-    "title": "Definições de notificação",
-    "action_button": {
-      "enable_text": "Ativar novo sistema de notificações",
-      "disable_text": "Desativar novo sistema de notificações"
-    }
+    "title": "Definições de notificação"
   },
   "change_phone": {
     "phone_label": "Teu número de telefone",
@@ -216,11 +205,9 @@
     },
     "title": "É necessária mais informação"
   },
-  "reset_password_success": "A tua palavra-passe foi alterada com sucesso! Irás receber um e-mail com um link mágico quando entrares com o teu nome de utilizador ou e-mail.",
   "login_prompt": "Clica aqui para entrar",
   "introduction_title": "Junta-te a nós e ajuda a crescer a nova alternativa ao Couchsurfing™",
   "reset_password": "Redefinir palavra-passe",
-  "reset_password_error": "Erro ao redefinir palavra-passe: {{message}}",
   "about_us": "Sobre nós",
   "unhandled_sign_up_state": "Erro: unhandled signup flow state.",
   "introduction_subtitle": "Grátis para sempre. Gerido pela comunidade. Sem fins lucrativos. Moderno.",
