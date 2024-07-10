@@ -3,9 +3,9 @@
   "request_closed_message": "This host request is closed or in the past. To continue chatting, send the other person a normal message.",
   "write_reference_button_text": "Write a Reference",
   "close_request_dialog_title": "Are you done messaging?",
-  "close_request_dialog_host": "Please make sure you are done chatting before you reject their request.",
+  "close_request_dialog_host": "Please make sure you are done chatting before you decline their request.",
   "close_request_dialog_surfer": "Please make sure you are done chatting before you cancel your request.",
-  "close_request_button_text": "Reject",
+  "close_request_button_text": "Decline",
   "confirm_request_button_text": "Confirm",
   "messages_page": {
     "title": "Messages",
@@ -120,7 +120,7 @@
     "cancelled": "Cancelled",
     "confirmed": "Confirmed",
     "pending": "Pending",
-    "rejected": "Rejected"
+    "rejected": "Declined"
   },
   "host_request_item": {
     "pending": "This request is still pending",
@@ -128,13 +128,13 @@
       "accepted": "You have accepted this request",
       "cancelled": "You have cancelled this request",
       "confirmed": "You have confirmed this request",
-      "rejected": "You have rejected this request"
+      "rejected": "You have declined this request"
     },
     "surfer_status": {
       "accepted": "Your request was accepted",
       "cancelled": "Your request was cancelled",
       "confirmed": "Your request was confirmed",
-      "rejected": "Your request was rejected"
+      "rejected": "Your request was declined"
     }
   },
   "host_request_view": {
