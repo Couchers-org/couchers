@@ -3,6 +3,7 @@ import logging
 import grpc
 from google.protobuf import empty_pb2
 
+from couchers import errors
 from couchers.crypto import secure_compare
 from couchers.db import session_scope
 from couchers.interceptors import ManualAuthValidatorInterceptor
@@ -28,7 +29,7 @@ class Media(media_pb2_grpc.MediaServicer):
             ).scalar_one_or_none()
 
             if not initiated_upload:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Upload not found.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.UPLOAD_NOT_FOUND)
 
             # move it to a completed upload
             upload = Upload(
