@@ -335,7 +335,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             ).first()
 
             if not result:
-                context.abort(grpc.StatusCode.NOT_FOUND, "Couldn't find that chat.")
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
             return conversations_pb2.GroupChat(
                 group_chat_id=result.GroupChat.conversation_id,
@@ -531,9 +531,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     .group_by(GroupChatSubscription.group_chat_id)
                     .having(count == 2)
                 ).scalar_one_or_none():
-                    context.abort(
-                        grpc.StatusCode.FAILED_PRECONDITION, "You already have a direct message chat with this user."
-                    )
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_HAVE_DM)
 
             conversation = Conversation()
             session.add(conversation)
