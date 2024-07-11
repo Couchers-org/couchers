@@ -86,7 +86,7 @@ settings_layout = [
                     ("create", "Someone sends you a host request"),
                     ("accept", "Someone accepts your host request"),
                     ("confirm", "Someone confirms their host request"),
-                    ("reject", "Someone rejects your host request"),
+                    ("reject", "Someone declines your host request"),
                     ("cancel", "Someone cancels their host request"),
                     ("message", "Someone sends a message in a host request"),
                     ("missed_messages", "You miss messages in a host request"),

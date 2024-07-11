@@ -43,7 +43,7 @@ def render_notification(user, notification) -> RenderedNotification:
         if notification.action == "missed_messages":
             their_your = "their" if data.am_host else "your"
             other = data.user
-            # "rejected your host request", or similar
+            # "declined your host request", or similar
             message = f"{other.name} sent you message(s) in {their_your} host request"
             return RenderedNotification(
                 email_subject=message,
@@ -99,11 +99,11 @@ def render_notification(user, notification) -> RenderedNotification:
                 their_your = "their"
             actioned = {
                 "accept": "accepted",
-                "reject": "rejected",
+                "reject": "declined",
                 "confirm": "confirmed",
                 "cancel": "cancelled",
             }[notification.action]
-            # "rejected your host request", or similar
+            # "declined your host request", or similar
             message = f"{other.name} {actioned} {their_your} host request"
             return RenderedNotification(
                 email_subject=message,
