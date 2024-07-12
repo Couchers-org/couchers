@@ -59,6 +59,24 @@ contributeoption2api = {
     ContributeOption.no: auth_pb2.CONTRIBUTE_OPTION_NO,
 }
 
+profilepublicitysetting2sql = {
+    account_pb2.PROFILE_PUBLICITY_SETTING_UNKNOWN: None,
+    account_pb2.PROFILE_PUBLICITY_SETTING_NOTHING: ProfilePublicitySetting.nothing,
+    account_pb2.PROFILE_PUBLICITY_SETTING_MAP_ONLY: ProfilePublicitySetting.map_only,
+    account_pb2.PROFILE_PUBLICITY_SETTING_LIMITED: ProfilePublicitySetting.limited,
+    account_pb2.PROFILE_PUBLICITY_SETTING_MOST: ProfilePublicitySetting.most,
+    account_pb2.PROFILE_PUBLICITY_SETTING_FULL: ProfilePublicitySetting.full,
+}
+
+profilepublicitysetting2api = {
+    None: account_pb2.PROFILE_PUBLICITY_SETTING_UNKNOWN,
+    ProfilePublicitySetting.nothing: account_pb2.PROFILE_PUBLICITY_SETTING_NOTHING,
+    ProfilePublicitySetting.map_only: account_pb2.PROFILE_PUBLICITY_SETTING_MAP_ONLY,
+    ProfilePublicitySetting.limited: account_pb2.PROFILE_PUBLICITY_SETTING_LIMITED,
+    ProfilePublicitySetting.most: account_pb2.PROFILE_PUBLICITY_SETTING_MOST,
+    ProfilePublicitySetting.full: account_pb2.PROFILE_PUBLICITY_SETTING_FULL,
+}
+
 
 def get_strong_verification_fields(session, db_user):
     out = dict(
@@ -456,6 +474,13 @@ class Account(account_pb2_grpc.AccountServicer):
             session.add(token)
 
         return empty_pb2.Empty()
+
+    def SetProfilePublicity(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            user.profile_publicity = profilepublicitysetting2sql[req.setting]
+        return empty_pb2.Empty()
+
 
 
 class Iris(iris_pb2_grpc.IrisServicer):

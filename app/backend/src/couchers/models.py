@@ -91,6 +91,19 @@ class ParkingDetails(enum.Enum):
     paid_offsite = enum.auto()
 
 
+class ProfilePublicitySetting(enum.Enum):
+    # no public info
+    nothing = enum.auto()
+    # only show on map, unclickable
+    map_only = enum.auto()
+    # name, gender, location, hosting/meetup status, badges, number of references, and signup time
+    limited = enum.auto()
+    # full about me except additional info (hide my home)
+    most = enum.auto()
+    # all but references
+    full = enum.auto()
+
+
 class TimezoneArea(Base):
     __tablename__ = "timezone_areas"
     id = Column(BigInteger, primary_key=True)
@@ -145,6 +158,9 @@ class User(Base):
 
     joined = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     last_active = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    profile_publicity = Column(Enum(ProfilePublicitySetting), nullable=False, server_default="limited")
+    needs_to_pick_profile_publicity = Column(Boolean, nullable=False, server_default=text("false"))
 
     # id of the last message that they received a notification about
     last_notified_message_id = Column(BigInteger, nullable=False, default=0)

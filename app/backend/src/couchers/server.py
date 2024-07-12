@@ -17,6 +17,7 @@ from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.events import Events
 from couchers.servicers.gis import GIS
+from couchers.servicers.public import Public
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
@@ -45,6 +46,7 @@ from proto import (
     iris_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
+    public_pb2_grpc,
     notifications_pb2_grpc,
     pages_pb2_grpc,
     references_pb2_grpc,
@@ -69,7 +71,6 @@ def create_main_server(port):
     server.add_insecure_port(f"[::]:{port}")
 
     account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
-    iris_pb2_grpc.add_IrisServicer_to_server(Iris(), server)
     admin_pb2_grpc.add_AdminServicer_to_server(Admin(), server)
     api_pb2_grpc.add_APIServicer_to_server(API(), server)
     auth_pb2_grpc.add_AuthServicer_to_server(Auth(), server)
@@ -82,9 +83,11 @@ def create_main_server(port):
     events_pb2_grpc.add_EventsServicer_to_server(Events(), server)
     gis_pb2_grpc.add_GISServicer_to_server(GIS(), server)
     groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), server)
+    iris_pb2_grpc.add_IrisServicer_to_server(Iris(), server)
     jail_pb2_grpc.add_JailServicer_to_server(Jail(), server)
     notifications_pb2_grpc.add_NotificationsServicer_to_server(Notifications(), server)
     pages_pb2_grpc.add_PagesServicer_to_server(Pages(), server)
+    public_pb2_grpc.add_PublicServicer_to_server(Public(), server)
     references_pb2_grpc.add_ReferencesServicer_to_server(References(), server)
     reporting_pb2_grpc.add_ReportingServicer_to_server(Reporting(), server)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), server)
