@@ -35,7 +35,7 @@ from couchers.models import (
     ContributeOption,
     ContributorForm,
     ModNote,
-    ProfilePublicitySetting,
+    ProfilePublicVisibility,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
     StrongVerificationCallbackEvent,
@@ -81,21 +81,21 @@ contributeoption2api = {
 }
 
 profilepublicitysetting2sql = {
-    account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_UNKNOWN: None,
-    account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_NOTHING: ProfilePublicitySetting.nothing,
-    account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_MAP_ONLY: ProfilePublicitySetting.map_only,
-    account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_LIMITED: ProfilePublicitySetting.limited,
-    account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_MOST: ProfilePublicitySetting.most,
-    account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_FULL: ProfilePublicitySetting.full,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_UNKNOWN: None,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_NOTHING: ProfilePublicVisibility.nothing,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_MAP_ONLY: ProfilePublicVisibility.map_only,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_LIMITED: ProfilePublicVisibility.limited,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_MOST: ProfilePublicVisibility.most,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_FULL: ProfilePublicVisibility.full,
 }
 
 profilepublicitysetting2api = {
-    None: account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_UNKNOWN,
-    ProfilePublicitySetting.nothing: account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_NOTHING,
-    ProfilePublicitySetting.map_only: account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_MAP_ONLY,
-    ProfilePublicitySetting.limited: account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_LIMITED,
-    ProfilePublicitySetting.most: account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_MOST,
-    ProfilePublicitySetting.full: account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_FULL,
+    None: account_pb2.PROFILE_PUBLIC_VISIBILITY_UNKNOWN,
+    ProfilePublicVisibility.nothing: account_pb2.PROFILE_PUBLIC_VISIBILITY_NOTHING,
+    ProfilePublicVisibility.map_only: account_pb2.PROFILE_PUBLIC_VISIBILITY_MAP_ONLY,
+    ProfilePublicVisibility.limited: account_pb2.PROFILE_PUBLIC_VISIBILITY_LIMITED,
+    ProfilePublicVisibility.most: account_pb2.PROFILE_PUBLIC_VISIBILITY_MOST,
+    ProfilePublicVisibility.full: account_pb2.PROFILE_PUBLIC_VISIBILITY_FULL,
 }
 
 MAX_PAGINATION_LENGTH = 50
@@ -188,6 +188,7 @@ class Account(account_pb2_grpc.AccountServicer):
             timezone=user.timezone,
             is_superuser=user.is_superuser,
             ui_language_preference=user.ui_language_preference,
+            profile_public_visibility=profilepublicitysetting2api[user.public_visibility],
             **get_strong_verification_fields(session, user),
         )
 
@@ -631,11 +632,10 @@ class Account(account_pb2_grpc.AccountServicer):
             .values(expiry=func.now())
             .execution_options(synchronize_session=False)
         )
-        return empty_pb2.Empty()
 
-    def SetProfilePublicity(self, request, context, session):
+    def SetProfilePublicVisibility(self, request, context, session):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        user.profile_publicity = profilepublicitysetting2sql[request.setting]
+        user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]
         return empty_pb2.Empty()
 
 

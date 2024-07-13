@@ -5,7 +5,6 @@ Background job servicers
 import logging
 from datetime import date, timedelta
 from math import sqrt
-from types import SimpleNamespace
 
 import requests
 from google.protobuf import empty_pb2
@@ -72,7 +71,7 @@ from couchers.servicers.threads import generate_reply_notifications
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.tasks import send_duplicate_strong_verification_email
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import Timestamp_from_datetime, make_user_context, now
 from proto import notification_data_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
@@ -240,7 +239,7 @@ def send_message_notifications(payload):
                             author=user_model_to_pb(
                                 message.author,
                                 session,
-                                SimpleNamespace(user_id=user.id),
+                                make_user_context(user_id=user.id),
                             ),
                             message=format_title(message, group_chat, count_unseen),
                             text=message.text,
@@ -294,7 +293,7 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.flush()
 
-            context = SimpleNamespace(user_id=user.id)
+            context = make_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,
@@ -311,7 +310,7 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.flush()
 
-            context = SimpleNamespace(user_id=user.id)
+            context = make_user_context(user_id=user.id)
             notify(
                 session,
                 user_id=user.id,
@@ -462,7 +461,7 @@ def send_reference_reminders(payload):
                 # checked in sql
                 assert user.is_visible
                 if not are_blocked(session, user.id, other_user.id):
-                    context = SimpleNamespace(user_id=user.id)
+                    context = make_user_context(user_id=user.id)
                     notify(
                         session,
                         user_id=user.id,
@@ -906,7 +905,7 @@ def send_activeness_probes(payload):
 
             for probe in probes:
                 probe.notifications_sent = probe_number_minus_1 + 1
-                context = SimpleNamespace(user_id=probe.user.id)
+                context = make_user_context(user_id=probe.user.id)
                 notify(
                     session,
                     user_id=probe.user.id,

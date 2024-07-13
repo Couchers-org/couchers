@@ -9,7 +9,7 @@ import {
   ListActiveSessionsReq,
   LogOutOtherSessionsReq,
   LogOutSessionReq,
-  ProfilePublicVisibilitySetting,
+  ProfilePublicVisibility,
   SetProfilePublicVisibilityReq,
   VerifyPhoneReq,
 } from "proto/account_pb";
@@ -89,6 +89,7 @@ export function deleteAccount(confirm: boolean, reason?: string) {
   }
   return client.account.deleteAccount(req);
 }
+
 export function changePhone(phone: string) {
   const req = new ChangePhoneReq();
   req.setPhone(phone);
@@ -142,10 +143,8 @@ export async function deleteStrongVerificationData() {
   await client.account.deleteStrongVerificationData(new Empty());
 }
 
-export function setProfilePublicVisibility(
-  setting: ProfilePublicVisibilitySetting,
-) {
+export function setProfilePublicVisibility(setting: ProfilePublicVisibility) {
   const req = new SetProfilePublicVisibilityReq();
-  req.setSetting(setting);
+  req.setProfilePublicVisibility(setting);
   return client.account.setProfilePublicVisibility(req);
 }

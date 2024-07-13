@@ -859,6 +859,7 @@ def response_rate_to_pb(response_rates):
 
 def user_model_to_pb(db_user, session, context):
     # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
+    # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
     num_references = session.execute(
         select(func.count())
         .select_from(Reference)
