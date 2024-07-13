@@ -883,3 +883,7 @@ def test_LogOutOtherSessions(db, fast_passwords):
         account.LogOutOtherSessions(account_pb2.LogOutOtherSessionsReq(confirm=True))
         res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
         assert len(res.active_sessions) == 1
+
+
+def test_profile_public_visibility(db):
+    pass

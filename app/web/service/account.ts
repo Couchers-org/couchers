@@ -9,6 +9,8 @@ import {
   ListActiveSessionsReq,
   LogOutOtherSessionsReq,
   LogOutSessionReq,
+  ProfilePublicVisibilitySetting,
+  SetProfilePublicVisibilityReq,
   VerifyPhoneReq,
 } from "proto/account_pb";
 import {
@@ -138,4 +140,12 @@ export async function initiateStrongVerification() {
 
 export async function deleteStrongVerificationData() {
   await client.account.deleteStrongVerificationData(new Empty());
+}
+
+export function setProfilePublicVisibility(
+  setting: ProfilePublicVisibilitySetting,
+) {
+  const req = new SetProfilePublicVisibilityReq();
+  req.setSetting(setting);
+  return client.account.setProfilePublicVisibility(req);
 }

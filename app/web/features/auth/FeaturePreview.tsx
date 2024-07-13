@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 
 import PushNotificationSettings from "../notifications/PushNotificationSettings";
 import useAccountInfo from "./useAccountInfo";
+import ProfileVisibility from "./visibility/ProfileVisibility";
 
 const MarginWrapper = styled("div")(({ theme }) => ({
   margin: theme.spacing(4, 0),
@@ -38,6 +39,12 @@ export default function FeaturePreview() {
         <>
           <MarginWrapper>
             <PushNotificationSettings />
+          </MarginWrapper>
+          <MarginWrapper>
+            <ProfileVisibility
+              className={classes.section}
+              accountInfo={accountInfo!}
+            />
           </MarginWrapper>
         </>
       )}
