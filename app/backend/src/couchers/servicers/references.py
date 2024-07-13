@@ -5,8 +5,6 @@
 * References become visible after min{2 weeks, both reciprocal references written}
 """
 
-from types import SimpleNamespace
-
 import grpc
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, literal, or_, union_all
@@ -18,7 +16,7 @@ from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import maybe_send_reference_report_email
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, make_user_context
 from proto import notification_data_pb2, references_pb2, references_pb2_grpc
 
 reftype2sql = {
@@ -174,7 +172,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                 user_id=request.to_user_id,
                 topic_action="reference:receive_friend",
                 data=notification_data_pb2.ReferenceReceiveFriend(
-                    from_user=user_model_to_pb(user, session, SimpleNamespace(user_id=request.to_user_id)),
+                    from_user=user_model_to_pb(user, session, make_user_context(user_id=request.to_user_id)),
                     text=reference_text,
                 ),
             )
@@ -250,7 +248,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                 topic_action="reference:receive_surfed" if surfed else "reference:receive_hosted",
                 data=notification_data_pb2.ReferenceReceiveHostRequest(
                     host_request_id=host_request.conversation_id,
-                    from_user=user_model_to_pb(user, session, SimpleNamespace(user_id=reference.to_user_id)),
+                    from_user=user_model_to_pb(user, session, make_user_context(user_id=reference.to_user_id)),
                     text=reference_text if other_reference is not None else None,
                 ),
             )

@@ -99,7 +99,7 @@ message GetAccountInfoRes {
   // whether the user has all non-security emails off
   bool do_not_email = 13;
 
-  ProfilePublicVisibilitySetting profile_visibility = 14;
+  ProfilePublicVisibility profile_public_visibility = 14;
 }
 
 message ChangePasswordV2Req {
@@ -162,15 +162,15 @@ message DeleteAccountReq {
   string reason = 2;
 }
 
-enum ProfilePublicVisibilitySetting {
-  PROFILE_PUBLIC_VISIBILITY_SETTING_UNKNOWN = 0;
-  PROFILE_PUBLIC_VISIBILITY_SETTING_NOTHING = 1;
-  PROFILE_PUBLIC_VISIBILITY_SETTING_MAP_ONLY = 2;
-  PROFILE_PUBLIC_VISIBILITY_SETTING_LIMITED = 3;
-  PROFILE_PUBLIC_VISIBILITY_SETTING_MOST = 4;
-  PROFILE_PUBLIC_VISIBILITY_SETTING_FULL = 5;
+enum ProfilePublicVisibility {
+  PROFILE_PUBLIC_VISIBILITY_UNKNOWN = 0;
+  PROFILE_PUBLIC_VISIBILITY_NOTHING = 1;
+  PROFILE_PUBLIC_VISIBILITY_MAP_ONLY = 2;
+  PROFILE_PUBLIC_VISIBILITY_LIMITED = 3;
+  PROFILE_PUBLIC_VISIBILITY_MOST = 4;
+  PROFILE_PUBLIC_VISIBILITY_FULL = 5;
 }
 
 message SetProfilePublicVisibilityReq {
-  ProfilePublicVisibilitySetting setting = 1;
+  ProfilePublicVisibility profile_public_visibility = 1;
 }

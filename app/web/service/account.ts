@@ -5,7 +5,7 @@ import {
   ChangePhoneReq,
   DeleteAccountReq,
   FillContributorFormReq,
-  ProfilePublicVisibilitySetting,
+  ProfilePublicVisibility,
   SetProfilePublicVisibilityReq,
   VerifyPhoneReq,
 } from "proto/account_pb";
@@ -85,6 +85,7 @@ export function deleteAccount(confirm: boolean, reason?: string) {
   }
   return client.account.deleteAccount(req);
 }
+
 export function changePhone(phone: string) {
   const req = new ChangePhoneReq();
   req.setPhone(phone);
@@ -104,9 +105,9 @@ export function verifyPhone(code: string) {
 }
 
 export function setProfilePublicVisibility(
-  setting: ProfilePublicVisibilitySetting
+  profilePublicVisibility: ProfilePublicVisibility
 ) {
   const req = new SetProfilePublicVisibilityReq();
-  req.setSetting(setting);
+  req.setProfilePublicVisibility(profilePublicVisibility);
   return client.account.setProfilePublicVisibility(req);
 }

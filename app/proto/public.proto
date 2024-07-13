@@ -6,12 +6,11 @@ import "google/api/annotations.proto";
 import "google/api/httpbody.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
 import "api.proto";
 
-service Auth {
+service Public {
   option (auth_level) = AUTH_LEVEL_OPEN;
 
   rpc GetPublicUsers(google.protobuf.Empty) returns (google.api.HttpBody) {
@@ -29,101 +28,53 @@ message GetPublicUserReq {
 }
 
 message LimitedUser {
-  // int64 user_id = 1;
-  string username = 2;
-  string name = 3;
-  string city = 4;
-  string hometown = 100;
+  string username = 1;
+  string name = 2;
+  string city = 3;
+  string hometown = 4;
 
-  string timezone = 122;
+  uint32 num_references = 5;
+  google.protobuf.Timestamp joined = 6; // not exact
+  org.couchers.api.core.HostingStatus hosting_status = 7;
+  org.couchers.api.core.MeetupStatus meetup_status = 8;
 
-  double lat = 33;
-  double lng = 34;
-  double radius = 35; // meters
+  repeated string badges = 9;
+}
 
-  uint32 num_references = 7;
-  string gender = 8;
-  string pronouns = 101;
+message MostUser {
+  string username = 1;
+  string name = 2;
+  string city = 3;
+  string hometown = 4;
+
+  string timezone = 5;
+
+  uint32 num_references = 6;
+  string gender = 7;
+  string pronouns = 8;
   uint32 age = 9;
-  google.protobuf.Timestamp joined = 11; // not exact
-  org.couchers.api.core.HostingStatus hosting_status = 13;
-  org.couchers.api.core.MeetupStatus meetup_status = 102;
+  google.protobuf.Timestamp joined = 10; // not exact
+  google.protobuf.Timestamp last_active = 11; // not exact
+  org.couchers.api.core.HostingStatus hosting_status = 12;
+  org.couchers.api.core.MeetupStatus meetup_status = 13;
+  string occupation = 14;
+  string education = 15; // CommonMark without images
+  string about_me = 16; // CommonMark without images
+  string things_i_like = 17; // CommonMark without images
+  repeated string regions_visited = 18;
+  repeated string regions_lived = 19;
 
-  repeated string badges = 38;
+  string avatar_url = 20;
+  string avatar_thumbnail_url = 21;
+  repeated org.couchers.api.core.LanguageAbility language_abilities = 22;
+
+  repeated string badges = 23;
 }
 
 message GetPublicUserRes {
-  // int64 user_id = 1;
-  string username = 2;
-  string name = 3;
-  string city = 4;
-  string hometown = 100;
-
-  // the user's time zonename derived from their coordinates, for example "Australia/Melbourne"
-  string timezone = 122;
-
-  // doubles are enough to describe lat/lng
-  // in EPSG4326, lat & lon are in degress, check the EPS4326 definition for details
-  // returned as 0.0 (default) if these are not set, note this should only happen with incomplete profiles!
-  double lat = 33;
-  double lng = 34;
-  double radius = 35; // meters
-
-  // double verification = 5; // 1.0 if phone number verified, 0.0 otherwise
-  // double community_standing = 6;
-  uint32 num_references = 7;
-  string gender = 8;
-  string pronouns = 101;
-  uint32 age = 9;
-  google.protobuf.Timestamp joined = 11; // not exact
-  google.protobuf.Timestamp last_active = 12; // not exact
-  org.couchers.api.core.HostingStatus hosting_status = 13;
-  org.couchers.api.core.MeetupStatus meetup_status = 102;
-  string occupation = 14;
-  string education = 103; // CommonMark without images
-  string about_me = 15; // CommonMark without images
-  string my_travels = 104; // CommonMark without images
-  string things_i_like = 105; // CommonMark without images
-  string about_place = 16; // CommonMark without images
-  repeated string regions_visited = 40;
-  repeated string regions_lived = 41;
-  string additional_information = 106; // CommonMark without images
-
-  // FriendshipStatus friends = 20;
-  // only present if friends == FriendshipStatus.PENDING
-  // FriendRequest pending_friend_request = 36;
-
-  google.protobuf.UInt32Value max_guests = 22;
-  google.protobuf.BoolValue last_minute = 24;
-  google.protobuf.BoolValue has_pets = 107;
-  google.protobuf.BoolValue accepts_pets = 25;
-  google.protobuf.StringValue pet_details = 108;
-  google.protobuf.BoolValue has_kids = 109;
-  google.protobuf.BoolValue accepts_kids = 26;
-  google.protobuf.StringValue kid_details = 110;
-  google.protobuf.BoolValue has_housemates = 111;
-  google.protobuf.StringValue housemate_details = 112;
-  google.protobuf.BoolValue wheelchair_accessible = 27;
-  org.couchers.api.core.SmokingLocation smoking_allowed = 28;
-  google.protobuf.BoolValue smokes_at_home = 113;
-  google.protobuf.BoolValue drinking_allowed = 114;
-  google.protobuf.BoolValue drinks_at_home = 115;
-  google.protobuf.StringValue other_host_info = 116; // CommonMark without images
-  org.couchers.api.core.SleepingArrangement sleeping_arrangement = 117;
-  google.protobuf.StringValue sleeping_details = 118; // CommonMark without images
-  google.protobuf.StringValue area = 30; // CommonMark without images
-  google.protobuf.StringValue house_rules = 31; // CommonMark without images
-  google.protobuf.BoolValue parking = 119;
-  org.couchers.api.core.ParkingDetails parking_details = 120; // CommonMark without images
-  google.protobuf.BoolValue camping_ok = 121;
-
-  string avatar_url = 32;
-  string avatar_thumbnail_url = 44;
-  repeated org.couchers.api.core.LanguageAbility language_abilities = 37;
-
-  repeated string badges = 38;
-
-  bool has_strong_verification = 39;
-  org.couchers.api.core.BirthdateVerificationStatus birthdate_verification_status = 42;
-  org.couchers.api.core.GenderVerificationStatus gender_verification_status = 43;
+  oneof profile {
+    LimitedUser limited_user = 1;
+    MostUser most_user = 2;
+    org.couchers.api.core.User full_user = 3;
+  }
 }

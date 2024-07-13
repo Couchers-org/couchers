@@ -11,10 +11,8 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { TFunction, Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
-import {
-  GetAccountInfoRes,
-  ProfilePublicVisibilitySetting,
-} from "proto/account_pb";
+import { GetAccountInfoRes, ProfilePublicVisibility } from "proto/account_pb";
+import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
@@ -31,7 +29,7 @@ export default function ProfileVisibility({
   const { t } = useTranslation([GLOBAL, AUTH]);
 
   const { handleSubmit, reset, control } =
-    useForm<{ choice: ProfilePublicVisibilitySetting }>();
+    useForm<{ choice: ProfilePublicVisibility }>();
 
   const onSubmit = handleSubmit(({ choice }) => {
     mutate(choice);
@@ -41,36 +39,39 @@ export default function ProfileVisibility({
   const { error, isLoading, mutate } = useMutation<
     Empty,
     RpcError,
-    ProfilePublicVisibilitySetting
+    ProfilePublicVisibility
   >(service.account.setProfilePublicVisibility, {
     onSuccess: () => {
       queryClient.invalidateQueries(accountInfoQueryKey);
-      reset();
     },
   });
 
   const choices: [number, Parameters<TFunction<"auth", undefined>>[0]][] = [
     [
-      ProfilePublicVisibilitySetting.PROFILE_PUBLIC_VISIBILITY_SETTING_NOTHING,
+      ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_NOTHING,
       "auth:profile_visibility.visiblility_options.nothing",
     ],
     [
-      ProfilePublicVisibilitySetting.PROFILE_PUBLIC_VISIBILITY_SETTING_MAP_ONLY,
+      ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_MAP_ONLY,
       "auth:profile_visibility.visiblility_options.map_only",
     ],
     [
-      ProfilePublicVisibilitySetting.PROFILE_PUBLIC_VISIBILITY_SETTING_LIMITED,
+      ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_LIMITED,
       "auth:profile_visibility.visiblility_options.limited",
     ],
     [
-      ProfilePublicVisibilitySetting.PROFILE_PUBLIC_VISIBILITY_SETTING_MOST,
+      ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_MOST,
       "auth:profile_visibility.visiblility_options.most",
     ],
     [
-      ProfilePublicVisibilitySetting.PROFILE_PUBLIC_VISIBILITY_SETTING_FULL,
+      ProfilePublicVisibility.PROFILE_PUBLIC_VISIBILITY_FULL,
       "auth:profile_visibility.visiblility_options.full_profile",
     ],
   ];
+
+  useEffect(() => {
+    reset({ choice: accountInfo.profilePublicVisibility });
+  }, [accountInfo, reset]);
 
   return (
     <div className={className}>
@@ -82,32 +83,31 @@ export default function ProfileVisibility({
       <form onSubmit={onSubmit}>
         <Controller
           control={control}
-          defaultValue={accountInfo.profileVisibility}
+          defaultValue={accountInfo.profilePublicVisibility}
           name="choice"
           render={({ onChange, value }) => (
-              <RadioGroup
-                name="profileVisibility"
-                value={value}
-                onChange={(event) => onChange(Number(event.target.value))}
-              >
-                {choices.map(([setting, translationKey]) => (
-                  <FormControlLabel
-                    key={setting}
-                    value={setting}
-                    control={<Radio />}
-                    label={
-                      <Trans
-                        t={t}
-                        i18nKey={translationKey}
-                        components={{ "1": <strong /> }}
-                      />
-                    }
-                  />
-                ))}
-              </RadioGroup>
+            <RadioGroup
+              name="profileVisibility"
+              value={value}
+              onChange={(event) => onChange(Number(event.target.value))}
+            >
+              {choices.map(([setting, translationKey]) => (
+                <FormControlLabel
+                  key={setting}
+                  value={setting}
+                  control={<Radio />}
+                  label={
+                    <Trans
+                      t={t}
+                      i18nKey={translationKey}
+                      components={{ "1": <strong /> }}
+                    />
+                  }
+                />
+              ))}
+            </RadioGroup>
           )}
         />
-
         <Button
           type="submit"
           variant="contained"

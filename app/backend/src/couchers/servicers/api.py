@@ -733,6 +733,7 @@ class API(api_pb2_grpc.APIServicer):
 
 
 def user_model_to_pb(db_user, session, context):
+    # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
     num_references = session.execute(
         select(func.count())
         .select_from(Reference)
