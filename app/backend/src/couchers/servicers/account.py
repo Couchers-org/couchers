@@ -60,21 +60,21 @@ contributeoption2api = {
 }
 
 profilepublicitysetting2sql = {
-    account_pb2.PROFILE_PUBLICITY_SETTING_UNKNOWN: None,
-    account_pb2.PROFILE_PUBLICITY_SETTING_NOTHING: ProfilePublicitySetting.nothing,
-    account_pb2.PROFILE_PUBLICITY_SETTING_MAP_ONLY: ProfilePublicitySetting.map_only,
-    account_pb2.PROFILE_PUBLICITY_SETTING_LIMITED: ProfilePublicitySetting.limited,
-    account_pb2.PROFILE_PUBLICITY_SETTING_MOST: ProfilePublicitySetting.most,
-    account_pb2.PROFILE_PUBLICITY_SETTING_FULL: ProfilePublicitySetting.full,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_UNKNOWN: None,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_NOTHING: ProfilePublicitySetting.nothing,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_MAP_ONLY: ProfilePublicitySetting.map_only,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_LIMITED: ProfilePublicitySetting.limited,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_MOST: ProfilePublicitySetting.most,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_FULL: ProfilePublicitySetting.full,
 }
 
 profilepublicitysetting2api = {
-    None: account_pb2.PROFILE_PUBLICITY_SETTING_UNKNOWN,
-    ProfilePublicitySetting.nothing: account_pb2.PROFILE_PUBLICITY_SETTING_NOTHING,
-    ProfilePublicitySetting.map_only: account_pb2.PROFILE_PUBLICITY_SETTING_MAP_ONLY,
-    ProfilePublicitySetting.limited: account_pb2.PROFILE_PUBLICITY_SETTING_LIMITED,
-    ProfilePublicitySetting.most: account_pb2.PROFILE_PUBLICITY_SETTING_MOST,
-    ProfilePublicitySetting.full: account_pb2.PROFILE_PUBLICITY_SETTING_FULL,
+    None: account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_UNKNOWN,
+    ProfilePublicitySetting.nothing: account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_NOTHING,
+    ProfilePublicitySetting.map_only: account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_MAP_ONLY,
+    ProfilePublicitySetting.limited: account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_LIMITED,
+    ProfilePublicitySetting.most: account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_MOST,
+    ProfilePublicitySetting.full: account_pb2.PROFILE_PUBLIC_VISIBILITY_SETTING_FULL,
 }
 
 

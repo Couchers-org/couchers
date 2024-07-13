@@ -68,7 +68,7 @@ service Account {
     // Sends email with confirmation link containing token to delete account
   }
 
-  rpc SetProfilePublicity(SetProfilePublicityReq) returns (google.protobuf.Empty) {
+  rpc SetProfilePublicVisibility(SetProfilePublicVisibilityReq) returns (google.protobuf.Empty) {
     // Set what info is shown to logged-out users
   }
 }
@@ -98,6 +98,8 @@ message GetAccountInfoRes {
 
   // whether the user has all non-security emails off
   bool do_not_email = 13;
+
+  ProfilePublicVisibilitySetting profile_visibility = 14;
 }
 
 message ChangePasswordV2Req {
@@ -160,15 +162,15 @@ message DeleteAccountReq {
   string reason = 2;
 }
 
-enum ProfilePublicitySetting {
-  PROFILE_PUBLICITY_SETTING_UNKNOWN = 0;
-  PROFILE_PUBLICITY_SETTING_NOTHING = 1;
-  PROFILE_PUBLICITY_SETTING_MAP_ONLY = 2;
-  PROFILE_PUBLICITY_SETTING_LIMITED = 3;
-  PROFILE_PUBLICITY_SETTING_MOST = 4;
-  PROFILE_PUBLICITY_SETTING_FULL = 5;
+enum ProfilePublicVisibilitySetting {
+  PROFILE_PUBLIC_VISIBILITY_SETTING_UNKNOWN = 0;
+  PROFILE_PUBLIC_VISIBILITY_SETTING_NOTHING = 1;
+  PROFILE_PUBLIC_VISIBILITY_SETTING_MAP_ONLY = 2;
+  PROFILE_PUBLIC_VISIBILITY_SETTING_LIMITED = 3;
+  PROFILE_PUBLIC_VISIBILITY_SETTING_MOST = 4;
+  PROFILE_PUBLIC_VISIBILITY_SETTING_FULL = 5;
 }
 
-message SetProfilePublicityReq {
-  ProfilePublicitySetting setting = 1;
+message SetProfilePublicVisibilityReq {
+  ProfilePublicVisibilitySetting setting = 1;
 }

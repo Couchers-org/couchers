@@ -719,3 +719,6 @@ def test_multiple_delete_tokens(db):
 
     with session_scope() as session:
         assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
+
+def test_profile_public_visibility(db):
+    pass

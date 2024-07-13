@@ -5,6 +5,8 @@ import {
   ChangePhoneReq,
   DeleteAccountReq,
   FillContributorFormReq,
+  ProfilePublicVisibilitySetting,
+  SetProfilePublicVisibilityReq,
   VerifyPhoneReq,
 } from "proto/account_pb";
 import {
@@ -99,4 +101,12 @@ export function verifyPhone(code: string) {
   const req = new VerifyPhoneReq();
   req.setToken(code);
   return client.account.verifyPhone(req);
+}
+
+export function setProfilePublicVisibility(
+  setting: ProfilePublicVisibilitySetting
+) {
+  const req = new SetProfilePublicVisibilityReq();
+  req.setSetting(setting);
+  return client.account.setProfilePublicVisibility(req);
 }
