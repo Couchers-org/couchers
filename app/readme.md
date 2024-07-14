@@ -81,6 +81,12 @@ This will take a moment, after which you can go to <http://localhost:3000/>, and
 
 ### I'm having difficulty with setup or coding
 
+#### seeing errors regarding migrations for db
+
+* Stop postgres docker container
+* Delete the `postgres` folder in `app/data`
+* Re-run `docker-compose up --build`
+
 If you have **any trouble**, send Aapeli or Lucas a message on Slack. They're more than happy to spend a bit of time helping you set things up!
 
 ### How do I log in or sign up when developing?

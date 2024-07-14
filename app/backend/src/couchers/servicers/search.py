@@ -11,6 +11,7 @@ from couchers.db import session_scope
 from couchers.models import Cluster, Event, EventOccurrence, Node, Page, PageType, PageVersion, Reference, User
 from couchers.servicers.api import (
     hostingstatus2sql,
+    meetupstatus2sql,
     parkingdetails2sql,
     sleepingarrangement2sql,
     smokinglocation2sql,
@@ -397,6 +398,10 @@ class Search(search_pb2_grpc.SearchServicer):
             if len(request.hosting_status_filter) > 0:
                 statement = statement.where(
                     User.hosting_status.in_([hostingstatus2sql[status] for status in request.hosting_status_filter])
+                )
+            if len(request.meetup_status_filter) > 0:
+                statement = statement.where(
+                    User.meetup_status.in_([meetupstatus2sql[status] for status in request.meetup_status_filter])
                 )
             if len(request.smoking_location_filter) > 0:
                 statement = statement.where(
