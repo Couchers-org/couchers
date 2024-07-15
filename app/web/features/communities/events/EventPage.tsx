@@ -6,8 +6,8 @@ import {
   Link as MuiLink,
   Theme,
   Typography,
-  Snackbar,
 } from "@material-ui/core";
+import Snackbar from "components/Snackbar";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -230,18 +230,12 @@ export default function EventPage({
         </Alert>
       )}
 
-      <Snackbar
-        className={classes.snackBar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        open={showInviteCommunitySuccess}
-        autoHideDuration={5000}
-        onClose={() => setShowInviteCommunitySuccess(false)}
-        children={
-          <Alert className={classes.snackBar} severity="success">
-            {t("communities:invite_community_dialog.toast_success")}
-          </Alert>
-        }
-      />
+      {showInviteCommunitySuccess && (
+        <Snackbar
+          severity="success"
+          children={t("communities:invite_community_dialog.toast_success")}
+        />
+      )}
 
       {isLoading ? (
         <CircularProgress />
@@ -328,12 +322,10 @@ export default function EventPage({
                       {t("communities:invite_community_dialog_buttons.open")}
                     </Button>
                     <InviteCommunityDialog
+                      afterSuccess={() => setShowInviteCommunitySuccess(true)}
                       open={inviteCommunityDialogIsOpen}
                       onClose={() => setInviteCommunityDialogIsOpen(false)}
                       eventId={eventId}
-                      afterSuccess={() => {
-                        setShowInviteCommunitySuccess(true);
-                      }}
                     />
                   </>
                 ) : null}
