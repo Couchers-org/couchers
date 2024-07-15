@@ -370,6 +370,14 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 logger.debug("Didn't find user")
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.ACCOUNT_NOT_FOUND)
 
+    def GetAuthState(self, request, context):
+        if not context.user_id:
+            return auth_pb2.GetAuthStateRes(logged_in=False)
+        else:
+            with session_scope() as session:
+                user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+                return auth_pb2.GetAuthStateRes(logged_in=True, auth_res=_auth_res(user))
+
     def Deauthenticate(self, request, context):
         """
         Removes an active cookie session.

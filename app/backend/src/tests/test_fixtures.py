@@ -386,7 +386,7 @@ def auth_api_session():
     This needs to use the real server since it plays around with headers
     """
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor)
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
         auth_pb2_grpc.add_AuthServicer_to_server(Auth(), server)
         server.start()

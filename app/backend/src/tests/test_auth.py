@@ -938,4 +938,34 @@ def test_opt_out_of_newsletter(db, opt_out):
         assert user.opt_out_of_newsletter == opt_out
 
 
+def test_GetAuthState(db):
+    user, token = generate_user()
+    jailed_user, jailed_token = generate_user(accepted_tos=0)
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.GetAuthState(empty_pb2.Empty())
+        assert not res.logged_in
+        assert not res.HasField("auth_res")
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.GetAuthState(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}"),))
+        assert res.logged_in
+        assert res.HasField("auth_res")
+        assert res.auth_res.user_id == user.id
+        assert not res.auth_res.jailed
+
+        auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}"),))
+
+        res = auth_api.GetAuthState(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}"),))
+        assert not res.logged_in
+        assert not res.HasField("auth_res")
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.GetAuthState(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={jailed_token}"),))
+        assert res.logged_in
+        assert res.HasField("auth_res")
+        assert res.auth_res.user_id == jailed_user.id
+        assert res.auth_res.jailed
+
+
 # tests for ConfirmChangeEmail within test_account.py tests for test_ChangeEmail_*
