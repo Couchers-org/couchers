@@ -233,8 +233,9 @@ export default function EventPage({
       {showInviteCommunitySuccess && (
         <Snackbar
           severity="success"
-          children={t("communities:invite_community_dialog.toast_success")}
-        />
+        >
+          {t("communities:invite_community_dialog.toast_success")}
+        </Snackbar>
       )}
 
       {isLoading ? (
