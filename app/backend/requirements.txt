@@ -35,7 +35,7 @@ distlib==0.3.8
     # via virtualenv
 filelock==3.14.0
     # via virtualenv
-geoalchemy2==0.15.1
+geoalchemy2==0.15.2
     # via -r requirements.in
 greenlet==3.0.3
     # via sqlalchemy
