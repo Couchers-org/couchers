@@ -68,6 +68,10 @@ export async function passwordLogin(
   return res.toObject();
 }
 
+export async function getAuthState() {
+  return (await client.auth.getAuthState(new Empty())).toObject();
+}
+
 /**
  * Returns User record of logged in user
  *
