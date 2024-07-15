@@ -57,6 +57,12 @@ service Auth {
     // Log in with username + password
   }
 
+  rpc GetAuthState(google.protobuf.Empty) returns (GetAuthStateRes) {
+    // Get info on current authentication state
+    // we need this because the web client does not have access to the non-JS cookie that contains this info, so it
+    // needs to be validated against the backend
+  }
+
   rpc Deauthenticate(google.protobuf.Empty) returns (google.protobuf.Empty) {
     // Invalidate a session, deauthing a user
   }
@@ -171,6 +177,12 @@ message AuthRes {
   // whether the user has to complete some additional steps to continue to the
   // platform
   bool jailed = 2;
+}
+
+message GetAuthStateRes {
+  bool logged_in = 1;
+  // only filled out if logged_in is true
+  AuthRes auth_res = 2;
 }
 
 message ResetPasswordReq {
