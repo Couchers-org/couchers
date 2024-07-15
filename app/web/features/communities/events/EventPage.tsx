@@ -77,9 +77,6 @@ export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
       width: "3.125rem",
       height: "3.125rem",
     },
-    snackBar: {
-      fontSize: "0.9rem !important",
-    },
     eventTitle: {
       gridArea: "eventTitle",
     },
@@ -231,9 +228,7 @@ export default function EventPage({
       )}
 
       {showInviteCommunitySuccess && (
-        <Snackbar
-          severity="success"
-        >
+        <Snackbar severity="success">
           {t("communities:invite_community_dialog.toast_success")}
         </Snackbar>
       )}
