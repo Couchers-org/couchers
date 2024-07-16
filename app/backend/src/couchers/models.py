@@ -175,7 +175,6 @@ class User(Base):
     things_i_like = Column(String, nullable=True)  # CommonMark without images
     about_place = Column(String, nullable=True)  # CommonMark without images
     additional_information = Column(String, nullable=True)  # CommonMark without images
-
     is_banned = Column(Boolean, nullable=False, server_default=text("false"))
     is_deleted = Column(Boolean, nullable=False, server_default=text("false"))
     is_superuser = Column(Boolean, nullable=False, server_default=text("false"))
@@ -279,6 +278,9 @@ class User(Base):
 
     has_passport_sex_gender_exception = Column(Boolean, nullable=False, server_default=text("false"))
 
+    #  checking for phone verification
+    has_donated = Column(Boolean, nullable=False, server_default=text("false"))
+
     # whether this user has all emails turned off
     do_not_email = Column(Boolean, nullable=False, server_default=text("false"))
 
@@ -347,9 +349,9 @@ class User(Base):
     @hybrid_property
     def is_jailed(self):
         return (
-            (self.accepted_tos < TOS_VERSION)
-            | (self.accepted_community_guidelines < GUIDELINES_VERSION)
-            | self.is_missing_location
+                (self.accepted_tos < TOS_VERSION)
+                | (self.accepted_community_guidelines < GUIDELINES_VERSION)
+                | self.is_missing_location
         )
 
     @hybrid_property
@@ -396,14 +398,14 @@ class User(Base):
     @hybrid_property
     def phone_is_verified(self):
         return (
-            self.phone_verification_verified is not None
-            and now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
+                self.phone_verification_verified is not None
+                and now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )
 
     @phone_is_verified.expression
     def phone_is_verified(cls):
         return (cls.phone_verification_verified != None) & (
-            now() - cls.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
+                now() - cls.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )
 
     @hybrid_property
@@ -531,10 +533,10 @@ class StrongVerificationAttempt(Base):
     @hybrid_method
     def matches_gender(self, user):
         return self.is_valid & (
-            ((user.gender == "Woman") & (self.passport_sex == PassportSex.female))
-            | ((user.gender == "Man") & (self.passport_sex == PassportSex.male))
-            | (self.passport_sex == PassportSex.unspecified)
-            | (user.has_passport_sex_gender_exception == True)
+                ((user.gender == "Woman") & (self.passport_sex == PassportSex.female))
+                | ((user.gender == "Man") & (self.passport_sex == PassportSex.male))
+                | (self.passport_sex == PassportSex.unspecified)
+                | (user.has_passport_sex_gender_exception == True)
         )
 
     @hybrid_method
@@ -557,8 +559,8 @@ class StrongVerificationAttempt(Base):
             passport_last_three_document_chars,
             unique=True,
             postgresql_where=(
-                (status == StrongVerificationAttemptStatus.succeeded)
-                | (status == StrongVerificationAttemptStatus.deleted)
+                    (status == StrongVerificationAttemptStatus.succeeded)
+                    | (status == StrongVerificationAttemptStatus.deleted)
             ),
         ),
         # full data check
@@ -606,6 +608,22 @@ class StrongVerificationCallbackEvent(Base):
     verification_attempt_id = Column(ForeignKey("strong_verification_attempts.id"), nullable=False, index=True)
 
     iris_status = Column(String, nullable=False)
+
+
+class PhoneVerificationCallbackEvent(Base):
+    __tablename__ = "phone_verification_callback_events"
+
+    id = Column(BigInteger, primary_key=True)
+
+    # this is returned in the callback, and we look up the attempt via this
+    verification_attempt_token = Column(String, nullable=False, unique=True)
+
+
+    status = Column(
+        Enum(StrongVerificationAttemptStatus),
+        nullable=False,
+        default=StrongVerificationAttemptStatus.in_progress_waiting_on_user_to_open_app,
+    )
 
 
 class DonationType(enum.Enum):
@@ -759,12 +777,12 @@ class ContributorForm(Base):
         Whether the form counts as having been filled
         """
         return (
-            (self.ideas != None)
-            | (self.features != None)
-            | (self.experience != None)
-            | (self.contribute != None)
-            | (self.contribute_ways != [])
-            | (self.expertise != None)
+                (self.ideas != None)
+                | (self.features != None)
+                | (self.experience != None)
+                | (self.contribute != None)
+                | (self.contribute_ways != [])
+                | (self.expertise != None)
         )
 
     @property
@@ -834,24 +852,24 @@ class SignupFlow(Base):
     @hybrid_property
     def account_is_filled(self):
         return (
-            (self.username != None)
-            & (self.birthdate != None)
-            & (self.gender != None)
-            & (self.hosting_status != None)
-            & (self.city != None)
-            & (self.geom != None)
-            & (self.geom_radius != None)
-            & (self.accepted_tos != None)
-            & (self.opt_out_of_newsletter != None)
+                (self.username != None)
+                & (self.birthdate != None)
+                & (self.gender != None)
+                & (self.hosting_status != None)
+                & (self.city != None)
+                & (self.geom != None)
+                & (self.geom_radius != None)
+                & (self.accepted_tos != None)
+                & (self.opt_out_of_newsletter != None)
         )
 
     @hybrid_property
     def is_completed(self):
         return (
-            self.email_verified
-            & self.account_is_filled
-            & self.filled_feedback
-            & (self.accepted_community_guidelines == GUIDELINES_VERSION)
+                self.email_verified
+                & self.account_is_filled
+                & self.filled_feedback
+                & (self.accepted_community_guidelines == GUIDELINES_VERSION)
         )
 
 
@@ -980,10 +998,10 @@ class UserSession(Base):
         TODO: this probably won't run in python (instance level), only in sql (class level)
         """
         return (
-            (self.created <= func.now())
-            & (self.expiry >= func.now())
-            & (self.deleted == None)
-            & (self.long_lived | (func.now() - self.last_seen < text("interval '168 hours'")))
+                (self.created <= func.now())
+                & (self.expiry >= func.now())
+                & (self.deleted == None)
+                & (self.long_lived | (func.now() - self.last_seen < text("interval '168 hours'")))
         )
 
 
@@ -1267,17 +1285,17 @@ class HostRequest(Base):
     @hybrid_property
     def can_write_reference(self):
         return (
-            ((self.status == HostRequestStatus.confirmed) | (self.status == HostRequestStatus.accepted))
-            & (now() >= self.start_time_to_write_reference)
-            & (now() <= self.end_time_to_write_reference)
+                ((self.status == HostRequestStatus.confirmed) | (self.status == HostRequestStatus.accepted))
+                & (now() >= self.start_time_to_write_reference)
+                & (now() <= self.end_time_to_write_reference)
         )
 
     @can_write_reference.expression
     def can_write_reference(cls):
         return (
-            ((cls.status == HostRequestStatus.confirmed) | (cls.status == HostRequestStatus.accepted))
-            & (func.now() >= cls.start_time_to_write_reference)
-            & (func.now() <= cls.end_time_to_write_reference)
+                ((cls.status == HostRequestStatus.confirmed) | (cls.status == HostRequestStatus.accepted))
+                & (func.now() >= cls.start_time_to_write_reference)
+                & (func.now() <= cls.end_time_to_write_reference)
         )
 
     def __repr__(self):
@@ -2109,9 +2127,9 @@ class BackgroundJob(Base):
     @hybrid_property
     def ready_for_retry(self):
         return (
-            (self.next_attempt_after <= func.now())
-            & (self.try_count < self.max_tries)
-            & ((self.state == BackgroundJobState.pending) | (self.state == BackgroundJobState.error))
+                (self.next_attempt_after <= func.now())
+                & (self.try_count < self.max_tries)
+                & ((self.state == BackgroundJobState.pending) | (self.state == BackgroundJobState.error))
         )
 
     def __repr__(self):
