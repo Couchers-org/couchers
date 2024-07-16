@@ -455,6 +455,9 @@ preview:protos:
     - aws s3 cp app/proto/gen/python.tar.gz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$python_sum/python.tar.gz
     - aws s3 cp app/proto/gen/ts.tar.gz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$ts_sum/ts.tar.gz
     - aws s3 cp app/proto/gen/descriptors.pb s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$pb_sum/descriptors.pb
+    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key protos/$CI_COMMIT_REF_SLUG/ts.tar.gz --website-redirect-location https://protos--by-sha.$PREVIEW_DOMAIN/$ts_sum/ts.tar.gz
+    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key protos/$CI_COMMIT_REF_SLUG/python.tar.gz --website-redirect-location https://protos--by-sha.$PREVIEW_DOMAIN/$python_sum/python.tar.gz
+    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key protos/$CI_COMMIT_REF_SLUG/descriptors.pb --website-redirect-location https://protos--by-sha.$PREVIEW_DOMAIN/$pb_sum/descriptors.pb
     - >
       echo '<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:monospace}</style></head><body>'
       '<h1>Couchers generated protos @ <a href="https://github.com/Couchers-org/couchers/commit/'$CI_COMMIT_SHA'">'$CI_COMMIT_SHORT_SHA'</a>.</h1>'
@@ -463,7 +466,14 @@ preview:protos:
       '<li><a href="https://protos--by-sha.'$PREVIEW_DOMAIN'/'$python_sum'/python.tar.gz">Python (sha256: '$python_sum')</a></li>'
       '<li><a href="https://protos--by-sha.'$PREVIEW_DOMAIN'/'$ts_sum'/ts.tar.gz">TypeScript (sha256: '$ts_sum')</a></li>'
       '<li><a href="https://protos--by-sha.'$PREVIEW_DOMAIN'/'$pb_sum'/descriptors.pb">Descriptors (sha256: '$pb_sum')</a></li>'
-      '</ul></body></html>' > app/proto/gen/index.html
+      '</ul>'
+      '<p>Redirects to latest protos on slug '$CI_COMMIT_REF_SLUG':</p>'
+      '<ul>'
+      '<li><a href="https://'$CI_COMMIT_REF_SLUG'--protos.'$PREVIEW_DOMAIN'/python.tar.gz">Python</a></li>'
+      '<li><a href="https://'$CI_COMMIT_REF_SLUG'--protos.'$PREVIEW_DOMAIN'/ts.tar.gz">TypeScript</a></li>'
+      '<li><a href="https://'$CI_COMMIT_REF_SLUG'--protos.'$PREVIEW_DOMAIN'/descriptors.pb">Descriptors</a></li>'
+      '</ul>'
+      '</body></html>' > app/proto/gen/index.html
     - aws s3 cp app/proto/gen/index.html s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_SHORT_SHA/
     - aws s3 cp app/proto/gen/index.html s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_REF_SLUG/
     - echo "Done, protos available at https://$CI_COMMIT_SHORT_SHA--protos.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--protos.$PREVIEW_DOMAIN/"
