@@ -265,6 +265,7 @@ message User {
   google.protobuf.BoolValue parking = 119;
   ParkingDetails parking_details = 120; // CommonMark without images
   google.protobuf.BoolValue camping_ok = 121;
+  google.protobuf.BoolValue has_donated = 123;
 
   string avatar_url = 32;
   string avatar_thumbnail_url = 44;
@@ -273,7 +274,6 @@ message User {
   repeated string badges = 38;
 
   bool has_strong_verification = 39;
-  bool has_donated = 123;
   BirthdateVerificationStatus birthdate_verification_status = 42;
   GenderVerificationStatus gender_verification_status = 43;
 }
