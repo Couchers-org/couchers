@@ -6,6 +6,7 @@ import {
 import { HostingStatus } from "proto/api_pb";
 import { Area, UserSearchReq } from "proto/search_pb";
 import client from "service/client";
+import { BoolValue } from "google-protobuf/google/protobuf/wrappers_pb";
 
 export interface UserSearchFilters {
   query?: string;
@@ -16,6 +17,7 @@ export interface UserSearchFilters {
   hostingStatusOptions?: HostingStatus[];
   numGuests?: number;
   bbox?: [number, number, number, number];
+  completeProfile?: boolean;
 }
 
 export async function userSearch(
@@ -27,9 +29,24 @@ export async function userSearch(
     lastActive,
     hostingStatusOptions,
     numGuests,
+    completeProfile,
   }: UserSearchFilters,
   pageToken = ""
 ) {
+
+  /*
+  console.debug('---------------');
+
+  console.debug(query);
+  console.debug(lat);
+  console.debug(lng);
+  console.debug(radius);
+  console.debug(lastActive);
+  console.debug(hostingStatusOptions); // here 0 when from 'any' to other value and then back to 'any' again
+  console.debug(numGuests);
+  console.debug(pageToken);
+  */
+
   const req = new UserSearchReq();
   req.setPageToken(pageToken);
 
@@ -51,6 +68,10 @@ export async function userSearch(
     const timestamp = new Timestamp();
     timestamp.fromDate(new Date(Date.now() - 1000 * 60 * 60 * 24 * lastActive));
     req.setLastActive(timestamp);
+  }
+
+  if (completeProfile) {
+    req.setProfileCompleted(new BoolValue().setValue(completeProfile));
   }
 
   if (hostingStatusOptions && hostingStatusOptions.length !== 0) {

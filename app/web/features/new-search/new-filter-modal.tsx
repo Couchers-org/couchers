@@ -76,7 +76,7 @@ import {
   interface FilterModalFormData
     extends Omit<SearchFilters, "location" | "lastActive"> {
     location: GeocodeResult | "";
-    lastActive: ReturnType<typeof getLastActiveOptions>[string];
+    lastActive: ReturnType<typeof getLastActiveOptions>[any];
   }
   
   export default function NewFilterModal({
@@ -184,7 +184,7 @@ import {
                 <Select
                   id='can_host_status_filter'
                   value={hostingStatusFilter}
-                  onChange={(e) => {\
+                  onChange={(e) => {
                     setHostingStatusFilter(e.target.value);
                   }}
                   label={t("search:form.host_filters.hosting_status_field_label")}
