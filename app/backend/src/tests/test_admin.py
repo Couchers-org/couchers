@@ -162,6 +162,25 @@ def test_BanUser(db):
     assert match(rf"^{prefix_regex} {admin_note}\n$", res.admin_note)
 
 
+def test_UnbanUser(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+    admin_note = "A good reason"
+    utc_regex = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00"
+    prefix_regex = rf"\n\[{utc_regex}\] \(id: {super_user.id}, username: {super_user.username}\)"
+
+    with real_admin_session(super_token) as api:
+        res = api.UnbanUser(admin_pb2.UnbanUserReq(user=normal_user.username, admin_note=admin_note))
+    assert res.user_id == normal_user.id
+    assert res.username == normal_user.username
+    assert res.email == normal_user.email
+    assert res.gender == normal_user.gender
+    assert parse_date(res.birthdate) == normal_user.birthdate
+    assert not res.banned
+    assert not res.deleted
+    assert match(rf"^{prefix_regex} {admin_note}\n$", res.admin_note)
+
+
 def test_AddAdminNote(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, _ = generate_user()
