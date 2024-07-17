@@ -461,6 +461,19 @@ class Search(search_pb2_grpc.SearchServicer):
                         (1000 + request.search_in_area.radius) / 111111,
                     )
                 )
+            if request.HasField("search_in_viewport"):
+                statement = statement.where(
+                    func.ST_Within(
+                        User.geom,
+                        func.ST_MakeEnvelope(
+                            xmin=request.search_in_viewport.lng_min,
+                            ymin=request.search_in_viewport.lat_min,
+                            xmax=request.search_in_viewport.lng_max,
+                            ymax=request.search_in_viewport.lat_max,
+                            srid=4326,
+                        ),
+                    )
+                )
             if request.HasField("search_in_community_id"):
                 # could do a join here as well, but this is just simpler
                 node = session.execute(
