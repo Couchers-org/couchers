@@ -79,7 +79,7 @@ import {
     lastActive: ReturnType<typeof getLastActiveOptions>[any];
   }
   
-  export default function NewFilterModal({
+  export default function NewFilterDialog({
     isOpen,
     onClose,
   }: {

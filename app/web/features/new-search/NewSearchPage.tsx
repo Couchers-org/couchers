@@ -7,7 +7,7 @@ import { selectedUserZoom } from "features/search/constants";
 import { reRenderUsersOnMap } from "features/search/users";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { UserSearchRes } from "proto/search_pb";
-import NewSearchList from "./NewSearchList";
+import NewSearchList from "./NewSearchResultsList";
 import NewMapWrapper from "./NewMapWrapper";
 import { filterData } from "../search/users";
 import NewSearchBox from "./NewSearchBox";

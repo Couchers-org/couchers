@@ -11,7 +11,7 @@ import {
 } from "@material-ui/core";
 import LocationAutocomplete from "components/LocationAutocomplete";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import FilterDialog from "./FilterDialog";
+import FilterModal from "./FilterModal";
 import { mapContext } from "./SearchPage";
 import { useContext, useState } from "react";
 import TextField from "components/TextField";
@@ -49,8 +49,8 @@ export default function SearchBox() {
 
   const { control, setValue, errors, register, handleSubmit } = useForm({ mode: "onChange" });
 
-  const filterDialogJSX = (
-    <FilterDialog
+  const filterDialog = (
+    <FilterModal
       isOpen={isFiltersOpen}
       onClose={() => setIsFiltersOpen(false)}
     />
@@ -68,7 +68,7 @@ export default function SearchBox() {
           {t("search:filter_dialog.mobile_title")}
         </Button>
 
-        {filterDialogJSX}
+        {filterDialog}
       </>
     );
   }
@@ -104,7 +104,7 @@ export default function SearchBox() {
           helperText=" "
           onChange={(event) => {
             setQueryName(event.target.value);
-            setLocationResult({...locationResult, location: { lng: undefined, lat: undefined }, bbox: worldWideViewPort});
+            setLocationResult({...locationResult, location: undefined, bbox: worldWideViewPort});
           }}
           InputProps={{
             endAdornment: (
@@ -115,7 +115,7 @@ export default function SearchBox() {
                   )}
                   onClick={() => {
                     setQueryName('');
-                    setLocationResult({...locationResult, location: { lng: undefined, lat: undefined }, bbox: worldWideViewPort});
+                    setLocationResult({...locationResult, location: undefined, bbox: worldWideViewPort});
                   }}
                   size="small"
                 >
@@ -132,7 +132,7 @@ export default function SearchBox() {
             row
             onChange={(e, value) => {
               setSearchType(value as "location" | "keyword");
-              setLocationResult({...locationResult, bbox: worldWideViewPort, name: "", simplifiedName: "", location: { lng: undefined, lat: undefined }});
+              setLocationResult({...locationResult, bbox: worldWideViewPort, name: "", simplifiedName: "", location: undefined});
               setQueryName(undefined);
             }}
             value={searchType}
@@ -167,7 +167,7 @@ export default function SearchBox() {
           {t("search:filter_dialog.desktop_title")}
         </Button>
 
-        {filterDialogJSX}
+        {filterDialog}
       </div>
     </>
   );

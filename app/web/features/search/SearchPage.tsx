@@ -10,7 +10,7 @@ import { UserSearchRes } from "proto/search_pb";
 import SearchResultsList from "./SearchResultsList";
 import MapWrapper from "./MapWrapper";
 import { filterData } from "../search/users";
-import NewSearchBox from "./SearchBox";
+import SearchBox from "./SearchBox";
 import HtmlMeta from "components/HtmlMeta";
 import { useTranslation } from "i18n";
 import { User } from "proto/api_pb";
@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
  * Here will contain the context and all the business logic of the search map page, then all the components will use this context,
  * also the functions which call the API will be defined here, among other things, at the end will render the newSearchPage component 
  */
-export default function SearchPageComponent() {
+export default function SearchPage() {
   const theme = useTheme();
   const classes = useStyles();
   const map = useRef<MaplibreMap>();
@@ -220,7 +220,7 @@ export default function SearchPageComponent() {
             >
               <SearchResultsList fetchNextPage={fetchNextPage} hasNext={hasNextPage} error={errorMessage} isLoading={isLoading || isLoadingUser || isFetching} results={data as any} />
             </Collapse>
-            <NewSearchBox />
+            <SearchBox />
           </Hidden>
           <div className={classes.mapContainer}>
             <MapWrapper map={map} setSelectedResult={setSelectedResult} selectedResult={selectedResult} handleMapUserClick={handleMapUserClick} />

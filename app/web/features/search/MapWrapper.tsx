@@ -1,10 +1,12 @@
-import maplibregl, { EventData, Map as MaplibreMap } from "maplibre-gl";
-import { useCallback, useContext, useEffect, useRef, useState, Dispatch, SetStateAction } from "react";
+import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { addClusteredUsersToMap, layers } from "../search/users"; // TODO: here?
 import { usePrevious } from "utils/hooks";
 import { MutableRefObject } from "react";
 import { User } from "proto/api_pb";
 import Map from "components/Map";
+import { Point } from "geojson";
+import { Dispatch, SetStateAction } from "react";
 
 import { mapContext } from "./SearchPage";
 
@@ -129,7 +131,7 @@ export default function MapWrapper({ map, selectedResult, setSelectedResult, han
 
   return <Map
     grow
-    initialCenter={locationResult.location}
+    initialCenter={locationResult.Location}
     initialZoom={5}
     postMapInitialize={initializeMap}
     hash

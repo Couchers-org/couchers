@@ -83,7 +83,7 @@ interface mapWrapperProps {
   fetchNextPage: any
 }
 
-export default function NewSearchList({ isLoading, results, error, hasNext, fetchNextPage }: mapWrapperProps) {
+export default function NewSearchResultsList({ isLoading, results, error, hasNext, fetchNextPage }: mapWrapperProps) {
   const { selectedResult, setSelectedResult } = useContext(mapContext);
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();

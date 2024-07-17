@@ -11,7 +11,7 @@ import {
   } from "@material-ui/core";
   import LocationAutocomplete from "components/LocationAutocomplete";
   import { GLOBAL, SEARCH } from "i18n/namespaces";
-  import NewFilterModal from "./NewFilterModal";
+  import NewFilterModal from "./NewFilterDialog";
   import { mapContext } from "./NewSearchPage";
   import { useContext, useState } from "react";
   import TextField from "components/TextField";
