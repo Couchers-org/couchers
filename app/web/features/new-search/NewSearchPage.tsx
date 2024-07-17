@@ -7,10 +7,10 @@ import { selectedUserZoom } from "features/search/constants";
 import { reRenderUsersOnMap } from "features/search/users";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { UserSearchRes } from "proto/search_pb";
-import SearchResultsList from "./SearchResultsList";
-import MapWrapper from "./MapWrapper";
+import NewSearchList from "./NewSearchList";
+import NewMapWrapper from "./NewMapWrapper";
 import { filterData } from "../search/users";
-import NewSearchBox from "./SearchBox";
+import NewSearchBox from "./NewSearchBox";
 import HtmlMeta from "components/HtmlMeta";
 import { useTranslation } from "i18n";
 import { User } from "proto/api_pb";
@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
  * Here will contain the context and all the business logic of the search map page, then all the components will use this context,
  * also the functions which call the API will be defined here, among other things, at the end will render the newSearchPage component 
  */
-export default function SearchPageComponent() {
+export default function NewSearchPage() {
   const theme = useTheme();
   const classes = useStyles();
   const map = useRef<MaplibreMap>();
@@ -209,7 +209,7 @@ export default function SearchPageComponent() {
         <div className={classes.container}>
           {/* Desktop */}
           <Hidden smDown>
-            <SearchResultsList fetchNextPage={fetchNextPage} hasNext={hasNextPage} error={errorMessage} isLoading={isLoading || isLoadingUser || isFetching} results={data as any} />
+            <NewSearchList fetchNextPage={fetchNextPage} hasNext={hasNextPage} error={errorMessage} isLoading={isLoading || isLoadingUser || isFetching} results={data as any} />
           </Hidden>
           {/* Mobile */}
           <Hidden mdUp>
@@ -218,12 +218,12 @@ export default function SearchPageComponent() {
               timeout={theme.transitions.duration.standard}
               className={classes.mobileCollapse}
             >
-              <SearchResultsList fetchNextPage={fetchNextPage} hasNext={hasNextPage} error={errorMessage} isLoading={isLoading || isLoadingUser || isFetching} results={data as any} />
+              <NewSearchList fetchNextPage={fetchNextPage} hasNext={hasNextPage} error={errorMessage} isLoading={isLoading || isLoadingUser || isFetching} results={data as any} />
             </Collapse>
             <NewSearchBox />
           </Hidden>
           <div className={classes.mapContainer}>
-            <MapWrapper map={map} setSelectedResult={setSelectedResult} selectedResult={selectedResult} handleMapUserClick={handleMapUserClick} />
+            <NewMapWrapper map={map} setSelectedResult={setSelectedResult} selectedResult={selectedResult} handleMapUserClick={handleMapUserClick} />
           </div>
         </div>
       </QueryClientProvider>

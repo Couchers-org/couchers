@@ -1,5 +1,6 @@
 import { appGetLayout } from "components/AppRoute";
 import SearchPageComponent from "features/search/SearchPage";
+import NewSearchPage from "features/new-search/NewSearchPage";
 import { GLOBAL, PROFILE, SEARCH } from "i18n/namespaces";
 import { translationStaticProps } from "i18n/server-side-translations";
 import { GetStaticProps } from "next";
