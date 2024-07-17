@@ -111,7 +111,7 @@ message UserSearchReq {
     Area search_in_area = 28;
     // search inside the area defined by the community
     int64 search_in_community_id = 29;
-    RectArea search_in_viewport = 33;
+    RectArea search_in_rectangle = 33;
   }
 
   repeated org.couchers.api.core.HostingStatus hosting_status_filter = 5;

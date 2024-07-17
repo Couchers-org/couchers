@@ -462,7 +462,7 @@ class Search(search_pb2_grpc.SearchServicer):
                         (1000 + request.search_in_area.radius) / 111111,
                     )
                 )
-            if request.HasField("search_in_viewport"):
+            if request.HasField("search_in_rectangle"):
                 # TODO: Don't allow huge viewports
                 statement = statement.where(
                     func.ST_Within(

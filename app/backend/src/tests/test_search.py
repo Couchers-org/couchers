@@ -77,11 +77,9 @@ def test_regression_search_in_area(db):
         assert [result.user.user_id for result in res.results] == [user3.id, user4.id]
 
 
-def test_regression_search_in_viewport(db):
+def test_user_search_in_rectangle(db):
     """
-    Makes sure search_in_viewport works.
-
-    At the equator/prime meridian intersection (0,0), one degree is roughly 111 km.
+    Makes sure search_in_rectangle works as expected.
     """
 
     # outside
