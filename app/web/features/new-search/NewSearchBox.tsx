@@ -11,7 +11,7 @@ import {
   } from "@material-ui/core";
   import LocationAutocomplete from "components/LocationAutocomplete";
   import { GLOBAL, SEARCH } from "i18n/namespaces";
-  import NewFilterModal from "./NewFilterDialog";
+  import NewFilterDialog from "./NewFilterDialog";
   import { mapContext } from "./NewSearchPage";
   import { useContext, useState } from "react";
   import TextField from "components/TextField";
@@ -50,7 +50,7 @@ import {
     const { control, setValue, errors, register, handleSubmit } = useForm({ mode: "onChange" });
   
     const filterDialog = (
-      <NewFilterModal
+      <NewFilterDialog
         isOpen={isFiltersOpen}
         onClose={() => setIsFiltersOpen(false)}
       />
