@@ -100,7 +100,7 @@ def test_user_search_in_rectangle(db):
     with search_session(token5) as api:
         res = api.UserSearch(
             search_pb2.UserSearchReq(
-                search_in_viewport=search_pb2.RectArea(
+                search_in_rectangle=search_pb2.RectArea(
                     lat_min=0,
                     lat_max=2,
                     lng_min=0,

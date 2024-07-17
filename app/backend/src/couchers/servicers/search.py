@@ -447,7 +447,6 @@ class Search(search_pb2_grpc.SearchServicer):
                 statement = statement.where(User.camping_ok == request.camping_ok.value)
 
             if request.HasField("search_in_area"):
-                # TODO: Don't allow huge radii
                 # EPSG4326 measures distance in decimal degress
                 # we want to check whether two circles overlap, so check if the distance between their centers is less
                 # than the sum of their radii, divided by 111111 m ~= 1 degree (at the equator)
@@ -463,15 +462,14 @@ class Search(search_pb2_grpc.SearchServicer):
                     )
                 )
             if request.HasField("search_in_rectangle"):
-                # TODO: Don't allow huge viewports
                 statement = statement.where(
                     func.ST_Within(
                         User.geom,
                         func.ST_MakeEnvelope(
-                            request.search_in_viewport.lng_min,
-                            request.search_in_viewport.lat_min,
-                            request.search_in_viewport.lng_max,
-                            request.search_in_viewport.lat_max,
+                            request.search_in_rectangle.lng_min,
+                            request.search_in_rectangle.lat_min,
+                            request.search_in_rectangle.lng_max,
+                            request.search_in_rectangle.lat_max,
                             4326,
                         ),
                     )
