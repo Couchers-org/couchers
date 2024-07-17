@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package org.couchers.public;
+
+import "google/api/annotations.proto";
+import "google/api/httpbody.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+import "annotations.proto";
+import "api.proto";
+
+service Public {
+  option (auth_level) = AUTH_LEVEL_OPEN;
+
+  rpc GetPublicUsers(google.protobuf.Empty) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      get : "/geojson/public-users"
+    };
+  }
+
+  rpc GetPublicUser(GetPublicUserReq) returns (GetPublicUserRes) {}
+}
+
+message GetPublicUserReq {
+  // username only
+  string user = 1;
+}
+
+message LimitedUser {
+  string username = 1;
+  string name = 2;
+  string city = 3;
+  string hometown = 4;
+
+  uint32 num_references = 5;
+  google.protobuf.Timestamp joined = 6; // not exact
+  org.couchers.api.core.HostingStatus hosting_status = 7;
+  org.couchers.api.core.MeetupStatus meetup_status = 8;
+
+  repeated string badges = 9;
+}
+
+message MostUser {
+  string username = 1;
+  string name = 2;
+  string city = 3;
+  string hometown = 4;
+
+  string timezone = 5;
+
+  uint32 num_references = 6;
+  string gender = 7;
+  string pronouns = 8;
+  uint32 age = 9;
+  google.protobuf.Timestamp joined = 10; // not exact
+  google.protobuf.Timestamp last_active = 11; // not exact
+  org.couchers.api.core.HostingStatus hosting_status = 12;
+  org.couchers.api.core.MeetupStatus meetup_status = 13;
+  string occupation = 14;
+  string education = 15; // CommonMark without images
+  string about_me = 16; // CommonMark without images
+  string things_i_like = 17; // CommonMark without images
+  repeated string regions_visited = 18;
+  repeated string regions_lived = 19;
+
+  string avatar_url = 20;
+  string avatar_thumbnail_url = 21;
+  repeated org.couchers.api.core.LanguageAbility language_abilities = 22;
+
+  repeated string badges = 23;
+}
+
+message GetPublicUserRes {
+  oneof profile {
+    LimitedUser limited_user = 1;
+    MostUser most_user = 2;
+    org.couchers.api.core.User full_user = 3;
+  }
+}

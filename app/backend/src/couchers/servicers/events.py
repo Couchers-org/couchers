@@ -1,6 +1,5 @@
 import logging
 from datetime import timedelta
-from types import SimpleNamespace
 
 import grpc
 from google.protobuf import empty_pb2
@@ -35,6 +34,7 @@ from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
     dt_from_millis,
+    make_user_context,
     millis_from_dt,
     now,
     to_aware_datetime,
@@ -264,7 +264,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
         for user in users:
             if are_blocked(session, user.id, creator.id):
                 continue
-            context = SimpleNamespace(user_id=user.id)
+            context = make_user_context(user_id=user.id)
             notify(
                 user_id=user.id,
                 topic_action="event:create_approved" if payload.approved else "event:create_any",
@@ -291,7 +291,7 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
             logger.info(user_id)
             if are_blocked(session, user_id, updating_user.id):
                 continue
-            context = SimpleNamespace(user_id=user_id)
+            context = make_user_context(user_id=user_id)
             notify(
                 user_id=user_id,
                 topic_action="event:update",
@@ -319,7 +319,7 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
             logger.info(user_id)
             if are_blocked(session, user_id, cancelling_user.id):
                 continue
-            context = SimpleNamespace(user_id=user_id)
+            context = make_user_context(user_id=user_id)
             notify(
                 user_id=user_id,
                 topic_action="event:cancel",
@@ -342,7 +342,7 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
 
         for user_id in set(subscribed_user_ids + attending_user_ids):
             logger.info(user_id)
-            context = SimpleNamespace(user_id=user_id)
+            context = make_user_context(user_id=user_id)
             notify(
                 user_id=user_id,
                 topic_action="event:delete",
@@ -1117,7 +1117,7 @@ class Events(events_pb2_grpc.EventsServicer):
             )
             session.flush()
 
-            other_user_context = SimpleNamespace(user_id=request.user_id)
+            other_user_context = make_user_context(user_id=request.user_id)
 
             notify(
                 user_id=request.user_id,

@@ -67,6 +67,10 @@ service Account {
   rpc DeleteAccount(DeleteAccountReq) returns (google.protobuf.Empty) {
     // Sends email with confirmation link containing token to delete account
   }
+
+  rpc SetProfilePublicVisibility(SetProfilePublicVisibilityReq) returns (google.protobuf.Empty) {
+    // Set what info is shown to logged-out users
+  }
 }
 
 message GetAccountInfoRes {
@@ -94,6 +98,8 @@ message GetAccountInfoRes {
 
   // whether the user has all non-security emails off
   bool do_not_email = 13;
+
+  ProfilePublicVisibility profile_public_visibility = 14;
 }
 
 message ChangePasswordV2Req {
@@ -154,4 +160,17 @@ message GetStrongVerificationAttemptStatusRes {
 message DeleteAccountReq {
   bool confirm = 1;
   string reason = 2;
+}
+
+enum ProfilePublicVisibility {
+  PROFILE_PUBLIC_VISIBILITY_UNKNOWN = 0;
+  PROFILE_PUBLIC_VISIBILITY_NOTHING = 1;
+  PROFILE_PUBLIC_VISIBILITY_MAP_ONLY = 2;
+  PROFILE_PUBLIC_VISIBILITY_LIMITED = 3;
+  PROFILE_PUBLIC_VISIBILITY_MOST = 4;
+  PROFILE_PUBLIC_VISIBILITY_FULL = 5;
+}
+
+message SetProfilePublicVisibilityReq {
+  ProfilePublicVisibility profile_public_visibility = 1;
 }

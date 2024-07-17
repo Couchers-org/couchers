@@ -7,7 +7,7 @@ import { GetAccountInfoRes } from "proto/account_pb";
 const STRONG_VERIFICATION_URL =
   process.env.NEXT_PUBLIC_CONSOLE_BASE_URL + "/strong-verification";
 
-type ChangePhoneProps = {
+type StrongVerificationProps = {
   accountInfo: GetAccountInfoRes.AsObject;
   className?: string;
 };
@@ -15,7 +15,7 @@ type ChangePhoneProps = {
 export default function StrongVerification({
   className,
   accountInfo,
-}: ChangePhoneProps) {
+}: StrongVerificationProps) {
   const { t } = useTranslation(AUTH);
 
   return (

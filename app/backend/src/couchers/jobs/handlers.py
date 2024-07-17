@@ -5,7 +5,6 @@ Background job servicers
 import logging
 from datetime import date, timedelta
 from math import sqrt
-from types import SimpleNamespace
 from typing import List
 
 import requests
@@ -59,7 +58,7 @@ from couchers.servicers.events import (
 from couchers.servicers.requests import host_request_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
-from couchers.utils import now
+from couchers.utils import make_user_context, now
 from proto import notification_data_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
@@ -215,7 +214,7 @@ def send_message_notifications(payload):
                             author=user_model_to_pb(
                                 message.author,
                                 session,
-                                SimpleNamespace(user_id=user.id),
+                                make_user_context(user_id=user.id),
                             ),
                             message=format_title(message, group_chat, count_unseen),
                             text=message.text,
@@ -269,7 +268,7 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.flush()
 
-            context = SimpleNamespace(user_id=user.id)
+            context = make_user_context(user_id=user.id)
             notify(
                 user_id=user.id,
                 topic_action="host_request:missed_messages",
@@ -285,7 +284,7 @@ def send_request_notifications(payload):
             user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
             session.flush()
 
-            context = SimpleNamespace(user_id=user.id)
+            context = make_user_context(user_id=user.id)
             notify(
                 user_id=user.id,
                 topic_action="host_request:missed_messages",
@@ -431,7 +430,7 @@ def send_reference_reminders(payload):
                 # checked in sql
                 assert user.is_visible
                 if not are_blocked(session, user.id, other_user.id):
-                    context = SimpleNamespace(user_id=user.id)
+                    context = make_user_context(user_id=user.id)
                     notify(
                         user_id=user.id,
                         topic_action="reference:reminder_surfed" if surfed else "reference:reminder_hosted",

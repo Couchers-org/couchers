@@ -9,6 +9,7 @@ import makeStyles from "utils/makeStyles";
 import ChangePhone from "./phone/ChangePhone";
 import useAccountInfo from "./useAccountInfo";
 import StrongVerification from "./verification/StrongVerification";
+import ProfileVisibility from "./visibility/ProfileVisibility";
 
 const useStyles = makeStyles((theme) => ({
   section: {
@@ -46,6 +47,10 @@ export default function FeaturePreview() {
       ) : (
         <>
           <StrongVerification
+            className={classes.section}
+            accountInfo={accountInfo!}
+          />
+          <ProfileVisibility
             className={classes.section}
             accountInfo={accountInfo!}
           />

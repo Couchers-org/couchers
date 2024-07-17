@@ -719,3 +719,15 @@ def test_multiple_delete_tokens(db):
 
     with session_scope() as session:
         assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
+
+
+# def test_public_visibility(db):
+#     user, token = generate_user()
+
+#     with account_session(token) as account:
+#         account.SetProfilePublicVisibility(account_pb2.SetProfilePublicVisibilityReq(setting=account_pb2.PublicVisibility.))
+#         account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
+#         account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
+
+#     # pass
+#     #     res = account.GetAccountInfo(empty_pb2.Empty())

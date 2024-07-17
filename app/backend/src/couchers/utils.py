@@ -2,6 +2,7 @@ import http.cookies
 import re
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
+from types import SimpleNamespace
 from zoneinfo import ZoneInfo
 
 import pytz
@@ -284,3 +285,11 @@ def last_active_coarsen(dt):
 
 def get_tz_as_text(tz_name):
     return datetime.now(tz=ZoneInfo(tz_name)).strftime("%Z/UTC%z")
+
+
+def make_user_context(user_id):
+    return SimpleNamespace(user_id=user_id)
+
+
+def make_logged_out_context():
+    return SimpleNamespace(user_id=0)

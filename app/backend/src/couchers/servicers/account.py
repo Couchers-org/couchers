@@ -26,6 +26,7 @@ from couchers.models import (
     AccountDeletionToken,
     ContributeOption,
     ContributorForm,
+    ProfilePublicVisibility,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
     StrongVerificationCallbackEvent,
@@ -57,6 +58,24 @@ contributeoption2api = {
     ContributeOption.yes: auth_pb2.CONTRIBUTE_OPTION_YES,
     ContributeOption.maybe: auth_pb2.CONTRIBUTE_OPTION_MAYBE,
     ContributeOption.no: auth_pb2.CONTRIBUTE_OPTION_NO,
+}
+
+profilepublicitysetting2sql = {
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_UNKNOWN: None,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_NOTHING: ProfilePublicVisibility.nothing,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_MAP_ONLY: ProfilePublicVisibility.map_only,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_LIMITED: ProfilePublicVisibility.limited,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_MOST: ProfilePublicVisibility.most,
+    account_pb2.PROFILE_PUBLIC_VISIBILITY_FULL: ProfilePublicVisibility.full,
+}
+
+profilepublicitysetting2api = {
+    None: account_pb2.PROFILE_PUBLIC_VISIBILITY_UNKNOWN,
+    ProfilePublicVisibility.nothing: account_pb2.PROFILE_PUBLIC_VISIBILITY_NOTHING,
+    ProfilePublicVisibility.map_only: account_pb2.PROFILE_PUBLIC_VISIBILITY_MAP_ONLY,
+    ProfilePublicVisibility.limited: account_pb2.PROFILE_PUBLIC_VISIBILITY_LIMITED,
+    ProfilePublicVisibility.most: account_pb2.PROFILE_PUBLIC_VISIBILITY_MOST,
+    ProfilePublicVisibility.full: account_pb2.PROFILE_PUBLIC_VISIBILITY_FULL,
 }
 
 
@@ -122,6 +141,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 phone_verified=user.phone_is_verified,
                 profile_complete=user.has_completed_profile,
                 timezone=user.timezone,
+                profile_public_visibility=profilepublicitysetting2api[user.public_visibility],
                 **get_strong_verification_fields(session, user),
             )
 
@@ -455,6 +475,12 @@ class Account(account_pb2_grpc.AccountServicer):
             )
             session.add(token)
 
+        return empty_pb2.Empty()
+
+    def SetProfilePublicVisibility(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]
         return empty_pb2.Empty()
 
 
