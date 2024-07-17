@@ -42,12 +42,21 @@ export default function SearchBox() {
   const worldWideViewPort = [-61, -57, 72, 73];
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const { searchType, setSearchType, locationResult, setLocationResult, setQueryName, queryName } = useContext(mapContext) //useState<"location" | "keyword">(() => "location");
+  const {
+    searchType,
+    setSearchType,
+    locationResult,
+    setLocationResult,
+    setQueryName,
+    queryName,
+  } = useContext(mapContext); //useState<"location" | "keyword">(() => "location");
   const classes = useStyles();
   const theme = useTheme();
   const isSmDown = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const { control, setValue, errors, register, handleSubmit } = useForm({ mode: "onChange" });
+  const { control, setValue, errors, register, handleSubmit } = useForm({
+    mode: "onChange",
+  });
 
   const filterDialog = (
     <FilterDialog
@@ -79,16 +88,11 @@ export default function SearchBox() {
         <LocationAutocomplete
           control={control}
           name="location"
-          defaultValue={""}
+          defaultValue={locationResult.name}
           label={t("search:form.location_field_label")}
-          onChange={(e: any) => {
-            if (e) {
-              const firstElem = e["bbox"].shift() as number;
-              const lastElem = e["bbox"].pop() as number;
-              e["bbox"].push(firstElem);
-              e["bbox"].unshift(lastElem);
-             
-              setLocationResult(e);
+          onChange={(event) => {
+            if (event) {
+              setLocationResult(event);
             }
           }}
           fieldError={errors.location?.message}
@@ -102,9 +106,13 @@ export default function SearchBox() {
           label={t("search:form.keywords.field_label")}
           variant="standard"
           helperText=" "
-          onChange={(event) => {
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setQueryName(event.target.value);
-            setLocationResult({...locationResult, location: undefined, bbox: worldWideViewPort});
+            setLocationResult({
+              ...locationResult,
+              location: undefined,
+              bbox: worldWideViewPort,
+            });
           }}
           InputProps={{
             endAdornment: (
@@ -114,8 +122,12 @@ export default function SearchBox() {
                     "search:form.keywords.clear_field_action_a11y_label"
                   )}
                   onClick={() => {
-                    setQueryName('');
-                    setLocationResult({...locationResult, location: undefined, bbox: worldWideViewPort});
+                    setQueryName("");
+                    setLocationResult({
+                      ...locationResult,
+                      location: undefined,
+                      bbox: worldWideViewPort,
+                    });
                   }}
                   size="small"
                 >
@@ -130,9 +142,15 @@ export default function SearchBox() {
         <FormControl component="fieldset">
           <RadioGroup
             row
-            onChange={(e, value) => {
+            onChange={(event: React.ChangeEvent, value: string) => {
               setSearchType(value as "location" | "keyword");
-              setLocationResult({...locationResult, bbox: worldWideViewPort, name: "", simplifiedName: "", location: undefined});
+              setLocationResult({
+                ...locationResult,
+                bbox: worldWideViewPort,
+                name: "",
+                simplifiedName: "",
+                location: undefined,
+              });
               setQueryName(undefined);
             }}
             value={searchType}

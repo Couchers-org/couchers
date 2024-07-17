@@ -11,14 +11,28 @@ import { Dispatch, SetStateAction } from "react";
 import { mapContext } from "./SearchPage";
 
 interface mapWrapperProps {
-  selectedResult: Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined,
-  setSelectedResult: Dispatch<SetStateAction<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>>,
-  map: MutableRefObject<MaplibreMap | undefined>,
-  handleMapUserClick: (ev: maplibregl.MapMouseEvent & { features?: maplibregl.MapboxGeoJSONFeature[] | undefined; } & EventData) => void,
+  selectedResult:
+    | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
+    | undefined;
+  setSelectedResult: Dispatch<
+    SetStateAction<
+      Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
+    >
+  >;
+  map: MutableRefObject<MaplibreMap | undefined>;
+  handleMapUserClick: (
+    ev: maplibregl.MapMouseEvent & {
+      features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
+    } & EventData
+  ) => void;
 }
 
-export default function MapWrapper({ map, selectedResult, setSelectedResult, handleMapUserClick }: mapWrapperProps) {
-
+export default function MapWrapper({
+  map,
+  selectedResult,
+  setSelectedResult,
+  handleMapUserClick,
+}: mapWrapperProps) {
   // const [selectedResult, setSelectedResult] = useState<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>(undefined);
   const { locationResult } = useContext(mapContext); // if behavies weirdly, then use again the initialCoords context variable
   const previousResult = usePrevious(selectedResult);
@@ -129,11 +143,13 @@ export default function MapWrapper({ map, selectedResult, setSelectedResult, han
     });
   };
 
-  return <Map
-    grow
-    initialCenter={locationResult.Location}
-    initialZoom={5}
-    postMapInitialize={initializeMap}
-    hash
-  />
+  return (
+    <Map
+      grow
+      initialCenter={locationResult.Location}
+      initialZoom={5}
+      postMapInitialize={initializeMap}
+      hash
+    />
+  );
 }

@@ -15,10 +15,7 @@ const Dialog = () => {
   const searchFilters = useRouteWithSearchFilters("");
   return (
     <>
-      <FilterDialog
-        isOpen={true}
-        onClose={() => {}}
-      />
+      <FilterDialog isOpen={true} onClose={() => {}} />
     </>
   );
 };

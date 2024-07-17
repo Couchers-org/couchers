@@ -76,14 +76,20 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface mapWrapperProps {
-  isLoading: boolean,
-  results: InfiniteData<UserSearchRes.AsObject> | undefined,
-  error: string | undefined,
-  hasNext: any,
-  fetchNextPage: any
+  isLoading: boolean;
+  results: InfiniteData<UserSearchRes.AsObject> | undefined;
+  error: string | undefined;
+  hasNext: boolean | undefined;
+  fetchNextPage: () => void;
 }
 
-export default function SearchResultsList({ isLoading, results, error, hasNext, fetchNextPage }: mapWrapperProps) {
+export default function SearchResultsList({
+  isLoading,
+  results,
+  error,
+  hasNext,
+  fetchNextPage,
+}: mapWrapperProps) {
   const { selectedResult, setSelectedResult } = useContext(mapContext);
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
@@ -91,7 +97,6 @@ export default function SearchResultsList({ isLoading, results, error, hasNext, 
 
   return (
     <Paper className={classes.mapResults}>
-
       {error && <Alert severity="error">{error}</Alert>}
 
       <Hidden smDown>
@@ -101,13 +106,13 @@ export default function SearchResultsList({ isLoading, results, error, hasNext, 
       <>
         {isLoading && <CircularProgress className={classes.baseMargin} />}
 
-        {!isLoading && !hasAtLeastOnePageResults &&
+        {!isLoading && !hasAtLeastOnePageResults && (
           <TextBody className={classes.baseMargin}>
             {t("search_result.no_user_result_message")}
           </TextBody>
-        }
+        )}
 
-        {!isLoading && hasAtLeastOnePageResults &&
+        {!isLoading && hasAtLeastOnePageResults && (
           <HorizontalScroller
             breakpoint="sm"
             className={classes.scroller}
@@ -115,24 +120,33 @@ export default function SearchResultsList({ isLoading, results, error, hasNext, 
             fetchNext={fetchNextPage}
             hasMore={hasNext}
           >
-            {results && results.pages
-              .flatMap((page) => page.resultsList)
-              .map((result) =>
-                result.user ? (
-                  <SearchResult
-                    id={`search-result-${result.user.userId}`}
-                    className={classes.searchResult}
-                    key={result.user.userId}
-                    user={result.user}
-                    onSelect={() => {
-                      setSelectedResult({ username: result.user?.username, userId: result.user?.userId, lng: result.user?.lng, lat: result.user?.lat })
-                    }}
-                    highlight={selectedResult && result.user.userId === selectedResult.userId}
-                  />
-                ) : null
-              )}
+            {results &&
+              results.pages
+                .flatMap((page) => page.resultsList)
+                .map((result) =>
+                  result.user ? (
+                    <SearchResult
+                      id={`search-result-${result.user.userId}`}
+                      className={classes.searchResult}
+                      key={result.user.userId}
+                      user={result.user}
+                      onSelect={() => {
+                        setSelectedResult({
+                          username: result.user?.username,
+                          userId: result.user?.userId,
+                          lng: result.user?.lng,
+                          lat: result.user?.lat,
+                        });
+                      }}
+                      highlight={
+                        selectedResult &&
+                        result.user.userId === selectedResult.userId
+                      }
+                    />
+                  ) : null
+                )}
           </HorizontalScroller>
-        }
+        )}
       </>
     </Paper>
   );

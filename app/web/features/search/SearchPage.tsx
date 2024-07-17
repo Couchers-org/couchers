@@ -1,18 +1,22 @@
-import { QueryClient, QueryClientProvider, useInfiniteQuery } from "react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useInfiniteQuery,
+} from "react-query";
 import { useCallback, useEffect, useRef, useState, createContext } from "react";
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
 import maplibregl, { EventData, Map as MaplibreMap } from "maplibre-gl";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { selectedUserZoom } from "features/search/constants";
 import { reRenderUsersOnMap } from "features/search/users";
+import SearchResultsList from "./SearchResultsList";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { UserSearchRes } from "proto/search_pb";
-import SearchResultsList from "./SearchResultsList";
-import MapWrapper from "./MapWrapper";
 import { filterData } from "../search/users";
-import SearchBox from "./SearchBox";
 import HtmlMeta from "components/HtmlMeta";
 import { useTranslation } from "i18n";
+import MapWrapper from "./MapWrapper";
+import SearchBox from "./SearchBox";
 import { User } from "proto/api_pb";
 import { service } from "service";
 import { Point } from "geojson";
@@ -61,33 +65,43 @@ const useStyles = makeStyles((theme) => ({
 
 /**
  * Here will contain the context and all the business logic of the search map page, then all the components will use this context,
- * also the functions which call the API will be defined here, among other things, at the end will render the newSearchPage component 
+ * also the functions which call the API will be defined here, among other things, at the end will render the newSearchPage component
  */
-export default function SearchPage() {
-  const theme = useTheme();
-  const classes = useStyles();
-  const map = useRef<MaplibreMap>();
+export default function SearchPage({
+  locationName,
+  bbox,
+}: {
+  locationName: string;
+  bbox: [number, number, number, number];
+}) {
+  const {
+    data: userData,
+    error: errorUser,
+    isLoading: isLoadingUser,
+  } = useCurrentUser();
   const { t } = useTranslation([GLOBAL, SEARCH]);
-  const { data: userData, error: errorUser, isLoading: isLoadingUser } = useCurrentUser();
-
-  // query
   const queryClient = new QueryClient();
+  const classes = useStyles();
+  const theme = useTheme();
+  const map = useRef<MaplibreMap>();
 
   // Context
-  const [locationResult, setLocationResult] = useState<any>({
-    bbox: [0, 0, 0, 0],
+  const [locationResult, setLocationResult] = useState({
+    bbox: bbox,
     isRegion: false,
     location: { lng: undefined, lat: undefined },
-    name: "",
-    simplifiedName: ""
+    name: locationName,
+    simplifiedName: locationName,
   });
   const [queryName, setQueryName] = useState(undefined);
-  const [searchType, setSearchType] = useState('location');
+  const [searchType, setSearchType] = useState("location");
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
   const [hostingStatusFilter, setHostingStatusFilter] = useState(0);
   const [numberOfGuestsFilter, setNumberOfGuestFilter] = useState(undefined);
   const [completeProfileFilter, setCompleteProfileFilter] = useState(true);
-  const [selectedResult, setSelectedResult] = useState<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>(undefined);
+  const [selectedResult, setSelectedResult] = useState<
+    Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
+  >(undefined);
 
   const handleMapUserClick = useCallback(
     (
@@ -111,46 +125,52 @@ export default function SearchPage() {
     []
   );
 
-  const {
-    data,
-    error,
-    isLoading,
-    fetchNextPage,
-    isFetching,
-    hasNextPage,
-  } = useInfiniteQuery<UserSearchRes.AsObject, Error>(
-    [
-      'userSearch',
-      queryName,
-      locationResult?.name,
-      locationResult?.bbox,
-      lastActiveFilter,
-      hostingStatusFilter,
-      numberOfGuestsFilter,
-      completeProfileFilter
-    ],
-    ({ pageParam }) => {
-      const lastActiveComparation = parseInt(lastActiveFilter as unknown as string);
-      const hostingStatusFilterComparation = parseInt(hostingStatusFilter as unknown as string);
-      
-      return service.search.userSearch(
-        {
-          query: queryName,
-          lat: locationResult.location.lat || undefined,
-          lng: locationResult.location.lng || undefined,
-          radius: 50000,
-          lastActive: lastActiveComparation === 0 ? undefined : lastActiveFilter,
-          hostingStatusOptions: hostingStatusFilterComparation === 0 ? undefined : [hostingStatusFilter],
-          numGuests: numberOfGuestsFilter,
-          completeProfile: completeProfileFilter === false ? undefined : completeProfileFilter,
-        },
-        pageParam
-      );
-    },
-    {
-      getNextPageParam: (lastPage) => lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-    }
-  );
+  const { data, error, isLoading, fetchNextPage, isFetching, hasNextPage } =
+    useInfiniteQuery<UserSearchRes.AsObject, Error>(
+      [
+        "userSearch",
+        queryName,
+        locationResult?.name,
+        locationResult?.bbox,
+        lastActiveFilter,
+        hostingStatusFilter,
+        numberOfGuestsFilter,
+        completeProfileFilter,
+      ],
+      ({ pageParam }) => {
+        const lastActiveComparation = parseInt(
+          lastActiveFilter as unknown as string
+        );
+        const hostingStatusFilterComparation = parseInt(
+          hostingStatusFilter as unknown as string
+        );
+
+        return service.search.userSearch(
+          {
+            query: queryName,
+            lat: locationResult.location.lat || undefined,
+            lng: locationResult.location.lng || undefined,
+            radius: 50000,
+            lastActive:
+              lastActiveComparation === 0 ? undefined : lastActiveFilter,
+            hostingStatusOptions:
+              hostingStatusFilterComparation === 0
+                ? undefined
+                : [hostingStatusFilter],
+            numGuests: numberOfGuestsFilter,
+            completeProfile:
+              completeProfileFilter === false
+                ? undefined
+                : completeProfileFilter,
+          },
+          pageParam
+        );
+      },
+      {
+        getNextPageParam: (lastPage) =>
+          lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+      }
+    );
 
   // Relocate map everytime boundingbox changes
   useEffect(() => {
@@ -166,21 +186,20 @@ export default function SearchPage() {
 
       if (data) {
         const usersToRender = filterData(data);
-        reRenderUsersOnMap(
-          map.current,
-          usersToRender,
-          handleMapUserClick
-        );
+        reRenderUsersOnMap(map.current, usersToRender, handleMapUserClick);
       }
     }
-  }, [data, map.current?.loaded()])
+  }, [data, map.current?.loaded()]);
 
   // Initial bounding box
   useEffect(() => {
-    if (isLoadingUser === false && userData) {
-      map.current?.fitBounds([userData.lng, userData.lat, userData.lng, userData.lat], {
-        maxZoom: 4,
-      });
+    if (isLoadingUser === false && userData && bbox.join() === "0,0,0,0") {
+      map.current?.fitBounds(
+        [userData.lng, userData.lat, userData.lng, userData.lat],
+        {
+          maxZoom: 4,
+        }
+      );
 
       map.current?.fitBounds(map.current?.getBounds());
     }
@@ -194,22 +213,47 @@ export default function SearchPage() {
   };
 
   useEffect(() => {
-    map.current?.on('move', showBounds);
+    map.current?.on("move", showBounds);
   }, []);
 
   let errorMessage = error?.message || undefined;
   if (errorUser) {
-    errorMessage = `${errorMessage || ''} ${errorUser}`;
+    errorMessage = `${errorMessage || ""} ${errorUser}`;
   }
 
   return (
-    <mapContext.Provider value={{ searchType, setSearchType, completeProfileFilter, setCompleteProfileFilter, locationResult, selectedResult, setSelectedResult, setLocationResult, queryName, setQueryName, lastActiveFilter, setLastActiveFilter, hostingStatusFilter, setHostingStatusFilter, numberOfGuestsFilter, setNumberOfGuestFilter }}>
-      <QueryClientProvider client={queryClient}> 
+    <mapContext.Provider
+      value={{
+        searchType,
+        setSearchType,
+        completeProfileFilter,
+        setCompleteProfileFilter,
+        locationResult,
+        selectedResult,
+        setSelectedResult,
+        setLocationResult,
+        queryName,
+        setQueryName,
+        lastActiveFilter,
+        setLastActiveFilter,
+        hostingStatusFilter,
+        setHostingStatusFilter,
+        numberOfGuestsFilter,
+        setNumberOfGuestFilter,
+      }}
+    >
+      <QueryClientProvider client={queryClient}>
         <HtmlMeta title={t("global:nav.map_search")} />
         <div className={classes.container}>
           {/* Desktop */}
           <Hidden smDown>
-            <SearchResultsList fetchNextPage={fetchNextPage} hasNext={hasNextPage} error={errorMessage} isLoading={isLoading || isLoadingUser || isFetching} results={data as any} />
+            <SearchResultsList
+              fetchNextPage={fetchNextPage}
+              hasNext={hasNextPage}
+              error={errorMessage}
+              isLoading={isLoading || isLoadingUser || isFetching}
+              results={data}
+            />
           </Hidden>
           {/* Mobile */}
           <Hidden mdUp>
@@ -218,12 +262,23 @@ export default function SearchPage() {
               timeout={theme.transitions.duration.standard}
               className={classes.mobileCollapse}
             >
-              <SearchResultsList fetchNextPage={fetchNextPage} hasNext={hasNextPage} error={errorMessage} isLoading={isLoading || isLoadingUser || isFetching} results={data as any} />
+              <SearchResultsList
+                fetchNextPage={fetchNextPage}
+                hasNext={hasNextPage}
+                error={errorMessage}
+                isLoading={isLoading || isLoadingUser || isFetching}
+                results={data}
+              />
             </Collapse>
             <SearchBox />
           </Hidden>
           <div className={classes.mapContainer}>
-            <MapWrapper map={map} setSelectedResult={setSelectedResult} selectedResult={selectedResult} handleMapUserClick={handleMapUserClick} />
+            <MapWrapper
+              map={map}
+              setSelectedResult={setSelectedResult}
+              selectedResult={selectedResult}
+              handleMapUserClick={handleMapUserClick}
+            />
           </div>
         </div>
       </QueryClientProvider>

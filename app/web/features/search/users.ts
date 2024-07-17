@@ -100,7 +100,7 @@ export const layers: Record<LayerKeys, AnyLayer> = {
 
 const addPinImages = (map: MaplibreMap) => {
   if (map.hasImage("user-pin")) return;
-  
+
   map.loadImage(userPin.src, (error: Error, image: HTMLImageElement) => {
     if (error) {
       throw error;
@@ -142,7 +142,7 @@ export const filterData = (data: InfiniteData<UserSearchRes.AsObject>) => {
     })
     .filter((user): user is User.AsObject => !!user)
     .map((user) => user.userId);
-}
+};
 
 export const addClusteredUsersToMap = (
   map: MaplibreMap,

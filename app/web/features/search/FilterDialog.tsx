@@ -6,7 +6,7 @@ import {
   Typography,
   useMediaQuery,
   FormControlLabel,
-  Checkbox
+  Checkbox,
 } from "@material-ui/core";
 import {
   Dialog,
@@ -31,7 +31,7 @@ import Select from "components/Select";
 import Button from "components/Button";
 import { useContext } from "react";
 
-enum lastActiveOptions { 
+enum lastActiveOptions {
   LAST_ACTIVE_ANY = 0,
   LAST_ACTIVE_LAST_DAY = 1,
   LAST_ACTIVE_LAST_WEEK = 7,
@@ -42,18 +42,30 @@ enum lastActiveOptions {
 
 const getLastActiveOptions = (t: TFunction) => ({
   [lastActiveOptions.LAST_ACTIVE_ANY]: t("search:last_active_options.any"),
-  [lastActiveOptions.LAST_ACTIVE_LAST_DAY]: t("search:last_active_options.last_day"),
-  [lastActiveOptions.LAST_ACTIVE_LAST_WEEK]: t("search:last_active_options.last_week"),
-  [lastActiveOptions.LAST_ACTIVE_LAST_2_WEEKS]: t("search:last_active_options.last_2_weeks"),
-  [lastActiveOptions.LAST_ACTIVE_LAST_MONTH]: t("search:last_active_options.last_month"),
-  [lastActiveOptions.LAST_ACTIVE_LAST_3_MONTHS]: t("search:last_active_options.last_3_months"),
+  [lastActiveOptions.LAST_ACTIVE_LAST_DAY]: t(
+    "search:last_active_options.last_day"
+  ),
+  [lastActiveOptions.LAST_ACTIVE_LAST_WEEK]: t(
+    "search:last_active_options.last_week"
+  ),
+  [lastActiveOptions.LAST_ACTIVE_LAST_2_WEEKS]: t(
+    "search:last_active_options.last_2_weeks"
+  ),
+  [lastActiveOptions.LAST_ACTIVE_LAST_MONTH]: t(
+    "search:last_active_options.last_month"
+  ),
+  [lastActiveOptions.LAST_ACTIVE_LAST_3_MONTHS]: t(
+    "search:last_active_options.last_3_months"
+  ),
 });
 
 const hostingStatusLabels = (t: TFunction) => ({
   [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: t("global:hosting_status.any"),
   [HostingStatus.HOSTING_STATUS_CAN_HOST]: t("global:hosting_status.can_host"),
   [HostingStatus.HOSTING_STATUS_MAYBE]: t("global:hosting_status.maybe"),
-  [HostingStatus.HOSTING_STATUS_CANT_HOST]: t("global:hosting_status.cant_host"),
+  [HostingStatus.HOSTING_STATUS_CANT_HOST]: t(
+    "global:hosting_status.cant_host"
+  ),
 });
 
 const useStyles = makeStyles((theme) => ({
@@ -76,7 +88,7 @@ const useStyles = makeStyles((theme) => ({
 interface FilterModalFormData
   extends Omit<SearchFilters, "location" | "lastActive"> {
   location: GeocodeResult | "";
-  lastActive: ReturnType<typeof getLastActiveOptions>[any];
+  lastActive: ReturnType<typeof getLastActiveOptions>;
 }
 
 export default function FilterDialog({
@@ -88,7 +100,17 @@ export default function FilterDialog({
 }) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
-  const {lastActiveFilter, setLastActiveFilter, hostingStatusFilter, setHostingStatusFilter, setLocationResult, completeProfileFilter, setCompleteProfileFilter, numberOfGuestFilter, setNumberOfGuestFilter} = useContext(mapContext)
+  const {
+    lastActiveFilter,
+    setLastActiveFilter,
+    hostingStatusFilter,
+    setHostingStatusFilter,
+    setLocationResult,
+    completeProfileFilter,
+    setCompleteProfileFilter,
+    numberOfGuestFilter,
+    setNumberOfGuestFilter,
+  } = useContext(mapContext);
   const { control, handleSubmit, register, setValue, getValues, errors } =
     useForm<FilterModalFormData>({
       mode: "onBlur",
@@ -109,7 +131,12 @@ export default function FilterDialog({
           ? t("search:filter_dialog.mobile_title")
           : t("search:filter_dialog.desktop_title")}
       </DialogTitle>
-      <form onSubmit={(e) => {e.preventDefault(); onClose()}}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onClose();
+        }}
+      >
         <DialogContent>
           <div className={classes.container}>
             <LocationAutocomplete
@@ -117,13 +144,8 @@ export default function FilterDialog({
               name="location"
               defaultValue={""}
               label={t("search:form.location_field_label")}
-              onChange={(e: any) => {
+              onChange={(e) => {
                 if (e) {
-                  const firstElem = e["bbox"].shift() as number;
-                  const lastElem = e["bbox"].pop() as number;
-                  e["bbox"].push(firstElem);
-                  e["bbox"].unshift(lastElem);
-                 
                   setLocationResult(e);
                 }
               }}
@@ -165,7 +187,7 @@ export default function FilterDialog({
               </Typography>
 
               <Select
-                id='last_active_filter'
+                id="last_active_filter"
                 className={classes.marginBottom}
                 value={lastActiveFilter}
                 onChange={(e) => setLastActiveFilter(e.target.value)}
@@ -182,7 +204,7 @@ export default function FilterDialog({
               />
 
               <Select
-                id='can_host_status_filter'
+                id="can_host_status_filter"
                 value={hostingStatusFilter}
                 onChange={(e) => {
                   setHostingStatusFilter(e.target.value);
@@ -205,12 +227,12 @@ export default function FilterDialog({
                     color="primary"
                     checked={completeProfileFilter}
                     onChange={() => {
-                      setCompleteProfileFilter(!completeProfileFilter)
-                    }} />
+                      setCompleteProfileFilter(!completeProfileFilter);
+                    }}
+                  />
                 }
-                label={t('search:form.empty_profile_filters.title')}
+                label={t("search:form.empty_profile_filters.title")}
               />
-
             </Grid>
             <Grid item xs={12} md={6} className={classes.container}>
               <Typography variant="h3">
@@ -226,7 +248,7 @@ export default function FilterDialog({
                   setNumberOfGuestFilter(e.target.value);
                 }}
                 inputRef={register({
-                  valueAsNumber: true
+                  valueAsNumber: true,
                 })}
                 name="numGuests"
                 fullWidth

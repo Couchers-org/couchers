@@ -83,7 +83,7 @@ export default function Map({
 
     //don't create a new map if it exists already
     if (mapRef.current) return;
-    
+
     try {
       const map = new maplibregl.Map({
         center: initialCenter,

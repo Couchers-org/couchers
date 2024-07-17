@@ -1,8 +1,8 @@
-import { appGetLayout } from "components/AppRoute";
-import SearchPageComponent from "features/search/SearchPage";
-import NewSearchPage from "features/new-search/NewSearchPage";
-import { GLOBAL, PROFILE, SEARCH } from "i18n/namespaces";
 import { translationStaticProps } from "i18n/server-side-translations";
+import SearchPageComponent from "features/search/SearchPage";
+import { GLOBAL, PROFILE, SEARCH } from "i18n/namespaces";
+import { appGetLayout } from "components/AppRoute";
+import { useRouter } from "next/router";
 import { GetStaticProps } from "next";
 
 export const getStaticProps: GetStaticProps = translationStaticProps([
@@ -12,7 +12,17 @@ export const getStaticProps: GetStaticProps = translationStaticProps([
 ]);
 
 export default function SearchPage() {
-  return <SearchPageComponent />;
+  const router = useRouter();
+
+  const location = router.query.location || "";
+  const bbox = router.query.bbox || [0, 0, 0, 0];
+
+  return (
+    <SearchPageComponent
+      locationName={location as string}
+      bbox={bbox as [number, number, number, number]}
+    />
+  );
 }
 
 SearchPage.getLayout = appGetLayout({ noFooter: true });
