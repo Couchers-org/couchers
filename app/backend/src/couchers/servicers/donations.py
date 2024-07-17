@@ -113,7 +113,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 amount = int(data_object["amount"]) // 100
                 receipt_url = data_object["receipt_url"]
 
-                #may be check for amount to enable phone verify
+                # may be check for amount to enable phone verify
                 session.add(User(has_donated=True))
 
                 session.add(

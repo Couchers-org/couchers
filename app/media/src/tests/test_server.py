@@ -11,12 +11,11 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
+from media.server import create_app
 from nacl.bindings.crypto_generichash import generichash_blake2b_salt_personal
 from nacl.utils import random as random_bytes
 from PIL import Image
 from PIL.JpegImagePlugin import JpegImageFile
-
-from media.server import create_app
 from proto import media_pb2, media_pb2_grpc
 
 DATADIR = Path(__file__).parent / "data"
@@ -95,7 +94,9 @@ def generate_hash_signature(message: bytes, key: bytes) -> bytes:
 def generate_upload_path(request, media_server_secret_key):
     req = request.SerializeToString()
     data = urlsafe_b64encode(req).decode("utf8")
-    sig = urlsafe_b64encode(generate_hash_signature(req, media_server_secret_key)).decode("utf8")
+    sig = urlsafe_b64encode(
+        generate_hash_signature(req, media_server_secret_key)
+    ).decode("utf8")
 
     return "upload?" + urlencode({"data": data, "sig": sig})
 
@@ -137,7 +138,10 @@ def test_image_upload(client_with_secrets):
         assert jd["key"] == key
         assert jd["filename"] == f"{key}.jpg"
         assert jd["full_url"] == f"https://testing.couchers.invalid/img/full/{key}.jpg"
-        assert jd["thumbnail_url"] == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        assert (
+            jd["thumbnail_url"]
+            == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        )
 
 
 def test_image_resizing(client_with_secrets):
@@ -155,7 +159,10 @@ def test_image_resizing(client_with_secrets):
         assert jd["key"] == key
         assert jd["filename"] == f"{key}.jpg"
         assert jd["full_url"] == f"https://testing.couchers.invalid/img/full/{key}.jpg"
-        assert jd["thumbnail_url"] == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        assert (
+            jd["thumbnail_url"]
+            == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        )
 
         rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
@@ -183,7 +190,10 @@ def test_thumbnail_downscaling(client_with_secrets):
         assert jd["key"] == key
         assert jd["filename"] == f"{key}.jpg"
         assert jd["full_url"] == f"https://testing.couchers.invalid/img/full/{key}.jpg"
-        assert jd["thumbnail_url"] == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        assert (
+            jd["thumbnail_url"]
+            == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        )
 
         rv = client.get(f"/img/thumbnail/{key}.jpg")
         assert rv.status_code == 200
@@ -209,7 +219,10 @@ def test_thumbnail_downscaling_wide(client_with_secrets):
         assert jd["key"] == key
         assert jd["filename"] == f"{key}.jpg"
         assert jd["full_url"] == f"https://testing.couchers.invalid/img/full/{key}.jpg"
-        assert jd["thumbnail_url"] == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        assert (
+            jd["thumbnail_url"]
+            == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        )
 
         rv = client.get(f"/img/thumbnail/{key}.jpg")
         assert rv.status_code == 200
@@ -235,7 +248,10 @@ def test_thumbnail_downscaling_tall(client_with_secrets):
         assert jd["key"] == key
         assert jd["filename"] == f"{key}.jpg"
         assert jd["full_url"] == f"https://testing.couchers.invalid/img/full/{key}.jpg"
-        assert jd["thumbnail_url"] == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        assert (
+            jd["thumbnail_url"]
+            == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        )
 
         rv = client.get(f"/img/thumbnail/{key}.jpg")
         assert rv.status_code == 200
@@ -261,7 +277,10 @@ def test_thumbnail_upscaling(client_with_secrets):
         assert jd["key"] == key
         assert jd["filename"] == f"{key}.jpg"
         assert jd["full_url"] == f"https://testing.couchers.invalid/img/full/{key}.jpg"
-        assert jd["thumbnail_url"] == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        assert (
+            jd["thumbnail_url"]
+            == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        )
 
         rv = client.get(f"/img/thumbnail/{key}.jpg")
         assert rv.status_code == 200
@@ -316,7 +335,10 @@ def test_wrong_filename(client_with_secrets):
         assert jd["key"] == key
         assert jd["filename"] == f"{key}.jpg"
         assert jd["full_url"] == f"https://testing.couchers.invalid/img/full/{key}.jpg"
-        assert jd["thumbnail_url"] == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        assert (
+            jd["thumbnail_url"]
+            == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        )
 
         rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
@@ -343,7 +365,10 @@ def test_strips_exif(client_with_secrets):
         assert jd["key"] == key
         assert jd["filename"] == f"{key}.jpg"
         assert jd["full_url"] == f"https://testing.couchers.invalid/img/full/{key}.jpg"
-        assert jd["thumbnail_url"] == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        assert (
+            jd["thumbnail_url"]
+            == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        )
 
         rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
@@ -368,7 +393,10 @@ def test_jpg_pixel(client_with_secrets):
         assert jd["key"] == key
         assert jd["filename"] == f"{key}.jpg"
         assert jd["full_url"] == f"https://testing.couchers.invalid/img/full/{key}.jpg"
-        assert jd["thumbnail_url"] == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        assert (
+            jd["thumbnail_url"]
+            == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        )
 
         rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
@@ -391,7 +419,10 @@ def test_png_pixel(client_with_secrets):
         assert jd["key"] == key
         assert jd["filename"] == f"{key}.jpg"
         assert jd["full_url"] == f"https://testing.couchers.invalid/img/full/{key}.jpg"
-        assert jd["thumbnail_url"] == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        assert (
+            jd["thumbnail_url"]
+            == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        )
 
         rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
@@ -414,7 +445,10 @@ def test_gif_pixel(client_with_secrets):
         assert jd["key"] == key
         assert jd["filename"] == f"{key}.jpg"
         assert jd["full_url"] == f"https://testing.couchers.invalid/img/full/{key}.jpg"
-        assert jd["thumbnail_url"] == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        assert (
+            jd["thumbnail_url"]
+            == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        )
 
         rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
@@ -451,7 +485,10 @@ def test_cant_reuse(client_with_secrets):
         assert jd["key"] == key
         assert jd["filename"] == f"{key}.jpg"
         assert jd["full_url"] == f"https://testing.couchers.invalid/img/full/{key}.jpg"
-        assert jd["thumbnail_url"] == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        assert (
+            jd["thumbnail_url"]
+            == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+        )
 
         rv = client.get(f"/img/full/{key}.jpg")
         assert rv.status_code == 200
@@ -528,7 +565,10 @@ def test_cache_headers(client_with_secrets):
     assert jd["key"] == key
     assert jd["filename"] == f"{key}.jpg"
     assert jd["full_url"] == f"https://testing.couchers.invalid/img/full/{key}.jpg"
-    assert jd["thumbnail_url"] == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+    assert (
+        jd["thumbnail_url"]
+        == f"https://testing.couchers.invalid/img/thumbnail/{key}.jpg"
+    )
 
     rv = client.get(f"/img/full/{key}.jpg")
     assert rv.status_code == 200
