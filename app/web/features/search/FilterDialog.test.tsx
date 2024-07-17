@@ -16,10 +16,8 @@ const Dialog = () => {
   return (
     <>
       <FilterDialog
-        updateMapBoundingBox={() => jest.fn()}
         isOpen={true}
         onClose={() => {}}
-        searchFilters={searchFilters}
       />
     </>
   );

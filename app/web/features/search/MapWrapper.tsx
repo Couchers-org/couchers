@@ -1,14 +1,12 @@
-import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import maplibregl, { EventData, Map as MaplibreMap } from "maplibre-gl";
+import { useCallback, useContext, useEffect, useRef, useState, Dispatch, SetStateAction } from "react";
 import { addClusteredUsersToMap, layers } from "../search/users"; // TODO: here?
 import { usePrevious } from "utils/hooks";
 import { MutableRefObject } from "react";
 import { User } from "proto/api_pb";
 import Map from "components/Map";
-import { Point } from "geojson";
-import { Dispatch, SetStateAction } from "react";
 
-import { mapContext } from "./new-search-page";
+import { mapContext } from "./SearchPage";
 
 interface mapWrapperProps {
   selectedResult: Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined,
@@ -17,7 +15,7 @@ interface mapWrapperProps {
   handleMapUserClick: (ev: maplibregl.MapMouseEvent & { features?: maplibregl.MapboxGeoJSONFeature[] | undefined; } & EventData) => void,
 }
 
-export default function NewMapWrapper({ map, selectedResult, setSelectedResult, handleMapUserClick }: mapWrapperProps) {
+export default function MapWrapper({ map, selectedResult, setSelectedResult, handleMapUserClick }: mapWrapperProps) {
 
   // const [selectedResult, setSelectedResult] = useState<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>(undefined);
   const { locationResult } = useContext(mapContext); // if behavies weirdly, then use again the initialCoords context variable
@@ -131,7 +129,7 @@ export default function NewMapWrapper({ map, selectedResult, setSelectedResult, 
 
   return <Map
     grow
-    initialCenter={locationResult.Location}
+    initialCenter={locationResult.location}
     initialZoom={5}
     postMapInitialize={initializeMap}
     hash

@@ -1,5 +1,4 @@
 import {
-  debounce,
   FormControl,
   FormControlLabel,
   IconButton,
@@ -10,22 +9,18 @@ import {
   useMediaQuery,
   useTheme,
 } from "@material-ui/core";
-import classNames from "classnames";
-import Button from "components/Button";
-import { CrossIcon } from "components/Icons";
 import LocationAutocomplete from "components/LocationAutocomplete";
-import TextField from "components/TextField";
-import { searchQueryKey } from "features/queryKeys";
-import FilterDialog from "features/search/FilterDialog";
-import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
-import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { LngLat } from "maplibre-gl";
-import { ChangeEvent, useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { useQueryClient } from "react-query";
-import { GeocodeResult } from "utils/hooks";
+import FilterDialog from "./FilterDialog";
+import { mapContext } from "./SearchPage";
+import { useContext, useState } from "react";
+import TextField from "components/TextField";
+import { CrossIcon } from "components/Icons";
 import makeStyles from "utils/makeStyles";
+import { useForm } from "react-hook-form";
+import Button from "components/Button";
+import { useTranslation } from "i18n";
+import classNames from "classnames";
 
 const useStyles = makeStyles((theme) => ({
   filterDialogButtonDesktop: {
@@ -42,94 +37,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SearchBox({
-  className,
-  searchFilters,
-  updateMapBoundingBox,
-}: {
-  className?: string;
-  searchFilters: ReturnType<typeof useRouteWithSearchFilters>;
-  updateMapBoundingBox: (
-    newBoundingBox: [number, number, number, number] | undefined
-  ) => void;
-}) {
+export default function SearchBox() {
+  const className = ""; // initially were injected by props
+  const worldWideViewPort = [-61, -57, 72, 73];
   const { t } = useTranslation([GLOBAL, SEARCH]);
-  const classes = useStyles();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [searchType, setSearchType] = useState<"location" | "keyword">(() =>
-    searchFilters.active.query && !searchFilters.active.location
-      ? "keyword"
-      : "location"
-  );
+  const { searchType, setSearchType, locationResult, setLocationResult, setQueryName, queryName } = useContext(mapContext) //useState<"location" | "keyword">(() => "location");
+  const classes = useStyles();
   const theme = useTheme();
   const isSmDown = useMediaQuery(theme.breakpoints.down("sm"));
-  const queryClient = useQueryClient();
 
-  //we will useForm but all will be controlled because
-  //of shared state with FilterDialog
-  const { control, setValue, errors } = useForm({ mode: "onChange" });
+  const { control, setValue, errors, register, handleSubmit } = useForm({ mode: "onChange" });
 
-  const handleNewLocation = (value: "" | GeocodeResult) => {
-    searchFilters.remove("query");
-    setValue("query", "");
-    if (value === "") {
-      //this is true when clear button is pressed
-      //need to clear everything to avoid filters being set without location
-      searchFilters.clear();
-    } else {
-      searchFilters.change("location", value.simplifiedName);
-      searchFilters.change("lat", value.location.lat);
-      searchFilters.change("lng", value.location.lng);
-      searchFilters.change("bbox", value.bbox);
-
-      setTimeout(() => {
-        updateMapBoundingBox(value.bbox);
-      }, theme.transitions.duration.standard);
-    }
-    //necessary because we don't want to cache every search for each filter
-    //but we do want react-query to handle pagination
-    queryClient.removeQueries(searchQueryKey()); // TODO: por que??????????
-    searchFilters.apply();
-  };
-
-  const handleKeywordsChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | ""
-  ) => {
-    searchFilters.remove("location");
-    searchFilters.remove("lat");
-    searchFilters.remove("lng");
-    searchFilters.remove("bbox");
-
-    setValue("location", "");
-
-    if (event === "") {
-      searchFilters.remove("query");
-    } else {
-      if (event.target.value === "") {
-        searchFilters.remove("query");
-      } else {
-        searchFilters.change("query", event.target.value);
-      }
-    }
-    //necessary because we don't want to cache every search for each filter
-    //but we do want react-query to handle pagination
-    queryClient.removeQueries(searchQueryKey());
-    searchFilters.apply();
-  };
-  const handleKeywordsChangeDebounced = debounce(handleKeywordsChange, 500);
-
-  //in case the filters were changed in the dialog, update here
-  useEffect(() => {
-    setValue("location", searchFilters.active.location ?? "");
-    setValue("query", searchFilters.active.query ?? "");
-  }, [setValue, searchFilters.active.location, searchFilters.active.query]);
-
-  const filterDialog = (
+  const filterDialogJSX = (
     <FilterDialog
-      updateMapBoundingBox={updateMapBoundingBox}
       isOpen={isFiltersOpen}
       onClose={() => setIsFiltersOpen(false)}
-      searchFilters={searchFilters}
     />
   );
 
@@ -145,7 +68,7 @@ export default function SearchBox({
           {t("search:filter_dialog.mobile_title")}
         </Button>
 
-        {filterDialog}
+        {filterDialogJSX}
       </>
     );
   }
@@ -156,70 +79,62 @@ export default function SearchBox({
         <LocationAutocomplete
           control={control}
           name="location"
-          defaultValue={
-            searchFilters.active.location
-              ? {
-                  name: searchFilters.active.location,
-                  simplifiedName: searchFilters.active.location,
-                  location: new LngLat(
-                    searchFilters.active.lng ?? 0,
-                    searchFilters.active.lat ?? 0
-                  ),
-                  bbox: searchFilters.active.bbox ?? [0, 0, 0, 0],
-                }
-              : ""
-          }
+          defaultValue={""}
           label={t("search:form.location_field_label")}
-          onChange={handleNewLocation}
+          onChange={(e: any) => {
+            if (e) {
+              const firstElem = e["bbox"].shift() as number;
+              const lastElem = e["bbox"].pop() as number;
+              e["bbox"].push(firstElem);
+              e["bbox"].unshift(lastElem);
+             
+              setLocationResult(e);
+            }
+          }}
           fieldError={errors.location?.message}
           disableRegions
         />
       ) : (
-        <Controller
-          control={control}
-          name="query"
-          defaultValue={searchFilters.active.query ?? ""}
-          render={({ value, onChange }) => (
-            <TextField
-              fullWidth
-              id="query"
-              value={value}
-              label={t("search:form.keywords.field_label")}
-              variant="standard"
-              helperText=" "
-              onChange={(event) => {
-                onChange(event.target.value);
-                handleKeywordsChangeDebounced(event);
-              }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label={t(
-                        "search:form.keywords.clear_field_action_a11y_label"
-                      )}
-                      onClick={() => {
-                        setValue("query", "");
-                        handleKeywordsChange("");
-                      }}
-                      size="small"
-                    >
-                      <CrossIcon />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          )}
+        <TextField
+          fullWidth
+          id="query"
+          value={queryName}
+          label={t("search:form.keywords.field_label")}
+          variant="standard"
+          helperText=" "
+          onChange={(event) => {
+            setQueryName(event.target.value);
+            setLocationResult({...locationResult, location: { lng: undefined, lat: undefined }, bbox: worldWideViewPort});
+          }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label={t(
+                    "search:form.keywords.clear_field_action_a11y_label"
+                  )}
+                  onClick={() => {
+                    setQueryName('');
+                    setLocationResult({...locationResult, location: { lng: undefined, lat: undefined }, bbox: worldWideViewPort});
+                  }}
+                  size="small"
+                >
+                  <CrossIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
       )}
       <div className={classes.flexRow}>
         <FormControl component="fieldset">
           <RadioGroup
             row
-            onChange={(e, value) =>
-              setSearchType(value as "location" | "keyword")
-            }
+            onChange={(e, value) => {
+              setSearchType(value as "location" | "keyword");
+              setLocationResult({...locationResult, bbox: worldWideViewPort, name: "", simplifiedName: "", location: { lng: undefined, lat: undefined }});
+              setQueryName(undefined);
+            }}
             value={searchType}
           >
             <FormControlLabel
@@ -252,7 +167,7 @@ export default function SearchBox({
           {t("search:filter_dialog.desktop_title")}
         </Button>
 
-        {filterDialog}
+        {filterDialogJSX}
       </div>
     </>
   );

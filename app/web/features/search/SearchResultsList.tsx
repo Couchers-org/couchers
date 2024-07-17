@@ -1,24 +1,16 @@
-import { Hidden, makeStyles, Paper } from "@material-ui/core";
-import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
-import TextBody from "components/TextBody";
-import { searchQueryKey } from "features/queryKeys";
-import { selectedUserZoom } from "features/search/constants";
-import SearchBox from "features/search/SearchBox";
+import { Hidden, makeStyles, Paper } from "@material-ui/core";
+import CircularProgress from "components/CircularProgress";
 import SearchResult from "features/search/SearchResult";
-import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
-import { reRenderUsersOnMap } from "features/search/users";
-import { useUser } from "features/userQueries/useUsers";
-import { useTranslation } from "i18n";
-import { SEARCH } from "i18n/namespaces";
-import maplibregl, { Map as MaplibreMap } from "maplibre-gl";
-import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
-import { MutableRefObject } from "react";
-import { useInfiniteQuery } from "react-query";
-import { service } from "service";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+import { mapContext } from "./SearchPage";
+import SearchBox from "./SearchBox";
+import TextBody from "components/TextBody";
+import { InfiniteData } from "react-query";
+import { SEARCH } from "i18n/namespaces";
+import { useTranslation } from "i18n";
+import Alert from "components/Alert";
+import { useContext } from "react";
 
 const useStyles = makeStyles((theme) => ({
   mapResults: {
@@ -83,110 +75,29 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface SearchResultsListProps {
-  handleResultClick(user: User.AsObject): void;
-  handleMapUserClick(ev: {
-    features?: maplibregl.MapboxGeoJSONFeature[];
-  }): void;
-  map: MutableRefObject<MaplibreMap | undefined>;
-  selectedResult?: number;
-  updateMapBoundingBox: (
-    newBoundingBox: [number, number, number, number] | undefined
-  ) => void;
-  searchFilters: ReturnType<typeof useRouteWithSearchFilters>;
+interface mapWrapperProps {
+  isLoading: boolean,
+  results: InfiniteData<UserSearchRes.AsObject> | undefined,
+  error: string | undefined,
+  hasNext: any,
+  fetchNextPage: any
 }
 
-export default function SearchResultsList({
-  handleResultClick,
-  handleMapUserClick,
-  map,
-  selectedResult,
-  searchFilters,
-  updateMapBoundingBox,
-}: SearchResultsListProps) {
+export default function SearchResultsList({ isLoading, results, error, hasNext, fetchNextPage }: mapWrapperProps) {
+  const { selectedResult, setSelectedResult } = useContext(mapContext);
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
-  const selectedUser = useUser(selectedResult);
-
-  const { query, lat, lng, lastActive, hostingStatusOptions, numGuests, bbox } =
-    searchFilters.active;
-  const radius = 50000;
-
-  const {
-    data: results,
-    error,
-    isLoading,
-    fetchNextPage,
-    isFetching,
-    hasNextPage,
-  } = useInfiniteQuery<UserSearchRes.AsObject, Error>(
-    searchQueryKey(query || ""),
-    ({ pageParam }) => {
-      return service.search.userSearch(
-        {
-          lat,
-          lng,
-          radius,
-          query,
-          lastActive,
-          hostingStatusOptions,
-          numGuests,
-        },
-        pageParam
-      );
-    },
-    {
-      getNextPageParam: (lastPage) => lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-      onSuccess(results) {
-        map.current?.stop();
-
-        const resultUsers = results.pages
-          .flatMap((page) => page.resultsList)
-          .map((result) => {
-            return result.user;
-          })
-          //only return defined users
-          .filter((user): user is User.AsObject => !!user);
-
-        const setFilter = () => {
-          map.current &&
-            reRenderUsersOnMap(
-              map.current,
-              Object.keys(searchFilters.active).length > 0
-                ? resultUsers.map((user) => user.userId)
-                : null,
-              handleMapUserClick
-            );
-
-          if (bbox && bbox.join() !== "0,0,0,0") {
-            map.current?.fitBounds(bbox, {
-              maxZoom: selectedUserZoom,
-            });
-          }
-        };
-
-        if (map.current?.loaded()) {
-          setFilter();
-        } else {
-          map.current?.once("load", setFilter);
-        }
-      },
-    }
-  );
-
-  const hasAtLeastOnePageResults = hasAtLeastOnePage(results, "resultsList");
-  const isSearching = Object.keys(searchFilters.active).length !== 0;
+  const hasAtLeastOnePageResults = true;
 
   return (
     <Paper className={classes.mapResults}>
-      {error && <Alert severity="error">{error.message}</Alert>}
+
+      {error && <Alert severity="error">{error}</Alert>}
+
       <Hidden smDown>
-        <SearchBox
-          searchFilters={searchFilters}
-          updateMapBoundingBox={updateMapBoundingBox}
-        />
+        <SearchBox />
       </Hidden>
-      {isSearching ? (
+
       <>
         {isLoading && <CircularProgress className={classes.baseMargin} />}
 
@@ -200,11 +111,11 @@ export default function SearchResultsList({
           <HorizontalScroller
             breakpoint="sm"
             className={classes.scroller}
-            isFetching={isFetching}
+            isFetching={isLoading}
             fetchNext={fetchNextPage}
-            hasMore={hasNextPage}
+            hasMore={hasNext}
           >
-            {results.pages
+            {results && results.pages
               .flatMap((page) => page.resultsList)
               .map((result) =>
                 result.user ? (
@@ -213,38 +124,16 @@ export default function SearchResultsList({
                     className={classes.searchResult}
                     key={result.user.userId}
                     user={result.user}
-                    onSelect={handleResultClick}
-                    highlight={result.user.userId === selectedResult}
+                    onSelect={() => {
+                      setSelectedResult({ username: result.user?.username, userId: result.user?.userId, lng: result.user?.lng, lat: result.user?.lat })
+                    }}
+                    highlight={selectedResult && result.user.userId === selectedResult.userId}
                   />
                 ) : null
               )}
           </HorizontalScroller>
         }
       </>
-      ) : (
-        selectedResult && (
-          <>
-            {selectedUser.error && (
-              <Alert severity="error">{selectedUser.error}</Alert>
-            )}
-            {selectedUser.isLoading && (
-              <CircularProgress className={classes.baseMargin} />
-            )}
-            {selectedUser.data && (
-              <HorizontalScroller breakpoint="sm" className={classes.scroller}>
-                <SearchResult
-                  id={`search-result-${selectedUser.data.userId}`}
-                  className={classes.singleResult}
-                  key={selectedUser.data.userId}
-                  user={selectedUser.data}
-                  onSelect={handleResultClick}
-                  highlight={selectedUser.data.userId === selectedResult}
-                />
-              </HorizontalScroller>
-            )}
-          </>
-        )
-      )}
     </Paper>
   );
 }
