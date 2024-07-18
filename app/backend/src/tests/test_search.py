@@ -77,6 +77,40 @@ def test_regression_search_in_area(db):
         assert [result.user.user_id for result in res.results] == [user3.id, user4.id]
 
 
+def test_user_search_in_rectangle(db):
+    """
+    Makes sure search_in_rectangle works as expected.
+    """
+
+    # outside
+    user1, token1 = generate_user(geom=create_coordinate(-1, 0), geom_radius=100)
+    # outside
+    user2, token2 = generate_user(geom=create_coordinate(0, -1), geom_radius=100)
+    # inside
+    user3, token3 = generate_user(geom=create_coordinate(0.1, 0.1), geom_radius=100)
+    # inside
+    user4, token4 = generate_user(geom=create_coordinate(1.2, 0.1), geom_radius=100)
+    # outside (not fully inside)
+    user5, token5 = generate_user(geom=create_coordinate(0, 0), geom_radius=100)
+    # outside
+    user6, token6 = generate_user(geom=create_coordinate(0.1, 1.2), geom_radius=100)
+    # outside
+    user7, token7 = generate_user(geom=create_coordinate(10, 10), geom_radius=100)
+
+    with search_session(token5) as api:
+        res = api.UserSearch(
+            search_pb2.UserSearchReq(
+                search_in_rectangle=search_pb2.RectArea(
+                    lat_min=0,
+                    lat_max=2,
+                    lng_min=0,
+                    lng_max=1,
+                )
+            )
+        )
+        assert [result.user.user_id for result in res.results] == [user3.id, user4.id]
+
+
 def test_user_filter_complete_profile(db):
     """
     Make sure the completed profile flag returns only completed user profile
