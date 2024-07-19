@@ -8,7 +8,7 @@ import {
 
 import client from "./client";
 
-const REFERENCES_PAGE_SIZE = 5;
+const REFERENCES_PAGE_SIZE = 25;
 
 export enum ReferenceTypeStrings {
   "friend",

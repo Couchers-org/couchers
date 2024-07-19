@@ -56,7 +56,7 @@ def check_valid_reference(request, context):
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REFERENCE_NO_TEXT)
 
 
-MAX_PAGINATION_LENGTH = 25
+MAX_PAGINATION_LENGTH = 100
 
 
 class References(references_pb2_grpc.ReferencesServicer):
