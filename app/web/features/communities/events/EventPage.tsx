@@ -278,23 +278,20 @@ export default function EventPage({
                 )}
               </div>
               <div className={classes.actionButtons}>
-                {event.canEdit || event.canModerate ? (
-                  <Link
-                    href={routeToEditEvent(event.eventId, event.slug)}
-                    passHref
-                  >
-                    <Button
-                      component="a"
-                      variant="outlined"
-                      disabled={event.isCancelled || isPastEvent}
-                    >
-                      {t("communities:edit_event")}
-                    </Button>
-                  </Link>
-                ) : null}
-
                 {event.canEdit ? (
                   <>
+                    <Link
+                      href={routeToEditEvent(event.eventId, event.slug)}
+                      passHref
+                    >
+                      <Button
+                        component="a"
+                        variant="outlined"
+                        disabled={event.isCancelled || isPastEvent}
+                      >
+                        {t("communities:edit_event")}
+                      </Button>
+                    </Link>
                     <Button
                       onClick={() => setCancelDialogIsOpen(true)}
                       variant="contained"

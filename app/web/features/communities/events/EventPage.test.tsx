@@ -166,15 +166,6 @@ describe("Event page", () => {
     ).toBeVisible();
   });
 
-  it("shows the 'edit event' button if the user has moderation permission", async () => {
-    getEventMock.mockResolvedValue({ ...firstEvent, canModerate: true });
-    renderEventPage();
-
-    expect(
-      await screen.findByRole("link", { name: t("communities:edit_event") })
-    ).toBeVisible();
-  });
-
   it("does not show the 'edit event' button if the user does not have edit permission", async () => {
     renderEventPage();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));

@@ -507,7 +507,7 @@ def test_owner_not_moderator(db):
         assert not res.owner_community_id
         assert not res.owner_group_id
         assert res.editor_user_ids == [user2.id]
-        assert not res.can_edit
+        assert res.can_edit
         assert res.can_moderate
         assert res.thread.thread_id > 0
         assert res.thread.num_responses == 0
@@ -668,7 +668,7 @@ def test_page_transfer(db):
         assert not page1.can_moderate
 
     with pages_session(token2) as api:
-        assert not api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
+        assert api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_edit
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id)).can_moderate
 
     with pages_session(token3) as api:
@@ -764,7 +764,7 @@ def test_page_transfer(db):
         assert not page4.can_moderate
 
     with pages_session(token2) as api:
-        assert not api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_edit
+        assert api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_edit
         assert api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id)).can_moderate
 
     with pages_session(token3) as api:

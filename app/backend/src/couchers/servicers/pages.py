@@ -65,6 +65,8 @@ def page_to_pb(page: Page, context):
         else:
             owner_group_id = page.owner_cluster.id
 
+    can_moderate = _can_moderate_page(page, context.user_id)
+
     return pages_pb2.Page(
         page_id=page.id,
         type=pagetype2api[page.type],
@@ -90,8 +92,8 @@ def page_to_pb(page: Page, context):
             else None
         ),
         editor_user_ids=remove_duplicates_retain_order([version.editor_user_id for version in page.versions]),
-        can_edit=_is_page_owner(page, context.user_id),
-        can_moderate=_can_moderate_page(page, context.user_id),
+        can_edit=_is_page_owner(page, context.user_id) or can_moderate,
+        can_moderate=can_moderate,
     )
 
 

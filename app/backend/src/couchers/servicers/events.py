@@ -101,6 +101,7 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
     attendance_state = attendance.attendee_status if attendance else None
 
     can_moderate = _can_moderate_event(session, event, context.user_id)
+    can_edit = _can_edit_event(session, event, context.user_id)
 
     going_count = session.execute(
         select(func.count())
@@ -174,7 +175,7 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
         thread=thread_to_pb(event.thread_id),
-        can_edit=_is_event_owner(event, context.user_id),
+        can_edit=can_edit,
         can_moderate=can_moderate,
     )
 
