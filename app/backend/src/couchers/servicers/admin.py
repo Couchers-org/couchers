@@ -290,7 +290,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                         session.execute(
                             select(HostRequest.conversation_id)
                             .where(or_(HostRequest.host_user_id == user_id, HostRequest.surfer_user_id == user_id))
-                            .order_by(HostRequest.conversation_id)
+                            .order_by(HostRequest.conversation_id.desc())
                         )
                         .scalars()
                         .all()
@@ -302,7 +302,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                         session.execute(
                             select(GroupChatSubscription.group_chat_id)
                             .where(GroupChatSubscription.user_id == user_id)
-                            .order_by(GroupChatSubscription.joined.asc())
+                            .order_by(GroupChatSubscription.joined.desc())
                         )
                         .scalars()
                         .all()
@@ -320,10 +320,6 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
     def ListEventCommunityInviteRequests(self, request, context):
         with session_scope() as session:
-            # req.decided = now()
-            # req.decided_by_user_id = user1.id
-            # req.approved = True
-
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_request_id = int(request.page_token) if request.page_token else 0
             requests = (
