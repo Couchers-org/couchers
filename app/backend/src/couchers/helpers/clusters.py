@@ -49,12 +49,6 @@ def create_cluster(
         content=DEFAULT_PAGE_CONTENT,
     )
     session.add(page_version)
-    cluster.cluster_subscriptions.append(
-        ClusterSubscription(
-            user_id=creator_user_id,
-            role=ClusterRole.admin,
-        )
-    )
     for admin_id in admin_ids:
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
