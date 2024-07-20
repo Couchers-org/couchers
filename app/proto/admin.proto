@@ -179,7 +179,6 @@ message CreateApiKeyRes {}
 
 message CreateCommunityReq {
   string name = 1;
-  string slug = 2;
   string description = 3;
   int64 parent_node_id = 4;
   repeated int64 admin_ids = 5;

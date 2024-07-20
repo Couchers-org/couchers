@@ -389,7 +389,6 @@ def test_CreateCommunity_invalid_geojson(db):
             api.CreateCommunity(
                 admin_pb2.CreateCommunityReq(
                     name="test community",
-                    slug="test-community",
                     description="community for testing",
                     admin_ids=[],
                     geojson=POINT_GEOJSON,
@@ -407,7 +406,6 @@ def test_CreateCommunity(db):
             api.CreateCommunity(
                 admin_pb2.CreateCommunityReq(
                     name="test community",
-                    slug="test-community",
                     description="community for testing",
                     admin_ids=[],
                     geojson=VALID_GEOJSON_MULTIPOLYGON,
