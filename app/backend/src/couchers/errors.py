@@ -3,6 +3,7 @@
 ACCOUNT_NOT_FOUND = "An account with that username or email was not found."
 ACCOUNT_SUSPENDED = "Your account is suspended."
 ADMIN_CANNOT_EDIT_BADGE = "Admins cannot edit that badge."
+ADMIN_NOTE_CANT_BE_EMPTY = "The admin note cannot be empty."
 ALREADY_ADMIN = "That user is already an admin."
 ALREADY_HAVE_DM = "You already have a direct message chat with this user."
 ALREADY_IN_CHAT = "That user is already in the chat."

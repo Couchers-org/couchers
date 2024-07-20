@@ -57,6 +57,13 @@ def _user_to_details(session, user):
     )
 
 
+def append_admin_note(session, context, user, note):
+    if not note.strip():
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ADMIN_NOTE_CANT_BE_EMPTY)
+    admin = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+    user.admin_note += f"\n[{now().isoformat()}] (id: {admin.id}, username: {admin.username}) {note}\n"
+
+
 class Admin(admin_pb2_grpc.AdminServicer):
     def GetUserDetails(self, request, context):
         with session_scope() as session:
@@ -157,26 +164,25 @@ class Admin(admin_pb2_grpc.AdminServicer):
             user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            append_admin_note(session, context, user, request.admin_note)
             user.is_banned = True
-        return self.AddAdminNote(request, context)
+            return _user_to_details(session, user)
 
     def UnbanUser(self, request, context):
         with session_scope() as session:
             user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            append_admin_note(session, context, user, request.admin_note)
             user.is_banned = False
-        return self.AddAdminNote(request, context)
+            return _user_to_details(session, user)
 
     def AddAdminNote(self, request, context):
         with session_scope() as session:
             user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-            admin = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            user.admin_note += (
-                f"\n[{now().isoformat()}] (id: {admin.id}, username: {admin.username}) {request.admin_note}\n"
-            )
+            append_admin_note(session, context, user, request.admin_note)
             return _user_to_details(session, user)
 
     def DeleteUser(self, request, context):

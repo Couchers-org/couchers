@@ -205,6 +205,18 @@ def test_AddAdminNote(db):
     assert match(rf"^{prefix_regex} {admin_note1}\n{prefix_regex} {admin_note2}\n$", res.admin_note)
 
 
+def test_AddAdminNote_blank(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+    empty_admin_note = "  \t  \n "
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note=empty_admin_note))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.ADMIN_NOTE_CANT_BE_EMPTY
+
+
 def test_DeleteUser(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
