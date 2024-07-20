@@ -1,7 +1,7 @@
 import Button from "components/Button";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import TextField from "components/TextField";
-import useAuthStore from "features/auth/useAuthStore";
+import { useAuthContext } from "features/auth/AuthProvider";
 import useSendFieldStyles from "features/messages/useSendFieldStyles";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -67,8 +67,9 @@ export default function HostRequestSendField({
 }: HostRequestSendFieldProps) {
   const { t } = useTranslation([MESSAGES, GLOBAL]);
   const classes = useSendFieldStyles();
+  const { authState } = useAuthContext();
 
-  const isHost = hostRequest.hostUserId === useAuthStore().authState.userId;
+  const isHost = hostRequest.hostUserId === authState.userId;
 
   const { data: availableRefrences } = useListAvailableReferences(
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId
