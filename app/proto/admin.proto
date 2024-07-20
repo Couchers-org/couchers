@@ -14,6 +14,10 @@ service Admin {
 
   rpc GetUserDetails(GetUserDetailsReq) returns (UserDetails) {}
 
+  rpc GetUser(GetUserReq) returns (org.couchers.api.core.User) {
+    // Get info about a particular user, ignores the fact that they may be banned/deleted
+  }
+
   rpc ChangeUserGender(ChangeUserGenderReq) returns (UserDetails) {}
 
   rpc ChangeUserBirthdate(ChangeUserBirthdateReq) returns (UserDetails) {}
@@ -76,6 +80,10 @@ message UserDetails {
 
 message GetUserDetailsReq {
   // username, email, or user id
+  string user = 1;
+}
+
+message GetUserReq {
   string user = 1;
 }
 

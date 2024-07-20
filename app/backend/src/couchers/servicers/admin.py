@@ -26,7 +26,7 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
-from couchers.servicers.api import get_strong_verification_fields
+from couchers.servicers.api import get_strong_verification_fields, user_model_to_pb
 from couchers.servicers.auth import create_session
 from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import get_users_to_notify_for_new_event
@@ -86,6 +86,13 @@ class Admin(admin_pb2_grpc.AdminServicer):
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             return _user_to_details(session, user)
+
+    def GetUser(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            return user_model_to_pb(user, session, context)
 
     def ChangeUserGender(self, request, context):
         with session_scope() as session:
