@@ -3,6 +3,7 @@ syntax = "proto3";
 package org.couchers.admin;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 import "annotations.proto";
 import "api.proto";
@@ -28,6 +29,10 @@ service Admin {
   rpc UnbanUser(UnbanUserReq) returns (UserDetails) {}
 
   rpc AddAdminNote(AddAdminNoteReq) returns (UserDetails) {}
+
+  rpc GetContentReport(GetContentReportReq) returns (GetContentReportRes) {}
+
+  rpc GetContentReportsForAuthor(GetContentReportsForAuthorReq) returns (GetContentReportsForAuthorRes) {}
 
   rpc DeleteUser(DeleteUserReq) returns (UserDetails) {}
 
@@ -117,6 +122,34 @@ message AddAdminNoteReq {
   // username, email, or user id
   string user = 1;
   string admin_note = 2;
+}
+
+message ContentReport {
+  int64 content_report_id = 1;
+  google.protobuf.Timestamp time = 2;
+  int64 reporting_user_id = 3;
+  int64 author_user_id = 4;
+  string reason = 5;
+  string description = 6;
+  string content_ref = 7;
+  string user_agent = 8;
+  string page = 9;
+}
+
+message GetContentReportReq {
+  int64 content_report_id = 1;
+}
+
+message GetContentReportRes {
+  ContentReport content_report = 1;
+}
+
+message GetContentReportsForAuthorReq {
+  string user = 1;
+}
+
+message GetContentReportsForAuthorRes {
+  repeated ContentReport content_reports = 1;
 }
 
 message DeleteUserReq {

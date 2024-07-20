@@ -7,10 +7,10 @@ from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, EventOccurrence, UserSession
+from couchers.models import Cluster, ContentReport, EventOccurrence, UserSession
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
-from proto import admin_pb2, events_pb2
+from proto import admin_pb2, events_pb2, reporting_pb2
 from tests.test_communities import create_community
 from tests.test_fixtures import (  # noqa
     db,
@@ -21,6 +21,7 @@ from tests.test_fixtures import (  # noqa
     mock_notification_email,
     push_collector,
     real_admin_session,
+    reporting_session,
     testconfig,
 )
 
@@ -215,6 +216,69 @@ def test_AddAdminNote_blank(db):
             api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note=empty_admin_note))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
         assert e.value.details() == errors.ADMIN_NOTE_CANT_BE_EMPTY
+
+
+def test_admin_content_reports(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, token = generate_user()
+    bad_user1, _ = generate_user()
+    bad_user2, _ = generate_user()
+
+    with reporting_session(token) as api:
+        api.Report(
+            reporting_pb2.ReportReq(
+                reason="spam",
+                description="r1",
+                content_ref="comment/123",
+                author_user=bad_user1.username,
+                user_agent="n/a",
+                page="https://couchers.org/comment/123",
+            )
+        )
+        api.Report(
+            reporting_pb2.ReportReq(
+                reason="spam",
+                description="r2",
+                content_ref="comment/124",
+                author_user=bad_user2.username,
+                user_agent="n/a",
+                page="https://couchers.org/comment/124",
+            )
+        )
+        api.Report(
+            reporting_pb2.ReportReq(
+                reason="something else",
+                description="r3",
+                content_ref="page/321",
+                author_user=bad_user1.username,
+                user_agent="n/a",
+                page="https://couchers.org/page/321",
+            )
+        )
+
+    with session_scope() as session:
+        id_by_description = dict(session.execute(select(ContentReport.description, ContentReport.id)).all())
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetContentReport(admin_pb2.GetContentReportReq(content_report_id=-1))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == errors.CONTENT_REPORT_NOT_FOUND
+
+        res = api.GetContentReport(admin_pb2.GetContentReportReq(content_report_id=id_by_description["r2"]))
+        rep = res.content_report
+        assert rep.content_report_id == id_by_description["r2"]
+        assert rep.reporting_user_id == normal_user.id
+        assert rep.author_user_id == bad_user2.id
+        assert rep.reason == "spam"
+        assert rep.description == "r2"
+        assert rep.content_ref == "comment/124"
+        assert rep.user_agent == "n/a"
+        assert rep.page == "https://couchers.org/comment/124"
+
+        res = api.GetContentReportsForAuthor(admin_pb2.GetContentReportsForAuthorReq(user=bad_user1.username))
+        assert res.content_reports[0].content_report_id == id_by_description["r3"]
+        assert res.content_reports[1].content_report_id == id_by_description["r1"]
 
 
 def test_DeleteUser(db):

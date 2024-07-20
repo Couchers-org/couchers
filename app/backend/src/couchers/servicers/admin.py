@@ -13,6 +13,7 @@ from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
+    ContentReport,
     Event,
     EventCommunityInviteRequest,
     EventOccurrence,
@@ -54,6 +55,20 @@ def _user_to_details(session, user):
         **get_strong_verification_fields(session, user),
         has_passport_sex_gender_exception=user.has_passport_sex_gender_exception,
         admin_note=user.admin_note,
+    )
+
+
+def _content_report_to_pb(content_report: ContentReport):
+    return admin_pb2.ContentReport(
+        content_report_id=content_report.id,
+        time=Timestamp_from_datetime(content_report.time),
+        reporting_user_id=content_report.reporting_user_id,
+        author_user_id=content_report.author_user_id,
+        reason=content_report.reason,
+        description=content_report.description,
+        content_ref=content_report.content_ref,
+        user_agent=content_report.user_agent,
+        page=content_report.page,
     )
 
 
@@ -184,6 +199,35 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             append_admin_note(session, context, user, request.admin_note)
             return _user_to_details(session, user)
+
+    def GetContentReport(self, request, context):
+        with session_scope() as session:
+            content_report = session.execute(
+                select(ContentReport).where(ContentReport.id == request.content_report_id)
+            ).scalar_one_or_none()
+            if not content_report:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CONTENT_REPORT_NOT_FOUND)
+            return admin_pb2.GetContentReportRes(
+                content_report=_content_report_to_pb(content_report),
+            )
+
+    def GetContentReportsForAuthor(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            content_reports = (
+                session.execute(
+                    select(ContentReport)
+                    .where(ContentReport.author_user_id == user.id)
+                    .order_by(ContentReport.id.desc())
+                )
+                .scalars()
+                .all()
+            )
+            return admin_pb2.GetContentReportsForAuthorRes(
+                content_reports=[_content_report_to_pb(content_report) for content_report in content_reports],
+            )
 
     def DeleteUser(self, request, context):
         with session_scope() as session:
