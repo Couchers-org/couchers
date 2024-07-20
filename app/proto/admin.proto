@@ -167,6 +167,7 @@ message EventCommunityInviteRequest {
 
   // assuming they have notifs enabled
   uint32 approx_users_to_notify = 4;
+  int64 community_id = 5;
 }
 
 message ListEventCommunityInviteRequestsRes {

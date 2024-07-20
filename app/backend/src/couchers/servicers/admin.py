@@ -334,18 +334,18 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 .all()
             )
 
+            def _request_to_pb(request):
+                users_to_notify, node_id = get_users_to_notify_for_new_event(session, request.occurrence)
+                return admin_pb2.EventCommunityInviteRequest(
+                    event_community_invite_request_id=request.id,
+                    user_id=request.user_id,
+                    event_url=urls.event_link(occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug),
+                    approx_users_to_notify=len(users_to_notify),
+                    community_id=node_id,
+                )
+
             return admin_pb2.ListEventCommunityInviteRequestsRes(
-                requests=[
-                    admin_pb2.EventCommunityInviteRequest(
-                        event_community_invite_request_id=request.id,
-                        user_id=request.user_id,
-                        event_url=urls.event_link(
-                            occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug
-                        ),
-                        approx_users_to_notify=len(get_users_to_notify_for_new_event(session, request.occurrence)[0]),
-                    )
-                    for request in requests[:page_size]
-                ],
+                requests=[_request_to_pb(request) for request in requests[:page_size]],
                 next_page_token=str(requests[-1].id) if len(requests) > page_size else None,
             )
 
