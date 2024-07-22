@@ -34,7 +34,7 @@
     "@toast-ui/editor": "^3.1.7",
     "@types/react-simple-maps": "^3.0.4",
     "classnames": "^2.3.1",
-    "dayjs": "^1.11.11",
+    "dayjs": "^1.11.12",
     "frontmatter-markdown-loader": "^3.7.0",
     "glob": "^8.0.3",
     "google-protobuf": "^3.20.0",
