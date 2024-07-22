@@ -5,6 +5,7 @@ import pytest
 from google.protobuf import empty_pb2
 
 import couchers.phone.sms
+from couchers import errors
 from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import session_scope
@@ -254,3 +255,12 @@ def test_send_sms(db, monkeypatch):
 def test_send_sms_disabled(db):
     assert not config["ENABLE_SMS"]
     assert couchers.phone.sms.send_sms("+46701740605", "Testing SMS message") == "SMS not enabled."
+
+
+def test_strong_verification_on_donation():
+    user, token = generate_user()
+    user.has_donated = False
+    with account_session(token) as account, api_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            account.VerifyPhone(account_pb2.VerifyPhoneReq(token="123455"))
+        assert e.value.code() == errors.NOT_DONATED
