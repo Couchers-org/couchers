@@ -29,7 +29,7 @@ export default function BadgesPage() {
       <Typography variant="body1">{t("badges:index.subtitle")}</Typography>
       <Divider className={classes.divider} />
       <List>
-        {Object.values(badges).map((badge) => (
+        {badges && Object.values(badges).map((badge) => (
           <ListItem key={badge.id} className={classes.item}>
             <Badge badge={badge} />
             <Typography variant="body1">
