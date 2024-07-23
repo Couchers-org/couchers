@@ -2,6 +2,8 @@
 See //docs/search.md for overview.
 """
 
+from datetime import timedelta
+
 import grpc
 from sqlalchemy.sql import func, or_
 
@@ -22,7 +24,14 @@ from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.sql import couchers_select as select
-from couchers.utils import create_coordinate, last_active_coarsen, to_aware_datetime
+from couchers.utils import (
+    create_coordinate,
+    dt_from_millis,
+    last_active_coarsen,
+    millis_from_dt,
+    now,
+    to_aware_datetime,
+)
 from proto import search_pb2, search_pb2_grpc
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
@@ -512,5 +521,93 @@ class Search(search_pb2_grpc.SearchServicer):
                 ],
                 next_page_token=(
                     encrypt_page_token(str(users[-1].recommendation_score)) if len(users) > page_size else None
+                ),
+            )
+
+    def EventSearch(self, request, context):
+        with session_scope() as session:
+            statement = (
+                select(EventOccurrence)
+                .join(Event, Event.id == EventOccurrence.event_id)
+                .where(~EventOccurrence.is_deleted)
+            )
+
+            if request.HasField("query"):
+                if request.query_title_only:
+                    statement = statement.where(Event.title.ilike(f"%{request.query.value}%"))
+                else:
+                    statement = statement.where(
+                        or_(
+                            Event.title.ilike(f"%{request.query.value}%"),
+                            EventOccurrence.content.ilike(f"%{request.query.value}%"),
+                            EventOccurrence.address.ilike(f"%{request.query.value}%"),
+                        )
+                    )
+
+            if not request.include_cancelled:
+                statement = statement.where(~EventOccurrence.is_cancelled)
+
+            if request.HasField("search_in_area"):
+                # EPSG4326 measures distance in decimal degress
+                # we want to check whether two circles overlap, so check if the distance between their centers is less
+                # than the sum of their radii, divided by 111111 m ~= 1 degree (at the equator)
+                search_point = create_coordinate(request.search_in_area.lat, request.search_in_area.lng)
+                statement = statement.where(
+                    func.ST_DWithin(
+                        # old:
+                        # User.geom, search_point, (User.geom_radius + request.search_in_area.radius) / 111111
+                        # this is an optimization that speeds up the db queries since it doesn't need to look up the user's geom radius
+                        EventOccurrence.geom,
+                        search_point,
+                        (1000 + request.search_in_area.radius) / 111111,
+                    )
+                )
+            if request.HasField("search_in_rectangle"):
+                statement = statement.where(
+                    func.ST_Within(
+                        EventOccurrence.geom,
+                        func.ST_MakeEnvelope(
+                            request.search_in_rectangle.lng_min,
+                            request.search_in_rectangle.lat_min,
+                            request.search_in_rectangle.lng_max,
+                            request.search_in_rectangle.lat_max,
+                            4326,
+                        ),
+                    )
+                )
+            if request.HasField("search_in_community_id"):
+                # could do a join here as well, but this is just simpler
+                node = session.execute(
+                    select(Node).where(Node.id == request.search_in_community_id)
+                ).scalar_one_or_none()
+                if not node:
+                    context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+                statement = statement.where(func.ST_Contains(node.geom, EventOccurrence.geom))
+
+            if request.HasField("after"):
+                statement = statement.where(EventOccurrence.start_time > to_aware_datetime(request.after))
+            if request.HasField("before"):
+                statement = statement.where(EventOccurrence.end_time < to_aware_datetime(request.before))
+
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            # the page token is a unix timestamp of where we left off
+            page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
+
+            if not request.past:
+                statement = statement.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
+                    EventOccurrence.start_time.asc()
+                )
+            else:
+                statement = statement.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
+                    EventOccurrence.start_time.desc()
+                )
+
+            statement = statement.limit(page_size + 1)
+            occurrences = session.execute(statement).scalars().all()
+
+            return search_pb2.EventSearchRes(
+                events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
+                next_page_token=(
+                    str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None
                 ),
             )
