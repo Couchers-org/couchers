@@ -4,7 +4,7 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers.db import session_scope
-from couchers.models import MeetupStatus
+from couchers.models import EventOccurrence, MeetupStatus
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now
 from proto import api_pb2, events_pb2, search_pb2
 from tests.test_communities import create_community, testing_communities  # noqa
@@ -174,23 +174,23 @@ def sample_event_data() -> dict:
 def create_event(sample_event_data):
     """Factory for creating events."""
 
-    def _create_event(token, **kwargs) -> int:
+    def _create_event(event_api, **kwargs) -> EventOccurrence:
         """Create an event with default values, unless overridden by kwargs."""
-        with events_session(token) as api:
-            return api.CreateEvent(
-                events_pb2.CreateEventReq(
-                    **{
-                        **sample_event_data,
-                        **kwargs,
-                    }
-                )
+        return event_api.CreateEvent(
+            events_pb2.CreateEventReq(
+                **{
+                    **sample_event_data,
+                    **kwargs,
+                }
             )
+        )
 
     return _create_event
 
 
 @pytest.fixture
 def sample_community(db):
+    """Create large community spanning from (-50, 0) to (50, 2) as events can only be created within communities."""
     user, _ = generate_user()
     with session_scope() as session:
         create_community(session, -50, 50, "Community", [user], [], None)
@@ -208,48 +208,50 @@ def test_event_search_by_query(sample_community, create_event):
     """Test that EventSearch finds events by title and content (if query_title_only=False)."""
     user, token = generate_user()
 
-    event_id1 = create_event(token, title="Lorem Ipsum")
-    event_id2 = create_event(token, content="Lorem Ipsum")
-    create_event(token)
+    with events_session(token) as api:
+        event1 = create_event(api, title="Lorem Ipsum")
+        event2 = create_event(api, content="Lorem Ipsum")
+        create_event(api)
 
     with search_session(token) as api:
         res = api.EventSearch(search_pb2.EventSearchReq(query="Ipsum"))
         assert len(res.events) == 2
-        assert {result.event_id for result in res.events} == {event_id1, event_id2}
+        assert {result.event_id for result in res.events} == {event1.event_id, event2.event_id}
 
         res = api.EventSearch(search_pb2.EventSearchReq(query="Ipsum", query_title_only=True))
         assert len(res.events) == 1
-        assert res.events[0].event_id == event_id1
+        assert res.events[0].event_id == event1.event_id
 
 
 def test_event_search_by_time(sample_community, create_event):
     """Test that EventSearch filters with the given time range."""
     user, token = generate_user()
 
-    event_id1 = create_event(
-        token,
-        start_time=Timestamp_from_datetime(now() + timedelta(hours=1)),
-        end_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
-    )
-    event_id2 = create_event(
-        token,
-        start_time=Timestamp_from_datetime(now() + timedelta(hours=4)),
-        end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
-    )
-    event_id3 = create_event(
-        token,
-        start_time=Timestamp_from_datetime(now() + timedelta(hours=7)),
-        end_time=Timestamp_from_datetime(now() + timedelta(hours=8)),
-    )
+    with events_session(token) as api:
+        event1 = create_event(
+            api,
+            start_time=Timestamp_from_datetime(now() + timedelta(hours=1)),
+            end_time=Timestamp_from_datetime(now() + timedelta(hours=2)),
+        )
+        event2 = create_event(
+            api,
+            start_time=Timestamp_from_datetime(now() + timedelta(hours=4)),
+            end_time=Timestamp_from_datetime(now() + timedelta(hours=5)),
+        )
+        event3 = create_event(
+            api,
+            start_time=Timestamp_from_datetime(now() + timedelta(hours=7)),
+            end_time=Timestamp_from_datetime(now() + timedelta(hours=8)),
+        )
 
     with search_session(token) as api:
         res = api.EventSearch(search_pb2.EventSearchReq(before=Timestamp_from_datetime(now() + timedelta(hours=6))))
         assert len(res.events) == 2
-        assert {result.event_id for result in res.events} == {event_id1, event_id2}
+        assert {result.event_id for result in res.events} == {event1.event_id, event2.event_id}
 
         res = api.EventSearch(search_pb2.EventSearchReq(after=Timestamp_from_datetime(now() + timedelta(hours=3))))
         assert len(res.events) == 2
-        assert {result.event_id for result in res.events} == {event_id2, event_id3}
+        assert {result.event_id for result in res.events} == {event2.event_id, event3.event_id}
 
         res = api.EventSearch(
             search_pb2.EventSearchReq(
@@ -258,28 +260,29 @@ def test_event_search_by_time(sample_community, create_event):
             )
         )
         assert len(res.events) == 1
-        assert res.events[0].event_id == event_id2
+        assert res.events[0].event_id == event2.event_id
 
 
 def test_event_search_by_circle(sample_community, create_event):
     """Test that EventSearch only returns events within the given circle."""
     user, token = generate_user()
 
-    inside_pts = [(0.1, 0), (0, 0.1)]
-    for i, (lat, lng) in enumerate(inside_pts):
-        create_event(
-            token,
-            title=f"Inside area {i}",
-            offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Inside area {i}"),
-        )
+    with events_session(token) as api:
+        inside_pts = [(0.1, 0.01), (0.01, 0.1)]
+        for i, (lat, lng) in enumerate(inside_pts):
+            create_event(
+                api,
+                title=f"Inside area {i}",
+                offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Inside area {i}"),
+            )
 
-    outside_pts = [(1, 0), (0, 1), (10, 1)]
-    for i, (lat, lng) in enumerate(outside_pts):
-        create_event(
-            token,
-            title=f"Outside area {i}",
-            offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Outside area {i}"),
-        )
+        outside_pts = [(1, 0.1), (0.1, 1), (10, 1)]
+        for i, (lat, lng) in enumerate(outside_pts):
+            create_event(
+                api,
+                title=f"Outside area {i}",
+                offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Outside area {i}"),
+            )
 
     with search_session(token) as api:
         res = api.EventSearch(
@@ -299,21 +302,22 @@ def test_event_search_by_rectangle(sample_community, create_event):
     """Test that EventSearch only returns events within the given rectangular area."""
     user, token = generate_user()
 
-    inside_pts = [(0.1, 0.1), (1.2, 0.1)]
-    for i, (lat, lng) in enumerate(inside_pts):
-        create_event(
-            token,
-            title=f"Inside area {i}",
-            offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Inside area {i}"),
-        )
+    with events_session(token) as api:
+        inside_pts = [(0.1, 0.2), (1.2, 0.2)]
+        for i, (lat, lng) in enumerate(inside_pts):
+            create_event(
+                api,
+                title=f"Inside area {i}",
+                offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Inside area {i}"),
+            )
 
-    outside_pts = [(-1, 0), (0, -1), (0, 0), (0.1, 1.2), (10, 1)]
-    for i, (lat, lng) in enumerate(outside_pts):
-        create_event(
-            token,
-            title=f"Outside area {i}",
-            offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Outside area {i}"),
-        )
+        outside_pts = [(-1, 0.1), (0.1, 0.01), (-0.01, 0.01), (0.1, 1.2), (10, 1)]
+        for i, (lat, lng) in enumerate(outside_pts):
+            create_event(
+                api,
+                title=f"Outside area {i}",
+                offline_information=events_pb2.OfflineEventInformation(lat=lat, lng=lng, address=f"Outside area {i}"),
+            )
 
     with search_session(token) as api:
         res = api.EventSearch(
@@ -321,7 +325,7 @@ def test_event_search_by_rectangle(sample_community, create_event):
                 search_in_rectangle=search_pb2.RectArea(
                     lat_min=0,
                     lat_max=2,
-                    lng_min=0,
+                    lng_min=0.1,
                     lng_max=1,
                 )
             )

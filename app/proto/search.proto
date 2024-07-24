@@ -163,29 +163,29 @@ message UserSearchRes {
 
 message EventSearchReq {
   // whether to paginate backwards
-  bool past = 5;
+  bool past = 1;
 
-  google.protobuf.StringValue query = 3;
+  google.protobuf.StringValue query = 2;
   // whether the query (if any) should only search through event title and not event description
-  bool query_title_only = 4;
+  bool query_title_only = 3;
 
-  bool include_cancelled = 6;
+  bool include_cancelled = 4;
 
   // restrictions on area
   oneof search_in {
     // search in given area
-    Area search_in_area = 7;
+    Area search_in_area = 5;
     // search inside the area defined by the community
-    int64 search_in_community_id = 8;
-    RectArea search_in_rectangle = 9;
+    int64 search_in_community_id = 6;
+    RectArea search_in_rectangle = 7;
   }
 
   // restrictions in time
-  google.protobuf.Timestamp after = 10;
-  google.protobuf.Timestamp before = 11;
+  google.protobuf.Timestamp after = 8;
+  google.protobuf.Timestamp before = 9;
 
-  uint32 page_size = 1;
-  string page_token = 2;
+  uint32 page_size = 10;
+  string page_token = 11;
 }
 
 message EventSearchRes {
