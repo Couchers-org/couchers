@@ -263,4 +263,4 @@ def test_strong_verification_on_donation():
     with account_session(token) as account, api_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
             account.VerifyPhone(account_pb2.VerifyPhoneReq(token="123455"))
-        assert e.value.code() == errors.NOT_DONATED
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
