@@ -205,7 +205,7 @@ def test_EventSearch_no_filters(testing_communities):
 
 
 def test_event_search_by_query(sample_community, create_event):
-    """Test that EventSearch finds events by title and content (if query_title_only=False)."""
+    """Test that EventSearch finds events by title (and content if query_title_only=False)."""
     user, token = generate_user()
 
     with events_session(token) as api:
