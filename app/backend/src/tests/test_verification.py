@@ -5,7 +5,6 @@ import pytest
 from google.protobuf import empty_pb2
 
 import couchers.phone.sms
-from couchers import errors
 from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.db import session_scope
