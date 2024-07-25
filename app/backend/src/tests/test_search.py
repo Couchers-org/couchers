@@ -214,11 +214,13 @@ def test_event_search_by_query(sample_community, create_event):
         create_event(api)
 
     with search_session(token) as api:
-        res = api.EventSearch(search_pb2.EventSearchReq(query="Ipsum"))
+        res = api.EventSearch(search_pb2.EventSearchReq(query=wrappers_pb2.StringValue(value="Ipsum")))
         assert len(res.events) == 2
         assert {result.event_id for result in res.events} == {event1.event_id, event2.event_id}
 
-        res = api.EventSearch(search_pb2.EventSearchReq(query="Ipsum", query_title_only=True))
+        res = api.EventSearch(
+            search_pb2.EventSearchReq(query=wrappers_pb2.StringValue(value="Ipsum"), query_title_only=True)
+        )
         assert len(res.events) == 1
         assert res.events[0].event_id == event1.event_id
 
