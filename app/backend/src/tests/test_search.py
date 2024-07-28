@@ -5,7 +5,7 @@ from google.protobuf import wrappers_pb2
 
 from couchers.db import session_scope
 from couchers.models import EventOccurrence, MeetupStatus
-from couchers.utils import Timestamp_from_datetime, create_coordinate, now
+from couchers.utils import Timestamp_from_datetime, create_coordinate, millis_from_dt, now
 from proto import api_pb2, events_pb2, search_pb2
 from tests.test_communities import create_community, testing_communities  # noqa
 from tests.test_fixtures import db, events_session, generate_user, search_session, testconfig  # noqa
@@ -334,3 +334,60 @@ def test_event_search_by_rectangle(sample_community, create_event):
         )
         assert len(res.events) == len(inside_pts)
         assert all(event.title.startswith("Inside area") for event in res.events)
+
+
+def test_event_search_pagination(sample_community, create_event):
+    """Test that EventSearch paginates correctly.
+
+    Check that
+     - <page_size> events are returned, if available
+     - sort order is applied (default: past=False)
+     - the next page token is correct
+    """
+    user, token = generate_user()
+
+    anchor_time = now()
+    with events_session(token) as api:
+        for i in range(5):
+            create_event(
+                api,
+                title=f"Event {i + 1}",
+                start_time=Timestamp_from_datetime(anchor_time + timedelta(hours=i + 1)),
+                end_time=Timestamp_from_datetime(anchor_time + timedelta(hours=i + 1, minutes=30)),
+            )
+
+    with search_session(token) as api:
+        res = api.EventSearch(
+            search_pb2.EventSearchReq(
+                past=False,
+                page_size=4,
+            )
+        )
+        assert len(res.events) == 4
+        assert [event.title for event in res.events] == ["Event 1", "Event 2", "Event 3", "Event 4"]
+        assert res.next_page_token == str(millis_from_dt(anchor_time + timedelta(hours=5, minutes=30)))
+
+        res = api.EventSearch(search_pb2.EventSearchReq(page_size=4, page_token=res.next_page_token))
+        assert len(res.events) == 1
+        assert res.events[0].title == "Event 5"
+        assert res.next_page_token == ""
+
+        res = api.EventSearch(
+            search_pb2.EventSearchReq(
+                past=True, page_size=2, page_token=str(millis_from_dt(anchor_time + timedelta(hours=4, minutes=30)))
+            )
+        )
+        assert len(res.events) == 2
+        assert [event.title for event in res.events] == ["Event 4", "Event 3"]
+        assert res.next_page_token == str(millis_from_dt(anchor_time + timedelta(hours=2, minutes=30)))
+
+        res = api.EventSearch(
+            search_pb2.EventSearchReq(
+                past=True,
+                page_size=2,
+                page_token=res.next_page_token,
+            )
+        )
+        assert len(res.events) == 2
+        assert [event.title for event in res.events] == ["Event 2", "Event 1"]
+        assert res.next_page_token == ""
