@@ -6,9 +6,9 @@
 #
 alembic==1.13.2
     # via -r requirements.in
-boto3==1.34.145
+boto3==1.34.149
     # via -r requirements.in
-botocore==1.34.145
+botocore==1.34.149
     # via
     #   boto3
     #   s3transfer
