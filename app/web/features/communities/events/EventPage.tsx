@@ -323,39 +323,6 @@ export default function EventPage({
                   </>
                 ) : null}
 
-                {event.canEdit ? (
-                  <>
-                    <Button
-                      onClick={() => setCancelDialogIsOpen(true)}
-                      variant="contained"
-                      color="primary"
-                      classes={{ containedPrimary: classes.cancelButton }}
-                      disabled={event.isCancelled || isPastEvent}
-                    >
-                      {t("communities:cancel_event")}
-                    </Button>
-                    <CancelEventDialog
-                      open={cancelDialogIsOpen}
-                      onClose={() => setCancelDialogIsOpen(false)}
-                      eventId={eventId}
-                    />
-                    <Button
-                      onClick={() => setInviteCommunityDialogIsOpen(true)}
-                      variant="contained"
-                      color="secondary"
-                      disabled={event.isCancelled || isPastEvent}
-                    >
-                      {t("communities:invite_community_dialog_buttons.open")}
-                    </Button>
-                    <InviteCommunityDialog
-                      afterSuccess={() => setShowInviteCommunitySuccess(true)}
-                      open={inviteCommunityDialogIsOpen}
-                      onClose={() => setInviteCommunityDialogIsOpen(false)}
-                      eventId={eventId}
-                    />
-                  </>
-                ) : null}
-
                 <AttendanceMenu
                   loading={isSetEventAttendanceLoading}
                   onChangeAttendanceState={(attendanceState) =>

@@ -132,7 +132,7 @@ const zoomCluster = (
 };
 
 /**
- * Filters the recieved data and format it's in a simple & usable way
+ * Filters the data and format it
  */
 export const filterData = (data: InfiniteData<UserSearchRes.AsObject>) => {
   return data.pages

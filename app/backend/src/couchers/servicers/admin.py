@@ -199,14 +199,6 @@ class Admin(admin_pb2_grpc.AdminServicer):
             user.is_banned = False
             return _user_to_details(session, user)
 
-    def UnbanUser(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
-            if not user:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-            user.is_banned = False
-        return self.AddAdminNote(request, context)
-
     def AddAdminNote(self, request, context):
         with session_scope() as session:
             user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
