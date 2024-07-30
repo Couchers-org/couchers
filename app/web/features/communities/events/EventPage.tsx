@@ -278,19 +278,49 @@ export default function EventPage({
                 )}
               </div>
               <div className={classes.actionButtons}>
-                {event.canEdit || event.canModerate ? (
-                  <Link
-                    href={routeToEditEvent(event.eventId, event.slug)}
-                    passHref
-                  >
+                {event.canEdit ? (
+                  <>
+                    <Link
+                      href={routeToEditEvent(event.eventId, event.slug)}
+                      passHref
+                    >
+                      <Button
+                        component="a"
+                        variant="outlined"
+                        disabled={event.isCancelled || isPastEvent}
+                      >
+                        {t("communities:edit_event")}
+                      </Button>
+                    </Link>
                     <Button
-                      component="a"
-                      variant="outlined"
+                      onClick={() => setCancelDialogIsOpen(true)}
+                      variant="contained"
+                      color="primary"
+                      classes={{ containedPrimary: classes.cancelButton }}
                       disabled={event.isCancelled || isPastEvent}
                     >
-                      {t("communities:edit_event")}
+                      {t("communities:cancel_event")}
                     </Button>
-                  </Link>
+                    <CancelEventDialog
+                      open={cancelDialogIsOpen}
+                      onClose={() => setCancelDialogIsOpen(false)}
+                      eventId={eventId}
+                    />
+                    <Button
+                      onClick={() => setInviteCommunityDialogIsOpen(true)}
+                      variant="contained"
+                      color="secondary"
+                      disabled={event.isCancelled || isPastEvent}
+                    >
+                      {t("communities:invite_community_dialog_buttons.open")}
+                    </Button>
+                    <InviteCommunityDialog
+                      afterSuccess={() => setShowInviteCommunitySuccess(true)}
+                      open={inviteCommunityDialogIsOpen}
+                      onClose={() => setInviteCommunityDialogIsOpen(false)}
+                      eventId={eventId}
+                    />
+                  </>
                 ) : null}
 
                 {event.canEdit ? (

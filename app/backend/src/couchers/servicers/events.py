@@ -101,6 +101,7 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
     attendance_state = attendance.attendee_status if attendance else None
 
     can_moderate = _can_moderate_event(session, event, context.user_id)
+    can_edit = _can_edit_event(session, event, context.user_id)
 
     going_count = session.execute(
         select(func.count())
@@ -174,7 +175,7 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
         thread=thread_to_pb(event.thread_id),
-        can_edit=_is_event_owner(event, context.user_id),
+        can_edit=can_edit,
         can_moderate=can_moderate,
     )
 
@@ -217,14 +218,14 @@ def _check_occurrence_time_validity(start_time, end_time, context):
 
 def get_users_to_notify_for_new_event(session, occurrence):
     """
-    Returns the users to notify, as well as a flag about whether this was a nearby geom search or not
+    Returns the users to notify, as well as the community id that is being notified (None if based on geo search)
     """
     cluster = occurrence.event.parent_node.official_cluster
     if cluster.parent_node_id == 1:
         logger.info("The Global Community is too big for email notifications.")
-        return [], False
+        return [], occurrence.event.parent_node_id
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
-        return list(cluster.members.where(User.is_visible)), False
+        return list(cluster.members.where(User.is_visible)), occurrence.event.parent_node_id
     else:
         max_radius = 20000  # m
         users = (
@@ -238,7 +239,7 @@ def get_users_to_notify_for_new_event(session, occurrence):
             .scalars()
             .all()
         )
-        return users, True
+        return users, None
 
 
 def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNotificationsPayload):
@@ -253,7 +254,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
         event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
         creator = occurrence.creator_user
 
-        users, is_geom_search = get_users_to_notify_for_new_event(session, occurrence)
+        users, node_id = get_users_to_notify_for_new_event(session, occurrence)
 
         inviting_user = session.execute(select(User).where(User.id == payload.inviting_user_id)).scalar_one_or_none()
 
@@ -272,8 +273,8 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
                 data=notification_data_pb2.EventCreate(
                     event=event_to_pb(session, occurrence, context),
                     inviting_user=user_model_to_pb(inviting_user, session, context),
-                    nearby=True if is_geom_search else None,
-                    in_community=community_to_pb(event.parent_node, context) if not is_geom_search else None,
+                    nearby=True if node_id is None else None,
+                    in_community=community_to_pb(event.parent_node, context) if node_id is not None else None,
                 ),
             )
 

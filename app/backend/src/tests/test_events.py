@@ -135,7 +135,7 @@ def test_CreateEvent(db):
         assert not res.owner_community_id
         assert not res.owner_group_id
         assert res.thread.thread_id
-        assert not res.can_edit
+        assert res.can_edit
         assert res.can_moderate
 
     with events_session(token3) as api:
@@ -249,7 +249,7 @@ def test_CreateEvent(db):
         assert not res.owner_community_id
         assert not res.owner_group_id
         assert res.thread.thread_id
-        assert not res.can_edit
+        assert res.can_edit
         assert res.can_moderate
 
     with events_session(token3) as api:
@@ -789,7 +789,7 @@ def test_UpdateEvent_single(db):
         assert not res.owner_community_id
         assert not res.owner_group_id
         assert res.thread.thread_id
-        assert not res.can_edit
+        assert res.can_edit
         assert res.can_moderate
 
     with events_session(token3) as api:
@@ -899,7 +899,7 @@ def test_UpdateEvent_single(db):
         assert not res.owner_community_id
         assert not res.owner_group_id
         assert res.thread.thread_id
-        assert not res.can_edit
+        assert res.can_edit
         assert res.can_moderate
 
     with events_session(token3) as api:
@@ -1170,7 +1170,7 @@ def test_GetEvent(db):
         assert not res.owner_community_id
         assert not res.owner_group_id
         assert res.thread.thread_id
-        assert not res.can_edit
+        assert res.can_edit
         assert res.can_moderate
 
     with events_session(token3) as api:
