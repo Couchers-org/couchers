@@ -3,14 +3,21 @@
     "version": ">= 10.2.1"
   },
   "build": {
+    "production": {
+      "android": {
+        "image": "latest"
+      },
+      "ios": {
+        "image": "latest"
+      }
+    },
     "development": {
       "developmentClient": true,
       "distribution": "internal"
     },
     "preview": {
       "distribution": "internal"
-    },
-    "production": {}
+    }
   },
   "submit": {
     "production": {}
