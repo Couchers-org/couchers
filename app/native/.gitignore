@@ -20,3 +20,4 @@ expo-env.d.ts
 # @end expo-cli
 
 submit/
+proto/**
