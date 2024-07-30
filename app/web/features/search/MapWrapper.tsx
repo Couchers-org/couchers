@@ -28,6 +28,8 @@ interface mapWrapperProps {
     | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
     | undefined;
   isLoading: boolean;
+  locationResult: any;
+  setLocationResult: any;
   results: InfiniteData<UserSearchRes.AsObject> | undefined;
   setSelectedResult: Dispatch<
     SetStateAction<
@@ -40,12 +42,14 @@ interface mapWrapperProps {
 export default function MapWrapper({
   map,
   selectedResult,
+  locationResult,
+  setLocationResult,
   isLoading,
   results,
   setSelectedResult,
 }: mapWrapperProps) {
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
-  const { locationResult, setLocationResult } = useContext(mapContext); // if behavies weirdly, then use again the initialCoords context variable
+  // const { locationResult, setLocationResult } = useContext(mapContext); // if behavies weirdly, then use again the initialCoords context variable
   const previousResult = usePrevious(selectedResult);
   const classes = useStyles();
 

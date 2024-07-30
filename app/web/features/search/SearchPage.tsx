@@ -200,11 +200,13 @@ export default function SearchPage({
           {/* Desktop */}
           <Hidden smDown>
             <SearchResultsList
-              fetchNextPage={fetchNextPage}
-              hasNext={hasNextPage}
-              error={errorMessage}
-              isLoading={isLoading || isLoadingUser || isFetching}
               results={data}
+              error={errorMessage}
+              hasNext={hasNextPage}
+              fetchNextPage={fetchNextPage}
+              selectedResult={selectedResult}
+              setSelectedResult={setSelectedResult}
+              isLoading={isLoading || isLoadingUser || isFetching}
             />
           </Hidden>
           {/* Mobile */}
@@ -215,22 +217,33 @@ export default function SearchPage({
               className={classes.mobileCollapse}
             >
               <SearchResultsList
-                fetchNextPage={fetchNextPage}
-                hasNext={hasNextPage}
-                error={errorMessage}
-                isLoading={isLoading || isLoadingUser || isFetching}
                 results={data}
+                error={errorMessage}
+                hasNext={hasNextPage}
+                fetchNextPage={fetchNextPage}
+                selectedResult={selectedResult}
+                setSelectedResult={setSelectedResult}
+                isLoading={isLoading || isLoadingUser || isFetching}
               />
             </Collapse>
-            <SearchBox />
+            <SearchBox
+              searchType={searchType}
+              setSearchType={setSearchType}
+              locationResult={locationResult}
+              setLocationResult={setLocationResult}
+              setQueryName={setQueryName}
+              queryName={queryName}
+             />
           </Hidden>
           <div className={classes.mapContainer}>
             <MapWrapper
               map={map}
               results={data}
-              isLoading={isLoading || isLoadingUser || isFetching}
-              setSelectedResult={setSelectedResult}
               selectedResult={selectedResult}
+              locationResult={locationResult}
+              setLocationResult={setLocationResult}
+              setSelectedResult={setSelectedResult}
+              isLoading={isLoading || isLoadingUser || isFetching}
             />
           </div>
         </div>

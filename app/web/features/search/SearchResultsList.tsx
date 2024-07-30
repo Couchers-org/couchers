@@ -2,15 +2,15 @@ import HorizontalScroller from "components/HorizontalScroller";
 import { Hidden, makeStyles, Paper } from "@material-ui/core";
 import CircularProgress from "components/CircularProgress";
 import SearchResult from "features/search/SearchResult";
+import { Dispatch, SetStateAction } from "react";
 import { UserSearchRes } from "proto/search_pb";
-import { mapContext } from "./SearchPage";
-import SearchBox from "./SearchBox";
 import TextBody from "components/TextBody";
 import { InfiniteData } from "react-query";
 import { SEARCH } from "i18n/namespaces";
 import { useTranslation } from "i18n";
 import Alert from "components/Alert";
-import { useContext } from "react";
+import SearchBox from "./SearchBox";
+import { User } from "proto/api_pb";
 
 const useStyles = makeStyles((theme) => ({
   mapResults: {
@@ -81,6 +81,8 @@ interface mapWrapperProps {
   error: string | undefined;
   hasNext: boolean | undefined;
   fetchNextPage: () => void;
+  selectedResult: Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined;
+  setSelectedResult: Dispatch<SetStateAction<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>>;
 }
 
 export default function SearchResultsList({
@@ -89,8 +91,9 @@ export default function SearchResultsList({
   error,
   hasNext,
   fetchNextPage,
+  selectedResult,
+  setSelectedResult,
 }: mapWrapperProps) {
-  const { selectedResult, setSelectedResult } = useContext(mapContext);
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
   const hasAtLeastOnePageResults = true;
@@ -132,10 +135,10 @@ export default function SearchResultsList({
                       user={result.user}
                       onSelect={() => {
                         setSelectedResult({
-                          username: result.user?.username,
-                          userId: result.user?.userId,
-                          lng: result.user?.lng,
-                          lat: result.user?.lat,
+                          username: result.user?.username as string,
+                          userId: result.user?.userId as number,
+                          lng: result.user?.lng as number,
+                          lat: result.user?.lat as number,
                         });
                       }}
                       highlight={

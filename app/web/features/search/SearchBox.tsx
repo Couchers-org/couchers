@@ -13,7 +13,7 @@ import LocationAutocomplete from "components/LocationAutocomplete";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import FilterDialog from "./FilterDialog";
 import { mapContext } from "./SearchPage";
-import { useContext, useState } from "react";
+import { useContext, useState, SetStateAction, Dispatch } from "react";
 import TextField from "components/TextField";
 import { CrossIcon } from "components/Icons";
 import makeStyles from "utils/makeStyles";
@@ -37,19 +37,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SearchBox() {
-  const className = ""; // initially were injected by props
+interface SearchBoxProps {
+  searchType: string;
+  setSearchType: Dispatch<SetStateAction<string>>;
+  locationResult: any;
+  setLocationResult: Dispatch<SetStateAction<any>>;
+  setQueryName: Dispatch<SetStateAction<any>>;
+  queryName: undefined | string;
+}
+
+export default function SearchBox({searchType, setSearchType, locationResult, setLocationResult, setQueryName, queryName}: SearchBoxProps) {
+  const className = ""; // initially were injected by props, check this later
   const worldWideViewPort = [-61, -57, 72, 73];
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const {
-    searchType,
-    setSearchType,
-    locationResult,
-    setLocationResult,
-    setQueryName,
-    queryName,
-  } = useContext(mapContext); //useState<"location" | "keyword">(() => "location");
   const classes = useStyles();
   const theme = useTheme();
   const isSmDown = useMediaQuery(theme.breakpoints.down("sm"));
