@@ -148,7 +148,7 @@ export const addClusteredUsersToMap = (
   map: MaplibreMap,
   userClickedCallback?: MapClickedCallback
 ) => {
-  map.addSource("clustered-users", sources["clustered-users"]); // TODO: here users are added to the map
+  map.addSource("clustered-users", sources["clustered-users"]);
   addPinImages(map);
   map.addLayer(layers.clusterLayer);
   map.addLayer(layers.clusterCountLayer);

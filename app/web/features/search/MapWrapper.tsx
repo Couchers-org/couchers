@@ -1,59 +1,82 @@
 import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { addClusteredUsersToMap, layers } from "../search/users"; // TODO: here?
+import { addClusteredUsersToMap, layers } from "../search/users";
 import { usePrevious } from "utils/hooks";
 import { MutableRefObject } from "react";
 import { User } from "proto/api_pb";
 import Map from "components/Map";
+import { filterData } from "../search/users";
+import { reRenderUsersOnMap } from "features/search/users";
 import { Point } from "geojson";
+import { InfiniteData } from "react-query";
+import { UserSearchRes } from "proto/search_pb";
 import { Dispatch, SetStateAction } from "react";
-
+import makeStyles from "utils/makeStyles";
 import { mapContext } from "./SearchPage";
+import Button from "components/Button";
+
+const useStyles = makeStyles((theme) => ({
+  searchHereButton: {
+    top: "-40rem",
+    display: "flex",
+    margin: "0 auto"
+  }
+}));
 
 interface mapWrapperProps {
   selectedResult:
     | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
     | undefined;
+  isLoading: boolean;
+  results: InfiniteData<UserSearchRes.AsObject> | undefined;
   setSelectedResult: Dispatch<
     SetStateAction<
       Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
     >
   >;
   map: MutableRefObject<MaplibreMap | undefined>;
-  handleMapUserClick: (
-    ev: maplibregl.MapMouseEvent & {
-      features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
-    } & EventData
-  ) => void;
 }
 
 export default function MapWrapper({
   map,
   selectedResult,
+  isLoading,
+  results,
   setSelectedResult,
-  handleMapUserClick,
 }: mapWrapperProps) {
-  // const [selectedResult, setSelectedResult] = useState<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>(undefined);
-  const { locationResult } = useContext(mapContext); // if behavies weirdly, then use again the initialCoords context variable
-  const previousResult = usePrevious(selectedResult);
-
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
+  const { locationResult, setLocationResult } = useContext(mapContext); // if behavies weirdly, then use again the initialCoords context variable
+  const previousResult = usePrevious(selectedResult);
+  const classes = useStyles();
 
-  const showResults = useRef(false);
+  /**
+   * User clicks on a user on map
+   */
+  const handleMapUserClick = useCallback(
+    (
+      ev: maplibregl.MapMouseEvent & {
+        features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
+      } & EventData
+    ) => {
+      ev.preventDefault();
 
-  // const searchFilters = useRouteWithSearchFilters(searchRoute);
+      const props = ev.features?.[0].properties;
+      const geom = ev.features?.[0].geometry as Point;
 
-  /*
-  useEffect(() => {
-    if (showResults.current !== searchFilters.any) {
-      showResults.current = searchFilters.any;
-      setTimeout(() => {
-        map.current?.resize();
-      }, theme.transitions.duration.standard);
-    }
-  }, [searchFilters.any, selectedResult, theme.transitions.duration.standard]);
-  */
+      if (!props || !geom) return;
 
+      const username = props.username;
+      const userId = props.id;
+
+      const [lng, lat] = geom.coordinates;
+      setSelectedResult({ username, userId, lng, lat });
+    },
+    []
+  );
+
+  /**
+   * Moves map to selected user's location
+   */
   const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
     map.current?.stop();
     map.current?.easeTo({
@@ -105,13 +128,13 @@ export default function MapWrapper({
   useEffect(() => {
     if (!map.current) return;
     const handleMapClickAway = (e: EventData) => {
-      //defaultPrevented is true when a map feature has been clicked
+      // DefaultPrevented is true when a map feature has been clicked
       if (!e.defaultPrevented) {
         setSelectedResult(undefined);
       }
     };
 
-    //bind event handlers for map events (order matters!)
+    // Bind event handlers for map events (order matters!)
     map.current.on(
       "click",
       layers.unclusteredPointLayer.id,
@@ -125,7 +148,7 @@ export default function MapWrapper({
     return () => {
       if (!map.current) return;
 
-      //unbind event handlers for map events
+      // Unbind event handlers for map events
       map.current.off("sourcedata", handleMapSourceData);
       map.current.off("click", handleMapClickAway);
       map.current.off(
@@ -139,17 +162,48 @@ export default function MapWrapper({
   const initializeMap = (newMap: MaplibreMap) => {
     map.current = newMap;
     newMap.on("load", () => {
-      addClusteredUsersToMap(newMap); // TODO: remove this (we don't need to load the full map of users)
+      addClusteredUsersToMap(newMap);
+      handleOnClick();
     });
   };
 
+  /**
+   * Clicks on 'search here' button
+   */
+  const handleOnClick = () => {
+    let currentBbox = map.current?.getBounds().toArray() as number[][];
+    if (currentBbox) {
+      if (map.current?.getBounds) {
+        setLocationResult({...locationResult, name: "", simplifiedName: "", bbox: [currentBbox[0][0], currentBbox[0][1], currentBbox[1][0], currentBbox[1][1]]});
+      }
+    }
+  }
+
+  /**
+   * Re-renders users list on map (when results array changed)
+   */
+  useEffect(() => {
+    if (map.current?.loaded()) {
+      map.current?.stop();
+
+      if (results) {
+        const usersToRender = filterData(results);
+        reRenderUsersOnMap(map.current, usersToRender, handleMapUserClick);
+      }
+    }
+  }, [results, map.current, map.current?.loaded()]);
+
   return (
+    <>
     <Map
       grow
       initialCenter={locationResult.Location}
       initialZoom={5}
       postMapInitialize={initializeMap}
       hash
-    />
+      />
+
+      <Button loading={isLoading} onClick={handleOnClick} className={classes.searchHereButton}>search here</Button>
+    </>
   );
 }

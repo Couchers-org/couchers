@@ -8,11 +8,9 @@ import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
 import maplibregl, { EventData, Map as MaplibreMap } from "maplibre-gl";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { selectedUserZoom } from "features/search/constants";
-import { reRenderUsersOnMap } from "features/search/users";
 import SearchResultsList from "./SearchResultsList";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { UserSearchRes } from "proto/search_pb";
-import { filterData } from "../search/users";
 import HtmlMeta from "components/HtmlMeta";
 import { useTranslation } from "i18n";
 import MapWrapper from "./MapWrapper";
@@ -103,28 +101,7 @@ export default function SearchPage({
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
   >(undefined);
 
-  const handleMapUserClick = useCallback(
-    (
-      ev: maplibregl.MapMouseEvent & {
-        features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
-      } & EventData
-    ) => {
-      ev.preventDefault();
-
-      const props = ev.features?.[0].properties;
-      const geom = ev.features?.[0].geometry as Point;
-
-      if (!props || !geom) return;
-
-      const username = props.username;
-      const userId = props.id;
-
-      const [lng, lat] = geom.coordinates;
-      setSelectedResult({ username, userId, lng, lat });
-    },
-    []
-  );
-
+  // Loads the list of users
   const { data, error, isLoading, fetchNextPage, isFetching, hasNextPage } =
     useInfiniteQuery<UserSearchRes.AsObject, Error>(
       [
@@ -148,9 +125,7 @@ export default function SearchPage({
         return service.search.userSearch(
           {
             query: queryName,
-            lat: locationResult.location.lat || undefined,
-            lng: locationResult.location.lng || undefined,
-            radius: 50000,
+            bbox: locationResult.bbox,
             lastActive:
               lastActiveComparation === 0 ? undefined : lastActiveFilter,
             hostingStatusOptions:
@@ -179,18 +154,6 @@ export default function SearchPage({
     });
   }, [locationResult.bbox]);
 
-  // Re-render users on map
-  useEffect(() => {
-    if (map.current && map.current?.loaded()) {
-      map.current?.stop();
-
-      if (data) {
-        const usersToRender = filterData(data);
-        reRenderUsersOnMap(map.current, usersToRender, handleMapUserClick);
-      }
-    }
-  }, [data, map.current?.loaded()]);
-
   // Initial bounding box
   useEffect(() => {
     if (isLoadingUser === false && userData && bbox.join() === "0,0,0,0") {
@@ -204,17 +167,6 @@ export default function SearchPage({
       map.current?.fitBounds(map.current?.getBounds());
     }
   }, [isLoadingUser]);
-
-  /**
-   * TODO: boilerplate here, intended to be used in the 'search here' button
-   */
-  const showBounds = () => {
-    const bounds = map.current?.getBounds();
-  };
-
-  useEffect(() => {
-    map.current?.on("move", showBounds);
-  }, []);
 
   let errorMessage = error?.message || undefined;
   if (errorUser) {
@@ -275,9 +227,10 @@ export default function SearchPage({
           <div className={classes.mapContainer}>
             <MapWrapper
               map={map}
+              results={data}
+              isLoading={isLoading || isLoadingUser || isFetching}
               setSelectedResult={setSelectedResult}
               selectedResult={selectedResult}
-              handleMapUserClick={handleMapUserClick}
             />
           </div>
         </div>
