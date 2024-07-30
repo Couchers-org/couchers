@@ -153,6 +153,7 @@ def test_user_filter_meetup_status(db):
 
 @pytest.fixture
 def sample_event_data() -> dict:
+    """Dummy data for creating events."""
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)
     return {
