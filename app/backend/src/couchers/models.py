@@ -610,20 +610,6 @@ class StrongVerificationCallbackEvent(Base):
     iris_status = Column(String, nullable=False)
 
 
-class PhoneVerificationCallbackEvent(Base):
-    __tablename__ = "phone_verification_callback_events"
-
-    id = Column(BigInteger, primary_key=True)
-
-    # this is returned in the callback, and we look up the attempt via this
-    verification_attempt_token = Column(String, nullable=False, unique=True)
-
-    status = Column(
-        Enum(StrongVerificationAttemptStatus),
-        nullable=False,
-        default=StrongVerificationAttemptStatus.in_progress_waiting_on_user_to_open_app,
-    )
-
 
 class DonationType(enum.Enum):
     one_time = enum.auto()
