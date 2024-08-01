@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { reactQueryRetries } from "@/appConstants";
+import { reactQueryRetries } from "appConstants";
 import { useEffect } from "react";
 import {
   QueryClient,
