@@ -75,13 +75,13 @@ export default function CouchersScreen() {
         <ThemedText type="title">auth state: userid: { authState.userId }</ThemedText>
         { authState.authenticated ?
         <>
-          <Text>You are logged in!!</Text>
+          <ThemedText>You are logged in!!</ThemedText>
           <Button
             title="Log out"
             onPress={logOut}
           />
         </> : <>
-          <Text>You are logged out. Log in: </Text>
+          <ThemedText>You are logged out. Log in: </ThemedText>
           <Button
             title="Log in"
             onPress={logIn}
