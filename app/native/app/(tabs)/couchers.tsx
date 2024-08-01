@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, Button, Alert } from 'react-native';
+import { Image, StyleSheet, Platform, Button, Alert, Text, View, TextInput } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -9,16 +9,28 @@ import { RpcError } from "grpc-web";
 import { service } from "@/service";
 import { StatusRes } from "@/proto/bugs_pb";
 
+import { useAuthContext } from "@/features/auth/AuthProvider";
 
 export default function CouchersScreen() {
   const [pressed, setPressed] = useState<number>(0);
 
+  const { authState, authActions } = useAuthContext();
+
   const { data: resp, mutate: checkCoucherCount, } = useMutation<StatusRes.AsObject, RpcError, void>(() => service.version.status());
+
+  const staticLogin = () => {
+    authActions.passwordLogin({
+      username: "aapeli_native",
+      password: "unsafepassword",
+      rememberDevice: true,
+    });
+  };
 
   const onPress = () => {
     setPressed(pressed+1)
+    staticLogin();
     // Alert.alert('Simple Button pressed')
-    checkCoucherCount();
+    // checkCoucherCount();
   }
 
   return (
@@ -40,6 +52,9 @@ export default function CouchersScreen() {
         />
         <ThemedText type="subtitle">{ pressed == 0 ? "didn't press yet" : `pressed ${pressed} time(s)` }</ThemedText>
         <ThemedText type="subtitle">API response: version: {resp?.version}, # users: {resp?.coucherCount}</ThemedText>
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="title">auth state: userid: { authState.userId }</ThemedText>
       </ThemedView>
     </ParallaxScrollView>
   );
