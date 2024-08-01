@@ -12,7 +12,6 @@ import { InfiniteData } from "react-query";
 import { UserSearchRes } from "proto/search_pb";
 import { Dispatch, SetStateAction } from "react";
 import makeStyles from "utils/makeStyles";
-import { mapContext } from "./SearchPage";
 import Button from "components/Button";
 
 const useStyles = makeStyles((theme) => ({

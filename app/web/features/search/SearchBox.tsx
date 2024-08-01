@@ -6,14 +6,10 @@ import {
   Radio,
   RadioGroup,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from "@material-ui/core";
 import LocationAutocomplete from "components/LocationAutocomplete";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import FilterDialog from "./FilterDialog";
-import { mapContext } from "./SearchPage";
-import { useContext, useState, SetStateAction, Dispatch } from "react";
+import { SetStateAction, Dispatch } from "react";
 import TextField from "components/TextField";
 import { CrossIcon } from "components/Icons";
 import makeStyles from "utils/makeStyles";
@@ -44,44 +40,21 @@ interface SearchBoxProps {
   setLocationResult: Dispatch<SetStateAction<any>>;
   setQueryName: Dispatch<SetStateAction<any>>;
   queryName: undefined | string;
+  setIsFiltersOpen: any;
 }
 
-export default function SearchBox({searchType, setSearchType, locationResult, setLocationResult, setQueryName, queryName}: SearchBoxProps) {
-  const className = ""; // initially were injected by props, check this later
+export default function SearchBox({searchType, setSearchType, locationResult, setLocationResult, setQueryName, queryName, setIsFiltersOpen }: SearchBoxProps) {
   const worldWideViewPort = [-61, -57, 72, 73];
+  
   const { t } = useTranslation([GLOBAL, SEARCH]);
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const classes = useStyles();
-  const theme = useTheme();
-  const isSmDown = useMediaQuery(theme.breakpoints.down("sm"));
+  // const theme = useTheme();
+  // const isSmDown = useMediaQuery(theme.breakpoints.down("sm"));
+  const className = ""; // initially were injected by props, check this later
 
   const { control, setValue, errors, register, handleSubmit } = useForm({
     mode: "onChange",
   });
-
-  const filterDialog = (
-    <FilterDialog
-      isOpen={isFiltersOpen}
-      onClose={() => setIsFiltersOpen(false)}
-    />
-  );
-
-  if (isSmDown) {
-    return (
-      <>
-        <Button
-          onClick={() => setIsFiltersOpen(true)}
-          className={className}
-          variant="contained"
-          size="medium"
-        >
-          {t("search:filter_dialog.mobile_title")}
-        </Button>
-
-        {filterDialog}
-      </>
-    );
-  }
 
   return (
     <>
@@ -185,8 +158,6 @@ export default function SearchBox({searchType, setSearchType, locationResult, se
         >
           {t("search:filter_dialog.desktop_title")}
         </Button>
-
-        {filterDialog}
       </div>
     </>
   );

@@ -9,7 +9,6 @@ import { InfiniteData } from "react-query";
 import { SEARCH } from "i18n/namespaces";
 import { useTranslation } from "i18n";
 import Alert from "components/Alert";
-import SearchBox from "./SearchBox";
 import { User } from "proto/api_pb";
 
 const useStyles = makeStyles((theme) => ({
@@ -83,6 +82,7 @@ interface mapWrapperProps {
   fetchNextPage: () => void;
   selectedResult: Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined;
   setSelectedResult: Dispatch<SetStateAction<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>>;
+  SearchBoxComponent: any;
 }
 
 export default function SearchResultsList({
@@ -93,6 +93,7 @@ export default function SearchResultsList({
   fetchNextPage,
   selectedResult,
   setSelectedResult,
+  SearchBoxComponent,
 }: mapWrapperProps) {
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
@@ -103,7 +104,7 @@ export default function SearchResultsList({
       {error && <Alert severity="error">{error}</Alert>}
 
       <Hidden smDown>
-        <SearchBox />
+        <SearchBoxComponent />
       </Hidden>
 
       <>

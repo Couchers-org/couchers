@@ -15,11 +15,10 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import LocationAutocomplete from "components/LocationAutocomplete";
-// import { hostingStatusLabels } from "features/profile/constants";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { useTranslation, TFunction } from "i18n";
+import { Dispatch, SetStateAction } from "react";
 import SearchFilters from "utils/searchFilters";
-import { mapContext } from "./SearchPage";
 import IconButton from "components/IconButton";
 import TextField from "components/TextField";
 import { HostingStatus } from "proto/api_pb";
@@ -29,7 +28,6 @@ import { useForm } from "react-hook-form";
 import Divider from "components/Divider";
 import Select from "components/Select";
 import Button from "components/Button";
-import { useContext } from "react";
 
 enum lastActiveOptions {
   LAST_ACTIVE_ANY = 0,
@@ -91,26 +89,23 @@ interface FilterModalFormData
   lastActive: ReturnType<typeof getLastActiveOptions>;
 }
 
-export default function FilterDialog({
-  isOpen,
-  onClose,
-}: {
+interface FilterDialogProps {
   isOpen: boolean;
   onClose(): void;
-}) {
+  setLocationResult: any;
+  lastActiveFilter: number;
+  setLastActiveFilter: Dispatch<SetStateAction<number>>;
+  hostingStatusFilter: number;
+  setHostingStatusFilter: Dispatch<SetStateAction<number>>;
+  completeProfileFilter: boolean;
+  setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
+  numberOfGuestFilter: undefined;
+  setNumberOfGuestFilter: Dispatch<SetStateAction<undefined>>;
+}
+
+export default function FilterDialog({isOpen, onClose, setLocationResult, lastActiveFilter, setLastActiveFilter, hostingStatusFilter, setHostingStatusFilter, completeProfileFilter, setCompleteProfileFilter, numberOfGuestFilter, setNumberOfGuestFilter}: FilterDialogProps) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
-  const {
-    lastActiveFilter,
-    setLastActiveFilter,
-    hostingStatusFilter,
-    setHostingStatusFilter,
-    setLocationResult,
-    completeProfileFilter,
-    setCompleteProfileFilter,
-    numberOfGuestFilter,
-    setNumberOfGuestFilter,
-  } = useContext(mapContext);
   const { control, handleSubmit, register, setValue, getValues, errors } =
     useForm<FilterModalFormData>({
       mode: "onBlur",
@@ -190,7 +185,7 @@ export default function FilterDialog({
                 id="last_active_filter"
                 className={classes.marginBottom}
                 value={lastActiveFilter}
-                onChange={(e) => setLastActiveFilter(e.target.value)}
+                onChange={(e) => setLastActiveFilter(e.target.value as number)}
                 label={t("search:form.host_filters.last_active_field_label")}
                 optionLabelMap={getLastActiveOptions(t)}
                 options={[
@@ -207,7 +202,7 @@ export default function FilterDialog({
                 id="can_host_status_filter"
                 value={hostingStatusFilter}
                 onChange={(e) => {
-                  setHostingStatusFilter(e.target.value);
+                  setHostingStatusFilter(e.target.value as number);
                 }}
                 label={t("search:form.host_filters.hosting_status_field_label")}
                 optionLabelMap={hostingStatusLabels(t)}
@@ -245,7 +240,7 @@ export default function FilterDialog({
                 id="num-guests-filter"
                 value={numberOfGuestFilter}
                 onChange={(e) => {
-                  setNumberOfGuestFilter(e.target.value);
+                  setNumberOfGuestFilter(e.target.value as unknown as undefined);
                 }}
                 inputRef={register({
                   valueAsNumber: true,
