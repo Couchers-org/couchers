@@ -23,19 +23,10 @@ export function parsedQueryToSearchFilters(urlQuery: ParsedUrlQuery) {
       //ints
       case "lastActive":
       case "numGuests":
-      case "radius":
         const int = Number.parseInt(stringOrFirstString(urlQuery[key]) || "");
         if (int) filters[key] = int;
         break;
 
-      //floats
-      case "lat":
-      case "lng":
-        const float = Number.parseFloat(
-          stringOrFirstString(urlQuery[key]) || ""
-        );
-        if (float) filters[key] = float;
-        break;
 
       case "bbox":
         const list = urlQuery[key] || [];

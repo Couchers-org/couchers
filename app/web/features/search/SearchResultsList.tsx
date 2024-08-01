@@ -9,6 +9,7 @@ import { InfiniteData } from "react-query";
 import { SEARCH } from "i18n/namespaces";
 import { useTranslation } from "i18n";
 import Alert from "components/Alert";
+import SearchBox from "./SearchBox";
 import { User } from "proto/api_pb";
 
 const useStyles = makeStyles((theme) => ({
@@ -80,15 +81,15 @@ interface mapWrapperProps {
   error: string | undefined;
   hasNext: boolean | undefined;
   fetchNextPage: () => void;
-  selectedResult:
-    | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
-    | undefined;
-  setSelectedResult: Dispatch<
-    SetStateAction<
-      Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
-    >
-  >;
-  SearchBoxComponent: any;
+  selectedResult: Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined;
+  setSelectedResult: Dispatch<SetStateAction<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>>;
+  searchType: any;
+  setSearchType: any;
+  locationResult: any;
+  setLocationResult: any;
+  setQueryName: any;
+  queryName: any;
+  setIsFiltersOpen: any;
 }
 
 export default function SearchResultsList({
@@ -99,7 +100,13 @@ export default function SearchResultsList({
   fetchNextPage,
   selectedResult,
   setSelectedResult,
-  SearchBoxComponent,
+  searchType,
+  setSearchType,
+  locationResult,
+  setLocationResult,
+  setQueryName,
+  queryName,
+  setIsFiltersOpen,
 }: mapWrapperProps) {
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
@@ -110,7 +117,15 @@ export default function SearchResultsList({
       {error && <Alert severity="error">{error}</Alert>}
 
       <Hidden smDown>
-        <SearchBoxComponent />
+        <SearchBox
+          setIsFiltersOpen={setIsFiltersOpen}
+          searchType={searchType}
+          setSearchType={setSearchType}
+          locationResult={locationResult}
+          setLocationResult={setLocationResult}
+          setQueryName={setQueryName}
+          queryName={queryName}
+        />
       </Hidden>
 
       <>

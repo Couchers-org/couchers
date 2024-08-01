@@ -3,9 +3,9 @@ import {
   QueryClientProvider,
   useInfiniteQuery,
 } from "react-query";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, createContext } from "react";
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
-import { Map as MaplibreMap } from "maplibre-gl";
+import maplibregl, { EventData, Map as MaplibreMap } from "maplibre-gl";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { selectedUserZoom } from "features/search/constants";
 import SearchResultsList from "./SearchResultsList";
@@ -19,6 +19,7 @@ import MapWrapper from "./MapWrapper";
 import SearchBox from "./SearchBox";
 import { User } from "proto/api_pb";
 import { service } from "service";
+import { Point } from "geojson";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -58,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 /**
- * Search page, queries the backend & obtains all the users to be shown on the map, creates all the state variables and sends them to the search page sub-components
+ * Search page, queries the backend & obtains all the users to be shown on the map, creates all the state variables and sends them to the search page sub-components 
  */
 export default function SearchPage({
   locationName,
@@ -97,19 +98,15 @@ export default function SearchPage({
   >(undefined);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false); // TODO: Inject by props
 
-  const SearchBoxComponent = () => {
-    return (
-      <SearchBox
-        setIsFiltersOpen={setIsFiltersOpen}
-        searchType={searchType}
-        setSearchType={setSearchType}
-        locationResult={locationResult}
-        setLocationResult={setLocationResult}
-        setQueryName={setQueryName}
-        queryName={queryName}
-      />
-    );
-  };
+  const SearchBoxComponent = <SearchBox
+    setIsFiltersOpen={setIsFiltersOpen}
+    searchType={searchType}
+    setSearchType={setSearchType}
+    locationResult={locationResult}
+    setLocationResult={setLocationResult}
+    setQueryName={setQueryName}
+    queryName={queryName}
+  />;
 
   // Loads the list of users
   const { data, error, isLoading, fetchNextPage, isFetching, hasNextPage } =
@@ -190,6 +187,15 @@ export default function SearchPage({
         {/* Desktop */}
         <Hidden smDown>
           <SearchResultsList
+            setIsFiltersOpen={setIsFiltersOpen}
+            searchType={searchType}
+            setSearchType={setSearchType}
+            locationResult={locationResult}
+            setLocationResult={setLocationResult}
+            queryName={queryName}
+            setQueryName={setQueryName}
+            
+            
             results={data}
             error={errorMessage}
             hasNext={hasNextPage}
@@ -197,7 +203,6 @@ export default function SearchPage({
             selectedResult={selectedResult}
             setSelectedResult={setSelectedResult}
             isLoading={isLoading || isLoadingUser || isFetching}
-            SearchBoxComponent={SearchBoxComponent}
           />
         </Hidden>
         {/* Mobile */}
@@ -208,6 +213,15 @@ export default function SearchPage({
             className={classes.mobileCollapse}
           >
             <SearchResultsList
+              setIsFiltersOpen={setIsFiltersOpen}
+              searchType={searchType}
+              setSearchType={setSearchType}
+              locationResult={locationResult}
+              setLocationResult={setLocationResult}
+              queryName={queryName}
+              setQueryName={setQueryName}
+
+
               results={data}
               error={errorMessage}
               hasNext={hasNextPage}
@@ -215,7 +229,6 @@ export default function SearchPage({
               selectedResult={selectedResult}
               setSelectedResult={setSelectedResult}
               isLoading={isLoading || isLoadingUser || isFetching}
-              SearchBoxComponent={SearchBoxComponent}
             />
           </Collapse>
           <Button
