@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, Button, Alert, Text, View, TextInput } from 'react-native';
+import { Image, StyleSheet, Platform, Button, Text, View, TextInput } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -8,10 +8,17 @@ import { useMutation } from "react-query";
 import { RpcError } from "grpc-web";
 import { service } from "service";
 import { StatusRes } from "proto/bugs_pb";
+import Alert from "components/Alert";
+import LoginForm from "features/auth/login/LoginForm";
 
 import { useAuthContext } from "features/auth/AuthProvider";
 
+import { useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
+
 export default function CouchersScreen() {
+  const { t } = useTranslation([AUTH, GLOBAL]);
+
   const [pressed, setPressed] = useState<number>(0);
 
   const { authState, authActions } = useAuthContext();
@@ -46,7 +53,15 @@ export default function CouchersScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Couchers.org Stuff?!</ThemedText>
+        <ThemedText type="title">{t("auth:login_page.title")}</ThemedText>
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        {authState.error && (
+          <Alert>
+            {authState.error}
+          </Alert>
+        )}
+        <LoginForm />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <Button

@@ -6,12 +6,15 @@
       "@/*": [
         "./*"
       ],
+      "appConstants": ["appConstants.ts"],
+      "components/*": ["components/*"],
       "features/*": ["features/*"],
       "i18n": ["i18n/index.ts"],
       "i18n/*": ["i18n/*"],
       "proto/*": ["proto/*"],
       "service": ["service/index.ts"],
       "service/*": ["service/*"],
+      "theme": ["theme.ts"],
       "utils/*": ["utils/*"]
     }
   },
