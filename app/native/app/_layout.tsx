@@ -4,7 +4,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-import AuthProvider from "@/features/auth/AuthProvider";
+import AuthProvider from "features/auth/AuthProvider";
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ReactQueryClientProvider } from '@/features/reactQueryClient';

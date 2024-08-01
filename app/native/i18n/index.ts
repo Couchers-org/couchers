@@ -1,4 +1,4 @@
-import resources from "@/i18n/resources";
+import resources from "i18n/resources";
 import i18n from "i18next";
 import {
   initReactI18next,

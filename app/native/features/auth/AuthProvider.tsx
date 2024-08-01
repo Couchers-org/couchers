@@ -1,9 +1,9 @@
 import { Alert } from 'react-native';
 import { RpcError } from "grpc-web";
-import { useTranslation } from "@/i18n";
-import { AUTH } from "@/i18n/namespaces";
+import { useTranslation } from "i18n";
+import { AUTH } from "i18n/namespaces";
 import React, { Context, ReactNode, useContext, useEffect } from "react";
-import { setUnauthenticatedErrorHandler } from "@/service/client";
+import { setUnauthenticatedErrorHandler } from "service/client";
 
 import { JAILED_ERROR_MESSAGE } from "./constants";
 import useAuthStore, { AuthStoreType } from "./useAuthStore";

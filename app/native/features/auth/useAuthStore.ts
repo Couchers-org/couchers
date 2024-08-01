@@ -1,12 +1,12 @@
 // import * as Sentry from "@sentry/nextjs";
-import { userKey } from "@/features/queryKeys";
-import { useTranslation } from "@/i18n";
-import { GLOBAL } from "@/i18n/namespaces";
-import { AuthRes, SignupFlowRes } from "@/proto/auth_pb";
+import { userKey } from "features/queryKeys";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
+import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useEffect, useCallback, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
-import { service } from "@/service";
-import isGrpcError from "@/utils/isGrpcError";
+import { service } from "service";
+import isGrpcError from "utils/isGrpcError";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function usePersistedState<T>(
@@ -108,7 +108,7 @@ export default function useAuthStore() {
           // });
           setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
-        window.sessionStorage.clear();
+        // window.sessionStorage.clear();
         setLoading(false);
       },
       async passwordLogin({

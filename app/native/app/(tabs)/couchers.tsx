@@ -6,10 +6,10 @@ import { ThemedView } from '@/components/ThemedView';
 import { useState } from 'react';
 import { useMutation } from "react-query";
 import { RpcError } from "grpc-web";
-import { service } from "@/service";
-import { StatusRes } from "@/proto/bugs_pb";
+import { service } from "service";
+import { StatusRes } from "proto/bugs_pb";
 
-import { useAuthContext } from "@/features/auth/AuthProvider";
+import { useAuthContext } from "features/auth/AuthProvider";
 
 export default function CouchersScreen() {
   const [pressed, setPressed] = useState<number>(0);
@@ -18,7 +18,7 @@ export default function CouchersScreen() {
 
   const { data: resp, mutate: checkCoucherCount, } = useMutation<StatusRes.AsObject, RpcError, void>(() => service.version.status());
 
-  const staticLogin = () => {
+  const logIn = () => {
     authActions.passwordLogin({
       username: "aapeli_native",
       password: "unsafepassword",
@@ -26,11 +26,14 @@ export default function CouchersScreen() {
     });
   };
 
+  const logOut = () => {
+    authActions.logout();
+  };
+
   const onPress = () => {
     setPressed(pressed+1)
-    staticLogin();
     // Alert.alert('Simple Button pressed')
-    // checkCoucherCount();
+    checkCoucherCount();
   }
 
   return (
@@ -55,6 +58,20 @@ export default function CouchersScreen() {
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="title">auth state: userid: { authState.userId }</ThemedText>
+        { authState.authenticated ?
+        <>
+          <Text>You are logged in!!</Text>
+          <Button
+            title="Log out"
+            onPress={logOut}
+          />
+        </> : <>
+          <Text>You are logged out. Log in: </Text>
+          <Button
+            title="Log in"
+            onPress={logIn}
+          />
+        </>}
       </ThemedView>
     </ParallaxScrollView>
   );

@@ -1,4 +1,4 @@
-import { ReferenceType } from "@/proto/references_pb";
+import { ReferenceType } from "proto/references_pb";
 
 // profiles/users
 export const languagesKey = "languages";
