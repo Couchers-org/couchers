@@ -169,6 +169,18 @@ message EventSearchReq {
   // whether the query (if any) should only search through event title and not event description
   bool query_title_only = 3;
 
+  oneof online_status {
+    bool only_online = 12;
+    bool only_offline = 13;
+  }
+
+  // all false => everything
+  bool subscribed = 14;
+  bool attending = 15;
+  bool organizing = 16;
+  // include events in the user's communities
+  bool my_communities = 17;
+
   bool include_cancelled = 4;
 
   // restrictions on area

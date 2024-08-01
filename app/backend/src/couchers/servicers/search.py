@@ -5,12 +5,26 @@ See //docs/search.md for overview.
 from datetime import timedelta
 
 import grpc
-from sqlalchemy.sql import func, or_
+from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import session_scope
-from couchers.models import Cluster, Event, EventOccurrence, Node, Page, PageType, PageVersion, Reference, User
+from couchers.models import (
+    Cluster,
+    ClusterSubscription,
+    Event,
+    EventOccurrence,
+    EventOccurrenceAttendee,
+    EventOrganizer,
+    EventSubscription,
+    Node,
+    Page,
+    PageType,
+    PageVersion,
+    Reference,
+    User,
+)
 from couchers.servicers.api import (
     hostingstatus2sql,
     meetupstatus2sql,
@@ -543,6 +557,53 @@ class Search(search_pb2_grpc.SearchServicer):
                             EventOccurrence.address.ilike(f"%{request.query.value}%"),
                         )
                     )
+
+            if request.only_online:
+                statement = statement.where(EventOccurrence.geom == None)
+            elif request.only_offline:
+                statement = statement.where(EventOccurrence.geom != None)
+
+            if request.subscribed or request.attending or request.organizing or request.my_communities:
+                where_ = []
+
+                if request.subscribed:
+                    statement = statement.outerjoin(
+                        EventSubscription,
+                        and_(EventSubscription.event_id == Event.id, EventSubscription.user_id == context.user_id),
+                    )
+                    where_.append(EventSubscription.user_id != None)
+                if request.organizing:
+                    statement = statement.outerjoin(
+                        EventOrganizer,
+                        and_(EventOrganizer.event_id == Event.id, EventOrganizer.user_id == context.user_id),
+                    )
+                    where_.append(EventOrganizer.user_id != None)
+                if request.attending:
+                    statement = statement.outerjoin(
+                        EventOccurrenceAttendee,
+                        and_(
+                            EventOccurrenceAttendee.occurrence_id == EventOccurrence.id,
+                            EventOccurrenceAttendee.user_id == context.user_id,
+                        ),
+                    )
+                    where_.append(EventOccurrenceAttendee.user_id != None)
+                if request.my_communities:
+                    my_communities = (
+                        session.execute(
+                            select(Node.id)
+                            .join(Cluster, Cluster.parent_node_id == Node.id)
+                            .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
+                            .where(ClusterSubscription.user_id == context.user_id)
+                            .where(Cluster.is_official_cluster)
+                            .order_by(Node.id)
+                            .limit(100000)
+                        )
+                        .scalars()
+                        .all()
+                    )
+                    where_.append(Event.parent_node_id.in_(my_communities))
+
+                statement = statement.where(or_(*where_))
 
             if not request.include_cancelled:
                 statement = statement.where(~EventOccurrence.is_cancelled)

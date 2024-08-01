@@ -6,9 +6,16 @@ from google.protobuf import wrappers_pb2
 from couchers.db import session_scope
 from couchers.models import EventOccurrence, MeetupStatus
 from couchers.utils import Timestamp_from_datetime, create_coordinate, millis_from_dt, now
-from proto import api_pb2, events_pb2, search_pb2
+from proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from tests.test_communities import create_community, testing_communities  # noqa
-from tests.test_fixtures import db, events_session, generate_user, search_session, testconfig  # noqa
+from tests.test_fixtures import (  # noqa
+    communities_session,
+    db,
+    events_session,
+    generate_user,
+    search_session,
+    testconfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -160,11 +167,7 @@ def sample_event_data() -> dict:
         "title": "Dummy Title",
         "content": "Dummy content.",
         "photo_key": None,
-        "offline_information": events_pb2.OfflineEventInformation(
-            address="Near Null Island",
-            lat=0.1,
-            lng=0.2,
-        ),
+        "offline_information": events_pb2.OfflineEventInformation(address="Near Null Island", lat=0.1, lng=0.2),
         "start_time": Timestamp_from_datetime(start_time),
         "end_time": Timestamp_from_datetime(end_time),
         "timezone": "UTC",
@@ -177,24 +180,17 @@ def create_event(sample_event_data):
 
     def _create_event(event_api, **kwargs) -> EventOccurrence:
         """Create an event with default values, unless overridden by kwargs."""
-        return event_api.CreateEvent(
-            events_pb2.CreateEventReq(
-                **{
-                    **sample_event_data,
-                    **kwargs,
-                }
-            )
-        )
+        return event_api.CreateEvent(events_pb2.CreateEventReq(**{**sample_event_data, **kwargs}))
 
     return _create_event
 
 
 @pytest.fixture
-def sample_community(db):
+def sample_community(db) -> int:
     """Create large community spanning from (-50, 0) to (50, 2) as events can only be created within communities."""
     user, _ = generate_user()
     with session_scope() as session:
-        create_community(session, -50, 50, "Community", [user], [], None)
+        return create_community(session, -50, 50, "Community", [user], [], None).id
 
 
 def test_EventSearch_no_filters(testing_communities):
@@ -288,15 +284,7 @@ def test_event_search_by_circle(sample_community, create_event):
             )
 
     with search_session(token) as api:
-        res = api.EventSearch(
-            search_pb2.EventSearchReq(
-                search_in_area=search_pb2.Area(
-                    lat=0,
-                    lng=0,
-                    radius=100000,
-                )
-            )
-        )
+        res = api.EventSearch(search_pb2.EventSearchReq(search_in_area=search_pb2.Area(lat=0, lng=0, radius=100000)))
         assert len(res.events) == len(inside_pts)
         assert all(event.title.startswith("Inside area") for event in res.events)
 
@@ -325,12 +313,7 @@ def test_event_search_by_rectangle(sample_community, create_event):
     with search_session(token) as api:
         res = api.EventSearch(
             search_pb2.EventSearchReq(
-                search_in_rectangle=search_pb2.RectArea(
-                    lat_min=0,
-                    lat_max=2,
-                    lng_min=0.1,
-                    lng_max=1,
-                )
+                search_in_rectangle=search_pb2.RectArea(lat_min=0, lat_max=2, lng_min=0.1, lng_max=1)
             )
         )
         assert len(res.events) == len(inside_pts)
@@ -358,12 +341,7 @@ def test_event_search_pagination(sample_community, create_event):
             )
 
     with search_session(token) as api:
-        res = api.EventSearch(
-            search_pb2.EventSearchReq(
-                past=False,
-                page_size=4,
-            )
-        )
+        res = api.EventSearch(search_pb2.EventSearchReq(past=False, page_size=4))
         assert len(res.events) == 4
         assert [event.title for event in res.events] == ["Event 1", "Event 2", "Event 3", "Event 4"]
         assert res.next_page_token == str(millis_from_dt(anchor_time + timedelta(hours=5, minutes=30)))
@@ -382,13 +360,97 @@ def test_event_search_pagination(sample_community, create_event):
         assert [event.title for event in res.events] == ["Event 4", "Event 3"]
         assert res.next_page_token == str(millis_from_dt(anchor_time + timedelta(hours=2, minutes=30)))
 
-        res = api.EventSearch(
-            search_pb2.EventSearchReq(
-                past=True,
-                page_size=2,
-                page_token=res.next_page_token,
-            )
-        )
+        res = api.EventSearch(search_pb2.EventSearchReq(past=True, page_size=2, page_token=res.next_page_token))
         assert len(res.events) == 2
         assert [event.title for event in res.events] == ["Event 2", "Event 1"]
         assert res.next_page_token == ""
+
+
+def test_event_search_online_status(sample_community, create_event):
+    """Test that EventSearch respects only_online and only_offline filters and by default returns both."""
+    user, token = generate_user()
+
+    with events_session(token) as api:
+        create_event(api, title="Offline event")
+
+        create_event(
+            api,
+            title="Online event",
+            online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
+            parent_community_id=sample_community,
+            offline_information=events_pb2.OfflineEventInformation(),
+        )
+
+    with search_session(token) as api:
+        res = api.EventSearch(search_pb2.EventSearchReq())
+        assert len(res.events) == 2
+        assert {event.title for event in res.events} == {"Offline event", "Online event"}
+
+        res = api.EventSearch(search_pb2.EventSearchReq(only_online=True))
+        assert {event.title for event in res.events} == {"Online event"}
+
+        res = api.EventSearch(search_pb2.EventSearchReq(only_offline=True))
+        assert {event.title for event in res.events} == {"Offline event"}
+
+
+def test_event_search_filter_subscription_attendance_organizing_my_communities(sample_community, create_event):
+    """Test that EventSearch respects subscribed, attending, organizing and my_communities filters and by default
+    returns all events.
+    """
+    _, token = generate_user()
+    other_user, other_token = generate_user()
+
+    with communities_session(token) as api:
+        api.JoinCommunity(communities_pb2.JoinCommunityReq(community_id=sample_community))
+
+    with session_scope() as session:
+        create_community(session, 55, 60, "Other community", [other_user], [], None)
+
+    with events_session(other_token) as api:
+        e_subscribed = create_event(api, title="Subscribed event")
+        e_attending = create_event(api, title="Attending event")
+        create_event(api, title="Community event")
+        create_event(
+            api,
+            title="Other community event",
+            offline_information=events_pb2.OfflineEventInformation(lat=58, lng=1, address="Somewhere"),
+        )
+
+    with events_session(token) as api:
+        create_event(api, title="Organized event")
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=e_subscribed.event_id, subscribe=True))
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(
+                event_id=e_attending.event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING
+            )
+        )
+
+    with search_session(token) as api:
+        res = api.EventSearch(search_pb2.EventSearchReq())
+        assert {event.title for event in res.events} == {
+            "Subscribed event",
+            "Attending event",
+            "Community event",
+            "Other community event",
+            "Organized event",
+        }
+
+        res = api.EventSearch(search_pb2.EventSearchReq(subscribed=True))
+        assert {event.title for event in res.events} == {"Subscribed event", "Organized event"}
+
+        res = api.EventSearch(search_pb2.EventSearchReq(attending=True))
+        assert {event.title for event in res.events} == {"Attending event", "Organized event"}
+
+        res = api.EventSearch(search_pb2.EventSearchReq(organizing=True))
+        assert {event.title for event in res.events} == {"Organized event"}
+
+        res = api.EventSearch(search_pb2.EventSearchReq(my_communities=True))
+        assert {event.title for event in res.events} == {
+            "Subscribed event",
+            "Attending event",
+            "Community event",
+            "Organized event",
+        }
+
+        res = api.EventSearch(search_pb2.EventSearchReq(subscribed=True, attending=True))
+        assert {event.title for event in res.events} == {"Subscribed event", "Attending event", "Organized event"}
