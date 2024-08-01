@@ -43,9 +43,17 @@ interface SearchBoxProps {
   setIsFiltersOpen: any;
 }
 
-export default function SearchBox({searchType, setSearchType, locationResult, setLocationResult, setQueryName, queryName, setIsFiltersOpen }: SearchBoxProps) {
+export default function SearchBox({
+  searchType,
+  setSearchType,
+  locationResult,
+  setLocationResult,
+  setQueryName,
+  queryName,
+  setIsFiltersOpen,
+}: SearchBoxProps) {
   const worldWideViewPort = [-61, -57, 72, 73];
-  
+
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
   // const theme = useTheme();

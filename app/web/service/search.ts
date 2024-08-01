@@ -42,7 +42,7 @@ export async function userSearch(
     rectAreaSearch.setLatMin(bbox[1]);
     rectAreaSearch.setLngMax(bbox[2]);
     rectAreaSearch.setLatMax(bbox[3]);
-  
+
     req.setSearchInRectangle(rectAreaSearch);
   }
 

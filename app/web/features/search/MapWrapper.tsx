@@ -18,8 +18,8 @@ const useStyles = makeStyles((theme) => ({
   searchHereButton: {
     top: "-40rem",
     display: "flex",
-    margin: "0 auto"
-  }
+    margin: "0 auto",
+  },
 }));
 
 interface mapWrapperProps {
@@ -177,10 +177,20 @@ export default function MapWrapper({
     let currentBbox = map.current?.getBounds().toArray() as number[][];
     if (currentBbox) {
       if (map.current?.getBounds) {
-        setLocationResult({...locationResult, name: "", simplifiedName: "", bbox: [currentBbox[0][0], currentBbox[0][1], currentBbox[1][0], currentBbox[1][1]]});
+        setLocationResult({
+          ...locationResult,
+          name: "",
+          simplifiedName: "",
+          bbox: [
+            currentBbox[0][0],
+            currentBbox[0][1],
+            currentBbox[1][0],
+            currentBbox[1][1],
+          ],
+        });
       }
     }
-  }
+  };
 
   /**
    * Re-renders users list on map (when results array changed)
@@ -198,15 +208,21 @@ export default function MapWrapper({
 
   return (
     <>
-    <Map
-      grow
-      initialCenter={locationResult.Location}
-      initialZoom={5}
-      postMapInitialize={initializeMap}
-      hash
+      <Map
+        grow
+        initialCenter={locationResult.Location}
+        initialZoom={5}
+        postMapInitialize={initializeMap}
+        hash
       />
 
-      <Button loading={isLoading} onClick={handleOnClick} className={classes.searchHereButton}>search here</Button>
+      <Button
+        loading={isLoading}
+        onClick={handleOnClick}
+        className={classes.searchHereButton}
+      >
+        search here
+      </Button>
     </>
   );
 }

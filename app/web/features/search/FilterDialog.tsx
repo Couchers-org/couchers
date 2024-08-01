@@ -103,7 +103,19 @@ interface FilterDialogProps {
   setNumberOfGuestFilter: Dispatch<SetStateAction<undefined>>;
 }
 
-export default function FilterDialog({isOpen, onClose, setLocationResult, lastActiveFilter, setLastActiveFilter, hostingStatusFilter, setHostingStatusFilter, completeProfileFilter, setCompleteProfileFilter, numberOfGuestFilter, setNumberOfGuestFilter}: FilterDialogProps) {
+export default function FilterDialog({
+  isOpen,
+  onClose,
+  setLocationResult,
+  lastActiveFilter,
+  setLastActiveFilter,
+  hostingStatusFilter,
+  setHostingStatusFilter,
+  completeProfileFilter,
+  setCompleteProfileFilter,
+  numberOfGuestFilter,
+  setNumberOfGuestFilter,
+}: FilterDialogProps) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
   const { control, handleSubmit, register, setValue, getValues, errors } =
@@ -240,7 +252,9 @@ export default function FilterDialog({isOpen, onClose, setLocationResult, lastAc
                 id="num-guests-filter"
                 value={numberOfGuestFilter}
                 onChange={(e) => {
-                  setNumberOfGuestFilter(e.target.value as unknown as undefined);
+                  setNumberOfGuestFilter(
+                    e.target.value as unknown as undefined
+                  );
                 }}
                 inputRef={register({
                   valueAsNumber: true,

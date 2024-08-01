@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 /**
- * Search page, queries the backend & obtains all the users to be shown on the map, creates all the state variables and sends them to the search page sub-components 
+ * Search page, queries the backend & obtains all the users to be shown on the map, creates all the state variables and sends them to the search page sub-components
  */
 export default function SearchPage({
   locationName,
@@ -98,15 +98,17 @@ export default function SearchPage({
   const [isFiltersOpen, setIsFiltersOpen] = useState(false); // TODO: Inject by props
 
   const SearchBoxComponent = () => {
-    return <SearchBox
-    setIsFiltersOpen={setIsFiltersOpen}
-    searchType={searchType}
-    setSearchType={setSearchType}
-    locationResult={locationResult}
-    setLocationResult={setLocationResult}
-    setQueryName={setQueryName}
-    queryName={queryName}
-  />;
+    return (
+      <SearchBox
+        setIsFiltersOpen={setIsFiltersOpen}
+        searchType={searchType}
+        setSearchType={setSearchType}
+        locationResult={locationResult}
+        setLocationResult={setLocationResult}
+        setQueryName={setQueryName}
+        queryName={queryName}
+      />
+    );
   };
 
   // Loads the list of users

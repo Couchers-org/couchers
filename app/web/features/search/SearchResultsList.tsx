@@ -80,8 +80,14 @@ interface mapWrapperProps {
   error: string | undefined;
   hasNext: boolean | undefined;
   fetchNextPage: () => void;
-  selectedResult: Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined;
-  setSelectedResult: Dispatch<SetStateAction<Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined>>;
+  selectedResult:
+    | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
+    | undefined;
+  setSelectedResult: Dispatch<
+    SetStateAction<
+      Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
+    >
+  >;
   SearchBoxComponent: any;
 }
 
