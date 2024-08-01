@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
   default: {
     fontSize: 16,
     lineHeight: 24,
+    fontFamily: "Ubuntu_400Regular",
   },
   defaultSemiBold: {
     fontSize: 16,
@@ -48,19 +49,23 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     lineHeight: 32,
+    fontFamily: "Ubuntu_700Bold",
   },
   subtitle: {
     fontSize: 20,
     fontWeight: 'bold',
+    fontFamily: "Ubuntu_700Bold",
   },
   link: {
     lineHeight: 30,
     fontSize: 16,
     color: '#0a7ea4',
+    fontFamily: "Ubuntu_400Regular",
   },
   error: {
     fontSize: 16,
     lineHeight: 24,
     color: '#ff0000',
+    fontFamily: "Ubuntu_400Regular",
   }
 });
