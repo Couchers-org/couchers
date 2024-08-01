@@ -114,7 +114,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 receipt_url = data_object["receipt_url"]
 
                 # may be check for amount to enable phone verify
-                session.add(User(has_donated=True))
+                user.has_donated = True
 
                 session.add(
                     Invoice(
