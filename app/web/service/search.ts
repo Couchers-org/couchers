@@ -2,11 +2,11 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
   StringValue,
   UInt32Value,
+  BoolValue
 } from "google-protobuf/google/protobuf/wrappers_pb";
 import { HostingStatus } from "proto/api_pb";
-import { Area, RectArea, UserSearchReq } from "proto/search_pb";
+import { RectArea, UserSearchReq } from "proto/search_pb";
 import client from "service/client";
-import { BoolValue } from "google-protobuf/google/protobuf/wrappers_pb";
 
 export interface UserSearchFilters {
   query?: string;
