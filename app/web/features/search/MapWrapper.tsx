@@ -174,7 +174,7 @@ export default function MapWrapper({
    * Clicks on 'search here' button
    */
   const handleOnClick = () => {
-    let currentBbox = map.current?.getBounds().toArray() as number[][];
+    const currentBbox = map.current?.getBounds().toArray() as number[][];
     if (currentBbox) {
       if (map.current?.getBounds) {
         setLocationResult({
