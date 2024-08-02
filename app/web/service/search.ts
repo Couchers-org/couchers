@@ -8,7 +8,6 @@ import { HostingStatus } from "proto/api_pb";
 import { RectArea, UserSearchReq } from "proto/search_pb";
 import client from "service/client";
 
-
 export interface UserSearchFilters {
   query?: string;
   bbox?: [number, number, number, number];
