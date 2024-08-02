@@ -16,7 +16,6 @@ const Template: Story<any> = () => {
   return (
     <>
       <FilterDialog
-
         setLocationResult={() => jest.fn()}
         lastActiveFilter={0}
         setLastActiveFilter={() => jest.fn()}

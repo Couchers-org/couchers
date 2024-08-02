@@ -17,7 +17,7 @@ const Dialog = () => {
   // const searchFilters = useRouteWithSearchFilters("");
   return (
     <>
-      <FilterDialog 
+      <FilterDialog
         setLocationResult={() => jest.fn()}
         lastActiveFilter={0}
         setLastActiveFilter={() => jest.fn()}

@@ -27,7 +27,6 @@ export function parsedQueryToSearchFilters(urlQuery: ParsedUrlQuery) {
         if (int) filters[key] = int;
         break;
 
-
       case "bbox":
         const list = urlQuery[key] || [];
         if (list && list.length && Array.isArray(list)) {
