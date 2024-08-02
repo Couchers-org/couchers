@@ -610,7 +610,6 @@ class StrongVerificationCallbackEvent(Base):
     iris_status = Column(String, nullable=False)
 
 
-
 class DonationType(enum.Enum):
     one_time = enum.auto()
     recurring = enum.auto()

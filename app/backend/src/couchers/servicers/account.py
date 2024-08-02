@@ -119,7 +119,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 username=user.username,
                 email=user.email,
                 phone=user.phone if (user.phone_is_verified or not user.phone_code_expired) else None,
-                has_donated = user.has_donated,
+                has_donated=user.has_donated,
                 phone_verified=user.phone_is_verified,
                 profile_complete=user.has_completed_profile,
                 timezone=user.timezone,
