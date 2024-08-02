@@ -8,14 +8,28 @@ import wrapper from "test/hookWrapper";
 import { server } from "test/restMock";
 import { t } from "test/utils";
 import { parsedQueryToSearchFilters } from "utils/searchFilters";
+import { useState } from "react";
 
 import FilterDialog from "./FilterDialog";
 
 const Dialog = () => {
-  const searchFilters = useRouteWithSearchFilters("");
+  const [isOpen, setIsOpen] = useState(false);
+  // const searchFilters = useRouteWithSearchFilters("");
   return (
     <>
-      <FilterDialog isOpen={true} onClose={() => {}} />
+      <FilterDialog 
+        setLocationResult={() => jest.fn()}
+        lastActiveFilter={0}
+        setLastActiveFilter={() => jest.fn()}
+        hostingStatusFilter={0}
+        setHostingStatusFilter={() => jest.fn()}
+        completeProfileFilter={true}
+        setCompleteProfileFilter={() => jest.fn()}
+        numberOfGuestFilter={undefined}
+        setNumberOfGuestFilter={() => jest.fn()}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+      />
     </>
   );
 };

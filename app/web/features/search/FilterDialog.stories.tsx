@@ -16,10 +16,18 @@ const Template: Story<any> = () => {
   return (
     <>
       <FilterDialog
-        updateMapBoundingBox={() => jest.fn()}
+
+        setLocationResult={() => jest.fn()}
+        lastActiveFilter={0}
+        setLastActiveFilter={() => jest.fn()}
+        hostingStatusFilter={0}
+        setHostingStatusFilter={() => jest.fn()}
+        completeProfileFilter={true}
+        setCompleteProfileFilter={() => jest.fn()}
+        numberOfGuestFilter={undefined}
+        setNumberOfGuestFilter={() => jest.fn()}
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        searchFilters={searchFilters}
       />
       <Button onClick={() => setIsOpen(!isOpen)}>Open filter dialog</Button>
     </>

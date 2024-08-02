@@ -40,7 +40,7 @@ interface SearchBoxProps {
   setLocationResult: Dispatch<SetStateAction<any>>;
   setQueryName: Dispatch<SetStateAction<any>>;
   queryName: undefined | string;
-  setIsFiltersOpen: any;
+  setIsFiltersOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export default function SearchBox({

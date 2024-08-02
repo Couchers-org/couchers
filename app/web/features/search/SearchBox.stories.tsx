@@ -1,6 +1,5 @@
-import { Meta, Story } from "@storybook/react";
 import SearchBox from "features/search/SearchBox";
-import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
+import { Meta, Story } from "@storybook/react";
 
 export default {
   component: SearchBox,
@@ -8,12 +7,16 @@ export default {
 } as Meta;
 
 const Template: Story<any> = () => {
-  const searchFilters = useRouteWithSearchFilters("");
   return (
     <>
       <SearchBox
-        updateMapBoundingBox={() => jest.fn()}
-        searchFilters={searchFilters}
+        searchType={""}
+        setSearchType={() => jest.fn()}
+        locationResult={[]}
+        setLocationResult={() => jest.fn()}
+        setQueryName={() => jest.fn()}
+        queryName={undefined}
+        setIsFiltersOpen={() => jest.fn()}
       />
     </>
   );

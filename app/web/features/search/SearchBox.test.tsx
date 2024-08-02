@@ -20,7 +20,15 @@ const View = ({
     setActive?.(filters.active);
   }, [filters.active, setActive]);
   return (
-    <SearchBox updateMapBoundingBox={() => jest.fn()} searchFilters={filters} />
+    <SearchBox
+      searchType={""}
+      setSearchType={() => jest.fn()}
+      locationResult={[]}
+      setLocationResult={() => jest.fn()}
+      setQueryName={() => jest.fn()}
+      queryName={undefined}
+      setIsFiltersOpen={() => jest.fn()}
+    />
   );
 };
 

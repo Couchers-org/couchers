@@ -61,12 +61,20 @@ describe("SearchResultsList", () => {
     getUserMock.mockImplementation(getUser);
     render(
       <SearchResultsList
-        updateMapBoundingBox={() => jest.fn()}
-        selectedResult={1}
-        handleResultClick={mockHandleResultClick}
-        handleMapUserClick={mockHandleMapUserClick}
-        map={mockMapRef}
-        searchFilters={mockSearchFiltersFactory()}
+        isLoading={false}
+        results={undefined}
+        error={undefined}
+        hasNext={undefined}
+        fetchNextPage={() => {}}
+        selectedResult={undefined}
+        setSelectedResult={() => {}}
+        searchType={undefined}
+        setSearchType={undefined}
+        locationResult={undefined}
+        setLocationResult={undefined}
+        setQueryName={undefined}
+        queryName={undefined}
+        setIsFiltersOpen={undefined}
       />,
       { wrapper }
     );
@@ -80,12 +88,20 @@ describe("SearchResultsList", () => {
   it("Is blank with no selection or query", () => {
     render(
       <SearchResultsList
-        updateMapBoundingBox={() => jest.fn()}
+        isLoading={false}
+        results={undefined}
+        error={undefined}
+        hasNext={undefined}
+        fetchNextPage={() => {}}
         selectedResult={undefined}
-        handleResultClick={mockHandleResultClick}
-        handleMapUserClick={mockHandleMapUserClick}
-        map={mockMapRef}
-        searchFilters={mockSearchFiltersFactory()}
+        setSelectedResult={() => {}}
+        searchType={undefined}
+        setSearchType={undefined}
+        locationResult={undefined}
+        setLocationResult={undefined}
+        setQueryName={undefined}
+        queryName={undefined}
+        setIsFiltersOpen={undefined}
       />,
       { wrapper }
     );
@@ -98,12 +114,20 @@ describe("SearchResultsList", () => {
     getUserMock.mockRejectedValue(new Error("fetch error"));
     render(
       <SearchResultsList
-        updateMapBoundingBox={() => jest.fn()}
-        selectedResult={1}
-        handleResultClick={mockHandleResultClick}
-        handleMapUserClick={mockHandleMapUserClick}
-        map={mockMapRef}
-        searchFilters={mockSearchFiltersFactory()}
+        isLoading={false}
+        results={undefined}
+        error={undefined}
+        hasNext={undefined}
+        fetchNextPage={() => {}}
+        selectedResult={undefined}
+        setSelectedResult={() => {}}
+        searchType={undefined}
+        setSearchType={undefined}
+        locationResult={undefined}
+        setLocationResult={undefined}
+        setQueryName={undefined}
+        queryName={undefined}
+        setIsFiltersOpen={undefined}
       />,
       { wrapper }
     );
@@ -116,11 +140,20 @@ describe("SearchResultsList", () => {
     beforeEach(() => {
       render(
         <SearchResultsList
-          updateMapBoundingBox={() => jest.fn()}
-          handleResultClick={mockHandleResultClick}
-          handleMapUserClick={mockHandleMapUserClick}
-          map={mockMapRef}
-          searchFilters={mockSearchFiltersFactory({ query: "test query" })}
+          isLoading={false}
+          results={undefined}
+          error={undefined}
+          hasNext={undefined}
+          fetchNextPage={() => {}}
+          selectedResult={undefined}
+          setSelectedResult={() => {}}
+          searchType={undefined}
+          setSearchType={undefined}
+          locationResult={undefined}
+          setLocationResult={undefined}
+          setQueryName={undefined}
+          queryName={"test query"}
+          setIsFiltersOpen={undefined}
         />,
         { wrapper }
       );
@@ -154,11 +187,20 @@ describe("SearchResultsList", () => {
     userSearchMock.mockRejectedValueOnce(new Error("search error"));
     render(
       <SearchResultsList
-        updateMapBoundingBox={() => jest.fn()}
-        handleResultClick={mockHandleResultClick}
-        handleMapUserClick={mockHandleMapUserClick}
-        map={mockMapRef}
-        searchFilters={mockSearchFiltersFactory({ query: "test query" })}
+        isLoading={false}
+        results={undefined}
+        error={undefined}
+        hasNext={undefined}
+        fetchNextPage={() => {}}
+        selectedResult={undefined}
+        setSelectedResult={() => {}}
+        searchType={undefined}
+        setSearchType={undefined}
+        locationResult={undefined}
+        setLocationResult={undefined}
+        setQueryName={undefined}
+        queryName={"test query"}
+        setIsFiltersOpen={undefined}
       />,
       { wrapper }
     );
