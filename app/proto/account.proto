@@ -88,6 +88,8 @@ message GetAccountInfoRes {
   string timezone = 6;
 
   // strong verification info
+  bool has_donated = 5;
+
   bool has_strong_verification = 10;
   org.couchers.api.core.BirthdateVerificationStatus birthdate_verification_status = 11;
   org.couchers.api.core.GenderVerificationStatus gender_verification_status = 12;

@@ -265,7 +265,6 @@ message User {
   google.protobuf.BoolValue parking = 119;
   ParkingDetails parking_details = 120; // CommonMark without images
   google.protobuf.BoolValue camping_ok = 121;
-  google.protobuf.BoolValue has_donated = 123;
 
   string avatar_url = 32;
   string avatar_thumbnail_url = 44;
