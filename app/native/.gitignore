@@ -21,3 +21,5 @@ expo-env.d.ts
 
 submit/
 proto/**
+
+.env.local

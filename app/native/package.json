@@ -20,6 +20,7 @@
     "@expo/vector-icons": "^14.0.2",
     "@react-native-async-storage/async-storage": "^1.24.0",
     "@react-navigation/native": "^6.0.2",
+    "@sentry/react-native": "^5.26.0",
     "expo": "~51.0.22",
     "expo-constants": "~16.0.2",
     "expo-font": "~12.0.9",
