@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react-native";
 import { Image, StyleSheet, Button, Text } from "react-native";
 
 import ParallaxScrollView from "@/components/ParallaxScrollView";
@@ -60,6 +61,7 @@ export default function CouchersScreen() {
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">{t("auth:login_page.title")}</ThemedText>
       </ThemedView>
+      <Button title='Try!' onPress={ () => { Sentry.captureException(new Error('First error')) }}/>
       <ThemedView style={styles.stepContainer}>
         {authState.error && <Alert>{authState.error}</Alert>}
         <LoginForm />

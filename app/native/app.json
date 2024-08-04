@@ -28,7 +28,18 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": ["expo-router", "expo-font"],
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "native",
+          "organization": "couchers"
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     },
