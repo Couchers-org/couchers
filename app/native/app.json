@@ -43,6 +43,12 @@
         "projectId": "ea3d934f-4ba0-4a23-a948-2c259251488f"
       }
     },
-    "owner": "couchers-org"
+    "owner": "couchers-org",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ea3d934f-4ba0-4a23-a948-2c259251488f"
+    }
   }
 }
