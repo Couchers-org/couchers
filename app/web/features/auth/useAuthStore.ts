@@ -55,7 +55,6 @@ export default function useAuthStore() {
           });
           setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
-        window.sessionStorage.clear();
         setLoading(false);
       },
       async passwordLogin({
