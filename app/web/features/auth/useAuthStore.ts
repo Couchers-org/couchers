@@ -1,43 +1,13 @@
-import * as Sentry from "@sentry/nextjs";
+import Sentry from "platform/sentry";
 import { userKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
-
-type StorageType = "localStorage" | "sessionStorage";
-
-export function usePersistedState<T>(
-  key: string,
-  defaultValue: T,
-  storage: StorageType = "localStorage"
-): [T | undefined, (value: T) => void, () => void] {
-  //in ssr, window doesn't exist, just use default
-  const saved =
-    typeof window !== "undefined" ? window[storage].getItem(key) : null;
-  const [_state, _setState] = useState<T | undefined>(
-    saved !== null ? JSON.parse(saved) : defaultValue
-  );
-  const setState = useCallback(
-    (value: T) => {
-      if (value === undefined) {
-        console.warn(`${key} can't be stored as undefined, casting to null.`);
-      }
-      const v = value === undefined ? null : value;
-      window[storage].setItem(key, JSON.stringify(v));
-      _setState(value);
-    },
-    [key, storage]
-  );
-  const clearState = useCallback(() => {
-    window[storage].removeItem(key);
-    _setState(undefined);
-  }, [key, storage]);
-  return [_state, setState, clearState];
-}
+import { usePersistedState } from "platform/usePersistedState";
 
 export default function useAuthStore() {
   const [authenticated, setAuthenticated] = usePersistedState(

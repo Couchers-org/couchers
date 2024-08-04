@@ -2,7 +2,7 @@ import "intersection-observer";
 import "fonts";
 
 import { CssBaseline, ThemeProvider } from "@material-ui/core";
-import * as Sentry from "@sentry/nextjs";
+import Sentry from "platform/sentry";
 import { EnvironmentBanner } from "components/EnvironmentBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import HtmlMeta from "components/HtmlMeta";

@@ -8,7 +8,7 @@ import {
   Typography,
   TypographyVariant,
 } from "@material-ui/core";
-import * as Sentry from "@sentry/nextjs";
+import Sentry from "platform/sentry";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { communityGuidelinesQueryKey } from "features/queryKeys";

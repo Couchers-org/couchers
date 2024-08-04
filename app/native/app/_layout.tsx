@@ -17,7 +17,7 @@ import AuthProvider from "features/auth/AuthProvider";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { ReactQueryClientProvider } from "@/features/reactQueryClient";
-import * as Sentry from "@sentry/react-native";
+import Sentry from "platform/sentry";
 
 Sentry.init({
   dsn: "https://7de06aa8cca6dacc9620667dd84a0d01@o782870.ingest.us.sentry.io/4507718344704000",

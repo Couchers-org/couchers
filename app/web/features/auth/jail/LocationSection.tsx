@@ -1,5 +1,5 @@
 import { Typography } from "@material-ui/core";
-import * as Sentry from "@sentry/react";
+import Sentry from "platform/sentry";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import EditLocationMap, {

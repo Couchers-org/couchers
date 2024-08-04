@@ -1,66 +1,13 @@
-// import * as Sentry from "@sentry/nextjs";
+import Sentry from "platform/sentry";
 import { userKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
-import { useEffect, useCallback, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-export function usePersistedState<T>(
-  key: string,
-  defaultValue: T,
-): [T | undefined, (value: T) => Promise<void>, () => Promise<void>] {
-  const [_state, _setState] = useState<T | undefined>(undefined);
-
-  useEffect(() => {
-    // Load the saved value from AsyncStorage when the component mounts
-    const loadState = async () => {
-      try {
-        const savedValue = await AsyncStorage.getItem(key);
-        if (savedValue !== null) {
-          _setState(JSON.parse(savedValue));
-        } else {
-          _setState(defaultValue);
-        }
-      } catch (error) {
-        console.error("Failed to load the state from AsyncStorage:", error);
-        _setState(defaultValue);
-      }
-    };
-
-    loadState();
-  }, [key, defaultValue]);
-
-  const setState = useCallback(
-    async (value: T) => {
-      try {
-        if (value === undefined) {
-          console.warn(`${key} can't be stored as undefined, casting to null.`);
-        }
-        const v = value === undefined ? null : value;
-        await AsyncStorage.setItem(key, JSON.stringify(v));
-        _setState(value);
-      } catch (error) {
-        console.error("Failed to save the state to AsyncStorage:", error);
-      }
-    },
-    [key],
-  );
-
-  const clearState = useCallback(async () => {
-    try {
-      await AsyncStorage.removeItem(key);
-      _setState(undefined);
-    } catch (error) {
-      console.error("Failed to clear the state from AsyncStorage:", error);
-    }
-  }, [key]);
-
-  return [_state, setState, clearState];
-}
+import { usePersistedState } from "platform/usePersistedState";
 
 export default function useAuthStore() {
   const [authenticated, setAuthenticated] = usePersistedState(
@@ -98,14 +45,14 @@ export default function useAuthStore() {
           await service.user.logout();
           setAuthenticated(false);
           setUserId(null);
-          // Sentry.setUser({ id: undefined });
+          Sentry.setUser({ id: undefined });
         } catch (e) {
-          // Sentry.captureException(e, {
-          //   tags: {
-          //     component: "auth/useAuthStore",
-          //     action: "logout",
-          //   },
-          // });
+          Sentry.captureException(e, {
+            tags: {
+              component: "auth/useAuthStore",
+              action: "logout",
+            },
+          });
           setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
         // window.sessionStorage.clear();
@@ -129,7 +76,7 @@ export default function useAuthStore() {
             rememberDevice,
           );
           setUserId(auth.userId);
-          // Sentry.setUser({ id: auth.userId.toString() });
+          Sentry.setUser({ id: auth.userId.toString() });
 
           //this must come after setting the userId, because calling setQueryData
           //will also cause that query to be background fetched, and it needs
@@ -137,12 +84,12 @@ export default function useAuthStore() {
           setJailed(auth.jailed);
           setAuthenticated(true);
         } catch (e) {
-          // Sentry.captureException(e, {
-          //   tags: {
-          //     component: "auth/useAuthStore",
-          //     action: "passwordLogin",
-          //   },
-          // });
+          Sentry.captureException(e, {
+            tags: {
+              component: "auth/useAuthStore",
+              action: "passwordLogin",
+            },
+          });
           setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
         setLoading(false);
@@ -158,7 +105,7 @@ export default function useAuthStore() {
       async firstLogin(res: AuthRes.AsObject) {
         setError(null);
         setUserId(res.userId);
-        // Sentry.setUser({ id: res.userId.toString() });
+        Sentry.setUser({ id: res.userId.toString() });
         setJailed(res.jailed);
         setAuthenticated(true);
       },
@@ -169,17 +116,17 @@ export default function useAuthStore() {
           const res = await service.jail.getIsJailed();
           if (!res.isJailed) {
             setUserId(res.user.userId);
-            // Sentry.setUser({ id: res.user.userId.toString() });
+            Sentry.setUser({ id: res.user.userId.toString() });
             queryClient.setQueryData(userKey(res.user.userId), res.user);
           }
           setJailed(res.isJailed);
         } catch (e) {
-          // Sentry.captureException(e, {
-          //   tags: {
-          //     component: "auth/useAuthStore",
-          //     action: "updateJailStatus",
-          //   },
-          // });
+          Sentry.captureException(e, {
+            tags: {
+              component: "auth/useAuthStore",
+              action: "updateJailStatus",
+            },
+          });
           setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
         setLoading(false);

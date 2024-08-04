@@ -1,5 +1,5 @@
 import { Divider, Typography } from "@material-ui/core";
-import * as Sentry from "@sentry/react";
+import Sentry from "platform/sentry";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";

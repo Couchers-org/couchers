@@ -1,5 +1,5 @@
 import { Typography } from "@material-ui/core";
-import * as Sentry from "@sentry/react";
+import Sentry from "platform/sentry";
 import ContributorForm from "components/ContributorForm";
 import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";

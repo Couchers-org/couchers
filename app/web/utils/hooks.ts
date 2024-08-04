@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/nextjs";
+import Sentry from "platform/sentry";
 import { LngLat } from "maplibre-gl";
 import { useRouter } from "next/router";
 import {

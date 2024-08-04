@@ -1,5 +1,5 @@
 import { FormControlLabel, InputLabel, Switch } from "@material-ui/core";
-import * as Sentry from "@sentry/nextjs";
+import Sentry from "platform/sentry";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";

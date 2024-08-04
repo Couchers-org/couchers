@@ -9,6 +9,7 @@
       "features/*": ["features/*"],
       "i18n": ["i18n/index.ts"],
       "i18n/*": ["i18n/*"],
+      "platform/*": ["platform/*"],
       "proto/*": ["proto/*"],
       "service": ["service/index.ts"],
       "service/*": ["service/*"],
