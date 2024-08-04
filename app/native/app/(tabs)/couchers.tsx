@@ -1,9 +1,9 @@
-import { Image, StyleSheet, Button, Text } from 'react-native';
+import { Image, StyleSheet, Button, Text } from "react-native";
 
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { useState } from 'react';
+import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { useState } from "react";
 import { useMutation } from "react-query";
 import { RpcError } from "grpc-web";
 import { service } from "service";
@@ -23,7 +23,11 @@ export default function CouchersScreen() {
 
   const { authState, authActions } = useAuthContext();
 
-  const { data: resp, mutate: checkCoucherCount, } = useMutation<StatusRes.AsObject, RpcError, void>(() => service.version.status());
+  const { data: resp, mutate: checkCoucherCount } = useMutation<
+    StatusRes.AsObject,
+    RpcError,
+    void
+  >(() => service.version.status());
 
   const logIn = () => {
     authActions.passwordLogin({
@@ -38,55 +42,52 @@ export default function CouchersScreen() {
   };
 
   const onPress = () => {
-    setPressed(pressed+1)
+    setPressed(pressed + 1);
     // Alert.alert('Simple Button pressed')
     checkCoucherCount();
-  }
+  };
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
       headerImage={
         <Image
-          source={require('@/assets/images/couchers512.png')}
+          source={require("@/assets/images/couchers512.png")}
           style={styles.couchersLogo}
         />
-      }>
+      }
+    >
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">{t("auth:login_page.title")}</ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        {authState.error && (
-          <Alert>
-            {authState.error}
-          </Alert>
-        )}
+        {authState.error && <Alert>{authState.error}</Alert>}
         <LoginForm />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <Button
-          title="Press me"
-          onPress={onPress}
-        />
-        <ThemedText type="subtitle">{ pressed == 0 ? "didn't press yet" : `pressed ${pressed} time(s)` }</ThemedText>
-        <ThemedText type="subtitle">API response: version: {resp?.version}, # users: {resp?.coucherCount}</ThemedText>
+        <Button title="Press me" onPress={onPress} />
+        <ThemedText type="subtitle">
+          {pressed == 0 ? "didn't press yet" : `pressed ${pressed} time(s)`}
+        </ThemedText>
+        <ThemedText type="subtitle">
+          API response: version: {resp?.version}, # users: {resp?.coucherCount}
+        </ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="title">auth state: userid: { authState.userId }</ThemedText>
-        { authState.authenticated ?
-        <>
-          <ThemedText>You are logged in!!</ThemedText>
-          <Button
-            title="Log out"
-            onPress={logOut}
-          />
-        </> : <>
-          <ThemedText>You are logged out. Log in: </ThemedText>
-          <Button
-            title="Log in"
-            onPress={logIn}
-          />
-        </>}
+        <ThemedText type="title">
+          auth state: userid: {authState.userId}
+        </ThemedText>
+        {authState.authenticated ? (
+          <>
+            <ThemedText>You are logged in!!</ThemedText>
+            <Button title="Log out" onPress={logOut} />
+          </>
+        ) : (
+          <>
+            <ThemedText>You are logged out. Log in: </ThemedText>
+            <Button title="Log in" onPress={logIn} />
+          </>
+        )}
       </ThemedView>
     </ParallaxScrollView>
   );
@@ -94,8 +95,8 @@ export default function CouchersScreen() {
 
 const styles = StyleSheet.create({
   titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   stepContainer: {
@@ -107,6 +108,6 @@ const styles = StyleSheet.create({
     width: 500,
     top: 0,
     right: 0,
-    position: 'absolute',
+    position: "absolute",
   },
 });

@@ -1,18 +1,22 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
 import {
   useFonts,
   Ubuntu_400Regular,
   Ubuntu_400Regular_Italic,
-  Ubuntu_700Bold
-} from '@expo-google-fonts/ubuntu';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+  Ubuntu_700Bold,
+} from "@expo-google-fonts/ubuntu";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+import "react-native-reanimated";
 import AuthProvider from "features/auth/AuthProvider";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { ReactQueryClientProvider } from '@/features/reactQueryClient';
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { ReactQueryClientProvider } from "@/features/reactQueryClient";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -36,7 +40,7 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <ReactQueryClientProvider>
         <AuthProvider>
           <Stack>

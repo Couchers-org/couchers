@@ -1,4 +1,4 @@
-import { Alert } from 'react-native';
+import { Alert } from "react-native";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
@@ -27,12 +27,12 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       // the backend will return "Permission denied" if you're just jailed, and "Unauthorized" otherwise
       if (e.message === JAILED_ERROR_MESSAGE) {
         await store.authActions.updateJailStatus();
-        Alert.alert("You seem to be jailed.")
+        Alert.alert("You seem to be jailed.");
       } else {
         // completely logged out
         await store.authActions.logout();
         store.authActions.authError(t("logged_out_message"));
-        Alert.alert("You've been logged out.")
+        Alert.alert("You've been logged out.");
       }
     });
 

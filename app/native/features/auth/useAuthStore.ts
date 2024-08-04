@@ -7,11 +7,11 @@ import { useEffect, useCallback, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export function usePersistedState<T>(
   key: string,
-  defaultValue: T
+  defaultValue: T,
 ): [T | undefined, (value: T) => Promise<void>, () => Promise<void>] {
   const [_state, _setState] = useState<T | undefined>(undefined);
 
@@ -47,7 +47,7 @@ export function usePersistedState<T>(
         console.error("Failed to save the state to AsyncStorage:", error);
       }
     },
-    [key]
+    [key],
   );
 
   const clearState = useCallback(async () => {
@@ -65,12 +65,12 @@ export function usePersistedState<T>(
 export default function useAuthStore() {
   const [authenticated, setAuthenticated] = usePersistedState(
     "auth.authenticated",
-    false
+    false,
   );
   const [jailed, setJailed] = usePersistedState("auth.jailed", false);
   const [userId, setUserId] = usePersistedState<number | null>(
     "auth.userId",
-    null
+    null,
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -126,7 +126,7 @@ export default function useAuthStore() {
           const auth = await service.user.passwordLogin(
             username,
             password,
-            rememberDevice
+            rememberDevice,
           );
           setUserId(auth.userId);
           // Sentry.setUser({ id: auth.userId.toString() });
@@ -187,7 +187,7 @@ export default function useAuthStore() {
     }),
     //note: there should be no dependenices on the state or t, or
     //some useEffects will break. Eg. the token login in Login.tsx
-    [setAuthenticated, setJailed, setUserId, setFlowState, queryClient]
+    [setAuthenticated, setJailed, setUserId, setFlowState, queryClient],
   );
 
   return {
