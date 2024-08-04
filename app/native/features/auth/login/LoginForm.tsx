@@ -1,4 +1,4 @@
-// import * as Sentry from "@sentry/nextjs";
+import Sentry from "platform/sentry";
 import {
   Button,
   TextInput,
@@ -46,11 +46,11 @@ export default function LoginForm() {
           rememberDevice: data.rememberDevice,
         });
       } catch (e) {
-        // Sentry.captureException(e, {
-        //   tags: {
-        //     featureArea: "auth/login",
-        //   },
-        // });
+        Sentry.captureException(e, {
+          tags: {
+            featureArea: "auth/login",
+          },
+        });
         authActions.authError(
           isGrpcError(e) ? e.message : t("global:error.fatal_message"),
         );
