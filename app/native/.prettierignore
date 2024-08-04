@@ -1,0 +1,7 @@
+proto/
+node_modules
+**/locales/*.json
+*.log
+yarn.lock
+README.md
+NOTES

@@ -7,7 +7,7 @@ import {
   UseQueryOptions,
   UseQueryResult,
 } from "react-query";
-import { createAsyncStoragePersistor } from "react-query/createAsyncStoragePersistor-experimental"
+import { createAsyncStoragePersistor } from "react-query/createAsyncStoragePersistor-experimental";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { persistQueryClient } from "react-query/persistQueryClient-experimental";
 
@@ -53,8 +53,8 @@ declare module "react-query" {
   export function useQueries<
     TData = unknown,
     TError = unknown,
-    TQueryFnData = TData
+    TQueryFnData = TData,
   >(
-    queries: UseQueryOptions<TData, TError, TQueryFnData>[]
+    queries: UseQueryOptions<TData, TError, TQueryFnData>[],
   ): UseQueryResult<TData, TError>[];
 }

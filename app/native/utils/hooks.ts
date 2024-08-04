@@ -23,7 +23,7 @@ function useIsMounted() {
 
 function useSafeState<State>(
   isMounted: MutableRefObject<boolean>,
-  initialState: State | (() => State)
+  initialState: State | (() => State),
 ): [State, Dispatch<SetStateAction<State>>] {
   const [state, setState] = useState(initialState);
 
@@ -33,7 +33,7 @@ function useSafeState<State>(
         setState(newState);
       }
     },
-    [isMounted]
+    [isMounted],
   );
 
   return [state, safeSetState];
@@ -47,8 +47,4 @@ function usePrevious<T>(value: T) {
   return ref.current;
 }
 
-export {
-  useIsMounted,
-  usePrevious,
-  useSafeState,
-};
+export { useIsMounted, usePrevious, useSafeState };

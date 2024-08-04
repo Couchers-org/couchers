@@ -1,17 +1,15 @@
 import { grpcErrorStrings, ObscureGrpcErrorMessages } from "appConstants";
 import React from "react";
-import { ThemedText } from '@/components/ThemedText';
+import { ThemedText } from "@/components/ThemedText";
 
 interface AlertProps {
   children: string;
 }
 
-export default function Alert({
-  children
-}: AlertProps) {
+export default function Alert({ children }: AlertProps) {
   const oldErrorKey = Object.keys(grpcErrorStrings).find(
     (oldError): oldError is ObscureGrpcErrorMessages =>
-      children.includes(oldError)
+      children.includes(oldError),
   );
 
   return (

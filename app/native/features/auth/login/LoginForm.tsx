@@ -1,5 +1,12 @@
 // import * as Sentry from "@sentry/nextjs";
-import { Button, TextInput, Text, StyleSheet, Switch, View } from 'react-native';
+import {
+  Button,
+  TextInput,
+  Text,
+  StyleSheet,
+  Switch,
+  View,
+} from "react-native";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -14,8 +21,15 @@ export default function LoginForm() {
   const authLoading = authState.loading;
   const [loading, setLoading] = useState(false);
 
-  const { handleSubmit, control, formState: { errors } } =
-    useForm<{ username: string; password: string; rememberDevice: boolean }>();
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<{
+    username: string;
+    password: string;
+    rememberDevice: boolean;
+  }>();
 
   const onSubmit = handleSubmit(
     async (data: {
@@ -38,11 +52,11 @@ export default function LoginForm() {
         //   },
         // });
         authActions.authError(
-          isGrpcError(e) ? e.message : t("global:error.fatal_message")
+          isGrpcError(e) ? e.message : t("global:error.fatal_message"),
         );
       }
       setLoading(false);
-    }
+    },
   );
 
   return (
@@ -60,7 +74,7 @@ export default function LoginForm() {
             onChangeText={onChange}
             value={value}
             autoComplete="username"
-            />
+          />
         )}
         name="username"
       />
@@ -84,18 +98,20 @@ export default function LoginForm() {
         name="password"
       />
       {errors.password && <Text>This is required.</Text>}
-        <Controller
-          control={control}
-          name="rememberDevice"
-          defaultValue={true}
-          render={({ field: { onChange, value } }) => (
-            <View style={styles.switchContainer}>
-              <Text style={styles.switchLabel}>{t("auth:login_page.form.remember_me")}</Text>
-              <Switch onValueChange={onChange} value={value} />
-            </View>
-          )}
-        />
-        <Text>To reset your password, go to Couchers.org.</Text>
+      <Controller
+        control={control}
+        name="rememberDevice"
+        defaultValue={true}
+        render={({ field: { onChange, value } }) => (
+          <View style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>
+              {t("auth:login_page.form.remember_me")}
+            </Text>
+            <Switch onValueChange={onChange} value={value} />
+          </View>
+        )}
+      />
+      <Text>To reset your password, go to Couchers.org.</Text>
       <Button
         disabled={loading || authLoading}
         onPress={onSubmit}
@@ -105,20 +121,19 @@ export default function LoginForm() {
   );
 }
 
-
 const styles = StyleSheet.create({
   input: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderWidth: 1,
     marginBottom: 12,
     paddingHorizontal: 8,
   },
   switchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 20,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   switchLabel: {
     fontSize: 18,
