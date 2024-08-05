@@ -4,8 +4,8 @@ import { addClusteredUsersToMap, layers } from "../search/users";
 import { usePrevious } from "utils/hooks";
 import { MutableRefObject } from "react";
 import { User } from "proto/api_pb";
-import ReplayIcon from '@material-ui/icons/Replay';
-import TuneIcon from '@material-ui/icons/Tune';
+import ReplayIcon from "@material-ui/icons/Replay";
+import TuneIcon from "@material-ui/icons/Tune";
 import Map from "components/Map";
 import { filterData } from "../search/users";
 import { reRenderUsersOnMap } from "features/search/users";
@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     position: "relative",
     left: "-50%",
-    fontSize:" 14px",
+    fontSize: " 14px",
     margin: "8px auto 0",
     alignItems: "center",
 
@@ -46,11 +46,11 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: "0 4px 4px 0",
     "& span": {
       margin: 0,
-    }
+    },
   },
   searchHereButton: {
-    borderRadius: "4px 0 0 4px",    
-  }
+    borderRadius: "4px 0 0 4px",
+  },
 }));
 
 interface mapWrapperProps {
@@ -78,7 +78,7 @@ export default function MapWrapper({
   isLoading,
   results,
   setSelectedResult,
-  setIsFiltersOpen
+  setIsFiltersOpen,
 }: mapWrapperProps) {
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
   // const { locationResult, setLocationResult } = useContext(mapContext); // if behavies weirdly, then use again the initialCoords context variable
@@ -241,25 +241,25 @@ export default function MapWrapper({
 
   return (
     <>
-    <div className={classes.testContainer}>
-      <div className={classes.testChildFromGoogle}>
-        <Button
-          color="primary"
-          loading={isLoading}
-          onClick={handleOnClick}
-          className={classes.searchHereButton}
-          endIcon={<ReplayIcon />}
+      <div className={classes.testContainer}>
+        <div className={classes.testChildFromGoogle}>
+          <Button
+            color="primary"
+            loading={isLoading}
+            onClick={handleOnClick}
+            className={classes.searchHereButton}
+            endIcon={<ReplayIcon />}
           >
-          Search in this area
-        </Button>
-        <Button
-          color="primary"
-          onClick={() => setIsFiltersOpen(true)}
-          className={classes.buttonSearchSettings}
-          endIcon={<TuneIcon />}
-        />
+            Search in this area
+          </Button>
+          <Button
+            color="primary"
+            onClick={() => setIsFiltersOpen(true)}
+            className={classes.buttonSearchSettings}
+            endIcon={<TuneIcon />}
+          />
+        </div>
       </div>
-    </div>
       <Map
         grow
         initialCenter={locationResult.Location}
