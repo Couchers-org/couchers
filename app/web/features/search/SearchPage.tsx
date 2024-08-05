@@ -229,14 +229,6 @@ export default function SearchPage({
               isLoading={isLoading || isLoadingUser || isFetching}
             />
           </Collapse>
-          <Button
-            onClick={() => setIsFiltersOpen(true)}
-            className={""} // TODO: initially was by props
-            variant="contained"
-            size="medium"
-          >
-            {t("search:filter_dialog.mobile_title")}
-          </Button>
         </Hidden>
         <FilterDialog
           isOpen={isFiltersOpen}
@@ -257,6 +249,7 @@ export default function SearchPage({
             results={data}
             selectedResult={selectedResult}
             locationResult={locationResult}
+            setIsFiltersOpen={setIsFiltersOpen}
             setLocationResult={setLocationResult}
             setSelectedResult={setSelectedResult}
             isLoading={isLoading || isLoadingUser || isFetching}

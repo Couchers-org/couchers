@@ -4,6 +4,8 @@ import { addClusteredUsersToMap, layers } from "../search/users";
 import { usePrevious } from "utils/hooks";
 import { MutableRefObject } from "react";
 import { User } from "proto/api_pb";
+import ReplayIcon from '@material-ui/icons/Replay';
+import TuneIcon from '@material-ui/icons/Tune';
 import Map from "components/Map";
 import { filterData } from "../search/users";
 import { reRenderUsersOnMap } from "features/search/users";
@@ -15,11 +17,40 @@ import makeStyles from "utils/makeStyles";
 import Button from "components/Button";
 
 const useStyles = makeStyles((theme) => ({
-  searchHereButton: {
-    top: "-40rem",
-    display: "flex",
-    margin: "0 auto",
+  searchHereGroup2: {
+    top: "20px",
+    // display: "flex",
+    left: "50%",
+    position: "relative",
+    zIndex: 10,
   },
+  testContainer: {
+    position: "absolute",
+    left: "50%",
+    width: "100%",
+  },
+  testChildFromGoogle: {
+    width: "300px",
+    top: "30px",
+    display: "flex",
+    position: "relative",
+    left: "-50%",
+    fontSize:" 14px",
+    margin: "8px auto 0",
+    alignItems: "center",
+
+    height: "25px",
+    zIndex: 10,
+  },
+  buttonSearchSettings: {
+    borderRadius: "0 4px 4px 0",
+    "& span": {
+      margin: 0,
+    }
+  },
+  searchHereButton: {
+    borderRadius: "4px 0 0 4px",    
+  }
 }));
 
 interface mapWrapperProps {
@@ -30,6 +61,7 @@ interface mapWrapperProps {
   locationResult: any;
   setLocationResult: any;
   results: InfiniteData<UserSearchRes.AsObject> | undefined;
+  setIsFiltersOpen: any;
   setSelectedResult: Dispatch<
     SetStateAction<
       Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
@@ -46,6 +78,7 @@ export default function MapWrapper({
   isLoading,
   results,
   setSelectedResult,
+  setIsFiltersOpen
 }: mapWrapperProps) {
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
   // const { locationResult, setLocationResult } = useContext(mapContext); // if behavies weirdly, then use again the initialCoords context variable
@@ -208,6 +241,25 @@ export default function MapWrapper({
 
   return (
     <>
+    <div className={classes.testContainer}>
+      <div className={classes.testChildFromGoogle}>
+        <Button
+          color="primary"
+          loading={isLoading}
+          onClick={handleOnClick}
+          className={classes.searchHereButton}
+          endIcon={<ReplayIcon />}
+          >
+          Search in this area
+        </Button>
+        <Button
+          color="primary"
+          onClick={() => setIsFiltersOpen(true)}
+          className={classes.buttonSearchSettings}
+          endIcon={<TuneIcon />}
+        />
+      </div>
+    </div>
       <Map
         grow
         initialCenter={locationResult.Location}
@@ -215,14 +267,6 @@ export default function MapWrapper({
         postMapInitialize={initializeMap}
         hash
       />
-
-      <Button
-        loading={isLoading}
-        onClick={handleOnClick}
-        className={classes.searchHereButton}
-      >
-        search here
-      </Button>
     </>
   );
 }
