@@ -3,9 +3,9 @@ import {
   QueryClientProvider,
   useInfiniteQuery,
 } from "react-query";
-import { useCallback, useEffect, useRef, useState, createContext } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
-import maplibregl, { EventData, Map as MaplibreMap } from "maplibre-gl";
+import { Map as MaplibreMap } from "maplibre-gl";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { selectedUserZoom } from "features/search/constants";
 import SearchResultsList from "./SearchResultsList";
@@ -13,13 +13,10 @@ import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { UserSearchRes } from "proto/search_pb";
 import HtmlMeta from "components/HtmlMeta";
 import FilterDialog from "./FilterDialog";
-import Button from "components/Button";
 import { useTranslation } from "i18n";
 import MapWrapper from "./MapWrapper";
-import SearchBox from "./SearchBox";
 import { User } from "proto/api_pb";
 import { service } from "service";
-import { Point } from "geojson";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -96,20 +93,8 @@ export default function SearchPage({
   const [selectedResult, setSelectedResult] = useState<
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
   >(undefined);
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false); // TODO: Inject by props
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [mapInitiallyLocated, setMapInitiallyLocated] = useState(false);
-
-  const SearchBoxComponent = (
-    <SearchBox
-      setIsFiltersOpen={setIsFiltersOpen}
-      searchType={searchType}
-      setSearchType={setSearchType}
-      locationResult={locationResult}
-      setLocationResult={setLocationResult}
-      setQueryName={setQueryName}
-      queryName={queryName}
-    />
-  );
 
   // Loads the list of users
   const { data, error, isLoading, fetchNextPage, isFetching, hasNextPage } =

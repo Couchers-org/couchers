@@ -53,12 +53,9 @@ export default function SearchBox({
   setIsFiltersOpen,
 }: SearchBoxProps) {
   const worldWideViewPort = [-61, -57, 72, 73];
-
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
-  // const theme = useTheme();
-  // const isSmDown = useMediaQuery(theme.breakpoints.down("sm"));
-  const className = ""; // initially were injected by props, check this later
+  const className = "";
 
   const { control, setValue, errors, register, handleSubmit } = useForm({
     mode: "onChange",

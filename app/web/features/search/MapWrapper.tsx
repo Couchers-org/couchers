@@ -1,7 +1,7 @@
 import maplibregl, { EventData, Map as MaplibreMap } from "maplibre-gl";
-import { useCallback, useEffect, useState } from "react";
 import { addClusteredUsersToMap, layers } from "../search/users";
 import { reRenderUsersOnMap } from "features/search/users";
+import { useCallback, useEffect, useState } from "react";
 import ReplayIcon from "@material-ui/icons/Replay";
 import { Dispatch, SetStateAction } from "react";
 import { UserSearchRes } from "proto/search_pb";
@@ -83,7 +83,6 @@ export default function MapWrapper({
   setIsFiltersOpen,
 }: mapWrapperProps) {
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
-  // const { locationResult, setLocationResult } = useContext(mapContext); // if behavies weirdly, then use again the initialCoords context variable
   const previousResult = usePrevious(selectedResult);
   const classes = useStyles();
 
@@ -113,16 +112,8 @@ export default function MapWrapper({
   );
 
   /**
-   * Moves map to selected user's location
+   * Detects when map data has been initially loaded
    */
-  const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
-    map.current?.stop();
-    map.current?.easeTo({
-      center: [user.lng, user.lat],
-    });
-  }, []);
-  
-  //detect when map data has been initially loaded
   const handleMapSourceData = useCallback(() => {
     if (
       map.current &&
@@ -134,6 +125,16 @@ export default function MapWrapper({
       // unbind the event
       map.current.off("sourcedata", handleMapSourceData);
     }
+  }, []);
+
+  /**
+   * Moves map to selected user's location
+   */
+  const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
+    map.current?.stop();
+    map.current?.easeTo({
+      center: [user.lng, user.lat],
+    });
   }, []);
 
   useEffect(() => {
@@ -197,11 +198,28 @@ export default function MapWrapper({
     };
   }, [handleMapUserClick, handleMapSourceData]);
 
+  /**
+   * Once map is centered, search in that area
+   */
   useEffect(() => {
     if (mapInitiallyLocated) {
       handleOnClick();
     }
-  }, [mapInitiallyLocated])
+  }, [mapInitiallyLocated]);
+
+  /**
+   * Re-renders users list on map (when results array changed)
+   */
+  useEffect(() => {
+    if (map.current?.loaded() && mapInitiallyLocated) {
+      map.current?.stop();
+
+      if (results) {
+        const usersToRender = filterData(results);
+        reRenderUsersOnMap(map.current, usersToRender, handleMapUserClick);
+      }
+    }
+  }, [results, map.current, map.current?.loaded(), mapInitiallyLocated]);
 
   const initializeMap = (newMap: MaplibreMap) => {
     map.current = newMap;
@@ -232,20 +250,6 @@ export default function MapWrapper({
       }
     }
   };
-
-  /**
-   * Re-renders users list on map (when results array changed)
-   */
-  useEffect(() => {
-    if (map.current?.loaded() && mapInitiallyLocated) {
-      map.current?.stop();
-
-      if (results) {
-        const usersToRender = filterData(results);
-        reRenderUsersOnMap(map.current, usersToRender, handleMapUserClick);
-      }
-    }
-  }, [results, map.current, map.current?.loaded(), mapInitiallyLocated]);
 
   return (
     <>
