@@ -97,6 +97,7 @@ export default function SearchPage({
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
   >(undefined);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false); // TODO: Inject by props
+  const [mapInitiallyLocated, setMapInitiallyLocated] = useState(false);
 
   const SearchBoxComponent = (
     <SearchBox
@@ -174,6 +175,7 @@ export default function SearchPage({
       );
 
       map.current?.fitBounds(map.current?.getBounds());
+      setMapInitiallyLocated(true);
     }
   }, [isLoadingUser]);
 
@@ -247,6 +249,7 @@ export default function SearchPage({
           <MapWrapper
             map={map}
             results={data}
+            mapInitiallyLocated={mapInitiallyLocated}
             selectedResult={selectedResult}
             locationResult={locationResult}
             setIsFiltersOpen={setIsFiltersOpen}

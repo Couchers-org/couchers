@@ -1,20 +1,20 @@
-import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import maplibregl, { EventData, Map as MaplibreMap } from "maplibre-gl";
+import { useCallback, useEffect, useState } from "react";
 import { addClusteredUsersToMap, layers } from "../search/users";
+import { reRenderUsersOnMap } from "features/search/users";
+import ReplayIcon from "@material-ui/icons/Replay";
+import { Dispatch, SetStateAction } from "react";
+import { UserSearchRes } from "proto/search_pb";
+import TuneIcon from "@material-ui/icons/Tune";
+import { filterData } from "../search/users";
+import { InfiniteData } from "react-query";
+import makeStyles from "utils/makeStyles";
 import { usePrevious } from "utils/hooks";
 import { MutableRefObject } from "react";
-import { User } from "proto/api_pb";
-import ReplayIcon from "@material-ui/icons/Replay";
-import TuneIcon from "@material-ui/icons/Tune";
-import Map from "components/Map";
-import { filterData } from "../search/users";
-import { reRenderUsersOnMap } from "features/search/users";
-import { Point } from "geojson";
-import { InfiniteData } from "react-query";
-import { UserSearchRes } from "proto/search_pb";
-import { Dispatch, SetStateAction } from "react";
-import makeStyles from "utils/makeStyles";
 import Button from "components/Button";
+import { User } from "proto/api_pb";
+import Map from "components/Map";
+import { Point } from "geojson";
 
 const useStyles = makeStyles((theme) => ({
   searchHereGroup2: {
@@ -62,6 +62,7 @@ interface mapWrapperProps {
   setLocationResult: any;
   results: InfiniteData<UserSearchRes.AsObject> | undefined;
   setIsFiltersOpen: any;
+  mapInitiallyLocated: any;
   setSelectedResult: Dispatch<
     SetStateAction<
       Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
@@ -77,6 +78,7 @@ export default function MapWrapper({
   setLocationResult,
   isLoading,
   results,
+  mapInitiallyLocated,
   setSelectedResult,
   setIsFiltersOpen,
 }: mapWrapperProps) {
@@ -119,6 +121,20 @@ export default function MapWrapper({
       center: [user.lng, user.lat],
     });
   }, []);
+  
+  //detect when map data has been initially loaded
+  const handleMapSourceData = useCallback(() => {
+    if (
+      map.current &&
+      map.current.getSource("clustered-users") &&
+      map.current.isSourceLoaded("clustered-users")
+    ) {
+      setAreClustersLoaded(true);
+
+      // unbind the event
+      map.current.off("sourcedata", handleMapSourceData);
+    }
+  }, []);
 
   useEffect(() => {
     //unset the old feature selection on the map for styling
@@ -146,20 +162,6 @@ export default function MapWrapper({
         ?.scrollIntoView({ behavior: "smooth" });
     }
   }, [selectedResult, areClustersLoaded, previousResult, flyToUser]);
-
-  //detect when map data has been initially loaded
-  const handleMapSourceData = useCallback(() => {
-    if (
-      map.current &&
-      map.current.getSource("clustered-users") &&
-      map.current.isSourceLoaded("clustered-users")
-    ) {
-      setAreClustersLoaded(true);
-
-      // unbind the event
-      map.current.off("sourcedata", handleMapSourceData);
-    }
-  }, []);
 
   useEffect(() => {
     if (!map.current) return;
@@ -194,6 +196,12 @@ export default function MapWrapper({
       );
     };
   }, [handleMapUserClick, handleMapSourceData]);
+
+  useEffect(() => {
+    if (mapInitiallyLocated) {
+      handleOnClick();
+    }
+  }, [mapInitiallyLocated])
 
   const initializeMap = (newMap: MaplibreMap) => {
     map.current = newMap;
@@ -237,7 +245,7 @@ export default function MapWrapper({
         reRenderUsersOnMap(map.current, usersToRender, handleMapUserClick);
       }
     }
-  }, [results, map.current, map.current?.loaded()]);
+  }, [results, map.current, map.current?.loaded(), mapInitiallyLocated]);
 
   return (
     <>
