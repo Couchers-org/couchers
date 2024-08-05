@@ -237,7 +237,7 @@ export default function MapWrapper({
    * Re-renders users list on map (when results array changed)
    */
   useEffect(() => {
-    if (map.current?.loaded()) {
+    if (map.current?.loaded() && mapInitiallyLocated) {
       map.current?.stop();
 
       if (results) {
