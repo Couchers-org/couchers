@@ -16,7 +16,6 @@ const Template: Story<any> = () => {
         setLocationResult={() => jest.fn()}
         setQueryName={() => jest.fn()}
         queryName={undefined}
-        setIsFiltersOpen={() => jest.fn()}
       />
     </>
   );

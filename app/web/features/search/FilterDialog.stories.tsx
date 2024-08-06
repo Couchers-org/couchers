@@ -18,6 +18,8 @@ const Template: Story<any> = () => {
       <FilterDialog
         setLocationResult={() => jest.fn()}
         lastActiveFilter={0}
+        setQueryName={() => jest.fn()}
+        queryName=""
         setLastActiveFilter={() => jest.fn()}
         hostingStatusFilter={0}
         setHostingStatusFilter={() => jest.fn()}
