@@ -24,6 +24,7 @@ import useAuthStyles from "../useAuthStyles";
 import AccountForm from "./AccountForm";
 import BasicForm from "./BasicForm";
 import FeedbackForm from "./FeedbackForm";
+import { useIsNativeEmbed } from "platform/nativeLink";
 
 const useStyles = makeStyles((theme) => ({
   agreement: {
@@ -69,6 +70,9 @@ const useStyles = makeStyles((theme) => ({
       width: "100%",
     },
   },
+  mobileEmbed: {
+    margin: theme.spacing(3)
+  }
 }));
 
 function CurrentForm() {
@@ -168,6 +172,8 @@ export default function Signup() {
   const router = useRouter();
   const urlToken = stringOrFirstString(router.query.token);
 
+  const isNativeEmbed = useIsNativeEmbed();
+
   useEffect(() => {
     authActions.clearError();
   }, [authActions]);
@@ -202,6 +208,17 @@ export default function Signup() {
     // next-router-mock router isn't memoized, so putting router in the dependencies
     // causes infinite looping in tests
   }, [urlToken, authActions, t]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (isNativeEmbed) {
+    return <div className={classes.mobileEmbed}>
+      {error && (
+        <Alert className={authClasses.errorMessage} severity="error">
+          {error}
+        </Alert>
+      )}
+      {loading ? <CircularProgress /> : <CurrentForm />}
+    </div>
+  }
 
   return (
     <>

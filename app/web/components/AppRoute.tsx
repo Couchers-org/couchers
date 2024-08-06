@@ -12,6 +12,8 @@ import makeStyles from "utils/makeStyles";
 
 import Navigation from "./Navigation";
 
+import { useIsNativeEmbed } from "platform/nativeLink";
+
 export const useAppRouteStyles = makeStyles((theme) => ({
   fullscreenContainer: {
     margin: "0 auto",
@@ -30,6 +32,10 @@ export const useAppRouteStyles = makeStyles((theme) => ({
     margin: "0 auto",
     paddingLeft: 0,
     paddingRight: 0,
+  },
+  nativeEmbedContainer: {
+    margin: "0 auto",
+    padding: 0,
   },
   loader: {
     //minimal-effort reduction of layout shifting
@@ -63,7 +69,7 @@ export const useAppRouteStyles = makeStyles((theme) => ({
 interface AppRouteProps {
   isPrivate: boolean;
   noFooter?: boolean;
-  variant?: "standard" | "full-screen" | "full-width";
+  variant?: "standard" | "full-screen" | "full-width" | "native-embed";
   children: ReactNode;
 }
 
@@ -78,6 +84,8 @@ export default function AppRoute({
   const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
+
+  const isNativeEmbed = useIsNativeEmbed();
 
   //there must be the same loading state on auth'd pages on server and client
   //for hydration matching, so we will display a loader until mounted.
@@ -102,12 +110,13 @@ export default function AppRoute({
         </div>
       ) : (
         <>
-          <Navigation />
+          { !isNativeEmbed && <Navigation />}
           {/* Temporary container injected for marketing to test dynamic "announcements".
            * Find a better spot to componentise this code once plan is more finalised with this */}
           <div id="announcements"></div>
           <Container
             className={classNames({
+              [classes.nativeEmbedContainer]: isNativeEmbed,
               [classes.nonFullScreenStyles]: variant !== "full-screen",
               [classes.fullWidthContainer]: variant === "full-width",
               [classes.fullscreenContainer]: variant === "full-screen",
@@ -122,10 +131,10 @@ export default function AppRoute({
             {/* Have to wrap this in a fragment because of https://github.com/mui-org/material-ui/issues/21711 */}
             <>{children}</>
           </Container>
-          {!noFooter && <Footer />}
+          {!noFooter && !isNativeEmbed && <Footer />}
         </>
       )}
-      {!isPrivate && <CookieBanner />}
+      {!isPrivate && !isNativeEmbed && <CookieBanner />}
     </ErrorBoundary>
   );
 }

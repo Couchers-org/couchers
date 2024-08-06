@@ -11,7 +11,8 @@ export type ThemedTextProps = TextProps & {
     | "defaultSemiBold"
     | "subtitle"
     | "link"
-    | "error";
+    | "error"
+    | "button";
 };
 
 export function ThemedText({
@@ -33,6 +34,7 @@ export function ThemedText({
         type === "subtitle" ? styles.subtitle : undefined,
         type === "link" ? styles.link : undefined,
         type === "error" ? styles.error : undefined,
+        type === "button" ? styles.button : undefined,
         style,
       ]}
       {...rest}
@@ -72,6 +74,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     color: "#ff0000",
+    fontFamily: "Ubuntu_400Regular",
+  },
+  button: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: "#0a7ea4",
     fontFamily: "Ubuntu_400Regular",
   },
 });
