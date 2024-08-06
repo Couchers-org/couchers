@@ -3,7 +3,7 @@ import { Image, StyleSheet, Button, Text } from "react-native";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation } from "react-query";
 import { RpcError } from "grpc-web";
 import { service } from "service";
@@ -14,14 +14,19 @@ import LoginForm from "features/auth/login/LoginForm";
 import { useAuthContext } from "features/auth/AuthProvider";
 
 import { useTranslation } from "i18n";
+import { WebView, WebViewNavigation } from 'react-native-webview';
 import { AUTH, GLOBAL } from "i18n/namespaces";
 
 export default function CouchersScreen() {
   const { t } = useTranslation([AUTH, GLOBAL]);
 
+  const URL_BASE = "http://192.168.1.111:3000"
+
   const [pressed, setPressed] = useState<number>(0);
 
   const { authState, authActions } = useAuthContext();
+
+  let webview = useRef<WebView>(null);
 
   const { data: resp, mutate: checkCoucherCount } = useMutation<
     StatusRes.AsObject,
@@ -47,6 +52,19 @@ export default function CouchersScreen() {
     checkCoucherCount();
   };
 
+
+  const handleWebViewNavigationStateChange = (newNavState: WebViewNavigation) => {
+    const { url } = newNavState;
+    if (!url) return;
+    const v = webview.current;
+    if (!v) return;
+
+    if (!url.startsWith(URL_BASE)) {
+      v.stopLoading();
+      console.log("oooop")
+    }
+  };
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
@@ -63,6 +81,17 @@ export default function CouchersScreen() {
       <ThemedView style={styles.stepContainer}>
         {authState.error && <Alert>{authState.error}</Alert>}
         <LoginForm />
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText>Webview:</ThemedText>
+        <WebView
+          ref={webview}
+          style={styles.webview}
+          source={{ uri: `${URL_BASE}/signup` }}
+          onNavigationStateChange={handleWebViewNavigationStateChange}
+          injectedJavaScriptObject={{ customValue: 'myCustomValue' }}
+        />
+        <ThemedText>(end webview)</ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <Button title="Press me" onPress={onPress} />
@@ -110,4 +139,7 @@ const styles = StyleSheet.create({
     right: 0,
     position: "absolute",
   },
+  webview: {
+    height: 250,
+  }
 });
