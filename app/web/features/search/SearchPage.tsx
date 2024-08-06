@@ -5,11 +5,11 @@ import {
 } from "react-query";
 import { useEffect, useRef, useState } from "react";
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
-import { Map as MaplibreMap } from "maplibre-gl";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { selectedUserZoom } from "features/search/constants";
 import SearchResultsList from "./SearchResultsList";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
+import { Map as MaplibreMap } from "maplibre-gl";
 import { UserSearchRes } from "proto/search_pb";
 import HtmlMeta from "components/HtmlMeta";
 import FilterDialog from "./FilterDialog";
@@ -84,7 +84,7 @@ export default function SearchPage({
     name: locationName,
     simplifiedName: locationName,
   });
-  const [queryName, setQueryName] = useState(undefined);
+  const [queryName, setQueryName] = useState<undefined | string>(undefined);
   const [searchType, setSearchType] = useState("location");
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
   const [hostingStatusFilter, setHostingStatusFilter] = useState(0);
@@ -176,7 +176,6 @@ export default function SearchPage({
         {/* Desktop */}
         <Hidden smDown>
           <SearchResultsList
-            setIsFiltersOpen={setIsFiltersOpen}
             searchType={searchType}
             setSearchType={setSearchType}
             locationResult={locationResult}
@@ -200,7 +199,6 @@ export default function SearchPage({
             className={classes.mobileCollapse}
           >
             <SearchResultsList
-              setIsFiltersOpen={setIsFiltersOpen}
               searchType={searchType}
               setSearchType={setSearchType}
               locationResult={locationResult}
@@ -219,6 +217,8 @@ export default function SearchPage({
         </Hidden>
         <FilterDialog
           isOpen={isFiltersOpen}
+          queryName={queryName}
+          setQueryName={setQueryName}
           onClose={() => setIsFiltersOpen(false)}
           setLocationResult={setLocationResult}
           lastActiveFilter={lastActiveFilter}

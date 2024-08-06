@@ -92,6 +92,8 @@ interface FilterModalFormData
 interface FilterDialogProps {
   isOpen: boolean;
   onClose(): void;
+  queryName: undefined | string;
+  setQueryName: Dispatch<SetStateAction<undefined | string>>;
   setLocationResult: any;
   lastActiveFilter: number;
   setLastActiveFilter: Dispatch<SetStateAction<number>>;
@@ -106,6 +108,8 @@ interface FilterDialogProps {
 export default function FilterDialog({
   isOpen,
   onClose,
+  queryName,
+  setQueryName,
   setLocationResult,
   lastActiveFilter,
   setLastActiveFilter,
@@ -167,6 +171,12 @@ export default function FilterDialog({
               name="query"
               inputRef={register}
               variant="standard"
+              onChange={(e) => {
+                if (e) {
+                  setQueryName(e.target.value);
+                }
+              }}
+              value={queryName}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -175,7 +185,7 @@ export default function FilterDialog({
                         "search:form.keywords.clear_field_action_a11y_label"
                       )}
                       onClick={() => {
-                        setValue("query", "");
+                        setQueryName("");
                       }}
                       size="small"
                     >

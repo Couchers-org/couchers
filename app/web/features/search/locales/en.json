@@ -1,5 +1,6 @@
 {
     "filter_dialog": {
+        "search_here_button": "Search in this area",
         "desktop_title": "Filters",
         "mobile_title": "Search"
     },

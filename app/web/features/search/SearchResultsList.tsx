@@ -89,13 +89,12 @@ interface mapWrapperProps {
       Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
     >
   >;
-  searchType: any;
-  setSearchType: any;
+  searchType: string;
+  setSearchType: Dispatch<SetStateAction<string>>;
   locationResult: any;
-  setLocationResult: any;
-  setQueryName: any;
-  queryName: any;
-  setIsFiltersOpen: any;
+  setLocationResult: Dispatch<SetStateAction<any>>;
+  setQueryName: Dispatch<SetStateAction<undefined | string>>;
+  queryName: undefined | string;
 }
 
 export default function SearchResultsList({
@@ -112,7 +111,6 @@ export default function SearchResultsList({
   setLocationResult,
   setQueryName,
   queryName,
-  setIsFiltersOpen,
 }: mapWrapperProps) {
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
@@ -124,7 +122,6 @@ export default function SearchResultsList({
 
       <Hidden smDown>
         <SearchBox
-          setIsFiltersOpen={setIsFiltersOpen}
           searchType={searchType}
           setSearchType={setSearchType}
           locationResult={locationResult}

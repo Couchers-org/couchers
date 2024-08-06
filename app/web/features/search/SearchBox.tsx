@@ -14,9 +14,7 @@ import TextField from "components/TextField";
 import { CrossIcon } from "components/Icons";
 import makeStyles from "utils/makeStyles";
 import { useForm } from "react-hook-form";
-import Button from "components/Button";
 import { useTranslation } from "i18n";
-import classNames from "classnames";
 
 const useStyles = makeStyles((theme) => ({
   filterDialogButtonDesktop: {
@@ -31,6 +29,9 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     width: "100%",
   },
+  justifyContent: {
+    justifyContent: "space-around",
+  },
 }));
 
 interface SearchBoxProps {
@@ -40,7 +41,6 @@ interface SearchBoxProps {
   setLocationResult: Dispatch<SetStateAction<any>>;
   setQueryName: Dispatch<SetStateAction<any>>;
   queryName: undefined | string;
-  setIsFiltersOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export default function SearchBox({
@@ -50,12 +50,9 @@ export default function SearchBox({
   setLocationResult,
   setQueryName,
   queryName,
-  setIsFiltersOpen,
 }: SearchBoxProps) {
-  const worldWideViewPort = [-61, -57, 72, 73];
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
-  const className = "";
 
   const { control, setValue, errors, register, handleSubmit } = useForm({
     mode: "onChange",
@@ -90,7 +87,6 @@ export default function SearchBox({
             setLocationResult({
               ...locationResult,
               location: undefined,
-              bbox: worldWideViewPort,
             });
           }}
           InputProps={{
@@ -105,7 +101,6 @@ export default function SearchBox({
                     setLocationResult({
                       ...locationResult,
                       location: undefined,
-                      bbox: worldWideViewPort,
                     });
                   }}
                   size="small"
@@ -118,14 +113,14 @@ export default function SearchBox({
         />
       )}
       <div className={classes.flexRow}>
-        <FormControl component="fieldset">
+        <FormControl className={classes.flexRow} component="fieldset">
           <RadioGroup
+            className={classes.justifyContent}
             row
             onChange={(event: React.ChangeEvent, value: string) => {
               setSearchType(value as "location" | "keyword");
               setLocationResult({
                 ...locationResult,
-                bbox: worldWideViewPort,
                 name: "",
                 simplifiedName: "",
                 location: undefined,
@@ -154,15 +149,6 @@ export default function SearchBox({
             />
           </RadioGroup>
         </FormControl>
-
-        <Button
-          onClick={() => setIsFiltersOpen(true)}
-          className={classNames(className, classes.filterDialogButtonDesktop)}
-          variant="outlined"
-          size="small"
-        >
-          {t("search:filter_dialog.desktop_title")}
-        </Button>
       </div>
     </>
   );

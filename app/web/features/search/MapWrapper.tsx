@@ -15,6 +15,8 @@ import Button from "components/Button";
 import { User } from "proto/api_pb";
 import Map from "components/Map";
 import { Point } from "geojson";
+import { SEARCH } from "i18n/namespaces";
+import { useTranslation } from "i18n";
 
 const useStyles = makeStyles((theme) => ({
   searchHereGroup2: {
@@ -59,10 +61,10 @@ interface mapWrapperProps {
     | undefined;
   isLoading: boolean;
   locationResult: any;
-  setLocationResult: any;
+  setLocationResult: Dispatch<SetStateAction<any>>;
   results: InfiniteData<UserSearchRes.AsObject> | undefined;
-  setIsFiltersOpen: any;
-  mapInitiallyLocated: any;
+  setIsFiltersOpen: Dispatch<SetStateAction<boolean>>;
+  mapInitiallyLocated: boolean;
   setSelectedResult: Dispatch<
     SetStateAction<
       Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
@@ -82,6 +84,7 @@ export default function MapWrapper({
   setSelectedResult,
   setIsFiltersOpen,
 }: mapWrapperProps) {
+  const { t } = useTranslation([SEARCH]);
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
   const previousResult = usePrevious(selectedResult);
   const classes = useStyles();
@@ -262,7 +265,7 @@ export default function MapWrapper({
             className={classes.searchHereButton}
             endIcon={<ReplayIcon />}
           >
-            Search in this area
+            {t("search:filter_dialog.search_here_button")}
           </Button>
           <Button
             color="primary"
