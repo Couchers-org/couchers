@@ -17,10 +17,10 @@ import { useTranslation } from "i18n";
 import { WebView, WebViewNavigation } from 'react-native-webview';
 import { AUTH, GLOBAL } from "i18n/namespaces";
 
+const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
+
 export default function CouchersScreen() {
   const { t } = useTranslation([AUTH, GLOBAL]);
-
-  const URL_BASE = "http://192.168.1.111:3000"
 
   const [pressed, setPressed] = useState<number>(0);
 
@@ -59,7 +59,7 @@ export default function CouchersScreen() {
     const v = webview.current;
     if (!v) return;
 
-    if (!url.startsWith(URL_BASE)) {
+    if (!url.startsWith(WEB_BASE_URL)) {
       v.stopLoading();
       console.log("oooop")
     }
@@ -87,7 +87,7 @@ export default function CouchersScreen() {
         <WebView
           ref={webview}
           style={styles.webview}
-          source={{ uri: `${URL_BASE}/signup` }}
+          source={{ uri: `${WEB_BASE_URL}/signup` }}
           onNavigationStateChange={handleWebViewNavigationStateChange}
           injectedJavaScriptObject={{ customValue: 'myCustomValue' }}
         />
