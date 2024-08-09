@@ -5,9 +5,14 @@ import {
 } from "@react-navigation/native";
 import {
   useFonts,
+  Ubuntu_300Light,
+  Ubuntu_300Light_Italic,
   Ubuntu_400Regular,
   Ubuntu_400Regular_Italic,
+  Ubuntu_500Medium,
+  Ubuntu_500Medium_Italic,
   Ubuntu_700Bold,
+  Ubuntu_700Bold_Italic,
 } from "@expo-google-fonts/ubuntu";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -29,9 +34,14 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
+    Ubuntu_300Light,
+    Ubuntu_300Light_Italic,
     Ubuntu_400Regular,
     Ubuntu_400Regular_Italic,
+    Ubuntu_500Medium,
+    Ubuntu_500Medium_Italic,
     Ubuntu_700Bold,
+    Ubuntu_700Bold_Italic,
   });
 
   useEffect(() => {
@@ -48,9 +58,11 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <ReactQueryClientProvider>
         <AuthProvider>
-          <Stack>
-            <Stack.Screen name="login" options={{ headerShown: false }} />
-            {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> */}
+          <Stack
+            screenOptions={{
+              headerShown: false,
+            }}
+          >
             <Stack.Screen name="+not-found" />
           </Stack>
         </AuthProvider>

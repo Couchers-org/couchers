@@ -7,7 +7,7 @@ const StyledLink = forwardRef<HTMLAnchorElement, { href: string } & LinkProps>(
     <Link href={href} passHref>
       <MuiLink ref={ref} {...props} />
     </Link>
-  )
+  ),
 );
 
 StyledLink.displayName = "StyledLink";
