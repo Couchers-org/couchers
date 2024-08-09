@@ -1,6 +1,5 @@
-import Sentry from "platform/sentry";
-import { SentryErrorBoundaryProps } from "platform/sentry";
 import ErrorFallback from "components/ErrorFallback";
+import Sentry, { SentryErrorBoundaryProps } from "platform/sentry";
 import React, { PropsWithChildren } from "react";
 
 interface ErrorBoundaryProps

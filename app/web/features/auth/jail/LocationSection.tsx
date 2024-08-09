@@ -1,5 +1,4 @@
 import { Typography } from "@material-ui/core";
-import Sentry from "platform/sentry";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import EditLocationMap, {
@@ -8,6 +7,7 @@ import EditLocationMap, {
 import TextBody from "components/TextBody";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
+import Sentry from "platform/sentry";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";

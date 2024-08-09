@@ -1,5 +1,4 @@
 import { Divider, Typography } from "@material-ui/core";
-import Sentry from "platform/sentry";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
@@ -11,6 +10,8 @@ import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesFor
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
+import { useIsNativeEmbed } from "platform/nativeLink";
+import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
 import vercelLogo from "resources/vercel.svg";
 import { dashboardRoute, loginRoute, signupRoute, tosRoute } from "routes";
@@ -24,7 +25,6 @@ import useAuthStyles from "../useAuthStyles";
 import AccountForm from "./AccountForm";
 import BasicForm from "./BasicForm";
 import FeedbackForm from "./FeedbackForm";
-import { useIsNativeEmbed } from "platform/nativeLink";
 
 const useStyles = makeStyles((theme) => ({
   agreement: {
@@ -71,8 +71,8 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   mobileEmbed: {
-    margin: theme.spacing(3)
-  }
+    margin: theme.spacing(3),
+  },
 }));
 
 function CurrentForm() {
@@ -210,14 +210,16 @@ export default function Signup() {
   }, [urlToken, authActions, t]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isNativeEmbed) {
-    return <div className={classes.mobileEmbed}>
-      {error && (
-        <Alert className={authClasses.errorMessage} severity="error">
-          {error}
-        </Alert>
-      )}
-      {loading ? <CircularProgress /> : <CurrentForm />}
-    </div>
+    return (
+      <div className={classes.mobileEmbed}>
+        {error && (
+          <Alert className={authClasses.errorMessage} severity="error">
+            {error}
+          </Alert>
+        )}
+        {loading ? <CircularProgress /> : <CurrentForm />}
+      </div>
+    );
   }
 
   return (

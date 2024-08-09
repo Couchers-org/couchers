@@ -19,7 +19,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 
 const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
-export default function CouchersScreen() {
+export default function Everything() {
   const { t } = useTranslation([AUTH, GLOBAL]);
 
   const [pressed, setPressed] = useState<number>(0);

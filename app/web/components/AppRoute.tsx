@@ -6,13 +6,12 @@ import ErrorBoundary from "components/ErrorBoundary";
 import Footer from "components/Footer";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useRouter } from "next/router";
+import { useIsNativeEmbed } from "platform/nativeLink";
 import { ReactNode, useEffect, useState } from "react";
 import { jailRoute, loginRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import Navigation from "./Navigation";
-
-import { useIsNativeEmbed } from "platform/nativeLink";
 
 export const useAppRouteStyles = makeStyles((theme) => ({
   fullscreenContainer: {
@@ -110,7 +109,7 @@ export default function AppRoute({
         </div>
       ) : (
         <>
-          { !isNativeEmbed && <Navigation />}
+          {!isNativeEmbed && <Navigation />}
           {/* Temporary container injected for marketing to test dynamic "announcements".
            * Find a better spot to componentise this code once plan is more finalised with this */}
           <div id="announcements"></div>

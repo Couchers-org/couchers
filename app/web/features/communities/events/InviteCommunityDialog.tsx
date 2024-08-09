@@ -1,3 +1,6 @@
+import { DialogProps, Link as MuiLink } from "@material-ui/core";
+import Alert from "components/Alert";
+import Button from "components/Button";
 import {
   Dialog,
   DialogActions,
@@ -5,17 +8,14 @@ import {
   DialogContentText,
   DialogTitle,
 } from "components/Dialog";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { useMutation, useQueryClient } from "react-query";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
-import { DialogProps, Link as MuiLink } from "@material-ui/core";
 import { eventKey } from "features/queryKeys";
-import Button from "components/Button";
-import { useTranslation } from "i18n";
-import Alert from "components/Alert";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { service } from "service";
+import { useTranslation } from "i18n";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import React from "react";
+import { useMutation, useQueryClient } from "react-query";
+import { service } from "service";
 
 export default function InviteCommunityDialog({
   eventId,

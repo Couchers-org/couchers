@@ -1,5 +1,4 @@
 import { FormControlLabel, InputLabel, Switch } from "@material-ui/core";
-import Sentry from "platform/sentry";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
@@ -7,6 +6,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
+import Sentry from "platform/sentry";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { resetPasswordRoute } from "routes";

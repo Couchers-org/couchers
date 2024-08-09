@@ -1,13 +1,13 @@
-import Sentry from "platform/sentry";
 import { userKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
+import Sentry from "platform/sentry";
+import { usePersistedState } from "platform/usePersistedState";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useMemo, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
-import { usePersistedState } from "platform/usePersistedState";
 
 export default function useAuthStore() {
   const [authenticated, setAuthenticated] = usePersistedState(

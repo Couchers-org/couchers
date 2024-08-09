@@ -15,7 +15,6 @@ import { useAuthContext } from "../AuthProvider";
 import useAuthStyles from "../useAuthStyles";
 import LoginForm from "./LoginForm";
 
-
 export default function Login() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState } = useAuthContext();
