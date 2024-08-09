@@ -1,7 +1,7 @@
 import { StatusReq } from "proto/bugs_pb";
 import client from "service/client";
 
-export async function status(message: string = "") {
+export async function status(message = "") {
   const req = new StatusReq();
   req.setNonce(message);
   const res = await client.bugs.status(req);

@@ -8,7 +8,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
 
-import { usePersistedState } from "../../../features/auth/useAuthStore";
+import { usePersistedState } from "platform/usePersistedState";
 import useSendFieldStyles from "../useSendFieldStyles";
 
 interface MessageFormData {
