@@ -8,9 +8,10 @@ import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import BasicScreen from "@/components/BasicScreen";
 
+const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
+
 export default function CouchersScreen() {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const URL_BASE = "http://192.168.1.111:3000"
   let webview = useRef<WebView>(null);
 
   const handleWebViewNavigationStateChange = (newNavState: WebViewNavigation) => {
@@ -19,7 +20,7 @@ export default function CouchersScreen() {
     const v = webview.current;
     if (!v) return;
 
-    if (!url.startsWith(URL_BASE)) {
+    if (!url.startsWith(WEB_BASE_URL)) {
       v.stopLoading();
       console.log("oooop")
     }
@@ -30,7 +31,7 @@ export default function CouchersScreen() {
       <WebView
         ref={webview}
         style={styles.webview}
-        source={{ uri: `${URL_BASE}/signup` }}
+        source={{ uri: `${WEB_BASE_URL}/signup` }}
         onNavigationStateChange={handleWebViewNavigationStateChange}
         injectedJavaScriptObject={{ customValue: 'myCustomValue' }}
       />
