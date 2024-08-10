@@ -2,7 +2,7 @@ import { userKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import Sentry from "platform/sentry";
-import { usePersistedState } from "platform/usePersistedState";
+import { clearStorage,usePersistedState } from "platform/usePersistedState";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useMemo, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
@@ -55,6 +55,7 @@ export default function useAuthStore() {
           });
           setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
+        clearStorage();
         setLoading(false);
       },
       async passwordLogin({

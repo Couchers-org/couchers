@@ -30,3 +30,7 @@ export function usePersistedState<T>(
   }, [key, storage]);
   return [_state, setState, clearState];
 }
+
+export function clearStorage() {
+  window.sessionStorage.clear();
+}
