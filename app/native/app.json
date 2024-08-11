@@ -38,6 +38,13 @@
           "project": "native",
           "organization": "couchers"
         }
+      ],
+      "@maplibre/maplibre-react-native",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Couchers to use your location."
+        }
       ]
     ],
     "experiments": {

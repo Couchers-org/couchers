@@ -1,13 +1,10 @@
-import { Button, Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import Alert from "components/Alert";
-import LoginForm from "features/auth/login/LoginForm";
 
 import { useAuthContext } from "features/auth/AuthProvider";
 
-import { Trans, useTranslation } from "i18n";
+import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import BasicScreen from "@/components/BasicScreen";
 import { Link } from "expo-router";
@@ -54,6 +51,16 @@ export default function CouchersScreen() {
       <Link href="/everything" asChild>
         <Pressable>
           <ThemedText type="button">Debug page</ThemedText>
+        </Pressable>
+      </Link>
+      <Link href="/login2" asChild>
+        <Pressable>
+          <ThemedText type="button">Web embed stuff</ThemedText>
+        </Pressable>
+      </Link>
+      <Link href="/map" asChild>
+        <Pressable>
+          <ThemedText type="button">Map</ThemedText>
         </Pressable>
       </Link>
     </BasicScreen>

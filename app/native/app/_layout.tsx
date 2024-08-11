@@ -24,6 +24,9 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { ReactQueryClientProvider } from "@/features/reactQueryClient";
 import Sentry from "platform/sentry";
 
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Drawer } from "expo-router/drawer";
+
 Sentry.init({
   dsn: "https://7de06aa8cca6dacc9620667dd84a0d01@o782870.ingest.us.sentry.io/4507718344704000",
 });
@@ -58,13 +61,48 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <ReactQueryClientProvider>
         <AuthProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          >
-            <Stack.Screen name="+not-found" />
-          </Stack>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <Drawer screenOptions={{ headerShown: false }}>
+              <Drawer.Screen
+                name="dashboard"
+                options={{ drawerLabel: "Dashboard" }}
+              />
+              <Drawer.Screen
+                name="messages"
+                options={{ drawerLabel: "Messages" }}
+              />
+              <Drawer.Screen
+                name="map"
+                options={{ drawerLabel: "Map Search" }}
+              />
+              <Drawer.Screen
+                name="events"
+                options={{ drawerLabel: "Events" }}
+              />
+              {/* Divider */}
+              <Drawer.Screen
+                name="profile"
+                options={{ drawerLabel: "Profile" }}
+              />
+              <Drawer.Screen
+                name="account-settings"
+                options={{ drawerLabel: "Account Settings" }}
+              />
+              {/* Divider */}
+              {/* <Drawer.Screen
+                name="help"
+                options={{drawerLabel: 'Help'}}
+              /> */}
+              <Drawer.Screen
+                name="donate"
+                options={{ drawerLabel: "Donate" }}
+              />
+              <Drawer.Screen
+                name="volunteer"
+                options={{ drawerLabel: "Volunteer" }}
+              />
+            </Drawer>
+          </GestureHandlerRootView>
         </AuthProvider>
       </ReactQueryClientProvider>
     </ThemeProvider>

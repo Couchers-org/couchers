@@ -35,3 +35,26 @@ export function useIsNativeEmbed(): boolean {
 
   return isNative;
 }
+
+type MessageType = "sendState" | "clearState";
+
+export function sendToNative(type: MessageType, data: any) {
+  if (!isNativeEmbed()) return;
+  getReactNativeWebView()!.postMessage(
+    JSON.stringify({ type: type, data: data })
+  );
+}
+
+export function getState<T>(key: string) {
+  if (!isNativeEmbed()) return undefined;
+  const data = getNativeData();
+  // if ()
+}
+
+export function sendState<T>(key: string, value: T) {
+  sendToNative("sendState", { key: key, value: value });
+}
+
+export function clearState(key: string) {
+  sendToNative("clearState", { key: key });
+}

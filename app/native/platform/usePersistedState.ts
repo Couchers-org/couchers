@@ -54,3 +54,7 @@ export function usePersistedState<T>(
 
   return [_state, setState, clearState];
 }
+
+export function clearStorage() {
+  AsyncStorage.clear();
+}
