@@ -5,7 +5,6 @@ import { useRef } from "react";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 
-import { ThemedView } from "@/components/ThemedView";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type WebEmbedProps = {
@@ -38,8 +37,12 @@ export default function Terms({ path }: WebEmbedProps) {
         ref={webview}
         style={styles.webview}
         source={{ uri: WEB_BASE_URL + path }}
+        sharedCookiesEnabled={true}
         onNavigationStateChange={handleWebViewNavigationStateChange}
         injectedJavaScriptObject={{ isCouchersNativeEmbed: true }}
+        onMessage={(event) => {
+          console.log(event.nativeEvent.data);
+        }}
       />
     </SafeAreaView>
   );

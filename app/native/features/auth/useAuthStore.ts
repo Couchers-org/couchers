@@ -1,13 +1,13 @@
-import Sentry from "platform/sentry";
 import { userKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
+import Sentry from "platform/sentry";
+import { clearStorage, usePersistedState } from "platform/usePersistedState";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 import { service } from "service";
 import isGrpcError from "utils/isGrpcError";
-import { usePersistedState } from "platform/usePersistedState";
 
 export default function useAuthStore() {
   const [authenticated, setAuthenticated] = usePersistedState(
@@ -55,6 +55,7 @@ export default function useAuthStore() {
           });
           setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
+        clearStorage();
         setLoading(false);
       },
       async passwordLogin({
@@ -130,11 +131,50 @@ export default function useAuthStore() {
         }
         setLoading(false);
       },
+      async checkAuthStatus() {
+        setError(null);
+        setLoading(true);
+        try {
+          console.log("Checking auth status");
+          const res = await service.user.getAuthState();
+          if (res.loggedIn) {
+            console.log("Turns out we are logged in")!;
+            const auth = res.authRes!;
+            setUserId(auth.userId);
+            Sentry.setUser({ id: auth.userId.toString() });
+
+            //this must come after setting the userId, because calling setQueryData
+            //will also cause that query to be background fetched, and it needs
+            //userId to be set.
+            setJailed(auth.jailed);
+            setAuthenticated(true);
+          } else {
+            setAuthenticated(false);
+            setUserId(null);
+            Sentry.setUser({ id: undefined });
+          }
+        } catch (e) {
+          Sentry.captureException(e, {
+            tags: {
+              component: "auth/useAuthStore",
+              action: "checkAuthStatus",
+            },
+          });
+          setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
+        }
+        setLoading(false);
+      },
     }),
     //note: there should be no dependenices on the state or t, or
     //some useEffects will break. Eg. the token login in Login.tsx
     [setAuthenticated, setJailed, setUserId, setFlowState, queryClient],
   );
+
+  useEffect(() => {
+    if (!authenticated && typeof window !== "undefined") {
+      authActions.checkAuthStatus();
+    }
+  }, [authenticated, authActions]);
 
   return {
     authActions,

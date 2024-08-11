@@ -83,6 +83,7 @@ export default function Everything() {
         {authState.error && <Alert>{authState.error}</Alert>}
         <LoginForm />
       </ThemedView>
+      <Button title="Check auth status" onPress={authActions.checkAuthStatus} />
       <ThemedView style={styles.stepContainer}>
         <ThemedText>Webview:</ThemedText>
         <WebView
