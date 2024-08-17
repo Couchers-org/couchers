@@ -10,7 +10,7 @@ export default function Signup() {
     <SafeAreaView style={styles.sav}>
       <MapLibreGL.MapView
         style={styles.map}
-        styleURL="https://api.maptiler.com/maps/basic-v2/style.json?key=1RV0n61aoRkrPl7afcOT"
+        styleURL="https://maps.couchershq.org/static/couchers-basemap-style-v1.json"
         logoEnabled={false}
         attributionPosition={{ bottom: 8, right: 8 }}
       >
