@@ -369,6 +369,7 @@ class Events(events_pb2_grpc.EventsServicer):
             link = request.online_information.link
         elif request.HasField("offline_information"):
             online = False
+            # As protobuf parses a missing value as 0.0, this is not a permitted event coordinate value
             if not (
                 request.offline_information.address
                 and request.offline_information.lat
