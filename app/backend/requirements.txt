@@ -41,7 +41,7 @@ greenlet==3.0.3
     # via sqlalchemy
 grpcio==1.65.1
     # via -r requirements.in
-http-ece==1.2.0
+http-ece==1.2.1
     # via -r requirements.in
 identify==2.5.36
     # via pre-commit
