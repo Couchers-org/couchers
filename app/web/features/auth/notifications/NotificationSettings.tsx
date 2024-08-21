@@ -1,10 +1,9 @@
-import { Link, Typography } from "@material-ui/core";
+import {  Typography } from "@material-ui/core";
 import Button from "components/Button";
-import { Trans, useTranslation } from "i18n";
+import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-
-const NOTIFICATION_SETTINGS_URL =
-  process.env.NEXT_PUBLIC_CONSOLE_BASE_URL + "/notifications";
+import { notificationSettingsRoute } from "routes";
+import Link from "next/link";
 
 export default function NotificationSettings({
   className,
@@ -16,16 +15,11 @@ export default function NotificationSettings({
   return (
     <div className={className}>
       <Typography variant="h2">{t("notification_settings.title")}</Typography>
-      <Typography variant="body1">
-        <Trans t={t} i18nKey="notification_settings.edit_in_console">
-          You can change your notification settings{" "}
-          <Link href={NOTIFICATION_SETTINGS_URL}>on this page</Link>. We will
-          soon move it here.
-        </Trans>
-      </Typography>
-      <Button href={NOTIFICATION_SETTINGS_URL}>
-        {t("notification_settings.go_to_button")}
-      </Button>
+      <Link href={notificationSettingsRoute} passHref>
+        <Button >
+          {t("notification_settings.go_to_button")}
+        </Button>
+      </Link>
     </div>
   );
 }

@@ -42,6 +42,7 @@ export { default as OverflowMenuIcon } from "@material-ui/icons/MoreVertOutlined
 export { default as OpenInNewIcon } from "@material-ui/icons/OpenInNew";
 export { default as PeopleIcon } from "@material-ui/icons/PeopleOutlined";
 export { default as PersonAddIcon } from "@material-ui/icons/PersonAddOutlined";
+export { default as SinglePersonIcon } from "@material-ui/icons/Person"
 export { default as ClockIcon } from "@material-ui/icons/ScheduleOutlined";
 export { default as SearchIcon } from "@material-ui/icons/SearchOutlined";
 export { default as SlightlyDissatisfiedIcon } from "@material-ui/icons/SentimentDissatisfied";

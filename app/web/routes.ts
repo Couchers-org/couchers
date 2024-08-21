@@ -29,6 +29,7 @@ export const resetPasswordRoute = "/password-reset";
 export const settingsRoute = "/account-settings";
 export const featurePreviewRoute = "/preview";
 export const confirmChangeEmailRoute = "/confirm-email";
+export const notificationSettingsRoute = "/notification-settings";
 
 export const signupRoute = "/signup";
 
