@@ -1,21 +1,21 @@
-import { Collapse, ListItem, ListItemIcon, Typography } from "@material-ui/core"
+import { Typography } from "@material-ui/core"
 import makeStyles from "utils/makeStyles";
-import { List, ListItemText } from "@material-ui/core"
-import { ExpandLessIcon, ExpandMoreIcon, SinglePersonIcon } from "components/Icons";
-import {useState } from "react";
+import { List } from "@material-ui/core"
+import { SinglePersonIcon } from "components/Icons";
+import NotificationSettingsListItem from "./NotificationSettingsListItem";
+
 
 const useStyles = makeStyles((theme) => ({
+    descriptionText: {
+        fontSize: theme.spacing(1.8),
+        color: theme.palette.text.secondary,
+    },
     list: {
         border: `1px solid ${theme.palette.divider}`,
         marginTop: theme.spacing(1),
         display: "flex",
         flexDirection: "column",
         padding: theme.spacing(1),
-    },
-    listItem: {
-       "&:hover": {
-          backgroundColor: "transparent",
-        },
     },
     notificationSettingsContainer: {
         display: "flex",
@@ -34,11 +34,6 @@ const useStyles = makeStyles((theme) => ({
 // @TODO(NA): Add translations
 export default function EditNotificationSettingsPage() {
     const classes = useStyles();
-    const [open, setOpen] = useState(true);
-
-    const handleClick = () => {
-      setOpen(!open);
-    };
 
     return (
         <div className={classes.notificationSettingsContainer}>
@@ -48,18 +43,11 @@ export default function EditNotificationSettingsPage() {
             </Typography>
             <Typography variant="h3">Notifications you may receive</Typography>
             <List className={classes.list}>
-                <ListItem button className={classes.listItem} onClick={handleClick} >
-                    <ListItemIcon>
-                        <SinglePersonIcon fontSize="large" color="action"/>
-                    </ListItemIcon> 
-                    <ListItemText>
-                        <Typography variant="h3">Friend Requests</Typography>
-                    </ListItemText>
-                    {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                </ListItem>
-                <Collapse in={open} timeout="auto" unmountOnExit>
-                    <Typography variant="body2">Notifications when someone sends you a friend requests or accepts your friend requests</Typography>
-                </Collapse>
+                <NotificationSettingsListItem 
+                    title="Friend Requests" 
+                    description="Notifications when someone sends you a friend requests or accepts your friend requests" 
+                    icon={<SinglePersonIcon fontSize="large" color="action" />}
+                />
             </List>
         </div>
     );
