@@ -25,6 +25,7 @@ export { default as FlagIcon } from "@material-ui/icons/Flag";
 export { default as GithubIcon } from "@material-ui/icons/GitHub";
 export { default as HelpIcon } from "@material-ui/icons/Help";
 export { default as CouchIcon } from "@material-ui/icons/HotelOutlined";
+export { default as CouchIconFilled } from "@material-ui/icons/Weekend";
 export { default as InfoIcon } from "@material-ui/icons/InfoOutlined";
 export { default as GlobeIcon } from "@material-ui/icons/Language";
 export { default as LanguageIcon } from "@material-ui/icons/LanguageOutlined";
