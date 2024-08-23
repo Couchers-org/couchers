@@ -12,6 +12,8 @@ import {
   AccountSecurityIcon,
 } from "components/Icons";
 import NotificationSettingsListItem from "./NotificationSettingsListItem";
+import useNotifications from "features/useNotifications";
+import useNotificationSettings from "./useNotificationSettings";
 
 const useStyles = makeStyles((theme) => ({
   descriptionText: {
@@ -41,6 +43,7 @@ const useStyles = makeStyles((theme) => ({
 // @TODO(NA): Add translations
 export default function EditNotificationSettingsPage() {
   const classes = useStyles();
+  const { data } = useNotificationSettings();
 
   return (
     <div className={classes.notificationSettingsContainer}>
@@ -113,7 +116,7 @@ export default function EditNotificationSettingsPage() {
         <NotificationSettingsListItem
           actions={[
             "Notifications when a badge is added or removed from your account",
-            "Motifications when your donation is received",
+            "Notifications when your donation is received",
           ]}
           title="Account Settings"
           icon={<AccountSettingsIcon fontSize="large" color="action" />}
