@@ -99,6 +99,7 @@ interface SearchResultProps {
   user: User.AsObject;
   onSelect: (user: User.AsObject) => void;
   highlight?: boolean;
+  key: number;
 }
 
 export default function SearchResult({

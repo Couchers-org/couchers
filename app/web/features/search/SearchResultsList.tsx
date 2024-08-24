@@ -114,7 +114,7 @@ export default function SearchResultsList({
 }: mapWrapperProps) {
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
-  const hasAtLeastOnePageResults = true;
+  const hasAtLeastOnePageResults = results && results?.pages[0]?.resultsList?.length !== 0;
 
   return (
     <Paper className={classes.mapResults}>
