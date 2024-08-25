@@ -50,7 +50,9 @@
     "react-native-screens": "3.31.1",
     "react-native-web": "~0.19.10",
     "react-native-webview": "13.8.6",
-    "react-query": "^3.39.3"
+    "react-query": "^3.39.3",
+    "expo-notifications": "~0.28.16",
+    "expo-device": "~6.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
