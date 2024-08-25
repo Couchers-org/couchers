@@ -9,6 +9,9 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 
+  - job_name: 'envoy'
+    static_configs:
+      - targets: ['envoy:9901']
 
   - job_name: 'backend-endpoints'
     static_configs:
@@ -17,6 +20,10 @@ scrape_configs:
   - job_name: 'backend-jobs'
     static_configs:
       - targets: ['backend:8001']
+
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['pgprom:9187']
 
 remote_write:
 - url: https://prometheus-blocks-prod-us-central1.grafana.net/api/prom/push

@@ -23,6 +23,7 @@ services:
       - 5432:5432
     networks:
       - postgres_backend
+      - postgres_pgprom
     logging:
       driver: "json-file"
       options:
@@ -65,6 +66,7 @@ services:
     networks:
       - backend_envoy
       - envoy_nginx
+      - envoy_prometheus
   nginx:
     image: registry.gitlab.com/couchers/couchers/nginx
     restart: always
@@ -80,14 +82,27 @@ services:
       - media_nginx
       - envoy_nginx
       - web_nginx
+  pgprom:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+    restart: always
+    env_file: pgprom.prod.env
+    expose:
+      - 9187
+    networks:
+      - postgres_pgprom
+      - pgprom_prometheus
   prometheus:
     image: registry.gitlab.com/couchers/couchers/prometheus
     restart: always
     env_file: prometheus.prod.env
     depends_on:
       - backend
+      - envoy
+      - pgprom
     networks:
       - backend_prometheus
+      - pgprom_prometheus
+      - envoy_prometheus
   web:
     image: registry.gitlab.com/couchers/couchers/web
     restart: always
@@ -110,4 +125,10 @@ networks:
   envoy_nginx:
     driver: bridge
   web_nginx:
+    driver: bridge
+  postgres_pgprom:
+    driver: bridge
+  pgprom_prometheus:
+    driver: bridge
+  envoy_prometheus:
     driver: bridge
