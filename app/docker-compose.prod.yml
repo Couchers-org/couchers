@@ -82,6 +82,7 @@ services:
       - media_nginx
       - envoy_nginx
       - web_nginx
+  # generates prometheus metrics for the database
   pgprom:
     image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
     restart: always
@@ -91,6 +92,16 @@ services:
     networks:
       - postgres_pgprom
       - pgprom_prometheus
+  # generates prometheus metrics for the server!
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:v1.8.2
+    restart: always
+    command:
+      - "--path.rootfs=/host"
+    network_mode: host
+    pid: host
+    volumes:
+      - "/:/host:ro,rslave"
   prometheus:
     image: registry.gitlab.com/couchers/couchers/prometheus
     restart: always
