@@ -12,9 +12,10 @@ import { NotificationNewIcon } from "components/Icons";
 import CustomColorSwitch from "./CustomColorSwitch";
 import makeStyles from "utils/makeStyles";
 import { useState } from "react";
+import { GroupAction } from "./EditNotificationSettingsPage";
 
 interface NotificationSettingsSubListItemProps {
-  description: string;
+  item: GroupAction;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -36,24 +37,28 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function NotificationSettingsSubListItem({
-  description,
+  item,
 }: NotificationSettingsSubListItemProps) {
   const classes = useStyles();
 
-  const [isPushEnabled, setIsPushEnabled] = useState<boolean>(false);
-  const [isEmailEnabled, setIsEmailEnabled] = useState<boolean>(false);
+  const [isPushEnabled, setIsPushEnabled] = useState<boolean>(item.push);
+  const [isEmailEnabled, setIsEmailEnabled] = useState<boolean>(item.email);
 
   const handlePushSwitchClick = () => {
+    //@TODO Update value in DB
     setIsPushEnabled(!isPushEnabled);
   };
 
   const handleEmailSwitchClick = () => {
+    //@TODO Update value in DB
     setIsEmailEnabled(!isEmailEnabled);
   };
 
   return (
     <>
-      <Typography className={classes.descriptionText}>{description}</Typography>
+      <Typography className={classes.descriptionText}>
+        {item.description}
+      </Typography>
       <List component="div" disablePadding>
         <ListItem button className={classes.nested}>
           <ListItemIcon>

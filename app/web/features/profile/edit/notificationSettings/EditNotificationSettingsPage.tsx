@@ -1,19 +1,24 @@
-import { Typography } from "@material-ui/core";
-import makeStyles from "utils/makeStyles";
+import { useEffect, useState } from "react";
+import { CircularProgress, Typography } from "@material-ui/core";
 import { List } from "@material-ui/core";
-import {
-  SinglePersonIcon,
-  CouchFilledIcon,
-  ChatBubbleIcon,
-  EventIcon,
-  PenIcon,
-  ReminderIcon,
-  AccountSettingsIcon,
-  AccountSecurityIcon,
-} from "components/Icons";
+
+import Snackbar from "components/Snackbar";
+import makeStyles from "utils/makeStyles";
+
 import NotificationSettingsListItem from "./NotificationSettingsListItem";
-import useNotifications from "features/useNotifications";
 import useNotificationSettings from "./useNotificationSettings";
+
+export interface GroupAction {
+  action: string;
+  description: string;
+  email: boolean;
+  push: boolean;
+  userEditable: boolean;
+}
+
+interface GroupsByType {
+  [key: string]: GroupAction[];
+}
 
 const useStyles = makeStyles((theme) => ({
   descriptionText: {
@@ -26,6 +31,9 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     padding: `0 ${theme.spacing(1)}`,
+  },
+  loading: {
+    position: "absolute",
   },
   notificationSettingsContainer: {
     display: "flex",
@@ -43,7 +51,59 @@ const useStyles = makeStyles((theme) => ({
 // @TODO(NA): Add translations
 export default function EditNotificationSettingsPage() {
   const classes = useStyles();
-  const { data } = useNotificationSettings();
+  const { data, isLoading, isError } = useNotificationSettings();
+  const [groups, setGroups] = useState<GroupsByType>({});
+  const [areGroupsLoading, setAreGroupsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    try {
+      if (!data) {
+        return;
+      }
+
+      const computedGroups = data?.groupsList.reduce<GroupsByType>(
+        (acc, group) => {
+          group.topicsList.forEach((topic) => {
+            if (topic && topic.itemsList) {
+              topic.itemsList.forEach((subTopic) => {
+                const key =
+                  group.heading === "Account Security"
+                    ? "account_security"
+                    : group.heading === "Account Settings"
+                    ? "account_settings"
+                    : topic.topic;
+
+                if (!acc[key]) {
+                  acc[key] = [];
+                }
+                acc[key].push(subTopic);
+              });
+            }
+          });
+
+          return acc;
+        },
+        {}
+      );
+
+      setGroups(computedGroups);
+    } catch (error) {
+      console.error("Error fetching notification settings data:", error);
+    } finally {
+      setAreGroupsLoading(false);
+    }
+  }, [isLoading]);
+
+  const renderNotificationListItems = () => {
+    return Object.keys(groups).map((key) => {
+      return (
+        <NotificationSettingsListItem
+          items={groups[key]}
+          type={key}
+        />
+      );
+    });
+  };
 
   return (
     <div className={classes.notificationSettingsContainer}>
@@ -53,91 +113,16 @@ export default function EditNotificationSettingsPage() {
         content outside of your preferred notification settings.
       </Typography>
       <Typography variant="h3">Notifications you may receive</Typography>
-      <List className={classes.list}>
-        <NotificationSettingsListItem
-          actions={[
-            "Notifications when someone sends you a friend request or accepts your friend request",
-          ]}
-          title="Friend Requests"
-          icon={<SinglePersonIcon fontSize="large" color="action" />}
-          type="friend"
-        />
-        <NotificationSettingsListItem
-          actions={[
-            "Notifications when someone sends you a host request or accepts your host request",
-            "Notifications when someone confirms or declines your host request",
-            "Notifications when someone cancels their host request",
-            "Notifications when someone sends a message in their host request or you miss a message in your host request",
-          ]}
-          title="Host Requests"
-          type="host"
-          icon={<CouchFilledIcon fontSize="large" color="action" />}
-        />
-        <NotificationSettingsListItem
-          actions={[
-            "Notifications when someone sends you a message",
-            "Notifications when you miss messages in a chat",
-          ]}
-          title="Messages"
-          type="message"
-          icon={<ChatBubbleIcon fontSize="large" color="action" />}
-        />
-        <NotificationSettingsListItem
-          actions={[
-            "Notifications when an event approved by the moderators is created in your community",
-            "Notifications when a user creates any event in your community (not checked by an admin)",
-            "Notifications when an event you are attending is updated",
-            "Notifications when an event you are attending is canceled",
-            "Notifications when an event you are attending is deleted",
-            "Notifications when someone invites you to co-organize an event",
-          ]}
-          title="Events"
-          type="event"
-          icon={<EventIcon fontSize="large" color="action" />}
-        />
-        <NotificationSettingsListItem
-          actions={[
-            "Notifications when you receive a reference from someone who hosted you or you hosted",
-            "Notifications when you received a reference from a friend",
-          ]}
-          title="References"
-          type="reference"
-          icon={<PenIcon fontSize="large" color="action" />}
-        />
-        <NotificationSettingsListItem
-          actions={[
-            "Notifications to remind you to write a reference for someone you hosted or who hosted you",
-            "Notifications to remind you to complete your profile after signing up",
-          ]}
-          title="Reminders"
-          icon={<ReminderIcon fontSize="large" color="action" />}
-          type="reminder"
-        />
-        <NotificationSettingsListItem
-          actions={[
-            "Notifications when a badge is added or removed from your account",
-            "Notifications when your donation is received",
-          ]}
-          title="Account Settings"
-          icon={<AccountSettingsIcon fontSize="large" color="action" />}
-          type="account-settings"
-        />
-                <NotificationSettingsListItem
-          actions={[
-            "Notifications when your password is changed",
-            "Motifications when your password reset is initiated or completed",
-            "Notifications when your email is changed or your new email is verified",
-            "Notifications when you initiate account deletion, your account is deleted or you account is recoved (undeleted)",
-            "Notifications when an api key is created for your account",
-            "Notifications when your phone number is changed or verified",
-            "Notifications when your birthdate is changed",
-            "Notifications when the gender displayed on your profile is changed",
-          ]}
-          title="Account Security"
-          icon={<AccountSecurityIcon fontSize="large" color="action" />}
-          type="account-security"
-        />
-      </List>
+      {isError && (
+        <Snackbar severity="error">
+          <Typography>Error loading notification settings</Typography>
+        </Snackbar>
+      )}
+      {!isLoading && !areGroupsLoading ? (
+        <List className={classes.list}>{renderNotificationListItems()}</List>
+      ) : (
+        <CircularProgress className={classes.loading} />
+      )}
     </div>
   );
 }
