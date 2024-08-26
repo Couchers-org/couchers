@@ -24,6 +24,7 @@ servicer_duration_histogram = Histogram(
     "Durations of processing gRPC calls",
     labelnames=(METHOD_LABEL, CODE_LABEL, EXCEPTION_LABEL),
     buckets=(1, 5, 20, 50, 100, 200, 500, 1000, 5000, 10000),
+    registry=main_process_registry,
 )
 
 
