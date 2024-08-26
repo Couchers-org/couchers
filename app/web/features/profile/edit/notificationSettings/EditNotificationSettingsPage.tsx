@@ -13,6 +13,7 @@ export interface GroupAction {
   description: string;
   email: boolean;
   push: boolean;
+  topic: string;
   userEditable: boolean;
 }
 
@@ -76,7 +77,7 @@ export default function EditNotificationSettingsPage() {
                 if (!acc[key]) {
                   acc[key] = [];
                 }
-                acc[key].push(subTopic);
+                acc[key].push({...subTopic, topic: topic.topic});
               });
             }
           });

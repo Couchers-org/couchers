@@ -13,6 +13,8 @@ import CustomColorSwitch from "./CustomColorSwitch";
 import makeStyles from "utils/makeStyles";
 import { useState } from "react";
 import { GroupAction } from "./EditNotificationSettingsPage";
+import { useUpdateNotificationSettings } from "./notificationSettingsHooks";
+import { NotificationPreferenceData } from "service/notifications";
 
 interface NotificationSettingsSubListItemProps {
   item: GroupAction;
@@ -40,18 +42,23 @@ export default function NotificationSettingsSubListItem({
   item,
 }: NotificationSettingsSubListItemProps) {
   const classes = useStyles();
+  const { updateNotificationSettings, isError, isLoading, status } = useUpdateNotificationSettings();
 
   const [isPushEnabled, setIsPushEnabled] = useState<boolean>(item.push);
   const [isEmailEnabled, setIsEmailEnabled] = useState<boolean>(item.email);
 
   const handlePushSwitchClick = () => {
-    //@TODO Update value in DB
-    setIsPushEnabled(!isPushEnabled);
+    const updatedItem: NotificationPreferenceData = {
+      topic: item.topic,
+      action: item.action,
+      deliveryMethod: "push",
+      enabled: !isPushEnabled,
+    };
+    updateNotificationSettings(updatedItem);
   };
 
   const handleEmailSwitchClick = () => {
     //@TODO Update value in DB
-    setIsEmailEnabled(!isEmailEnabled);
   };
 
   return (
