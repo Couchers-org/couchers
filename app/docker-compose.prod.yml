@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   postgres:
     image: postgis/postgis:15-3.3
@@ -110,6 +109,10 @@ services:
       - backend
       - envoy
       - pgprom
+      - node_exporter
+    # this allows us to communicate with node_exporter which will be running directly on host networking
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - backend_prometheus
       - pgprom_prometheus
