@@ -12,6 +12,7 @@ scrape_configs:
   - job_name: "envoy"
     static_configs:
       - targets: ["envoy:9901"]
+    metrics_path: /stats/prometheus
 
   - job_name: "backend-endpoints"
     static_configs:
