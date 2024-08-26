@@ -1475,10 +1475,10 @@
   resolved "https://registry.yarnpkg.com/@fontsource/mansalva/-/mansalva-5.0.20.tgz#3851b087439fcefa7be37aacb1d5d9a4b88163db"
   integrity sha512-/UwsDZxLRm74D3C3+h/MPBvEiVym2ArOdpn97NJxNgeJCbu2JiAZdM/T8sgpYif/JMyk2HOoG/7luM2Aii0OKA==
 
-"@fontsource/ubuntu@^5.0.13":
-  version "5.0.13"
-  resolved "https://registry.yarnpkg.com/@fontsource/ubuntu/-/ubuntu-5.0.13.tgz#1521b3ada4afe82358fbc1f3ab975a7fa5a0864d"
-  integrity sha512-uCnfknLk6ERUUgGPHqvtLGkHkW/0oyxEJy6CZLaHbh6d1om1jvqcnc5nSPel1UCX5frLxRSTkRKU/vAbL9QtJw==
+"@fontsource/ubuntu@^5.0.14":
+  version "5.0.14"
+  resolved "https://registry.yarnpkg.com/@fontsource/ubuntu/-/ubuntu-5.0.14.tgz#83acec53f341e45c43f5a7e1bd118a8c9e27ac74"
+  integrity sha512-r8XIWG/yQx5IPQ86gFEsdvzlOKnnO5KZl1Shi1mVbn+c0wBY9jufdOKcIW6Fq4wCnA7EDEPZMxtZdWYjri3C4A==
 
 "@gar/promisify@^1.0.1":
   version "1.1.2"
