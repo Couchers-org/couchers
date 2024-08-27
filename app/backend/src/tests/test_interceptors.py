@@ -9,7 +9,7 @@ from couchers import errors
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.interceptors import AuthValidatorInterceptor, ErrorSanitizationInterceptor, TracingInterceptor
-from couchers.metrics import CODE_LABEL, EXCEPTION_LABEL, METHOD_LABEL, servicer_duration_histogram
+from couchers.metrics import servicer_duration_histogram
 from couchers.models import APICall, UserSession
 from couchers.servicers.account import Account
 from couchers.sql import couchers_select as select
@@ -62,14 +62,14 @@ def interceptor_dummy_api(
 
 def _check_histogram_labels(method, exception, code, count):
     metrics = servicer_duration_histogram.collect()
-    servicer_histogram = [m for m in metrics if m.name == "servicer_duration"][0]
+    servicer_histogram = [m for m in metrics if m.name == "couchers_servicer_duration_seconds"][0]
     histogram_count = [
         s
         for s in servicer_histogram.samples
-        if s.name == "servicer_duration_count"
-        and s.labels[METHOD_LABEL] == method
-        and s.labels[EXCEPTION_LABEL] == exception
-        and s.labels[CODE_LABEL] == code
+        if s.name == "couchers_servicer_duration_seconds_count"
+        and s.labels["method"] == method
+        and s.labels["code"] == code
+        and s.labels["exception"] == exception
     ][0]
     assert histogram_count.value == count
     servicer_duration_histogram.clear()
