@@ -12,6 +12,7 @@ from couchers.db import apply_migrations, session_scope
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
 from couchers.metrics import create_prometheus_server, main_process_registry
 from couchers.server import create_main_server, create_media_server
+from couchers.tracing import setup_tracing
 from dummy_data import add_dummy_data
 
 check_config()
@@ -73,18 +74,20 @@ if config["ADD_DUMMY_DATA"]:
 
 logger.info("Starting")
 
+if config["ROLE"] in ["scheduler", "all"]:
+    scheduler = start_jobs_scheduler()
+
+if config["ROLE"] in ["worker", "all"]:
+    worker = start_jobs_worker()
+
+setup_tracing()
+
 if config["ROLE"] in ["api", "all"]:
     server = create_main_server(port=1751)
     server.start()
     media_server = create_media_server(port=1753)
     media_server.start()
     logger.info("Serving on 1751 (secure) and 1753 (media)")
-
-if config["ROLE"] in ["scheduler", "all"]:
-    scheduler = start_jobs_scheduler()
-
-if config["ROLE"] in ["worker", "all"]:
-    worker = start_jobs_worker()
 
 logger.info("App waiting for signal...")
 
