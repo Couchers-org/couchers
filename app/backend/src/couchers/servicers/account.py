@@ -339,7 +339,7 @@ class Account(account_pb2_grpc.AccountServicer):
             if existing_verification:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.STRONG_VERIFICATION_ALREADY_VERIFIED)
 
-            strong_verification_initiations_counter.inc()
+            strong_verification_initiations_counter.labels(user.gender).inc()
 
             verification_attempt_token = urlsafe_secure_token()
             # this is the iris reference data, they will return this on every callback, it also doubles as webhook auth given lack of it otherwise
@@ -433,7 +433,8 @@ class Account(account_pb2_grpc.AccountServicer):
             )
             assert len(verification_attempts) == 0
 
-            strong_verification_data_deletions_counter.inc()
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            strong_verification_data_deletions_counter.labels(user.gender).inc()
 
             return empty_pb2.Empty()
 
@@ -467,7 +468,7 @@ class Account(account_pb2_grpc.AccountServicer):
             )
             session.add(token)
 
-        account_deletion_initiations_counter.inc()
+            account_deletion_initiations_counter.labels(user.gender).inc()
 
         return empty_pb2.Empty()
 

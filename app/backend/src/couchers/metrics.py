@@ -77,12 +77,14 @@ signup_initiations_counter = Counter(
 signup_completions_counter = Counter(
     "couchers_signup_completions_total",
     "Number of completed signups",
+    labelnames=["gender"],
     registry=main_process_registry,
 )
 
 logins_counter = Counter(
     "couchers_logins_total",
     "Number of logins",
+    labelnames=["gender"],
     registry=main_process_registry,
 )
 
@@ -100,22 +102,26 @@ password_reset_completions_counter = Counter(
 account_deletion_initiations_counter = Counter(
     "couchers_account_deletion_initiations_total",
     "Number of account deletion initiations",
+    labelnames=["gender"],
     registry=main_process_registry,
 )
 account_deletion_completions_counter = Counter(
     "couchers_account_deletion_completions_total",
     "Number of account deletion completions",
+    labelnames=["gender"],
     registry=main_process_registry,
 )
 account_recoveries_counter = Counter(
     "couchers_account_recoveries_total",
     "Number of account recoveries",
+    labelnames=["gender"],
     registry=main_process_registry,
 )
 
 strong_verification_initiations_counter = Counter(
     "couchers_strong_verification_initiations_total",
     "Number of strong verification initiations",
+    labelnames=["gender"],
     registry=main_process_registry,
 )
 strong_verification_completions_counter = Counter(
@@ -126,25 +132,27 @@ strong_verification_completions_counter = Counter(
 strong_verification_data_deletions_counter = Counter(
     "couchers_strong_verification_data_deletions_total",
     "Number of strong verification data deletions",
+    labelnames=["gender"],
     registry=main_process_registry,
 )
 
-host_requests_counter = Counter(
+host_requests_sent_counter = Counter(
     "couchers_host_requests_total",
     "Number of host requests sent",
+    labelnames=["from_gender", "to_gender"],
     registry=main_process_registry,
 )
 host_request_responses_counter = Counter(
     "couchers_host_requests_responses_total",
     "Number of responses to host requests",
-    labelnames=["response_type"],
+    labelnames=["responder_gender", "other_gender", "response_type"],
     registry=main_process_registry,
 )
 
 sent_messages_counter = Counter(
     "couchers_sent_messages_total",
     "Number of messages sent",
-    labelnames=["message_type"],
+    labelnames=["gender", "message_type"],
     registry=main_process_registry,
 )
 

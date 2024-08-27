@@ -591,7 +591,10 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
             _add_message_to_subscription(session, subscription, message_type=MessageType.text, text=request.text)
 
-        sent_messages_counter.label("group chat").inc()
+            user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
+            sent_messages_counter.label(
+                user_gender, "direct message" if subscription.group_chat.is_dm else "group chat"
+            ).inc()
 
         return empty_pb2.Empty()
 

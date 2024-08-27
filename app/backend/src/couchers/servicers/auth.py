@@ -92,7 +92,7 @@ def create_session(context, session, user, long_lived, is_api_key=False, duratio
     if set_cookie:
         context.send_initial_metadata([("set-cookie", create_session_cookie(token, user_session.expiry))])
 
-    logins_counter.inc()
+    logins_counter.labels(user.gender).inc()
 
     return token, user_session.expiry
 
@@ -329,7 +329,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     key="1",
                 )
 
-                signup_completions_counter.inc()
+                signup_completions_counter.labels(flow.gender).inc()
 
                 create_session(context, session, user, False)
                 return auth_pb2.SignupFlowRes(
@@ -533,7 +533,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 ),
             )
 
-            account_deletion_completions_counter.inc()
+            account_deletion_completions_counter.labels(user.gender).inc()
 
         return empty_pb2.Empty()
 
@@ -558,7 +558,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 topic_action="account_deletion:recovered",
             )
 
-            account_recoveries_counter.inc()
+            account_recoveries_counter.labels(user.gender).inc()
 
             return empty_pb2.Empty()
 

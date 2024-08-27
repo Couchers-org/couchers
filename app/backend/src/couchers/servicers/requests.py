@@ -2,7 +2,6 @@ import logging
 from datetime import timedelta
 
 import grpc
-from cocuhers.metrics import host_request_responses_counter, host_requests_counter, sent_messages_counter
 from google.protobuf import empty_pb2
 from sqlalchemy import Float
 from sqlalchemy.orm import aliased
@@ -11,6 +10,7 @@ from sqlalchemy.sql.functions import percentile_disc
 
 from couchers import errors
 from couchers.db import session_scope
+from couchers.metrics import host_request_responses_counter, host_requests_sent_counter, sent_messages_counter
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
@@ -186,8 +186,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 ),
             )
 
-            host_requests_counter.inc()
-            sent_messages_counter.inc()
+            user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
+            host_requests_sent_counter.labels(user_gender, host.gender).inc()
+            sent_messages_counter.labels(user_gender, "host request send").inc()
 
             return requests_pb2.CreateHostRequestRes(host_request_id=host_request.conversation_id)
 
@@ -285,6 +286,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
     def RespondHostRequest(self, request, context):
         with session_scope() as session:
+
+            def count_host_response(other_user_id, response_type):
+                user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
+                other_gender = session.execute(select(User.gender).where(User.id == other_user_id)).scalar_one()
+                host_request_responses_counter.labels(user_gender, other_gender, response_type).inc()
+                sent_messages_counter.labels(user_gender, "host request response").inc()
+
             host_request = session.execute(
                 select(HostRequest)
                 .where_users_column_visible(context, HostRequest.surfer_user_id)
@@ -331,7 +339,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     ),
                 )
 
-                host_request_responses_counter.labels("accepted").inc()
+                count_host_response(host_request.surfer_user_id, "accepted")
 
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED:
                 # only host can reject
@@ -357,7 +365,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     ),
                 )
 
-                host_request_responses_counter.labels("rejected").inc()
+                count_host_response(host_request.surfer_user_id, "rejected")
 
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED:
                 # only surfer can confirm
@@ -380,7 +388,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     ),
                 )
 
-                host_request_responses_counter.labels("confirmed").inc()
+                count_host_response(host_request.host_user_id, "confirmed")
 
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED:
                 # only surfer can cancel
@@ -406,7 +414,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     ),
                 )
 
-                host_request_responses_counter.labels("cancelled").inc()
+                count_host_response(host_request.host_user_id, "cancelled")
 
             control_message.message_type = MessageType.host_request_status_changed
             control_message.conversation_id = host_request.conversation_id
@@ -420,7 +428,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 latest_message.author_id = context.user_id
                 latest_message.message_type = MessageType.text
                 session.add(latest_message)
-                sent_messages_counter.labels("host request").inc()
             else:
                 latest_message = control_message
 
@@ -531,7 +538,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             session.commit()
 
-            sent_messages_counter.labels("host request").inc()
+            user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
+            sent_messages_counter.labels(user_gender, "host request").inc()
 
             return empty_pb2.Empty()
 
