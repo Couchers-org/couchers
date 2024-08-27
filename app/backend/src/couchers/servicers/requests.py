@@ -2,6 +2,7 @@ import logging
 from datetime import timedelta
 
 import grpc
+from cocuhers.metrics import host_request_responses_counter, host_requests_counter, sent_messages_counter
 from google.protobuf import empty_pb2
 from sqlalchemy import Float
 from sqlalchemy.orm import aliased
@@ -185,6 +186,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 ),
             )
 
+            host_requests_counter.inc()
+            sent_messages_counter.inc()
+
             return requests_pb2.CreateHostRequestRes(host_request_id=host_request.conversation_id)
 
     def GetHostRequest(self, request, context):
@@ -327,6 +331,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     ),
                 )
 
+                host_request_responses_counter.labels("accepted").inc()
+
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED:
                 # only host can reject
                 if context.user_id != host_request.host_user_id:
@@ -351,6 +357,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     ),
                 )
 
+                host_request_responses_counter.labels("rejected").inc()
+
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED:
                 # only surfer can confirm
                 if context.user_id != host_request.surfer_user_id:
@@ -371,6 +379,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                         surfer=user_model_to_pb(host_request.surfer, session, context),
                     ),
                 )
+
+                host_request_responses_counter.labels("confirmed").inc()
 
             if request.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED:
                 # only surfer can cancel
@@ -396,6 +406,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     ),
                 )
 
+                host_request_responses_counter.labels("cancelled").inc()
+
             control_message.message_type = MessageType.host_request_status_changed
             control_message.conversation_id = host_request.conversation_id
             control_message.author_id = context.user_id
@@ -408,6 +420,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 latest_message.author_id = context.user_id
                 latest_message.message_type = MessageType.text
                 session.add(latest_message)
+                sent_messages_counter.labels("host request").inc()
             else:
                 latest_message = control_message
 
@@ -517,6 +530,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 )
 
             session.commit()
+
+            sent_messages_counter.labels("host request").inc()
 
             return empty_pb2.Empty()
 

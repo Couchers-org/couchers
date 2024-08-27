@@ -10,13 +10,6 @@ from couchers.models import User
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 
-JOB_LABEL = "job"
-ATTEMPT_LABEL = "attempt"
-STATUS_LABEL = "status"
-METHOD_LABEL = "method"
-CODE_LABEL = "code"
-EXCEPTION_LABEL = "exception"
-
 main_process_registry = CollectorRegistry()
 job_process_registry = CollectorRegistry()
 
@@ -24,7 +17,7 @@ job_process_registry = CollectorRegistry()
 jobs_duration_histogram = Histogram(
     "couchers_background_jobs_seconds",
     "Durations of background jobs",
-    labelnames=(JOB_LABEL, STATUS_LABEL, ATTEMPT_LABEL, EXCEPTION_LABEL),
+    labelnames=["job", "status", "attempt", "exception"],
     registry=job_process_registry,
 )
 
@@ -36,7 +29,7 @@ def observe_in_jobs_duration_histogram(job_type, job_state, try_count, exception
 servicer_duration_histogram = Histogram(
     "couchers_servicer_duration_seconds",
     "Durations of processing gRPC calls",
-    labelnames=(METHOD_LABEL, CODE_LABEL, EXCEPTION_LABEL),
+    labelnames=["method", "code", "exception"],
     registry=main_process_registry,
 )
 
@@ -81,7 +74,6 @@ signup_initiations_counter = Counter(
     "Number of initiated signups",
     registry=main_process_registry,
 )
-
 signup_completions_counter = Counter(
     "couchers_signup_completions_total",
     "Number of completed signups",
@@ -134,6 +126,25 @@ strong_verification_completions_counter = Counter(
 strong_verification_data_deletions_counter = Counter(
     "couchers_strong_verification_data_deletions_total",
     "Number of strong verification data deletions",
+    registry=main_process_registry,
+)
+
+host_requests_counter = Counter(
+    "couchers_host_requests_total",
+    "Number of host requests sent",
+    registry=main_process_registry,
+)
+host_request_responses_counter = Counter(
+    "couchers_host_requests_responses_total",
+    "Number of responses to host requests",
+    labelnames=["response_type"],
+    registry=main_process_registry,
+)
+
+sent_messages_counter = Counter(
+    "couchers_sent_messages_total",
+    "Number of messages sent",
+    labelnames=["message_type"],
     registry=main_process_registry,
 )
 
