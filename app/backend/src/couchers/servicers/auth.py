@@ -9,6 +9,14 @@ from couchers import errors
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.db import session_scope
+from couchers.metrics import (
+    account_deletion_completions_counter,
+    account_recoveries_counter,
+    logins_counter,
+    password_reset_completions_counter,
+    signup_completions_counter,
+    signup_initiations_counter,
+)
 from couchers.models import AccountDeletionToken, ContributorForm, PasswordResetToken, SignupFlow, User, UserSession
 from couchers.notifications.notify import notify
 from couchers.notifications.unsubscribe import unsubscribe
@@ -83,6 +91,9 @@ def create_session(context, session, user, long_lived, is_api_key=False, duratio
 
     if set_cookie:
         context.send_initial_metadata([("set-cookie", create_session_cookie(token, user_session.expiry))])
+
+    logins_counter.labels(user.gender).inc()
+
     return token, user_session.expiry
 
 
@@ -188,6 +199,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     )
                     session.add(flow)
                     session.flush()
+                    signup_initiations_counter.inc()
                 else:
                     # not fresh signup
                     flow = session.execute(
@@ -316,6 +328,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     topic_action="onboarding:reminder",
                     key="1",
                 )
+
+                signup_completions_counter.labels(flow.gender).inc()
 
                 create_session(context, session, user, False)
                 return auth_pb2.SignupFlowRes(
@@ -455,6 +469,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 )
 
                 create_session(context, session, user, False)
+                password_reset_completions_counter.inc()
                 return _auth_res(user)
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
@@ -518,6 +533,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 ),
             )
 
+            account_deletion_completions_counter.labels(user.gender).inc()
+
         return empty_pb2.Empty()
 
     def RecoverAccount(self, request, context):
@@ -540,6 +557,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 user_id=user.id,
                 topic_action="account_deletion:recovered",
             )
+
+            account_recoveries_counter.labels(user.gender).inc()
 
             return empty_pb2.Empty()
 
