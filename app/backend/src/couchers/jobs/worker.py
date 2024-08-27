@@ -8,7 +8,7 @@ from datetime import timedelta
 from inspect import getmembers, isfunction
 from multiprocessing import Process
 from sched import scheduler
-from time import monotonic, sleep
+from time import monotonic, perf_counter_ns, sleep
 
 import sentry_sdk
 from google.protobuf import empty_pb2
@@ -17,7 +17,7 @@ from couchers.config import config
 from couchers.db import get_engine, session_scope
 from couchers.jobs import handlers
 from couchers.jobs.enqueue import queue_job
-from couchers.metrics import create_prometheus_server, job_process_registry, jobs_counter
+from couchers.metrics import create_prometheus_server, job_process_registry, observe_in_jobs_duration_histogram
 from couchers.models import BackgroundJob, BackgroundJobState
 from couchers.sql import couchers_select as select
 
@@ -64,11 +64,16 @@ def process_job():
         message_type, func = JOBS[job.job_type]
 
         try:
+            start = perf_counter_ns()
             ret = func(message_type.FromString(job.payload))
+            finished = perf_counter_ns()
             job.state = BackgroundJobState.completed
-            jobs_counter.labels(job.job_type, job.state.name, str(job.try_count), "").inc()
+            observe_in_jobs_duration_histogram(
+                job.job_type, job.state.name, job.try_count, "", (finished - start) / 1e9
+            )
             logger.info(f"Job #{job.id} complete on try number {job.try_count}")
         except Exception as e:
+            finished = perf_counter_ns()
             logger.exception(e)
             sentry_sdk.set_tag("context", "job")
             sentry_sdk.set_tag("job", job.job_type)
@@ -83,8 +88,10 @@ def process_job():
                 # exponential backoff
                 job.next_attempt_after += timedelta(seconds=15 * (2**job.try_count))
                 logger.info(f"Job #{job.id} error on try number {job.try_count}, next try at {job.next_attempt_after}")
+            observe_in_jobs_duration_histogram(
+                job.job_type, job.state.name, job.try_count, type(e).__name__, (finished - start) / 1e9
+            )
             # add some info for debugging
-            jobs_counter.labels(job.job_type, job.state.name, str(job.try_count), type(e).__name__).inc()
             job.failure_info = traceback.format_exc()
 
             if config["IN_TEST"]:

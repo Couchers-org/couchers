@@ -21,6 +21,12 @@ from couchers.crypto import (
 )
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
+from couchers.metrics import (
+    account_deletion_initiations_counter,
+    strong_verification_completions_counter,
+    strong_verification_data_deletions_counter,
+    strong_verification_initiations_counter,
+)
 from couchers.models import (
     AccountDeletionReason,
     AccountDeletionToken,
@@ -332,6 +338,9 @@ class Account(account_pb2_grpc.AccountServicer):
             ).scalar_one_or_none()
             if existing_verification:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.STRONG_VERIFICATION_ALREADY_VERIFIED)
+
+            strong_verification_initiations_counter.inc()
+
             verification_attempt_token = urlsafe_secure_token()
             # this is the iris reference data, they will return this on every callback, it also doubles as webhook auth given lack of it otherwise
             reference = b64encode(
@@ -365,6 +374,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 iris_token=token,
             )
             session.add(verification_attempt)
+
             return account_pb2.InitiateStrongVerificationRes(
                 verification_attempt_token=verification_attempt_token,
                 iris_url=url,
@@ -423,6 +433,8 @@ class Account(account_pb2_grpc.AccountServicer):
             )
             assert len(verification_attempts) == 0
 
+            strong_verification_data_deletions_counter.inc()
+
             return empty_pb2.Empty()
 
     def DeleteAccount(self, request, context):
@@ -454,6 +466,8 @@ class Account(account_pb2_grpc.AccountServicer):
                 ),
             )
             session.add(token)
+
+        account_deletion_initiations_counter.inc()
 
         return empty_pb2.Empty()
 
@@ -489,6 +503,7 @@ class Iris(iris_pb2_grpc.IrisServicer):
             elif iris_status == "COMPLETED":
                 verification_attempt.status = StrongVerificationAttemptStatus.in_progress_waiting_on_backend
             elif iris_status == "APPROVED":
+                strong_verification_completions_counter.inc()
                 verification_attempt.status = StrongVerificationAttemptStatus.in_progress_waiting_on_backend
                 session.commit()
                 # background worker will go and sort this one out

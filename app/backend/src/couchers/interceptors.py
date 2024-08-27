@@ -11,7 +11,7 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
-from couchers.metrics import servicer_duration_histogram
+from couchers.metrics import observe_in_servicer_duration_histogram
 from couchers.models import APICall, User, UserSession
 from couchers.profiler import CouchersProfiler
 from couchers.sql import couchers_select as select
@@ -195,9 +195,6 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 new_proto.ClearField(name)
         return new_proto.SerializeToString()
 
-    def _observe_in_histogram(self, method, status_code, exception_type, duration):
-        servicer_duration_histogram.labels(method, status_code, exception_type).observe(duration)
-
     def _store_log(
         self,
         method,
@@ -259,7 +256,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 self._store_log(
                     method, None, duration, user_id, is_api_key, request, res, None, prof.report, ip_address, user_agent
                 )
-                self._observe_in_histogram(method, "", "", duration)
+                observe_in_servicer_duration_histogram(method, "", "", duration / 1000)
             except Exception as e:
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
@@ -270,7 +267,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 self._store_log(
                     method, code, duration, user_id, is_api_key, request, None, traceback, None, ip_address, user_agent
                 )
-                self._observe_in_histogram(method, code or "", type(e).__name__, duration)
+                observe_in_servicer_duration_histogram(method, code or "", type(e).__name__, duration / 1000)
 
                 if not code:
                     sentry_sdk.set_tag("context", "servicer")
