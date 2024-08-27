@@ -7,17 +7,22 @@ import {
 } from "@material-ui/core";
 import { MailOutline } from "@material-ui/icons";
 import { theme } from "theme";
+import { useTranslation } from "i18n";
 
 import { NotificationNewIcon } from "components/Icons";
 import CustomColorSwitch from "./CustomColorSwitch";
 import makeStyles from "utils/makeStyles";
-import { useState } from "react";
-import { GroupAction } from "./EditNotificationSettingsPage";
 import { useUpdateNotificationSettings } from "./notificationSettingsHooks";
 import { NotificationPreferenceData } from "service/notifications";
-
+import { useState } from "react";
+import Alert from "components/Alert";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 interface NotificationSettingsSubListItemProps {
-  item: GroupAction;
+  topic: string;
+  action: string;
+  email: boolean;
+  push: boolean;
+  description: string;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -39,33 +44,60 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function NotificationSettingsSubListItem({
-  item,
+  topic,
+  action,
+  email,
+  push,
+  description,
 }: NotificationSettingsSubListItemProps) {
   const classes = useStyles();
-  const { updateNotificationSettings, isError, isLoading, status } = useUpdateNotificationSettings();
+  const { t } = useTranslation([GLOBAL, PROFILE]);
 
-  const [isPushEnabled, setIsPushEnabled] = useState<boolean>(item.push);
-  const [isEmailEnabled, setIsEmailEnabled] = useState<boolean>(item.email);
+  const { updateNotificationSettings } = useUpdateNotificationSettings();
+  const [mutationError, setMutationError] = useState<string | null>(null);
 
   const handlePushSwitchClick = () => {
     const updatedItem: NotificationPreferenceData = {
-      topic: item.topic,
-      action: item.action,
+      topic,
+      action,
       deliveryMethod: "push",
-      enabled: !isPushEnabled,
+      enabled: !push,
     };
-    updateNotificationSettings(updatedItem);
+    updateNotificationSettings(
+      {
+        preferenceData: updatedItem,
+        setMutationError,
+      },
+      {
+        // Scoll to top on submission error
+        onError: () => {
+          window.scroll({ top: 0, behavior: "smooth" });
+        },
+      }
+    );
   };
 
   const handleEmailSwitchClick = () => {
-    //@TODO Update value in DB
+    const updatedItem: NotificationPreferenceData = {
+      topic,
+      action,
+      deliveryMethod: "email",
+      enabled: !email,
+    };
+    updateNotificationSettings({
+      preferenceData: updatedItem,
+      setMutationError,
+    });
   };
 
   return (
     <>
-      <Typography className={classes.descriptionText}>
-        {item.description}
-      </Typography>
+      {mutationError && (
+        <Alert severity="error">
+          {mutationError || t("global:error.unknown")}
+        </Alert>
+      )}
+      <Typography className={classes.descriptionText}>{description}</Typography>
       <List component="div" disablePadding>
         <ListItem button className={classes.nested}>
           <ListItemIcon>
@@ -74,7 +106,7 @@ export default function NotificationSettingsSubListItem({
           <ListItemText primary="Push" />
           <CustomColorSwitch
             color={theme.palette.primary.main}
-            checked={isPushEnabled}
+            checked={push}
             onClick={handlePushSwitchClick}
           />
         </ListItem>
@@ -85,7 +117,7 @@ export default function NotificationSettingsSubListItem({
           <ListItemText primary="Email" />
           <CustomColorSwitch
             color={theme.palette.primary.main}
-            checked={isEmailEnabled}
+            checked={email}
             onClick={handleEmailSwitchClick}
           />
         </ListItem>

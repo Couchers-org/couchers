@@ -35,6 +35,8 @@ export default function Settings() {
 
   const classes = useStyles();
 
+  // @TODO(NA): Change order of sections
+  // @TODO(NA): Change routing to /account-settings/notifications
   return (
     <>
       <HtmlMeta title={t("account_settings_page.title")} />

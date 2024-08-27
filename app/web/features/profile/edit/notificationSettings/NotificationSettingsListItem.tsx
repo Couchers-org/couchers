@@ -76,22 +76,23 @@ export default function NotificationSettingsListItem({
   type,
 }: NotificationSettingsListItemProps) {
   const classes = useStyles();
-  const [isCollapseOpen, setisCollapseOpen] = useState<boolean>(false);
+  const [isCollapseOpen, setIsCollapseOpen] = useState<boolean>(false);
 
   const handleCollapseClick = () => {
-    setisCollapseOpen(!isCollapseOpen);
+    setIsCollapseOpen(!isCollapseOpen);
   };
 
-  const renderItems = () => {
-    return items.map((item, index) => {
-      return (
-        <NotificationSettingsSubListItem
-          key={`${type}-${index}`}
-          item={item}
-        />
-      );
-    });
-  };
+  const renderItems = () =>
+    items.map((item) => (
+      <NotificationSettingsSubListItem
+        key={`${item.topic}:${item.action}`}
+        topic={item.topic}
+        action={item.action}
+        push={item.push}
+        email={item.email}
+        description={item.description}
+      />
+    ));
 
   return (
     <>
@@ -106,9 +107,7 @@ export default function NotificationSettingsListItem({
         </ListItemText>
         {isCollapseOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
       </ListItem>
-      <Collapse in={isCollapseOpen} timeout="auto" unmountOnExit>
-        {renderItems()}
-      </Collapse>
+      <Collapse in={isCollapseOpen}>{renderItems()}</Collapse>
     </>
   );
 }

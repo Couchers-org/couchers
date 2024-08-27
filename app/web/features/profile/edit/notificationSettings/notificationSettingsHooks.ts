@@ -1,11 +1,11 @@
-import { notificationSettingsQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import {
-  GetNotificationSettingsRes,
-} from "proto/notifications_pb";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+
+import { notificationSettingsQueryKey } from "features/queryKeys";
+import { GetNotificationSettingsRes } from "proto/notifications_pb";
 import { service } from "service";
 import { NotificationPreferenceData } from "service/notifications";
+import { SetMutationError } from "utils/types";
 
 const useNotificationSettings = () => {
   const notificationSettingsQuery = useQuery<
@@ -30,11 +30,20 @@ const useUpdateNotificationSettings = () => {
   } = useMutation<
     GetNotificationSettingsRes.AsObject,
     RpcError,
-    NotificationPreferenceData
+    {
+      preferenceData: NotificationPreferenceData;
+      setMutationError: SetMutationError;
+    }
   >(
-    (preferenceData: NotificationPreferenceData) => 
+    ({ preferenceData }: { preferenceData: NotificationPreferenceData }) =>
       service.notifications.setNotificationSettingsPreference(preferenceData),
     {
+      onError: (error, { setMutationError }) => {
+        setMutationError(error.message);
+      },
+      onMutate: ({ setMutationError }) => {
+        setMutationError(null);
+      },
       onSuccess: () => {
         queryClient.invalidateQueries(notificationSettingsQueryKey);
       },

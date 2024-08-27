@@ -27,7 +27,7 @@ export async function setNotificationSettings(enableDoNotEmail: boolean) {
   return res.toObject();
 }
 
-export async function setNotificationSettingsPreference(preferenceData: NotificationPreferenceData){
+export async function setNotificationSettingsPreference(preferenceData: NotificationPreferenceData) {
   const req = new SetNotificationSettingsReq();
   const preference = new SingleNotificationPreference();
   preference.setTopic(preferenceData.topic);
