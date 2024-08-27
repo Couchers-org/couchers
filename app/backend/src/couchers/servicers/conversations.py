@@ -10,6 +10,7 @@ from couchers import errors
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
+from couchers.metrics import sent_messages_counter
 from couchers.models import Conversation, GroupChat, GroupChatRole, GroupChatSubscription, Message, MessageType, User
 from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
@@ -589,6 +590,11 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
 
             _add_message_to_subscription(session, subscription, message_type=MessageType.text, text=request.text)
+
+            user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
+            sent_messages_counter.labels(
+                user_gender, "direct message" if subscription.group_chat.is_dm else "group chat"
+            ).inc()
 
         return empty_pb2.Empty()
 
