@@ -10,13 +10,14 @@ import { theme } from "theme";
 import { useTranslation } from "i18n";
 
 import { NotificationNewIcon } from "components/Icons";
-import CustomColorSwitch from "./CustomColorSwitch";
+import CustomColorSwitch from "components/CustomColorSwitch";
 import makeStyles from "utils/makeStyles";
 import { useUpdateNotificationSettings } from "./notificationSettingsHooks";
 import { NotificationPreferenceData } from "service/notifications";
 import { useState } from "react";
 import Alert from "components/Alert";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
+
 interface NotificationSettingsSubListItemProps {
   topic: string;
   action: string;
