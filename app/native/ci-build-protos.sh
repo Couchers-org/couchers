@@ -9,7 +9,7 @@ curl -L https://github.com/grpc/grpc-web/releases/download/1.5.0/protoc-gen-grpc
 chmod +x protoc-gen-grpc-web
 
 curl -L https://github.com/protocolbuffers/protobuf-javascript/releases/download/v3.21.2/protobuf-javascript-3.21.2-linux-x86_64.zip -o protobuf-javascript.zip
-unzip protobuf-javascript.zip
+unzip -o protobuf-javascript.zip
 
 popd
 
