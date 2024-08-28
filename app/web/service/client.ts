@@ -20,11 +20,11 @@ import { SearchPromiseClient } from "proto/search_grpc_web_pb";
 import { ThreadsPromiseClient } from "proto/threads_grpc_web_pb";
 import isGrpcError from "./utils/isGrpcError";
 
-const URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || process.env.EXPO_PUBLIC_API_BASE_URL;
+const URL = (process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.EXPO_PUBLIC_API_BASE_URL)!;
 const IS_PROD =
   (process.env.NEXT_PUBLIC_COUCHERS_ENV ||
-    process.env.EXPO_PUBLIC_COUCHERS_ENV) === "prod";
+    process.env.EXPO_PUBLIC_COUCHERS_ENV)! === "prod";
 
 export const grpcTimeout = 10000; //milliseconds
 
