@@ -1,4 +1,5 @@
 import { GetThreadReq, PostReplyReq } from "proto/threads_pb";
+
 import client from "./client";
 
 export async function getThread(threadId: number, pageToken?: string) {

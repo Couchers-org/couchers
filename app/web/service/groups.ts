@@ -8,6 +8,7 @@ import {
   ListMembersReq,
   ListPlacesReq,
 } from "proto/groups_pb";
+
 import client from "./client";
 
 export async function getGroup(groupId: number) {

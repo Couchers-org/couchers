@@ -1,4 +1,5 @@
 import { StatusReq } from "proto/bugs_pb";
+
 import client from "./client";
 
 export async function status(message = "") {

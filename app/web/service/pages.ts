@@ -6,6 +6,7 @@ import {
   GetPageReq,
   UpdatePageReq,
 } from "proto/pages_pb";
+
 import client from "./client";
 
 export async function createPlace(

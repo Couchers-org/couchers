@@ -18,6 +18,7 @@ import { RequestsPromiseClient } from "proto/requests_grpc_web_pb";
 import { ResourcesPromiseClient } from "proto/resources_grpc_web_pb";
 import { SearchPromiseClient } from "proto/search_grpc_web_pb";
 import { ThreadsPromiseClient } from "proto/threads_grpc_web_pb";
+
 import isGrpcError from "./utils/isGrpcError";
 
 const URL = (process.env.NEXT_PUBLIC_API_BASE_URL ||

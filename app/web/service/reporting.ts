@@ -1,4 +1,5 @@
 import { ReportReq } from "proto/reporting_pb";
+
 import client from "./client";
 
 export interface ReportInput {

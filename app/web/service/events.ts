@@ -16,6 +16,7 @@ import {
   SetEventAttendanceReq,
   UpdateEventReq,
 } from "proto/events_pb";
+
 import client from "./client";
 
 export async function listCommunityEvents(

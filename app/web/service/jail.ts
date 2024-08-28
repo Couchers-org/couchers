@@ -4,6 +4,7 @@ import {
   AcceptTOSReq,
   SetLocationReq,
 } from "proto/jail_pb";
+
 import client from "./client";
 import { getCurrentUser } from "./user";
 

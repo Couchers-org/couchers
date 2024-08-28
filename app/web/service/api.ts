@@ -5,14 +5,14 @@ import {
   RespondFriendRequestReq,
   SendFriendRequestReq,
 } from "proto/api_pb";
+
+import client from "./client";
 import {
   FETCH_FAILED,
   IMAGE_TOO_LARGE,
   INTERNAL_ERROR,
   SERVER_ERROR,
 } from "./constants";
-
-import client from "./client";
 
 export function cancelFriendRequest(friendRequestId: number) {
   const req = new CancelFriendRequestReq();

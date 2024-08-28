@@ -13,9 +13,9 @@ import {
   ContributorForm as ContributorFormPb,
   ResetPasswordReq,
 } from "proto/auth_pb";
-import client from "./client";
 
 import { contributorFormFromObject } from "./auth";
+import client from "./client";
 
 export async function getAccountInfo() {
   const res = await client.account.getAccountInfo(new Empty());

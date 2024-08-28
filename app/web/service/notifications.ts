@@ -2,6 +2,7 @@ import {
   GetNotificationSettingsReq,
   SetNotificationSettingsReq,
 } from "proto/notifications_pb";
+
 import client from "./client";
 
 export async function getNotificationSettings() {
