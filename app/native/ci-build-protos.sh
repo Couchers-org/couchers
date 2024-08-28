@@ -6,6 +6,7 @@ pushd /tmp/deps
 
 curl -L https://github.com/protocolbuffers/protobuf/releases/download/v27.0/protoc-27.0-linux-x86_64.zip -o protoc.zip
 unzip protoc.zip
+chmod +x bin/protoc
 
 curl -L https://github.com/grpc/grpc-web/releases/download/1.5.0/protoc-gen-grpc-web-1.5.0-linux-x86_64 -o protoc-gen-grpc-web
 chmod +x protoc-gen-grpc-web
