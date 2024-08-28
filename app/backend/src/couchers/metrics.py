@@ -13,6 +13,7 @@ from couchers.utils import now
 main_process_registry = CollectorRegistry()
 job_process_registry = CollectorRegistry()
 
+_INF = float("inf")
 
 jobs_duration_histogram = Histogram(
     "couchers_background_jobs_seconds",
@@ -79,6 +80,13 @@ signup_completions_counter = Counter(
     "Number of completed signups",
     labelnames=["gender"],
     registry=main_process_registry,
+)
+signup_time_histogram = Histogram(
+    "couchers_signup_time_seconds",
+    "Time taken for a user to sign up",
+    labelnames=["gender"],
+    registry=main_process_registry,
+    buckets=(30, 60, 90, 120, 180, 240, 300, 360, 420, 480, 540, 600, 900, 1200, 1800, 3600, 7200, _INF),
 )
 
 logins_counter = Counter(
@@ -154,6 +162,70 @@ sent_messages_counter = Counter(
     "Number of messages sent",
     labelnames=["gender", "message_type"],
     registry=main_process_registry,
+)
+
+
+host_request_first_response_histogram = Histogram(
+    "couchers_host_request_first_response_seconds",
+    "Response time to host requests",
+    labelnames=["host_gender", "surfer_gender", "response_type"],
+    registry=main_process_registry,
+    buckets=(
+        1 * 60,  # 1m
+        2 * 60,  # 2m
+        5 * 60,  # 5m
+        10 * 60,  # 10m
+        15 * 60,  # 15m
+        30 * 60,  # 30m
+        45 * 60,  # 45m
+        3_600,  # 1h
+        2 * 3_600,  # 2h
+        3 * 3_600,  # 3h
+        6 * 3_600,  # 6h
+        12 * 3_600,  # 12h
+        86_400,  # 24h
+        2 * 86_400,  # 2d
+        5 * 86_400,  # 4d
+        602_000,  # 1w
+        2 * 602_000,  # 2w
+        3 * 602_000,  # 3w
+        4 * 602_000,  # 4w
+        _INF,
+    ),
+)
+account_age_on_host_request_create_histogram = Histogram(
+    "couchers_account_age_on_host_request_create_histogram_seconds",
+    "Age of account sending a host request",
+    labelnames=["surfer_gender", "host_gender"],
+    registry=main_process_registry,
+    buckets=(
+        5 * 60,  # 5m
+        10 * 60,  # 10m
+        15 * 60,  # 15m
+        30 * 60,  # 30m
+        45 * 60,  # 45m
+        3_600,  # 1h
+        2 * 3_600,  # 2h
+        3 * 3_600,  # 3h
+        6 * 3_600,  # 6h
+        12 * 3_600,  # 12h
+        86_400,  # 24h
+        2 * 86_400,  # 2d
+        3 * 86_400,  # 3d
+        4 * 86_400,  # 4d
+        5 * 86_400,  # 5d
+        6 * 86_400,  # 6d
+        602_000,  # 1w
+        2 * 602_000,  # 2w
+        3 * 602_000,  # 3w
+        4 * 602_000,  # 4w
+        5 * 602_000,  # 5w
+        10 * 602_000,  # 10w
+        25 * 602_000,  # 25w
+        52 * 602_000,  # 52w
+        104 * 602_000,  # 104w
+        _INF,
+    ),
 )
 
 

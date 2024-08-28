@@ -16,6 +16,7 @@ from couchers.metrics import (
     password_reset_completions_counter,
     signup_completions_counter,
     signup_initiations_counter,
+    signup_time_histogram,
 )
 from couchers.models import AccountDeletionToken, ContributorForm, PasswordResetToken, SignupFlow, User, UserSession
 from couchers.notifications.notify import notify
@@ -312,6 +313,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 user.filled_contributor_form = form.is_filled
 
+                signup_duration_s = (now() - flow.created).total_seconds()
+
                 session.delete(flow)
                 session.commit()
 
@@ -330,6 +333,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 )
 
                 signup_completions_counter.labels(flow.gender).inc()
+                signup_time_histogram.labels(flow.gender).observe(signup_duration_s)
 
                 create_session(context, session, user, False)
                 return auth_pb2.SignupFlowRes(
