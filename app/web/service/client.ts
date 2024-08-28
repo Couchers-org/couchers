@@ -20,8 +20,11 @@ import { SearchPromiseClient } from "proto/search_grpc_web_pb";
 import { ThreadsPromiseClient } from "proto/threads_grpc_web_pb";
 import isGrpcError from "./utils/isGrpcError";
 
-const URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.EXPO_PUBLIC_API_BASE_URL;
-const IS_PROD = (process.env.NEXT_PUBLIC_COUCHERS_ENV || process.env.EXPO_PUBLIC_COUCHERS_ENV) === "prod";
+const URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || process.env.EXPO_PUBLIC_API_BASE_URL;
+const IS_PROD =
+  (process.env.NEXT_PUBLIC_COUCHERS_ENV ||
+    process.env.EXPO_PUBLIC_COUCHERS_ENV) === "prod";
 
 export const grpcTimeout = 10000; //milliseconds
 
@@ -95,10 +98,7 @@ const client = {
   threads: new ThreadsPromiseClient(URL, null, opts),
 };
 
-if (
-  !IS_PROD &&
-  typeof window !== "undefined"
-) {
+if (!IS_PROD && typeof window !== "undefined") {
   // @ts-ignore
   const grpcWebTools = window.__GRPCWEB_DEVTOOLS__ || (() => {});
 

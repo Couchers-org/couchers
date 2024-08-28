@@ -1,4 +1,4 @@
-import {Duration} from "dayjs/plugin/duration";
+import { Duration } from "dayjs/plugin/duration";
 import { Duration as DurationPb } from "google-protobuf/google/protobuf/duration_pb";
 
 export function duration2pb(duration: Duration) {
@@ -8,4 +8,3 @@ export function duration2pb(duration: Duration) {
   return d;
 }
 export type { Duration };
-
