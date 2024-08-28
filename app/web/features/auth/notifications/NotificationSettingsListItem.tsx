@@ -6,6 +6,8 @@ import {
   ListItemText,
   Typography,
 } from "@material-ui/core";
+import { useTranslation } from "next-i18next";
+import { AUTH } from "i18n/namespaces";
 
 import {
   SinglePersonIcon,
@@ -20,11 +22,11 @@ import {
 } from "components/Icons";
 import makeStyles from "utils/makeStyles";
 import NotificationSettingsSubListItem from "./NotificationSettingsSubListItem";
-import { GroupAction } from "./EditNotificationSettingsPage";
+import { GroupAction, NotificationType } from "./EditNotificationSettingsPage";
 
 interface NotificationSettingsListItemProps {
   items: GroupAction[];
-  type: string;
+  type: NotificationType;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -52,30 +54,17 @@ const mapTypeToIcon: { [key: string]: JSX.Element } = {
   host_request: <CouchFilledIcon fontSize="large" color="action" />,
 };
 
-const generateListItemTitle = (key: string): string => {
-  if (key === "chat") {
-    return "Messages";
-  }
-
-  // Handle specific keys that do not get an "s" added
-  if (key === "account_security" || key === "account_settings") {
-    return key
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, (char) => char.toUpperCase());
-  }
-
-  // For all other keys, add an "s" at the end
-  return key
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase())
-    .concat("s"); // Add an 's' to the end
-};
-
 export default function NotificationSettingsListItem({
   items,
   type,
 }: NotificationSettingsListItemProps) {
   const classes = useStyles();
+  const notificationType =
+    type as `auth:notification_settings.edit_preferences.list_items.${NotificationType}`;
+
+  const { t } = useTranslation([AUTH], {
+    keyPrefix: "notification_settings.edit_preferences.list_items",
+  });
   const [isCollapseOpen, setIsCollapseOpen] = useState<boolean>(false);
 
   const handleCollapseClick = () => {
@@ -90,7 +79,6 @@ export default function NotificationSettingsListItem({
         action={item.action}
         push={item.push}
         email={item.email}
-        description={item.description}
       />
     ));
 
@@ -103,7 +91,7 @@ export default function NotificationSettingsListItem({
       >
         <ListItemIcon>{mapTypeToIcon[type]}</ListItemIcon>
         <ListItemText>
-          <Typography variant="h3">{generateListItemTitle(type)}</Typography>
+          <Typography variant="h3">{t(notificationType)}</Typography>
         </ListItemText>
         {isCollapseOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
       </ListItem>

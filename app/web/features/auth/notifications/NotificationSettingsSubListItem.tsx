@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   List,
   ListItem,
@@ -7,23 +8,22 @@ import {
 } from "@material-ui/core";
 import { MailOutline } from "@material-ui/icons";
 import { theme } from "theme";
-import { useTranslation } from "i18n";
+import { useTranslation } from "next-i18next";
+import { AUTH, GLOBAL } from "i18n/namespaces";
 
 import { NotificationNewIcon } from "components/Icons";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import makeStyles from "utils/makeStyles";
-import { useUpdateNotificationSettings } from "./notificationSettingsHooks";
 import { NotificationPreferenceData } from "service/notifications";
-import { useState } from "react";
 import Alert from "components/Alert";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
+
+import { useUpdateNotificationSettings } from "./notificationSettingsHooks";
 
 interface NotificationSettingsSubListItemProps {
   topic: string;
   action: string;
   email: boolean;
   push: boolean;
-  description: string;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -49,10 +49,11 @@ export default function NotificationSettingsSubListItem({
   action,
   email,
   push,
-  description,
 }: NotificationSettingsSubListItemProps) {
   const classes = useStyles();
-  const { t } = useTranslation([GLOBAL, PROFILE]);
+  const { t } = useTranslation([AUTH, GLOBAL], {
+    keyPrefix: "notification_settings.edit_preferences.item_descriptions",
+  });
 
   const { updateNotificationSettings } = useUpdateNotificationSettings();
   const [mutationError, setMutationError] = useState<string | null>(null);
@@ -98,7 +99,13 @@ export default function NotificationSettingsSubListItem({
           {mutationError || t("global:error.unknown")}
         </Alert>
       )}
-      <Typography className={classes.descriptionText}>{description}</Typography>
+      <Typography className={classes.descriptionText}>
+        {
+          t(
+            `${topic}.${action}` as any
+          ) /* FYI Put any as I spent hours on this */
+        }
+      </Typography>
       <List component="div" disablePadding>
         <ListItem button className={classes.nested}>
           <ListItemIcon>

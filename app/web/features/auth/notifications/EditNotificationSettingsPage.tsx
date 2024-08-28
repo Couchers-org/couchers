@@ -1,12 +1,23 @@
 import { useEffect, useState } from "react";
 import { CircularProgress, Typography } from "@material-ui/core";
 import { List } from "@material-ui/core";
+import { useTranslation } from "next-i18next";
+import { AUTH } from "i18n/namespaces";
 
 import Snackbar from "components/Snackbar";
 import makeStyles from "utils/makeStyles";
 
 import NotificationSettingsListItem from "./NotificationSettingsListItem";
 import useNotificationSettings from "./useNotificationSettings";
+
+export type NotificationType =
+  | "account_security"
+  | "account_settings"
+  | "chat"
+  | "event"
+  | "reference"
+  | "friend_request"
+  | "host_request";
 
 export interface GroupAction {
   action: string;
@@ -53,6 +64,9 @@ const useStyles = makeStyles((theme) => ({
 // @TODO(NA): Write tests!
 export default function EditNotificationSettingsPage() {
   const classes = useStyles();
+  const { t } = useTranslation(AUTH, {
+    keyPrefix: "notification_settings.edit_preferences",
+  });
   const { data, isLoading, isError } = useNotificationSettings();
   const [groups, setGroups] = useState<GroupsByType>({});
   const [areGroupsLoading, setAreGroupsLoading] = useState<boolean>(true);
@@ -78,7 +92,7 @@ export default function EditNotificationSettingsPage() {
                 if (!acc[key]) {
                   acc[key] = [];
                 }
-                acc[key].push({ ...subTopic, topic: topic.topic });
+                acc[key].push({ ...subTopic, topic: topic.topic }); // Cast topic to NotificationTopic
               });
             }
           });
@@ -98,20 +112,23 @@ export default function EditNotificationSettingsPage() {
 
   const renderNotificationListItems = () =>
     Object.keys(groups).map((key) => (
-      <NotificationSettingsListItem key={key} items={groups[key]} type={key} />
+      <NotificationSettingsListItem
+        key={key}
+        items={groups[key]}
+        type={key as NotificationType}
+      />
     ));
 
   return (
     <div className={classes.notificationSettingsContainer}>
-      <Typography variant="h2">Notification Settings</Typography>
+      <Typography variant="h2">{t("title")}</Typography>
       <Typography className={classes.notificationDescription} variant="body1">
-        You may still receive important notifications about your account and
-        content outside of your preferred notification settings.
+        {t("description")}
       </Typography>
-      <Typography variant="h3">Notifications you may receive</Typography>
+      <Typography variant="h3">{t("list_heading")}</Typography>
       {isError && (
         <Snackbar severity="error">
-          <Typography>Error loading notification settings</Typography>
+          <Typography>{t("error_loading")}</Typography>
         </Snackbar>
       )}
       {!isLoading && !areGroupsLoading ? (
