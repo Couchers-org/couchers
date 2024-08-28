@@ -13,7 +13,7 @@ import {
   ContributorForm as ContributorFormPb,
   ResetPasswordReq,
 } from "proto/auth_pb";
-import client from "service/client";
+import client from "./client";
 
 import { contributorFormFromObject } from "./auth";
 

@@ -21,7 +21,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useQuery } from "react-query";
 import { service } from "service";
 import { useIsMounted, useSafeState } from "utils/hooks";
-import isGrpcError from "utils/isGrpcError";
+import isGrpcError from "service/utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({

@@ -10,7 +10,7 @@ import {
   RespondHostRequestReq,
   SendHostRequestMessageReq,
 } from "proto/requests_pb";
-import client from "service/client";
+import client from "./client";
 
 export async function listHostRequests({
   lastRequestId = 0,

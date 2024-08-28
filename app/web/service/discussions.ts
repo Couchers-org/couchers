@@ -1,5 +1,5 @@
 import { CreateDiscussionReq, GetDiscussionReq } from "proto/discussions_pb";
-import client from "service/client";
+import client from "./client";
 
 export async function createDiscussion(
   title: string,

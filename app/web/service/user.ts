@@ -13,8 +13,8 @@ import {
   User,
 } from "proto/api_pb";
 import { AuthReq } from "proto/auth_pb";
-import client from "service/client";
-import { ProtoToJsTypes } from "utils/types";
+import client from "./client";
+import { ProtoToJsTypes } from "./utils/types";
 
 type RequiredUpdateProfileReq = Required<UpdateProfileReq.AsObject>;
 type ProfileFormData = {

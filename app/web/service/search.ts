@@ -5,7 +5,7 @@ import {
 } from "google-protobuf/google/protobuf/wrappers_pb";
 import { HostingStatus } from "proto/api_pb";
 import { Area, UserSearchReq } from "proto/search_pb";
-import client from "service/client";
+import client from "./client";
 
 export interface UserSearchFilters {
   query?: string;

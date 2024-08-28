@@ -7,7 +7,7 @@ import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 import { service } from "service";
-import isGrpcError from "utils/isGrpcError";
+import isGrpcError from "service/utils/isGrpcError";
 
 export default function useAuthStore() {
   const [authenticated, setAuthenticated] = usePersistedState(

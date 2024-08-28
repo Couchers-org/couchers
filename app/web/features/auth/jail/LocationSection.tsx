@@ -11,7 +11,7 @@ import Sentry from "platform/sentry";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
-import isGrpcError from "utils/isGrpcError";
+import isGrpcError from "service/utils/isGrpcError";
 
 interface LocationInfo {
   location: ApproximateLocation;

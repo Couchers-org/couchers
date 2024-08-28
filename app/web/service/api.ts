@@ -10,7 +10,7 @@ import {
   IMAGE_TOO_LARGE,
   INTERNAL_ERROR,
   SERVER_ERROR,
-} from "service/constants";
+} from "./constants";
 
 import client from "./client";
 

@@ -10,7 +10,7 @@ import Sentry from "platform/sentry";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { resetPasswordRoute } from "routes";
-import isGrpcError from "utils/isGrpcError";
+import isGrpcError from "service/utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 import { lowercaseAndTrimField } from "utils/validation";
 

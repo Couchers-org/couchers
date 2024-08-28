@@ -10,7 +10,7 @@ import {
   UnsubscribeReq,
   UsernameValidReq,
 } from "proto/auth_pb";
-import client from "service/client";
+import client from "./client";
 
 export async function startSignup(name: string, email: string) {
   const req = new SignupFlowReq();

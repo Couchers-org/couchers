@@ -9,7 +9,7 @@ import { ContributorForm as ContributorFormPb } from "proto/auth_pb";
 import TagManager from "react-gtm-module";
 import { service } from "service";
 import getRandomId from "utils/getRandomId";
-import isGrpcError from "utils/isGrpcError";
+import isGrpcError from "service/utils/isGrpcError";
 
 export default function FeedbackForm() {
   const { t } = useTranslation(GLOBAL);

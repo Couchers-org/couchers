@@ -1,5 +1,5 @@
 import { StatusReq } from "proto/bugs_pb";
-import client from "service/client";
+import client from "./client";
 
 export async function status(message = "") {
   const req = new StatusReq();
