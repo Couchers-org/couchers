@@ -10,6 +10,8 @@ OS_ARCH=""
 # for some reason protoc-gen-grpc-web uses "darwin" instead of "osx"
 OS_ARCH_GRPC_WEB=""
 
+echo "Running on OS=$OS, ARCH=$ARCH"
+
 if [[ "$OS" == "Linux" && "$ARCH" == "x86_64" ]]; then
     OS_ARCH="linux-x86_64"
     OS_ARCH_GRPC_WEB="linux-x86_64"
