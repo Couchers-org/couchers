@@ -56,3 +56,5 @@ find proto -name '*.proto' | /tmp/deps/bin/protoc -I /tmp/deps/include -I proto 
   --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:native/proto" \
   \
   $(xargs)
+
+echo "Protos built!"

@@ -12,7 +12,7 @@ import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import isGrpcError from "utils/isGrpcError";
+import isGrpcError from "service/utils/isGrpcError";
 import { lowercaseAndTrimField } from "utils/validation";
 
 export default function LoginForm() {
