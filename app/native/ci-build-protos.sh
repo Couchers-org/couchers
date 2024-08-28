@@ -15,7 +15,7 @@ echo "Running on OS=$OS, ARCH=$ARCH"
 if [[ "$OS" == "Linux" && "$ARCH" == "x86_64" ]]; then
     OS_ARCH="linux-x86_64"
     OS_ARCH_GRPC_WEB="linux-x86_64"
-elif [[ "$OS" == "Darwin" && "$ARCH" == "aarch64" ]]; then
+elif [[ "$OS" == "Darwin" && "$ARCH" == "arm64" ]]; then
     OS_ARCH="osx-aarch_64"
     OS_ARCH_GRPC_WEB="darwin-aarch64"
 else
