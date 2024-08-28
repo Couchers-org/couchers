@@ -10,7 +10,8 @@
     "test": "jest --watchAll",
     "lint": "expo lint",
     "format": "prettier --write *",
-    "format:check": "prettier --check '**/(*.ts|.tsx)'"
+    "format:check": "prettier --check '**/(*.ts|.tsx)'",
+    "eas-build-pre-install": "./ci-build-protos.sh"
   },
   "jest": {
     "preset": "jest-expo"
