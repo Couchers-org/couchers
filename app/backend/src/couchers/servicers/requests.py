@@ -11,6 +11,7 @@ from sqlalchemy.sql.functions import percentile_disc
 from couchers import errors
 from couchers.db import session_scope
 from couchers.metrics import (
+    account_age_on_host_request_create_histogram,
     host_request_first_response_histogram,
     host_request_responses_counter,
     host_requests_sent_counter,
@@ -116,13 +117,13 @@ def _possibly_observe_first_response_time(session, host_request, user_id, respon
         select(func.count())
         .where(Message.conversation_id == host_request.conversation_id)
         .where(Message.author_id == user_id)
-    ).one_or_none()
+    ).scalar_one_or_none()
 
     if number_messages_by_host == 0:
         host_gender = session.execute(select(User.gender).where(User.id == host_request.host_user_id)).scalar_one()
         surfer_gender = session.execute(select(User.gender).where(User.id == host_request.surfer_user_id)).scalar_one()
         host_request_first_response_histogram.labels(host_gender, surfer_gender, response_type).observe(
-            now() - host_request.conversation.created
+            (now() - host_request.conversation.created).total_seconds()
         )
 
 
@@ -209,9 +210,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 ),
             )
 
-            user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
-            host_requests_sent_counter.labels(user_gender, host.gender).inc()
-            sent_messages_counter.labels(user_gender, "host request send").inc()
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            host_requests_sent_counter.labels(user.gender, host.gender).inc()
+            sent_messages_counter.labels(user.gender, "host request send").inc()
+            account_age_on_host_request_create_histogram.labels(user.gender, host.gender).observe(
+                (now() - user.joined).total_seconds()
+            )
 
             return requests_pb2.CreateHostRequestRes(host_request_id=host_request.conversation_id)
 
