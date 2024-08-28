@@ -14,6 +14,7 @@ from couchers.metrics import (
     account_recoveries_counter,
     logins_counter,
     password_reset_completions_counter,
+    password_reset_initiations_counter,
     signup_completions_counter,
     signup_initiations_counter,
     signup_time_histogram,
@@ -443,6 +444,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                         password_reset_token=password_reset_token.token,
                     ),
                 )
+
+                password_reset_initiations_counter.inc()
             else:  # user not found
                 logger.debug("Didn't find user")
 
