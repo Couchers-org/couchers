@@ -4,7 +4,7 @@ import { GLOBAL } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import { clearStorage, usePersistedState } from "platform/usePersistedState";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
@@ -15,6 +15,10 @@ export default function useAuthStore() {
     false
   );
   const [jailed, setJailed] = usePersistedState("auth.jailed", false);
+  const [checkedAuthStatus, setCheckedAuthStatus] = usePersistedState(
+    "auth.checkedAuthStatus",
+    false
+  );
   const [userId, setUserId] = usePersistedState<number | null>(
     "auth.userId",
     null
@@ -132,12 +136,12 @@ export default function useAuthStore() {
         setLoading(false);
       },
       async checkAuthStatus() {
-        setLoading(true);
         try {
-          console.log("Checking auth status");
           const res = await service.user.getAuthState();
           if (res.loggedIn) {
-            console.log("Turns out we are logged in")!;
+            console.log(
+              "We thought we were not logged in but an API call shows we were."
+            );
             const auth = res.authRes!;
             setUserId(auth.userId);
             Sentry.setUser({ id: auth.userId.toString() });
@@ -147,10 +151,6 @@ export default function useAuthStore() {
             //userId to be set.
             setJailed(auth.jailed);
             setAuthenticated(true);
-          } else {
-            setAuthenticated(false);
-            setUserId(null);
-            Sentry.setUser({ id: undefined });
           }
         } catch (e) {
           Sentry.captureException(e, {
@@ -161,7 +161,6 @@ export default function useAuthStore() {
           });
           setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
-        setLoading(false);
       },
     }),
     //note: there should be no dependenices on the state or t, or
@@ -169,11 +168,13 @@ export default function useAuthStore() {
     [setAuthenticated, setJailed, setUserId, setFlowState, queryClient]
   );
 
-  useEffect(() => {
-    if (!authenticated && typeof window !== "undefined") {
-      authActions.checkAuthStatus();
-    }
-  }, [authenticated, authActions]);
+  // useEffect(() => {
+  //   // if we aren't logged in and are otherwise idle, but auth state changed, check if the cookie is set in the bg
+  //   if (typeof window !== "undefined" && !authenticated && !loading && !error && !checkedAuthStatus) {
+  //     setCheckedAuthStatus(true);
+  //     authActions.checkAuthStatus();
+  //   }
+  // }, [authenticated, checkedAuthStatus, setCheckedAuthStatus, authActions]);
 
   return {
     authActions,
