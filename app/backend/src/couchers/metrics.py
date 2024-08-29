@@ -30,13 +30,13 @@ def observe_in_jobs_duration_histogram(job_type, job_state, try_count, exception
 servicer_duration_histogram = Histogram(
     "couchers_servicer_duration_seconds",
     "Durations of processing gRPC calls",
-    labelnames=["method", "code", "exception"],
+    labelnames=["method", "logged_in", "code", "exception"],
     registry=main_process_registry,
 )
 
 
-def observe_in_servicer_duration_histogram(method, status_code, exception_type, duration_s):
-    servicer_duration_histogram.labels(method, status_code, exception_type).observe(duration_s)
+def observe_in_servicer_duration_histogram(method, user_id, status_code, exception_type, duration_s):
+    servicer_duration_histogram.labels(method, user_id is not None, status_code, exception_type).observe(duration_s)
 
 
 def _get_active_users_5m():
