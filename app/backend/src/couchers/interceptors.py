@@ -256,7 +256,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 self._store_log(
                     method, None, duration, user_id, is_api_key, request, res, None, prof.report, ip_address, user_agent
                 )
-                observe_in_servicer_duration_histogram(method, "", "", duration / 1000)
+                observe_in_servicer_duration_histogram(method, user_id, "", "", duration / 1000)
             except Exception as e:
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
@@ -267,7 +267,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 self._store_log(
                     method, code, duration, user_id, is_api_key, request, None, traceback, None, ip_address, user_agent
                 )
-                observe_in_servicer_duration_histogram(method, code or "", type(e).__name__, duration / 1000)
+                observe_in_servicer_duration_histogram(method, user_id, code or "", type(e).__name__, duration / 1000)
 
                 if not code:
                     sentry_sdk.set_tag("context", "servicer")
