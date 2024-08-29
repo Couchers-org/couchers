@@ -68,7 +68,7 @@ export const useAppRouteStyles = makeStyles((theme) => ({
 interface AppRouteProps {
   isPrivate: boolean;
   noFooter?: boolean;
-  variant?: "standard" | "full-screen" | "full-width" | "native-embed";
+  variant?: "standard" | "full-screen" | "full-width";
   children: ReactNode;
 }
 
