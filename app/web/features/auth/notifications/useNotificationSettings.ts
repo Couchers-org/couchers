@@ -5,7 +5,10 @@ import { useQuery } from "react-query";
 import { service } from "service";
 
 export default function useNotificationSettings() {
-  const notificationSettingsQuery = useQuery<GetNotificationSettingsRes.AsObject, RpcError>(
+  const notificationSettingsQuery = useQuery<
+    GetNotificationSettingsRes.AsObject,
+    RpcError
+  >(
     notificationSettingsQueryKey,
     service.notifications.getNotificationSettings
   );

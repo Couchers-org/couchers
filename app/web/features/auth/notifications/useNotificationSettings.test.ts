@@ -1,11 +1,11 @@
 import { renderHook } from "@testing-library/react-hooks";
-import { QueryClient } from "react-query";
 import { RpcError, StatusCode } from "grpc-web";
-
 import { GetNotificationSettingsRes } from "proto/notifications_pb";
+import { QueryClient } from "react-query";
 import { service } from "service";
-import useNotificationSettings from "./useNotificationSettings";
 import wrapper from "test/hookWrapper";
+
+import useNotificationSettings from "./useNotificationSettings";
 
 const queryClient = new QueryClient();
 

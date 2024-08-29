@@ -1,3 +1,4 @@
+/* eslint-disable simple-import-sort/exports */
 // Please keep alphabetical order :)
 export { default as AccountSecurityIcon } from "@material-ui/icons/VerifiedUser";
 export { default as AccountSettingsIcon } from "@material-ui/icons/SettingsApplications";
@@ -50,7 +51,7 @@ export {
 export { default as MuteIcon } from "@material-ui/icons/VolumeOffOutlined";
 export { default as OpenInNewIcon } from "@material-ui/icons/OpenInNew";
 export { default as OverflowMenuIcon } from "@material-ui/icons/MoreVertOutlined";
-export { default as PenIcon } from './PenIcon';
+export { default as PenIcon } from "./PenIcon";
 export { default as PeopleIcon } from "@material-ui/icons/PeopleOutlined";
 export { default as PersonAddIcon } from "@material-ui/icons/PersonAddOutlined";
 export { default as PersonIcon } from "@material-ui/icons/EmojiPeopleOutlined";
@@ -66,3 +67,4 @@ export { default as VeryDissatisfiedIcon } from "@material-ui/icons/MoodBadOutli
 export { default as VerySatisfiedIcon } from "@material-ui/icons/MoodOutlined";
 export { default as VerifiedUser } from "@material-ui/icons/VerifiedUser";
 export { default as WorkIcon } from "@material-ui/icons/WorkOutlined";
+/* eslint-enable simple-import-sort/exports */

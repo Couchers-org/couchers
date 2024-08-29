@@ -1,11 +1,12 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import EditNotificationSettingsPage from "./EditNotificationSettingsPage";
 import { useTranslation } from "next-i18next";
-import useNotificationSettings from "./useNotificationSettings";
-import { useUpdateNotificationSettings } from "./notificationSettingsHooks";
 import { useMutation, useQueryClient } from "react-query";
-import NotificationSettingsSubListItem from "./NotificationSettingsSubListItem";
 import { NotificationPreferenceData } from "service/notifications";
+
+import EditNotificationSettingsPage from "./EditNotificationSettingsPage";
+import { useUpdateNotificationSettings } from "./notificationSettingsHooks";
+import NotificationSettingsSubListItem from "./NotificationSettingsSubListItem";
+import useNotificationSettings from "./useNotificationSettings";
 
 jest.mock("react-query", () => ({
   useMutation: jest.fn(),
@@ -217,26 +218,26 @@ describe("EditNotificationSettingsPage", () => {
 
   it('Should not render list items with "userEditable" set to false', () => {
     (useNotificationSettings as jest.Mock).mockReturnValue({
-        data: mockNotificationData,
-        isLoading: false,
-        isError: false,
-      });
-  
-      render(<EditNotificationSettingsPage />);
-  
-      // Check if the title, description, and list heading are rendered
-      expect(screen.getByText("title")).toBeInTheDocument();
-      expect(screen.getByText("description")).toBeInTheDocument();
-      expect(screen.getByText("list_heading")).toBeInTheDocument();
-  
-      // Check if NotificationSettingsListItems are rendered
-      expect(screen.getByText("account_security")).toBeInTheDocument();
-      expect(screen.getByText("password.change")).toBeInTheDocument();
-  
-      expect(screen.getByText("host_request")).toBeInTheDocument();
-      expect(screen.getByText("host_request.create")).toBeInTheDocument();
+      data: mockNotificationData,
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<EditNotificationSettingsPage />);
+
+    // Check if the title, description, and list heading are rendered
+    expect(screen.getByText("title")).toBeInTheDocument();
+    expect(screen.getByText("description")).toBeInTheDocument();
+    expect(screen.getByText("list_heading")).toBeInTheDocument();
+
+    // Check if NotificationSettingsListItems are rendered
+    expect(screen.getByText("account_security")).toBeInTheDocument();
+    expect(screen.getByText("password.change")).toBeInTheDocument();
+
+    expect(screen.getByText("host_request")).toBeInTheDocument();
+    expect(screen.getByText("host_request.create")).toBeInTheDocument();
 
     expect(screen.queryByText("friend_request")).not.toBeInTheDocument();
     expect(screen.queryByText("friend_request.create")).not.toBeInTheDocument();
-  } );
+  });
 });

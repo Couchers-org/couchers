@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   List,
   ListItem,
@@ -7,15 +6,15 @@ import {
   Typography,
 } from "@material-ui/core";
 import { MailOutline } from "@material-ui/icons";
-import { theme } from "theme";
-import { useTranslation } from "next-i18next";
-import { AUTH, GLOBAL } from "i18n/namespaces";
-
-import { NotificationNewIcon } from "components/Icons";
-import CustomColorSwitch from "components/CustomColorSwitch";
-import makeStyles from "utils/makeStyles";
-import { NotificationPreferenceData } from "service/notifications";
 import Alert from "components/Alert";
+import CustomColorSwitch from "components/CustomColorSwitch";
+import { NotificationNewIcon } from "components/Icons";
+import { AUTH, GLOBAL } from "i18n/namespaces";
+import { useTranslation } from "next-i18next";
+import { useState } from "react";
+import { NotificationPreferenceData } from "service/notifications";
+import { theme } from "theme";
+import makeStyles from "utils/makeStyles";
 
 import { useUpdateNotificationSettings } from "./notificationSettingsHooks";
 
@@ -100,11 +99,10 @@ export default function NotificationSettingsSubListItem({
         </Alert>
       )}
       <Typography className={classes.descriptionText}>
-        {
-          t(
-            `${topic}.${action}` as any
-          ) /* FYI Put any as I spent hours on this type with no luck */
-        }
+        {t(
+          //@ts-ignore - I spent hours on this type with no luck
+          `${topic}.${action}`
+        )}
       </Typography>
       <List component="div" disablePadding>
         <ListItem button className={classes.nested}>

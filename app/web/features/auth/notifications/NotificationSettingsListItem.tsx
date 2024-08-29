@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Collapse,
   ListItem,
@@ -6,23 +5,24 @@ import {
   ListItemText,
   Typography,
 } from "@material-ui/core";
-import { useTranslation } from "next-i18next";
-import { AUTH } from "i18n/namespaces";
-
 import {
-  SinglePersonIcon,
-  CouchFilledIcon,
-  ChatBubbleIcon,
-  EventIcon,
-  PenIcon,
-  AccountSettingsIcon,
   AccountSecurityIcon,
+  AccountSettingsIcon,
+  ChatBubbleIcon,
+  CouchFilledIcon,
+  EventIcon,
   ExpandLessIcon,
   ExpandMoreIcon,
+  PenIcon,
+  SinglePersonIcon,
 } from "components/Icons";
+import { AUTH } from "i18n/namespaces";
+import { useTranslation } from "next-i18next";
+import { useState } from "react";
 import makeStyles from "utils/makeStyles";
-import NotificationSettingsSubListItem from "./NotificationSettingsSubListItem";
+
 import { GroupAction, NotificationType } from "./EditNotificationSettingsPage";
+import NotificationSettingsSubListItem from "./NotificationSettingsSubListItem";
 
 interface NotificationSettingsListItemProps {
   items: GroupAction[];

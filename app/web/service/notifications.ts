@@ -1,16 +1,15 @@
 import {
   GetNotificationSettingsReq,
-  NotificationItem,
   SetNotificationSettingsReq,
   SingleNotificationPreference,
 } from "proto/notifications_pb";
 import client from "service/client";
 
 export interface NotificationPreferenceData {
-  topic: string,
-  action: string,
-  deliveryMethod: 'push' | 'email',
-  enabled: boolean,
+  topic: string;
+  action: string;
+  deliveryMethod: "push" | "email";
+  enabled: boolean;
 }
 
 export async function getNotificationSettings() {
@@ -27,7 +26,9 @@ export async function setNotificationSettings(enableDoNotEmail: boolean) {
   return res.toObject();
 }
 
-export async function setNotificationSettingsPreference(preferenceData: NotificationPreferenceData) {
+export async function setNotificationSettingsPreference(
+  preferenceData: NotificationPreferenceData
+) {
   const req = new SetNotificationSettingsReq();
   const preference = new SingleNotificationPreference();
   preference.setTopic(preferenceData.topic);

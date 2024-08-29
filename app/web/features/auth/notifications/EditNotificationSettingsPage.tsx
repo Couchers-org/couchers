@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
-import { CircularProgress, Typography } from "@material-ui/core";
-import { List } from "@material-ui/core";
-import { useTranslation } from "next-i18next";
-import { AUTH } from "i18n/namespaces";
-
+import { CircularProgress, List,Typography  } from "@material-ui/core";
 import Snackbar from "components/Snackbar";
+import { AUTH } from "i18n/namespaces";
+import { useTranslation } from "next-i18next";
+import { useEffect, useState } from "react";
 import makeStyles from "utils/makeStyles";
 
 import NotificationSettingsListItem from "./NotificationSettingsListItem";

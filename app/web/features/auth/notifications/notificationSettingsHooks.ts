@@ -1,8 +1,7 @@
-import { RpcError } from "grpc-web";
-import { useMutation, useQuery, useQueryClient } from "react-query";
-
 import { notificationSettingsQueryKey } from "features/queryKeys";
+import { RpcError } from "grpc-web";
 import { GetNotificationSettingsRes } from "proto/notifications_pb";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { service } from "service";
 import { NotificationPreferenceData } from "service/notifications";
 import { SetMutationError } from "utils/types";

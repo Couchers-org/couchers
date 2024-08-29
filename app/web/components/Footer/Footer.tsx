@@ -10,18 +10,18 @@ import Link from "next/link";
 import { ReactNode } from "react";
 import {
   blogRoute,
+  contactRoute,
   donationsRoute,
   eventsRoute,
   faqRoute,
   forumURL,
   foundationRoute,
   githubURL,
+  helpCenterURL,
   missionRoute,
   planRoute,
-  helpCenterURL,
   teamRoute,
   tosRoute,
-  contactRoute,
   volunteerRoute,
 } from "routes";
 import makeStyles from "utils/makeStyles";

@@ -12,9 +12,9 @@ import {
   ListMyEventsReq,
   OfflineEventInformation,
   OnlineEventInformation,
+  RequestCommunityInviteReq,
   SetEventAttendanceReq,
   UpdateEventReq,
-  RequestCommunityInviteReq,
 } from "proto/events_pb";
 import client from "service/client";
 
