@@ -103,7 +103,7 @@ export default function NotificationSettingsSubListItem({
         {
           t(
             `${topic}.${action}` as any
-          ) /* FYI Put any as I spent hours on this */
+          ) /* FYI Put any as I spent hours on this type with no luck */
         }
       </Typography>
       <List component="div" disablePadding>

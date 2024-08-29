@@ -60,8 +60,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// @TODO(NA): Add translations
-// @TODO(NA): Write tests!
 export default function EditNotificationSettingsPage() {
   const classes = useStyles();
   const { t } = useTranslation(AUTH, {
@@ -92,7 +90,10 @@ export default function EditNotificationSettingsPage() {
                 if (!acc[key]) {
                   acc[key] = [];
                 }
-                acc[key].push({ ...subTopic, topic: topic.topic }); // Cast topic to NotificationTopic
+
+                if (subTopic.userEditable) {
+                  acc[key].push({ ...subTopic, topic: topic.topic });
+                }
               });
             }
           });
@@ -111,13 +112,15 @@ export default function EditNotificationSettingsPage() {
   }, [data]);
 
   const renderNotificationListItems = () =>
-    Object.keys(groups).map((key) => (
-      <NotificationSettingsListItem
-        key={key}
-        items={groups[key]}
-        type={key as NotificationType}
-      />
-    ));
+    Object.keys(groups)
+      .filter((key) => groups[key].length > 0)
+      .map((key) => (
+        <NotificationSettingsListItem
+          key={key}
+          items={groups[key]}
+          type={key as NotificationType}
+        />
+      ));
 
   return (
     <div className={classes.notificationSettingsContainer}>

@@ -72,15 +72,17 @@ export default function NotificationSettingsListItem({
   };
 
   const renderItems = () =>
-    items.map((item) => (
-      <NotificationSettingsSubListItem
-        key={`${item.topic}:${item.action}`}
-        topic={item.topic}
-        action={item.action}
-        push={item.push}
-        email={item.email}
-      />
-    ));
+    items
+      .filter((item) => item.userEditable)
+      .map((item) => (
+        <NotificationSettingsSubListItem
+          key={`${item.topic}:${item.action}`}
+          topic={item.topic}
+          action={item.action}
+          push={item.push}
+          email={item.email}
+        />
+      ));
 
   return (
     <>
