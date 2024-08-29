@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 export function getReactNativeWebView(): typeof window.ReactNativeWebView {
-  // console.log(window)
   if (
     typeof window !== "undefined" &&
     window.ReactNativeWebView !== undefined
@@ -26,8 +25,6 @@ export function useIsNativeEmbed(): boolean {
   const [isNative, setIsNative] = useState(false);
 
   useEffect(() => {
-    console.log(window);
-    console.log(typeof window !== "undefined");
     setIsNative(
       typeof window !== "undefined" && window.ReactNativeWebView !== undefined
     );
