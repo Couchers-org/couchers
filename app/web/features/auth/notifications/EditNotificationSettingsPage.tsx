@@ -1,4 +1,4 @@
-import { CircularProgress, List,Typography  } from "@material-ui/core";
+import { CircularProgress, List,Typography, useMediaQuery  } from "@material-ui/core";
 import Snackbar from "components/Snackbar";
 import { AUTH } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
@@ -7,6 +7,7 @@ import makeStyles from "utils/makeStyles";
 
 import NotificationSettingsListItem from "./NotificationSettingsListItem";
 import useNotificationSettings from "./useNotificationSettings";
+import { theme } from "theme";
 
 export type NotificationType =
   | "account_security"
@@ -50,7 +51,10 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     padding: theme.spacing(4),
     margin: "0 auto",
-    width: "50%",
+    width: "100%",
+    [theme.breakpoints.up('md')]: {
+      width: '50%',
+    },
   },
   notificationDescription: {
     margin: theme.spacing(1, 0),
@@ -66,6 +70,8 @@ export default function EditNotificationSettingsPage() {
   const { data, isLoading, isError } = useNotificationSettings();
   const [groups, setGroups] = useState<GroupsByType>({});
   const [areGroupsLoading, setAreGroupsLoading] = useState<boolean>(true);
+
+  console.log(theme.breakpoints.down("sm"))
 
   useEffect(() => {
     try {
