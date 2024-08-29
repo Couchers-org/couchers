@@ -19,4 +19,4 @@ ENV MEDIA_UPLOAD_LOCATION="/uploads"
 ARG version
 ENV VERSION=$version
 
-CMD cd src && uwsgi --http 0.0.0.0:5000 --wsgi-file media/server.py --callable app
+CMD cd src && uwsgi --http 0.0.0.0:5001 --wsgi-file media/server.py --callable app

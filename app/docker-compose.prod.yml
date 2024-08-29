@@ -50,7 +50,7 @@ services:
     volumes:
       - "./data/media/uploads/:/uploads/"
     expose:
-      - 5000
+      - 5001
     depends_on:
       - backend
     networks:
