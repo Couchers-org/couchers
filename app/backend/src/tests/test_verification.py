@@ -257,8 +257,7 @@ def test_send_sms_disabled(db):
 
 
 def test_strong_verification_on_donation():
-    user, token = generate_user()
-    user.has_donated = False
+    user, token = generate_user(has_donated=False)
     with account_session(token) as account, api_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
             account.VerifyPhone(account_pb2.VerifyPhoneReq(token="123455"))
