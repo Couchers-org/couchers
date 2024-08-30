@@ -211,7 +211,7 @@ def db():
     recreate_database()
 
 
-def generate_user(*, delete_user=False, complete_profile=False, has_donated=True,  **kwargs):
+def generate_user(*, delete_user=False, complete_profile=False, has_donated=True, **kwargs):
     """
     Create a new user, return session token
 
@@ -286,7 +286,6 @@ def generate_user(*, delete_user=False, complete_profile=False, has_donated=True
             user.is_deleted = True
 
         user.recommendation_score = 1e10 - user.id
-
 
         if complete_profile:
             key = random_hex(32)
