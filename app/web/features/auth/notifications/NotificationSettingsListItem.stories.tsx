@@ -5,7 +5,9 @@ import { I18nextProvider } from "react-i18next";
 import i18n from "test/i18n";
 import { theme } from "theme";
 
-import NotificationSettingsListItem, { NotificationSettingsListItemProps } from "./NotificationSettingsListItem";
+import NotificationSettingsListItem, {
+  NotificationSettingsListItemProps,
+} from "./NotificationSettingsListItem";
 
 const mockItems = [
   {
