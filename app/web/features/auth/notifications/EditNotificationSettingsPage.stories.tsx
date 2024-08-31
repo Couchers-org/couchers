@@ -1,13 +1,14 @@
-import React from "react";
-import { Meta, Story } from "@storybook/react";
-import EditNotificationSettingsPage from "./EditNotificationSettingsPage";
 import { ThemeProvider } from "@material-ui/core/styles";
-import { theme } from "theme";
+import { Meta, Story } from "@storybook/react";
+import { GetNotificationSettingsRes } from "proto/notifications_pb";
+import React from "react";
 import { I18nextProvider } from "react-i18next";
-import i18n from "test/i18n";
 import { mockedService } from "stories/serviceMocks";
 import notifications from "test/fixtures/notifications.json";
-import { GetNotificationSettingsRes } from "proto/notifications_pb";
+import i18n from "test/i18n";
+import { theme } from "theme";
+
+import EditNotificationSettingsPage from "./EditNotificationSettingsPage";
 
 export default {
   title: "Features/Auth/Notifications/EditNotificationSettingsPage",
