@@ -15,6 +15,7 @@ const mockItems = [
     description: "Someone sends you a host request",
     userEditable: true,
     push: false,
+    digest: false,
     email: true,
     topic: "host_request",
   },
@@ -24,6 +25,7 @@ const mockItems = [
     description: "Someone accepts your host request",
     userEditable: true,
     push: true,
+    digest: false,
     email: true,
     topic: "host_request",
   },
@@ -32,6 +34,7 @@ const mockItems = [
     description: "Someone confirms their host request",
     userEditable: true,
     push: true,
+    digest: false,
     email: true,
     topic: "host_request",
   },
@@ -40,6 +43,7 @@ const mockItems = [
     description: "Someone declines your host request",
     userEditable: true,
     push: true,
+    digest: false,
     email: true,
     topic: "host_request",
   },
@@ -48,6 +52,7 @@ const mockItems = [
     description: "Someone cancels their host request",
     userEditable: true,
     push: true,
+    digest: false,
     email: true,
     topic: "host_request",
   },
@@ -56,6 +61,7 @@ const mockItems = [
     description: "Someone sends a message in a host request",
     userEditable: true,
     push: true,
+    digest: false,
     email: false,
     topic: "host_request",
   },
@@ -94,24 +100,8 @@ Default.args = {
   type: "host_request",
 };
 
-export const WithMultipleEditableItems = Template.bind({});
-WithMultipleEditableItems.args = {
-  items: [
-    ...mockItems,
-    {
-      action: "two_factor_authentication",
-      description: "Enable two-factor authentication",
-      email: false,
-      push: true,
-      topic: "host_request",
-      userEditable: true,
-    },
-  ],
-  type: "host_request",
-};
-
-export const WithAllItemsDisabled = Template.bind({});
-WithAllItemsDisabled.args = {
+export const WithAllUserEditableFalse = Template.bind({});
+WithAllUserEditableFalse.args = {
   items: mockItems.map((item) => ({ ...item, userEditable: false })),
   type: "host_request",
 };
