@@ -76,4 +76,4 @@ Title: Complete password reset / set new password page
 URL: https://couchers.org/complete-password-reset?token=abc123
 
 Title: Edit notification settings
-URL:  https://couchers.org/profile/notifications
+URL:  https://couchers.org/account-settings/notifications

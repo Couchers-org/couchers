@@ -58,7 +58,7 @@ def _send_email_notification(user: User, notification: Notification):
         plain_unsub_section += "This is a security email, you cannot unsubscribe from it."
         html_unsub_section = "This is a security email, you cannot unsubscribe from it."
     else:
-        manage_link = urls.account_settings_link()
+        manage_link = urls.notification_settings_link()
         plain_unsub_section += f"Edit your notification settings at <{manage_link}>"
         html_unsub_section = f'<a href="{manage_link}">Manage notification preferences</a>.'
         unsub_options = []
