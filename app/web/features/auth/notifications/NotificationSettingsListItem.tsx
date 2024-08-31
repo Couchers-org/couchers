@@ -24,7 +24,7 @@ import makeStyles from "utils/makeStyles";
 import { GroupAction, NotificationType } from "./EditNotificationSettingsPage";
 import NotificationSettingsSubListItem from "./NotificationSettingsSubListItem";
 
-interface NotificationSettingsListItemProps {
+export interface NotificationSettingsListItemProps {
   items: GroupAction[];
   type: NotificationType;
 }

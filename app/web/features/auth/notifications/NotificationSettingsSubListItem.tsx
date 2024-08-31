@@ -18,7 +18,7 @@ import makeStyles from "utils/makeStyles";
 
 import { useUpdateNotificationSettings } from "./notificationSettingsHooks";
 
-interface NotificationSettingsSubListItemProps {
+export interface NotificationSettingsSubListItemProps {
   topic: string;
   action: string;
   email: boolean;
