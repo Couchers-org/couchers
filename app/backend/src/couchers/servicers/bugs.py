@@ -4,7 +4,6 @@ from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.config import config
-from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptors_pb
 from couchers.models import User
 from couchers.sql import couchers_select as select
@@ -16,10 +15,10 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
     def _version(self):
         return config["VERSION"]
 
-    def Version(self, request, context):
+    def Version(self, request, context, session):
         return bugs_pb2.VersionInfo(version=self._version())
 
-    def ReportBug(self, request, context):
+    def ReportBug(self, request, context, session):
         if not config["BUG_TOOL_ENABLED"]:
             context.abort(grpc.StatusCode.UNAVAILABLE, errors.BUG_TOOL_DISABLED)
 
@@ -27,9 +26,8 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         auth = (config["BUG_TOOL_GITHUB_USERNAME"], config["BUG_TOOL_GITHUB_TOKEN"])
 
         if context.user_id:
-            with session_scope() as session:
-                username = session.execute(select(User.username).where(User.id == context.user_id)).scalar_one()
-                user_details = f"{username} ({context.user_id})"
+            username = session.execute(select(User.username).where(User.id == context.user_id)).scalar_one()
+            user_details = f"{username} ({context.user_id})"
         else:
             user_details = "<not logged in>"
 
@@ -62,9 +60,8 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             bug_id=f"#{issue_number}", bug_url=f"https://github.com/{repo}/issues/{issue_number}"
         )
 
-    def Status(self, request, context):
-        with session_scope() as session:
-            coucher_count = session.execute(select(func.count()).select_from(User).where(User.is_visible)).scalar_one()
+    def Status(self, request, context, session):
+        coucher_count = session.execute(select(func.count()).select_from(User).where(User.is_visible)).scalar_one()
 
         return bugs_pb2.StatusRes(
             nonce=request.nonce,
@@ -72,7 +69,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             coucher_count=coucher_count,
         )
 
-    def GetDescriptors(self, request, context):
+    def GetDescriptors(self, request, context, session):
         return httpbody_pb2.HttpBody(
             content_type="application/octet-stream",
             data=get_descriptors_pb(),
