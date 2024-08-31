@@ -14,7 +14,7 @@ import sentry_sdk
 from google.protobuf import empty_pb2
 
 from couchers.config import config
-from couchers.db import get_engine, session_scope
+from couchers.db import db_post_fork, session_scope
 from couchers.jobs import handlers
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import create_prometheus_server, job_process_registry, observe_in_jobs_duration_histogram
@@ -105,7 +105,6 @@ def service_jobs():
     """
     Service jobs in an infinite loop
     """
-    get_engine().dispose()
     t = create_prometheus_server(job_process_registry, 8001)
     try:
         while True:
@@ -133,7 +132,8 @@ def _run_job_and_schedule(sched, schedule_id):
     )
 
     # queue the job
-    queue_job(job_type, empty_pb2.Empty())
+    with session_scope() as session:
+        queue_job(session, job_type, empty_pb2.Empty())
 
 
 def run_scheduler():
@@ -142,8 +142,6 @@ def run_scheduler():
     """
     # multiprocessing uses fork() which in turn copies file descriptors, so the engine may have connections in its pool
     # that we don't want to reuse. This is the SQLALchemy-recommended way of clearing the connection pool in this thread
-    get_engine().dispose()
-
     sched = scheduler(monotonic, sleep)
 
     for schedule_id, (job_type, frequency) in enumerate(SCHEDULE):
@@ -161,6 +159,7 @@ def run_scheduler():
 
 
 def _run_forever(func):
+    db_post_fork()
     while True:
         try:
             logger.critical("Background worker starting")

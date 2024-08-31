@@ -248,8 +248,8 @@ def _search_pages(session, search_statement, title_only, next_rank, page_size, c
     return [
         search_pb2.Result(
             rank=rank,
-            place=page_to_pb(page, context) if page.type == PageType.place else None,
-            guide=page_to_pb(page, context) if page.type == PageType.guide else None,
+            place=page_to_pb(session, page, context) if page.type == PageType.place else None,
+            guide=page_to_pb(session, page, context) if page.type == PageType.guide else None,
             snippet=snippet,
         )
         for page, rank, snippet in pages
@@ -324,9 +324,11 @@ def _search_clusters(
         search_pb2.Result(
             rank=rank,
             community=(
-                community_to_pb(cluster.official_cluster_for_node, context) if cluster.is_official_cluster else None
+                community_to_pb(session, cluster.official_cluster_for_node, context)
+                if cluster.is_official_cluster
+                else None
             ),
-            group=group_to_pb(cluster, context) if not cluster.is_official_cluster else None,
+            group=group_to_pb(session, cluster, context) if not cluster.is_official_cluster else None,
             snippet=snippet,
         )
         for cluster, rank, snippet in clusters

@@ -1,4 +1,5 @@
 import functools
+import inspect
 import logging
 import os
 from contextlib import contextmanager
@@ -10,7 +11,7 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import NullPool, SingletonThreadPool
-from sqlalchemy.sql import and_, func, literal, or_
+from sqlalchemy.sql import and_, func, literal, or_, text
 
 from couchers.config import config
 from couchers.constants import SERVER_THREADS
@@ -43,7 +44,7 @@ def apply_migrations():
         os.chdir(cwd)
 
 
-@functools.lru_cache
+@functools.cache
 def _get_base_engine():
     if config["IN_TEST"]:
         pool_opts = {"poolclass": NullPool}
@@ -66,13 +67,6 @@ def _get_base_engine():
     )
 
 
-def clear_base_engine_cache():
-    """
-    This needs to be done when the public schema is dropped.
-    """
-    _get_base_engine.cache_clear()
-
-
 def get_engine(isolation_level=None):
     """
     Creates an engine with the given isolation level.
@@ -87,6 +81,14 @@ def get_engine(isolation_level=None):
 @contextmanager
 def session_scope(isolation_level=None):
     session = Session(get_engine(isolation_level=isolation_level), future=True)
+    if logger.isEnabledFor(logging.DEBUG):
+        try:
+            frame = inspect.stack()[2]
+            filename_line = f"{frame.filename}:{frame.lineno}"
+        except Exception as e:
+            filename_line = "{unknown file}"
+        backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar()
+        logger.debug(f"SScope: got {backend_pid=} at {filename_line}")
     try:
         yield session
         session.commit()
@@ -95,6 +97,16 @@ def session_scope(isolation_level=None):
         raise
     finally:
         session.close()
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(f"SScope: closed {backend_pid=}")
+
+
+def db_post_fork():
+    """
+    Fix post-fork issues with sqlalchemy
+    """
+    # see https://docs.sqlalchemy.org/en/20/core/pooling.html#using-connection-pools-with-multiprocessing-or-os-fork
+    _get_base_engine().dispose(close=False)
 
 
 @event.listens_for(Engine, "before_cursor_execute")

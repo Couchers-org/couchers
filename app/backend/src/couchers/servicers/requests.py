@@ -200,6 +200,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session.commit()
 
             notify(
+                session,
                 user_id=host_request.host_user_id,
                 topic_action="host_request:create",
                 key=host_request.conversation_id,
@@ -358,6 +359,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 session.flush()
 
                 notify(
+                    session,
                     user_id=host_request.surfer_user_id,
                     topic_action="host_request:accept",
                     key=host_request.conversation_id,
@@ -385,6 +387,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 session.flush()
 
                 notify(
+                    session,
                     user_id=host_request.surfer_user_id,
                     topic_action="host_request:reject",
                     key=host_request.conversation_id,
@@ -408,6 +411,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 session.flush()
 
                 notify(
+                    session,
                     user_id=host_request.host_user_id,
                     topic_action="host_request:confirm",
                     key=host_request.conversation_id,
@@ -434,6 +438,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 session.flush()
 
                 notify(
+                    session,
                     user_id=host_request.host_user_id,
                     topic_action="host_request:cancel",
                     key=host_request.conversation_id,
@@ -542,6 +547,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 host_request.surfer_last_seen_message_id = message.id
 
                 notify(
+                    session,
                     user_id=host_request.host_user_id,
                     topic_action="host_request:message",
                     key=host_request.conversation_id,
@@ -557,6 +563,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 host_request.host_last_seen_message_id = message.id
 
                 notify(
+                    session,
                     user_id=host_request.surfer_user_id,
                     topic_action="host_request:message",
                     key=host_request.conversation_id,
