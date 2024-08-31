@@ -59,7 +59,7 @@ def test_GetAccountInfo_regression(db):
                 creator_user_id=uploader_user.id,
             )
         )
-        session.commit()
+
     user, token = generate_user(about_me=None, avatar_key=key)
 
     with account_session(token) as account:

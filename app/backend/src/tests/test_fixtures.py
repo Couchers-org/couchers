@@ -8,12 +8,13 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from sqlalchemy.orm import close_all_sessions
 from sqlalchemy.sql import or_, text
 
 from couchers.config import config
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import random_hex
-from couchers.db import clear_base_engine_cache, get_engine, session_scope
+from couchers.db import _get_base_engine, session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.interceptors import AuthValidatorInterceptor, _try_get_and_update_user_details
 from couchers.jobs.worker import process_job
@@ -95,9 +96,23 @@ def drop_all():
         # btree_gist is required for gist-based exclusion constraints
         session.execute(
             text(
-                "DROP SCHEMA public CASCADE; DROP SCHEMA IF EXISTS logging CASCADE; CREATE SCHEMA public; CREATE SCHEMA logging; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm; CREATE EXTENSION btree_gist;"
+                "DROP SCHEMA IF EXISTS public CASCADE;"
+                "DROP SCHEMA IF EXISTS logging CASCADE;"
+                "DROP EXTENSION IF EXISTS postgis CASCADE;"
+                "CREATE SCHEMA public;"
+                "CREATE SCHEMA logging;"
+                "CREATE EXTENSION postgis;"
+                "CREATE EXTENSION pg_trgm;"
+                "CREATE EXTENSION btree_gist;"
             )
         )
+
+    # this resets the database connection pool, which caches some stuff postgres-side about objects and will otherwise
+    # sometimes error out with "ERROR:  no spatial operator found for 'st_contains': opfamily 203699 type 203585"
+    # and similar errors
+    _get_base_engine().dispose()
+
+    close_all_sessions()
 
 
 def create_schema_from_models():
@@ -111,7 +126,7 @@ def create_schema_from_models():
     with open(functions) as f, session_scope() as session:
         session.execute(text(f.read()))
 
-    Base.metadata.create_all(get_engine())
+    Base.metadata.create_all(_get_base_engine())
 
 
 def populate_testing_resources(session):
@@ -194,7 +209,6 @@ def recreate_database():
 
     # drop everything currently in the database
     drop_all()
-    clear_base_engine_cache()  # to address errors like sqlalchemy.exc.InternalError: (psycopg2.errors.InternalError_) no spatial operator found for 'st_dwithin'
 
     # create everything from the current models, not incrementally through migrations
     create_schema_from_models()
@@ -935,7 +949,7 @@ def push_collector():
         def by_user(self, user_id):
             return [kwargs for uid, kwargs in self.pushes if uid == user_id]
 
-        def push_to_user(self, user_id, **kwargs):
+        def push_to_user(self, session, user_id, **kwargs):
             self.pushes.append((user_id, Push(kwargs=kwargs)))
 
         def assert_user_has_count(self, user_id, count):

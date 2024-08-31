@@ -33,27 +33,26 @@ def _is_page_owner(page: Page, user_id):
     return page.owner_cluster.admins.where(User.id == user_id).one_or_none() is not None
 
 
-def _can_moderate_page(page: Page, user_id):
+def _can_moderate_page(session, page: Page, user_id):
     """
     Checks if the user is allowed to moderate this page
     """
     # checks if either the page is in the exclusive moderation area of a node
-    with session_scope() as session:
-        latest_version = page.versions[-1]
+    latest_version = page.versions[-1]
 
-        # if the page has a location, we firstly check if we are the moderator of any node that contains this page
-        if latest_version.geom is not None and can_moderate_at(session, user_id, latest_version.geom):
-            return True
+    # if the page has a location, we firstly check if we are the moderator of any node that contains this page
+    if latest_version.geom is not None and can_moderate_at(session, user_id, latest_version.geom):
+        return True
 
-        # if the page is owned by a cluster, then any moderator of that cluster can moderate this page
-        if page.owner_cluster is not None and can_moderate_node(session, user_id, page.owner_cluster.parent_node_id):
-            return True
+    # if the page is owned by a cluster, then any moderator of that cluster can moderate this page
+    if page.owner_cluster is not None and can_moderate_node(session, user_id, page.owner_cluster.parent_node_id):
+        return True
 
-        # finally check if the user can moderate the parent node of the cluster
-        return can_moderate_node(session, user_id, page.parent_node_id)
+    # finally check if the user can moderate the parent node of the cluster
+    return can_moderate_node(session, user_id, page.parent_node_id)
 
 
-def page_to_pb(page: Page, context):
+def page_to_pb(session, page: Page, context):
     first_version = page.versions[0]
     current_version = page.versions[-1]
 
@@ -65,7 +64,7 @@ def page_to_pb(page: Page, context):
         else:
             owner_group_id = page.owner_cluster.id
 
-    can_moderate = _can_moderate_page(page, context.user_id)
+    can_moderate = _can_moderate_page(session, page, context.user_id)
 
     return pages_pb2.Page(
         page_id=page.id,
@@ -78,7 +77,7 @@ def page_to_pb(page: Page, context):
         owner_user_id=page.owner_user_id,
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
-        thread=thread_to_pb(page.thread_id),
+        thread=thread_to_pb(session, page.thread_id),
         title=current_version.title,
         content=current_version.content,
         photo_url=current_version.photo.full_url if current_version.photo_key else None,
@@ -139,7 +138,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             )
             session.add(page_version)
             session.commit()
-            return page_to_pb(page, context)
+            return page_to_pb(session, page, context)
 
     def CreateGuide(self, request, context):
         if not request.title:
@@ -195,7 +194,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             )
             session.add(page_version)
             session.commit()
-            return page_to_pb(page, context)
+            return page_to_pb(session, page, context)
 
     def GetPage(self, request, context):
         with session_scope() as session:
@@ -203,7 +202,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
-            return page_to_pb(page, context)
+            return page_to_pb(session, page, context)
 
     def UpdatePage(self, request, context):
         with session_scope() as session:
@@ -211,7 +210,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
-            if not _is_page_owner(page, context.user_id) and not _can_moderate_page(page, context.user_id):
+            if not _is_page_owner(page, context.user_id) and not _can_moderate_page(session, page, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_UPDATE_PERMISSION_DENIED)
 
             current_version = page.versions[-1]
@@ -256,7 +255,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
 
             session.add(page_version)
             session.commit()
-            return page_to_pb(page, context)
+            return page_to_pb(session, page, context)
 
     def TransferPage(self, request, context):
         with session_scope() as session:
@@ -267,7 +266,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not page:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
-            if not _is_page_owner(page, context.user_id) and not _can_moderate_page(page, context.user_id):
+            if not _is_page_owner(page, context.user_id) and not _can_moderate_page(session, page, context.user_id):
                 context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_TRANSFER_PERMISSION_DENIED)
 
             if request.WhichOneof("new_owner") == "new_owner_group_id":
@@ -291,7 +290,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             page.owner_cluster = cluster
 
             session.commit()
-            return page_to_pb(page, context)
+            return page_to_pb(session, page, context)
 
     def ListUserPlaces(self, request, context):
         with session_scope() as session:
@@ -311,7 +310,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 .all()
             )
             return pages_pb2.ListUserPlacesRes(
-                places=[page_to_pb(page, context) for page in places[:page_size]],
+                places=[page_to_pb(session, page, context) for page in places[:page_size]],
                 next_page_token=str(places[-1].id) if len(places) > page_size else None,
             )
 
@@ -333,6 +332,6 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 .all()
             )
             return pages_pb2.ListUserGuidesRes(
-                guides=[page_to_pb(page, context) for page in guides[:page_size]],
+                guides=[page_to_pb(session, page, context) for page in guides[:page_size]],
                 next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
             )

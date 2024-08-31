@@ -64,15 +64,17 @@ def test_SetNotificationSettings_preferences_respected_editable(db, enabled):
             )
         )
 
-    notify(
-        user_id=user.id,
-        topic_action=topic_action.display,
-        data=notification_data_pb2.BadgeAdd(
-            badge_id="volunteer",
-            badge_name="Active Volunteer",
-            badge_description="This user is an active volunteer for Couchers.org",
-        ),
-    )
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=topic_action.display,
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer for Couchers.org",
+            ),
+        )
 
     process_job()
 
@@ -139,15 +141,17 @@ def test_unsubscribe(db):
         )
 
     with mock_notification_email() as mock:
-        notify(
-            user_id=user.id,
-            topic_action=topic_action.display,
-            data=notification_data_pb2.BadgeAdd(
-                badge_id="volunteer",
-                badge_name="Active Volunteer",
-                badge_description="This user is an active volunteer for Couchers.org",
-            ),
-        )
+        with session_scope() as session:
+            notify(
+                session,
+                user_id=user.id,
+                topic_action=topic_action.display,
+                data=notification_data_pb2.BadgeAdd(
+                    badge_id="volunteer",
+                    badge_name="Active Volunteer",
+                    badge_description="This user is an active volunteer for Couchers.org",
+                ),
+            )
 
     assert mock.call_count == 1
     assert email_fields(mock).recipient == user.email
@@ -183,15 +187,17 @@ def test_unsubscribe(db):
                     assert not item.email
 
     with mock_notification_email() as mock:
-        notify(
-            user_id=user.id,
-            topic_action=topic_action.display,
-            data=notification_data_pb2.BadgeAdd(
-                badge_id="volunteer",
-                badge_name="Active Volunteer",
-                badge_description="This user is an active volunteer for Couchers.org",
-            ),
-        )
+        with session_scope() as session:
+            notify(
+                session,
+                user_id=user.id,
+                topic_action=topic_action.display,
+                data=notification_data_pb2.BadgeAdd(
+                    badge_id="volunteer",
+                    badge_name="Active Volunteer",
+                    badge_description="This user is an active volunteer for Couchers.org",
+                ),
+            )
 
     assert mock.call_count == 0
 

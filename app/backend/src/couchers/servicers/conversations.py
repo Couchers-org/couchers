@@ -161,6 +161,7 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
             if are_blocked(session, subscription.user_id, message.author.id):
                 continue
             notify(
+                session,
                 user_id=subscription.user_id,
                 topic_action="chat:message",
                 key=message.conversation_id,
@@ -191,6 +192,7 @@ def _add_message_to_subscription(session, subscription, **kwargs):
     subscription.last_seen_message_id = message.id
 
     queue_job(
+        session,
         job_type="generate_message_notifications",
         payload=jobs_pb2.GenerateMessageNotificationsPayload(
             message_id=message.id,

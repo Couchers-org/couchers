@@ -24,20 +24,15 @@ docker-compose -f docker-compose.test.yml up --build
 docker-compose -f docker-compose.test.yml up postgres_tests
 ```
 
-3. Create a virtual environment and install the requirements.
+3. Create a virtual environment and enter it, then install the requirements.
 
 ```sh
 python3.12 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-4. Then enter the virtual environment:
-
-```sh
-source venv/bin/activate
-```
-
-5. Set the necessary env vars:
+4. Set the necessary env vars:
 
 ```sh
 export DATABASE_CONNECTION_STRING=postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/postgres

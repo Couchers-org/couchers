@@ -30,66 +30,64 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 25
 
 
-def _parents_to_pb(cluster: Cluster):
-    with session_scope() as session:
-        parents = get_node_parents_recursively(session, cluster.parent_node_id)
-        return [
-            groups_pb2.Parent(
-                community=groups_pb2.CommunityParent(
-                    community_id=node_id,
-                    name=cluster.name,
-                    slug=cluster.slug,
-                    description=cluster.description,
-                )
+def _parents_to_pb(session, cluster: Cluster):
+    parents = get_node_parents_recursively(session, cluster.parent_node_id)
+    return [
+        groups_pb2.Parent(
+            community=groups_pb2.CommunityParent(
+                community_id=node_id,
+                name=cluster.name,
+                slug=cluster.slug,
+                description=cluster.description,
             )
-            for node_id, parent_node_id, level, cluster in parents
-        ] + [
-            groups_pb2.Parent(
-                group=groups_pb2.GroupParent(
-                    group_id=cluster.id,
-                    name=cluster.name,
-                    slug=cluster.slug,
-                    description=cluster.description,
-                )
-            )
-        ]
-
-
-def group_to_pb(cluster: Cluster, context):
-    with session_scope() as session:
-        can_moderate = can_moderate_node(session, context.user_id, cluster.parent_node_id)
-
-        member_count = session.execute(
-            select(func.count())
-            .select_from(ClusterSubscription)
-            .where_users_column_visible(context, ClusterSubscription.user_id)
-            .where(ClusterSubscription.cluster_id == cluster.id)
-        ).scalar_one()
-        is_member = (
-            session.execute(
-                select(ClusterSubscription)
-                .where(ClusterSubscription.user_id == context.user_id)
-                .where(ClusterSubscription.cluster_id == cluster.id)
-            ).scalar_one_or_none()
-            is not None
         )
+        for node_id, parent_node_id, level, cluster in parents
+    ] + [
+        groups_pb2.Parent(
+            group=groups_pb2.GroupParent(
+                group_id=cluster.id,
+                name=cluster.name,
+                slug=cluster.slug,
+                description=cluster.description,
+            )
+        )
+    ]
 
-        admin_count = session.execute(
-            select(func.count())
-            .select_from(ClusterSubscription)
-            .where_users_column_visible(context, ClusterSubscription.user_id)
+
+def group_to_pb(session, cluster: Cluster, context):
+    can_moderate = can_moderate_node(session, context.user_id, cluster.parent_node_id)
+
+    member_count = session.execute(
+        select(func.count())
+        .select_from(ClusterSubscription)
+        .where_users_column_visible(context, ClusterSubscription.user_id)
+        .where(ClusterSubscription.cluster_id == cluster.id)
+    ).scalar_one()
+    is_member = (
+        session.execute(
+            select(ClusterSubscription)
+            .where(ClusterSubscription.user_id == context.user_id)
+            .where(ClusterSubscription.cluster_id == cluster.id)
+        ).scalar_one_or_none()
+        is not None
+    )
+
+    admin_count = session.execute(
+        select(func.count())
+        .select_from(ClusterSubscription)
+        .where_users_column_visible(context, ClusterSubscription.user_id)
+        .where(ClusterSubscription.cluster_id == cluster.id)
+        .where(ClusterSubscription.role == ClusterRole.admin)
+    ).scalar_one()
+    is_admin = (
+        session.execute(
+            select(ClusterSubscription)
+            .where(ClusterSubscription.user_id == context.user_id)
             .where(ClusterSubscription.cluster_id == cluster.id)
             .where(ClusterSubscription.role == ClusterRole.admin)
-        ).scalar_one()
-        is_admin = (
-            session.execute(
-                select(ClusterSubscription)
-                .where(ClusterSubscription.user_id == context.user_id)
-                .where(ClusterSubscription.cluster_id == cluster.id)
-                .where(ClusterSubscription.role == ClusterRole.admin)
-            ).scalar_one_or_none()
-            is not None
-        )
+        ).scalar_one_or_none()
+        is not None
+    )
 
     return groups_pb2.Group(
         group_id=cluster.id,
@@ -97,8 +95,8 @@ def group_to_pb(cluster: Cluster, context):
         slug=cluster.slug,
         description=cluster.description,
         created=Timestamp_from_datetime(cluster.created),
-        parents=_parents_to_pb(cluster),
-        main_page=page_to_pb(cluster.main_page, context),
+        parents=_parents_to_pb(session, cluster),
+        main_page=page_to_pb(session, cluster.main_page, context),
         member=is_member,
         admin=is_admin,
         member_count=member_count,
@@ -118,7 +116,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             if not cluster:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
 
-            return group_to_pb(cluster, context)
+            return group_to_pb(session, cluster, context)
 
     def ListAdmins(self, request, context):
         with session_scope() as session:
@@ -194,7 +192,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 .all()
             )
             return groups_pb2.ListPlacesRes(
-                places=[page_to_pb(page, context) for page in places[:page_size]],
+                places=[page_to_pb(session, page, context) for page in places[:page_size]],
                 next_page_token=str(places[-1].id) if len(places) > page_size else None,
             )
 
@@ -215,7 +213,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 .all()
             )
             return groups_pb2.ListGuidesRes(
-                guides=[page_to_pb(page, context) for page in guides[:page_size]],
+                guides=[page_to_pb(session, page, context) for page in guides[:page_size]],
                 next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
             )
 
@@ -270,7 +268,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 .all()
             )
             return groups_pb2.ListDiscussionsRes(
-                discussions=[discussion_to_pb(discussion, context) for discussion in discussions[:page_size]],
+                discussions=[discussion_to_pb(session, discussion, context) for discussion in discussions[:page_size]],
                 next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
             )
 
@@ -334,6 +332,6 @@ class Groups(groups_pb2_grpc.GroupsServicer):
                 .all()
             )
             return groups_pb2.ListUserGroupsRes(
-                groups=[group_to_pb(cluster, context) for cluster in clusters[:page_size]],
+                groups=[group_to_pb(session, cluster, context) for cluster in clusters[:page_size]],
                 next_page_token=str(clusters[-1].id) if len(clusters) > page_size else None,
             )

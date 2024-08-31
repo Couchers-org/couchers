@@ -55,8 +55,9 @@ def test_signup_verification_email(db):
 
     flow = SignupFlow(name="Frodo", email=request_email)
 
-    with mock_notification_email() as mock:
-        send_signup_email(flow)
+    with session_scope() as session:
+        with mock_notification_email() as mock:
+            send_signup_email(session, flow)
 
     assert mock.call_count == 1
     e = email_fields(mock)
@@ -79,8 +80,9 @@ def test_report_email(db):
         page="https://couchers.org/comment/123",
     )
 
-    with mock_notification_email() as mock:
-        send_content_report_email(report)
+    with session_scope() as session:
+        with mock_notification_email() as mock:
+            send_content_report_email(session, report)
 
     assert mock.call_count == 1
 
@@ -118,7 +120,7 @@ def test_reference_report_email_not_sent(db):
         # no email sent for a positive ref
 
         with mock_notification_email() as mock:
-            maybe_send_reference_report_email(reference)
+            maybe_send_reference_report_email(session, reference)
 
         assert mock.call_count == 0
 
@@ -142,7 +144,7 @@ def test_reference_report_email(db):
         )
 
         with mock_notification_email() as mock:
-            maybe_send_reference_report_email(reference)
+            maybe_send_reference_report_email(session, reference)
 
         assert mock.call_count == 1
         e = email_fields(mock)
@@ -170,7 +172,7 @@ def test_email_patching_fails(db):
 
     patched_msg = random_hex(64)
 
-    def mock_queue_email(**kwargs):
+    def mock_queue_email(session, **kwargs):
         raise Exception(patched_msg)
 
     with patch("couchers.email._queue_email", mock_queue_email):
@@ -187,8 +189,9 @@ def test_email_changed_confirmation_sent_to_new_email(db):
     user, user_token = generate_user()
     user.new_email = f"{random_hex(12)}@couchers.org.invalid"
     user.new_email_token = confirmation_token
-    with mock_notification_email() as mock:
-        send_email_changed_confirmation_to_new_email(user)
+    with session_scope() as session:
+        with mock_notification_email() as mock:
+            send_email_changed_confirmation_to_new_email(session, user)
 
     assert mock.call_count == 1
     e = email_fields(mock)
@@ -207,7 +210,7 @@ def test_email_changed_confirmation_sent_to_new_email(db):
 
 
 def test_do_not_email_security(db):
-    _, token = generate_user()
+    user, token = generate_user()
 
     password_reset_token = urlsafe_secure_token()
 
@@ -215,11 +218,11 @@ def test_do_not_email_security(db):
         notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=True))
 
     # make sure we still get security emails
-    with session_scope() as session:
-        user = session.execute(select(User)).scalar_one()
 
-        with mock_notification_email() as mock:
+    with mock_notification_email() as mock:
+        with session_scope() as session:
             notify(
+                session,
                 user_id=user.id,
                 topic_action="password_reset:start",
                 data=notification_data_pb2.PasswordResetStart(
@@ -227,22 +230,22 @@ def test_do_not_email_security(db):
                 ),
             )
 
-        assert mock.call_count == 1
-        e = email_fields(mock)
-        assert e.recipient == user.email
-        assert "reset" in e.subject.lower()
-        assert password_reset_token in e.plain
-        assert password_reset_token in e.html
-        unique_string = "You asked for your password to be reset on Couchers.org."
-        assert unique_string in e.plain
-        assert unique_string in e.html
-        assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.plain
-        assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.html
-        assert "support@couchers.org" in e.plain
-        assert "support@couchers.org" in e.html
+    assert mock.call_count == 1
+    e = email_fields(mock)
+    assert e.recipient == user.email
+    assert "reset" in e.subject.lower()
+    assert password_reset_token in e.plain
+    assert password_reset_token in e.html
+    unique_string = "You asked for your password to be reset on Couchers.org."
+    assert unique_string in e.plain
+    assert unique_string in e.html
+    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.plain
+    assert f"http://localhost:3000/complete-password-reset?token={password_reset_token}" in e.html
+    assert "support@couchers.org" in e.plain
+    assert "support@couchers.org" in e.html
 
-        assert "/unsubscribe?payload=" not in e.plain
-        assert "/unsubscribe?payload=" not in e.html
+    assert "/unsubscribe?payload=" not in e.plain
+    assert "/unsubscribe?payload=" not in e.html
 
 
 def test_do_not_email_non_security(db):
@@ -278,14 +281,16 @@ def test_email_prefix_config(db, monkeypatch):
     user, _ = generate_user()
 
     with mock_notification_email() as mock:
-        notify(
-            user_id=user.id,
-            topic_action="donation:received",
-            data=notification_data_pb2.DonationReceived(
-                amount=20,
-                receipt_url="https://example.com/receipt/12345",
-            ),
-        )
+        with session_scope() as session:
+            notify(
+                session,
+                user_id=user.id,
+                topic_action="donation:received",
+                data=notification_data_pb2.DonationReceived(
+                    amount=20,
+                    receipt_url="https://example.com/receipt/12345",
+                ),
+            )
 
     assert mock.call_count == 1
     e = email_fields(mock)
@@ -301,14 +306,16 @@ def test_email_prefix_config(db, monkeypatch):
     monkeypatch.setattr(couchers.notifications.background, "config", new_config)
 
     with mock_notification_email() as mock:
-        notify(
-            user_id=user.id,
-            topic_action="donation:received",
-            data=notification_data_pb2.DonationReceived(
-                amount=20,
-                receipt_url="https://example.com/receipt/12345",
-            ),
-        )
+        with session_scope() as session:
+            notify(
+                session,
+                user_id=user.id,
+                topic_action="donation:received",
+                data=notification_data_pb2.DonationReceived(
+                    amount=20,
+                    receipt_url="https://example.com/receipt/12345",
+                ),
+            )
 
     assert mock.call_count == 1
     e = email_fields(mock)
@@ -325,14 +332,16 @@ def test_send_donation_email(db, monkeypatch):
 
     monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
 
-    notify(
-        user_id=user.id,
-        topic_action="donation:received",
-        data=notification_data_pb2.DonationReceived(
-            amount=20,
-            receipt_url="https://example.com/receipt/12345",
-        ),
-    )
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action="donation:received",
+            data=notification_data_pb2.DonationReceived(
+                amount=20,
+                receipt_url="https://example.com/receipt/12345",
+            ),
+        )
 
     with patch("couchers.email.smtp.smtplib.SMTP"):
         process_jobs()

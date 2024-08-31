@@ -207,6 +207,7 @@ def send_message_notifications(payload):
                     return f"You missed {count_unseen} message(s) in {group_chat.title}"
 
             notify(
+                session,
                 user_id=user.id,
                 topic_action="chat:missed_messages",
                 data=notification_data_pb2.ChatMissedMessages(
@@ -271,6 +272,7 @@ def send_request_notifications(payload):
 
             context = SimpleNamespace(user_id=user.id)
             notify(
+                session,
                 user_id=user.id,
                 topic_action="host_request:missed_messages",
                 key=host_request.conversation_id,
@@ -287,6 +289,7 @@ def send_request_notifications(payload):
 
             context = SimpleNamespace(user_id=user.id)
             notify(
+                session,
                 user_id=user.id,
                 topic_action="host_request:missed_messages",
                 key=host_request.conversation_id,
@@ -316,6 +319,7 @@ def send_onboarding_emails(payload):
 
         for user in users:
             notify(
+                session,
                 user_id=user.id,
                 topic_action="onboarding:reminder",
                 key="1",
@@ -340,6 +344,7 @@ def send_onboarding_emails(payload):
 
         for user in users:
             notify(
+                session,
                 user_id=user.id,
                 topic_action="onboarding:reminder",
                 key="2",
@@ -433,6 +438,7 @@ def send_reference_reminders(payload):
                 if not are_blocked(session, user.id, other_user.id):
                     context = SimpleNamespace(user_id=user.id)
                     notify(
+                        session,
                         user_id=user.id,
                         topic_action="reference:reminder_surfed" if surfed else "reference:reminder_hosted",
                         data=notification_data_pb2.ReferenceReminder(
