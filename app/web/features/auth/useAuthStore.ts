@@ -4,7 +4,7 @@ import { GLOBAL } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import { clearStorage, usePersistedState } from "platform/usePersistedState";
 import { AuthRes, SignupFlowRes } from "proto/auth_pb";
-import { useMemo, useRef, useState } from "react";
+import { useEffect,useMemo, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
@@ -15,6 +15,10 @@ export default function useAuthStore() {
     false
   );
   const [jailed, setJailed] = usePersistedState("auth.jailed", false);
+  const [checkedAuthStatus, setCheckedAuthStatus] = usePersistedState(
+    "auth.checkedAuthStatus",
+    false
+  );
   const [userId, setUserId] = usePersistedState<number | null>(
     "auth.userId",
     null
@@ -131,11 +135,52 @@ export default function useAuthStore() {
         }
         setLoading(false);
       },
+      async checkAuthStatus() {
+        try {
+          const res = await service.user.getAuthState();
+          if (res.loggedIn) {
+            console.log(
+              "We thought we were not logged in but an API call shows we were."
+            );
+            const auth = res.authRes!;
+            setUserId(auth.userId);
+            Sentry.setUser({ id: auth.userId.toString() });
+
+            //this must come after setting the userId, because calling setQueryData
+            //will also cause that query to be background fetched, and it needs
+            //userId to be set.
+            setJailed(auth.jailed);
+            setAuthenticated(true);
+          }
+        } catch (e) {
+          Sentry.captureException(e, {
+            tags: {
+              component: "auth/useAuthStore",
+              action: "checkAuthStatus",
+            },
+          });
+          setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
+        }
+      },
     }),
     //note: there should be no dependenices on the state or t, or
     //some useEffects will break. Eg. the token login in Login.tsx
     [setAuthenticated, setJailed, setUserId, setFlowState, queryClient]
   );
+
+  useEffect(() => {
+    // if we aren't logged in and are otherwise idle, but auth state changed, check if the cookie is set in the bg
+    if (
+      typeof window !== "undefined" &&
+      !authenticated &&
+      !loading &&
+      !error &&
+      !checkedAuthStatus
+    ) {
+      setCheckedAuthStatus(true);
+      authActions.checkAuthStatus();
+    }
+  }, [authenticated, checkedAuthStatus, setCheckedAuthStatus, authActions]);
 
   return {
     authActions,
