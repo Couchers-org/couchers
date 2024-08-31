@@ -14,7 +14,7 @@ from sqlalchemy.sql import or_, text
 from couchers.config import config
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import random_hex
-from couchers.db import _get_base_engine, session_scope
+from couchers.db import _get_base_engine, _get_worker_base_engine, session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.interceptors import AuthValidatorInterceptor, _try_get_and_update_user_details
 from couchers.jobs.worker import process_job
@@ -111,6 +111,7 @@ def drop_all():
     # sometimes error out with "ERROR:  no spatial operator found for 'st_contains': opfamily 203699 type 203585"
     # and similar errors
     _get_base_engine().dispose()
+    _get_worker_base_engine().dispose()
 
     close_all_sessions()
 
