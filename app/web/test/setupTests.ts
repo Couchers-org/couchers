@@ -5,7 +5,7 @@
 import "@testing-library/jest-dom/extend-expect";
 import "whatwg-fetch";
 
-//import * as Sentry from "@sentry/nextjs";
+//import Sentry from "platform/sentry";
 import { waitFor } from "@testing-library/react";
 import crypto from "crypto";
 import mediaQuery from "css-mediaquery";

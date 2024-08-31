@@ -12,7 +12,8 @@ import {
   ListPlacesReq,
   ListUserCommunitiesReq,
 } from "proto/communities_pb";
-import client from "service/client";
+
+import client from "./client";
 
 export async function getCommunity(communityId: number) {
   const req = new GetCommunityReq();

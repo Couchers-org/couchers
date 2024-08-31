@@ -1,15 +1,15 @@
 import { Typography } from "@material-ui/core";
-import * as Sentry from "@sentry/react";
 import ContributorForm from "components/ContributorForm";
 import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
+import Sentry from "platform/sentry";
 import { ContributorForm as ContributorFormPb } from "proto/auth_pb";
 import TagManager from "react-gtm-module";
 import { service } from "service";
+import isGrpcError from "service/utils/isGrpcError";
 import getRandomId from "utils/getRandomId";
-import isGrpcError from "utils/isGrpcError";
 
 export default function FeedbackForm() {
   const { t } = useTranslation(GLOBAL);

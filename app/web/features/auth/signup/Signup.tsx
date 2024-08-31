@@ -1,5 +1,4 @@
 import { Divider, Typography } from "@material-ui/core";
-import * as Sentry from "@sentry/react";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
@@ -11,11 +10,12 @@ import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesFor
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
+import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
 import vercelLogo from "resources/vercel.svg";
 import { dashboardRoute, loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";
-import isGrpcError from "utils/isGrpcError";
+import isGrpcError from "service/utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 import stringOrFirstString from "utils/stringOrFirstString";
 

@@ -1,16 +1,73 @@
 # Couchers web frontend
 
-[![Powered by Vercel](https://www.datocms-assets.com/31049/1618983297-powered-by-vercel.svg)](https://vercel.com?utm_source=couchers-org&utm_campaign=oss)
+This is the react/nextjs web frontend for Couchers.org. We are using Typescript with [React Query](https://react-query.tanstack.com/) for data fetching and [Material UI](https://material-ui.com/) for components.
 
-This is the react/nextjs web frontend for couchers.org. We are using Typescript with [React Query](https://react-query.tanstack.com/) for data fetching and [Material UI](https://material-ui.com/) for components.
+Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf-javascript) over [grpc-web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://protobuf.dev/protobuf-javascript/).
 
-Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf/tree/master/js) and [grpc-web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://developers.google.com/protocol-buffers/docs/reference/javascript-generated).
+## Quick Start
+
+We recommend `nvm` (the [node version manager](https://github.com/nvm-sh/nvm)). You can install it with:
+
+```sh
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+```
+
+**You will need to restart your terminal before `nvm` becomes available.**
+
+<details>
+<summary>More on deps</summary>
+
+You need `nodejs` v20 and the `yarn` package manager. The recommended way to do this is to use NVM as above.
+
+If you don't want `nvm` to be run when you open your shell, you can add `--no-use` in your shell's `rc` file, just before where it says `# This loads nvm`. You then need to run `nvm use` every time you enter the `app/web` folder to start developing.
+
+You also need `git`, `wget`, and `tar`, they should be available from the usual places.
+</details>
+
+Now run the following commands to get up and running:
+
+```sh
+## Check out the repo and navigate to app/web
+# clone the git repo
+git clone https://github.com/Couchers-org/couchers.git
+# navigate into the repo and app/web
+cd couchers/app/web
+
+## Set up node & yarn
+# install the requires node version
+nvm install
+# install yarn
+npm install --global yarn
+
+## Download & extract the latest protos
+wget -qO- https://develop--protos.preview.couchershq.org/ts.tar.gz | tar xz
+
+# install dependencies
+yarn install
+# start the frontend
+yarn start
+```
+
+The frontend will now be up at <http://localhost:3000>.
+
+<details>
+<summary>Common problem: Getting logged out right after logging in</summary>
+
+If you're getting logged out right after logging in, it's possible that 3rd party cookies are blocked in your browser. Since you're using localhost:3000, the cookie `couchers-sesh` coming from `https://dev-api.couchershq.org` is considered a 3rd party cookie.
+
+- Chrome allows to enable 3rd party cookies for specific websites in the cookie settings > Sites that can always use cookies. Enable "Including third-party cookies on this site"
+- Safari is all-or-nothing, in Preferences > Privacy > Prevent cross-site tracking. You have to disable it.
+</details>
+
+This method uses the staging backend/database at <https://next.couchershq.org/> (what we call "next"), and the pre-built protos from today's `develop` branch (they change pretty rarely). You might eventually want to change both of these, but this should get you up and running!
+
+If you have any trouble, someone will be happy to help, just ask!
 
 ## How to contribute
 
 1. Pick an unassigned issue you'd like to work on (or open a new one) and assign it to yourself.
 
-2. Make sure you have the development environment going (see below).
+2. Make sure you have the development environment going (see above).
 
 3. Create a new branch for your issue under 'web/issue-type/branch-name' eg. `web/feature/global-search`, `web/bug/no-duplicate-users` or `web/refactor/fix-host-requests`
 
@@ -24,49 +81,59 @@ Communication with the backend is via [protobuf messages](https://github.com/pro
 
 8. Once everything is resolved, you can merge the PR if you feel confident, or ask someone to merge for you. If there are merge conflicts, merge the base branch (probably `develop`) into your branch first, and make sure everything is still okay.
 
-## Setting up the dev environment
+## More on the dev environment
 
-### Option 1: Use Docker to run the backend, proxy and database locally
+### What are these "protos"?
 
-[Follow the main instructions](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md) to start the docker containers and generate the protocol buffer code.
+The React frontend communicates with the backend using Protocol Buffers over gRPC-Web. It's a serialization format and it's how we describe our APIs, think of it as a fancy JSON+HTTP REST. You can find the API definitions [in the app/proto folder](https://github.com/Couchers-org/couchers/tree/develop/app/proto). For a bit of an overview to how they work and why one might want to use them, you can read [this blog post](https://www.aapelivuorinen.com/blog/2020/06/12/protobuf-vs-json/).
 
-_hint_: You can find a set of users for logging in at the [dummy data loaded in the docker container](https://github.com/Couchers-org/couchers/blob/develop/app/backend/src/data/dummy_users.json)
+### Compiling protos locally
 
-### Option 2: Target the preview api and backend
-
-If you don't want to install docker, you can target the live preview api and backend. However, you will first need to download the auto-generated gRPC code, since normally this is done by docker.
-
-- Go to the [CI pipelines](https://gitlab.com/couchers/couchers/-/pipelines/).
-- Search for the branch you want to generate the gRPC code from (usually `develop`).
-- Click the pipeline number.
-- Click the first pipeline step, "protos".
-- Click "download artifacts" on the right. This is a copy of the repo, but it has the generated gRPC code in it, so you can copy that from `couchers/app/web/src/proto` to your local clone of the repo.
-
-Then, target the dev preview and API with the following command, instead of using `yarn start`, when running the app:
+You can compile the protos locally if you have [installed Docker](https://docs.docker.com/engine/install/) (this is how the built protos are generated in the CI pipeline):
 
 ```sh
-yarn cross-env NEXT_PUBLIC_API_BASE_URL=https://dev-api.couchershq.org yarn start
+cd app
+docker run --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
 ```
 
-Alternatively, you can use `yarn start` if you update your local environment variables:
+The TypeScript definitions will be generated into `app/web/proto` (all the other definitions will also be generated into the right places, for the Python backend, etc).
 
-- In `couchers/app/web/.env.development`, change `NEXT_PUBLIC_API_BASE_URL=http://localhost:8888` to `NEXT_PUBLIC_API_BASE_URL=https://dev-api.couchershq.org`
-- Remember not to commit this file to any pull requests!
+You can always download the latest protos at <https://develop--protos.preview.couchershq.org/> for any of the languages we use if you don't want to set up Docker.
 
-<details>
-<summary>Common problem: Getting logged out right after logging in</summary>
+### Running against a local backend
 
-If you're getting logged out right after logging in, it's possible that 3rd party cookies are blocked in your browser. Since you're using localhost:3000, the cookie `couchers-sesh` coming from `https://dev-api.couchershq.org` is considered a 3rd party cookie.
+The Quick Start instructions show you how to run only the frontend, pointing to the staging (next) backend/database. This is normally enough for most frontend development (since generally backend features are developed before the frontend implementation), but there may be cases where you want to run a modified backend. In order to do so, you need to do two things:
 
-- Chrome allows to enable 3rd party cookies for specific websites in the cookie settings > Sites that can always use cookies. Enable "Including third-party cookies on this site"
-- Safari is all-or-nothing, in Preferences > Privacy > Prevent cross-site tracking. You have to disable it.
-</details>
+1. compile the protos locally (see above) and run the local backend, and
+2. update the frontend environment variables to point to the local backend.
 
-### Then
+The following shows the quick version. You'll need docker and docker compose installed.
 
-You should then have the gRPC code in `couchers/app/web/src/proto`, and you can use the below `yarn` commands to run the web frontend.
+In one terminal, compile protos, run the backend and rest of the infrastructure:
 
-If you have any trouble, someone will be happy to help, just ask!
+```sh
+## terminal 1
+cd app 
+# compile protos
+docker run --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
+# launch the rest of the docker containers
+docker compose up
+```
+
+In another one, run the frontend:
+
+```sh
+## terminal 2
+cd app/web
+# use local development config
+cp .env.localdev .env.development
+# run the frontend (follow Quick Start for prep)
+yarn start
+```
+
+## Other dev commands
+
+Once you have the protos code in `couchers/app/web/src/proto`, and you can use the below `yarn` commands to run the web frontend.
 
 While coding, your editor should auto-format with `prettier` when you save. If not, you can always run `yarn format`.
 
@@ -92,3 +159,9 @@ See the section about [running tests](https://facebook.github.io/create-react-ap
 ### `yarn storybook`
 
 Runs storybook, good for testing and developing components in isolation.
+
+### Option 2: Use Docker to run the backend, proxy and database locally
+
+[Follow the main instructions](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md) to start the docker containers and generate the protocol buffer code.
+
+_hint_: You can find a set of users for logging in at the [dummy data loaded in the docker container](https://github.com/Couchers-org/couchers/blob/develop/app/backend/src/data/dummy_users.json)

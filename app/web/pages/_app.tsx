@@ -2,7 +2,6 @@ import "intersection-observer";
 import "fonts";
 
 import { CssBaseline, ThemeProvider } from "@material-ui/core";
-import * as Sentry from "@sentry/nextjs";
 import { EnvironmentBanner } from "components/EnvironmentBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import HtmlMeta from "components/HtmlMeta";
@@ -11,6 +10,7 @@ import { ReactQueryClientProvider } from "features/reactQueryClient";
 import type { AppProps } from "next/app";
 import { appWithTranslation } from "next-i18next";
 import nextI18nextConfig from "next-i18next.config";
+import Sentry from "platform/sentry";
 import { ReactNode, useEffect } from "react";
 import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
