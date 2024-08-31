@@ -12,6 +12,7 @@ from time import monotonic, perf_counter_ns, sleep
 
 import sentry_sdk
 from google.protobuf import empty_pb2
+from opentelemetry import trace
 
 from couchers.config import config
 from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
@@ -20,8 +21,10 @@ from couchers.jobs.enqueue import queue_job
 from couchers.metrics import create_prometheus_server, job_process_registry, observe_in_jobs_duration_histogram
 from couchers.models import BackgroundJob, BackgroundJobState
 from couchers.sql import couchers_select as select
+from couchers.tracing import setup_tracing
 
 logger = logging.getLogger(__name__)
+trace = trace.get_tracer(__name__)
 
 JOBS = {}
 SCHEDULE = []
@@ -64,9 +67,10 @@ def process_job():
         message_type, func = JOBS[job.job_type]
 
         try:
-            start = perf_counter_ns()
-            ret = func(message_type.FromString(job.payload))
-            finished = perf_counter_ns()
+            with trace.start_as_current_span(job.job_type) as rollspan:
+                start = perf_counter_ns()
+                ret = func(message_type.FromString(job.payload))
+                finished = perf_counter_ns()
             job.state = BackgroundJobState.completed
             observe_in_jobs_duration_histogram(
                 job.job_type, job.state.name, job.try_count, "", (finished - start) / 1e9
@@ -140,8 +144,6 @@ def run_scheduler():
     """
     Schedules jobs according to schedule in .definitions
     """
-    # multiprocessing uses fork() which in turn copies file descriptors, so the engine may have connections in its pool
-    # that we don't want to reuse. This is the SQLALchemy-recommended way of clearing the connection pool in this thread
     sched = scheduler(monotonic, sleep)
 
     for schedule_id, (job_type, frequency) in enumerate(SCHEDULE):
@@ -160,6 +162,8 @@ def run_scheduler():
 
 def _run_forever(func):
     db_post_fork()
+    setup_tracing()
+
     while True:
         try:
             logger.critical("Background worker starting")

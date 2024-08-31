@@ -1,11 +1,14 @@
 import logging
 from copy import deepcopy
 from datetime import timedelta
+from os import getpid
+from threading import get_ident
 from time import perf_counter_ns
 from traceback import format_exception
 
 import grpc
 import sentry_sdk
+from opentelemetry import trace
 from sqlalchemy.sql import func
 
 from couchers import errors
@@ -176,6 +179,47 @@ class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
             return unauthenticated_handler()
 
         return continuation(handler_call_details)
+
+
+class OTelInterceptor(grpc.ServerInterceptor):
+    """
+    OpenTelemetry tracing
+    """
+
+    def __init__(self):
+        self.tracer = trace.get_tracer(__name__)
+
+    def intercept_service(self, continuation, handler_call_details):
+        handler = continuation(handler_call_details)
+        prev_func = handler.unary_unary
+        method = handler_call_details.method
+
+        # method is of the form "/org.couchers.api.core.API/GetUser"
+        _, service_name, method_name = method.split("/")
+
+        headers = dict(handler_call_details.invocation_metadata)
+
+        def tracing_function(request, context):
+            with self.tracer.start_as_current_span("handler") as rollspan:
+                rollspan.set_attribute("rpc.method_full", method)
+                rollspan.set_attribute("rpc.service", service_name)
+                rollspan.set_attribute("rpc.method", method_name)
+
+                rollspan.set_attribute("rpc.thread", get_ident())
+                rollspan.set_attribute("rpc.pid", getpid())
+
+                res = prev_func(request, context)
+
+                rollspan.set_attribute("web.user_agent", headers.get("user-agent") or "")
+                rollspan.set_attribute("web.ip_address", headers.get("x-couchers-real-ip") or "")
+
+            return res
+
+        return grpc.unary_unary_rpc_method_handler(
+            tracing_function,
+            request_deserializer=handler.request_deserializer,
+            response_serializer=handler.response_serializer,
+        )
 
 
 class TracingInterceptor(grpc.ServerInterceptor):

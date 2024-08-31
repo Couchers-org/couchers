@@ -3,10 +3,13 @@ import inspect
 import logging
 import os
 from contextlib import contextmanager
+from os import getpid
+from threading import get_ident
 from time import perf_counter_ns
 
 from alembic import command
 from alembic.config import Config
+from opentelemetry import trace
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -29,6 +32,8 @@ from couchers.sql import couchers_select as select
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
+
+tracer = trace.get_tracer(__name__)
 
 
 def apply_migrations():
@@ -65,26 +70,32 @@ def _get_Session():
 
 @contextmanager
 def session_scope():
-    session = _get_Session()()
-    if logger.isEnabledFor(logging.DEBUG):
-        try:
-            frame = inspect.stack()[2]
-            filename_line = f"{frame.filename}:{frame.lineno}"
-        except Exception as e:
-            filename_line = "{unknown file}"
-        backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar()
-        logger.debug(f"SScope: got {backend_pid=} at {filename_line}")
-    try:
-        yield session
-        session.commit()
-    except:
-        session.rollback()
-        raise
-    finally:
-        session.close()
-        _get_Session().remove()
+    with tracer.start_as_current_span("session_scope") as rollspan:
+        session = _get_Session()()
         if logger.isEnabledFor(logging.DEBUG):
-            logger.debug(f"SScope: closed {backend_pid=}")
+            try:
+                frame = inspect.stack()[2]
+                filename_line = f"{frame.filename}:{frame.lineno}"
+            except Exception as e:
+                filename_line = "{unknown file}"
+            backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar()
+            logger.debug(f"SScope: got {backend_pid=} at {filename_line}")
+            rollspan.set_attribute("db.backend_pid", backend_pid)
+            rollspan.set_attribute("db.filename_line", filename_line)
+        rollspan.set_attribute("rpc.thread", get_ident())
+        rollspan.set_attribute("rpc.pid", getpid())
+
+        try:
+            yield session
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+            _get_Session().remove()
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.debug(f"SScope: closed {backend_pid=}")
 
 
 @functools.cache
@@ -116,26 +127,32 @@ def worker_repeatable_read_session_scope():
     This operates in a `REPEATABLE READ` isolation level so that we can do a `SELECT ... FOR UPDATE SKIP LOCKED` in the
     background worker, effectively using postgres as a queueing system.
     """
-    session = _get_worker_Session()()
-    if logger.isEnabledFor(logging.DEBUG):
-        try:
-            frame = inspect.stack()[2]
-            filename_line = f"{frame.filename}:{frame.lineno}"
-        except Exception as e:
-            filename_line = "{unknown file}"
-        backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar()
-        logger.debug(f"SScope (worker): got {backend_pid=} at {filename_line}")
-    try:
-        yield session
-        session.commit()
-    except:
-        session.rollback()
-        raise
-    finally:
-        session.close()
-        _get_worker_Session().remove()
+    with tracer.start_as_current_span("session_scope") as rollspan:
+        session = _get_worker_Session()()
         if logger.isEnabledFor(logging.DEBUG):
-            logger.debug(f"SScope (worker): closed {backend_pid=}")
+            try:
+                frame = inspect.stack()[2]
+                filename_line = f"{frame.filename}:{frame.lineno}"
+            except Exception as e:
+                filename_line = "{unknown file}"
+            backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar()
+            logger.debug(f"SScope (worker): got {backend_pid=} at {filename_line}")
+            rollspan.set_attribute("db.backend_pid", backend_pid)
+            rollspan.set_attribute("db.filename_line", filename_line)
+        rollspan.set_attribute("rpc.thread", get_ident())
+        rollspan.set_attribute("rpc.pid", getpid())
+
+        try:
+            yield session
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+            _get_worker_Session().remove()
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.debug(f"SScope (worker): closed {backend_pid=}")
 
 
 def db_post_fork():
