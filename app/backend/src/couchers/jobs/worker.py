@@ -14,7 +14,7 @@ import sentry_sdk
 from google.protobuf import empty_pb2
 
 from couchers.config import config
-from couchers.db import db_post_fork, session_scope
+from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
 from couchers.jobs import handlers
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import create_prometheus_server, job_process_registry, observe_in_jobs_duration_histogram
@@ -40,7 +40,7 @@ def process_job():
     """
     logger.debug("Looking for a job")
 
-    with session_scope(isolation_level="REPEATABLE READ") as session:
+    with worker_repeatable_read_session_scope() as session:
         # a combination of REPEATABLE READ and SELECT ... FOR UPDATE SKIP LOCKED makes sure that only one transaction
         # will modify the job at a time. SKIP UPDATE means that if the job is locked, then we ignore that row, it's
         # easier to use SKIP LOCKED vs NOWAIT in the ORM, with NOWAIT you get an ugly exception from deep inside

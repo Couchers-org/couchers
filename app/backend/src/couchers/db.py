@@ -7,11 +7,11 @@ from time import perf_counter_ns
 
 from alembic import command
 from alembic.config import Config
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm.session import Session
-from sqlalchemy.pool import NullPool, SingletonThreadPool
-from sqlalchemy.sql import and_, func, literal, or_, text
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.pool import SingletonThreadPool
+from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers.config import config
 from couchers.constants import SERVER_THREADS
@@ -46,41 +46,26 @@ def apply_migrations():
 
 @functools.cache
 def _get_base_engine():
-    if config["IN_TEST"]:
-        pool_opts = {"poolclass": NullPool}
-    else:
-        pool_opts = {
-            # one connection per thread
-            "poolclass": SingletonThreadPool,
-            # main threads + a couple for bg workers, etc
-            "pool_size": SERVER_THREADS + 12,
-        }
-
-    # `future` enables SQLalchemy 2.0 behaviour
-    # `pool_pre_ping` checks that the connections in the pool are alive before using them, which avoids the "server
-    # closed the connection unexpectedly" errors
     return create_engine(
         config["DATABASE_CONNECTION_STRING"],
-        future=True,
+        # checks that the connections in the pool are alive before using them, which avoids the "server closed the
+        # connection unexpectedly" errors
         pool_pre_ping=True,
-        **pool_opts,
+        # one connection per thread
+        poolclass=SingletonThreadPool,
+        # main threads + a couple extra in case
+        pool_size=SERVER_THREADS + 2,
     )
 
 
-def get_engine(isolation_level=None):
-    """
-    Creates an engine with the given isolation level.
-    """
-    # creates a shallow copy with the given isolation level
-    if not isolation_level:
-        return _get_base_engine()
-    else:
-        return _get_base_engine().execution_options(isolation_level=isolation_level)
+@functools.cache
+def _get_Session():
+    return scoped_session(sessionmaker(bind=_get_base_engine()))
 
 
 @contextmanager
-def session_scope(isolation_level=None):
-    session = Session(get_engine(isolation_level=isolation_level), future=True)
+def session_scope():
+    session = _get_Session()()
     if logger.isEnabledFor(logging.DEBUG):
         try:
             frame = inspect.stack()[2]
@@ -97,8 +82,60 @@ def session_scope(isolation_level=None):
         raise
     finally:
         session.close()
+        _get_Session().remove()
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(f"SScope: closed {backend_pid=}")
+
+
+@functools.cache
+def _get_worker_base_engine():
+    return create_engine(
+        config["DATABASE_CONNECTION_STRING"],
+        # checks that the connections in the pool are alive before using them, which avoids the "server closed the
+        # connection unexpectedly" errors
+        pool_pre_ping=True,
+        # one connection per thread
+        poolclass=SingletonThreadPool,
+        # max worker threads
+        pool_size=12,
+        execution_options={"isolation_level": "REPEATABLE READ"},
+    )
+
+
+@functools.cache
+def _get_worker_Session():
+    return scoped_session(sessionmaker(bind=_get_worker_base_engine()))
+
+
+@contextmanager
+def worker_repeatable_read_session_scope():
+    """
+    This is a separate sesson scope that is isolated from the main one since otherwise we end up nesting transactions,
+    this causes two different connections to be used
+
+    This operates in a `REPEATABLE READ` isolation level so that we can do a `SELECT ... FOR UPDATE SKIP LOCKED` in the
+    background worker, effectively using postgres as a queueing system.
+    """
+    session = _get_worker_Session()()
+    if logger.isEnabledFor(logging.DEBUG):
+        try:
+            frame = inspect.stack()[2]
+            filename_line = f"{frame.filename}:{frame.lineno}"
+        except Exception as e:
+            filename_line = "{unknown file}"
+        backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar()
+        logger.debug(f"SScope (worker): got {backend_pid=} at {filename_line}")
+    try:
+        yield session
+        session.commit()
+    except:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+        _get_worker_Session().remove()
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug(f"SScope (worker): closed {backend_pid=}")
 
 
 def db_post_fork():
@@ -107,6 +144,7 @@ def db_post_fork():
     """
     # see https://docs.sqlalchemy.org/en/20/core/pooling.html#using-connection-pools-with-multiprocessing-or-os-fork
     _get_base_engine().dispose(close=False)
+    _get_worker_base_engine().dispose(close=False)
 
 
 @event.listens_for(Engine, "before_cursor_execute")
