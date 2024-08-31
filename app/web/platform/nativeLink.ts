@@ -1,23 +1,19 @@
 import { useEffect, useState } from "react";
 
 export function getReactNativeWebView(): typeof window.ReactNativeWebView {
-  if (
-    typeof window !== "undefined" &&
-    window.ReactNativeWebView !== undefined
-  ) {
+  if (window && window.ReactNativeWebView) {
     return window.ReactNativeWebView;
   }
 }
 
 export function isNativeEmbed(): boolean {
-  return getReactNativeWebView() !== undefined;
+  return !!getReactNativeWebView();
 }
 
 export function getNativeData() {
-  const wv = getReactNativeWebView();
-  if (!wv) return;
-  if (wv.injectedObjectJson()) {
-    return JSON.parse(wv.injectedObjectJson());
+  const webview = getReactNativeWebView();
+  if (webview && webview.injectedObjectJson()) {
+    return JSON.parse(webview.injectedObjectJson());
   }
 }
 
@@ -25,9 +21,7 @@ export function useIsNativeEmbed(): boolean {
   const [isNative, setIsNative] = useState(false);
 
   useEffect(() => {
-    setIsNative(
-      typeof window !== "undefined" && window.ReactNativeWebView !== undefined
-    );
+    setIsNative(isNativeEmbed());
   }, []);
 
   return isNative;
@@ -40,12 +34,6 @@ export function sendToNative(type: MessageType, data: any) {
   getReactNativeWebView()!.postMessage(
     JSON.stringify({ type: type, data: data })
   );
-}
-
-export function getState<T>(key: string) {
-  if (!isNativeEmbed()) return undefined;
-  const data = getNativeData();
-  // if ()
 }
 
 export function sendState<T>(key: string, value: T) {
