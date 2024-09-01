@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgis/postgis:15-3.3
+    image: postgis/postgis:16-3.4
     command:
       - postgres
       - -c
@@ -38,11 +38,13 @@ services:
       - 1753
     depends_on:
       - postgres
+      - jaeger
     networks:
       - backend_prometheus
       - postgres_backend
       - backend_media
       - backend_envoy
+      - backend_jaeger
   media:
     image: registry.gitlab.com/couchers/couchers/media
     restart: always
@@ -97,6 +99,7 @@ services:
     restart: always
     command:
       - "--path.rootfs=/host"
+      - "--collector.processes"
     network_mode: host
     pid: host
     volumes:
@@ -125,6 +128,17 @@ services:
     networks:
       - web_nginx
 
+  jaeger:
+    image: jaegertracing/all-in-one:1.60
+    ports:
+      - "16686:16686"
+    expose:
+      - 4317
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      - backend_jaeger
+
 networks:
   backend_prometheus:
     driver: bridge
@@ -145,4 +159,6 @@ networks:
   pgprom_prometheus:
     driver: bridge
   envoy_prometheus:
+    driver: bridge
+  backend_jaeger:
     driver: bridge
