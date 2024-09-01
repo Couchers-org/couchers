@@ -10,7 +10,6 @@ import {
   Typography,
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
-import { Alert as MuiAlert } from "@material-ui/lab/";
 import classNames from "classnames";
 import Button from "components/Button";
 import { CloseIcon, MenuIcon } from "components/Icons";
@@ -541,6 +540,7 @@ export default function Navigation() {
             </div>
           </Hidden>
         </div>
+
         <Hidden implementation="css">
           <div className={classes.menuContainer}>
             <ReportButton />
@@ -565,15 +565,6 @@ export default function Navigation() {
           </div>
         </Hidden>
       </Toolbar>
-      <MuiAlert severity="error">
-        We are currently recovering form a service disruption. Some data was
-        probably lost.{" "}
-        <b>
-          <a href="https://couchershq.org/disruption.html">
-            Read more about it here.
-          </a>
-        </b>
-      </MuiAlert>
     </AppBar>
   );
 }
