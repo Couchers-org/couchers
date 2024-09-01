@@ -25,6 +25,7 @@ from couchers.models import (
     Reference,
     User,
 )
+from couchers.servicers.account import has_strong_verification
 from couchers.servicers.api import (
     hostingstatus2sql,
     meetupstatus2sql,
@@ -248,8 +249,8 @@ def _search_pages(session, search_statement, title_only, next_rank, page_size, c
     return [
         search_pb2.Result(
             rank=rank,
-            place=page_to_pb(page, context) if page.type == PageType.place else None,
-            guide=page_to_pb(page, context) if page.type == PageType.guide else None,
+            place=page_to_pb(session, page, context) if page.type == PageType.place else None,
+            guide=page_to_pb(session, page, context) if page.type == PageType.guide else None,
             snippet=snippet,
         )
         for page, rank, snippet in pages
@@ -324,9 +325,11 @@ def _search_clusters(
         search_pb2.Result(
             rank=rank,
             community=(
-                community_to_pb(cluster.official_cluster_for_node, context) if cluster.is_official_cluster else None
+                community_to_pb(session, cluster.official_cluster_for_node, context)
+                if cluster.is_official_cluster
+                else None
             ),
-            group=group_to_pb(cluster, context) if not cluster.is_official_cluster else None,
+            group=group_to_pb(session, cluster, context) if not cluster.is_official_cluster else None,
             snippet=snippet,
         )
         for cluster, rank, snippet in clusters
@@ -386,6 +389,8 @@ class Search(search_pb2_grpc.SearchServicer):
 
     def UserSearch(self, request, context):
         with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
             statement = select(User).where_users_visible(context)
             if request.HasField("query"):
                 if request.query_name_only:
@@ -408,15 +413,18 @@ class Search(search_pb2_grpc.SearchServicer):
                             User.additional_information.ilike(f"%{request.query.value}%"),
                         )
                     )
-            # if request.profile_completed:
-            #     statement = statement.where(User.has_completed_profile == True)
 
             if request.HasField("last_active"):
                 raw_dt = to_aware_datetime(request.last_active)
                 statement = statement.where(User.last_active >= last_active_coarsen(raw_dt))
 
-            if request.HasField("gender"):
-                statement = statement.where(User.gender.ilike(f"%{request.gender.value}%"))
+            if len(request.gender) > 0:
+                if not has_strong_verification(session, user):
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NEED_STRONG_VERIFICATION)
+                elif user.gender not in request.gender:
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MUST_INCLUDE_OWN_GENDER)
+                else:
+                    statement = statement.where(User.gender.in_(request.gender))
 
             if len(request.hosting_status_filter) > 0:
                 statement = statement.where(

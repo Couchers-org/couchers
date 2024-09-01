@@ -10,7 +10,13 @@ from sqlalchemy.sql.functions import percentile_disc
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.metrics import host_request_responses_counter, host_requests_sent_counter, sent_messages_counter
+from couchers.metrics import (
+    account_age_on_host_request_create_histogram,
+    host_request_first_response_histogram,
+    host_request_responses_counter,
+    host_requests_sent_counter,
+    sent_messages_counter,
+)
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.notifications.notify import notify
 from couchers.servicers.api import user_model_to_pb
@@ -103,6 +109,24 @@ def host_request_to_pb(host_request: HostRequest, session, context):
     )
 
 
+def _possibly_observe_first_response_time(session, host_request, user_id, response_type):
+    # if this is the first response then there's nothing by this user yet
+    assert host_request.host_user_id == user_id
+
+    number_messages_by_host = session.execute(
+        select(func.count())
+        .where(Message.conversation_id == host_request.conversation_id)
+        .where(Message.author_id == user_id)
+    ).scalar_one_or_none()
+
+    if number_messages_by_host == 0:
+        host_gender = session.execute(select(User.gender).where(User.id == host_request.host_user_id)).scalar_one()
+        surfer_gender = session.execute(select(User.gender).where(User.id == host_request.surfer_user_id)).scalar_one()
+        host_request_first_response_histogram.labels(host_gender, surfer_gender, response_type).observe(
+            (now() - host_request.conversation.created).total_seconds()
+        )
+
+
 class Requests(requests_pb2_grpc.RequestsServicer):
     def CreateHostRequest(self, request, context):
         with session_scope() as session:
@@ -176,6 +200,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session.commit()
 
             notify(
+                session,
                 user_id=host_request.host_user_id,
                 topic_action="host_request:create",
                 key=host_request.conversation_id,
@@ -186,9 +211,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 ),
             )
 
-            user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
-            host_requests_sent_counter.labels(user_gender, host.gender).inc()
-            sent_messages_counter.labels(user_gender, "host request send").inc()
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            host_requests_sent_counter.labels(user.gender, host.gender).inc()
+            sent_messages_counter.labels(user.gender, "host request send").inc()
+            account_age_on_host_request_create_histogram.labels(user.gender, host.gender).observe(
+                (now() - user.joined).total_seconds()
+            )
 
             return requests_pb2.CreateHostRequestRes(host_request_id=host_request.conversation_id)
 
@@ -325,11 +353,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     or host_request.status == HostRequestStatus.accepted
                 ):
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                _possibly_observe_first_response_time(session, host_request, context.user_id, "accepted")
                 control_message.host_request_status_target = HostRequestStatus.accepted
                 host_request.status = HostRequestStatus.accepted
                 session.flush()
 
                 notify(
+                    session,
                     user_id=host_request.surfer_user_id,
                     topic_action="host_request:accept",
                     key=host_request.conversation_id,
@@ -351,11 +381,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     or host_request.status == HostRequestStatus.rejected
                 ):
                     context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.INVALID_HOST_REQUEST_STATUS)
+                _possibly_observe_first_response_time(session, host_request, context.user_id, "rejected")
                 control_message.host_request_status_target = HostRequestStatus.rejected
                 host_request.status = HostRequestStatus.rejected
                 session.flush()
 
                 notify(
+                    session,
                     user_id=host_request.surfer_user_id,
                     topic_action="host_request:reject",
                     key=host_request.conversation_id,
@@ -379,6 +411,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 session.flush()
 
                 notify(
+                    session,
                     user_id=host_request.host_user_id,
                     topic_action="host_request:confirm",
                     key=host_request.conversation_id,
@@ -405,6 +438,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 session.flush()
 
                 notify(
+                    session,
                     user_id=host_request.host_user_id,
                     topic_action="host_request:cancel",
                     key=host_request.conversation_id,
@@ -498,6 +532,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if host_request.end_time < now():
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_IN_PAST)
 
+            if host_request.host_user_id == context.user_id:
+                _possibly_observe_first_response_time(session, host_request, context.user_id, "message")
+
             message = Message()
             message.conversation_id = host_request.conversation_id
             message.author_id = context.user_id
@@ -510,6 +547,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 host_request.surfer_last_seen_message_id = message.id
 
                 notify(
+                    session,
                     user_id=host_request.host_user_id,
                     topic_action="host_request:message",
                     key=host_request.conversation_id,
@@ -525,6 +563,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 host_request.host_last_seen_message_id = message.id
 
                 notify(
+                    session,
                     user_id=host_request.surfer_user_id,
                     topic_action="host_request:message",
                     key=host_request.conversation_id,

@@ -9,7 +9,7 @@ from couchers.utils import Timestamp_from_datetime
 from proto import discussions_pb2, discussions_pb2_grpc
 
 
-def discussion_to_pb(discussion: Discussion, context):
+def discussion_to_pb(session, discussion: Discussion, context):
     owner_community_id = None
     owner_group_id = None
     if discussion.owner_cluster.is_official_cluster:
@@ -17,8 +17,7 @@ def discussion_to_pb(discussion: Discussion, context):
     else:
         owner_group_id = discussion.owner_cluster.id
 
-    with session_scope() as session:
-        can_moderate = can_moderate_node(session, context.user_id, discussion.owner_cluster.parent_node_id)
+    can_moderate = can_moderate_node(session, context.user_id, discussion.owner_cluster.parent_node_id)
 
     return discussions_pb2.Discussion(
         discussion_id=discussion.id,
@@ -29,7 +28,7 @@ def discussion_to_pb(discussion: Discussion, context):
         owner_group_id=owner_group_id,
         title=discussion.title,
         content=discussion.content,
-        thread=thread_to_pb(discussion.thread_id),
+        thread=thread_to_pb(session, discussion.thread_id),
         can_moderate=can_moderate,
     )
 
@@ -67,7 +66,7 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
             )
             session.add(discussion)
             session.commit()
-            return discussion_to_pb(discussion, context)
+            return discussion_to_pb(session, discussion, context)
 
     def GetDiscussion(self, request, context):
         with session_scope() as session:
@@ -77,4 +76,4 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
             if not discussion:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.DISCUSSION_NOT_FOUND)
 
-            return discussion_to_pb(discussion, context)
+            return discussion_to_pb(session, discussion, context)

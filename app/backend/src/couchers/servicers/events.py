@@ -174,7 +174,7 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
         owner_user_id=event.owner_user_id,
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
-        thread=thread_to_pb(event.thread_id),
+        thread=thread_to_pb(session, event.thread_id),
         can_edit=can_edit,
         can_moderate=can_moderate,
     )
@@ -267,6 +267,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
                 continue
             context = SimpleNamespace(user_id=user.id)
             notify(
+                session,
                 user_id=user.id,
                 topic_action="event:create_approved" if payload.approved else "event:create_any",
                 key=payload.occurrence_id,
@@ -274,7 +275,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
                     event=event_to_pb(session, occurrence, context),
                     inviting_user=user_model_to_pb(inviting_user, session, context),
                     nearby=True if node_id is None else None,
-                    in_community=community_to_pb(event.parent_node, context) if node_id is not None else None,
+                    in_community=community_to_pb(session, event.parent_node, context) if node_id is not None else None,
                 ),
             )
 
@@ -294,6 +295,7 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
                 continue
             context = SimpleNamespace(user_id=user_id)
             notify(
+                session,
                 user_id=user_id,
                 topic_action="event:update",
                 key=payload.occurrence_id,
@@ -322,6 +324,7 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
                 continue
             context = SimpleNamespace(user_id=user_id)
             notify(
+                session,
                 user_id=user_id,
                 topic_action="event:cancel",
                 key=payload.occurrence_id,
@@ -345,6 +348,7 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
             logger.info(user_id)
             context = SimpleNamespace(user_id=user_id)
             notify(
+                session,
                 user_id=user_id,
                 topic_action="event:delete",
                 key=payload.occurrence_id,
@@ -458,6 +462,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
             if user.has_completed_profile:
                 queue_job(
+                    session,
                     "generate_event_create_notifications",
                     payload=jobs_pb2.GenerateEventCreateNotificationsPayload(
                         inviting_user_id=user.id,
@@ -671,6 +676,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 logger.info(f"Fields {','.join(notify_updated)} updated in event {event.id=}, notifying")
 
                 queue_job(
+                    session,
                     "generate_event_update_notifications",
                     payload=jobs_pb2.GenerateEventUpdateNotificationsPayload(
                         updating_user_id=user.id,
@@ -712,6 +718,7 @@ class Events(events_pb2_grpc.EventsServicer):
             occurrence.is_cancelled = True
 
             queue_job(
+                session,
                 "generate_event_cancel_notifications",
                 payload=jobs_pb2.GenerateEventCancelNotificationsPayload(
                     cancelling_user_id=context.user_id,
@@ -756,7 +763,7 @@ class Events(events_pb2_grpc.EventsServicer):
             session.add(request)
             session.flush()
 
-            send_event_community_invite_request_email(request)
+            send_event_community_invite_request_email(session, request)
 
             return empty_pb2.Empty()
 
@@ -1122,6 +1129,7 @@ class Events(events_pb2_grpc.EventsServicer):
             other_user_context = SimpleNamespace(user_id=request.user_id)
 
             notify(
+                session,
                 user_id=request.user_id,
                 topic_action="event:invite_organizer",
                 key=event.id,

@@ -26,6 +26,8 @@ CONFIG_OPTIONS = [
     ("COOKIE_DOMAIN", str),
     # SQLAlchemy database connection string
     ("DATABASE_CONNECTION_STRING", str),
+    # OpenTelemetry endpoint to send traces to
+    ("OPENTELEMETRY_ENDPOINT", str, ""),
     # Whether to try adding dummy data
     ("ADD_DUMMY_DATA", bool),
     # Donations

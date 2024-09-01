@@ -31,6 +31,6 @@ class Reporting(reporting_pb2_grpc.ReportingServicer):
             session.add(content_report)
             session.flush()
 
-            send_content_report_email(content_report)
+            send_content_report_email(session, content_report)
 
             return empty_pb2.Empty()

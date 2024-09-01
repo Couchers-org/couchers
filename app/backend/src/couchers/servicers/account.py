@@ -66,6 +66,20 @@ contributeoption2api = {
 }
 
 
+def has_strong_verification(session, user):
+    attempt = session.execute(
+        select(StrongVerificationAttempt)
+        .where(StrongVerificationAttempt.user_id == user.id)
+        .where(StrongVerificationAttempt.is_valid)
+        .order_by(StrongVerificationAttempt.passport_expiry_datetime.desc())
+        .limit(1)
+    ).scalar_one_or_none()
+    if attempt:
+        assert attempt.is_valid
+        return attempt.has_strong_verification(user)
+    return False
+
+
 def get_strong_verification_fields(session, db_user):
     out = dict(
         birthdate_verification_status=api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,
@@ -150,6 +164,7 @@ class Account(account_pb2_grpc.AccountServicer):
             session.commit()
 
             notify(
+                session,
                 user_id=user.id,
                 topic_action="password:change",
             )
@@ -187,10 +202,11 @@ class Account(account_pb2_grpc.AccountServicer):
             user.new_email_token_created = now()
             user.new_email_token_expiry = now() + timedelta(hours=2)
 
-            send_email_changed_confirmation_to_new_email(user)
+            send_email_changed_confirmation_to_new_email(session, user)
 
             # will still go into old email
             notify(
+                session,
                 user_id=user.id,
                 topic_action="email_address:change",
                 data=notification_data_pb2.EmailAddressChange(
@@ -219,7 +235,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
             session.add(form)
             session.flush()
-            maybe_send_contributor_form_email(form)
+            maybe_send_contributor_form_email(session, form)
 
             user.filled_contributor_form = True
 
@@ -265,6 +281,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 user.phone_verification_attempts = 0
 
                 notify(
+                    session,
                     user_id=user.id,
                     topic_action="phone_number:change",
                     data=notification_data_pb2.PhoneNumberChange(
@@ -317,6 +334,7 @@ class Account(account_pb2_grpc.AccountServicer):
             user.phone_verification_attempts = 0
 
             notify(
+                session,
                 user_id=user.id,
                 topic_action="phone_number:verify",
                 data=notification_data_pb2.PhoneNumberVerify(
@@ -455,11 +473,12 @@ class Account(account_pb2_grpc.AccountServicer):
                 reason = AccountDeletionReason(user_id=user.id, reason=reason)
                 session.add(reason)
                 session.flush()
-                send_account_deletion_report_email(reason)
+                send_account_deletion_report_email(session, reason)
 
             token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
 
             notify(
+                session,
                 user_id=user.id,
                 topic_action="account_deletion:start",
                 data=notification_data_pb2.AccountDeletionStart(
@@ -509,6 +528,7 @@ class Iris(iris_pb2_grpc.IrisServicer):
                 session.commit()
                 # background worker will go and sort this one out
                 queue_job(
+                    session,
                     job_type="finalize_strong_verification",
                     payload=jobs_pb2.FinalizeStrongVerificationPayload(verification_attempt_id=verification_attempt.id),
                 )

@@ -31,22 +31,36 @@ cryptography==43.0.0
     #   -r requirements.in
     #   http-ece
     #   py-vapid
+deprecated==1.2.14
+    # via
+    #   opentelemetry-api
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+    #   opentelemetry-semantic-conventions
 distlib==0.3.8
     # via virtualenv
 filelock==3.14.0
     # via virtualenv
 geoalchemy2==0.15.2
     # via -r requirements.in
+googleapis-common-protos==1.64.0
+    # via
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
 greenlet==3.0.3
     # via sqlalchemy
 grpcio==1.66.0
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   opentelemetry-exporter-otlp-proto-grpc
 http-ece==1.2.1
     # via -r requirements.in
 identify==2.5.36
     # via pre-commit
 idna==3.7
     # via requests
+importlib-metadata==8.0.0
+    # via opentelemetry-api
 iniconfig==2.0.0
     # via pytest
 jinja2==3.1.4
@@ -67,9 +81,57 @@ nodeenv==1.9.1
     # via pre-commit
 numpy==1.26.4
     # via shapely
+opentelemetry-api==1.26.0
+    # via
+    #   -r requirements.in
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+    #   opentelemetry-instrumentation
+    #   opentelemetry-instrumentation-grpc
+    #   opentelemetry-instrumentation-sqlalchemy
+    #   opentelemetry-instrumentation-threading
+    #   opentelemetry-sdk
+    #   opentelemetry-semantic-conventions
+opentelemetry-exporter-otlp==1.26.0
+    # via -r requirements.in
+opentelemetry-exporter-otlp-proto-common==1.26.0
+    # via
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+opentelemetry-exporter-otlp-proto-grpc==1.26.0
+    # via opentelemetry-exporter-otlp
+opentelemetry-exporter-otlp-proto-http==1.26.0
+    # via opentelemetry-exporter-otlp
+opentelemetry-instrumentation==0.47b0
+    # via
+    #   opentelemetry-instrumentation-grpc
+    #   opentelemetry-instrumentation-sqlalchemy
+    #   opentelemetry-instrumentation-threading
+opentelemetry-instrumentation-grpc==0.47b0
+    # via -r requirements.in
+opentelemetry-instrumentation-sqlalchemy==0.47b0
+    # via -r requirements.in
+opentelemetry-instrumentation-threading==0.47b0
+    # via -r requirements.in
+opentelemetry-proto==1.26.0
+    # via
+    #   opentelemetry-exporter-otlp-proto-common
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+opentelemetry-sdk==1.26.0
+    # via
+    #   -r requirements.in
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+opentelemetry-semantic-conventions==0.47b0
+    # via
+    #   opentelemetry-instrumentation-grpc
+    #   opentelemetry-instrumentation-sqlalchemy
+    #   opentelemetry-sdk
 packaging==24.0
     # via
     #   geoalchemy2
+    #   opentelemetry-instrumentation-sqlalchemy
     #   pytest
 phonenumbers==8.13.43
     # via -r requirements.in
@@ -81,8 +143,11 @@ pre-commit==3.8.0
     # via -r requirements.in
 prometheus-client==0.20.0
     # via -r requirements.in
-protobuf==5.27.3
-    # via -r requirements.in
+protobuf==4.25.4
+    # via
+    #   -r requirements.in
+    #   googleapis-common-protos
+    #   opentelemetry-proto
 psycopg2-binary==2.9.9
     # via -r requirements.in
 py-vapid==1.9.1
@@ -110,6 +175,7 @@ pyyaml==6.0.2
 requests==2.32.3
     # via
     #   -r requirements.in
+    #   opentelemetry-exporter-otlp-proto-http
     #   stripe
 ruff==0.6.2
     # via -r requirements.in
@@ -134,6 +200,7 @@ stripe==10.8.0
 typing-extensions==4.11.0
     # via
     #   alembic
+    #   opentelemetry-sdk
     #   sqlalchemy
     #   stripe
 urllib3==2.2.1
@@ -143,3 +210,15 @@ urllib3==2.2.1
     #   sentry-sdk
 virtualenv==20.26.2
     # via pre-commit
+wrapt==1.16.0
+    # via
+    #   deprecated
+    #   opentelemetry-instrumentation
+    #   opentelemetry-instrumentation-grpc
+    #   opentelemetry-instrumentation-sqlalchemy
+    #   opentelemetry-instrumentation-threading
+zipp==3.20.1
+    # via importlib-metadata
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

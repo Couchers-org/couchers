@@ -2,7 +2,6 @@ import logging
 
 from google.protobuf import empty_pb2
 
-from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Notification
 from couchers.notifications.utils import enum_from_topic_action
@@ -12,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def notify(
+    session,
     *,
     user_id,
     topic_action,
@@ -34,20 +34,20 @@ def notify(
     """
     logger.info(f"Generating notification of type {topic_action} for user {user_id}")
     topic, action = topic_action.split(":")
-    with session_scope() as session:
-        notification = Notification(
-            user_id=user_id,
-            topic_action=enum_from_topic_action[topic, action],
-            key=key,
-            data=(data or empty_pb2.Empty()).SerializeToString(),
-        )
-        session.add(notification)
-        session.flush()
-        notification_id = notification.id
+
+    notification = Notification(
+        user_id=user_id,
+        topic_action=enum_from_topic_action[topic, action],
+        key=key,
+        data=(data or empty_pb2.Empty()).SerializeToString(),
+    )
+    session.add(notification)
+    session.flush()
 
     queue_job(
+        session,
         job_type="handle_notification",
         payload=jobs_pb2.HandleNotificationPayload(
-            notification_id=notification_id,
+            notification_id=notification.id,
         ),
     )
