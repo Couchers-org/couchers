@@ -54,10 +54,14 @@ export default function NotificationSettingsSubListItem({
     keyPrefix: "notification_settings.edit_preferences.item_descriptions",
   });
 
-  const { updateNotificationSettings } = useUpdateNotificationSettings();
+  const { updateNotificationSettings, status } =
+    useUpdateNotificationSettings();
   const [mutationError, setMutationError] = useState<string | null>(null);
+  const [isPushLoading, setIsPushLoading] = useState(false);
+  const [isEmailLoading, setIsEmailLoading] = useState(false);
 
   const handlePushSwitchClick = () => {
+    setIsPushLoading(true);
     const updatedItem: NotificationPreferenceData = {
       topic,
       action,
@@ -70,9 +74,12 @@ export default function NotificationSettingsSubListItem({
         setMutationError,
       },
       {
-        // Scoll to top on submission error
         onError: () => {
           window.scroll({ top: 0, behavior: "smooth" });
+          setIsPushLoading(false);
+        },
+        onSettled: () => {
+          setIsPushLoading(false);
         },
       }
     );
@@ -85,10 +92,22 @@ export default function NotificationSettingsSubListItem({
       deliveryMethod: "email",
       enabled: !email,
     };
-    updateNotificationSettings({
-      preferenceData: updatedItem,
-      setMutationError,
-    });
+    setIsEmailLoading(true);
+    updateNotificationSettings(
+      {
+        preferenceData: updatedItem,
+        setMutationError,
+      },
+      {
+        onError: () => {
+          window.scroll({ top: 0, behavior: "smooth" });
+          setIsEmailLoading(false);
+        },
+        onSettled: () => {
+          setIsEmailLoading(false);
+        },
+      }
+    );
   };
 
   return (
@@ -113,7 +132,9 @@ export default function NotificationSettingsSubListItem({
           <CustomColorSwitch
             color={theme.palette.primary.main}
             checked={push}
+            isLoading={isPushLoading}
             onClick={handlePushSwitchClick}
+            status={status}
           />
         </ListItem>
         <ListItem button className={classes.nested}>
@@ -124,7 +145,9 @@ export default function NotificationSettingsSubListItem({
           <CustomColorSwitch
             color={theme.palette.primary.main}
             checked={email}
+            isLoading={isEmailLoading}
             onClick={handleEmailSwitchClick}
+            status={status}
           />
         </ListItem>
       </List>
