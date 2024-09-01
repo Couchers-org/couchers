@@ -29,5 +29,7 @@ DATETIME_INFINITY = pytz.UTC.localize(datetime(9876, 12, 31, hour=23, minute=59,
 
 SERVER_THREADS = 128
 
+WORKER_THREADS = 1
+
 # how long the user has to undelete their account
 UNDELETE_DAYS = 7
