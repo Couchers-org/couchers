@@ -19,10 +19,10 @@ import {
   RemoveGroupChatAdminReq,
   SendMessageReq,
 } from "proto/conversations_pb";
-import client from "service/client";
-import { duration2pb } from "utils/date";
-import { Duration } from "utils/dayjs";
-import isGrpcError from "utils/isGrpcError";
+
+import client from "./client";
+import { Duration, duration2pb } from "./utils/date";
+import isGrpcError from "./utils/isGrpcError";
 
 export async function listGroupChats(lastMessageId = 0, count = 10) {
   const req = new ListGroupChatsReq();

@@ -4,11 +4,11 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
+import { usePersistedState } from "platform/usePersistedState";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
 
-import { usePersistedState } from "../../../features/auth/useAuthStore";
 import useSendFieldStyles from "../useSendFieldStyles";
 
 interface MessageFormData {

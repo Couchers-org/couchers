@@ -1,6 +1,5 @@
-import * as Sentry from "@sentry/nextjs";
-import { ErrorBoundaryProps as SentryErrorBoundaryProps } from "@sentry/react";
 import ErrorFallback from "components/ErrorFallback";
+import Sentry, { SentryErrorBoundaryProps } from "platform/sentry";
 import React, { PropsWithChildren } from "react";
 
 interface ErrorBoundaryProps

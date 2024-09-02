@@ -1,5 +1,6 @@
 import { ReportReq } from "proto/reporting_pb";
-import client from "service/client";
+
+import client from "./client";
 
 export interface ReportInput {
   reason: string;

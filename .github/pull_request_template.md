@@ -17,8 +17,8 @@ If you need help with any of these, please ask :)
 - [ ] Added migrations if there are any database changes, rebased onto `develop` if necessary for linear migration history
 
 **Web frontend checklist**
-- [ ] Formatted my code with `make format`
-- [ ] There are no warnings from `make lint`
+- [ ] Formatted my code with `yarn format`
+- [ ] There are no warnings from `yarn lint --fix`
 - [ ] There are no console warnings when running the app
 - [ ] Added any new components to storybook
 - [ ] Added tests where relevant

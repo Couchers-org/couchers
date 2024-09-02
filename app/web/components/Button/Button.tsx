@@ -1,6 +1,6 @@
 import { Button as MuiButton, ButtonProps, useTheme } from "@material-ui/core";
-import * as Sentry from "@sentry/nextjs";
 import classNames from "classnames";
+import Sentry from "platform/sentry";
 import React, { ElementType, ForwardedRef, forwardRef } from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
