@@ -17,11 +17,13 @@ wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 <details>
 <summary>More on deps</summary>
 
-You need `nodejs` v20 and the `yarn` package manager. The recommended way to do this is to use NVM as above.
+You need `nodejs` v20. The recommended way to do this is to use NVM as above.
 
 If you don't want `nvm` to be run when you open your shell, you can add `--no-use` in your shell's `rc` file, just before where it says `# This loads nvm`. You then need to run `nvm use` every time you enter the `app/web` folder to start developing.
 
-You also need `git`, `wget`, and `tar`, they should be available from the usual places.
+On macOS you can alternatively install dependencies via homebrew. You can get nvm with `brew install nvm`, or `nodejs` directly with `brew install node@20`.
+
+You also need `git`, `wget`, and `tar`, they should be preinstalled or be available from the usual places.
 </details>
 
 Now run the following commands to get up and running:
