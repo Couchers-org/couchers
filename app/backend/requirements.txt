@@ -183,7 +183,7 @@ s3transfer==0.10.1
     # via boto3
 sentry-sdk==2.13.0
     # via -r requirements.in
-shapely==2.0.5
+shapely==2.0.6
     # via -r requirements.in
 six==1.16.0
     # via python-dateutil
