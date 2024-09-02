@@ -195,7 +195,7 @@ sqlalchemy==2.0.32
     #   sqlalchemy-utils
 sqlalchemy-utils==0.41.2
     # via -r requirements.in
-stripe==10.8.0
+stripe==10.9.0
     # via -r requirements.in
 typing-extensions==4.11.0
     # via
