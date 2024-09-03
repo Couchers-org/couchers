@@ -1,5 +1,6 @@
-import { Switch, withStyles } from "@material-ui/core";
+import { Switch } from "@material-ui/core";
 import makeStyles from "utils/makeStyles";
+import classNames from "classnames";
 
 import CircularProgress from "./CircularProgress";
 
@@ -17,6 +18,27 @@ const useStyles = makeStyles(({ palette, shadows }) => ({
   active: {
     backgroundColor: palette.grey[600],
   },
+  switchBase: {
+    color: palette.grey[600],
+    "& + .MuiSwitch-track": {
+      backgroundColor: palette.grey[200],
+    },
+    "&.Mui-checked": {
+      color: (props: { color: string }) => props.color,
+      "& + .MuiSwitch-track": {
+        backgroundColor: (props: { color: string }) => props.color,
+      },
+    },
+    "&.Mui-disabled": {
+      color: (props: { checked: boolean; color: string }) =>
+        props.checked ? props.color : palette.grey[600],
+      "& + .MuiSwitch-track": {
+        backgroundColor: (props: { checked: boolean; color: string }) =>
+          props.checked ? props.color : palette.grey[200],
+        opacity: 0.4,
+      },
+    },
+  },
 }));
 
 export default function CustomColorSwitch({
@@ -32,38 +54,13 @@ export default function CustomColorSwitch({
   onClick: () => void;
   status: string;
 }) {
-  const classes = useStyles();
-
-  const CustomColorSwitch = withStyles((theme) => ({
-    switchBase: {
-      color: theme.palette.grey[600],
-      "& + $track": {
-        backgroundColor: theme.palette.grey[200],
-      },
-      "&$checked": {
-        color,
-        "& + $track": {
-          backgroundColor: color,
-        },
-      },
-      "&$disabled": {
-        color: checked ? color : theme.palette.grey[600],
-        "& + $track": {
-          backgroundColor: checked ? color : theme.palette.grey[200],
-          opacity: 0.4,
-        },
-      },
-    },
-    checked: {},
-    disabled: {},
-    track: {},
-  }))(Switch);
+  const classes = useStyles({ checked, color });
 
   const Icon = () => (
     <div
-      className={`${classes.circle} ${
-        checked && !isLoading ? classes.active : ""
-      }`}
+      className={classNames(classes.circle, {
+        [classes.active]: checked && !isLoading,
+      })}
       style={{ backgroundColor: checked ? color : undefined }}
     >
       {isLoading && (
@@ -73,7 +70,10 @@ export default function CustomColorSwitch({
   );
 
   return (
-    <CustomColorSwitch
+    <Switch
+      classes={{
+        switchBase: classes.switchBase,
+      }}
       checked={checked}
       checkedIcon={<Icon />}
       disabled={isLoading || status === "loading"}
