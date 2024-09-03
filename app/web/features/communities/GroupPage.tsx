@@ -22,7 +22,7 @@ import {
   routeToPlace,
 } from "routes";
 import { service } from "service";
-import isGrpcError from "utils/isGrpcError";
+import isGrpcError from "service/utils/isGrpcError";
 
 export default function GroupPage({
   groupId,

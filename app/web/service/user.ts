@@ -13,8 +13,9 @@ import {
   User,
 } from "proto/api_pb";
 import { AuthReq } from "proto/auth_pb";
-import client from "service/client";
-import { ProtoToJsTypes } from "utils/types";
+
+import client from "./client";
+import { ProtoToJsTypes } from "./utils/types";
 
 type RequiredUpdateProfileReq = Required<UpdateProfileReq.AsObject>;
 type ProfileFormData = {
@@ -66,6 +67,10 @@ export async function passwordLogin(
 
   const res = await client.auth.authenticate(req);
   return res.toObject();
+}
+
+export async function getAuthState() {
+  return (await client.auth.getAuthState(new Empty())).toObject();
 }
 
 /**

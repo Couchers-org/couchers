@@ -18,7 +18,7 @@ click==8.1.7
     # via flask
 flask==3.0.3
     # via -r requirements.in
-grpcio==1.66.0
+grpcio==1.66.1
     # via -r requirements.in
 iniconfig==2.0.0
     # via pytest
@@ -36,7 +36,7 @@ pillow==10.4.0
     # via -r requirements.in
 pluggy==1.5.0
     # via pytest
-protobuf==5.27.2
+protobuf==5.28.0
     # via -r requirements.in
 pycparser==2.22
     # via cffi

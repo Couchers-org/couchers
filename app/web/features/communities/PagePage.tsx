@@ -11,7 +11,7 @@ import { Page, PageType } from "proto/pages_pb";
 import React, { useEffect, useState } from "react";
 import { routeToGuide, routeToPlace } from "routes";
 import { service } from "service";
-import isGrpcError from "utils/isGrpcError";
+import isGrpcError from "service/utils/isGrpcError";
 
 export default function PagePage({
   pageType,

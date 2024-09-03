@@ -1,7 +1,6 @@
 import Avatar from "@material-ui/core/Avatar";
 import MuiIconButton from "@material-ui/core/IconButton";
 import makeStyles from "@material-ui/core/styles/makeStyles";
-import * as Sentry from "@sentry/nextjs";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
@@ -16,6 +15,7 @@ import {
 } from "components/constants";
 import IconButton from "components/IconButton";
 import { CheckIcon, CrossIcon } from "components/Icons";
+import Sentry from "platform/sentry";
 import React, { useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
 import { useMutation } from "react-query";

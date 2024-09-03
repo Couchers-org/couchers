@@ -12,12 +12,12 @@ from alembic.config import Config
 from opentelemetry import trace
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.pool import SingletonThreadPool
+from sqlalchemy.orm.session import Session
+from sqlalchemy.pool import QueuePool
 from sqlalchemy.sql import and_, func, literal, or_
 
 from couchers.config import config
-from couchers.constants import SERVER_THREADS
+from couchers.constants import SERVER_THREADS, WORKER_THREADS
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -57,65 +57,39 @@ def _get_base_engine():
         # connection unexpectedly" errors
         pool_pre_ping=True,
         # one connection per thread
-        poolclass=SingletonThreadPool,
-        # main threads + a couple extra in case
-        pool_size=SERVER_THREADS + 2,
+        poolclass=QueuePool,
+        # main threads + a few extra in case
+        pool_size=SERVER_THREADS + WORKER_THREADS + 12,
     )
-
-
-@functools.cache
-def _get_Session():
-    return scoped_session(sessionmaker(bind=_get_base_engine()))
 
 
 @contextmanager
 def session_scope():
     with tracer.start_as_current_span("session_scope") as rollspan:
-        session = _get_Session()()
-        if logger.isEnabledFor(logging.DEBUG):
+        with Session(_get_base_engine()) as session:
+            session.begin()
             try:
-                frame = inspect.stack()[2]
-                filename_line = f"{frame.filename}:{frame.lineno}"
-            except Exception as e:
-                filename_line = "{unknown file}"
-            backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar()
-            logger.debug(f"SScope: got {backend_pid=} at {filename_line}")
-            rollspan.set_attribute("db.backend_pid", backend_pid)
-            rollspan.set_attribute("db.filename_line", filename_line)
-        rollspan.set_attribute("rpc.thread", get_ident())
-        rollspan.set_attribute("rpc.pid", getpid())
+                if logger.isEnabledFor(logging.DEBUG):
+                    try:
+                        frame = inspect.stack()[2]
+                        filename_line = f"{frame.filename}:{frame.lineno}"
+                    except Exception as e:
+                        filename_line = "{unknown file}"
+                    backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar()
+                    logger.debug(f"SScope: got {backend_pid=} at {filename_line}")
+                    rollspan.set_attribute("db.backend_pid", backend_pid)
+                    rollspan.set_attribute("db.filename_line", filename_line)
+                rollspan.set_attribute("rpc.thread", get_ident())
+                rollspan.set_attribute("rpc.pid", getpid())
 
-        try:
-            yield session
-            session.commit()
-        except:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-            _get_Session().remove()
-            if logger.isEnabledFor(logging.DEBUG):
-                logger.debug(f"SScope: closed {backend_pid=}")
-
-
-@functools.cache
-def _get_worker_base_engine():
-    return create_engine(
-        config["DATABASE_CONNECTION_STRING"],
-        # checks that the connections in the pool are alive before using them, which avoids the "server closed the
-        # connection unexpectedly" errors
-        pool_pre_ping=True,
-        # one connection per thread
-        poolclass=SingletonThreadPool,
-        # max worker threads
-        pool_size=12,
-        execution_options={"isolation_level": "REPEATABLE READ"},
-    )
-
-
-@functools.cache
-def _get_worker_Session():
-    return scoped_session(sessionmaker(bind=_get_worker_base_engine()))
+                yield session
+                session.commit()
+            except:
+                session.rollback()
+                raise
+            finally:
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(f"SScope: closed {backend_pid=}")
 
 
 @contextmanager
@@ -127,32 +101,31 @@ def worker_repeatable_read_session_scope():
     This operates in a `REPEATABLE READ` isolation level so that we can do a `SELECT ... FOR UPDATE SKIP LOCKED` in the
     background worker, effectively using postgres as a queueing system.
     """
-    with tracer.start_as_current_span("session_scope") as rollspan:
-        session = _get_worker_Session()()
-        if logger.isEnabledFor(logging.DEBUG):
+    with tracer.start_as_current_span("worker_session_scope") as rollspan:
+        with Session(_get_base_engine().execution_options(isolation_level="REPEATABLE READ")) as session:
+            session.begin()
             try:
-                frame = inspect.stack()[2]
-                filename_line = f"{frame.filename}:{frame.lineno}"
-            except Exception as e:
-                filename_line = "{unknown file}"
-            backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar()
-            logger.debug(f"SScope (worker): got {backend_pid=} at {filename_line}")
-            rollspan.set_attribute("db.backend_pid", backend_pid)
-            rollspan.set_attribute("db.filename_line", filename_line)
-        rollspan.set_attribute("rpc.thread", get_ident())
-        rollspan.set_attribute("rpc.pid", getpid())
+                if logger.isEnabledFor(logging.DEBUG):
+                    try:
+                        frame = inspect.stack()[2]
+                        filename_line = f"{frame.filename}:{frame.lineno}"
+                    except Exception as e:
+                        filename_line = "{unknown file}"
+                    backend_pid = session.execute(text("SELECT pg_backend_pid();")).scalar()
+                    logger.debug(f"SScope (worker): got {backend_pid=} at {filename_line}")
+                    rollspan.set_attribute("db.backend_pid", backend_pid)
+                    rollspan.set_attribute("db.filename_line", filename_line)
+                rollspan.set_attribute("rpc.thread", get_ident())
+                rollspan.set_attribute("rpc.pid", getpid())
 
-        try:
-            yield session
-            session.commit()
-        except:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-            _get_worker_Session().remove()
-            if logger.isEnabledFor(logging.DEBUG):
-                logger.debug(f"SScope (worker): closed {backend_pid=}")
+                yield session
+                session.commit()
+            except:
+                session.rollback()
+                raise
+            finally:
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(f"SScope (worker): closed {backend_pid=}")
 
 
 def db_post_fork():
@@ -161,7 +134,6 @@ def db_post_fork():
     """
     # see https://docs.sqlalchemy.org/en/20/core/pooling.html#using-connection-pools-with-multiprocessing-or-os-fork
     _get_base_engine().dispose(close=False)
-    _get_worker_base_engine().dispose(close=False)
 
 
 @event.listens_for(Engine, "before_cursor_execute")

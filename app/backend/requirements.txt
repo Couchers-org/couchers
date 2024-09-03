@@ -6,9 +6,9 @@
 #
 alembic==1.13.2
     # via -r requirements.in
-boto3==1.35.5
+boto3==1.35.10
     # via -r requirements.in
-botocore==1.35.5
+botocore==1.35.10
     # via
     #   boto3
     #   s3transfer
@@ -49,7 +49,7 @@ googleapis-common-protos==1.64.0
     #   opentelemetry-exporter-otlp-proto-http
 greenlet==3.0.3
     # via sqlalchemy
-grpcio==1.66.0
+grpcio==1.66.1
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -133,7 +133,7 @@ packaging==24.0
     #   geoalchemy2
     #   opentelemetry-instrumentation-sqlalchemy
     #   pytest
-phonenumbers==8.13.43
+phonenumbers==8.13.44
     # via -r requirements.in
 platformdirs==4.2.2
     # via virtualenv
@@ -183,7 +183,7 @@ s3transfer==0.10.1
     # via boto3
 sentry-sdk==2.13.0
     # via -r requirements.in
-shapely==2.0.5
+shapely==2.0.6
     # via -r requirements.in
 six==1.16.0
     # via python-dateutil
@@ -195,7 +195,7 @@ sqlalchemy==2.0.32
     #   sqlalchemy-utils
 sqlalchemy-utils==0.41.2
     # via -r requirements.in
-stripe==10.8.0
+stripe==10.9.0
     # via -r requirements.in
 typing-extensions==4.11.0
     # via

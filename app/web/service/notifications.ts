@@ -3,7 +3,8 @@ import {
   SetNotificationSettingsReq,
   SingleNotificationPreference,
 } from "proto/notifications_pb";
-import client from "service/client";
+
+import client from "./client";
 
 export interface NotificationPreferenceData {
   topic: string;
