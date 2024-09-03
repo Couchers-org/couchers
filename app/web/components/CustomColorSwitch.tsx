@@ -1,6 +1,6 @@
 import { Switch } from "@material-ui/core";
-import makeStyles from "utils/makeStyles";
 import classNames from "classnames";
+import makeStyles from "utils/makeStyles";
 
 import CircularProgress from "./CircularProgress";
 
