@@ -71,45 +71,40 @@ export default function EditNotificationSettingsPage() {
   const [areGroupsLoading, setAreGroupsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    try {
-      if (!data) {
-        return;
-      }
-
-      const computedGroups = data?.groupsList.reduce<GroupsByType>(
-        (acc, group) => {
-          group.topicsList.forEach((topic) => {
-            if (topic && topic.itemsList) {
-              topic.itemsList.forEach((subTopic) => {
-                const key =
-                  group.heading === "Account Security"
-                    ? "account_security"
-                    : group.heading === "Account Settings"
-                    ? "account_settings"
-                    : topic.topic;
-
-                if (!acc[key]) {
-                  acc[key] = [];
-                }
-
-                if (subTopic.userEditable) {
-                  acc[key].push({ ...subTopic, topic: topic.topic });
-                }
-              });
-            }
-          });
-
-          return acc;
-        },
-        {}
-      );
-
-      setGroups(computedGroups);
-    } catch (error) {
-      console.error("Error fetching notification settings data:", error);
-    } finally {
-      setAreGroupsLoading(false);
+    if (!data) {
+      return;
     }
+
+    const computedGroups = data?.groupsList.reduce<GroupsByType>(
+      (acc, group) => {
+        group.topicsList.forEach((topic) => {
+          if (topic && topic.itemsList) {
+            topic.itemsList.forEach((subTopic) => {
+              const key =
+                group.heading === "Account Security"
+                  ? "account_security"
+                  : group.heading === "Account Settings"
+                  ? "account_settings"
+                  : topic.topic;
+
+              if (!acc[key]) {
+                acc[key] = [];
+              }
+
+              if (subTopic.userEditable) {
+                acc[key].push({ ...subTopic, topic: topic.topic });
+              }
+            });
+          }
+        });
+
+        return acc;
+      },
+      {}
+    );
+
+    setGroups(computedGroups);
+    setAreGroupsLoading(false);
   }, [data]);
 
   const renderNotificationListItems = () =>
