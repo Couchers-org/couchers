@@ -1,30 +1,19 @@
 import { notificationSettingsQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { GetNotificationSettingsRes } from "proto/notifications_pb";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
 import { NotificationPreferenceData } from "service/notifications";
-import { SetMutationError } from "utils/types";
+import { SetMutationError } from "utils/setMutationError";
 
-const useNotificationSettings = () => {
-  const notificationSettingsQuery = useQuery<
-    GetNotificationSettingsRes.AsObject,
-    RpcError
-  >(
-    notificationSettingsQueryKey,
-    service.notifications.getNotificationSettings
-  );
-
-  return notificationSettingsQuery;
-};
-
-const useUpdateNotificationSettings = () => {
+export default function useUpdateNotificationSettings() {
   const queryClient = useQueryClient();
   const {
     mutate: updateNotificationSettings,
     reset,
     isLoading,
     isError,
+    isSuccess,
     status,
   } = useMutation<
     GetNotificationSettingsRes.AsObject,
@@ -49,7 +38,12 @@ const useUpdateNotificationSettings = () => {
     }
   );
 
-  return { updateNotificationSettings, reset, isLoading, isError, status };
-};
-
-export { useNotificationSettings, useUpdateNotificationSettings };
+  return {
+    updateNotificationSettings,
+    reset,
+    isLoading,
+    isError,
+    isSuccess,
+    status,
+  };
+}

@@ -4,18 +4,16 @@ import { useMutation, useQueryClient } from "react-query";
 import { NotificationPreferenceData } from "service/notifications";
 
 import EditNotificationSettingsPage from "./EditNotificationSettingsPage";
-import { useUpdateNotificationSettings } from "./notificationSettingsHooks";
 import NotificationSettingsSubListItem from "./NotificationSettingsSubListItem";
 import useNotificationSettings from "./useNotificationSettings";
+import useUpdateNotificationSettings from "./useUpdateNotificationSettings";
 
 jest.mock("react-query", () => ({
   useMutation: jest.fn(),
   useQueryClient: jest.fn(),
 }));
 
-jest.mock("./notificationSettingsHooks", () => ({
-  useUpdateNotificationSettings: jest.fn(),
-}));
+jest.mock("./useUpdateNotificationSettings");
 
 // Mock useNotificationSettings hook
 jest.mock("./useNotificationSettings", () => ({

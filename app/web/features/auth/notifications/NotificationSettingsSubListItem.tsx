@@ -16,7 +16,7 @@ import { NotificationPreferenceData } from "service/notifications";
 import { theme } from "theme";
 import makeStyles from "utils/makeStyles";
 
-import { useUpdateNotificationSettings } from "./notificationSettingsHooks";
+import useUpdateNotificationSettings from "./useUpdateNotificationSettings";
 
 export interface NotificationSettingsSubListItemProps {
   topic: string;
