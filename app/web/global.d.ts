@@ -1,6 +1,6 @@
 interface Window {
   ReactNativeWebView?: {
-    injectedObjectJson: () => any;
+    injectedObjectJson: () => string;
     postMessage: (message: string) => void;
   };
 }
