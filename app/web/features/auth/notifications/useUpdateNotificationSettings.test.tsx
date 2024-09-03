@@ -1,4 +1,4 @@
-import { act,renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react-hooks";
 import { notificationSettingsQueryKey } from "features/queryKeys";
 import { RpcError, StatusCode } from "grpc-web";
 import { QueryClient, QueryClientProvider } from "react-query";
