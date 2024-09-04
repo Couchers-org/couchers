@@ -12,8 +12,9 @@ from couchers.interceptors import AuthValidatorInterceptor, ErrorSanitizationInt
 from couchers.metrics import servicer_duration_histogram
 from couchers.models import APICall, UserSession
 from couchers.servicers.account import Account
+from couchers.servicers.api import API
 from couchers.sql import couchers_select as select
-from proto import account_pb2, admin_pb2, auth_pb2
+from proto import account_pb2, admin_pb2, api_pb2, auth_pb2
 from tests.test_fixtures import db, generate_user, real_admin_session, testconfig  # noqa
 
 
@@ -214,6 +215,20 @@ def test_tracing_interceptor_sensitive(db):
         assert not res.password
 
     _check_histogram_labels("/testing.Test/TestRpc", "False", "", "", 1)
+
+
+def test_tracing_interceptor_sensitive_ping(db):
+    user, token = generate_user()
+
+    with interceptor_dummy_api(
+        API().GetUser,
+        interceptors=[TracingInterceptor(), AuthValidatorInterceptor()],
+        request_type=api_pb2.GetUserReq,
+        response_type=api_pb2.User,
+        service_name="org.couchers.api.core.API",
+        method_name="GetUser",
+    ) as call_rpc:
+        call_rpc(api_pb2.GetUserReq(user=user.username), metadata=(("cookie", f"couchers-sesh={token}"),))
 
 
 def test_tracing_interceptor_exception(db):
