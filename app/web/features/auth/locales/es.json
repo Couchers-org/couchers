@@ -164,17 +164,17 @@
     "go_to_button": "Gestionar notificaciones",
     "edit_preferences": {
       "title": "Configuración de notificaciones",
-      "description": "Es posible que recibas notificaciones importantes sobre tu cuenta y su contenido independientemente de tu configuración de notificaciones.",
+      "description": "Puede que aún recibas notificaciones importantes sobre tu cuenta y su contenido a pesar de la configuración de notificaciones.",
       "list_heading": "Notificaciones que puedes recibir",
-      "error_loading": "Error al cargar la configuración de notificaciones",
+      "error_loading": "Error al cargar la página",
       "list_items": {
         "account_security": "Seguridad de la cuenta",
         "account_settings": "Configuración de la cuenta",
         "chat": "Mensajes",
         "event": "Eventos",
         "friend_request": "Solicitudes de amistad",
-        "host_request": "Solicitudes de anfitrión",
-        "reference": "Referencias"
+        "host_request": "Solicitudes de alojamiento",
+        "reference": "Recomendaciones"
       },
       "item_descriptions": {
         "host_request": {
@@ -191,11 +191,11 @@
           "missed_messages": "Mensajes pendientes en un chat"
         },
         "reference": {
-          "receive_hosted": "Recibes una referencia de alguien que te hospedó",
-          "receive_surfed": "Recibes una referencia de alguien a quien hospedaste",
-          "receive_friend": "Recibes una referencia de un amigo",
-          "reminder_hosted": "Recordatorio para escribir una referencia a alguien a quien hospedaste",
-          "reminder_surfed": "Recordatorio para escribir una referencia a alguien con quien surfeaste"
+          "receive_hosted": "Recibes una recomendación de alguien que te hospedó",
+          "receive_surfed": "Recibes una recomendación de alguien a quien hospedaste",
+          "receive_friend": "Recibes una recomendación de un amigo",
+          "reminder_hosted": "Recordatorio para escribir una recomendación a alguien a quien hospedaste",
+          "reminder_surfed": "Recordatorio para escribir una recomendación a alguien con quien surfeaste"
         },
         "friend_request": {
           "create": "Alguien te envía una solicitud de amistad",
@@ -203,7 +203,7 @@
         },
         "event": {
           "create_approved": "Un evento aprobado por los moderadores se crea en tu comunidad",
-          "create_any": "Un usuario crea cualquier evento en tu comunidad (sin ser revisado por un administrador)",
+          "create_any": "Un evento se crea en tu comunidad (sin ser revisado por un moderador)",
           "update": "Se actualiza un evento en el que participas",
           "cancel": "Se cancela un evento en el que participas",
           "delete": "Se elimina un evento en el que participas",
