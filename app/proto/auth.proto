@@ -138,7 +138,7 @@ message SignupTokenInfoReq {
 message SignupAccount {
   // Should be lowercase ascii, matching regex [a-z][0-9a-z_]*[a-z0-9]
   string username = 1;
-  string password = 2 [ (is_sensitive) = true ];
+  string password = 2 [ (sensitive) = true ];
   string city = 6;
   double lat = 7;
   double lng = 8;
@@ -163,7 +163,7 @@ message UsernameValidRes {
 
 message AuthReq {
   string user = 1;
-  string password = 2 [ (is_sensitive) = true ];
+  string password = 2 [ (sensitive) = true ];
 
   // whether to remember the browser or not
   // if false, the session will time out after 7 days of inactivity (no API calls)
@@ -192,7 +192,7 @@ message ResetPasswordReq {
 message CompletePasswordResetV2Req {
   string password_reset_token = 1 [ (is_token) = true ];
   // the frontend should ask for the password twice and whatnot
-  string new_password = 2 [ (is_sensitive) = true ];
+  string new_password = 2 [ (sensitive) = true ];
 }
 
 message ConfirmChangeEmailV2Req {

@@ -97,12 +97,12 @@ message GetAccountInfoRes {
 }
 
 message ChangePasswordV2Req {
-  string old_password = 1 [ (is_sensitive) = true ];
-  string new_password = 2 [ (is_sensitive) = true ];
+  string old_password = 1 [ (sensitive) = true ];
+  string new_password = 2 [ (sensitive) = true ];
 }
 
 message ChangeEmailV2Req {
-  string password = 1 [ (is_sensitive) = true ];
+  string password = 1 [ (sensitive) = true ];
   string new_email = 2;
 }
 

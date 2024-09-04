@@ -238,7 +238,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
 
         def _sanitize_message(message):
             for name, descriptor in message.DESCRIPTOR.fields_by_name.items():
-                if descriptor.GetOptions().Extensions[annotations_pb2.is_sensitive]:
+                if descriptor.GetOptions().Extensions[annotations_pb2.sensitive]:
                     message.ClearField(name)
                 if descriptor.type == descriptor.TYPE_MESSAGE:
                     submessage = getattr(message, name)
