@@ -233,10 +233,20 @@ class TracingInterceptor(grpc.ServerInterceptor):
         """
         if not proto:
             return None
+
         new_proto = deepcopy(proto)
-        for name, descriptor in new_proto.DESCRIPTOR.fields_by_name.items():
-            if descriptor.GetOptions().Extensions[annotations_pb2.is_sensitive]:
-                new_proto.ClearField(name)
+
+        def _sanitize_message(message):
+            for name, descriptor in message.DESCRIPTOR.fields_by_name.items():
+                if descriptor.GetOptions().Extensions[annotations_pb2.is_sensitive]:
+                    message.ClearField(name)
+                if descriptor.type == descriptor.TYPE_MESSAGE:
+                    submessage = getattr(message, name)
+                    if submessage:
+                        _sanitize_message(submessage)
+
+        _sanitize_message(new_proto)
+
         return new_proto.SerializeToString()
 
     def _store_log(

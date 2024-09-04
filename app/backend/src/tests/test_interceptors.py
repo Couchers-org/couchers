@@ -196,7 +196,9 @@ def test_tracing_interceptor_sensitive(db):
         request_type=auth_pb2.SignupFlowReq,
         response_type=auth_pb2.AuthReq,
     ) as call_rpc:
-        call_rpc(auth_pb2.SignupFlowReq(account=auth_pb2.SignupAccount(password="should be removed", username="not removed")))
+        call_rpc(
+            auth_pb2.SignupFlowReq(account=auth_pb2.SignupAccount(password="should be removed", username="not removed"))
+        )
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
