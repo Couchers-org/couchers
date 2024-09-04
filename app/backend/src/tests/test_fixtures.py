@@ -252,7 +252,7 @@ def generate_user(*, delete_user=False, complete_profile=False, has_donated=True
             "geom_radius": 100,
             "onboarding_emails_sent": 1,
             "last_onboarding_email_sent": now(),
-            "has_donated": True
+            "has_donated": True,
         }
 
         for key, value in kwargs.items():
@@ -538,10 +538,10 @@ def _check_user_perms(method, user_id, is_jailed, is_superuser):
         assert auth_level == annotations_pb2.AUTH_LEVEL_OPEN
     else:
         assert not (
-                auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser
+            auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser
         ), "Non-superuser tried to call superuser API"
         assert not (
-                is_jailed and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]
+            is_jailed and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]
         ), "User is jailed but tried to call non-open/non-jailed API"
 
 
@@ -950,7 +950,7 @@ def push_collector():
             for kwarg in kwargs:
                 assert kwarg in push.kwargs, f"Push notification {user_id=}, {ix=} missing field '{kwarg}'"
                 assert (
-                        push.kwargs[kwarg] == kwargs[kwarg]
+                    push.kwargs[kwarg] == kwargs[kwarg]
                 ), f"Push notification {user_id=}, {ix=} mismatch in field '{kwarg}', expected '{kwargs[kwarg]}' but got '{push.kwargs[kwarg]}'"
 
         def assert_user_has_single_matching(self, user_id, **kwargs):
