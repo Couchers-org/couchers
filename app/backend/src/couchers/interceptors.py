@@ -240,9 +240,14 @@ class TracingInterceptor(grpc.ServerInterceptor):
             for name, descriptor in message.DESCRIPTOR.fields_by_name.items():
                 if descriptor.GetOptions().Extensions[annotations_pb2.sensitive]:
                     message.ClearField(name)
-                if descriptor.type == descriptor.TYPE_MESSAGE:
+                if descriptor.message_type:
                     submessage = getattr(message, name)
-                    if submessage:
+                    if not submessage:
+                        continue
+                    if descriptor.label == descriptor.LABEL_REPEATED:
+                        for msg in submessage:
+                            _sanitize_message(msg)
+                    else:
                         _sanitize_message(submessage)
 
         _sanitize_message(new_proto)
