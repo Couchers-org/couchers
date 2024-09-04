@@ -182,7 +182,95 @@
   "notification_settings": {
     "title": "Notification settings",
     "edit_in_console": "You can change your notification settings <2>on this page</2>. We will soon move it here.",
-    "go_to_button": "Manage notification settings"
+    "go_to_button": "Manage notification settings",
+    "edit_preferences": {
+      "title": "Notification Settings",
+      "description": "You may still receive important notifications about your account and content outside of your preferred notification settings.",
+      "list_heading": "Notifications you may receive",
+      "error_loading": "Error loading notification settings",
+      "list_items": {
+        "account_security": "Account security",
+        "account_settings": "Account settings",
+        "chat": "Messages",
+        "event": "Events",
+        "friend_request": "Friend requests",
+        "host_request": "Host requests",
+        "reference": "References"
+      },
+      "item_descriptions": {
+        "host_request": {
+          "create": "Someone sends you a host request",
+          "accept": "Someone accepts your host request",
+          "confirm": "Someone confirms their host request",
+          "reject": "Someone declines your host request",
+          "cancel": "Someone cancels their host request",
+          "message": "Someone sends a message in a host request",
+          "missed_messages": "You miss messages in a host request"
+        },
+        "chat": {
+          "message": "Someone sends you a message",
+          "missed_messages": "You miss messages in a chat"
+        },
+        "reference": {
+          "receive_hosted": "You receive a reference from someone who hosted you",
+          "receive_surfed": "You receive a reference from someone you hosted",
+          "receive_friend": "You received a reference from a friend",
+          "reminder_hosted": "Reminder to write a reference to someone you hosted",
+          "reminder_surfed": "Reminder to write a reference to someone you surfed with"
+        },
+        "friend_request": {
+          "create": "Someone sends you a friend request",
+          "accept": "Someone accepts your friend request"
+        },
+        "event": {
+          "create_approved": "An event that is approved by the moderators is created in your community",
+          "create_any": "A user creates any event in your community (not checked by an admin)",
+          "update": "An event you are attending is updated",
+          "cancel": "An event you are attending is cancelled",
+          "delete": "An event you are attending is deleted",
+          "invite_organizer": "Someone invites you to co-organize an event"
+        },
+        "onboarding": {
+          "reminder": "Reminder to complete your profile after signing up"
+        },
+        "badge": {
+          "add": "A badge is added to your account",
+          "remove": "A badge is removed from your account"
+        },
+        "donation": {
+          "received": "Your donation is received"
+        },
+        "password": {
+          "change": "Your password is changed"
+        },
+        "password_reset": {
+          "start": "Password reset is initiated",
+          "complete": "Password reset is completed"
+        },
+        "email_address": {
+          "change": "Email change is initiated",
+          "verify": "Your new email is verified"
+        },
+        "account_deletion": {
+          "start": "You initiate account deletion",
+          "complete": "Your account is deleted",
+          "recovered": "Your account is recovered (undeleted)"
+        },
+        "api_key": {
+          "create": "An API key is created for your account"
+        },
+        "phone_number": {
+          "change": "Your phone number is changed",
+          "verify": "Your phone number is verified"
+        },
+        "birthdate": {
+          "change": "Your birthdate is changed"
+        },
+        "gender": {
+          "change": "The gender displayed on your profile is changed"
+        }
+      }
+    }
   },
   "strong_verification": {
     "title": "Strong Verification",
