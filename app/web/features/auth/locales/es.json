@@ -160,11 +160,11 @@
   },
   "notification_settings": {
     "title": "Configuración de notificaciones",
-    "edit_in_console": "Puedes cambiar tu configuración de notificaciones <2>en esta página</2>. Pronto lo moveremos aquí.",
-    "go_to_button": "Gestionar configuración de notificaciones",
+    "edit_in_console": "Puedes cambiar tu configuración de notificaciones <2>en esta página</2>. Pronto se moverá a aquí.",
+    "go_to_button": "Gestionar notificaciones",
     "edit_preferences": {
       "title": "Configuración de notificaciones",
-      "description": "Aún puedes recibir notificaciones importantes sobre tu cuenta y contenido fuera de tus configuraciones de notificaciones preferidas.",
+      "description": "Es posible que recibas notificaciones importantes sobre tu cuenta y su contenido independientemente de tu configuración de notificaciones.",
       "list_heading": "Notificaciones que puedes recibir",
       "error_loading": "Error al cargar la configuración de notificaciones",
       "list_items": {
@@ -178,17 +178,17 @@
       },
       "item_descriptions": {
         "host_request": {
-          "create": "Alguien te envía una solicitud de anfitrión",
-          "accept": "Alguien acepta tu solicitud de anfitrión",
-          "confirm": "Alguien confirma su solicitud de anfitrión",
-          "reject": "Alguien rechaza tu solicitud de anfitrión",
-          "cancel": "Alguien cancela su solicitud de anfitrión",
-          "message": "Alguien envía un mensaje en una solicitud de anfitrión",
-          "missed_messages": "Pierdes mensajes en una solicitud de anfitrión"
+          "create": "Alguien te envía una solicitud de alojamiento",
+          "accept": "Alguien acepta tu solicitud de alojamiento",
+          "confirm": "Alguien confirma su solicitud de alojamiento",
+          "reject": "Alguien rechaza tu solicitud de alojamiento",
+          "cancel": "Alguien cancela su solicitud de alojamiento",
+          "message": "Alguien envía un mensaje en una solicitud de alojamiento",
+          "missed_messages": "Mensajes pendientes en una solicitud de alojamiento"
         },
         "chat": {
           "message": "Alguien te envía un mensaje",
-          "missed_messages": "Pierdes mensajes en un chat"
+          "missed_messages": "Mensajes pendientes en un chat"
         },
         "reference": {
           "receive_hosted": "Recibes una referencia de alguien que te hospedó",
@@ -202,18 +202,18 @@
           "accept": "Alguien acepta tu solicitud de amistad"
         },
         "event": {
-          "create_approved": "Se crea un evento aprobado por los moderadores en tu comunidad",
-          "create_any": "Un usuario crea cualquier evento en tu comunidad (no revisado por un administrador)",
-          "update": "Se actualiza un evento al que estás asistiendo",
-          "cancel": "Se cancela un evento al que estás asistiendo",
-          "delete": "Se elimina un evento al que estás asistiendo",
+          "create_approved": "Un evento aprobado por los moderadores se crea en tu comunidad",
+          "create_any": "Un usuario crea cualquier evento en tu comunidad (sin ser revisado por un administrador)",
+          "update": "Se actualiza un evento en el que participas",
+          "cancel": "Se cancela un evento en el que participas",
+          "delete": "Se elimina un evento en el que participas",
           "invite_organizer": "Alguien te invita a coorganizar un evento"
         },
         "onboarding": {
           "reminder": "Recordatorio para completar tu perfil después de registrarte"
         },
         "badge": {
-          "add": "Se agrega una insignia a tu cuenta",
+          "add": "Se agrega una insignia en tu cuenta",
           "remove": "Se elimina una insignia de tu cuenta"
         },
         "donation": {
@@ -233,7 +233,7 @@
         "account_deletion": {
           "start": "Inicias la eliminación de la cuenta",
           "complete": "Tu cuenta ha sido eliminada",
-          "recovered": "Tu cuenta ha sido recuperada (no eliminada)"
+          "recovered": "Tu cuenta ha sido recuperada (sin ser eliminada)"
         },
         "api_key": {
           "create": "Se crea una clave API para tu cuenta"
