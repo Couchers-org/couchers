@@ -235,7 +235,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
             return None
         new_proto = deepcopy(proto)
         for name, descriptor in new_proto.DESCRIPTOR.fields_by_name.items():
-            if descriptor.GetOptions().Extensions[annotations_pb2.sensitive]:
+            if descriptor.GetOptions().Extensions[annotations_pb2.is_sensitive]:
                 new_proto.ClearField(name)
         return new_proto.SerializeToString()
 

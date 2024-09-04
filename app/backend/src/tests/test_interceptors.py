@@ -193,10 +193,10 @@ def test_tracing_interceptor_sensitive(db):
     with interceptor_dummy_api(
         TestRpc,
         interceptors=[TracingInterceptor()],
-        request_type=auth_pb2.SignupAccount,
+        request_type=auth_pb2.SignupFlowReq,
         response_type=auth_pb2.AuthReq,
     ) as call_rpc:
-        call_rpc(auth_pb2.SignupAccount(password="should be removed", username="not removed"))
+        call_rpc(auth_pb2.SignupFlowReq(account=auth_pb2.SignupAccount(password="should be removed", username="not removed")))
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
@@ -204,9 +204,9 @@ def test_tracing_interceptor_sensitive(db):
         assert not trace.status_code
         assert not trace.user_id
         assert not trace.traceback
-        req = auth_pb2.SignupAccount.FromString(trace.request)
-        assert not req.password
-        assert req.username == "not removed"
+        req = auth_pb2.SignupFlowReq.FromString(trace.request)
+        assert not req.account.password
+        assert req.account.username == "not removed"
         res = auth_pb2.AuthReq.FromString(trace.response)
         assert res.user == "this is not secret"
         assert not res.password
