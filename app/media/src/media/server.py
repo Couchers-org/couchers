@@ -9,11 +9,12 @@ import grpc
 import pyvips
 import sentry_sdk
 from flask import Flask, abort, request, send_file
-from media.crypto import verify_hash_signature
-from proto import media_pb2, media_pb2_grpc
 from sentry_sdk.integrations import argv, atexit, dedupe, modules, stdlib, threading
 from sentry_sdk.integrations import logging as sentry_logging
 from werkzeug.utils import secure_filename
+
+from media.crypto import verify_hash_signature
+from proto import media_pb2, media_pb2_grpc
 
 logger = logging.getLogger(__name__)
 
@@ -63,14 +64,10 @@ def create_app(
 
     @backoff.on_exception(backoff.expo, grpc.RpcError, max_time=1, giveup=_is_available)
     def send_confirmation_to_main_server(key, filename):
-        logger.warning(
-            f"Notifying main server about new upload at {main_server_address}"
-        )
+        logger.warning(f"Notifying main server about new upload at {main_server_address}")
 
         if main_server_use_ssl:
-            channel = grpc.secure_channel(
-                main_server_address, grpc.ssl_channel_credentials()
-            )
+            channel = grpc.secure_channel(main_server_address, grpc.ssl_channel_credentials())
         else:
             logger.warning("Connecting to main server insecurely!")
             channel = grpc.insecure_channel(main_server_address)
@@ -80,9 +77,7 @@ def create_app(
             key=key,
             filename=filename,
         )
-        media_stub.UploadConfirmation(
-            req, metadata=(("authorization", f"Bearer {media_server_bearer_token}"),)
-        )
+        media_stub.UploadConfirmation(req, metadata=(("authorization", f"Bearer {media_server_bearer_token}"),))
 
     @app.route("/upload", methods=["POST"])
     def upload():
@@ -193,9 +188,7 @@ def create_app(
             img = img.resize(thumbnail_size / size)
             img.jpegsave(thumbnail_path, strip=True, interlace=True, Q=75)
 
-        return send_file(
-            thumbnail_path, mimetype="image/jpeg", conditional=True, max_age=43200
-        )
+        return send_file(thumbnail_path, mimetype="image/jpeg", conditional=True, max_age=43200)
 
     return app
 
