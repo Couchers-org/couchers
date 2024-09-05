@@ -32,7 +32,7 @@ from couchers.tasks import (
 )
 from couchers.utils import (
     create_coordinate,
-    create_session_cookie,
+    create_session_cookies,
     is_valid_email,
     is_valid_name,
     is_valid_username,
@@ -92,7 +92,9 @@ def create_session(context, session, user, long_lived, is_api_key=False, duratio
     logger.debug(f"Handing out {token=} to {user=}")
 
     if set_cookie:
-        context.send_initial_metadata([("set-cookie", create_session_cookie(token, user_session.expiry))])
+        context.send_initial_metadata(
+            [("set-cookie", cookie) for cookie in create_session_cookies(token, user.id, user_session.expiry)]
+        )
 
     logins_counter.labels(user.gender).inc()
 
@@ -408,11 +410,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             delete_session(token)
 
         # set the cookie to an empty string and expire immediately, should remove it from the browser
-        context.send_initial_metadata(
-            [
-                ("set-cookie", create_session_cookie("", now())),
-            ]
-        )
+        context.send_initial_metadata([("set-cookie", cookie) for cookie in create_session_cookies("", "", now())])
 
         return empty_pb2.Empty()
 
