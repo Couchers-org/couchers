@@ -58,9 +58,7 @@ describe("parseSearchFiltersToQuery", () => {
         location: "City of Albany, New York, United States",
         numGuests: 3,
       })
-    ).toBe(
-      "location=City+of+Albany%2C+New+York%2C+United+States&numGuests=3"
-    );
+    ).toBe("location=City+of+Albany%2C+New+York%2C+United+States&numGuests=3");
   });
   it("should return a string with encoded URL params when all filters are set", () => {
     expect(

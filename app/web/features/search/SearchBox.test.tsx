@@ -6,10 +6,14 @@ import { t } from "test/utils";
 
 import SearchBox from "./SearchBox";
 
-const View = ({searchTypeParam = "keyword"}: {searchTypeParam?:"keyword"|"location"}) => {
-  const[searchType, setSearchType] = useState(searchTypeParam);
-  const[queryNameProp, setQueryNameProp] = useState("");
-  const[locationResultProp, setLocationResultProp] = useState({});
+const View = ({
+  searchTypeParam = "keyword",
+}: {
+  searchTypeParam?: "keyword" | "location";
+}) => {
+  const [searchType, setSearchType] = useState(searchTypeParam);
+  const [queryNameProp, setQueryNameProp] = useState("");
+  const [locationResultProp, setLocationResultProp] = useState({});
 
   return (
     <SearchBox
@@ -24,7 +28,6 @@ const View = ({searchTypeParam = "keyword"}: {searchTypeParam?:"keyword"|"locati
 };
 
 describe("SearchBox", () => {
-
   it("performs a keyword search", async () => {
     render(<View />);
 
@@ -42,11 +45,11 @@ describe("SearchBox", () => {
 
   it("clears keyword search correctly", async () => {
     render(<View />);
-    
+
     const input = screen.getByLabelText(t("search:form.keywords.field_label"));
-    
+
     userEvent.type(input, "default value");
-    
+
     expect(input).toHaveValue("default value");
 
     userEvent.click(
@@ -82,7 +85,7 @@ describe("SearchBox", () => {
 
       userEvent.type(input, "tes{enter}");
       userEvent.click(await screen.findByText("test city, test country"));
-      
+
       await waitFor(() => {
         expect(input).toHaveValue("test city, test country");
       });

@@ -41,7 +41,7 @@ describe("FilterDialog", () => {
    */
   it("test", () => {
     expect(1).toBe(1);
-  })
+  });
 
   /*
   it("Goes to the right url when setting all the filters", async () => {

@@ -5,11 +5,7 @@ import users from "test/fixtures/users.json";
 import { firstName } from "utils/names";
 import wrapper from "test/hookWrapper";
 import { service } from "service";
-import {
-  assertErrorAlert,
-  MockedService,
-  t,
-} from "test/utils";
+import { assertErrorAlert, MockedService, t } from "test/utils";
 
 const mockHandleResultClick = jest.fn();
 
@@ -34,9 +30,9 @@ function testResults() {
           place: undefined,
           rank: 1,
           user: users[0],
-        }
-      }
-    ]
+        },
+      },
+    ],
   };
 }
 
@@ -56,7 +52,6 @@ describe("SearchResultsList", () => {
           fetchNextPage={() => {}}
           selectedResult={undefined}
           setSelectedResult={mockHandleResultClick}
-
           searchType={""}
           setSearchType={() => {}}
           locationResult={""}
@@ -68,11 +63,10 @@ describe("SearchResultsList", () => {
       );
     });
 
-
-    it("show message no result was found", async () => {  
+    it("show message no result was found", async () => {
       await screen.findByText("No users found.");
       expect(screen.queryAllByRole("heading")).toHaveLength(0);
-    });    
+    });
   });
 
   describe("after searching, one result", () => {
@@ -86,7 +80,6 @@ describe("SearchResultsList", () => {
           fetchNextPage={() => {}}
           selectedResult={undefined}
           setSelectedResult={mockHandleResultClick}
-
           searchType={""}
           setSearchType={() => {}}
           locationResult={""}
@@ -98,7 +91,7 @@ describe("SearchResultsList", () => {
       );
     });
 
-    it("displays the result", async () => {  
+    it("displays the result", async () => {
       await screen.findByRole("heading", { name: users[0].name });
     });
 
@@ -110,7 +103,7 @@ describe("SearchResultsList", () => {
       });
 
       userEvent.click(card);
-      
+
       await waitFor(() => {
         expect(mockHandleResultClick).toBeCalledTimes(1);
       });

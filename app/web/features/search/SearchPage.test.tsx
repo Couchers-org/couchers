@@ -4,10 +4,7 @@ import wrapper from "test/hookWrapper";
 import SearchPage from "./SearchPage";
 import { User } from "proto/api_pb";
 import { service } from "service";
-import {
-  MockedService,
-  mockConsoleError,
-} from "test/utils";
+import { MockedService, mockConsoleError } from "test/utils";
 
 jest.mock("features/userQueries/useCurrentUser");
 jest.mock("maplibre-gl", () => {
@@ -25,7 +22,6 @@ const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
 >;
 
 describe("SearchPage", () => {
-
   beforeEach(() => {
     useCurrentUserMock.mockReturnValue({
       data: {
@@ -42,7 +38,7 @@ describe("SearchPage", () => {
     mockConsoleError();
     userSearchMock.mockRejectedValueOnce(new Error("search error"));
 
-    render(<SearchPage locationName="" bbox={[0,0,0,0]} />, { wrapper });
+    render(<SearchPage locationName="" bbox={[0, 0, 0, 0]} />, { wrapper });
 
     const errorAlert = await screen.findByRole("alert");
     expect(errorAlert).toBeVisible();
@@ -52,8 +48,8 @@ describe("SearchPage", () => {
   it("Don't show an error if the search works", async () => {
     mockConsoleError();
 
-    render(<SearchPage locationName="" bbox={[0,0,0,0]} />, { wrapper });
+    render(<SearchPage locationName="" bbox={[0, 0, 0, 0]} />, { wrapper });
 
-    await expect(screen.findByRole("alert")).rejects.toThrow();;
+    await expect(screen.findByRole("alert")).rejects.toThrow();
   });
 });
