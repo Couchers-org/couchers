@@ -415,6 +415,7 @@ def auth_api_session():
                     def intercept_unary_unary(self, continuation, client_call_details, request):
                         call = continuation(client_call_details, request)
                         self.latest_headers = dict(call.initial_metadata())
+                        self.latest_header_raw = call.initial_metadata()
                         return call
 
                 metadata_interceptor = _MetadataKeeperInterceptor()

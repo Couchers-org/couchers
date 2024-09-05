@@ -22,7 +22,7 @@ from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, create_coordinate, create_polygon_lat_lng, now, to_multi
 from proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
-from tests.test_auth import get_session_cookie_token
+from tests.test_auth import get_session_cookie_tokens
 from tests.test_fixtures import (  # noqa
     auth_api_session,
     communities_session,
@@ -1000,7 +1000,7 @@ def test_enforce_community_memberships_for_user(testing_communities):
         c1r1_id = get_community_id(session, "Country 1, Region 1")
         c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
 
-    token = get_session_cookie_token(metadata_interceptor)
+    token, _ = get_session_cookie_tokens(metadata_interceptor)
 
     with communities_session(token) as api:
         res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq())
