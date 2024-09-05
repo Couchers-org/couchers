@@ -2,6 +2,7 @@ import http.cookies
 import re
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
+from typing import List
 from zoneinfo import ZoneInfo
 
 import pytz
@@ -179,9 +180,9 @@ def http_date(dt=None):
     return formatdate(dt.timestamp(), usegmt=True)
 
 
-def create_session_cookie(token, expiry):
+def _create_tasty_cookie(name: str, value, expiry: datetime, httponly: bool):
     cookie = http.cookies.Morsel()
-    cookie.set("couchers-sesh", token, token)
+    cookie.set(name, str(value), str(value))
     # tell the browser when to stop sending the cookie
     cookie["expires"] = http_date(expiry)
     # restrict to our domain, note if there's no domain, it won't include subdomains
@@ -197,9 +198,21 @@ def create_session_cookie(token, expiry):
         # only set cookie on HTTPS sites in production
         cookie["secure"] = True
     # not accessible from javascript
-    cookie["httponly"] = True
+    cookie["httponly"] = httponly
 
     return cookie.OutputString()
+
+
+def create_session_cookies(token, user_id, expiry) -> List[str]:
+    """
+    Creates our session cookies.
+
+    We have two: the secure session token (in couchers-sesh) that's inaccessible to javascript, and the user id (in couchers-user-id) which the javascript frontend can access, so that it knows when it's logged in/out
+    """
+    return [
+        _create_tasty_cookie("couchers-sesh", token, expiry, httponly=True),
+        _create_tasty_cookie("couchers-user-id", user_id, expiry, httponly=False),
+    ]
 
 
 def parse_session_cookie(headers):
@@ -211,6 +224,22 @@ def parse_session_cookie(headers):
 
     # parse the cookie
     cookie = http.cookies.SimpleCookie(headers["cookie"]).get("couchers-sesh")
+
+    if not cookie:
+        return None
+
+    return cookie.value
+
+
+def parse_user_id_cookie(headers):
+    """
+    Returns our session cookie value (aka token) or None
+    """
+    if "cookie" not in headers:
+        return None
+
+    # parse the cookie
+    cookie = http.cookies.SimpleCookie(headers["cookie"]).get("couchers-user-id")
 
     if not cookie:
         return None
