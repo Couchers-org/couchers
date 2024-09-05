@@ -530,7 +530,7 @@ class FakeRpcError(grpc.RpcError):
         return self._details
 
 
-def _check_user_perms(method, user_id, is_jailed, is_superuser):
+def _check_user_perms(method, user_id, is_jailed, is_superuser, token_expiry):
     # method is of the form "/org.couchers.api.core.API/GetUser"
     _, service_name, method_name = method.split("/")
 
@@ -556,11 +556,12 @@ def _check_user_perms(method, user_id, is_jailed, is_superuser):
 
 
 class FakeChannel:
-    def __init__(self, user_id=None, is_jailed=None, is_superuser=None):
+    def __init__(self, user_id=None, is_jailed=None, is_superuser=None, token_expiry=None):
         self.handlers = {}
         self.user_id = user_id
         self._is_jailed = is_jailed
         self._is_superuser = is_superuser
+        self._token_expiry = token_expiry
 
     def abort(self, code, details):
         raise FakeRpcError(code, details)
@@ -575,7 +576,7 @@ class FakeChannel:
     def unary_unary(self, uri, request_serializer, response_deserializer):
         handler = self.handlers[uri]
 
-        _check_user_perms(uri, self.user_id, self._is_jailed, self._is_superuser)
+        _check_user_perms(uri, self.user_id, self._is_jailed, self._is_superuser, self._token_expiry)
 
         def fake_handler(request):
             # Do a full serialization cycle on the request and the
@@ -591,8 +592,8 @@ class FakeChannel:
 
 def fake_channel(token=None):
     if token:
-        user_id, is_jailed, is_superuser = _try_get_and_update_user_details(token, is_api_key=False)
-        return FakeChannel(user_id=user_id, is_jailed=is_jailed, is_superuser=is_superuser)
+        user_id, is_jailed, is_superuser, token_expiry = _try_get_and_update_user_details(token, is_api_key=False)
+        return FakeChannel(user_id=user_id, is_jailed=is_jailed, is_superuser=is_superuser, token_expiry=token_expiry)
     return FakeChannel()
 
 

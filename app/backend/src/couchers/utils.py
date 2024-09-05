@@ -231,6 +231,22 @@ def parse_session_cookie(headers):
     return cookie.value
 
 
+def parse_user_id_cookie(headers):
+    """
+    Returns our session cookie value (aka token) or None
+    """
+    if "cookie" not in headers:
+        return None
+
+    # parse the cookie
+    cookie = http.cookies.SimpleCookie(headers["cookie"]).get("couchers-user-id")
+
+    if not cookie:
+        return None
+
+    return cookie.value
+
+
 def parse_api_key(headers):
     """
     Returns a bearer token (API key) from the `authorization` header, or None if invalid/not present
