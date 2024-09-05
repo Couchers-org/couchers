@@ -269,6 +269,7 @@ export default function MapWrapper({
           </Button>
           <Button
             color="primary"
+            aria-label="tune search"
             onClick={() => setIsFiltersOpen(true)}
             className={classes.buttonSearchSettings}
             endIcon={<TuneIcon />}
