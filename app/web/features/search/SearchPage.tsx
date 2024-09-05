@@ -59,11 +59,11 @@ const useStyles = makeStyles((theme) => ({
  * Search page, queries the backend & obtains all the users to be shown on the map, creates all the state variables and sends them to the search page sub-components
  */
 export default function SearchPage({
-  locationName,
-  bbox,
+  locationName = "",
+  bbox = [0, 0, 0, 0],
 }: {
-  locationName: string;
-  bbox: [number, number, number, number];
+  locationName?: string;
+  bbox?: [number, number, number, number];
 }) {
   const {
     data: userData,
