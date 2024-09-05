@@ -26,6 +26,8 @@ export const getLastActiveOptions = (t: TFunction) => [
 
 export const selectedUserZoom = 10;
 
+export type Coordinates = [number, number, number, number];
+
 export type MapClickedCallback = (
   ev: maplibregl.MapMouseEvent & {
     features?: maplibregl.MapboxGeoJSONFeature[] | undefined;

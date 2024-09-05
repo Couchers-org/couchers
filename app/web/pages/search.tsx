@@ -1,6 +1,7 @@
 import { translationStaticProps } from "i18n/server-side-translations";
 import SearchPageComponent from "features/search/SearchPage";
 import { GLOBAL, PROFILE, SEARCH } from "i18n/namespaces";
+import { Coordinates } from "features/search/constants";
 import { appGetLayout } from "components/AppRoute";
 import { useRouter } from "next/router";
 import { GetStaticProps } from "next";
@@ -20,7 +21,7 @@ export default function SearchPage() {
   return (
     <SearchPageComponent
       locationName={location as string}
-      bbox={bbox as [number, number, number, number]}
+      bbox={bbox as Coordinates}
     />
   );
 }

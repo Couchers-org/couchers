@@ -6,7 +6,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
 import useCurrentUser from "features/userQueries/useCurrentUser";
-import { selectedUserZoom } from "features/search/constants";
+import { Coordinates, selectedUserZoom } from "features/search/constants";
 import SearchResultsList from "./SearchResultsList";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { Map as MaplibreMap } from "maplibre-gl";
@@ -63,7 +63,7 @@ export default function SearchPage({
   bbox = [0, 0, 0, 0],
 }: {
   locationName?: string;
-  bbox?: [number, number, number, number];
+  bbox?: Coordinates;
 }) {
   const {
     data: userData,
@@ -164,7 +164,7 @@ export default function SearchPage({
     }
   }, [isLoadingUser]);
 
-  let errorMessage = error?.message || undefined;
+  let errorMessage = error?.message;
   if (errorUser) {
     errorMessage = `${errorMessage || ""} ${errorUser}`;
   }

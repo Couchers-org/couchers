@@ -16,17 +16,17 @@ const Template: Story<any> = () => {
   return (
     <>
       <FilterDialog
-        setLocationResult={() => jest.fn()}
+        setLocationResult={() => {}}
         lastActiveFilter={0}
-        setQueryName={() => jest.fn()}
+        setQueryName={() => {}}
         queryName=""
-        setLastActiveFilter={() => jest.fn()}
+        setLastActiveFilter={() => {}}
         hostingStatusFilter={0}
-        setHostingStatusFilter={() => jest.fn()}
+        setHostingStatusFilter={() => {}}
         completeProfileFilter={true}
-        setCompleteProfileFilter={() => jest.fn()}
+        setCompleteProfileFilter={() => {}}
         numberOfGuestFilter={undefined}
-        setNumberOfGuestFilter={() => jest.fn()}
+        setNumberOfGuestFilter={() => {}}
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
       />

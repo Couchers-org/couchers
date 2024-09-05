@@ -53,8 +53,6 @@ describe("SearchResultsList", () => {
         <SearchResultsList
           isLoading={false}
           results={undefined}
-          error={undefined}
-          hasNext={undefined}
           fetchNextPage={() => {}}
           selectedResult={undefined}
           setSelectedResult={mockHandleResultClick}

@@ -11,10 +11,10 @@ const Template: Story<any> = () => {
     <>
       <SearchBox
         searchType={""}
-        setSearchType={() => jest.fn()}
+        setSearchType={() => {}}
         locationResult={[]}
-        setLocationResult={() => jest.fn()}
-        setQueryName={() => jest.fn()}
+        setLocationResult={() => {}}
+        setQueryName={() => {}}
         queryName={undefined}
       />
     </>

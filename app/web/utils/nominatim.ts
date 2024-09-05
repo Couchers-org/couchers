@@ -1,3 +1,5 @@
+import { Coordinates } from "features/search/constants";
+
 export interface NominatimPlace {
   address: {
     [city: string]: string;
@@ -7,7 +9,7 @@ export interface NominatimPlace {
     country: string;
     country_code: string;
   };
-  boundingbox: [number, number, number, number];
+  boundingbox: Coordinates;
   category: string;
   display_name: string;
   icon: string;

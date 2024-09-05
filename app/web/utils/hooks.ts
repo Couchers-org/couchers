@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
+import { Coordinates } from "features/search/constants";
 import { LngLat } from "maplibre-gl";
 import { useRouter } from "next/router";
 import {
@@ -65,7 +66,7 @@ export interface GeocodeResult {
   name: string;
   simplifiedName: string;
   location: LngLat;
-  bbox: [number, number, number, number];
+  bbox: Coordinates;
   isRegion?: boolean;
 }
 

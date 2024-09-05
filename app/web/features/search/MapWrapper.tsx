@@ -21,7 +21,6 @@ import { useTranslation } from "i18n";
 const useStyles = makeStyles((theme) => ({
   searchHereGroup2: {
     top: "20px",
-    // display: "flex",
     left: "50%",
     position: "relative",
     zIndex: 10,
