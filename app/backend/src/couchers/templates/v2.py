@@ -90,7 +90,7 @@ def add_filters(env):
 add_filters(env)
 
 
-def send_simple_pretty_email(recipient, subject, template_name, template_args):
+def send_simple_pretty_email(session, recipient, subject, template_name, template_args):
     """
     This is a simplified version of couchers.notifications.background._send_email_notification
 
@@ -108,6 +108,7 @@ def send_simple_pretty_email(recipient, subject, template_name, template_args):
     html = env.from_string(html_tmplt.replace("___UNSUB_SECTION___", html_unsub_section)).render(template_args)
 
     queue_email(
+        session,
         sender_name=config["NOTIFICATION_EMAIL_SENDER"],
         sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
         recipient=recipient,

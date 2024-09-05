@@ -11,8 +11,6 @@ export const pingInterval = 10000;
 
 export const reactQueryRetries = 1;
 
-export const grpcTimeout = 10000; //milliseconds
-
 export const grpcErrorStrings = {
   "Deadline exceeded":
     "Server took too long to respond. Please check your Internet connection or try again later.",

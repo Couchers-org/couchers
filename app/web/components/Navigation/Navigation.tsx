@@ -12,6 +12,7 @@ import {
 import { grey } from "@material-ui/core/colors";
 import classNames from "classnames";
 import Button from "components/Button";
+import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import { MenuItem } from "components/Menu";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
@@ -540,7 +541,6 @@ export default function Navigation() {
             </div>
           </Hidden>
         </div>
-
         <Hidden implementation="css">
           <div className={classes.menuContainer}>
             <ReportButton />
@@ -565,6 +565,7 @@ export default function Navigation() {
           </div>
         </Hidden>
       </Toolbar>
+      <GlobalMessage />
     </AppBar>
   );
 }

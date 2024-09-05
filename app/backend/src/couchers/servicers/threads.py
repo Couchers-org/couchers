@@ -27,28 +27,25 @@ def unpack_thread_id(thread_id: int) -> (int, int):
     return divmod(thread_id, 10)
 
 
-def total_num_responses(database_id):
+def total_num_responses(session, database_id):
     """Return the total number of comments and replies to the thread with
     database id database_id.
     """
-    with session_scope() as session:
-        return (
-            session.execute(
-                select(func.count()).select_from(Comment).where(Comment.thread_id == database_id)
-            ).scalar_one()
-            + session.execute(
-                select(func.count())
-                .select_from(Reply)
-                .join(Comment, Comment.id == Reply.comment_id)
-                .where(Comment.thread_id == database_id)
-            ).scalar_one()
-        )
+    return (
+        session.execute(select(func.count()).select_from(Comment).where(Comment.thread_id == database_id)).scalar_one()
+        + session.execute(
+            select(func.count())
+            .select_from(Reply)
+            .join(Comment, Comment.id == Reply.comment_id)
+            .where(Comment.thread_id == database_id)
+        ).scalar_one()
+    )
 
 
-def thread_to_pb(database_id):
+def thread_to_pb(session, database_id):
     return threads_pb2.Thread(
         thread_id=pack_thread_id(database_id, 0),
-        num_responses=total_num_responses(database_id),
+        num_responses=total_num_responses(session, database_id),
     )
 
 

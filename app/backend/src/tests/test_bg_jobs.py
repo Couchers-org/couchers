@@ -67,7 +67,8 @@ def _check_job_counter(job, status, attempt, exception):
 
 
 def test_email_job(db):
-    queue_email("sender_name", "sender_email", "recipient", "subject", "plain", "html")
+    with session_scope() as session:
+        queue_email(session, "sender_name", "sender_email", "recipient", "subject", "plain", "html")
 
     def mock_print_dev_email(
         sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data
@@ -112,7 +113,7 @@ def test_purge_login_tokens(db):
         session.add(login_token)
         assert session.execute(select(func.count()).select_from(LoginToken)).scalar_one() == 1
 
-    queue_job("purge_login_tokens", empty_pb2.Empty())
+        queue_job(session, "purge_login_tokens", empty_pb2.Empty())
     process_job()
 
     with session_scope() as session:
@@ -145,7 +146,7 @@ def test_purge_password_reset_tokens(db):
         session.add(password_reset_token)
         assert session.execute(select(func.count()).select_from(PasswordResetToken)).scalar_one() == 1
 
-    queue_job("purge_password_reset_tokens", empty_pb2.Empty())
+        queue_job(session, "purge_password_reset_tokens", empty_pb2.Empty())
     process_job()
 
     with session_scope() as session:
@@ -191,7 +192,7 @@ def test_purge_account_deletion_tokens(db):
             session.add(token)
         assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 3
 
-    queue_job("purge_account_deletion_tokens", empty_pb2.Empty())
+        queue_job(session, "purge_account_deletion_tokens", empty_pb2.Empty())
     process_job()
 
     with session_scope() as session:
@@ -217,7 +218,8 @@ def test_purge_account_deletion_tokens(db):
 
 
 def test_enforce_community_memberships(db):
-    queue_job("enforce_community_membership", empty_pb2.Empty())
+    with session_scope() as session:
+        queue_job(session, "enforce_community_membership", empty_pb2.Empty())
     process_job()
 
     with session_scope() as session:
@@ -240,7 +242,9 @@ def test_enforce_community_memberships(db):
 
 
 def test_refresh_materialized_views(db):
-    queue_job("refresh_materialized_views", empty_pb2.Empty())
+    with session_scope() as session:
+        queue_job(session, "refresh_materialized_views", empty_pb2.Empty())
+
     process_job()
 
     with session_scope() as session:
@@ -263,7 +267,8 @@ def test_refresh_materialized_views(db):
 
 
 def test_service_jobs(db):
-    queue_email("sender_name", "sender_email", "recipient", "subject", "plain", "html")
+    with session_scope() as session:
+        queue_email(session, "sender_name", "sender_email", "recipient", "subject", "plain", "html")
 
     # we create this HitSleep exception here, and mock out the normal sleep(1) in the infinite loop to instead raise
     # this. that allows us to conveniently get out of the infinite loop and know we had no more jobs left
@@ -371,7 +376,8 @@ def test_scheduler(db, monkeypatch):
 
 
 def test_job_retry(db):
-    queue_job("mock_job", empty_pb2.Empty())
+    with session_scope() as session:
+        queue_job(session, "mock_job", empty_pb2.Empty())
 
     called_count = 0
 

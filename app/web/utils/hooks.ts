@@ -1,7 +1,7 @@
-import * as Sentry from "@sentry/nextjs";
 import { Coordinates } from "features/search/constants";
 import { LngLat } from "maplibre-gl";
 import { useRouter } from "next/router";
+import Sentry from "platform/sentry";
 import {
   Dispatch,
   MutableRefObject,

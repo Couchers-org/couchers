@@ -22,7 +22,7 @@ from couchers.utils import now
 logger = logging.getLogger(__name__)
 
 
-def send_signup_email(flow):
+def send_signup_email(session, flow):
     logger.info(f"Sending signup email to {flow.email=}:")
 
     # whether we've sent an email at all yet
@@ -44,6 +44,7 @@ def send_signup_email(flow):
     flow.email_sent = True
 
     send_simple_pretty_email(
+        session,
         flow.email,
         "Finish signing up for Couchers.org",
         "signup_verify" if not email_sent_before else "signup_continue",
@@ -51,7 +52,7 @@ def send_signup_email(flow):
     )
 
 
-def send_email_changed_confirmation_to_new_email(user):
+def send_email_changed_confirmation_to_new_email(session, user):
     """
     Send an email to user's new email address requesting confirmation of email change
     """
@@ -61,6 +62,7 @@ def send_email_changed_confirmation_to_new_email(user):
 
     confirmation_link = urls.change_email_link(confirmation_token=user.new_email_token)
     send_simple_pretty_email(
+        session,
         user.new_email,
         "Confirm your new email for Couchers.org",
         "email_changed_confirmation_new_email",
@@ -68,9 +70,10 @@ def send_email_changed_confirmation_to_new_email(user):
     )
 
 
-def send_content_report_email(content_report):
+def send_content_report_email(session, content_report):
     logger.info("Sending content report email")
     email.enqueue_system_email(
+        session,
         config["REPORTS_EMAIL_RECIPIENT"],
         "content_report",
         template_args={
@@ -81,10 +84,11 @@ def send_content_report_email(content_report):
     )
 
 
-def maybe_send_reference_report_email(reference):
+def maybe_send_reference_report_email(session, reference):
     if reference.should_report:
         logger.info("Sending reference report email")
         email.enqueue_system_email(
+            session,
             config["REPORTS_EMAIL_RECIPIENT"],
             "reference_report",
             template_args={
@@ -95,17 +99,19 @@ def maybe_send_reference_report_email(reference):
         )
 
 
-def maybe_send_contributor_form_email(form):
+def maybe_send_contributor_form_email(session, form):
     if form.should_notify:
         email.enqueue_system_email(
+            session,
             config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"],
             "contributor_form",
             template_args={"form": form, "user_link": urls.user_link(username=form.user.username)},
         )
 
 
-def send_event_community_invite_request_email(request: EventCommunityInviteRequest):
+def send_event_community_invite_request_email(session, request: EventCommunityInviteRequest):
     email.enqueue_system_email(
+        session,
         config["MODS_EMAIL_RECIPIENT"],
         "event_community_invite_request",
         template_args={
@@ -116,9 +122,10 @@ def send_event_community_invite_request_email(request: EventCommunityInviteReque
     )
 
 
-def send_account_deletion_report_email(reason):
+def send_account_deletion_report_email(session, reason):
     logger.info("Sending account deletion report email")
     email.enqueue_system_email(
+        session,
         config["REPORTS_EMAIL_RECIPIENT"],
         "account_deletion_report",
         template_args={

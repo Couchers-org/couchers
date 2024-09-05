@@ -26,11 +26,13 @@ export const contactRoute = "/contact";
 
 export const loginRoute = "/login";
 export const resetPasswordRoute = "/password-reset";
-export const settingsRoute = "/account-settings";
 export const featurePreviewRoute = "/preview";
 export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
+
+export const settingsRoute = "/account-settings";
+export const notificationSettingsRoute = `${settingsRoute}/notifications`;
 
 // profile
 export const userTabs = [

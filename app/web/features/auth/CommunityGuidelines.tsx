@@ -8,20 +8,20 @@ import {
   Typography,
   TypographyVariant,
 } from "@material-ui/core";
-import * as Sentry from "@sentry/nextjs";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { communityGuidelinesQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
+import Sentry from "platform/sentry";
 import { GetCommunityGuidelinesRes } from "proto/resources_pb";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useQuery } from "react-query";
 import { service } from "service";
+import isGrpcError from "service/utils/isGrpcError";
 import { useIsMounted, useSafeState } from "utils/hooks";
-import isGrpcError from "utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({

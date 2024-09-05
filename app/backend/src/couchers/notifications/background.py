@@ -33,7 +33,6 @@ from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
-
 template_folder = Path(__file__).parent / ".." / ".." / ".." / "templates" / "v2"
 
 loader = FileSystemLoader(template_folder)
@@ -42,7 +41,7 @@ env = Environment(loader=loader, trim_blocks=True)
 add_filters(env)
 
 
-def _send_email_notification(user: User, notification: Notification):
+def _send_email_notification(session, user: User, notification: Notification):
     rendered = render_notification(user, notification)
     template_args = {
         "user": user,
@@ -58,7 +57,7 @@ def _send_email_notification(user: User, notification: Notification):
         plain_unsub_section += "This is a security email, you cannot unsubscribe from it."
         html_unsub_section = "This is a security email, you cannot unsubscribe from it."
     else:
-        manage_link = urls.account_settings_link()
+        manage_link = urls.notification_settings_link()
         plain_unsub_section += f"Edit your notification settings at <{manage_link}>"
         html_unsub_section = f'<a href="{manage_link}">Manage notification preferences</a>.'
         unsub_options = []
@@ -100,6 +99,7 @@ def _send_email_notification(user: User, notification: Notification):
         list_unsubscribe_header = f"<{rendered.email_list_unsubscribe_url}>"
 
     queue_email(
+        session,
         sender_name=config["NOTIFICATION_EMAIL_SENDER"],
         sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
         recipient=user.email,
@@ -111,7 +111,7 @@ def _send_email_notification(user: User, notification: Notification):
     )
 
 
-def _send_push_notification(user: User, notification: Notification):
+def _send_push_notification(session, user: User, notification: Notification):
     logger.debug(f"Formatting push notification for {user}")
 
     rendered = render_notification(user, notification)
@@ -120,6 +120,7 @@ def _send_push_notification(user: User, notification: Notification):
         raise Exception(f"Tried to send push notification to {user} but didn't have push info")
 
     push_to_user(
+        session,
         user.id,
         title=rendered.push_title,
         body=rendered.push_body,
@@ -152,7 +153,7 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
                         delivery_type=NotificationDeliveryType.email,
                     )
                 )
-                _send_email_notification(user, notification)
+                _send_email_notification(session, user, notification)
             elif delivery_type == NotificationDeliveryType.digest:
                 # for digest notifications, add to digest queue
                 session.add(
@@ -171,7 +172,7 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
                         delivery_type=NotificationDeliveryType.push,
                     )
                 )
-                _send_push_notification(user, notification)
+                _send_push_notification(session, user, notification)
 
 
 def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload):

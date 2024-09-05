@@ -1,5 +1,4 @@
 import { Divider, Typography } from "@material-ui/core";
-import * as Sentry from "@sentry/react";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
@@ -11,11 +10,13 @@ import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesFor
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
+import { useIsNativeEmbed } from "platform/nativeLink";
+import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
 import vercelLogo from "resources/vercel.svg";
 import { dashboardRoute, loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";
-import isGrpcError from "utils/isGrpcError";
+import isGrpcError from "service/utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 import stringOrFirstString from "utils/stringOrFirstString";
 
@@ -68,6 +69,9 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("sm")]: {
       width: "100%",
     },
+  },
+  mobileEmbed: {
+    margin: theme.spacing(3),
   },
 }));
 
@@ -168,6 +172,8 @@ export default function Signup() {
   const router = useRouter();
   const urlToken = stringOrFirstString(router.query.token);
 
+  const isNativeEmbed = useIsNativeEmbed();
+
   useEffect(() => {
     authActions.clearError();
   }, [authActions]);
@@ -202,6 +208,19 @@ export default function Signup() {
     // next-router-mock router isn't memoized, so putting router in the dependencies
     // causes infinite looping in tests
   }, [urlToken, authActions, t]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (isNativeEmbed) {
+    return (
+      <div className={classes.mobileEmbed}>
+        {error && (
+          <Alert className={authClasses.errorMessage} severity="error">
+            {error}
+          </Alert>
+        )}
+        {loading ? <CircularProgress /> : <CurrentForm />}
+      </div>
+    );
+  }
 
   return (
     <>

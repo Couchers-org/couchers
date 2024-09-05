@@ -64,7 +64,7 @@ service Communities {
   }
 
   rpc ListEvents(ListEventsReq) returns (ListEventsRes) {
-    // Returns a paginated events of guides associated with a community
+    // Returns a paginated list of events associated with a community
   }
 
   rpc ListDiscussions(ListDiscussionsReq) returns (ListDiscussionsRes) {

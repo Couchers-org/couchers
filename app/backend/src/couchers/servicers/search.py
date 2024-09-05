@@ -2,13 +2,30 @@
 See //docs/search.md for overview.
 """
 
+from datetime import timedelta
+
 import grpc
-from sqlalchemy.sql import func, or_
+from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import session_scope
-from couchers.models import Cluster, Event, EventOccurrence, Node, Page, PageType, PageVersion, Reference, User
+from couchers.models import (
+    Cluster,
+    ClusterSubscription,
+    Event,
+    EventOccurrence,
+    EventOccurrenceAttendee,
+    EventOrganizer,
+    EventSubscription,
+    Node,
+    Page,
+    PageType,
+    PageVersion,
+    Reference,
+    User,
+)
+from couchers.servicers.account import has_strong_verification
 from couchers.servicers.api import (
     hostingstatus2sql,
     meetupstatus2sql,
@@ -22,7 +39,14 @@ from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.sql import couchers_select as select
-from couchers.utils import create_coordinate, last_active_coarsen, to_aware_datetime
+from couchers.utils import (
+    create_coordinate,
+    dt_from_millis,
+    last_active_coarsen,
+    millis_from_dt,
+    now,
+    to_aware_datetime,
+)
 from proto import search_pb2, search_pb2_grpc
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
@@ -225,8 +249,8 @@ def _search_pages(session, search_statement, title_only, next_rank, page_size, c
     return [
         search_pb2.Result(
             rank=rank,
-            place=page_to_pb(page, context) if page.type == PageType.place else None,
-            guide=page_to_pb(page, context) if page.type == PageType.guide else None,
+            place=page_to_pb(session, page, context) if page.type == PageType.place else None,
+            guide=page_to_pb(session, page, context) if page.type == PageType.guide else None,
             snippet=snippet,
         )
         for page, rank, snippet in pages
@@ -301,9 +325,11 @@ def _search_clusters(
         search_pb2.Result(
             rank=rank,
             community=(
-                community_to_pb(cluster.official_cluster_for_node, context) if cluster.is_official_cluster else None
+                community_to_pb(session, cluster.official_cluster_for_node, context)
+                if cluster.is_official_cluster
+                else None
             ),
-            group=group_to_pb(cluster, context) if not cluster.is_official_cluster else None,
+            group=group_to_pb(session, cluster, context) if not cluster.is_official_cluster else None,
             snippet=snippet,
         )
         for cluster, rank, snippet in clusters
@@ -363,6 +389,8 @@ class Search(search_pb2_grpc.SearchServicer):
 
     def UserSearch(self, request, context):
         with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
             statement = select(User).where_users_visible(context)
             if request.HasField("query"):
                 if request.query_name_only:
@@ -385,15 +413,18 @@ class Search(search_pb2_grpc.SearchServicer):
                             User.additional_information.ilike(f"%{request.query.value}%"),
                         )
                     )
-            # if request.profile_completed:
-            #     statement = statement.where(User.has_completed_profile == True)
 
             if request.HasField("last_active"):
                 raw_dt = to_aware_datetime(request.last_active)
                 statement = statement.where(User.last_active >= last_active_coarsen(raw_dt))
 
-            if request.HasField("gender"):
-                statement = statement.where(User.gender.ilike(f"%{request.gender.value}%"))
+            if len(request.gender) > 0:
+                if not has_strong_verification(session, user):
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NEED_STRONG_VERIFICATION)
+                elif user.gender not in request.gender:
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MUST_INCLUDE_OWN_GENDER)
+                else:
+                    statement = statement.where(User.gender.in_(request.gender))
 
             if len(request.hosting_status_filter) > 0:
                 statement = statement.where(
@@ -512,5 +543,140 @@ class Search(search_pb2_grpc.SearchServicer):
                 ],
                 next_page_token=(
                     encrypt_page_token(str(users[-1].recommendation_score)) if len(users) > page_size else None
+                ),
+            )
+
+    def EventSearch(self, request, context):
+        with session_scope() as session:
+            statement = (
+                select(EventOccurrence)
+                .join(Event, Event.id == EventOccurrence.event_id)
+                .where(~EventOccurrence.is_deleted)
+            )
+
+            if request.HasField("query"):
+                if request.query_title_only:
+                    statement = statement.where(Event.title.ilike(f"%{request.query.value}%"))
+                else:
+                    statement = statement.where(
+                        or_(
+                            Event.title.ilike(f"%{request.query.value}%"),
+                            EventOccurrence.content.ilike(f"%{request.query.value}%"),
+                            EventOccurrence.address.ilike(f"%{request.query.value}%"),
+                        )
+                    )
+
+            if request.only_online:
+                statement = statement.where(EventOccurrence.geom == None)
+            elif request.only_offline:
+                statement = statement.where(EventOccurrence.geom != None)
+
+            if request.subscribed or request.attending or request.organizing or request.my_communities:
+                where_ = []
+
+                if request.subscribed:
+                    statement = statement.outerjoin(
+                        EventSubscription,
+                        and_(EventSubscription.event_id == Event.id, EventSubscription.user_id == context.user_id),
+                    )
+                    where_.append(EventSubscription.user_id != None)
+                if request.organizing:
+                    statement = statement.outerjoin(
+                        EventOrganizer,
+                        and_(EventOrganizer.event_id == Event.id, EventOrganizer.user_id == context.user_id),
+                    )
+                    where_.append(EventOrganizer.user_id != None)
+                if request.attending:
+                    statement = statement.outerjoin(
+                        EventOccurrenceAttendee,
+                        and_(
+                            EventOccurrenceAttendee.occurrence_id == EventOccurrence.id,
+                            EventOccurrenceAttendee.user_id == context.user_id,
+                        ),
+                    )
+                    where_.append(EventOccurrenceAttendee.user_id != None)
+                if request.my_communities:
+                    my_communities = (
+                        session.execute(
+                            select(Node.id)
+                            .join(Cluster, Cluster.parent_node_id == Node.id)
+                            .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
+                            .where(ClusterSubscription.user_id == context.user_id)
+                            .where(Cluster.is_official_cluster)
+                            .order_by(Node.id)
+                            .limit(100000)
+                        )
+                        .scalars()
+                        .all()
+                    )
+                    where_.append(Event.parent_node_id.in_(my_communities))
+
+                statement = statement.where(or_(*where_))
+
+            if not request.include_cancelled:
+                statement = statement.where(~EventOccurrence.is_cancelled)
+
+            if request.HasField("search_in_area"):
+                # EPSG4326 measures distance in decimal degress
+                # we want to check whether two circles overlap, so check if the distance between their centers is less
+                # than the sum of their radii, divided by 111111 m ~= 1 degree (at the equator)
+                search_point = create_coordinate(request.search_in_area.lat, request.search_in_area.lng)
+                statement = statement.where(
+                    func.ST_DWithin(
+                        # old:
+                        # User.geom, search_point, (User.geom_radius + request.search_in_area.radius) / 111111
+                        # this is an optimization that speeds up the db queries since it doesn't need to look up the user's geom radius
+                        EventOccurrence.geom,
+                        search_point,
+                        (1000 + request.search_in_area.radius) / 111111,
+                    )
+                )
+            if request.HasField("search_in_rectangle"):
+                statement = statement.where(
+                    func.ST_Within(
+                        EventOccurrence.geom,
+                        func.ST_MakeEnvelope(
+                            request.search_in_rectangle.lng_min,
+                            request.search_in_rectangle.lat_min,
+                            request.search_in_rectangle.lng_max,
+                            request.search_in_rectangle.lat_max,
+                            4326,
+                        ),
+                    )
+                )
+            if request.HasField("search_in_community_id"):
+                # could do a join here as well, but this is just simpler
+                node = session.execute(
+                    select(Node).where(Node.id == request.search_in_community_id)
+                ).scalar_one_or_none()
+                if not node:
+                    context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+                statement = statement.where(func.ST_Contains(node.geom, EventOccurrence.geom))
+
+            if request.HasField("after"):
+                statement = statement.where(EventOccurrence.start_time > to_aware_datetime(request.after))
+            if request.HasField("before"):
+                statement = statement.where(EventOccurrence.end_time < to_aware_datetime(request.before))
+
+            page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+            # the page token is a unix timestamp of where we left off
+            page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
+
+            if not request.past:
+                statement = statement.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
+                    EventOccurrence.start_time.asc()
+                )
+            else:
+                statement = statement.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
+                    EventOccurrence.start_time.desc()
+                )
+
+            statement = statement.limit(page_size + 1)
+            occurrences = session.execute(statement).scalars().all()
+
+            return search_pb2.EventSearchRes(
+                events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
+                next_page_token=(
+                    str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None
                 ),
             )

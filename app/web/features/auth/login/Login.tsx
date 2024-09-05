@@ -9,14 +9,11 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import vercelLogo from "resources/vercel.svg";
 import { dashboardRoute, signupRoute } from "routes";
-import makeStyles from "utils/makeStyles";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
 import useAuthStyles from "../useAuthStyles";
 import LoginForm from "./LoginForm";
-
-const useStyles = makeStyles((theme) => ({}));
 
 export default function Login() {
   const { t } = useTranslation([AUTH, GLOBAL]);
@@ -29,7 +26,6 @@ export default function Login() {
   const redirectTo = from === "/" || from === "%2F" ? dashboardRoute : from;
 
   const authClasses = useAuthStyles();
-  const classes = useStyles();
 
   useEffect(() => {
     if (authenticated) {

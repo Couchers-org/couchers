@@ -1,5 +1,6 @@
 import { InitiateDonationReq } from "proto/donations_pb";
-import client from "service/client";
+
+import client from "./client";
 
 export async function initiateDonation(amount: number, recurring: boolean) {
   const req = new InitiateDonationReq();

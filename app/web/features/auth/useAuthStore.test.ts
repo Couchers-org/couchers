@@ -1,12 +1,13 @@
 import { renderHook } from "@testing-library/react-hooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { StatusCode } from "grpc-web";
+import { usePersistedState } from "platform/usePersistedState";
 import { act } from "react-test-renderer";
 import { service } from "service";
 
 import wrapper from "../../test/hookWrapper";
 import { addDefaultUser } from "../../test/utils";
-import useAuthStore, { usePersistedState } from "./useAuthStore";
+import useAuthStore from "./useAuthStore";
 
 const getUserMock = service.user.getUser as jest.Mock;
 const getCurrentUserMock = service.user.getCurrentUser as jest.Mock;

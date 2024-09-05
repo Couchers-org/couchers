@@ -109,7 +109,6 @@ export default function LandingPage() {
 
   const moreContentRef = useRef<HTMLHeadingElement>(null);
   const scrollToMore = () => {
-    console.log(moreContentRef.current);
     moreContentRef.current?.scrollIntoView({
       behavior: "smooth",
       block: "center",

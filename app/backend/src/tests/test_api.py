@@ -493,8 +493,8 @@ def test_friend_request_flow(db, push_collector):
     assert user2.name in e.html
     assert user1.name in e.plain
     assert user1.name in e.html
-    assert "http://localhost:5000/img/thumbnail/" not in e.plain
-    assert "http://localhost:5000/img/thumbnail/" in e.html
+    assert "http://localhost:5001/img/thumbnail/" not in e.plain
+    assert "http://localhost:5001/img/thumbnail/" in e.html
     assert "http://localhost:3000/connections/friends/" in e.plain
     assert "http://localhost:3000/connections/friends/" in e.html
 
@@ -557,8 +557,8 @@ def test_friend_request_flow(db, push_collector):
     assert user1.name in e.html
     assert user2.name in e.plain
     assert user2.name in e.html
-    assert "http://localhost:5000/img/thumbnail/" not in e.plain
-    assert "http://localhost:5000/img/thumbnail/" in e.html
+    assert "http://localhost:5001/img/thumbnail/" not in e.plain
+    assert "http://localhost:5001/img/thumbnail/" in e.html
     assert f"http://localhost:3000/user/{user2.username}" in e.plain
     assert f"http://localhost:3000/user/{user2.username}" in e.html
 

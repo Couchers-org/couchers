@@ -9,6 +9,16 @@ from couchers import errors
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
 from couchers.db import session_scope
+from couchers.metrics import (
+    account_deletion_completions_counter,
+    account_recoveries_counter,
+    logins_counter,
+    password_reset_completions_counter,
+    password_reset_initiations_counter,
+    signup_completions_counter,
+    signup_initiations_counter,
+    signup_time_histogram,
+)
 from couchers.models import AccountDeletionToken, ContributorForm, PasswordResetToken, SignupFlow, User, UserSession
 from couchers.notifications.notify import notify
 from couchers.notifications.unsubscribe import unsubscribe
@@ -83,6 +93,9 @@ def create_session(context, session, user, long_lived, is_api_key=False, duratio
 
     if set_cookie:
         context.send_initial_metadata([("set-cookie", create_session_cookie(token, user_session.expiry))])
+
+    logins_counter.labels(user.gender).inc()
+
     return token, user_session.expiry
 
 
@@ -104,32 +117,29 @@ def delete_session(token):
             return False
 
 
+def _username_available(session, username):
+    """
+    Checks if the given username adheres to our rules and isn't taken already.
+    """
+    logger.debug(f"Checking if {username=} is valid")
+    if not is_valid_username(username):
+        return False
+    # check for existing user with that username
+    user_exists = session.execute(select(User).where(User.username == username)).scalar_one_or_none() is not None
+    # check for started signup with that username
+    signup_exists = (
+        session.execute(select(SignupFlow).where(SignupFlow.username == username)).scalar_one_or_none() is not None
+    )
+    # return False if user exists, True otherwise
+    return not user_exists and not signup_exists
+
+
 class Auth(auth_pb2_grpc.AuthServicer):
     """
     The Auth servicer.
 
     This class services the Auth service/API.
     """
-
-    def _username_available(self, username):
-        """
-        Checks if the given username adheres to our rules and isn't taken already.
-        """
-        logger.debug(f"Checking if {username=} is valid")
-        if not is_valid_username(username):
-            return False
-        with session_scope() as session:
-            # check for existing user with that username
-            user_exists = (
-                session.execute(select(User).where(User.username == username)).scalar_one_or_none() is not None
-            )
-            # check for started signup with that username
-            signup_exists = (
-                session.execute(select(SignupFlow).where(SignupFlow.username == username)).scalar_one_or_none()
-                is not None
-            )
-            # return False if user exists, True otherwise
-            return not user_exists and not signup_exists
 
     def SignupFlow(self, request, context):
         with session_scope() as session:
@@ -170,7 +180,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                         select(SignupFlow).where(SignupFlow.email == request.basic.email)
                     ).scalar_one_or_none()
                     if existing_flow:
-                        send_signup_email(existing_flow)
+                        send_signup_email(session, existing_flow)
                         session.commit()
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP)
 
@@ -188,6 +198,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     )
                     session.add(flow)
                     session.flush()
+                    signup_initiations_counter.inc()
                 else:
                     # not fresh signup
                     flow = session.execute(
@@ -207,7 +218,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     if not is_valid_username(request.account.username):
                         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME)
 
-                    if not self._username_available(request.account.username):
+                    if not _username_available(session, request.account.username):
                         context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USERNAME_NOT_AVAILABLE)
 
                     abort_on_invalid_password(request.account.password, context)
@@ -260,7 +271,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 # send verification email if needed
                 if not flow.email_sent:
-                    send_signup_email(flow)
+                    send_signup_email(session, flow)
 
                 session.flush()
 
@@ -300,6 +311,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 user.filled_contributor_form = form.is_filled
 
+                signup_duration_s = (now() - flow.created).total_seconds()
+
                 session.delete(flow)
                 session.commit()
 
@@ -308,14 +321,18 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if form.is_filled:
                     user.filled_contributor_form = True
 
-                maybe_send_contributor_form_email(form)
+                maybe_send_contributor_form_email(session, form)
 
                 # sends onboarding email
                 notify(
+                    session,
                     user_id=user.id,
                     topic_action="onboarding:reminder",
                     key="1",
                 )
+
+                signup_completions_counter.labels(flow.gender).inc()
+                signup_time_histogram.labels(flow.gender).observe(signup_duration_s)
 
                 create_session(context, session, user, False)
                 return auth_pb2.SignupFlowRes(
@@ -334,7 +351,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         Runs a username availability and validity check.
         """
-        return auth_pb2.UsernameValidRes(valid=self._username_available(request.username.lower()))
+        with session_scope() as session:
+            return auth_pb2.UsernameValidRes(valid=_username_available(session, request.username.lower()))
 
     def Authenticate(self, request, context):
         """
@@ -364,7 +382,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     select(SignupFlow).where_username_or_email(request.user, model=SignupFlow)
                 ).scalar_one_or_none()
                 if signup_flow:
-                    send_signup_email(signup_flow)
+                    send_signup_email(session, signup_flow)
                     session.commit()
                     context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP)
                 logger.debug("Didn't find user")
@@ -419,12 +437,15 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.flush()
 
                 notify(
+                    session,
                     user_id=user.id,
                     topic_action="password_reset:start",
                     data=notification_data_pb2.PasswordResetStart(
                         password_reset_token=password_reset_token.token,
                     ),
                 )
+
+                password_reset_initiations_counter.inc()
             else:  # user not found
                 logger.debug("Didn't find user")
 
@@ -450,11 +471,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.flush()
 
                 notify(
+                    session,
                     user_id=user.id,
                     topic_action="password_reset:complete",
                 )
 
                 create_session(context, session, user, False)
+                password_reset_completions_counter.inc()
                 return _auth_res(user)
             else:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
@@ -478,6 +501,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user.new_email_token_expiry = None
 
             notify(
+                session,
                 user_id=user.id,
                 topic_action="email_address:verify",
             )
@@ -510,6 +534,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session.flush()
 
             notify(
+                session,
                 user_id=user.id,
                 topic_action="account_deletion:complete",
                 data=notification_data_pb2.AccountDeletionComplete(
@@ -517,6 +542,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     undelete_days=UNDELETE_DAYS,
                 ),
             )
+
+            account_deletion_completions_counter.labels(user.gender).inc()
 
         return empty_pb2.Empty()
 
@@ -537,9 +564,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user.undelete_until = None
 
             notify(
+                session,
                 user_id=user.id,
                 topic_action="account_deletion:recovered",
             )
+
+            account_recoveries_counter.labels(user.gender).inc()
 
             return empty_pb2.Empty()
 

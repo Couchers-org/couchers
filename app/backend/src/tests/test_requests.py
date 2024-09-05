@@ -990,8 +990,8 @@ def test_request_notifications(db, push_collector):
     assert v2date(today_plus_2, host) in e.html
     assert v2date(today_plus_3, host) in e.plain
     assert v2date(today_plus_3, host) in e.html
-    assert "http://localhost:5000/img/thumbnail/" not in e.plain
-    assert "http://localhost:5000/img/thumbnail/" in e.html
+    assert "http://localhost:5001/img/thumbnail/" not in e.plain
+    assert "http://localhost:5001/img/thumbnail/" in e.html
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
 
@@ -1021,8 +1021,8 @@ def test_request_notifications(db, push_collector):
     assert v2date(today_plus_2, surfer) in e.html
     assert v2date(today_plus_3, surfer) in e.plain
     assert v2date(today_plus_3, surfer) in e.html
-    assert "http://localhost:5000/img/thumbnail/" not in e.plain
-    assert "http://localhost:5000/img/thumbnail/" in e.html
+    assert "http://localhost:5001/img/thumbnail/" not in e.plain
+    assert "http://localhost:5001/img/thumbnail/" in e.html
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
 

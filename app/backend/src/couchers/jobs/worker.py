@@ -8,20 +8,23 @@ from datetime import timedelta
 from inspect import getmembers, isfunction
 from multiprocessing import Process
 from sched import scheduler
-from time import monotonic, sleep
+from time import monotonic, perf_counter_ns, sleep
 
 import sentry_sdk
 from google.protobuf import empty_pb2
+from opentelemetry import trace
 
 from couchers.config import config
-from couchers.db import get_engine, session_scope
+from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
 from couchers.jobs import handlers
 from couchers.jobs.enqueue import queue_job
-from couchers.metrics import create_prometheus_server, job_process_registry, jobs_counter
+from couchers.metrics import create_prometheus_server, job_process_registry, observe_in_jobs_duration_histogram
 from couchers.models import BackgroundJob, BackgroundJobState
 from couchers.sql import couchers_select as select
+from couchers.tracing import setup_tracing
 
 logger = logging.getLogger(__name__)
+trace = trace.get_tracer(__name__)
 
 JOBS = {}
 SCHEDULE = []
@@ -40,7 +43,7 @@ def process_job():
     """
     logger.debug("Looking for a job")
 
-    with session_scope(isolation_level="REPEATABLE READ") as session:
+    with worker_repeatable_read_session_scope() as session:
         # a combination of REPEATABLE READ and SELECT ... FOR UPDATE SKIP LOCKED makes sure that only one transaction
         # will modify the job at a time. SKIP UPDATE means that if the job is locked, then we ignore that row, it's
         # easier to use SKIP LOCKED vs NOWAIT in the ORM, with NOWAIT you get an ugly exception from deep inside
@@ -64,11 +67,17 @@ def process_job():
         message_type, func = JOBS[job.job_type]
 
         try:
-            ret = func(message_type.FromString(job.payload))
+            with trace.start_as_current_span(job.job_type) as rollspan:
+                start = perf_counter_ns()
+                ret = func(message_type.FromString(job.payload))
+                finished = perf_counter_ns()
             job.state = BackgroundJobState.completed
-            jobs_counter.labels(job.job_type, job.state.name, str(job.try_count), "").inc()
+            observe_in_jobs_duration_histogram(
+                job.job_type, job.state.name, job.try_count, "", (finished - start) / 1e9
+            )
             logger.info(f"Job #{job.id} complete on try number {job.try_count}")
         except Exception as e:
+            finished = perf_counter_ns()
             logger.exception(e)
             sentry_sdk.set_tag("context", "job")
             sentry_sdk.set_tag("job", job.job_type)
@@ -83,8 +92,10 @@ def process_job():
                 # exponential backoff
                 job.next_attempt_after += timedelta(seconds=15 * (2**job.try_count))
                 logger.info(f"Job #{job.id} error on try number {job.try_count}, next try at {job.next_attempt_after}")
+            observe_in_jobs_duration_histogram(
+                job.job_type, job.state.name, job.try_count, type(e).__name__, (finished - start) / 1e9
+            )
             # add some info for debugging
-            jobs_counter.labels(job.job_type, job.state.name, str(job.try_count), type(e).__name__).inc()
             job.failure_info = traceback.format_exc()
 
             if config["IN_TEST"]:
@@ -98,7 +109,6 @@ def service_jobs():
     """
     Service jobs in an infinite loop
     """
-    get_engine().dispose()
     t = create_prometheus_server(job_process_registry, 8001)
     try:
         while True:
@@ -126,17 +136,14 @@ def _run_job_and_schedule(sched, schedule_id):
     )
 
     # queue the job
-    queue_job(job_type, empty_pb2.Empty())
+    with session_scope() as session:
+        queue_job(session, job_type, empty_pb2.Empty())
 
 
 def run_scheduler():
     """
     Schedules jobs according to schedule in .definitions
     """
-    # multiprocessing uses fork() which in turn copies file descriptors, so the engine may have connections in its pool
-    # that we don't want to reuse. This is the SQLALchemy-recommended way of clearing the connection pool in this thread
-    get_engine().dispose()
-
     sched = scheduler(monotonic, sleep)
 
     for schedule_id, (job_type, frequency) in enumerate(SCHEDULE):
@@ -154,6 +161,9 @@ def run_scheduler():
 
 
 def _run_forever(func):
+    db_post_fork()
+    setup_tracing()
+
     while True:
         try:
             logger.critical("Background worker starting")

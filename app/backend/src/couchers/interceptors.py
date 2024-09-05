@@ -1,17 +1,20 @@
 import logging
 from copy import deepcopy
 from datetime import timedelta
+from os import getpid
+from threading import get_ident
 from time import perf_counter_ns
 from traceback import format_exception
 
 import grpc
 import sentry_sdk
+from opentelemetry import trace
 from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
-from couchers.metrics import servicer_duration_histogram
+from couchers.metrics import observe_in_servicer_duration_histogram
 from couchers.models import APICall, User, UserSession
 from couchers.profiler import CouchersProfiler
 from couchers.sql import couchers_select as select
@@ -178,6 +181,47 @@ class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
         return continuation(handler_call_details)
 
 
+class OTelInterceptor(grpc.ServerInterceptor):
+    """
+    OpenTelemetry tracing
+    """
+
+    def __init__(self):
+        self.tracer = trace.get_tracer(__name__)
+
+    def intercept_service(self, continuation, handler_call_details):
+        handler = continuation(handler_call_details)
+        prev_func = handler.unary_unary
+        method = handler_call_details.method
+
+        # method is of the form "/org.couchers.api.core.API/GetUser"
+        _, service_name, method_name = method.split("/")
+
+        headers = dict(handler_call_details.invocation_metadata)
+
+        def tracing_function(request, context):
+            with self.tracer.start_as_current_span("handler") as rollspan:
+                rollspan.set_attribute("rpc.method_full", method)
+                rollspan.set_attribute("rpc.service", service_name)
+                rollspan.set_attribute("rpc.method", method_name)
+
+                rollspan.set_attribute("rpc.thread", get_ident())
+                rollspan.set_attribute("rpc.pid", getpid())
+
+                res = prev_func(request, context)
+
+                rollspan.set_attribute("web.user_agent", headers.get("user-agent") or "")
+                rollspan.set_attribute("web.ip_address", headers.get("x-couchers-real-ip") or "")
+
+            return res
+
+        return grpc.unary_unary_rpc_method_handler(
+            tracing_function,
+            request_deserializer=handler.request_deserializer,
+            response_serializer=handler.response_serializer,
+        )
+
+
 class TracingInterceptor(grpc.ServerInterceptor):
     """
     Measures and logs the time it takes to service each incoming call.
@@ -189,14 +233,26 @@ class TracingInterceptor(grpc.ServerInterceptor):
         """
         if not proto:
             return None
-        new_proto = deepcopy(proto)
-        for name, descriptor in new_proto.DESCRIPTOR.fields_by_name.items():
-            if descriptor.GetOptions().Extensions[annotations_pb2.sensitive]:
-                new_proto.ClearField(name)
-        return new_proto.SerializeToString()
 
-    def _observe_in_histogram(self, method, status_code, exception_type, duration):
-        servicer_duration_histogram.labels(method, status_code, exception_type).observe(duration)
+        new_proto = deepcopy(proto)
+
+        def _sanitize_message(message):
+            for name, descriptor in message.DESCRIPTOR.fields_by_name.items():
+                if descriptor.GetOptions().Extensions[annotations_pb2.sensitive]:
+                    message.ClearField(name)
+                if descriptor.message_type:
+                    submessage = getattr(message, name)
+                    if not submessage:
+                        continue
+                    if descriptor.label == descriptor.LABEL_REPEATED:
+                        for msg in submessage:
+                            _sanitize_message(msg)
+                    else:
+                        _sanitize_message(submessage)
+
+        _sanitize_message(new_proto)
+
+        return new_proto.SerializeToString()
 
     def _store_log(
         self,
@@ -259,7 +315,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 self._store_log(
                     method, None, duration, user_id, is_api_key, request, res, None, prof.report, ip_address, user_agent
                 )
-                self._observe_in_histogram(method, "", "", duration)
+                observe_in_servicer_duration_histogram(method, user_id, "", "", duration / 1000)
             except Exception as e:
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
@@ -270,7 +326,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 self._store_log(
                     method, code, duration, user_id, is_api_key, request, None, traceback, None, ip_address, user_agent
                 )
-                self._observe_in_histogram(method, code or "", type(e).__name__, duration)
+                observe_in_servicer_duration_histogram(method, user_id, code or "", type(e).__name__, duration / 1000)
 
                 if not code:
                     sentry_sdk.set_tag("context", "servicer")

@@ -4,8 +4,9 @@ import {
   AcceptTOSReq,
   SetLocationReq,
 } from "proto/jail_pb";
-import client from "service/client";
-import { getCurrentUser } from "service/user";
+
+import client from "./client";
+import { getCurrentUser } from "./user";
 
 export async function getIsJailed() {
   const req = new Empty();

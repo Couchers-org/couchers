@@ -98,21 +98,21 @@ service Auth {
 message SignupFlowReq {
   // a token used to link the user's information across the signup flow
   // required if basic is empty, otherwise the backend generates a new signup
-  string flow_token = 1 [ (sensitive) = true ];
+  string flow_token = 1 [ (is_token) = true ];
 
   SignupBasic basic = 2;
   SignupAccount account = 3;
   ContributorForm feedback = 4;
 
   // email token is reused for both verifying a signup's email, but also for continuing a signup
-  string email_token = 5 [ (sensitive) = true ];
+  string email_token = 5 [ (is_token) = true ];
 
   google.protobuf.BoolValue accept_community_guidelines = 6;
 }
 
 message SignupFlowRes {
   // a token used to link the user's information across the signup flow
-  string flow_token = 1 [ (sensitive) = true ];
+  string flow_token = 1 [ (is_token) = true ];
   // auth_res is included if and only if signup is successful
   AuthRes auth_res = 3;
   // which parts are missing?
@@ -132,7 +132,7 @@ message SignupBasic {
 }
 
 message SignupTokenInfoReq {
-  string signup_token = 1 [ (sensitive) = true ];
+  string signup_token = 1 [ (is_token) = true ];
 }
 
 message SignupAccount {
@@ -190,13 +190,13 @@ message ResetPasswordReq {
 }
 
 message CompletePasswordResetV2Req {
-  string password_reset_token = 1 [ (sensitive) = true ];
+  string password_reset_token = 1 [ (is_token) = true ];
   // the frontend should ask for the password twice and whatnot
   string new_password = 2 [ (sensitive) = true ];
 }
 
 message ConfirmChangeEmailV2Req {
-  string change_email_token = 1 [ (sensitive) = true ];
+  string change_email_token = 1 [ (is_token) = true ];
 }
 
 enum ContributeOption {
@@ -219,11 +219,11 @@ message ContributorForm {
 }
 
 message ConfirmDeleteAccountReq {
-  string token = 1 [ (sensitive) = true ];
+  string token = 1 [ (is_token) = true ];
 }
 
 message RecoverAccountReq {
-  string token = 1 [ (sensitive) = true ];
+  string token = 1 [ (is_token) = true ];
 }
 
 message UnsubscribeReq {

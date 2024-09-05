@@ -22,7 +22,7 @@ Replace the last line of `pg_hba.conf` with:
 
 ```
 hostssl all             +humans         0.0.0.0/0               scram-sha-256
-hostnossl       all     postgres        172.16.0.0/12           scram-sha-256
+host            all     postgres        172.16.0.0/12           scram-sha-256
 
 host all all all reject
 ```

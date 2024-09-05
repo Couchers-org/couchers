@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { useMutation, useQueryClient } from "react-query";
 import { routeToProfile } from "routes";
 import { service, UpdateUserProfileData } from "service/index";
-import { SetMutationError } from "utils/types";
+import { SetMutationError } from "utils/setMutationError";
 
 interface UpdateUserProfileVariables {
   profileData: UpdateUserProfileData;

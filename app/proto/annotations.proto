@@ -5,6 +5,8 @@ import "google/protobuf/descriptor.proto";
 extend google.protobuf.FieldOptions {
   // whether the field is sensitive and should not be logged
   bool sensitive = 50000;
+  // this is a token
+  bool is_token = 50001;
 }
 
 enum AuthLevel {
