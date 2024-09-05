@@ -113,28 +113,29 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             return unauthenticated_handler('Both "cookie" and "authorization" in request')
         elif "cookie" in headers:
             # the session token is passed in cookies, i.e. in the `cookie` header
-            token = parse_session_cookie(headers)
-            is_api_key = False
-            res = _try_get_and_update_user_details(token, is_api_key)
+            token, is_api_key = parse_session_cookie(headers), False
         elif "authorization" in headers:
             # the session token is passed in the `authorization` header
-            token = parse_api_key(headers)
-            is_api_key = True
-            res = _try_get_and_update_user_details(token, is_api_key)
+            token, is_api_key = parse_api_key(headers), True
         else:
             # no session found
+            token, is_api_key = None, False
+
+        auth_info = _try_get_and_update_user_details(token, is_api_key)
+        # auth_info is now filled if and only if this is a valid session
+        if not auth_info:
             token = None
             is_api_key = False
-            res = None
+            token_expiry = None
+            user_id = None
 
         # if no session was found and this isn't an open service, fail
-        if not token or not res:
+        if not auth_info:
             if auth_level != annotations_pb2.AUTH_LEVEL_OPEN:
                 return unauthenticated_handler()
-            user_id = None
         else:
             # a valid user session was found
-            user_id, is_jailed, is_superuser, token_expiry = res
+            user_id, is_jailed, is_superuser, token_expiry = auth_info
 
             if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser:
                 return unauthenticated_handler("Permission denied", grpc.StatusCode.PERMISSION_DENIED)
