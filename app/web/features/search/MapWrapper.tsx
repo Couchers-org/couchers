@@ -210,7 +210,7 @@ export default function MapWrapper({
         reRenderUsersOnMap(map.current, usersToRender, handleMapUserClick);
       }
     }
-  }, [results, map.current]);
+  }, [results, map.current, map.current?.loaded()]);
 
   /**
    * Clicks on 'search here' button

@@ -16,7 +16,7 @@ export default function SearchPage() {
   const router = useRouter();
 
   const location = router.query.location || "";
-  const bbox = router.query.bbox || [0, 0, 0, 0];
+  const bbox = router.query.bbox || [390, 82, -173, -66];
 
   return (
     <SearchPageComponent

@@ -1,5 +1,5 @@
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
-import { Coordinates } from "features/search/constants";
+import { Coordinates, selectedUserZoom } from "features/search/constants";
 import SearchResultsList from "./SearchResultsList";
 import { useEffect, useRef, useState } from "react";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
@@ -58,11 +58,11 @@ const useStyles = makeStyles((theme) => ({
  * Search page, queries the backend & obtains all the users to be shown on the map, creates all the state variables and sends them to the search page sub-components
  */
 export default function SearchPage({
-  locationName = "",
-  bbox = [-61, -57, 72, 73],
+  locationName,
+  bbox,
 }: {
-  locationName?: string;
-  bbox?: Coordinates;
+  locationName: string;
+  bbox: Coordinates;
 }) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const queryClient = new QueryClient();
@@ -138,9 +138,9 @@ export default function SearchPage({
   // Relocate map everytime boundingbox changes
   useEffect(() => {
     map.current?.fitBounds(locationResult.bbox, {
-      maxZoom: 1,
+      maxZoom: selectedUserZoom,
     });
-  });
+  }, [locationResult.bbox]);
 
   let errorMessage = error?.message;
 

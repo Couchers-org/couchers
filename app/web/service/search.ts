@@ -1,3 +1,4 @@
+import { Coordinates } from "features/search/constants";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
   StringValue,
@@ -10,7 +11,7 @@ import client from "service/client";
 
 export interface UserSearchFilters {
   query?: string;
-  bbox?: [number, number, number, number];
+  bbox?: Coordinates;
   lastActive?: number; //within x days
   hostingStatusOptions?: HostingStatus[];
   numGuests?: number;
