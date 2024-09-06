@@ -142,7 +142,7 @@ export default function SearchPage({
     });
   }, [locationResult.bbox]);
 
-  let errorMessage = error?.message;
+  const errorMessage = error?.message;
 
   return (
     <QueryClientProvider client={queryClient}>
