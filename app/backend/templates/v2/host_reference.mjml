@@ -52,6 +52,11 @@
 <!-- {% endif %} -->
 <mj-section padding="0px">
   <mj-column>
+    <mj-text><b>Couchers is a nonprofit developed and run entirely by volunteers.</b> If you are enjoying being a part of our community, please consider <a href="https://couchers.org/donate?cr=refemail">donating</a>, <a href="https://couchers.org/volunteer?cr=refemail">volunteering</a>, or just spreading the word. Your support will help us keep the lights on, grow and reach more people!</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
     <mj-text>Thanks for using Couchers!</mj-text>
   </mj-column>
 </mj-section>
