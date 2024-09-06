@@ -1,13 +1,7 @@
-import {
-  QueryClient,
-  QueryClientProvider,
-  useInfiniteQuery,
-} from "react-query";
-import { useEffect, useRef, useState } from "react";
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
-import useCurrentUser from "features/userQueries/useCurrentUser";
-import { Coordinates, selectedUserZoom } from "features/search/constants";
+import { Coordinates } from "features/search/constants";
 import SearchResultsList from "./SearchResultsList";
+import { useEffect, useRef, useState } from "react";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { Map as MaplibreMap } from "maplibre-gl";
 import { UserSearchRes } from "proto/search_pb";
@@ -17,6 +11,11 @@ import { useTranslation } from "i18n";
 import MapWrapper from "./MapWrapper";
 import { User } from "proto/api_pb";
 import { service } from "service";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useInfiniteQuery,
+} from "react-query";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -60,16 +59,11 @@ const useStyles = makeStyles((theme) => ({
  */
 export default function SearchPage({
   locationName = "",
-  bbox = [0, 0, 0, 0],
+  bbox = [-61, -57, 72, 73],
 }: {
   locationName?: string;
   bbox?: Coordinates;
 }) {
-  const {
-    data: userData,
-    error: errorUser,
-    isLoading: isLoadingUser,
-  } = useCurrentUser();
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const queryClient = new QueryClient();
   const classes = useStyles();
@@ -94,7 +88,6 @@ export default function SearchPage({
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
   >(undefined);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [mapInitiallyLocated, setMapInitiallyLocated] = useState(false);
 
   // Loads the list of users
   const { data, error, isLoading, fetchNextPage, isFetching, hasNextPage } =
@@ -145,29 +138,11 @@ export default function SearchPage({
   // Relocate map everytime boundingbox changes
   useEffect(() => {
     map.current?.fitBounds(locationResult.bbox, {
-      maxZoom: selectedUserZoom,
+      maxZoom: 1,
     });
-  }, [locationResult.bbox]);
-
-  // Initial bounding box
-  useEffect(() => {
-    if (isLoadingUser === false && userData && bbox.join() === "0,0,0,0") {
-      map.current?.fitBounds(
-        [userData.lng, userData.lat, userData.lng, userData.lat],
-        {
-          maxZoom: 4,
-        }
-      );
-
-      map.current?.fitBounds(map.current?.getBounds());
-      setMapInitiallyLocated(true);
-    }
-  }, [isLoadingUser]);
+  });
 
   let errorMessage = error?.message;
-  if (errorUser) {
-    errorMessage = `${errorMessage || ""} ${errorUser}`;
-  }
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -188,7 +163,7 @@ export default function SearchPage({
             fetchNextPage={fetchNextPage}
             selectedResult={selectedResult}
             setSelectedResult={setSelectedResult}
-            isLoading={isLoading || isLoadingUser || isFetching}
+            isLoading={isLoading || isFetching}
           />
         </Hidden>
         {/* Mobile */}
@@ -211,7 +186,7 @@ export default function SearchPage({
               fetchNextPage={fetchNextPage}
               selectedResult={selectedResult}
               setSelectedResult={setSelectedResult}
-              isLoading={isLoading || isLoadingUser || isFetching}
+              isLoading={isLoading || isFetching}
             />
           </Collapse>
         </Hidden>
@@ -234,13 +209,12 @@ export default function SearchPage({
           <MapWrapper
             map={map}
             results={data}
-            mapInitiallyLocated={mapInitiallyLocated}
             selectedResult={selectedResult}
             locationResult={locationResult}
             setIsFiltersOpen={setIsFiltersOpen}
             setLocationResult={setLocationResult}
             setSelectedResult={setSelectedResult}
-            isLoading={isLoading || isLoadingUser || isFetching}
+            isLoading={isLoading || isFetching}
           />
         </div>
       </div>

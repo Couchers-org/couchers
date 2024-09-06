@@ -11,12 +11,12 @@ import { InfiniteData } from "react-query";
 import makeStyles from "utils/makeStyles";
 import { usePrevious } from "utils/hooks";
 import { MutableRefObject } from "react";
+import { SEARCH } from "i18n/namespaces";
 import Button from "components/Button";
+import { useTranslation } from "i18n";
 import { User } from "proto/api_pb";
 import Map from "components/Map";
 import { Point } from "geojson";
-import { SEARCH } from "i18n/namespaces";
-import { useTranslation } from "i18n";
 
 const useStyles = makeStyles((theme) => ({
   searchHereGroup2: {
@@ -63,7 +63,6 @@ interface mapWrapperProps {
   setLocationResult: Dispatch<SetStateAction<any>>;
   results: InfiniteData<UserSearchRes.AsObject> | undefined;
   setIsFiltersOpen: Dispatch<SetStateAction<boolean>>;
-  mapInitiallyLocated: boolean;
   setSelectedResult: Dispatch<
     SetStateAction<
       Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
@@ -79,7 +78,6 @@ export default function MapWrapper({
   setLocationResult,
   isLoading,
   results,
-  mapInitiallyLocated,
   setSelectedResult,
   setIsFiltersOpen,
 }: mapWrapperProps) {
@@ -201,19 +199,10 @@ export default function MapWrapper({
   }, [handleMapUserClick, handleMapSourceData]);
 
   /**
-   * Once map is centered, search in that area
-   */
-  useEffect(() => {
-    if (mapInitiallyLocated) {
-      handleOnClick();
-    }
-  }, [mapInitiallyLocated]);
-
-  /**
    * Re-renders users list on map (when results array changed)
    */
   useEffect(() => {
-    if (map.current?.loaded() && mapInitiallyLocated) {
+    if (map.current?.loaded()) {
       map.current?.stop();
 
       if (results) {
@@ -221,15 +210,7 @@ export default function MapWrapper({
         reRenderUsersOnMap(map.current, usersToRender, handleMapUserClick);
       }
     }
-  }, [results, map.current, map.current?.loaded(), mapInitiallyLocated]);
-
-  const initializeMap = (newMap: MaplibreMap) => {
-    map.current = newMap;
-    newMap.on("load", () => {
-      addClusteredUsersToMap(newMap);
-      handleOnClick();
-    });
-  };
+  }, [results, map.current]);
 
   /**
    * Clicks on 'search here' button
@@ -251,6 +232,14 @@ export default function MapWrapper({
         });
       }
     }
+  };
+
+  const initializeMap = (newMap: MaplibreMap) => {
+    map.current = newMap;
+    newMap.on("load", () => {
+      addClusteredUsersToMap(newMap);
+      handleOnClick();
+    });
   };
 
   return (

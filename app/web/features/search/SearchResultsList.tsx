@@ -78,8 +78,8 @@ const useStyles = makeStyles((theme) => ({
 interface mapWrapperProps {
   isLoading: boolean;
   results: InfiniteData<UserSearchRes.AsObject> | undefined;
-  error: string | undefined;
-  hasNext: boolean | undefined;
+  error?: string | undefined;
+  hasNext?: boolean | undefined;
   fetchNextPage: () => void;
   selectedResult:
     | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
