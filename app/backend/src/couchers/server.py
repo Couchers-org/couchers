@@ -6,6 +6,7 @@ from couchers.config import config
 from couchers.constants import SERVER_THREADS
 from couchers.interceptors import (
     AuthValidatorInterceptor,
+    CookieInterceptor,
     ErrorSanitizationInterceptor,
     OTelInterceptor,
     TracingInterceptor,
@@ -70,6 +71,7 @@ def create_main_server(port):
             OTelInterceptor(),
             TracingInterceptor(),
             AuthValidatorInterceptor(),
+            CookieInterceptor(),
         ],
     )
     server.add_insecure_port(f"[::]:{port}")

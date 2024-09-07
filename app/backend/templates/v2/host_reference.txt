@@ -18,4 +18,6 @@ You can write a reference for {{ from_user.name }} here:
 <{{ leave_reference_link }}>
 {% endif %}
 
+Couchers is a nonprofit developed and run entirely by volunteers. If you are enjoying being a part of our community, please consider donating (<https://couchers.org/donate>), volunteering (<https://couchers.org/volunteer>), or just spreading the word. Your support will help us keep the lights on, grow and reach more people!
+
 Thanks for using Couchers!

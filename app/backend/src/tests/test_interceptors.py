@@ -8,7 +8,12 @@ from google.protobuf import empty_pb2
 from couchers import errors
 from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.interceptors import AuthValidatorInterceptor, ErrorSanitizationInterceptor, TracingInterceptor
+from couchers.interceptors import (
+    AuthValidatorInterceptor,
+    CookieInterceptor,
+    ErrorSanitizationInterceptor,
+    TracingInterceptor,
+)
 from couchers.metrics import servicer_duration_histogram
 from couchers.models import APICall, UserSession
 from couchers.servicers.account import Account
@@ -302,7 +307,7 @@ def test_auth_interceptor(db):
         "rpc": account.GetAccountInfo,
         "service_name": "org.couchers.api.account.Account",
         "method_name": "GetAccountInfo",
-        "interceptors": [AuthValidatorInterceptor()],
+        "interceptors": [AuthValidatorInterceptor(), CookieInterceptor()],
         "request_type": empty_pb2.Empty,
         "response_type": account_pb2.GetAccountInfoRes,
     }

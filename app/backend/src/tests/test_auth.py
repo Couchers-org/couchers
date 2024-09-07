@@ -38,8 +38,11 @@ def _(testconfig, fast_passwords):
     pass
 
 
-def get_session_cookie_token(metadata_interceptor):
-    return http.cookies.SimpleCookie(metadata_interceptor.latest_headers["set-cookie"])["couchers-sesh"].value
+def get_session_cookie_tokens(metadata_interceptor):
+    set_cookies = [val for key, val in metadata_interceptor.latest_header_raw if key == "set-cookie"]
+    sesh = http.cookies.SimpleCookie([v for v in set_cookies if "sesh" in v][0])["couchers-sesh"].value
+    uid = http.cookies.SimpleCookie([v for v in set_cookies if "user-id" in v][0])["couchers-user-id"].value
+    return sesh, uid
 
 
 def test_UsernameValid(db):
@@ -175,7 +178,8 @@ def test_signup_incremental(db):
 
     user_id = res.auth_res.user_id
 
-    sess_token = get_session_cookie_token(metadata_interceptor)
+    sess_token, uid = get_session_cookie_tokens(metadata_interceptor)
+    assert uid == str(user_id)
 
     with api_session(sess_token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=str(user_id)))
@@ -256,7 +260,8 @@ def _quick_signup():
                 select(UserSession).join(User, UserSession.user_id == User.id).where(User.username == "frodo")
             ).scalar_one()
         ).token
-    assert get_session_cookie_token(metadata_interceptor) == token
+    sesh, uid = get_session_cookie_tokens(metadata_interceptor)
+    assert sesh == token
 
 
 def test_signup(db):
@@ -270,7 +275,7 @@ def test_basic_login(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
 
-    reply_token = get_session_cookie_token(metadata_interceptor)
+    reply_token, _ = get_session_cookie_tokens(metadata_interceptor)
 
     with session_scope() as session:
         token = (
@@ -455,7 +460,7 @@ def test_password_reset_v2(db, push_collector):
         body="Your password on Couchers.org was changed. If that was you, then no further action is needed.",
     )
 
-    session_token = get_session_cookie_token(metadata_interceptor)
+    session_token, _ = get_session_cookie_tokens(metadata_interceptor)
 
     with session_scope() as session:
         other_session_token = (
@@ -529,7 +534,7 @@ def test_logout_invalid_token(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
 
-    reply_token = get_session_cookie_token(metadata_interceptor)
+    reply_token, _ = get_session_cookie_tokens(metadata_interceptor)
 
     # delete all login tokens
     with session_scope() as session:
@@ -539,7 +544,7 @@ def test_logout_invalid_token(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
 
-    reply_token = get_session_cookie_token(metadata_interceptor)
+    reply_token, _ = get_session_cookie_tokens(metadata_interceptor)
     # make sure we set an empty cookie
     assert reply_token == ""
 

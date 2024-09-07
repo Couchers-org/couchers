@@ -18,7 +18,7 @@ from couchers.metrics import observe_in_servicer_duration_histogram
 from couchers.models import APICall, User, UserSession
 from couchers.profiler import CouchersProfiler
 from couchers.sql import couchers_select as select
-from couchers.utils import now, parse_api_key, parse_session_cookie
+from couchers.utils import create_session_cookies, now, parse_api_key, parse_session_cookie, parse_user_id_cookie
 from proto import annotations_pb2
 
 logger = logging.getLogger(__name__)
@@ -55,9 +55,8 @@ def _try_get_and_update_user_details(token, is_api_key):
             # let's update the token
             user_session.last_seen = func.now()
             user_session.api_calls += 1
-            session.flush()
 
-            return user.id, user.is_jailed, user.is_superuser
+            return user.id, user.is_jailed, user.is_superuser, user_session.expiry
 
 
 def abort_handler(message, status_code):
@@ -114,28 +113,29 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             return unauthenticated_handler('Both "cookie" and "authorization" in request')
         elif "cookie" in headers:
             # the session token is passed in cookies, i.e. in the `cookie` header
-            token = parse_session_cookie(headers)
-            is_api_key = False
-            res = _try_get_and_update_user_details(token, is_api_key)
+            token, is_api_key = parse_session_cookie(headers), False
         elif "authorization" in headers:
             # the session token is passed in the `authorization` header
-            token = parse_api_key(headers)
-            is_api_key = True
-            res = _try_get_and_update_user_details(token, is_api_key)
+            token, is_api_key = parse_api_key(headers), True
         else:
             # no session found
+            token, is_api_key = None, False
+
+        auth_info = _try_get_and_update_user_details(token, is_api_key)
+        # auth_info is now filled if and only if this is a valid session
+        if not auth_info:
             token = None
             is_api_key = False
-            res = None
+            token_expiry = None
+            user_id = None
 
         # if no session was found and this isn't an open service, fail
-        if not token or not res:
+        if not auth_info:
             if auth_level != annotations_pb2.AUTH_LEVEL_OPEN:
                 return unauthenticated_handler()
-            user_id = None
         else:
             # a valid user session was found
-            user_id, is_jailed, is_superuser = res
+            user_id, is_jailed, is_superuser, token_expiry = auth_info
 
             if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser:
                 return unauthenticated_handler("Permission denied", grpc.StatusCode.PERMISSION_DENIED)
@@ -149,9 +149,43 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
 
         def user_unaware_function(req, context):
             context.user_id = user_id
-            context.token = token
+            context.token = (token, token_expiry)
             context.is_api_key = is_api_key
             return user_aware_function(req, context)
+
+        return grpc.unary_unary_rpc_method_handler(
+            user_unaware_function,
+            request_deserializer=handler.request_deserializer,
+            response_serializer=handler.response_serializer,
+        )
+
+
+class CookieInterceptor(grpc.ServerInterceptor):
+    """
+    Syncs up the couchers-sesh and couchers-user-id cookies
+    """
+
+    def intercept_service(self, continuation, handler_call_details):
+        headers = dict(handler_call_details.invocation_metadata)
+        cookie_user_id = parse_user_id_cookie(headers)
+
+        handler = continuation(handler_call_details)
+        user_aware_function = handler.unary_unary
+
+        def user_unaware_function(req, context):
+            res = user_aware_function(req, context)
+
+            # check the two cookies are in sync
+            if context.user_id and not context.is_api_key and cookie_user_id != str(context.user_id):
+                try:
+                    token, expiry = context.token
+                    context.send_initial_metadata(
+                        [("set-cookie", cookie) for cookie in create_session_cookies(token, context.user_id, expiry)]
+                    )
+                except ValueError as e:
+                    logger.info("Tried to send initial metadata but wasn't allowed to")
+
+            return res
 
         return grpc.unary_unary_rpc_method_handler(
             user_unaware_function,
