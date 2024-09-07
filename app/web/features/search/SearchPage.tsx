@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 /**
- * Search page, queries the backend & obtains all the users to be shown on the map, creates all the state variables and sends them to the search page sub-components
+ * Search page, creates the state, obtains the users, renders all its sub-components
  */
 export default function SearchPage({
   locationName,
@@ -169,7 +169,7 @@ export default function SearchPage({
         {/* Mobile */}
         <Hidden mdUp>
           <Collapse
-            in={true}
+            in={!!selectedResult}
             timeout={theme.transitions.duration.standard}
             className={classes.mobileCollapse}
           >

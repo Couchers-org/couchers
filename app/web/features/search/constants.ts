@@ -15,14 +15,14 @@ export const aboutText = (user: User.AsObject, t: TFunction) => {
     : user.aboutMe.substring(0, 300) + "...";
 };
 
-export const getLastActiveOptions = (t: TFunction) => [
-  { label: t("search:last_active_options.any"), value: null },
-  { label: t("search:last_active_options.last_day"), value: 1 },
-  { label: t("search:last_active_options.last_week"), value: 7 },
-  { label: t("search:last_active_options.last_2_weeks"), value: 14 },
-  { label: t("search:last_active_options.last_month"), value: 31 },
-  { label: t("search:last_active_options.last_3_months"), value: 93 },
-];
+export enum lastActiveOptions {
+  LAST_ACTIVE_ANY = 0,
+  LAST_ACTIVE_LAST_DAY = 1,
+  LAST_ACTIVE_LAST_WEEK = 7,
+  LAST_ACTIVE_LAST_2_WEEKS = 14,
+  LAST_ACTIVE_LAST_MONTH = 31,
+  LAST_ACTIVE_LAST_3_MONTHS = 93,
+}
 
 export const selectedUserZoom = 10;
 

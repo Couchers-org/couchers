@@ -1,3 +1,18 @@
+import LocationAutocomplete from "components/LocationAutocomplete";
+import { GLOBAL, SEARCH } from "i18n/namespaces";
+import { useTranslation, TFunction } from "i18n";
+import { Dispatch, SetStateAction } from "react";
+import SearchFilters from "utils/searchFilters";
+import { lastActiveOptions } from "./constants";
+import IconButton from "components/IconButton";
+import TextField from "components/TextField";
+import { HostingStatus } from "proto/api_pb";
+import { CrossIcon } from "components/Icons";
+import { GeocodeResult } from "utils/hooks";
+import { useForm } from "react-hook-form";
+import Divider from "components/Divider";
+import Select from "components/Select";
+import Button from "components/Button";
 import {
   Grid,
   InputAdornment,
@@ -14,29 +29,6 @@ import {
   DialogContent,
   DialogTitle,
 } from "components/Dialog";
-import LocationAutocomplete from "components/LocationAutocomplete";
-import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { useTranslation, TFunction } from "i18n";
-import { Dispatch, SetStateAction } from "react";
-import SearchFilters from "utils/searchFilters";
-import IconButton from "components/IconButton";
-import TextField from "components/TextField";
-import { HostingStatus } from "proto/api_pb";
-import { CrossIcon } from "components/Icons";
-import { GeocodeResult } from "utils/hooks";
-import { useForm } from "react-hook-form";
-import Divider from "components/Divider";
-import Select from "components/Select";
-import Button from "components/Button";
-
-enum lastActiveOptions {
-  LAST_ACTIVE_ANY = 0,
-  LAST_ACTIVE_LAST_DAY = 1,
-  LAST_ACTIVE_LAST_WEEK = 7,
-  LAST_ACTIVE_LAST_2_WEEKS = 14,
-  LAST_ACTIVE_LAST_MONTH = 31,
-  LAST_ACTIVE_LAST_3_MONTHS = 93,
-}
 
 const getLastActiveOptions = (t: TFunction) => ({
   [lastActiveOptions.LAST_ACTIVE_ANY]: t("search:last_active_options.any"),
@@ -57,7 +49,7 @@ const getLastActiveOptions = (t: TFunction) => ({
   ),
 });
 
-const hostingStatusLabels = (t: TFunction) => ({
+const getHostingStatusOptions = (t: TFunction) => ({
   [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: t("global:hosting_status.any"),
   [HostingStatus.HOSTING_STATUS_CAN_HOST]: t("global:hosting_status.can_host"),
   [HostingStatus.HOSTING_STATUS_MAYBE]: t("global:hosting_status.maybe"),
@@ -227,7 +219,7 @@ export default function FilterDialog({
                   setHostingStatusFilter(e.target.value as number);
                 }}
                 label={t("search:form.host_filters.hosting_status_field_label")}
-                optionLabelMap={hostingStatusLabels(t)}
+                optionLabelMap={getHostingStatusOptions(t)}
                 options={[
                   HostingStatus.HOSTING_STATUS_UNSPECIFIED,
                   HostingStatus.HOSTING_STATUS_CAN_HOST,
