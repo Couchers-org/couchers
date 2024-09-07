@@ -115,6 +115,14 @@ export async function signupFlowCommunityGuidelines(
   return res.toObject();
 }
 
+export async function signupFlowResendVerificationEmail(flowToken: string) {
+  const req = new SignupFlowReq();
+  req.setFlowToken(flowToken);
+  req.setResendVerificationEmail(true);
+  const res = await client.auth.signupFlow(req);
+  return res.toObject();
+}
+
 export async function validateUsername(username: string) {
   const req = new UsernameValidReq();
   req.setUsername(username);
