@@ -150,28 +150,28 @@ export default function SearchResultsList({
             hasMore={hasNext}
           >
             {results?.pages
-                .flatMap((page) => page.resultsList)
-                .filter((result) => result.user)
-                .map((result) =>
-                    <SearchResult
-                      id={`search-result-${result.user!.userId}`}
-                      className={classes.searchResult}
-                      key={result.user!.userId}
-                      user={result.user!}
-                      onSelect={() => {
-                        setSelectedResult({
-                          username: result.user?.username as string,
-                          userId: result.user?.userId as number,
-                          lng: result.user?.lng as number,
-                          lat: result.user?.lat as number,
-                        });
-                      }}
-                      highlight={
-                        selectedResult &&
-                        result.user!.userId === selectedResult.userId
-                      }
-                    />
-                )}
+              .flatMap((page) => page.resultsList)
+              .filter((result) => result.user)
+              .map((result) => (
+                <SearchResult
+                  id={`search-result-${result.user!.userId}`}
+                  className={classes.searchResult}
+                  key={result.user!.userId}
+                  user={result.user!}
+                  onSelect={() => {
+                    setSelectedResult({
+                      username: result.user?.username as string,
+                      userId: result.user?.userId as number,
+                      lng: result.user?.lng as number,
+                      lat: result.user?.lat as number,
+                    });
+                  }}
+                  highlight={
+                    selectedResult &&
+                    result.user!.userId === selectedResult.userId
+                  }
+                />
+              ))}
           </HorizontalScroller>
         )}
       </>
