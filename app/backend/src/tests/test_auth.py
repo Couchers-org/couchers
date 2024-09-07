@@ -701,6 +701,72 @@ def test_signup_continue_with_email(db):
         assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
 
 
+def test_signup_resend_email(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with mock_notification_email() as mock:
+            res = auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                    account=auth_pb2.SignupAccount(
+                        username="frodo",
+                        password="a very insecure password",
+                        birthdate="1970-01-01",
+                        gender="Bot",
+                        hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                        city="New York City",
+                        lat=40.7331,
+                        lng=-73.9778,
+                        radius=500,
+                        accept_tos=True,
+                    ),
+                    feedback=auth_pb2.ContributorForm(),
+                    accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                )
+            )
+        assert mock.call_count == 1
+        e = email_fields(mock)
+        assert e.recipient == "email@couchers.org.invalid"
+
+    flow_token = res.flow_token
+    assert flow_token
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow)).scalar_one()
+        assert flow.flow_token == flow_token
+        assert flow.email_sent
+        assert not flow.email_verified
+        email_token = flow.email_token
+
+    # ask for a new signup email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with mock_notification_email() as mock:
+            res = auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    resend_verification_email=True,
+                )
+            )
+        assert mock.call_count == 1
+        e = email_fields(mock)
+        assert e.recipient == "email@couchers.org.invalid"
+        assert email_token in e.plain
+        assert email_token in e.html
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow)).scalar_one()
+        assert not flow.email_verified
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                email_token=email_token,
+            )
+        )
+
+    assert not res.flow_token
+    assert res.HasField("auth_res")
+
+
 def test_successful_authenticate(db):
     user, _ = generate_user(hashed_password=hash_password("password"))
 

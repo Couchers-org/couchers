@@ -25,6 +25,7 @@ import useAuthStyles from "../useAuthStyles";
 import AccountForm from "./AccountForm";
 import BasicForm from "./BasicForm";
 import FeedbackForm from "./FeedbackForm";
+import ResendVerificationEmailForm from "./ResendVerificationEmailForm";
 
 const useStyles = makeStyles((theme) => ({
   agreement: {
@@ -137,11 +138,9 @@ function CurrentForm() {
     return (
       <>
         <Typography variant="h1" gutterBottom>
-          {t("auth:sign_up_completed_title")}
+          {t("auth:sign_up_need_verification_title")}
         </Typography>
-        <Typography variant="body1">
-          {t("auth:sign_up_completed_prompt")}
-        </Typography>
+        <ResendVerificationEmailForm />
       </>
     );
   } else if (state.authRes) {

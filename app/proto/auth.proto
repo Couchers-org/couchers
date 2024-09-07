@@ -108,6 +108,8 @@ message SignupFlowReq {
   string email_token = 5 [ (is_token) = true ];
 
   google.protobuf.BoolValue accept_community_guidelines = 6;
+
+  bool resend_verification_email = 7;
 }
 
 message SignupFlowRes {
