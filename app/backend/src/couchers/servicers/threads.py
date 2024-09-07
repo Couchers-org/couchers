@@ -6,10 +6,12 @@ from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
+from couchers.jobs.enqueue import queue_job
 from couchers.models import Comment, Reply, Thread
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
 from proto import threads_pb2, threads_pb2_grpc
+from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +49,13 @@ def thread_to_pb(session, database_id):
         thread_id=pack_thread_id(database_id, 0),
         num_responses=total_num_responses(session, database_id),
     )
+
+
+def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPayload):
+    pass
+    # ThreadReply
+    # EventComment
+    # DiscussionComment
 
 
 class Threads(threads_pb2_grpc.ThreadsServicer):
@@ -131,5 +140,13 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                 session.flush()
             except sqlalchemy.exc.IntegrityError:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+
+            queue_job(
+                session,
+                job_type="generate_reply_notifications",
+                payload=jobs_pb2.GenerateReplyNotificationsPayload(
+                    thread_id=pack_thread_id(object_to_add.id, depth + 1),
+                ),
+            )
 
             return threads_pb2.PostReplyRes(thread_id=pack_thread_id(object_to_add.id, depth + 1))

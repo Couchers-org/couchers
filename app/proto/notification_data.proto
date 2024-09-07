@@ -6,8 +6,10 @@ import "google/protobuf/timestamp.proto";
 
 import "api.proto";
 import "communities.proto";
+import "discussions.proto";
 import "events.proto";
 import "requests.proto";
+import "threads.proto";
 
 message HostRequestCreate {
   org.couchers.api.requests.HostRequest host_request = 1;
@@ -169,4 +171,30 @@ message ReferenceReminder {
   org.couchers.api.core.User other_user = 2;
   // time left to write the req in days
   uint32 days_left = 3;
+}
+
+message EventComment {
+  org.couchers.api.threads.Reply reply = 1;
+  org.couchers.api.events.Event event = 2;
+  org.couchers.api.core.User author = 3;
+}
+
+message DiscussionCreate {
+  org.couchers.api.discussions.Discussion discussion = 1;
+  org.couchers.api.core.User creator = 2;
+}
+
+message DiscussionComment {
+  org.couchers.api.threads.Reply reply = 1;
+  org.couchers.api.discussions.Discussion discussion = 2;
+  org.couchers.api.core.User author = 3;
+}
+
+message ThreadReply {
+  org.couchers.api.threads.Reply reply = 1;
+  org.couchers.api.core.User author = 2;
+  oneof reply_parent {
+    org.couchers.api.events.Event event = 3;
+    org.couchers.api.discussions.Discussion discussion = 4;
+    }
 }

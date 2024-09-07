@@ -1,12 +1,21 @@
+import logging
+from types import SimpleNamespace
+
 import grpc
 
 from couchers import errors
 from couchers.db import can_moderate_node, session_scope
-from couchers.models import Cluster, Discussion, Thread
+from couchers.jobs.enqueue import queue_job
+from couchers.models import Cluster, Discussion, Thread, User
+from couchers.notifications.notify import notify
+from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
-from proto import discussions_pb2, discussions_pb2_grpc
+from proto import discussions_pb2, discussions_pb2_grpc, notification_data_pb2
+from proto.internal import jobs_pb2
+
+logger = logging.getLogger(__name__)
 
 
 def discussion_to_pb(session, discussion: Discussion, context):
@@ -31,6 +40,28 @@ def discussion_to_pb(session, discussion: Discussion, context):
         thread=thread_to_pb(session, discussion.thread_id),
         can_moderate=can_moderate,
     )
+
+
+def generate_create_discussions_notifications(payload: jobs_pb2.GenerateCreateDiscussionNotificationsPayload):
+    with session_scope() as session:
+        discussion = session.execute(select(Discussion).where(Discussion.id == payload.discussion_id)).scalar_one()
+
+        cluster = discussion.owner_cluster
+
+        if not cluster.is_official_cluster:
+            raise NotImplementedError("Shouldn't have discussions under groups, communities only")
+
+        for user in list(cluster.members.where(User.is_visible)):
+            context = SimpleNamespace(user_id=user.id)
+            notify(
+                session,
+                user_id=user.id,
+                topic_action="discussion:create",
+                data=notification_data_pb2.DiscussionCreate(
+                    creator=user_model_to_pb(discussion.creator_user, session, context),
+                    discussion=discussion_to_pb(session, discussion, context),
+                ),
+            )
 
 
 class Discussions(discussions_pb2_grpc.DiscussionsServicer):
@@ -65,7 +96,16 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
                 thread=Thread(),
             )
             session.add(discussion)
-            session.commit()
+            session.flush()
+
+            queue_job(
+                session,
+                job_type="generate_create_discussions_notifications",
+                payload=jobs_pb2.GenerateCreateDiscussionNotificationsPayload(
+                    discussion_id=discussion.id,
+                ),
+            )
+
             return discussion_to_pb(session, discussion, context)
 
     def GetDiscussion(self, request, context):

@@ -131,9 +131,25 @@ settings_layout = [
                     ("create_approved", "An event that is approved by the moderators is created in your community"),
                     ("create_any", "A user creates any event in your community (not checked by an admin)"),
                     ("update", "An event you are attending is updated"),
+                    ("comment", "Someone comments on an event you are organizing or attending"),
                     ("cancel", "An event you are attending is cancelled"),
                     ("delete", "An event you are attending is deleted"),
                     ("invite_organizer", "Someone invites you to co-organize an event"),
+                ],
+            ),
+            (
+                "discussion",
+                "Community discussions",
+                [
+                    ("create", "Someone creates a discussion in one of your communities"),
+                    ("comment", "Someone comments on a discussion you authored"),
+                ],
+            ),
+            (
+                "thread",
+                "Threads, Comments, & Replies",
+                [
+                    ("reply", "Someone replies to your comment"),
                 ],
             ),
         ],
