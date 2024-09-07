@@ -149,16 +149,15 @@ export default function SearchResultsList({
             fetchNext={fetchNextPage}
             hasMore={hasNext}
           >
-            {results &&
-              results.pages
+            {results?.pages
                 .flatMap((page) => page.resultsList)
+                .filter((result) => result.user)
                 .map((result) =>
-                  result.user ? (
                     <SearchResult
-                      id={`search-result-${result.user.userId}`}
+                      id={`search-result-${result.user!.userId}`}
                       className={classes.searchResult}
-                      key={result.user.userId}
-                      user={result.user}
+                      key={result.user!.userId}
+                      user={result.user!}
                       onSelect={() => {
                         setSelectedResult({
                           username: result.user?.username as string,
@@ -169,10 +168,9 @@ export default function SearchResultsList({
                       }}
                       highlight={
                         selectedResult &&
-                        result.user.userId === selectedResult.userId
+                        result.user!.userId === selectedResult.userId
                       }
                     />
-                  ) : null
                 )}
           </HorizontalScroller>
         )}
