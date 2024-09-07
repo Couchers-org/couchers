@@ -272,7 +272,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     session.flush()
 
                 # send verification email if needed
-                if not flow.email_sent:
+                if not flow.email_sent or request.resend_verification_email:
                     send_signup_email(session, flow)
 
                 session.flush()
