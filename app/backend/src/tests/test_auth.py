@@ -730,6 +730,13 @@ def test_signup_resend_email(db):
     flow_token = res.flow_token
     assert flow_token
 
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow)).scalar_one()
+        assert flow.flow_token == flow_token
+        assert flow.email_sent
+        assert not flow.email_verified
+        email_token = flow.email_token
+
     # ask for a new signup email
     with auth_api_session() as (auth_api, metadata_interceptor):
         with mock_notification_email() as mock:
@@ -742,6 +749,22 @@ def test_signup_resend_email(db):
         assert mock.call_count == 1
         e = email_fields(mock)
         assert e.recipient == "email@couchers.org.invalid"
+        assert email_token in e.plain
+        assert email_token in e.html
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow)).scalar_one()
+        assert not flow.email_verified
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                email_token=email_token,
+            )
+        )
+
+    assert not res.flow_token
+    assert res.HasField("auth_res")
 
 
 def test_successful_authenticate(db):
