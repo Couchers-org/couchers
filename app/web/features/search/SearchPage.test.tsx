@@ -1,10 +1,11 @@
-import useCurrentUser from "features/userQueries/useCurrentUser";
 import { render, screen } from "@testing-library/react";
-import wrapper from "test/hookWrapper";
-import SearchPage from "./SearchPage";
+import useCurrentUser from "features/userQueries/useCurrentUser";
 import { User } from "proto/api_pb";
 import { service } from "service";
-import { MockedService, mockConsoleError } from "test/utils";
+import wrapper from "test/hookWrapper";
+import { mockConsoleError, MockedService } from "test/utils";
+
+import SearchPage from "./SearchPage";
 
 jest.mock("features/userQueries/useCurrentUser");
 jest.mock("maplibre-gl", () => {

@@ -7,15 +7,15 @@ import {
   RadioGroup,
   Typography,
 } from "@material-ui/core";
-import LocationAutocomplete from "components/LocationAutocomplete";
-import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { SetStateAction, Dispatch } from "react";
-import TextField from "components/TextField";
 import { CrossIcon } from "components/Icons";
+import LocationAutocomplete from "components/LocationAutocomplete";
+import TextField from "components/TextField";
+import { useTranslation } from "i18n";
+import { GLOBAL, SEARCH } from "i18n/namespaces";
+import { Dispatch, SetStateAction } from "react";
+import { useForm } from "react-hook-form";
 import { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
-import { useForm } from "react-hook-form";
-import { useTranslation } from "i18n";
 
 const useStyles = makeStyles((theme) => ({
   filterDialogButtonDesktop: {

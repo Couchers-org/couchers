@@ -1,11 +1,12 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import SearchResultsList from "./SearchResultsList";
-import users from "test/fixtures/users.json";
-import { firstName } from "utils/names";
-import wrapper from "test/hookWrapper";
 import { service } from "service";
+import users from "test/fixtures/users.json";
+import wrapper from "test/hookWrapper";
 import { assertErrorAlert, MockedService, t } from "test/utils";
+import { firstName } from "utils/names";
+
+import SearchResultsList from "./SearchResultsList";
 
 const mockHandleResultClick = jest.fn();
 

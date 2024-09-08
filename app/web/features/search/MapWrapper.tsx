@@ -1,22 +1,30 @@
-import maplibregl, { EventData, Map as MaplibreMap } from "maplibre-gl";
-import { addClusteredUsersToMap, layers } from "../search/users";
-import { reRenderUsersOnMap } from "features/search/users";
-import { useCallback, useEffect, useState } from "react";
 import ReplayIcon from "@material-ui/icons/Replay";
-import { Dispatch, SetStateAction } from "react";
-import { UserSearchRes } from "proto/search_pb";
 import TuneIcon from "@material-ui/icons/Tune";
-import { filterData } from "../search/users";
-import { InfiniteData } from "react-query";
-import makeStyles from "utils/makeStyles";
-import { usePrevious } from "utils/hooks";
-import { MutableRefObject } from "react";
-import { SEARCH } from "i18n/namespaces";
 import Button from "components/Button";
-import { useTranslation } from "i18n";
-import { User } from "proto/api_pb";
 import Map from "components/Map";
+import {
+  addClusteredUsersToMap,
+  filterData,
+  layers,
+  reRenderUsersOnMap,
+} from "features/search/users";
 import { Point } from "geojson";
+import { useTranslation } from "i18n";
+import { SEARCH } from "i18n/namespaces";
+import maplibregl, { EventData, Map as MaplibreMap } from "maplibre-gl";
+import { User } from "proto/api_pb";
+import { UserSearchRes } from "proto/search_pb";
+import {
+  Dispatch,
+  MutableRefObject,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+import { InfiniteData } from "react-query";
+import { usePrevious } from "utils/hooks";
+import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   searchHereGroup2: {

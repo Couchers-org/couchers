@@ -1,10 +1,10 @@
-import { translationStaticProps } from "i18n/server-side-translations";
+import { appGetLayout } from "components/AppRoute";
+import { Coordinates } from "features/search/constants";
 import SearchPageComponent from "features/search/SearchPage";
 import { GLOBAL, PROFILE, SEARCH } from "i18n/namespaces";
-import { Coordinates } from "features/search/constants";
-import { appGetLayout } from "components/AppRoute";
-import { useRouter } from "next/router";
+import { translationStaticProps } from "i18n/server-side-translations";
 import { GetStaticProps } from "next";
+import { useRouter } from "next/router";
 
 export const getStaticProps: GetStaticProps = translationStaticProps([
   GLOBAL,
