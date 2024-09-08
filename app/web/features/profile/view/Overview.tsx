@@ -1,6 +1,8 @@
 import Alert from "components/Alert";
 import Button from "components/Button";
+import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import { useAuthContext } from "features/auth/AuthProvider";
+import useAccountInfo from "features/auth/useAccountInfo";
 import FlagButton from "features/FlagButton";
 import FriendActions from "features/profile/actions/FriendActions";
 import MessageUserButton from "features/profile/actions/MessageUserButton";
@@ -66,10 +68,31 @@ function DefaultActions({
     user.hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST;
 
   const [mutationError, setMutationError] = useState("");
+  const [showCantRequestDialog, setShowCantRequestDialog] =
+    useState<boolean>(false);
+
+  const { data: accountInfo, isLoading: isAccountInfoLoading } =
+    useAccountInfo();
+
+  const requestButton = () => {
+    if (!accountInfo?.profileComplete) {
+      setShowCantRequestDialog(true);
+    } else {
+      setIsRequesting(true);
+    }
+  };
 
   return (
     <>
-      <Button onClick={() => setIsRequesting(true)} disabled={disableHosting}>
+      <ProfileIncompleteDialog
+        open={showCantRequestDialog}
+        onClose={() => setShowCantRequestDialog(false)}
+        attempted_action="send_request"
+      />
+      <Button
+        onClick={requestButton}
+        disabled={isAccountInfoLoading || disableHosting}
+      >
         {disableHosting
           ? t("global:hosting_status.cant_host")
           : t("profile:actions.request")}

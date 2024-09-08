@@ -1,6 +1,8 @@
 import { Typography } from "@material-ui/core";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
+import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import useAccountInfo from "features/auth/useAccountInfo";
 import { communityEventsBaseKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -8,7 +10,7 @@ import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Event } from "proto/events_pb";
 import { useMutation, useQueryClient } from "react-query";
-import { routeToEvent } from "routes";
+import { dashboardRoute, routeToEvent } from "routes";
 import { service } from "service";
 import type { CreateEventInput } from "service/events";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
@@ -114,9 +116,17 @@ export default function CreateEventPage() {
     }
   );
 
+  const { data: accountInfo, isLoading: isAccountInfoLoading } =
+    useAccountInfo();
+
   return (
     <>
       <HtmlMeta title={t("communities:create_event_page_title")} />
+      <ProfileIncompleteDialog
+        open={!isAccountInfoLoading && !accountInfo?.profileComplete}
+        onClose={() => router.push(dashboardRoute)}
+        attempted_action="create_event"
+      />
       <EventForm
         error={error}
         isMutationLoading={isLoading}
