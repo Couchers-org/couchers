@@ -50,7 +50,7 @@ from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import are_blocked
 from couchers.servicers.conversations import generate_message_notifications
-from couchers.servicers.discussions import generate_create_discussions_notifications
+from couchers.servicers.discussions import generate_create_discussion_notifications
 from couchers.servicers.events import (
     generate_event_cancel_notifications,
     generate_event_create_notifications,
@@ -79,7 +79,7 @@ generate_message_notifications.PAYLOAD = jobs_pb2.GenerateMessageNotificationsPa
 
 generate_reply_notifications.PAYLOAD = jobs_pb2.GenerateReplyNotificationsPayload
 
-generate_create_discussions_notifications.PAYLOAD = jobs_pb2.GenerateCreateDiscussionNotificationsPayload
+generate_create_discussion_notifications.PAYLOAD = jobs_pb2.GenerateCreateDiscussionNotificationsPayload
 
 generate_event_create_notifications.PAYLOAD = jobs_pb2.GenerateEventCreateNotificationsPayload
 

@@ -42,7 +42,7 @@ def discussion_to_pb(session, discussion: Discussion, context):
     )
 
 
-def generate_create_discussions_notifications(payload: jobs_pb2.GenerateCreateDiscussionNotificationsPayload):
+def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDiscussionNotificationsPayload):
     with session_scope() as session:
         discussion = session.execute(select(Discussion).where(Discussion.id == payload.discussion_id)).scalar_one()
 
@@ -100,7 +100,7 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
 
             queue_job(
                 session,
-                job_type="generate_create_discussions_notifications",
+                job_type="generate_create_discussion_notifications",
                 payload=jobs_pb2.GenerateCreateDiscussionNotificationsPayload(
                     discussion_id=discussion.id,
                 ),
