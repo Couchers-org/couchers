@@ -299,7 +299,7 @@ def generate_user(*, delete_user=False, complete_profile=False, **kwargs):
             )
             session.flush()
             user.avatar_key = key
-            user.about_me = "I have a complete profile!\n" * 10
+            user.about_me = "I have a complete profile!\n" * 20
 
         session.commit()
 
