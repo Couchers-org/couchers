@@ -32,6 +32,7 @@ from couchers.models import (
     AccountDeletionToken,
     ContributeOption,
     ContributorForm,
+    ModNote,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
     StrongVerificationCallbackEvent,
@@ -46,7 +47,7 @@ from couchers.tasks import (
     send_account_deletion_report_email,
     send_email_changed_confirmation_to_new_email,
 )
-from couchers.utils import is_valid_email, now
+from couchers.utils import Timestamp_from_datetime, is_valid_email, now
 from proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc, notification_data_pb2
 from proto.google.api import httpbody_pb2
 from proto.internal import jobs_pb2, verification_pb2
@@ -78,6 +79,15 @@ def has_strong_verification(session, user):
         assert attempt.is_valid
         return attempt.has_strong_verification(user)
     return False
+
+
+def mod_note_to_pb(note: ModNote):
+    return account_pb2.ModNote(
+        note_id=note.id,
+        note_content=note.note_content,
+        created=Timestamp_from_datetime(note.created),
+        acknowledged=Timestamp_from_datetime(note.acknowledged) if note.acknowledged else None,
+    )
 
 
 def get_strong_verification_fields(session, db_user):
@@ -490,6 +500,18 @@ class Account(account_pb2_grpc.AccountServicer):
             account_deletion_initiations_counter.labels(user.gender).inc()
 
         return empty_pb2.Empty()
+
+    def ListModNotes(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+            notes = (
+                session.execute(select(ModNote).where(ModNote.user_id == user.id).order_by(ModNote.created.asc()))
+                .scalars()
+                .all()
+            )
+
+            return account_pb2.ListModNotesRes(mod_notes=[mod_note_to_pb(note) for note in notes])
 
 
 class Iris(iris_pb2_grpc.IrisServicer):

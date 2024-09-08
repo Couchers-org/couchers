@@ -38,6 +38,8 @@ service Admin {
 
   rpc GetContentReportsForAuthor(GetContentReportsForAuthorReq) returns (GetContentReportsForAuthorRes) {}
 
+  rpc SendModNote(SendModNoteReq) returns (UserDetails) {}
+
   rpc DeleteUser(DeleteUserReq) returns (UserDetails) {}
 
   rpc RecoverDeletedUser(RecoverDeletedUserReq) returns (UserDetails) {}
@@ -76,6 +78,9 @@ message UserDetails {
   bool has_passport_sex_gender_exception = 12;
 
   string admin_note = 13;
+
+  int64 pending_mod_notes_count = 16;
+  int64 acknowledged_mod_notes_count =17;
 }
 
 message GetUserDetailsReq {
@@ -158,6 +163,13 @@ message GetContentReportsForAuthorReq {
 
 message GetContentReportsForAuthorRes {
   repeated ContentReport content_reports = 1;
+}
+
+message SendModNoteReq {
+  string user = 1;
+  string content = 2; // CommonMark without images
+  // this allows us to track what type of note it is without having to read it individually
+  string internal_id = 3;
 }
 
 message DeleteUserReq {

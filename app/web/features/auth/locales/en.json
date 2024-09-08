@@ -136,6 +136,12 @@
         "inactive_text": "Thanks!"
       },
       "resubmit_button_text": "Re-submit"
+    },
+    "mod_note_section": {
+      "title": "You have received a note from the moderators",
+      "description": "The moderators have sent you the following note. Please read it carefully and acknowledge that you have read and understood it before continuing.",
+      "note_title": "Mod note received at {{time}}:",
+      "acknowledge": "Acknowledge note"
     }
   },
   "logged_out_message": "You were logged out.",
