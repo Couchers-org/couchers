@@ -56,8 +56,8 @@ const useStyles = makeStyles((theme) => ({
 
 interface mapWrapperProps {
   selectedResult:
-  | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
-  | undefined;
+    | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
+    | undefined;
   isLoading: boolean;
   locationResult: any;
   setLocationResult: Dispatch<SetStateAction<any>>;
@@ -205,7 +205,6 @@ export default function MapWrapper({
    */
   useEffect(() => {
     if (isMapStyleLoaded && isMapSourceLoaded) {
-
       if (results) {
         const usersToRender = filterData(results);
         reRenderUsersOnMap(map.current!, usersToRender, handleMapUserClick);
@@ -241,12 +240,12 @@ export default function MapWrapper({
       addClusteredUsersToMap(newMap);
       handleOnClick();
     });
-  
-    newMap.on('styledata', function() {
+
+    newMap.on("styledata", function () {
       setIsMapStyleLoaded(true);
     });
 
-    newMap.on('sourcedataloading', function(e) {
+    newMap.on("sourcedataloading", function (e) {
       if (e.sourceId === "clustered-users") {
         setIsMapSourceLoaded(true);
       }
