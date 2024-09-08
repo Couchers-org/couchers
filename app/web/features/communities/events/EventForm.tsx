@@ -6,6 +6,7 @@ import LocationAutocomplete from "components/LocationAutocomplete";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
+import { Coordinates } from "features/search/constants";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
@@ -19,7 +20,6 @@ import type { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
 import EventTimeChanger from "./EventTimeChanger";
-import { Coordinates } from "features/search/constants";
 
 export const useEventFormStyles = makeStyles((theme) => ({
   root: {

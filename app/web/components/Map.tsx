@@ -1,11 +1,11 @@
-import maplibregl, { LngLat, RequestParameters } from "maplibre-gl";
-import { NO_MAP_SUPPORT } from "components/constants";
-import { useEffect, useRef, useState } from "react";
-import { Typography } from "@material-ui/core";
-import makeStyles from "utils/makeStyles";
-import classNames from "classnames";
-
 import "maplibre-gl/dist/maplibre-gl.css";
+
+import { Typography } from "@material-ui/core";
+import classNames from "classnames";
+import { NO_MAP_SUPPORT } from "components/constants";
+import maplibregl, { LngLat, RequestParameters } from "maplibre-gl";
+import { useEffect, useRef, useState } from "react";
+import makeStyles from "utils/makeStyles";
 
 const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 

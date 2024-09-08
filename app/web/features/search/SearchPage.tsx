@@ -1,21 +1,22 @@
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
+import HtmlMeta from "components/HtmlMeta";
 import { Coordinates, selectedUserZoom } from "features/search/constants";
-import SearchResultsList from "./SearchResultsList";
-import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { Map as MaplibreMap } from "maplibre-gl";
-import { UserSearchRes } from "proto/search_pb";
-import HtmlMeta from "components/HtmlMeta";
-import FilterDialog from "./FilterDialog";
-import { useTranslation } from "i18n";
-import MapWrapper from "./MapWrapper";
 import { User } from "proto/api_pb";
-import { service } from "service";
+import { UserSearchRes } from "proto/search_pb";
+import { useEffect, useRef, useState } from "react";
 import {
   QueryClient,
   QueryClientProvider,
   useInfiniteQuery,
 } from "react-query";
+import { service } from "service";
+
+import FilterDialog from "./FilterDialog";
+import MapWrapper from "./MapWrapper";
+import SearchResultsList from "./SearchResultsList";
 
 const useStyles = makeStyles((theme) => ({
   container: {

@@ -1,7 +1,4 @@
 import { MapClickedCallback } from "features/search/constants";
-import { UserSearchRes } from "proto/search_pb";
-import { InfiniteData } from "react-query";
-import { User } from "proto/api_pb";
 import { Point } from "geojson";
 import maplibregl, {
   AnyLayer,
@@ -9,6 +6,9 @@ import maplibregl, {
   GeoJSONSource,
   Map as MaplibreMap,
 } from "maplibre-gl";
+import { User } from "proto/api_pb";
+import { UserSearchRes } from "proto/search_pb";
+import { InfiniteData } from "react-query";
 import { theme } from "theme";
 
 import userPin from "./resources/userPin.png";

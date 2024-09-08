@@ -1,16 +1,17 @@
-import HorizontalScroller from "components/HorizontalScroller";
 import { Hidden, makeStyles, Paper } from "@material-ui/core";
-import CircularProgress from "components/CircularProgress";
-import SearchResult from "features/search/SearchResult";
-import { Dispatch, SetStateAction } from "react";
-import { UserSearchRes } from "proto/search_pb";
-import TextBody from "components/TextBody";
-import { InfiniteData } from "react-query";
-import { SEARCH } from "i18n/namespaces";
-import { useTranslation } from "i18n";
 import Alert from "components/Alert";
-import SearchBox from "./SearchBox";
+import CircularProgress from "components/CircularProgress";
+import HorizontalScroller from "components/HorizontalScroller";
+import TextBody from "components/TextBody";
+import SearchResult from "features/search/SearchResult";
+import { useTranslation } from "i18n";
+import { SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
+import { UserSearchRes } from "proto/search_pb";
+import { Dispatch, SetStateAction } from "react";
+import { InfiniteData } from "react-query";
+
+import SearchBox from "./SearchBox";
 
 const useStyles = makeStyles((theme) => ({
   mapResults: {

@@ -1,34 +1,35 @@
-import LocationAutocomplete from "components/LocationAutocomplete";
-import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { useTranslation, TFunction } from "i18n";
-import { Dispatch, SetStateAction } from "react";
-import SearchFilters from "utils/searchFilters";
-import { lastActiveOptions } from "./constants";
-import IconButton from "components/IconButton";
-import TextField from "components/TextField";
-import { HostingStatus } from "proto/api_pb";
-import { CrossIcon } from "components/Icons";
-import { GeocodeResult } from "utils/hooks";
-import { useForm } from "react-hook-form";
-import Divider from "components/Divider";
-import Select from "components/Select";
-import Button from "components/Button";
 import {
+  Checkbox,
+  FormControlLabel,
   Grid,
   InputAdornment,
   makeStyles,
   Theme,
   Typography,
   useMediaQuery,
-  FormControlLabel,
-  Checkbox,
 } from "@material-ui/core";
+import Button from "components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
 } from "components/Dialog";
+import Divider from "components/Divider";
+import IconButton from "components/IconButton";
+import { CrossIcon } from "components/Icons";
+import LocationAutocomplete from "components/LocationAutocomplete";
+import Select from "components/Select";
+import TextField from "components/TextField";
+import { TFunction, useTranslation } from "i18n";
+import { GLOBAL, SEARCH } from "i18n/namespaces";
+import { HostingStatus } from "proto/api_pb";
+import { Dispatch, SetStateAction } from "react";
+import { useForm } from "react-hook-form";
+import { GeocodeResult } from "utils/hooks";
+import SearchFilters from "utils/searchFilters";
+
+import { lastActiveOptions } from "./constants";
 
 const getLastActiveOptions = (t: TFunction) => ({
   [lastActiveOptions.LAST_ACTIVE_ANY]: t("search:last_active_options.any"),
