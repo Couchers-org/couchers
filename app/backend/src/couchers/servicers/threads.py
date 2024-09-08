@@ -80,6 +80,8 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                 for user_id in set(subscribed_user_ids + attending_user_ids):
                     if are_blocked(session, user_id, comment.author_user_id):
                         continue
+                    if user_id == comment.author_user_id:
+                        continue
                     context = SimpleNamespace(user_id=user_id)
                     notify(
                         session,
@@ -106,6 +108,11 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     raise NotImplementedError("Shouldn't have discussions under groups, only communities")
 
                 for user in list(cluster.members.where(User.is_visible)):
+                    if are_blocked(session, user_id, comment.author_user_id):
+                        continue
+                    if user_id == comment.author_user_id:
+                        continue
+
                     context = SimpleNamespace(user_id=user.id)
                     notify(
                         session,
@@ -135,6 +142,9 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             author_user = session.execute(select(User).where(User.id == reply.author_user_id)).scalar_one()
 
             if are_blocked(session, parent_comment.author_user_id, reply.author_user_id):
+                return
+
+            if parent_comment.author_user_id == reply.author_user_id:
                 return
 
             event = session.execute(
@@ -169,7 +179,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                 context = SimpleNamespace(user_id=parent_comment.author_user_id)
                 notify(
                     session,
-                    user_id=user.id,
+                    user_id=parent_comment.author_user_id,
                     topic_action="discussion:comment",
                     key=discussion.id,
                     data=notification_data_pb2.DiscussionComment(
