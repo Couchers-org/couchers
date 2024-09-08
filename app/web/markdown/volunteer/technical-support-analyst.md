@@ -7,7 +7,7 @@ description: "Apply to become a Technical Support Analyst for Couchers.org"
 
 ## Position Description
 
-**This is a remote position**
+**This is an unpaid, remote position**
 
 We are recruiting a Technical Support Analyst (TSA) to manage our technical support queue. The TSA will be responsible for reviewing, sorting and responding to technical support tickets in the context of user support and quality assurance of our product (the Couchers.org platform).
 
@@ -27,19 +27,20 @@ The TSA will possess the skills to be able to identify the cause(s) of reported 
 ### Skills & Experience
 
 An ideal candidate would have the following skills:
+- Extensitve experience with couch surfing, preferably on Couchers.org, CouchsurfingTM and/or BeWelcome;
 - Online customer support experience;
-- Familiarity with the Couchers.org website, help page, and forum;
-- Familiarity with some kind of ticketing system (OTRS, OTOBO, or GitHub a plus);
+- Strong familiarity with the Couchers.org website, help page, and forum;
+- Familiarity with GitHub and some kind of ticketing system (Chatwoot is a plus);
 - Ability to organize and analyze data;
-- Previous experience with a couch surfing platform;
 - Experience with software development or QA/QC is a plus;
 - Excellent communication, interpersonal and organizational skills;
 - Native (C2) fluency of English both written and spoken; additional languages a plus.
 
 ### Expectations/Commitment
 
-- 5-10 hours per week on average
+- 5 hours per week on average
 - 6 months minimum commitment
+- This is a volunteer position (unpaid). Couchers.org is built and run entirely by volunteers.
 
 ### Apply
 
