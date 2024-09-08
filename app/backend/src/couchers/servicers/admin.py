@@ -256,11 +256,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
             session.flush()
 
-            notify(
-                session,
-                user_id=user.id,
-                topic_action="modnote:create",
-            )
+            if not request.do_not_notify:
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="modnote:create",
+                )
 
             return _user_to_details(session, user)
 

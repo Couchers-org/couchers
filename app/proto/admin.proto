@@ -170,6 +170,8 @@ message SendModNoteReq {
   string content = 2; // CommonMark without images
   // this allows us to track what type of note it is without having to read it individually
   string internal_id = 3;
+  // whether to not notify the user about the note: simply show it to them the next time they log on
+  bool do_not_notify = 4;
 }
 
 message DeleteUserReq {
