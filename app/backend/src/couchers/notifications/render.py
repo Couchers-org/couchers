@@ -571,6 +571,33 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_icon=v2avatar(data.inviting_user),
                 push_url=event_link,
             )
+        elif notification.action == "comment":
+            body = f"{time_display}\n"
+            body += f"Invited to co-organize by {data.inviting_user.name}\n\n"
+            body += event.content
+            return RenderedNotification(
+                email_subject=f'{data.inviting_user.name} invited you to co-organize "{event.title}"',
+                email_preview="You were invited to co-organize an event on Couchers.org.",
+                email_template_name="event_invite_organizer",
+                email_template_args={
+                    "inviting_user": data.inviting_user,
+                    "time_display": time_display,
+                    "event": event,
+                    "view_link": event_link,
+                },
+                email_topic_action_unsubscribe_text="invitations to co-organize events",
+                push_title=f'{data.inviting_user.name} invited you to co-organize "{event.title}"',
+                push_body=body,
+                push_icon=v2avatar(data.inviting_user),
+                push_url=event_link,
+            )
+    elif notification.topic == "reference":
+        if notification.action == "create":
+            pass
+        elif notification.action == "comment":
+            pass
+    elif notification.topic_action.display == "thread:reply":
+        pass
     elif notification.topic == "reference":
         if notification.action == "receive_friend":
             title = f"You've received a friend reference from {data.from_user.name}!"

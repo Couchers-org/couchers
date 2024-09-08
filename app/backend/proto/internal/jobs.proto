@@ -63,3 +63,11 @@ message GenerateEventCancelNotificationsPayload {
 message GenerateEventDeleteNotificationsPayload {
   int64 occurrence_id = 1;
 }
+
+message GenerateReplyNotificationsPayload {
+  uint64 thread_id = 1;
+}
+
+message GenerateCreateDiscussionNotificationsPayload {
+  uint64 discussion_id = 1;
+}

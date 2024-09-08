@@ -2236,6 +2236,16 @@ class NotificationTopicAction(enum.Enum):
     event__cancel = ("event:cancel", dt_all, True, nd.EventCancel)
     event__delete = ("event:delete", dt_all, True, nd.EventDelete)
     event__invite_organizer = ("event:invite_organizer", dt_all, True, nd.EventInviteOrganizer)
+    # toplevel comment on an event
+    event__comment = ("event:comment", dt_all, True, nd.EventComment)
+
+    # discussion created
+    discussion__create = ("discussion:create", [], True, nd.DiscussionCreate)
+    # someone comments on your discussion
+    discussion__comment = ("discussion:comment", dt_all, True, nd.DiscussionComment)
+
+    # someone responds to any of your top-level comment across the platform
+    thread__reply = ("thread:reply", dt_all, True, nd.ThreadReply)
 
     # account settings
     password__change = ("password:change", dt_sec, False, empty_pb2.Empty)
