@@ -6,7 +6,7 @@ import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import { server } from "test/restMock";
-import { t } from "test/utils";
+import { MockedService, t } from "test/utils";
 
 import CreateEventPage from "./CreateEventPage";
 
@@ -15,6 +15,23 @@ jest.mock("components/MarkdownInput");
 const createEventMock = service.events.createEvent as jest.MockedFunction<
   typeof service.events.createEvent
 >;
+
+const getAccountInfoMock = service.account.getAccountInfo as MockedService<
+  typeof service.account.getAccountInfo
+>;
+
+const accountInfo = {
+  username: "tester",
+  email: "email@couchers.org",
+  profileComplete: true,
+  phone: "+46701740605",
+  phoneVerified: true,
+  timezone: "Australia/Broken_Hill",
+  hasStrongVerification: false,
+  birthdateVerificationStatus: 1,
+  genderVerificationStatus: 3,
+  doNotEmail: false,
+};
 
 describe("Create event page", () => {
   beforeAll(() => {
@@ -29,6 +46,7 @@ describe("Create event page", () => {
     createEventMock.mockResolvedValue(events[0]);
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-08-01 00:00"));
+    getAccountInfoMock.mockResolvedValue(accountInfo);
   });
 
   afterEach(() => {

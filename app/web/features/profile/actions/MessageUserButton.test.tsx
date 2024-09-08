@@ -15,9 +15,27 @@ const getDirectMessageMock = service.conversations
   typeof service.conversations.getDirectMessage
 >;
 
+const getAccountInfoMock = service.account.getAccountInfo as MockedService<
+  typeof service.account.getAccountInfo
+>;
+
+const accountInfo = {
+  username: "tester",
+  email: "email@couchers.org",
+  profileComplete: true,
+  phone: "+46701740605",
+  phoneVerified: true,
+  timezone: "Australia/Broken_Hill",
+  hasStrongVerification: false,
+  birthdateVerificationStatus: 1,
+  genderVerificationStatus: 3,
+  doNotEmail: false,
+};
+
 describe("MessageUserButton", () => {
   beforeEach(() => {
     setErrorMock.mockClear();
+    getAccountInfoMock.mockResolvedValue(accountInfo);
   });
 
   it("redirects to thread if dm exists", async () => {
@@ -27,7 +45,13 @@ describe("MessageUserButton", () => {
       wrapper,
     });
 
-    userEvent.click(screen.getByRole("button"));
+    const button = screen.getByRole("button");
+
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
+
+    userEvent.click(button);
 
     await waitFor(() => expect(mockRouter.pathname).toBe(routeToGroupChat(99)));
   });
@@ -39,7 +63,13 @@ describe("MessageUserButton", () => {
       wrapper,
     });
 
-    userEvent.click(screen.getByRole("button"));
+    const button = screen.getByRole("button");
+
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
+
+    userEvent.click(button);
 
     await waitFor(() =>
       expect(mockRouter.asPath).toBe(routeToCreateMessage(user.username))
