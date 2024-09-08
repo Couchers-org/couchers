@@ -140,7 +140,7 @@
     "mod_note_section": {
       "title": "You have received a note from the moderators",
       "description": "The moderators have sent you the following note. Please read it carefully and acknowledge that you have read and understood it before continuing.",
-      "note_title": "Mod note received at {{time}}:",
+      "note_title": "Mod note received on {{time}}:",
       "acknowledge": "Acknowledge note"
     }
   },
