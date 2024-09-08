@@ -56,8 +56,8 @@ const useStyles = makeStyles((theme) => ({
 
 interface mapWrapperProps {
   selectedResult:
-    | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
-    | undefined;
+  | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
+  | undefined;
   isLoading: boolean;
   locationResult: any;
   setLocationResult: Dispatch<SetStateAction<any>>;
@@ -83,6 +83,8 @@ export default function MapWrapper({
 }: mapWrapperProps) {
   const { t } = useTranslation([SEARCH]);
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
+  const [isMapStyleLoaded, setIsMapStyleLoaded] = useState(false);
+  const [isMapSourceLoaded, setIsMapSourceLoaded] = useState(false);
   const previousResult = usePrevious(selectedResult);
   const classes = useStyles();
 
@@ -202,15 +204,14 @@ export default function MapWrapper({
    * Re-renders users list on map (when results array changed)
    */
   useEffect(() => {
-    if (map.current?.loaded()) {
-      map.current?.stop();
+    if (isMapStyleLoaded && isMapSourceLoaded) {
 
       if (results) {
         const usersToRender = filterData(results);
-        reRenderUsersOnMap(map.current, usersToRender, handleMapUserClick);
+        reRenderUsersOnMap(map.current!, usersToRender, handleMapUserClick);
       }
     }
-  }, [results, map.current, map.current?.loaded()]);
+  }, [results, isMapStyleLoaded, isMapSourceLoaded]);
 
   /**
    * Clicks on 'search here' button
@@ -239,6 +240,16 @@ export default function MapWrapper({
     newMap.on("load", () => {
       addClusteredUsersToMap(newMap);
       handleOnClick();
+    });
+  
+    newMap.on('styledata', function() {
+      setIsMapStyleLoaded(true);
+    });
+
+    newMap.on('sourcedataloading', function(e) {
+      if (e.sourceId === "clustered-users") {
+        setIsMapSourceLoaded(true);
+      }
     });
   };
 
