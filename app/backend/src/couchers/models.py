@@ -175,6 +175,7 @@ class User(Base):
     things_i_like = Column(String, nullable=True)  # CommonMark without images
     about_place = Column(String, nullable=True)  # CommonMark without images
     additional_information = Column(String, nullable=True)  # CommonMark without images
+
     is_banned = Column(Boolean, nullable=False, server_default=text("false"))
     is_deleted = Column(Boolean, nullable=False, server_default=text("false"))
     is_superuser = Column(Boolean, nullable=False, server_default=text("false"))

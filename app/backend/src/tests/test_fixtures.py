@@ -211,7 +211,7 @@ def db():
     recreate_database()
 
 
-def generate_user(*, delete_user=False, complete_profile=False, has_donated=True, **kwargs):
+def generate_user(*, delete_user=False, complete_profile=False, **kwargs):
     """
     Create a new user, return session token
 
@@ -303,11 +303,6 @@ def generate_user(*, delete_user=False, complete_profile=False, has_donated=True
             user.about_me = "I have a complete profile!\n" * 10
 
         session.commit()
-
-        # if has_donated:
-        #     user.has_donated = True
-        #
-        # assert user.has_donated == has_donated
 
         assert user.has_completed_profile == complete_profile
 

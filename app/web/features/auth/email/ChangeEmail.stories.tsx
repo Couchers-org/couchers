@@ -65,6 +65,7 @@ function setMocks({
             birthdateVerificationStatus: 2,
             genderVerificationStatus: 2,
             doNotEmail: false,
+            hasDonated: false,
           })
       : Promise.reject(new Error("Error getting account info"));
   mockedService.account.changeEmail = () =>
