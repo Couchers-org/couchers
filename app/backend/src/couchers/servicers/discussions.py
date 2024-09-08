@@ -49,7 +49,7 @@ def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDis
         cluster = discussion.owner_cluster
 
         if not cluster.is_official_cluster:
-            raise NotImplementedError("Shouldn't have discussions under groups, communities only")
+            raise NotImplementedError("Shouldn't have discussions under groups, only communities")
 
         for user in list(cluster.members.where(User.is_visible)):
             context = SimpleNamespace(user_id=user.id)
@@ -57,6 +57,7 @@ def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDis
                 session,
                 user_id=user.id,
                 topic_action="discussion:create",
+                key=payload.discussion_id,
                 data=notification_data_pb2.DiscussionCreate(
                     creator=user_model_to_pb(discussion.creator_user, session, context),
                     discussion=discussion_to_pb(session, discussion, context),
