@@ -31,10 +31,6 @@ def signup_link(*, token):
     return f"{config['BASE_URL']}/signup?token={token}"
 
 
-def login_link(*, login_token):
-    return f"{config['BASE_URL']}/login?token={login_token}"
-
-
 def account_settings_link():
     return f"{config['BASE_URL']}/account-settings"
 

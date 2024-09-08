@@ -345,3 +345,38 @@ def test_modnotes(db, push_collector):
         assert note.note_content == "# Important note\nThis is a sample mod note."
 
         assert to_aware_datetime(note.acknowledged) > to_aware_datetime(note.created)
+
+
+def test_modnotes_no_notify(db, push_collector):
+    user, token = generate_user()
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_jail_session(token) as jail:
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.jailed
+        assert not res.has_pending_mod_notes
+        assert len(res.pending_mod_notes) == 0
+
+    with real_account_session(token) as account:
+        res = account.ListModNotes(empty_pb2.Empty())
+        assert len(res.mod_notes) == 0
+
+    with real_admin_session(super_token) as admin:
+        with mock_notification_email() as mock:
+            admin.SendModNote(
+                admin_pb2.SendModNoteReq(
+                    user=user.username,
+                    content="# Important note\nThis is a sample mod note.",
+                    internal_id="sample_note",
+                    do_not_notify=True,
+                )
+            )
+        mock.assert_not_called()
+
+    with real_jail_session(token) as jail:
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert res.jailed
+        assert res.has_pending_mod_notes
+        assert len(res.pending_mod_notes) == 1
+        note = res.pending_mod_notes[0]
+        assert note.note_content == "# Important note\nThis is a sample mod note."
