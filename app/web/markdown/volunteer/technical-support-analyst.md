@@ -7,7 +7,7 @@ description: "Apply to become a Technical Support Analyst for Couchers.org"
 
 ## Position Description
 
-**This is a remote position**
+**This is remote volunteer position**
 
 We are recruiting a Technical Support Analyst (TSA) to manage our technical support queue. The TSA will be responsible for reviewing, sorting and responding to technical support tickets in the context of user support and quality assurance of our product (the Couchers.org platform).
 
