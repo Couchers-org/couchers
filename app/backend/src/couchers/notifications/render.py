@@ -686,11 +686,8 @@ def render_notification(user, notification) -> RenderedNotification:
             is_critical=True,
             email_subject=title,
             email_preview=message,
-            email_template_name="security",
-            email_template_args={
-                "title": title,
-                "message": message,
-            },
+            email_template_name="mod_note",
+            email_template_args={"title": title},
             push_title="You received a mod note",
             push_body="You need to read and acknowledge the note before continuing to use the platform.",
             push_icon=urls.icon_url(),
