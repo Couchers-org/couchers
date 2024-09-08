@@ -1,5 +1,6 @@
 {
     "filter_dialog": {
+        "search_here_button": "Search in this area",
         "desktop_title": "Filters",
         "mobile_title": "Search"
     },
@@ -23,11 +24,15 @@
         "host_filters": {
             "title": "Host filters",
             "last_active_field_label": "Last active",
-            "hosting_status_field_label": "Hosting status"
+            "hosting_status_field_label": "Hosting status",
+            "complete_profiles_label": "Complete profiles"
         },
         "accommodation_filters": {
             "title": "Accommodation filters",
             "guests_field_label": "Number of guests"
+        },
+        "empty_profile_filters": {
+            "title": "Filter out empty profiles"
         },
         "submit_button_label": "Apply"
     },

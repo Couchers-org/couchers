@@ -19,6 +19,7 @@ import type { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
 import EventTimeChanger from "./EventTimeChanger";
+import { Coordinates } from "features/search/constants";
 
 export const useEventFormStyles = makeStyles((theme) => ({
   root: {
@@ -138,7 +139,7 @@ export default function EventForm({
             event.offlineInformation.lng,
             event.offlineInformation.lat
           ),
-          bbox: [0, 0, 0, 0] as [number, number, number, number],
+          bbox: [0, 0, 0, 0] as Coordinates,
         }
       : ("" as const)
   ).current;

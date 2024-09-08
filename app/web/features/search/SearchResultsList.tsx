@@ -1,24 +1,16 @@
-import { Hidden, makeStyles, Paper } from "@material-ui/core";
-import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
-import TextBody from "components/TextBody";
-import { searchQueryKey } from "features/queryKeys";
-import { selectedUserZoom } from "features/search/constants";
-import SearchBox from "features/search/SearchBox";
+import { Hidden, makeStyles, Paper } from "@material-ui/core";
+import CircularProgress from "components/CircularProgress";
 import SearchResult from "features/search/SearchResult";
-import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
-import { filterUsers } from "features/search/users";
-import { useUser } from "features/userQueries/useUsers";
-import { useTranslation } from "i18n";
-import { SEARCH } from "i18n/namespaces";
-import maplibregl, { Map as MaplibreMap } from "maplibre-gl";
-import { User } from "proto/api_pb";
+import { Dispatch, SetStateAction } from "react";
 import { UserSearchRes } from "proto/search_pb";
-import { MutableRefObject } from "react";
-import { useInfiniteQuery } from "react-query";
-import { service } from "service";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+import TextBody from "components/TextBody";
+import { InfiniteData } from "react-query";
+import { SEARCH } from "i18n/namespaces";
+import { useTranslation } from "i18n";
+import Alert from "components/Alert";
+import SearchBox from "./SearchBox";
+import { User } from "proto/api_pb";
 
 const useStyles = makeStyles((theme) => ({
   mapResults: {
@@ -83,163 +75,106 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface SearchResultsListProps {
-  handleResultClick(user: User.AsObject): void;
-  handleMapUserClick(ev: {
-    features?: maplibregl.MapboxGeoJSONFeature[];
-  }): void;
-  map: MutableRefObject<MaplibreMap | undefined>;
-  selectedResult?: number;
-  updateMapBoundingBox: (
-    newBoundingBox: [number, number, number, number] | undefined
-  ) => void;
-  searchFilters: ReturnType<typeof useRouteWithSearchFilters>;
+interface mapWrapperProps {
+  isLoading: boolean;
+  results: InfiniteData<UserSearchRes.AsObject> | undefined;
+  error?: string | undefined;
+  hasNext?: boolean | undefined;
+  fetchNextPage: () => void;
+  selectedResult:
+    | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
+    | undefined;
+  setSelectedResult: Dispatch<
+    SetStateAction<
+      Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
+    >
+  >;
+  searchType: string;
+  setSearchType: Dispatch<SetStateAction<string>>;
+  locationResult: any;
+  setLocationResult: Dispatch<SetStateAction<any>>;
+  setQueryName: Dispatch<SetStateAction<undefined | string>>;
+  queryName: undefined | string;
 }
 
 export default function SearchResultsList({
-  handleResultClick,
-  handleMapUserClick,
-  map,
+  isLoading,
+  results,
+  error,
+  hasNext,
+  fetchNextPage,
   selectedResult,
-  searchFilters,
-  updateMapBoundingBox,
-}: SearchResultsListProps) {
+  setSelectedResult,
+  searchType,
+  setSearchType,
+  locationResult,
+  setLocationResult,
+  setQueryName,
+  queryName,
+}: mapWrapperProps) {
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
-  const selectedUser = useUser(selectedResult);
-
-  const { query, lat, lng, lastActive, hostingStatusOptions, numGuests, bbox } =
-    searchFilters.active;
-  const radius = 50000;
-
-  const {
-    data: results,
-    error,
-    isLoading,
-    fetchNextPage,
-    isFetching,
-    hasNextPage,
-  } = useInfiniteQuery<UserSearchRes.AsObject, Error>(
-    searchQueryKey(query || ""),
-    ({ pageParam }) => {
-      return service.search.userSearch(
-        {
-          lat,
-          lng,
-          radius,
-          query,
-          lastActive,
-          hostingStatusOptions,
-          numGuests,
-        },
-        pageParam
-      );
-    },
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-      onSuccess(results) {
-        map.current?.stop();
-
-        const resultUsers = results.pages
-          .flatMap((page) => page.resultsList)
-          .map((result) => {
-            return result.user;
-          })
-          //only return defined users
-          .filter((user): user is User.AsObject => !!user);
-
-        const setFilter = () => {
-          map.current &&
-            filterUsers(
-              map.current,
-              Object.keys(searchFilters.active).length > 0
-                ? resultUsers.map((user) => user.userId)
-                : null,
-              handleMapUserClick
-            );
-
-          if (bbox && bbox.join() !== "0,0,0,0") {
-            map.current?.fitBounds(bbox, {
-              maxZoom: selectedUserZoom,
-            });
-          }
-        };
-
-        if (map.current?.loaded()) {
-          setFilter();
-        } else {
-          map.current?.once("load", setFilter);
-        }
-      },
-    }
-  );
-  const isSearching = Object.keys(searchFilters.active).length !== 0;
+  const hasAtLeastOnePageResults =
+    results && results?.pages[0]?.resultsList?.length !== 0;
 
   return (
     <Paper className={classes.mapResults}>
-      {error && <Alert severity="error">{error.message}</Alert>}
+      {error && <Alert severity="error">{error}</Alert>}
+
       <Hidden smDown>
         <SearchBox
-          searchFilters={searchFilters}
-          updateMapBoundingBox={updateMapBoundingBox}
+          searchType={searchType}
+          setSearchType={setSearchType}
+          locationResult={locationResult}
+          setLocationResult={setLocationResult}
+          setQueryName={setQueryName}
+          queryName={queryName}
         />
       </Hidden>
-      {isSearching ? (
-        isLoading ? (
-          <CircularProgress className={classes.baseMargin} />
-        ) : hasAtLeastOnePage(results, "resultsList") ? (
-          <HorizontalScroller
-            breakpoint="sm"
-            className={classes.scroller}
-            isFetching={isFetching}
-            fetchNext={fetchNextPage}
-            hasMore={hasNextPage}
-          >
-            {results.pages
-              .flatMap((page) => page.resultsList)
-              .map((result) =>
-                result.user ? (
-                  <SearchResult
-                    id={`search-result-${result.user.userId}`}
-                    className={classes.searchResult}
-                    key={result.user.userId}
-                    user={result.user}
-                    onSelect={handleResultClick}
-                    highlight={result.user.userId === selectedResult}
-                  />
-                ) : null
-              )}
-          </HorizontalScroller>
-        ) : (
+
+      <>
+        {isLoading && <CircularProgress className={classes.baseMargin} />}
+
+        {!isLoading && !hasAtLeastOnePageResults && (
           <TextBody className={classes.baseMargin}>
             {t("search_result.no_user_result_message")}
           </TextBody>
-        )
-      ) : (
-        selectedResult && (
-          <>
-            {selectedUser.error && (
-              <Alert severity="error">{selectedUser.error}</Alert>
-            )}
-            {selectedUser.isLoading && (
-              <CircularProgress className={classes.baseMargin} />
-            )}
-            {selectedUser.data && (
-              <HorizontalScroller breakpoint="sm" className={classes.scroller}>
+        )}
+
+        {!isLoading && hasAtLeastOnePageResults && (
+          <HorizontalScroller
+            breakpoint="sm"
+            className={classes.scroller}
+            isFetching={isLoading}
+            fetchNext={fetchNextPage}
+            hasMore={hasNext}
+          >
+            {results?.pages
+              .flatMap((page) => page.resultsList)
+              .filter((result) => result.user)
+              .map((result) => (
                 <SearchResult
-                  id={`search-result-${selectedUser.data.userId}`}
-                  className={classes.singleResult}
-                  key={selectedUser.data.userId}
-                  user={selectedUser.data}
-                  onSelect={handleResultClick}
-                  highlight={selectedUser.data.userId === selectedResult}
+                  id={`search-result-${result.user!.userId}`}
+                  className={classes.searchResult}
+                  key={result.user!.userId}
+                  user={result.user!}
+                  onSelect={() => {
+                    setSelectedResult({
+                      username: result.user?.username as string,
+                      userId: result.user?.userId as number,
+                      lng: result.user?.lng as number,
+                      lat: result.user?.lat as number,
+                    });
+                  }}
+                  highlight={
+                    selectedResult &&
+                    result.user!.userId === selectedResult.userId
+                  }
                 />
-              </HorizontalScroller>
-            )}
-          </>
-        )
-      )}
+              ))}
+          </HorizontalScroller>
+        )}
+      </>
     </Paper>
   );
 }

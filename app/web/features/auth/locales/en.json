@@ -80,6 +80,7 @@
       "validation_error": "Must be a valid date in the past."
     },
     "hosting_status": {
+      "any": "Any",
       "field_label": "Hosting status",
       "can_host": "Can host",
       "maybe": "May host",

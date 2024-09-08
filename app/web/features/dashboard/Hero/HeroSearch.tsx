@@ -47,8 +47,6 @@ export default function HeroSearch() {
           if (value !== "") {
             const searchRouteWithSearchQuery = routeToSearch({
               location: value.simplifiedName,
-              lat: value.location.lat,
-              lng: value.location.lng,
               hostingStatusOptions: [
                 HostingStatus.HOSTING_STATUS_CAN_HOST,
                 HostingStatus.HOSTING_STATUS_MAYBE,

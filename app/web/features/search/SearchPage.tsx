@@ -1,19 +1,21 @@
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
-import HtmlMeta from "components/HtmlMeta";
-import Map from "components/Map";
-import SearchBox from "features/search/SearchBox";
-import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
-import { Point } from "geojson";
-import { useTranslation } from "i18n";
-import { GLOBAL, SEARCH } from "i18n/namespaces";
-import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
-import { User } from "proto/api_pb";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { searchRoute } from "routes";
-import { usePrevious } from "utils/hooks";
-
+import { Coordinates, selectedUserZoom } from "features/search/constants";
 import SearchResultsList from "./SearchResultsList";
-import { addClusteredUsersToMap, layers } from "./users";
+import { useEffect, useRef, useState } from "react";
+import { GLOBAL, SEARCH } from "i18n/namespaces";
+import { Map as MaplibreMap } from "maplibre-gl";
+import { UserSearchRes } from "proto/search_pb";
+import HtmlMeta from "components/HtmlMeta";
+import FilterDialog from "./FilterDialog";
+import { useTranslation } from "i18n";
+import MapWrapper from "./MapWrapper";
+import { User } from "proto/api_pb";
+import { service } from "service";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useInfiniteQuery,
+} from "react-query";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -52,193 +54,170 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SearchPage() {
+/**
+ * Search page, creates the state, obtains the users, renders all its sub-components
+ */
+export default function SearchPage({
+  locationName,
+  bbox,
+}: {
+  locationName: string;
+  bbox: Coordinates;
+}) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
+  const queryClient = new QueryClient();
   const classes = useStyles();
   const theme = useTheme();
-
   const map = useRef<MaplibreMap>();
+
+  // State
+  const [locationResult, setLocationResult] = useState({
+    bbox: bbox,
+    isRegion: false,
+    location: { lng: undefined, lat: undefined },
+    name: locationName,
+    simplifiedName: locationName,
+  });
+  const [queryName, setQueryName] = useState<undefined | string>(undefined);
+  const [searchType, setSearchType] = useState("location");
+  const [lastActiveFilter, setLastActiveFilter] = useState(0);
+  const [hostingStatusFilter, setHostingStatusFilter] = useState(0);
+  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(undefined);
+  const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
   >(undefined);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-  const previousResult = usePrevious(selectedResult);
-
-  const [areClustersLoaded, setAreClustersLoaded] = useState(false);
-
-  const showResults = useRef(false);
-
-  const searchFilters = useRouteWithSearchFilters(searchRoute);
-
-  const updateMapBoundingBox = (
-    newBindingBox: [number, number, number, number] | undefined
-  ) => {
-    if (newBindingBox && newBindingBox.join() !== "0,0,0,0") {
-      map.current?.fitBounds(newBindingBox);
-    }
-  };
-
-  useEffect(() => {
-    if (showResults.current !== searchFilters.any) {
-      showResults.current = searchFilters.any;
-      setTimeout(() => {
-        map.current?.resize();
-      }, theme.transitions.duration.standard);
-    }
-  }, [searchFilters.any, selectedResult, theme.transitions.duration.standard]);
-
-  const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
-    map.current?.stop();
-    map.current?.easeTo({
-      center: [user.lng, user.lat],
-    });
-  }, []);
-
-  useEffect(() => {
-    if (previousResult) {
-      //unset the old feature selection on the map for styling
-      areClustersLoaded &&
-        map.current?.setFeatureState(
-          { source: "clustered-users", id: previousResult.userId },
-          { selected: false }
+  // Loads the list of users
+  const { data, error, isLoading, fetchNextPage, isFetching, hasNextPage } =
+    useInfiniteQuery<UserSearchRes.AsObject, Error>(
+      [
+        "userSearch",
+        queryName,
+        locationResult?.name,
+        locationResult?.bbox,
+        lastActiveFilter,
+        hostingStatusFilter,
+        numberOfGuestFilter,
+        completeProfileFilter,
+      ],
+      ({ pageParam }) => {
+        const lastActiveComparation = parseInt(
+          lastActiveFilter as unknown as string
         );
-    }
-
-    if (selectedResult) {
-      //update the map
-      flyToUser(selectedResult);
-      areClustersLoaded &&
-        map.current?.setFeatureState(
-          { source: "clustered-users", id: selectedResult.userId },
-          { selected: true }
+        const hostingStatusFilterComparation = parseInt(
+          hostingStatusFilter as unknown as string
         );
 
-      //update result list
-      document
-        .getElementById(`search-result-${selectedResult.userId}`)
-        ?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [selectedResult, areClustersLoaded, previousResult, flyToUser]);
-
-  const handleMapUserClick = useCallback(
-    (
-      ev: maplibregl.MapMouseEvent & {
-        features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
-      } & EventData
-    ) => {
-      ev.preventDefault();
-      const props = ev.features?.[0].properties;
-      const geom = ev.features?.[0].geometry as Point;
-      if (!props || !geom) return;
-      const username = props.username;
-      const userId = props.id;
-      const [lng, lat] = geom.coordinates;
-      setSelectedResult({ username, userId, lng, lat });
-    },
-    []
-  );
-
-  //detect when map data has been initially loaded
-  const handleMapSourceData = useCallback(() => {
-    if (
-      map.current &&
-      map.current.getSource("clustered-users") &&
-      map.current.isSourceLoaded("clustered-users")
-    ) {
-      setAreClustersLoaded(true);
-
-      // unbind the event
-      map.current.off("sourcedata", handleMapSourceData);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!map.current) return;
-    const handleMapClickAway = (e: EventData) => {
-      //defaultPrevented is true when a map feature has been clicked
-      if (!e.defaultPrevented) {
-        setSelectedResult(undefined);
+        return service.search.userSearch(
+          {
+            query: queryName,
+            bbox: locationResult.bbox,
+            lastActive:
+              lastActiveComparation === 0 ? undefined : lastActiveFilter,
+            hostingStatusOptions:
+              hostingStatusFilterComparation === 0
+                ? undefined
+                : [hostingStatusFilter],
+            numGuests: numberOfGuestFilter,
+            completeProfile:
+              completeProfileFilter === false
+                ? undefined
+                : completeProfileFilter,
+          },
+          pageParam
+        );
+      },
+      {
+        getNextPageParam: (lastPage) =>
+          lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
       }
-    };
-
-    //bind event handlers for map events (order matters!)
-    map.current.on(
-      "click",
-      layers.unclusteredPointLayer.id,
-      handleMapUserClick
     );
-    map.current.on("click", handleMapClickAway);
 
-    map.current.on("sourcedata", handleMapSourceData);
-
-    return () => {
-      if (!map.current) return;
-
-      //unbind event handlers for map events
-      map.current.off("sourcedata", handleMapSourceData);
-      map.current.off("click", handleMapClickAway);
-      map.current.off(
-        "click",
-        layers.unclusteredPointLayer.id,
-        handleMapUserClick
-      );
-    };
-  }, [handleMapUserClick, handleMapSourceData]);
-
-  const initializeMap = (newMap: MaplibreMap) => {
-    map.current = newMap;
-    newMap.on("load", () => {
-      addClusteredUsersToMap(newMap);
+  // Relocate map everytime boundingbox changes
+  useEffect(() => {
+    map.current?.fitBounds(locationResult.bbox, {
+      maxZoom: selectedUserZoom,
     });
-  };
+  }, [locationResult.bbox]);
+
+  const errorMessage = error?.message;
 
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <HtmlMeta title={t("global:nav.map_search")} />
       <div className={classes.container}>
+        {/* Desktop */}
         <Hidden smDown>
           <SearchResultsList
-            handleResultClick={setSelectedResult}
-            handleMapUserClick={handleMapUserClick}
-            map={map}
-            updateMapBoundingBox={updateMapBoundingBox}
-            selectedResult={selectedResult?.userId}
-            searchFilters={searchFilters}
+            searchType={searchType}
+            setSearchType={setSearchType}
+            locationResult={locationResult}
+            setLocationResult={setLocationResult}
+            queryName={queryName}
+            setQueryName={setQueryName}
+            results={data}
+            error={errorMessage}
+            hasNext={hasNextPage}
+            fetchNextPage={fetchNextPage}
+            selectedResult={selectedResult}
+            setSelectedResult={setSelectedResult}
+            isLoading={isLoading || isFetching}
           />
         </Hidden>
+        {/* Mobile */}
         <Hidden mdUp>
           <Collapse
-            in={searchFilters.any || !!selectedResult}
+            in={!!selectedResult}
             timeout={theme.transitions.duration.standard}
             className={classes.mobileCollapse}
           >
             <SearchResultsList
-              handleResultClick={setSelectedResult}
-              handleMapUserClick={handleMapUserClick}
-              updateMapBoundingBox={updateMapBoundingBox}
-              map={map}
-              selectedResult={selectedResult?.userId}
-              searchFilters={searchFilters}
+              searchType={searchType}
+              setSearchType={setSearchType}
+              locationResult={locationResult}
+              setLocationResult={setLocationResult}
+              queryName={queryName}
+              setQueryName={setQueryName}
+              results={data}
+              error={errorMessage}
+              hasNext={hasNextPage}
+              fetchNextPage={fetchNextPage}
+              selectedResult={selectedResult}
+              setSelectedResult={setSelectedResult}
+              isLoading={isLoading || isFetching}
             />
           </Collapse>
         </Hidden>
+        <FilterDialog
+          isOpen={isFiltersOpen}
+          queryName={queryName}
+          setQueryName={setQueryName}
+          onClose={() => setIsFiltersOpen(false)}
+          setLocationResult={setLocationResult}
+          lastActiveFilter={lastActiveFilter}
+          setLastActiveFilter={setLastActiveFilter}
+          hostingStatusFilter={hostingStatusFilter}
+          setHostingStatusFilter={setHostingStatusFilter}
+          completeProfileFilter={completeProfileFilter}
+          setCompleteProfileFilter={setCompleteProfileFilter}
+          numberOfGuestFilter={numberOfGuestFilter}
+          setNumberOfGuestFilter={setNumberOfGuestFilter}
+        />
         <div className={classes.mapContainer}>
-          <Map
-            grow
-            initialCenter={new LngLat(0, 0)}
-            initialZoom={1}
-            postMapInitialize={initializeMap}
-            hash
+          <MapWrapper
+            map={map}
+            results={data}
+            selectedResult={selectedResult}
+            locationResult={locationResult}
+            setIsFiltersOpen={setIsFiltersOpen}
+            setLocationResult={setLocationResult}
+            setSelectedResult={setSelectedResult}
+            isLoading={isLoading || isFetching}
           />
-          <Hidden mdUp>
-            <SearchBox
-              className={classes.searchMobile}
-              searchFilters={searchFilters}
-              updateMapBoundingBox={updateMapBoundingBox}
-            />
-          </Hidden>
         </div>
       </div>
-    </>
+    </QueryClientProvider>
   );
 }

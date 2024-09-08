@@ -1,3 +1,4 @@
+import { Coordinates } from "features/search/constants";
 import { ParsedUrlQuery } from "querystring";
 import { UserSearchFilters as ServiceUserSearchFilters } from "service/search";
 import stringOrFirstString from "utils/stringOrFirstString";
@@ -23,18 +24,8 @@ export function parsedQueryToSearchFilters(urlQuery: ParsedUrlQuery) {
       //ints
       case "lastActive":
       case "numGuests":
-      case "radius":
         const int = Number.parseInt(stringOrFirstString(urlQuery[key]) || "");
         if (int) filters[key] = int;
-        break;
-
-      //floats
-      case "lat":
-      case "lng":
-        const float = Number.parseFloat(
-          stringOrFirstString(urlQuery[key]) || ""
-        );
-        if (float) filters[key] = float;
         break;
 
       case "bbox":
@@ -43,7 +34,7 @@ export function parsedQueryToSearchFilters(urlQuery: ParsedUrlQuery) {
           const parsedList = list.map((value) => Number.parseFloat(value));
 
           if (parsedList.length === 4) {
-            filters[key] = parsedList as [number, number, number, number];
+            filters[key] = parsedList as Coordinates;
           }
         }
         break;

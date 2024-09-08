@@ -1,11 +1,11 @@
-import "maplibre-gl/dist/maplibre-gl.css";
-
-import { Typography } from "@material-ui/core";
-import classNames from "classnames";
-import { NO_MAP_SUPPORT } from "components/constants";
 import maplibregl, { LngLat, RequestParameters } from "maplibre-gl";
+import { NO_MAP_SUPPORT } from "components/constants";
 import { useEffect, useRef, useState } from "react";
+import { Typography } from "@material-ui/core";
 import makeStyles from "utils/makeStyles";
+import classNames from "classnames";
+
+import "maplibre-gl/dist/maplibre-gl.css";
 
 const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -14,7 +14,6 @@ maplibregl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_KEY!;
 const useStyles = makeStyles({
   root: {
     height: 200,
-    position: "relative",
     width: 400,
   },
   grow: {
@@ -58,14 +57,12 @@ export default function Map({
   className,
   ...otherProps
 }: MapProps) {
-  const classes = useStyles();
-
   const containerRef = useRef<HTMLDivElement>(null);
   const [noMap, setNoMap] = useState(false);
+  const classes = useStyles();
 
   /*
   Allows sending cookies (counted as sensitive "credentials") on cross-origin requests when we grab GeoJSON/other data from the API.
-
   Those APIs will return an error if the session cookie is not set as these APIs are secure and not public.
   */
   const transformRequest = (url: string): RequestParameters => {
@@ -79,10 +76,13 @@ export default function Map({
   };
 
   const mapRef = useRef<maplibregl.Map>();
+
   useEffect(() => {
     if (!containerRef.current) return;
+
     //don't create a new map if it exists already
     if (mapRef.current) return;
+
     try {
       const map = new maplibregl.Map({
         center: initialCenter,
@@ -93,12 +93,14 @@ export default function Map({
         transformRequest,
         zoom: initialZoom,
       });
+
       mapRef.current = map;
 
-      if (interactive)
+      if (interactive) {
         map.addControl(
           new maplibregl.NavigationControl({ showCompass: false })
         );
+      }
 
       if (onUpdate) {
         map.on("moveend", () => onUpdate(map.getCenter(), map.getZoom()));
