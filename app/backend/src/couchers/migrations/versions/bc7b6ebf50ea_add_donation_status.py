@@ -1,7 +1,7 @@
 """Add donation status
 
 Revision ID: bc7b6ebf50ea
-Revises: 461446320dfa
+Revises: 3ac39dcf3b5a
 Create Date: 2024-07-17 09:46:20.672556
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "bc7b6ebf50ea"
-down_revision = "461446320dfa"
+down_revision = "3ac39dcf3b5a"
 branch_labels = None
 depends_on = None
 
