@@ -116,7 +116,7 @@ export default function MapWrapper({
       const [lng, lat] = geom.coordinates;
       setSelectedResult({ username, userId, lng, lat });
     },
-    [setSelectedResult]
+    []
   );
 
   /**
