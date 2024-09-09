@@ -9,18 +9,17 @@ description: "Apply to become a Frontend (web) Developer for Couchers.org"
 
 **This is a remote position**
 
-Couchers.org is seeking one or two additional frontend (web) developers to implement features, improve our UI, and assist with a transition to a new backend API. For this role, we are seeking experienced engineers who require minimal training to get started.
+Couchers.org is seeking one or two additional frontend (web) developers to implement features, and improve our UI. For this role, we are seeking experienced engineers who require minimal training to get started.
 
-The Couchers.org codebase is open-sourced under an MIT license and we accept occasional contributions, however we are looking for some dedicated volunteers who can join the formal web team and make a commitment of 5+ hours per week.
+The Couchers.org codebase is open source under the MIT license and we accept occasional contributions via the [Open Source Developer process](/volunteer/open-source-developer), however, we are looking for some dedicated volunteers who can join the formal web team and make a commitment of 5+ hours per week (you choose when!).
 
-We pride ourselves on good documentation, ease of contribution, and ability for contributors to make large impacts. You will be working alongside experienced professionals who are motivated to develop their skills, to meet other professionals, and to develop this critical platform for the couch surfing community.
+We pride ourselves on good documentation, ease of contribution, and ability for contributors to make large impacts. You will be working alongside experienced professionals who are motivated to develop their skills, to meet other professionals, and to help build this critical platform for the couch surfing community.
 
 ### Duties
 
 - Developing and expanding features;
 - Improving UI based on wireframes;
 - Debugging, documentation, and testing;
-- Assisting in connecting frontend to new backend API;
 - Working with the the backend and UX teams to design and implement features;
 
 ### Requirements

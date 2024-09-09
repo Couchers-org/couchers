@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Summer 2024 updates](/blog/2024/09/08/summer-2024-updates)
+
+2024/09/08.
+
+Catch up on news with Couchers: read about what's been going on and what's coming up this in the rest of 2024!
+
+[Read more.](/blog/2024/09/08/summer-2024-updates)
+
 ## [Where we are and where we are going](/blog/2024/06/12/where-we-are-and-where-we-are-going)
 
 2024/06/12.

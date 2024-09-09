@@ -10,7 +10,8 @@ import {
   UnsubscribeReq,
   UsernameValidReq,
 } from "proto/auth_pb";
-import client from "service/client";
+
+import client from "./client";
 
 export async function startSignup(name: string, email: string) {
   const req = new SignupFlowReq();
@@ -110,6 +111,14 @@ export async function signupFlowCommunityGuidelines(
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   req.setAcceptCommunityGuidelines(new BoolValue().setValue(accept));
+  const res = await client.auth.signupFlow(req);
+  return res.toObject();
+}
+
+export async function signupFlowResendVerificationEmail(flowToken: string) {
+  const req = new SignupFlowReq();
+  req.setFlowToken(flowToken);
+  req.setResendVerificationEmail(true);
   const res = await client.auth.signupFlow(req);
   return res.toObject();
 }

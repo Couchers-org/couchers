@@ -1,13 +1,13 @@
 import {
+  Checkbox,
+  FormControlLabel,
   Grid,
   InputAdornment,
   makeStyles,
   Theme,
   Typography,
   useMediaQuery,
-  useTheme,
 } from "@material-ui/core";
-import Autocomplete from "components/Autocomplete";
 import Button from "components/Button";
 import {
   Dialog,
@@ -19,26 +19,45 @@ import Divider from "components/Divider";
 import IconButton from "components/IconButton";
 import { CrossIcon } from "components/Icons";
 import LocationAutocomplete from "components/LocationAutocomplete";
+import Select from "components/Select";
 import TextField from "components/TextField";
-import { hostingStatusLabels } from "features/profile/constants";
-import { searchQueryKey } from "features/queryKeys";
-import useRouteWithSearchFilters from "features/search/useRouteWithSearchFilters";
-import { useTranslation } from "i18n";
+import { TFunction, useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { LngLat } from "maplibre-gl";
 import { HostingStatus } from "proto/api_pb";
-import { Controller, useForm } from "react-hook-form";
-import { useQueryClient } from "react-query";
+import { Dispatch, SetStateAction } from "react";
+import { useForm } from "react-hook-form";
 import { GeocodeResult } from "utils/hooks";
 import SearchFilters from "utils/searchFilters";
 
-import { getLastActiveOptions } from "./constants";
+import { lastActiveOptions } from "./constants";
 
-const hostingStatusOptions = [
-  HostingStatus.HOSTING_STATUS_CAN_HOST,
-  HostingStatus.HOSTING_STATUS_MAYBE,
-  HostingStatus.HOSTING_STATUS_CANT_HOST,
-];
+const getLastActiveOptions = (t: TFunction) => ({
+  [lastActiveOptions.LAST_ACTIVE_ANY]: t("search:last_active_options.any"),
+  [lastActiveOptions.LAST_ACTIVE_LAST_DAY]: t(
+    "search:last_active_options.last_day"
+  ),
+  [lastActiveOptions.LAST_ACTIVE_LAST_WEEK]: t(
+    "search:last_active_options.last_week"
+  ),
+  [lastActiveOptions.LAST_ACTIVE_LAST_2_WEEKS]: t(
+    "search:last_active_options.last_2_weeks"
+  ),
+  [lastActiveOptions.LAST_ACTIVE_LAST_MONTH]: t(
+    "search:last_active_options.last_month"
+  ),
+  [lastActiveOptions.LAST_ACTIVE_LAST_3_MONTHS]: t(
+    "search:last_active_options.last_3_months"
+  ),
+});
+
+const getHostingStatusOptions = (t: TFunction) => ({
+  [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: t("global:hosting_status.any"),
+  [HostingStatus.HOSTING_STATUS_CAN_HOST]: t("global:hosting_status.can_host"),
+  [HostingStatus.HOSTING_STATUS_MAYBE]: t("global:hosting_status.maybe"),
+  [HostingStatus.HOSTING_STATUS_CANT_HOST]: t(
+    "global:hosting_status.cant_host"
+  ),
+});
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -46,101 +65,64 @@ const useStyles = makeStyles((theme) => ({
       marginBlockStart: theme.spacing(1),
     },
   },
+  marginBottom: {
+    marginBottom: theme.spacing(2),
+  },
+  noMargin: {
+    margin: 0,
+  },
+  noLeftPadding: {
+    paddingLeft: 0,
+  },
 }));
 
-interface FilterDialogFormData
+interface FilterModalFormData
   extends Omit<SearchFilters, "location" | "lastActive"> {
   location: GeocodeResult | "";
-  lastActive: ReturnType<typeof getLastActiveOptions>[number];
+  lastActive: ReturnType<typeof getLastActiveOptions>;
+}
+
+interface FilterDialogProps {
+  isOpen: boolean;
+  onClose(): void;
+  queryName: undefined | string;
+  setQueryName: Dispatch<SetStateAction<undefined | string>>;
+  setLocationResult: any;
+  lastActiveFilter: number;
+  setLastActiveFilter: Dispatch<SetStateAction<number>>;
+  hostingStatusFilter: number;
+  setHostingStatusFilter: Dispatch<SetStateAction<number>>;
+  completeProfileFilter: boolean;
+  setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
+  numberOfGuestFilter: undefined;
+  setNumberOfGuestFilter: Dispatch<SetStateAction<undefined>>;
 }
 
 export default function FilterDialog({
   isOpen,
   onClose,
-  searchFilters,
-  updateMapBoundingBox,
-}: {
-  isOpen: boolean;
-  onClose(): void;
-  searchFilters: ReturnType<typeof useRouteWithSearchFilters>;
-  updateMapBoundingBox: (
-    newBoundingBox: [number, number, number, number] | undefined
-  ) => void;
-}) {
+  queryName,
+  setQueryName,
+  setLocationResult,
+  lastActiveFilter,
+  setLastActiveFilter,
+  hostingStatusFilter,
+  setHostingStatusFilter,
+  completeProfileFilter,
+  setCompleteProfileFilter,
+  numberOfGuestFilter,
+  setNumberOfGuestFilter,
+}: FilterDialogProps) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
-  const theme = useTheme();
   const { control, handleSubmit, register, setValue, getValues, errors } =
-    useForm<FilterDialogFormData>({
+    useForm<FilterModalFormData>({
       mode: "onBlur",
     });
-  const queryClient = useQueryClient();
-  const onSubmit = handleSubmit((data) => {
-    if (data.location && data.location.bbox) {
-      setTimeout(() => {
-        updateMapBoundingBox((data.location as GeocodeResult)?.bbox);
-      }, theme.transitions.duration.standard);
-    }
-    if (data.location === "" || !data.location) {
-      searchFilters.remove("location");
-      searchFilters.remove("lat");
-      searchFilters.remove("lng");
-    } else {
-      searchFilters.change("location", data.location.simplifiedName);
-      searchFilters.change("lat", data.location.location.lat);
-      searchFilters.change("lng", data.location.location.lng);
-    }
-    if (data.query === "" || !data.query) {
-      searchFilters.remove("query");
-    } else {
-      searchFilters.change("query", data.query);
-    }
-    if (!data.lastActive || !data.lastActive.value) {
-      searchFilters.remove("lastActive");
-    } else {
-      searchFilters.change("lastActive", data.lastActive.value);
-    }
-    if (!data.hostingStatusOptions || data.hostingStatusOptions.length === 0) {
-      searchFilters.remove("hostingStatusOptions");
-    } else {
-      searchFilters.change("hostingStatusOptions", data.hostingStatusOptions);
-    }
-    if (!data.numGuests) {
-      searchFilters.remove("numGuests");
-    } else {
-      searchFilters.change("numGuests", data.numGuests);
-    }
-    onClose();
-    //necessary because we don't want to cache every search for each filter
-    //but we do want react-query to handle pagination
-    queryClient.removeQueries(searchQueryKey());
-    searchFilters.apply();
-  });
-
-  // This requirement for certain filters to have a location specified
-  // should be removed when we show users according to bounding box
-  // or have some other solution to the pagination issue #1676
-  const validateHasLocation = (
-    data: string | number | string[] | number[] | { value: null | unknown }
-  ) => {
-    if (!data) return true;
-    if (data instanceof Array && data.length === 0) return true;
-    if (
-      typeof data === "object" &&
-      !(data instanceof Array) &&
-      data.value === null
-    )
-      return true;
-    return getValues("location") === "" || !getValues("location")
-      ? t("search:form.missing_location_validation_error")
-      : true;
-  };
 
   const isSmDown = useMediaQuery((theme: Theme) =>
     theme.breakpoints.down("sm")
   );
-
-  const lastActiveOptions = getLastActiveOptions(t);
 
   return (
     <Dialog
@@ -153,37 +135,41 @@ export default function FilterDialog({
           ? t("search:filter_dialog.mobile_title")
           : t("search:filter_dialog.desktop_title")}
       </DialogTitle>
-      <form onSubmit={onSubmit}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onClose();
+        }}
+      >
         <DialogContent>
           <div className={classes.container}>
             <LocationAutocomplete
               control={control}
               name="location"
-              defaultValue={
-                searchFilters.active.location
-                  ? {
-                      name: searchFilters.active.location,
-                      simplifiedName: searchFilters.active.location,
-                      location: new LngLat(
-                        searchFilters.active.lng ?? 0,
-                        searchFilters.active.lat ?? 0
-                      ),
-                      bbox: searchFilters.active.bbox as [0, 0, 0, 0],
-                    }
-                  : ""
-              }
+              defaultValue={""}
               label={t("search:form.location_field_label")}
+              onChange={(e) => {
+                if (e) {
+                  setLocationResult(e);
+                }
+              }}
               fieldError={errors.location?.message}
               disableRegions
             />
             <TextField
               fullWidth
-              defaultValue={searchFilters.active.query ?? ""}
+              defaultValue={""}
               id="keywords-filter"
               label={t("search:form.keywords.field_label")}
               name="query"
               inputRef={register}
               variant="standard"
+              onChange={(e) => {
+                if (e) {
+                  setQueryName(e.target.value);
+                }
+              }}
+              value={queryName}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -192,7 +178,7 @@ export default function FilterDialog({
                         "search:form.keywords.clear_field_action_a11y_label"
                       )}
                       onClick={() => {
-                        setValue("query", "");
+                        setQueryName("");
                       }}
                       size="small"
                     >
@@ -209,59 +195,53 @@ export default function FilterDialog({
               <Typography variant="h3">
                 {t("search:form.host_filters.title")}
               </Typography>
-              <Controller
-                control={control}
-                name="lastActive"
-                defaultValue={
-                  lastActiveOptions.find(
-                    (o) => o.value === searchFilters.active.lastActive ?? null
-                  ) ?? lastActiveOptions[0]
-                }
-                render={({ onChange, value }) => (
-                  <Autocomplete
-                    id="last-active-filter"
-                    label={t(
-                      "search:form.host_filters.last_active_field_label"
-                    )}
-                    options={lastActiveOptions}
-                    getOptionLabel={(o) => o.label}
-                    onChange={(_e, option) => onChange(option)}
-                    value={value}
-                    disableClearable={true}
-                    freeSolo={false}
-                    multiple={false}
-                    //@ts-expect-error - DeepMap bad typing
-                    error={errors.lastActive?.message}
-                  />
-                )}
-                rules={{ validate: validateHasLocation }}
+
+              <Select
+                id="last_active_filter"
+                className={classes.marginBottom}
+                value={lastActiveFilter}
+                onChange={(e) => setLastActiveFilter(e.target.value as number)}
+                label={t("search:form.host_filters.last_active_field_label")}
+                optionLabelMap={getLastActiveOptions(t)}
+                options={[
+                  lastActiveOptions.LAST_ACTIVE_ANY,
+                  lastActiveOptions.LAST_ACTIVE_LAST_DAY,
+                  lastActiveOptions.LAST_ACTIVE_LAST_WEEK,
+                  lastActiveOptions.LAST_ACTIVE_LAST_2_WEEKS,
+                  lastActiveOptions.LAST_ACTIVE_LAST_MONTH,
+                  lastActiveOptions.LAST_ACTIVE_LAST_3_MONTHS,
+                ]}
               />
-              <Controller
-                control={control}
-                name="hostingStatusOptions"
-                defaultValue={searchFilters.active.hostingStatusOptions ?? []}
-                render={({ onChange, value }) => (
-                  <Autocomplete<HostingStatus, true, false, false>
-                    id="host-status-filter"
-                    label={t(
-                      "search:form.host_filters.hosting_status_field_label"
-                    )}
-                    options={hostingStatusOptions}
-                    onChange={(_e, options) => {
-                      onChange(options);
+
+              <Select
+                id="can_host_status_filter"
+                value={hostingStatusFilter}
+                onChange={(e) => {
+                  setHostingStatusFilter(e.target.value as number);
+                }}
+                label={t("search:form.host_filters.hosting_status_field_label")}
+                optionLabelMap={getHostingStatusOptions(t)}
+                options={[
+                  HostingStatus.HOSTING_STATUS_UNSPECIFIED,
+                  HostingStatus.HOSTING_STATUS_CAN_HOST,
+                  HostingStatus.HOSTING_STATUS_MAYBE,
+                  HostingStatus.HOSTING_STATUS_CANT_HOST,
+                ]}
+              />
+
+              <FormControlLabel
+                className={classes.noMargin}
+                control={
+                  <Checkbox
+                    className={classes.noLeftPadding}
+                    color="primary"
+                    checked={completeProfileFilter}
+                    onChange={() => {
+                      setCompleteProfileFilter(!completeProfileFilter);
                     }}
-                    value={value}
-                    getOptionLabel={(option) => hostingStatusLabels(t)[option]}
-                    disableClearable={false}
-                    freeSolo={false}
-                    multiple={true}
-                    error={
-                      //@ts-ignore weird nested field type issue
-                      errors.hostingStatusOptions?.message
-                    }
                   />
-                )}
-                rules={{ validate: validateHasLocation }}
+                }
+                label={t("search:form.empty_profile_filters.title")}
               />
             </Grid>
             <Grid item xs={12} md={6} className={classes.container}>
@@ -269,19 +249,25 @@ export default function FilterDialog({
                 {t("search:form.accommodation_filters.title")}
               </Typography>
               <TextField
+                className={classes.noMargin}
                 type="number"
                 variant="standard"
                 id="num-guests-filter"
+                value={numberOfGuestFilter}
+                onChange={(e) => {
+                  setNumberOfGuestFilter(
+                    e.target.value as unknown as undefined
+                  );
+                }}
                 inputRef={register({
                   valueAsNumber: true,
-                  validate: validateHasLocation,
                 })}
                 name="numGuests"
                 fullWidth
                 label={t(
                   "search:form.accommodation_filters.guests_field_label"
                 )}
-                defaultValue={searchFilters.active.numGuests ?? ""}
+                defaultValue={""}
                 error={!!errors.numGuests}
                 helperText={errors.numGuests?.message}
               />

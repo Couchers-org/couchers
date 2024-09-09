@@ -22,12 +22,23 @@ service Search {
   rpc UserSearch(UserSearchReq) returns (UserSearchRes) {
     // Search for users in particular with extra filters, e.g. hosts
   }
+
+  rpc EventSearch(EventSearchReq) returns (EventSearchRes) {
+    // Search for events in particular with extra filters
+  }
 }
 
 message Area {
   double lat = 1;
   double lng = 2;
   double radius = 3; // m
+}
+
+message RectArea {
+  double lat_min = 1;
+  double lat_max = 2;
+  double lng_min = 3;
+  double lng_max = 4;
 }
 
 message SearchReq {
@@ -104,14 +115,17 @@ message UserSearchReq {
     Area search_in_area = 28;
     // search inside the area defined by the community
     int64 search_in_community_id = 29;
+    RectArea search_in_rectangle = 33;
   }
 
   repeated org.couchers.api.core.HostingStatus hosting_status_filter = 5;
   repeated org.couchers.api.core.SmokingLocation smoking_location_filter = 6;
   repeated org.couchers.api.core.SleepingArrangement sleeping_arrangement_filter = 7;
   repeated org.couchers.api.core.ParkingDetails parking_details_filter = 8;
+  repeated org.couchers.api.core.MeetupStatus meetup_status_filter = 32;
 
-  google.protobuf.StringValue gender = 9;
+
+  repeated string gender = 9;
   google.protobuf.UInt32Value guests = 10;
   // google.protobuf.StringValue language = 11;
   bool only_with_references = 12;
@@ -143,6 +157,51 @@ message UserSearchRes {
   // sorted with highest rank first
   // this will only contain users
   repeated Result results = 1;
+
+  string next_page_token = 2;
+}
+
+message EventSearchReq {
+  // whether to paginate backwards
+  bool past = 1;
+
+  google.protobuf.StringValue query = 2;
+  // whether the query (if any) should only search through event title and not event description
+  bool query_title_only = 3;
+
+  oneof online_status {
+    bool only_online = 12;
+    bool only_offline = 13;
+  }
+
+  // all false => everything
+  bool subscribed = 14;
+  bool attending = 15;
+  bool organizing = 16;
+  // include events in the user's communities
+  bool my_communities = 17;
+
+  bool include_cancelled = 4;
+
+  // restrictions on area
+  oneof search_in {
+    // search in given area
+    Area search_in_area = 5;
+    // search inside the area defined by the community
+    int64 search_in_community_id = 6;
+    RectArea search_in_rectangle = 7;
+  }
+
+  // restrictions in time
+  google.protobuf.Timestamp after = 8;
+  google.protobuf.Timestamp before = 9;
+
+  uint32 page_size = 10;
+  string page_token = 11;
+}
+
+message EventSearchRes {
+  repeated org.couchers.api.events.Event events = 1;
 
   string next_page_token = 2;
 }

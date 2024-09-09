@@ -10,7 +10,7 @@ import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
 import TextBody from "components/TextBody";
-import useAuthStore from "features/auth/useAuthStore";
+import { useAuthContext } from "features/auth/AuthProvider";
 import HostRequestStatusIcon from "features/messages/requests/HostRequestStatusIcon";
 import {
   controlMessage,
@@ -49,8 +49,8 @@ export default function HostRequestListItem({
 }: HostRequestListItemProps) {
   const { t } = useTranslation(MESSAGES);
   const classes = useStyles();
-  const currentUserId = useAuthStore().authState.userId;
-  const isHost = currentUserId === hostRequest.hostUserId;
+  const { authState } = useAuthContext();
+  const isHost = authState.userId === hostRequest.hostUserId;
   const { data: currentUser } = useCurrentUser();
   const { data: otherUser, isLoading: isOtherUserLoading } = useUser(
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId
@@ -60,12 +60,12 @@ export default function HostRequestListItem({
   //define the latest message author's name and
   //control message target to use in short message preview
   const authorName =
-    hostRequest?.latestMessage?.authorUserId === currentUserId
+    hostRequest?.latestMessage?.authorUserId === authState.userId
       ? firstName(currentUser?.name) || ""
       : firstName(otherUser?.name) || "";
 
   const targetName = hostRequest?.latestMessage
-    ? messageTargetId(hostRequest.latestMessage) === currentUserId
+    ? messageTargetId(hostRequest.latestMessage) === authState.userId
       ? firstName(currentUser?.name) || ""
       : firstName(otherUser?.name) || ""
     : "";

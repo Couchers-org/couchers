@@ -101,6 +101,7 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
     attendance_state = attendance.attendee_status if attendance else None
 
     can_moderate = _can_moderate_event(session, event, context.user_id)
+    can_edit = _can_edit_event(session, event, context.user_id)
 
     going_count = session.execute(
         select(func.count())
@@ -173,8 +174,8 @@ def event_to_pb(session, occurrence: EventOccurrence, context):
         owner_user_id=event.owner_user_id,
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
-        thread=thread_to_pb(event.thread_id),
-        can_edit=_is_event_owner(event, context.user_id),
+        thread=thread_to_pb(session, event.thread_id),
+        can_edit=can_edit,
         can_moderate=can_moderate,
     )
 
@@ -217,14 +218,14 @@ def _check_occurrence_time_validity(start_time, end_time, context):
 
 def get_users_to_notify_for_new_event(session, occurrence):
     """
-    Returns the users to notify, as well as a flag about whether this was a nearby geom search or not
+    Returns the users to notify, as well as the community id that is being notified (None if based on geo search)
     """
     cluster = occurrence.event.parent_node.official_cluster
     if cluster.parent_node_id == 1:
         logger.info("The Global Community is too big for email notifications.")
-        return [], False
+        return [], occurrence.event.parent_node_id
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
-        return list(cluster.members.where(User.is_visible)), False
+        return list(cluster.members.where(User.is_visible)), occurrence.event.parent_node_id
     else:
         max_radius = 20000  # m
         users = (
@@ -238,7 +239,7 @@ def get_users_to_notify_for_new_event(session, occurrence):
             .scalars()
             .all()
         )
-        return users, True
+        return users, None
 
 
 def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNotificationsPayload):
@@ -253,7 +254,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
         event, occurrence = _get_event_and_occurrence_one(session, occurrence_id=payload.occurrence_id)
         creator = occurrence.creator_user
 
-        users, is_geom_search = get_users_to_notify_for_new_event(session, occurrence)
+        users, node_id = get_users_to_notify_for_new_event(session, occurrence)
 
         inviting_user = session.execute(select(User).where(User.id == payload.inviting_user_id)).scalar_one_or_none()
 
@@ -266,14 +267,15 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
                 continue
             context = SimpleNamespace(user_id=user.id)
             notify(
+                session,
                 user_id=user.id,
                 topic_action="event:create_approved" if payload.approved else "event:create_any",
                 key=payload.occurrence_id,
                 data=notification_data_pb2.EventCreate(
                     event=event_to_pb(session, occurrence, context),
                     inviting_user=user_model_to_pb(inviting_user, session, context),
-                    nearby=True if is_geom_search else None,
-                    in_community=community_to_pb(event.parent_node, context) if not is_geom_search else None,
+                    nearby=True if node_id is None else None,
+                    in_community=community_to_pb(session, event.parent_node, context) if node_id is not None else None,
                 ),
             )
 
@@ -293,6 +295,7 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
                 continue
             context = SimpleNamespace(user_id=user_id)
             notify(
+                session,
                 user_id=user_id,
                 topic_action="event:update",
                 key=payload.occurrence_id,
@@ -321,6 +324,7 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
                 continue
             context = SimpleNamespace(user_id=user_id)
             notify(
+                session,
                 user_id=user_id,
                 topic_action="event:cancel",
                 key=payload.occurrence_id,
@@ -344,6 +348,7 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
             logger.info(user_id)
             context = SimpleNamespace(user_id=user_id)
             notify(
+                session,
                 user_id=user_id,
                 topic_action="event:delete",
                 key=payload.occurrence_id,
@@ -368,6 +373,7 @@ class Events(events_pb2_grpc.EventsServicer):
             link = request.online_information.link
         elif request.HasField("offline_information"):
             online = False
+            # As protobuf parses a missing value as 0.0, this is not a permitted event coordinate value
             if not (
                 request.offline_information.address
                 and request.offline_information.lat
@@ -456,6 +462,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
             if user.has_completed_profile:
                 queue_job(
+                    session,
                     "generate_event_create_notifications",
                     payload=jobs_pb2.GenerateEventCreateNotificationsPayload(
                         inviting_user_id=user.id,
@@ -669,6 +676,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 logger.info(f"Fields {','.join(notify_updated)} updated in event {event.id=}, notifying")
 
                 queue_job(
+                    session,
                     "generate_event_update_notifications",
                     payload=jobs_pb2.GenerateEventUpdateNotificationsPayload(
                         updating_user_id=user.id,
@@ -710,6 +718,7 @@ class Events(events_pb2_grpc.EventsServicer):
             occurrence.is_cancelled = True
 
             queue_job(
+                session,
                 "generate_event_cancel_notifications",
                 payload=jobs_pb2.GenerateEventCancelNotificationsPayload(
                     cancelling_user_id=context.user_id,
@@ -754,7 +763,7 @@ class Events(events_pb2_grpc.EventsServicer):
             session.add(request)
             session.flush()
 
-            send_event_community_invite_request_email(request)
+            send_event_community_invite_request_email(session, request)
 
             return empty_pb2.Empty()
 
@@ -1120,6 +1129,7 @@ class Events(events_pb2_grpc.EventsServicer):
             other_user_context = SimpleNamespace(user_id=request.user_id)
 
             notify(
+                session,
                 user_id=request.user_id,
                 topic_action="event:invite_organizer",
                 key=event.id,

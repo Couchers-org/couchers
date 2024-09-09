@@ -1,21 +1,24 @@
 import logging
 from copy import deepcopy
 from datetime import timedelta
+from os import getpid
+from threading import get_ident
 from time import perf_counter_ns
 from traceback import format_exception
 
 import grpc
 import sentry_sdk
+from opentelemetry import trace
 from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
-from couchers.metrics import servicer_duration_histogram
+from couchers.metrics import observe_in_servicer_duration_histogram
 from couchers.models import APICall, User, UserSession
 from couchers.profiler import CouchersProfiler
 from couchers.sql import couchers_select as select
-from couchers.utils import now, parse_api_key, parse_session_cookie
+from couchers.utils import create_session_cookies, now, parse_api_key, parse_session_cookie, parse_user_id_cookie
 from proto import annotations_pb2
 
 logger = logging.getLogger(__name__)
@@ -52,9 +55,8 @@ def _try_get_and_update_user_details(token, is_api_key):
             # let's update the token
             user_session.last_seen = func.now()
             user_session.api_calls += 1
-            session.flush()
 
-            return user.id, user.is_jailed, user.is_superuser
+            return user.id, user.is_jailed, user.is_superuser, user_session.expiry
 
 
 def abort_handler(message, status_code):
@@ -111,28 +113,29 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             return unauthenticated_handler('Both "cookie" and "authorization" in request')
         elif "cookie" in headers:
             # the session token is passed in cookies, i.e. in the `cookie` header
-            token = parse_session_cookie(headers)
-            is_api_key = False
-            res = _try_get_and_update_user_details(token, is_api_key)
+            token, is_api_key = parse_session_cookie(headers), False
         elif "authorization" in headers:
             # the session token is passed in the `authorization` header
-            token = parse_api_key(headers)
-            is_api_key = True
-            res = _try_get_and_update_user_details(token, is_api_key)
+            token, is_api_key = parse_api_key(headers), True
         else:
             # no session found
+            token, is_api_key = None, False
+
+        auth_info = _try_get_and_update_user_details(token, is_api_key)
+        # auth_info is now filled if and only if this is a valid session
+        if not auth_info:
             token = None
             is_api_key = False
-            res = None
+            token_expiry = None
+            user_id = None
 
         # if no session was found and this isn't an open service, fail
-        if not token or not res:
+        if not auth_info:
             if auth_level != annotations_pb2.AUTH_LEVEL_OPEN:
                 return unauthenticated_handler()
-            user_id = None
         else:
             # a valid user session was found
-            user_id, is_jailed, is_superuser = res
+            user_id, is_jailed, is_superuser, token_expiry = auth_info
 
             if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser:
                 return unauthenticated_handler("Permission denied", grpc.StatusCode.PERMISSION_DENIED)
@@ -146,9 +149,43 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
 
         def user_unaware_function(req, context):
             context.user_id = user_id
-            context.token = token
+            context.token = (token, token_expiry)
             context.is_api_key = is_api_key
             return user_aware_function(req, context)
+
+        return grpc.unary_unary_rpc_method_handler(
+            user_unaware_function,
+            request_deserializer=handler.request_deserializer,
+            response_serializer=handler.response_serializer,
+        )
+
+
+class CookieInterceptor(grpc.ServerInterceptor):
+    """
+    Syncs up the couchers-sesh and couchers-user-id cookies
+    """
+
+    def intercept_service(self, continuation, handler_call_details):
+        headers = dict(handler_call_details.invocation_metadata)
+        cookie_user_id = parse_user_id_cookie(headers)
+
+        handler = continuation(handler_call_details)
+        user_aware_function = handler.unary_unary
+
+        def user_unaware_function(req, context):
+            res = user_aware_function(req, context)
+
+            # check the two cookies are in sync
+            if context.user_id and not context.is_api_key and cookie_user_id != str(context.user_id):
+                try:
+                    token, expiry = context.token
+                    context.send_initial_metadata(
+                        [("set-cookie", cookie) for cookie in create_session_cookies(token, context.user_id, expiry)]
+                    )
+                except ValueError as e:
+                    logger.info("Tried to send initial metadata but wasn't allowed to")
+
+            return res
 
         return grpc.unary_unary_rpc_method_handler(
             user_unaware_function,
@@ -178,6 +215,47 @@ class ManualAuthValidatorInterceptor(grpc.ServerInterceptor):
         return continuation(handler_call_details)
 
 
+class OTelInterceptor(grpc.ServerInterceptor):
+    """
+    OpenTelemetry tracing
+    """
+
+    def __init__(self):
+        self.tracer = trace.get_tracer(__name__)
+
+    def intercept_service(self, continuation, handler_call_details):
+        handler = continuation(handler_call_details)
+        prev_func = handler.unary_unary
+        method = handler_call_details.method
+
+        # method is of the form "/org.couchers.api.core.API/GetUser"
+        _, service_name, method_name = method.split("/")
+
+        headers = dict(handler_call_details.invocation_metadata)
+
+        def tracing_function(request, context):
+            with self.tracer.start_as_current_span("handler") as rollspan:
+                rollspan.set_attribute("rpc.method_full", method)
+                rollspan.set_attribute("rpc.service", service_name)
+                rollspan.set_attribute("rpc.method", method_name)
+
+                rollspan.set_attribute("rpc.thread", get_ident())
+                rollspan.set_attribute("rpc.pid", getpid())
+
+                res = prev_func(request, context)
+
+                rollspan.set_attribute("web.user_agent", headers.get("user-agent") or "")
+                rollspan.set_attribute("web.ip_address", headers.get("x-couchers-real-ip") or "")
+
+            return res
+
+        return grpc.unary_unary_rpc_method_handler(
+            tracing_function,
+            request_deserializer=handler.request_deserializer,
+            response_serializer=handler.response_serializer,
+        )
+
+
 class TracingInterceptor(grpc.ServerInterceptor):
     """
     Measures and logs the time it takes to service each incoming call.
@@ -189,14 +267,26 @@ class TracingInterceptor(grpc.ServerInterceptor):
         """
         if not proto:
             return None
-        new_proto = deepcopy(proto)
-        for name, descriptor in new_proto.DESCRIPTOR.fields_by_name.items():
-            if descriptor.GetOptions().Extensions[annotations_pb2.sensitive]:
-                new_proto.ClearField(name)
-        return new_proto.SerializeToString()
 
-    def _observe_in_histogram(self, method, status_code, exception_type, duration):
-        servicer_duration_histogram.labels(method, status_code, exception_type).observe(duration)
+        new_proto = deepcopy(proto)
+
+        def _sanitize_message(message):
+            for name, descriptor in message.DESCRIPTOR.fields_by_name.items():
+                if descriptor.GetOptions().Extensions[annotations_pb2.sensitive]:
+                    message.ClearField(name)
+                if descriptor.message_type:
+                    submessage = getattr(message, name)
+                    if not submessage:
+                        continue
+                    if descriptor.label == descriptor.LABEL_REPEATED:
+                        for msg in submessage:
+                            _sanitize_message(msg)
+                    else:
+                        _sanitize_message(submessage)
+
+        _sanitize_message(new_proto)
+
+        return new_proto.SerializeToString()
 
     def _store_log(
         self,
@@ -259,7 +349,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 self._store_log(
                     method, None, duration, user_id, is_api_key, request, res, None, prof.report, ip_address, user_agent
                 )
-                self._observe_in_histogram(method, "", "", duration)
+                observe_in_servicer_duration_histogram(method, user_id, "", "", duration / 1000)
             except Exception as e:
                 finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
@@ -270,7 +360,7 @@ class TracingInterceptor(grpc.ServerInterceptor):
                 self._store_log(
                     method, code, duration, user_id, is_api_key, request, None, traceback, None, ip_address, user_agent
                 )
-                self._observe_in_histogram(method, code or "", type(e).__name__, duration)
+                observe_in_servicer_duration_histogram(method, user_id, code or "", type(e).__name__, duration / 1000)
 
                 if not code:
                     sentry_sdk.set_tag("context", "servicer")

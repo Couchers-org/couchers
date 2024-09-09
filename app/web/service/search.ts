@@ -1,32 +1,31 @@
+import { Coordinates } from "features/search/constants";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
+  BoolValue,
   StringValue,
   UInt32Value,
 } from "google-protobuf/google/protobuf/wrappers_pb";
 import { HostingStatus } from "proto/api_pb";
-import { Area, UserSearchReq } from "proto/search_pb";
+import { RectArea, UserSearchReq } from "proto/search_pb";
 import client from "service/client";
 
 export interface UserSearchFilters {
   query?: string;
-  lat?: number;
-  lng?: number;
-  radius?: number;
+  bbox?: Coordinates;
   lastActive?: number; //within x days
   hostingStatusOptions?: HostingStatus[];
   numGuests?: number;
-  bbox?: [number, number, number, number];
+  completeProfile?: boolean;
 }
 
 export async function userSearch(
   {
     query,
-    lat,
-    lng,
-    radius,
+    bbox,
     lastActive,
     hostingStatusOptions,
     numGuests,
+    completeProfile,
   }: UserSearchFilters,
   pageToken = ""
 ) {
@@ -37,20 +36,25 @@ export async function userSearch(
     req.setQuery(new StringValue().setValue(query));
   }
 
-  if (lat !== undefined && lng !== undefined) {
-    const area = new Area().setLat(lat).setLng(lng);
-    if (radius) {
-      area.setRadius(radius);
-      req.setSearchInArea(area);
-    } else {
-      throw Error("Tried to search an area without a radius");
-    }
+  if (bbox !== undefined && bbox.join() !== "0,0,0,0") {
+    const rectAreaSearch = new RectArea();
+
+    rectAreaSearch.setLngMin(bbox[0]);
+    rectAreaSearch.setLatMin(bbox[1]);
+    rectAreaSearch.setLngMax(bbox[2]);
+    rectAreaSearch.setLatMax(bbox[3]);
+
+    req.setSearchInRectangle(rectAreaSearch);
   }
 
   if (lastActive) {
     const timestamp = new Timestamp();
     timestamp.fromDate(new Date(Date.now() - 1000 * 60 * 60 * 24 * lastActive));
     req.setLastActive(timestamp);
+  }
+
+  if (completeProfile) {
+    req.setProfileCompleted(new BoolValue().setValue(completeProfile));
   }
 
   if (hostingStatusOptions && hostingStatusOptions.length !== 0) {

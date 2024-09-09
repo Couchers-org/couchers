@@ -1,0 +1,80 @@
+{
+  "doNotEmailEnabled": false,
+  "emailDigestEnabled": false,
+  "groupsList": [
+    {
+      "heading": "Core Features",
+      "topicsList": [
+        {
+          "topic": "host_request",
+          "name": "Host Requests",
+          "itemsList": [
+            {
+              "action": "create",
+              "description": "Someone sends you a host request",
+              "userEditable": true,
+              "push": false,
+              "digest": false,
+              "email": true,
+              "topic": "host_request"
+            },
+            {
+              "action": "accept",
+              "description": "Someone accepts your host request",
+              "userEditable": true,
+              "push": true,
+              "email": true,
+              "digest": false,
+              "topic": "host_request"
+            },
+            {
+              "action": "confirm",
+              "description": "Someone confirms their host request",
+              "userEditable": true,
+              "push": true,
+              "email": true,
+              "digest": false,
+              "topic": "host_request"
+            },
+            {
+              "action": "reject",
+              "description": "Someone declines your host request",
+              "userEditable": true,
+              "push": true,
+              "email": true,
+              "digest": false,
+              "topic": "host_request"
+            },
+            {
+              "action": "cancel",
+              "description": "Someone cancels their host request",
+              "userEditable": true,
+              "push": true,
+              "digest": false,
+              "email": true,
+              "topic": "host_request"
+            },
+            {
+              "action": "message",
+              "description": "Someone sends a message in a host request",
+              "userEditable": true,
+              "push": true,
+              "digest": false,
+              "email": false,
+              "topic": "host_request"
+            },
+            {
+              "action": "missed_messages",
+              "description": "You miss messages in a host request",
+              "digest": false,
+              "email": true,
+              "push": false,
+              "topic": "host_request",
+              "userEditable": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

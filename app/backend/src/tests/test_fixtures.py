@@ -8,12 +8,13 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from sqlalchemy.orm import close_all_sessions
 from sqlalchemy.sql import or_, text
 
 from couchers.config import config
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import random_hex
-from couchers.db import clear_base_engine_cache, get_engine, session_scope
+from couchers.db import _get_base_engine, session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.interceptors import AuthValidatorInterceptor, _try_get_and_update_user_details
 from couchers.jobs.worker import process_job
@@ -25,6 +26,7 @@ from couchers.models import (
     Language,
     LanguageAbility,
     LanguageFluency,
+    MeetupStatus,
     Region,
     RegionLived,
     RegionVisited,
@@ -94,9 +96,23 @@ def drop_all():
         # btree_gist is required for gist-based exclusion constraints
         session.execute(
             text(
-                "DROP SCHEMA public CASCADE; DROP SCHEMA IF EXISTS logging CASCADE; CREATE SCHEMA public; CREATE SCHEMA logging; CREATE EXTENSION postgis; CREATE EXTENSION pg_trgm; CREATE EXTENSION btree_gist;"
+                "DROP SCHEMA IF EXISTS public CASCADE;"
+                "DROP SCHEMA IF EXISTS logging CASCADE;"
+                "DROP EXTENSION IF EXISTS postgis CASCADE;"
+                "CREATE SCHEMA public;"
+                "CREATE SCHEMA logging;"
+                "CREATE EXTENSION postgis;"
+                "CREATE EXTENSION pg_trgm;"
+                "CREATE EXTENSION btree_gist;"
             )
         )
+
+    # this resets the database connection pool, which caches some stuff postgres-side about objects and will otherwise
+    # sometimes error out with "ERROR:  no spatial operator found for 'st_contains': opfamily 203699 type 203585"
+    # and similar errors
+    _get_base_engine().dispose()
+
+    close_all_sessions()
 
 
 def create_schema_from_models():
@@ -110,7 +126,7 @@ def create_schema_from_models():
     with open(functions) as f, session_scope() as session:
         session.execute(text(f.read()))
 
-    Base.metadata.create_all(get_engine())
+    Base.metadata.create_all(_get_base_engine())
 
 
 def populate_testing_resources(session):
@@ -193,7 +209,6 @@ def recreate_database():
 
     # drop everything currently in the database
     drop_all()
-    clear_base_engine_cache()  # to address errors like sqlalchemy.exc.InternalError: (psycopg2.errors.InternalError_) no spatial operator found for 'st_dwithin'
 
     # create everything from the current models, not incrementally through migrations
     create_schema_from_models()
@@ -232,6 +247,7 @@ def generate_user(*, delete_user=False, complete_profile=False, **kwargs):
             "hashed_password": b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
             "name": username.capitalize(),
             "hosting_status": HostingStatus.cant_host,
+            "meetup_status": MeetupStatus.open_to_meetup,
             "city": "Testing city",
             "hometown": "Test hometown",
             "community_standing": 0.5,
@@ -300,7 +316,7 @@ def generate_user(*, delete_user=False, complete_profile=False, **kwargs):
             )
             session.flush()
             user.avatar_key = key
-            user.about_me = "I have a complete profile!\n" * 10
+            user.about_me = "I have a complete profile!\n" * 20
 
         session.commit()
 
@@ -385,7 +401,7 @@ def auth_api_session():
     This needs to use the real server since it plays around with headers
     """
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor)
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
         auth_pb2_grpc.add_AuthServicer_to_server(Auth(), server)
         server.start()
@@ -400,6 +416,7 @@ def auth_api_session():
                     def intercept_unary_unary(self, continuation, client_call_details, request):
                         call = continuation(client_call_details, request)
                         self.latest_headers = dict(call.initial_metadata())
+                        self.latest_header_raw = call.initial_metadata()
                         return call
 
                 metadata_interceptor = _MetadataKeeperInterceptor()
@@ -515,7 +532,7 @@ class FakeRpcError(grpc.RpcError):
         return self._details
 
 
-def _check_user_perms(method, user_id, is_jailed, is_superuser):
+def _check_user_perms(method, user_id, is_jailed, is_superuser, token_expiry):
     # method is of the form "/org.couchers.api.core.API/GetUser"
     _, service_name, method_name = method.split("/")
 
@@ -541,11 +558,12 @@ def _check_user_perms(method, user_id, is_jailed, is_superuser):
 
 
 class FakeChannel:
-    def __init__(self, user_id=None, is_jailed=None, is_superuser=None):
+    def __init__(self, user_id=None, is_jailed=None, is_superuser=None, token_expiry=None):
         self.handlers = {}
         self.user_id = user_id
         self._is_jailed = is_jailed
         self._is_superuser = is_superuser
+        self._token_expiry = token_expiry
 
     def abort(self, code, details):
         raise FakeRpcError(code, details)
@@ -560,7 +578,7 @@ class FakeChannel:
     def unary_unary(self, uri, request_serializer, response_deserializer):
         handler = self.handlers[uri]
 
-        _check_user_perms(uri, self.user_id, self._is_jailed, self._is_superuser)
+        _check_user_perms(uri, self.user_id, self._is_jailed, self._is_superuser, self._token_expiry)
 
         def fake_handler(request):
             # Do a full serialization cycle on the request and the
@@ -576,8 +594,8 @@ class FakeChannel:
 
 def fake_channel(token=None):
     if token:
-        user_id, is_jailed, is_superuser = _try_get_and_update_user_details(token, is_api_key=False)
-        return FakeChannel(user_id=user_id, is_jailed=is_jailed, is_superuser=is_superuser)
+        user_id, is_jailed, is_superuser, token_expiry = _try_get_and_update_user_details(token, is_api_key=False)
+        return FakeChannel(user_id=user_id, is_jailed=is_jailed, is_superuser=is_superuser, token_expiry=token_expiry)
     return FakeChannel()
 
 
@@ -826,7 +844,7 @@ def testconfig():
         "91e29bbacc74fa7e23c5d5f34cca5015cb896e338a620003de94a502a461f4bc"
     )
     config["MEDIA_SERVER_BEARER_TOKEN"] = "c02d383897d3b82774ced09c9e17802164c37e7e105d8927553697bf4550e91e"
-    config["MEDIA_SERVER_BASE_URL"] = "http://localhost:5000"
+    config["MEDIA_SERVER_BASE_URL"] = "http://localhost:5001"
 
     config["BUG_TOOL_ENABLED"] = False
     config["BUG_TOOL_GITHUB_REPO"] = "org/repo"
@@ -934,7 +952,7 @@ def push_collector():
         def by_user(self, user_id):
             return [kwargs for uid, kwargs in self.pushes if uid == user_id]
 
-        def push_to_user(self, user_id, **kwargs):
+        def push_to_user(self, session, user_id, **kwargs):
             self.pushes.append((user_id, Push(kwargs=kwargs)))
 
         def assert_user_has_count(self, user_id, count):

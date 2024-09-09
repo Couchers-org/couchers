@@ -229,6 +229,13 @@ settings_layout = [
                     ("change", "The gender displayed on your profile is changed"),
                 ],
             ),
+            (
+                "modnote",
+                "Moderator notes",
+                [
+                    ("create", "You receive a moderator note"),
+                ],
+            ),
         ],
     ),
 ]

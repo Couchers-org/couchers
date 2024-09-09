@@ -593,6 +593,7 @@ class API(api_pb2_grpc.APIServicer):
             session.flush()
 
             notify(
+                session,
                 user_id=friend_relationship.to_user_id,
                 topic_action="friend_request:create",
                 key=friend_relationship.from_user_id,
@@ -669,6 +670,7 @@ class API(api_pb2_grpc.APIServicer):
 
             if friend_request.status == FriendStatus.accepted:
                 notify(
+                    session,
                     user_id=friend_request.from_user_id,
                     topic_action="friend_request:accept",
                     key=friend_request.to_user_id,

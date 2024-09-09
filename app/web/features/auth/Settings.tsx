@@ -39,22 +39,15 @@ export default function Settings() {
     <>
       <HtmlMeta title={t("account_settings_page.title")} />
       <PageTitle>{t("account_settings_page.title")}</PageTitle>
-      <Section
-        className={classes.section}
-        title={t("account_settings_page.gender_section.title")}
-        content={t("account_settings_page.gender_section.explanation")}
-      />
-      <Section
-        className={classes.section}
-        title={t("account_settings_page.birth_date_section.title")}
-        content={t("account_settings_page.birth_date_section.explanation")}
-      />
       {isAccountInfoLoading ? (
         <CircularProgress />
       ) : accountInfoError ? (
         <Alert severity="error">{accountInfoError.message}</Alert>
       ) : accountInfo ? (
         <>
+          <NotificationSettings className={classes.section} />
+          <ChangeEmail className={classes.section} email={accountInfo.email} />
+          <ChangePassword className={classes.section} />
           <Username
             className={classes.section}
             username={accountInfo.username}
@@ -63,10 +56,17 @@ export default function Settings() {
             className={classes.section}
             timezone={accountInfo.timezone}
           />
-          <ChangeEmail className={classes.section} email={accountInfo.email} />
-          <NotificationSettings className={classes.section} />
           <DoNotEmail className={classes.section} />
-          <ChangePassword className={classes.section} />
+          <Section
+            className={classes.section}
+            title={t("account_settings_page.gender_section.title")}
+            content={t("account_settings_page.gender_section.explanation")}
+          />
+          <Section
+            className={classes.section}
+            title={t("account_settings_page.birth_date_section.title")}
+            content={t("account_settings_page.birth_date_section.explanation")}
+          />
           <DeleteAccount
             className={classes.section}
             username={accountInfo.username}

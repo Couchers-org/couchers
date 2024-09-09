@@ -1,5 +1,4 @@
 import logging
-from html import escape
 from pathlib import Path
 
 import yaml
@@ -15,7 +14,9 @@ loader = FileSystemLoader(Path(__file__).parent / ".." / ".." / ".." / "template
 env = Environment(loader=loader, trim_blocks=True)
 
 
-def _queue_email(sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data):
+def _queue_email(
+    session, sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data
+):
     payload = jobs_pb2.SendEmailPayload(
         sender_name=sender_name,
         sender_email=sender_email,
@@ -27,18 +28,20 @@ def _queue_email(sender_name, sender_email, recipient, subject, plain, html, lis
         source_data=source_data,
     )
     queue_job(
+        session,
         job_type="send_email",
         payload=payload,
     )
 
 
 def queue_email(
-    sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header=None, source_data=None
+    session, sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header=None, source_data=None
 ):
     """
     This indirection is so that this can be easily mocked. Not sure how to do it better :(
     """
     _queue_email(
+        session=session,
         sender_name=sender_name,
         sender_email=sender_email,
         recipient=recipient,
@@ -50,7 +53,7 @@ def queue_email(
     )
 
 
-def enqueue_system_email(recipient, template_name, template_args):
+def enqueue_system_email(session, recipient, template_name, template_args):
     source, _, _ = loader.get_source(env, f"system/{template_name}.md")
     _, frontmatter_source, text_source = source.split("---", 2)
 
@@ -59,15 +62,13 @@ def enqueue_system_email(recipient, template_name, template_args):
 
     plain = env.from_string(text_source).render({**template_args, "frontmatter": frontmatter}, plain=True, html=False)
 
-    # chatwoot won't show plaintext correctly, so wrap it in some HTML
-    html = f"<html><body><pre>{escape(plain)}</pre></body></html>"
-
     queue_email(
+        session,
         config["NOTIFICATION_EMAIL_SENDER"],
         config["NOTIFICATION_EMAIL_ADDRESS"],
         recipient,
         config["NOTIFICATION_EMAIL_PREFIX"] + frontmatter["subject"],
         plain,
-        html,
+        None,
         source_data=template_name,
     )

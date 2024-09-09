@@ -2,24 +2,35 @@ global:
   scrape_interval:     15s # By default, scrape targets every 15 seconds.
 
   external_labels:
-    origin_prometheus: '{PROMETHEUS_ENVIRONMENT}'
+    origin_prometheus: "{PROMETHEUS_ENVIRONMENT}"
 
 scrape_configs:
-  - job_name: 'prometheus'
+  - job_name: "prometheus"
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ["localhost:9090"]
 
-
-  - job_name: 'backend-endpoints'
+  - job_name: "envoy"
     static_configs:
-      - targets: ['backend:8000']
+      - targets: ["envoy:9901"]
+    metrics_path: /stats/prometheus
 
-  - job_name: 'backend-jobs'
+  - job_name: "backend-endpoints"
     static_configs:
-      - targets: ['backend:8001']
+      - targets: ["backend:8000"]
+
+  - job_name: "backend-jobs"
+    static_configs:
+      - targets: ["backend:8001"]
+
+  - job_name: "postgres"
+    static_configs:
+      - targets: ["pgprom:9187"]
+
+  - job_name: "host"
+    static_configs:
+      - targets: ["host.docker.internal:9100"]
 
 remote_write:
-- url: https://prometheus-blocks-prod-us-central1.grafana.net/api/prom/push
-  basic_auth:
-    username: 120557
-    password: {GRAFANA_CLOUD_TOKEN}
+  - url: https://victoriametrics.couchershq.org/api/v1/write
+    authorization:
+      credentials: {VICTORIAMETRICS_API_KEY}

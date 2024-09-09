@@ -3,6 +3,7 @@ syntax = "proto3";
 package org.couchers.api.account;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 import "annotations.proto";
 import "api.proto";
@@ -67,6 +68,10 @@ service Account {
   rpc DeleteAccount(DeleteAccountReq) returns (google.protobuf.Empty) {
     // Sends email with confirmation link containing token to delete account
   }
+
+  rpc ListModNotes(google.protobuf.Empty) returns (ListModNotesRes) {
+    // Lists all the user's mod notes: only ack'd ones because otherwise the user is jailed
+  }
 }
 
 message GetAccountInfoRes {
@@ -126,7 +131,7 @@ message ChangePhoneReq {
 message VerifyPhoneReq {
   // Should be a 6-digit string with Luhn algorithm mod 10 checksum equals 0.
   // Frontends could do that pre-check.
-  string token = 1 [ (sensitive) = true ];
+  string token = 1 [ (is_token) = true ];
 }
 
 message InitiateStrongVerificationRes {
@@ -156,4 +161,17 @@ message GetStrongVerificationAttemptStatusRes {
 message DeleteAccountReq {
   bool confirm = 1;
   string reason = 2;
+}
+
+message ModNote {
+  // used in ack
+  uint64 note_id = 1;
+  string note_content = 2; // CommonMark without images
+  google.protobuf.Timestamp created = 3;
+  // will be empty if pending
+  google.protobuf.Timestamp acknowledged = 4;
+}
+
+message ListModNotesRes {
+  repeated ModNote mod_notes = 1;
 }

@@ -126,6 +126,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 )
 
                 notify(
+                    session,
                     user_id=user.id,
                     topic_action="donation:received",
                     data=notification_data_pb2.DonationReceived(

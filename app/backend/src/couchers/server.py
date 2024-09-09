@@ -4,7 +4,13 @@ import grpc
 
 from couchers.config import config
 from couchers.constants import SERVER_THREADS
-from couchers.interceptors import AuthValidatorInterceptor, ErrorSanitizationInterceptor, TracingInterceptor
+from couchers.interceptors import (
+    AuthValidatorInterceptor,
+    CookieInterceptor,
+    ErrorSanitizationInterceptor,
+    OTelInterceptor,
+    TracingInterceptor,
+)
 from couchers.servicers.account import Account, Iris
 from couchers.servicers.admin import Admin
 from couchers.servicers.api import API
@@ -62,8 +68,10 @@ def create_main_server(port):
         futures.ThreadPoolExecutor(SERVER_THREADS),
         interceptors=[
             ErrorSanitizationInterceptor(),
+            OTelInterceptor(),
             TracingInterceptor(),
             AuthValidatorInterceptor(),
+            CookieInterceptor(),
         ],
     )
     server.add_insecure_port(f"[::]:{port}")

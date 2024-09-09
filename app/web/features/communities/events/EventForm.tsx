@@ -6,6 +6,7 @@ import LocationAutocomplete from "components/LocationAutocomplete";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
+import { Coordinates } from "features/search/constants";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
@@ -138,7 +139,7 @@ export default function EventForm({
             event.offlineInformation.lng,
             event.offlineInformation.lat
           ),
-          bbox: [0, 0, 0, 0] as [number, number, number, number],
+          bbox: [0, 0, 0, 0] as Coordinates,
         }
       : ("" as const)
   ).current;

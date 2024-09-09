@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 resources_folder = Path(__file__).parent / ".." / ".." / "resources"
 
 
-@functools.lru_cache
+@functools.cache
 def get_terms_of_service():
     """
     Get the latest terms of service
@@ -25,7 +25,7 @@ def get_terms_of_service():
         return f.read()
 
 
-@functools.lru_cache
+@functools.cache
 def get_community_guidelines():
     """
     Get the latest Community Guidelines
@@ -45,7 +45,7 @@ def get_community_guidelines():
     return ret
 
 
-@functools.lru_cache
+@functools.cache
 def get_region_dict():
     """
     Get list of allowed regions as a dictionary of {alpha3: name}.
@@ -61,7 +61,7 @@ def region_is_allowed(code):
     return code in get_region_dict()
 
 
-@functools.lru_cache
+@functools.cache
 def get_language_dict():
     """
     Get list of allowed languages as a dictionary of {code: name}.
@@ -70,7 +70,7 @@ def get_language_dict():
         return {language.code: language.name for language in session.execute(select(Language)).scalars().all()}
 
 
-@functools.lru_cache
+@functools.cache
 def get_badge_data():
     """
     Get list of profile badges in form {id: Badge}
@@ -79,7 +79,7 @@ def get_badge_data():
         return json.load(f)
 
 
-@functools.lru_cache
+@functools.cache
 def get_badge_dict():
     """
     Get list of profile badges in form {id: Badge}
@@ -87,7 +87,7 @@ def get_badge_dict():
     return {badge["id"]: badge for badge in get_badge_data()["badges"]}
 
 
-@functools.lru_cache
+@functools.cache
 def get_static_badge_dict():
     """
     Get list of static badges in form {id: list(user_ids)}

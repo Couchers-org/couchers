@@ -12,10 +12,12 @@ import {
   ListMyEventsReq,
   OfflineEventInformation,
   OnlineEventInformation,
+  RequestCommunityInviteReq,
   SetEventAttendanceReq,
   UpdateEventReq,
 } from "proto/events_pb";
-import client from "service/client";
+
+import client from "./client";
 
 export async function listCommunityEvents(
   communityId: number,
@@ -46,6 +48,12 @@ export function cancelEvent(eventId: number) {
   const req = new CancelEventReq();
   req.setEventId(eventId);
   return client.events.cancelEvent(req);
+}
+
+export function RequestCommunityInvite(eventId: number) {
+  const req = new RequestCommunityInviteReq();
+  req.setEventId(eventId);
+  return client.events.requestCommunityInvite(req);
 }
 
 interface ListEventUsersInput {

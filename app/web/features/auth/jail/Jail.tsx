@@ -17,6 +17,8 @@ import { loginRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
 
+import ModNoteSection from "./ModNoteSection";
+
 const useStyles = makeStyles((theme) => ({
   bottomMargin: { marginBottom: theme.spacing(4) },
   section: { marginBottom: theme.spacing(4) },
@@ -65,6 +67,13 @@ export default function Jail() {
       </Backdrop>
       {jailInfo?.hasNotAcceptedTos && (
         <TOSSection updateJailed={updateJailed} className={classes.section} />
+      )}
+      {jailInfo?.hasPendingModNotes && (
+        <ModNoteSection
+          updateJailed={updateJailed}
+          pendingModNotes={jailInfo.pendingModNotesList}
+          className={classes.section}
+        />
       )}
       {jailInfo?.hasNotAcceptedCommunityGuidelines && (
         <CommunityGuidelinesSection

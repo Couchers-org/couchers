@@ -38,8 +38,11 @@ def _(testconfig, fast_passwords):
     pass
 
 
-def get_session_cookie_token(metadata_interceptor):
-    return http.cookies.SimpleCookie(metadata_interceptor.latest_headers["set-cookie"])["couchers-sesh"].value
+def get_session_cookie_tokens(metadata_interceptor):
+    set_cookies = [val for key, val in metadata_interceptor.latest_header_raw if key == "set-cookie"]
+    sesh = http.cookies.SimpleCookie([v for v in set_cookies if "sesh" in v][0])["couchers-sesh"].value
+    uid = http.cookies.SimpleCookie([v for v in set_cookies if "user-id" in v][0])["couchers-user-id"].value
+    return sesh, uid
 
 
 def test_UsernameValid(db):
@@ -175,7 +178,8 @@ def test_signup_incremental(db):
 
     user_id = res.auth_res.user_id
 
-    sess_token = get_session_cookie_token(metadata_interceptor)
+    sess_token, uid = get_session_cookie_tokens(metadata_interceptor)
+    assert uid == str(user_id)
 
     with api_session(sess_token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=str(user_id)))
@@ -256,7 +260,8 @@ def _quick_signup():
                 select(UserSession).join(User, UserSession.user_id == User.id).where(User.username == "frodo")
             ).scalar_one()
         ).token
-    assert get_session_cookie_token(metadata_interceptor) == token
+    sesh, uid = get_session_cookie_tokens(metadata_interceptor)
+    assert sesh == token
 
 
 def test_signup(db):
@@ -270,7 +275,7 @@ def test_basic_login(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
 
-    reply_token = get_session_cookie_token(metadata_interceptor)
+    reply_token, _ = get_session_cookie_tokens(metadata_interceptor)
 
     with session_scope() as session:
         token = (
@@ -455,7 +460,7 @@ def test_password_reset_v2(db, push_collector):
         body="Your password on Couchers.org was changed. If that was you, then no further action is needed.",
     )
 
-    session_token = get_session_cookie_token(metadata_interceptor)
+    session_token, _ = get_session_cookie_tokens(metadata_interceptor)
 
     with session_scope() as session:
         other_session_token = (
@@ -529,7 +534,7 @@ def test_logout_invalid_token(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="a very insecure password"))
 
-    reply_token = get_session_cookie_token(metadata_interceptor)
+    reply_token, _ = get_session_cookie_tokens(metadata_interceptor)
 
     # delete all login tokens
     with session_scope() as session:
@@ -539,7 +544,7 @@ def test_logout_invalid_token(db):
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={reply_token}"),))
 
-    reply_token = get_session_cookie_token(metadata_interceptor)
+    reply_token, _ = get_session_cookie_tokens(metadata_interceptor)
     # make sure we set an empty cookie
     assert reply_token == ""
 
@@ -694,6 +699,72 @@ def test_signup_continue_with_email(db):
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP
+
+
+def test_signup_resend_email(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with mock_notification_email() as mock:
+            res = auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                    account=auth_pb2.SignupAccount(
+                        username="frodo",
+                        password="a very insecure password",
+                        birthdate="1970-01-01",
+                        gender="Bot",
+                        hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                        city="New York City",
+                        lat=40.7331,
+                        lng=-73.9778,
+                        radius=500,
+                        accept_tos=True,
+                    ),
+                    feedback=auth_pb2.ContributorForm(),
+                    accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                )
+            )
+        assert mock.call_count == 1
+        e = email_fields(mock)
+        assert e.recipient == "email@couchers.org.invalid"
+
+    flow_token = res.flow_token
+    assert flow_token
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow)).scalar_one()
+        assert flow.flow_token == flow_token
+        assert flow.email_sent
+        assert not flow.email_verified
+        email_token = flow.email_token
+
+    # ask for a new signup email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with mock_notification_email() as mock:
+            res = auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    resend_verification_email=True,
+                )
+            )
+        assert mock.call_count == 1
+        e = email_fields(mock)
+        assert e.recipient == "email@couchers.org.invalid"
+        assert email_token in e.plain
+        assert email_token in e.html
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow)).scalar_one()
+        assert not flow.email_verified
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                email_token=email_token,
+            )
+        )
+
+    assert not res.flow_token
+    assert res.HasField("auth_res")
 
 
 def test_successful_authenticate(db):
@@ -936,6 +1007,36 @@ def test_opt_out_of_newsletter(db, opt_out):
         user = session.execute(select(User).where(User.id == user_id)).scalar_one()
         assert not user.in_sync_with_newsletter
         assert user.opt_out_of_newsletter == opt_out
+
+
+def test_GetAuthState(db):
+    user, token = generate_user()
+    jailed_user, jailed_token = generate_user(accepted_tos=0)
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.GetAuthState(empty_pb2.Empty())
+        assert not res.logged_in
+        assert not res.HasField("auth_res")
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.GetAuthState(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}"),))
+        assert res.logged_in
+        assert res.HasField("auth_res")
+        assert res.auth_res.user_id == user.id
+        assert not res.auth_res.jailed
+
+        auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}"),))
+
+        res = auth_api.GetAuthState(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}"),))
+        assert not res.logged_in
+        assert not res.HasField("auth_res")
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.GetAuthState(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={jailed_token}"),))
+        assert res.logged_in
+        assert res.HasField("auth_res")
+        assert res.auth_res.user_id == jailed_user.id
+        assert res.auth_res.jailed
 
 
 # tests for ConfirmChangeEmail within test_account.py tests for test_ChangeEmail_*

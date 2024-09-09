@@ -22,7 +22,7 @@ from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, create_coordinate, create_polygon_lat_lng, now, to_multi
 from proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
-from tests.test_auth import get_session_cookie_token
+from tests.test_auth import get_session_cookie_tokens
 from tests.test_fixtures import (  # noqa
     auth_api_session,
     communities_session,
@@ -243,33 +243,38 @@ def testing_communities(testconfig):
         create_group(session, "Country 1, Region 2, Foodies", [user2], [user4, user5], c1r2)
         create_group(session, "Country 2, Region 1, Foodies", [user6], [user7], c2r1)
 
-        create_discussion(token1, w.id, None, "Discussion title 1", "Discussion content 1")
-        create_discussion(token3, w.id, None, "Discussion title 2", "Discussion content 2")
-        create_discussion(token3, w.id, None, "Discussion title 3", "Discussion content 3")
-        create_discussion(token3, w.id, None, "Discussion title 4", "Discussion content 4")
-        create_discussion(token3, w.id, None, "Discussion title 5", "Discussion content 5")
-        create_discussion(token3, w.id, None, "Discussion title 6", "Discussion content 6")
-        create_discussion(token4, c1r1c2.id, None, "Discussion title 7", "Discussion content 7")
-        create_discussion(token5, None, h.id, "Discussion title 8", "Discussion content 8")
-        create_discussion(token1, None, h.id, "Discussion title 9", "Discussion content 9")
-        create_discussion(token2, None, h.id, "Discussion title 10", "Discussion content 10")
-        create_discussion(token3, None, h.id, "Discussion title 11", "Discussion content 11")
-        create_discussion(token4, None, h.id, "Discussion title 12", "Discussion content 12")
-        create_discussion(token5, None, h.id, "Discussion title 13", "Discussion content 13")
-        create_discussion(token8, None, h.id, "Discussion title 14", "Discussion content 14")
+        w_id = w.id
+        c1r1c2_id = c1r1c2.id
+        h_id = h.id
+        c1_id = c1.id
 
-        create_event(token3, c1.id, None, "Event title 1", "Event content 1", timedelta(hours=1))
-        create_event(token1, c1.id, None, "Event title 2", "Event content 2", timedelta(hours=2))
-        create_event(token3, c1.id, None, "Event title 3", "Event content 3", timedelta(hours=3))
-        create_event(token1, c1.id, None, "Event title 4", "Event content 4", timedelta(hours=4))
-        create_event(token3, c1.id, None, "Event title 5", "Event content 5", timedelta(hours=5))
-        create_event(token1, c1.id, None, "Event title 6", "Event content 6", timedelta(hours=6))
-        create_event(token2, None, h.id, "Event title 7", "Event content 7", timedelta(hours=7))
-        create_event(token2, None, h.id, "Event title 8", "Event content 8", timedelta(hours=8))
-        create_event(token2, None, h.id, "Event title 9", "Event content 9", timedelta(hours=9))
-        create_event(token2, None, h.id, "Event title 10", "Event content 10", timedelta(hours=10))
-        create_event(token2, None, h.id, "Event title 11", "Event content 11", timedelta(hours=11))
-        create_event(token2, None, h.id, "Event title 12", "Event content 12", timedelta(hours=12))
+    create_discussion(token1, w_id, None, "Discussion title 1", "Discussion content 1")
+    create_discussion(token3, w_id, None, "Discussion title 2", "Discussion content 2")
+    create_discussion(token3, w_id, None, "Discussion title 3", "Discussion content 3")
+    create_discussion(token3, w_id, None, "Discussion title 4", "Discussion content 4")
+    create_discussion(token3, w_id, None, "Discussion title 5", "Discussion content 5")
+    create_discussion(token3, w_id, None, "Discussion title 6", "Discussion content 6")
+    create_discussion(token4, c1r1c2_id, None, "Discussion title 7", "Discussion content 7")
+    create_discussion(token5, None, h_id, "Discussion title 8", "Discussion content 8")
+    create_discussion(token1, None, h_id, "Discussion title 9", "Discussion content 9")
+    create_discussion(token2, None, h_id, "Discussion title 10", "Discussion content 10")
+    create_discussion(token3, None, h_id, "Discussion title 11", "Discussion content 11")
+    create_discussion(token4, None, h_id, "Discussion title 12", "Discussion content 12")
+    create_discussion(token5, None, h_id, "Discussion title 13", "Discussion content 13")
+    create_discussion(token8, None, h_id, "Discussion title 14", "Discussion content 14")
+
+    create_event(token3, c1_id, None, "Event title 1", "Event content 1", timedelta(hours=1))
+    create_event(token1, c1_id, None, "Event title 2", "Event content 2", timedelta(hours=2))
+    create_event(token3, c1_id, None, "Event title 3", "Event content 3", timedelta(hours=3))
+    create_event(token1, c1_id, None, "Event title 4", "Event content 4", timedelta(hours=4))
+    create_event(token3, c1_id, None, "Event title 5", "Event content 5", timedelta(hours=5))
+    create_event(token1, c1_id, None, "Event title 6", "Event content 6", timedelta(hours=6))
+    create_event(token2, None, h_id, "Event title 7", "Event content 7", timedelta(hours=7))
+    create_event(token2, None, h_id, "Event title 8", "Event content 8", timedelta(hours=8))
+    create_event(token2, None, h_id, "Event title 9", "Event content 9", timedelta(hours=9))
+    create_event(token2, None, h_id, "Event title 10", "Event content 10", timedelta(hours=10))
+    create_event(token2, None, h_id, "Event title 11", "Event content 11", timedelta(hours=11))
+    create_event(token2, None, h_id, "Event title 12", "Event content 12", timedelta(hours=12))
 
     enforce_community_memberships()
 
@@ -995,7 +1000,7 @@ def test_enforce_community_memberships_for_user(testing_communities):
         c1r1_id = get_community_id(session, "Country 1, Region 1")
         c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
 
-    token = get_session_cookie_token(metadata_interceptor)
+    token, _ = get_session_cookie_tokens(metadata_interceptor)
 
     with communities_session(token) as api:
         res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq())

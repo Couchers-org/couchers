@@ -56,7 +56,7 @@ def check_valid_reference(request, context):
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REFERENCE_NO_TEXT)
 
 
-MAX_PAGINATION_LENGTH = 25
+MAX_PAGINATION_LENGTH = 100
 
 
 class References(references_pb2_grpc.ReferencesServicer):
@@ -171,6 +171,7 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             # send the recipient of the reference a reminder
             notify(
+                session,
                 user_id=request.to_user_id,
                 topic_action="reference:receive_friend",
                 data=notification_data_pb2.ReferenceReceiveFriend(
@@ -180,7 +181,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             )
 
             # possibly send out an alert to the mod team if the reference was bad
-            maybe_send_reference_report_email(reference)
+            maybe_send_reference_report_email(session, reference)
 
             return reference_to_pb(reference, context)
 
@@ -246,6 +247,7 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             # send notification out
             notify(
+                session,
                 user_id=reference.to_user_id,
                 topic_action="reference:receive_surfed" if surfed else "reference:receive_hosted",
                 data=notification_data_pb2.ReferenceReceiveHostRequest(
@@ -256,7 +258,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             )
 
             # possibly send out an alert to the mod team if the reference was bad
-            maybe_send_reference_report_email(reference)
+            maybe_send_reference_report_email(session, reference)
 
             return reference_to_pb(reference, context)
 

@@ -10,5 +10,6 @@ declare namespace NodeJS {
     NEXT_PUBLIC_IS_VERIFICATION_ENABLED?: "true";
     NEXT_PUBLIC_IS_COMMUNITIES_PART2_ENABLED?: "true";
     NEXT_PUBLIC_STRIPE_KEY: string;
+    NEXT_PUBLIC_GLOBAL_MESSAGE_URL: string;
   }
 }

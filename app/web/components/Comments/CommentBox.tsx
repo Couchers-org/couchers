@@ -7,7 +7,7 @@ import { useTranslation } from "next-i18next";
 import { Reply } from "proto/threads_pb";
 import React, { useEffect, useState } from "react";
 import { service } from "service";
-import isGrpcError from "utils/isGrpcError";
+import isGrpcError from "service/utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles(() => ({

@@ -8,12 +8,18 @@ from google.protobuf import empty_pb2
 from couchers import errors
 from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.interceptors import AuthValidatorInterceptor, ErrorSanitizationInterceptor, TracingInterceptor
-from couchers.metrics import CODE_LABEL, EXCEPTION_LABEL, METHOD_LABEL, servicer_duration_histogram
+from couchers.interceptors import (
+    AuthValidatorInterceptor,
+    CookieInterceptor,
+    ErrorSanitizationInterceptor,
+    TracingInterceptor,
+)
+from couchers.metrics import servicer_duration_histogram
 from couchers.models import APICall, UserSession
 from couchers.servicers.account import Account
+from couchers.servicers.api import API
 from couchers.sql import couchers_select as select
-from proto import account_pb2, admin_pb2, auth_pb2
+from proto import account_pb2, admin_pb2, api_pb2, auth_pb2
 from tests.test_fixtures import db, generate_user, real_admin_session, testconfig  # noqa
 
 
@@ -60,16 +66,17 @@ def interceptor_dummy_api(
             server.stop(None).wait()
 
 
-def _check_histogram_labels(method, exception, code, count):
+def _check_histogram_labels(method, logged_in, exception, code, count):
     metrics = servicer_duration_histogram.collect()
-    servicer_histogram = [m for m in metrics if m.name == "servicer_duration"][0]
+    servicer_histogram = [m for m in metrics if m.name == "couchers_servicer_duration_seconds"][0]
     histogram_count = [
         s
         for s in servicer_histogram.samples
-        if s.name == "servicer_duration_count"
-        and s.labels[METHOD_LABEL] == method
-        and s.labels[EXCEPTION_LABEL] == exception
-        and s.labels[CODE_LABEL] == code
+        if s.name == "couchers_servicer_duration_seconds_count"
+        and s.labels["method"] == method
+        and s.labels["logged_in"] == logged_in
+        and s.labels["code"] == code
+        and s.labels["exception"] == exception
     ][0]
     assert histogram_count.value == count
     servicer_duration_histogram.clear()
@@ -182,7 +189,7 @@ def test_tracing_interceptor_ok_open(db):
         assert len(trace.response) == 0
         assert not trace.traceback
 
-    _check_histogram_labels("/testing.Test/TestRpc", "", "", 1)
+    _check_histogram_labels("/testing.Test/TestRpc", "False", "", "", 1)
 
 
 def test_tracing_interceptor_sensitive(db):
@@ -192,10 +199,12 @@ def test_tracing_interceptor_sensitive(db):
     with interceptor_dummy_api(
         TestRpc,
         interceptors=[TracingInterceptor()],
-        request_type=auth_pb2.SignupAccount,
+        request_type=auth_pb2.SignupFlowReq,
         response_type=auth_pb2.AuthReq,
     ) as call_rpc:
-        call_rpc(auth_pb2.SignupAccount(password="should be removed", username="not removed"))
+        call_rpc(
+            auth_pb2.SignupFlowReq(account=auth_pb2.SignupAccount(password="should be removed", username="not removed"))
+        )
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
@@ -203,14 +212,28 @@ def test_tracing_interceptor_sensitive(db):
         assert not trace.status_code
         assert not trace.user_id
         assert not trace.traceback
-        req = auth_pb2.SignupAccount.FromString(trace.request)
-        assert not req.password
-        assert req.username == "not removed"
+        req = auth_pb2.SignupFlowReq.FromString(trace.request)
+        assert not req.account.password
+        assert req.account.username == "not removed"
         res = auth_pb2.AuthReq.FromString(trace.response)
         assert res.user == "this is not secret"
         assert not res.password
 
-    _check_histogram_labels("/testing.Test/TestRpc", "", "", 1)
+    _check_histogram_labels("/testing.Test/TestRpc", "False", "", "", 1)
+
+
+def test_tracing_interceptor_sensitive_ping(db):
+    user, token = generate_user()
+
+    with interceptor_dummy_api(
+        API().GetUser,
+        interceptors=[TracingInterceptor(), AuthValidatorInterceptor()],
+        request_type=api_pb2.GetUserReq,
+        response_type=api_pb2.User,
+        service_name="org.couchers.api.core.API",
+        method_name="GetUser",
+    ) as call_rpc:
+        call_rpc(api_pb2.GetUserReq(user=user.username), metadata=(("cookie", f"couchers-sesh={token}"),))
 
 
 def test_tracing_interceptor_exception(db):
@@ -237,7 +260,7 @@ def test_tracing_interceptor_exception(db):
         assert req.username == "not removed"
         assert not trace.response
 
-    _check_histogram_labels("/testing.Test/TestRpc", "Exception", "", 1)
+    _check_histogram_labels("/testing.Test/TestRpc", "False", "Exception", "", 1)
 
 
 def test_tracing_interceptor_abort(db):
@@ -264,7 +287,7 @@ def test_tracing_interceptor_abort(db):
         assert req.username == "not removed"
         assert not trace.response
 
-    _check_histogram_labels("/testing.Test/TestRpc", "Exception", "FAILED_PRECONDITION", 1)
+    _check_histogram_labels("/testing.Test/TestRpc", "False", "Exception", "FAILED_PRECONDITION", 1)
 
 
 def test_auth_interceptor(db):
@@ -284,7 +307,7 @@ def test_auth_interceptor(db):
         "rpc": account.GetAccountInfo,
         "service_name": "org.couchers.api.account.Account",
         "method_name": "GetAccountInfo",
-        "interceptors": [AuthValidatorInterceptor()],
+        "interceptors": [AuthValidatorInterceptor(), CookieInterceptor()],
         "request_type": empty_pb2.Empty,
         "response_type": account_pb2.GetAccountInfoRes,
     }

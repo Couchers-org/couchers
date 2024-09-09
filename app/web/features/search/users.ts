@@ -6,6 +6,9 @@ import maplibregl, {
   GeoJSONSource,
   Map as MaplibreMap,
 } from "maplibre-gl";
+import { User } from "proto/api_pb";
+import { UserSearchRes } from "proto/search_pb";
+import { InfiniteData } from "react-query";
 import { theme } from "theme";
 
 import userPin from "./resources/userPin.png";
@@ -32,6 +35,7 @@ export const layers: Record<LayerKeys, AnyLayer> = {
     layout: {
       "text-field": "{point_count_abbreviated}",
       "text-size": 12,
+      "text-font": ["Inter 28pt SemiBold"],
     },
     paint: {
       "text-color": [
@@ -97,6 +101,7 @@ export const layers: Record<LayerKeys, AnyLayer> = {
 
 const addPinImages = (map: MaplibreMap) => {
   if (map.hasImage("user-pin")) return;
+
   map.loadImage(userPin.src, (error: Error, image: HTMLImageElement) => {
     if (error) {
       throw error;
@@ -115,6 +120,7 @@ const zoomCluster = (
   const map = ev.target;
   const cluster = ev.features?.[0];
   if (!cluster || !cluster.properties?.cluster_id) return;
+
   (map.getSource("clustered-users") as GeoJSONSource).getClusterExpansionZoom(
     cluster.properties.cluster_id,
     (_error, zoom) => {
@@ -126,6 +132,19 @@ const zoomCluster = (
   );
 };
 
+/**
+ * Filters the data and format it
+ */
+export const filterData = (data: InfiniteData<UserSearchRes.AsObject>) => {
+  return data.pages
+    .flatMap((page) => page.resultsList)
+    .map((result) => {
+      return result.user;
+    })
+    .filter((user): user is User.AsObject => !!user)
+    .map((user) => user.userId);
+};
+
 export const addClusteredUsersToMap = (
   map: MaplibreMap,
   userClickedCallback?: MapClickedCallback
@@ -135,13 +154,22 @@ export const addClusteredUsersToMap = (
   map.addLayer(layers.clusterLayer);
   map.addLayer(layers.clusterCountLayer);
   map.addLayer(layers.unclusteredPointLayer);
+
   if (userClickedCallback) {
     map.on("click", layers.unclusteredPointLayer.id, userClickedCallback);
   }
+
   map.on("click", layers.clusterLayer.id, zoomCluster);
 };
 
-export const filterUsers = (
+/**
+ * Deletes all the @map results (by cleaning a map layer), adds a new layer containing a new list of results (@ids) and then sets a callback when user click
+ * on one result
+ * @param map map to edit its results
+ * @param ids new list of results to add
+ * @param userClickedCallback callback to be executed when user clicks
+ */
+export const reRenderUsersOnMap = (
   map: MaplibreMap,
   ids: number[] | null,
   userClickedCallback?: MapClickedCallback
@@ -152,6 +180,7 @@ export const filterUsers = (
     map.off("click", layers.unclusteredPointLayer.id, userClickedCallback);
     map.off("click", layers.clusterLayer.id, zoomCluster);
   }
+
   map.removeLayer(layers.clusterLayer.id);
   map.removeLayer(layers.clusterCountLayer.id);
   map.removeLayer(layers.unclusteredPointLayer.id);

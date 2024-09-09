@@ -2,10 +2,12 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   AcceptCommunityGuidelinesReq,
   AcceptTOSReq,
+  AcknowledgePendingModNoteReq,
   SetLocationReq,
 } from "proto/jail_pb";
-import client from "service/client";
-import { getCurrentUser } from "service/user";
+
+import client from "./client";
+import { getCurrentUser } from "./user";
 
 export async function getIsJailed() {
   const req = new Empty();
@@ -47,5 +49,16 @@ export async function setAcceptedCommunityGuidelines(accepted: boolean) {
   const req = new AcceptCommunityGuidelinesReq();
   req.setAccept(accepted);
   const res = await client.jail.acceptCommunityGuidelines(req);
+  return { isJailed: res.getJailed() };
+}
+
+export async function acknowledgePendingModNote(
+  modNoteId: number,
+  acknowledge: boolean
+) {
+  const req = new AcknowledgePendingModNoteReq();
+  req.setNoteId(modNoteId);
+  req.setAcknowledge(acknowledge);
+  const res = await client.jail.acknowledgePendingModNote(req);
   return { isJailed: res.getJailed() };
 }

@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import CircularProgress from "components/CircularProgress";
-import useAuthStore from "features/auth/useAuthStore";
+import { useAuthContext } from "features/auth/AuthProvider";
 import { messageElementId } from "features/messages/messagelist/MessageView";
 import { Message } from "proto/conversations_pb";
 import {
@@ -53,7 +53,7 @@ export default function InfiniteMessageLoader({
   children,
 }: InfiniteMessageLoaderProps) {
   const classes = useStyles();
-  const currentUserId = useAuthStore().authState.userId;
+  const { authState } = useAuthContext();
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevScrollHeight = useRef<number | undefined>(undefined);
@@ -97,13 +97,13 @@ export default function InfiniteMessageLoader({
   const savedMessageId = useRef(latestMessage?.messageId);
   useLayoutEffect(() => {
     if (!scrollRef.current) return;
-    const isUserMessage = latestMessage?.authorUserId === currentUserId;
+    const isUserMessage = latestMessage?.authorUserId === authState.userId;
     const isNewMessage = latestMessage?.messageId !== savedMessageId.current;
     if (isUserMessage && isNewMessage) {
       scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
       savedMessageId.current = latestMessage?.messageId;
     }
-  }, [latestMessage?.messageId, latestMessage?.authorUserId, currentUserId]);
+  }, [latestMessage?.messageId, latestMessage?.authorUserId, authState.userId]);
 
   return (
     <div className={classNames(classes.scroll, className)} ref={scrollRef}>

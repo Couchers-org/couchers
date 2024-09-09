@@ -341,11 +341,11 @@ class User(Base):
 
     @hybrid_property
     def has_completed_profile(self):
-        return self.avatar_key is not None and self.about_me is not None and len(self.about_me) >= 20
+        return self.avatar_key is not None and self.about_me is not None and len(self.about_me) >= 150
 
     @has_completed_profile.expression
     def has_completed_profile(cls):
-        return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 20)
+        return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 150)
 
     @hybrid_property
     def is_jailed(self):
@@ -353,6 +353,7 @@ class User(Base):
             (self.accepted_tos < TOS_VERSION)
             | (self.accepted_community_guidelines < GUIDELINES_VERSION)
             | self.is_missing_location
+            | (self.mod_notes.where(ModNote.is_pending).count() > 0)
         )
 
     @hybrid_property
@@ -596,6 +597,47 @@ class StrongVerificationAttempt(Base):
         CheckConstraint(
             "(NOT (status = 'deleted')) OR (has_minimal_data IS TRUE)",
             name="deleted_implies_minimal_data",
+        ),
+    )
+
+
+class ModNote(Base):
+    """
+    A moderator note to a user. This could be a warning, just a note "hey, we did X", or any other similar message.
+
+    The user has to read and "acknowledge" the note before continuing onto the platform, and being un-jailed.
+    """
+
+    __tablename__ = "mod_notes"
+    id = Column(BigInteger, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+
+    created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    acknowledged = Column(DateTime(timezone=True), nullable=True)
+
+    # this is an internal ID to allow the mods to track different types of notes
+    internal_id = Column(String, nullable=False)
+    # the admin that left this note
+    creator_user_id = Column(ForeignKey("users.id"), nullable=False)
+
+    note_content = Column(String, nullable=False)  # CommonMark without images
+
+    user = relationship("User", backref=backref("mod_notes", lazy="dynamic"), foreign_keys="ModNote.user_id")
+
+    def __repr__(self):
+        return f"ModeNote(id={self.id}, user={self.user}, created={self.created}, ack'd={self.acknowledged})"
+
+    @hybrid_property
+    def is_pending(self):
+        return self.acknowledged == None
+
+    __table_args__ = (
+        # used to look up pending notes
+        Index(
+            "ix_mod_notes_unacknowledged",
+            user_id,
+            postgresql_where=acknowledged == None,
         ),
     )
 
@@ -2223,6 +2265,8 @@ class NotificationTopicAction(enum.Enum):
     donation__received = ("donation:received", dt_sec, True, nd.DonationReceived)
 
     onboarding__reminder = ("onboarding:reminder", dt_sec, True, empty_pb2.Empty)
+
+    modnote__create = ("modnote:create", dt_sec, False, empty_pb2.Empty)
 
 
 class NotificationPreference(Base):

@@ -13,6 +13,7 @@ from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
+    ContentReport,
     Event,
     EventCommunityInviteRequest,
     EventOccurrence,
@@ -20,12 +21,13 @@ from couchers.models import (
     GroupChatSubscription,
     HostRequest,
     Message,
+    ModNote,
     User,
     UserBadge,
 )
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
-from couchers.servicers.api import get_strong_verification_fields
+from couchers.servicers.api import get_strong_verification_fields, user_model_to_pb
 from couchers.servicers.auth import create_session
 from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import get_users_to_notify_for_new_event
@@ -54,7 +56,30 @@ def _user_to_details(session, user):
         **get_strong_verification_fields(session, user),
         has_passport_sex_gender_exception=user.has_passport_sex_gender_exception,
         admin_note=user.admin_note,
+        pending_mod_notes_count=user.mod_notes.where(ModNote.is_pending).count(),
+        acknowledged_mod_notes_count=user.mod_notes.where(~ModNote.is_pending).count(),
     )
+
+
+def _content_report_to_pb(content_report: ContentReport):
+    return admin_pb2.ContentReport(
+        content_report_id=content_report.id,
+        time=Timestamp_from_datetime(content_report.time),
+        reporting_user_id=content_report.reporting_user_id,
+        author_user_id=content_report.author_user_id,
+        reason=content_report.reason,
+        description=content_report.description,
+        content_ref=content_report.content_ref,
+        user_agent=content_report.user_agent,
+        page=content_report.page,
+    )
+
+
+def append_admin_note(session, context, user, note):
+    if not note.strip():
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ADMIN_NOTE_CANT_BE_EMPTY)
+    admin = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+    user.admin_note += f"\n[{now().isoformat()}] (id: {admin.id}, username: {admin.username}) {note}\n"
 
 
 class Admin(admin_pb2_grpc.AdminServicer):
@@ -65,6 +90,13 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
             return _user_to_details(session, user)
 
+    def GetUser(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            return user_model_to_pb(user, session, context)
+
     def ChangeUserGender(self, request, context):
         with session_scope() as session:
             user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
@@ -74,6 +106,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             session.commit()
 
             notify(
+                session,
                 user_id=user.id,
                 topic_action="gender:change",
                 data=notification_data_pb2.GenderChange(
@@ -92,6 +125,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             session.commit()
 
             notify(
+                session,
                 user_id=user.id,
                 topic_action="birthdate:change",
                 data=notification_data_pb2.BirthdateChange(
@@ -157,18 +191,78 @@ class Admin(admin_pb2_grpc.AdminServicer):
             user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            append_admin_note(session, context, user, request.admin_note)
             user.is_banned = True
-        return self.AddAdminNote(request, context)
+            return _user_to_details(session, user)
+
+    def UnbanUser(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            append_admin_note(session, context, user, request.admin_note)
+            user.is_banned = False
+            return _user_to_details(session, user)
 
     def AddAdminNote(self, request, context):
         with session_scope() as session:
             user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
             if not user:
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-            admin = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            user.admin_note += (
-                f"\n[{now().isoformat()}] (id: {admin.id}, username: {admin.username}) {request.admin_note}\n"
+            append_admin_note(session, context, user, request.admin_note)
+            return _user_to_details(session, user)
+
+    def GetContentReport(self, request, context):
+        with session_scope() as session:
+            content_report = session.execute(
+                select(ContentReport).where(ContentReport.id == request.content_report_id)
+            ).scalar_one_or_none()
+            if not content_report:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.CONTENT_REPORT_NOT_FOUND)
+            return admin_pb2.GetContentReportRes(
+                content_report=_content_report_to_pb(content_report),
             )
+
+    def GetContentReportsForAuthor(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            content_reports = (
+                session.execute(
+                    select(ContentReport)
+                    .where(ContentReport.author_user_id == user.id)
+                    .order_by(ContentReport.id.desc())
+                )
+                .scalars()
+                .all()
+            )
+            return admin_pb2.GetContentReportsForAuthorRes(
+                content_reports=[_content_report_to_pb(content_report) for content_report in content_reports],
+            )
+
+    def SendModNote(self, request, context):
+        with session_scope() as session:
+            user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
+            if not user:
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            session.add(
+                ModNote(
+                    user_id=user.id,
+                    internal_id=request.internal_id,
+                    creator_user_id=context.user_id,
+                    note_content=request.content,
+                )
+            )
+            session.flush()
+
+            if not request.do_not_notify:
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="modnote:create",
+                )
+
             return _user_to_details(session, user)
 
     def DeleteUser(self, request, context):
@@ -189,6 +283,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
 
             notify(
+                session,
                 user_id=user.id,
                 topic_action="api_key:create",
                 data=notification_data_pb2.ApiKeyCreate(
@@ -212,7 +307,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 session, node.id, request.name, request.description, context.user_id, request.admin_ids, True
             )
 
-            return community_to_pb(node, context)
+            return community_to_pb(session, node, context)
 
     def GetChats(self, request, context):
         with session_scope() as session:
@@ -222,86 +317,82 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             def format_conversation(conversation_id):
                 out = ""
-                with session_scope() as session:
-                    messages = (
-                        session.execute(
-                            select(Message).where(Message.conversation_id == conversation_id).order_by(Message.id.asc())
-                        )
-                        .scalars()
-                        .all()
+                messages = (
+                    session.execute(
+                        select(Message).where(Message.conversation_id == conversation_id).order_by(Message.id.asc())
                     )
-                    for message in messages:
-                        out += f"Message {message.id} by {format_user(message.author)} at {message.time}\nType={message.message_type}, host_req_status_change={message.host_request_status_target}\n\n"
-                        out += str(message.text)
-                        out += "\n\n-----\n"
-                    out += "\n\n\n\n"
+                    .scalars()
+                    .all()
+                )
+                for message in messages:
+                    out += f"Message {message.id} by {format_user(message.author)} at {message.time}\nType={message.message_type}, host_req_status_change={message.host_request_status_target}\n\n"
+                    out += str(message.text)
+                    out += "\n\n-----\n"
+                out += "\n\n\n\n"
                 return out
 
             def format_host_request(host_request_id):
                 out = ""
-                with session_scope() as session:
-                    host_request = session.execute(
-                        select(HostRequest).where(HostRequest.conversation_id == host_request_id)
-                    ).scalar_one()
-                    out += "==============================\n"
-                    out += f"Host request {host_request.conversation_id} from {format_user(host_request.surfer)} to {format_user(host_request.host)}.\nCurrent state = {host_request.status}\n\nMessages:\n"
-                    out += format_conversation(host_request.conversation_id)
-                    out += "\n\n\n\n"
+                host_request = session.execute(
+                    select(HostRequest).where(HostRequest.conversation_id == host_request_id)
+                ).scalar_one()
+                out += "==============================\n"
+                out += f"Host request {host_request.conversation_id} from {format_user(host_request.surfer)} to {format_user(host_request.host)}.\nCurrent state = {host_request.status}\n\nMessages:\n"
+                out += format_conversation(host_request.conversation_id)
+                out += "\n\n\n\n"
                 return out
 
             def format_group_chat(group_chat_id):
                 out = ""
-                with session_scope() as session:
-                    group_chat = session.execute(
-                        select(GroupChat).where(GroupChat.conversation_id == group_chat_id)
-                    ).scalar_one()
-                    out += "==============================\n"
-                    out += f"Group chat {group_chat.conversation_id}. Created by {format_user(group_chat.creator)}, is_dm={group_chat.is_dm}\nName: {group_chat.title}\nMembers:\n"
-                    subs = (
-                        session.execute(
-                            select(GroupChatSubscription)
-                            .where(GroupChatSubscription.group_chat_id == group_chat.conversation_id)
-                            .order_by(GroupChatSubscription.joined.asc())
-                        )
-                        .scalars()
-                        .all()
+                group_chat = session.execute(
+                    select(GroupChat).where(GroupChat.conversation_id == group_chat_id)
+                ).scalar_one()
+                out += "==============================\n"
+                out += f"Group chat {group_chat.conversation_id}. Created by {format_user(group_chat.creator)}, is_dm={group_chat.is_dm}\nName: {group_chat.title}\nMembers:\n"
+                subs = (
+                    session.execute(
+                        select(GroupChatSubscription)
+                        .where(GroupChatSubscription.group_chat_id == group_chat.conversation_id)
+                        .order_by(GroupChatSubscription.joined.asc())
                     )
-                    for sub in subs:
-                        out += f"{format_user(sub.user)} joined at {sub.joined} (left at {sub.left}), role={sub.role}\n"
-                    out += "\n\nMessages:\n"
-                    out += format_conversation(group_chat.conversation_id)
-                    out += "\n\n\n\n"
+                    .scalars()
+                    .all()
+                )
+                for sub in subs:
+                    out += f"{format_user(sub.user)} joined at {sub.joined} (left at {sub.left}), role={sub.role}\n"
+                out += "\n\nMessages:\n"
+                out += format_conversation(group_chat.conversation_id)
+                out += "\n\n\n\n"
                 return out
 
             def format_all_chats_for_user(user_id):
                 out = ""
-                with session_scope() as session:
-                    user = session.execute(select(User).where(User.id == user_id)).scalar_one()
-                    out += f"Chats for user {format_user(user)}\n"
-                    host_request_ids = (
-                        session.execute(
-                            select(HostRequest.conversation_id)
-                            .where(or_(HostRequest.host_user_id == user_id, HostRequest.surfer_user_id == user_id))
-                            .order_by(HostRequest.conversation_id)
-                        )
-                        .scalars()
-                        .all()
+                user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+                out += f"Chats for user {format_user(user)}\n"
+                host_request_ids = (
+                    session.execute(
+                        select(HostRequest.conversation_id)
+                        .where(or_(HostRequest.host_user_id == user_id, HostRequest.surfer_user_id == user_id))
+                        .order_by(HostRequest.conversation_id.desc())
                     )
-                    out += f"************************************* Requests ({len(host_request_ids)})\n"
-                    for host_request in host_request_ids:
-                        out += format_host_request(host_request)
-                    group_chat_ids = (
-                        session.execute(
-                            select(GroupChatSubscription.group_chat_id)
-                            .where(GroupChatSubscription.user_id == user_id)
-                            .order_by(GroupChatSubscription.joined.asc())
-                        )
-                        .scalars()
-                        .all()
+                    .scalars()
+                    .all()
+                )
+                out += f"************************************* Requests ({len(host_request_ids)})\n"
+                for host_request in host_request_ids:
+                    out += format_host_request(host_request)
+                group_chat_ids = (
+                    session.execute(
+                        select(GroupChatSubscription.group_chat_id)
+                        .where(GroupChatSubscription.user_id == user_id)
+                        .order_by(GroupChatSubscription.joined.desc())
                     )
-                    out += f"************************************* Group chats ({len(group_chat_ids)})\n"
-                    for group_chat_id in group_chat_ids:
-                        out += format_group_chat(group_chat_id)
+                    .scalars()
+                    .all()
+                )
+                out += f"************************************* Group chats ({len(group_chat_ids)})\n"
+                for group_chat_id in group_chat_ids:
+                    out += format_group_chat(group_chat_id)
                 return out
 
             user = session.execute(select(User).where_username_or_email_or_id(request.user)).scalar_one_or_none()
@@ -312,10 +403,6 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
     def ListEventCommunityInviteRequests(self, request, context):
         with session_scope() as session:
-            # req.decided = now()
-            # req.decided_by_user_id = user1.id
-            # req.approved = True
-
             page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
             next_request_id = int(request.page_token) if request.page_token else 0
             requests = (
@@ -330,18 +417,18 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 .all()
             )
 
+            def _request_to_pb(request):
+                users_to_notify, node_id = get_users_to_notify_for_new_event(session, request.occurrence)
+                return admin_pb2.EventCommunityInviteRequest(
+                    event_community_invite_request_id=request.id,
+                    user_id=request.user_id,
+                    event_url=urls.event_link(occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug),
+                    approx_users_to_notify=len(users_to_notify),
+                    community_id=node_id,
+                )
+
             return admin_pb2.ListEventCommunityInviteRequestsRes(
-                requests=[
-                    admin_pb2.EventCommunityInviteRequest(
-                        event_community_invite_request_id=request.id,
-                        user_id=request.user_id,
-                        event_url=urls.event_link(
-                            occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug
-                        ),
-                        approx_users_to_notify=len(get_users_to_notify_for_new_event(session, request.occurrence)[0]),
-                    )
-                    for request in requests[:page_size]
-                ],
+                requests=[_request_to_pb(request) for request in requests[:page_size]],
                 next_page_token=str(requests[-1].id) if len(requests) > page_size else None,
             )
 
@@ -377,6 +464,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
             if request.approve:
                 queue_job(
+                    session,
                     "generate_event_create_notifications",
                     payload=jobs_pb2.GenerateEventCreateNotificationsPayload(
                         inviting_user_id=req.user_id,
@@ -404,6 +492,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             occurrence.is_deleted = True
 
             queue_job(
+                session,
                 "generate_event_delete_notifications",
                 payload=jobs_pb2.GenerateEventDeleteNotificationsPayload(
                     occurrence_id=occurrence.id,
