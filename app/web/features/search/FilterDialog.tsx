@@ -94,7 +94,7 @@ interface FilterDialogProps {
   setHostingStatusFilter: Dispatch<SetStateAction<number>>;
   completeProfileFilter: boolean;
   setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
-  numberOfGuestFilter: undefined;
+  numberOfGuestFilter: any;
   setNumberOfGuestFilter: Dispatch<SetStateAction<undefined>>;
 }
 
