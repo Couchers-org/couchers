@@ -3,7 +3,7 @@ import HtmlMeta from "components/HtmlMeta";
 import { Coordinates, selectedUserZoom } from "features/search/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import maplibregl, { LngLat, Map as MaplibreMap } from "maplibre-gl";
+import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { useEffect, useRef, useState } from "react";
