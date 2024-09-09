@@ -3,7 +3,7 @@ import HtmlMeta from "components/HtmlMeta";
 import { Coordinates, selectedUserZoom } from "features/search/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { LngLat, Map as MaplibreMap } from "maplibre-gl";
+import maplibregl, { Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { useEffect, useRef, useState } from "react";
@@ -76,9 +76,12 @@ export default function SearchPage({
   const [locationResult, setLocationResult] = useState<
     GeocodeResult | undefined
   >({
-    bbox: bbox,
+    bbox,
     isRegion: false,
-    location: new LngLat(0, 0),
+    location: new maplibregl.LngLat(
+      (parseFloat(bbox[0].toString()) + parseFloat(bbox[2].toString())) / 2,
+      (parseFloat(bbox[1].toString()) + parseFloat(bbox[3].toString())) / 2
+    ), // turns the coordinates into latitude and longitude - means the map will center even if only locationName is provided
     name: locationName,
     simplifiedName: locationName,
   });
