@@ -3,7 +3,7 @@ import HtmlMeta from "components/HtmlMeta";
 import { Coordinates, selectedUserZoom } from "features/search/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { Map as MaplibreMap } from "maplibre-gl";
+import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +13,7 @@ import {
   useInfiniteQuery,
 } from "react-query";
 import { service } from "service";
+import { GeocodeResult } from "utils/hooks";
 
 import FilterDialog from "./FilterDialog";
 import MapWrapper from "./MapWrapper";
@@ -72,22 +73,24 @@ export default function SearchPage({
   const map = useRef<MaplibreMap>();
 
   // State
-  const [locationResult, setLocationResult] = useState({
+  const [locationResult, setLocationResult] = useState<GeocodeResult>({
     bbox: bbox,
     isRegion: false,
-    location: { lng: undefined, lat: undefined },
+    location: new LngLat(0, 0),
     name: locationName,
     simplifiedName: locationName,
   });
-  const [queryName, setQueryName] = useState<undefined | string>(undefined);
-  const [searchType, setSearchType] = useState("location");
+  const [queryName, setQueryName] = useState<string>("");
+  const [searchType, setSearchType] = useState<"location" | "keyword">(
+    "location"
+  );
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
   const [hostingStatusFilter, setHostingStatusFilter] = useState(0);
   const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(undefined);
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
-  >(undefined);
+  >();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   // Loads the list of users
@@ -104,12 +107,8 @@ export default function SearchPage({
         completeProfileFilter,
       ],
       ({ pageParam }) => {
-        const lastActiveComparation = parseInt(
-          lastActiveFilter as unknown as string
-        );
-        const hostingStatusFilterComparation = parseInt(
-          hostingStatusFilter as unknown as string
-        );
+        const lastActiveComparation = lastActiveFilter;
+        const hostingStatusFilterComparation = hostingStatusFilter;
 
         return service.search.userSearch(
           {

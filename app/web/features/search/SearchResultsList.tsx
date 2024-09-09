@@ -87,7 +87,9 @@ interface mapWrapperProps {
     | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
     | undefined;
   setSelectedResult: Dispatch<
-    SetStateAction<Pick<User.AsObject, "username" | "userId" | "lng" | "lat">>
+    SetStateAction<
+      Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
+    >
   >;
   searchType: "location" | "keyword";
   setSearchType: Dispatch<SetStateAction<"location" | "keyword">>;
