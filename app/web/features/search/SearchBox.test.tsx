@@ -1,6 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { LngLat } from "maplibre-gl";
 import { useState } from "react";
 import { server } from "test/restMock";
 import { t } from "test/utils";
@@ -15,12 +14,7 @@ const View = ({
 }) => {
   const [searchType, setSearchType] = useState(searchTypeParam);
   const [queryNameProp, setQueryNameProp] = useState("");
-  const [locationResultProp, setLocationResultProp] = useState<GeocodeResult>({
-    name: "",
-    simplifiedName: "",
-    location: new LngLat(0, 0),
-    bbox: [0, 0, 0, 0],
-  });
+  const [locationResultProp, setLocationResultProp] = useState<GeocodeResult>();
 
   return (
     <SearchBox

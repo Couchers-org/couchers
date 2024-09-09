@@ -73,7 +73,9 @@ export default function SearchPage({
   const map = useRef<MaplibreMap>();
 
   // State
-  const [locationResult, setLocationResult] = useState<GeocodeResult>({
+  const [locationResult, setLocationResult] = useState<
+    GeocodeResult | undefined
+  >({
     bbox: bbox,
     isRegion: false,
     location: new LngLat(0, 0),
@@ -86,7 +88,7 @@ export default function SearchPage({
   );
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
   const [hostingStatusFilter, setHostingStatusFilter] = useState(0);
-  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(undefined);
+  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState<string>("");
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
@@ -107,20 +109,22 @@ export default function SearchPage({
         completeProfileFilter,
       ],
       ({ pageParam }) => {
-        const lastActiveComparation = lastActiveFilter;
-        const hostingStatusFilterComparation = hostingStatusFilter;
+        // @ts-ignore @TODO David fixing these in a separate PR
+        const lastActiveComparation = parseInt(lastActiveFilter);
+        // @ts-ignore @TODO David fixing these in a separate PR
+        const hostingStatusFilterComparation = parseInt(hostingStatusFilter);
 
         return service.search.userSearch(
           {
             query: queryName,
-            bbox: locationResult.bbox,
+            bbox: locationResult?.bbox,
             lastActive:
               lastActiveComparation === 0 ? undefined : lastActiveFilter,
             hostingStatusOptions:
               hostingStatusFilterComparation === 0
                 ? undefined
                 : [hostingStatusFilter],
-            numGuests: numberOfGuestFilter,
+            numGuests: Number(numberOfGuestFilter),
             completeProfile:
               completeProfileFilter === false
                 ? undefined
@@ -137,10 +141,12 @@ export default function SearchPage({
 
   // Relocate map everytime boundingbox changes
   useEffect(() => {
-    map.current?.fitBounds(locationResult.bbox, {
-      maxZoom: selectedUserZoom,
-    });
-  }, [locationResult.bbox]);
+    if (locationResult) {
+      map.current?.fitBounds(locationResult.bbox, {
+        maxZoom: selectedUserZoom,
+      });
+    }
+  }, [locationResult]);
 
   const errorMessage = error?.message;
 

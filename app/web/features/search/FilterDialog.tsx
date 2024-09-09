@@ -85,17 +85,17 @@ interface FilterModalFormData
 interface FilterDialogProps {
   isOpen: boolean;
   onClose(): void;
-  queryName: undefined | string;
+  queryName: string;
   setQueryName: Dispatch<SetStateAction<string>>;
-  setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
+  setLocationResult: Dispatch<SetStateAction<GeocodeResult | undefined>>;
   lastActiveFilter: number;
   setLastActiveFilter: Dispatch<SetStateAction<number>>;
   hostingStatusFilter: number;
   setHostingStatusFilter: Dispatch<SetStateAction<number>>;
   completeProfileFilter: boolean;
   setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
-  numberOfGuestFilter: undefined;
-  setNumberOfGuestFilter: Dispatch<SetStateAction<undefined>>;
+  numberOfGuestFilter: string;
+  setNumberOfGuestFilter: Dispatch<SetStateAction<string>>;
 }
 
 export default function FilterDialog({
@@ -157,7 +157,6 @@ export default function FilterDialog({
             />
             <TextField
               fullWidth
-              defaultValue={""}
               id="keywords-filter"
               label={t("search:form.keywords.field_label")}
               name="query"
@@ -254,9 +253,7 @@ export default function FilterDialog({
                 id="num-guests-filter"
                 value={numberOfGuestFilter}
                 onChange={(e) => {
-                  setNumberOfGuestFilter(
-                    e.target.value as unknown as undefined
-                  );
+                  setNumberOfGuestFilter(e.target.value);
                 }}
                 inputRef={register({
                   valueAsNumber: true,
@@ -266,7 +263,6 @@ export default function FilterDialog({
                 label={t(
                   "search:form.accommodation_filters.guests_field_label"
                 )}
-                defaultValue={""}
                 error={!!errors.numGuests}
                 helperText={errors.numGuests?.message}
               />

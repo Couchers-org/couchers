@@ -36,7 +36,7 @@ const useStyles = makeStyles({
 });
 
 export interface MapProps {
-  initialCenter: LngLat;
+  initialCenter: LngLat | undefined;
   initialZoom: number;
   postMapInitialize?: (map: maplibregl.Map) => void;
   className?: string;

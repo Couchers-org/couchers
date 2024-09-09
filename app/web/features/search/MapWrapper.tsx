@@ -67,8 +67,8 @@ interface mapWrapperProps {
     | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
     | undefined;
   isLoading: boolean;
-  locationResult: GeocodeResult;
-  setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
+  locationResult: GeocodeResult | undefined;
+  setLocationResult: Dispatch<SetStateAction<GeocodeResult | undefined>>;
   results: InfiniteData<UserSearchRes.AsObject> | undefined;
   setIsFiltersOpen: Dispatch<SetStateAction<boolean>>;
   setSelectedResult: Dispatch<
@@ -227,9 +227,9 @@ export default function MapWrapper({
    * Clicks on 'search here' button
    */
   const handleOnClick = () => {
-    const currentBbox = map.current?.getBounds().toArray() as number[][];
+    const currentBbox = map.current?.getBounds().toArray();
     if (currentBbox) {
-      if (map.current?.getBounds) {
+      if (map.current?.getBounds && locationResult) {
         setLocationResult({
           ...locationResult,
           name: "",
@@ -277,7 +277,7 @@ export default function MapWrapper({
       </div>
       <Map
         grow
-        initialCenter={locationResult.location}
+        initialCenter={locationResult?.location}
         initialZoom={5}
         postMapInitialize={initializeMap}
         hash
