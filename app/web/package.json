@@ -30,7 +30,7 @@
     "@material-ui/lab": "^4.0.0-alpha.61",
     "@material-ui/pickers": "3.3.10",
     "@sentry/nextjs": "^6.19.7",
-    "@sentry/react": "^7.7.0",
+    "@sentry/react": "^8.28.0",
     "@stripe/stripe-js": "^4.1.0",
     "@toast-ui/editor": "^3.2.2",
     "@types/react-simple-maps": "^3.0.4",
