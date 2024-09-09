@@ -51,7 +51,7 @@ describe("SearchBox", () => {
   });
 
   it("clears keyword search correctly", async () => {
-    render(<View />);
+    render(<View searchTypeParam="keyword" />);
 
     const input = screen.getByLabelText(t("search:form.keywords.field_label"));
 
@@ -80,7 +80,7 @@ describe("SearchBox", () => {
     });
 
     it("result from list is choosable", async () => {
-      render(<View />);
+      render(<View searchTypeParam="location" />);
 
       userEvent.click(
         screen.getByLabelText(t("search:form.by_location_filter_label"))

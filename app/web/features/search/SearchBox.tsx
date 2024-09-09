@@ -80,7 +80,6 @@ export default function SearchBox({
     event: React.ChangeEvent<HTMLInputElement>,
     value: "location" | "keyword"
   ) => {
-    console.log("value", value, event.target);
     setSearchType(value);
     setLocationResult({
       ...locationResult,
