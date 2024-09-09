@@ -92,7 +92,7 @@ export default function SearchPage({
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
   const [hostingStatusFilter, setHostingStatusFilter] = useState(0);
   const [numberOfGuestFilter, setNumberOfGuestFilter] = useState<string>("");
-  const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
+  const [completeProfileFilter, setCompleteProfileFilter] = useState(true);
   const [selectedResult, setSelectedResult] = useState<
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
   >();
