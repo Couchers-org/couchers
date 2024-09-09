@@ -1,5 +1,4 @@
 # general
-.vscode
 .idea
 *.code-workspace
 .DS_Store
