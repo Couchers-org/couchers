@@ -94,7 +94,7 @@ interface FilterDialogProps {
   setHostingStatusFilter: Dispatch<SetStateAction<number>>;
   completeProfileFilter: boolean;
   setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
-  numberOfGuestFilter: any;
+  numberOfGuestFilter: undefined;
   setNumberOfGuestFilter: Dispatch<SetStateAction<undefined>>;
 }
 
@@ -115,9 +115,10 @@ export default function FilterDialog({
 }: FilterDialogProps) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
-  const { control, register, errors } = useForm<FilterModalFormData>({
-    mode: "onBlur",
-  });
+  const { control, handleSubmit, register, setValue, getValues, errors } =
+    useForm<FilterModalFormData>({
+      mode: "onBlur",
+    });
 
   const isSmDown = useMediaQuery((theme: Theme) =>
     theme.breakpoints.down("sm")
