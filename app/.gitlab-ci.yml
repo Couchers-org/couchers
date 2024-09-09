@@ -530,6 +530,9 @@ wait:before-release:
     - job: test:web-prettier
       artifacts: false
       optional: true
+    - job: test:web-linting
+      artifacts: false
+      optional: true
     - job: test:storybook
       artifacts: false
       optional: true
