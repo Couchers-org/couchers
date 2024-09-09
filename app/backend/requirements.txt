@@ -133,7 +133,7 @@ packaging==24.0
     #   geoalchemy2
     #   opentelemetry-instrumentation-sqlalchemy
     #   pytest
-phonenumbers==8.13.44
+phonenumbers==8.13.45
     # via -r requirements.in
 platformdirs==4.2.2
     # via virtualenv
