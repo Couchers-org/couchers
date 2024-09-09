@@ -55,8 +55,7 @@ export default function ProfileIncompleteDialog({
               information,{" "}
               <StyledLink
                 variant="body1"
-                // TODO(aapeli): update help page
-                href="https://help.couchers.org/hc/couchersorg-help-center/articles/1715658357-how-to-write-a-request-that-gets-accepted"
+                href="https://help.couchers.org/hc/couchersorg-help-center/articles/1725919152-why-do-i-need-to-complete-my-profile-to-use-some-features"
               >
                 please refer to this help page
               </StyledLink>
