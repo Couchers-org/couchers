@@ -51,7 +51,6 @@ Want to help but don't see anything listed for you? [Fill out this form](/volunt
 
 #### Operations
 
-- [Compliance Specialist](/volunteer/compliance-specialist)
 - [Volunteer Coordinator](/volunteer/volunteer-coordinator)
 
 #### Marketing
@@ -63,7 +62,6 @@ Want to help but don't see anything listed for you? [Fill out this form](/volunt
 
 #### Support
 
-- [Handbook Project Manager](/volunteer/handbook-project-manager)
 - [Technical Support Analyst](/volunteer/technical-support-analyst)
 
 ### Community Building

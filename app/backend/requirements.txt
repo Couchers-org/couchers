@@ -6,9 +6,9 @@
 #
 alembic==1.13.2
     # via -r requirements.in
-boto3==1.35.10
+boto3==1.35.14
     # via -r requirements.in
-botocore==1.35.10
+botocore==1.35.14
     # via
     #   boto3
     #   s3transfer
@@ -26,7 +26,7 @@ charset-normalizer==3.3.2
     # via requests
 coverage[toml]==7.5.0
     # via pytest-cov
-cryptography==43.0.0
+cryptography==43.0.1
     # via
     #   -r requirements.in
     #   http-ece
@@ -133,7 +133,7 @@ packaging==24.0
     #   geoalchemy2
     #   opentelemetry-instrumentation-sqlalchemy
     #   pytest
-phonenumbers==8.13.44
+phonenumbers==8.13.45
     # via -r requirements.in
 platformdirs==4.2.2
     # via virtualenv
@@ -177,7 +177,7 @@ requests==2.32.3
     #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-http
     #   stripe
-ruff==0.6.2
+ruff==0.6.4
     # via -r requirements.in
 s3transfer==0.10.1
     # via boto3
@@ -195,7 +195,7 @@ sqlalchemy==2.0.32
     #   sqlalchemy-utils
 sqlalchemy-utils==0.41.2
     # via -r requirements.in
-stripe==10.9.0
+stripe==10.10.0
     # via -r requirements.in
 typing-extensions==4.11.0
     # via

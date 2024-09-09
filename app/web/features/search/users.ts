@@ -35,6 +35,7 @@ export const layers: Record<LayerKeys, AnyLayer> = {
     layout: {
       "text-field": "{point_count_abbreviated}",
       "text-size": 12,
+      "text-font": ["Inter 28pt SemiBold"],
     },
     paint: {
       "text-color": [

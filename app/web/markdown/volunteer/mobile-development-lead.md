@@ -7,11 +7,11 @@ description: "Apply to become the Mobile Development Lead for Couchers.org"
 
 ## Position Description
 
-**This is a remote position**
+**This is a remote volunteer position**
 
 We are seeking a lead for the Couchers.org Mobile Project. This will be a significant role within the organization in spearheading the mobile apps and helping to build the mobile team.
 
-The Couchers.org codebase is open-sourced under an MIT license and we accept occasional contributions, however we are looking for a dedicated volunteer who can take a major role in the organization and take on 10+ hours per week.
+The Couchers.org codebase is open source under the MIT license and we accept occasional contributions via the [Open Source Developer process](/volunteer/open-source-developer), however we are looking for a dedicated volunteer who can take a major role in the organization and take on 10+ hours per week.
 
 We pride ourselves on good documentation, ease of contribution, and ability for contributors to make large impacts. You will be working alongside experienced professionals who are motivated to develop their skills, to meet other professionals, and to develop this critical platform for the couch surfing community.
 

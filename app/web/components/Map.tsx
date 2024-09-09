@@ -89,7 +89,8 @@ export default function Map({
         container: containerRef.current,
         hash: hash ? "loc" : false,
         interactive: interactive,
-        style: "mapbox://styles/mapbox/light-v10",
+        style:
+          "https://maps.couchershq.org/static/couchers-basemap-style-v1.json",
         transformRequest,
         zoom: initialZoom,
       });

@@ -29,8 +29,8 @@ The CBP Managers not only serve as CBs for their own communities, but also work 
 ### Skills and Experience
 
 An ideal candidate would have the following skills:
-- 2+ years of couch surfing experience (regardless of the platform);
-- Experience as an event organizer or community manager, especially within a couch surfing community;
+- 2+ years of extensive couch surfing experience;
+- Experience as an event organizer, community manager, or ambassador, especially within a couch surfing community;
 - Experience organizing events both online and in person;
 - Ability to moderate conversations even in contentious situations;
 - Excellent communication, interpersonal and organizational skills;
@@ -43,6 +43,7 @@ An ideal candidate would have the following skills:
 - 5-10 hours per week on average;
 - 6 months minimum commitment;
 - Willingness to role-sharing/collaborate with the other CBP Managers;
+- This is a volunteer position (unpaid). Couchers.org is built and run entirely by volunteers.
 
 
 ### Apply
