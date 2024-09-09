@@ -10,6 +10,7 @@ import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { Dispatch, SetStateAction } from "react";
 import { InfiniteData } from "react-query";
+import { GeocodeResult } from "utils/hooks";
 
 import SearchBox from "./SearchBox";
 
@@ -86,15 +87,13 @@ interface mapWrapperProps {
     | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
     | undefined;
   setSelectedResult: Dispatch<
-    SetStateAction<
-      Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
-    >
+    SetStateAction<Pick<User.AsObject, "username" | "userId" | "lng" | "lat">>
   >;
-  searchType: string;
-  setSearchType: Dispatch<SetStateAction<string>>;
-  locationResult: any;
-  setLocationResult: Dispatch<SetStateAction<any>>;
-  setQueryName: Dispatch<SetStateAction<undefined | string>>;
+  searchType: "location" | "keyword";
+  setSearchType: Dispatch<SetStateAction<"location" | "keyword">>;
+  locationResult: GeocodeResult;
+  setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
+  setQueryName: Dispatch<SetStateAction<string>>;
   queryName: undefined | string;
 }
 
@@ -161,10 +160,10 @@ export default function SearchResultsList({
                   user={result.user!}
                   onSelect={() => {
                     setSelectedResult({
-                      username: result.user?.username as string,
-                      userId: result.user?.userId as number,
-                      lng: result.user?.lng as number,
-                      lat: result.user?.lat as number,
+                      username: result.user!.username,
+                      userId: result.user!.userId,
+                      lng: result.user!.lng,
+                      lat: result.user!.lat,
                     });
                   }}
                   highlight={
