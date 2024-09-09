@@ -7,7 +7,8 @@
   "close_request_dialog_surfer": "Please make sure you are done chatting before you cancel your request.",
   "close_request_button_text": "Decline",
   "confirm_request_button_text": "Confirm",
-  "pending_request_help_text": "Not sure how to respond? Read some tips on <2>how to respond to a request</2>.",
+  "host_pending_request_help_text": "Not sure how to respond? Read some tips on <2>how to respond to a request</2>.",
+  "surfer_declined_request_help_text": "Having trouble getting your requests accepted? Read our <2>guide on how to write a great request</2> for some tips!",
   "messages_page": {
     "title": "Messages",
     "tabs": {
