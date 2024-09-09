@@ -352,6 +352,25 @@ test:web-prettier:
       changes:
       - app/web/**/*
 
+test:web-linting:
+  needs: ["build:web-dev"]
+  stage: test
+  image: $WEB_DEV_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app
+    - yarn lint
+  rules:
+    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+        - app/**/*
+    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/web/**/*
+
+
 test:storybook:
   needs: ["build:web-dev"]
   stage: test
