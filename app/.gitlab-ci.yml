@@ -361,7 +361,7 @@ test:web-linting:
     default: false
   script:
     - cd /app
-    - yarn lint
+    - yarn lint --max-warnings=0
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
