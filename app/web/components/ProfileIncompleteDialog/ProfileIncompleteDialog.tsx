@@ -14,7 +14,7 @@ import Link from "next/link";
 import React from "react";
 import { routeToEditProfile } from "routes";
 
-export interface ProfileIncompleteDialog {
+export interface ProfileIncompleteDialogProps {
   open: boolean;
   onClose: () => void;
   attempted_action: "create_event" | "send_message" | "send_request";
@@ -24,7 +24,7 @@ export default function ProfileIncompleteDialog({
   open,
   onClose,
   attempted_action,
-}: ProfileIncompleteDialog) {
+}: ProfileIncompleteDialogProps) {
   const { t } = useTranslation([DASHBOARD]);
 
   const action_text = t(
