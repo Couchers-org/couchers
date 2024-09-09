@@ -3,6 +3,7 @@ import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
+import CustomColorSwitch from "components/CustomColorSwitch";
 import TextBody from "components/TextBody";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
@@ -15,7 +16,6 @@ import makeStyles from "utils/makeStyles";
 import { useCommunityPageStyles } from "../CommunityPage";
 import EventCard from "./EventCard";
 import { useListAllEvents } from "./hooks";
-import CustomColorSwitch from "components/CustomColorSwitch";
 
 const useStyles = makeStyles((theme) => ({
   root: {

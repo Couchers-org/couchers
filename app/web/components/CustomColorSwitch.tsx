@@ -1,10 +1,10 @@
 import { Switch, SwitchProps } from "@material-ui/core";
 import classNames from "classnames";
-import makeStyles from "utils/makeStyles";
+import { useEffect, useState } from "react";
 import { theme } from "theme";
+import makeStyles from "utils/makeStyles";
 
 import CircularProgress from "./CircularProgress";
-import { useEffect, useState } from "react";
 
 interface SwitchStyleProps {
   checked: boolean;

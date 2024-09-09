@@ -1,5 +1,6 @@
 import { FormControlLabel, InputLabel } from "@material-ui/core";
 import Button from "components/Button";
+import CustomColorSwitch from "components/CustomColorSwitch";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -13,7 +14,6 @@ import { resetPasswordRoute } from "routes";
 import isGrpcError from "service/utils/isGrpcError";
 import makeStyles from "utils/makeStyles";
 import { lowercaseAndTrimField } from "utils/validation";
-import CustomColorSwitch from "components/CustomColorSwitch";
 
 const useStyles = makeStyles((theme) => ({
   rememberSwitch: {
