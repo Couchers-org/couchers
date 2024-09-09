@@ -149,6 +149,7 @@
     },
     "request_form": {
         "send_request": "Send {{name}} a request",
+        "guide_link_help_text": "Not quite sure how to send a great request? Read our <2>quick reference on requests</2> or our <6>full guide on sending a request that gets accepted (with examples)</6>.",
         "arrival_date": "Arrival Date",
         "arrival_date_empty": "Please specify an arrival Date",
         "departure_date": "Departure Date",
