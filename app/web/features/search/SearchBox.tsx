@@ -42,7 +42,7 @@ interface SearchBoxProps {
   locationResult: GeocodeResult;
   setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   setQueryName: Dispatch<SetStateAction<string>>;
-  queryName: string | undefined;
+  queryName: string;
 }
 
 export default function SearchBox({

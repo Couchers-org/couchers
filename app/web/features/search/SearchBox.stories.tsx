@@ -21,7 +21,7 @@ const Template: Story<any> = () => {
         }}
         setLocationResult={() => {}}
         setQueryName={() => {}}
-        queryName={undefined}
+        queryName={""}
       />
     </>
   );

@@ -94,7 +94,7 @@ interface mapWrapperProps {
   locationResult: GeocodeResult;
   setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   setQueryName: Dispatch<SetStateAction<string>>;
-  queryName: undefined | string;
+  queryName: string;
 }
 
 export default function SearchResultsList({
