@@ -59,7 +59,7 @@ export default function CustomColorSwitch({
 }: {
   checked: boolean;
   onClick: SwitchProps["onClick"];
-  size: SwitchProps["size"];
+  size?: SwitchProps["size"];
   status?: string;
   isLoading?: boolean;
   color?: string;
