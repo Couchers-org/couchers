@@ -87,7 +87,7 @@ interface FilterDialogProps {
   onClose(): void;
   queryName: undefined | string;
   setQueryName: Dispatch<SetStateAction<undefined | string>>;
-  setLocationResult: Dispatch<SetStateAction<GeocodeResult | undefined>>;
+  setLocationResult: any;
   lastActiveFilter: number;
   setLastActiveFilter: Dispatch<SetStateAction<number>>;
   hostingStatusFilter: number;
@@ -115,10 +115,9 @@ export default function FilterDialog({
 }: FilterDialogProps) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
-  const { control, handleSubmit, register, setValue, getValues, errors } =
-    useForm<FilterModalFormData>({
-      mode: "onBlur",
-    });
+  const { control, register, errors } = useForm<FilterModalFormData>({
+    mode: "onBlur",
+  });
 
   const isSmDown = useMediaQuery((theme: Theme) =>
     theme.breakpoints.down("sm")
