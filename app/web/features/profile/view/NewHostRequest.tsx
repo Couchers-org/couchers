@@ -253,6 +253,7 @@ export default function NewHostRequest({
             placeholder={t("profile:request_form.request_description")}
             error={!!errors.text}
             helperText={errors.text?.message || ""}
+            InputLabelProps={{ shrink: true }}
             inputRef={register({
               required: t("profile:request_form.request_description_empty"),
             })}
