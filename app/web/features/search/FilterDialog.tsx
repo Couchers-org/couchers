@@ -87,7 +87,7 @@ interface FilterDialogProps {
   onClose(): void;
   queryName: undefined | string;
   setQueryName: Dispatch<SetStateAction<undefined | string>>;
-  setLocationResult: any;
+  setLocationResult: Dispatch<SetStateAction<GeocodeResult | undefined>>;
   lastActiveFilter: number;
   setLastActiveFilter: Dispatch<SetStateAction<number>>;
   hostingStatusFilter: number;
