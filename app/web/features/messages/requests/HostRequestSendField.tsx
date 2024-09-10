@@ -131,44 +131,48 @@ export default function HostRequestSendField({
     }
   };
 
+  const isHostPending =
+    isHost &&
+    hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_PENDING;
+
+  const isSurferRejected =
+    !isHost &&
+    hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
+
   return (
     <form onSubmit={onSubmit}>
-      {isHost &&
-        hostRequest.status ===
-          HostRequestStatus.HOST_REQUEST_STATUS_PENDING && (
-          <div className={classes.helpTextContainer}>
-            <Typography variant="body1">
-              <Trans i18nKey="messages:host_pending_request_help_text">
-                Not sure how to respond? Read some tips on{" "}
-                <StyledLink
-                  variant="body1"
-                  href="https://help.couchers.org/hc/couchersorg-help-center/articles/1715658357-how-to-write-a-request-that-gets-accepted"
-                >
-                  how to respond to a request
-                </StyledLink>
-                .
-              </Trans>
-            </Typography>
-          </div>
-        )}
-      {!isHost &&
-        hostRequest.status ===
-          HostRequestStatus.HOST_REQUEST_STATUS_REJECTED && (
-          <div className={classes.helpTextContainer}>
-            <Typography variant="body1">
-              <Trans i18nKey="messages:surfer_declined_request_help_text">
-                Having trouble getting your requests accepted? Read our{" "}
-                <StyledLink
-                  variant="body1"
-                  href="https://help.couchers.org/hc/couchersorg-help-center/articles/1715658357-how-to-write-a-request-that-gets-accepted"
-                >
-                  guide on how to write a request that gets accepted
-                </StyledLink>{" "}
-                for some tips!
-              </Trans>
-            </Typography>
-          </div>
-        )}
+      {isHostPending && (
+        <div className={classes.helpTextContainer}>
+          <Typography variant="body1">
+            <Trans i18nKey="messages:host_pending_request_help_text">
+              Not sure how to respond? Read some tips on{" "}
+              <StyledLink
+                variant="body1"
+                href="https://help.couchers.org/hc/couchersorg-help-center/articles/1715658357-how-to-write-a-request-that-gets-accepted"
+              >
+                how to respond to a request
+              </StyledLink>
+              .
+            </Trans>
+          </Typography>
+        </div>
+      )}
+      {isSurferRejected && (
+        <div className={classes.helpTextContainer}>
+          <Typography variant="body1">
+            <Trans i18nKey="messages:surfer_declined_request_help_text">
+              Having trouble getting your requests accepted? Read our{" "}
+              <StyledLink
+                variant="body1"
+                href="https://help.couchers.org/hc/couchersorg-help-center/articles/1715658357-how-to-write-a-request-that-gets-accepted"
+              >
+                guide on how to write a request that gets accepted
+              </StyledLink>{" "}
+              for some tips!
+            </Trans>
+          </Typography>
+        </div>
+      )}
       <div className={classes.buttonContainer}>
         {isHost ? (
           <>
