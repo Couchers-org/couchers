@@ -2,6 +2,7 @@ import { Snackbar } from "@material-ui/core";
 import { CloseIcon, NotificationNewIcon } from "components/Icons";
 import { useTranslation } from "i18n";
 import React, { createContext, ReactNode, useContext, useState } from "react";
+import { theme } from "theme";
 import makeStyles from "utils/makeStyles";
 
 type AlertSeverity = "info" | "success" | "warning" | "error";
@@ -13,19 +14,16 @@ export enum AlertSeverityEnum {
   ERROR = "error",
 }
 
-// Define the shape of the notification state
 interface NotificationState {
   open: boolean;
   message: string;
   severity?: AlertSeverity;
 }
 
-// Define the NotificationContext value
 interface NotificationContextType {
   showNotification: (message: string, severity?: AlertSeverityEnum) => void;
 }
 
-// Create the NotificationContext with an initial value of undefined
 const NotificationContext = createContext<NotificationContextType | undefined>(
   undefined
 );
@@ -41,7 +39,6 @@ export const useSendNotification = (): NotificationContextType => {
   return context;
 };
 
-// Define the props for the NotificationProvider component
 interface NotificationProviderProps {
   children: ReactNode;
 }
@@ -53,15 +50,27 @@ const useStyles = makeStyles((theme) => ({
   message: {
     display: "flex",
     alignItems: "center",
-    fontSize: ".75rem",
+    fontSize: ".8rem",
     height: "100%",
     width: "100%",
+
+    "@media (max-width: 600px)": {
+      fontSize: "1rem",
+    },
   },
   root: {
     "&.MuiSnackbar-root": {
       transform: "unset",
-      width: "380px",
-      height: "80px",
+      width: "90%",
+      maxWidth: "380px",
+      height: "auto",
+      minHeight: "80px",
+
+      "@media (max-width: 600px)": {
+        margin: "0 auto",
+        width: "100%",
+        height: "auto",
+      },
     },
     "& .MuiSnackbarContent-root": {
       flexGrow: "1",
@@ -114,10 +123,16 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         open={notification.open}
         autoHideDuration={6000}
         onClose={handleClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
         message={
           <div className={classes.message}>
-            <NotificationNewIcon className={classes.icon} />
+            <NotificationNewIcon
+              className={classes.icon}
+              htmlColor={theme.palette.primary.main}
+            />
             {notification.message}
           </div>
         }
