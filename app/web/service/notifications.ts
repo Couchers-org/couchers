@@ -51,7 +51,9 @@ export async function getVapidPublicKey() {
   return res.toObject();
 }
 
-export async function registerPushNotification(subscription: PushSubscription) {
+export async function registerPushNotificationSubscription(
+  subscription: PushSubscription
+) {
   const req = new RegisterPushNotificationReq();
   req.setEndpoint(subscription.endpoint);
   req.setAuthKey(arrayBufferToBase64(subscription.getKey("auth")!));

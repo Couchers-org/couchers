@@ -17,7 +17,7 @@ import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
 import {
   getVapidPublicKey,
-  registerPushNotification,
+  registerPushNotificationSubscription,
 } from "service/notifications";
 import { theme } from "theme";
 import { arrayBufferToBase64 } from "utils/arrayBufferToBase64";
@@ -64,24 +64,25 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
         const existingPushSubscription =
           await registration.pushManager.getSubscription();
         const p256dhKey = existingPushSubscription?.getKey("p256dh");
+        const { vapidPublicKey } = await getVapidPublicKey();
 
         if (existingPushSubscription && p256dhKey) {
           const publicKey = arrayBufferToBase64(p256dhKey);
-          if (publicKey !== process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
+
+          if (publicKey !== vapidPublicKey) {
             await existingPushSubscription.unsubscribe();
           } else {
             return;
           }
         }
 
-        const { vapidPublicKey } = await getVapidPublicKey();
         const subscription: PushSubscription =
           await registration.pushManager.subscribe({
             userVisibleOnly: true,
             applicationServerKey: vapidPublicKey,
           });
 
-        await registerPushNotification(subscription);
+        await registerPushNotificationSubscription(subscription);
       } catch (error) {
         console.error("Service Worker registration failed:", error);
       }
