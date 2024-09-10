@@ -15,7 +15,10 @@ import Sentry from "platform/sentry";
 import { ReactNode, useEffect } from "react";
 import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
-import { registerPushNotification } from "service/notifications";
+import {
+  getVapidPublicKey,
+  registerPushNotification,
+} from "service/notifications";
 import { theme } from "theme";
 import { arrayBufferToBase64 } from "utils/arrayBufferToBase64";
 
@@ -57,6 +60,7 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
           "Service Worker registered with scope:",
           registration.scope
         );
+
         const existingPushSubscription =
           await registration.pushManager.getSubscription();
         const p256dhKey = existingPushSubscription?.getKey("p256dh");
@@ -70,15 +74,16 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
           }
         }
 
+        const { vapidPublicKey } = await getVapidPublicKey();
         const subscription: PushSubscription =
           await registration.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+            applicationServerKey: vapidPublicKey,
           });
 
         await registerPushNotification(subscription);
       } catch (error) {
-        console.log("Service Worker registration failed:", error);
+        console.error("Service Worker registration failed:", error);
       }
     };
 
@@ -92,7 +97,7 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
             console.log("Notification permission denied.");
           }
         } catch (error) {
-          console.log("Error requesting notification permission:", error);
+          console.error("Error requesting notification permission:", error);
         }
       }
     };
@@ -101,7 +106,6 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
       const handleLoad = () => registerServiceWorker();
       window.addEventListener("load", handleLoad);
 
-      // Cleanup listener when component unmounts
       return () => window.removeEventListener("load", handleLoad);
     }
 
