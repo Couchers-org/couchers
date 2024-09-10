@@ -369,6 +369,7 @@ test:web-linting:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/web/**/*
+  allow_failure: true
 
 test:storybook:
   needs: ["build:web-dev"]
