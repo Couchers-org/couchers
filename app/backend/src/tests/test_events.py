@@ -478,6 +478,37 @@ def test_CreateEvent(db):
         assert e.value.details() == errors.EVENT_TOO_LONG
 
 
+def test_CreateEvent_incomplete_profile(db):
+    user1, token1 = generate_user(complete_profile=False)
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateEvent(
+                events_pb2.CreateEventReq(
+                    title="Dummy Title",
+                    content="Dummy content.",
+                    photo_key=None,
+                    offline_information=events_pb2.OfflineEventInformation(
+                        address="Near Null Island",
+                        lat=0.1,
+                        lng=0.2,
+                    ),
+                    start_time=Timestamp_from_datetime(start_time),
+                    end_time=Timestamp_from_datetime(end_time),
+                    timezone="UTC",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.INCOMPLETE_PROFILE_CREATE_EVENT
+
+
 def test_ScheduleEvent(db):
     # test cases:
     # can schedule a new event occurrence

@@ -770,7 +770,7 @@ def test_send_message_notifications_seen(db):
 
 def test_send_onboarding_emails(db):
     # needs to get first onboarding email
-    user1, token1 = generate_user(onboarding_emails_sent=0, last_onboarding_email_sent=None)
+    user1, token1 = generate_user(onboarding_emails_sent=0, last_onboarding_email_sent=None, complete_profile=False)
 
     send_onboarding_emails(empty_pb2.Empty())
     process_jobs()
@@ -784,7 +784,9 @@ def test_send_onboarding_emails(db):
         )
 
     # needs to get second onboarding email, but not yet
-    user2, token2 = generate_user(onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=6))
+    user2, token2 = generate_user(
+        onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=6), complete_profile=False
+    )
 
     send_onboarding_emails(empty_pb2.Empty())
     process_jobs()
@@ -798,7 +800,9 @@ def test_send_onboarding_emails(db):
         )
 
     # needs to get second onboarding email
-    user3, token3 = generate_user(onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=8))
+    user3, token3 = generate_user(
+        onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=8), complete_profile=False
+    )
 
     send_onboarding_emails(empty_pb2.Empty())
     process_jobs()
