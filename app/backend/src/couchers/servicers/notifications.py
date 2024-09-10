@@ -120,7 +120,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             sub_id = subscription.id
             push_to_subscription(
                 session,
-                sub_id,
+                push_notification_subscription_id=sub_id,
+                user_id=context.user_id,
+                topic_action="adhoc:setup",
                 title="Checking push notifications work!",
                 body="Hi, thanks for enabling push notifications!",
             )
@@ -133,7 +135,8 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         with session_scope() as session:
             push_to_user(
                 session,
-                context.user_id,
+                user_id=context.user_id,
+                topic_action="adhoc:testing",
                 title="Checking push notifications work!",
                 body="If you see this, then it's working :)",
             )
