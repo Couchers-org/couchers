@@ -6,6 +6,7 @@ import { EnvironmentBanner } from "components/EnvironmentBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import HtmlMeta from "components/HtmlMeta";
 import AuthProvider from "features/auth/AuthProvider";
+import { NotificationProvider } from "features/auth/notifications/NotificationContext";
 import { ReactQueryClientProvider } from "features/reactQueryClient";
 import type { AppProps } from "next/app";
 import { appWithTranslation } from "next-i18next";
@@ -14,7 +15,9 @@ import Sentry from "platform/sentry";
 import { ReactNode, useEffect } from "react";
 import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
+import { registerPushNotification } from "service/notifications";
 import { theme } from "theme";
+import { arrayBufferToBase64 } from "utils/arrayBufferToBase64";
 
 type AppWithLayoutProps = Omit<AppProps, "Component"> & {
   Component: AppProps["Component"] & {
@@ -43,15 +46,81 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
     }
   }, []);
 
+  useEffect(() => {
+    const registerServiceWorker = async () => {
+      try {
+        const registration = await navigator.serviceWorker.register(
+          "/service-worker.js",
+          { scope: "/" }
+        );
+        console.log(
+          "Service Worker registered with scope:",
+          registration.scope
+        );
+        const existingPushSubscription =
+          await registration.pushManager.getSubscription();
+        const p256dhKey = existingPushSubscription?.getKey("p256dh");
+
+        if (existingPushSubscription && p256dhKey) {
+          const publicKey = arrayBufferToBase64(p256dhKey);
+          if (publicKey !== process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
+            await existingPushSubscription.unsubscribe();
+          } else {
+            return;
+          }
+        }
+
+        const subscription: PushSubscription =
+          await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+          });
+
+        await registerPushNotification(subscription);
+      } catch (error) {
+        console.log("Service Worker registration failed:", error);
+      }
+    };
+
+    const requestNotificationPermission = async () => {
+      if (Notification.permission === "default") {
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission === "granted") {
+            console.log("Notification permission granted.");
+          } else {
+            console.log("Notification permission denied.");
+          }
+        } catch (error) {
+          console.log("Error requesting notification permission:", error);
+        }
+      }
+    };
+
+    if ("serviceWorker" in navigator) {
+      const handleLoad = () => registerServiceWorker();
+      window.addEventListener("load", handleLoad);
+
+      // Cleanup listener when component unmounts
+      return () => window.removeEventListener("load", handleLoad);
+    }
+
+    if (typeof window !== "undefined" && "Notification" in window) {
+      requestNotificationPermission();
+    }
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <ErrorBoundary isFatal>
         <ReactQueryClientProvider>
           <AuthProvider>
-            <CssBaseline />
-            <EnvironmentBanner />
-            <HtmlMeta />
-            {getLayout(<Component {...pageProps} />)}
+            <NotificationProvider>
+              <CssBaseline />
+              <EnvironmentBanner />
+              <HtmlMeta />
+              {getLayout(<Component {...pageProps} />)}
+            </NotificationProvider>
           </AuthProvider>
         </ReactQueryClientProvider>
       </ErrorBoundary>

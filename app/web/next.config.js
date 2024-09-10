@@ -73,6 +73,15 @@ module.exports = {
         },
       ],
     },
+    {
+      source: "/service-worker.js",
+      headers: [
+        {
+          key: "service-worker-allowed",
+          value: "/",
+        },
+      ],
+    },
   ],
   experimental: {
     outputStandalone: true,
