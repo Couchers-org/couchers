@@ -7,7 +7,7 @@ import { routeToCreateMessage, routeToGroupChat } from "routes";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
-import { MockedService } from "test/utils";
+import { MockedService, t } from "test/utils";
 
 const setErrorMock = jest.fn();
 const getDirectMessageMock = service.conversations
@@ -32,13 +32,15 @@ const accountInfo = {
   doNotEmail: false,
 };
 
+const incompleteAccountInfo = { ...accountInfo, profileComplete: false };
+
 describe("MessageUserButton", () => {
   beforeEach(() => {
     setErrorMock.mockClear();
-    getAccountInfoMock.mockResolvedValue(accountInfo);
   });
 
   it("redirects to thread if dm exists", async () => {
+    getAccountInfoMock.mockResolvedValue(accountInfo);
     getDirectMessageMock.mockResolvedValueOnce(99);
     const user = users[0];
     render(<MessageUserButton user={user} setMutationError={setErrorMock} />, {
@@ -57,6 +59,7 @@ describe("MessageUserButton", () => {
   });
 
   it("redirects to chat tab with state if dm doesn't exist", async () => {
+    getAccountInfoMock.mockResolvedValue(accountInfo);
     getDirectMessageMock.mockResolvedValueOnce(false);
     const user = users[0];
     render(<MessageUserButton user={user} setMutationError={setErrorMock} />, {
@@ -73,6 +76,31 @@ describe("MessageUserButton", () => {
 
     await waitFor(() =>
       expect(mockRouter.asPath).toBe(routeToCreateMessage(user.username))
+    );
+  });
+
+  it("pops up incomplete profile note if profile is incomplete", async () => {
+    getAccountInfoMock.mockResolvedValue(incompleteAccountInfo);
+    getDirectMessageMock.mockResolvedValueOnce(false);
+    const user = users[0];
+    render(<MessageUserButton user={user} setMutationError={setErrorMock} />, {
+      wrapper,
+    });
+
+    const button = screen.getByRole("button");
+
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
+
+    userEvent.click(button);
+
+    await waitFor(async () =>
+      expect(
+        await screen.findByLabelText(
+          t("dashboard:complete_profile_dialog.title")
+        )
+      ).toBeVisible()
     );
   });
 });
