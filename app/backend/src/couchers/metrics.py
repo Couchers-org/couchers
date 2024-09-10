@@ -8,7 +8,6 @@ from sqlalchemy.sql import func
 from couchers.db import session_scope
 from couchers.models import EventOccurrenceAttendee, HostingStatus, HostRequest, Message, Reference, User
 from couchers.sql import couchers_select as select
-from couchers.utils import now
 
 main_process_registry = CollectorRegistry()
 job_process_registry = CollectorRegistry()
@@ -63,15 +62,15 @@ active_users_gauges = [
     _make_gauge_from_query(
         f"couchers_active_users_{name}",
         f"Number of active users in the last {description}",
-        (select(func.count()).select_from(User).where(User.is_visible).where(User.last_active > now() - interval)),
+        (select(func.count()).select_from(User).where(User.is_visible).where(User.last_active > func.now() - interval)),
     )
     for name, description, interval in [
         ("5m", "5 min", timedelta(minutes=5)),
         ("24h", "24 hours", timedelta(hours=24)),
         ("1month", "1 month", timedelta(days=31)),
-        ("3month", "3 months", timedelta(hours=92)),
-        ("6month", "6 months", timedelta(hours=183)),
-        ("12month", "12 months", timedelta(hours=365)),
+        ("3month", "3 months", timedelta(days=92)),
+        ("6month", "6 months", timedelta(days=183)),
+        ("12month", "12 months", timedelta(days=365)),
     ]
 ]
 
