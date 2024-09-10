@@ -18,6 +18,9 @@ if [[ "$OS" == "Linux" && "$ARCH" == "x86_64" ]]; then
 elif [[ "$OS" == "Darwin" && "$ARCH" == "arm64" ]]; then
     OS_ARCH="osx-aarch_64"
     OS_ARCH_GRPC_WEB="darwin-aarch64"
+elif [[ "$OS" == "Darwin" && "$ARCH" == "x86_64" ]]; then
+    OS_ARCH="osx-x86_64"
+    OS_ARCH_GRPC_WEB="darwin-x86_64"
 else
     echo "Not one of the known builders!"
     exit 1
