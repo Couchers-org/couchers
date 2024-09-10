@@ -17,6 +17,7 @@ import {
 } from "components/Dialog";
 import { BugIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
+import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -116,7 +117,10 @@ export default function ReportButton({
         <Snackbar severity="success">
           <>
             {t("report.bug.success_message")}
-            <Link href={bug.bugUrl}>{bug.bugId}</Link>.
+            <StyledLink variant="body2" href={bug.bugUrl}>
+              {bug.bugId}
+            </StyledLink>
+            .
           </>
         </Snackbar>
       )}
