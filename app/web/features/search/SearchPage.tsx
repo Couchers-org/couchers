@@ -72,6 +72,7 @@ export default function SearchPage({
   const map = useRef<MaplibreMap>();
 
   // State
+  const [wasSearchPerformed, setWasSearchPerformed] = useState(false);
   const [locationResult, setLocationResult] = useState({
     bbox: bbox,
     isRegion: false,
@@ -139,9 +140,20 @@ export default function SearchPage({
   // Relocate map everytime boundingbox changes
   useEffect(() => {
     map.current?.fitBounds(locationResult.bbox, {
-      maxZoom: selectedUserZoom,
+      // maxZoom: selectedUserZoom, // TODO: first render
     });
   }, [locationResult.bbox]);
+
+  /**
+   * Tracks whether a search was perform after the first render (always show all the users of the platform on the first render)
+   */
+  useEffect(() => {
+    if (!wasSearchPerformed) {
+      if (lastActiveFilter !== 0 || hostingStatusFilter !== 0 || numberOfGuestFilter !== undefined || completeProfileFilter !== true) {
+        setWasSearchPerformed(true);
+      }
+    }
+  }, [lastActiveFilter, hostingStatusFilter, numberOfGuestFilter, completeProfileFilter])
 
   const errorMessage = error?.message;
 
@@ -216,6 +228,8 @@ export default function SearchPage({
             setLocationResult={setLocationResult}
             setSelectedResult={setSelectedResult}
             isLoading={isLoading || isFetching}
+            setWasSearchPerformed={setWasSearchPerformed}
+            wasSearchPerformed={wasSearchPerformed}
           />
         </div>
       </div>

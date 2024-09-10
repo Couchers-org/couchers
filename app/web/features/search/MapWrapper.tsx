@@ -2,6 +2,7 @@ import ReplayIcon from "@material-ui/icons/Replay";
 import TuneIcon from "@material-ui/icons/Tune";
 import Button from "components/Button";
 import Map from "components/Map";
+import { LngLat } from "maplibre-gl";
 import {
   addClusteredUsersToMap,
   filterData,
@@ -77,6 +78,8 @@ interface mapWrapperProps {
     >
   >;
   map: MutableRefObject<MaplibreMap | undefined>;
+  setWasSearchPerformed: any;
+  wasSearchPerformed: any;
 }
 
 export default function MapWrapper({
@@ -88,6 +91,8 @@ export default function MapWrapper({
   results,
   setSelectedResult,
   setIsFiltersOpen,
+  wasSearchPerformed,
+  setWasSearchPerformed,
 }: mapWrapperProps) {
   const { t } = useTranslation([SEARCH]);
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
@@ -212,7 +217,7 @@ export default function MapWrapper({
    * Re-renders users list on map (when results array changed)
    */
   useEffect(() => {
-    if (isMapStyleLoaded && isMapSourceLoaded) {
+    if (isMapStyleLoaded && isMapSourceLoaded && wasSearchPerformed) {
       if (results) {
         const usersToRender = filterData(results);
         reRenderUsersOnMap(map.current!, usersToRender, handleMapUserClick);
@@ -239,6 +244,7 @@ export default function MapWrapper({
           ],
         });
       }
+      setWasSearchPerformed(true);
     }
   };
 
@@ -246,7 +252,7 @@ export default function MapWrapper({
     map.current = newMap;
     newMap.on("load", () => {
       addClusteredUsersToMap(newMap);
-      handleOnClick();
+      // handleOnClick(); TODO: disabled for now
     });
 
     newMap.on("styledata", function () {
@@ -284,8 +290,8 @@ export default function MapWrapper({
       </div>
       <Map
         grow
-        initialCenter={locationResult.Location}
-        initialZoom={5}
+        initialCenter={new LngLat(0, 0)}
+        initialZoom={1}
         postMapInitialize={initializeMap}
         hash
       />
