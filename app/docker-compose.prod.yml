@@ -135,6 +135,7 @@ services:
     expose:
       - 4317
     environment:
+      - MEMORY_MAX_TRACES=10000
       - COLLECTOR_OTLP_ENABLED=true
     networks:
       - backend_jaeger
