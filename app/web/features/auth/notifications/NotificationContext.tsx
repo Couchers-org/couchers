@@ -1,6 +1,8 @@
 import { Snackbar } from "@material-ui/core";
-import Alert from "components/Alert";
+import { CloseIcon, NotificationNewIcon } from "components/Icons";
+import { useTranslation } from "i18n";
 import React, { createContext, ReactNode, useContext, useState } from "react";
+import makeStyles from "utils/makeStyles";
 
 type AlertSeverity = "info" | "success" | "warning" | "error";
 
@@ -44,9 +46,42 @@ interface NotificationProviderProps {
   children: ReactNode;
 }
 
+const useStyles = makeStyles((theme) => ({
+  icon: {
+    marginRight: theme.spacing(2),
+  },
+  message: {
+    display: "flex",
+    alignItems: "center",
+    fontSize: ".75rem",
+    height: "100%",
+    width: "100%",
+  },
+  root: {
+    "&.MuiSnackbar-root": {
+      transform: "unset",
+      width: "380px",
+      height: "80px",
+    },
+    "& .MuiSnackbarContent-root": {
+      flexGrow: "1",
+      flexWrap: "nowrap",
+      backgroundColor: "white",
+      color: theme.palette.text.primary,
+      border: `2px solid ${theme.palette.primary.main}`,
+      borderRadius: theme.shape.borderRadius,
+      width: "100%",
+      height: "100%",
+    },
+  },
+}));
+
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   children,
 }) => {
+  const { t } = useTranslation();
+  const classes = useStyles();
+
   const [notification, setNotification] = useState<NotificationState>({
     open: false,
     message: "",
@@ -75,15 +110,26 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     <NotificationContext.Provider value={{ showNotification }}>
       {children}
       <Snackbar
+        className={classes.root}
         open={notification.open}
         autoHideDuration={6000}
         onClose={handleClose}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert onClose={handleClose} severity={notification.severity}>
-          {notification.message}
-        </Alert>
-      </Snackbar>
+        message={
+          <div className={classes.message}>
+            <NotificationNewIcon className={classes.icon} />
+            {notification.message}
+          </div>
+        }
+        action={
+          <CloseIcon
+            aria-label={t("close")}
+            color="action"
+            onClick={handleClose}
+            fontSize="small"
+          />
+        }
+      ></Snackbar>
     </NotificationContext.Provider>
   );
 };
