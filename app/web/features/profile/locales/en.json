@@ -62,6 +62,7 @@
         "wheelchair": "Wheelchair accessible",
         "other_info": "Additional information"
     },
+    "edit_profile_helper_text": "Looking for some inspiration on where to start? <2>Check out our guide on creating an awesome profile</2>.",
     "edit_profile_headings": {
         "regions_visited": "Regions I've Visited",
         "regions_lived": "Regions I've Lived In",

@@ -17,6 +17,10 @@ const useStyles = makeStyles((theme) => ({
       width: "100%",
     },
   },
+  helpTextContainer: {
+    textAlign: "center",
+    margin: theme.spacing(2),
+  },
   buttonContainer: {
     position: "fixed",
     bottom: 0,
