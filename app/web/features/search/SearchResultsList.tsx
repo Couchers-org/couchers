@@ -4,6 +4,7 @@ import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
 import SearchResult from "features/search/SearchResult";
+import { useUser } from "features/userQueries/useUsers";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
@@ -83,8 +84,8 @@ interface mapWrapperProps {
   hasNext?: boolean | undefined;
   fetchNextPage: () => void;
   selectedResult:
-    | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
-    | undefined;
+  | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
+  | undefined;
   setSelectedResult: Dispatch<
     SetStateAction<
       Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
@@ -96,6 +97,7 @@ interface mapWrapperProps {
   setLocationResult: Dispatch<SetStateAction<any>>;
   setQueryName: Dispatch<SetStateAction<undefined | string>>;
   queryName: undefined | string;
+  wasSearchPerformed: any;
 }
 
 export default function SearchResultsList({
@@ -112,7 +114,9 @@ export default function SearchResultsList({
   setLocationResult,
   setQueryName,
   queryName,
+  wasSearchPerformed,
 }: mapWrapperProps) {
+  const selectedUserData = useUser(selectedResult?.userId);
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
   const hasAtLeastOnePageResults =
@@ -150,7 +154,7 @@ export default function SearchResultsList({
             fetchNext={fetchNextPage}
             hasMore={hasNext}
           >
-            {results?.pages
+            {!selectedResult && results?.pages
               .flatMap((page) => page.resultsList)
               .filter((result) => result.user)
               .map((result) => (
@@ -161,10 +165,10 @@ export default function SearchResultsList({
                   user={result.user!}
                   onSelect={() => {
                     setSelectedResult({
-                      username: result.user?.username as string,
-                      userId: result.user?.userId as number,
-                      lng: result.user?.lng as number,
-                      lat: result.user?.lat as number,
+                      username: result.user!.username,
+                      userId: result.user!.userId,
+                      lng: result.user!.lng,
+                      lat: result.user!.lat,
                     });
                   }}
                   highlight={
@@ -173,8 +177,32 @@ export default function SearchResultsList({
                   }
                 />
               ))}
+
+              {!wasSearchPerformed && selectedResult && (
+                <>
+                  {selectedUserData.data && (
+                    <SearchResult
+                      id={`search-result-${selectedUserData.data.userId}`}
+                      className={classes.singleResult}
+                      key={selectedUserData.data.userId}
+                      user={selectedUserData.data as any}
+                      onSelect={() => {
+                        setSelectedResult({
+                          username: selectedUserData.data!.username,
+                          userId: selectedUserData.data!.userId,
+                          lng: selectedUserData.data!.lng,
+                          lat: selectedUserData.data!.lat,
+                        });
+                      }}
+                      highlight={selectedResult && selectedUserData.data.userId === selectedResult.userId}
+                    />
+                  )}
+                </>
+              )}
           </HorizontalScroller>
         )}
+
+
       </>
     </Paper>
   );

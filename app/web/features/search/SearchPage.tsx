@@ -1,6 +1,6 @@
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
 import HtmlMeta from "components/HtmlMeta";
-import { Coordinates, selectedUserZoom } from "features/search/constants";
+import { Coordinates } from "features/search/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { Map as MaplibreMap } from "maplibre-gl";
@@ -177,6 +177,7 @@ export default function SearchPage({
             selectedResult={selectedResult}
             setSelectedResult={setSelectedResult}
             isLoading={isLoading || isFetching}
+            wasSearchPerformed={wasSearchPerformed}
           />
         </Hidden>
         {/* Mobile */}
@@ -200,6 +201,7 @@ export default function SearchPage({
               selectedResult={selectedResult}
               setSelectedResult={setSelectedResult}
               isLoading={isLoading || isFetching}
+              wasSearchPerformed={wasSearchPerformed}
             />
           </Collapse>
         </Hidden>
