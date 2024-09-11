@@ -130,6 +130,22 @@ def test_create_request(db):
     assert e.value.details() == errors.DATE_TO_AFTER_ONE_YEAR
 
 
+def test_create_request_incomplete_profile(db):
+    user1, token1 = generate_user(complete_profile=False)
+    user2, _ = generate_user()
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    with requests_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+    assert e.value.details() == errors.INCOMPLETE_PROFILE_SEND_REQUEST
+
+
 def add_message(db, text, author_id, conversation_id):
     with session_scope() as session:
         message = Message(

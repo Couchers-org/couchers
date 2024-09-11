@@ -319,7 +319,7 @@ def test_list_notifications(db, push_collector):
     assert n.key == "2"
     assert n.title == f"{user2.name} wants to be your friend"
     assert n.body == f"You've received a friend request from {user2.name}"
-    assert n.icon == "http://localhost:3000/logo512.png"
+    assert n.icon.startswith("http://localhost:5001/img/thumbnail/")
     assert n.url == "http://localhost:3000/connections/friends/"
 
     with conversations_session(token2) as c:

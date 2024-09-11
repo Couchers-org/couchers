@@ -360,41 +360,44 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
 
 class Events(events_pb2_grpc.EventsServicer):
     def CreateEvent(self, request, context):
-        if not request.title:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_TITLE)
-        if not request.content:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_CONTENT)
-        if request.HasField("online_information"):
-            online = True
-            geom = None
-            address = None
-            if not request.online_information.link:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ONLINE_EVENT_REQUIRES_LINK)
-            link = request.online_information.link
-        elif request.HasField("offline_information"):
-            online = False
-            # As protobuf parses a missing value as 0.0, this is not a permitted event coordinate value
-            if not (
-                request.offline_information.address
-                and request.offline_information.lat
-                and request.offline_information.lng
-            ):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_ADDRESS_OR_LOCATION)
-            if request.offline_information.lat == 0 and request.offline_information.lng == 0:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
-            geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
-            address = request.offline_information.address
-            link = None
-        else:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_ADDRESS_LOCATION_OR_LINK)
-
-        start_time = to_aware_datetime(request.start_time)
-        end_time = to_aware_datetime(request.end_time)
-
-        _check_occurrence_time_validity(start_time, end_time, context)
-
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            if not user.has_completed_profile:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.INCOMPLETE_PROFILE_CREATE_EVENT)
+
+            if not request.title:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_TITLE)
+            if not request.content:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_CONTENT)
+            if request.HasField("online_information"):
+                online = True
+                geom = None
+                address = None
+                if not request.online_information.link:
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ONLINE_EVENT_REQUIRES_LINK)
+                link = request.online_information.link
+            elif request.HasField("offline_information"):
+                online = False
+                # As protobuf parses a missing value as 0.0, this is not a permitted event coordinate value
+                if not (
+                    request.offline_information.address
+                    and request.offline_information.lat
+                    and request.offline_information.lng
+                ):
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_ADDRESS_OR_LOCATION)
+                if request.offline_information.lat == 0 and request.offline_information.lng == 0:
+                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+                geom = create_coordinate(request.offline_information.lat, request.offline_information.lng)
+                address = request.offline_information.address
+                link = None
+            else:
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_EVENT_ADDRESS_LOCATION_OR_LINK)
+
+            start_time = to_aware_datetime(request.start_time)
+            end_time = to_aware_datetime(request.end_time)
+
+            _check_occurrence_time_validity(start_time, end_time, context)
+
             if request.parent_community_id:
                 parent_node = session.execute(
                     select(Node).where(Node.id == request.parent_community_id)
