@@ -910,9 +910,9 @@ def test_add_users_to_email_list(db):
             add_users_to_email_list(empty_pb2.Empty())
         mock.assert_not_called()
 
-        generate_user(in_sync_with_newsletter=False, email="testing1@couchers.invalid", name="Tester1")
+        generate_user(in_sync_with_newsletter=False, email="testing1@couchers.invalid", name="Tester1", id=15)
         generate_user(in_sync_with_newsletter=True, email="testing2@couchers.invalid", name="Tester2")
-        generate_user(in_sync_with_newsletter=False, email="testing3@couchers.invalid", name="Tester3 von test")
+        generate_user(in_sync_with_newsletter=False, email="testing3@couchers.invalid", name="Tester3 von test", id=17)
         generate_user(
             in_sync_with_newsletter=False, email="testing4@couchers.invalid", name="Tester4", opt_out_of_newsletter=True
         )
@@ -931,6 +931,7 @@ def test_add_users_to_email_list(db):
                         "name": "Tester1",
                         "list_uuids": ["baf96eaa-5e70-409d-b776-f5c16fb091b9"],
                         "preconfirm_subscriptions": True,
+                        "attribs": {"couchers_user_id": 15},
                     },
                     timeout=10,
                 ),
@@ -942,6 +943,7 @@ def test_add_users_to_email_list(db):
                         "name": "Tester3 von test",
                         "list_uuids": ["baf96eaa-5e70-409d-b776-f5c16fb091b9"],
                         "preconfirm_subscriptions": True,
+                        "attribs": {"couchers_user_id": 17},
                     },
                     timeout=10,
                 ),
