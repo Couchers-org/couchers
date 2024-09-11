@@ -268,6 +268,10 @@ class Account(account_pb2_grpc.AccountServicer):
 
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+            if not user.has_donated:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_DONATED)
+
             if not phone:
                 user.phone = None
                 user.phone_verification_verified = None
@@ -310,9 +314,6 @@ class Account(account_pb2_grpc.AccountServicer):
 
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-
-            if not user.has_donated:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_DONATED)
 
             if user.phone_verification_token is None:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PENDING_VERIFICATION)

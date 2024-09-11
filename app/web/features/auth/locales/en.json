@@ -300,6 +300,7 @@
   },
   "change_phone": {
     "title": "Phone number",
+    "need_to_donate": "You need to <2>donate</2> before you can complete phone verification.",
     "no_phone_description": "You have not added a phone number to your account. To add one, enter it below. We will verify it with a text message.",
     "phone_label": "Your phone number",
     "add_button_text": "Add phone number",
