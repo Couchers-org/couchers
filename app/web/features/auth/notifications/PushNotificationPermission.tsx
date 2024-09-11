@@ -1,13 +1,15 @@
 import { Typography } from "@material-ui/core";
 import Alert from "components/Alert";
-import Button from "components/Button";
+import CustomColorSwitch from "components/CustomColorSwitch";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
+import { Trans } from "next-i18next";
 import { useState } from "react";
 import {
   getVapidPublicKey,
   registerPushNotificationSubscription,
 } from "service/notifications";
+import { theme } from "theme";
 import { arrayBufferToBase64 } from "utils/arrayBufferToBase64";
 import makeStyles from "utils/makeStyles";
 
@@ -16,11 +18,12 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(3),
     marginTop: theme.spacing(2),
   },
-  turnOffButton: {
-    backgroundColor: theme.palette.error.main,
-    "&:hover": {
-      backgroundColor: theme.palette.error.dark,
-    },
+  status: {
+    marginBottom: theme.spacing(2),
+  },
+  titleBox: {
+    display: "flex",
+    alignItems: "center",
   },
 }));
 
@@ -35,6 +38,7 @@ export default function PushNotificationPermission({
 }) {
   const [permission, setPermission] = useState(Notification.permission);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const hasPermission = permission === "granted";
 
   const { t } = useTranslation(AUTH);
   const classes = useStyles();
@@ -87,9 +91,8 @@ export default function PushNotificationPermission({
     }
   };
 
-  const handleTurnOnClick = async () => {
+  const turnPushNotificationsOn = async () => {
     if (permission === "default") {
-      // Request permission to send notifications
       const result = await Notification.requestPermission();
       setPermission(result);
 
@@ -100,12 +103,10 @@ export default function PushNotificationPermission({
           "You've blocked notifications. Please enable notifications in your browser settings to continue."
         );
       }
-    } else if (permission === "granted") {
-      return;
     }
   };
 
-  const handleTurnOffClick = async () => {
+  const turnPushNotificationsOff = async () => {
     const registration = await navigator.serviceWorker.register(
       "/service-worker.js",
       { scope: "/" }
@@ -119,28 +120,45 @@ export default function PushNotificationPermission({
     setPermission("default");
   };
 
+  const handleClick = async () => {
+    if (hasPermission) {
+      await turnPushNotificationsOff();
+    } else {
+      await turnPushNotificationsOn();
+    }
+  };
+
   return (
     <div className={className}>
-      <Typography variant="h2">
-        {t("notification_settings.push_notifications.title")}
-      </Typography>
+      <div className={classes.titleBox}>
+        <Typography variant="h2">
+          {t("notification_settings.push_notifications.title")}
+        </Typography>
+        <CustomColorSwitch
+          checked={hasPermission}
+          onClick={handleClick}
+          color={theme.palette.primary.main}
+        />
+      </div>
       {errorMessage && (
         <Alert className={classes.alert} severity="error">
           {errorMessage || "Unknown error"}
         </Alert>
       )}
+      <Typography variant="body1" className={classes.status}>
+        {hasPermission ? (
+          <Trans i18nKey="notification_settings.push_notifications.enabled_message">
+            You currently have push notifications <strong>enabled</strong>.
+          </Trans>
+        ) : (
+          <Trans i18nKey="notification_settings.push_notifications.disabled_message">
+            You currently have push notifications <strong>disabled</strong>.
+          </Trans>
+        )}
+      </Typography>
       <Typography variant="body1">
         {t("notification_settings.push_notifications.description")}
       </Typography>
-      {permission === "granted" ? (
-        <Button onClick={handleTurnOffClick} className={classes.turnOffButton}>
-          {t("notification_settings.push_notifications.turn_off")}
-        </Button>
-      ) : (
-        <Button onClick={handleTurnOnClick}>
-          {t("notification_settings.push_notifications.turn_on")}
-        </Button>
-      )}
     </div>
   );
 }
