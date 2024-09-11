@@ -1,11 +1,10 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   GetNotificationSettingsReq,
-  RegisterPushNotificationReq,
+  RegisterPushNotificationSubscriptionReq,
   SetNotificationSettingsReq,
   SingleNotificationPreference,
 } from "proto/notifications_pb";
-import { arrayBufferToBase64 } from "utils/arrayBufferToBase64";
 
 import client from "./client";
 
@@ -57,7 +56,9 @@ export async function registerPushNotificationSubscription(
   const req = new RegisterPushNotificationSubscriptionReq();
   req.setFullSubscriptionJson(JSON.stringify(subscription));
   req.setUserAgent(navigator.userAgent);
-  const res = await client.notifications.RegisterPushNotificationSubscription(req);
+  const res = await client.notifications.registerPushNotificationSubscription(
+    req
+  );
 
   return res.toObject();
 }
