@@ -31,3 +31,17 @@ npx expo start
 This will start the expo server. You now need to run the Couchers-specific expo dev app on your phone and connect to this server.
 
 todo(aapeli): instructions
+
+## Random
+
+### Create a dev build for a physical iPhone
+
+Register the phone in [Expo](https://expo.dev/accounts/couchers-org/settings/apple-devices).
+
+```sh
+# install expo cli
+npm i --global eas-cli
+
+# build and pick the right phone, you'll need to log in
+eas build --profile development --platform ios
+```
