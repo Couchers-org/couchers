@@ -145,13 +145,18 @@ export default function MapWrapper({
   /**
    * Moves map to selected user's location
    */
-  const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
+  const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">, zoom = 0) => {
     map.current?.stop();
     map.current?.easeTo({
       center: [user.lng, user.lat],
+      // zoom: 14
     });
   }, []);
 
+  /**
+   * Centers selected user
+   * Unsets previous selected
+   */
   useEffect(() => {
     //unset the old feature selection on the map for styling
     if (previousResult) {

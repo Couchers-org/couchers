@@ -11,7 +11,6 @@ import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { Dispatch, SetStateAction } from "react";
 import { InfiniteData } from "react-query";
-import { Result } from "proto/search_pb";
 
 import SearchBox from "./SearchBox";
 
@@ -83,7 +82,6 @@ interface mapWrapperProps {
   results: InfiniteData<UserSearchRes.AsObject> | undefined;
   error?: string | undefined;
   hasNext?: boolean | undefined;
-  fetchNextPage: () => void;
   selectedResult:
   | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
   | undefined;
@@ -94,7 +92,6 @@ interface mapWrapperProps {
   >;
   searchType: string;
   locationResult: any;
-  wasSearchPerformed: any;
   setSearchType: Dispatch<SetStateAction<string>>;
   setLocationResult: Dispatch<SetStateAction<any>>;
   setQueryName: Dispatch<SetStateAction<undefined | string>>;
@@ -106,7 +103,6 @@ export default function SearchResultsList({
   results,
   error,
   hasNext,
-  fetchNextPage,
   selectedResult,
   setSelectedResult,
   searchType,
@@ -115,7 +111,6 @@ export default function SearchResultsList({
   setLocationResult,
   setQueryName,
   queryName,
-  wasSearchPerformed,
 }: mapWrapperProps) {
   const selectedUserData = useUser(selectedResult?.userId);
   const { t } = useTranslation(SEARCH);
@@ -123,7 +118,7 @@ export default function SearchResultsList({
   const hasAtLeastOnePageResults =
     results && results?.pages[0]?.resultsList?.length !== 0;
 
-  const resultsList: any = results?.pages
+  let resultsList: any = results?.pages
     .flatMap((page) => page.resultsList)
     .filter((result) => result.user);
 
@@ -135,7 +130,7 @@ export default function SearchResultsList({
   })
 
   if (!wasResultFound && selectedUserData.data) {
-    resultsList?.unshift({user: selectedUserData.data});
+    resultsList = [{user: selectedUserData.data}];
   }
 
   return (
@@ -154,7 +149,7 @@ export default function SearchResultsList({
       </Hidden>
 
       <>
-        {isLoading && <CircularProgress className={classes.baseMargin} />}
+        {isLoading || selectedUserData.isLoading && <CircularProgress className={classes.baseMargin} />}
 
         {!isLoading && !hasAtLeastOnePageResults && (
           <TextBody className={classes.baseMargin}>
@@ -167,7 +162,7 @@ export default function SearchResultsList({
             breakpoint="sm"
             className={classes.scroller}
             isFetching={isLoading}
-            fetchNext={fetchNextPage}
+            // fetchNext={fetchNextPage} // TODO: disabled for now (until pagination)
             hasMore={hasNext}
           >
             {resultsList && resultsList.map((result: any) => (
@@ -186,7 +181,7 @@ export default function SearchResultsList({
                 }}
                 highlight={
                   selectedResult &&
-                  result.user!.userId === selectedResult.userId
+                  selectedResult.userId === result.user!.userId 
                 }
               />
             ))}

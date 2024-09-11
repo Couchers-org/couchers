@@ -85,14 +85,14 @@ export default function SearchPage({
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
   const [hostingStatusFilter, setHostingStatusFilter] = useState(0);
   const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(undefined);
-  const [completeProfileFilter, setCompleteProfileFilter] = useState(true);
+  const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
   >(undefined);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   // Loads the list of users
-  const { data, error, isLoading, fetchNextPage, isFetching, hasNextPage } =
+  const { data, error, isLoading, isFetching, hasNextPage } =
     useInfiniteQuery<UserSearchRes.AsObject, Error>(
       [
         "userSearch",
@@ -147,7 +147,7 @@ export default function SearchPage({
    */
   useEffect(() => {
     if (!wasSearchPerformed) {
-      if (lastActiveFilter !== 0 || hostingStatusFilter !== 0 || numberOfGuestFilter !== undefined || completeProfileFilter !== true) {
+      if (lastActiveFilter !== 0 || hostingStatusFilter !== 0 || numberOfGuestFilter !== undefined || completeProfileFilter !== false) {
         setWasSearchPerformed(true);
       }
     }
@@ -171,11 +171,9 @@ export default function SearchPage({
             results={data}
             error={errorMessage}
             hasNext={hasNextPage}
-            fetchNextPage={fetchNextPage}
             selectedResult={selectedResult}
             setSelectedResult={setSelectedResult}
             isLoading={isLoading || isFetching}
-            wasSearchPerformed={wasSearchPerformed}
           />
         </Hidden>
         {/* Mobile */}
@@ -195,11 +193,9 @@ export default function SearchPage({
               results={data}
               error={errorMessage}
               hasNext={hasNextPage}
-              fetchNextPage={fetchNextPage}
               selectedResult={selectedResult}
               setSelectedResult={setSelectedResult}
               isLoading={isLoading || isFetching}
-              wasSearchPerformed={wasSearchPerformed}
             />
           </Collapse>
         </Hidden>
