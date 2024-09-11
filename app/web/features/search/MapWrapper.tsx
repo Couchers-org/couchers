@@ -145,7 +145,7 @@ export default function MapWrapper({
   /**
    * Moves map to selected user's location
    */
-  const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">, zoom = 0) => {
+  const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
     map.current?.stop();
     map.current?.easeTo({
       center: [user.lng, user.lat],
