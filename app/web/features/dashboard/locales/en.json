@@ -5,6 +5,18 @@
   "upload_photo": "2. Upload a photo (by clicking on the avatar on the edit page)",
   "edit_profile_button_text": "Edit your profile",
   "complete_profile_explanation": "Don't you hate how other platforms have empty \"ghost\" profiles with no information. Please don't ghost us! 👻👻👻",
+  "complete_profile_dialog": {
+    "title": "Almost there: please complete your profile to continue!",
+    "description_1": "Before you can {{action_name}}, you must <4>write a bit about yourself</4> in your profile and <7>upload a profile photo</7>.",
+    "description_2": "This helps build a trusted community and reduce spam. For more information, <2>please refer to this help page</2>. Thank you for your help!",
+    "actions": {
+      "send_request": "send a request",
+      "send_message": "send a message",
+      "create_event": "create an event"
+    },
+    "edit_profile_button": "Edit your profile now",
+    "cancel_button": "Never mind"
+  },
   "your_communities_heading": "Your communities",
   "all_communities_heading": "All communities",
   "no_community": "You are not currently in a community.",
