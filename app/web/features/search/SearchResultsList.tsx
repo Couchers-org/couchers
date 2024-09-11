@@ -154,51 +154,62 @@ export default function SearchResultsList({
             fetchNext={fetchNextPage}
             hasMore={hasNext}
           >
-            {!selectedResult && results?.pages
-              .flatMap((page) => page.resultsList)
-              .filter((result) => result.user)
-              .map((result) => (
-                <SearchResult
-                  id={`search-result-${result.user!.userId}`}
-                  className={classes.searchResult}
-                  key={result.user!.userId}
-                  user={result.user!}
-                  onSelect={() => {
-                    setSelectedResult({
-                      username: result.user!.username,
-                      userId: result.user!.userId,
-                      lng: result.user!.lng,
-                      lat: result.user!.lat,
-                    });
-                  }}
-                  highlight={
-                    selectedResult &&
-                    result.user!.userId === selectedResult.userId
-                  }
-                />
-              ))}
 
-              {!wasSearchPerformed && selectedResult && (
-                <>
-                  {selectedUserData.data && (
+            {!wasSearchPerformed && selectedResult ? (
+              <>
+                {selectedUserData.error && (
+                  <Alert severity="error">{selectedUserData.error}</Alert>
+                )}
+                {selectedUserData.isLoading && (
+                  <CircularProgress className={classes.baseMargin} />
+                )}
+                {selectedUserData.data && (
+                  <SearchResult
+                    id={`search-result-${selectedUserData.data.userId}`}
+                    className={classes.singleResult}
+                    key={selectedUserData.data.userId}
+                    user={selectedUserData.data as any}
+                    onSelect={() => {
+                      setSelectedResult({
+                        username: selectedUserData.data!.username,
+                        userId: selectedUserData.data!.userId,
+                        lng: selectedUserData.data!.lng,
+                        lat: selectedUserData.data!.lat,
+                      });
+                    }}
+                    highlight={selectedResult && selectedUserData.data.userId === selectedResult.userId}
+                  />
+                )}
+              </>
+            ) :
+              <>
+                {results?.pages
+                  .flatMap((page) => page.resultsList)
+                  .filter((result) => result.user)
+                  .map((result) => (
                     <SearchResult
-                      id={`search-result-${selectedUserData.data.userId}`}
-                      className={classes.singleResult}
-                      key={selectedUserData.data.userId}
-                      user={selectedUserData.data as any}
+                      id={`search-result-${result.user!.userId}`}
+                      className={classes.searchResult}
+                      key={result.user!.userId}
+                      user={result.user!}
                       onSelect={() => {
                         setSelectedResult({
-                          username: selectedUserData.data!.username,
-                          userId: selectedUserData.data!.userId,
-                          lng: selectedUserData.data!.lng,
-                          lat: selectedUserData.data!.lat,
+                          username: result.user!.username,
+                          userId: result.user!.userId,
+                          lng: result.user!.lng,
+                          lat: result.user!.lat,
                         });
                       }}
-                      highlight={selectedResult && selectedUserData.data.userId === selectedResult.userId}
+                      highlight={
+                        selectedResult &&
+                        result.user!.userId === selectedResult.userId
+                      }
                     />
-                  )}
-                </>
-              )}
+                  ))}
+              </>
+            }
+
+
           </HorizontalScroller>
         )}
 
