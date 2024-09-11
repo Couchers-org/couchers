@@ -126,7 +126,7 @@ def _send_push_notification(session, user: User, notification: Notification):
         body=rendered.push_body,
         icon=rendered.push_icon,
         url=rendered.push_url,
-        topic_action=notification.topic_action,
+        topic_action=notification.topic_action.display,
         key=notification.key,
         # keep on server for at most an hour if the client is not around
         ttl=3600,
