@@ -11,6 +11,7 @@ import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { Dispatch, SetStateAction } from "react";
 import { InfiniteData } from "react-query";
+import { Result } from "proto/search_pb";
 
 import SearchBox from "./SearchBox";
 
@@ -92,12 +93,12 @@ interface mapWrapperProps {
     >
   >;
   searchType: string;
-  setSearchType: Dispatch<SetStateAction<string>>;
   locationResult: any;
+  wasSearchPerformed: any;
+  setSearchType: Dispatch<SetStateAction<string>>;
   setLocationResult: Dispatch<SetStateAction<any>>;
   setQueryName: Dispatch<SetStateAction<undefined | string>>;
   queryName: undefined | string;
-  wasSearchPerformed: any;
 }
 
 export default function SearchResultsList({
@@ -121,6 +122,21 @@ export default function SearchResultsList({
   const classes = useStyles();
   const hasAtLeastOnePageResults =
     results && results?.pages[0]?.resultsList?.length !== 0;
+
+  const resultsList: any = results?.pages
+    .flatMap((page) => page.resultsList)
+    .filter((result) => result.user);
+
+  let wasResultFound = false;
+  resultsList?.map((value :any) => {
+    if (value.user?.userId === selectedResult?.userId) {
+      wasResultFound = true;
+    }
+  })
+
+  if (!wasResultFound && selectedUserData.data) {
+    resultsList?.unshift({user: selectedUserData.data});
+  }
 
   return (
     <Paper className={classes.mapResults}>
@@ -154,62 +170,26 @@ export default function SearchResultsList({
             fetchNext={fetchNextPage}
             hasMore={hasNext}
           >
-
-            {!wasSearchPerformed && selectedResult ? (
-              <>
-                {selectedUserData.error && (
-                  <Alert severity="error">{selectedUserData.error}</Alert>
-                )}
-                {selectedUserData.isLoading && (
-                  <CircularProgress className={classes.baseMargin} />
-                )}
-                {selectedUserData.data && (
-                  <SearchResult
-                    id={`search-result-${selectedUserData.data.userId}`}
-                    className={classes.singleResult}
-                    key={selectedUserData.data.userId}
-                    user={selectedUserData.data as any}
-                    onSelect={() => {
-                      setSelectedResult({
-                        username: selectedUserData.data!.username,
-                        userId: selectedUserData.data!.userId,
-                        lng: selectedUserData.data!.lng,
-                        lat: selectedUserData.data!.lat,
-                      });
-                    }}
-                    highlight={selectedResult && selectedUserData.data.userId === selectedResult.userId}
-                  />
-                )}
-              </>
-            ) :
-              <>
-                {results?.pages
-                  .flatMap((page) => page.resultsList)
-                  .filter((result) => result.user)
-                  .map((result) => (
-                    <SearchResult
-                      id={`search-result-${result.user!.userId}`}
-                      className={classes.searchResult}
-                      key={result.user!.userId}
-                      user={result.user!}
-                      onSelect={() => {
-                        setSelectedResult({
-                          username: result.user!.username,
-                          userId: result.user!.userId,
-                          lng: result.user!.lng,
-                          lat: result.user!.lat,
-                        });
-                      }}
-                      highlight={
-                        selectedResult &&
-                        result.user!.userId === selectedResult.userId
-                      }
-                    />
-                  ))}
-              </>
-            }
-
-
+            {resultsList && resultsList.map((result: any) => (
+              <SearchResult
+                id={`search-result-${result.user!.userId}`}
+                className={classes.searchResult}
+                key={result.user!.userId}
+                user={result.user!}
+                onSelect={() => {
+                  setSelectedResult({
+                    username: result.user!.username,
+                    userId: result.user!.userId,
+                    lng: result.user!.lng,
+                    lat: result.user!.lat,
+                  });
+                }}
+                highlight={
+                  selectedResult &&
+                  result.user!.userId === selectedResult.userId
+                }
+              />
+            ))}
           </HorizontalScroller>
         )}
 

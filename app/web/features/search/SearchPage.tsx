@@ -139,9 +139,7 @@ export default function SearchPage({
 
   // Relocate map everytime boundingbox changes
   useEffect(() => {
-    map.current?.fitBounds(locationResult.bbox, {
-      // maxZoom: selectedUserZoom, // TODO: first render
-    });
+    map.current?.fitBounds(locationResult.bbox);
   }, [locationResult.bbox]);
 
   /**
