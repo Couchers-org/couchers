@@ -108,6 +108,7 @@ describe("UserOverview", () => {
       );
       expect(screen.getByText("Edit profile")).toBeInTheDocument();
     });
+
     it("should not show badge when no strong verification", () => {
       render(
         <ProfileUserProvider
@@ -121,6 +122,7 @@ describe("UserOverview", () => {
       const verificationBadge = screen.queryByTestId("error-icon");
       expect(verificationBadge).toBeNull();
     });
+
     it("should show badge when user has strong verification", () => {
       render(
         <ProfileUserProvider

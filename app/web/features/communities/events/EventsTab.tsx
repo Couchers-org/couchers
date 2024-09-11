@@ -1,8 +1,9 @@
-import { FormControlLabel, Switch, Typography } from "@material-ui/core";
+import { FormControlLabel, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
+import CustomColorSwitch from "components/CustomColorSwitch";
 import TextBody from "components/TextBody";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
@@ -57,14 +58,18 @@ export default function EventsTab({
 
   const [showCancelled, setShowCancelled] = useState(false);
 
+  const handleShowCancelledClick = () => {
+    setShowCancelled(!showCancelled);
+  };
+
   return (
     <div className={classes.root}>
       <Typography variant="h2">{tabTitle}</Typography>
       <FormControlLabel
         control={
-          <Switch
+          <CustomColorSwitch
             checked={showCancelled}
-            onChange={() => setShowCancelled(!showCancelled)}
+            onClick={handleShowCancelledClick}
           />
         }
         label={t("communities:show_cancelled_events")}

@@ -487,6 +487,7 @@ def add_users_to_email_list(payload):
                     "name": user.name,
                     "list_uuids": [config["LISTMONK_LIST_UUID"]],
                     "preconfirm_subscriptions": True,
+                    "attribs": {"couchers_user_id": user.id},
                 },
                 timeout=10,
             )

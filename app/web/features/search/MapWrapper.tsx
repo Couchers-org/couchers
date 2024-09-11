@@ -11,7 +11,7 @@ import {
 import { Point } from "geojson";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
-import maplibregl, { EventData, Map as MaplibreMap } from "maplibre-gl";
+import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import {
@@ -77,6 +77,8 @@ interface mapWrapperProps {
     >
   >;
   map: MutableRefObject<MaplibreMap | undefined>;
+  setWasSearchPerformed: Dispatch<SetStateAction<boolean>>;
+  wasSearchPerformed: boolean;
 }
 
 export default function MapWrapper({
@@ -88,6 +90,8 @@ export default function MapWrapper({
   results,
   setSelectedResult,
   setIsFiltersOpen,
+  wasSearchPerformed,
+  setWasSearchPerformed,
 }: mapWrapperProps) {
   const { t } = useTranslation([SEARCH]);
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
@@ -150,6 +154,10 @@ export default function MapWrapper({
     [map]
   );
 
+  /**
+   * Centers selected user
+   * Unsets previous selected
+   */
   useEffect(() => {
     //unset the old feature selection on the map for styling
     if (previousResult) {
@@ -215,7 +223,7 @@ export default function MapWrapper({
    * Re-renders users list on map (when results array changed)
    */
   useEffect(() => {
-    if (isMapStyleLoaded && isMapSourceLoaded) {
+    if (isMapStyleLoaded && isMapSourceLoaded && wasSearchPerformed) {
       if (results) {
         const usersToRender = filterData(results);
         reRenderUsersOnMap(map.current!, usersToRender, handleMapUserClick);
@@ -242,6 +250,7 @@ export default function MapWrapper({
           ],
         });
       }
+      setWasSearchPerformed(true);
     }
   };
 
@@ -249,7 +258,6 @@ export default function MapWrapper({
     map.current = newMap;
     newMap.on("load", () => {
       addClusteredUsersToMap(newMap);
-      handleOnClick();
     });
 
     newMap.on("styledata", function () {
@@ -287,8 +295,8 @@ export default function MapWrapper({
       </div>
       <Map
         grow
-        initialCenter={locationResult?.location}
-        initialZoom={5}
+        initialCenter={new LngLat(0, 0)}
+        initialZoom={1}
         postMapInitialize={initializeMap}
         hash
       />

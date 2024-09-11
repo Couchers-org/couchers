@@ -1,16 +1,24 @@
-import { Switch } from "@material-ui/core";
+import { Switch, SwitchProps } from "@material-ui/core";
 import classNames from "classnames";
+import { useEffect, useState } from "react";
+import { theme } from "theme";
 import makeStyles from "utils/makeStyles";
 
 import CircularProgress from "./CircularProgress";
+
+interface SwitchStyleProps {
+  checked: boolean;
+  color: string;
+  size: SwitchProps["size"];
+}
 
 const useStyles = makeStyles(({ palette, shadows }) => ({
   circle: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: 20,
-    height: 20,
+    width: (props: SwitchStyleProps) => (props.size === "medium" ? 20 : 16),
+    height: (props: SwitchStyleProps) => (props.size === "medium" ? 20 : 16),
     borderRadius: "50%",
     backgroundColor: palette.grey[600],
     boxShadow: shadows[1],
@@ -43,18 +51,26 @@ const useStyles = makeStyles(({ palette, shadows }) => ({
 
 export default function CustomColorSwitch({
   checked,
-  color,
-  isLoading,
   onClick,
+  size = "medium",
   status,
+  isLoading = false,
+  color = theme.palette.secondary.main,
 }: {
   checked: boolean;
-  color: string;
-  isLoading: boolean;
-  onClick: () => void;
-  status: string;
+  onClick: SwitchProps["onClick"];
+  size?: SwitchProps["size"];
+  status?: string;
+  isLoading?: boolean;
+  color?: string;
 }) {
-  const classes = useStyles({ checked, color });
+  const classes = useStyles({ checked, color, size });
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const Icon = () => (
     <div
@@ -64,10 +80,18 @@ export default function CustomColorSwitch({
       style={{ backgroundColor: checked ? color : undefined }}
     >
       {isLoading && (
-        <CircularProgress size={14} style={{ color: "white" }} thickness={6} />
+        <CircularProgress
+          size={size === "medium" ? 14 : 12}
+          style={{ color: "white" }}
+          thickness={6}
+        />
       )}
     </div>
   );
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <Switch
@@ -79,6 +103,7 @@ export default function CustomColorSwitch({
       disabled={isLoading || status === "loading"}
       icon={<Icon />}
       onClick={onClick}
+      size={size}
     />
   );
 }

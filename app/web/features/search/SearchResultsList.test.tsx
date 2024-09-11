@@ -56,7 +56,6 @@ describe("SearchResultsList", () => {
         <SearchResultsList
           isLoading={false}
           results={undefined}
-          fetchNextPage={() => {}}
           selectedResult={undefined}
           setSelectedResult={mockHandleResultClick}
           setSearchType={() => {}}
@@ -89,7 +88,6 @@ describe("SearchResultsList", () => {
           results={mockTestResults()}
           error={"error message"}
           hasNext={undefined}
-          fetchNextPage={() => {}}
           selectedResult={undefined}
           setSelectedResult={mockHandleResultClick}
           searchType={"location"}

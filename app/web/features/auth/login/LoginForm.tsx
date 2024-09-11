@@ -1,5 +1,6 @@
-import { FormControlLabel, InputLabel, Switch } from "@material-ui/core";
+import { FormControlLabel, InputLabel } from "@material-ui/core";
 import Button from "components/Button";
+import CustomColorSwitch from "components/CustomColorSwitch";
 import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -107,10 +108,11 @@ export default function LoginForm() {
               <FormControlLabel
                 className={classes.rememberSwitch}
                 control={
-                  <Switch
+                  <CustomColorSwitch
                     size="small"
                     checked={value}
-                    onChange={(e, checked) => onChange(checked)}
+                    onClick={() => onChange(!value)}
+                    isLoading={loading}
                   />
                 }
                 label={t("auth:login_page.form.remember_me")}

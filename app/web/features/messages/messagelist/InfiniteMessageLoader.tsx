@@ -28,6 +28,7 @@ const useStyles = makeStyles((theme) => ({
   scroll: {
     ...theme.shape.scrollBar,
     position: "relative",
+    minHeight: "80px",
   },
 }));
 

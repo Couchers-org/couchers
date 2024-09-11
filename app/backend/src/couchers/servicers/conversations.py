@@ -490,6 +490,10 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
     def CreateGroupChat(self, request, context):
         with session_scope() as session:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            if not user.has_completed_profile:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.INCOMPLETE_PROFILE_SEND_MESSAGE)
+
             recipient_user_ids = list(
                 session.execute(
                     select(User.id).where_users_visible(context).where(User.id.in_(request.recipient_user_ids))

@@ -1,6 +1,6 @@
 import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
 import HtmlMeta from "components/HtmlMeta";
-import { Coordinates, selectedUserZoom } from "features/search/constants";
+import { Coordinates } from "features/search/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
@@ -73,10 +73,11 @@ export default function SearchPage({
   const map = useRef<MaplibreMap>();
 
   // State
+  const [wasSearchPerformed, setWasSearchPerformed] = useState(false);
   const [locationResult, setLocationResult] = useState<
     GeocodeResult | undefined
   >({
-    bbox,
+    bbox: bbox,
     isRegion: false,
     location: new LngLat(
       (parseFloat(bbox[0].toString()) + parseFloat(bbox[2].toString())) / 2,
@@ -92,64 +93,84 @@ export default function SearchPage({
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
   const [hostingStatusFilter, setHostingStatusFilter] = useState(0);
   const [numberOfGuestFilter, setNumberOfGuestFilter] = useState<string>("");
-  const [completeProfileFilter, setCompleteProfileFilter] = useState(true);
+  const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
   >();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   // Loads the list of users
-  const { data, error, isLoading, fetchNextPage, isFetching, hasNextPage } =
-    useInfiniteQuery<UserSearchRes.AsObject, Error>(
-      [
-        "userSearch",
-        queryName,
-        locationResult?.name,
-        locationResult?.bbox,
-        lastActiveFilter,
-        hostingStatusFilter,
-        numberOfGuestFilter,
-        completeProfileFilter,
-      ],
-      ({ pageParam }) => {
-        // @ts-ignore @TODO David fixing these in a separate PR
-        const lastActiveComparation = parseInt(lastActiveFilter);
-        // @ts-ignore @TODO David fixing these in a separate PR
-        const hostingStatusFilterComparation = parseInt(hostingStatusFilter);
+  const { data, error, isLoading, isFetching, hasNextPage } = useInfiniteQuery<
+    UserSearchRes.AsObject,
+    Error
+  >(
+    [
+      "userSearch",
+      queryName,
+      locationResult?.name,
+      locationResult?.bbox,
+      lastActiveFilter,
+      hostingStatusFilter,
+      numberOfGuestFilter,
+      completeProfileFilter,
+    ],
+    ({ pageParam }) => {
+      // @ts-ignore @TODO David fixing these in a separate PR
+      const lastActiveComparation = parseInt(lastActiveFilter);
+      // @ts-ignore @TODO David fixing these in a separate PR
+      const hostingStatusFilterComparation = parseInt(hostingStatusFilter);
 
-        return service.search.userSearch(
-          {
-            query: queryName,
-            bbox: locationResult?.bbox,
-            lastActive:
-              lastActiveComparation === 0 ? undefined : lastActiveFilter,
-            hostingStatusOptions:
-              hostingStatusFilterComparation === 0
-                ? undefined
-                : [hostingStatusFilter],
-            numGuests: Number(numberOfGuestFilter),
-            completeProfile:
-              completeProfileFilter === false
-                ? undefined
-                : completeProfileFilter,
-          },
-          pageParam
-        );
-      },
-      {
-        getNextPageParam: (lastPage) =>
-          lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-      }
-    );
+      return service.search.userSearch(
+        {
+          query: queryName,
+          bbox: locationResult?.bbox,
+          lastActive:
+            lastActiveComparation === 0 ? undefined : lastActiveFilter,
+          hostingStatusOptions:
+            hostingStatusFilterComparation === 0
+              ? undefined
+              : [hostingStatusFilter],
+          numGuests: Number(numberOfGuestFilter),
+          completeProfile:
+            completeProfileFilter === false ? undefined : completeProfileFilter,
+        },
+        pageParam
+      );
+    },
+    {
+      getNextPageParam: (lastPage) =>
+        lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+    }
+  );
 
   // Relocate map everytime boundingbox changes
   useEffect(() => {
-    if (locationResult) {
-      map.current?.fitBounds(locationResult.bbox, {
-        maxZoom: selectedUserZoom,
-      });
+    if (locationResult?.bbox) {
+      map.current?.fitBounds(locationResult.bbox);
     }
-  }, [locationResult]);
+  }, [locationResult?.bbox]);
+
+  /**
+   * Tracks whether a search was perform after the first render (always show all the users of the platform on the first render)
+   */
+  useEffect(() => {
+    if (!wasSearchPerformed) {
+      if (
+        lastActiveFilter !== 0 ||
+        hostingStatusFilter !== 0 ||
+        numberOfGuestFilter !== undefined ||
+        completeProfileFilter !== false
+      ) {
+        setWasSearchPerformed(true);
+      }
+    }
+  }, [
+    lastActiveFilter,
+    hostingStatusFilter,
+    numberOfGuestFilter,
+    completeProfileFilter,
+    wasSearchPerformed,
+  ]);
 
   const errorMessage = error?.message;
 
@@ -169,7 +190,6 @@ export default function SearchPage({
             results={data}
             error={errorMessage}
             hasNext={hasNextPage}
-            fetchNextPage={fetchNextPage}
             selectedResult={selectedResult}
             setSelectedResult={setSelectedResult}
             isLoading={isLoading || isFetching}
@@ -192,7 +212,6 @@ export default function SearchPage({
               results={data}
               error={errorMessage}
               hasNext={hasNextPage}
-              fetchNextPage={fetchNextPage}
               selectedResult={selectedResult}
               setSelectedResult={setSelectedResult}
               isLoading={isLoading || isFetching}
@@ -224,6 +243,8 @@ export default function SearchPage({
             setLocationResult={setLocationResult}
             setSelectedResult={setSelectedResult}
             isLoading={isLoading || isFetching}
+            setWasSearchPerformed={setWasSearchPerformed}
+            wasSearchPerformed={wasSearchPerformed}
           />
         </div>
       </div>

@@ -55,7 +55,6 @@ revision.txt
 .vagrant
 .smarty/
 .idea/
-.vscode
 
 # For gitlabci and helm stuff
 requirements.lock

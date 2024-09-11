@@ -69,7 +69,7 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     // 56px = address bar height on mobile - https://dev.to/peiche/100vh-behavior-on-chrome-2hm8
-    height: `calc(100vh - ${theme.shape.navPaddingXs} - 56px)`,
+    height: `calc(100vh - ${theme.shape.navPaddingXs} - 56px - 80px)`,
   },
   title: {
     flexGrow: 1,
