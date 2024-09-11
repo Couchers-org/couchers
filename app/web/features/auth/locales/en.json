@@ -280,6 +280,12 @@
           "change": "The gender displayed on your profile is changed"
         }
       }
+    },
+    "push_notifications": {
+      "title": "Push Notifications",
+      "description": "You can enable push notifications for Couchers.org on your device. We are working on implementing this feature.",
+      "turn_on": "Turn on Push Notifications",
+      "turn_off": "Turn off Push Notifications"
     }
   },
   "strong_verification": {

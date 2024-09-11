@@ -6,6 +6,7 @@ import { AUTH } from "i18n/namespaces";
 import { useTranslation } from "react-i18next";
 import makeStyles from "utils/makeStyles";
 
+import PushNotificationPermission from "./notifications/PushNotificationPermission";
 import ChangePhone from "./phone/ChangePhone";
 import useAccountInfo from "./useAccountInfo";
 import StrongVerification from "./verification/StrongVerification";
@@ -45,6 +46,7 @@ export default function FeaturePreview() {
         <Alert severity="error">{accountInfoError.message}</Alert>
       ) : (
         <>
+          <PushNotificationPermission className={classes.section} />
           <StrongVerification
             className={classes.section}
             accountInfo={accountInfo!}

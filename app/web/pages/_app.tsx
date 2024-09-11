@@ -38,6 +38,7 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
       jssStyles.parentElement!.removeChild(jssStyles);
     }
   }, []);
+
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_COUCHERS_ENV === "prod") {
       Sentry.init({
@@ -60,11 +61,11 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
           "Service Worker registered with scope:",
           registration.scope
         );
+        const { vapidPublicKey } = await getVapidPublicKey();
 
         const existingPushSubscription =
           await registration.pushManager.getSubscription();
         const p256dhKey = existingPushSubscription?.getKey("p256dh");
-        const { vapidPublicKey } = await getVapidPublicKey();
 
         if (existingPushSubscription && p256dhKey) {
           const publicKey = arrayBufferToBase64(p256dhKey);
