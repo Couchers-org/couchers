@@ -1,12 +1,16 @@
 # Couchers web frontend
 
-This is the react/nextjs web frontend for Couchers.org. We are using Typescript with [React Query](https://react-query.tanstack.com/) for data fetching and [Material UI](https://material-ui.com/) for components.
+This is the react/nextjs web frontend for Couchers.org. We are using Typescript with [React Query](https://tanstack.com/query/v3) for data fetching and [Material UI](https://mui.com/material-ui/) for components.
 
 Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf-javascript) over [grpc-web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://protobuf.dev/protobuf-javascript/).
 
+*Readme last updated: 2024/09/11.*
+
 ## Quick Start
 
-We recommend `nvm` (the [node version manager](https://github.com/nvm-sh/nvm)). You can install it with:
+*These instructions should work directly on Linux and macOS. If you are using Windows, please [install Ubuntu via WSL2](https://documentation.ubuntu.com/wsl/en/latest/guides/install-ubuntu-wsl2/), then follow these instructions inside Ubuntu.*
+
+You need `nodejs` v20. We recommend using `nvm` (the [node version manager](https://github.com/nvm-sh/nvm)) to do this. You can install it with:
 
 ```sh
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
@@ -17,9 +21,9 @@ wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 <details>
 <summary>More on deps</summary>
 
-You need `nodejs` v20. The recommended way to do this is to use NVM as above.
+The recommended way get `nodejs` is to use NVM as above, but any other way of installing it should work fine too.
 
-If you don't want `nvm` to be run when you open your shell, you can add `--no-use` in your shell's `rc` file, just before where it says `# This loads nvm`. You then need to run `nvm use` every time you enter the `app/web` folder to start developing.
+If you don't want `nvm` to be run when you start your terminal, you can add `--no-use` in your shell's `rc` file (e.g. `~/.zshrc`), just before where it says `# This loads nvm`. You then need to run `nvm use` every time you enter the `app/web` folder to start developing.
 
 On macOS you can alternatively install dependencies via homebrew. You can get nvm with `brew install nvm`, or `nodejs` directly with `brew install node@20`.
 
