@@ -149,7 +149,6 @@ export default function MapWrapper({
     map.current?.stop();
     map.current?.easeTo({
       center: [user.lng, user.lat],
-      // zoom: 14
     });
   }, []);
 
