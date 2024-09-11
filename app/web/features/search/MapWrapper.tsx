@@ -256,7 +256,6 @@ export default function MapWrapper({
     map.current = newMap;
     newMap.on("load", () => {
       addClusteredUsersToMap(newMap);
-      // handleOnClick(); TODO: disabled for now
     });
 
     newMap.on("styledata", function () {
