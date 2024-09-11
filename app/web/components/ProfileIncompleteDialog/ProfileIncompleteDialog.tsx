@@ -1,9 +1,9 @@
-import { Typography } from "@material-ui/core";
 import Button from "components/Button";
 import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
 } from "components/Dialog";
 import StyledLink from "components/StyledLink";
@@ -40,26 +40,23 @@ export default function ProfileIncompleteDialog({
         {t("dashboard:complete_profile_dialog.title")}
       </DialogTitle>
       <DialogContent>
-        <Typography variant="body1" paragraph>
+        <DialogContentText>
           <Trans i18nKey="dashboard:complete_profile_dialog.description_1">
             Before you can {{ action_name: action_text }}, you must{" "}
             <strong>write a bit about yourself</strong> in your profile and{" "}
             <strong>upload a profile photo</strong>.
           </Trans>
-        </Typography>
-        <Typography variant="body1" paragraph>
+        </DialogContentText>
+        <DialogContentText>
           <Trans i18nKey="dashboard:complete_profile_dialog.description_2">
             This helps build a trusted community and reduce spam. For more
             information,{" "}
-            <StyledLink
-              variant="body1"
-              href="https://help.couchers.org/hc/couchersorg-help-center/articles/1725919152-why-do-i-need-to-complete-my-profile-to-use-some-features"
-            >
+            <StyledLink href="https://help.couchers.org/hc/couchersorg-help-center/articles/1725919152-why-do-i-need-to-complete-my-profile-to-use-some-features">
               please refer to this help page
             </StyledLink>
             . Thank you for your help!
           </Trans>
-        </Typography>
+        </DialogContentText>
       </DialogContent>
       <DialogActions>
         <Link href={routeToEditProfile()} passHref>
