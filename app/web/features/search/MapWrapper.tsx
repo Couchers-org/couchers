@@ -229,7 +229,14 @@ export default function MapWrapper({
         reRenderUsersOnMap(map.current!, usersToRender, handleMapUserClick);
       }
     }
-  }, [results, handleMapUserClick, map, isMapStyleLoaded, isMapSourceLoaded]);
+  }, [
+    results,
+    handleMapUserClick,
+    map,
+    isMapStyleLoaded,
+    isMapSourceLoaded,
+    wasSearchPerformed,
+  ]);
 
   /**
    * Clicks on 'search here' button

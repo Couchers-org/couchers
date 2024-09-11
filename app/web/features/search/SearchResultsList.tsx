@@ -124,6 +124,8 @@ export default function SearchResultsList({
     .filter((result) => result.user);
 
   let wasResultFound = false;
+
+  // @TODO - Can make this one variable by using a find function, resultsList.find, etc.
   resultsList?.map((value: any) => {
     if (value.user?.userId === selectedResult?.userId) {
       wasResultFound = true;
