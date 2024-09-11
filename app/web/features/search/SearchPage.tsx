@@ -92,50 +92,50 @@ export default function SearchPage({
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   // Loads the list of users
-  const { data, error, isLoading, isFetching, hasNextPage } =
-    useInfiniteQuery<UserSearchRes.AsObject, Error>(
-      [
-        "userSearch",
-        queryName,
-        locationResult?.name,
-        locationResult?.bbox,
-        lastActiveFilter,
-        hostingStatusFilter,
-        numberOfGuestFilter,
-        completeProfileFilter,
-      ],
-      ({ pageParam }) => {
-        const lastActiveComparation = parseInt(
-          lastActiveFilter as unknown as string
-        );
-        const hostingStatusFilterComparation = parseInt(
-          hostingStatusFilter as unknown as string
-        );
+  const { data, error, isLoading, isFetching, hasNextPage } = useInfiniteQuery<
+    UserSearchRes.AsObject,
+    Error
+  >(
+    [
+      "userSearch",
+      queryName,
+      locationResult?.name,
+      locationResult?.bbox,
+      lastActiveFilter,
+      hostingStatusFilter,
+      numberOfGuestFilter,
+      completeProfileFilter,
+    ],
+    ({ pageParam }) => {
+      const lastActiveComparation = parseInt(
+        lastActiveFilter as unknown as string
+      );
+      const hostingStatusFilterComparation = parseInt(
+        hostingStatusFilter as unknown as string
+      );
 
-        return service.search.userSearch(
-          {
-            query: queryName,
-            bbox: locationResult.bbox,
-            lastActive:
-              lastActiveComparation === 0 ? undefined : lastActiveFilter,
-            hostingStatusOptions:
-              hostingStatusFilterComparation === 0
-                ? undefined
-                : [hostingStatusFilter],
-            numGuests: numberOfGuestFilter,
-            completeProfile:
-              completeProfileFilter === false
-                ? undefined
-                : completeProfileFilter,
-          },
-          pageParam
-        );
-      },
-      {
-        getNextPageParam: (lastPage) =>
-          lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-      }
-    );
+      return service.search.userSearch(
+        {
+          query: queryName,
+          bbox: locationResult.bbox,
+          lastActive:
+            lastActiveComparation === 0 ? undefined : lastActiveFilter,
+          hostingStatusOptions:
+            hostingStatusFilterComparation === 0
+              ? undefined
+              : [hostingStatusFilter],
+          numGuests: numberOfGuestFilter,
+          completeProfile:
+            completeProfileFilter === false ? undefined : completeProfileFilter,
+        },
+        pageParam
+      );
+    },
+    {
+      getNextPageParam: (lastPage) =>
+        lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+    }
+  );
 
   // Relocate map everytime boundingbox changes
   useEffect(() => {
@@ -147,11 +147,21 @@ export default function SearchPage({
    */
   useEffect(() => {
     if (!wasSearchPerformed) {
-      if (lastActiveFilter !== 0 || hostingStatusFilter !== 0 || numberOfGuestFilter !== undefined || completeProfileFilter !== false) {
+      if (
+        lastActiveFilter !== 0 ||
+        hostingStatusFilter !== 0 ||
+        numberOfGuestFilter !== undefined ||
+        completeProfileFilter !== false
+      ) {
         setWasSearchPerformed(true);
       }
     }
-  }, [lastActiveFilter, hostingStatusFilter, numberOfGuestFilter, completeProfileFilter])
+  }, [
+    lastActiveFilter,
+    hostingStatusFilter,
+    numberOfGuestFilter,
+    completeProfileFilter,
+  ]);
 
   const errorMessage = error?.message;
 

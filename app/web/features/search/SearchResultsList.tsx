@@ -83,8 +83,8 @@ interface mapWrapperProps {
   error?: string | undefined;
   hasNext?: boolean | undefined;
   selectedResult:
-  | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
-  | undefined;
+    | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
+    | undefined;
   setSelectedResult: Dispatch<
     SetStateAction<
       Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
@@ -123,14 +123,14 @@ export default function SearchResultsList({
     .filter((result) => result.user);
 
   let wasResultFound = false;
-  resultsList?.map((value :any) => {
+  resultsList?.map((value: any) => {
     if (value.user?.userId === selectedResult?.userId) {
       wasResultFound = true;
     }
-  })
+  });
 
   if (!wasResultFound && selectedUserData.data) {
-    resultsList = [{user: selectedUserData.data}];
+    resultsList = [{ user: selectedUserData.data }];
   }
 
   return (
@@ -149,7 +149,10 @@ export default function SearchResultsList({
       </Hidden>
 
       <>
-        {isLoading || selectedUserData.isLoading && <CircularProgress className={classes.baseMargin} />}
+        {isLoading ||
+          (selectedUserData.isLoading && (
+            <CircularProgress className={classes.baseMargin} />
+          ))}
 
         {!isLoading && !hasAtLeastOnePageResults && (
           <TextBody className={classes.baseMargin}>
@@ -165,30 +168,29 @@ export default function SearchResultsList({
             // fetchNext={fetchNextPage} // TODO: disabled for now (until pagination)
             hasMore={hasNext}
           >
-            {resultsList && resultsList.map((result: any) => (
-              <SearchResult
-                id={`search-result-${result.user!.userId}`}
-                className={classes.searchResult}
-                key={result.user!.userId}
-                user={result.user!}
-                onSelect={() => {
-                  setSelectedResult({
-                    username: result.user!.username,
-                    userId: result.user!.userId,
-                    lng: result.user!.lng,
-                    lat: result.user!.lat,
-                  });
-                }}
-                highlight={
-                  selectedResult &&
-                  selectedResult.userId === result.user!.userId 
-                }
-              />
-            ))}
+            {resultsList &&
+              resultsList.map((result: any) => (
+                <SearchResult
+                  id={`search-result-${result.user!.userId}`}
+                  className={classes.searchResult}
+                  key={result.user!.userId}
+                  user={result.user!}
+                  onSelect={() => {
+                    setSelectedResult({
+                      username: result.user!.username,
+                      userId: result.user!.userId,
+                      lng: result.user!.lng,
+                      lat: result.user!.lat,
+                    });
+                  }}
+                  highlight={
+                    selectedResult &&
+                    selectedResult.userId === result.user!.userId
+                  }
+                />
+              ))}
           </HorizontalScroller>
         )}
-
-
       </>
     </Paper>
   );
