@@ -1,4 +1,5 @@
 import { Typography } from "@material-ui/core";
+import Alert from "components/Alert";
 import Button from "components/Button";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
@@ -7,9 +8,14 @@ import {
   getVapidPublicKey,
   registerPushNotificationSubscription,
 } from "service/notifications";
+import { arrayBufferToBase64 } from "utils/arrayBufferToBase64";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
+  alert: {
+    marginBottom: theme.spacing(3),
+    marginTop: theme.spacing(2),
+  },
   turnOffButton: {
     backgroundColor: theme.palette.error.main,
     "&:hover": {
@@ -18,55 +24,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const subscribeUserToPush = async () => {
-  try {
-    // Check if service workers and push notifications are supported
-    if ("serviceWorker" in navigator && "PushManager" in window) {
-      const registration = await navigator.serviceWorker.register(
-        "/service-worker.js",
-        { scope: "/" }
-      );
-      console.log("Service Worker registered with scope:", registration.scope);
-
-      const { vapidPublicKey } = await getVapidPublicKey();
-
-      // Subscribe to push notifications using the PushManager API
-      const subscription: PushSubscription =
-        await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: vapidPublicKey,
-        });
-
-      await registerPushNotificationSubscription(subscription);
-
-      console.log("User is subscribed to push notifications:", subscription);
-      return subscription;
-    } else {
-      console.log(
-        "Push notifications or Service Workers are not supported in this browser."
-      );
-    }
-  } catch (error) {
-    console.error("Error during subscription to push notifications:", error);
-  }
-};
-
-// const unsubscribeUserFromPush = async () => {
-//   const existingPushSubscription =
-//     await registration.pushManager.getSubscription();
-//   const p256dhKey = existingPushSubscription?.getKey("p256dh");
-//   const { vapidPublicKey } = await getVapidPublicKey();
-
-//   if (existingPushSubscription && p256dhKey) {
-//     const publicKey = arrayBufferToBase64(p256dhKey);
-
-//     if (publicKey !== vapidPublicKey) {
-//       await existingPushSubscription.unsubscribe();
-//     } else {
-//       return;
-//     }
-//   }
-// };
+// @TODO - Write tests
+// @TODO - Merge in PR and remove arrayToBase64 function
+// @TODO - Get additional info from the backend and implement in the service-worker
 
 export default function PushNotificationPermission({
   className,
@@ -74,24 +34,58 @@ export default function PushNotificationPermission({
   className: string;
 }) {
   const [permission, setPermission] = useState(Notification.permission);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { t } = useTranslation(AUTH);
   const classes = useStyles();
 
-  //   const existingPushSubscription =
-  //   await registration.pushManager.getSubscription();
-  // const p256dhKey = existingPushSubscription?.getKey("p256dh");
-  // const { vapidPublicKey } = await getVapidPublicKey();
+  const onPermissionGranted = async () => {
+    // If permission is granted, subscribe the user to push notifications
+    try {
+      // Check if service workers and push notifications are supported
+      if ("serviceWorker" in navigator && "PushManager" in window) {
+        const registration = await navigator.serviceWorker.register(
+          "/service-worker.js",
+          { scope: "/" }
+        );
 
-  // if (existingPushSubscription && p256dhKey) {
-  //   const publicKey = arrayBufferToBase64(p256dhKey);
+        const existingPushSubscription =
+          await registration.pushManager.getSubscription();
+        const p256dhKey = existingPushSubscription?.getKey("p256dh");
+        const { vapidPublicKey } = await getVapidPublicKey();
 
-  //   if (publicKey !== vapidPublicKey) {
-  //     await existingPushSubscription.unsubscribe();
-  //   } else {
-  //     return;
-  //   }
-  // }
+        if (existingPushSubscription && p256dhKey) {
+          const publicKey = arrayBufferToBase64(p256dhKey);
+
+          /**
+           * The purpose of this check is to ensure that the push subscription is correctly authenticated with the server’s VAPID key.
+           * If the client’s p256dh key no longer matches the server’s vapidPublicKey, then the subscription is unsubscribed and needs
+           * to be re-registered to ensure the security and validity of the Web Push connection.
+           */
+          if (publicKey !== vapidPublicKey) {
+            await existingPushSubscription.unsubscribe();
+          } else {
+            return;
+          }
+        }
+
+        // Subscribe to push notifications using the PushManager API
+        const subscription: PushSubscription =
+          await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: vapidPublicKey,
+          });
+
+        await registerPushNotificationSubscription(subscription);
+      } else {
+        setErrorMessage(
+          "Push notifications or Service Workers are not supported in this browser."
+        );
+      }
+    } catch (error) {
+      setErrorMessage("Error during subscription to push notifications");
+    }
+  };
 
   const handleTurnOnClick = async () => {
     if (permission === "default") {
@@ -100,14 +94,14 @@ export default function PushNotificationPermission({
       setPermission(result);
 
       if (result === "granted") {
-        // If permission is granted, subscribe the user to push notifications
-        const subscription = await subscribeUserToPush();
-        console.log("Push notification subscription successful:", subscription);
+        await onPermissionGranted();
       } else {
-        console.log("Permission for notifications was denied.");
+        setErrorMessage(
+          "You've blocked notifications. Please enable notifications in your browser settings to continue."
+        );
       }
     } else if (permission === "granted") {
-      console.log("You have already granted permission for notifications.");
+      return;
     }
   };
 
@@ -116,10 +110,9 @@ export default function PushNotificationPermission({
       "/service-worker.js",
       { scope: "/" }
     );
-    console.log("REGISTRATION", registration);
     const existingPushSubscription =
       await registration.pushManager.getSubscription();
-    console.log("EXISTING PUSH SUBSCRIPTION", existingPushSubscription);
+
     if (existingPushSubscription) {
       await existingPushSubscription.unsubscribe();
     }
@@ -131,6 +124,11 @@ export default function PushNotificationPermission({
       <Typography variant="h2">
         {t("notification_settings.push_notifications.title")}
       </Typography>
+      {errorMessage && (
+        <Alert className={classes.alert} severity="error">
+          {errorMessage || "Unknown error"}
+        </Alert>
+      )}
       <Typography variant="body1">
         {t("notification_settings.push_notifications.description")}
       </Typography>

@@ -6,7 +6,6 @@ import { EnvironmentBanner } from "components/EnvironmentBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import HtmlMeta from "components/HtmlMeta";
 import AuthProvider from "features/auth/AuthProvider";
-import { NotificationProvider } from "features/auth/notifications/NotificationContext";
 import { ReactQueryClientProvider } from "features/reactQueryClient";
 import type { AppProps } from "next/app";
 import { appWithTranslation } from "next-i18next";
@@ -15,12 +14,7 @@ import Sentry from "platform/sentry";
 import { ReactNode, useEffect } from "react";
 import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
-import {
-  getVapidPublicKey,
-  registerPushNotificationSubscription,
-} from "service/notifications";
 import { theme } from "theme";
-import { arrayBufferToBase64 } from "utils/arrayBufferToBase64";
 
 type AppWithLayoutProps = Omit<AppProps, "Component"> & {
   Component: AppProps["Component"] & {
@@ -50,83 +44,15 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
     }
   }, []);
 
-  useEffect(() => {
-    const registerServiceWorker = async () => {
-      try {
-        const registration = await navigator.serviceWorker.register(
-          "/service-worker.js",
-          { scope: "/" }
-        );
-        console.log(
-          "Service Worker registered with scope:",
-          registration.scope
-        );
-        const { vapidPublicKey } = await getVapidPublicKey();
-
-        const existingPushSubscription =
-          await registration.pushManager.getSubscription();
-        const p256dhKey = existingPushSubscription?.getKey("p256dh");
-
-        if (existingPushSubscription && p256dhKey) {
-          const publicKey = arrayBufferToBase64(p256dhKey);
-
-          if (publicKey !== vapidPublicKey) {
-            await existingPushSubscription.unsubscribe();
-          } else {
-            return;
-          }
-        }
-
-        const subscription: PushSubscription =
-          await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: vapidPublicKey,
-          });
-
-        await registerPushNotificationSubscription(subscription);
-      } catch (error) {
-        console.error("Service Worker registration failed:", error);
-      }
-    };
-
-    const requestNotificationPermission = async () => {
-      if (Notification.permission === "default") {
-        try {
-          const permission = await Notification.requestPermission();
-          if (permission === "granted") {
-            console.log("Notification permission granted.");
-          } else {
-            console.log("Notification permission denied.");
-          }
-        } catch (error) {
-          console.error("Error requesting notification permission:", error);
-        }
-      }
-    };
-
-    if ("serviceWorker" in navigator) {
-      const handleLoad = () => registerServiceWorker();
-      window.addEventListener("load", handleLoad);
-
-      return () => window.removeEventListener("load", handleLoad);
-    }
-
-    if (typeof window !== "undefined" && "Notification" in window) {
-      requestNotificationPermission();
-    }
-  }, []);
-
   return (
     <ThemeProvider theme={theme}>
       <ErrorBoundary isFatal>
         <ReactQueryClientProvider>
           <AuthProvider>
-            <NotificationProvider>
-              <CssBaseline />
-              <EnvironmentBanner />
-              <HtmlMeta />
-              {getLayout(<Component {...pageProps} />)}
-            </NotificationProvider>
+            <CssBaseline />
+            <EnvironmentBanner />
+            <HtmlMeta />
+            {getLayout(<Component {...pageProps} />)}
           </AuthProvider>
         </ReactQueryClientProvider>
       </ErrorBoundary>

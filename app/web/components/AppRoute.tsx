@@ -5,10 +5,6 @@ import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import Footer from "components/Footer";
 import { useAuthContext } from "features/auth/AuthProvider";
-import {
-  AlertSeverityEnum,
-  useSendNotification,
-} from "features/auth/notifications/NotificationContext";
 import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import { ReactNode, useEffect, useState } from "react";
@@ -85,7 +81,6 @@ export default function AppRoute({
   const classes = useAppRouteStyles();
   const router = useRouter();
   const { authState, authActions } = useAuthContext();
-  const { showNotification } = useSendNotification();
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
 
@@ -105,24 +100,6 @@ export default function AppRoute({
       router.push(jailRoute);
     }
   });
-
-  // Listen for messages from the service worker
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      const { title, body } = event.data;
-      showNotification(`${title}: ${body}`, AlertSeverityEnum.INFO); // Trigger notification using context
-    };
-
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.addEventListener("message", handleMessage);
-    }
-
-    return () => {
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.removeEventListener("message", handleMessage);
-      }
-    };
-  }, [showNotification]);
 
   return (
     <ErrorBoundary>
