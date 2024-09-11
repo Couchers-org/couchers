@@ -6,9 +6,8 @@ from prometheus_client.registry import CollectorRegistry
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
-from couchers.models import User
+from couchers.models import EventOccurrenceAttendee, HostingStatus, HostRequest, Message, Reference, User
 from couchers.sql import couchers_select as select
-from couchers.utils import now
 
 main_process_registry = CollectorRegistry()
 job_process_registry = CollectorRegistry()
@@ -39,35 +38,143 @@ def observe_in_servicer_duration_histogram(method, user_id, status_code, excepti
     servicer_duration_histogram.labels(method, user_id is not None, status_code, exception_type).observe(duration_s)
 
 
-def _get_active_users_5m():
-    with session_scope() as session:
-        return session.execute(
-            select(func.count())
-            .select_from(User)
+def _make_gauge_from_query(name, description, statement):
+    """
+    Given a name, description and statement that is a sqlalchemy statement, creates a gauge from it
+
+    statement should be a sqlalchemy SELECT statement that returns a single number
+    """
+
+    def func():
+        with session_scope() as session:
+            return session.execute(statement).scalar_one()
+
+    gauge = Gauge(
+        name,
+        description,
+        registry=main_process_registry,
+    )
+    gauge.set_function(func)
+    return gauge
+
+
+active_users_gauges = [
+    _make_gauge_from_query(
+        f"couchers_active_users_{name}",
+        f"Number of active users in the last {description}",
+        (select(func.count()).select_from(User).where(User.is_visible).where(User.last_active > func.now() - interval)),
+    )
+    for name, description, interval in [
+        ("5m", "5 min", timedelta(minutes=5)),
+        ("24h", "24 hours", timedelta(hours=24)),
+        ("1month", "1 month", timedelta(days=31)),
+        ("3month", "3 months", timedelta(days=92)),
+        ("6month", "6 months", timedelta(days=183)),
+        ("12month", "12 months", timedelta(days=365)),
+    ]
+]
+
+users_gauge = _make_gauge_from_query(
+    "couchers_users", "Total number of users", select(func.count()).select_from(User).where(User.is_visible)
+)
+
+man_gauge = _make_gauge_from_query(
+    "couchers_users_man",
+    "Total number of users with gender 'Man'",
+    select(func.count()).select_from(User).where(User.is_visible).where(User.gender == "Man"),
+)
+
+woman_gauge = _make_gauge_from_query(
+    "couchers_users_woman",
+    "Total number of users with gender 'Woman'",
+    select(func.count()).select_from(User).where(User.is_visible).where(User.gender == "Woman"),
+)
+
+nonbinary_gauge = _make_gauge_from_query(
+    "couchers_users_nonbinary",
+    "Total number of users with gender 'Non-binary'",
+    select(func.count()).select_from(User).where(User.is_visible).where(User.gender == "Non-binary"),
+)
+
+can_host_gauge = _make_gauge_from_query(
+    "couchers_users_can_host",
+    "Total number of users with hosting status 'can_host'",
+    select(func.count()).select_from(User).where(User.is_visible).where(User.hosting_status == HostingStatus.can_host),
+)
+
+cant_host_gauge = _make_gauge_from_query(
+    "couchers_users_cant_host",
+    "Total number of users with hosting status 'cant_host'",
+    select(func.count()).select_from(User).where(User.is_visible).where(User.hosting_status == HostingStatus.cant_host),
+)
+
+maybe_gauge = _make_gauge_from_query(
+    "couchers_users_maybe",
+    "Total number of users with hosting status 'maybe'",
+    select(func.count()).select_from(User).where(User.is_visible).where(User.hosting_status == HostingStatus.maybe),
+)
+
+completed_profile_gauge = _make_gauge_from_query(
+    "couchers_users_completed_profile",
+    "Total number of users with a completed profile",
+    select(func.count()).select_from(User).where(User.is_visible).where(User.has_completed_profile),
+)
+
+sent_message_gauge = _make_gauge_from_query(
+    "couchers_users_sent_message",
+    "Total number of users who have sent a message",
+    (
+        select(func.count()).select_from(
+            select(User.id)
             .where(User.is_visible)
-            .where(User.last_active > now() - timedelta(minutes=5))
-        ).scalar_one()
-
-
-active_users_5m_gauge = Gauge(
-    "couchers_active_users_5m",
-    "Number of active users in the last 5 min",
-    registry=main_process_registry,
+            .join(Message, Message.author_id == User.id)
+            .group_by(User.id)
+            .subquery()
+        )
+    ),
 )
-active_users_5m_gauge.set_function(_get_active_users_5m)
 
-
-def _get_users():
-    with session_scope() as session:
-        return session.execute(select(func.count()).select_from(User).where(User.is_visible)).scalar_one()
-
-
-users_gauge = Gauge(
-    "couchers_users",
-    "Total number of users",
-    registry=main_process_registry,
+sent_request_gauge = _make_gauge_from_query(
+    "couchers_users_sent_request",
+    "Total number of users who have sent a host request",
+    (
+        select(func.count()).select_from(
+            select(User.id)
+            .where(User.is_visible)
+            .join(HostRequest, HostRequest.surfer_user_id == User.id)
+            .group_by(User.id)
+            .subquery()
+        )
+    ),
 )
-users_gauge.set_function(_get_users)
+
+has_reference_gauge = _make_gauge_from_query(
+    "couchers_users_has_reference",
+    "Total number of users who have a reference",
+    (
+        select(func.count()).select_from(
+            select(User.id)
+            .where(User.is_visible)
+            .join(Reference, Reference.to_user_id == User.id)
+            .group_by(User.id)
+            .subquery()
+        )
+    ),
+)
+
+rsvpd_to_event_gauge = _make_gauge_from_query(
+    "couchers_users_rsvpd_to_event",
+    "Total number of users who have RSVPd to an event",
+    (
+        select(func.count()).select_from(
+            select(User.id)
+            .where(User.is_visible)
+            .join(EventOccurrenceAttendee, EventOccurrenceAttendee.user_id == User.id)
+            .group_by(User.id)
+            .subquery()
+        )
+    ),
+)
 
 
 signup_initiations_counter = Counter(

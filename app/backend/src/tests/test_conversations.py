@@ -1508,3 +1508,28 @@ def test_chat_notifications(db):
             print(contents)
 
             assert [f"Test message {i}" for i in expected_msgs] == contents, f"Wrong messages for {label}"
+
+
+def test_incomplete_profile(db):
+    user1, token1 = generate_user(complete_profile=True)
+    user2, token2 = generate_user(complete_profile=False)
+    user3, token3 = generate_user(complete_profile=True)
+    make_friends(user1, user2)
+    make_friends(user1, user3)
+
+    # user 1 can make a chat
+    with conversations_session(token1) as c:
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+        group_chat_id = res.group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+        res = c.GetGroupChatMessages(conversations_pb2.GetGroupChatMessagesReq(group_chat_id=group_chat_id))
+        assert res.messages[0].text.text == "Test message 1"
+        assert to_aware_datetime(res.messages[0].time) <= now()
+        assert res.messages[0].author_user_id == user1.id
+
+    # user 2 cannot
+    with conversations_session(token2) as c:
+        with pytest.raises(grpc.RpcError) as e:
+            c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user3.id]))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.INCOMPLETE_PROFILE_SEND_MESSAGE

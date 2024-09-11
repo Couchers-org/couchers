@@ -770,7 +770,7 @@ def test_send_message_notifications_seen(db):
 
 def test_send_onboarding_emails(db):
     # needs to get first onboarding email
-    user1, token1 = generate_user(onboarding_emails_sent=0, last_onboarding_email_sent=None)
+    user1, token1 = generate_user(onboarding_emails_sent=0, last_onboarding_email_sent=None, complete_profile=False)
 
     send_onboarding_emails(empty_pb2.Empty())
     process_jobs()
@@ -784,7 +784,9 @@ def test_send_onboarding_emails(db):
         )
 
     # needs to get second onboarding email, but not yet
-    user2, token2 = generate_user(onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=6))
+    user2, token2 = generate_user(
+        onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=6), complete_profile=False
+    )
 
     send_onboarding_emails(empty_pb2.Empty())
     process_jobs()
@@ -798,7 +800,9 @@ def test_send_onboarding_emails(db):
         )
 
     # needs to get second onboarding email
-    user3, token3 = generate_user(onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=8))
+    user3, token3 = generate_user(
+        onboarding_emails_sent=1, last_onboarding_email_sent=now() - timedelta(days=8), complete_profile=False
+    )
 
     send_onboarding_emails(empty_pb2.Empty())
     process_jobs()
@@ -906,9 +910,9 @@ def test_add_users_to_email_list(db):
             add_users_to_email_list(empty_pb2.Empty())
         mock.assert_not_called()
 
-        generate_user(in_sync_with_newsletter=False, email="testing1@couchers.invalid", name="Tester1")
+        generate_user(in_sync_with_newsletter=False, email="testing1@couchers.invalid", name="Tester1", id=15)
         generate_user(in_sync_with_newsletter=True, email="testing2@couchers.invalid", name="Tester2")
-        generate_user(in_sync_with_newsletter=False, email="testing3@couchers.invalid", name="Tester3 von test")
+        generate_user(in_sync_with_newsletter=False, email="testing3@couchers.invalid", name="Tester3 von test", id=17)
         generate_user(
             in_sync_with_newsletter=False, email="testing4@couchers.invalid", name="Tester4", opt_out_of_newsletter=True
         )
@@ -927,6 +931,7 @@ def test_add_users_to_email_list(db):
                         "name": "Tester1",
                         "list_uuids": ["baf96eaa-5e70-409d-b776-f5c16fb091b9"],
                         "preconfirm_subscriptions": True,
+                        "attribs": {"couchers_user_id": 15},
                     },
                     timeout=10,
                 ),
@@ -938,6 +943,7 @@ def test_add_users_to_email_list(db):
                         "name": "Tester3 von test",
                         "list_uuids": ["baf96eaa-5e70-409d-b776-f5c16fb091b9"],
                         "preconfirm_subscriptions": True,
+                        "attribs": {"couchers_user_id": 17},
                     },
                     timeout=10,
                 ),

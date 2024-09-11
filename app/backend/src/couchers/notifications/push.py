@@ -19,8 +19,11 @@ def get_vapid_public_key():
 
 def push_to_subscription(
     session,
-    push_notification_subscription_id: int,
     *,
+    push_notification_subscription_id: int,
+    user_id: int,
+    topic_action: str,
+    key: str = None,
     title: str,
     body: str,
     icon: str = None,
@@ -37,6 +40,9 @@ def push_to_subscription(
                     "body": body[:2000],
                     "icon": icon or urls.icon_url(),
                     "url": url,
+                    "user_id": user_id,
+                    "topic_action": topic_action,
+                    "key": key or "",
                 }
             ).encode("utf8"),
             push_notification_subscription_id=push_notification_subscription_id,
@@ -45,7 +51,7 @@ def push_to_subscription(
     )
 
 
-def _push_to_user(session, user_id, **kwargs):
+def _push_to_user(session, user_id, topic_action, key, title, body, icon, url, ttl):
     """
     Same as above but for a given user
     """
@@ -59,11 +65,43 @@ def _push_to_user(session, user_id, **kwargs):
         .all()
     )
     for sub_id in sub_ids:
-        push_to_subscription(session, sub_id, **kwargs)
+        push_to_subscription(
+            session,
+            push_notification_subscription_id=sub_id,
+            user_id=user_id,
+            topic_action=topic_action,
+            key=key,
+            title=title,
+            body=body,
+            icon=icon,
+            url=url,
+            ttl=ttl,
+        )
 
 
-def push_to_user(session, user_id, **kwargs):
+def push_to_user(
+    session,
+    *,
+    user_id: int,
+    topic_action: str,
+    key: str = None,
+    title: str,
+    body: str,
+    icon: str = None,
+    url: str = None,
+    ttl: int = 0,
+):
     """
     This indirection is so that this can be easily mocked. Not sure how to do it better :(
     """
-    _push_to_user(session, user_id, **kwargs)
+    _push_to_user(
+        session,
+        user_id=user_id,
+        topic_action=topic_action,
+        key=key,
+        title=title,
+        body=body,
+        icon=icon,
+        url=url,
+        ttl=ttl,
+    )

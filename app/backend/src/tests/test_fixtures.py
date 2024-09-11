@@ -226,7 +226,7 @@ def db():
     recreate_database()
 
 
-def generate_user(*, delete_user=False, complete_profile=False, **kwargs):
+def generate_user(*, delete_user=False, complete_profile=True, **kwargs):
     """
     Create a new user, return session token
 
