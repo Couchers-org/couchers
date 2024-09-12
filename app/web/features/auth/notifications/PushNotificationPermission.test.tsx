@@ -25,7 +25,6 @@ const mockServiceWorker = {
 };
 
 describe("PushNotificationPermission Component", () => {
-  const originalLocation = window;
   const mNotification = jest.fn();
   Object.defineProperty(global, "Notification", {
     value: mNotification,
@@ -46,10 +45,6 @@ describe("PushNotificationPermission Component", () => {
     };
 
     Object.assign(global.Notification, mockDefault);
-
-    Object.defineProperty(globalThis, "window", {
-      value: originalLocation,
-    });
 
     jest.resetAllMocks();
   });
