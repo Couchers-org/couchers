@@ -287,7 +287,10 @@
       "turn_on": "Turn on Push Notifications",
       "turn_off": "Turn off Push Notifications",
       "enabled_message": "You currently have push notifications <1>enabled</1>.",
-      "disabled_message": "You currently have push notifications <1>disabled</1>."
+      "disabled_message": "You currently have push notifications <1>disabled</1>.",
+      "error_blocked_push": "You've blocked notifications. Please enable notifications in your browser settings to continue.",
+      "error_generic": "Error during subscription to push notifications",
+      "error_unsupported": "Push notifications or Service Workers are not supported in this browser."
     }
   },
   "strong_verification": {

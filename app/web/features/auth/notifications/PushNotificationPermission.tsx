@@ -27,7 +27,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// @TODO - Write tests
 // @TODO - Merge in PR and remove arrayToBase64 function
 // @TODO - Get additional info from the backend and implement in the service-worker
 
@@ -83,11 +82,13 @@ export default function PushNotificationPermission({
         await registerPushNotificationSubscription(subscription);
       } else {
         setErrorMessage(
-          "Push notifications or Service Workers are not supported in this browser."
+          t("notification_settings.push_notifications.error_unsupported")
         );
       }
     } catch (error) {
-      setErrorMessage("Error during subscription to push notifications");
+      setErrorMessage(
+        t("notification_settings.push_notifications.error_generic")
+      );
     }
   };
 
@@ -98,11 +99,11 @@ export default function PushNotificationPermission({
 
       if (result === "granted") {
         await onPermissionGranted();
-      } else {
-        setErrorMessage(
-          "You've blocked notifications. Please enable notifications in your browser settings to continue."
-        );
       }
+    } else {
+      setErrorMessage(
+        t("notification_settings.push_notifications.error_blocked_push")
+      );
     }
   };
 

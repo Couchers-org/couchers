@@ -5,5 +5,6 @@ self.addEventListener("push", function (event) {
     body: data.body,
     icon: data.icon,
     badge: data.badge,
+    url: data.url,
   });
 });
