@@ -283,7 +283,7 @@
     },
     "push_notifications": {
       "title": "Push Notifications",
-      "description": "You can enable push notifications for Couchers.org on your device. We are working on implementing this feature.",
+      "description": "You can enable push notifications for Couchers.org on your device. We are working on expanding this feature.",
       "turn_on": "Turn on Push Notifications",
       "turn_off": "Turn off Push Notifications",
       "enabled_message": "You currently have push notifications <1>enabled</1>.",
