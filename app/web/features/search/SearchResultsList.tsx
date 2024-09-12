@@ -4,6 +4,7 @@ import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
 import SearchResult from "features/search/SearchResult";
+import { useUser } from "features/userQueries/useUsers";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
@@ -81,7 +82,6 @@ interface mapWrapperProps {
   results: InfiniteData<UserSearchRes.AsObject> | undefined;
   error?: string | undefined;
   hasNext?: boolean | undefined;
-  fetchNextPage: () => void;
   selectedResult:
     | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
     | undefined;
@@ -91,8 +91,8 @@ interface mapWrapperProps {
     >
   >;
   searchType: string;
-  setSearchType: Dispatch<SetStateAction<string>>;
   locationResult: any;
+  setSearchType: Dispatch<SetStateAction<string>>;
   setLocationResult: Dispatch<SetStateAction<any>>;
   setQueryName: Dispatch<SetStateAction<undefined | string>>;
   queryName: undefined | string;
@@ -103,7 +103,6 @@ export default function SearchResultsList({
   results,
   error,
   hasNext,
-  fetchNextPage,
   selectedResult,
   setSelectedResult,
   searchType,
@@ -113,10 +112,26 @@ export default function SearchResultsList({
   setQueryName,
   queryName,
 }: mapWrapperProps) {
+  const selectedUserData = useUser(selectedResult?.userId);
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
   const hasAtLeastOnePageResults =
     results && results?.pages[0]?.resultsList?.length !== 0;
+
+  let resultsList: any = results?.pages
+    .flatMap((page) => page.resultsList)
+    .filter((result) => result.user);
+
+  let wasResultFound = false;
+  resultsList?.map((value: any) => {
+    if (value.user?.userId === selectedResult?.userId) {
+      wasResultFound = true;
+    }
+  });
+
+  if (!wasResultFound && selectedUserData.data) {
+    resultsList = [{ user: selectedUserData.data }];
+  }
 
   return (
     <Paper className={classes.mapResults}>
@@ -134,7 +149,10 @@ export default function SearchResultsList({
       </Hidden>
 
       <>
-        {isLoading && <CircularProgress className={classes.baseMargin} />}
+        {isLoading ||
+          (selectedUserData.isLoading && (
+            <CircularProgress className={classes.baseMargin} />
+          ))}
 
         {!isLoading && !hasAtLeastOnePageResults && (
           <TextBody className={classes.baseMargin}>
@@ -147,13 +165,11 @@ export default function SearchResultsList({
             breakpoint="sm"
             className={classes.scroller}
             isFetching={isLoading}
-            fetchNext={fetchNextPage}
+            // fetchNext={fetchNextPage} // TODO: disabled for now (until pagination)
             hasMore={hasNext}
           >
-            {results?.pages
-              .flatMap((page) => page.resultsList)
-              .filter((result) => result.user)
-              .map((result) => (
+            {resultsList &&
+              resultsList.map((result: any) => (
                 <SearchResult
                   id={`search-result-${result.user!.userId}`}
                   className={classes.searchResult}
@@ -161,15 +177,15 @@ export default function SearchResultsList({
                   user={result.user!}
                   onSelect={() => {
                     setSelectedResult({
-                      username: result.user?.username as string,
-                      userId: result.user?.userId as number,
-                      lng: result.user?.lng as number,
-                      lat: result.user?.lat as number,
+                      username: result.user!.username,
+                      userId: result.user!.userId,
+                      lng: result.user!.lng,
+                      lat: result.user!.lat,
                     });
                   }}
                   highlight={
                     selectedResult &&
-                    result.user!.userId === selectedResult.userId
+                    selectedResult.userId === result.user!.userId
                   }
                 />
               ))}
