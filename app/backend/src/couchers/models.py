@@ -279,6 +279,9 @@ class User(Base):
 
     has_passport_sex_gender_exception = Column(Boolean, nullable=False, server_default=text("false"))
 
+    #  checking for phone verification
+    has_donated = Column(Boolean, nullable=False, server_default=text("false"))
+
     # whether this user has all emails turned off
     do_not_email = Column(Boolean, nullable=False, server_default=text("false"))
 

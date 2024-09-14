@@ -149,6 +149,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 username=user.username,
                 email=user.email,
                 phone=user.phone if (user.phone_is_verified or not user.phone_code_expired) else None,
+                has_donated=user.has_donated,
                 phone_verified=user.phone_is_verified,
                 profile_complete=user.has_completed_profile,
                 timezone=user.timezone,
@@ -267,6 +268,10 @@ class Account(account_pb2_grpc.AccountServicer):
 
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+            if not user.has_donated:
+                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_DONATED)
+
             if not phone:
                 user.phone = None
                 user.phone_verification_verified = None
@@ -309,6 +314,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
             if user.phone_verification_token is None:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PENDING_VERIFICATION)
 

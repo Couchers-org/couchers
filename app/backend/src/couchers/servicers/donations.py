@@ -112,6 +112,10 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 # amount comes in cents
                 amount = int(data_object["amount"]) // 100
                 receipt_url = data_object["receipt_url"]
+
+                # may be check for amount to enable phone verify
+                user.has_donated = True
+
                 session.add(
                     Invoice(
                         user_id=user.id,

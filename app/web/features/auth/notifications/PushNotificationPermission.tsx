@@ -1,9 +1,8 @@
 import { Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import CustomColorSwitch from "components/CustomColorSwitch";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import { Trans } from "next-i18next";
 import { useState } from "react";
 import {
   getVapidPublicKey,
@@ -32,12 +31,12 @@ export default function PushNotificationPermission({
 }: {
   className: string;
 }) {
+  const { t } = useTranslation(AUTH);
+  const classes = useStyles();
+
   const [permission, setPermission] = useState(Notification.permission);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const hasPermission = permission === "granted";
-
-  const { t } = useTranslation(AUTH);
-  const classes = useStyles();
 
   const onPermissionGranted = async () => {
     // If permission is granted, subscribe the user to push notifications
@@ -145,11 +144,11 @@ export default function PushNotificationPermission({
       )}
       <Typography variant="body1" className={classes.status}>
         {hasPermission ? (
-          <Trans i18nKey="notification_settings.push_notifications.enabled_message">
+          <Trans i18nKey="auth:notification_settings.push_notifications.enabled_message">
             You currently have push notifications <strong>enabled</strong>.
           </Trans>
         ) : (
-          <Trans i18nKey="notification_settings.push_notifications.disabled_message">
+          <Trans i18nKey="auth:notification_settings.push_notifications.disabled_message">
             You currently have push notifications <strong>disabled</strong>.
           </Trans>
         )}
