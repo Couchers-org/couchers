@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
 
 interface SearchBoxProps {
   searchType: string;
-  setSearchType: Dispatch<SetStateAction<"keyword" | "location">>;
+  setSearchType: Dispatch<SetStateAction<string>>;
   locationResult: any;
   setLocationResult: Dispatch<SetStateAction<any>>;
   setQueryName: Dispatch<SetStateAction<any>>;

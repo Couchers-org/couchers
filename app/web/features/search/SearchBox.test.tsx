@@ -18,7 +18,7 @@ const View = ({
   return (
     <SearchBox
       searchType={searchType}
-      setSearchType={setSearchType}
+      setSearchType={setSearchType as any}
       setLocationResult={setLocationResultProp}
       locationResult={locationResultProp}
       setQueryName={setQueryNameProp}
@@ -44,7 +44,7 @@ describe("SearchBox", () => {
   });
 
   it("clears keyword search correctly", async () => {
-    render(<View searchTypeParam="keyword" />);
+    render(<View />);
 
     const input = screen.getByLabelText(t("search:form.keywords.field_label"));
 
@@ -73,7 +73,7 @@ describe("SearchBox", () => {
     });
 
     it("result from list is choosable", async () => {
-      render(<View searchTypeParam="location" />);
+      render(<View />);
 
       userEvent.click(
         screen.getByLabelText(t("search:form.by_location_filter_label"))
