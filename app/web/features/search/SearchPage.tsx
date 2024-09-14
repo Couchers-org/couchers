@@ -161,6 +161,7 @@ export default function SearchPage({
     hostingStatusFilter,
     numberOfGuestFilter,
     completeProfileFilter,
+    wasSearchPerformed,
   ]);
 
   const errorMessage = error?.message;

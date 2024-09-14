@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
 
 interface SearchBoxProps {
   searchType: string;
-  setSearchType: Dispatch<SetStateAction<string>>;
+  setSearchType: Dispatch<SetStateAction<"keyword" | "location">>;
   locationResult: any;
   setLocationResult: Dispatch<SetStateAction<any>>;
   setQueryName: Dispatch<SetStateAction<any>>;
@@ -55,7 +55,7 @@ export default function SearchBox({
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
 
-  const { control, setValue, errors, register, handleSubmit } = useForm({
+  const { control, errors } = useForm({
     mode: "onChange",
   });
 
@@ -90,7 +90,7 @@ export default function SearchBox({
         <LocationAutocomplete
           control={control}
           name="location"
-          defaultValue={locationResult.name}
+          defaultValue={locationResult?.name}
           label={t("search:form.location_field_label")}
           onChange={handleOnChangeAutocomplete}
           fieldError={errors.location?.message}

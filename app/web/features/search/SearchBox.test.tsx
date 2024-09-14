@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { server } from "test/restMock";
 import { t } from "test/utils";
+import { GeocodeResult } from "utils/hooks";
 
 import SearchBox from "./SearchBox";
 
@@ -13,12 +14,12 @@ const View = ({
 }) => {
   const [searchType, setSearchType] = useState(searchTypeParam);
   const [queryNameProp, setQueryNameProp] = useState("");
-  const [locationResultProp, setLocationResultProp] = useState({});
+  const [locationResultProp, setLocationResultProp] = useState<GeocodeResult>();
 
   return (
     <SearchBox
       searchType={searchType}
-      setSearchType={setSearchType as any}
+      setSearchType={setSearchType}
       setLocationResult={setLocationResultProp}
       locationResult={locationResultProp}
       setQueryName={setQueryNameProp}
@@ -44,7 +45,7 @@ describe("SearchBox", () => {
   });
 
   it("clears keyword search correctly", async () => {
-    render(<View />);
+    render(<View searchTypeParam="keyword" />);
 
     const input = screen.getByLabelText(t("search:form.keywords.field_label"));
 
@@ -73,7 +74,7 @@ describe("SearchBox", () => {
     });
 
     it("result from list is choosable", async () => {
-      render(<View />);
+      render(<View searchTypeParam="location" />);
 
       userEvent.click(
         screen.getByLabelText(t("search:form.by_location_filter_label"))

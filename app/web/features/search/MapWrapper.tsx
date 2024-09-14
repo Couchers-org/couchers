@@ -2,7 +2,6 @@ import ReplayIcon from "@material-ui/icons/Replay";
 import TuneIcon from "@material-ui/icons/Tune";
 import Button from "components/Button";
 import Map from "components/Map";
-import { LngLat } from "maplibre-gl";
 import {
   addClusteredUsersToMap,
   filterData,
@@ -12,7 +11,7 @@ import {
 import { Point } from "geojson";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
-import maplibregl, { EventData, Map as MaplibreMap } from "maplibre-gl";
+import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import {
@@ -78,8 +77,8 @@ interface mapWrapperProps {
     >
   >;
   map: MutableRefObject<MaplibreMap | undefined>;
-  setWasSearchPerformed: any;
-  wasSearchPerformed: any;
+  setWasSearchPerformed: Dispatch<SetStateAction<boolean>>;
+  wasSearchPerformed: boolean;
 }
 
 export default function MapWrapper({
@@ -123,7 +122,7 @@ export default function MapWrapper({
       const [lng, lat] = geom.coordinates;
       setSelectedResult({ username, userId, lng, lat });
     },
-    []
+    [setSelectedResult]
   );
 
   /**
@@ -140,17 +139,20 @@ export default function MapWrapper({
       // unbind the event
       map.current.off("sourcedata", handleMapSourceData);
     }
-  }, []);
+  }, [map]);
 
   /**
    * Moves map to selected user's location
    */
-  const flyToUser = useCallback((user: Pick<User.AsObject, "lng" | "lat">) => {
-    map.current?.stop();
-    map.current?.easeTo({
-      center: [user.lng, user.lat],
-    });
-  }, []);
+  const flyToUser = useCallback(
+    (user: Pick<User.AsObject, "lng" | "lat">) => {
+      map.current?.stop();
+      map.current?.easeTo({
+        center: [user.lng, user.lat],
+      });
+    },
+    [map]
+  );
 
   /**
    * Centers selected user
@@ -181,7 +183,7 @@ export default function MapWrapper({
         .getElementById(`search-result-${selectedResult.userId}`)
         ?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [selectedResult, areClustersLoaded, previousResult, flyToUser]);
+  }, [selectedResult, areClustersLoaded, previousResult, flyToUser, map]);
 
   useEffect(() => {
     if (!map.current) return;
@@ -215,7 +217,7 @@ export default function MapWrapper({
         handleMapUserClick
       );
     };
-  }, [handleMapUserClick, handleMapSourceData]);
+  }, [handleMapUserClick, handleMapSourceData, map, setSelectedResult]);
 
   /**
    * Re-renders users list on map (when results array changed)
@@ -227,7 +229,14 @@ export default function MapWrapper({
         reRenderUsersOnMap(map.current!, usersToRender, handleMapUserClick);
       }
     }
-  }, [results, isMapStyleLoaded, isMapSourceLoaded]);
+  }, [
+    results,
+    isMapStyleLoaded,
+    isMapSourceLoaded,
+    wasSearchPerformed,
+    map,
+    handleMapUserClick,
+  ]);
 
   /**
    * Clicks on 'search here' button
