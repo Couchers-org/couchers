@@ -27,9 +27,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// @TODO - Merge in PR and remove arrayToBase64 function
-// @TODO - Get additional info from the backend and implement in the service-worker
-
 export default function PushNotificationPermission({
   className,
 }: {
