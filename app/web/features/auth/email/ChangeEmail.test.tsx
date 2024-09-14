@@ -24,6 +24,7 @@ const accountInfo = {
   birthdateVerificationStatus: 1,
   genderVerificationStatus: 3,
   doNotEmail: false,
+  hasDonated: false,
 };
 
 describe("ChangeEmail", () => {
