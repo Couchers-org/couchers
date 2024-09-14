@@ -3,7 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { server } from "test/restMock";
 import { t } from "test/utils";
-import { GeocodeResult } from "utils/hooks";
 
 import SearchBox from "./SearchBox";
 
@@ -14,7 +13,7 @@ const View = ({
 }) => {
   const [searchType, setSearchType] = useState(searchTypeParam);
   const [queryNameProp, setQueryNameProp] = useState("");
-  const [locationResultProp, setLocationResultProp] = useState<GeocodeResult>();
+  const [locationResultProp, setLocationResultProp] = useState({});
 
   return (
     <SearchBox
