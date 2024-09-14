@@ -10,6 +10,7 @@ import SearchPage from "./SearchPage";
 jest.mock("features/userQueries/useCurrentUser");
 jest.mock("maplibre-gl", () => {
   return {
+    ...jest.requireActual("maplibre-gl"),
     getBounds: [0, 0, 0, 0],
   };
 });
