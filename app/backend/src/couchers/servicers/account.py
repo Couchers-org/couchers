@@ -48,7 +48,7 @@ from couchers.tasks import (
     send_account_deletion_report_email,
     send_email_changed_confirmation_to_new_email,
 )
-from couchers.utils import Timestamp_from_datetime, dt_from_millis, is_valid_email, millis_from_dt, now
+from couchers.utils import Timestamp_from_datetime, dt_from_page_token, dt_to_page_token, is_valid_email, now
 from proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc, notification_data_pb2
 from proto.google.api import httpbody_pb2
 from proto.internal import jobs_pb2, verification_pb2
@@ -514,7 +514,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
     def ListActiveSessions(self, request, context, session):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
+        page_token = dt_from_page_token(request.page_token) if request.page_token else now()
 
         user_sessions = (
             session.execute(
@@ -522,7 +522,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 .where(UserSession.user_id == context.user_id)
                 .where(UserSession.is_valid)
                 .where(UserSession.is_api_key == False)
-                .where(UserSession.last_seen <= page_token + timedelta(seconds=1))
+                .where(UserSession.last_seen <= page_token)
                 .order_by(UserSession.last_seen.desc())
                 .limit(page_size + 1)
             )
@@ -544,9 +544,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 )
                 for user_session in user_sessions[:page_size]
             ],
-            next_page_token=str(millis_from_dt(user_sessions[-1].last_seen))
-            if len(user_sessions) > page_size
-            else None,
+            next_page_token=dt_to_page_token(user_sessions[-1].last_seen) if len(user_sessions) > page_size else None,
         )
 
     def LogOutOtherSessions(self, request, context, session):

@@ -23,6 +23,7 @@ from tests.test_fixtures import (  # noqa
     mock_notification_email,
     process_jobs,
     push_collector,
+    real_account_session,
     testconfig,
 )
 
@@ -719,3 +720,44 @@ def test_multiple_delete_tokens(db):
 
     with session_scope() as session:
         assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
+
+
+def test_ListActiveSessions(db, fast_passwords):
+    password = random_hex()
+    user, token = generate_user(hashed_password=hash_password(password))
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+
+    with account_session(token) as account:
+        res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq(page_size=3))
+        assert len(res.active_sessions) == 3
+        res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq(page_token=res.next_page_token, page_size=3))
+        assert len(res.active_sessions) == 2
+        assert not res.next_page_token
+
+
+def test_LogOutOtherSessions(db, fast_passwords):
+    password = random_hex()
+    user, token = generate_user(hashed_password=hash_password(password))
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+
+    with real_account_session(token) as account:
+        res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
+        assert len(res.active_sessions) == 5
+        with pytest.raises(grpc.RpcError) as e:
+            account.LogOutOtherSessions(account_pb2.LogOutOtherSessionsReq(confirm=False))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.MUST_CONFIRM_LOGOUT_OTHER_SESSIONS
+
+        account.LogOutOtherSessions(account_pb2.LogOutOtherSessionsReq(confirm=True))
+        res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
+        assert len(res.active_sessions) == 1
