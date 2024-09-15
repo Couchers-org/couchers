@@ -4,7 +4,6 @@ import logging
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.sql import func
 
-from couchers.db import session_scope
 from couchers.models import Node, Page, PageType, PageVersion, User
 from couchers.sql import couchers_select as select
 from proto import gis_pb2_grpc
@@ -36,51 +35,44 @@ def _statement_to_geojson_response(session, statement):
 
 
 class GIS(gis_pb2_grpc.GISServicer):
-    def GetUsers(self, request, context):
-        with session_scope() as session:
-            statement = select(User.username, User.id, User.geom).where_users_visible(context).where(User.geom != None)
+    def GetUsers(self, request, context, session):
+        statement = select(User.username, User.id, User.geom).where_users_visible(context).where(User.geom != None)
+        return _statement_to_geojson_response(session, statement)
 
-            return _statement_to_geojson_response(session, statement)
+    def GetCommunities(self, request, context, session):
+        return _statement_to_geojson_response(session, select(Node).where(Node.geom != None))
 
-    def GetCommunities(self, request, context):
-        with session_scope() as session:
-            statement = select(Node).where(Node.geom != None)
+    def GetPlaces(self, request, context, session):
+        # need to do a subquery here so we get pages without a geom, not just versions without geom
+        latest_pages = (
+            select(func.max(PageVersion.id).label("id"))
+            .join(Page, Page.id == PageVersion.page_id)
+            .where(Page.type == PageType.place)
+            .group_by(PageVersion.page_id)
+            .subquery()
+        )
 
-            return _statement_to_geojson_response(session, statement)
+        statement = (
+            select(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom)
+            .join(latest_pages, latest_pages.c.id == PageVersion.id)
+            .where(PageVersion.geom != None)
+        )
 
-    def GetPlaces(self, request, context):
-        with session_scope() as session:
-            # need to do a subquery here so we get pages without a geom, not just versions without geom
-            latest_pages = (
-                select(func.max(PageVersion.id).label("id"))
-                .join(Page, Page.id == PageVersion.page_id)
-                .where(Page.type == PageType.place)
-                .group_by(PageVersion.page_id)
-                .subquery()
-            )
+        return _statement_to_geojson_response(session, statement)
 
-            statement = (
-                select(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom)
-                .join(latest_pages, latest_pages.c.id == PageVersion.id)
-                .where(PageVersion.geom != None)
-            )
+    def GetGuides(self, request, context, session):
+        latest_pages = (
+            select(func.max(PageVersion.id).label("id"))
+            .join(Page, Page.id == PageVersion.page_id)
+            .where(Page.type == PageType.guide)
+            .group_by(PageVersion.page_id)
+            .subquery()
+        )
 
-            return _statement_to_geojson_response(session, statement)
+        statement = (
+            select(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom)
+            .join(latest_pages, latest_pages.c.id == PageVersion.id)
+            .where(PageVersion.geom != None)
+        )
 
-    def GetGuides(self, request, context):
-        with session_scope() as session:
-            latest_pages = (
-                select(func.max(PageVersion.id).label("id"))
-                .join(Page, Page.id == PageVersion.page_id)
-                .where(Page.type == PageType.guide)
-                .group_by(PageVersion.page_id)
-                .subquery()
-            )
-
-            statement = (
-                select(PageVersion.page_id.label("id"), PageVersion.slug.label("slug"), PageVersion.geom)
-                .join(latest_pages, latest_pages.c.id == PageVersion.id)
-                .where(PageVersion.geom != None)
-            )
-
-            return _statement_to_geojson_response(session, statement)
+        return _statement_to_geojson_response(session, statement)

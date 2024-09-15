@@ -1,7 +1,7 @@
 import grpc
 
 from couchers import errors
-from couchers.db import can_moderate_node, session_scope
+from couchers.db import can_moderate_node
 from couchers.models import Cluster, Discussion, Thread
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
@@ -34,7 +34,7 @@ def discussion_to_pb(session, discussion: Discussion, context):
 
 
 class Discussions(discussions_pb2_grpc.DiscussionsServicer):
-    def CreateDiscussion(self, request, context):
+    def CreateDiscussion(self, request, context, session):
         if not request.title:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_DISCUSSION_TITLE)
         if not request.content:
@@ -42,38 +42,36 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         if not request.owner_community_id and not request.owner_group_id:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.GROUP_OR_COMMUNITY_NOT_FOUND)
 
-        with session_scope() as session:
-            if request.WhichOneof("owner") == "owner_group_id":
-                cluster = session.execute(
-                    select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.owner_group_id)
-                ).scalar_one_or_none()
-            elif request.WhichOneof("owner") == "owner_community_id":
-                cluster = session.execute(
-                    select(Cluster)
-                    .where(Cluster.parent_node_id == request.owner_community_id)
-                    .where(Cluster.is_official_cluster)
-                ).scalar_one_or_none()
-
-            if not cluster:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_OR_COMMUNITY_NOT_FOUND)
-
-            discussion = Discussion(
-                title=request.title,
-                content=request.content,
-                creator_user_id=context.user_id,
-                owner_cluster=cluster,
-                thread=Thread(),
-            )
-            session.add(discussion)
-            session.commit()
-            return discussion_to_pb(session, discussion, context)
-
-    def GetDiscussion(self, request, context):
-        with session_scope() as session:
-            discussion = session.execute(
-                select(Discussion).where(Discussion.id == request.discussion_id)
+        if request.WhichOneof("owner") == "owner_group_id":
+            cluster = session.execute(
+                select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.owner_group_id)
             ).scalar_one_or_none()
-            if not discussion:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.DISCUSSION_NOT_FOUND)
+        elif request.WhichOneof("owner") == "owner_community_id":
+            cluster = session.execute(
+                select(Cluster)
+                .where(Cluster.parent_node_id == request.owner_community_id)
+                .where(Cluster.is_official_cluster)
+            ).scalar_one_or_none()
 
-            return discussion_to_pb(session, discussion, context)
+        if not cluster:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_OR_COMMUNITY_NOT_FOUND)
+
+        discussion = Discussion(
+            title=request.title,
+            content=request.content,
+            creator_user_id=context.user_id,
+            owner_cluster=cluster,
+            thread=Thread(),
+        )
+        session.add(discussion)
+        session.commit()
+        return discussion_to_pb(session, discussion, context)
+
+    def GetDiscussion(self, request, context, session):
+        discussion = session.execute(
+            select(Discussion).where(Discussion.id == request.discussion_id)
+        ).scalar_one_or_none()
+        if not discussion:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.DISCUSSION_NOT_FOUND)
+
+        return discussion_to_pb(session, discussion, context)
