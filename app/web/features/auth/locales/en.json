@@ -288,9 +288,23 @@
       "turn_off": "Turn off Push Notifications",
       "enabled_message": "You currently have push notifications <1>enabled</1>.",
       "disabled_message": "You currently have push notifications <1>disabled</1>.",
-      "error_blocked_push": "You've blocked notifications. Please enable notifications in your browser settings to continue.",
       "error_generic": "Error during subscription to push notifications",
-      "error_unsupported": "Push notifications or Service Workers are not supported in this browser."
+      "error_unsupported": "Push notifications or Service Workers are not supported in this browser.",
+      "permission_denied": {
+        "platform_settings_description": "Still having issues after enabling notifications in your browser? You may need to adjust your platform settings.",
+        "instructions": {
+          "chrome": "You've blocked notifications. Please enable notifications in your browser settings to continue. In Chrome, click on the padlock icon in the URL bar, then adjust the \"Notifications\" setting.",
+          "firefox": "You've blocked notifications. Please enable notifications in your browser settings to continue. In Firefox, go to Preferences > Privacy & Security > Permissions > Notifications, and modify the website's permission.",
+          "safari": "You've blocked notifications. Please enable notifications in your browser settings to continue. In Safari, go to Preferences > Websites > Notifications to modify permissions.",
+          "generic": "You've blocked notifications. Please enable notifications in your browser settings to continue.",
+          "macos": "In macOS, go to System Settings > Notifications, and modify the app's permission.",
+          "windows": "In Windows, go to Settings > System > Notifications & actions, and adjust the app or website's permission.",
+          "linux": {
+            "gnome": "In GNOME, go to Settings > Notifications to adjust the app's permission.",
+            "kde": "In KDE, go to System Settings > Notifications to modify permissions."
+          }
+        }
+      }
     }
   },
   "strong_verification": {
