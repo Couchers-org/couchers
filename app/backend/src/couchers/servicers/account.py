@@ -1,10 +1,11 @@
 import json
+import logging
 from datetime import timedelta
 
 import grpc
 import requests
 from google.protobuf import empty_pb2
-from sqlalchemy.sql import update
+from sqlalchemy.sql import func, update
 
 from couchers import errors
 from couchers.config import config
@@ -36,6 +37,7 @@ from couchers.models import (
     StrongVerificationAttemptStatus,
     StrongVerificationCallbackEvent,
     User,
+    UserSession,
 )
 from couchers.notifications.notify import notify
 from couchers.phone import sms
@@ -46,10 +48,13 @@ from couchers.tasks import (
     send_account_deletion_report_email,
     send_email_changed_confirmation_to_new_email,
 )
-from couchers.utils import Timestamp_from_datetime, is_valid_email, now
+from couchers.utils import Timestamp_from_datetime, dt_from_millis, is_valid_email, millis_from_dt, now
 from proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc, notification_data_pb2
 from proto.google.api import httpbody_pb2
 from proto.internal import jobs_pb2, verification_pb2
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 contributeoption2sql = {
     auth_pb2.CONTRIBUTE_OPTION_UNSPECIFIED: None,
@@ -64,6 +69,8 @@ contributeoption2api = {
     ContributeOption.maybe: auth_pb2.CONTRIBUTE_OPTION_MAYBE,
     ContributeOption.no: auth_pb2.CONTRIBUTE_OPTION_NO,
 }
+
+MAX_PAGINATION_LENGTH = 50
 
 
 def has_strong_verification(session, user):
@@ -504,6 +511,64 @@ class Account(account_pb2_grpc.AccountServicer):
         )
 
         return account_pb2.ListModNotesRes(mod_notes=[mod_note_to_pb(note) for note in notes])
+
+    def ListActiveSessions(self, request, context, session):
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
+
+        user_sessions = (
+            session.execute(
+                select(UserSession)
+                .where(UserSession.user_id == context.user_id)
+                .where(UserSession.is_valid)
+                .where(UserSession.is_api_key == False)
+                .where(UserSession.last_seen <= page_token + timedelta(seconds=1))
+                .order_by(UserSession.last_seen.desc())
+                .limit(page_size + 1)
+            )
+            .scalars()
+            .all()
+        )
+
+        logger.info(user_sessions)
+
+        return account_pb2.ListActiveSessionsRes(
+            active_sessions=[
+                account_pb2.ActiveSession(
+                    created=Timestamp_from_datetime(user_session.created),
+                    expiry=Timestamp_from_datetime(user_session.expiry),
+                    last_seen=Timestamp_from_datetime(user_session.last_seen),
+                    # TODO: we don't want to send lal this info out
+                    user_agent=user_session.user_agent,
+                    ip_address=user_session.ip_address,
+                )
+                for user_session in user_sessions[:page_size]
+            ],
+            next_page_token=str(millis_from_dt(user_sessions[-1].last_seen))
+            if len(user_sessions) > page_size
+            else None,
+        )
+
+    def LogOutOtherSessions(self, request, context, session):
+        if not request.confirm:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MUST_CONFIRM_LOGOUT_OTHER_SESSIONS)
+
+        (token, token_expiry) = context.token
+
+        session.execute(
+            update(UserSession)
+            .where(UserSession.token != token)
+            .where(UserSession.user_id == context.user_id)
+            .where(UserSession.is_valid)
+            .where(UserSession.is_api_key == False)
+            .values(
+                {
+                    "expiry": func.now(),
+                }
+            )
+            .execution_options(synchronize_session=False)
+        )
+        return empty_pb2.Empty()
 
 
 class Iris(iris_pb2_grpc.IrisServicer):
