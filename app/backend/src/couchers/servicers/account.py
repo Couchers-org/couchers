@@ -6,6 +6,7 @@ import grpc
 import requests
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import func, update
+from user_agents import parse as user_agents_parse
 
 from couchers import errors
 from couchers.config import config
@@ -20,6 +21,7 @@ from couchers.crypto import (
     verify_password,
     verify_token,
 )
+from couchers.helpers.geoip import geoip_approximate_location
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import (
     account_deletion_initiations_counter,
@@ -530,20 +532,20 @@ class Account(account_pb2_grpc.AccountServicer):
             .all()
         )
 
-        logger.info(user_sessions)
+        def _active_session_to_pb(user_session):
+            user_agent = user_agents_parse(user_session.user_agent or "")
+            return account_pb2.ActiveSession(
+                created=Timestamp_from_datetime(user_session.created),
+                expiry=Timestamp_from_datetime(user_session.expiry),
+                last_seen=Timestamp_from_datetime(user_session.last_seen),
+                operating_system=user_agent.os.family,
+                browser=user_agent.browser.family,
+                device=user_agent.device.family,
+                approximate_location=geoip_approximate_location(user_session.ip_address),
+            )
 
         return account_pb2.ListActiveSessionsRes(
-            active_sessions=[
-                account_pb2.ActiveSession(
-                    created=Timestamp_from_datetime(user_session.created),
-                    expiry=Timestamp_from_datetime(user_session.expiry),
-                    last_seen=Timestamp_from_datetime(user_session.last_seen),
-                    # TODO: we don't want to send lal this info out
-                    user_agent=user_session.user_agent,
-                    ip_address=user_session.ip_address,
-                )
-                for user_session in user_sessions[:page_size]
-            ],
+            active_sessions=list(map(_active_session_to_pb, user_sessions[:page_size])),
             next_page_token=dt_to_page_token(user_sessions[-1].last_seen) if len(user_sessions) > page_size else None,
         )
 

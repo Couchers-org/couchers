@@ -194,8 +194,10 @@ message ActiveSession {
   google.protobuf.Timestamp created = 1;
   google.protobuf.Timestamp expiry = 2;
   google.protobuf.Timestamp last_seen = 3;
-  string user_agent = 4;
-  string ip_address = 5;
+  string operating_system = 4;
+  string browser = 5;
+  string device = 6;
+  string approximate_location = 7;
 }
 
 message ListActiveSessionsRes {

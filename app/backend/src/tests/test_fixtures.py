@@ -394,7 +394,7 @@ class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
 
 
 @contextmanager
-def auth_api_session():
+def auth_api_session(grpc_channel_options=()):
     """
     Create an Auth API for testing
 
@@ -407,7 +407,9 @@ def auth_api_session():
         server.start()
 
         try:
-            with grpc.secure_channel(f"localhost:{port}", grpc.local_channel_credentials()) as channel:
+            with grpc.secure_channel(
+                f"localhost:{port}", grpc.local_channel_credentials(), options=grpc_channel_options
+            ) as channel:
 
                 class _MetadataKeeperInterceptor(grpc.UnaryUnaryClientInterceptor):
                     def __init__(self):
