@@ -1,10 +1,23 @@
 self.addEventListener("push", function (event) {
-  const data = event.data.json();
+  const data = event.data?.json();
+
+  console.log("PUSH NOTIFICATION DATA", data);
 
   self.registration.showNotification(data.title, {
     body: data.body,
     icon: data.icon,
     badge: data.badge,
-    url: data.url,
+    data: { url: data.url },
   });
+});
+
+// Handles clicking on a url within a notification
+self.addEventListener("notificationclick", (event) => {
+  const notificationData = event.notification.data;
+
+  if (notificationData.url) {
+    clients.openWindow(notificationData.url);
+  }
+
+  event.notification.close();
 });

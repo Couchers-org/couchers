@@ -1,6 +1,6 @@
 import { Typography } from "@material-ui/core";
 import Alert from "components/Alert";
-import CustomColorSwitch from "components/CustomColorSwitch";
+import Button from "components/Button";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import Sentry from "platform/sentry";
@@ -9,7 +9,6 @@ import {
   getVapidPublicKey,
   registerPushNotificationSubscription,
 } from "service/notifications";
-import { theme } from "theme";
 import { arrayBufferToBase64 } from "utils/arrayBufferToBase64";
 import makeStyles from "utils/makeStyles";
 
@@ -44,7 +43,6 @@ export default function PushNotificationPermission({
   const { t } = useTranslation(AUTH);
   const classes = useStyles();
 
-  const [permission, setPermission] = useState(Notification.permission);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const onPermissionGranted = async () => {
@@ -52,10 +50,16 @@ export default function PushNotificationPermission({
     try {
       // Check if service workers and push notifications are supported
       if ("serviceWorker" in navigator && "PushManager" in window) {
-        const registration = await navigator.serviceWorker.register(
-          "/service-worker.js",
-          { scope: "/" }
-        );
+        let registration = await navigator.serviceWorker.getRegistration();
+
+        if (!registration) {
+          registration = await navigator.serviceWorker.register(
+            "/service-worker.js",
+            {
+              scope: "/",
+            }
+          );
+        }
 
         const existingPushSubscription =
           await registration.pushManager.getSubscription();
@@ -77,9 +81,8 @@ export default function PushNotificationPermission({
           }
         }
 
-        // Subscribe to push notifications using the PushManager API
         const subscription: PushSubscription =
-          await registration.pushManager.subscribe({
+          await registration!.pushManager.subscribe({
             userVisibleOnly: true,
             applicationServerKey: vapidPublicKey,
           });
@@ -150,39 +153,48 @@ export default function PushNotificationPermission({
   };
 
   const turnPushNotificationsOn = async () => {
-    if (permission === "default") {
+    if (Notification.permission !== "denied") {
+      // @TODO Add an alert for the user to click Allow on the permission prompt
       const result = await Notification.requestPermission();
-      setPermission(result);
 
       if (result === "granted") {
         await onPermissionGranted();
       }
     } else {
-      setPermission("denied");
+      console.log("Permission denied!!");
     }
   };
 
   const turnPushNotificationsOff = async () => {
-    const registration = await navigator.serviceWorker.register(
-      "/service-worker.js",
-      { scope: "/" }
+    let registration = await navigator.serviceWorker.getRegistration(
+      "/service-worker.js"
     );
+
+    if (!registration) {
+      // Do something here? Theoretically we should never end up here.
+      registration = await navigator.serviceWorker.register(
+        "/service-worker.js",
+        {
+          scope: "/",
+        }
+      );
+    }
+
     const existingPushSubscription =
       await registration.pushManager.getSubscription();
 
     if (existingPushSubscription) {
       await existingPushSubscription.unsubscribe();
     }
-    setPermission("denied");
   };
 
-  const handleClick = async () => {
-    if (permission === "granted") {
-      await turnPushNotificationsOff();
-    } else {
-      await turnPushNotificationsOn();
-    }
-  };
+  // const handleClick = async () => {
+  //   if (permission === "granted") {
+  //     await turnPushNotificationsOff();
+  //   } else {
+  //     await turnPushNotificationsOn();
+  //   }
+  // };
 
   const renderReEnablePushNotificationsAlert = () => (
     <>
@@ -205,20 +217,23 @@ export default function PushNotificationPermission({
         <Typography variant="h2">
           {t("notification_settings.push_notifications.title")}
         </Typography>
-        <CustomColorSwitch
+        {/* <CustomColorSwitch
           checked={permission == "granted"}
           onClick={handleClick}
           color={theme.palette.primary.main}
-        />
+        /> */}
+        <Button onClick={turnPushNotificationsOn}>Enable</Button>
+        <Button onClick={turnPushNotificationsOff}>Disable</Button>
       </div>
       {errorMessage && (
         <Alert className={classes.alert} severity="error">
           {errorMessage || "Unknown error"}
         </Alert>
       )}
-      {permission === "denied" && renderReEnablePushNotificationsAlert()}
+      {Notification.permission === "denied" &&
+        renderReEnablePushNotificationsAlert()}
       <Typography variant="body1" className={classes.status}>
-        {permission === "granted" ? (
+        {Notification.permission === "granted" ? (
           <Trans i18nKey="auth:notification_settings.push_notifications.enabled_message">
             You currently have push notifications <strong>enabled</strong>.
           </Trans>
