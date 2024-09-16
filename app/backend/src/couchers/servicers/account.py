@@ -541,7 +541,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 operating_system=user_agent.os.family,
                 browser=user_agent.browser.family,
                 device=user_agent.device.family,
-                approximate_location=geoip_approximate_location(user_session.ip_address),
+                approximate_location=geoip_approximate_location(user_session.ip_address) or "Unknown",
             )
 
         return account_pb2.ListActiveSessionsRes(

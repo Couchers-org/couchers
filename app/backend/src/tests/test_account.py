@@ -770,7 +770,7 @@ def test_ListActiveSessions_details(db, fast_passwords):
         return {
             "108.123.33.162": "Chicago, United States",
             "8.245.212.28": "Sydney, Australia",
-        }.get(ip_address, "Unknown")
+        }.get(ip_address)
 
     with account_session(token) as account:
         with patch("couchers.servicers.account.geoip_approximate_location", dummy_geoip):
