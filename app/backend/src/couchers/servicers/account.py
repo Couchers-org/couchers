@@ -561,11 +561,7 @@ class Account(account_pb2_grpc.AccountServicer):
             .where(UserSession.user_id == context.user_id)
             .where(UserSession.is_valid)
             .where(UserSession.is_api_key == False)
-            .values(
-                {
-                    "expiry": func.now(),
-                }
-            )
+            .values(expiry=func.now())
             .execution_options(synchronize_session=False)
         )
         return empty_pb2.Empty()
