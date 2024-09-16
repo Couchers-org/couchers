@@ -14,8 +14,11 @@ def geoip_approximate_location(ip_address: str) -> str:
     try:
         with geoip2.database.Reader(config["GEOLITE2_CITY_MMDB_FILE_LOCATION"]) as reader:
             response = reader.city(ip_address)
-            return f"{response.city.name}, {response.country.name}"
+            city = response.city.name
+            country = response.country.name
+            return f"{city}, {country}" if city else f"{country}"
     except AddressNotFoundError:
-        return "Unknown"
+        pass
     except Exception as e:
         logger.error(f"GeoIP failed for {ip_address=}")
+    return "Unknown"
