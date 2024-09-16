@@ -188,7 +188,7 @@ python-dateutil==2.9.0.post0
     # via
     #   -r requirements.in
     #   botocore
-pytz==2024.1
+pytz==2024.2
     # via -r requirements.in
 pyyaml==6.0.2
     # via
