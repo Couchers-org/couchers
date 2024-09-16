@@ -7275,10 +7275,10 @@ eslint-plugin-storybook@^0.6.4:
     requireindex "^1.1.0"
     ts-dedent "^2.2.0"
 
-eslint-plugin-unused-imports@^4.1.3:
-  version "4.1.3"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-unused-imports/-/eslint-plugin-unused-imports-4.1.3.tgz#079ef6f51914a981e657b3834935a6a417bf3f45"
-  integrity sha512-lqrNZIZjFMUr7P06eoKtQLwyVRibvG7N+LtfKtObYGizAAGrcqLkc3tDx+iAik2z7q0j/XI3ihjupIqxhFabFA==
+eslint-plugin-unused-imports@^4.1.4:
+  version "4.1.4"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-unused-imports/-/eslint-plugin-unused-imports-4.1.4.tgz#62ddc7446ccbf9aa7b6f1f0b00a980423cda2738"
+  integrity sha512-YptD6IzQjDardkl0POxnnRBhU1OEePMV0nd6siHaRBbd+lyh6NAhFEobiznKU7kTsSsDeSD62Pe7kAM1b7dAZQ==
 
 eslint-scope@5.1.1, eslint-scope@^5.1.1:
   version "5.1.1"
