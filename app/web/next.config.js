@@ -40,7 +40,7 @@ module.exports = {
         },
         {
           key: "strict-transport-security",
-          value: "max-age=15552000; includeSubdomains; preload",
+          value: "max-age=31536000; includeSubdomains; preload",
         },
         {
           key: "referrer-policy",

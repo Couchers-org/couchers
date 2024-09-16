@@ -57,7 +57,8 @@ service Account {
     // Initiates a strong verification (passport read)
   }
 
-  rpc GetStrongVerificationAttemptStatus(GetStrongVerificationAttemptStatusReq) returns (GetStrongVerificationAttemptStatusRes) {
+  rpc GetStrongVerificationAttemptStatus(GetStrongVerificationAttemptStatusReq)
+      returns (GetStrongVerificationAttemptStatusRes) {
     // Gets the status of a strong verification attempt
   }
 
@@ -71,6 +72,14 @@ service Account {
 
   rpc ListModNotes(google.protobuf.Empty) returns (ListModNotesRes) {
     // Lists all the user's mod notes: only ack'd ones because otherwise the user is jailed
+  }
+
+  rpc ListActiveSessions(ListActiveSessionsReq) returns (ListActiveSessionsRes) {
+    // Lists all the user's current sessions
+  }
+
+  rpc LogOutOtherSessions(LogOutOtherSessionsReq) returns (google.protobuf.Empty) {
+    // Logs the user out of all other sessions except this one
   }
 }
 
@@ -174,4 +183,29 @@ message ModNote {
 
 message ListModNotesRes {
   repeated ModNote mod_notes = 1;
+}
+
+message ListActiveSessionsReq {
+  uint32 page_size = 1;
+  string page_token = 2;
+}
+
+message ActiveSession {
+  google.protobuf.Timestamp created = 1;
+  google.protobuf.Timestamp expiry = 2;
+  google.protobuf.Timestamp last_seen = 3;
+  string operating_system = 4;
+  string browser = 5;
+  string device = 6;
+  string approximate_location = 7;
+}
+
+message ListActiveSessionsRes {
+  repeated ActiveSession active_sessions = 1;
+
+  string next_page_token = 2;
+}
+
+message LogOutOtherSessionsReq {
+  bool confirm = 1;
 }
