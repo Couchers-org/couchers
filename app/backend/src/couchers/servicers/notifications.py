@@ -102,21 +102,21 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
     def RegisterPushNotificationSubscription(self, request, context, session):
         if not config["PUSH_NOTIFICATIONS_ENABLED"]:
             context.abort(grpc.StatusCode.UNAVAILABLE, errors.PUSH_NOTIFICATIONS_DISABLED)
-
+            
+        data = json.loads(request.full_subscription_json)
         subscription = PushNotificationSubscription(
             user_id=context.user_id,
-            endpoint=request.endpoint,
-            p256dh_key=decode_key(request.p256dh_key),
-            auth_key=decode_key(request.auth_key),
+            endpoint=data["endpoint"],
+            p256dh_key=decode_key(data["keys"]["p256dh"]),
+            auth_key=decode_key(data["keys"]["auth"]),
             full_subscription_info=request.full_subscription_json,
             user_agent=request.user_agent,
         )
         session.add(subscription)
         session.flush()
-        sub_id = subscription.id
         push_to_subscription(
             session,
-            push_notification_subscription_id=sub_id,
+            push_notification_subscription_id=subscription.id,
             user_id=context.user_id,
             topic_action="adhoc:setup",
             title="Checking push notifications work!",
