@@ -732,7 +732,7 @@ def test_ListActiveSessions_pagination(db, fast_passwords):
         auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
         auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
 
-    with account_session(token) as account:
+    with real_account_session(token) as account:
         res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq(page_size=3))
         assert len(res.active_sessions) == 3
         res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq(page_token=res.next_page_token, page_size=3))
@@ -770,9 +770,9 @@ def test_ListActiveSessions_details(db, fast_passwords):
         return {
             "108.123.33.162": "Chicago, United States",
             "8.245.212.28": "Sydney, Australia",
-        }.get(ip_address, "Unknown")
+        }.get(ip_address)
 
-    with account_session(token) as account:
+    with real_account_session(token) as account:
         with patch("couchers.servicers.account.geoip_approximate_location", dummy_geoip):
             res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
             print(res)
@@ -783,21 +783,47 @@ def test_ListActiveSessions_details(db, fast_passwords):
         assert res.active_sessions[0].browser == "Other"
         assert res.active_sessions[0].device == "Other"
         assert res.active_sessions[0].approximate_location == "Unknown"
+        assert res.active_sessions[0].is_current_session
 
         assert res.active_sessions[1].operating_system == "Ubuntu"
         assert res.active_sessions[1].browser == "Firefox"
         assert res.active_sessions[1].device == "Other"
         assert res.active_sessions[1].approximate_location == "Unknown"
+        assert not res.active_sessions[1].is_current_session
 
         assert res.active_sessions[2].operating_system == "Android"
         assert res.active_sessions[2].browser == "Samsung Internet"
         assert res.active_sessions[2].device == "K"
         assert res.active_sessions[2].approximate_location == "Sydney, Australia"
+        assert not res.active_sessions[2].is_current_session
 
         assert res.active_sessions[3].operating_system == "iOS"
         assert res.active_sessions[3].browser == "Mobile Safari"
         assert res.active_sessions[3].device == "iPhone"
         assert res.active_sessions[3].approximate_location == "Chicago, United States"
+        assert not res.active_sessions[3].is_current_session
+
+
+def test_LogOutSession(db, fast_passwords):
+    password = random_hex()
+    user, token = generate_user(hashed_password=hash_password(password))
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+
+    with real_account_session(token) as account:
+        res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
+        assert len(res.active_sessions) == 5
+        account.LogOutSession(account_pb2.LogOutSessionReq(created=res.active_sessions[3].created))
+
+        res2 = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
+        assert len(res2.active_sessions) == 4
+
+        # ignore the first session as it changes
+        assert res.active_sessions[1:3] + res.active_sessions[4:] == res2.active_sessions[1:]
 
 
 def test_LogOutOtherSessions(db, fast_passwords):

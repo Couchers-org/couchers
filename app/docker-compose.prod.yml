@@ -17,7 +17,7 @@ services:
     env_file: postgres.prod.env
     volumes:
       - "./data/postgres/pgdata/:/var/lib/postgresql/data/"
-      - "./data/certs/:/certs/"
+      - "./data/certs/:/certs/:ro"
     ports:
       - 5432:5432
     networks:
@@ -32,6 +32,9 @@ services:
     image: registry.gitlab.com/couchers/couchers/backend
     restart: always
     env_file: backend.prod.env
+    volumes:
+      # auxiliary resources
+      - "./data/aux/:/app/aux/:ro"
     expose:
       - 1751
       - 1752
