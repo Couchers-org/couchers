@@ -198,6 +198,7 @@ message ActiveSession {
   string browser = 5;
   string device = 6;
   string approximate_location = 7;
+  bool is_current_session = 8;
 }
 
 message ListActiveSessionsRes {

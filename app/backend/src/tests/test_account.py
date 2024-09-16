@@ -783,21 +783,25 @@ def test_ListActiveSessions_details(db, fast_passwords):
         assert res.active_sessions[0].browser == "Other"
         assert res.active_sessions[0].device == "Other"
         assert res.active_sessions[0].approximate_location == "Unknown"
+        assert res.active_sessions[0].is_current_session
 
         assert res.active_sessions[1].operating_system == "Ubuntu"
         assert res.active_sessions[1].browser == "Firefox"
         assert res.active_sessions[1].device == "Other"
         assert res.active_sessions[1].approximate_location == "Unknown"
+        assert not res.active_sessions[0].is_current_session
 
         assert res.active_sessions[2].operating_system == "Android"
         assert res.active_sessions[2].browser == "Samsung Internet"
         assert res.active_sessions[2].device == "K"
         assert res.active_sessions[2].approximate_location == "Sydney, Australia"
+        assert not res.active_sessions[0].is_current_session
 
         assert res.active_sessions[3].operating_system == "iOS"
         assert res.active_sessions[3].browser == "Mobile Safari"
         assert res.active_sessions[3].device == "iPhone"
         assert res.active_sessions[3].approximate_location == "Chicago, United States"
+        assert not res.active_sessions[0].is_current_session
 
 
 def test_LogOutOtherSessions(db, fast_passwords):

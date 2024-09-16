@@ -532,6 +532,8 @@ class Account(account_pb2_grpc.AccountServicer):
             .all()
         )
 
+        (token, token_expiry) = context.token
+
         def _active_session_to_pb(user_session):
             user_agent = user_agents_parse(user_session.user_agent or "")
             return account_pb2.ActiveSession(
@@ -542,6 +544,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 browser=user_agent.browser.family,
                 device=user_agent.device.family,
                 approximate_location=geoip_approximate_location(user_session.ip_address) or "Unknown",
+                is_current_session=user_session.token == token,
             )
 
         return account_pb2.ListActiveSessionsRes(
