@@ -125,7 +125,8 @@ export default function SearchPage({
             hostingStatusFilterComparation === 0
               ? undefined
               : [hostingStatusFilter],
-          numGuests: numberOfGuestFilter === 0 ? undefined : numberOfGuestFilter,
+          numGuests:
+            numberOfGuestFilter === 0 ? undefined : numberOfGuestFilter,
           completeProfile:
             completeProfileFilter === false ? undefined : completeProfileFilter,
         },

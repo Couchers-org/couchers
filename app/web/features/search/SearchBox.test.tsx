@@ -1,10 +1,10 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { LngLat } from "maplibre-gl";
 import { useState } from "react";
 import { server } from "test/restMock";
 import { t } from "test/utils";
 import { GeocodeResult } from "utils/hooks";
-import { LngLat } from "maplibre-gl";
 
 import SearchBox from "./SearchBox";
 

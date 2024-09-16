@@ -119,21 +119,21 @@ export default function SearchResultsList({
   const hasAtLeastOnePageResults =
     results && results?.pages[0]?.resultsList?.length !== 0;
 
-  let resultsList: any = results?.pages
+  let resultsList = results?.pages
     .flatMap((page) => page.resultsList)
     .filter((result) => result.user);
 
   let wasResultFound = false;
 
   // @TODO - Can make this one variable by using a find function, resultsList.find, etc.
-  resultsList?.map((value: any) => {
+  resultsList?.map((value) => {
     if (value.user?.userId === selectedResult?.userId) {
       wasResultFound = true;
     }
   });
 
   if (!wasResultFound && selectedUserData.data) {
-    resultsList = [{ user: selectedUserData.data }];
+    resultsList = [{ user: selectedUserData.data, rank: 0, snippet: "" }];
   }
 
   return (
@@ -172,7 +172,7 @@ export default function SearchResultsList({
             hasMore={hasNext}
           >
             {resultsList &&
-              resultsList.map((result: any) => (
+              resultsList.map((result) => (
                 <SearchResult
                   id={`search-result-${result.user!.userId}`}
                   className={classes.searchResult}
