@@ -68,7 +68,7 @@ interface mapWrapperProps {
     | undefined;
   isLoading: boolean;
   locationResult: GeocodeResult | undefined;
-  setLocationResult: Dispatch<SetStateAction<GeocodeResult | undefined>>;
+  setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   results: InfiniteData<UserSearchRes.AsObject> | undefined;
   setIsFiltersOpen: Dispatch<SetStateAction<boolean>>;
   setSelectedResult: Dispatch<

@@ -74,15 +74,10 @@ export default function SearchPage({
 
   // State
   const [wasSearchPerformed, setWasSearchPerformed] = useState(false);
-  const [locationResult, setLocationResult] = useState<
-    GeocodeResult | undefined
-  >({
+  const [locationResult, setLocationResult] = useState<GeocodeResult>({
     bbox: bbox,
     isRegion: false,
-    location: new LngLat(
-      (parseFloat(bbox[0].toString()) + parseFloat(bbox[2].toString())) / 2,
-      (parseFloat(bbox[1].toString()) + parseFloat(bbox[3].toString())) / 2
-    ), // turns the coordinates into latitude and longitude - means the map will center even if only bbox is provided
+    location: new LngLat(0, 0),
     name: locationName,
     simplifiedName: locationName,
   });
@@ -92,7 +87,7 @@ export default function SearchPage({
   );
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
   const [hostingStatusFilter, setHostingStatusFilter] = useState(0);
-  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState<string>("");
+  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(0);
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
@@ -123,14 +118,14 @@ export default function SearchPage({
       return service.search.userSearch(
         {
           query: queryName,
-          bbox: locationResult?.bbox,
+          bbox: locationResult.bbox,
           lastActive:
             lastActiveComparation === 0 ? undefined : lastActiveFilter,
           hostingStatusOptions:
             hostingStatusFilterComparation === 0
               ? undefined
               : [hostingStatusFilter],
-          numGuests: Number(numberOfGuestFilter),
+          numGuests: numberOfGuestFilter === 0 ? undefined : numberOfGuestFilter,
           completeProfile:
             completeProfileFilter === false ? undefined : completeProfileFilter,
         },
@@ -145,9 +140,7 @@ export default function SearchPage({
 
   // Relocate map everytime boundingbox changes
   useEffect(() => {
-    if (locationResult?.bbox) {
-      map.current?.fitBounds(locationResult.bbox);
-    }
+    map.current?.fitBounds(locationResult.bbox);
   }, [locationResult?.bbox]);
 
   /**
@@ -158,7 +151,7 @@ export default function SearchPage({
       if (
         lastActiveFilter !== 0 ||
         hostingStatusFilter !== 0 ||
-        numberOfGuestFilter !== undefined ||
+        numberOfGuestFilter !== 0 ||
         completeProfileFilter !== false
       ) {
         setWasSearchPerformed(true);

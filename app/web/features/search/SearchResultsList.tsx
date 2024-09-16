@@ -93,8 +93,8 @@ interface mapWrapperProps {
   >;
   searchType: "location" | "keyword";
   setSearchType: Dispatch<SetStateAction<"location" | "keyword">>;
-  locationResult: GeocodeResult | undefined;
-  setLocationResult: Dispatch<SetStateAction<GeocodeResult | undefined>>;
+  locationResult: GeocodeResult;
+  setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   setQueryName: Dispatch<SetStateAction<string>>;
   queryName: string;
 }

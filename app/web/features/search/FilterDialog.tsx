@@ -87,15 +87,15 @@ interface FilterDialogProps {
   onClose(): void;
   queryName: string;
   setQueryName: Dispatch<SetStateAction<string>>;
-  setLocationResult: Dispatch<SetStateAction<GeocodeResult | undefined>>;
+  setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   lastActiveFilter: number;
   setLastActiveFilter: Dispatch<SetStateAction<number>>;
   hostingStatusFilter: number;
   setHostingStatusFilter: Dispatch<SetStateAction<number>>;
   completeProfileFilter: boolean;
   setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
-  numberOfGuestFilter: string;
-  setNumberOfGuestFilter: Dispatch<SetStateAction<string>>;
+  numberOfGuestFilter: number;
+  setNumberOfGuestFilter: Dispatch<SetStateAction<number>>;
 }
 
 export default function FilterDialog({
@@ -253,7 +253,8 @@ export default function FilterDialog({
                 id="num-guests-filter"
                 value={numberOfGuestFilter}
                 onChange={(e) => {
-                  setNumberOfGuestFilter(e.target.value);
+                  const tempNumOfGuest = parseInt(e.target.value);
+                  setNumberOfGuestFilter(tempNumOfGuest);
                 }}
                 inputRef={register({
                   valueAsNumber: true,

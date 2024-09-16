@@ -12,6 +12,7 @@ import LocationAutocomplete from "components/LocationAutocomplete";
 import TextField from "components/TextField";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
+import { LngLat } from "maplibre-gl";
 import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { GeocodeResult } from "utils/hooks";
@@ -38,8 +39,8 @@ const useStyles = makeStyles((theme) => ({
 interface SearchBoxProps {
   searchType: "location" | "keyword";
   setSearchType: Dispatch<"location" | "keyword">;
-  locationResult: GeocodeResult | undefined;
-  setLocationResult: Dispatch<SetStateAction<GeocodeResult | undefined>>;
+  locationResult: GeocodeResult;
+  setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   setQueryName: Dispatch<SetStateAction<string>>;
   queryName: string;
 }
@@ -69,7 +70,10 @@ export default function SearchBox({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setQueryName(event.target.value);
-    setLocationResult(undefined);
+    setLocationResult({
+      ...locationResult,
+      location: new LngLat(0, 0),
+    });
   };
 
   const handleOnChangeRadioButton = (
@@ -77,7 +81,12 @@ export default function SearchBox({
     value: "location" | "keyword"
   ) => {
     setSearchType(value);
-    setLocationResult(undefined);
+    setLocationResult({
+      ...locationResult,
+      name: "",
+      simplifiedName: "",
+      location: new LngLat(0, 0),
+    });
     setQueryName("");
   };
 
@@ -87,7 +96,7 @@ export default function SearchBox({
         <LocationAutocomplete
           control={control}
           name="location"
-          defaultValue={locationResult ?? ""}
+          defaultValue={locationResult}
           label={t("search:form.location_field_label")}
           onChange={handleOnChangeAutocomplete}
           fieldError={errors.location?.message}
@@ -111,7 +120,10 @@ export default function SearchBox({
                   )}
                   onClick={() => {
                     setQueryName("");
-                    setLocationResult(undefined);
+                    setLocationResult({
+                      ...locationResult,
+                      location: new LngLat(0, 0),
+                    });
                   }}
                   size="small"
                 >
