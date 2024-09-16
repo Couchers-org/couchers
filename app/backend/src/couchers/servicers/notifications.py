@@ -102,7 +102,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
     def RegisterPushNotificationSubscription(self, request, context, session):
         if not config["PUSH_NOTIFICATIONS_ENABLED"]:
             context.abort(grpc.StatusCode.UNAVAILABLE, errors.PUSH_NOTIFICATIONS_DISABLED)
-            
+
         data = json.loads(request.full_subscription_json)
         subscription = PushNotificationSubscription(
             user_id=context.user_id,
