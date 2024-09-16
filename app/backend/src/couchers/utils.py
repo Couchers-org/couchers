@@ -16,6 +16,7 @@ from sqlalchemy.types import DateTime
 
 from couchers.config import config
 from couchers.constants import EMAIL_REGEX
+from couchers.crypto import decrypt_page_token, encrypt_page_token
 
 utc = pytz.UTC
 
@@ -302,6 +303,21 @@ def millis_from_dt(dt):
 
 def dt_from_millis(millis):
     return datetime.fromtimestamp(millis / 1000, tz=utc)
+
+
+def dt_to_page_token(dt):
+    """
+    Python has datetime resolution equal to 1 micro, as does postgres
+
+    We pray to deities that this never changes
+    """
+    assert datetime.resolution == timedelta(microseconds=1)
+    return encrypt_page_token(str(round(1_000_000 * dt.timestamp())))
+
+
+def dt_from_page_token(page_token):
+    # see above comment
+    return datetime.fromtimestamp(int(decrypt_page_token(page_token)) / 1_000_000, tz=utc)
 
 
 def last_active_coarsen(dt):

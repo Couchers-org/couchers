@@ -13,6 +13,7 @@ maplibregl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_KEY!;
 
 const useStyles = makeStyles({
   root: {
+    position: "relative",
     height: 200,
     width: 400,
   },

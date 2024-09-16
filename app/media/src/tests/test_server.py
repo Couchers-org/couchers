@@ -532,7 +532,7 @@ def test_cache_headers(client_with_secrets):
 
     rv = client.get(f"/img/full/{key}.jpg")
     assert rv.status_code == 200
-    assert "max-age=43200" in rv.headers["Cache-Control"].split(", ")
+    assert "max-age=604800" in rv.headers["Cache-Control"].split(", ")
     assert "Expires" in rv.headers
     assert "Etag" in rv.headers
     etag = rv.headers["Etag"]

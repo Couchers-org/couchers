@@ -32,6 +32,7 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
       jssStyles.parentElement!.removeChild(jssStyles);
     }
   }, []);
+
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_COUCHERS_ENV === "prod") {
       Sentry.init({

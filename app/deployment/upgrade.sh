@@ -6,4 +6,4 @@ set -e
 
 ./install.sh
 
-./webhook.sh
+./post-upgrade.sh

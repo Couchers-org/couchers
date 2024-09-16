@@ -256,6 +256,27 @@ class OTelInterceptor(grpc.ServerInterceptor):
         )
 
 
+class SessionInterceptor(grpc.ServerInterceptor):
+    """
+    Adds a session from session_scope() as the last argument. This needs to be the last interceptor since it changes the
+    function signature by adding another argument.
+    """
+
+    def intercept_service(self, continuation, handler_call_details):
+        handler = continuation(handler_call_details)
+        prev_func = handler.unary_unary
+
+        def function_without_session(request, context):
+            with session_scope() as session:
+                return prev_func(request, context, session)
+
+        return grpc.unary_unary_rpc_method_handler(
+            function_without_session,
+            request_deserializer=handler.request_deserializer,
+            response_serializer=handler.response_serializer,
+        )
+
+
 class TracingInterceptor(grpc.ServerInterceptor):
     """
     Measures and logs the time it takes to service each incoming call.
@@ -399,7 +420,7 @@ class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
                     logger.info("Probably an unknown error! Sanitizing...")
                     context.abort(grpc.StatusCode.INTERNAL, errors.UNKNOWN_ERROR)
                 else:
-                    logger.warning(f"RPC error: {code}")
+                    logger.warning(f"RPC error: {code} in method {handler_call_details.method}")
                     raise e
             return res
 
