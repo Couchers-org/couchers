@@ -227,7 +227,9 @@ typing-extensions==4.11.0
     #   sqlalchemy
     #   stripe
 ua-parser==0.18.0
-    # via user-agents
+    # via
+    #   -r requirements.in
+    #   user-agents
 urllib3==2.2.1
     # via
     #   botocore

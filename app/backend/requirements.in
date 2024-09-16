@@ -32,4 +32,6 @@ Shapely
 sqlalchemy
 sqlalchemy-utils
 stripe<11.0
+# we include this here (even though it's a dependency of user-agent), so that dependabot will remind to update it if needed
+ua-parser
 user-agents
