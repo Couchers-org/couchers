@@ -1,0 +1,24 @@
+{
+  "folders": [
+    {
+      "name": "Backend",
+      "path": "app/backend"
+    },
+    {
+      "name": "Frontend",
+      "path": "app/web"
+    },
+    {
+      "name": "Protocol Buffers",
+      "path": "app/proto"
+    },
+    {
+      "name": "Documentation",
+      "path": "docs"
+    },
+    {
+      "name": "Everything",
+      "path": "."
+    }
+  ]
+}
