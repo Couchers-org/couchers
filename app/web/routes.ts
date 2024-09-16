@@ -33,6 +33,7 @@ export const signupRoute = "/signup";
 
 export const settingsRoute = "/account-settings";
 export const notificationSettingsRoute = `${settingsRoute}/notifications`;
+export const loginsSettingsRoute = `${settingsRoute}/logins`;
 
 // profile
 export const userTabs = [
