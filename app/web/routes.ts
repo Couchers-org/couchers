@@ -22,6 +22,7 @@ export const foundationRoute = "/foundation";
 export const planRoute = "/plan";
 export const teamRoute = "/team";
 export const donationsRoute = "/donate";
+export const builtWithRoute = "/open-source";
 export const contactRoute = "/contact";
 
 export const loginRoute = "/login";
