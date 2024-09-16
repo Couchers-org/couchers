@@ -6,7 +6,7 @@ import {
   registerPushNotificationSubscription,
 } from "service/notifications";
 
-import PushNotificationPermission from "./PushNotificationPermission";
+import PushNotificationSettings from "./PushNotificationSettings";
 
 jest.mock("platform/sentry", () => ({
   captureException: jest.fn(),
@@ -32,7 +32,7 @@ const mockServiceWorker = {
   getRegistration: jest.fn(),
 };
 
-describe("PushNotificationPermission Component", () => {
+describe("PushNotificationSettings Component", () => {
   const mNotification = jest.fn();
   Object.defineProperty(global, "Notification", {
     value: mNotification,
@@ -53,7 +53,7 @@ describe("PushNotificationPermission Component", () => {
       value: mockServiceWorker,
     });
 
-    render(<PushNotificationPermission className="test-class" />);
+    render(<PushNotificationSettings className="test-class" />);
     expect(
       screen.getByText("notification_settings.push_notifications.title")
     ).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe("PushNotificationPermission Component", () => {
 
     Object.assign(global.Notification, mockGranted);
 
-    render(<PushNotificationPermission className="test-class" />);
+    render(<PushNotificationSettings className="test-class" />);
 
     await waitFor(() => {
       expect(screen.getByText("enabled")).toBeInTheDocument();
@@ -95,7 +95,7 @@ describe("PushNotificationPermission Component", () => {
     };
 
     Object.assign(global.Notification, mockDefault);
-    render(<PushNotificationPermission className="test-class" />);
+    render(<PushNotificationSettings className="test-class" />);
 
     Object.defineProperty(Notification, "permission", {
       value: "default",
@@ -117,7 +117,7 @@ describe("PushNotificationPermission Component", () => {
 
     Object.assign(global.Notification, mockChangeDefaultToGranted);
 
-    render(<PushNotificationPermission className="test-class" />);
+    render(<PushNotificationSettings className="test-class" />);
 
     fireEvent.click(document.querySelector("input[type='checkbox']")!);
 
@@ -140,7 +140,7 @@ describe("PushNotificationPermission Component", () => {
 
     Object.assign(global.Notification, mockDenied);
 
-    render(<PushNotificationPermission className="test-class" />);
+    render(<PushNotificationSettings className="test-class" />);
     fireEvent.click(document.querySelector("input[type='checkbox']")!);
 
     await waitFor(() => {
@@ -184,7 +184,7 @@ describe("PushNotificationPermission Component", () => {
       },
     });
 
-    render(<PushNotificationPermission className="test-class" />);
+    render(<PushNotificationSettings className="test-class" />);
 
     fireEvent.click(document.querySelector("input[type='checkbox']")!);
 
@@ -221,7 +221,7 @@ describe("PushNotificationPermission Component", () => {
       },
     });
 
-    render(<PushNotificationPermission className="test-class" />);
+    render(<PushNotificationSettings className="test-class" />);
 
     fireEvent.click(document.querySelector("input[type='checkbox']")!);
 

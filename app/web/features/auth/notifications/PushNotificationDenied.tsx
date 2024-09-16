@@ -15,7 +15,17 @@ const PushNotificationDenied = () => {
   const userAgent = navigator.userAgent.toLowerCase();
   const classes = useStyles();
 
+  // @TODO - Add mobile browser and OS instructions per platform
+  const isMobile = () => {
+    return /android|iphone|ipad/i.test(userAgent);
+  };
+
   const getBrowserInstructions = () => {
+    if (isMobile()) {
+      return t(
+        "notification_settings.push_notifications.permission_denied.instructions.mobile.browser"
+      );
+    }
     if (userAgent.includes("chrome")) {
       return t(
         "notification_settings.push_notifications.permission_denied.instructions.chrome"
@@ -36,6 +46,12 @@ const PushNotificationDenied = () => {
   };
 
   const getOSInstructions = () => {
+    if (isMobile()) {
+      return t(
+        "notification_settings.push_notifications.permission_denied.instructions.mobile.os"
+      );
+    }
+
     if (userAgent.includes("mac")) {
       return t(
         "notification_settings.push_notifications.permission_denied.instructions.macos"
@@ -51,10 +67,10 @@ const PushNotificationDenied = () => {
     }
 
     return t(
-      "notification_settings.push_notifications.permission_denied.instructions.generic",
-      "Please check your OS settings for notification control."
+      "notification_settings.push_notifications.permission_denied.instructions.generic"
     );
   };
+
   return (
     <>
       <Alert className={classes.alert} severity="error">

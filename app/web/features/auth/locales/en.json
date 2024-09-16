@@ -301,6 +301,10 @@
           "linux": {
             "gnome": "In GNOME, go to Settings > Notifications to adjust the app's permission.",
             "kde": "In KDE, go to System Settings > Notifications to modify permissions."
+          },
+          "mobile": {
+            "browser": "In your mobile browser settings, adjust the notifications permission for this website.",
+            "os": "In your mobile device notification settings, adjust the permissions to allow notifications."
           }
         }
       }

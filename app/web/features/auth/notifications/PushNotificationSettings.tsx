@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function PushNotificationPermission({
+export default function PushNotificationSettings({
   className,
 }: {
   className: string;
@@ -41,20 +41,36 @@ export default function PushNotificationPermission({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPushEnabled, setIsPushEnabled] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [shouldPromptAllow, setShouldPromptAllow] = useState<boolean>(false);
+  const [shouldPromptAllow, setShouldPromptAllow] = useState<boolean>(false); // whether to show the user instructions to click 'Allow' in their browser
 
   useEffect(() => {
     const checkPushEnabled = async () => {
-      const existingPushSubscription = await getCurrentSubscription();
-      setIsPushEnabled(
-        Notification.permission === "granted" &&
-          existingPushSubscription !== null
-      );
+      if ("serviceWorker" in navigator && "PushManager" in window) {
+        const existingPushSubscription = await getCurrentSubscription();
+        setIsPushEnabled(
+          Notification.permission === "granted" &&
+            existingPushSubscription !== null
+        );
+      } else {
+        setErrorMessage(
+          t("notification_settings.push_notifications.error_unsupported")
+        );
+        Sentry.captureException(
+          new Error("Push notifications or service workers not supported"),
+          {
+            tags: {
+              component: "PushNotificationPermission",
+              action: "onPermissionGranted",
+              userAgent: navigator.userAgent,
+            },
+          }
+        );
+      }
+      setIsLoading(false);
     };
 
     checkPushEnabled();
-    setIsLoading(false);
-  }, []);
+  }, [t]);
 
   const onPermissionGranted = async () => {
     try {
@@ -129,6 +145,8 @@ export default function PushNotificationPermission({
       if (result === "granted") {
         await onPermissionGranted();
         setIsPushEnabled(true);
+      } else {
+        setIsPushEnabled(false);
       }
       setIsLoading(false);
     } else {
