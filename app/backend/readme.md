@@ -9,7 +9,7 @@ You can run the whole thing through Docker and docker-compose (see the readme in
 You can run all tests in docker with the following command, executed in the `app` folder:
 
 ```sh
-docker-compose -f docker-compose.test.yml up --build
+docker compose -f docker-compose.test.yml up --build
 ```
 
 ## Running tests locally
@@ -21,7 +21,7 @@ docker-compose -f docker-compose.test.yml up --build
 2. Make sure the postgres_tests container is running:
 
 ```sh
-docker-compose -f docker-compose.test.yml up postgres_tests
+docker compose -f docker-compose.test.yml up postgres_tests
 ```
 
 3. Create a virtual environment and enter it, then install the requirements.
