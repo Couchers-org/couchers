@@ -78,6 +78,10 @@ service Account {
     // Lists all the user's current sessions
   }
 
+  rpc LogOutSession(LogOutSessionReq) returns (google.protobuf.Empty) {
+    // Logs the user out of the given session, cannot be current one
+  }
+
   rpc LogOutOtherSessions(LogOutOtherSessionsReq) returns (google.protobuf.Empty) {
     // Logs the user out of all other sessions except this one
   }
@@ -205,6 +209,10 @@ message ListActiveSessionsRes {
   repeated ActiveSession active_sessions = 1;
 
   string next_page_token = 2;
+}
+
+message LogOutSessionReq {
+  google.protobuf.Timestamp created = 1;
 }
 
 message LogOutOtherSessionsReq {

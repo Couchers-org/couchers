@@ -50,7 +50,14 @@ from couchers.tasks import (
     send_account_deletion_report_email,
     send_email_changed_confirmation_to_new_email,
 )
-from couchers.utils import Timestamp_from_datetime, dt_from_page_token, dt_to_page_token, is_valid_email, now
+from couchers.utils import (
+    Timestamp_from_datetime,
+    dt_from_page_token,
+    dt_to_page_token,
+    is_valid_email,
+    now,
+    to_aware_datetime,
+)
 from proto import account_pb2, account_pb2_grpc, api_pb2, auth_pb2, iris_pb2_grpc, notification_data_pb2
 from proto.google.api import httpbody_pb2
 from proto.internal import jobs_pb2, verification_pb2
@@ -551,6 +558,21 @@ class Account(account_pb2_grpc.AccountServicer):
             active_sessions=list(map(_active_session_to_pb, user_sessions[:page_size])),
             next_page_token=dt_to_page_token(user_sessions[-1].last_seen) if len(user_sessions) > page_size else None,
         )
+
+    def LogOutSession(self, request, context, session):
+        (token, token_expiry) = context.token
+
+        session.execute(
+            update(UserSession)
+            .where(UserSession.token != token)
+            .where(UserSession.user_id == context.user_id)
+            .where(UserSession.is_valid)
+            .where(UserSession.is_api_key == False)
+            .where(UserSession.created == to_aware_datetime(request.created))
+            .values(expiry=func.now())
+            .execution_options(synchronize_session=False)
+        )
+        return empty_pb2.Empty()
 
     def LogOutOtherSessions(self, request, context, session):
         if not request.confirm:
