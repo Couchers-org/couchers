@@ -23,6 +23,7 @@ from tests.test_fixtures import (  # noqa
     mock_notification_email,
     process_jobs,
     push_collector,
+    real_account_session,
     testconfig,
 )
 
@@ -719,3 +720,104 @@ def test_multiple_delete_tokens(db):
 
     with session_scope() as session:
         assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
+
+
+def test_ListActiveSessions_pagination(db, fast_passwords):
+    password = random_hex()
+    user, token = generate_user(hashed_password=hash_password(password))
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+
+    with account_session(token) as account:
+        res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq(page_size=3))
+        assert len(res.active_sessions) == 3
+        res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq(page_token=res.next_page_token, page_size=3))
+        assert len(res.active_sessions) == 2
+        assert not res.next_page_token
+
+
+def test_ListActiveSessions_details(db, fast_passwords):
+    password = random_hex()
+    user, token = generate_user(hashed_password=hash_password(password))
+
+    ips_user_agents = [
+        (
+            "108.123.33.162",
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Mobile/15E148 Safari/604.1",
+        ),
+        (
+            "8.245.212.28",
+            "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/26.0 Chrome/122.0.0.0 Mobile Safari/537.36",
+        ),
+        (
+            "95.254.140.156",
+            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0",
+        ),
+    ]
+
+    for ip, user_agent in ips_user_agents:
+        options = (("grpc.primary_user_agent", user_agent),)
+        with auth_api_session(grpc_channel_options=options) as (auth_api, metadata_interceptor):
+            auth_api.Authenticate(
+                auth_pb2.AuthReq(user=user.username, password=password), metadata=(("x-couchers-real-ip", ip),)
+            )
+
+    def dummy_geoip(ip_address):
+        return {
+            "108.123.33.162": "Chicago, United States",
+            "8.245.212.28": "Sydney, Australia",
+        }.get(ip_address, "Unknown")
+
+    with account_session(token) as account:
+        with patch("couchers.servicers.account.geoip_approximate_location", dummy_geoip):
+            res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
+            print(res)
+        assert len(res.active_sessions) == 4
+
+        # this one currently making the API call
+        assert res.active_sessions[0].operating_system == "Other"
+        assert res.active_sessions[0].browser == "Other"
+        assert res.active_sessions[0].device == "Other"
+        assert res.active_sessions[0].approximate_location == "Unknown"
+
+        assert res.active_sessions[1].operating_system == "Ubuntu"
+        assert res.active_sessions[1].browser == "Firefox"
+        assert res.active_sessions[1].device == "Other"
+        assert res.active_sessions[1].approximate_location == "Unknown"
+
+        assert res.active_sessions[2].operating_system == "Android"
+        assert res.active_sessions[2].browser == "Samsung Internet"
+        assert res.active_sessions[2].device == "K"
+        assert res.active_sessions[2].approximate_location == "Sydney, Australia"
+
+        assert res.active_sessions[3].operating_system == "iOS"
+        assert res.active_sessions[3].browser == "Mobile Safari"
+        assert res.active_sessions[3].device == "iPhone"
+        assert res.active_sessions[3].approximate_location == "Chicago, United States"
+
+
+def test_LogOutOtherSessions(db, fast_passwords):
+    password = random_hex()
+    user, token = generate_user(hashed_password=hash_password(password))
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+        auth_api.Authenticate(auth_pb2.AuthReq(user=user.username, password=password))
+
+    with real_account_session(token) as account:
+        res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
+        assert len(res.active_sessions) == 5
+        with pytest.raises(grpc.RpcError) as e:
+            account.LogOutOtherSessions(account_pb2.LogOutOtherSessionsReq(confirm=False))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.MUST_CONFIRM_LOGOUT_OTHER_SESSIONS
+
+        account.LogOutOtherSessions(account_pb2.LogOutOtherSessionsReq(confirm=True))
+        res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
+        assert len(res.active_sessions) == 1
