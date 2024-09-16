@@ -284,8 +284,7 @@
     "push_notifications": {
       "title": "Push Notifications",
       "description": "You can enable push notifications for Couchers.org on your device. We are working on expanding this feature.",
-      "turn_on": "Turn on Push Notifications",
-      "turn_off": "Turn off Push Notifications",
+      "allow_push": "Click the 'Allow' button in your browser popup to enable push notifications.",
       "enabled_message": "You currently have push notifications <1>enabled</1>.",
       "disabled_message": "You currently have push notifications <1>disabled</1>.",
       "error_generic": "Error during subscription to push notifications",
