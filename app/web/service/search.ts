@@ -32,7 +32,7 @@ export async function userSearch(
   const req = new UserSearchReq();
   req.setPageToken(pageToken);
 
-  if (query !== undefined && query !== "") {
+  if (query) {
     req.setQuery(new StringValue().setValue(query));
   }
 
