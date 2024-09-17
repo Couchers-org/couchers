@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# works on ubuntu 20.04, tested on AWS
+# works on ubuntu 22.04, tested on AWS
 # installs docker, docker-compose, aws-cli
 
 set -e
@@ -11,17 +11,16 @@ sudo apt-get -y dist-upgrade
 
 # install docker
 sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 sudo usermod -aG docker $(whoami) # make me able to use docker without sudo
-
-# get latest version of docker-compose
-sudo apt-get install -y jq
-COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)
-sudo curl -L "https://github.com/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
 
 # install aws cli
 sudo apt install -y unzip

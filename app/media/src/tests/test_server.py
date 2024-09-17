@@ -28,7 +28,7 @@ class MockMainServer(media_pb2_grpc.MediaServicer):
         self._accept_func = accept_func
 
     def UploadConfirmation(self, request, context):
-        metadata = {key: value for (key, value) in context.invocation_metadata()}
+        metadata = dict(context.invocation_metadata())
         if (
             "authorization" not in metadata
             or not metadata["authorization"].startswith("Bearer ")
@@ -104,6 +104,13 @@ def test_index(client_with_secrets):
     client, secret_key, bearer_token = client_with_secrets
     rv = client.get("/")
     assert b"404" in rv.data
+
+
+def test_robots(client_with_secrets):
+    client, secret_key, bearer_token = client_with_secrets
+    rv = client.get("/robots.txt")
+    assert rv.data == b"User-agent: *\nDisallow: /\n"
+    assert rv.mimetype == "text/plain"
 
 
 def create_upload_request():

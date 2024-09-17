@@ -142,10 +142,10 @@ build:web-dev:
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_DEV_TAG):/app artifacts/web-dev
   rules:
-    - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") &&($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-        - app/**/*
-    - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      - app/**/*
+    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") &&($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
         - app/web/**/*
@@ -620,7 +620,7 @@ release:web-dev:
     - docker tag $WEB_DEV_TAG $WEB_DEV_RELEASE_TAG
     - docker push $WEB_DEV_RELEASE_TAG
   rules:
-    - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
         - app/**/*
 
