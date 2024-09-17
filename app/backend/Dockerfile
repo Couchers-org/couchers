@@ -24,7 +24,7 @@ COPY --from=build /usr/local/bin/entr /usr/local/bin/entr
 WORKDIR /app
 
 COPY requirements.txt /app
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /app
 
