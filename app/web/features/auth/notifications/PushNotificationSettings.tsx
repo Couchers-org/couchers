@@ -37,6 +37,7 @@ export default function PushNotificationSettings({
 }) {
   const { t } = useTranslation(AUTH);
   const classes = useStyles();
+  const isNotificationSupported = typeof Notification !== "undefined";
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPushEnabled, setIsPushEnabled] = useState<boolean>(false);
@@ -191,7 +192,9 @@ export default function PushNotificationSettings({
           {t("notification_settings.push_notifications.allow_push")}
         </Alert>
       )}
-      {Notification.permission === "denied" && <PushNotificationDenied />}
+      {isNotificationSupported && Notification.permission === "denied" && (
+        <PushNotificationDenied />
+      )}
       <Typography variant="body1" className={classes.status}>
         {isPushEnabled ? (
           <Trans i18nKey="auth:notification_settings.push_notifications.enabled_message">
