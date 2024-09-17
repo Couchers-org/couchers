@@ -10,7 +10,7 @@ import { RectArea, UserSearchReq } from "proto/search_pb";
 import client from "service/client";
 
 export interface UserSearchFilters {
-  query: string;
+  query?: string;
   bbox?: Coordinates;
   lastActive?: number; //within x days
   hostingStatusOptions?: HostingStatus[];
@@ -32,7 +32,7 @@ export async function userSearch(
   const req = new UserSearchReq();
   req.setPageToken(pageToken);
 
-  if (query !== "") {
+  if (query !== undefined && query !== "") {
     req.setQuery(new StringValue().setValue(query));
   }
 
