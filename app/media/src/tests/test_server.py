@@ -28,7 +28,7 @@ class MockMainServer(media_pb2_grpc.MediaServicer):
         self._accept_func = accept_func
 
     def UploadConfirmation(self, request, context):
-        metadata = {key: value for (key, value) in context.invocation_metadata()}
+        metadata = dict(context.invocation_metadata())
         if (
             "authorization" not in metadata
             or not metadata["authorization"].startswith("Bearer ")
