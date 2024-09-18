@@ -78,9 +78,9 @@ const styles = StyleSheet.create({
     fontFamily: "Ubuntu_400Regular",
   },
   button: {
-    fontSize: 16,
+    fontSize: 17,
     lineHeight: 24,
     color: "#0a7ea4",
-    fontFamily: "Ubuntu_400Regular",
+    fontFamily: "Ubuntu_700Bold",
   },
 });

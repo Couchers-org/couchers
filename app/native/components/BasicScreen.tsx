@@ -1,12 +1,16 @@
 import type { PropsWithChildren } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, ViewStyle } from "react-native";
 
 import { ThemedView } from "@/components/ThemedView";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function BasicScreen({ children }: PropsWithChildren) {
+interface BasicScreenProps extends PropsWithChildren {
+  style?: ViewStyle;
+}
+
+export default function BasicScreen({ children, style }: BasicScreenProps) {
   return (
-    <SafeAreaView style={styles.sav}>
+    <SafeAreaView style={[styles.sav, style]}>
       <ThemedView style={styles.content}>{children}</ThemedView>
     </SafeAreaView>
   );

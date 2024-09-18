@@ -1,4 +1,8 @@
 {
+  "landing_screen": {
+    "connect_with_world": "Connect with the world around you",
+    "build_collaboratively": "Build collaboratively, and always free"
+  },
   "change_email_form": {
     "title": "Change email",
     "current_email_message": "Your email address is currently <1>{{email}}</1>.",
@@ -48,6 +52,7 @@
     "title": "Log in",
     "header": "Welcome back!",
     "no_account_prompt": "No account yet? <2>Sign up</2>",
+    "reset_password_prompt": "To reset your password, go to <1>Couchers.org</1>.",
     "form": {
       "username_field_label": "Email/Username",
       "password_field_label": "Password",
