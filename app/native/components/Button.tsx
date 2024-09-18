@@ -19,6 +19,7 @@ export default function Button({
       style={[
         styles.button,
         filled ? styles.filledButton : styles.transparentButton,
+        disabled ? styles.disabledButton : null,
       ]}
       onPress={onPress}
       disabled={disabled}
@@ -47,6 +48,10 @@ const styles = StyleSheet.create({
   filledButton: {
     backgroundColor: "#00A398",
   },
+  disabledButton: {
+    backgroundColor: "#E6EBEA",
+  },
+
   transparentButton: {
     backgroundColor: "transparent",
     borderWidth: 1,

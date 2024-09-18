@@ -39,11 +39,12 @@ export default function LoginForm() {
       setLoading(true);
       authActions.clearError();
       try {
-        authActions.passwordLogin({
+        await authActions.passwordLogin({
           username: lowercaseAndTrimField(data.username),
           password: data.password,
           rememberDevice: data.rememberDevice,
         });
+        router.replace("/");
       } catch (e) {
         Sentry.captureException(e, {
           tags: {
@@ -55,7 +56,7 @@ export default function LoginForm() {
         );
       }
       setLoading(false);
-      router.replace("/");
+
     }
   );
 
@@ -130,10 +131,7 @@ export default function LoginForm() {
       <Button
         filled={true}
         disabled={loading || authLoading}
-        onPress={() => {
-          onSubmit();
-
-        }}
+        onPress={onSubmit}
         title={t("global:continue")}
       />
       <ThemedText>
