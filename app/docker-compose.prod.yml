@@ -3,6 +3,9 @@ services:
     image: postgis/postgis:16-3.4
     command:
       - postgres
+      # unfortunately the JIT slows down some geo stuff really badly
+      - -c
+      - jit=off
       - -c
       - max_connections=256
       - -c
