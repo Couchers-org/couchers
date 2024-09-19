@@ -123,14 +123,7 @@ export default function SearchResultsList({
     .flatMap((page) => page.resultsList)
     .filter((result) => result.user);
 
-  let wasResultFound = false;
-
-  // @TODO - Can make this one variable by using a find function, resultsList.find, etc.
-  resultsList?.map((value) => {
-    if (value.user?.userId === selectedResult?.userId) {
-      wasResultFound = true;
-    }
-  });
+  const wasResultFound = resultsList?.find((value) => value.user?.userId === selectedResult?.userId) !== undefined;
 
   if (!wasResultFound && selectedUserData.data) {
     resultsList = [{ user: selectedUserData.data, rank: 0, snippet: "" }];
