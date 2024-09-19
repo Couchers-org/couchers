@@ -13,6 +13,7 @@ import {
   useInfiniteQuery,
 } from "react-query";
 import { service } from "service";
+import { HostingStatusValues } from "./FilterDialog";
 
 import FilterDialog from "./FilterDialog";
 import MapWrapper from "./MapWrapper";
@@ -83,7 +84,7 @@ export default function SearchPage({
   const [queryName, setQueryName] = useState<undefined | string>(undefined);
   const [searchType, setSearchType] = useState("location");
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
-  const [hostingStatusFilter, setHostingStatusFilter] = useState<number[]>([]);
+  const [hostingStatusFilter, setHostingStatusFilter] = useState<Array<keyof typeof HostingStatusValues>>([]);
   const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(undefined);
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<

@@ -1,12 +1,14 @@
-import {
+  import {
   FormControl,
   InputLabel,
   Select as MuiSelect,
   SelectProps,
+  MenuItem,
 } from "@material-ui/core";
 import classnames from "classnames";
 import React from "react";
 import makeStyles from "utils/makeStyles";
+
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -23,6 +25,8 @@ const useStyles = makeStyles((theme) => ({
 export default function Select<T extends Record<string | number, string>>({
   id,
   className,
+  native = true,
+  menuItems = false,
   optionLabelMap,
   label,
   variant = "outlined",
@@ -31,10 +35,12 @@ export default function Select<T extends Record<string | number, string>>({
 }: Omit<SelectProps, "children"> & {
   id: string;
   options: Extract<keyof T, string | number>[];
-  value?: T extends undefined ? string | number : keyof T;
+  // value?: T extends undefined ? string | number : keyof T;
+  menuItems?: boolean;
   optionLabelMap: T;
 }) {
   const classes = useStyles();
+  const OptionComponent = menuItems ? MenuItem : 'option' as unknown as React.ElementType;
 
   return (
     <FormControl
@@ -44,7 +50,7 @@ export default function Select<T extends Record<string | number, string>>({
     >
       <InputLabel htmlFor={id}>{label}</InputLabel>
       <MuiSelect
-        native
+        native={native}
         label={label}
         {...otherProps}
         inputProps={{
@@ -53,9 +59,9 @@ export default function Select<T extends Record<string | number, string>>({
         }}
       >
         {options.map((option) => (
-          <option value={option} key={option}>
+          <OptionComponent value={option} key={option}>
             {optionLabelMap[option]}
-          </option>
+          </OptionComponent>
         ))}
       </MuiSelect>
     </FormControl>

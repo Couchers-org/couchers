@@ -1,19 +1,14 @@
 import {
   Checkbox,
+  Chip,
   FormControlLabel,
   Grid,
+  Input,
   InputAdornment,
   makeStyles,
   Theme,
   Typography,
-  useMediaQuery,
-  Input,
-  Chip,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select
-} from "@material-ui/core";
+  useMediaQuery} from "@material-ui/core";
 import Button from "components/Button";
 import {
   Dialog,
@@ -25,7 +20,7 @@ import Divider from "components/Divider";
 import IconButton from "components/IconButton";
 import { CrossIcon } from "components/Icons";
 import LocationAutocomplete from "components/LocationAutocomplete";
-import OurSelect from "components/Select";
+import Select from "components/Select";
 import TextField from "components/TextField";
 import { TFunction, useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
@@ -57,13 +52,18 @@ const getLastActiveOptions = (t: TFunction) => ({
 });
 
 const getHostingStatusOptions = (t: TFunction) => ({
-  [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: t("global:hosting_status.any"),
   [HostingStatus.HOSTING_STATUS_CAN_HOST]: t("global:hosting_status.can_host"),
   [HostingStatus.HOSTING_STATUS_MAYBE]: t("global:hosting_status.maybe"),
   [HostingStatus.HOSTING_STATUS_CANT_HOST]: t(
     "global:hosting_status.cant_host"
   ),
 });
+
+export const HostingStatusValues = {
+  [HostingStatus.HOSTING_STATUS_CAN_HOST]: "global:hosting_status.can_host",
+  [HostingStatus.HOSTING_STATUS_MAYBE]: "global:hosting_status.maybe",
+  [HostingStatus.HOSTING_STATUS_CANT_HOST]: "global:hosting_status.cant_host",
+};
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -79,6 +79,9 @@ const useStyles = makeStyles((theme) => ({
   },
   noLeftPadding: {
     paddingLeft: 0,
+  },
+  inputHostingStatus: {
+    minWidth: '160px',
   },
   chips: {
     display: 'flex',
@@ -113,8 +116,8 @@ interface FilterDialogProps {
   setQueryName: Dispatch<SetStateAction<undefined | string>>;
   setLocationResult: any;
   lastActiveFilter: number;
-  setLastActiveFilter: Dispatch<SetStateAction<number>>;
-  hostingStatusFilter: number[];
+  setLastActiveFilter: Dispatch<SetStateAction<number[]>>;
+  hostingStatusFilter: Array<keyof typeof HostingStatusValues>;
   setHostingStatusFilter: Dispatch<SetStateAction<number[]>>;
   completeProfileFilter: boolean;
   setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
@@ -219,11 +222,11 @@ export default function FilterDialog({
                 {t("search:form.host_filters.title")}
               </Typography>
 
-              <OurSelect
+              <Select
                 id="last_active_filter"
                 className={classes.marginBottom}
                 value={lastActiveFilter}
-                onChange={(e: any) => setLastActiveFilter(e.target.value as number)}
+                onChange={(e) => setLastActiveFilter(e.target.value as number[])}
                 label={t("search:form.host_filters.last_active_field_label")}
                 optionLabelMap={getLastActiveOptions(t)}
                 options={[
@@ -236,33 +239,32 @@ export default function FilterDialog({
                 ]}
               />
 
-          <FormControl>
-            <InputLabel id="demo-mutiple-chip-label">Chip</InputLabel>
-            <Select
-              id="can_host_status_filter"
-              multiple={true}
-              value={hostingStatusFilter as any}
-              onChange={(e) => {
-                setHostingStatusFilter(e.target.value as any);
-              }}
-              input={<Input id="select-multiple-chip" />}
-              renderValue={(selected: any) => (
-                <div className={classes.chips}>
-                  {selected.map((value: any) => (
-                    <Chip key={value} label={value} className={classes.chip} />
-                  ))}
-                </div>
-              )}
-              MenuProps={MenuProps}
-
-            >
-            {[0,2,3,4].map((name) => (
-              <MenuItem key={name} value={name}>
-                {name}
-              </MenuItem>
-            ))}
-            </Select>
-          </FormControl>
+              <Select
+                id="can_host_status_filter_1"
+                variant="outlined"
+                label={"Hosting status"}
+                multiple={true}
+                menuItems={true}
+                value={hostingStatusFilter}
+                onChange={(e) => setHostingStatusFilter(e.target.value as number[])}
+                input={<Input className={classes.inputHostingStatus} id="select-multiple-chip" />}
+                className={classes.marginBottom}
+                native={false}
+                renderValue={(selected) => (
+                  <div className={classes.chips}>
+                    {(selected as number[]).map((value: keyof typeof HostingStatusValues) => (
+                      <Chip key={value} label={getHostingStatusOptions(t)[value]} className={classes.chip} />
+                    ))}
+                  </div>
+                )}
+                MenuProps={MenuProps}
+                optionLabelMap={getHostingStatusOptions(t)}
+                options={[
+                  HostingStatus.HOSTING_STATUS_CAN_HOST,
+                  HostingStatus.HOSTING_STATUS_MAYBE,
+                  HostingStatus.HOSTING_STATUS_CANT_HOST,
+                ]}
+              />
 
               <FormControlLabel
                 className={classes.noMargin}
