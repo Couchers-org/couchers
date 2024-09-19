@@ -83,7 +83,7 @@ export default function SearchPage({
   const [queryName, setQueryName] = useState<undefined | string>(undefined);
   const [searchType, setSearchType] = useState("location");
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
-  const [hostingStatusFilter, setHostingStatusFilter] = useState(0);
+  const [hostingStatusFilter, setHostingStatusFilter] = useState<number[]>([]);
   const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(undefined);
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
@@ -107,11 +107,8 @@ export default function SearchPage({
       completeProfileFilter,
     ],
     ({ pageParam }) => {
-      const lastActiveComparation = parseInt(
+      const lastActiveComparison = parseInt(
         lastActiveFilter as unknown as string
-      );
-      const hostingStatusFilterComparation = parseInt(
-        hostingStatusFilter as unknown as string
       );
 
       return service.search.userSearch(
@@ -119,11 +116,8 @@ export default function SearchPage({
           query: queryName,
           bbox: locationResult.bbox,
           lastActive:
-            lastActiveComparation === 0 ? undefined : lastActiveFilter,
-          hostingStatusOptions:
-            hostingStatusFilterComparation === 0
-              ? undefined
-              : [hostingStatusFilter],
+            lastActiveComparison === 0 ? undefined : lastActiveFilter,
+          hostingStatusOptions: hostingStatusFilter.length === 0 ? undefined : hostingStatusFilter,
           numGuests: numberOfGuestFilter,
           completeProfile:
             completeProfileFilter === false ? undefined : completeProfileFilter,
@@ -149,7 +143,7 @@ export default function SearchPage({
     if (!wasSearchPerformed) {
       if (
         lastActiveFilter !== 0 ||
-        hostingStatusFilter !== 0 ||
+        hostingStatusFilter.length === 0 ||
         numberOfGuestFilter !== undefined ||
         completeProfileFilter !== false
       ) {

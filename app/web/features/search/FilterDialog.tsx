@@ -28,6 +28,9 @@ import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { GeocodeResult } from "utils/hooks";
 import SearchFilters from "utils/searchFilters";
+import { Controller } from "react-hook-form";
+import Autocomplete from "components/Autocomplete";
+import { hostingStatusLabels } from "features/profile/constants";
 
 import { lastActiveOptions } from "./constants";
 
@@ -49,6 +52,12 @@ const getLastActiveOptions = (t: TFunction) => ({
     "search:last_active_options.last_3_months"
   ),
 });
+
+const hostingStatusOptions = [
+  HostingStatus.HOSTING_STATUS_CAN_HOST,
+  HostingStatus.HOSTING_STATUS_MAYBE,
+  HostingStatus.HOSTING_STATUS_CANT_HOST,
+];
 
 const getHostingStatusOptions = (t: TFunction) => ({
   [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: t("global:hosting_status.any"),
@@ -90,8 +99,8 @@ interface FilterDialogProps {
   setLocationResult: any;
   lastActiveFilter: number;
   setLastActiveFilter: Dispatch<SetStateAction<number>>;
-  hostingStatusFilter: number;
-  setHostingStatusFilter: Dispatch<SetStateAction<number>>;
+  hostingStatusFilter: number[];
+  setHostingStatusFilter: Dispatch<SetStateAction<number[]>>;
   completeProfileFilter: boolean;
   setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
   numberOfGuestFilter: undefined;
@@ -212,20 +221,31 @@ export default function FilterDialog({
                 ]}
               />
 
-              <Select
-                id="can_host_status_filter"
-                value={hostingStatusFilter}
-                onChange={(e) => {
-                  setHostingStatusFilter(e.target.value as number);
-                }}
-                label={t("search:form.host_filters.hosting_status_field_label")}
-                optionLabelMap={getHostingStatusOptions(t)}
-                options={[
-                  HostingStatus.HOSTING_STATUS_UNSPECIFIED,
-                  HostingStatus.HOSTING_STATUS_CAN_HOST,
-                  HostingStatus.HOSTING_STATUS_MAYBE,
-                  HostingStatus.HOSTING_STATUS_CANT_HOST,
-                ]}
+              <Controller
+                control={control}
+                name="hostingStatusOptions"
+                defaultValue={[]}
+                render={({ onChange, value }) => (
+                  <Autocomplete<HostingStatus, true, false, false>
+                    id="host-status-filter"
+                    label={t(
+                      "search:form.host_filters.hosting_status_field_label"
+                    )}
+                    options={hostingStatusOptions}
+                    onChange={(_e, options) => {
+                      onChange(options);
+                    }}
+                    value={value}
+                    getOptionLabel={(option) => hostingStatusLabels(t)[option]}
+                    disableClearable={false}
+                    freeSolo={false}
+                    multiple={true}
+                    error={
+                      //@ts-ignore weird nested field type issue
+                      errors.hostingStatusOptions?.message
+                    }
+                  />
+                )}
               />
 
               <FormControlLabel
