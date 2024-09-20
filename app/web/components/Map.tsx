@@ -91,7 +91,7 @@ export default function Map({
         hash: hash ? "loc" : false,
         interactive: interactive,
         style:
-          "https://maps.couchershq.org/static/couchers-basemap-style-v1.json",
+          "https://cdn.couchers.org/maps/couchers-basemap-style-v1.json",
         transformRequest,
         zoom: initialZoom,
       });
