@@ -160,8 +160,12 @@ build:web:
     - docker pull $WEB_RELEASE_TAG || true
     - docker build --build-arg version=$SLUG --build-arg environment=production --cache-from $WEB_RELEASE_TAG -t $WEB_TAG -f app/web/Dockerfile.prod app/web/
     - docker push $WEB_TAG
-    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app artifacts/web
+    # creates a new docker container (docker create returns the container name), and copies the static folder to the host
+    - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app/.next/static/ static
+    - ./app/web/generate_static_manifest.sh static > static/manifest.txt
+    - cp static/manifest.txt static/manifest-$CI_PIPELINE_ID-$CI_COMMIT_SHA.txt
+    - mkdir -p artifacts
+    - cd static && tar czf ../artifacts/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz .
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
@@ -172,7 +176,7 @@ build:web:
         - app/web/**/*
   artifacts:
     paths:
-      - artifacts/web/
+      - artifacts/
 
 build:web-next:
   needs: ["protos"]
@@ -181,8 +185,12 @@ build:web-next:
     - docker pull $WEB_NEXT_RELEASE_TAG || true
     - docker build --build-arg version=$SLUG --build-arg environment=next --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f app/web/Dockerfile.prod app/web/
     - docker push $WEB_NEXT_TAG
-    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app artifacts/web
+    # creates a new docker container (docker create returns the container name), and copies the static folder to the host
+    - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app/.next/static/ static
+    - ./app/web/generate_static_manifest.sh static > static/manifest.txt
+    - cp static/manifest.txt static/manifest-$CI_PIPELINE_ID-$CI_COMMIT_SHA.txt
+    - mkdir -p artifacts
+    - cd static && tar czf ../artifacts/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz .
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
@@ -193,7 +201,7 @@ build:web-next:
         - app/web/**/*
   artifacts:
     paths:
-      - artifacts/web/
+      - artifacts/
 
 build:nginx-next:
   needs: []
@@ -456,6 +464,52 @@ preview:storybook:
       changes:
         - app/proto/**/*
         - app/web/**/*
+
+preview:web:
+  needs: ["build:web"]
+  stage: preview
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-static/$CI_COMMIT_SHORT_SHA/static.tar.gz --website-redirect-location https://$CI_COMMIT_SHORT_SHA--web-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
+    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-static/$CI_COMMIT_REF_SLUG/static.tar.gz --website-redirect-location https://$CI_COMMIT_REF_SLUG--web-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
+    - echo "Done, web-static available at https://$CI_COMMIT_SHORT_SHA--web-static.$PREVIEW_DOMAIN/static.tar.gz and https://$CI_COMMIT_REF_SLUG--web-static.$PREVIEW_DOMAIN/static.tar.gz"
+  rules:
+    - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/web/**/*
+
+preview:web-next:
+  needs: ["build:web-next"]
+  stage: preview
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-next-static/$CI_COMMIT_SHORT_SHA/static.tar.gz --website-redirect-location https://$CI_COMMIT_SHORT_SHA--web-next-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
+    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-next-static/$CI_COMMIT_REF_SLUG/static.tar.gz --website-redirect-location https://$CI_COMMIT_REF_SLUG--web-next-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
+    - echo "Done, web-static available at https://$CI_COMMIT_SHORT_SHA--web-next-static.$PREVIEW_DOMAIN/static.tar.gz and https://$CI_COMMIT_REF_SLUG--web-next-static.$PREVIEW_DOMAIN/static.tar.gz"
+  rules:
+    - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/web/**/*
 
 preview:protos:
   needs: ["protos"]
