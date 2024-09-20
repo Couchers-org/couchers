@@ -848,6 +848,7 @@ def testconfig():
     )
     config["MEDIA_SERVER_BEARER_TOKEN"] = "c02d383897d3b82774ced09c9e17802164c37e7e105d8927553697bf4550e91e"
     config["MEDIA_SERVER_BASE_URL"] = "http://localhost:5001"
+    config["MEDIA_SERVER_UPLOAD_BASE_URL"] = "http://localhost:5001"
 
     config["BUG_TOOL_ENABLED"] = False
     config["BUG_TOOL_GITHUB_REPO"] = "org/repo"
