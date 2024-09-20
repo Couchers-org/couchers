@@ -90,8 +90,7 @@ export default function Map({
         container: containerRef.current,
         hash: hash ? "loc" : false,
         interactive: interactive,
-        style:
-          "https://cdn.couchers.org/maps/couchers-basemap-style-v1.json",
+        style: "https://cdn.couchers.org/maps/couchers-basemap-style-v1.json",
         transformRequest,
         zoom: initialZoom,
       });
