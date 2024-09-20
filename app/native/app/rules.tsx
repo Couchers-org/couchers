@@ -1,5 +1,5 @@
-import { Link, useRouter } from "expo-router";
-import { Trans, useTranslation } from "i18n";
+import { useRouter } from "expo-router";
+import { useTranslation } from "i18n";
 import { Pressable, StyleSheet, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -7,12 +7,9 @@ import BasicScreen from "@/components/BasicScreen";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 
-import { useAuthContext } from "features/auth/AuthProvider";
-import LoginForm from "features/auth/login/LoginForm";
-
 import { AUTH, GLOBAL } from "i18n/namespaces";
 
-export default function Login() {
+export default function Rules() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const router = useRouter();
 
@@ -24,22 +21,12 @@ export default function Login() {
         </Pressable>
       </ThemedView>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">{t("auth:login_page.header")}</ThemedText>
+        <ThemedText type="title">{t("auth:sign_up_page.rules.title")}</ThemedText>
         <View style={styles.titleUnderline} />
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <LoginForm />
-      </ThemedView>
-      <ThemedText>
-        <Trans t={t} i18nKey="auth:login_page.no_account_prompt">
-          No account yet?
-        </Trans>
-        <Link href="/sign_up" asChild>
-          <Pressable>
-            <ThemedText type="link">Sign up</ThemedText>
-          </Pressable>
-        </Link>
-      </ThemedText>
+      <ThemedText>{t("auth:sign_up_page.rules.ensure_save")}</ThemedText>
+      <ThemedText>{t("auth:sign_up_page.rules.comunity_platform")}</ThemedText>
+      <ThemedText>{t("auth:sign_up_page.rules.your_help")}</ThemedText>
     </BasicScreen>
   );
 }
@@ -49,7 +36,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     gap: 8,
-    marginTop: 15,
+    marginTop: 10,
   },
   titleUnderline: {
     width: "100%",
@@ -63,10 +50,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     marginTop: 4,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
   },
   backButtonContainer: {
     position: "absolute",

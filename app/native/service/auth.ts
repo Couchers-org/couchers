@@ -22,9 +22,8 @@ export async function startSignup(name: string, email: string) {
   const res = await client.auth.signupFlow(req);
   return res.toObject();
 }
-
 interface AccountSignupData {
-  flowToken: string;
+  flowToken?: string;
   username: string;
   password?: string;
   birthdate: string;
@@ -53,7 +52,9 @@ export async function signupFlowAccount({
   radius,
 }: AccountSignupData) {
   const req = new SignupFlowReq();
-  req.setFlowToken(flowToken);
+  if (flowToken) {
+    req.setFlowToken(flowToken);
+  }
   const account = new SignupAccount();
   account.setUsername(username);
   account.setBirthdate(birthdate);

@@ -7,6 +7,7 @@ import BasicScreen from "@/components/BasicScreen";
 export default function AppLayout() {
   const { authState } = useAuthContext();
 
+  console.log('authState', authState);
   if (authState.loading) {
     return (
       <BasicScreen>

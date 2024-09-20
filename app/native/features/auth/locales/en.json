@@ -3,6 +3,7 @@
     "connect_with_world": "Connect with the world around you",
     "build_collaboratively": "Build collaboratively, and always free"
   },
+
   "change_email_form": {
     "title": "Change email",
     "current_email_message": "Your email address is currently <1>{{email}}</1>.",
@@ -59,6 +60,28 @@
       "no_password_login_prompt": "Check your email for a link to log in! :)",
       "remember_me": "Remember me",
       "forgot_password": "Forgot password?"
+    }
+  },
+  "sign_up_page": {
+    "title": "Let’s get started!",
+    "form": {
+      "email_field_label": "Email",
+      "email_field_placeholder": "Enter your email",
+      "email_required_error": "This field is required",
+      "password_field_label": "Password",
+      "password_field_placeholder": "Enter your password",
+      "password_required_error": "This field is required",
+      "confirm_password_field_label": "Confirm password",
+      "confirm_password_required_error": "This field is required",
+      "confirm_password_validation_error": "Passwords do not match",
+      "create_my_account": "Create my account",
+      "tos_agreement_explainer": "By signing up, you agree with the <1>T&Cs</1> of using the platform and confirm to adhere to our <2>Code of Conduct.</2>"
+    },
+    "rules": {
+      "title": "Welcome to Couchers.org!",
+      "ensure_save": "To ensure a safe and friendly community, please take a moment to read our community guidelines.",
+      "comunity_platform": "Couchers.org is a community run platform aimed to...",
+      "your_help": "We hope to keep the couchers.org community alive with your help."
     }
   },
   "basic_sign_up_form": {

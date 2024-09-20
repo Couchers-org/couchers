@@ -21,6 +21,7 @@
     "@expo/vector-icons": "^14.0.2",
     "@maplibre/maplibre-react-native": "^10.0.0-alpha.10",
     "@react-native-async-storage/async-storage": "1.23.1",
+    "@react-native-picker/picker": "2.7.5",
     "@react-navigation/drawer": "^6.7.2",
     "@react-navigation/native": "^6.0.2",
     "@sentry/react-native": "~5.22.0",

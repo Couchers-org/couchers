@@ -86,6 +86,7 @@ export default function useAuthStore() {
           //will also cause that query to be background fetched, and it needs
           //userId to be set.
           setJailed(auth.jailed);
+          console.log('setting authenticated to true');
           setAuthenticated(true);
         } catch (e) {
           Sentry.captureException(e, {
@@ -134,6 +135,9 @@ export default function useAuthStore() {
           setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
         }
         setLoading(false);
+      },
+      clearFlowState() {
+        setFlowState(null);
       },
       async checkAuthStatus() {
         try {
