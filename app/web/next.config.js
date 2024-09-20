@@ -3,6 +3,7 @@ const { i18n } = require("./next-i18next.config"); // eslint-disable-line
 const { redirects } = require("./redirects"); // eslint-disable-line
 
 module.exports = {
+  assetPrefix: process.env.ASSET_PREFIX,
   reactStrictMode: true,
   eslint: {
     dirs: [
