@@ -123,7 +123,10 @@ export default function SearchResultsList({
     .flatMap((page) => page.resultsList)
     .filter((result) => result.user);
 
-  const wasResultFound = resultsList?.find((value) => value.user?.userId === selectedResult?.userId) !== undefined;
+  const wasResultFound =
+    resultsList?.find(
+      (value) => value.user?.userId === selectedResult?.userId
+    ) !== undefined;
 
   if (!wasResultFound && selectedUserData.data) {
     resultsList = [{ user: selectedUserData.data, rank: 0, snippet: "" }];
