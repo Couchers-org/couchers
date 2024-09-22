@@ -8,14 +8,15 @@ import {
 } from "@material-ui/core";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Pill from "components/Pill";
-import dayjs from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
+import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
+import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -69,11 +70,6 @@ const EventItem = ({ event }: { event: Event.AsObject }) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
 
   const startTime = dayjs(timestamp2Date(event.startTime!)).format("llll");
-  const endTime = dayjs(timestamp2Date(event.endTime!));
-
-  const formattedEventDates = `${startTime} - ${endTime.format(
-    endTime.isSame(startTime, "day") ? "LT" : "llll"
-  )}`;
 
   const {
     authState: { userId },
@@ -91,7 +87,13 @@ const EventItem = ({ event }: { event: Event.AsObject }) => {
         )}
         {isOnline && <Pill variant="rounded">{t("communities:online")}</Pill>}
         {isCancelled && (
-          <Pill variant="rounded">{t("communities:cancelled")}</Pill>
+          <Pill
+            backgroundColor={theme.palette.error.main}
+            color={theme.palette.common.white}
+            variant="rounded"
+          >
+            {t("communities:cancelled")}
+          </Pill>
         )}
       </div>
     );
@@ -122,9 +124,7 @@ const EventItem = ({ event }: { event: Event.AsObject }) => {
                     ? event.offlineInformation.address
                     : t("communities:virtual_event_location_placeholder")}
                 </Typography>
-                <Typography variant="body2" title={formattedEventDates}>
-                  {formattedEventDates}
-                </Typography>
+                <Typography variant="body2">{startTime}</Typography>
               </div>
               <Typography
                 className={classes.attendees}
