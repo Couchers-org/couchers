@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: (props: PillStylesProps) =>
       props.backgroundColor ?? theme.palette.grey[200],
     color: (props: PillStylesProps) =>
-      props.color ?? theme.palette.common.white,
+      props.color ?? theme.palette.text.primary,
     padding: theme.spacing(0.5, 1),
     textAlign: "center",
     fontWeight: "bold",

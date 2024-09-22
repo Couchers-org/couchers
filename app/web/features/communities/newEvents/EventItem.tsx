@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: "flex",
     width: "100%",
     height: theme.spacing(20),
-    margin: theme.spacing(2, 0, 2, 0),
+    padding: theme.spacing(2, 0, 2, 0),
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: theme.spacing(1),
   },
