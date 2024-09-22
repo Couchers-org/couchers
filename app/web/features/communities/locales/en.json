@@ -2,7 +2,7 @@
   "attendees_count": "{{count}} attendee",
   "attendees_count_plural": "{{count}} attendees",
   "by_creator": "By {{name}}",
-  "cancelled": "cancelled",
+  "cancelled": "Cancelled",
   "cancel_event": "Cancel event",
   "show_cancelled_events": "Show cancelled events",
   "cancel_event_success_message": "The event has been successfully cancelled.",
@@ -124,5 +124,6 @@
   "your_past_events": "Your past events",
   "all_events_page_tabs_a11y_label": "Tabs for the events listing page",
   "discover_events_subtitle": "Check out upcoming and future events hosted by Couchers.org community members!",
-  "discover_events_title": "Discover Couchers.org events"
+  "discover_events_title": "Discover Couchers.org events",
+  "created_by_me": "Created by me"
 }
