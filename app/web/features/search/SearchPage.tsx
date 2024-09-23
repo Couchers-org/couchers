@@ -13,10 +13,9 @@ import {
   useInfiniteQuery,
 } from "react-query";
 import { service } from "service";
-import { HostingStatusValues } from "./FilterDialog";
 import { GeocodeResult } from "utils/hooks";
 
-import FilterDialog from "./FilterDialog";
+import FilterDialog, { HostingStatusValues } from "./FilterDialog";
 import MapWrapper from "./MapWrapper";
 import SearchResultsList from "./SearchResultsList";
 

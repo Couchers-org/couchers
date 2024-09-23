@@ -1,9 +1,9 @@
 import {
   FormControl,
   InputLabel,
+  MenuItem,
   Select as MuiSelect,
   SelectProps,
-  MenuItem,
 } from "@material-ui/core";
 import classnames from "classnames";
 import React from "react";
