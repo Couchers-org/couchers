@@ -1,5 +1,5 @@
 import { appGetLayout } from "components/AppRoute";
-import EventsPageComponent from "features/communities/events/EventsPage";
+import EventsPageComponent from "features/communities/newEvents/EventsPage";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { GetStaticProps } from "next";
 import nextI18nextConfig from "next-i18next.config";

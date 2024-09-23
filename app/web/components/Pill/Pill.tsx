@@ -2,9 +2,17 @@ import { Typography } from "@material-ui/core";
 import classNames from "classnames";
 import makeStyles from "utils/makeStyles";
 
+interface PillStylesProps {
+  backgroundColor?: string;
+  color?: string;
+}
+
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: (props: PillStylesProps) =>
+      props.backgroundColor ?? theme.palette.grey[200],
+    color: (props: PillStylesProps) =>
+      props.color ?? theme.palette.text.primary,
     padding: theme.spacing(0.5, 1),
     textAlign: "center",
     fontWeight: "bold",
@@ -16,11 +24,18 @@ const useStyles = makeStyles((theme) => ({
 
 export interface PillProps {
   children: React.ReactNode;
+  backgroundColor?: string;
+  color?: string;
   variant?: "rounded" | "square";
 }
 
-export default function Pill({ children, variant = "rounded" }: PillProps) {
-  const classes = useStyles();
+export default function Pill({
+  children,
+  backgroundColor,
+  color,
+  variant = "rounded",
+}: PillProps) {
+  const classes = useStyles({ backgroundColor, color });
 
   return (
     <Typography
