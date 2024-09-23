@@ -159,7 +159,7 @@ def create_app(
         if not os.path.isfile(path):
             abort(404, "Not found")
 
-        return send_file(path, mimetype="image/jpeg", conditional=True, max_age=604800)
+        return send_file(path, mimetype="image/jpeg", conditional=True, max_age=7776000)
 
     @app.route("/img/thumbnail/<key>.jpg")
     def thumbnail(key):
@@ -188,7 +188,7 @@ def create_app(
             img = img.resize(thumbnail_size / size)
             img.jpegsave(thumbnail_path, strip=True, interlace=True, Q=75)
 
-        return send_file(thumbnail_path, mimetype="image/jpeg", conditional=True, max_age=604800)
+        return send_file(thumbnail_path, mimetype="image/jpeg", conditional=True, max_age=7776000)
 
     @app.route("/robots.txt")
     def robots():

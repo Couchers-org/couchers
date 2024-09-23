@@ -23,7 +23,7 @@ import {
   useState,
 } from "react";
 import { InfiniteData } from "react-query";
-import { usePrevious } from "utils/hooks";
+import { GeocodeResult, usePrevious } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -67,8 +67,8 @@ interface mapWrapperProps {
     | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
     | undefined;
   isLoading: boolean;
-  locationResult: any;
-  setLocationResult: Dispatch<SetStateAction<any>>;
+  locationResult: GeocodeResult | undefined;
+  setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   results: InfiniteData<UserSearchRes.AsObject> | undefined;
   setIsFiltersOpen: Dispatch<SetStateAction<boolean>>;
   setSelectedResult: Dispatch<
@@ -231,20 +231,20 @@ export default function MapWrapper({
     }
   }, [
     results,
+    handleMapUserClick,
+    map,
     isMapStyleLoaded,
     isMapSourceLoaded,
     wasSearchPerformed,
-    map,
-    handleMapUserClick,
   ]);
 
   /**
    * Clicks on 'search here' button
    */
   const handleOnClick = () => {
-    const currentBbox = map.current?.getBounds().toArray() as number[][];
+    const currentBbox = map.current?.getBounds().toArray();
     if (currentBbox) {
-      if (map.current?.getBounds) {
+      if (map.current?.getBounds && locationResult) {
         setLocationResult({
           ...locationResult,
           name: "",

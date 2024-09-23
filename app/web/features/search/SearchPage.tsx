@@ -3,7 +3,7 @@ import HtmlMeta from "components/HtmlMeta";
 import { Coordinates } from "features/search/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { Map as MaplibreMap } from "maplibre-gl";
+import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { useEffect, useRef, useState } from "react";
@@ -14,6 +14,7 @@ import {
 } from "react-query";
 import { service } from "service";
 import { HostingStatusValues } from "./FilterDialog";
+import { GeocodeResult } from "utils/hooks";
 
 import FilterDialog from "./FilterDialog";
 import MapWrapper from "./MapWrapper";
@@ -74,22 +75,24 @@ export default function SearchPage({
 
   // State
   const [wasSearchPerformed, setWasSearchPerformed] = useState(false);
-  const [locationResult, setLocationResult] = useState({
+  const [locationResult, setLocationResult] = useState<GeocodeResult>({
     bbox: bbox,
     isRegion: false,
-    location: { lng: undefined, lat: undefined },
+    location: new LngLat(0, 0),
     name: locationName,
     simplifiedName: locationName,
   });
-  const [queryName, setQueryName] = useState<undefined | string>(undefined);
-  const [searchType, setSearchType] = useState("location");
+  const [queryName, setQueryName] = useState<string>("");
+  const [searchType, setSearchType] = useState<"location" | "keyword">(
+    "location"
+  );
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
   const [hostingStatusFilter, setHostingStatusFilter] = useState<Array<keyof typeof HostingStatusValues>>([]);
-  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(undefined);
+  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(0);
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
-  >(undefined);
+  >();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   // Loads the list of users
@@ -108,20 +111,17 @@ export default function SearchPage({
       completeProfileFilter,
     ],
     ({ pageParam }) => {
-      const lastActiveComparison = parseInt(
-        lastActiveFilter as unknown as string
-      );
+      // @ts-ignore @TODO David fixing these in a separate PR
+      const lastActiveComparison = parseInt(lastActiveFilter);
 
       return service.search.userSearch(
         {
           query: queryName,
           bbox: locationResult.bbox,
-          lastActive:
-            lastActiveComparison === 0 ? undefined : lastActiveFilter,
+          lastActive: lastActiveComparison === 0 ? undefined : lastActiveFilter,
           hostingStatusOptions: hostingStatusFilter.length === 0 ? undefined : hostingStatusFilter,
           numGuests: numberOfGuestFilter,
-          completeProfile:
-            completeProfileFilter === false ? undefined : completeProfileFilter,
+          completeProfile: completeProfileFilter === false ? undefined : completeProfileFilter,
         },
         pageParam
       );
@@ -135,7 +135,7 @@ export default function SearchPage({
   // Relocate map everytime boundingbox changes
   useEffect(() => {
     map.current?.fitBounds(locationResult.bbox);
-  }, [locationResult.bbox]);
+  }, [locationResult?.bbox]);
 
   /**
    * Tracks whether a search was perform after the first render (always show all the users of the platform on the first render)

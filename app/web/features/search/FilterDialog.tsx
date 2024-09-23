@@ -112,17 +112,17 @@ interface FilterModalFormData
 interface FilterDialogProps {
   isOpen: boolean;
   onClose(): void;
-  queryName: undefined | string;
-  setQueryName: Dispatch<SetStateAction<undefined | string>>;
-  setLocationResult: any;
+  queryName: string;
+  setQueryName: Dispatch<SetStateAction<string>>;
+  setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   lastActiveFilter: number;
   setLastActiveFilter: Dispatch<SetStateAction<number[]>>;
   hostingStatusFilter: Array<keyof typeof HostingStatusValues>;
   setHostingStatusFilter: Dispatch<SetStateAction<number[]>>;
   completeProfileFilter: boolean;
   setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
-  numberOfGuestFilter: undefined;
-  setNumberOfGuestFilter: Dispatch<SetStateAction<undefined>>;
+  numberOfGuestFilter: number;
+  setNumberOfGuestFilter: Dispatch<SetStateAction<number>>;
 }
 
 export default function FilterDialog({
@@ -184,7 +184,6 @@ export default function FilterDialog({
             />
             <TextField
               fullWidth
-              defaultValue={""}
               id="keywords-filter"
               label={t("search:form.keywords.field_label")}
               name="query"
@@ -292,9 +291,8 @@ export default function FilterDialog({
                 id="num-guests-filter"
                 value={numberOfGuestFilter}
                 onChange={(e) => {
-                  setNumberOfGuestFilter(
-                    e.target.value as unknown as undefined
-                  );
+                  const tempNumOfGuest = parseInt(e.target.value);
+                  setNumberOfGuestFilter(tempNumOfGuest);
                 }}
                 inputRef={register({
                   valueAsNumber: true,
@@ -304,7 +302,6 @@ export default function FilterDialog({
                 label={t(
                   "search:form.accommodation_filters.guests_field_label"
                 )}
-                defaultValue={""}
                 error={!!errors.numGuests}
                 helperText={errors.numGuests?.message}
               />
