@@ -4,7 +4,9 @@ import PageTitle from "components/PageTitle";
 import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { useRouter } from "next/router";
 import { MouseEvent, useState } from "react";
+import { newEventRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import EventsList from "../newEvents/EventsList";
@@ -57,6 +59,7 @@ const useStyles = makeStyles((theme) => ({
 
 const EventsPage = () => {
   const classes = useStyles();
+  const router = useRouter();
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const [eventType, setEventType] = useState<EventsType>("upcoming");
 
@@ -73,7 +76,11 @@ const EventsPage = () => {
     <div>
       <div className={classes.headerRow}>
         <PageTitle>{t("communities:events_title")}</PageTitle>
-        <Button className={classes.button} size="small">
+        <Button
+          className={classes.button}
+          size="small"
+          onClick={() => router.push(newEventRoute)}
+        >
           {t("communities:create_new_event")}
         </Button>
       </div>

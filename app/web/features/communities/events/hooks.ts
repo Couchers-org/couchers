@@ -12,10 +12,11 @@ import {
   ListAllEventsRes,
   ListEventAttendeesRes,
   ListEventOrganizersRes,
+  ListMyEventsRes,
 } from "proto/events_pb";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { service } from "service";
-import type { ListAllEventsInput } from "service/events";
+import type { ListAllEventsInput, ListMyEventsInput } from "service/events";
 
 export interface UseEventUsersInput {
   eventId: number;
@@ -118,6 +119,24 @@ export function useListAllEvents({
         pastEvents,
         pageSize,
         pageToken: pageParam,
+      }),
+    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+  });
+}
+
+export function useListMyEvents({
+  pastEvents,
+  pageSize,
+  showCancelled,
+}: Omit<ListMyEventsInput, "pageToken">) {
+  return useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
+    queryKey: eventsKey(pastEvents ? "past" : "upcoming"),
+    queryFn: ({ pageParam }) =>
+      service.events.listMyEvents({
+        pastEvents,
+        pageSize,
+        pageToken: pageParam,
+        showCancelled,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });

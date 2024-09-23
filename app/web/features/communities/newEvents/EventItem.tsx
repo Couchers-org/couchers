@@ -8,7 +8,6 @@ import {
 } from "@material-ui/core";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Pill from "components/Pill";
-import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
@@ -53,27 +52,33 @@ const useStyles = makeStyles((theme: Theme) => ({
     justifyContent: "space-between",
   },
   tags: {
-    gap: theme.spacing(1),
+    minWidth: theme.spacing(15),
   },
   title: {
     display: "-webkit-box",
-    boxOrient: "vertical",
     lineClamp: 2,
+    boxOrient: "vertical",
     overflow: "hidden",
+    textOverflow: "ellipsis",
+    maxHeight: "3em" /* Approximate height for 2 lines of text */,
+    lineHeight: "1.5em",
+    paddingRight: theme.spacing(2),
   },
 }));
 
-const EventItem = ({ event }: { event: Event.AsObject }) => {
+const EventItem = ({
+  event,
+  userId,
+}: {
+  event: Event.AsObject;
+  userId: number | null | undefined;
+}) => {
   const classes = useStyles({
     eventImageSrc: event.photoUrl || eventImagePlaceholderUrl,
   });
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
 
   const startTime = dayjs(timestamp2Date(event.startTime!)).format("llll");
-
-  const {
-    authState: { userId },
-  } = useAuthContext();
 
   const renderTags = () => {
     const isCreatedByMe = event.creatorUserId === userId;

@@ -2,11 +2,12 @@ import { Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import TextBody from "components/TextBody";
+import { useAuthContext } from "features/auth/AuthProvider";
 import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 
-import { useListAllEvents } from "../events/hooks";
+import { useListMyEvents } from "../events/hooks";
 import EventItem from "./EventItem";
 
 interface EventListProps {
@@ -17,18 +18,27 @@ const EventsList = ({ eventType }: EventListProps) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
 
   const { data, error, hasNextPage, fetchNextPage, isLoading } =
-    useListAllEvents({ pastEvents: eventType === "past" });
+    useListMyEvents({ pastEvents: eventType === "past", showCancelled: true });
 
-  // @TODO - Render my events up top
+  const {
+    authState: { userId },
+  } = useAuthContext();
 
-  const renderAllEvents = () => {
-    if (!data) {
+  const renderMyEvents = () => {
+    const flatEvents = data?.pages.flatMap((page) => page.eventsList);
+    if (
+      !data ||
+      !data.pages ||
+      data.pages.length === 0 ||
+      !flatEvents ||
+      flatEvents?.length === 0
+    ) {
       return <TextBody>{t("communities:events_empty_state")}</TextBody>;
     }
 
-    return data.pages
-      .flatMap((page) => page.eventsList)
-      .map((event) => <EventItem key={event.eventId} event={event} />);
+    return flatEvents.map((event) => (
+      <EventItem key={event.eventId} event={event} userId={userId} />
+    ));
   };
 
   return (
@@ -39,7 +49,7 @@ const EventsList = ({ eventType }: EventListProps) => {
           : t("communities:your_past_events")}
       </Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
-      {isLoading ? <CircularProgress /> : renderAllEvents()}
+      {isLoading ? <CircularProgress /> : renderMyEvents()}
     </div>
   );
 };
