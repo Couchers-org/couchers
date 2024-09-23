@@ -35,6 +35,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   cardMedia: {
     height: "100%",
     width: "25%",
+    objectFit: "fill",
   },
   cardContent: {
     width: "75%",
