@@ -165,7 +165,7 @@ pre-commit==3.8.0
     # via -r requirements.in
 prometheus-client==0.21.0
     # via -r requirements.in
-protobuf==4.25.4
+protobuf==4.25.5
     # via
     #   -r requirements.in
     #   googleapis-common-protos
