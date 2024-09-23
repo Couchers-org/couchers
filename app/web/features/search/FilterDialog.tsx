@@ -8,7 +8,8 @@ import {
   makeStyles,
   Theme,
   Typography,
-  useMediaQuery} from "@material-ui/core";
+  useMediaQuery,
+} from "@material-ui/core";
 import Button from "components/Button";
 import {
   Dialog,
@@ -81,23 +82,21 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: 0,
   },
   inputHostingStatus: {
-    minWidth: '160px',
+    minWidth: "160px",
   },
   chips: {
-    display: 'flex',
-    flexWrap: 'wrap',
+    display: "flex",
+    flexWrap: "wrap",
   },
   chip: {
     margin: 2,
   },
 }));
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
 const MenuProps = {
   PaperProps: {
     style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      maxHeight: 48 * 4.5 + 8,
       width: 250,
     },
   },
@@ -225,7 +224,9 @@ export default function FilterDialog({
                 id="last_active_filter"
                 className={classes.marginBottom}
                 value={lastActiveFilter}
-                onChange={(e) => setLastActiveFilter(parseInt(e.target.value as string))}
+                onChange={(e) =>
+                  setLastActiveFilter(parseInt(e.target.value as string))
+                }
                 label={t("search:form.host_filters.last_active_field_label")}
                 optionLabelMap={getLastActiveOptions(t)}
                 options={[
@@ -245,15 +246,28 @@ export default function FilterDialog({
                 multiple={true}
                 menuItems={true}
                 value={hostingStatusFilter}
-                onChange={(e) => setHostingStatusFilter(e.target.value as number[])}
-                input={<Input className={classes.inputHostingStatus} id="select-multiple-chip" />}
+                onChange={(e) =>
+                  setHostingStatusFilter(e.target.value as number[])
+                }
+                input={
+                  <Input
+                    className={classes.inputHostingStatus}
+                    id="select-multiple-chip"
+                  />
+                }
                 className={classes.marginBottom}
                 native={false}
                 renderValue={(selected) => (
                   <div className={classes.chips}>
-                    {(selected as number[]).map((value: keyof typeof HostingStatusValues) => (
-                      <Chip key={value} label={getHostingStatusOptions(t)[value]} className={classes.chip} />
-                    ))}
+                    {(selected as number[]).map(
+                      (value: keyof typeof HostingStatusValues) => (
+                        <Chip
+                          key={value}
+                          label={getHostingStatusOptions(t)[value]}
+                          className={classes.chip}
+                        />
+                      )
+                    )}
                   </div>
                 )}
                 MenuProps={MenuProps}
@@ -291,7 +305,9 @@ export default function FilterDialog({
                 id="num-guests-filter"
                 value={numberOfGuestFilter}
                 onChange={(e) => {
-                  const tempNumOfGuest = e.target.value ? parseInt(e.target.value) : 0;
+                  const tempNumOfGuest = e.target.value
+                    ? parseInt(e.target.value)
+                    : 0;
                   setNumberOfGuestFilter(tempNumOfGuest);
                 }}
                 inputRef={register({

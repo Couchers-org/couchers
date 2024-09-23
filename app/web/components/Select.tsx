@@ -1,4 +1,4 @@
-  import {
+import {
   FormControl,
   InputLabel,
   Select as MuiSelect,
@@ -8,7 +8,6 @@
 import classnames from "classnames";
 import React from "react";
 import makeStyles from "utils/makeStyles";
-
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -40,7 +39,9 @@ export default function Select<T extends Record<string | number, string>>({
   optionLabelMap: T;
 }) {
   const classes = useStyles();
-  const OptionComponent = menuItems ? MenuItem : 'option' as unknown as React.ElementType;
+  const OptionComponent = menuItems
+    ? MenuItem
+    : ("option" as unknown as React.ElementType);
 
   return (
     <FormControl

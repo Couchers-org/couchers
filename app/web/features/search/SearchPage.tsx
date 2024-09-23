@@ -87,7 +87,9 @@ export default function SearchPage({
     "location"
   );
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
-  const [hostingStatusFilter, setHostingStatusFilter] = useState<Array<keyof typeof HostingStatusValues>>([]);
+  const [hostingStatusFilter, setHostingStatusFilter] = useState<
+    Array<keyof typeof HostingStatusValues>
+  >([]);
   const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(0);
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
@@ -116,9 +118,12 @@ export default function SearchPage({
           query: queryName,
           bbox: locationResult.bbox,
           lastActive: lastActiveFilter === 0 ? undefined : lastActiveFilter,
-          hostingStatusOptions: hostingStatusFilter.length === 0 ? undefined : hostingStatusFilter,
-          numGuests: numberOfGuestFilter === 0 ? undefined : numberOfGuestFilter,
-          completeProfile: completeProfileFilter === false ? undefined : completeProfileFilter,
+          hostingStatusOptions:
+            hostingStatusFilter.length === 0 ? undefined : hostingStatusFilter,
+          numGuests:
+            numberOfGuestFilter === 0 ? undefined : numberOfGuestFilter,
+          completeProfile:
+            completeProfileFilter === false ? undefined : completeProfileFilter,
         },
         pageParam
       );
@@ -142,7 +147,7 @@ export default function SearchPage({
       if (
         lastActiveFilter !== 0 ||
         hostingStatusFilter.length === 0 ||
-        numberOfGuestFilter !== undefined ||
+        numberOfGuestFilter !== 0 ||
         completeProfileFilter !== false
       ) {
         setWasSearchPerformed(true);
