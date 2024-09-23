@@ -11,6 +11,7 @@ export default {
 
 const Template: Story<any> = () => {
   const [isOpen, setIsOpen] = useState(false);
+
   return (
     <>
       <FilterDialog
@@ -23,7 +24,7 @@ const Template: Story<any> = () => {
         setHostingStatusFilter={() => {}}
         completeProfileFilter={true}
         setCompleteProfileFilter={() => {}}
-        numberOfGuestFilter={undefined}
+        numberOfGuestFilter={0}
         setNumberOfGuestFilter={() => {}}
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
