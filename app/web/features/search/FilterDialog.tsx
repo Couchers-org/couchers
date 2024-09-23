@@ -24,7 +24,7 @@ import TextField from "components/TextField";
 import { TFunction, useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { HostingStatus } from "proto/api_pb";
-import { Dispatch, SetStateAction } from "react";
+import { ChangeEvent, Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { GeocodeResult } from "utils/hooks";
 import SearchFilters from "utils/searchFilters";
@@ -85,13 +85,15 @@ interface FilterModalFormData
 interface FilterDialogProps {
   isOpen: boolean;
   onClose(): void;
+  onChange: (event: ChangeEvent<{ value: unknown }>) => void;
   queryName: string;
   setQueryName: Dispatch<SetStateAction<string>>;
   setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   lastActiveFilter: number;
   setLastActiveFilter: Dispatch<SetStateAction<number>>;
-  hostingStatusFilter: number;
-  setHostingStatusFilter: Dispatch<SetStateAction<number>>;
+  hostingStatusFilter:
+    | Exclude<HostingStatus, HostingStatus.HOSTING_STATUS_UNKNOWN>[]
+    | undefined;
   completeProfileFilter: boolean;
   setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
   numberOfGuestFilter: number;
@@ -101,13 +103,13 @@ interface FilterDialogProps {
 export default function FilterDialog({
   isOpen,
   onClose,
+  onChange,
   queryName,
   setQueryName,
   setLocationResult,
   lastActiveFilter,
   setLastActiveFilter,
   hostingStatusFilter,
-  setHostingStatusFilter,
   completeProfileFilter,
   setCompleteProfileFilter,
   numberOfGuestFilter,
@@ -214,9 +216,8 @@ export default function FilterDialog({
               <Select
                 id="can_host_status_filter"
                 value={hostingStatusFilter}
-                onChange={(e) => {
-                  setHostingStatusFilter(e.target.value as number);
-                }}
+                onChange={onChange}
+                multiple
                 label={t("search:form.host_filters.hosting_status_field_label")}
                 optionLabelMap={getHostingStatusOptions(t)}
                 options={[

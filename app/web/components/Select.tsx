@@ -31,7 +31,9 @@ export default function Select<T extends Record<string | number, string>>({
 }: Omit<SelectProps, "children"> & {
   id: string;
   options: Extract<keyof T, string | number>[];
-  value?: T extends undefined ? string | number : keyof T;
+  value?: T extends undefined // can be undefined
+    ? string | number | number[] // strng number or array of numbers (for multiselect)
+    : keyof T | Array<keyof T>; // whatever type T is, or array of whatever type T is for multiselect
   optionLabelMap: T;
 }) {
   const classes = useStyles();

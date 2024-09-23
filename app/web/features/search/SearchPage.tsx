@@ -4,9 +4,9 @@ import { Coordinates } from "features/search/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
-import { User } from "proto/api_pb";
+import { HostingStatus, User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   QueryClient,
   QueryClientProvider,
@@ -86,7 +86,9 @@ export default function SearchPage({
     "location"
   );
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
-  const [hostingStatusFilter, setHostingStatusFilter] = useState(0);
+  const [hostingStatusFilter, setHostingStatusFilter] = useState<
+    Exclude<HostingStatus, HostingStatus.HOSTING_STATUS_UNKNOWN>[] | undefined
+  >(undefined);
   const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(0);
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
@@ -112,8 +114,6 @@ export default function SearchPage({
     ({ pageParam }) => {
       // @ts-ignore @TODO David fixing these in a separate PR
       const lastActiveComparation = parseInt(lastActiveFilter);
-      // @ts-ignore @TODO David fixing these in a separate PR
-      const hostingStatusFilterComparation = parseInt(hostingStatusFilter);
 
       return service.search.userSearch(
         {
@@ -122,9 +122,7 @@ export default function SearchPage({
           lastActive:
             lastActiveComparation === 0 ? undefined : lastActiveFilter,
           hostingStatusOptions:
-            hostingStatusFilterComparation === 0
-              ? undefined
-              : [hostingStatusFilter],
+            hostingStatusFilter === undefined ? undefined : hostingStatusFilter,
           numGuests:
             numberOfGuestFilter === 0 ? undefined : numberOfGuestFilter,
           completeProfile:
@@ -151,7 +149,7 @@ export default function SearchPage({
     if (!wasSearchPerformed) {
       if (
         lastActiveFilter !== 0 ||
-        hostingStatusFilter !== 0 ||
+        hostingStatusFilter !== undefined ||
         numberOfGuestFilter !== 0 ||
         completeProfileFilter !== false
       ) {
@@ -167,6 +165,31 @@ export default function SearchPage({
   ]);
 
   const errorMessage = error?.message;
+
+  const handleHostingStatusFilterChange = (
+    event: ChangeEvent<{ value: unknown }>
+  ) => {
+    console.log("EVENT VALUE", event.target.value);
+    const value = event.target.value as Exclude<
+      HostingStatus,
+      HostingStatus.HOSTING_STATUS_UNKNOWN
+    >; // Type assertion to HostingStatus array
+    if (hostingStatusFilter === undefined) {
+      setHostingStatusFilter([value]);
+    } else if (hostingStatusFilter.includes(value)) {
+      const newHostingStatusFilter = hostingStatusFilter.filter(
+        (existingValue) => existingValue !== value
+      );
+
+      if (hostingStatusFilter.length === 0) {
+        setHostingStatusFilter(undefined);
+      } else {
+        setHostingStatusFilter(newHostingStatusFilter);
+      }
+    } else {
+      setHostingStatusFilter([...hostingStatusFilter, value]);
+    }
+  };
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -220,8 +243,8 @@ export default function SearchPage({
           setLocationResult={setLocationResult}
           lastActiveFilter={lastActiveFilter}
           setLastActiveFilter={setLastActiveFilter}
+          onChange={handleHostingStatusFilterChange}
           hostingStatusFilter={hostingStatusFilter}
-          setHostingStatusFilter={setHostingStatusFilter}
           completeProfileFilter={completeProfileFilter}
           setCompleteProfileFilter={setCompleteProfileFilter}
           numberOfGuestFilter={numberOfGuestFilter}
