@@ -21,6 +21,8 @@ import makeStyles from "utils/makeStyles";
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
     margin: theme.spacing(2, 0),
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: theme.spacing(1),
   },
   attendees: {
     display: "flex",
@@ -30,8 +32,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: "flex",
     width: "100%",
     height: theme.spacing(20),
-    border: `1px solid ${theme.palette.grey[300]}`,
-    borderRadius: theme.spacing(1),
   },
   cardMedia: {
     height: "100%",
@@ -40,7 +40,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   cardContent: {
     width: "75%",
-    padding: theme.spacing(2, 4),
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
