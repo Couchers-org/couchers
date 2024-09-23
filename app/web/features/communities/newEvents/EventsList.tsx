@@ -1,4 +1,3 @@
-import { Typography } from "@material-ui/core";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { Event } from "proto/events_pb";
 import makeStyles from "utils/makeStyles";
@@ -8,7 +7,6 @@ import EventItem from "./EventItem";
 
 interface EventListProps {
   events: Event.AsObject[];
-  heading: string;
   isVerticalStyle?: boolean;
 }
 
@@ -42,11 +40,7 @@ const useStyles = makeStyles((theme) => ({
       : {},
 }));
 
-const EventsList = ({
-  events,
-  heading,
-  isVerticalStyle = false,
-}: EventListProps) => {
+const EventsList = ({ events, isVerticalStyle = false }: EventListProps) => {
   const classes = useStyles({ isVerticalStyle });
 
   const {
@@ -55,7 +49,6 @@ const EventsList = ({
 
   return (
     <>
-      <Typography variant="h3">{heading}</Typography>
       <div className={classes.eventsContainer}>
         {events.map((event) =>
           isVerticalStyle ? (

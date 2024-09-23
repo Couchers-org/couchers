@@ -1,4 +1,4 @@
-import { CircularProgress } from "@material-ui/core";
+import { CircularProgress, Typography } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextBody from "components/TextBody";
@@ -25,30 +25,18 @@ const DiscoverEventsList = ({
       pastEvents: eventType === "past",
       pageSize: 10,
     });
-
-  const flatEvents = data?.pages.flatMap((page) => page.eventsList);
-
-  if (
-    !data ||
-    !data.pages ||
-    data.pages.length === 0 ||
-    !flatEvents ||
-    flatEvents?.length === 0
-  ) {
-    return <TextBody>{t("communities:events_empty_state")}</TextBody>;
-  }
+  const flatEvents = data?.pages.flatMap((page) => page.eventsList) || [];
+  const hasEvents = flatEvents && flatEvents?.length > 0;
 
   return (
     <>
+      <Typography variant="h3">{heading}</Typography>
+      {!hasEvents && <TextBody>{t("communities:events_empty_state")}</TextBody>}
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CircularProgress />
       ) : (
-        <EventsList
-          events={flatEvents}
-          heading={heading}
-          isVerticalStyle={isVerticalStyle}
-        />
+        <EventsList events={flatEvents} isVerticalStyle={isVerticalStyle} />
       )}
       {hasNextPage && (
         <Button onClick={() => fetchNextPage()}>
