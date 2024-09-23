@@ -130,7 +130,7 @@ export function useListMyEvents({
   showCancelled,
 }: Omit<ListMyEventsInput, "pageToken">) {
   return useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
-    queryKey: eventsKey(pastEvents ? "past" : "upcoming"),
+    queryKey: eventsKey(pastEvents ? "myPast" : "myUpcoming"),
     queryFn: ({ pageParam }) =>
       service.events.listMyEvents({
         pastEvents,

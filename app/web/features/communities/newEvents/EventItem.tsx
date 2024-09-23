@@ -19,6 +19,9 @@ import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    margin: theme.spacing(2, 0),
+  },
   attendees: {
     display: "flex",
     alignItems: "flex-end",
@@ -27,13 +30,13 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: "flex",
     width: "100%",
     height: theme.spacing(20),
-    padding: theme.spacing(2, 0, 2, 0),
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: theme.spacing(1),
   },
   cardMedia: {
     height: "100%",
     width: "25%",
+    objectFit: "fill",
   },
   cardContent: {
     width: "75%",
@@ -105,7 +108,7 @@ const EventItem = ({
   };
 
   return (
-    <Card>
+    <Card className={classes.root}>
       <Link href={routeToEvent(event.eventId, event.slug)}>
         <a className={classes.card}>
           <CardMedia

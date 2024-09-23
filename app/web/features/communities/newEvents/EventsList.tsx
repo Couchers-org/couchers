@@ -1,56 +1,71 @@
 import { Typography } from "@material-ui/core";
-import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
-import TextBody from "components/TextBody";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { EventsType } from "features/queryKeys";
-import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { Event } from "proto/events_pb";
+import makeStyles from "utils/makeStyles";
 
-import { useListMyEvents } from "../events/hooks";
+import EventCard from "../events/EventCard";
 import EventItem from "./EventItem";
 
 interface EventListProps {
-  eventType: EventsType;
+  events: Event.AsObject[];
+  heading: string;
+  isVerticalStyle?: boolean;
 }
 
-const EventsList = ({ eventType }: EventListProps) => {
-  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+const useStyles = makeStyles((theme) => ({
+  eventsContainer: (props: { isVerticalStyle: boolean }) =>
+    props.isVerticalStyle
+      ? {
+          display: "grid",
 
-  const { data, error, hasNextPage, fetchNextPage, isLoading } =
-    useListMyEvents({ pastEvents: eventType === "past", showCancelled: true });
+          [theme.breakpoints.down("xs")]: {
+            gridTemplateColumns: "1fr",
+            gridGap: theme.spacing(2),
+            //break out of page padding
+            left: "50%",
+            marginLeft: "-50vw",
+            marginRight: "-50vw",
+            position: "relative",
+            right: "50%",
+            width: "100vw",
+          },
+          [theme.breakpoints.up("sm")]: {
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gridGap: theme.spacing(2),
+          },
+          [theme.breakpoints.up("md")]: {
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gridGap: theme.spacing(3),
+          },
+        }
+      : {},
+}));
+
+const EventsList = ({
+  events,
+  heading,
+  isVerticalStyle = false,
+}: EventListProps) => {
+  const classes = useStyles({ isVerticalStyle });
 
   const {
     authState: { userId },
   } = useAuthContext();
 
-  const renderMyEvents = () => {
-    const flatEvents = data?.pages.flatMap((page) => page.eventsList);
-    if (
-      !data ||
-      !data.pages ||
-      data.pages.length === 0 ||
-      !flatEvents ||
-      flatEvents?.length === 0
-    ) {
-      return <TextBody>{t("communities:events_empty_state")}</TextBody>;
-    }
-
-    return flatEvents.map((event) => (
-      <EventItem key={event.eventId} event={event} userId={userId} />
-    ));
-  };
-
   return (
-    <div>
-      <Typography variant="h3">
-        {eventType === "upcoming"
-          ? t("communities:your_upcoming_events")
-          : t("communities:your_past_events")}
-      </Typography>
-      {error && <Alert severity="error">{error.message}</Alert>}
-      {isLoading ? <CircularProgress /> : renderMyEvents()}
-    </div>
+    <>
+      <Typography variant="h3">{heading}</Typography>
+      <div className={classes.eventsContainer}>
+        {events.map((event) =>
+          isVerticalStyle ? (
+            <EventCard key={event.eventId} event={event} />
+          ) : (
+            <EventItem key={event.eventId} event={event} userId={userId} />
+          )
+        )}
+      </div>
+    </>
   );
 };
 

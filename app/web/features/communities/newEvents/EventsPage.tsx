@@ -9,7 +9,8 @@ import { MouseEvent, useState } from "react";
 import { newEventRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import EventsList from "../newEvents/EventsList";
+import DiscoverEventsList from "./DiscoverEventsList";
+import MyEventsList from "./MyEventsList";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -110,7 +111,20 @@ const EventsPage = () => {
           {t("communities:past")}
         </ToggleButton>
       </ToggleButtonGroup>
-      <EventsList eventType={eventType} />
+      <MyEventsList
+        eventType={eventType}
+        heading={
+          eventType === "upcoming"
+            ? t("communities:your_upcoming_events")
+            : t("communities:your_past_events")
+        }
+        showCancelled={true}
+      />
+      <DiscoverEventsList
+        eventType={eventType}
+        heading={t("communities:discover_events_title")}
+        isVerticalStyle
+      />
     </div>
   );
 };
