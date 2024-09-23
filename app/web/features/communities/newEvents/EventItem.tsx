@@ -20,6 +20,11 @@ import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    margin: theme.spacing(2, 0),
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: theme.spacing(1),
+  },
   attendees: {
     display: "flex",
     alignItems: "flex-end",
@@ -28,9 +33,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: "flex",
     width: "100%",
     height: theme.spacing(20),
-    margin: theme.spacing(2, 0, 2, 0),
-    border: `1px solid ${theme.palette.grey[300]}`,
-    borderRadius: theme.spacing(1),
   },
   cardMedia: {
     height: "100%",
@@ -39,7 +41,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   cardContent: {
     width: "75%",
-    padding: theme.spacing(2, 4),
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -54,13 +55,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     justifyContent: "space-between",
   },
   tags: {
-    gap: theme.spacing(1),
+    minWidth: theme.spacing(15),
   },
   title: {
     display: "-webkit-box",
-    boxOrient: "vertical",
     lineClamp: 2,
+    boxOrient: "vertical",
     overflow: "hidden",
+    textOverflow: "ellipsis",
+    maxHeight: "3em" /* Approximate height for 2 lines of text */,
+    lineHeight: "1.5em",
+    paddingRight: theme.spacing(2),
   },
 }));
 
@@ -101,7 +106,7 @@ const EventItem = ({ event }: { event: Event.AsObject }) => {
   };
 
   return (
-    <Card>
+    <Card className={classes.root}>
       <Link href={routeToEvent(event.eventId, event.slug)}>
         <a className={classes.card}>
           <CardMedia
