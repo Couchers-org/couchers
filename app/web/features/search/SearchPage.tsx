@@ -96,6 +96,7 @@ export default function SearchPage({
   >();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
+  
   // Loads the list of users
   const { data, error, isLoading, isFetching, hasNextPage } = useInfiniteQuery<
     UserSearchRes.AsObject,
