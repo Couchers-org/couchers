@@ -116,7 +116,7 @@ interface FilterDialogProps {
   setQueryName: Dispatch<SetStateAction<string>>;
   setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   lastActiveFilter: number;
-  setLastActiveFilter: Dispatch<SetStateAction<number[]>>;
+  setLastActiveFilter: Dispatch<SetStateAction<number>>;
   hostingStatusFilter: Array<keyof typeof HostingStatusValues>;
   setHostingStatusFilter: Dispatch<SetStateAction<number[]>>;
   completeProfileFilter: boolean;
@@ -225,7 +225,7 @@ export default function FilterDialog({
                 id="last_active_filter"
                 className={classes.marginBottom}
                 value={lastActiveFilter}
-                onChange={(e) => setLastActiveFilter(e.target.value as number[])}
+                onChange={(e) => setLastActiveFilter(e.target.value as number)}
                 label={t("search:form.host_filters.last_active_field_label")}
                 optionLabelMap={getLastActiveOptions(t)}
                 options={[
