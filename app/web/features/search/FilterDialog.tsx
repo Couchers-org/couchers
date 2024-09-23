@@ -242,7 +242,7 @@ export default function FilterDialog({
               <Select
                 id="can_host_status_filter_1"
                 variant="outlined"
-                label={"Hosting status"}
+                label={t("search:form.host_filters.hosting_status_field_label")}
                 multiple={true}
                 menuItems={true}
                 value={hostingStatusFilter}
