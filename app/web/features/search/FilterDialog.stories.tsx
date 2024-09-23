@@ -20,11 +20,11 @@ const Template: Story<any> = () => {
         setQueryName={() => {}}
         queryName=""
         setLastActiveFilter={() => {}}
-        hostingStatusFilter={0}
+        hostingStatusFilter={[3]}
         setHostingStatusFilter={() => {}}
         completeProfileFilter={true}
         setCompleteProfileFilter={() => {}}
-        numberOfGuestFilter={0}
+        numberOfGuestFilter={""}
         setNumberOfGuestFilter={() => {}}
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

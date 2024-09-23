@@ -89,7 +89,7 @@ export default function SearchPage({
   const [hostingStatusFilter, setHostingStatusFilter] = useState<
     Array<keyof typeof HostingStatusValues>
   >([]);
-  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(0);
+  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState("");
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
@@ -112,6 +112,8 @@ export default function SearchPage({
       completeProfileFilter,
     ],
     ({ pageParam }) => {
+
+      const numberOfGuestsTemp = numberOfGuestFilter ? parseInt(numberOfGuestFilter) : 0;
       return service.search.userSearch(
         {
           query: queryName,
@@ -120,7 +122,7 @@ export default function SearchPage({
           hostingStatusOptions:
             hostingStatusFilter.length === 0 ? undefined : hostingStatusFilter,
           numGuests:
-            numberOfGuestFilter === 0 ? undefined : numberOfGuestFilter,
+            numberOfGuestsTemp === 0 ? undefined : numberOfGuestsTemp,
           completeProfile:
             completeProfileFilter === false ? undefined : completeProfileFilter,
         },
@@ -145,8 +147,8 @@ export default function SearchPage({
     if (!wasSearchPerformed) {
       if (
         lastActiveFilter !== 0 ||
-        hostingStatusFilter.length === 0 ||
-        numberOfGuestFilter !== 0 ||
+        hostingStatusFilter.length !== 0 ||
+        numberOfGuestFilter !== "" ||
         completeProfileFilter !== false
       ) {
         setWasSearchPerformed(true);
