@@ -225,7 +225,7 @@ export default function FilterDialog({
                 id="last_active_filter"
                 className={classes.marginBottom}
                 value={lastActiveFilter}
-                onChange={(e) => setLastActiveFilter(e.target.value as number)}
+                onChange={(e) => setLastActiveFilter(parseInt(e.target.value as string))}
                 label={t("search:form.host_filters.last_active_field_label")}
                 optionLabelMap={getLastActiveOptions(t)}
                 options={[
@@ -291,7 +291,7 @@ export default function FilterDialog({
                 id="num-guests-filter"
                 value={numberOfGuestFilter}
                 onChange={(e) => {
-                  const tempNumOfGuest = parseInt(e.target.value);
+                  const tempNumOfGuest = e.target.value ? parseInt(e.target.value) : 0;
                   setNumberOfGuestFilter(tempNumOfGuest);
                 }}
                 inputRef={register({

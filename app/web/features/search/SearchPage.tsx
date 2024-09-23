@@ -111,16 +111,13 @@ export default function SearchPage({
       completeProfileFilter,
     ],
     ({ pageParam }) => {
-      // @ts-ignore @TODO David fixing these in a separate PR
-      const lastActiveComparison = parseInt(lastActiveFilter);
-
       return service.search.userSearch(
         {
           query: queryName,
           bbox: locationResult.bbox,
-          lastActive: lastActiveComparison === 0 ? undefined : lastActiveFilter,
+          lastActive: lastActiveFilter === 0 ? undefined : lastActiveFilter,
           hostingStatusOptions: hostingStatusFilter.length === 0 ? undefined : hostingStatusFilter,
-          numGuests: numberOfGuestFilter,
+          numGuests: numberOfGuestFilter === 0 ? undefined : numberOfGuestFilter,
           completeProfile: completeProfileFilter === false ? undefined : completeProfileFilter,
         },
         pageParam
