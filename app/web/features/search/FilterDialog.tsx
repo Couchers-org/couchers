@@ -259,10 +259,13 @@ export default function FilterDialog({
                 renderValue={(selected) => (
                   <div className={classes.chips}>
                     {(selected as number[]).map(
-                      (value: Exclude<
-                        HostingStatus,
-                        | HostingStatus.HOSTING_STATUS_UNKNOWN
-                        | HostingStatus.HOSTING_STATUS_UNSPECIFIED>) => (
+                      (
+                        value: Exclude<
+                          HostingStatus,
+                          | HostingStatus.HOSTING_STATUS_UNKNOWN
+                          | HostingStatus.HOSTING_STATUS_UNSPECIFIED
+                        >
+                      ) => (
                         <Chip
                           key={value}
                           label={getHostingStatusOptions(t)[value]}
