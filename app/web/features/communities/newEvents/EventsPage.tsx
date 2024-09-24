@@ -1,13 +1,14 @@
 import { Button } from "@material-ui/core";
-import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
+import { TabContext, TabPanel } from "@material-ui/lab";
 import PageTitle from "components/PageTitle";
+import TabBar from "components/TabBar";
 import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
-import { MouseEvent, useState } from "react";
+import { useState } from "react";
 import makeStyles from "utils/makeStyles";
 
-import EventsList from "../newEvents/EventsList";
+import EventsList from "./EventsList";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -26,33 +27,6 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     paddingBottom: theme.spacing(),
   },
-  toggleButtonGroup: {
-    backgroundColor: theme.palette.grey[300],
-    border: "1px solid " + theme.palette.grey[300],
-    borderRadius: "15px",
-    marginBottom: theme.spacing(2),
-    "&:hover": {
-      backgroundColor: theme.palette.grey[50],
-      border: "1px solid " + theme.palette.grey[50],
-      borderRadius: "15px",
-    },
-  },
-  toggleButton: {
-    fontWeight: "bold",
-    border: "none",
-    "&.Mui-selected": {
-      backgroundColor: theme.palette.common.white,
-      color: theme.palette.text.primary,
-      boxShadow: theme.shadows[0],
-      border: "1px solid " + theme.palette.grey[300],
-      borderRadius: "15px",
-    },
-    "&:hover": {
-      backgroundColor: theme.palette.grey[50],
-      border: "1px solid " + theme.palette.grey[50],
-      borderRadius: "15px",
-    },
-  },
 }));
 
 const EventsPage = () => {
@@ -60,12 +34,14 @@ const EventsPage = () => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const [eventType, setEventType] = useState<EventsType>("upcoming");
 
-  const handleToggleClick = (
-    event: MouseEvent<HTMLElement>,
-    newAlignment: "past" | "upcoming"
-  ) => {
-    if (newAlignment !== null && newAlignment !== eventType) {
-      setEventType(newAlignment);
+  const allEventsPageTabLabels: Record<EventsType, string> = {
+    upcoming: t("communities:upcoming"),
+    past: t("communities:past"),
+  };
+
+  const handleToggleClick = (value: EventsType) => {
+    if (value !== null && value !== eventType) {
+      setEventType(value);
     }
   };
 
@@ -77,33 +53,19 @@ const EventsPage = () => {
           {t("communities:create_new_event")}
         </Button>
       </div>
-      <ToggleButtonGroup
-        className={classes.toggleButtonGroup}
-        exclusive
-        onChange={handleToggleClick}
-        aria-label="Event Type"
-        value={eventType}
-        style={{ width: "100%" }}
-        size="small"
-      >
-        <ToggleButton
-          aria-label="upcoming"
-          value="upcoming"
-          style={{ flexGrow: 1 }}
-          className={classes.toggleButton}
-        >
-          {t("communities:upcoming")}
-        </ToggleButton>
-        <ToggleButton
-          aria-label="past"
-          value="past"
-          style={{ flexGrow: 1 }}
-          className={classes.toggleButton}
-        >
-          {t("communities:past")}
-        </ToggleButton>
-      </ToggleButtonGroup>
-      <EventsList eventType={eventType} />
+      <TabContext value={eventType}>
+        <TabBar
+          ariaLabel={t("communities:all_events_page_tabs_a11y_label")}
+          setValue={handleToggleClick}
+          labels={allEventsPageTabLabels}
+        />
+        <TabPanel value="upcoming">
+          <EventsList />
+        </TabPanel>
+        <TabPanel value="past">
+          <EventsList />
+        </TabPanel>
+      </TabContext>
     </div>
   );
 };
