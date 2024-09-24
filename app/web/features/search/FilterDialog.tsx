@@ -120,8 +120,8 @@ interface FilterDialogProps {
   setHostingStatusFilter: Dispatch<SetStateAction<number[]>>;
   completeProfileFilter: boolean;
   setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
-  numberOfGuestFilter: string;
-  setNumberOfGuestFilter: Dispatch<SetStateAction<string>>;
+  numberOfGuestFilter: number;
+  setNumberOfGuestFilter: Dispatch<SetStateAction<number>>;
 }
 
 export default function FilterDialog({
@@ -224,9 +224,7 @@ export default function FilterDialog({
                 id="last_active_filter"
                 className={classes.marginBottom}
                 value={lastActiveFilter}
-                onChange={(e) =>
-                  setLastActiveFilter(parseInt(e.target.value as string))
-                }
+                onChange={(e) => setLastActiveFilter(e.target.value as number)}
                 label={t("search:form.host_filters.last_active_field_label")}
                 optionLabelMap={getLastActiveOptions(t)}
                 options={[
@@ -305,7 +303,8 @@ export default function FilterDialog({
                 id="num-guests-filter"
                 value={numberOfGuestFilter}
                 onChange={(e) => {
-                  setNumberOfGuestFilter(e.target.value);
+                  const tempNumOfGuest = parseInt(e.target.value);
+                  setNumberOfGuestFilter(tempNumOfGuest);
                 }}
                 inputRef={register({
                   valueAsNumber: true,

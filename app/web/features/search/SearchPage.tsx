@@ -89,7 +89,7 @@ export default function SearchPage({
   const [hostingStatusFilter, setHostingStatusFilter] = useState<
     Array<keyof typeof HostingStatusValues>
   >([]);
-  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState("");
+  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(0);
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
@@ -113,17 +113,18 @@ export default function SearchPage({
       completeProfileFilter,
     ],
     ({ pageParam }) => {
-
-      const numberOfGuestsTemp = numberOfGuestFilter ? parseInt(numberOfGuestFilter) : 0;
+      // @ts-ignore @TODO David fixing these in a separate PR
+      const lastActiveComparation = parseInt(lastActiveFilter);
+      
       return service.search.userSearch(
         {
           query: queryName,
           bbox: locationResult.bbox,
-          lastActive: lastActiveFilter === 0 ? undefined : lastActiveFilter,
+          lastActive: lastActiveComparation === 0 ? undefined : lastActiveFilter,
           hostingStatusOptions:
             hostingStatusFilter.length === 0 ? undefined : hostingStatusFilter,
-          numGuests:
-            numberOfGuestsTemp === 0 ? undefined : numberOfGuestsTemp,
+            numGuests:
+            numberOfGuestFilter === 0 ? undefined : numberOfGuestFilter,
           completeProfile:
             completeProfileFilter === false ? undefined : completeProfileFilter,
         },
@@ -149,7 +150,7 @@ export default function SearchPage({
       if (
         lastActiveFilter !== 0 ||
         hostingStatusFilter.length !== 0 ||
-        numberOfGuestFilter !== "" ||
+        numberOfGuestFilter !== 0 ||
         completeProfileFilter !== false
       ) {
         setWasSearchPerformed(true);
