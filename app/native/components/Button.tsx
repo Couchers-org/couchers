@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleProp, StyleSheet, ViewStyle } from "react-native";
 import { ThemedText } from "./ThemedText";
 
 interface ButtonProps {
@@ -6,6 +6,7 @@ interface ButtonProps {
   filled?: boolean;
   onPress?: () => void;
   disabled?: boolean;
+  style?: StyleProp<ViewStyle>;
 }
 
 export default function Button({
@@ -13,6 +14,7 @@ export default function Button({
   filled = false,
   onPress,
   disabled = false,
+  style,
 }: ButtonProps) {
   return (
     <Pressable
@@ -20,6 +22,7 @@ export default function Button({
         styles.button,
         filled ? styles.filledButton : styles.transparentButton,
         disabled ? styles.disabledButton : null,
+        style,
       ]}
       onPress={onPress}
       disabled={disabled}
@@ -43,7 +46,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: "center",
     marginBottom: 10,
-    width: "100%",
   },
   filledButton: {
     backgroundColor: "#00A398",

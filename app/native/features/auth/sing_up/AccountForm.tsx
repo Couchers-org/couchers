@@ -64,18 +64,18 @@ export default function AccountForm() {
       authActions.clearError();
       try {
         const state = await service.auth.signupFlowAccount({
-          flowToken: authState.flowState!.flowToken,
-          username: lowercaseAndTrimField(username),
-          password: password,
+          flowToken: undefined,
+          username: 'test123',
+          password: 'testtest',
           birthdate: new Date(1899, 12, 1).toISOString().split("T")[0],
-          gender,
-          acceptTOS,
-          optOutOfNewsletter: !optInToNewsletter,
-          hostingStatus,
-          city: location.address,
-          lat: location.lat,
-          lng: location.lng,
-          radius: location.radius,
+          gender: 'male',
+          acceptTOS: true,
+          optOutOfNewsletter: false,
+          hostingStatus: HostingStatus.HOSTING_STATUS_CANT_HOST,
+          city: 'London',
+          lat: 51.5074,
+          lng: 0.1278,
+          radius: 10,
         });
         return authActions.updateSignupState(state);
       } catch (e) {
