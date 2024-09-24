@@ -30,7 +30,7 @@ import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { GeocodeResult } from "utils/hooks";
 import SearchFilters from "utils/searchFilters";
-import { typeHostingStatusOptions } from "./SearchPage";
+import { TypeHostingStatusOptions } from "./SearchPage";
 
 import { lastActiveOptions } from "./constants";
 
@@ -111,8 +111,8 @@ interface FilterDialogProps {
   setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   lastActiveFilter: number;
   setLastActiveFilter: Dispatch<SetStateAction<number>>;
-  hostingStatusFilter: typeHostingStatusOptions;
-  setHostingStatusFilter: Dispatch<SetStateAction<typeHostingStatusOptions>>;
+  hostingStatusFilter: TypeHostingStatusOptions;
+  setHostingStatusFilter: Dispatch<SetStateAction<TypeHostingStatusOptions>>;
   completeProfileFilter: boolean;
   setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
   numberOfGuestFilter: number;
@@ -240,7 +240,9 @@ export default function FilterDialog({
                 menuItems={true}
                 value={hostingStatusFilter}
                 onChange={(e) =>
-                  setHostingStatusFilter(e.target.value as number[])
+                  setHostingStatusFilter(
+                    e.target.value as TypeHostingStatusOptions
+                  )
                 }
                 input={
                   <Input
@@ -252,7 +254,7 @@ export default function FilterDialog({
                 native={false}
                 renderValue={(selected) => (
                   <div className={classes.chips}>
-                    {(selected as number[]).map(
+                    {(selected as TypeHostingStatusOptions).map(
                       (
                         value: Exclude<
                           HostingStatus,

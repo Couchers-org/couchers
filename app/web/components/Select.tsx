@@ -41,9 +41,7 @@ export default function Select<T extends Record<string | number, string>>({
   optionLabelMap: T;
 }) {
   const classes = useStyles();
-  const OptionComponent = menuItems
-    ? MenuItem
-    : ("option" as unknown as React.ElementType);
+  const OptionComponent: React.ElementType = menuItems ? MenuItem : "option";
 
   return (
     <FormControl

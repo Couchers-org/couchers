@@ -20,7 +20,7 @@ import FilterDialog from "./FilterDialog";
 import MapWrapper from "./MapWrapper";
 import SearchResultsList from "./SearchResultsList";
 
-export type typeHostingStatusOptions = Exclude<
+export type TypeHostingStatusOptions = Exclude<
   HostingStatus,
   | HostingStatus.HOSTING_STATUS_UNKNOWN
   | HostingStatus.HOSTING_STATUS_UNSPECIFIED
@@ -94,7 +94,7 @@ export default function SearchPage({
   );
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
   const [hostingStatusFilter, setHostingStatusFilter] =
-    useState<typeHostingStatusOptions>([]);
+    useState<TypeHostingStatusOptions>([]);
   const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(0);
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
