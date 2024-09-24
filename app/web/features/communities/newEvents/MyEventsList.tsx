@@ -1,4 +1,4 @@
-import { CircularProgress, Typography } from "@material-ui/core";
+import { CircularProgress } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextBody from "components/TextBody";
@@ -10,11 +10,9 @@ import { useListMyEvents } from "../events/hooks";
 import EventsList from "./EventsList";
 
 const MyEventsList = ({
-  heading,
   eventType,
   showCancelled,
 }: {
-  heading: string;
   eventType: EventsType;
   showCancelled: boolean;
 }) => {
@@ -32,7 +30,6 @@ const MyEventsList = ({
 
   return (
     <>
-      <Typography variant="h3">{heading}</Typography>
       {!hasEvents && <TextBody>{t("communities:events_empty_state")}</TextBody>}
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? <CircularProgress /> : <EventsList events={flatEvents} />}

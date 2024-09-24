@@ -5,9 +5,17 @@ import TextBody from "components/TextBody";
 import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import makeStyles from "utils/makeStyles";
 
 import { useListAllEvents } from "../events/hooks";
 import EventsList from "./EventsList";
+
+const useStyles = makeStyles((theme) => ({
+  heading: {
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(2),
+  },
+}));
 
 const DiscoverEventsList = ({
   heading,
@@ -19,6 +27,7 @@ const DiscoverEventsList = ({
   isVerticalStyle?: boolean;
 }) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+  const classes = useStyles();
 
   const { data, error, hasNextPage, fetchNextPage, isLoading } =
     useListAllEvents({
@@ -30,7 +39,9 @@ const DiscoverEventsList = ({
 
   return (
     <>
-      <Typography variant="h3">{heading}</Typography>
+      <Typography className={classes.heading} variant="h2">
+        {heading}
+      </Typography>
       {!hasEvents && <TextBody>{t("communities:events_empty_state")}</TextBody>}
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
