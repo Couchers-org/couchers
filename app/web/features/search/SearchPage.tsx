@@ -96,7 +96,6 @@ export default function SearchPage({
   >();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-  
   // Loads the list of users
   const { data, error, isLoading, isFetching, hasNextPage } = useInfiniteQuery<
     UserSearchRes.AsObject,
@@ -115,15 +114,16 @@ export default function SearchPage({
     ({ pageParam }) => {
       // @ts-ignore @TODO David fixing these in a separate PR
       const lastActiveComparation = parseInt(lastActiveFilter);
-      
+
       return service.search.userSearch(
         {
           query: queryName,
           bbox: locationResult.bbox,
-          lastActive: lastActiveComparation === 0 ? undefined : lastActiveFilter,
+          lastActive:
+            lastActiveComparation === 0 ? undefined : lastActiveFilter,
           hostingStatusOptions:
             hostingStatusFilter.length === 0 ? undefined : hostingStatusFilter,
-            numGuests:
+          numGuests:
             numberOfGuestFilter === 0 ? undefined : numberOfGuestFilter,
           completeProfile:
             completeProfileFilter === false ? undefined : completeProfileFilter,
