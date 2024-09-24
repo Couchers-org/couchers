@@ -34,7 +34,9 @@ export default function Select<T extends Record<string | number, string>>({
 }: Omit<SelectProps, "children"> & {
   id: string;
   options: Extract<keyof T, string | number>[];
-  // value?: T extends undefined ? string | number : keyof T;
+  value?: T extends undefined
+    ? string | number | number[]
+    : keyof T | Array<keyof T>;
   menuItems?: boolean;
   optionLabelMap: T;
 }) {

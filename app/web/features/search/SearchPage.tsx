@@ -15,9 +15,16 @@ import {
 import { service } from "service";
 import { GeocodeResult } from "utils/hooks";
 
-import FilterDialog, { HostingStatusValues } from "./FilterDialog";
+import { HostingStatus } from "proto/api_pb";
+import FilterDialog from "./FilterDialog";
 import MapWrapper from "./MapWrapper";
 import SearchResultsList from "./SearchResultsList";
+
+export type typeHostingStatusOptions = Exclude<
+  HostingStatus,
+  | HostingStatus.HOSTING_STATUS_UNKNOWN
+  | HostingStatus.HOSTING_STATUS_UNSPECIFIED
+>[];
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -86,9 +93,8 @@ export default function SearchPage({
     "location"
   );
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
-  const [hostingStatusFilter, setHostingStatusFilter] = useState<
-    Array<keyof typeof HostingStatusValues>
-  >([]);
+  const [hostingStatusFilter, setHostingStatusFilter] =
+    useState<typeHostingStatusOptions>([]);
   const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(0);
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
