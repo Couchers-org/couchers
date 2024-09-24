@@ -94,8 +94,8 @@ interface FilterDialogProps {
   setHostingStatusFilter: Dispatch<SetStateAction<number>>;
   completeProfileFilter: boolean;
   setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
-  numberOfGuestFilter: string;
-  setNumberOfGuestFilter: Dispatch<SetStateAction<string>>;
+  numberOfGuestFilter: number | undefined;
+  setNumberOfGuestFilter: Dispatch<SetStateAction<number | undefined>>;
 }
 
 export default function FilterDialog({
@@ -252,8 +252,12 @@ export default function FilterDialog({
                 variant="standard"
                 id="num-guests-filter"
                 value={numberOfGuestFilter}
+                inputProps={{ min: 0 }}
                 onChange={(e) => {
-                  setNumberOfGuestFilter(e.target.value);
+                  const convertedValue = parseInt(e.target.value);
+                  const tempNumOfGuest = !Number.isNaN(convertedValue) && convertedValue > 0 ? convertedValue : undefined;
+
+                  setNumberOfGuestFilter(tempNumOfGuest);
                 }}
                 inputRef={register({
                   valueAsNumber: true,
