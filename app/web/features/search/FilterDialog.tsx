@@ -61,12 +61,6 @@ const getHostingStatusOptions = (t: TFunction) => ({
   ),
 });
 
-export const HostingStatusValues = {
-  [HostingStatus.HOSTING_STATUS_CAN_HOST]: "global:hosting_status.can_host",
-  [HostingStatus.HOSTING_STATUS_MAYBE]: "global:hosting_status.maybe",
-  [HostingStatus.HOSTING_STATUS_CANT_HOST]: "global:hosting_status.cant_host",
-};
-
 const useStyles = makeStyles((theme) => ({
   container: {
     "& > * + *": {
