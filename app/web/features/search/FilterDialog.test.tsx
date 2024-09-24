@@ -18,7 +18,7 @@ const Dialog = () => {
         setHostingStatusFilter={() => jest.fn()}
         completeProfileFilter={true}
         setCompleteProfileFilter={() => jest.fn()}
-        numberOfGuestFilter={""}
+        numberOfGuestFilter={undefined}
         setNumberOfGuestFilter={() => jest.fn()}
       />
     </>
