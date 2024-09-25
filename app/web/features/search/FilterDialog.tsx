@@ -134,7 +134,7 @@ export default function FilterDialog({
   };
 
   const handleLastActiveChange = (
-    event: React.ChangeEvent<{ value: unknown }>
+    event: React.ChangeEvent<{value: unknown}>
   ) => {
     const value = parseInt(event.target.value as string);
     setLastActiveFilter(value);
