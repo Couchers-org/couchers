@@ -82,6 +82,8 @@ def _try_get_and_update_user_details(token, is_api_key, ip_address, user_agent):
                     )
                 )
 
+            session.commit()
+
             return user.id, user.is_jailed, user.is_superuser, user_session.expiry
 
 
