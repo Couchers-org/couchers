@@ -22,7 +22,8 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 # Fetch and extract the TypeScript protos
-RUN wget "$PROTOS_SHA_URL" && \
+RUN echo "Fetching and extracting TypeScript protos from $PROTOS_BASE_URL"
+RUN wget "$PROTOS_BASE_URL" && \
     tar xf ts.tar.gz && \
     rm -f ts.tar.gz
 
