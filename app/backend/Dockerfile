@@ -1,13 +1,13 @@
-FROM python:3.12-bullseye as base
+FROM python:3.12-bullseye AS base
 
 RUN apt-get update && apt-get install -y libgeos-c1v5
 
-FROM base as build
+FROM base AS build
 
 WORKDIR /deps
-RUN wget http://eradman.com/entrproject/code/entr-5.5.tar.gz \
-    && tar xf entr-5.5.tar.gz \
-    && cd entr-5.5 \
+RUN wget https://eradman.com/entrproject/code/entr-5.6.tar.gz \
+    && tar xf entr-5.6.tar.gz \
+    && cd entr-5.6 \
     && ./configure \
     && make \
     && make install
