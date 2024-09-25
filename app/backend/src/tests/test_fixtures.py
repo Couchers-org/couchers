@@ -597,7 +597,9 @@ class FakeChannel:
 
 def fake_channel(token=None):
     if token:
-        user_id, is_jailed, is_superuser, token_expiry = _try_get_and_update_user_details(token, is_api_key=False)
+        user_id, is_jailed, is_superuser, token_expiry = _try_get_and_update_user_details(
+            token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
+        )
         return FakeChannel(user_id=user_id, is_jailed=is_jailed, is_superuser=is_superuser, token_expiry=token_expiry)
     return FakeChannel()
 
