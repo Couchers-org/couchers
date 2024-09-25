@@ -20,10 +20,6 @@ const listAllEventsMock = service.events.listAllEvents as jest.MockedFunction<
 >;
 
 describe("Events page", () => {
-  // beforeEach(() => {
-
-  // });
-
   it("shows the 'Upcoming' tab by default", async () => {
     listAllEventsMock.mockResolvedValue({
       eventsList: events.filter((event) => !event.isCancelled),
