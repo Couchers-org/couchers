@@ -993,6 +993,7 @@ class UserActivity(Base):
             period,
             ip_address,
             user_agent,
+            unique=True,
         ),
     )
 
