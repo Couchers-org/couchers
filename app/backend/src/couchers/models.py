@@ -24,7 +24,7 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
+from sqlalchemy.dialects.postgresql import INET, TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
@@ -961,6 +961,40 @@ class AccountDeletionToken(Base):
 
     def __repr__(self):
         return f"AccountDeletionToken(token={self.token}, user_id={self.user_id}, created={self.created}, expiry={self.expiry})"
+
+
+class UserActivity(Base):
+    """
+    User activity: for each unique (user_id, period, ip_address, user_agent) tuple, keep track of number of api calls
+
+    Used for user "last active" as well as admin stuff
+    """
+
+    __tablename__ = "user_activity"
+
+    id = Column(BigInteger, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+    # the start of a period of time, e.g. 1 hour during which we bin activeness
+    period = Column(DateTime(timezone=True), nullable=False)
+
+    # details of the browser, if available
+    ip_address = Column(INET, nullable=True)
+    user_agent = Column(String, nullable=True)
+
+    # count of api calls made with this ip, user_agent, and period
+    api_calls = Column(Integer, nullable=False, default=0)
+
+    __table_args__ = (
+        # helps look up this tuple quickly
+        Index(
+            "ix_user_period_ip_useragent",
+            user_id,
+            period,
+            ip_address,
+            user_agent,
+        ),
+    )
 
 
 class UserSession(Base):
