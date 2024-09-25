@@ -9,6 +9,7 @@ from sqlalchemy.sql import and_, delete, func, intersect, or_, union
 from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
+from couchers.materialized_views import lite_users
 from couchers.models import (
     FriendRelationship,
     FriendStatus,
@@ -32,8 +33,11 @@ from couchers.notifications.notify import notify
 from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
+from couchers.sql import is_valid_user_id, is_valid_username
 from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
 from proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2
+
+MAX_USERS_PER_QUERY = 200
 
 hostingstatus2sql = {
     api_pb2.HOSTING_STATUS_UNKNOWN: None,
@@ -191,6 +195,85 @@ class API(api_pb2_grpc.APIServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
         return user_model_to_pb(user, session, context)
+
+    def GetLiteUser(self, request, context, session):
+        lite_user = session.execute(
+            select(lite_users)
+            .where_users_visible(context, table=lite_users.c)
+            .where_username_or_id(request.user, table=lite_users.c)
+        ).one_or_none()
+
+        if not lite_user:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
+        return api_pb2.LiteUser(
+            user_id=lite_user.id,
+            username=lite_user.username,
+            name=lite_user.name,
+            city=lite_user.city,
+            age=int(lite_user.age),
+            avatar_url=urls.media_url(filename=lite_user.avatar_filename, size="full")
+            if lite_user.avatar_filename
+            else None,
+            avatar_thumbnail_url=urls.media_url(filename=lite_user.avatar_filename, size="thumbnail")
+            if lite_user.avatar_filename
+            else None,
+            lat=lite_user.lat,
+            lng=lite_user.lng,
+            radius=lite_user.radius,
+        )
+
+    def GetLiteUsers(self, request, context, session):
+        if len(request.users) > MAX_USERS_PER_QUERY:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REQUESTED_TOO_MANY_USERS)
+
+        usernames = {u for u in request.users if is_valid_username(u)}
+        ids = {u for u in request.users if is_valid_user_id(u)}
+
+        users = session.execute(
+            select(lite_users)
+            .where_users_visible(context, table=lite_users.c)
+            .where(or_(lite_users.c.username.in_(usernames), lite_users.c.id.in_(ids)))
+        ).all()
+
+        users_by_id = {str(user.id): user for user in users}
+        users_by_username = {user.username: user for user in users}
+
+        res = api_pb2.GetLiteUsersRes()
+
+        for user in request.users:
+            lite_user = None
+            if user in users_by_id:
+                lite_user = users_by_id[user]
+            elif user in users_by_username:
+                lite_user = users_by_username[user]
+
+            res.responses.append(
+                api_pb2.LiteUserRes(
+                    query=user,
+                    not_found=lite_user is None,
+                    user=api_pb2.LiteUser(
+                        user_id=lite_user.id,
+                        username=lite_user.username,
+                        name=lite_user.name,
+                        city=lite_user.city,
+                        age=int(lite_user.age),
+                        avatar_url=urls.media_url(filename=lite_user.avatar_filename, size="full")
+                        if lite_user.avatar_filename
+                        else None,
+                        avatar_thumbnail_url=urls.media_url(filename=lite_user.avatar_filename, size="thumbnail")
+                        if lite_user.avatar_filename
+                        else None,
+                        lat=lite_user.lat,
+                        lng=lite_user.lng,
+                        radius=lite_user.radius,
+                    )
+                    if lite_user
+                    else None,
+                )
+            )
+
+        return res
 
     def UpdateProfile(self, request, context, session):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -800,7 +883,7 @@ def user_model_to_pb(db_user, session, context):
         num_references=num_references,
         gender=db_user.gender,
         pronouns=db_user.pronouns,
-        age=db_user.age,
+        age=int(db_user.age),
         joined=Timestamp_from_datetime(db_user.display_joined),
         last_active=Timestamp_from_datetime(db_user.display_last_active),
         hosting_status=hostingstatus2api[db_user.hosting_status],

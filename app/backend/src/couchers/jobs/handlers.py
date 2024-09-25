@@ -21,7 +21,7 @@ from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.helpers.badges import user_add_badge, user_remove_badge
-from couchers.materialized_views import refresh_materialized_views as mv_refresh_materialized_views
+from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
 from couchers.models import (
     AccountDeletionToken,
     Cluster,
@@ -82,6 +82,13 @@ generate_event_update_notifications.PAYLOAD = jobs_pb2.GenerateEventUpdateNotifi
 generate_event_cancel_notifications.PAYLOAD = jobs_pb2.GenerateEventCancelNotificationsPayload
 
 generate_event_delete_notifications.PAYLOAD = jobs_pb2.GenerateEventDeleteNotificationsPayload
+
+
+refresh_materialized_views.PAYLOAD = empty_pb2.Empty
+refresh_materialized_views.SCHEDULE = timedelta(minutes=5)
+
+refresh_materialized_views_rapid.PAYLOAD = empty_pb2.Empty
+refresh_materialized_views_rapid.SCHEDULE = timedelta(seconds=30)
 
 
 def send_email(payload):
@@ -725,14 +732,6 @@ def update_recommendation_scores(payload):
 
 update_recommendation_scores.PAYLOAD = empty_pb2.Empty
 update_recommendation_scores.SCHEDULE = timedelta(hours=24)
-
-
-def refresh_materialized_views(payload):
-    mv_refresh_materialized_views()
-
-
-refresh_materialized_views.PAYLOAD = empty_pb2.Empty
-refresh_materialized_views.SCHEDULE = timedelta(minutes=5)
 
 
 def update_badges(payload):
