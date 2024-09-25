@@ -1,10 +1,14 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
   ChangeEmailV2Req,
   ChangePasswordV2Req,
   ChangePhoneReq,
   DeleteAccountReq,
   FillContributorFormReq,
+  ListActiveSessionsReq,
+  LogOutOtherSessionsReq,
+  LogOutSessionReq,
   VerifyPhoneReq,
 } from "proto/account_pb";
 import {
@@ -99,4 +103,30 @@ export function verifyPhone(code: string) {
   const req = new VerifyPhoneReq();
   req.setToken(code);
   return client.account.verifyPhone(req);
+}
+
+export async function listActiveSessions(pageToken?: string) {
+  const req = new ListActiveSessionsReq();
+  if (pageToken) {
+    req.setPageToken(pageToken);
+  }
+  const response = await client.account.listActiveSessions(req);
+  return response.toObject();
+}
+
+export async function logOutOtherSessions(confirm: boolean) {
+  const req = new LogOutOtherSessionsReq();
+  req.setConfirm(confirm);
+  const response = await client.account.logOutOtherSessions(req);
+  return response.toObject();
+}
+
+export async function logOutSession(created: Timestamp.AsObject) {
+  const req = new LogOutSessionReq();
+  const ts = new Timestamp();
+  ts.setSeconds(created.seconds);
+  ts.setNanos(created.nanos);
+  req.setCreated(ts);
+  const response = await client.account.logOutSession(req);
+  return response.toObject();
 }

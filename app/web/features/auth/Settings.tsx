@@ -14,6 +14,7 @@ import { AUTH } from "i18n/namespaces";
 import makeStyles from "utils/makeStyles";
 
 import DeleteAccount from "./deletion/DeleteAccount";
+import LoginsLink from "./logins/LoginsLink";
 import useAccountInfo from "./useAccountInfo";
 
 const useStyles = makeStyles((theme) => ({
@@ -48,6 +49,7 @@ export default function Settings() {
           <NotificationSettings className={classes.section} />
           <ChangeEmail className={classes.section} email={accountInfo.email} />
           <ChangePassword className={classes.section} />
+          <LoginsLink className={classes.section} />
           <Username
             className={classes.section}
             username={accountInfo.username}
