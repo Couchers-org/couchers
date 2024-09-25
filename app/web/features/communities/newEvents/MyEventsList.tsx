@@ -33,7 +33,9 @@ const MyEventsList = ({
 
   return (
     <>
-      {!hasEvents && <TextBody>{t("communities:events_empty_state")}</TextBody>}
+      {!hasEvents && !isLoading && (
+        <TextBody>{t("communities:events_empty_state")}</TextBody>
+      )}
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CircularProgress />

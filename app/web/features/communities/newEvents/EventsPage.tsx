@@ -40,6 +40,24 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(2),
   },
+  filter: {
+    backgroundColor: theme.palette.grey[200],
+    color: theme.palette.text.primary,
+    padding: theme.spacing(1, 2),
+    textAlign: "center",
+    fontWeight: "bold",
+    margin: theme.spacing(0.5),
+    borderRadius: theme.shape.borderRadius * 6,
+  },
+  selectedFilter: {
+    backgroundColor: theme.palette.secondary.main,
+    color: theme.palette.common.white,
+    padding: theme.spacing(1, 2),
+    textAlign: "center",
+    fontWeight: "bold",
+    margin: theme.spacing(0.5),
+    borderRadius: theme.shape.borderRadius * 6,
+  },
 }));
 
 const EventsPage = () => {
@@ -48,6 +66,8 @@ const EventsPage = () => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const [eventType, setEventType] = useState<EventsType>("upcoming");
   const [showCancelled, setShowCancelled] = useState<boolean>(false);
+  const [isMyCommunities, setIsMyCommunities] = useState<boolean>(false);
+  const [isOnlineOnly, setIsOnlineOnly] = useState<boolean>(false);
 
   const allEventsPageTabLabels: Record<EventsType, string> = {
     upcoming: t("communities:upcoming"),
@@ -62,6 +82,14 @@ const EventsPage = () => {
 
   const handleShowCancelledClick = () => {
     setShowCancelled(!showCancelled);
+  };
+
+  const handleFilterIsMyCommunitiesClick = () => {
+    setIsMyCommunities(!isMyCommunities);
+  };
+
+  const handleFilterIsOnlineOnlyClick = () => {
+    setIsOnlineOnly(!isOnlineOnly);
   };
 
   return (
@@ -99,10 +127,36 @@ const EventsPage = () => {
           <MyEventsList eventType={eventType} showCancelled={showCancelled} />
         </TabPanel>
       </TabContext>
-      <Typography className={classes.heading} variant="h2">
-        {t("communities:discover_events_title")}
-      </Typography>
-      <DiscoverEventsList eventType={eventType} isVerticalStyle />
+      <div className={classes.filterRow}>
+        <Typography className={classes.heading} variant="h2">
+          {t("communities:discover_events_title")}
+        </Typography>
+        <div className={classes.filterRow}>
+          <Typography
+            className={
+              isMyCommunities ? classes.selectedFilter : classes.filter
+            }
+            variant="body2"
+            onClick={handleFilterIsMyCommunitiesClick}
+          >
+            Communities
+          </Typography>
+          <Typography
+            className={isOnlineOnly ? classes.selectedFilter : classes.filter}
+            variant="body2"
+            onClick={handleFilterIsOnlineOnlyClick}
+          >
+            Online
+          </Typography>
+        </div>
+        {/** @TODO use translations */}
+      </div>
+      <DiscoverEventsList
+        eventType={eventType}
+        isVerticalStyle
+        isMyCommunities={isMyCommunities}
+        isOnlineOnly={isOnlineOnly}
+      />
     </div>
   );
 };

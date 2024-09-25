@@ -6,23 +6,30 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useMemo } from "react";
 
-import { useListAllEvents } from "../events/hooks";
+import { useEventSearch } from "../events/hooks";
 import EventsList from "./EventsList";
 
 const DiscoverEventsList = ({
   eventType,
   isVerticalStyle = false,
+  isMyCommunities,
+  isOnlineOnly,
 }: {
   eventType: EventsType;
   isVerticalStyle?: boolean;
+  isMyCommunities: boolean;
+  isOnlineOnly: boolean;
 }) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
 
-  const { data, error, hasNextPage, fetchNextPage, isLoading } =
-    useListAllEvents({
+  const { data, error, hasNextPage, fetchNextPage, isLoading } = useEventSearch(
+    {
       pastEvents: eventType === "past",
       pageSize: 10,
-    });
+      isMyCommunities,
+      isOnlineOnly,
+    }
+  );
 
   const flatEvents = useMemo(
     () => data?.pages.flatMap((page) => page.eventsList) || [],
@@ -32,7 +39,9 @@ const DiscoverEventsList = ({
 
   return (
     <>
-      {!hasEvents && <TextBody>{t("communities:events_empty_state")}</TextBody>}
+      {!hasEvents && !isLoading && (
+        <TextBody>{t("communities:events_empty_state")}</TextBody>
+      )}
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CircularProgress />

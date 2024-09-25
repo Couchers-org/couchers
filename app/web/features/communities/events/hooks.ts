@@ -15,6 +15,7 @@ import {
   ListEventOrganizersRes,
   ListMyEventsRes,
 } from "proto/events_pb";
+import { EventSearchRes } from "proto/search_pb";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { service } from "service";
 import type { ListAllEventsInput, ListMyEventsInput } from "service/events";
@@ -138,6 +139,40 @@ export function useListMyEvents({
         pageSize,
         pageToken: pageParam,
         showCancelled,
+      }),
+    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+  });
+}
+
+export function useEventSearch({
+  query,
+  pageSize,
+  pastEvents,
+  isMyCommunities,
+  isOnlineOnly,
+}: {
+  query?: string;
+  pageSize: number;
+  pastEvents?: boolean;
+  isMyCommunities: boolean;
+  isOnlineOnly: boolean;
+}) {
+  return useInfiniteQuery<EventSearchRes.AsObject, RpcError>({
+    queryKey: [
+      "searchEvents",
+      query,
+      isMyCommunities,
+      isOnlineOnly,
+      pastEvents,
+    ],
+    queryFn: ({ pageParam }) =>
+      service.search.EventSearch({
+        query,
+        pageSize,
+        pageToken: pageParam,
+        pastEvents,
+        isMyCommunities,
+        isOnlineOnly,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
