@@ -1,22 +1,30 @@
 from datetime import date, datetime
-from unittest.mock import patch
 
+import pytest
+from sqlalchemy.sql import func
+
+from couchers.db import session_scope
 from couchers.models import User
+from couchers.sql import couchers_select as select
+from tests.test_fixtures import (  # noqa
+    db,
+    testconfig,
+)
 
 
-class FakeDate(date):
-    """A fake replacement for date that can be mocked for testing."""
-
-    def __new__(cls, *args, **kwargs):
-        return date.__new__(date, *args, **kwargs)
+@pytest.fixture(autouse=True)
+def _(testconfig):
+    pass
 
 
-@patch("couchers.models.date", FakeDate)
-def test_user_age():
-    FakeDate.today = classmethod(lambda cls: date(2019, 7, 5))
-    assert User(birthdate=date(1990, 7, 4)).age == 29
-    assert User(birthdate=date(1990, 7, 31)).age == 28
-    assert User(birthdate=date(1992, 2, 29)).age == 27
+def test_user_age(db):
+    # these used to be test for our hand-rolled age, but moving to postgres now so just double check it does what we expect
+    today = date(2019, 7, 5)
+
+    with session_scope() as session:
+        assert session.execute(select(func.date_part("year", func.age(today, date(1990, 7, 4))))).scalar_one() == 29
+        assert session.execute(select(func.date_part("year", func.age(today, date(1990, 7, 31))))).scalar_one() == 28
+        assert session.execute(select(func.date_part("year", func.age(today, date(1992, 2, 29))))).scalar_one() == 27
 
 
 def test_user_display_joined():

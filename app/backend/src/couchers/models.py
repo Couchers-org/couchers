@@ -1,6 +1,4 @@
 import enum
-from calendar import monthrange
-from datetime import date
 
 from geoalchemy2.types import Geometry
 from google.protobuf import empty_pb2
@@ -289,6 +287,8 @@ class User(Base):
 
     admin_note = Column(String, nullable=False, server_default=text("''"))
 
+    age = column_property(func.date_part("year", func.age(birthdate)))
+
     __table_args__ = (
         # Verified phone numbers should be unique
         Index(
@@ -370,18 +370,6 @@ class User(Base):
             return get_coordinates(self.geom)
         else:
             return None
-
-    @property
-    def age(self):
-        max_day = monthrange(date.today().year, self.birthdate.month)[1]
-        age = date.today().year - self.birthdate.year
-        # in case of leap-day babies, make sure the date is valid for this year
-        safe_birthdate = self.birthdate
-        if self.birthdate.day > max_day:
-            safe_birthdate = safe_birthdate.replace(day=max_day)
-        if date.today() < safe_birthdate.replace(year=date.today().year):
-            age -= 1
-        return age
 
     @property
     def display_joined(self):
