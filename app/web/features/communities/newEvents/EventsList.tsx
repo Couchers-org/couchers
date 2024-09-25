@@ -1,4 +1,7 @@
+import Button from "components/Button";
 import { useAuthContext } from "features/auth/AuthProvider";
+import { useTranslation } from "i18n";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
 import makeStyles from "utils/makeStyles";
 
@@ -8,9 +11,15 @@ import EventItem from "./EventItem";
 interface EventListProps {
   events: Event.AsObject[];
   isVerticalStyle?: boolean;
+  hasNextPage: boolean | undefined;
+  fetchNextPage: () => void;
 }
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+    flexDirection: "column",
+  },
   eventsContainer: (props: { isVerticalStyle: boolean }) =>
     props.isVerticalStyle
       ? {
@@ -38,17 +47,28 @@ const useStyles = makeStyles((theme) => ({
           },
         }
       : {},
+  seeMoreContainer: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: theme.spacing(2),
+  },
 }));
 
-const EventsList = ({ events, isVerticalStyle = false }: EventListProps) => {
+const EventsList = ({
+  events,
+  isVerticalStyle = false,
+  hasNextPage,
+  fetchNextPage,
+}: EventListProps) => {
   const classes = useStyles({ isVerticalStyle });
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
 
   const {
     authState: { userId },
   } = useAuthContext();
 
   return (
-    <>
+    <div className={classes.root}>
       <div className={classes.eventsContainer}>
         {events.map((event) =>
           isVerticalStyle ? (
@@ -58,7 +78,14 @@ const EventsList = ({ events, isVerticalStyle = false }: EventListProps) => {
           )
         )}
       </div>
-    </>
+      <div className={classes.seeMoreContainer}>
+        {hasNextPage && (
+          <Button onClick={() => fetchNextPage()}>
+            {t("communities:see_more_events_label")}
+          </Button>
+        )}
+      </div>
+    </div>
   );
 };
 

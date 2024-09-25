@@ -259,7 +259,7 @@ export async function listMyEvents({
   req.setAttending(true);
   req.setOrganizing(true);
 
-  if (pastEvents) {
+  if (pastEvents !== undefined) {
     req.setPast(pastEvents);
   }
   if (pageSize) {
@@ -268,7 +268,7 @@ export async function listMyEvents({
   if (pageToken) {
     req.setPageToken(pageToken);
   }
-  if (showCancelled) {
+  if (showCancelled !== undefined) {
     req.setIncludeCancelled(showCancelled);
   }
 

@@ -20,7 +20,10 @@ import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
-    margin: theme.spacing(2, 0),
+    margin: 0,
+    "&:not(:first-child)": {
+      margin: theme.spacing(2, 0),
+    },
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: theme.spacing(1),
   },

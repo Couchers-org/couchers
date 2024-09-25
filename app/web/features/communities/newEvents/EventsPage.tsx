@@ -1,5 +1,6 @@
-import { Button } from "@material-ui/core";
+import { Button, Typography } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
+import CustomColorSwitch from "components/CustomColorSwitch";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
 import { EventsType } from "features/queryKeys";
@@ -24,11 +25,20 @@ const useStyles = makeStyles((theme) => ({
     },
     fontWeight: "bold",
   },
+  filterRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   headerRow: {
     display: "flex",
     justifyContent: "space-between",
     width: "100%",
-    paddingBottom: theme.spacing(),
+    paddingBottom: theme.spacing(1),
+  },
+  heading: {
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(2),
   },
 }));
 
@@ -37,6 +47,7 @@ const EventsPage = () => {
   const router = useRouter();
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const [eventType, setEventType] = useState<EventsType>("upcoming");
+  const [showCancelled, setShowCancelled] = useState<boolean>(false);
 
   const allEventsPageTabLabels: Record<EventsType, string> = {
     upcoming: t("communities:upcoming"),
@@ -47,6 +58,10 @@ const EventsPage = () => {
     if (value !== null && value !== eventType) {
       setEventType(value);
     }
+  };
+
+  const handleShowCancelledClick = () => {
+    setShowCancelled(!showCancelled);
   };
 
   return (
@@ -62,23 +77,32 @@ const EventsPage = () => {
         </Button>
       </div>
       <TabContext value={eventType}>
-        <TabBar
-          ariaLabel={t("communities:all_events_page_tabs_a11y_label")}
-          setValue={handleToggleClick}
-          labels={allEventsPageTabLabels}
-        />
+        <div className={classes.filterRow}>
+          <TabBar
+            ariaLabel={t("communities:all_events_page_tabs_a11y_label")}
+            setValue={handleToggleClick}
+            labels={allEventsPageTabLabels}
+          />
+          <CustomColorSwitch
+            checked={showCancelled}
+            onClick={handleShowCancelledClick}
+            label={t("communities:show_cancelled_events")}
+          />
+        </div>
+        <Typography className={classes.heading} variant="h2">
+          {t("communities:your_events")}
+        </Typography>
         <TabPanel value="upcoming">
-          <MyEventsList eventType={eventType} showCancelled={true} />
+          <MyEventsList eventType={eventType} showCancelled={showCancelled} />
         </TabPanel>
         <TabPanel value="past">
-          <MyEventsList eventType={eventType} showCancelled={true} />
+          <MyEventsList eventType={eventType} showCancelled={showCancelled} />
         </TabPanel>
       </TabContext>
-      <DiscoverEventsList
-        eventType="upcoming" // @TODO - Is there any use case for discover showing past events?
-        heading={t("communities:discover_events_title")}
-        isVerticalStyle
-      />
+      <Typography className={classes.heading} variant="h2">
+        {t("communities:discover_events_title")}
+      </Typography>
+      <DiscoverEventsList eventType={eventType} isVerticalStyle />
     </div>
   );
 };

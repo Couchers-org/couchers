@@ -1,10 +1,10 @@
 import { CircularProgress } from "@material-ui/core";
 import Alert from "components/Alert";
-import Button from "components/Button";
 import TextBody from "components/TextBody";
 import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { useMemo } from "react";
 
 import { useListMyEvents } from "../events/hooks";
 import EventsList from "./EventsList";
@@ -25,18 +25,24 @@ const MyEventsList = ({
       showCancelled,
     });
 
-  const flatEvents = data?.pages.flatMap((page) => page.eventsList) || [];
-  const hasEvents = flatEvents && flatEvents?.length > 0;
+  const flatEvents = useMemo(
+    () => data?.pages.flatMap((page) => page.eventsList) || [],
+    [data]
+  );
+  const hasEvents = flatEvents?.length > 0;
 
   return (
     <>
       {!hasEvents && <TextBody>{t("communities:events_empty_state")}</TextBody>}
       {error && <Alert severity="error">{error.message}</Alert>}
-      {isLoading ? <CircularProgress /> : <EventsList events={flatEvents} />}
-      {hasNextPage && (
-        <Button onClick={() => fetchNextPage()}>
-          {t("communities:see_more_events_label")}
-        </Button>
+      {isLoading ? (
+        <CircularProgress />
+      ) : (
+        <EventsList
+          events={flatEvents}
+          hasNextPage={hasNextPage}
+          fetchNextPage={fetchNextPage}
+        />
       )}
     </>
   );

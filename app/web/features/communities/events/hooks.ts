@@ -3,6 +3,7 @@ import {
   eventKey,
   eventOrganizersKey,
   eventsKey,
+  myEventsKey,
   QueryType,
 } from "features/queryKeys";
 import useUsers from "features/userQueries/useUsers";
@@ -130,7 +131,7 @@ export function useListMyEvents({
   showCancelled,
 }: Omit<ListMyEventsInput, "pageToken">) {
   return useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
-    queryKey: eventsKey(pastEvents ? "myPast" : "myUpcoming"),
+    queryKey: [myEventsKey(pastEvents ? "past" : "upcoming"), showCancelled],
     queryFn: ({ pageParam }) =>
       service.events.listMyEvents({
         pastEvents,
