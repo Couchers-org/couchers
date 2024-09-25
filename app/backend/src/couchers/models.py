@@ -988,7 +988,7 @@ class UserActivity(Base):
     __table_args__ = (
         # helps look up this tuple quickly
         Index(
-            "ix_user_period_ip_useragent",
+            "ix_user_activity_user_id_period_ip_address_user_agent",
             user_id,
             period,
             ip_address,
