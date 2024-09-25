@@ -123,6 +123,23 @@ export default function FilterDialog({
     theme.breakpoints.down("sm")
   );
 
+  const handleNumGuestsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const convertedValue = parseInt(e.target.value);
+    const tempNumOfGuest =
+      !Number.isNaN(convertedValue) && convertedValue > 0
+        ? convertedValue
+        : undefined;
+
+    setNumberOfGuestFilter(tempNumOfGuest);
+  };
+
+  const handleLastActiveChange = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    const value = parseInt(event.target.value as string);
+    setLastActiveFilter(value);
+  };
+
   return (
     <Dialog
       open={isOpen}
@@ -198,7 +215,7 @@ export default function FilterDialog({
                 id="last_active_filter"
                 className={classes.marginBottom}
                 value={lastActiveFilter}
-                onChange={(e) => setLastActiveFilter(parseInt(e.target.value as string))}
+                onChange={handleLastActiveChange}
                 label={t("search:form.host_filters.last_active_field_label")}
                 optionLabelMap={getLastActiveOptions(t)}
                 options={[
@@ -253,12 +270,7 @@ export default function FilterDialog({
                 id="num-guests-filter"
                 value={numberOfGuestFilter}
                 inputProps={{ min: 0 }}
-                onChange={(e) => {
-                  const convertedValue = parseInt(e.target.value);
-                  const tempNumOfGuest = !Number.isNaN(convertedValue) && convertedValue > 0 ? convertedValue : undefined;
-
-                  setNumberOfGuestFilter(tempNumOfGuest);
-                }}
+                onChange={handleNumGuestsChange}
                 inputRef={register({
                   valueAsNumber: true,
                 })}

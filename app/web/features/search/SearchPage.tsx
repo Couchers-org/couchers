@@ -87,7 +87,9 @@ export default function SearchPage({
   );
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
   const [hostingStatusFilter, setHostingStatusFilter] = useState(0);
-  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState<number | undefined>(undefined);
+  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState<
+    number | undefined
+  >(undefined);
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
@@ -117,8 +119,7 @@ export default function SearchPage({
         {
           query: queryName,
           bbox: locationResult.bbox,
-          lastActive:
-            lastActiveFilter === 0 ? undefined : lastActiveFilter,
+          lastActive: lastActiveFilter === 0 ? undefined : lastActiveFilter,
           hostingStatusOptions:
             hostingStatusFilterComparation === 0
               ? undefined
