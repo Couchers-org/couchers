@@ -137,7 +137,7 @@ build:web-dev:
   stage: build
   script:
     - docker pull $WEB_DEV_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG --build-arg environment=next --build-arg GIT_COMMIT_ID=$(git rev-parse --short HEAD) --build-arg PROTOS_BASE_URL=https://'$CI_COMMIT_REF_SLUG'--protos.'$PREVIEW_DOMAIN'/ts.tar.gz --cache-from $WEB_DEV_RELEASE_TAG -t $WEB_DEV_TAG -f app/web/Dockerfile app/web/
+    - docker build --build-arg version=$SLUG --build-arg environment=next --build-arg GIT_COMMIT_ID=$(git rev-parse --short HEAD) --build-arg PROTOS_BASE_URL=https://$CI_COMMIT_REF_SLUG--protos.$PREVIEW_DOMAIN/ts.tar.gz --cache-from $WEB_DEV_RELEASE_TAG -t $WEB_DEV_TAG -f app/web/Dockerfile app/web/
     - docker push $WEB_DEV_TAG
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_DEV_TAG):/app artifacts/web-dev
@@ -158,7 +158,7 @@ build:web:
   stage: build
   script:
     - docker pull $WEB_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG --build-arg environment=production --build-arg GIT_COMMIT_ID=$(git rev-parse --short HEAD) --build-arg PROTOS_BASE_URL=https://'$CI_COMMIT_REF_SLUG'--protos.'$PREVIEW_DOMAIN'/ts.tar.gz --cache-from $WEB_RELEASE_TAG -t $WEB_TAG -f app/web/Dockerfile.prod app/web/
+    - docker build --build-arg version=$SLUG --build-arg environment=production --build-arg GIT_COMMIT_ID=$(git rev-parse --short HEAD) --build-arg PROTOS_BASE_URL=https://$CI_COMMIT_REF_SLUG--protos.$PREVIEW_DOMAIN/ts.tar.gz --cache-from $WEB_RELEASE_TAG -t $WEB_TAG -f app/web/Dockerfile.prod app/web/
     - docker push $WEB_TAG
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app/.next/static/ static
@@ -183,7 +183,7 @@ build:web-next:
   stage: build
   script:
     - docker pull $WEB_NEXT_RELEASE_TAG || true
-    - docker build --build-arg version=$SLUG --build-arg environment=next --build-arg GIT_COMMIT_ID=$(git rev-parse --short HEAD) --build-arg PROTOS_BASE_URL=https://'$CI_COMMIT_REF_SLUG'--protos.'$PREVIEW_DOMAIN'/ts.tar.gz --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f app/web/Dockerfile.prod app/web/
+    - docker build --build-arg version=$SLUG --build-arg environment=next --build-arg GIT_COMMIT_ID=$(git rev-parse --short HEAD) --build-arg PROTOS_BASE_URL=https://$CI_COMMIT_REF_SLUG--protos.$PREVIEW_DOMAIN/ts.tar.gz --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f app/web/Dockerfile.prod app/web/
     - docker push $WEB_NEXT_TAG
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app/.next/static/ static
