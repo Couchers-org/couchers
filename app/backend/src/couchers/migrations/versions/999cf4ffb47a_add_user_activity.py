@@ -30,10 +30,13 @@ def upgrade():
         sa.PrimaryKeyConstraint("id", name=op.f("pk_user_activity")),
     )
     op.create_index(
-        "ix_user_period_ip_useragent", "user_activity", ["user_id", "period", "ip_address", "user_agent"], unique=True
+        "ix_user_activity_user_id_period_ip_address_user_agent",
+        "user_activity",
+        ["user_id", "period", "ip_address", "user_agent"],
+        unique=True,
     )
 
 
 def downgrade():
-    op.drop_index("ix_user_period_ip_useragent", table_name="user_activity")
+    op.drop_index("ix_user_activity_user_id_period_ip_address_user_agent", table_name="user_activity")
     op.drop_table("user_activity")
