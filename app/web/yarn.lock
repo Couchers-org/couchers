@@ -1468,10 +1468,10 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.57.1.tgz#de633db3ec2ef6a3c89e2f19038063e8a122e2c2"
   integrity sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==
 
-"@fontsource/mansalva@^5.0.22":
-  version "5.0.22"
-  resolved "https://registry.yarnpkg.com/@fontsource/mansalva/-/mansalva-5.0.22.tgz#1f3a334aa9c26293215a9a0ce6530d81fa3669a5"
-  integrity sha512-echTQY0d0kbz/OjZsZbgRtPaT4PO7Pl7r8+wvt1iJWoGMNwTvdb/tYP2yC6Cuv5YcV6tq5ZuDHzBBUMbI2b4Mw==
+"@fontsource/mansalva@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@fontsource/mansalva/-/mansalva-5.1.0.tgz#b58427267a5b26c03cc762ade8725933a5197df7"
+  integrity sha512-vQ3EoDGWxfAeLJm3Z1mHAPN1lXqOxBOKDJoEsTftaN2dYo4fmX9BBH+g8WDrtKsXWnBNDNVakJPiKvnsxvV3Ew==
 
 "@fontsource/ubuntu@^5.1.0":
   version "5.1.0"

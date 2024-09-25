@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@date-io/dayjs": "1.x",
-    "@fontsource/mansalva": "^5.0.22",
+    "@fontsource/mansalva": "^5.1.0",
     "@fontsource/ubuntu": "^5.1.0",
     "@material-ui/core": "^4.12.4",
     "@material-ui/icons": "^4.11.3",
