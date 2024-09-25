@@ -30,7 +30,7 @@ def upgrade():
         sa.PrimaryKeyConstraint("id", name=op.f("pk_user_activity")),
     )
     op.create_index(
-        "ix_user_period_ip_useragent", "user_activity", ["user_id", "period", "ip_address", "user_agent"], unique=False
+        "ix_user_period_ip_useragent", "user_activity", ["user_id", "period", "ip_address", "user_agent"], unique=True
     )
 
 
