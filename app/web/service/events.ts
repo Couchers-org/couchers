@@ -221,21 +221,28 @@ export interface ListAllEventsInput {
   pastEvents: boolean;
   pageSize?: number;
   pageToken?: string;
+  showCancelled?: boolean;
 }
 
 export async function listAllEvents({
   pastEvents = false,
   pageSize,
   pageToken,
+  showCancelled,
 }: ListAllEventsInput) {
   const req = new ListAllEventsReq();
-  req.setPast(pastEvents);
 
+  if (pastEvents !== undefined) {
+    req.setPast(pastEvents);
+  }
   if (pageSize) {
     req.setPageSize(pageSize);
   }
   if (pageToken) {
     req.setPageToken(pageToken);
+  }
+  if (showCancelled !== undefined) {
+    req.setIncludeCancelled(showCancelled);
   }
 
   const res = await client.events.listAllEvents(req);

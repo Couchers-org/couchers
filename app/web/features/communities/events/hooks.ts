@@ -110,14 +110,16 @@ export function useEvent({ eventId }: { eventId: number }) {
 export function useListAllEvents({
   pastEvents,
   pageSize,
+  showCancelled,
 }: Omit<ListAllEventsInput, "pageToken">) {
   return useInfiniteQuery<ListAllEventsRes.AsObject, RpcError>({
-    queryKey: eventsKey(pastEvents ? "past" : "upcoming"),
+    queryKey: [eventsKey(pastEvents ? "past" : "upcoming"), showCancelled],
     queryFn: ({ pageParam }) =>
       service.events.listAllEvents({
         pastEvents,
         pageSize,
         pageToken: pageParam,
+        showCancelled,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
