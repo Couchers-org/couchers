@@ -70,6 +70,11 @@ const useStyles = makeStyles((theme) => ({
   marginBottom: {
     marginBottom: theme.spacing(2),
   },
+  smallLeftPadding: {
+    "& > li": {
+      paddingLeft: 10,
+    }
+  },
   noMargin: {
     margin: 0,
   },
@@ -87,15 +92,6 @@ const useStyles = makeStyles((theme) => ({
     margin: 2,
   },
 }));
-
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: 48 * 4.5 + 8,
-      width: 250,
-    },
-  },
-};
 
 interface FilterModalFormData
   extends Omit<SearchFilters, "location" | "lastActive"> {
@@ -139,6 +135,18 @@ export default function FilterDialog({
   const { control, register, errors } = useForm<FilterModalFormData>({
     mode: "onBlur",
   });
+
+  const MenuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: 48 * 4.5 + 8,
+        width: 250,
+      },
+    },
+    MenuListProps: {
+      className: classes.smallLeftPadding
+    }
+  };
 
   const isSmDown = useMediaQuery((theme: Theme) =>
     theme.breakpoints.down("sm")
