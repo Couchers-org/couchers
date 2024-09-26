@@ -5,6 +5,7 @@ import {
   StringValue,
   UInt32Value,
 } from "google-protobuf/google/protobuf/wrappers_pb";
+import { LngLat } from "maplibre-gl";
 import { HostingStatus } from "proto/api_pb";
 import {
   EventSearchReq,
@@ -81,6 +82,7 @@ export async function EventSearch({
   pastEvents,
   isMyCommunities,
   isOnlineOnly,
+  nearMeLocation,
   showCancelled,
 }: {
   query?: string;
@@ -89,6 +91,7 @@ export async function EventSearch({
   pastEvents?: boolean;
   isMyCommunities?: boolean;
   isOnlineOnly?: boolean;
+  nearMeLocation?: LngLat | undefined;
   showCancelled?: boolean;
 }): Promise<EventSearchRes.AsObject> {
   const req = new EventSearchReq();
@@ -108,7 +111,18 @@ export async function EventSearch({
   if (isMyCommunities !== undefined) {
     req.setMyCommunities(isMyCommunities);
   }
+  if (nearMeLocation) {
+    req.setOnlyOnline(false);
+    req.setQuery(undefined);
+    const location = new RectArea();
+    location.setLatMin(nearMeLocation.lat - 0.1);
+    location.setLatMax(nearMeLocation.lat + 0.1);
+    location.setLngMin(nearMeLocation.lng - 0.1);
+    location.setLngMax(nearMeLocation.lng + 0.1);
+    req.setSearchInRectangle(location);
+  }
   if (isOnlineOnly !== undefined) {
+    req.setQuery(undefined);
     req.setOnlyOnline(isOnlineOnly);
   }
   if (showCancelled !== undefined) {

@@ -7,10 +7,12 @@ import TabBar from "components/TabBar";
 import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, SEARCH } from "i18n/namespaces";
+import { LngLat } from "maplibre-gl";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { newEventRoute } from "routes";
+import { getCurrentUser } from "service/user";
 import { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
@@ -90,6 +92,7 @@ const EventsPage = () => {
   const [showCancelled, setShowCancelled] = useState<boolean>(false);
   const [isMyCommunities, setIsMyCommunities] = useState<boolean>(false);
   const [isOnlineOnly, setIsOnlineOnly] = useState<boolean>(false);
+  const [nearMeLocation, setNearMeLocation] = useState<LngLat | undefined>();
   const [locationResult, setLocationResult] = useState<GeocodeResult | "">("");
 
   const allEventsPageTabLabels: Record<EventsType, string> = {
@@ -112,15 +115,29 @@ const EventsPage = () => {
   };
 
   const handleFilterIsOnlineOnlyClick = () => {
+    setNearMeLocation(undefined);
     setIsOnlineOnly(!isOnlineOnly);
   };
 
   const handleOnChangeAutocomplete = (event: GeocodeResult) => {
     if (event) {
       setIsOnlineOnly(false);
+      setNearMeLocation(undefined);
       setLocationResult(event);
     } else {
       setLocationResult("");
+    }
+  };
+
+  const handleFilterNearMeClick = async () => {
+    const user = await getCurrentUser();
+
+    if (nearMeLocation) {
+      setNearMeLocation(undefined);
+    } else {
+      setIsOnlineOnly(false);
+      setLocationResult("");
+      setNearMeLocation(new LngLat(user.lng, user.lat));
     }
   };
 
@@ -195,6 +212,13 @@ const EventsPage = () => {
             {t("communities:communities")}
           </Typography>
           <Typography
+            className={nearMeLocation ? classes.selectedFilter : classes.filter}
+            variant="body2"
+            onClick={handleFilterNearMeClick}
+          >
+            {t("communities:near_me")}
+          </Typography>
+          <Typography
             className={isOnlineOnly ? classes.selectedFilter : classes.filter}
             variant="body2"
             onClick={handleFilterIsOnlineOnlyClick}
@@ -209,6 +233,7 @@ const EventsPage = () => {
         isVerticalStyle
         isMyCommunities={isMyCommunities}
         isOnlineOnly={isOnlineOnly}
+        nearMeLocation={nearMeLocation}
         searchLocation={locationResult}
         showCancelled={showCancelled}
       />

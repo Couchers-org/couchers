@@ -8,6 +8,7 @@ import {
 } from "features/queryKeys";
 import useUsers from "features/userQueries/useUsers";
 import { RpcError } from "grpc-web";
+import { LngLat } from "maplibre-gl";
 import {
   Event,
   ListAllEventsRes,
@@ -152,6 +153,7 @@ export function useEventSearch({
   pastEvents,
   isMyCommunities,
   isOnlineOnly,
+  nearMeLocation,
   showCancelled,
 }: {
   query?: string;
@@ -159,6 +161,7 @@ export function useEventSearch({
   pastEvents?: boolean;
   isMyCommunities?: boolean;
   isOnlineOnly?: boolean;
+  nearMeLocation?: LngLat | undefined;
   showCancelled?: boolean;
 }) {
   return useInfiniteQuery<EventSearchRes.AsObject, RpcError>({
@@ -167,6 +170,7 @@ export function useEventSearch({
       query,
       isMyCommunities,
       isOnlineOnly,
+      nearMeLocation,
       pastEvents,
       showCancelled,
     ],
@@ -178,6 +182,7 @@ export function useEventSearch({
         pastEvents,
         isMyCommunities,
         isOnlineOnly,
+        nearMeLocation,
         showCancelled,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
