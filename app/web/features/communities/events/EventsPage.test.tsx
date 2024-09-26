@@ -20,14 +20,11 @@ const listAllEventsMock = service.events.listAllEvents as jest.MockedFunction<
 >;
 
 describe("Events page", () => {
-  beforeEach(() => {
+  it("shows the 'Upcoming' tab by default", async () => {
     listAllEventsMock.mockResolvedValue({
-      eventsList: events,
+      eventsList: events.filter((event) => !event.isCancelled),
       nextPageToken: "",
     });
-  });
-
-  it("shows the 'Upcoming' tab by default", async () => {
     render(<EventsPage />, { wrapper });
 
     expect(
@@ -100,8 +97,18 @@ describe("Events page", () => {
   it(`shows cancelled events if "${t(
     "communities:show_cancelled_events"
   )}" is checked`, async () => {
+    listAllEventsMock.mockResolvedValue({
+      eventsList: events.filter((event) => !event.isCancelled),
+      nextPageToken: "",
+    });
+
     render(<EventsPage />, { wrapper });
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+    expect(listAllEventsMock).toHaveBeenCalledWith({
+      pastEvents: false,
+      showCancelled: false,
+    });
 
     expect(screen.getAllByRole("link")).toHaveLength(3);
 
@@ -111,8 +118,11 @@ describe("Events page", () => {
 
     userEvent.click(switchSpan);
 
-    // Check that there are 4 events cards in success case (3 + 1 cancelled)
-    expect(screen.getAllByRole("link")).toHaveLength(4);
+    // Check that listAllEvents is called with showCancelled: true
+    expect(listAllEventsMock).toHaveBeenCalledWith({
+      pastEvents: false,
+      showCancelled: true,
+    });
   });
 
   describe("when there are more than one page of events", () => {
@@ -137,11 +147,11 @@ describe("Events page", () => {
         within(seeMoreEventsButton).getByRole("progressbar")
       );
 
-      expect(screen.getAllByRole("link")).toHaveLength(3);
+      expect(screen.getAllByRole("link")).toHaveLength(4);
       expect(listAllEventsMock).toHaveBeenCalledTimes(2);
       expect(listAllEventsMock.mock.calls).toEqual([
-        [{ pastEvents: false }],
-        [{ pastEvents: false, pageToken: "2" }],
+        [{ pastEvents: false, showCancelled: false }],
+        [{ pastEvents: false, pageToken: "2", showCancelled: false }],
       ]);
     });
   });
