@@ -1,14 +1,17 @@
 import { Button, Typography } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
 import CustomColorSwitch from "components/CustomColorSwitch";
+import LocationAutocomplete from "components/LocationAutocomplete";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
 import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { COMMUNITIES, GLOBAL, SEARCH } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { newEventRoute } from "routes";
+import { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
 import DiscoverEventsList from "./DiscoverEventsList";
@@ -58,16 +61,26 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(0.5),
     borderRadius: theme.shape.borderRadius * 6,
   },
+  searchInput: {
+    // marginTop: theme.spacing(4),
+    // marginBottom: theme.spacing(4),
+    // height: "10px",
+  },
 }));
 
 const EventsPage = () => {
   const classes = useStyles();
   const router = useRouter();
-  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+  const { t } = useTranslation([GLOBAL, COMMUNITIES, SEARCH]);
   const [eventType, setEventType] = useState<EventsType>("upcoming");
   const [showCancelled, setShowCancelled] = useState<boolean>(false);
   const [isMyCommunities, setIsMyCommunities] = useState<boolean>(false);
   const [isOnlineOnly, setIsOnlineOnly] = useState<boolean>(false);
+  const [locationResult, setLocationResult] = useState<GeocodeResult | "">("");
+
+  const { control, errors } = useForm({
+    mode: "onChange",
+  });
 
   const allEventsPageTabLabels: Record<EventsType, string> = {
     upcoming: t("communities:upcoming"),
@@ -92,6 +105,11 @@ const EventsPage = () => {
     setIsOnlineOnly(!isOnlineOnly);
   };
 
+  const handleOnChangeAutocomplete = (event: GeocodeResult) => {
+    if (event) {
+      setLocationResult(event);
+    }
+  };
   return (
     <div>
       <div className={classes.headerRow}>
@@ -132,6 +150,16 @@ const EventsPage = () => {
           {t("communities:discover_events_title")}
         </Typography>
         <div className={classes.filterRow}>
+          <LocationAutocomplete
+            // className={classes.searchInput}
+            variant="outlined"
+            control={control}
+            name="location"
+            defaultValue={locationResult}
+            label={t("search:form.location_field_label")}
+            onChange={handleOnChangeAutocomplete}
+            fieldError={errors.location?.message}
+          />
           <Typography
             className={
               isMyCommunities ? classes.selectedFilter : classes.filter
