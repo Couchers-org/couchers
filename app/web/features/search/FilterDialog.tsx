@@ -30,9 +30,9 @@ import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { GeocodeResult } from "utils/hooks";
 import SearchFilters from "utils/searchFilters";
-import { TypeHostingStatusOptions } from "./SearchPage";
 
 import { lastActiveOptions } from "./constants";
+import { TypeHostingStatusOptions } from "./SearchPage";
 
 const getLastActiveOptions = (t: TFunction) => ({
   [lastActiveOptions.LAST_ACTIVE_ANY]: t("search:last_active_options.any"),
@@ -73,7 +73,7 @@ const useStyles = makeStyles((theme) => ({
   smallLeftPadding: {
     "& > li": {
       paddingLeft: 10,
-    }
+    },
   },
   noMargin: {
     margin: 0,
@@ -144,8 +144,8 @@ export default function FilterDialog({
       },
     },
     MenuListProps: {
-      className: classes.smallLeftPadding
-    }
+      className: classes.smallLeftPadding,
+    },
   };
 
   const isSmDown = useMediaQuery((theme: Theme) =>
