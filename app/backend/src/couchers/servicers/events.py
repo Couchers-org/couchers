@@ -1061,6 +1061,9 @@ class Events(events_pb2_grpc.EventsServicer):
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(~EventOccurrence.is_deleted)
         )
 
+        if not request.include_cancelled:
+            occurrences = occurrences.where(~EventOccurrence.is_cancelled)
+
         if not request.past:
             occurrences = occurrences.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
                 EventOccurrence.start_time.asc()
