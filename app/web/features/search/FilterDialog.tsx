@@ -135,7 +135,6 @@ export default function FilterDialog({
   const { control, register, errors } = useForm<FilterModalFormData>({
     mode: "onBlur",
   });
-  
 
   const MenuProps = {
     PaperProps: {
