@@ -4,7 +4,7 @@ import { Coordinates } from "features/search/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
-import { HostingStatus,User  } from "proto/api_pb";
+import { HostingStatus, User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { useEffect, useRef, useState } from "react";
 import {
