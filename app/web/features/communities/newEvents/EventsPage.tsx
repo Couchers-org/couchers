@@ -56,6 +56,9 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     margin: theme.spacing(0.5),
     borderRadius: theme.shape.borderRadius * 6,
+    "&:hover": {
+      cursor: "pointer",
+    },
   },
   filterTags: {
     display: "flex",
@@ -69,6 +72,9 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     margin: theme.spacing(0.5),
     borderRadius: theme.shape.borderRadius * 6,
+    "&:hover": {
+      cursor: "pointer",
+    },
   },
   locationSearch: {
     marginRight: theme.spacing(2),
