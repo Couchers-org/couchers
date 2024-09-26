@@ -1,4 +1,4 @@
-import { Button, Typography } from "@material-ui/core";
+import { Button, Typography, useMediaQuery, useTheme } from "@material-ui/core";
 import { TabContext, TabPanel } from "@material-ui/lab";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import LocationAutocomplete from "components/LocationAutocomplete";
@@ -28,10 +28,14 @@ const useStyles = makeStyles((theme) => ({
     },
     fontWeight: "bold",
   },
-  filterRow: {
+  row: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    marginTop: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: "column",
+    },
   },
   headerRow: {
     display: "flex",
@@ -40,7 +44,6 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(1),
   },
   heading: {
-    marginTop: theme.spacing(4),
     marginBottom: theme.spacing(2),
   },
   filter: {
@@ -51,6 +54,10 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     margin: theme.spacing(0.5),
     borderRadius: theme.shape.borderRadius * 6,
+  },
+  filterTags: {
+    display: "flex",
+    alignItems: "center",
   },
   selectedFilter: {
     backgroundColor: theme.palette.secondary.main,
@@ -63,6 +70,9 @@ const useStyles = makeStyles((theme) => ({
   },
   locationSearch: {
     marginRight: theme.spacing(2),
+    [theme.breakpoints.down("sm")]: {
+      marginRight: 0,
+    },
   },
 }));
 
@@ -73,6 +83,8 @@ const EventsPage = () => {
     mode: "onChange",
   });
   const { t } = useTranslation([COMMUNITIES, SEARCH]);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [eventType, setEventType] = useState<EventsType>("upcoming");
   const [showCancelled, setShowCancelled] = useState<boolean>(false);
@@ -111,6 +123,28 @@ const EventsPage = () => {
       setLocationResult("");
     }
   };
+
+  const renderLocationAutoComplete = () => (
+    <LocationAutocomplete
+      className={classes.locationSearch}
+      control={control}
+      name="location"
+      defaultValue={locationResult}
+      label={t("search:form.location_field_label")}
+      onChange={handleOnChangeAutocomplete}
+      fieldError={errors.location?.message}
+      fullWidth={isMobile}
+    />
+  );
+
+  const renderCustomColorSwitch = () => (
+    <CustomColorSwitch
+      checked={showCancelled}
+      onClick={handleShowCancelledClick}
+      label={t("communities:show_cancelled_events")}
+    />
+  );
+
   return (
     <div>
       <div className={classes.headerRow}>
@@ -124,21 +158,20 @@ const EventsPage = () => {
         </Button>
       </div>
       <TabContext value={eventType}>
-        <div className={classes.filterRow}>
+        <div className={classes.row}>
           <TabBar
             ariaLabel={t("communities:all_events_page_tabs_a11y_label")}
             setValue={handleToggleClick}
             labels={allEventsPageTabLabels}
           />
-          <CustomColorSwitch
-            checked={showCancelled}
-            onClick={handleShowCancelledClick}
-            label={t("communities:show_cancelled_events")}
-          />
+          {!isMobile && renderCustomColorSwitch()}
         </div>
-        <Typography className={classes.heading} variant="h2">
-          {t("communities:your_events")}
-        </Typography>
+        <div className={classes.row}>
+          <Typography className={classes.heading} variant="h2">
+            {t("communities:your_events")}
+          </Typography>
+          {isMobile && renderCustomColorSwitch()}
+        </div>
         <TabPanel value="upcoming">
           <MyEventsList eventType={eventType} showCancelled={showCancelled} />
         </TabPanel>
@@ -146,20 +179,12 @@ const EventsPage = () => {
           <MyEventsList eventType={eventType} showCancelled={showCancelled} />
         </TabPanel>
       </TabContext>
-      <div className={classes.filterRow}>
+      <div className={classes.row}>
         <Typography className={classes.heading} variant="h2">
           {t("communities:discover_events_title")}
         </Typography>
-        <div className={classes.filterRow}>
-          <LocationAutocomplete
-            className={classes.locationSearch}
-            control={control}
-            name="location"
-            defaultValue={locationResult}
-            label={t("search:form.location_field_label")}
-            onChange={handleOnChangeAutocomplete}
-            fieldError={errors.location?.message}
-          />
+        <div className={classes.filterTags}>
+          {!isMobile && renderLocationAutoComplete()}
           <Typography
             className={
               isMyCommunities ? classes.selectedFilter : classes.filter
@@ -177,6 +202,7 @@ const EventsPage = () => {
             {t("communities:online")}
           </Typography>
         </div>
+        {isMobile && renderLocationAutoComplete()}
       </div>
       <DiscoverEventsList
         eventType={eventType}

@@ -6,9 +6,19 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useMemo } from "react";
 import { GeocodeResult } from "utils/hooks";
+import makeStyles from "utils/makeStyles";
 
 import { useEventSearch } from "../events/hooks";
 import EventsList from "./EventsList";
+
+const useStyles = makeStyles((theme) => ({
+  loadingBox: {
+    display: "flex",
+    justifyContent: "center",
+    padding: theme.spacing(2),
+    width: "100%",
+  },
+}));
 
 const DiscoverEventsList = ({
   eventType,
@@ -25,6 +35,7 @@ const DiscoverEventsList = ({
   searchLocation: GeocodeResult | "";
   showCancelled?: boolean;
 }) => {
+  const classes = useStyles();
   const { t } = useTranslation([COMMUNITIES]);
 
   const { data, error, hasNextPage, fetchNextPage, isLoading } = useEventSearch(
@@ -51,7 +62,9 @@ const DiscoverEventsList = ({
       )}
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
-        <CircularProgress />
+        <div className={classes.loadingBox}>
+          <CircularProgress />
+        </div>
       ) : (
         <EventsList
           events={flatEvents}
