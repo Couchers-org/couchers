@@ -97,6 +97,7 @@ export async function EventSearch({
     req.setPast(pastEvents);
   }
   if (query) {
+    req.setOnlyOnline(false);
     req.hasQuery();
     const queryValue = new StringValue();
     queryValue.setValue(query);

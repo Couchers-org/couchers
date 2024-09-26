@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(1),
   },
   heading: {
-    marginTop: theme.spacing(3),
+    marginTop: theme.spacing(4),
     marginBottom: theme.spacing(2),
   },
   filter: {
@@ -60,11 +60,6 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     margin: theme.spacing(0.5),
     borderRadius: theme.shape.borderRadius * 6,
-  },
-  searchInput: {
-    // marginTop: theme.spacing(4),
-    // marginBottom: theme.spacing(4),
-    // height: "10px",
   },
 }));
 
@@ -107,7 +102,10 @@ const EventsPage = () => {
 
   const handleOnChangeAutocomplete = (event: GeocodeResult) => {
     if (event) {
+      setIsOnlineOnly(false);
       setLocationResult(event);
+    } else {
+      setLocationResult("");
     }
   };
   return (
@@ -151,7 +149,6 @@ const EventsPage = () => {
         </Typography>
         <div className={classes.filterRow}>
           <LocationAutocomplete
-            // className={classes.searchInput}
             variant="outlined"
             control={control}
             name="location"
@@ -167,23 +164,23 @@ const EventsPage = () => {
             variant="body2"
             onClick={handleFilterIsMyCommunitiesClick}
           >
-            Communities
+            {t("communities:communities")}
           </Typography>
           <Typography
             className={isOnlineOnly ? classes.selectedFilter : classes.filter}
             variant="body2"
             onClick={handleFilterIsOnlineOnlyClick}
           >
-            Online
+            {t("communities:online")}
           </Typography>
         </div>
-        {/** @TODO use translations */}
       </div>
       <DiscoverEventsList
         eventType={eventType}
         isVerticalStyle
         isMyCommunities={isMyCommunities}
         isOnlineOnly={isOnlineOnly}
+        searchLocation={locationResult}
       />
     </div>
   );

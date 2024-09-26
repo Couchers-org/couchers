@@ -5,6 +5,7 @@ import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useMemo } from "react";
+import { GeocodeResult } from "utils/hooks";
 
 import { useEventSearch } from "../events/hooks";
 import EventsList from "./EventsList";
@@ -14,11 +15,13 @@ const DiscoverEventsList = ({
   isVerticalStyle = false,
   isMyCommunities,
   isOnlineOnly,
+  searchLocation,
 }: {
   eventType: EventsType;
   isVerticalStyle?: boolean;
   isMyCommunities: boolean;
   isOnlineOnly: boolean;
+  searchLocation: GeocodeResult | "";
 }) => {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
 
@@ -28,6 +31,7 @@ const DiscoverEventsList = ({
       pageSize: 10,
       isMyCommunities,
       isOnlineOnly,
+      query: searchLocation ? searchLocation.name : "",
     }
   );
 
