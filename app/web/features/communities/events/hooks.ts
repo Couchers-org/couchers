@@ -113,16 +113,14 @@ export function useEvent({ eventId }: { eventId: number }) {
 export function useListAllEvents({
   pastEvents,
   pageSize,
-  showCancelled,
 }: Omit<ListAllEventsInput, "pageToken">) {
   return useInfiniteQuery<ListAllEventsRes.AsObject, RpcError>({
-    queryKey: [eventsKey(pastEvents ? "past" : "upcoming"), showCancelled],
+    queryKey: eventsKey(pastEvents ? "past" : "upcoming"),
     queryFn: ({ pageParam }) =>
       service.events.listAllEvents({
         pastEvents,
         pageSize,
         pageToken: pageParam,
-        showCancelled,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
@@ -152,12 +150,14 @@ export function useEventSearch({
   pastEvents,
   isMyCommunities,
   isOnlineOnly,
+  showCancelled,
 }: {
   query?: string;
   pageSize: number;
   pastEvents?: boolean;
-  isMyCommunities: boolean;
-  isOnlineOnly: boolean;
+  isMyCommunities?: boolean;
+  isOnlineOnly?: boolean;
+  showCancelled?: boolean;
 }) {
   return useInfiniteQuery<EventSearchRes.AsObject, RpcError>({
     queryKey: [
@@ -166,6 +166,7 @@ export function useEventSearch({
       isMyCommunities,
       isOnlineOnly,
       pastEvents,
+      showCancelled,
     ],
     queryFn: ({ pageParam }) =>
       service.search.EventSearch({
@@ -175,6 +176,7 @@ export function useEventSearch({
         pastEvents,
         isMyCommunities,
         isOnlineOnly,
+        showCancelled,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });

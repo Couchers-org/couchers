@@ -1,7 +1,7 @@
 import Button from "components/Button";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
 import makeStyles from "utils/makeStyles";
 
@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
   seeMoreContainer: {
     display: "flex",
     justifyContent: "center",
-    marginTop: theme.spacing(2),
+    marginTop: theme.spacing(4),
   },
 }));
 
@@ -61,7 +61,7 @@ const EventsList = ({
   fetchNextPage,
 }: EventListProps) => {
   const classes = useStyles({ isVerticalStyle });
-  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+  const { t } = useTranslation([COMMUNITIES]);
 
   const {
     authState: { userId },

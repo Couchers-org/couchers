@@ -81,6 +81,7 @@ export async function EventSearch({
   pastEvents,
   isMyCommunities,
   isOnlineOnly,
+  showCancelled,
 }: {
   query?: string;
   pageSize: number;
@@ -88,6 +89,7 @@ export async function EventSearch({
   pastEvents?: boolean;
   isMyCommunities?: boolean;
   isOnlineOnly?: boolean;
+  showCancelled?: boolean;
 }): Promise<EventSearchRes.AsObject> {
   const req = new EventSearchReq();
   req.setPageSize(pageSize);
@@ -108,6 +110,9 @@ export async function EventSearch({
   }
   if (isOnlineOnly !== undefined) {
     req.setOnlyOnline(isOnlineOnly);
+  }
+  if (showCancelled !== undefined) {
+    req.setIncludeCancelled(showCancelled);
   }
 
   const res = await client.search.eventSearch(req);

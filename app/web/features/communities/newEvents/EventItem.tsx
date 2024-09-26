@@ -9,7 +9,7 @@ import {
 import { eventImagePlaceholderUrl } from "appConstants";
 import Pill from "components/Pill";
 import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
@@ -81,7 +81,7 @@ const EventItem = ({
   const classes = useStyles({
     eventImageSrc: event.photoUrl || eventImagePlaceholderUrl,
   });
-  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+  const { t } = useTranslation([COMMUNITIES]);
 
   const startTime = dayjs(timestamp2Date(event.startTime!)).format("llll");
 

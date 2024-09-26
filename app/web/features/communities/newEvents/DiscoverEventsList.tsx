@@ -3,7 +3,7 @@ import Alert from "components/Alert";
 import TextBody from "components/TextBody";
 import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { COMMUNITIES } from "i18n/namespaces";
 import { useMemo } from "react";
 import { GeocodeResult } from "utils/hooks";
 
@@ -16,14 +16,16 @@ const DiscoverEventsList = ({
   isMyCommunities,
   isOnlineOnly,
   searchLocation,
+  showCancelled,
 }: {
   eventType: EventsType;
   isVerticalStyle?: boolean;
   isMyCommunities: boolean;
   isOnlineOnly: boolean;
   searchLocation: GeocodeResult | "";
+  showCancelled?: boolean;
 }) => {
-  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+  const { t } = useTranslation([COMMUNITIES]);
 
   const { data, error, hasNextPage, fetchNextPage, isLoading } = useEventSearch(
     {
@@ -32,6 +34,7 @@ const DiscoverEventsList = ({
       isMyCommunities,
       isOnlineOnly,
       query: searchLocation ? searchLocation.name : "",
+      showCancelled,
     }
   );
 

@@ -6,7 +6,7 @@ import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
 import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL, SEARCH } from "i18n/namespaces";
+import { COMMUNITIES, SEARCH } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -61,21 +61,24 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(0.5),
     borderRadius: theme.shape.borderRadius * 6,
   },
+  locationSearch: {
+    marginRight: theme.spacing(2),
+  },
 }));
 
 const EventsPage = () => {
   const classes = useStyles();
   const router = useRouter();
-  const { t } = useTranslation([GLOBAL, COMMUNITIES, SEARCH]);
+  const { control, errors } = useForm({
+    mode: "onChange",
+  });
+  const { t } = useTranslation([COMMUNITIES, SEARCH]);
+
   const [eventType, setEventType] = useState<EventsType>("upcoming");
   const [showCancelled, setShowCancelled] = useState<boolean>(false);
   const [isMyCommunities, setIsMyCommunities] = useState<boolean>(false);
   const [isOnlineOnly, setIsOnlineOnly] = useState<boolean>(false);
   const [locationResult, setLocationResult] = useState<GeocodeResult | "">("");
-
-  const { control, errors } = useForm({
-    mode: "onChange",
-  });
 
   const allEventsPageTabLabels: Record<EventsType, string> = {
     upcoming: t("communities:upcoming"),
@@ -149,7 +152,7 @@ const EventsPage = () => {
         </Typography>
         <div className={classes.filterRow}>
           <LocationAutocomplete
-            variant="outlined"
+            className={classes.locationSearch}
             control={control}
             name="location"
             defaultValue={locationResult}
@@ -181,6 +184,7 @@ const EventsPage = () => {
         isMyCommunities={isMyCommunities}
         isOnlineOnly={isOnlineOnly}
         searchLocation={locationResult}
+        showCancelled={showCancelled}
       />
     </div>
   );

@@ -3,7 +3,7 @@ import Alert from "components/Alert";
 import TextBody from "components/TextBody";
 import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { COMMUNITIES } from "i18n/namespaces";
 import { useMemo } from "react";
 
 import { useListMyEvents } from "../events/hooks";
@@ -16,7 +16,7 @@ const MyEventsList = ({
   eventType: EventsType;
   showCancelled: boolean;
 }) => {
-  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+  const { t } = useTranslation([COMMUNITIES]);
 
   const { data, error, hasNextPage, fetchNextPage, isLoading } =
     useListMyEvents({
