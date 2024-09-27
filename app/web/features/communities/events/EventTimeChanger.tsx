@@ -109,14 +109,14 @@ export default function EventTimeChanger({
           id="startDate"
           label={t("communities:start_date")}
           name="startDate"
-          onPostChange={(date) => {
+          onPostChange={(date: Dayjs) => {
             setValue("endDate", date.add(dateDelta.current, "days"), {
               shouldDirty: true,
             });
           }}
           rules={{
             required: t("communities:date_required"),
-            validate: (date) => {
+            validate: (date: Dayjs) => {
               // Only disable validation temporarily if `event` exists/in the edit event context
               if (event && !dirtyFields.startDate) {
                 return true;
@@ -189,7 +189,7 @@ export default function EventTimeChanger({
           name="endDate"
           rules={{
             required: t("communities:date_required"),
-            validate: (date) => {
+            validate: (date: Dayjs) => {
               if (event && !dirtyFields.endDate) {
                 return true;
               }
