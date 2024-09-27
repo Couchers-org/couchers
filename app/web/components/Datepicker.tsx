@@ -65,9 +65,9 @@ export default function Datepicker({
             }}
             views={["year", "month", "day"]}
             inputFormat={getLocaleFormat()}
-            renderInput={(params) => (
+            renderInput={(props) => (
               <TextField
-                {...params}
+                {...props}
                 fullWidth
                 id={id}
                 error={error}
@@ -77,7 +77,7 @@ export default function Datepicker({
                   shrink: true,
                 }}
                 InputProps={{
-                  ...params.InputProps,
+                  ...props.InputProps,
                   "aria-label": t("components.datepicker.change_date"),
                 }}
                 variant="standard"
