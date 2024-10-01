@@ -37,11 +37,10 @@ variables:
   WEB_NEXT_TAG: $CI_REGISTRY_IMAGE/web-next:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   PROMETHEUS_TAG: $CI_REGISTRY_IMAGE/prometheus:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
 
-
 default:
   image: docker
   services:
-    - docker:19.03.12-dind
+    - docker:dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
@@ -56,7 +55,7 @@ protos:
     - cd app && ./generate_protos.sh
   rules:
     - changes:
-      - app/**/*
+        - app/**/*
   artifacts:
     paths:
       - app/
@@ -71,11 +70,11 @@ build:proxy:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/**/*
+        - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/proto/**/*
-      - app/proxy/**/*
+        - app/proto/**/*
+        - app/proxy/**/*
 
 build:nginx:
   needs: []
@@ -87,7 +86,7 @@ build:nginx:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/**/*
+        - app/**/*
 
 build:prometheus:
   needs: []
@@ -99,7 +98,7 @@ build:prometheus:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/**/*
+        - app/**/*
 
 build:backend:
   needs: ["protos"]
@@ -111,11 +110,11 @@ build:backend:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/**/*
+        - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/proto/**/*
-      - app/backend/**/*
+        - app/proto/**/*
+        - app/backend/**/*
 
 build:media:
   needs: ["protos"]
@@ -127,11 +126,11 @@ build:media:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/**/*
+        - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/proto/**/*
-      - app/media/**/*
+        - app/proto/**/*
+        - app/media/**/*
 
 build:web-dev:
   needs: ["protos"]
@@ -143,13 +142,13 @@ build:web-dev:
     # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_DEV_TAG):/app artifacts/web-dev
   rules:
-    - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") &&($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
       - app/**/*
-    - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") &&($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/proto/**/*
-      - app/web/**/*
+        - app/proto/**/*
+        - app/web/**/*
   artifacts:
     paths:
       - artifacts/web-dev/
@@ -161,19 +160,23 @@ build:web:
     - docker pull $WEB_RELEASE_TAG || true
     - docker build --build-arg version=$SLUG --build-arg environment=production --cache-from $WEB_RELEASE_TAG -t $WEB_TAG -f app/web/Dockerfile.prod app/web/
     - docker push $WEB_TAG
-    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app artifacts/web
+    # creates a new docker container (docker create returns the container name), and copies the static folder to the host
+    - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app/.next/static/ static
+    - ./app/web/generate_static_manifest.sh static > static/manifest.txt
+    - cp static/manifest.txt static/manifest-$CI_PIPELINE_ID-$CI_COMMIT_SHA.txt
+    - mkdir -p artifacts
+    - cd static && tar czf ../artifacts/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz .
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/proto/**/*
-      - app/web/**/*
+        - app/proto/**/*
+        - app/web/**/*
   artifacts:
     paths:
-      - artifacts/web/
+      - artifacts/
 
 build:web-next:
   needs: ["protos"]
@@ -182,19 +185,23 @@ build:web-next:
     - docker pull $WEB_NEXT_RELEASE_TAG || true
     - docker build --build-arg version=$SLUG --build-arg environment=next --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f app/web/Dockerfile.prod app/web/
     - docker push $WEB_NEXT_TAG
-    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app artifacts/web
+    # creates a new docker container (docker create returns the container name), and copies the static folder to the host
+    - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app/.next/static/ static
+    - ./app/web/generate_static_manifest.sh static > static/manifest.txt
+    - cp static/manifest.txt static/manifest-$CI_PIPELINE_ID-$CI_COMMIT_SHA.txt
+    - mkdir -p artifacts
+    - cd static && tar czf ../artifacts/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz .
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/proto/**/*
-      - app/web/**/*
+        - app/proto/**/*
+        - app/web/**/*
   artifacts:
     paths:
-      - artifacts/web/
+      - artifacts/
 
 build:nginx-next:
   needs: []
@@ -206,11 +213,11 @@ build:nginx-next:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/**/*
+        - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
-      - app/proto/**/*
-      - app/nginx/**/*
+        - app/proto/**/*
+        - app/nginx/**/*
 
 test:backend:
   needs: ["build:backend"]
@@ -251,11 +258,11 @@ test:backend:
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/proto/**/*
-      - app/backend/**/*
+        - app/proto/**/*
+        - app/backend/**/*
 
 test:backend-format:
   needs: ["build:backend"]
@@ -272,11 +279,11 @@ test:backend-format:
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/proto/**/*
-      - app/backend/**/*
+        - app/proto/**/*
+        - app/backend/**/*
 
 test:media:
   needs: ["build:media"]
@@ -297,11 +304,11 @@ test:media:
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/proto/**/*
-      - app/media/**/*
+        - app/proto/**/*
+        - app/media/**/*
 
 test:web:
   needs: ["build:web-dev"]
@@ -328,11 +335,11 @@ test:web:
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/proto/**/*
-      - app/web/**/*
+        - app/proto/**/*
+        - app/web/**/*
 
 test:web-prettier:
   needs: ["build:web-dev"]
@@ -347,10 +354,10 @@ test:web-prettier:
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/web/**/*
+        - app/web/**/*
 
 test:web-linting:
   needs: ["build:web-dev"]
@@ -369,7 +376,6 @@ test:web-linting:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/web/**/*
-  allow_failure: true
 
 test:storybook:
   needs: ["build:web-dev"]
@@ -387,11 +393,11 @@ test:storybook:
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/proto/**/*
-      - app/web/**/*
+        - app/proto/**/*
+        - app/web/**/*
 
 preview:bcov:
   needs: ["test:backend"]
@@ -409,11 +415,11 @@ preview:bcov:
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/proto/**/*
-      - app/backend/**/*
+        - app/proto/**/*
+        - app/backend/**/*
 
 preview:wcov:
   needs: ["test:web"]
@@ -431,11 +437,11 @@ preview:wcov:
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/proto/**/*
-      - app/web/**/*
+        - app/proto/**/*
+        - app/web/**/*
 
 preview:storybook:
   needs: ["test:storybook"]
@@ -453,12 +459,57 @@ preview:storybook:
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/proto/**/*
+        - app/proto/**/*
+        - app/web/**/*
+
+preview:web:
+  needs: ["build:web"]
+  stage: preview
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-static/$CI_COMMIT_SHORT_SHA/static.tar.gz --website-redirect-location https://$CI_COMMIT_SHORT_SHA--web-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
+    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-static/$CI_COMMIT_REF_SLUG/static.tar.gz --website-redirect-location https://$CI_COMMIT_REF_SLUG--web-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
+    - echo "Done, web-static available at https://$CI_COMMIT_SHORT_SHA--web-static.$PREVIEW_DOMAIN/static.tar.gz and https://$CI_COMMIT_REF_SLUG--web-static.$PREVIEW_DOMAIN/static.tar.gz"
+  rules:
+    - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
       - app/web/**/*
 
+preview:web-next:
+  needs: ["build:web-next"]
+  stage: preview
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-next-static/$CI_COMMIT_SHORT_SHA/static.tar.gz --website-redirect-location https://$CI_COMMIT_SHORT_SHA--web-next-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
+    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-next-static/$CI_COMMIT_REF_SLUG/static.tar.gz --website-redirect-location https://$CI_COMMIT_REF_SLUG--web-next-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
+    - echo "Done, web-static available at https://$CI_COMMIT_SHORT_SHA--web-next-static.$PREVIEW_DOMAIN/static.tar.gz and https://$CI_COMMIT_REF_SLUG--web-next-static.$PREVIEW_DOMAIN/static.tar.gz"
+  rules:
+    - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+      - app/**/*
+    - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+      - app/web/**/*
 
 preview:protos:
   needs: ["protos"]
@@ -497,7 +548,6 @@ preview:protos:
     - aws s3 cp app/proto/gen/index.html s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_REF_SLUG/
     - echo "Done, protos available at https://$CI_COMMIT_SHORT_SHA--protos.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--protos.$PREVIEW_DOMAIN/"
 
-
 # having this here stops us from having to list out all the needs in each release below. list out all that need to be waited for until releasing a new version
 wait:before-release:
   stage: wait
@@ -509,7 +559,7 @@ wait:before-release:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/**/*
+        - app/**/*
   needs:
     - job: protos
       artifacts: false
@@ -566,7 +616,7 @@ release:proxy:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/**/*
+        - app/**/*
 
 release:nginx:
   needs: ["wait:before-release"]
@@ -578,7 +628,7 @@ release:nginx:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/**/*
+        - app/**/*
 
 release:prometheus:
   needs: ["wait:before-release"]
@@ -590,7 +640,7 @@ release:prometheus:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/**/*
+        - app/**/*
 
 release:backend:
   needs: ["wait:before-release"]
@@ -602,7 +652,7 @@ release:backend:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/**/*
+        - app/**/*
 
 release:media:
   needs: ["wait:before-release"]
@@ -614,7 +664,7 @@ release:media:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/**/*
+        - app/**/*
 
 release:web-dev:
   needs: ["wait:before-release"]
@@ -624,9 +674,9 @@ release:web-dev:
     - docker tag $WEB_DEV_TAG $WEB_DEV_RELEASE_TAG
     - docker push $WEB_DEV_RELEASE_TAG
   rules:
-    - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
 
 release:web:
   needs: ["wait:before-release"]
@@ -638,7 +688,7 @@ release:web:
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
 
 release:web-next:
   needs: ["wait:before-release"]
@@ -651,7 +701,7 @@ release:web-next:
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
 
 release:nginx-next:
   needs: ["wait:before-release"]
@@ -663,4 +713,4 @@ release:nginx-next:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
-      - app/**/*
+        - app/**/*

@@ -12,6 +12,7 @@ import LocationAutocomplete from "components/LocationAutocomplete";
 import TextField from "components/TextField";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
+import { LngLat } from "maplibre-gl";
 import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { GeocodeResult } from "utils/hooks";
@@ -36,12 +37,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface SearchBoxProps {
-  searchType: string;
-  setSearchType: Dispatch<SetStateAction<string>>;
-  locationResult: any;
-  setLocationResult: Dispatch<SetStateAction<any>>;
-  setQueryName: Dispatch<SetStateAction<any>>;
-  queryName: undefined | string;
+  searchType: "location" | "keyword";
+  setSearchType: Dispatch<"location" | "keyword">;
+  locationResult: GeocodeResult;
+  setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
+  setQueryName: Dispatch<SetStateAction<string>>;
+  queryName: string;
 }
 
 export default function SearchBox({
@@ -55,34 +56,39 @@ export default function SearchBox({
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
 
-  const { control, setValue, errors, register, handleSubmit } = useForm({
+  const { control, errors } = useForm({
     mode: "onChange",
   });
 
-  function handleOnChangeAutocomplete(event: "" | GeocodeResult) {
+  const handleOnChangeAutocomplete = (event: GeocodeResult) => {
     if (event) {
       setLocationResult(event);
     }
-  }
+  };
 
-  function handleOnChangeKeyword(event: React.ChangeEvent<HTMLInputElement>) {
+  const handleOnChangeKeyword = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setQueryName(event.target.value);
     setLocationResult({
       ...locationResult,
-      location: undefined,
+      location: new LngLat(0, 0),
     });
-  }
+  };
 
-  function handleOnChangeRadioButton(event: React.ChangeEvent, value: string) {
-    setSearchType(value as "location" | "keyword");
+  const handleOnChangeRadioButton = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    value: "location" | "keyword"
+  ) => {
+    setSearchType(value);
     setLocationResult({
       ...locationResult,
       name: "",
       simplifiedName: "",
-      location: undefined,
+      location: new LngLat(0, 0),
     });
-    setQueryName(undefined);
-  }
+    setQueryName("");
+  };
 
   return (
     <>
@@ -90,7 +96,7 @@ export default function SearchBox({
         <LocationAutocomplete
           control={control}
           name="location"
-          defaultValue={locationResult.name}
+          defaultValue={locationResult}
           label={t("search:form.location_field_label")}
           onChange={handleOnChangeAutocomplete}
           fieldError={errors.location?.message}
@@ -116,7 +122,7 @@ export default function SearchBox({
                     setQueryName("");
                     setLocationResult({
                       ...locationResult,
-                      location: undefined,
+                      location: new LngLat(0, 0),
                     });
                   }}
                   size="small"
@@ -133,7 +139,7 @@ export default function SearchBox({
           <RadioGroup
             className={classes.justifyContent}
             row
-            onChange={handleOnChangeRadioButton}
+            onChange={(event) => handleOnChangeRadioButton(event, searchType)}
             value={searchType}
           >
             <FormControlLabel

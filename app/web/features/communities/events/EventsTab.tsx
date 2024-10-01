@@ -53,10 +53,10 @@ export default function EventsTab({
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
   const router = useRouter();
 
-  const { data, error, hasNextPage, fetchNextPage, isLoading } =
-    useListAllEvents({ pastEvents });
-
   const [showCancelled, setShowCancelled] = useState(false);
+
+  const { data, error, hasNextPage, fetchNextPage, isLoading } =
+    useListAllEvents({ pastEvents, showCancelled });
 
   const handleShowCancelledClick = () => {
     setShowCancelled(!showCancelled);
@@ -87,7 +87,6 @@ export default function EventsTab({
           <div className={classNames(classes.cardContainer, classes.container)}>
             {data.pages
               .flatMap((page) => page.eventsList)
-              .filter((event) => showCancelled || !event.isCancelled)
               .map((event) => (
                 <EventCard
                   key={event.eventId}

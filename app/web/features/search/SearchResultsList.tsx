@@ -11,6 +11,7 @@ import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { Dispatch, SetStateAction } from "react";
 import { InfiniteData } from "react-query";
+import { GeocodeResult } from "utils/hooks";
 
 import SearchBox from "./SearchBox";
 
@@ -90,12 +91,12 @@ interface mapWrapperProps {
       Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
     >
   >;
-  searchType: string;
-  locationResult: any;
-  setSearchType: Dispatch<SetStateAction<string>>;
-  setLocationResult: Dispatch<SetStateAction<any>>;
-  setQueryName: Dispatch<SetStateAction<undefined | string>>;
-  queryName: undefined | string;
+  searchType: "location" | "keyword";
+  setSearchType: Dispatch<SetStateAction<"location" | "keyword">>;
+  locationResult: GeocodeResult;
+  setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
+  setQueryName: Dispatch<SetStateAction<string>>;
+  queryName: string;
 }
 
 export default function SearchResultsList({
@@ -118,19 +119,17 @@ export default function SearchResultsList({
   const hasAtLeastOnePageResults =
     results && results?.pages[0]?.resultsList?.length !== 0;
 
-  let resultsList: any = results?.pages
+  let resultsList = results?.pages
     .flatMap((page) => page.resultsList)
     .filter((result) => result.user);
 
-  let wasResultFound = false;
-  resultsList?.map((value: any) => {
-    if (value.user?.userId === selectedResult?.userId) {
-      wasResultFound = true;
-    }
-  });
+  const wasResultFound =
+    resultsList?.find(
+      (value) => value.user?.userId === selectedResult?.userId
+    ) !== undefined;
 
   if (!wasResultFound && selectedUserData.data) {
-    resultsList = [{ user: selectedUserData.data }];
+    resultsList = [{ user: selectedUserData.data, rank: 0, snippet: "" }];
   }
 
   return (
@@ -169,7 +168,7 @@ export default function SearchResultsList({
             hasMore={hasNext}
           >
             {resultsList &&
-              resultsList.map((result: any) => (
+              resultsList.map((result) => (
                 <SearchResult
                   id={`search-result-${result.user!.userId}`}
                   className={classes.searchResult}

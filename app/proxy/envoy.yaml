@@ -44,6 +44,7 @@ static_resources:
                   - exact: https://couchers.org
                   # deploy preview sites
                   - exact: https://next.couchershq.org
+                  - exact: https://edge.couchershq.org
                   - suffix: .preview.couchershq.org
                   # react
                   - exact: http://127.0.0.1:3000
@@ -62,7 +63,7 @@ static_resources:
                 append_action: OVERWRITE_IF_EXISTS_OR_ADD
               - header:
                   key: strict-transport-security
-                  value: max-age=15552000; includeSubdomains; preload
+                  value: max-age=31536000; includeSubdomains; preload
                 append_action: OVERWRITE_IF_EXISTS_OR_ADD
               - header:
                   key: referrer-policy

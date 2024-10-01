@@ -16,7 +16,7 @@ docker-compose -f docker-compose.test.yml up --build
 
 1. If you haven't already, run the first two steps from the [readme in the `app/` folder](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md).
 
-**Remember** that if you've made changes to any *.proto files, you may need to re-compile the protocol buffers (step 2).
+**Remember** that if you've made changes to any \*.proto files, you may need to re-compile the protocol buffers (step 2).
 
 2. Make sure the postgres_tests container is running:
 
@@ -45,7 +45,7 @@ export DATABASE_CONNECTION_STRING=postgresql://postgres:06b3890acd2c235c41be0bbf
 6. Run `pytest` in the `app/backend/src/` folder.
 
 ```sh
-cd src
+cd src..
 pytest
 ```
 

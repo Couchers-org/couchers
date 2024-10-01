@@ -18,3 +18,4 @@ tsconfig.tsbuildinfo
 update_protos.sh
 docker-compose.yaml
 ci-build-protos.sh
+generate_static_manifest.sh

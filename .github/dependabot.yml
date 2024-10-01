@@ -6,7 +6,7 @@ updates:
     schedule:
       interval: "weekly"
     labels:
-      - "backend"
+      - "1.topic backend"
       - "dependencies"
     reviewers:
       - "aapeliv"
@@ -16,7 +16,7 @@ updates:
     schedule:
       interval: "weekly"
     labels:
-      - "backend"
+      - "1.topic backend"
       - "dependencies"
     reviewers:
       - "aapeliv"
@@ -26,8 +26,7 @@ updates:
     schedule:
       interval: "weekly"
     labels:
-      - "web"
+      - "1.topic frontend"
       - "dependencies"
     reviewers:
-      - "darrenvong"
-      - "lucaslcode"
+      - "aapeliv"

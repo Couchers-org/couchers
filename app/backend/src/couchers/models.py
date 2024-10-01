@@ -1,6 +1,4 @@
 import enum
-from calendar import monthrange
-from datetime import date
 
 from geoalchemy2.types import Geometry
 from google.protobuf import empty_pb2
@@ -24,7 +22,7 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
+from sqlalchemy.dialects.postgresql import INET, TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import backref, column_property, declarative_base, deferred, relationship
@@ -279,12 +277,17 @@ class User(Base):
 
     has_passport_sex_gender_exception = Column(Boolean, nullable=False, server_default=text("false"))
 
+    #  checking for phone verification
+    has_donated = Column(Boolean, nullable=False, server_default=text("false"))
+
     # whether this user has all emails turned off
     do_not_email = Column(Boolean, nullable=False, server_default=text("false"))
 
     avatar = relationship("Upload", foreign_keys="User.avatar_key")
 
     admin_note = Column(String, nullable=False, server_default=text("''"))
+
+    age = column_property(func.date_part("year", func.age(birthdate)))
 
     __table_args__ = (
         # Verified phone numbers should be unique
@@ -367,18 +370,6 @@ class User(Base):
             return get_coordinates(self.geom)
         else:
             return None
-
-    @property
-    def age(self):
-        max_day = monthrange(date.today().year, self.birthdate.month)[1]
-        age = date.today().year - self.birthdate.year
-        # in case of leap-day babies, make sure the date is valid for this year
-        safe_birthdate = self.birthdate
-        if self.birthdate.day > max_day:
-            safe_birthdate = safe_birthdate.replace(day=max_day)
-        if date.today() < safe_birthdate.replace(year=date.today().year):
-            age -= 1
-        return age
 
     @property
     def display_joined(self):
@@ -958,6 +949,41 @@ class AccountDeletionToken(Base):
 
     def __repr__(self):
         return f"AccountDeletionToken(token={self.token}, user_id={self.user_id}, created={self.created}, expiry={self.expiry})"
+
+
+class UserActivity(Base):
+    """
+    User activity: for each unique (user_id, period, ip_address, user_agent) tuple, keep track of number of api calls
+
+    Used for user "last active" as well as admin stuff
+    """
+
+    __tablename__ = "user_activity"
+
+    id = Column(BigInteger, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False)
+    # the start of a period of time, e.g. 1 hour during which we bin activeness
+    period = Column(DateTime(timezone=True), nullable=False)
+
+    # details of the browser, if available
+    ip_address = Column(INET, nullable=True)
+    user_agent = Column(String, nullable=True)
+
+    # count of api calls made with this ip, user_agent, and period
+    api_calls = Column(Integer, nullable=False, default=0)
+
+    __table_args__ = (
+        # helps look up this tuple quickly
+        Index(
+            "ix_user_activity_user_id_period_ip_address_user_agent",
+            user_id,
+            period,
+            ip_address,
+            user_agent,
+            unique=True,
+        ),
+    )
 
 
 class UserSession(Base):

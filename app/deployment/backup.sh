@@ -5,20 +5,21 @@ set -e
 pushd ..
 
 # we need the following vars from this .env file:
-# - DATABASE_CONNECTION_STRING
 # - AWS_BACKUP_BUCKET_NAME
 # - AWS_ACCESS_KEY_ID
 # - AWS_SECRET_ACCESS_KEY
 source backup.prod.env
 
-docker_image=${DB_DOCKER_IMAGE:-"postgis/postgis:16-3.4"}
-
 echo "Backing up database..."
 # --net=host is required so we can hit localhost from inside the container
 # really not sure what's wrong with aws cli not getting env vars the normal way
 # only dump `public` schema
-docker exec -i app-postgres-1 pg_dump -U postgres --exclude-table-data='logging.*' \
-  | gzip \
+docker exec -i app-postgres-1 pg_dump -U postgres \
+  --exclude-table-data='logging.*' \
+  --exclude-table-data='background_jobs' \
+  --exclude-table-data='emails' \
+  --exclude-table-data='timezone_areas' \
+  | zstd -11 \
   | AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
     aws s3 cp - s3://$AWS_BACKUP_BUCKET_NAME/db/dump-$(date +%s).sql.gz \
   && echo "Done."

@@ -13,6 +13,7 @@ maplibregl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_KEY!;
 
 const useStyles = makeStyles({
   root: {
+    position: "relative",
     height: 200,
     width: 400,
   },
@@ -36,7 +37,7 @@ const useStyles = makeStyles({
 });
 
 export interface MapProps {
-  initialCenter: LngLat;
+  initialCenter: LngLat | undefined;
   initialZoom: number;
   postMapInitialize?: (map: maplibregl.Map) => void;
   className?: string;
@@ -89,8 +90,7 @@ export default function Map({
         container: containerRef.current,
         hash: hash ? "loc" : false,
         interactive: interactive,
-        style:
-          "https://maps.couchershq.org/static/couchers-basemap-style-v1.json",
+        style: "https://cdn.couchers.org/maps/couchers-basemap-style-v1.json",
         transformRequest,
         zoom: initialZoom,
       });
