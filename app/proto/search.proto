@@ -131,9 +131,9 @@ message UserSearchReq {
   bool only_with_references = 12;
 
   // bool friends_only = 13;
-
-  // google.protobuf.UInt32Value age_min = 14;
-  // google.protobuf.UInt32Value age_max = 15;
+  
+  google.protobuf.UInt32Value age_min = 14;
+  google.protobuf.UInt32Value age_max = 15;
 
   google.protobuf.BoolValue last_minute = 16;
   google.protobuf.BoolValue has_pets = 17;
@@ -204,4 +204,9 @@ message EventSearchRes {
   repeated org.couchers.api.events.Event events = 1;
 
   string next_page_token = 2;
+}
+
+message SearchRequest {
+    int32 min_age = 6;
+    int32 max_age = 7;
 }

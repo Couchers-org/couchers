@@ -33,6 +33,8 @@ from couchers.servicers.api import (
     sleepingarrangement2sql,
     smokinglocation2sql,
     user_model_to_pb,
+    fluency2sql,
+
 )
 from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import event_to_pb
@@ -287,7 +289,7 @@ def _search_events(session, search_statement, title_only, next_rank, page_size, 
 
 
 def _search_clusters(
-    session, search_statement, title_only, next_rank, page_size, context, include_communities, include_groups
+        session, search_statement, title_only, next_rank, page_size, context, include_communities, include_groups
 ):
     if not include_communities and not include_groups:
         return []
@@ -343,43 +345,43 @@ class Search(search_pb2_grpc.SearchServicer):
         next_rank = float(request.page_token) if request.page_token else None
         with session_scope() as session:
             all_results = (
-                _search_users(
-                    session,
-                    request.query,
-                    request.title_only,
-                    next_rank,
-                    page_size,
-                    context,
-                    request.include_users,
-                )
-                + _search_pages(
-                    session,
-                    request.query,
-                    request.title_only,
-                    next_rank,
-                    page_size,
-                    context,
-                    request.include_places,
-                    request.include_guides,
-                )
-                + _search_events(
-                    session,
-                    request.query,
-                    request.title_only,
-                    next_rank,
-                    page_size,
-                    context,
-                )
-                + _search_clusters(
-                    session,
-                    request.query,
-                    request.title_only,
-                    next_rank,
-                    page_size,
-                    context,
-                    request.include_communities,
-                    request.include_groups,
-                )
+                    _search_users(
+                        session,
+                        request.query,
+                        request.title_only,
+                        next_rank,
+                        page_size,
+                        context,
+                        request.include_users,
+                    )
+                    + _search_pages(
+                session,
+                request.query,
+                request.title_only,
+                next_rank,
+                page_size,
+                context,
+                request.include_places,
+                request.include_guides,
+            )
+                    + _search_events(
+                session,
+                request.query,
+                request.title_only,
+                next_rank,
+                page_size,
+                context,
+            )
+                    + _search_clusters(
+                session,
+                request.query,
+                request.title_only,
+                next_rank,
+                page_size,
+                context,
+                request.include_communities,
+                request.include_groups,
+            )
             )
             all_results.sort(key=lambda result: result.rank, reverse=True)
             return search_pb2.SearchRes(
@@ -411,9 +413,15 @@ class Search(search_pb2_grpc.SearchServicer):
                             User.things_i_like.ilike(f"%{request.query.value}%"),
                             User.about_place.ilike(f"%{request.query.value}%"),
                             User.additional_information.ilike(f"%{request.query.value}%"),
+
                         )
                     )
+            conversational_fluent_filter_values = [
+                fluency2sql[api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL],
+                fluency2sql[api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT]
+            ]
 
+            # add interests in profile and as filter.
             if request.HasField("last_active"):
                 raw_dt = to_aware_datetime(request.last_active)
                 statement = statement.where(User.last_active >= last_active_coarsen(raw_dt))
@@ -448,6 +456,22 @@ class Search(search_pb2_grpc.SearchServicer):
                 statement = statement.where(
                     User.parking_details.in_([parkingdetails2sql[det] for det in request.parking_details_filter])
                 )
+            # limits/default could be handled on the front end as well
+            if request.HasField('age_min'):
+                min_age = request.age_min.value
+            else:
+                min_age = 18
+            statement = statement.where(User.age >= min_age)
+
+            if request.HasField('age_max'):
+                max_age = request.age_max.value
+            else:
+                max_age = 200
+            statement = statement.where(User.age <= max_age)
+            
+            if len(request.languages_filter) > 0:
+                statement = statement.where(
+                    User.language_abilities.any(LanguageAbility.fluency.in_(fluency_filter_values)))
             if request.HasField("profile_completed"):
                 statement = statement.where(User.has_completed_profile == request.profile_completed.value)
             if request.HasField("guests"):
