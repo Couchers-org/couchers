@@ -1,18 +1,13 @@
 import { Button, Typography, useMediaQuery, useTheme } from "@material-ui/core";
-import { TabContext, TabPanel } from "@material-ui/lab";
-import CustomColorSwitch from "components/CustomColorSwitch";
 import LocationAutocomplete from "components/LocationAutocomplete";
 import PageTitle from "components/PageTitle";
-import TabBar from "components/TabBar";
 import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
-import { COMMUNITIES, SEARCH } from "i18n/namespaces";
-import { LngLat } from "maplibre-gl";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { newEventRoute } from "routes";
-import { getCurrentUser } from "service/user";
 import { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
@@ -30,11 +25,15 @@ const useStyles = makeStyles((theme) => ({
     },
     fontWeight: "bold",
   },
+  column: {
+    display: "flex",
+    flexDirection: "column",
+  },
   row: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: theme.spacing(4),
+    width: "100%",
     [theme.breakpoints.down("sm")]: {
       flexDirection: "column",
     },
@@ -44,9 +43,6 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between",
     width: "100%",
     paddingBottom: theme.spacing(1),
-  },
-  heading: {
-    marginBottom: theme.spacing(2),
   },
   filter: {
     backgroundColor: theme.palette.grey[200],
@@ -63,6 +59,8 @@ const useStyles = makeStyles((theme) => ({
   filterTags: {
     display: "flex",
     alignItems: "center",
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
   },
   selectedFilter: {
     backgroundColor: theme.palette.secondary.main,
@@ -78,9 +76,7 @@ const useStyles = makeStyles((theme) => ({
   },
   locationSearch: {
     marginRight: theme.spacing(2),
-    [theme.breakpoints.down("sm")]: {
-      marginRight: 0,
-    },
+    paddingBottom: theme.spacing(2),
   },
 }));
 
@@ -90,7 +86,7 @@ const EventsPage = () => {
   const { control, errors } = useForm({
     mode: "onChange",
   });
-  const { t } = useTranslation([COMMUNITIES, SEARCH]);
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -98,21 +94,17 @@ const EventsPage = () => {
   const [showCancelled, setShowCancelled] = useState<boolean>(false);
   const [isMyCommunities, setIsMyCommunities] = useState<boolean>(false);
   const [isOnlineOnly, setIsOnlineOnly] = useState<boolean>(false);
-  const [nearMeLocation, setNearMeLocation] = useState<LngLat | undefined>();
   const [locationResult, setLocationResult] = useState<GeocodeResult | "">("");
 
-  const allEventsPageTabLabels: Record<EventsType, string> = {
-    upcoming: t("communities:upcoming"),
-    past: t("communities:past"),
-  };
-
-  const handleToggleClick = (value: EventsType) => {
-    if (value !== null && value !== eventType) {
-      setEventType(value);
+  const handleFilterPastClick = () => {
+    if (eventType === "upcoming") {
+      setEventType("past");
+    } else {
+      setEventType("upcoming");
     }
   };
 
-  const handleShowCancelledClick = () => {
+  const handleFilterShowCancelledClick = () => {
     setShowCancelled(!showCancelled);
   };
 
@@ -121,29 +113,18 @@ const EventsPage = () => {
   };
 
   const handleFilterIsOnlineOnlyClick = () => {
-    setNearMeLocation(undefined);
+    if (isOnlineOnly) {
+      setLocationResult("");
+    }
     setIsOnlineOnly(!isOnlineOnly);
   };
 
-  const handleOnChangeAutocomplete = (event: GeocodeResult) => {
-    if (event) {
+  const handleOnChangeAutocomplete = (newLocationResult: GeocodeResult) => {
+    if (typeof newLocationResult === "object") {
       setIsOnlineOnly(false);
-      setNearMeLocation(undefined);
-      setLocationResult(event);
+      setLocationResult(newLocationResult);
     } else {
       setLocationResult("");
-    }
-  };
-
-  const handleFilterNearMeClick = async () => {
-    const user = await getCurrentUser();
-
-    if (nearMeLocation) {
-      setNearMeLocation(undefined);
-    } else {
-      setIsOnlineOnly(false);
-      setLocationResult("");
-      setNearMeLocation(new LngLat(user.lng, user.lat));
     }
   };
 
@@ -152,19 +133,11 @@ const EventsPage = () => {
       className={classes.locationSearch}
       control={control}
       name="location"
-      defaultValue={locationResult}
-      label={t("search:form.location_field_label")}
+      defaultValue={typeof locationResult === "object" ? locationResult : ""}
+      label={t("global:location_autocomplete.search_location_button")}
       onChange={handleOnChangeAutocomplete}
       fieldError={errors.location?.message}
       fullWidth={isMobile}
-    />
-  );
-
-  const renderCustomColorSwitch = () => (
-    <CustomColorSwitch
-      checked={showCancelled}
-      onClick={handleShowCancelledClick}
-      label={t("communities:show_cancelled_events")}
     />
   );
 
@@ -180,57 +153,52 @@ const EventsPage = () => {
           {t("communities:create_new_event")}
         </Button>
       </div>
-      <TabContext value={eventType}>
-        <div className={classes.row}>
-          <TabBar
-            ariaLabel={t("communities:all_events_page_tabs_a11y_label")}
-            setValue={handleToggleClick}
-            labels={allEventsPageTabLabels}
-          />
-          {!isMobile && renderCustomColorSwitch()}
-        </div>
-        <div className={classes.row}>
-          <Typography className={classes.heading} variant="h2">
-            {t("communities:your_events")}
-          </Typography>
-          {isMobile && renderCustomColorSwitch()}
-        </div>
-        <TabPanel value="upcoming">
-          <MyEventsList eventType={eventType} showCancelled={showCancelled} />
-        </TabPanel>
-        <TabPanel value="past">
-          <MyEventsList eventType={eventType} showCancelled={showCancelled} />
-        </TabPanel>
-      </TabContext>
-      <div className={classes.row}>
-        <Typography className={classes.heading} variant="h2">
-          {t("communities:discover_events_title")}
-        </Typography>
+      <div className={classes.column}>
+        <Typography variant="h2">{t("communities:your_events")}</Typography>
         <div className={classes.filterTags}>
-          {!isMobile && renderLocationAutoComplete()}
           <Typography
             className={
-              isMyCommunities ? classes.selectedFilter : classes.filter
+              eventType === "past" ? classes.selectedFilter : classes.filter
             }
             variant="body2"
-            onClick={handleFilterIsMyCommunitiesClick}
+            onClick={handleFilterPastClick}
           >
-            {t("communities:communities")}
+            {t("communities:past")}
           </Typography>
           <Typography
-            className={nearMeLocation ? classes.selectedFilter : classes.filter}
+            className={showCancelled ? classes.selectedFilter : classes.filter}
             variant="body2"
-            onClick={handleFilterNearMeClick}
+            onClick={handleFilterShowCancelledClick}
           >
-            {t("communities:near_me")}
+            {t("communities:show_cancelled_events")}
           </Typography>
-          <Typography
-            className={isOnlineOnly ? classes.selectedFilter : classes.filter}
-            variant="body2"
-            onClick={handleFilterIsOnlineOnlyClick}
-          >
-            {t("communities:online")}
-          </Typography>
+        </div>
+        <MyEventsList eventType={eventType} showCancelled={showCancelled} />
+      </div>
+      <div className={classes.column}>
+        <Typography variant="h2">
+          {t("communities:discover_events_title")}
+        </Typography>
+        <div className={classes.row}>
+          <div className={classes.filterTags}>
+            <Typography
+              className={
+                isMyCommunities ? classes.selectedFilter : classes.filter
+              }
+              variant="body2"
+              onClick={handleFilterIsMyCommunitiesClick}
+            >
+              {t("communities:communities")}
+            </Typography>
+            <Typography
+              className={isOnlineOnly ? classes.selectedFilter : classes.filter}
+              variant="body2"
+              onClick={handleFilterIsOnlineOnlyClick}
+            >
+              {t("communities:online")}
+            </Typography>
+          </div>
+          {!isMobile && renderLocationAutoComplete()}
         </div>
         {isMobile && renderLocationAutoComplete()}
       </div>
@@ -239,7 +207,6 @@ const EventsPage = () => {
         isVerticalStyle
         isMyCommunities={isMyCommunities}
         isOnlineOnly={isOnlineOnly}
-        nearMeLocation={nearMeLocation}
         searchLocation={locationResult}
         showCancelled={showCancelled}
       />

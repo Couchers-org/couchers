@@ -5,7 +5,6 @@ import {
   StringValue,
   UInt32Value,
 } from "google-protobuf/google/protobuf/wrappers_pb";
-import { LngLat } from "maplibre-gl";
 import { HostingStatus } from "proto/api_pb";
 import {
   EventSearchReq,
@@ -14,6 +13,7 @@ import {
   UserSearchReq,
 } from "proto/search_pb";
 import client from "service/client";
+import { GeocodeResult } from "utils/hooks";
 
 export interface UserSearchFilters {
   query?: string;
@@ -76,23 +76,21 @@ export async function userSearch(
 }
 
 export async function EventSearch({
-  query,
   pageSize,
   pageToken,
   pastEvents,
   isMyCommunities,
   isOnlineOnly,
-  nearMeLocation,
   showCancelled,
+  searchLocation,
 }: {
-  query?: string;
   pageSize: number;
   pageToken: string;
   pastEvents?: boolean;
   isMyCommunities?: boolean;
   isOnlineOnly?: boolean;
-  nearMeLocation?: LngLat | undefined;
   showCancelled?: boolean;
+  searchLocation?: GeocodeResult | "";
 }): Promise<EventSearchRes.AsObject> {
   const req = new EventSearchReq();
   req.setPageSize(pageSize);
@@ -101,25 +99,16 @@ export async function EventSearch({
   if (pastEvents !== undefined) {
     req.setPast(pastEvents);
   }
-  if (query) {
-    req.setOnlyOnline(false);
-    req.hasQuery();
-    const queryValue = new StringValue();
-    queryValue.setValue(query);
-    req.setQuery(queryValue);
+  if (typeof searchLocation !== "string") {
+    const location = new RectArea();
+    location.setLatMin(searchLocation?.bbox[1] || 0);
+    location.setLatMax(searchLocation?.bbox[3] || 0);
+    location.setLngMin(searchLocation?.bbox[0] || 0);
+    location.setLngMax(searchLocation?.bbox[2] || 0);
+    req.setSearchInRectangle(location);
   }
   if (isMyCommunities !== undefined) {
     req.setMyCommunities(isMyCommunities);
-  }
-  if (nearMeLocation) {
-    req.setOnlyOnline(false);
-    req.setQuery(undefined);
-    const location = new RectArea();
-    location.setLatMin(nearMeLocation.lat - 0.1);
-    location.setLatMax(nearMeLocation.lat + 0.1);
-    location.setLngMin(nearMeLocation.lng - 0.1);
-    location.setLngMax(nearMeLocation.lng + 0.1);
-    req.setSearchInRectangle(location);
   }
   if (isOnlineOnly !== undefined) {
     req.setQuery(undefined);

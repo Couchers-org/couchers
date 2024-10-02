@@ -32,7 +32,7 @@ const MyEventsList = ({
   const { data, error, hasNextPage, fetchNextPage, isLoading } =
     useListMyEvents({
       pastEvents: eventType === "past",
-      pageSize: 10,
+      pageSize: 5,
       showCancelled,
     });
 

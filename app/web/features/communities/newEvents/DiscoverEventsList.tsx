@@ -4,7 +4,6 @@ import TextBody from "components/TextBody";
 import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
-import { LngLat } from "maplibre-gl";
 import { useMemo } from "react";
 import { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
@@ -26,7 +25,6 @@ const DiscoverEventsList = ({
   isVerticalStyle = false,
   isMyCommunities,
   isOnlineOnly,
-  nearMeLocation,
   searchLocation,
   showCancelled,
 }: {
@@ -34,7 +32,6 @@ const DiscoverEventsList = ({
   isVerticalStyle?: boolean;
   isMyCommunities: boolean;
   isOnlineOnly: boolean;
-  nearMeLocation?: LngLat | undefined;
   searchLocation: GeocodeResult | "";
   showCancelled?: boolean;
 }) => {
@@ -47,8 +44,7 @@ const DiscoverEventsList = ({
       pageSize: 10,
       isMyCommunities,
       isOnlineOnly,
-      nearMeLocation,
-      query: searchLocation ? searchLocation.name : "",
+      searchLocation,
       showCancelled,
     }
   );

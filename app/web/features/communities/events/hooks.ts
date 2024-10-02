@@ -8,7 +8,6 @@ import {
 } from "features/queryKeys";
 import useUsers from "features/userQueries/useUsers";
 import { RpcError } from "grpc-web";
-import { LngLat } from "maplibre-gl";
 import {
   Event,
   ListAllEventsRes,
@@ -20,6 +19,7 @@ import { EventSearchRes } from "proto/search_pb";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { service } from "service";
 import type { ListAllEventsInput, ListMyEventsInput } from "service/events";
+import { GeocodeResult } from "utils/hooks";
 
 export interface UseEventUsersInput {
   eventId: number;
@@ -148,42 +148,38 @@ export function useListMyEvents({
 }
 
 export function useEventSearch({
-  query,
   pageSize,
   pastEvents,
   isMyCommunities,
   isOnlineOnly,
-  nearMeLocation,
   showCancelled,
+  searchLocation,
 }: {
-  query?: string;
   pageSize: number;
   pastEvents?: boolean;
   isMyCommunities?: boolean;
   isOnlineOnly?: boolean;
-  nearMeLocation?: LngLat | undefined;
   showCancelled?: boolean;
+  searchLocation?: GeocodeResult | "";
 }) {
   return useInfiniteQuery<EventSearchRes.AsObject, RpcError>({
     queryKey: [
       "searchEvents",
-      query,
       isMyCommunities,
       isOnlineOnly,
-      nearMeLocation,
       pastEvents,
       showCancelled,
+      searchLocation,
     ],
     queryFn: ({ pageParam }) =>
       service.search.EventSearch({
-        query,
         pageSize,
         pageToken: pageParam,
         pastEvents,
         isMyCommunities,
         isOnlineOnly,
-        nearMeLocation,
         showCancelled,
+        searchLocation,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
