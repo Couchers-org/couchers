@@ -198,10 +198,13 @@ message EventSearchReq {
 
   uint32 page_size = 10;
   string page_token = 11;
+  uint32 page_number = 18;
 }
 
 message EventSearchRes {
   repeated org.couchers.api.events.Event events = 1;
 
   string next_page_token = 2;
+  uint32 page_number = 3;
+  uint32 total_items = 4;
 }
