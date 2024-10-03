@@ -1880,21 +1880,27 @@ def test_ListMyEvents(db):
 
         res = api.ListMyEvents(events_pb2.ListMyEventsReq(organizing=True))
         assert [event.event_id for event in res.events] == [e2, e3]
-    
+
     with events_session(token1) as api:
         # Test pagination with page_number and verify total_items
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(page_size=2, page_number=1, subscribed=True, attending=True, organizing=True))
+        res = api.ListMyEvents(
+            events_pb2.ListMyEventsReq(page_size=2, page_number=1, subscribed=True, attending=True, organizing=True)
+        )
         assert [event.event_id for event in res.events] == [e1, e2]
         assert res.page_number == 1
         assert res.total_items == 4
 
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(page_size=2, page_number=2, subscribed=True, attending=True, organizing=True))
+        res = api.ListMyEvents(
+            events_pb2.ListMyEventsReq(page_size=2, page_number=2, subscribed=True, attending=True, organizing=True)
+        )
         assert [event.event_id for event in res.events] == [e3, e4]
         assert res.page_number == 2
         assert res.total_items == 4
 
         # Verify no more pages
-        res = api.ListMyEvents(events_pb2.ListMyEventsReq(page_size=2, page_number=3, subscribed=True, attending=True, organizing=True))
+        res = api.ListMyEvents(
+            events_pb2.ListMyEventsReq(page_size=2, page_number=3, subscribed=True, attending=True, organizing=True)
+        )
         assert not res.events
         assert res.page_number == 3
         assert res.total_items == 4

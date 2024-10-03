@@ -365,6 +365,7 @@ def test_event_search_pagination(sample_community, create_event):
         assert [event.title for event in res.events] == ["Event 2", "Event 1"]
         assert res.next_page_token == ""
 
+
 def test_event_search_pagination_with_page_number(sample_community, create_event):
     """Test that EventSearch paginates correctly with page number.
 
@@ -410,6 +411,7 @@ def test_event_search_pagination_with_page_number(sample_community, create_event
         assert not res.events
         assert res.page_number == 4
         assert res.total_items == 5
+
 
 def test_event_search_pagination_with_page_number(sample_community, create_event):
     """Test that EventSearch paginates correctly with page number.
