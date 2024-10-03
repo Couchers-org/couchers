@@ -365,6 +365,51 @@ def test_event_search_pagination(sample_community, create_event):
         assert [event.title for event in res.events] == ["Event 2", "Event 1"]
         assert res.next_page_token == ""
 
+def test_event_search_pagination_with_page_number(sample_community, create_event):
+    """Test that EventSearch paginates correctly with page number.
+
+    Check that
+     - <page_size> events are returned, if available
+     - sort order is applied (default: past=False)
+     - <page_number> is respected
+     - <total_items> is correct
+    """
+    user, token = generate_user()
+
+    anchor_time = now()
+    with events_session(token) as api:
+        for i in range(5):
+            create_event(
+                api,
+                title=f"Event {i + 1}",
+                start_time=Timestamp_from_datetime(anchor_time + timedelta(hours=i + 1)),
+                end_time=Timestamp_from_datetime(anchor_time + timedelta(hours=i + 1, minutes=30)),
+            )
+
+    with search_session(token) as api:
+        res = api.EventSearch(search_pb2.EventSearchReq(page_size=2, page_number=1))
+        assert len(res.events) == 2
+        assert [event.title for event in res.events] == ["Event 1", "Event 2"]
+        assert res.page_number == 1
+        assert res.total_items == 5
+
+        res = api.EventSearch(search_pb2.EventSearchReq(page_size=2, page_number=2))
+        assert len(res.events) == 2
+        assert [event.title for event in res.events] == ["Event 3", "Event 4"]
+        assert res.page_number == 2
+        assert res.total_items == 5
+
+        res = api.EventSearch(search_pb2.EventSearchReq(page_size=2, page_number=3))
+        assert len(res.events) == 1
+        assert [event.title for event in res.events] == ["Event 5"]
+        assert res.page_number == 3
+        assert res.total_items == 5
+
+        # Verify no more pages
+        res = api.EventSearch(search_pb2.EventSearchReq(page_size=2, page_number=4))
+        assert not res.events
+        assert res.page_number == 4
+        assert res.total_items == 5
 
 def test_event_search_online_status(sample_community, create_event):
     """Test that EventSearch respects only_online and only_offline filters and by default returns both."""

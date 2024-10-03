@@ -43,6 +43,7 @@ from proto import events_pb2, events_pb2_grpc, notification_data_pb2
 from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 attendancestate2sql = {
     events_pb2.AttendanceState.ATTENDANCE_STATE_NOT_GOING: None,
@@ -980,8 +981,13 @@ class Events(events_pb2_grpc.EventsServicer):
     def ListMyEvents(self, request, context, session):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # the page token is a unix timestamp of where we left off
-        page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
-
+        page_token = (
+            dt_from_millis(int(request.page_token)) if request.page_token and not request.page_number else now()
+        )
+        # the page number is the page number we are on
+        page_number = request.page_number or 1
+        # Calculate the offset for pagination
+        offset = (page_number - 1) * page_size
         occurrences = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(~EventOccurrence.is_deleted)
         )
@@ -1043,13 +1049,17 @@ class Events(events_pb2_grpc.EventsServicer):
             occurrences = occurrences.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
                 EventOccurrence.start_time.desc()
             )
-
-        occurrences = occurrences.limit(page_size + 1)
+        # Count the total number of items for pagination
+        total_items = session.execute(select(func.count()).select_from(occurrences.subquery())).scalar()
+        # Apply pagination by page number
+        occurrences = occurrences.offset(offset).limit(page_size) if request.page_number else occurrences.limit(page_size + 1)
         occurrences = session.execute(occurrences).scalars().all()
 
         return events_pb2.ListMyEventsRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
             next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
+            page_number=page_number,
+            total_items=total_items,
         )
 
     def ListAllEvents(self, request, context, session):
