@@ -203,12 +203,10 @@ const EventsPage = () => {
         {isMobile && renderLocationAutoComplete()}
       </div>
       <DiscoverEventsList
-        eventType={eventType}
         isVerticalStyle
         isMyCommunities={isMyCommunities}
         isOnlineOnly={isOnlineOnly}
         searchLocation={locationResult}
-        showCancelled={showCancelled}
       />
     </div>
   );

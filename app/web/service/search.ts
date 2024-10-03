@@ -81,7 +81,6 @@ export async function EventSearch({
   pastEvents,
   isMyCommunities,
   isOnlineOnly,
-  showCancelled,
   searchLocation,
 }: {
   pageSize: number;
@@ -89,7 +88,6 @@ export async function EventSearch({
   pastEvents?: boolean;
   isMyCommunities?: boolean;
   isOnlineOnly?: boolean;
-  showCancelled?: boolean;
   searchLocation?: GeocodeResult | "";
 }): Promise<EventSearchRes.AsObject> {
   const req = new EventSearchReq();
@@ -113,9 +111,6 @@ export async function EventSearch({
   if (isOnlineOnly !== undefined) {
     req.setQuery(undefined);
     req.setOnlyOnline(isOnlineOnly);
-  }
-  if (showCancelled !== undefined) {
-    req.setIncludeCancelled(showCancelled);
   }
 
   const res = await client.search.eventSearch(req);

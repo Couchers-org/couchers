@@ -152,14 +152,12 @@ export function useEventSearch({
   pastEvents,
   isMyCommunities,
   isOnlineOnly,
-  showCancelled,
   searchLocation,
 }: {
   pageSize: number;
   pastEvents?: boolean;
   isMyCommunities?: boolean;
   isOnlineOnly?: boolean;
-  showCancelled?: boolean;
   searchLocation?: GeocodeResult | "";
 }) {
   return useInfiniteQuery<EventSearchRes.AsObject, RpcError>({
@@ -168,7 +166,6 @@ export function useEventSearch({
       isMyCommunities,
       isOnlineOnly,
       pastEvents,
-      showCancelled,
       searchLocation,
     ],
     queryFn: ({ pageParam }) =>
@@ -178,7 +175,6 @@ export function useEventSearch({
         pastEvents,
         isMyCommunities,
         isOnlineOnly,
-        showCancelled,
         searchLocation,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,

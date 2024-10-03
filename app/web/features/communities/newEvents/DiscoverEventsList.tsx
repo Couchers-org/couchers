@@ -1,7 +1,6 @@
 import { CircularProgress } from "@material-ui/core";
 import Alert from "components/Alert";
 import TextBody from "components/TextBody";
-import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useMemo } from "react";
@@ -21,31 +20,26 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DiscoverEventsList = ({
-  eventType,
   isVerticalStyle = false,
   isMyCommunities,
   isOnlineOnly,
   searchLocation,
-  showCancelled,
 }: {
-  eventType: EventsType;
   isVerticalStyle?: boolean;
   isMyCommunities: boolean;
   isOnlineOnly: boolean;
   searchLocation: GeocodeResult | "";
-  showCancelled?: boolean;
 }) => {
   const classes = useStyles();
   const { t } = useTranslation([COMMUNITIES]);
 
   const { data, error, hasNextPage, fetchNextPage, isLoading } = useEventSearch(
     {
-      pastEvents: eventType === "past",
+      pastEvents: false,
       pageSize: 10,
       isMyCommunities,
       isOnlineOnly,
       searchLocation,
-      showCancelled,
     }
   );
 
