@@ -43,7 +43,6 @@ from proto import events_pb2, events_pb2_grpc, notification_data_pb2
 from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 attendancestate2sql = {
     events_pb2.AttendanceState.ATTENDANCE_STATE_NOT_GOING: None,
