@@ -81,13 +81,13 @@ export default function MapWrapper({
   map,
   selectedResult,
   locationResult,
-  setLocationResult,
+  wasSearchPerformed,
   isLoading,
   results,
   setSelectedResult,
   setIsFiltersOpen,
-  wasSearchPerformed,
   setWasSearchPerformed,
+  setLocationResult,
 }: mapWrapperProps) {
   const { t } = useTranslation([SEARCH]);
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
