@@ -84,33 +84,33 @@ interface FilterModalFormData
 
 interface FilterDialogProps {
   isOpen: boolean;
-  onClose(): void;
   queryName: string;
-  setQueryName: Dispatch<SetStateAction<string>>;
-  setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   lastActiveFilter: number;
-  setLastActiveFilter: Dispatch<SetStateAction<number>>;
   hostingStatusFilter: number;
-  setHostingStatusFilter: Dispatch<SetStateAction<number>>;
   completeProfileFilter: boolean;
-  setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
   numberOfGuestFilter: number;
-  setNumberOfGuestFilter: Dispatch<SetStateAction<number>>;
+  onClose(): void;
+  setQueryName: (queryName: string) => void;
+  setLocationResult: (locationResult: GeocodeResult) => void;
+  setLastActiveFilter: (lastActive: number) => void;
+  setHostingStatusFilter: (hostingStatus: number) => void;
+  setCompleteProfileFilter: (completeProfileFilter: boolean) => void;
+  setNumberOfGuestFilter: (numberOfGuests: number) => void;
 }
 
 export default function FilterDialog({
   isOpen,
-  onClose,
   queryName,
+  lastActiveFilter,
+  hostingStatusFilter,
+  completeProfileFilter,
+  numberOfGuestFilter,
+  onClose,
   setQueryName,
   setLocationResult,
-  lastActiveFilter,
   setLastActiveFilter,
-  hostingStatusFilter,
   setHostingStatusFilter,
-  completeProfileFilter,
   setCompleteProfileFilter,
-  numberOfGuestFilter,
   setNumberOfGuestFilter,
 }: FilterDialogProps) {
   const { t } = useTranslation([GLOBAL, SEARCH]);

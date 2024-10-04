@@ -64,21 +64,17 @@ const useStyles = makeStyles((theme) => ({
 
 interface mapWrapperProps {
   selectedResult:
-    | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
-    | undefined;
+  | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
+  | undefined;
   isLoading: boolean;
   locationResult: GeocodeResult | undefined;
-  setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   results: InfiniteData<UserSearchRes.AsObject> | undefined;
-  setIsFiltersOpen: Dispatch<SetStateAction<boolean>>;
-  setSelectedResult: Dispatch<
-    SetStateAction<
-      Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
-    >
-  >;
   map: MutableRefObject<MaplibreMap | undefined>;
-  setWasSearchPerformed: Dispatch<SetStateAction<boolean>>;
   wasSearchPerformed: boolean;
+  setLocationResult: (GeocodeResult: GeocodeResult) => void;
+  setIsFiltersOpen: () => void;
+  setSelectedResult: (selectedResult: Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined) => void;
+  setWasSearchPerformed: () => void;
 }
 
 export default function MapWrapper({
@@ -257,7 +253,7 @@ export default function MapWrapper({
           ],
         });
       }
-      setWasSearchPerformed(true);
+      setWasSearchPerformed();
     }
   };
 
@@ -294,7 +290,7 @@ export default function MapWrapper({
           <Button
             color="primary"
             aria-label="tune search"
-            onClick={() => setIsFiltersOpen(true)}
+            onClick={() => setIsFiltersOpen()}
             className={classes.buttonSearchSettings}
             endIcon={<TuneIcon />}
           />

@@ -5,19 +5,17 @@ import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
-import { UserSearchRes } from "proto/search_pb";
 import { useEffect, useRef, useState } from "react";
 import {
   QueryClient,
   QueryClientProvider,
-  useInfiniteQuery,
 } from "react-query";
-import { service } from "service";
 import { GeocodeResult } from "utils/hooks";
 
 import FilterDialog from "./FilterDialog";
 import MapWrapper from "./MapWrapper";
 import SearchResultsList from "./SearchResultsList";
+import { useMapSearch } from "./hooks";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -95,49 +93,7 @@ export default function SearchPage({
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   // Loads the list of users
-  const { data, error, isLoading, isFetching, hasNextPage } = useInfiniteQuery<
-    UserSearchRes.AsObject,
-    Error
-  >(
-    [
-      "userSearch",
-      queryName,
-      locationResult?.name,
-      locationResult?.bbox,
-      lastActiveFilter,
-      hostingStatusFilter,
-      numberOfGuestFilter,
-      completeProfileFilter,
-    ],
-    ({ pageParam }) => {
-      // @ts-ignore @TODO David fixing these in a separate PR
-      const lastActiveComparation = parseInt(lastActiveFilter);
-      // @ts-ignore @TODO David fixing these in a separate PR
-      const hostingStatusFilterComparation = parseInt(hostingStatusFilter);
-
-      return service.search.userSearch(
-        {
-          query: queryName,
-          bbox: locationResult.bbox,
-          lastActive:
-            lastActiveComparation === 0 ? undefined : lastActiveFilter,
-          hostingStatusOptions:
-            hostingStatusFilterComparation === 0
-              ? undefined
-              : [hostingStatusFilter],
-          numGuests:
-            numberOfGuestFilter === 0 ? undefined : numberOfGuestFilter,
-          completeProfile:
-            completeProfileFilter === false ? undefined : completeProfileFilter,
-        },
-        pageParam
-      );
-    },
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-    }
-  );
+  const { data, error, isLoading, isFetching, hasNextPage } = useMapSearch({queryName, locationResult, lastActiveFilter, hostingStatusFilter, numberOfGuestFilter, completeProfileFilter })  
 
   // Relocate map everytime boundingbox changes
   useEffect(() => {
@@ -176,17 +132,17 @@ export default function SearchPage({
         <Hidden smDown>
           <SearchResultsList
             searchType={searchType}
-            setSearchType={setSearchType}
             locationResult={locationResult}
-            setLocationResult={setLocationResult}
             queryName={queryName}
-            setQueryName={setQueryName}
             results={data}
             error={errorMessage}
             hasNext={hasNextPage}
             selectedResult={selectedResult}
-            setSelectedResult={setSelectedResult}
             isLoading={isLoading || isFetching}
+            setSearchType={setSearchType}
+            setLocationResult={setLocationResult}
+            setQueryName={setQueryName}
+            setSelectedResult={(selectedResultParam) => setSelectedResult(selectedResultParam)}
           />
         </Hidden>
         {/* Mobile */}
@@ -198,34 +154,34 @@ export default function SearchPage({
           >
             <SearchResultsList
               searchType={searchType}
-              setSearchType={setSearchType}
               locationResult={locationResult}
-              setLocationResult={setLocationResult}
               queryName={queryName}
-              setQueryName={setQueryName}
               results={data}
               error={errorMessage}
               hasNext={hasNextPage}
               selectedResult={selectedResult}
-              setSelectedResult={setSelectedResult}
               isLoading={isLoading || isFetching}
+              setSearchType={setSearchType}
+              setLocationResult={setLocationResult}
+              setQueryName={setQueryName}
+              setSelectedResult={(selectedResultParam) => setSelectedResult(selectedResultParam)}
             />
           </Collapse>
         </Hidden>
         <FilterDialog
           isOpen={isFiltersOpen}
           queryName={queryName}
-          setQueryName={setQueryName}
-          onClose={() => setIsFiltersOpen(false)}
-          setLocationResult={setLocationResult}
           lastActiveFilter={lastActiveFilter}
-          setLastActiveFilter={setLastActiveFilter}
           hostingStatusFilter={hostingStatusFilter}
-          setHostingStatusFilter={setHostingStatusFilter}
           completeProfileFilter={completeProfileFilter}
-          setCompleteProfileFilter={setCompleteProfileFilter}
           numberOfGuestFilter={numberOfGuestFilter}
-          setNumberOfGuestFilter={setNumberOfGuestFilter}
+          setQueryName={(queryNameParam) => setQueryName(queryNameParam)}
+          onClose={() => setIsFiltersOpen(false)}
+          setLocationResult={(locationResultParam) => setLocationResult(locationResultParam)}
+          setLastActiveFilter={(lastActiveParam) => setLastActiveFilter(lastActiveParam)}
+          setHostingStatusFilter={(hostingStatusParam) => setHostingStatusFilter(hostingStatusParam)}
+          setCompleteProfileFilter={(completeProfilesParam) => setCompleteProfileFilter(completeProfilesParam)}
+          setNumberOfGuestFilter={(numberOfGuestsParam) => setNumberOfGuestFilter(numberOfGuestsParam)}
         />
         <div className={classes.mapContainer}>
           <MapWrapper
@@ -233,12 +189,12 @@ export default function SearchPage({
             results={data}
             selectedResult={selectedResult}
             locationResult={locationResult}
-            setIsFiltersOpen={setIsFiltersOpen}
-            setLocationResult={setLocationResult}
-            setSelectedResult={setSelectedResult}
             isLoading={isLoading || isFetching}
-            setWasSearchPerformed={setWasSearchPerformed}
             wasSearchPerformed={wasSearchPerformed}
+            setIsFiltersOpen={() => setIsFiltersOpen(true)}
+            setLocationResult={(locationResultParam) => setLocationResult(locationResultParam)}
+            setSelectedResult={(selectedResultParam) => setSelectedResult(selectedResultParam)}
+            setWasSearchPerformed={() => setWasSearchPerformed(true)}
           />
         </div>
       </div>

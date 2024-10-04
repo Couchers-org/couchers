@@ -84,19 +84,15 @@ interface mapWrapperProps {
   error?: string | undefined;
   hasNext?: boolean | undefined;
   selectedResult:
-    | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
-    | undefined;
-  setSelectedResult: Dispatch<
-    SetStateAction<
-      Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
-    >
-  >;
+  | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
+  | undefined;
+  queryName: string;
   searchType: "location" | "keyword";
-  setSearchType: Dispatch<SetStateAction<"location" | "keyword">>;
   locationResult: GeocodeResult;
+  setSearchType: Dispatch<SetStateAction<"location" | "keyword">>;
+  setSelectedResult: (selectedResult: Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined) => void
   setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   setQueryName: Dispatch<SetStateAction<string>>;
-  queryName: string;
 }
 
 export default function SearchResultsList({
@@ -105,13 +101,13 @@ export default function SearchResultsList({
   error,
   hasNext,
   selectedResult,
-  setSelectedResult,
+  queryName,
   searchType,
-  setSearchType,
   locationResult,
+  setSearchType,
+  setSelectedResult,
   setLocationResult,
   setQueryName,
-  queryName,
 }: mapWrapperProps) {
   const selectedUserData = useUser(selectedResult?.userId);
   const { t } = useTranslation(SEARCH);
@@ -139,11 +135,11 @@ export default function SearchResultsList({
       <Hidden smDown>
         <SearchBox
           searchType={searchType}
-          setSearchType={setSearchType}
           locationResult={locationResult}
+          queryName={queryName}
+          setSearchType={setSearchType}
           setLocationResult={setLocationResult}
           setQueryName={setQueryName}
-          queryName={queryName}
         />
       </Hidden>
 
