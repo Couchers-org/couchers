@@ -84,13 +84,17 @@ interface mapWrapperProps {
   error?: string | undefined;
   hasNext?: boolean | undefined;
   selectedResult:
-  | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
-  | undefined;
+    | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
+    | undefined;
   queryName: string;
   searchType: "location" | "keyword";
   locationResult: GeocodeResult;
   setSearchType: Dispatch<SetStateAction<"location" | "keyword">>;
-  setSelectedResult: (selectedResult: Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined) => void
+  setSelectedResult: (
+    selectedResult:
+      | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
+      | undefined
+  ) => void;
   setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   setQueryName: Dispatch<SetStateAction<string>>;
 }

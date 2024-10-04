@@ -1,23 +1,26 @@
 import { UserSearchRes } from "proto/search_pb";
-import { service } from "service";
 import { useInfiniteQuery } from "react-query";
+import { service } from "service";
 import { GeocodeResult } from "utils/hooks";
 
 type useMapSearchProps = {
-  queryName: string,
-  locationResult: GeocodeResult,
-  lastActiveFilter: number,
-  hostingStatusFilter: number,
-  numberOfGuestFilter: number,
-  completeProfileFilter: boolean,
-}
+  queryName: string;
+  locationResult: GeocodeResult;
+  lastActiveFilter: number;
+  hostingStatusFilter: number;
+  numberOfGuestFilter: number;
+  completeProfileFilter: boolean;
+};
 
-export function useMapSearch({queryName, locationResult, lastActiveFilter, hostingStatusFilter, numberOfGuestFilter, completeProfileFilter}: useMapSearchProps) {
-
-  return useInfiniteQuery<
-    UserSearchRes.AsObject,
-    Error
-  >(
+export function useMapSearch({
+  queryName,
+  locationResult,
+  lastActiveFilter,
+  hostingStatusFilter,
+  numberOfGuestFilter,
+  completeProfileFilter,
+}: useMapSearchProps) {
+  return useInfiniteQuery<UserSearchRes.AsObject, Error>(
     [
       "userSearch",
       queryName,
@@ -56,5 +59,5 @@ export function useMapSearch({queryName, locationResult, lastActiveFilter, hosti
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
     }
-  )
+  );
 }

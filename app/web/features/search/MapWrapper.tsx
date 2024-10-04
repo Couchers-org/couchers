@@ -14,14 +14,7 @@ import { SEARCH } from "i18n/namespaces";
 import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
-import {
-  Dispatch,
-  MutableRefObject,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { MutableRefObject, useCallback, useEffect, useState } from "react";
 import { InfiniteData } from "react-query";
 import { GeocodeResult, usePrevious } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
@@ -64,8 +57,8 @@ const useStyles = makeStyles((theme) => ({
 
 interface mapWrapperProps {
   selectedResult:
-  | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
-  | undefined;
+    | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
+    | undefined;
   isLoading: boolean;
   locationResult: GeocodeResult | undefined;
   results: InfiniteData<UserSearchRes.AsObject> | undefined;
@@ -73,7 +66,11 @@ interface mapWrapperProps {
   wasSearchPerformed: boolean;
   setLocationResult: (GeocodeResult: GeocodeResult) => void;
   setIsFiltersOpen: () => void;
-  setSelectedResult: (selectedResult: Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined) => void;
+  setSelectedResult: (
+    selectedResult:
+      | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
+      | undefined
+  ) => void;
   setWasSearchPerformed: () => void;
 }
 

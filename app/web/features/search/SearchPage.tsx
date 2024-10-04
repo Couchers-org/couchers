@@ -6,16 +6,13 @@ import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { useEffect, useRef, useState } from "react";
-import {
-  QueryClient,
-  QueryClientProvider,
-} from "react-query";
+import { QueryClient, QueryClientProvider } from "react-query";
 import { GeocodeResult } from "utils/hooks";
 
 import FilterDialog from "./FilterDialog";
+import { useMapSearch } from "./hooks";
 import MapWrapper from "./MapWrapper";
 import SearchResultsList from "./SearchResultsList";
-import { useMapSearch } from "./hooks";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -93,7 +90,14 @@ export default function SearchPage({
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   // Loads the list of users
-  const { data, error, isLoading, isFetching, hasNextPage } = useMapSearch({queryName, locationResult, lastActiveFilter, hostingStatusFilter, numberOfGuestFilter, completeProfileFilter })  
+  const { data, error, isLoading, isFetching, hasNextPage } = useMapSearch({
+    queryName,
+    locationResult,
+    lastActiveFilter,
+    hostingStatusFilter,
+    numberOfGuestFilter,
+    completeProfileFilter,
+  });
 
   // Relocate map everytime boundingbox changes
   useEffect(() => {
@@ -142,7 +146,9 @@ export default function SearchPage({
             setSearchType={setSearchType}
             setLocationResult={setLocationResult}
             setQueryName={setQueryName}
-            setSelectedResult={(selectedResultParam) => setSelectedResult(selectedResultParam)}
+            setSelectedResult={(selectedResultParam) =>
+              setSelectedResult(selectedResultParam)
+            }
           />
         </Hidden>
         {/* Mobile */}
@@ -164,7 +170,9 @@ export default function SearchPage({
               setSearchType={setSearchType}
               setLocationResult={setLocationResult}
               setQueryName={setQueryName}
-              setSelectedResult={(selectedResultParam) => setSelectedResult(selectedResultParam)}
+              setSelectedResult={(selectedResultParam) =>
+                setSelectedResult(selectedResultParam)
+              }
             />
           </Collapse>
         </Hidden>
@@ -177,11 +185,21 @@ export default function SearchPage({
           numberOfGuestFilter={numberOfGuestFilter}
           setQueryName={(queryNameParam) => setQueryName(queryNameParam)}
           onClose={() => setIsFiltersOpen(false)}
-          setLocationResult={(locationResultParam) => setLocationResult(locationResultParam)}
-          setLastActiveFilter={(lastActiveParam) => setLastActiveFilter(lastActiveParam)}
-          setHostingStatusFilter={(hostingStatusParam) => setHostingStatusFilter(hostingStatusParam)}
-          setCompleteProfileFilter={(completeProfilesParam) => setCompleteProfileFilter(completeProfilesParam)}
-          setNumberOfGuestFilter={(numberOfGuestsParam) => setNumberOfGuestFilter(numberOfGuestsParam)}
+          setLocationResult={(locationResultParam) =>
+            setLocationResult(locationResultParam)
+          }
+          setLastActiveFilter={(lastActiveParam) =>
+            setLastActiveFilter(lastActiveParam)
+          }
+          setHostingStatusFilter={(hostingStatusParam) =>
+            setHostingStatusFilter(hostingStatusParam)
+          }
+          setCompleteProfileFilter={(completeProfilesParam) =>
+            setCompleteProfileFilter(completeProfilesParam)
+          }
+          setNumberOfGuestFilter={(numberOfGuestsParam) =>
+            setNumberOfGuestFilter(numberOfGuestsParam)
+          }
         />
         <div className={classes.mapContainer}>
           <MapWrapper
@@ -192,8 +210,12 @@ export default function SearchPage({
             isLoading={isLoading || isFetching}
             wasSearchPerformed={wasSearchPerformed}
             setIsFiltersOpen={() => setIsFiltersOpen(true)}
-            setLocationResult={(locationResultParam) => setLocationResult(locationResultParam)}
-            setSelectedResult={(selectedResultParam) => setSelectedResult(selectedResultParam)}
+            setLocationResult={(locationResultParam) =>
+              setLocationResult(locationResultParam)
+            }
+            setSelectedResult={(selectedResultParam) =>
+              setSelectedResult(selectedResultParam)
+            }
             setWasSearchPerformed={() => setWasSearchPerformed(true)}
           />
         </div>
