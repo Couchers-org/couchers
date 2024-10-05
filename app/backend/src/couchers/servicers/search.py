@@ -673,6 +673,6 @@ class Search(search_pb2_grpc.SearchServicer):
         return search_pb2.EventSearchRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
             next_page_token=(str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None),
-            page_number=page_number,
-            total_items=total_items,
+            page_number=page_number if request.page_number else None,
+            total_items=total_items if request.page_number else None,
         )
