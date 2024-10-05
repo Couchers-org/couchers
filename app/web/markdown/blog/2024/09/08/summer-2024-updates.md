@@ -42,9 +42,9 @@ This summer, we've launched a bunch of exciting feature updates:
 
 There are also a few less visible or less exciting updates:
 
-* **We removed all password optinality in the backend**: there were some relics of the old password-optional regime that have been removed, and we also simplified the login form to show the username and password inputs straight away.
+* **We removed all password optionality in the backend**: there were some relics of the old password-optional regime that have been removed, and we also simplified the login form to show the username and password inputs straight away.
 * **A variety of behind-the-scenes upgrades**: we've also done a lot of work that's not very visible. There was a really gnarly bug that was causing havoc for a week or so but that we managed to squash last Sunday. We've also created a bunch of reliability-related monitoring and observability infrastructure that has helped us speed up some parts of the platform that, you might notice it's a bit more snappy now (but there's more to come)! We made some upgrades to the infrastructure that helps us run the project. Finally we also built some new admin tooling that helps mods keep the platform safe, fun, and friendly with much less effort!
-* **New support infrastrucutre**: we switched out our support platform from a very old and flaky open source platform to a much more modern open source platform called Chatwoot! We also switched from using a commercial mailing list provider to a self-hosted, open source platform that will save us a bunch of money.
+* **New support infrastructure**: we switched out our support platform from a very old and flaky open source platform to a much more modern open source platform called Chatwoot! We also switched from using a commercial mailing list provider to a self-hosted, open source platform that will save us a bunch of money.
 * **You now "decline" requests** instead of "rejecting" them, because this sounds friendlier and Couchers is a friendly place :).
 
 
