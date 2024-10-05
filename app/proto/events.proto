@@ -280,15 +280,14 @@ message ListMyEventsReq {
 
   uint32 page_size = 5;
   string page_token = 6;
-  optional uint32 page_number = 9;
+  uint32 page_number = 9;
 }
 
 message ListMyEventsRes {
   repeated Event events = 1;
 
   string next_page_token = 2;
-  optional uint32 page_number = 3;
-  optional uint32 total_items = 4;
+  uint32 total_items = 4;
 }
 
 message ListAllEventsReq {
