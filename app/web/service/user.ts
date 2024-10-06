@@ -104,7 +104,7 @@ export async function getUser(user: string): Promise<User.AsObject> {
 }
 
 /**
- * Returns User record by Username or id
+ * Returns LiteUser record by Username or id
  *
  * @param {string} user
  * @returns {Promise<LiteUserUser.AsObject>}
