@@ -1,6 +1,5 @@
 import TextField from "@mui/material/TextField";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
 import { Control, Controller, UseControllerOptions } from "react-hook-form";
 import dayjs, { Dayjs } from "utils/dayjs";
@@ -44,48 +43,46 @@ export default function Datepicker({
 }: DatepickerProps) {
   const { t } = useTranslation();
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Controller
-        control={control}
-        defaultValue={defaultValue}
-        name={name}
-        rules={rules}
-        render={({ value, onChange }) => (
-          <DatePicker
-            className={className}
-            data-testid={testId}
-            label={label}
-            value={value}
-            minDate={minDate}
-            onChange={(date) => {
-              if (date?.isValid()) {
-                onChange(date);
-                onPostChange?.(date);
-              }
-            }}
-            views={["year", "month", "day"]}
-            inputFormat={getLocaleFormat()}
-            renderInput={(props) => (
-              <TextField
-                {...props}
-                fullWidth
-                id={id}
-                error={error}
-                helperText={helperText}
-                data-testid={testId}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                InputProps={{
-                  ...props.InputProps,
-                  "aria-label": t("components.datepicker.change_date"),
-                }}
-                variant="standard"
-              />
-            )}
-          />
-        )}
-      />
-    </LocalizationProvider>
+    <Controller
+      control={control}
+      defaultValue={defaultValue}
+      name={name}
+      rules={rules}
+      render={({ value, onChange }) => (
+        <DatePicker
+          className={className}
+          data-testid={testId}
+          label={label}
+          value={value}
+          minDate={minDate}
+          onChange={(date) => {
+            if (date?.isValid()) {
+              onChange(date);
+              onPostChange?.(date);
+            }
+          }}
+          views={["year", "month", "day"]}
+          inputFormat={getLocaleFormat()}
+          renderInput={(props) => (
+            <TextField
+              {...props}
+              fullWidth
+              id={id}
+              error={error}
+              helperText={helperText}
+              data-testid={testId}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              InputProps={{
+                ...props.InputProps,
+                "aria-label": t("components.datepicker.change_date"),
+              }}
+              variant="standard"
+            />
+          )}
+        />
+      )}
+    />
   );
 }
