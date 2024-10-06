@@ -408,6 +408,7 @@ def test_event_search_pagination_with_page_number(sample_community, create_event
         assert not res.events
         assert res.total_items == 5
 
+
 def test_event_search_online_status(sample_community, create_event):
     """Test that EventSearch respects only_online and only_offline filters and by default returns both."""
     user, token = generate_user()
