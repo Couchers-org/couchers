@@ -15,6 +15,10 @@ export function userKey(userId?: number) {
   return userId === undefined ? "user" : ["user", userId];
 }
 
+export function liteUserKey(userId?: number) {
+  return userId === undefined ? "liteUser" : ["liteUser", userId];
+}
+
 export function responseRateKey(userId: number) {
   return ["responseRate", userId];
 }

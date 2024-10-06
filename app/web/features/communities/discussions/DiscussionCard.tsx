@@ -2,7 +2,7 @@ import { Card, CardContent, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
-import { useUser } from "features/userQueries/useUsers";
+import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
@@ -62,7 +62,7 @@ export default function DiscussionCard({
 }) {
   const { t } = useTranslation([COMMUNITIES]);
   const classes = useStyles();
-  const { data: creator } = useUser(discussion.creatorUserId);
+  const { data: creator } = useLiteUser(discussion.creatorUserId);
 
   const date = discussion.created
     ? timestamp2Date(discussion.created)

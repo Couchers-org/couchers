@@ -18,7 +18,7 @@ import {
   messageTargetId,
 } from "features/messages/utils";
 import useCurrentUser from "features/userQueries/useCurrentUser";
-import { useUser } from "features/userQueries/useUsers";
+import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { HostRequest } from "proto/requests_pb";
@@ -52,7 +52,7 @@ export default function HostRequestListItem({
   const { authState } = useAuthContext();
   const isHost = authState.userId === hostRequest.hostUserId;
   const { data: currentUser } = useCurrentUser();
-  const { data: otherUser, isLoading: isOtherUserLoading } = useUser(
+  const { data: otherUser, isLoading: isOtherUserLoading } = useLiteUser(
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId
   );
   const isUnread =

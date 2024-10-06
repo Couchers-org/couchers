@@ -4,7 +4,7 @@ import classNames from "classnames";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
-import { User } from "proto/api_pb";
+import { LiteUser } from "proto/api_pb";
 import { routeToUser } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -58,7 +58,7 @@ export interface UserSummaryProps {
   smallAvatar?: boolean;
   nameOnly?: boolean;
   headlineComponent?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-  user?: User.AsObject;
+  user?: LiteUser.AsObject;
   titleIsLink?: boolean;
 }
 
