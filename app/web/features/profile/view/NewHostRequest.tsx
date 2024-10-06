@@ -13,6 +13,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
+import dayjs from "dayjs";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useUser } from "features/userQueries/useUsers";
 import { RpcError } from "grpc-web";
@@ -195,11 +196,7 @@ export default function NewHostRequest({
               }
               id="to-date"
               label={t("profile:request_form.departure_date")}
-              minDate={
-                watchFromDate
-                  ? watchFromDate.add(1, "day").toDate()
-                  : new Date()
-              }
+              minDate={watchFromDate ? watchFromDate.add(1, "day") : dayjs()}
               name="toDate"
               defaultValue={null}
               rules={{
