@@ -24,6 +24,7 @@ interface DatepickerProps {
   name: string;
   minDate?: Dayjs;
   onPostChange?(date: Dayjs): void;
+  openTo?: "year" | "month" | "day";
   testId?: string;
 }
 
@@ -39,6 +40,7 @@ export default function Datepicker({
   minDate = dayjs(),
   name,
   onPostChange,
+  openTo = "day",
   testId,
 }: DatepickerProps) {
   const { t } = useTranslation();
@@ -61,6 +63,7 @@ export default function Datepicker({
               onPostChange?.(date);
             }
           }}
+          openTo={openTo}
           views={["year", "month", "day"]}
           inputFormat={getLocaleFormat()}
           renderInput={(props) => (
