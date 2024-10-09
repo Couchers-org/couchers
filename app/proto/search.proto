@@ -101,6 +101,18 @@ message SearchRes {
   string next_page_token = 2;
 }
 
+enum LanguageFluency {
+    BEGINNER = 1;
+    CONVERSATIONAL = 2;
+    FLUENT = 3;
+}
+
+message LanguageAbility {
+    int64 user_id = 1;          // Corresponds to the user ID (optional, may not be needed for search)
+    string language_code = 2;   // ISO code for the language (e.g., "dan" for Danish)
+    LanguageFluency fluency = 3; // The language fluency level
+}
+
 message UserSearchReq {
   google.protobuf.StringValue query = 3;
   // whether the query (if any) should only search through username and display name
@@ -123,11 +135,12 @@ message UserSearchReq {
   repeated org.couchers.api.core.SleepingArrangement sleeping_arrangement_filter = 7;
   repeated org.couchers.api.core.ParkingDetails parking_details_filter = 8;
   repeated org.couchers.api.core.MeetupStatus meetup_status_filter = 32;
+  repeated org.couchers.api.core.LanguageAbility language_ability_filter = 11;
+
 
 
   repeated string gender = 9;
   google.protobuf.UInt32Value guests = 10;
-  // google.protobuf.StringValue language = 11;
   bool only_with_references = 12;
 
   // bool friends_only = 13;

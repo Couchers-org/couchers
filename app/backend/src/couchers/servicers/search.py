@@ -465,9 +465,9 @@ class Search(search_pb2_grpc.SearchServicer):
                 max_age = 200
             statement = statement.where(User.age <= max_age)
             
-            if len(request.languages_filter) > 0:
-                statement = statement.where(
-                    User.language_abilities.any(LanguageAbility.fluency.in_(fluency_filter_values)))
+        if len(request.languages_filter) > 0:
+            statement = statement.where(
+                User.language_abilities.any(LanguageAbility.fluency.in_(fluency_filter_values)))
         if request.HasField("profile_completed"):
             statement = statement.where(User.has_completed_profile == request.profile_completed.value)
         if request.HasField("guests"):

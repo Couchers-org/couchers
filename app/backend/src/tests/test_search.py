@@ -4,7 +4,7 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers.db import session_scope
-from couchers.models import EventOccurrence, MeetupStatus
+from couchers.models import EventOccurrence, MeetupStatus, LanguageAbility, LanguageFluency, Language
 from couchers.utils import Timestamp_from_datetime, create_coordinate, millis_from_dt, now
 from proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from tests.test_communities import create_community, testing_communities  # noqa
@@ -15,6 +15,8 @@ from tests.test_fixtures import (  # noqa
     generate_user,
     search_session,
     testconfig,
+    session_scope,
+    
 )
 
 
@@ -156,6 +158,49 @@ def test_user_filter_meetup_status(db):
             search_pb2.UserSearchReq(meetup_status_filter=[api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP])
         )
         assert [result.user.user_id for result in res.results] == [user_does_not_want_to_meet.id]
+
+def test_user_filter_language(db):
+    """
+    Make sure the language filter returns the rigth profiles
+    """
+    
+    user_with_finish_fluent_2, token11 = generate_user()
+    user_with_french_conversational, token12 = generate_user()
+    
+
+    
+    with session_scope() as session:
+        existing_language = session.query(Language).filter_by(code="dan").one_or_none()
+
+        if not existing_language:
+            # Insert the language record if it doesn't exist
+            session.add(Language(code="dan", name="Danish"))
+
+        # Repeat the process for 'ces' or any other language codes you're using
+        existing_language = session.query(Language).filter_by(code="ces").one_or_none()
+
+        if not existing_language:
+            session.add(Language(code="ces", name="Czech"))
+        session.add(LanguageAbility(user_id=user_with_finish_fluent_2.id, language_code="dan", fluency=LanguageFluency.fluent))
+        session.add(LanguageAbility(user_id=user_with_french_conversational.id, language_code="ces", fluency=LanguageFluency.conversational))
+
+    with search_session(token11) as api:
+        # result1 = api.UserSearch(search_pb2.UserSearchReq(LanguageAbility(language_code="dan")))
+        # result2 = api.UserSearch(search_pb2.UserSearchReq(LanguageAbility(language_code="ces")))
+        search_request = search_pb2.UserSearchReq(
+            language_ability_filter=[
+                LanguageAbility(language_code="dan", fluency=LanguageFluency.fluent)
+            ]
+        )
+
+        # Perform the search
+        result1 = api.UserSearch(search_request)
+        
+        # start with this
+        assert [ result.user.user_id for result in result1.results] == [user_with_finish_fluent.id]
+        assert [ result.user.user_id for result in result2.results] == [user_with_french_conversational.id]
+
+
 
 
 @pytest.fixture
