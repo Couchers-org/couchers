@@ -19,7 +19,7 @@ export default function Login() {
   return (
     <BasicScreen>
       <ThemedView style={styles.backButtonContainer}>
-        <Pressable style={styles.backButton} onPress={() => router.push("/")}>
+        <Pressable style={styles.backButton} onPress={() => router.push("/landing")}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </Pressable>
       </ThemedView>

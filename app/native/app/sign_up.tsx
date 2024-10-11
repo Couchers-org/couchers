@@ -118,7 +118,7 @@ export default function SignUp() {
           onPress={() => {
             authActions.clearFlowState();
             authActions.clearError();
-            router.push("/");
+            router.push("/landing");
           }}
         >
           <Ionicons name="arrow-back" size={24} color="black" />

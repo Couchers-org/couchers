@@ -25,7 +25,7 @@ export default function Logout() {
       <ThemedView style={styles.stepContainer}>
         {authState.error && <Alert>{authState.error}</Alert>}
         <Button title="Log out" onPress={authActions.logout} />
-        <Link href="/" asChild>
+        <Link href="/landing" asChild>
           <Pressable>
             <ThemedText type="button">To start</ThemedText>
           </Pressable>

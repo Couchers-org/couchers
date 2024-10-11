@@ -7,7 +7,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { router } from "expo-router";
 import Button from "@/components/Button";
 
-export default function Login() {
+export default function Landing() {
   const { t } = useTranslation([AUTH, GLOBAL]);
 
   return (
