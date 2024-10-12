@@ -545,6 +545,8 @@ class Search(search_pb2_grpc.SearchServicer):
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(~EventOccurrence.is_deleted)
         )
 
+        pagination_type = request.WhichOneof("pagination")
+
         if request.HasField("query"):
             if request.query_title_only:
                 statement = statement.where(Event.title.ilike(f"%{request.query.value}%"))
@@ -648,13 +650,19 @@ class Search(search_pb2_grpc.SearchServicer):
             statement = statement.where(EventOccurrence.end_time < to_aware_datetime(request.before))
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        # the page token is a unix timestamp of where we left off
-        page_token = (
-            dt_from_millis(int(request.page_token)) if request.page_token and not request.page_number else now()
-        )
-        page_number = request.page_number or 1
-        # Calculate the offset for pagination
-        offset = (page_number - 1) * page_size
+
+        if pagination_type == "page_token":
+            # the page token is a unix timestamp of where we left off
+            page_token = dt_from_millis(int(request.page_token))
+            page_number = 1
+        elif pagination_type == "page_number":
+            page_token = now()
+            page_number = request.page_number
+            # Calculate the offset for pagination
+            offset = (page_number - 1) * page_size
+        else:
+            page_token = now()
+            page_number = 1
 
         if not request.past:
             statement = statement.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(

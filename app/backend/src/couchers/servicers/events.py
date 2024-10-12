@@ -978,15 +978,24 @@ class Events(events_pb2_grpc.EventsServicer):
         return event_to_pb(session, occurrence, context)
 
     def ListMyEvents(self, request, context, session):
+        # Check which field in the 'pagination' oneof is set
+        pagination_type = request.WhichOneof("pagination")
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        # the page token is a unix timestamp of where we left off
-        page_token = (
-            dt_from_millis(int(request.page_token)) if request.page_token and not request.page_number else now()
-        )
-        # the page number is the page number we are on
-        page_number = request.page_number or 1
-        # Calculate the offset for pagination
-        offset = (page_number - 1) * page_size
+
+        if pagination_type == "page_token":
+            # the page token is a unix timestamp of where we left off
+            page_token = dt_from_millis(int(request.page_token))
+            page_number = 1
+        elif pagination_type == "page_number":
+            page_token = now()
+            # the page number is the page number we are on
+            page_number = request.page_number or 1
+            # Calculate the offset for pagination
+            offset = (page_number - 1) * page_size
+        else:
+            page_token = now()
+            page_number = 1
+
         occurrences = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(~EventOccurrence.is_deleted)
         )
@@ -1050,10 +1059,14 @@ class Events(events_pb2_grpc.EventsServicer):
             )
         # Count the total number of items for pagination
         total_items = session.execute(select(func.count()).select_from(occurrences.subquery())).scalar()
-        # Apply pagination by page number
-        occurrences = (
-            occurrences.offset(offset).limit(page_size) if request.page_number else occurrences.limit(page_size + 1)
-        )
+
+        if pagination_type == "page_number":
+            # Handle pagination using page_number
+            occurrences = occurrences.offset(offset).limit(page_size)
+        else:
+            # Handle pagination using page_token or if none is set
+            occurrences = occurrences.limit(page_size + 1)
+
         occurrences = session.execute(occurrences).scalars().all()
 
         return events_pb2.ListMyEventsRes(
