@@ -7,6 +7,7 @@ import TextField from "components/TextField";
 import maplibregl, {
   GeoJSONSource,
   LngLat,
+  MapGeoJSONFeature,
   MapMouseEvent,
   MapTouchEvent,
 } from "maplibre-gl";
@@ -254,7 +255,7 @@ export default function EditLocationMap({
       }
     });
 
-    const onDblClick = (e: MapMouseEvent & maplibregl.EventData) => {
+    const onDblClick = (e: MapMouseEvent) => {
       e.preventDefault();
       handleCoordinateMoved(e);
     };
@@ -262,8 +263,8 @@ export default function EditLocationMap({
 
     const onCircleTouch = (
       e: MapTouchEvent & {
-        features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
-      } & maplibregl.EventData
+        features?: MapGeoJSONFeature[] | undefined;
+      }
     ) => {
       if (e.points.length !== 1) return;
       onCircleMouseDown(e);

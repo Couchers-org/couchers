@@ -1,10 +1,13 @@
 import { MapClickedCallback } from "features/search/constants";
 import { Point } from "geojson";
-import maplibregl, {
-  AnyLayer,
-  AnySourceData,
+import {
   GeoJSONSource,
+  GetResourceResponse,
+  LayerSpecification,
   Map as MaplibreMap,
+  MapGeoJSONFeature,
+  MapMouseEvent,
+  SourceSpecification,
 } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
@@ -16,7 +19,7 @@ import userPin from "./resources/userPin.png";
 const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 type SourceKeys = "clustered-users";
-export const sources: Record<SourceKeys, AnySourceData> = {
+export const sources: Record<SourceKeys, SourceSpecification> = {
   "clustered-users": {
     cluster: true,
     clusterMaxZoom: 14,
@@ -28,7 +31,7 @@ export const sources: Record<SourceKeys, AnySourceData> = {
 };
 
 type LayerKeys = "clusterCountLayer" | "clusterLayer" | "unclusteredPointLayer";
-export const layers: Record<LayerKeys, AnyLayer> = {
+export const layers: Record<LayerKeys, LayerSpecification> = {
   clusterCountLayer: {
     filter: ["has", "point_count"],
     id: "clusters-count",
@@ -102,34 +105,35 @@ export const layers: Record<LayerKeys, AnyLayer> = {
 const addPinImages = (map: MaplibreMap) => {
   if (map.hasImage("user-pin")) return;
 
-  map.loadImage(userPin.src, (error: Error, image: HTMLImageElement) => {
-    if (error) {
+  map.loadImage(userPin.src).then(
+    (image: GetResourceResponse<HTMLImageElement | ImageBitmap>) => {
+      //this is twice because of loading race condition
+      if (map.hasImage("user-pin")) return;
+      map.addImage("user-pin", image.data, { sdf: true });
+    },
+    (error: Error) => {
       throw error;
     }
-    //this is twice because of loading race condition
-    if (map.hasImage("user-pin")) return;
-    map.addImage("user-pin", image, { sdf: true });
-  });
+  );
 };
 
 const zoomCluster = (
-  ev: maplibregl.MapMouseEvent & {
-    features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
-  } & maplibregl.EventData
+  ev: MapMouseEvent & {
+    features?: MapGeoJSONFeature[] | undefined;
+  }
 ) => {
   const map = ev.target;
   const cluster = ev.features?.[0];
   if (!cluster || !cluster.properties?.cluster_id) return;
 
-  (map.getSource("clustered-users") as GeoJSONSource).getClusterExpansionZoom(
-    cluster.properties.cluster_id,
-    (_error, zoom) => {
+  (map.getSource("clustered-users") as GeoJSONSource)
+    .getClusterExpansionZoom(cluster.properties.cluster_id)
+    .then((zoom) => {
       map.flyTo({
         center: (cluster.geometry as Point).coordinates as [number, number],
         zoom,
       });
-    }
-  );
+    });
 };
 
 /**
