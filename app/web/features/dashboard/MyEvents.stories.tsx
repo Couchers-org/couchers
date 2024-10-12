@@ -51,6 +51,7 @@ function setMocks({
       ? {
           eventsList: pagesOfEvent === "none" ? [] : events,
           nextPageToken: pagesOfEvent === "multiple-pages" ? "3" : "",
+          totalItems: events.length,
         }
       : Promise.reject(new Error("Error listing user's events"));
   };
