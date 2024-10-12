@@ -279,13 +279,18 @@ message ListMyEventsReq {
   bool include_cancelled = 8;
 
   uint32 page_size = 5;
-  string page_token = 6;
+
+  oneof pagination {
+    string page_token = 6;
+    uint32 page_number = 9;
+  }
 }
 
 message ListMyEventsRes {
   repeated Event events = 1;
 
   string next_page_token = 2;
+  uint32 total_items = 4;
 }
 
 message ListAllEventsReq {
