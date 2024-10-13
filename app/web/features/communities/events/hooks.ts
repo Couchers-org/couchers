@@ -131,52 +131,59 @@ export function useListAllEvents({
 
 export function useListMyEvents({
   pastEvents,
+  pageNumber,
   pageSize,
   showCancelled,
 }: Omit<ListMyEventsInput, "pageToken">) {
-  return useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
-    queryKey: [myEventsKey(pastEvents ? "past" : "upcoming"), showCancelled],
+  return useQuery<ListMyEventsRes.AsObject, RpcError>({
+    queryKey: [
+      myEventsKey(pastEvents ? "past" : "upcoming"),
+      pageNumber,
+      showCancelled,
+    ],
     queryFn: ({ pageParam }) =>
       service.events.listMyEvents({
         pastEvents,
+        pageNumber,
         pageSize,
         pageToken: pageParam,
         showCancelled,
       }),
-    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
 }
 
 export function useEventSearch({
+  pageNumber,
   pageSize,
   pastEvents,
   isMyCommunities,
   isOnlineOnly,
   searchLocation,
 }: {
+  pageNumber: number;
   pageSize: number;
   pastEvents?: boolean;
   isMyCommunities?: boolean;
   isOnlineOnly?: boolean;
   searchLocation?: GeocodeResult | "";
 }) {
-  return useInfiniteQuery<EventSearchRes.AsObject, RpcError>({
+  return useQuery<EventSearchRes.AsObject, RpcError>({
     queryKey: [
       "searchEvents",
       isMyCommunities,
       isOnlineOnly,
+      pageNumber,
       pastEvents,
       searchLocation,
     ],
-    queryFn: ({ pageParam }) =>
+    queryFn: () =>
       service.search.EventSearch({
+        pageNumber,
         pageSize,
-        pageToken: pageParam,
         pastEvents,
         isMyCommunities,
         isOnlineOnly,
         searchLocation,
       }),
-    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
   });
 }

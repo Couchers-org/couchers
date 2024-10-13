@@ -76,15 +76,15 @@ export async function userSearch(
 }
 
 export async function EventSearch({
+  pageNumber,
   pageSize,
-  pageToken,
   pastEvents,
   isMyCommunities,
   isOnlineOnly,
   searchLocation,
 }: {
+  pageNumber: number;
   pageSize: number;
-  pageToken: string;
   pastEvents?: boolean;
   isMyCommunities?: boolean;
   isOnlineOnly?: boolean;
@@ -92,7 +92,7 @@ export async function EventSearch({
 }): Promise<EventSearchRes.AsObject> {
   const req = new EventSearchReq();
   req.setPageSize(pageSize);
-  req.setPageToken(pageToken);
+  req.setPageNumber(pageNumber);
 
   if (pastEvents !== undefined) {
     req.setPast(pastEvents);

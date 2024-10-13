@@ -1,7 +1,4 @@
-import Button from "components/Button";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
 import makeStyles from "utils/makeStyles";
 
@@ -11,8 +8,6 @@ import EventItem from "./EventItem";
 interface EventListProps {
   events: Event.AsObject[];
   isVerticalStyle?: boolean;
-  hasNextPage: boolean | undefined;
-  fetchNextPage: () => void;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -57,14 +52,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const DEFAULT_EVENTS: Event.AsObject[] = [];
+
 const EventsList = ({
-  events,
+  events = DEFAULT_EVENTS,
   isVerticalStyle = false,
-  hasNextPage,
-  fetchNextPage,
 }: EventListProps) => {
   const classes = useStyles({ isVerticalStyle });
-  const { t } = useTranslation([COMMUNITIES]);
 
   const {
     authState: { userId },
@@ -79,13 +73,6 @@ const EventsList = ({
           ) : (
             <EventItem key={event.eventId} event={event} userId={userId} />
           )
-        )}
-      </div>
-      <div className={classes.seeMoreContainer}>
-        {hasNextPage && (
-          <Button onClick={() => fetchNextPage()}>
-            {t("communities:see_more_events_label")}
-          </Button>
         )}
       </div>
     </div>

@@ -250,6 +250,7 @@ export async function listAllEvents({
 }
 
 export interface ListMyEventsInput {
+  pageNumber?: number;
   pageSize?: number;
   pageToken?: string;
   pastEvents?: boolean;
@@ -257,6 +258,7 @@ export interface ListMyEventsInput {
 }
 
 export async function listMyEvents({
+  pageNumber,
   pageSize,
   pageToken,
   pastEvents,
@@ -268,6 +270,9 @@ export async function listMyEvents({
 
   if (pastEvents !== undefined) {
     req.setPast(pastEvents);
+  }
+  if (pageNumber) {
+    req.setPageNumber(pageNumber);
   }
   if (pageSize) {
     req.setPageSize(pageSize);
