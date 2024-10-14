@@ -9,13 +9,13 @@ from traceback import format_exception
 import grpc
 import sentry_sdk
 from opentelemetry import trace
-from sqlalchemy.sql import func
+from sqlalchemy.sql import and_, func
 
 from couchers import errors
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import observe_in_servicer_duration_histogram
-from couchers.models import APICall, User, UserSession
+from couchers.models import APICall, User, UserActivity, UserSession
 from couchers.profiler import CouchersProfiler
 from couchers.sql import couchers_select as select
 from couchers.utils import create_session_cookies, now, parse_api_key, parse_session_cookie, parse_user_id_cookie
@@ -24,7 +24,11 @@ from proto import annotations_pb2
 logger = logging.getLogger(__name__)
 
 
-def _try_get_and_update_user_details(token, is_api_key):
+def _binned_now():
+    return func.date_bin("1 hour", func.now(), "2000-01-01")
+
+
+def _try_get_and_update_user_details(token, is_api_key, ip_address, user_agent):
     """
     Tries to get session and user info corresponding to this token.
 
@@ -35,8 +39,17 @@ def _try_get_and_update_user_details(token, is_api_key):
 
     with session_scope() as session:
         result = session.execute(
-            select(User, UserSession)
+            select(User, UserSession, UserActivity)
             .join(User, User.id == UserSession.user_id)
+            .outerjoin(
+                UserActivity,
+                and_(
+                    UserActivity.user_id == User.id,
+                    UserActivity.period == _binned_now(),
+                    UserActivity.ip_address == ip_address,
+                    UserActivity.user_agent == user_agent,
+                ),
+            )
             .where(User.is_visible)
             .where(UserSession.token == token)
             .where(UserSession.is_valid)
@@ -46,7 +59,7 @@ def _try_get_and_update_user_details(token, is_api_key):
         if not result:
             return None
         else:
-            user, user_session = result
+            user, user_session, user_activity = result
 
             # update user last active time if it's been a while
             if now() - user.last_active > timedelta(minutes=5):
@@ -55,6 +68,21 @@ def _try_get_and_update_user_details(token, is_api_key):
             # let's update the token
             user_session.last_seen = func.now()
             user_session.api_calls += 1
+
+            if user_activity:
+                user_activity.api_calls += 1
+            else:
+                session.add(
+                    UserActivity(
+                        user_id=user.id,
+                        period=_binned_now(),
+                        ip_address=ip_address,
+                        user_agent=user_agent,
+                        api_calls=1,
+                    )
+                )
+
+            session.commit()
 
             return user.id, user.is_jailed, user.is_superuser, user_session.expiry
 
@@ -121,7 +149,10 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             # no session found
             token, is_api_key = None, False
 
-        auth_info = _try_get_and_update_user_details(token, is_api_key)
+        ip_address = headers.get("x-couchers-real-ip")
+        user_agent = headers.get("user-agent")
+
+        auth_info = _try_get_and_update_user_details(token, is_api_key, ip_address, user_agent)
         # auth_info is now filled if and only if this is a valid session
         if not auth_info:
             token = None

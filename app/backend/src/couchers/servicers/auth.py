@@ -376,7 +376,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         else:  # user not found
             # check if this is an email and they tried to sign up but didn't complete
             signup_flow = session.execute(
-                select(SignupFlow).where_username_or_email(request.user, model=SignupFlow)
+                select(SignupFlow).where_username_or_email(request.user, table=SignupFlow)
             ).scalar_one_or_none()
             if signup_flow:
                 send_signup_email(session, signup_flow)

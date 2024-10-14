@@ -19,6 +19,14 @@ service API {
     // Get info about a particular user
   }
 
+  rpc GetLiteUser(GetLiteUserReq) returns (LiteUser) {
+    // Get minimal info about a particular user
+  }
+
+  rpc GetLiteUsers(GetLiteUsersReq) returns (GetLiteUsersRes) {
+    // Get minimal info about a bunch of users
+  }
+
   rpc UpdateProfile(UpdateProfileReq) returns (google.protobuf.Empty) {
     // Update your profile
     // *Nullable can be set to null to clear the value. is_null defaults to false.
@@ -279,6 +287,47 @@ message User {
 
 message GetUserReq {
   string user = 1;
+}
+
+message LiteUser {
+  int64 user_id = 1;
+  string username = 2;
+  string name = 3;
+  string city = 4;
+  uint32 age = 5;
+
+  // the user's time zonename derived from their coordinates, for example "Australia/Melbourne"
+
+  string avatar_url = 6;
+  string avatar_thumbnail_url = 7;
+
+  // doubles are enough to describe lat/lng
+  // in EPSG4326, lat & lon are in degress, check the EPS4326 definition for details
+  // returned as 0.0 (default) if these are not set, note this should only happen with incomplete profiles!
+  double lat = 8;
+  double lng = 9;
+  double radius = 10; // meters
+}
+
+message GetLiteUserReq {
+  string user = 1;
+}
+
+message GetLiteUsersReq {
+  repeated string users = 1;
+}
+
+message LiteUserRes {
+  // the original query
+  string query = 1;
+  oneof resp {
+    LiteUser user = 2;
+    bool not_found = 3;
+  }
+}
+
+message GetLiteUsersRes {
+  repeated LiteUserRes responses = 1;
 }
 
 message RepeatedStringValue {
