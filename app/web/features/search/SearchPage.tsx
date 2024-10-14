@@ -126,8 +126,7 @@ export default function SearchPage({
           lastActive: lastActiveFilter === 0 ? undefined : lastActiveFilter,
           hostingStatusOptions:
             hostingStatusFilter.length === 0 ? undefined : hostingStatusFilter,
-          numGuests:
-            numberOfGuestFilter === 0 ? undefined : numberOfGuestFilter,
+          numGuests: numberOfGuestFilter,
           completeProfile:
             completeProfileFilter === false ? undefined : completeProfileFilter,
         },
