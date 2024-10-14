@@ -92,8 +92,11 @@ export default function SearchPage({
     "location"
   );
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
-  const [hostingStatusFilter, setHostingStatusFilter] = useState<TypeHostingStatusOptions>([]);
-  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState<number | undefined>(undefined);
+  const [hostingStatusFilter, setHostingStatusFilter] =
+    useState<TypeHostingStatusOptions>([]);
+  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState<
+    number | undefined
+  >(undefined);
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
     Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
