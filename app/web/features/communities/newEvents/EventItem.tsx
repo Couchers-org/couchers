@@ -30,11 +30,16 @@ const useStyles = makeStyles((theme: Theme) => ({
   attendees: {
     display: "flex",
     alignItems: "flex-end",
+    justifyContent: "flex-end",
+    minWidth: theme.spacing(10),
   },
   card: {
     display: "flex",
     width: "100%",
     height: theme.spacing(20),
+    [theme.breakpoints.down("xs")]: {
+      height: "auto",
+    },
   },
   cardMedia: {
     height: "100%",
@@ -58,6 +63,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   tags: {
     minWidth: theme.spacing(15),
+    [theme.breakpoints.down("xs")]: {
+      minWidth: theme.spacing(10),
+    },
   },
   title: {
     display: "-webkit-box",
@@ -129,7 +137,7 @@ const EventItem = ({
             </div>
             <div className={classes.row}>
               <div className={classes.eventInfo}>
-                <Typography noWrap variant="body2">
+                <Typography variant="body2">
                   {event.offlineInformation
                     ? event.offlineInformation.address
                     : t("communities:virtual_event_location_placeholder")}
