@@ -73,10 +73,13 @@ const useStyles = makeStyles((theme) => ({
   smallLeftPadding: {
     "& > li": {
       paddingLeft: 10,
-    },
-    "& > li.Mui-selected": {
-      backgroundColor: "rgb(0 0 0 / 15%)",
-      fontWeight: "bold",
+      "&.Mui-selected": {
+        backgroundColor: theme.palette.primary.main + 70,
+        fontWeight: "bold",
+        "&:hover": {
+          backgroundColor: theme.palette.primary.main + 90,
+        },
+      },
     },
   },
   noMargin: {
