@@ -140,7 +140,7 @@ export default function SearchBox({
             className={classes.justifyContent}
             row
             onChange={(event, value) =>
-              handleOnChangeRadioButton(event, value as "location" | "keyword")
+              handleOnChangeRadioButton(event, value as "location" | "keyword") // coercion due material-ui has this type as unknown
             }
             value={searchType}
           >
