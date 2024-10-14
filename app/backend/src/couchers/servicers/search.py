@@ -17,6 +17,7 @@ from couchers.models import (
     EventOccurrenceAttendee,
     EventOrganizer,
     EventSubscription,
+    LanguageAbility,
     Node,
     Page,
     PageType,
@@ -26,14 +27,13 @@ from couchers.models import (
 )
 from couchers.servicers.account import has_strong_verification
 from couchers.servicers.api import (
+    fluency2sql,
     hostingstatus2sql,
     meetupstatus2sql,
     parkingdetails2sql,
     sleepingarrangement2sql,
     smokinglocation2sql,
     user_model_to_pb,
-    fluency2sql,
-
 )
 from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import event_to_pb
@@ -48,7 +48,7 @@ from couchers.utils import (
     now,
     to_aware_datetime,
 )
-from proto import search_pb2, search_pb2_grpc
+from proto import api_pb2, search_pb2, search_pb2_grpc
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
 MAX_PAGINATION_LENGTH = 100
@@ -288,7 +288,7 @@ def _search_events(session, search_statement, title_only, next_rank, page_size, 
 
 
 def _search_clusters(
-        session, search_statement, title_only, next_rank, page_size, context, include_communities, include_groups
+    session, search_statement, title_only, next_rank, page_size, context, include_communities, include_groups
 ):
     if not include_communities and not include_groups:
         return []
@@ -409,12 +409,11 @@ class Search(search_pb2_grpc.SearchServicer):
                         User.things_i_like.ilike(f"%{request.query.value}%"),
                         User.about_place.ilike(f"%{request.query.value}%"),
                         User.additional_information.ilike(f"%{request.query.value}%"),
-
                     )
                 )
             conversational_fluent_filter_values = [
                 fluency2sql[api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL],
-                fluency2sql[api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT]
+                fluency2sql[api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT],
             ]
 
             # add interests in profile and as filter.
@@ -453,21 +452,22 @@ class Search(search_pb2_grpc.SearchServicer):
                 User.parking_details.in_([parkingdetails2sql[det] for det in request.parking_details_filter])
             )
             # limits/default could be handled on the front end as well
-            if request.HasField('age_min'):
+            if request.HasField("age_min"):
                 min_age = request.age_min.value
             else:
                 min_age = 18
             statement = statement.where(User.age >= min_age)
 
-            if request.HasField('age_max'):
+            if request.HasField("age_max"):
                 max_age = request.age_max.value
             else:
                 max_age = 200
             statement = statement.where(User.age <= max_age)
-            
+
         if len(request.languages_filter) > 0:
             statement = statement.where(
-                User.language_abilities.any(LanguageAbility.fluency.in_(fluency_filter_values)))
+                User.language_abilities.any(LanguageAbility.fluency.in_(conversational_fluent_filter_values))
+            )
         if request.HasField("profile_completed"):
             statement = statement.where(User.has_completed_profile == request.profile_completed.value)
         if request.HasField("guests"):

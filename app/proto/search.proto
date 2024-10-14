@@ -135,7 +135,7 @@ message UserSearchReq {
   repeated org.couchers.api.core.SleepingArrangement sleeping_arrangement_filter = 7;
   repeated org.couchers.api.core.ParkingDetails parking_details_filter = 8;
   repeated org.couchers.api.core.MeetupStatus meetup_status_filter = 32;
-  repeated org.couchers.api.core.LanguageAbility language_ability_filter = 11;
+  repeated org.couchers.api.core.LanguageAbility language_ability_filter = 34;
 
 
 
