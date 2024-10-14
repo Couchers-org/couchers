@@ -29,16 +29,6 @@ export async function userSearch(
   }: UserSearchFilters,
   pageToken = ""
 ) {
-
-  console.debug(`-----v-----`);
-  console.debug(`query ${query}`);
-  console.debug(`bbox ${bbox}`);
-  console.debug(`lastActive ${lastActive}`);
-  console.debug(`hostingStatusOptions ${hostingStatusOptions}`);
-  console.debug(`numGuests ${numGuests}`);
-  console.debug(`completeProfile ${completeProfile}`);
-  console.debug(`-----^-----`);
-
   const req = new UserSearchReq();
   req.setPageToken(pageToken);
 
