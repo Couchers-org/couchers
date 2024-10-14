@@ -3,6 +3,7 @@ import {
   eventKey,
   eventOrganizersKey,
   eventsKey,
+  myEventsKey,
   QueryType,
 } from "features/queryKeys";
 import useUsers from "features/userQueries/useUsers";
@@ -12,10 +13,13 @@ import {
   ListAllEventsRes,
   ListEventAttendeesRes,
   ListEventOrganizersRes,
+  ListMyEventsRes,
 } from "proto/events_pb";
+import { EventSearchRes } from "proto/search_pb";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { service } from "service";
-import type { ListAllEventsInput } from "service/events";
+import type { ListAllEventsInput, ListMyEventsInput } from "service/events";
+import { GeocodeResult } from "utils/hooks";
 
 export interface UseEventUsersInput {
   eventId: number;
@@ -122,5 +126,64 @@ export function useListAllEvents({
         showCancelled,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+  });
+}
+
+export function useListMyEvents({
+  pastEvents,
+  pageNumber,
+  pageSize,
+  showCancelled,
+}: Omit<ListMyEventsInput, "pageToken">) {
+  return useQuery<ListMyEventsRes.AsObject, RpcError>({
+    queryKey: [
+      myEventsKey(pastEvents ? "past" : "upcoming"),
+      pageNumber,
+      showCancelled,
+    ],
+    queryFn: ({ pageParam }) =>
+      service.events.listMyEvents({
+        pastEvents,
+        pageNumber,
+        pageSize,
+        pageToken: pageParam,
+        showCancelled,
+      }),
+  });
+}
+
+export function useEventSearch({
+  pageNumber,
+  pageSize,
+  pastEvents,
+  isMyCommunities,
+  isOnlineOnly,
+  searchLocation,
+}: {
+  pageNumber: number;
+  pageSize: number;
+  pastEvents?: boolean;
+  isMyCommunities?: boolean;
+  isOnlineOnly?: boolean;
+  searchLocation?: GeocodeResult | "";
+}) {
+  return useQuery<EventSearchRes.AsObject, RpcError>({
+    queryKey: [
+      "searchEvents",
+      isMyCommunities,
+      isOnlineOnly,
+      pageNumber,
+      pastEvents,
+      searchLocation,
+    ],
+    queryFn: () =>
+      service.search.EventSearch({
+        pageNumber,
+        pageSize,
+        pastEvents,
+        isMyCommunities,
+        isOnlineOnly,
+        searchLocation,
+      }),
   });
 }

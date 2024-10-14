@@ -61,7 +61,7 @@ export default function MyEvents() {
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
     useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
-      queryKey: myEventsKey,
+      queryKey: myEventsKey("upcoming"),
       queryFn: ({ pageParam }) =>
         service.events.listMyEvents({
           pageToken: pageParam,

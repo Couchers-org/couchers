@@ -16,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0.5, 1),
     textAlign: "center",
     fontWeight: "bold",
+    margin: theme.spacing(0.5),
   },
   rounded: {
     borderRadius: theme.shape.borderRadius * 6,

@@ -8,9 +8,8 @@ import {
 } from "@material-ui/core";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Pill from "components/Pill";
-import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
@@ -21,18 +20,26 @@ import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
-    margin: theme.spacing(2, 0),
+    margin: 0,
+    "&:not(:first-child)": {
+      margin: theme.spacing(2, 0),
+    },
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: theme.spacing(1),
   },
   attendees: {
     display: "flex",
     alignItems: "flex-end",
+    justifyContent: "flex-end",
+    minWidth: theme.spacing(10),
   },
   card: {
     display: "flex",
     width: "100%",
     height: theme.spacing(20),
+    [theme.breakpoints.down("xs")]: {
+      height: "auto",
+    },
   },
   cardMedia: {
     height: "100%",
@@ -56,6 +63,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   tags: {
     minWidth: theme.spacing(15),
+    [theme.breakpoints.down("xs")]: {
+      minWidth: theme.spacing(10),
+    },
   },
   title: {
     display: "-webkit-box",
@@ -69,17 +79,19 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const EventItem = ({ event }: { event: Event.AsObject }) => {
+const EventItem = ({
+  event,
+  userId,
+}: {
+  event: Event.AsObject;
+  userId: number | null | undefined;
+}) => {
   const classes = useStyles({
     eventImageSrc: event.photoUrl || eventImagePlaceholderUrl,
   });
-  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+  const { t } = useTranslation([COMMUNITIES]);
 
   const startTime = dayjs(timestamp2Date(event.startTime!)).format("llll");
-
-  const {
-    authState: { userId },
-  } = useAuthContext();
 
   const renderTags = () => {
     const isCreatedByMe = event.creatorUserId === userId;
@@ -125,7 +137,7 @@ const EventItem = ({ event }: { event: Event.AsObject }) => {
             </div>
             <div className={classes.row}>
               <div className={classes.eventInfo}>
-                <Typography noWrap variant="body2">
+                <Typography variant="body2">
                   {event.offlineInformation
                     ? event.offlineInformation.address
                     : t("communities:virtual_event_location_placeholder")}

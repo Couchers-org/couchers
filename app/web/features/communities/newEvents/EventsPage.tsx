@@ -1,14 +1,13 @@
-import { Button } from "@material-ui/core";
-import { TabContext, TabPanel } from "@material-ui/lab";
+import { Button, Typography } from "@material-ui/core";
 import PageTitle from "components/PageTitle";
-import TabBar from "components/TabBar";
-import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { newEventRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
-import EventsList from "./EventsList";
+import DiscoverEventsList from "./DiscoverEventsList";
+import MyEventsList from "./MyEventsList";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -21,51 +20,41 @@ const useStyles = makeStyles((theme) => ({
     },
     fontWeight: "bold",
   },
+  column: {
+    display: "flex",
+    flexDirection: "column",
+  },
   headerRow: {
     display: "flex",
     justifyContent: "space-between",
     width: "100%",
-    paddingBottom: theme.spacing(),
+    paddingBottom: theme.spacing(1),
   },
 }));
 
 const EventsPage = () => {
   const classes = useStyles();
+  const router = useRouter();
+
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
-  const [eventType, setEventType] = useState<EventsType>("upcoming");
-
-  const allEventsPageTabLabels: Record<EventsType, string> = {
-    upcoming: t("communities:upcoming"),
-    past: t("communities:past"),
-  };
-
-  const handleToggleClick = (value: EventsType) => {
-    if (value !== null && value !== eventType) {
-      setEventType(value);
-    }
-  };
 
   return (
     <div>
       <div className={classes.headerRow}>
         <PageTitle>{t("communities:events_title")}</PageTitle>
-        <Button className={classes.button} size="small">
+        <Button
+          className={classes.button}
+          size="small"
+          onClick={() => router.push(newEventRoute)}
+        >
           {t("communities:create_new_event")}
         </Button>
       </div>
-      <TabContext value={eventType}>
-        <TabBar
-          ariaLabel={t("communities:all_events_page_tabs_a11y_label")}
-          setValue={handleToggleClick}
-          labels={allEventsPageTabLabels}
-        />
-        <TabPanel value="upcoming">
-          <EventsList />
-        </TabPanel>
-        <TabPanel value="past">
-          <EventsList />
-        </TabPanel>
-      </TabContext>
+      <div className={classes.column}>
+        <Typography variant="h2">{t("communities:your_events")}</Typography>
+        <MyEventsList />
+      </div>
+      <DiscoverEventsList />
     </div>
   );
 };
