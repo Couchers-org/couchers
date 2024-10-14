@@ -57,6 +57,10 @@ REGCONFIG = "english"
 TRI_SIMILARITY_THRESHOLD = 0.6
 TRI_SIMILARITY_WEIGHT = 5
 
+conversational_fluent_filter_values = [
+    fluency2sql[api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL],
+    fluency2sql[api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT],
+]
 
 def _join_with_space(coalesces):
     # the objects in coalesces are not strings, so we can't do " ".join(coalesces). They're SQLAlchemy magic.
@@ -411,15 +415,13 @@ class Search(search_pb2_grpc.SearchServicer):
                         User.additional_information.ilike(f"%{request.query.value}%"),
                     )
                 )
-            conversational_fluent_filter_values = [
-                fluency2sql[api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL],
-                fluency2sql[api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT],
-            ]
 
             # add interests in profile and as filter.
         if request.HasField("last_active"):
             raw_dt = to_aware_datetime(request.last_active)
             statement = statement.where(User.last_active >= last_active_coarsen(raw_dt))
+            
+
 
         if len(request.gender) > 0:
             if not has_strong_verification(session, user):
@@ -464,7 +466,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 max_age = 200
             statement = statement.where(User.age <= max_age)
 
-        if len(request.languages_filter) > 0:
+        if len(request.language_ability_filter) > 0:
             statement = statement.where(
                 User.language_abilities.any(LanguageAbility.fluency.in_(conversational_fluent_filter_values))
             )

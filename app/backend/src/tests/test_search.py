@@ -19,6 +19,7 @@ from tests.test_fixtures import (  # noqa
 )
 
 
+
 @pytest.fixture(autouse=True)
 def _(testconfig):
     pass
@@ -192,7 +193,7 @@ def test_user_filter_language(db):
         # result1 = api.UserSearch(search_pb2.UserSearchReq(LanguageAbility(language_code="dan")))
         # result2 = api.UserSearch(search_pb2.UserSearchReq(LanguageAbility(language_code="ces")))
         search_request = search_pb2.UserSearchReq(
-            language_ability_filter=[LanguageAbility(language_code="dan", fluency=LanguageFluency.fluent)]
+            language_ability_filter=[api_pb2.LanguageAbility(code="dan", fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT)]
         )
 
         # Perform the search
