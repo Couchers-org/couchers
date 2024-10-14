@@ -76,8 +76,8 @@ const useStyles = makeStyles((theme) => ({
     },
     "& > li.Mui-selected": {
       backgroundColor: "rgb(0 0 0 / 15%)",
-      fontWeight: "bold"
-    }
+      fontWeight: "bold",
+    },
   },
   noMargin: {
     margin: 0,
@@ -283,7 +283,8 @@ export default function FilterDialog({
                 native={false}
                 renderValue={(selected) => (
                   <div className={classes.chips}>
-                    {(selected as TypeHostingStatusOptions).map( // Type coercion bc the selected value type is unknown in the mui Select component
+                    {(selected as TypeHostingStatusOptions).map(
+                      // Type coercion bc the selected value type is unknown in the mui Select component
                       (
                         value: Exclude<
                           HostingStatus,
