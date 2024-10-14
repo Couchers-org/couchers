@@ -111,8 +111,8 @@ interface FilterDialogProps {
   setHostingStatusFilter: Dispatch<SetStateAction<TypeHostingStatusOptions>>;
   completeProfileFilter: boolean;
   setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
-  numberOfGuestFilter: number;
-  setNumberOfGuestFilter: Dispatch<SetStateAction<number>>;
+  numberOfGuestFilter: number | undefined;
+  setNumberOfGuestFilter: Dispatch<SetStateAction<number | undefined>>;
 }
 
 export default function FilterDialog({
@@ -151,6 +151,23 @@ export default function FilterDialog({
   const isSmDown = useMediaQuery((theme: Theme) =>
     theme.breakpoints.down("sm")
   );
+
+  const handleNumGuestsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const convertedValue = parseInt(e.target.value);
+    const tempNumOfGuest =
+      !Number.isNaN(convertedValue) && convertedValue > 0
+        ? convertedValue
+        : undefined;
+
+    setNumberOfGuestFilter(tempNumOfGuest);
+  };
+
+  const handleLastActiveChange = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    const value = parseInt(event.target.value as string);
+    setLastActiveFilter(value);
+  };
 
   return (
     <Dialog
@@ -227,7 +244,7 @@ export default function FilterDialog({
                 id="last_active_filter"
                 className={classes.marginBottom}
                 value={lastActiveFilter}
-                onChange={(e) => setLastActiveFilter(e.target.value as number)}
+                onChange={handleLastActiveChange}
                 label={t("search:form.host_filters.last_active_field_label")}
                 optionLabelMap={getLastActiveOptions(t)}
                 options={[
@@ -313,10 +330,8 @@ export default function FilterDialog({
                 variant="standard"
                 id="num-guests-filter"
                 value={numberOfGuestFilter}
-                onChange={(e) => {
-                  const tempNumOfGuest = parseInt(e.target.value);
-                  setNumberOfGuestFilter(tempNumOfGuest);
-                }}
+                inputProps={{ min: 0 }}
+                onChange={handleNumGuestsChange}
                 inputRef={register({
                   valueAsNumber: true,
                 })}

@@ -24,7 +24,7 @@ const Template: Story<any> = () => {
         setHostingStatusFilter={() => {}}
         completeProfileFilter={true}
         setCompleteProfileFilter={() => {}}
-        numberOfGuestFilter={0}
+        numberOfGuestFilter={undefined}
         setNumberOfGuestFilter={() => {}}
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
