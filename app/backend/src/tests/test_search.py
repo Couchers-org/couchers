@@ -19,7 +19,6 @@ from tests.test_fixtures import (  # noqa
 )
 
 
-
 @pytest.fixture(autouse=True)
 def _(testconfig):
     pass
@@ -179,7 +178,7 @@ def test_user_filter_language(db):
 
         if not existing_language:
             session.add(Language(code="ces", name="Czech"))
-        
+
         session.add(
             LanguageAbility(user_id=user_with_danish_fluent.id, language_code="dan", fluency=LanguageFluency.fluent)
         )
@@ -190,21 +189,22 @@ def test_user_filter_language(db):
         )
 
     with search_session(token11) as api:
-
         search_request_1 = search_pb2.UserSearchReq(
-            language_ability_filter=[api_pb2.LanguageAbility(code="dan", fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT)]
+            language_ability_filter=[
+                api_pb2.LanguageAbility(code="dan", fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT)
+            ]
         )
         search_request_2 = search_pb2.UserSearchReq(
-            language_ability_filter=[api_pb2.LanguageAbility(code="ces", fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL)]
+            language_ability_filter=[
+                api_pb2.LanguageAbility(code="ces", fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL)
+            ]
         )
-
 
         result_1 = api.UserSearch(search_request_1)
         result_2 = api.UserSearch(search_request_2)
 
-
         assert [result.user.user_id for result in result_1.results] == [user_with_danish_fluent.id]
-        assert [ result.user.user_id for result in result_2.results] == [user_with_czech_conversational.id]
+        assert [result.user.user_id for result in result_2.results] == [user_with_czech_conversational.id]
 
 
 @pytest.fixture

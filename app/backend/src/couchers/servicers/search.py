@@ -63,6 +63,7 @@ conversational_fluent_filter_values = [
     fluency2sql[api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT],
 ]
 
+
 def _join_with_space(coalesces):
     # the objects in coalesces are not strings, so we can't do " ".join(coalesces). They're SQLAlchemy magic.
     if not coalesces:
@@ -421,8 +422,6 @@ class Search(search_pb2_grpc.SearchServicer):
         if request.HasField("last_active"):
             raw_dt = to_aware_datetime(request.last_active)
             statement = statement.where(User.last_active >= last_active_coarsen(raw_dt))
-            
-
 
         if len(request.gender) > 0:
             if not has_strong_verification(session, user):
@@ -472,8 +471,8 @@ class Search(search_pb2_grpc.SearchServicer):
                 fluency_enum_value = LanguageFluency(ability_filter.fluency)
                 statement = statement.where(
                     User.language_abilities.any(
-                        (LanguageAbility.language_code == ability_filter.code) &
-                        (LanguageAbility.fluency == fluency_enum_value)
+                        (LanguageAbility.language_code == ability_filter.code)
+                        & (LanguageAbility.fluency == fluency_enum_value)
                     )
                 )
 
