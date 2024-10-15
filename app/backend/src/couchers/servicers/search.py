@@ -18,6 +18,7 @@ from couchers.models import (
     EventOrganizer,
     EventSubscription,
     LanguageAbility,
+    LanguageFluency,
     Node,
     Page,
     PageType,
@@ -468,10 +469,11 @@ class Search(search_pb2_grpc.SearchServicer):
 
         if len(request.language_ability_filter) > 0:
             for ability_filter in request.language_ability_filter:
+                fluency_enum_value = LanguageFluency(ability_filter.fluency)
                 statement = statement.where(
                     User.language_abilities.any(
                         (LanguageAbility.language_code == ability_filter.code) &
-                        (LanguageAbility.fluency == ability_filter.fluency)
+                        (LanguageAbility.fluency == fluency_enum_value)
                     )
                 )
 

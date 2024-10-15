@@ -190,15 +190,13 @@ def test_user_filter_language(db):
         )
 
     with search_session(token11) as api:
-        # result1 = api.UserSearch(search_pb2.UserSearchReq(LanguageAbility(language_code="dan")))
-        # result2 = api.UserSearch(search_pb2.UserSearchReq(LanguageAbility(language_code="ces")))
+
         search_request = search_pb2.UserSearchReq(
             language_ability_filter=[api_pb2.LanguageAbility(code="dan", fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT)]
         )
 
         result1 = api.UserSearch(search_request)
 
-        # start with this
         assert [result.user.user_id for result in result1.results] == [user_with_danish_fluent.id]
         # assert [ result.user.user_id for result in result2.results] == [user_with_french_conversational.id]
 

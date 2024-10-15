@@ -102,9 +102,9 @@ message SearchRes {
 }
 
 enum LanguageFluency {
-    BEGINNER = 1;
-    CONVERSATIONAL = 2;
-    FLUENT = 3;
+    BEGINNER = 0;
+    CONVERSATIONAL = 1;
+    FLUENT = 2;
 }
 
 message LanguageAbility {
