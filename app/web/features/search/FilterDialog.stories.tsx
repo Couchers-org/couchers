@@ -20,7 +20,7 @@ const Template: Story<any> = () => {
         setQueryName={() => {}}
         queryName=""
         setLastActiveFilter={() => {}}
-        hostingStatusFilter={0}
+        hostingStatusFilter={[3]}
         setHostingStatusFilter={() => {}}
         completeProfileFilter={true}
         setCompleteProfileFilter={() => {}}

@@ -1,7 +1,9 @@
 import {
   Checkbox,
+  Chip,
   FormControlLabel,
   Grid,
+  Input,
   InputAdornment,
   makeStyles,
   Theme,
@@ -30,6 +32,7 @@ import { GeocodeResult } from "utils/hooks";
 import SearchFilters from "utils/searchFilters";
 
 import { lastActiveOptions } from "./constants";
+import { TypeHostingStatusOptions } from "./SearchPage";
 
 const getLastActiveOptions = (t: TFunction) => ({
   [lastActiveOptions.LAST_ACTIVE_ANY]: t("search:last_active_options.any"),
@@ -51,7 +54,6 @@ const getLastActiveOptions = (t: TFunction) => ({
 });
 
 const getHostingStatusOptions = (t: TFunction) => ({
-  [HostingStatus.HOSTING_STATUS_UNSPECIFIED]: t("global:hosting_status.any"),
   [HostingStatus.HOSTING_STATUS_CAN_HOST]: t("global:hosting_status.can_host"),
   [HostingStatus.HOSTING_STATUS_MAYBE]: t("global:hosting_status.maybe"),
   [HostingStatus.HOSTING_STATUS_CANT_HOST]: t(
@@ -68,11 +70,33 @@ const useStyles = makeStyles((theme) => ({
   marginBottom: {
     marginBottom: theme.spacing(2),
   },
+  smallLeftPadding: {
+    "& > li": {
+      paddingLeft: 10,
+      "&.Mui-selected": {
+        backgroundColor: theme.palette.primary.main + 70,
+        fontWeight: "bold",
+        "&:hover": {
+          backgroundColor: theme.palette.primary.main + 90,
+        },
+      },
+    },
+  },
   noMargin: {
     margin: 0,
   },
   noLeftPadding: {
     paddingLeft: 0,
+  },
+  inputHostingStatus: {
+    minWidth: "160px",
+  },
+  chips: {
+    display: "flex",
+    flexWrap: "wrap",
+  },
+  chip: {
+    margin: 2,
   },
 }));
 
@@ -90,8 +114,8 @@ interface FilterDialogProps {
   setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   lastActiveFilter: number;
   setLastActiveFilter: Dispatch<SetStateAction<number>>;
-  hostingStatusFilter: number;
-  setHostingStatusFilter: Dispatch<SetStateAction<number>>;
+  hostingStatusFilter: TypeHostingStatusOptions;
+  setHostingStatusFilter: Dispatch<SetStateAction<TypeHostingStatusOptions>>;
   completeProfileFilter: boolean;
   setCompleteProfileFilter: Dispatch<SetStateAction<boolean>>;
   numberOfGuestFilter: number | undefined;
@@ -118,6 +142,18 @@ export default function FilterDialog({
   const { control, register, errors } = useForm<FilterModalFormData>({
     mode: "onBlur",
   });
+
+  const MenuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: 48 * 4.5 + 8,
+        width: 250,
+      },
+    },
+    MenuListProps: {
+      className: classes.smallLeftPadding,
+    },
+  };
 
   const isSmDown = useMediaQuery((theme: Theme) =>
     theme.breakpoints.down("sm")
@@ -229,15 +265,48 @@ export default function FilterDialog({
               />
 
               <Select
-                id="can_host_status_filter"
-                value={hostingStatusFilter}
-                onChange={(e) => {
-                  setHostingStatusFilter(e.target.value as number);
-                }}
+                id="can_host_status_filter_1"
+                variant="outlined"
                 label={t("search:form.host_filters.hosting_status_field_label")}
+                multiple={true}
+                menuItems={true}
+                value={hostingStatusFilter}
+                onChange={(e) =>
+                  setHostingStatusFilter(
+                    e.target.value as TypeHostingStatusOptions
+                  )
+                }
+                input={
+                  <Input
+                    className={classes.inputHostingStatus}
+                    id="select-multiple-chip"
+                  />
+                }
+                className={classes.marginBottom}
+                native={false}
+                renderValue={(selected) => (
+                  <div className={classes.chips}>
+                    {(selected as TypeHostingStatusOptions).map(
+                      // Type coercion bc the selected value type is unknown in the mui Select component
+                      (
+                        value: Exclude<
+                          HostingStatus,
+                          | HostingStatus.HOSTING_STATUS_UNKNOWN
+                          | HostingStatus.HOSTING_STATUS_UNSPECIFIED
+                        >
+                      ) => (
+                        <Chip
+                          key={value}
+                          label={getHostingStatusOptions(t)[value]}
+                          className={classes.chip}
+                        />
+                      )
+                    )}
+                  </div>
+                )}
+                MenuProps={MenuProps}
                 optionLabelMap={getHostingStatusOptions(t)}
                 options={[
-                  HostingStatus.HOSTING_STATUS_UNSPECIFIED,
                   HostingStatus.HOSTING_STATUS_CAN_HOST,
                   HostingStatus.HOSTING_STATUS_MAYBE,
                   HostingStatus.HOSTING_STATUS_CANT_HOST,
