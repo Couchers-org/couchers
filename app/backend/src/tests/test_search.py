@@ -165,8 +165,8 @@ def test_user_filter_language(db):
     Make sure the language filter returns the rigth profiles
     """
 
-    user_with_finish_fluent, token11 = generate_user()
-    user_with_french_conversational, token12 = generate_user()
+    user_with_danish_fluent, token11 = generate_user()
+    user_with_czech_conversational, token12 = generate_user()
 
     with session_scope() as session:
         existing_language = session.query(Language).filter_by(code="dan").one_or_none()
@@ -175,17 +175,17 @@ def test_user_filter_language(db):
             # Insert the language record if it doesn't exist
             session.add(Language(code="dan", name="Danish"))
 
-        # Repeat the process for 'ces' or any other language codes you're using
         existing_language = session.query(Language).filter_by(code="ces").one_or_none()
 
         if not existing_language:
             session.add(Language(code="ces", name="Czech"))
+        
         session.add(
-            LanguageAbility(user_id=user_with_finish_fluent.id, language_code="dan", fluency=LanguageFluency.fluent)
+            LanguageAbility(user_id=user_with_danish_fluent.id, language_code="dan", fluency=LanguageFluency.fluent)
         )
         session.add(
             LanguageAbility(
-                user_id=user_with_french_conversational.id, language_code="ces", fluency=LanguageFluency.conversational
+                user_id=user_with_czech_conversational.id, language_code="ces", fluency=LanguageFluency.conversational
             )
         )
 
@@ -196,11 +196,10 @@ def test_user_filter_language(db):
             language_ability_filter=[api_pb2.LanguageAbility(code="dan", fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT)]
         )
 
-        # Perform the search
         result1 = api.UserSearch(search_request)
 
         # start with this
-        assert [result.user.user_id for result in result1.results] == [user_with_finish_fluent.id]
+        assert [result.user.user_id for result in result1.results] == [user_with_danish_fluent.id]
         # assert [ result.user.user_id for result in result2.results] == [user_with_french_conversational.id]
 
 
