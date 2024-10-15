@@ -118,7 +118,7 @@ const EventItem = ({
   };
 
   return (
-    <Card className={classes.root}>
+    <Card className={classes.root} data-testid="event-item">
       <Link href={routeToEvent(event.eventId, event.slug)}>
         <a className={classes.card}>
           <CardMedia
