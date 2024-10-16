@@ -454,17 +454,10 @@ class Search(search_pb2_grpc.SearchServicer):
                 User.parking_details.in_([parkingdetails2sql[det] for det in request.parking_details_filter])
             )
             # limits/default could be handled on the front end as well
-            if request.HasField("age_min"):
-                min_age = request.age_min.value
-            else:
-                min_age = 18
-            statement = statement.where(User.age >= min_age)
+        min_age = request.age_min.value if request.HasField("age_min") else 18
+        max_age = request.age_max.value if request.HasField("age_max") else 200
 
-            if request.HasField("age_max"):
-                max_age = request.age_max.value
-            else:
-                max_age = 200
-            statement = statement.where(User.age <= max_age)
+        statement = statement.where((User.age >= min_age) & (User.age <= max_age))
 
         if len(request.language_ability_filter) > 0:
             for ability_filter in request.language_ability_filter:
