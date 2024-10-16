@@ -1,12 +1,14 @@
+import { Typography } from "@material-ui/core";
 import Button from "components/Button";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
+import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useSendFieldStyles from "features/messages/useSendFieldStyles";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
 import { HostRequestStatus } from "proto/conversations_pb";
@@ -129,8 +131,48 @@ export default function HostRequestSendField({
     }
   };
 
+  const isHostPending =
+    isHost &&
+    hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_PENDING;
+
+  const isSurferRejected =
+    !isHost &&
+    hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
+
   return (
     <form onSubmit={onSubmit}>
+      {isHostPending && (
+        <div className={classes.helpTextContainer}>
+          <Typography variant="body1">
+            <Trans i18nKey="messages:host_pending_request_help_text">
+              Not sure how to respond? Read some tips on{" "}
+              <StyledLink
+                variant="body1"
+                href="https://help.couchers.org/hc/couchersorg-help-center/articles/1715658357-how-to-write-a-request-that-gets-accepted"
+              >
+                how to respond to a request
+              </StyledLink>
+              .
+            </Trans>
+          </Typography>
+        </div>
+      )}
+      {isSurferRejected && (
+        <div className={classes.helpTextContainer}>
+          <Typography variant="body1">
+            <Trans i18nKey="messages:surfer_declined_request_help_text">
+              Having trouble getting your requests accepted? Read our{" "}
+              <StyledLink
+                variant="body1"
+                href="https://help.couchers.org/hc/couchersorg-help-center/articles/1715658357-how-to-write-a-request-that-gets-accepted"
+              >
+                guide on how to write a request that gets accepted
+              </StyledLink>{" "}
+              for some tips!
+            </Trans>
+          </Typography>
+        </div>
+      )}
       <div className={classes.buttonContainer}>
         {isHost ? (
           <>
