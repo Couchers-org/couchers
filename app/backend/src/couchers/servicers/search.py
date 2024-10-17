@@ -17,6 +17,8 @@ from couchers.models import (
     EventOccurrenceAttendee,
     EventOrganizer,
     EventSubscription,
+    LanguageAbility,
+    LanguageFluency,
     Node,
     Page,
     PageType,
@@ -26,6 +28,7 @@ from couchers.models import (
 )
 from couchers.servicers.account import has_strong_verification
 from couchers.servicers.api import (
+    fluency2sql,
     hostingstatus2sql,
     meetupstatus2sql,
     parkingdetails2sql,
@@ -46,7 +49,7 @@ from couchers.utils import (
     now,
     to_aware_datetime,
 )
-from proto import search_pb2, search_pb2_grpc
+from proto import api_pb2, search_pb2, search_pb2_grpc
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
 MAX_PAGINATION_LENGTH = 100
@@ -54,6 +57,11 @@ MAX_PAGINATION_LENGTH = 100
 REGCONFIG = "english"
 TRI_SIMILARITY_THRESHOLD = 0.6
 TRI_SIMILARITY_WEIGHT = 5
+
+conversational_fluent_filter_values = [
+    fluency2sql[api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL],
+    fluency2sql[api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT],
+]
 
 
 def _join_with_space(coalesces):
@@ -410,6 +418,7 @@ class Search(search_pb2_grpc.SearchServicer):
                     )
                 )
 
+            # add interests in profile and as filter.
         if request.HasField("last_active"):
             raw_dt = to_aware_datetime(request.last_active)
             statement = statement.where(User.last_active >= last_active_coarsen(raw_dt))
@@ -444,6 +453,22 @@ class Search(search_pb2_grpc.SearchServicer):
             statement = statement.where(
                 User.parking_details.in_([parkingdetails2sql[det] for det in request.parking_details_filter])
             )
+            # limits/default could be handled on the front end as well
+        min_age = request.age_min.value if request.HasField("age_min") else 18
+        max_age = request.age_max.value if request.HasField("age_max") else 200
+
+        statement = statement.where((User.age >= min_age) & (User.age <= max_age))
+
+        if len(request.language_ability_filter) > 0:
+            for ability_filter in request.language_ability_filter:
+                fluency_enum_value = LanguageFluency(ability_filter.fluency)
+                statement = statement.where(
+                    User.language_abilities.any(
+                        (LanguageAbility.language_code == ability_filter.code)
+                        & (LanguageAbility.fluency == fluency_enum_value)
+                    )
+                )
+
         if request.HasField("profile_completed"):
             statement = statement.where(User.has_completed_profile == request.profile_completed.value)
         if request.HasField("guests"):
