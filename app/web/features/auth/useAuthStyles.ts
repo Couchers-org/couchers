@@ -45,7 +45,7 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   content: {
     width: "100%",
-    margin: "auto",
+    marginBottom: theme.spacing(2),
     [theme.breakpoints.up("md")]: {
       display: "flex",
       flexDirection: "row",
@@ -161,6 +161,7 @@ const useAuthStyles = makeStyles((theme) => ({
     width: "100%",
   },
   vercelLink: {
+    marginTop: theme.spacing(2),
     [theme.breakpoints.up("md")]: {
       position: "absolute",
       right: theme.spacing(2),
