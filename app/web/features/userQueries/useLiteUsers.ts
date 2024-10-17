@@ -1,80 +1,51 @@
-import { liteUserKey } from "features/queryKeys";
-import { userStaleTime } from "features/userQueries/constants";
-import { LiteUser } from "proto/api_pb";
-import { useCallback, useEffect, useRef } from "react";
-import { useQueries, useQueryClient } from "react-query";
+import { reactQueryRetries } from "appConstants";
+import { liteUserKey, liteUsersKey } from "features/queryKeys";
+import { RpcError, StatusCode } from "grpc-web";
+import { GetLiteUsersRes, LiteUser } from "proto/api_pb";
+import { useQuery } from "react-query";
 import { service } from "service";
-import { arrayEq } from "utils/arrayEq";
 
-export default function useLiteUsers(
-  ids: (number | undefined)[],
-  invalidate = false
-) {
-  const queryClient = useQueryClient();
-  const idsRef = useRef(ids);
-  const handleInvalidation = useCallback(() => {
-    if (invalidate) {
-      queryClient.invalidateQueries({
-        predicate: (query) =>
-          query.queryKey[0] === liteUserKey() &&
-          !!idsRef.current.includes(query.queryKey[1] as number),
-      });
-    }
-  }, [invalidate, queryClient]);
-  useEffect(() => {
-    handleInvalidation();
-  }, [handleInvalidation]);
+import { userStaleTime } from "./constants";
 
-  //arrays use reference equality, so you can't use ids in useEffect directly
-  useEffect(() => {
-    if (!arrayEq(idsRef.current, ids)) {
-      idsRef.current = ids;
-      handleInvalidation();
-    }
+export default function useLiteUsers(ids: (number | undefined)[]) {
+  const nonFalseyIds = ids?.filter((id): id is number => !!id);
+  const query = useQuery<GetLiteUsersRes.AsObject, RpcError>({
+    queryKey: liteUsersKey(nonFalseyIds),
+    queryFn: () => service.user.getLiteUsers(nonFalseyIds),
+    staleTime: userStaleTime,
+    enabled: nonFalseyIds.length > 0, // run only if there are valid liteUserIds
   });
 
-  const queries = useQueries<LiteUser.AsObject, Error>(
-    ids
-      .filter((id): id is number => !!id)
-      .map((id) => ({
-        queryFn: () => service.user.getLiteUser(id.toString()),
-        queryKey: liteUserKey(id),
-        staleTime: userStaleTime,
-      }))
-  );
-
-  const errors = queries
-    .map((query) => query.error?.message)
-    .filter((e): e is string => typeof e === "string");
-  const isLoading = queries.some((query) => query.isLoading);
-  const isFetching = queries.some((query) => query.isFetching);
-
-  // If at least one user query is not loading (i.e. has data loaded before), whilst
-  // some other (likely new) queries are fetching, then it's a refetch
-  const isRefetching = !queries.every((query) => query.isLoading) && isFetching;
-  const isError = !!errors.length;
-
-  const usersById = isLoading
-    ? undefined
-    : new Map(queries.map((q, index) => [ids[index], q.data]));
+  const usersById =
+    query.isLoading || query?.data?.responsesList === undefined
+      ? undefined
+      : new Map(
+          query?.data?.responsesList.map((response) => [
+            response?.user?.userId,
+            response.user,
+          ])
+        );
 
   return {
+    ...query,
     data: usersById,
-    errors,
-    isError,
-    isFetching,
-    isLoading,
-    isRefetching,
   };
 }
 
-export function useLiteUser(id: number | undefined, invalidate = false) {
-  const result = useLiteUsers([id], invalidate);
-  return {
-    data: result.data?.get(id),
-    error: result.errors.join("\n"),
-    isError: result.isError,
-    isFetching: result.isFetching,
-    isLoading: result.isLoading,
-  };
+// should is returned when stale if subsequent refetch queries fail
+export function useLiteUser(id: number | undefined) {
+  const query = useQuery<LiteUser.AsObject, RpcError>({
+    queryKey: liteUserKey(id),
+    queryFn: () => service.user.getLiteUser(id?.toString() || ""),
+    retry: (failureCount, error) => {
+      //don't retry if the user isn't found
+      return (
+        error.code !== StatusCode.NOT_FOUND && failureCount <= reactQueryRetries
+      );
+    },
+    staleTime: userStaleTime,
+    enabled: !!id,
+  });
+
+  return query;
 }

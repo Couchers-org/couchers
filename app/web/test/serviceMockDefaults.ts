@@ -46,6 +46,12 @@ export async function getLiteUser(userId: string): Promise<LiteUser.AsObject> {
   return liteUserMap[userId];
 }
 
+export async function getLiteUsers(
+  ids: number[]
+): Promise<{ responsesList: LiteUser.AsObject[] }> {
+  return { responsesList: ids.map((id) => liteUserMap[id.toString()]) };
+}
+
 export async function listFriends() {
   const [, user2, user3] = users;
   return [user2.userId, user3.userId];
