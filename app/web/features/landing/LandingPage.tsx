@@ -183,7 +183,7 @@ export default function LandingPage() {
             </Typography>
           </div>
         </div>
-      
+
         <MuiButton
           className={classes.scrollMoreButton}
           onClick={scrollToMore}
