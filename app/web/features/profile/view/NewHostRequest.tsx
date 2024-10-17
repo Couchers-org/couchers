@@ -14,7 +14,7 @@ import Button from "components/Button";
 import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
-import { useUser } from "features/userQueries/useUsers";
+import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
@@ -102,7 +102,7 @@ export default function NewHostRequest({
     }
   );
 
-  const { isLoading: hostLoading, error: hostError } = useUser(user.userId);
+  const { isLoading: hostLoading, error: hostError } = useLiteUser(user.userId);
 
   const onSubmit = handleSubmit((data) => {
     mutate(data);

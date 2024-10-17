@@ -1,5 +1,5 @@
 import { friendRequestKey, FriendRequestType } from "features/queryKeys";
-import useUsers from "features/userQueries/useUsers";
+import useLiteUsers from "features/userQueries/useLiteUsers";
 import { FriendRequest } from "proto/api_pb";
 import { useQuery } from "react-query";
 import { service } from "service";
@@ -29,7 +29,7 @@ export default function useFriendRequests(
     data: usersData,
     isLoading: isUsersLoading,
     errors: usersErrors,
-  } = useUsers(userIds);
+  } = useLiteUsers(userIds);
 
   const errors = error ? [error.message, ...usersErrors] : usersErrors;
 

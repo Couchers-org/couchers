@@ -1,18 +1,18 @@
 import { renderHook } from "@testing-library/react-hooks";
 import { service } from "service";
-import users from "test/fixtures/users.json";
+import liteUsers from "test/fixtures/liteUsers.json";
 import wrapper from "test/hookWrapper";
-import { getUser } from "test/serviceMockDefaults";
+import { getLiteUser } from "test/serviceMockDefaults";
 
 import useFriendRequests from "./useFriendRequests";
 
-const getUserMock = service.user.getUser as jest.Mock;
+const getLiteUserMock = service.user.getLiteUser as jest.Mock;
 const listFriendRequestsMock = service.api.listFriendRequests as jest.Mock<
   ReturnType<typeof service.api.listFriendRequests>
 >;
 
 beforeEach(() => {
-  getUserMock.mockImplementation(getUser);
+  getLiteUserMock.mockImplementation(getLiteUser);
   listFriendRequestsMock.mockResolvedValue({
     receivedList: [],
     sentList: [],
@@ -22,7 +22,7 @@ beforeEach(() => {
 afterEach(() => jest.restoreAllMocks());
 
 describe("when the listFriendRequests query is loading", () => {
-  it("returns isLoading as true with no errors and shouldn't try to load users", async () => {
+  it("returns isLoading as true with no errors and shouldn't try to load liteUsers", async () => {
     const { result, unmount } = renderHook(() => useFriendRequests("sent"), {
       wrapper,
     });
@@ -33,7 +33,7 @@ describe("when the listFriendRequests query is loading", () => {
       isError: false,
       isLoading: true,
     });
-    expect(getUserMock).not.toHaveBeenCalled();
+    expect(getLiteUserMock).not.toHaveBeenCalled();
 
     unmount();
   });
@@ -67,8 +67,8 @@ describe("when the listFriendRequests succeeds", () => {
     });
   });
 
-  it("returns isLoading as true with no errors if getUsers queries are loading", async () => {
-    getUserMock.mockImplementation(() => new Promise(() => void 0));
+  it("returns isLoading as true with no errors if getLiteUsers queries are loading", async () => {
+    getLiteUserMock.mockImplementation(() => new Promise(() => void 0));
 
     const { result, waitForNextUpdate } = renderHook(
       () => useFriendRequests("sent"),
@@ -94,7 +94,7 @@ describe("when the listFriendRequests succeeds", () => {
     expect(result.current).toEqual({
       data: [
         {
-          friend: users[1],
+          friend: liteUsers[1],
           friendRequestId: 1,
           state: 0,
           userId: 2,
@@ -117,14 +117,14 @@ describe("when the listFriendRequests succeeds", () => {
     expect(result.current).toEqual({
       data: [
         {
-          friend: users[2],
+          friend: liteUsers[2],
           friendRequestId: 2,
           state: 0,
           userId: 3,
           sent: false,
         },
         {
-          friend: users[3],
+          friend: liteUsers[3],
           friendRequestId: 3,
           state: 0,
           userId: 4,
@@ -172,11 +172,11 @@ describe("when the listFriendRequests succeeds", () => {
     });
   });
 
-  it("returns isError as true with the error and missing friend data in request object of response if some getUser queries failed", async () => {
-    getUserMock.mockImplementation((userId: string) => {
+  it("returns isError as true with the error and missing friend data in request object of response if some getLiteUser queries failed", async () => {
+    getLiteUserMock.mockImplementation((userId: string) => {
       return userId === "3"
         ? Promise.reject(new Error(`Error fetching user ${userId}`))
-        : getUser(userId);
+        : getLiteUser(userId);
     });
     jest.spyOn(console, "error").mockReturnValue(undefined);
 
@@ -196,7 +196,7 @@ describe("when the listFriendRequests succeeds", () => {
           sent: false,
         },
         {
-          friend: users[3],
+          friend: liteUsers[3],
           friendRequestId: 3,
           state: 0,
           userId: 4,
@@ -211,7 +211,7 @@ describe("when the listFriendRequests succeeds", () => {
 });
 
 describe("when the listFriendRequests query failed", () => {
-  it("returns isError as true with the errors and shouldn't try to load users", async () => {
+  it("returns isError as true with the errors and shouldn't try to load liteUsers", async () => {
     listFriendRequestsMock.mockRejectedValue(
       new Error("Error listing friend requests")
     );
@@ -229,6 +229,6 @@ describe("when the listFriendRequests query failed", () => {
       isError: true,
       isLoading: false,
     });
-    expect(getUserMock).not.toHaveBeenCalled();
+    expect(getLiteUserMock).not.toHaveBeenCalled();
   });
 });
