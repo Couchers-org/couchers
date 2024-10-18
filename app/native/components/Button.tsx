@@ -1,4 +1,10 @@
-import { Pressable, StyleProp, StyleSheet, ViewStyle } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  ViewStyle,
+} from "react-native";
 import { ThemedText } from "./ThemedText";
 
 interface ButtonProps {
@@ -6,6 +12,7 @@ interface ButtonProps {
   filled?: boolean;
   onPress?: () => void;
   disabled?: boolean;
+  loading?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -14,6 +21,7 @@ export default function Button({
   filled = false,
   onPress,
   disabled = false,
+  loading = false,
   style,
 }: ButtonProps) {
   return (
@@ -27,15 +35,19 @@ export default function Button({
       onPress={onPress}
       disabled={disabled}
     >
-      <ThemedText
-        type="button"
-        style={[
-          styles.buttonText,
-          filled ? styles.filledButtonText : styles.transparentButtonText,
-        ]}
-      >
-        {title}
-      </ThemedText>
+      {loading ? (
+        <ActivityIndicator size="small" color="#0000ff" />
+      ) : (
+        <ThemedText
+          type="button"
+          style={[
+            styles.buttonText,
+            filled ? styles.filledButtonText : styles.transparentButtonText,
+          ]}
+        >
+          {title}
+        </ThemedText>
+      )}
     </Pressable>
   );
 }

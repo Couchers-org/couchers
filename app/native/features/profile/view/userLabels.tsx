@@ -139,10 +139,10 @@ export const RemainingAboutLabels = ({ user }: Props) => {
             : ""
         }
       />
-      <LabelAndText
+      {/* <LabelAndText
         label={t("profile:heading.local_time")}
         text={dayjs().tz(user.timezone).format("LT")}
-      />
+      /> */}
     </>
   );
 };

@@ -2,7 +2,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { useAuthContext } from "@/features/auth/AuthProvider";
 import { Text, View } from "react-native";
 
-export default function Index() {
+export default function Explore() {
   const { authActions } = useAuthContext();
 
   return (

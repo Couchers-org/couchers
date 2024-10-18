@@ -1,4 +1,4 @@
-import { Tabs } from "expo-router";
+import { Tabs, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function AppLayout() {
@@ -45,7 +45,7 @@ export default function AppLayout() {
           ),
         }}
       />
-        <Tabs.Screen
+      <Tabs.Screen
         name="me"
         options={{
           title: "Me",
@@ -53,6 +53,14 @@ export default function AppLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person" size={size} color={color} />
           ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="user/[username]"
+        options={{
+          href: null,
+          headerShown: false,
         }}
       />
     </Tabs>
