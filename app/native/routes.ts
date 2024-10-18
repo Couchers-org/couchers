@@ -1,3 +1,5 @@
+export const landingRoute = "/landing";
+
 // profile
 export const userTabs = [
   "about",
