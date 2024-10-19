@@ -8,8 +8,8 @@ import { COMMUNITIES } from "i18n/namespaces";
 import { useState } from "react";
 import makeStyles from "utils/makeStyles";
 
-import { useListMyEvents } from "./hooks";
 import EventsList from "./EventsList";
+import { useListMyEvents } from "./hooks";
 
 const useStyles = makeStyles((theme) => ({
   emptyState: {
