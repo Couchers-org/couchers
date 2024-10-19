@@ -1,6 +1,5 @@
-import { reactQueryRetries } from "appConstants";
 import { liteUserKey, liteUsersKey } from "features/queryKeys";
-import { RpcError, StatusCode } from "grpc-web";
+import { RpcError } from "grpc-web";
 import { GetLiteUsersRes, LiteUser } from "proto/api_pb";
 import { useQuery } from "react-query";
 import { service } from "service";
@@ -37,12 +36,6 @@ export function useLiteUser(id: number | undefined) {
   const query = useQuery<LiteUser.AsObject, RpcError>({
     queryKey: liteUserKey(id),
     queryFn: () => service.user.getLiteUser(id?.toString() || ""),
-    retry: (failureCount, error) => {
-      //don't retry if the user isn't found
-      return (
-        error.code !== StatusCode.NOT_FOUND && failureCount <= reactQueryRetries
-      );
-    },
     staleTime: userStaleTime,
     enabled: !!id,
   });
