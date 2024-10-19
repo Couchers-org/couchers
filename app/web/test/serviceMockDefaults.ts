@@ -1,4 +1,4 @@
-import { User } from "proto/api_pb";
+import { GetLiteUsersRes, LiteUser, User } from "proto/api_pb";
 import { ListAdminsRes } from "proto/communities_pb";
 import { HostRequestStatus } from "proto/conversations_pb";
 import { ListEventAttendeesRes, ListEventOrganizersRes } from "proto/events_pb";
@@ -7,10 +7,12 @@ import {
   ReferenceType,
 } from "proto/references_pb";
 import comments from "test/fixtures/comments.json";
+import liteUsers from "test/fixtures/liteUsers.json";
 import messages from "test/fixtures/messages.json";
 import users from "test/fixtures/users.json";
 
 const [user1, user2, user3, user4, user5] = users;
+const [liteUser1, liteUser2, liteUser3, liteUser4, liteUser5] = liteUsers;
 
 const userMap: Record<string, User.AsObject> = {
   "1": user1,
@@ -24,8 +26,36 @@ const userMap: Record<string, User.AsObject> = {
   funnykid: user3,
 };
 
+const liteUserMap: Record<string, LiteUser.AsObject> = {
+  "1": liteUser1,
+  "2": liteUser2,
+  "3": liteUser3,
+  "4": liteUser4,
+  "5": liteUser5,
+  funnycat: liteUser1,
+  funnyChicken: liteUser4,
+  funnydog: liteUser2,
+  funnykid: liteUser3,
+};
+
 export async function getUser(userId: string): Promise<User.AsObject> {
   return userMap[userId];
+}
+
+export async function getLiteUser(userId: string): Promise<LiteUser.AsObject> {
+  return liteUserMap[userId];
+}
+
+export async function getLiteUsers(
+  ids: number[]
+): Promise<GetLiteUsersRes.AsObject> {
+  return {
+    responsesList: ids.map((id) => ({
+      query: "",
+      user: liteUserMap[id.toString()],
+      notFound: false,
+    })),
+  };
 }
 
 export async function listFriends() {

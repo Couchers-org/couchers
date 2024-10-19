@@ -20,7 +20,7 @@ import {
   hostRequestMessagesKey,
   hostRequestsListKey,
 } from "features/queryKeys";
-import { useUser } from "features/userQueries/useUsers";
+import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -81,8 +81,8 @@ export default function HostRequestView({
     }
   );
 
-  const { data: surfer } = useUser(hostRequest?.surferUserId);
-  const { data: host } = useUser(hostRequest?.hostUserId);
+  const { data: surfer } = useLiteUser(hostRequest?.surferUserId);
+  const { data: host } = useLiteUser(hostRequest?.hostUserId);
   const currentUserId = useAuthContext().authState.userId;
   const isHost = host?.userId === currentUserId;
   const otherUser = isHost ? surfer : host;

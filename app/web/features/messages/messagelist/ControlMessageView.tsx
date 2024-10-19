@@ -2,6 +2,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import classNames from "classnames";
 import TextBody from "components/TextBody";
+import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import React from "react";
@@ -9,7 +10,6 @@ import React from "react";
 import { timestamp2Date } from "../../../utils/date";
 import { firstName } from "../../../utils/names";
 import useOnVisibleEffect from "../../../utils/useOnVisibleEffect";
-import { useUser } from "../../userQueries/useUsers";
 import { controlMessage, messageTargetId } from "../utils";
 import { messageElementId, MessageProps } from "./MessageView";
 import TimeInterval from "./TimeInterval";
@@ -34,10 +34,10 @@ export default function ControlMessageView({
 }: MessageProps) {
   const { t } = useTranslation(MESSAGES);
   const classes = useStyles();
-  const { data: author, isLoading: isAuthorLoading } = useUser(
+  const { data: author, isLoading: isAuthorLoading } = useLiteUser(
     message.authorUserId
   );
-  const { data: target, isLoading: isTargetLoading } = useUser(
+  const { data: target, isLoading: isTargetLoading } = useLiteUser(
     messageTargetId(message)
   );
   const { ref } = useOnVisibleEffect(onVisible);
