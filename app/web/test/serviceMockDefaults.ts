@@ -1,4 +1,4 @@
-import { LiteUser, User } from "proto/api_pb";
+import { GetLiteUsersRes, LiteUser, User } from "proto/api_pb";
 import { ListAdminsRes } from "proto/communities_pb";
 import { HostRequestStatus } from "proto/conversations_pb";
 import { ListEventAttendeesRes, ListEventOrganizersRes } from "proto/events_pb";
@@ -48,8 +48,14 @@ export async function getLiteUser(userId: string): Promise<LiteUser.AsObject> {
 
 export async function getLiteUsers(
   ids: number[]
-): Promise<{ responsesList: LiteUser.AsObject[] }> {
-  return { responsesList: ids.map((id) => liteUserMap[id.toString()]) };
+): Promise<GetLiteUsersRes.AsObject> {
+  return {
+    responsesList: ids.map((id) => ({
+      query: "",
+      user: liteUserMap[id.toString()],
+      notFound: false,
+    })),
+  };
 }
 
 export async function listFriends() {
