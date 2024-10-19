@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form";
 import { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
-import { useEventSearch } from "../events/hooks";
+import { useEventSearch } from "./hooks";
 import EventsList from "./EventsList";
 
 const useStyles = makeStyles((theme) => ({

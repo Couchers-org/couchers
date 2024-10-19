@@ -8,7 +8,7 @@ import { COMMUNITIES } from "i18n/namespaces";
 import { useState } from "react";
 import makeStyles from "utils/makeStyles";
 
-import { useListMyEvents } from "../events/hooks";
+import { useListMyEvents } from "./hooks";
 import EventsList from "./EventsList";
 
 const useStyles = makeStyles((theme) => ({

@@ -22,6 +22,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@date-io/dayjs": "1.x",
     "@fontsource/mansalva": "^5.1.0",
     "@fontsource/ubuntu": "^5.1.0",

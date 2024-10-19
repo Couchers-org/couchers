@@ -4,7 +4,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import mockEvents from "test/fixtures/events.json";
 
-import { useListMyEvents } from "../events/hooks";
+import { useListMyEvents } from "./hooks";
 import MyEventsList from "./MyEventsList";
 
 jest.mock("i18n", () => ({

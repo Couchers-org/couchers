@@ -8,8 +8,8 @@ import { useController, useForm } from "react-hook-form";
 import mockEvents from "test/fixtures/events.json";
 import { GeocodeResult } from "utils/hooks";
 
-import { useEventSearch } from "../events/hooks";
 import DiscoverEventsList from "./DiscoverEventsList";
+import { useEventSearch } from "./hooks";
 
 jest.mock("react-hook-form", () => ({
   useForm: jest.fn(),
