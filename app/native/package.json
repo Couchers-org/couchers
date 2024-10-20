@@ -19,7 +19,7 @@
   "dependencies": {
     "@expo-google-fonts/ubuntu": "^0.2.3",
     "@expo/vector-icons": "^14.0.2",
-    "@maplibre/maplibre-react-native": "^10.0.0-alpha.10",
+    "@maplibre/maplibre-react-native": "^10.0.0-alpha.21",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-picker/picker": "2.7.5",
     "@react-navigation/drawer": "^6.7.2",
