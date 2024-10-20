@@ -14,7 +14,6 @@ type UserOverviewProps = {
   actions?: React.ReactNode;
 };
 
-// TODO: actions are not used
 export default function UserOverview({
   showHostAndMeetAvailability,
   actions,
@@ -114,6 +113,7 @@ export default function UserOverview({
             </View>
           </>
         )}
+        {actions && <View style={{ width: 100, marginTop: 16 }}>{actions}</View>}
       </View>
     </View>
   );

@@ -8,6 +8,34 @@ import TextBody from "@/components/TextBody";
 import { referenceBadgeLabel } from "features/profile/constants";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
 import UserSummary from "@/components/UserSummary";
+import { routeToUser } from "@/routes";
+import { router } from "expo-router";
+
+const styles = StyleSheet.create({
+  listItem: {
+  },
+  referenceBodyContainer: {
+  },
+  badgesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 8,
+  },
+  referenceText: {
+  },
+  pill: {
+    backgroundColor: '#e0e0e0',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  pillText: {
+    fontSize: 12,
+    color: '#333',
+  },
+});
 
 const Pill = ({ children, style }: any) => (
   <View style={[styles.pill, style]}>
@@ -37,6 +65,9 @@ export default function ReferenceListItem({
     <TouchableOpacity
       style={styles.listItem}
       testID={REFERENCE_LIST_ITEM_TEST_ID}
+      onPress={() => {
+        router.push(routeToUser(user.username, 'about'));
+      }}
     >
       <UserSummary user={user} />
       <View style={styles.referenceBodyContainer}>
@@ -59,32 +90,3 @@ export default function ReferenceListItem({
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  listItem: {
-    // Add your styles here
-  },
-  referenceBodyContainer: {
-    // Add your styles here
-  },
-  badgesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 8,
-  },
-  referenceText: {
-    // Add your styles here
-  },
-  pill: {
-    backgroundColor: '#e0e0e0',
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  pillText: {
-    fontSize: 12,
-    color: '#333',
-  },
-});

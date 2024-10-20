@@ -1,0 +1,148 @@
+{
+  "mark_all_read_button_text": "Mark all as read",
+  "request_closed_message": "This host request is closed or in the past. To continue chatting, send the other person a normal message.",
+  "write_reference_button_text": "Write a Reference",
+  "close_request_dialog_title": "Are you done messaging?",
+  "close_request_dialog_host": "Please make sure you are done chatting before you decline their request.",
+  "close_request_dialog_surfer": "Please make sure you are done chatting before you cancel your request.",
+  "close_request_button_text": "Decline",
+  "confirm_request_button_text": "Confirm",
+  "messages_page": {
+    "title": "Messages",
+    "tabs": {
+      "aria_label": "Tabs for different message types",
+      "chats": "Chats",
+      "hosting": "Hosting",
+      "surfing": "Surfing"
+    }
+  },
+  "chat_view": {
+    "invalid_id_error": "Invalid chat ID.",
+    "no_messages_state_text": "No messages",
+    "back_button": {
+      "a11y_label": "Back"
+    },
+    "muted_icon": {
+      "a11y_label": "Muted"
+    },
+    "actions_menu": {
+      "a11y_label": "Show more chat actions",
+      "items": {
+        "invite_members": "Invite to chat",
+        "show_all_members": "Chat members",
+        "manage_admins": "Manage chat admins",
+        "chat_settings": "Chat settings",
+        "leave_chat": "Leave chat"
+      }
+    },
+    "mute": {
+      "button_label": "Mute chat",
+      "unmute_button_label": "Unmute chat",
+      "dialog_title": "How long do you want to mute?",
+      "1_hour_label": "1 hour",
+      "8_hours_label": "8 hours",
+      "1_day_label": "1 day",
+      "1_week_label": "1 week",
+      "1_month_label": "1 month",
+      "forever_label": "Until I unmute"
+    }
+  },
+  "admins_dialog": {
+    "step_down_confirmation_dialog": {
+      "title": "Step down as admin?",
+      "message": "Are you sure you want to stop being an admin of this group chat? You will not be able to become an admin again unless another admin adds you."
+    },
+    "remove_admin": {
+      "title": "Remove admin",
+      "action_a11y_label": "Remove as admin"
+    },
+    "add_admin": {
+      "title": "Add admin",
+      "action_a11y_label": "Add as admin"
+    }
+  },
+  "create_chat": {
+    "dm_title": "Create a new chat",
+    "group_title": "Create group chat",
+    "group_title_field_label": "Title",
+    "no_friends_found_message": "Couldn't find any friends",
+    "user_load_error_message": "(User load error)",
+    "friends_input_label": "Friends"
+  },
+  "chat_input": {
+    "label": "Message"
+  },
+  "group_chat_settings_dialog": {
+    "title": "Group chat settings",
+    "chat_title": {
+      "field_label": "Chat title"
+    },
+    "only_admins_invite": {
+      "field_label": "Only admins can invite others to the chat"
+    }
+  },
+  "group_chats_tab": {
+    "no_chats_message": "No group chats yet",
+    "load_more_button_label": "Load more"
+  },
+  "requests_tab": {
+    "no_requests_message": "No requests yet",
+    "load_more_button_label": "Load more"
+  },
+  "invite_dialog": {
+    "title": "Invite to chat",
+    "selected": {
+      "field_label": "Friends",
+      "no_options_text": "No one to invite",
+      "option_load_error_text": "(User load error)"
+    },
+    "invite_button_label": "Invite"
+  },
+  "leave_chat_dialog": {
+    "title": "Leave chat?",
+    "message": "Are you sure you want to leave this chat?"
+  },
+  "members_dialog": {
+    "title": "Chat Members"
+  },
+  "control_message": {
+    "created_chat_text": "{{user}} created the chat",
+    "edited_chat_text": "{{user}} edited the chat",
+    "invite_user_text": "{{user}} invited {{target_user}}",
+    "user_left_chat_text": "{{user}} left the chat",
+    "admin_assignment_text": "{{user}} made {{target_user}} an admin",
+    "admin_removal_text": "{{user}} removed {{target_user}} as admin",
+    "host_request_status_changed_text": "{{user}} changed the request to {{status}}",
+    "unknown_message_text": "Unknown control message"
+  },
+  "host_request_status": {
+    "accepted": "Accepted",
+    "cancelled": "Cancelled",
+    "confirmed": "Confirmed",
+    "pending": "Pending",
+    "rejected": "Declined"
+  },
+  "host_request_item": {
+    "pending": "This request is still pending",
+    "host_status": {
+      "accepted": "You have accepted this request",
+      "cancelled": "You have cancelled this request",
+      "confirmed": "You have confirmed this request",
+      "rejected": "You have declined this request"
+    },
+    "surfer_status": {
+      "accepted": "Your request was accepted",
+      "cancelled": "Your request was cancelled",
+      "confirmed": "Your request was confirmed",
+      "rejected": "Your request was declined"
+    }
+  },
+  "host_request_view": {
+    "error_message": "Invalid host request ID",
+    "back_button_a11y_label": "Back",
+    "title_for_host": "Request from {{user}} - {{status}}",
+    "title_for_surfer": "Request to {{user}} - {{status}}",
+    "request_duration": "{{count}} night",
+    "request_duration_plural": "{{count}} nights"
+  }
+}

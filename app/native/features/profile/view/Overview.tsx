@@ -23,6 +23,8 @@ import useCurrentUser from "@/features/userQueries/useCurrentUser";
 import { useProfileUser } from "../hooks/useProfileUser";
 import { ThemedText } from "@/components/ThemedText";
 import UserOverview from "./UserOverview";
+import useAccountInfo from "@/features/auth/useAccountInfo";
+import MessageUserButton from "../actions/MessageUserButton";
 // import makeStyles from "utils/makeStyles";
 
 // import { useProfileUser } from "../hooks/useProfileUser";
@@ -61,61 +63,60 @@ const getEditTab = (tab: UserTab): EditUserTab | undefined => {
 //   );
 // }
 
-// function DefaultActions({
-//   setIsRequesting,
-// }: {
-//   setIsRequesting: (value: boolean) => void;
-// }) {
-//   const { t } = useTranslation([GLOBAL, PROFILE]);
-//   const classes = useStyles();
-//   const user = useProfileUser();
-//   const disableHosting =
-//     user.hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST;
+function DefaultActions({
+  setIsRequesting,
+}: {
+  setIsRequesting: (value: boolean) => void;
+}) {
+  const { t } = useTranslation([GLOBAL, PROFILE]);
+  const user = useProfileUser();
+  const disableHosting =
+    user.hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST;
 
-//   const [mutationError, setMutationError] = useState("");
-//   const [showCantRequestDialog, setShowCantRequestDialog] =
-//     useState<boolean>(false);
+  const [mutationError, setMutationError] = useState("");
+  const [showCantRequestDialog, setShowCantRequestDialog] =
+    useState<boolean>(false);
 
-//   const { data: accountInfo, isLoading: isAccountInfoLoading } =
-//     useAccountInfo();
+  const { data: accountInfo, isLoading: isAccountInfoLoading } =
+    useAccountInfo();
 
-//   const requestButton = () => {
-//     if (!accountInfo?.profileComplete) {
-//       setShowCantRequestDialog(true);
-//     } else {
-//       setIsRequesting(true);
-//     }
-//   };
+  const requestButton = () => {
+    if (!accountInfo?.profileComplete) {
+      setShowCantRequestDialog(true);
+    } else {
+      setIsRequesting(true);
+    }
+  };
 
-//   return (
-//     <>
-//       <ProfileIncompleteDialog
-//         open={showCantRequestDialog}
-//         onClose={() => setShowCantRequestDialog(false)}
-//         attempted_action="send_request"
-//       />
-//       <Button
-//         onClick={requestButton}
-//         disabled={isAccountInfoLoading || disableHosting}
-//       >
-//         {disableHosting
-//           ? t("global:hosting_status.cant_host")
-//           : t("profile:actions.request")}
-//       </Button>
+  return (
+    <>
+      {/* <ProfileIncompleteDialog
+        open={showCantRequestDialog}
+        onClose={() => setShowCantRequestDialog(false)}
+        attempted_action="send_request"
+      />
+      <Button
+        onClick={requestButton}
+        disabled={isAccountInfoLoading || disableHosting}
+      >
+        {disableHosting
+          ? t("global:hosting_status.cant_host")
+          : t("profile:actions.request")}
+      </Button> */}
 
-//       <MessageUserButton user={user} setMutationError={setMutationError} />
-//       <FriendActions user={user} setMutationError={setMutationError} />
+      <MessageUserButton user={user} setMutationError={setMutationError} />
+      {/* <FriendActions user={user} setMutationError={setMutationError} /> */}
 
-//       <FlagButton
-//         className={classes.flagButton}
-//         contentRef={`profile/${user.userId}`}
-//         authorUser={user.userId}
-//       />
+      {/* <FlagButton
+        className={classes.flagButton}
+        contentRef={`profile/${user.userId}`}
+        authorUser={user.userId}
+      />
 
-//       {mutationError && <Alert severity="error">{mutationError}</Alert>}
-//     </>
-//   );
-// }
+      {mutationError && <Alert severity="error">{mutationError}</Alert>} */}
+    </>
+  );
+}
 
 export interface OverviewProps {
   setIsRequesting: (value: boolean) => void;
@@ -126,17 +127,17 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
   const currentUserId = useAuthContext().authState.userId;
   const user = useProfileUser();
 
-  // return <ThemedText>Overview</ThemedText>;
   return (
     <UserOverview
       showHostAndMeetAvailability
-      // actions={
-      //   user.userId === currentUserId ? (
-      //     <LoggedInUserActions tab={tab} />
-      //   ) : (
-      //     <DefaultActions setIsRequesting={setIsRequesting} />
-      //   )
-      // }
+      actions={
+        user.userId === currentUserId ? (
+          // <LoggedInUserActions tab={tab} />
+          <ThemedText>No actions here yet</ThemedText>
+        ) : (
+          <DefaultActions setIsRequesting={setIsRequesting} />
+        )
+      }
     />
   );
 }

@@ -80,7 +80,7 @@ export default function UserSummary({
           <TouchableOpacity
             style={styles.link}
             onPress={() => {
-              /* Navigate to user profile */
+              router.push(routeToUser(user.username, 'about'));
             }}
           >
             {title}

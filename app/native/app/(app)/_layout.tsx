@@ -16,7 +16,7 @@ export default function AppLayout() {
       />
 
       <Tabs.Screen
-        name="messages"
+        name="messages/[...rest]"
         options={{
           title: "Message",
           headerShown: false,
@@ -63,6 +63,13 @@ export default function AppLayout() {
           headerShown: false,
         }}
       />
+      {/* <Tabs.Screen
+        name="messages/[...rest]"
+        options={{
+          // href: null,
+          headerShown: false,
+        }}
+      /> */}
     </Tabs>
   );
 }

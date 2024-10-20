@@ -1,5 +1,17 @@
 export const landingRoute = "/landing";
 
+export const messagesRoute = "/messages";
+export const messageTypeStrings = ["chats", "hosting", "surfing"] as const;
+export type MessageType = typeof messageTypeStrings[number];
+export const groupChatsRoute = `${messagesRoute}/chats`;
+export const routeToCreateMessage = (username: string) =>
+  `${groupChatsRoute}?to=${username}`;
+export const surfingRequestsRoute = `${messagesRoute}/surfing`;
+export const hostingRequestsRoute = `${messagesRoute}/hosting`;
+export const hostRequestRoute = `${messagesRoute}/request`;
+export const routeToGroupChat = (id: number) => `${groupChatsRoute}/${id}`;
+export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
+
 // profile
 export const userTabs = [
   "about",
