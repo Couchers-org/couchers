@@ -32,6 +32,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     alignItems: "flex-end",
     justifyContent: "flex-end",
     minWidth: theme.spacing(10),
+    fontSize: ".85rem",
+    color: theme.palette.text.secondary,
   },
   card: {
     display: "flex",
@@ -56,6 +58,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: "flex",
     justifyContent: "flex-end",
     flexDirection: "column",
+    fontSize: ".85rem",
   },
   row: {
     display: "flex",
@@ -92,30 +95,9 @@ const LongEventCard = ({
   const { t } = useTranslation([COMMUNITIES]);
 
   const startTime = dayjs(timestamp2Date(event.startTime!)).format("llll");
-
-  const renderTags = () => {
-    const isCreatedByMe = event.creatorUserId === userId;
-    const isOnline = event.onlineInformation?.link !== undefined;
-    const isCancelled = event.isCancelled;
-
-    return (
-      <div className={classes.tags}>
-        {isCreatedByMe && (
-          <Pill variant="rounded">{t("communities:created_by_me")}</Pill>
-        )}
-        {isOnline && <Pill variant="rounded">{t("communities:online")}</Pill>}
-        {isCancelled && (
-          <Pill
-            backgroundColor={theme.palette.error.main}
-            color={theme.palette.common.white}
-            variant="rounded"
-          >
-            {t("communities:cancelled")}
-          </Pill>
-        )}
-      </div>
-    );
-  };
+  const isCreatedByMe = event.creatorUserId === userId;
+  const isOnline = event.onlineInformation?.link !== undefined;
+  const isCancelled = event.isCancelled;
 
   return (
     <Card className={classes.root} data-testid="event-item">
@@ -133,26 +115,39 @@ const LongEventCard = ({
                   {event.title}
                 </Typography>
               </Tooltip>
-              {renderTags()}
+              <div className={classes.tags}>
+                {isCreatedByMe && (
+                  <Pill variant="rounded">
+                    {t("communities:created_by_me")}
+                  </Pill>
+                )}
+                {isOnline && (
+                  <Pill variant="rounded">{t("communities:online")}</Pill>
+                )}
+                {isCancelled && (
+                  <Pill
+                    backgroundColor={theme.palette.error.main}
+                    color={theme.palette.common.white}
+                    variant="rounded"
+                  >
+                    {t("communities:cancelled")}
+                  </Pill>
+                )}
+              </div>
             </div>
             <div className={classes.row}>
               <div className={classes.eventInfo}>
-                <Typography variant="body2">
-                  {event.offlineInformation
-                    ? event.offlineInformation.address
-                    : t("communities:virtual_event_location_placeholder")}
-                </Typography>
-                <Typography variant="body2">{startTime}</Typography>
+                {event.offlineInformation
+                  ? event.offlineInformation.address
+                  : t("communities:virtual_event_location_placeholder")}
+
+                <div>{startTime}</div>
               </div>
-              <Typography
-                className={classes.attendees}
-                variant="body2"
-                color="textSecondary"
-              >
+              <div className={classes.attendees}>
                 {t("communities:attendees_count", {
                   count: event.goingCount + event.maybeCount,
                 })}
-              </Typography>
+              </div>
             </div>
           </CardContent>
         </a>

@@ -169,7 +169,7 @@ const DiscoverEventsList = () => {
               variant="body2"
               onClick={handleFilterIsMyCommunitiesClick}
             >
-              {t("communities:communities")}
+              {t("communities:my_communities")}
             </Typography>
             <Typography
               className={isOnlineOnly ? classes.selectedFilter : classes.filter}
