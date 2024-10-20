@@ -106,7 +106,7 @@ describe("DiscoverEventsList", () => {
     expect(
       screen.getByText("communities:discover_events_title")
     ).toBeInTheDocument();
-    expect(screen.getByText("communities:communities")).toBeInTheDocument();
+    expect(screen.getByText("communities:my_communities")).toBeInTheDocument();
     expect(screen.getByText("communities:online")).toBeInTheDocument();
     expect(screen.getByTestId("location-autocomplete")).toBeInTheDocument();
     expect(
@@ -213,7 +213,7 @@ describe("DiscoverEventsList", () => {
 
     render(<DiscoverEventsList />);
 
-    const communitiesFilter = screen.getByText("communities:communities");
+    const communitiesFilter = screen.getByText("communities:my_communities");
     const onlineFilter = screen.getByText("communities:online");
     expect(communitiesFilter).toBeInTheDocument();
     expect(onlineFilter).toBeInTheDocument();
