@@ -4,12 +4,10 @@ import { TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
 const styles = StyleSheet.create({
   root: {
     borderRadius: 20,
-    // shadowColor: '#000',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 1,
-    // shadowRadius: 1,
-    elevation: 2,
-    padding: 10,
+    elevation: 7,
+    shadowOffset: { width: 1, height: 1 },
+    shadowRadius: 3,
+    shadowOpacity: 0.5,
   },
 });
 
@@ -17,12 +15,14 @@ interface HeaderButtonProps {
   children?: ReactNode;
   onPress: () => void;
   style?: ViewStyle;
+  accessibilityLabel?: string;
 }
 
 export default function HeaderButton({
   children,
   onPress,
   style,
+  accessibilityLabel,
   ...otherProps
 }: HeaderButtonProps) {
   return (
@@ -30,6 +30,8 @@ export default function HeaderButton({
       {...otherProps}
       onPress={onPress}
       style={[styles.root, style]}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
     >
       {children}
     </TouchableOpacity>

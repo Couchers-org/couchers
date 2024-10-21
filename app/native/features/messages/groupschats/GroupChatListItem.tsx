@@ -4,8 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { GroupChat } from 'proto/conversations_pb';
 import { useAuthContext } from 'features/auth/AuthProvider';
 import useUsers from 'features/userQueries/useUsers';
-// // import Avatar from 'components/Avatar';
-// import { MuteIcon } from 'components/Icons';
 import {
   controlMessage,
   groupChatTitleText,
@@ -15,6 +13,42 @@ import {
 import { firstName } from 'utils/names';
 import { MESSAGES } from 'i18n/namespaces';
 import { Avatar } from 'react-native-paper';
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    padding: 16,
+    alignItems: 'center',
+  },
+  avatarContainer: {
+    marginRight: 16,
+  },
+  contentContainer: {
+    flex: 1,
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  message: {
+    fontSize: 14,
+    color: '#666',
+  },
+  unread: {
+    fontWeight: 'bold',
+  },
+  skeleton: {
+    backgroundColor: '#e0e0e0',
+    height: 16,
+    borderRadius: 4,
+    marginBottom: 8,
+  },
+});
+
 
 interface GroupChatListItemProps {
   groupChat: GroupChat.AsObject;
@@ -111,41 +145,3 @@ export default function GroupChatListItem({
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    padding: 16,
-    alignItems: 'center',
-  },
-  avatarContainer: {
-    marginRight: 16,
-  },
-  contentContainer: {
-    flex: 1,
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 16,
-    marginRight: 8,
-  },
-  message: {
-    fontSize: 14,
-    color: '#666',
-  },
-  unread: {
-    fontWeight: 'bold',
-  },
-  muteIcon: {
-    // Add specific styles for the MuteIcon if needed
-  },
-  skeleton: {
-    backgroundColor: '#e0e0e0',
-    height: 16,
-    borderRadius: 4,
-    marginBottom: 8,
-  },
-});

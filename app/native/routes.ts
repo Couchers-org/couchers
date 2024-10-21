@@ -1,3 +1,6 @@
+import { ReferenceType } from "./proto/references_pb";
+import { ReferenceTypeStrings } from "./service/references";
+
 export const landingRoute = "/landing";
 
 export const messagesRoute = "/messages";
@@ -29,3 +32,33 @@ const userBaseRoute = "/user";
 export function routeToUser(username: string, tab?: UserTab): any {
   return `${userBaseRoute}/${username}`;
 }
+
+// REFERENCES
+export const leaveReferenceBaseRoute = "/leave-reference";
+export const routeToLeaveReference = (
+  referenceType: ReferenceTypeStrings,
+  userId: number,
+  hostRequestId?: number
+) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`;
+export const referenceTypeRouteStrings = [
+  "friend",
+  "surfed",
+  "hosted",
+] as const;
+export type ReferenceTypeRouteStrings =
+  typeof referenceTypeRouteStrings[number];
+export const referenceTypeRoute: Record<
+  ReferenceType,
+  ReferenceTypeRouteStrings
+> = {
+  [ReferenceType.REFERENCE_TYPE_FRIEND]: "friend",
+  [ReferenceType.REFERENCE_TYPE_SURFED]: "surfed",
+  [ReferenceType.REFERENCE_TYPE_HOSTED]: "hosted",
+};
+export const referenceStepStrings = [
+  "appropriate",
+  "rating",
+  "reference",
+  "submit",
+] as const;
+export type ReferenceStep = typeof referenceStepStrings[number];
