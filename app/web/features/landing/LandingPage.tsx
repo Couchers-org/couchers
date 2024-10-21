@@ -183,15 +183,7 @@ export default function LandingPage() {
             </Typography>
           </div>
         </div>
-        {process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" && (
-          <a
-            className={authClasses.vercelLink}
-            rel="noopener noreferrer"
-            href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
-          >
-            <img alt="Powered by Vercel" src={vercelLogo.src} />
-          </a>
-        )}
+
         <MuiButton
           className={classes.scrollMoreButton}
           onClick={scrollToMore}
@@ -206,6 +198,15 @@ export default function LandingPage() {
         >
           <ExpandMoreIcon />
         </IconButton>
+        {process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" && (
+          <a
+            className={authClasses.vercelLink}
+            rel="noopener noreferrer"
+            href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
+          >
+            <img alt="Powered by Vercel" src={vercelLogo.src} />
+          </a>
+        )}
       </section>
       <div className={classes.spacer} />
       <Container component="section" maxWidth="md">
