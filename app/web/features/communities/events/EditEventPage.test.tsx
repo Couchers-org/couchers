@@ -3,6 +3,7 @@ import {
   screen,
   waitFor,
   waitForElementToBeRemoved,
+  within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
@@ -28,6 +29,21 @@ function renderPage() {
   const { wrapper } = getHookWrapperWithClient();
 
   render(<EditEventPage eventId={1} />, { wrapper });
+}
+
+async function chooseNewDate(dateField: HTMLInputElement) {
+  // Opens the date picker dialog
+  userEvent.click(dateField);
+  const datePickerDialog = await screen.findByRole("dialog");
+
+  // We only care about checking if date updates get passed correctly to the RPC call,
+  // and choosing the 30th June is the easiest way to do that for the rendered event
+  userEvent.click(
+    within(datePickerDialog).getByRole("gridcell", { name: "30" })
+  );
+
+  userEvent.click(within(datePickerDialog).getByRole("button", { name: "OK" }));
+  await waitForElementToBeRemoved(datePickerDialog);
 }
 
 describe("Edit event page", () => {
@@ -60,11 +76,10 @@ describe("Edit event page", () => {
     const eventDetails = screen.getByLabelText(t("communities:event_details"));
     userEvent.clear(eventDetails);
     userEvent.type(eventDetails, "We are going virtual this week!");
-    const endDateField = await screen.findByLabelText(
+    const endDateField = await screen.findByLabelText<HTMLInputElement>(
       t("communities:end_date")
     );
-    userEvent.clear(endDateField);
-    userEvent.type(endDateField, "07012021");
+    await chooseNewDate(endDateField);
     userEvent.click(screen.getByRole("button", { name: t("global:update") }));
 
     await waitFor(() => {
@@ -77,7 +92,7 @@ describe("Edit event page", () => {
       title: "Weekly Meetup in the dam",
       content: "We are going virtual this week!",
       link: "https://couchers.org/amsterdam-social",
-      endTime: new Date("2021-07-01 03:37"),
+      endTime: new Date("2021-06-30 03:37"),
     });
 
     // Verifies that success re-directs user
@@ -87,11 +102,10 @@ describe("Edit event page", () => {
   it("should submit both the start and end date if the start date field is touched", async () => {
     renderPage();
 
-    const startDateField = await screen.findByLabelText(
+    const startDateField = await screen.findByLabelText<HTMLInputElement>(
       t("communities:start_date")
     );
-    userEvent.clear(startDateField);
-    userEvent.type(startDateField, "08012021");
+    await chooseNewDate(startDateField);
     userEvent.click(screen.getByRole("button", { name: t("global:update") }));
 
     await waitFor(
@@ -104,8 +118,8 @@ describe("Edit event page", () => {
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,
       isOnline: false,
-      startTime: new Date("2021-08-01 02:37"),
-      endTime: new Date("2021-08-01 03:37"),
+      startTime: new Date("2021-06-30 02:37"),
+      endTime: new Date("2021-06-30 03:37"),
     });
   });
 
