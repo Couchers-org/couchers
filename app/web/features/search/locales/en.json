@@ -28,8 +28,33 @@
             "complete_profiles_label": "Complete profiles"
         },
         "accommodation_filters": {
-            "title": "Accommodation filters",
-            "guests_field_label": "Number of guests"
+            "title": "Type of place",
+            "guests_field_label": "Number of guests",
+            "private_room": "Private room",
+            "shared_room": "Shared room"
+        },
+        "rules": {
+            "title": "Rules",
+            "smoking": "Smoking allowed",
+            "drinking": "Alcohol allowed",
+            "pets": "Pets allowed",
+            "kids": "Kids allowed"
+        },
+        "hosting_status": {
+            "title": "Hosting status",
+            "accepting_guests": "Accepting guests",
+            "maybe_accepting_guests": "Maybe accepting guests",
+            "can_meetup": "Want meet up",
+            "open_meetup": "Open to meet up"
+        },
+        "age": {
+            "title": "Age"
+        },
+        "other": {
+            "title": "Other",
+            "camping": "Camping available",
+            "parking": "Parking available",
+            "wheelchair_accessible": "Wheelchair accessible"
         },
         "empty_profile_filters": {
             "title": "Filter out empty profiles"

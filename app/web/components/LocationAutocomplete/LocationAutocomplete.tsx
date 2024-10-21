@@ -18,6 +18,7 @@ interface LocationAutocompleteProps {
   id?: string;
   variant?: "filled" | "standard" | "outlined" | undefined;
   name: string;
+  size?: "small" | "medium";
   onChange?(value: GeocodeResult | ""): void;
   required?: string;
   showFullDisplayName?: boolean;
@@ -36,6 +37,7 @@ export default function LocationAutocomplete({
   variant = "standard",
   onChange,
   required,
+  size = "medium",
   showFullDisplayName = false,
   disableRegions = false,
 }: LocationAutocompleteProps) {
@@ -113,6 +115,7 @@ export default function LocationAutocomplete({
           : t("location_autocomplete.search_location_hint")
       }
       loading={isLoading}
+      size={size}
       options={options || []}
       open={isOpen}
       onClose={() => setIsOpen(false)}
