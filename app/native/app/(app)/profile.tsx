@@ -2,7 +2,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ProfilePage from "@/features/profile/view/ProfilePage";
 import { Platform, StatusBar, View } from "react-native";
 
-export default function Me() {
+export default function Profile() {
   const insets = useSafeAreaInsets();
   return (
     <View

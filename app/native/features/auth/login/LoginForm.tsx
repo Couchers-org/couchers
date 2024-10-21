@@ -33,7 +33,7 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (authState.error == null && authState.authenticated) {
-      router.replace("/(app)/me");
+      router.replace(`/(app)/explore` as any);
     }
   }, [authState.error, authState.authenticated]);
 

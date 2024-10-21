@@ -6,6 +6,7 @@ import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { router } from "expo-router";
 import Button from "@/components/Button";
+import { loginRoute, signUpRoute } from "@/routes";
 
 export default function Landing() {
   const { t } = useTranslation([AUTH, GLOBAL]);
@@ -37,9 +38,9 @@ export default function Landing() {
           <Button
             title="Sign up"
             filled={true}
-            onPress={() => router.push("/sign_up")}
+            onPress={() => router.push(signUpRoute as any)}
           />
-          <Button title="Log in" onPress={() => router.push("/login")} />
+          <Button title="Log in" onPress={() => router.push(loginRoute as any)} />
         </View>
       </View>
     </ImageBackground>

@@ -66,7 +66,7 @@ export default function ReferenceListItem({
       style={styles.listItem}
       testID={REFERENCE_LIST_ITEM_TEST_ID}
       onPress={() => {
-        router.push(routeToUser(user.username, 'about'));
+        router.push(routeToUser(user.username, 'about') as any);
       }}
     >
       <UserSummary user={user} />

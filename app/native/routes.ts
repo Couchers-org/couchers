@@ -1,11 +1,13 @@
 import { ReferenceType } from "./proto/references_pb";
 import { ReferenceTypeStrings } from "./service/references";
 
+export const loginRoute = "/login";
+export const signUpRoute = "/sign_up";
 export const landingRoute = "/landing";
 
 export const messagesRoute = "/messages";
 export const messageTypeStrings = ["chats", "hosting", "surfing"] as const;
-export type MessageType = typeof messageTypeStrings[number];
+export type MessageType = (typeof messageTypeStrings)[number];
 export const groupChatsRoute = `${messagesRoute}/chats`;
 export const routeToCreateMessage = (username: string) =>
   `${groupChatsRoute}?to=${username}`;
@@ -16,21 +18,25 @@ export const routeToGroupChat = (id: number) => `${groupChatsRoute}/${id}`;
 export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 
 // profile
-export const userTabs = [
-  "about",
-  "home",
-  "references",
-//   "favorites",
-//   "photos",
-] as const;
+export const userTabs = ["about", "home", "references"] as const;
 export const editUserTabs = ["about", "home"] as const;
 export type UserTab = (typeof userTabs)[number];
 export type EditUserTab = (typeof editUserTabs)[number];
 
+export const profileBaseRoute = "/profile";
+export function routeToProfile(tab?: UserTab) {
+  return `${profileBaseRoute}${tab ? `/${tab}` : ""}`;
+}
+
+export function routeToEditProfile(tab?: EditUserTab) {
+  return `${profileBaseRoute}/edit${tab ? `/${tab}` : ""}`;
+}
+
+// user
 const userBaseRoute = "/user";
 
-export function routeToUser(username: string, tab?: UserTab): any {
-  return `${userBaseRoute}/${username}`;
+export function routeToUser(username: string, tab?: UserTab) {
+  return `${userBaseRoute}/${username}${tab ? `/${tab}` : ""}`;
 }
 
 // REFERENCES
@@ -46,7 +52,7 @@ export const referenceTypeRouteStrings = [
   "hosted",
 ] as const;
 export type ReferenceTypeRouteStrings =
-  typeof referenceTypeRouteStrings[number];
+  (typeof referenceTypeRouteStrings)[number];
 export const referenceTypeRoute: Record<
   ReferenceType,
   ReferenceTypeRouteStrings
@@ -61,4 +67,4 @@ export const referenceStepStrings = [
   "reference",
   "submit",
 ] as const;
-export type ReferenceStep = typeof referenceStepStrings[number];
+export type ReferenceStep = (typeof referenceStepStrings)[number];

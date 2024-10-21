@@ -61,7 +61,7 @@ export default function UserSummary({
           <TouchableOpacity
             disabled={!avatarIsLink}
             onPress={() => {
-              router.push(routeToUser(user.username, 'about'));
+              router.push(routeToUser(user.username, 'about') as any);
             }}
           >
             {user.avatarUrl !== "" ? (
@@ -80,7 +80,7 @@ export default function UserSummary({
           <TouchableOpacity
             style={styles.link}
             onPress={() => {
-              router.push(routeToUser(user.username, 'about'));
+              router.push(routeToUser(user.username, 'about') as any);
             }}
           >
             {title}

@@ -7,6 +7,8 @@ import { setUnauthenticatedErrorHandler } from "service/client";
 
 import { JAILED_ERROR_MESSAGE } from "./constants";
 import useAuthStore, { AuthStoreType } from "./useAuthStore";
+import { loginRoute } from "@/routes";
+import { router } from "expo-router";
 
 export const AuthContext = React.createContext<null | AuthStoreType>(null);
 
@@ -33,6 +35,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         await store.authActions.logout();
         store.authActions.authError(t("logged_out_message"));
         Alert.alert("You've been logged out.");
+        router.replace(loginRoute as any);
       }
     });
 
