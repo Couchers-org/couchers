@@ -1,44 +1,62 @@
-import { Typography } from "@material-ui/core";
-import { TabContext, TabPanel } from "@material-ui/lab";
-import HtmlMeta from "components/HtmlMeta";
+import { Button, Typography } from "@material-ui/core";
 import PageTitle from "components/PageTitle";
-import TabBar from "components/TabBar";
-import { EventsType } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { newEventRoute } from "routes";
+import makeStyles from "utils/makeStyles";
 
-import EventsTab from "./EventsTab";
+import DiscoverEventsList from "../events/DiscoverEventsList";
+import MyEventsList from "./MyEventsList";
 
-export default function EventsPage() {
+const useStyles = makeStyles((theme) => ({
+  button: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.common.white,
+    margin: theme.spacing(2),
+    padding: theme.spacing(1, 2),
+    "&:hover": {
+      backgroundColor: theme.palette.primary.dark,
+    },
+    fontWeight: "bold",
+  },
+  column: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  headerRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingBottom: theme.spacing(1),
+  },
+}));
+
+const EventsPage = () => {
+  const classes = useStyles();
+  const router = useRouter();
+
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
-  const [tab, setTab] = useState<EventsType>("upcoming");
-
-  const allEventsPageTabLabels: Record<EventsType, string> = {
-    upcoming: t("communities:upcoming"),
-    past: t("communities:past"),
-  };
 
   return (
-    <>
-      <HtmlMeta title={t("global:nav.events")} />
-      <PageTitle>{t("communities:discover_events_title")}</PageTitle>
-      <Typography variant="body1">
-        {t("communities:discover_events_subtitle")}
-      </Typography>
-      <TabContext value={tab}>
-        <TabBar
-          ariaLabel={t("communities:all_events_page_tabs_a11y_label")}
-          setValue={setTab}
-          labels={allEventsPageTabLabels}
-        />
-        <TabPanel value="upcoming">
-          <EventsTab tabTitle={t("communities:upcoming")} />
-        </TabPanel>
-        <TabPanel value="past">
-          <EventsTab pastEvents tabTitle={t("communities:past")} />
-        </TabPanel>
-      </TabContext>
-    </>
+    <div>
+      <div className={classes.headerRow}>
+        <PageTitle>{t("communities:events_title")}</PageTitle>
+        <Button
+          className={classes.button}
+          size="small"
+          onClick={() => router.push(newEventRoute)}
+        >
+          {t("communities:create_new_event")}
+        </Button>
+      </div>
+      <div className={classes.column}>
+        <Typography variant="h2">{t("communities:your_events")}</Typography>
+        <MyEventsList />
+      </div>
+      <DiscoverEventsList />
+    </div>
   );
-}
+};
+
+export default EventsPage;

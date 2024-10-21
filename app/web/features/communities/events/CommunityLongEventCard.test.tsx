@@ -7,7 +7,7 @@ import { getUser } from "test/serviceMockDefaults";
 import { t } from "test/utils";
 import timezoneMock from "timezone-mock";
 
-import LongEventCard from "./LongEventCard";
+import CommunityLongEventCard from "./CommunityLongEventCard";
 
 const [firstEvent, secondEvent, thirdEvent] = events;
 
@@ -34,7 +34,7 @@ describe("Long event card", () => {
   });
 
   it("renders an offline event with the same start and end day correctly", async () => {
-    render(<LongEventCard event={firstEvent} />, { wrapper });
+    render(<CommunityLongEventCard event={firstEvent} />, { wrapper });
 
     expect(
       screen.getByRole("heading", { name: firstEvent.title })
@@ -55,7 +55,7 @@ describe("Long event card", () => {
   });
 
   it("renders an online event correctly", async () => {
-    render(<LongEventCard event={secondEvent} />, { wrapper });
+    render(<CommunityLongEventCard event={secondEvent} />, { wrapper });
 
     expect(
       screen.getByRole("heading", { name: secondEvent.title })
@@ -69,7 +69,7 @@ describe("Long event card", () => {
       attendeeUserIdsList: [3, 4, 5],
       nextPageToken: "",
     });
-    render(<LongEventCard event={thirdEvent} />, { wrapper });
+    render(<CommunityLongEventCard event={thirdEvent} />, { wrapper });
 
     const eventImage = await screen.findByRole("img", { name: "" });
     expect(eventImage).toBeVisible();

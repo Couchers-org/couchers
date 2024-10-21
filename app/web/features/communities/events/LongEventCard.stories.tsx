@@ -1,47 +1,42 @@
+import { ThemeProvider } from "@material-ui/core/styles";
 import { Meta, Story } from "@storybook/react";
-import { mockedService } from "stories/serviceMocks";
-import events from "test/fixtures/events.json";
+import { Event } from "proto/events_pb";
+import React from "react";
+import mockEvents from "test/fixtures/events.json";
+import { theme } from "theme";
 
-import LongEventCard, { LongEventCardProps } from "./LongEventCard";
+import LongEventCard from "./LongEventCard";
 
 export default {
-  component: LongEventCard,
   title: "Communities/Events/LongEventCard",
+  component: LongEventCard,
+  decorators: [
+    (Story) => (
+      <ThemeProvider theme={theme}>
+        <Story />
+      </ThemeProvider>
+    ),
+  ],
 } as Meta;
 
-interface LongEventCardArgs extends LongEventCardProps {
-  returnFullPage?: boolean;
-}
+const Template: Story<{ event: Event.AsObject; userId: number | null }> = (
+  args
+) => <LongEventCard {...args} />;
 
-const Template: Story<LongEventCardArgs> = ({
-  event,
-  returnFullPage = true,
-}) => {
-  setMocks(returnFullPage);
-  return <LongEventCard event={event} />;
-};
-
-export const EventWithLotsOfAttendees = Template.bind({});
-EventWithLotsOfAttendees.args = {
-  event: events[0],
+export const DefaultLongEventCard = Template.bind({});
+DefaultLongEventCard.args = {
+  event: mockEvents[0],
+  userId: 123,
 };
 
 export const OnlineEvent = Template.bind({});
 OnlineEvent.args = {
-  event: events[1],
+  event: mockEvents[1],
+  userId: 123,
 };
 
-export const EventWithFewAttendees = Template.bind({});
-EventWithFewAttendees.args = {
-  event: events[2],
-  returnFullPage: false,
+export const CancelledEvent = Template.bind({});
+CancelledEvent.args = {
+  event: mockEvents[3],
+  userId: 123,
 };
-
-function setMocks(returnFullPage: boolean) {
-  mockedService.events.listEventAttendees = async () => {
-    return {
-      nextPageToken: "",
-      attendeeUserIdsList: returnFullPage ? [1, 2, 3, 4, 5] : [1, 2, 3],
-    };
-  };
-}

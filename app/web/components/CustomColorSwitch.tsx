@@ -1,4 +1,4 @@
-import { Switch, SwitchProps } from "@material-ui/core";
+import { Switch, SwitchProps, Typography } from "@material-ui/core";
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { theme } from "theme";
@@ -13,6 +13,11 @@ interface SwitchStyleProps {
 }
 
 const useStyles = makeStyles(({ palette, shadows }) => ({
+  root: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+  },
   circle: {
     display: "flex",
     alignItems: "center",
@@ -56,6 +61,7 @@ export default function CustomColorSwitch({
   status,
   isLoading = false,
   color = theme.palette.secondary.main,
+  label,
 }: {
   checked: boolean;
   onClick: SwitchProps["onClick"];
@@ -63,6 +69,7 @@ export default function CustomColorSwitch({
   status?: string;
   isLoading?: boolean;
   color?: string;
+  label?: string;
 }) {
   const classes = useStyles({ checked, color, size });
 
@@ -94,16 +101,19 @@ export default function CustomColorSwitch({
   }
 
   return (
-    <Switch
-      classes={{
-        switchBase: classes.switchBase,
-      }}
-      checked={checked}
-      checkedIcon={<Icon />}
-      disabled={isLoading || status === "loading"}
-      icon={<Icon />}
-      onClick={onClick}
-      size={size}
-    />
+    <div className={classes.root}>
+      <Switch
+        classes={{
+          switchBase: classes.switchBase,
+        }}
+        checked={checked}
+        checkedIcon={<Icon />}
+        disabled={isLoading || status === "loading"}
+        icon={<Icon />}
+        onClick={onClick}
+        size={size}
+      />
+      {label && <Typography variant="body1">{label}</Typography>}
+    </div>
   );
 }

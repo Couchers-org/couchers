@@ -1,82 +1,82 @@
-import { CircularProgress } from "@material-ui/core";
-import Alert from "components/Alert";
-import Button from "components/Button";
-import { CalendarIcon } from "components/Icons";
-import TextBody from "components/TextBody";
-import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
-import { useRouter } from "next/router";
-import { Community } from "proto/communities_pb";
-import { routeToNewEvent } from "routes";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+import { useAuthContext } from "features/auth/AuthProvider";
+import { Event } from "proto/events_pb";
 import makeStyles from "utils/makeStyles";
 
-import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
-import { useListCommunityEvents } from "../hooks";
+import EventCard from "./EventCard";
 import LongEventCard from "./LongEventCard";
 
-interface EventsListProps {
-  community: Community.AsObject;
+interface EventListProps {
+  events: Event.AsObject[];
+  isVerticalStyle?: boolean;
 }
 
 const useStyles = makeStyles((theme) => ({
-  eventsListContainer: {
-    display: "grid",
-    rowGap: theme.spacing(3),
-    [theme.breakpoints.down("xs")]: {
-      //break out of page padding
-      left: "50%",
-      marginLeft: "-50vw",
-      marginRight: "-50vw",
-      position: "relative",
-      right: "50%",
-      width: "100vw",
+  root: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  eventsContainer: (props: { isVerticalStyle: boolean }) =>
+    props.isVerticalStyle
+      ? {
+          display: "grid",
+
+          [theme.breakpoints.down("xs")]: {
+            gridTemplateColumns: "1fr",
+            gridGap: theme.spacing(2),
+            //break out of page padding
+            left: "50%",
+            marginLeft: "-50vw",
+            marginRight: "-50vw",
+            position: "relative",
+            right: "50%",
+            width: "100vw",
+          },
+          [theme.breakpoints.up("sm")]: {
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gridGap: theme.spacing(2),
+          },
+          [theme.breakpoints.up("md")]: {
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gridGap: theme.spacing(3),
+          },
+        }
+      : {},
+  seeMoreContainer: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      marginBottom: theme.spacing(4),
     },
-    marginBlockEnd: theme.spacing(2),
   },
 }));
 
-export default function EventsList({ community }: EventsListProps) {
-  const { t } = useTranslation([COMMUNITIES]);
-  const classes = { ...useCommunityPageStyles(), ...useStyles() };
-  const router = useRouter();
+const DEFAULT_EVENTS: Event.AsObject[] = [];
 
-  const { data, error, hasNextPage, fetchNextPage, isLoading } =
-    useListCommunityEvents({
-      communityId: community.communityId,
-      pageSize: 5,
-      type: "all",
-    });
+const EventsList = ({
+  events = DEFAULT_EVENTS,
+  isVerticalStyle = false,
+}: EventListProps) => {
+  const classes = useStyles({ isVerticalStyle });
+
+  const {
+    authState: { userId },
+  } = useAuthContext();
 
   return (
-    <>
-      <SectionTitle icon={<CalendarIcon />}>
-        {t("communities:events_title")}
-      </SectionTitle>
-      <Button
-        className={classes.createResourceButton}
-        onClick={() => router.push(routeToNewEvent(community.communityId))}
-      >
-        {t("communities:create_an_event")}
-      </Button>
-      {error && <Alert severity="error">{error.message}</Alert>}
-      <div className={classes.eventsListContainer}>
-        {isLoading ? (
-          <CircularProgress />
-        ) : hasAtLeastOnePage(data, "eventsList") ? (
-          data.pages
-            .flatMap((page) => page.eventsList)
-            .filter((event) => !event.isCancelled)
-            .map((event) => <LongEventCard event={event} key={event.eventId} />)
-        ) : (
-          !error && <TextBody>{t("communities:events_empty_state")}</TextBody>
+    <div className={classes.root}>
+      <div className={classes.eventsContainer}>
+        {events.map((event) =>
+          isVerticalStyle ? (
+            <EventCard key={event.eventId} event={event} />
+          ) : (
+            <LongEventCard key={event.eventId} event={event} userId={userId} />
+          )
         )}
       </div>
-      {hasNextPage && (
-        <Button onClick={() => fetchNextPage()}>
-          {t("communities:see_more_events_label")}
-        </Button>
-      )}
-    </>
+    </div>
   );
-}
+};
+
+export default EventsList;
