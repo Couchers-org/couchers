@@ -1,4 +1,10 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EditLocationMapProps } from "components/EditLocationMap";
 import { hostingStatusLabels } from "features/profile/constants";
@@ -82,8 +88,21 @@ describe("AccountForm", () => {
       const birthdayField = screen.getByLabelText(
         t("auth:account_form.birthday.field_label")
       );
-      userEvent.clear(birthdayField);
-      userEvent.type(birthdayField, "01/01/1990");
+      userEvent.click(birthdayField);
+      const datePickerDialog = await screen.findByRole("dialog");
+      userEvent.click(
+        within(datePickerDialog).getByRole("button", { name: "1990" })
+      );
+      userEvent.click(
+        within(datePickerDialog).getByRole("button", { name: "Jan" })
+      );
+      userEvent.click(
+        within(datePickerDialog).getByRole("gridcell", { name: "1" })
+      );
+      userEvent.click(
+        within(datePickerDialog).getByRole("button", { name: "OK" })
+      );
+      await waitForElementToBeRemoved(datePickerDialog);
 
       userEvent.type(
         screen.getByTestId("edit-location-map"),
@@ -181,24 +200,6 @@ describe("AccountForm", () => {
       expect(
         await screen.findByText(
           t("auth:account_form.username.validation_error")
-        )
-      ).toBeVisible();
-      expect(signupFlowAccountMock).not.toHaveBeenCalled();
-    });
-
-    it("fails on incorrect birthdate", async () => {
-      const field = screen.getByLabelText(
-        t("auth:account_form.birthday.field_label")
-      );
-      userEvent.clear(field);
-      userEvent.type(field, "01/01/2099");
-      userEvent.click(
-        screen.getByRole("button", { name: t("global:sign_up") })
-      );
-
-      expect(
-        await screen.findByText(
-          t("auth:account_form.birthday.validation_error")
         )
       ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();

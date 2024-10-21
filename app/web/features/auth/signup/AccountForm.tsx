@@ -217,6 +217,9 @@ export default function AccountForm() {
               t("auth:account_form.birthday.validation_error"),
           }}
           minDate={dayjs("1899-12-01")}
+          maxDate={dayjs().subtract(18, "years")}
+          defaultValue={dayjs().subtract(18, "years")}
+          openTo="year"
           name="birthdate"
         />
         <InputLabel className={authClasses.formLabel} htmlFor="location">

@@ -23,6 +23,7 @@ interface DatepickerProps {
   label?: string;
   name: string;
   minDate?: Dayjs;
+  maxDate?: Dayjs;
   onPostChange?(date: Dayjs): void;
   openTo?: "year" | "month" | "day";
   testId?: string;
@@ -38,6 +39,7 @@ export default function Datepicker({
   rules,
   label,
   minDate = dayjs(),
+  maxDate,
   name,
   onPostChange,
   openTo = "day",
@@ -57,6 +59,7 @@ export default function Datepicker({
           label={label}
           value={value}
           minDate={minDate}
+          maxDate={maxDate}
           onChange={(date) => {
             if (date?.isValid()) {
               onChange(date);

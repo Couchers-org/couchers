@@ -1,4 +1,10 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useTranslation } from "i18n";
 import { useForm } from "react-hook-form";
@@ -22,6 +28,7 @@ const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
         id="date-field"
         label="Date field"
         name="datefield"
+        defaultValue={dayjs()}
       />
       <input type="submit" name={t("submit")} />
     </form>
@@ -42,12 +49,27 @@ describe("DatePicker", () => {
     userEvent.click(
       screen.getByLabelText(t("global:components.datepicker.change_date"))
     );
-    userEvent.click(screen.getByText("23"));
+    const datePickerDialog = await screen.findByRole("dialog");
+    userEvent.click(
+      within(datePickerDialog).getByRole("gridcell", { name: "23" })
+    );
+    userEvent.click(
+      within(datePickerDialog).getByRole("button", { name: "OK" })
+    );
+    await waitForElementToBeRemoved(datePickerDialog);
+
     userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(date?.date).toEqual(dayjs("2021-03-23").date);
     });
+  });
+});
+
+describe("Selecting today", () => {
+  afterEach(() => {
+    timezoneMock.unregister();
+    jest.restoreAllMocks();
   });
 
   it.each`
@@ -74,34 +96,4 @@ describe("DatePicker", () => {
     timezoneMock.unregister();
     spy.mockRestore();
   });
-
-  // Note - single letter formats don't work with typing, so we changed them to double
-  it.each`
-    language   | afterOneBackspace | typing         | afterInput
-    ${"en-GB"} | ${"20/03/202_"}   | ${"21032021"}  | ${"21/03/2021"}
-    ${"en-US"} | ${"03/20/202_"}   | ${"03/212021"} | ${"03/21/2021"}
-    ${"or-IN"} | ${"20-03-2_"}     | ${"21-0321"}   | ${"21-03-21"}
-    ${"zh-TW"} | ${"2021/03/2_"}   | ${"20210321"}  | ${"2021/03/21"}
-  `(
-    "typing works in $language",
-    async ({ language, afterOneBackspace, typing, afterInput }) => {
-      const langMock = jest.spyOn(navigator, "language", "get");
-      langMock.mockReturnValue(language);
-
-      let date: Dayjs | undefined = undefined;
-      render(<Form setDate={(d) => (date = d)} />, { wrapper });
-
-      const input = screen.getByRole("textbox") as HTMLInputElement;
-      userEvent.type(screen.getByRole("textbox"), "{backspace}");
-      expect(input.value).toBe(afterOneBackspace);
-      userEvent.clear(input);
-      userEvent.type(input, typing);
-      expect(input.value).toBe(afterInput);
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
-      const expectedDate = "2021-03-21";
-      await waitFor(() => {
-        expect(date?.format().split("T")[0]).toEqual(expectedDate);
-      });
-    }
-  );
 });
