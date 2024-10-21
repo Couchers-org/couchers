@@ -1,6 +1,5 @@
 import {
   Checkbox,
-  Chip,
   FormControlLabel,
   Grid,
   Input,
@@ -14,10 +13,9 @@ import Button from "components/Button";
 import {
   Dialog,
   DialogActions,
-  DialogContent,
   DialogTitle,
 } from "components/Dialog";
-import Divider from "components/Divider";
+import { AgeSlider } from "./AgeSlider";
 import IconButton from "components/IconButton";
 import { CrossIcon } from "components/Icons";
 import LocationAutocomplete from "components/LocationAutocomplete";
@@ -26,7 +24,7 @@ import TextField from "components/TextField";
 import { TFunction, useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { HostingStatus } from "proto/api_pb";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { useForm } from "react-hook-form";
 import { GeocodeResult } from "utils/hooks";
 import SearchFilters from "utils/searchFilters";
@@ -53,6 +51,7 @@ const getLastActiveOptions = (t: TFunction) => ({
   ),
 });
 
+// TODO: needed?
 const getHostingStatusOptions = (t: TFunction) => ({
   [HostingStatus.HOSTING_STATUS_CAN_HOST]: t("global:hosting_status.can_host"),
   [HostingStatus.HOSTING_STATUS_MAYBE]: t("global:hosting_status.maybe"),
@@ -66,6 +65,16 @@ const useStyles = makeStyles((theme) => ({
     "& > * + *": {
       marginBlockStart: theme.spacing(1),
     },
+    marginBottom: 15
+  },
+  content: {
+    height: "fit-content",
+    padding: theme.spacing(3),
+    width: "100%",
+    paddingTop: 0,
+  },
+  titleCategory: {
+    fontSize: "1.1rem",
   },
   marginBottom: {
     marginBottom: theme.spacing(2),
@@ -85,8 +94,9 @@ const useStyles = makeStyles((theme) => ({
   noMargin: {
     margin: 0,
   },
-  noLeftPadding: {
+  checkboxPadding: {
     paddingLeft: 0,
+    padding: 4,
   },
   inputHostingStatus: {
     minWidth: "160px",
@@ -143,21 +153,12 @@ export default function FilterDialog({
     mode: "onBlur",
   });
 
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: 48 * 4.5 + 8,
-        width: 250,
-      },
-    },
-    MenuListProps: {
-      className: classes.smallLeftPadding,
-    },
-  };
-
   const isSmDown = useMediaQuery((theme: Theme) =>
     theme.breakpoints.down("sm")
   );
+
+  // TODO: should come from parent
+  const [valueSlider, setValueSlider] = useState<number[]>([20, 37]);
 
   const handleNumGuestsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const convertedValue = parseInt(e.target.value);
@@ -193,11 +194,12 @@ export default function FilterDialog({
           onClose();
         }}
       >
-        <DialogContent>
+        <div className={classes.content} >
           <div className={classes.container}>
             <LocationAutocomplete
               control={control}
               name="location"
+              size="small"
               defaultValue={""}
               label={t("search:form.location_field_label")}
               onChange={(e) => {
@@ -213,6 +215,7 @@ export default function FilterDialog({
               id="keywords-filter"
               label={t("search:form.keywords.field_label")}
               name="query"
+              size="small"
               inputRef={register}
               variant="standard"
               onChange={(e) => {
@@ -240,15 +243,15 @@ export default function FilterDialog({
               }}
             />
           </div>
-          <Divider />
           <Grid container spacing={2}>
             <Grid item xs={12} md={6} className={classes.container}>
-              <Typography variant="h3">
+              <Typography className={classes.titleCategory} variant="h3">
                 {t("search:form.host_filters.title")}
               </Typography>
 
               <Select
                 id="last_active_filter"
+                variant="standard"
                 className={classes.marginBottom}
                 value={lastActiveFilter}
                 onChange={handleLastActiveChange}
@@ -264,60 +267,11 @@ export default function FilterDialog({
                 ]}
               />
 
-              <Select
-                id="can_host_status_filter_1"
-                variant="outlined"
-                label={t("search:form.host_filters.hosting_status_field_label")}
-                multiple={true}
-                menuItems={true}
-                value={hostingStatusFilter}
-                onChange={(e) =>
-                  setHostingStatusFilter(
-                    e.target.value as TypeHostingStatusOptions
-                  )
-                }
-                input={
-                  <Input
-                    className={classes.inputHostingStatus}
-                    id="select-multiple-chip"
-                  />
-                }
-                className={classes.marginBottom}
-                native={false}
-                renderValue={(selected) => (
-                  <div className={classes.chips}>
-                    {(selected as TypeHostingStatusOptions).map(
-                      // Type coercion bc the selected value type is unknown in the mui Select component
-                      (
-                        value: Exclude<
-                          HostingStatus,
-                          | HostingStatus.HOSTING_STATUS_UNKNOWN
-                          | HostingStatus.HOSTING_STATUS_UNSPECIFIED
-                        >
-                      ) => (
-                        <Chip
-                          key={value}
-                          label={getHostingStatusOptions(t)[value]}
-                          className={classes.chip}
-                        />
-                      )
-                    )}
-                  </div>
-                )}
-                MenuProps={MenuProps}
-                optionLabelMap={getHostingStatusOptions(t)}
-                options={[
-                  HostingStatus.HOSTING_STATUS_CAN_HOST,
-                  HostingStatus.HOSTING_STATUS_MAYBE,
-                  HostingStatus.HOSTING_STATUS_CANT_HOST,
-                ]}
-              />
-
               <FormControlLabel
                 className={classes.noMargin}
                 control={
                   <Checkbox
-                    className={classes.noLeftPadding}
+                    className={classes.checkboxPadding}
                     color="primary"
                     checked={completeProfileFilter}
                     onChange={() => {
@@ -327,15 +281,93 @@ export default function FilterDialog({
                 }
                 label={t("search:form.empty_profile_filters.title")}
               />
+
+              <Typography className={classes.titleCategory} variant="h3">
+                {t("search:form.hosting_status.title")}
+              </Typography>
+
+              <FormControlLabel
+                className={classes.noMargin}
+                control={
+                  <Checkbox
+                    className={classes.checkboxPadding}
+                    color="primary"
+                    checked={completeProfileFilter}
+                    onChange={() => {
+                      setCompleteProfileFilter(!completeProfileFilter);
+                    }}
+                  />
+                }
+                label={t("search:form.hosting_status.accepting_guests")}
+              />
+              <br />
+              <FormControlLabel
+                className={classes.noMargin}
+                control={
+                  <Checkbox
+                    className={classes.checkboxPadding}
+                    color="primary"
+                    checked={completeProfileFilter}
+                    onChange={() => {
+                      setCompleteProfileFilter(!completeProfileFilter);
+                    }}
+                  />
+                }
+                label={t("search:form.hosting_status.maybe_accepting_guests")}
+              />
+              <br />
+              <FormControlLabel
+                className={classes.noMargin}
+                control={
+                  <Checkbox
+                    className={classes.checkboxPadding}
+                    color="primary"
+                    checked={completeProfileFilter}
+                    onChange={() => {
+                      setCompleteProfileFilter(!completeProfileFilter);
+                    }}
+                  />
+                }
+                label={t("search:form.hosting_status.open_meetup")}
+              />
+              <br />
+              <FormControlLabel
+                className={classes.noMargin}
+                control={
+                  <Checkbox
+                    className={classes.checkboxPadding}
+                    color="primary"
+                    checked={completeProfileFilter}
+                    onChange={() => {
+                      setCompleteProfileFilter(!completeProfileFilter);
+                    }}
+                  />
+                }
+                label={t("search:form.hosting_status.can_meetup")}
+              />
+
+              <Typography className={classes.titleCategory} variant="h3">
+                {t("search:form.age.title")}
+              </Typography>
+
+              <AgeSlider
+                // ThumbComponent={AirbnbThumbComponent}
+                aria-labelledby="range-slider"
+                valueLabelDisplay="on"
+                defaultValue={[18, 50]}
+                min={18}
+              />
+
             </Grid>
             <Grid item xs={12} md={6} className={classes.container}>
-              <Typography variant="h3">
+              <Typography className={classes.titleCategory} variant="h3">
                 {t("search:form.accommodation_filters.title")}
               </Typography>
               <TextField
                 className={classes.noMargin}
                 type="number"
-                variant="standard"
+                variant="outlined"
+                size="small"
                 id="num-guests-filter"
                 value={numberOfGuestFilter}
                 inputProps={{ min: 0 }}
@@ -351,9 +383,147 @@ export default function FilterDialog({
                 error={!!errors.numGuests}
                 helperText={errors.numGuests?.message}
               />
+              <FormControlLabel
+                className={classes.noMargin}
+                control={
+                  <Checkbox
+                    className={classes.checkboxPadding}
+                    color="primary"
+                    checked={completeProfileFilter}
+                    onChange={() => {
+                      setCompleteProfileFilter(!completeProfileFilter);
+                    }}
+                  />
+                }
+                label={t("search:form.accommodation_filters.private_room")}
+              />
+              <br />
+              <FormControlLabel
+                className={classes.noMargin}
+                control={
+                  <Checkbox
+                    className={classes.checkboxPadding}
+                    color="primary"
+                    checked={completeProfileFilter}
+                    onChange={() => {
+                      setCompleteProfileFilter(!completeProfileFilter);
+                    }}
+                  />
+                }
+                label={t("search:form.accommodation_filters.shared_room")}
+              />
+              <Typography className={classes.titleCategory} variant="h3">
+                {t("search:form.rules.title")}
+              </Typography>
+              <FormControlLabel
+                className={classes.noMargin}
+                control={
+                  <Checkbox
+                    className={classes.checkboxPadding}
+                    color="primary"
+                    checked={completeProfileFilter}
+                    onChange={() => {
+                      setCompleteProfileFilter(!completeProfileFilter);
+                    }}
+                  />
+                }
+                label={t("search:form.rules.drinking")}
+              />
+              <br />
+              <FormControlLabel
+                className={classes.noMargin}
+                control={
+                  <Checkbox
+                    className={classes.checkboxPadding}
+                    color="primary"
+                    checked={completeProfileFilter}
+                    onChange={() => {
+                      setCompleteProfileFilter(!completeProfileFilter);
+                    }}
+                  />
+                }
+                label={t("search:form.rules.smoking")}
+              />
+              <br />
+              <FormControlLabel
+                className={classes.noMargin}
+                control={
+                  <Checkbox
+                    className={classes.checkboxPadding}
+                    color="primary"
+                    checked={completeProfileFilter}
+                    onChange={() => {
+                      setCompleteProfileFilter(!completeProfileFilter);
+                    }}
+                  />
+                }
+                label={t("search:form.rules.pets")}
+              />
+              <br />
+              <FormControlLabel
+                className={classes.noMargin}
+                control={
+                  <Checkbox
+                    className={classes.checkboxPadding}
+                    color="primary"
+                    checked={completeProfileFilter}
+                    onChange={() => {
+                      setCompleteProfileFilter(!completeProfileFilter);
+                    }}
+                  />
+                }
+                label={t("search:form.rules.kids")}
+              />
+              <Typography className={classes.titleCategory} variant="h3">
+                {t("search:form.other.title")}
+              </Typography>
+              <FormControlLabel
+                className={classes.noMargin}
+                control={
+                  <Checkbox
+                    className={classes.checkboxPadding}
+                    color="primary"
+                    checked={completeProfileFilter}
+                    onChange={() => {
+                      setCompleteProfileFilter(!completeProfileFilter);
+                    }}
+                  />
+                }
+                label={t("search:form.other.camping")}
+              />
+              <br />
+              <FormControlLabel
+                className={classes.noMargin}
+                control={
+                  <Checkbox
+                    className={classes.checkboxPadding}
+                    color="primary"
+                    checked={completeProfileFilter}
+                    onChange={() => {
+                      setCompleteProfileFilter(!completeProfileFilter);
+                    }}
+                  />
+                }
+                label={t("search:form.other.parking")}
+              />
+              <br />
+              <FormControlLabel
+                className={classes.noMargin}
+                control={
+                  <Checkbox
+                    className={classes.checkboxPadding}
+                    color="primary"
+                    checked={completeProfileFilter}
+                    onChange={() => {
+                      setCompleteProfileFilter(!completeProfileFilter);
+                    }}
+                  />
+                }
+                label={t("search:form.other.wheelchair_accessible")}
+              />
             </Grid>
           </Grid>
-        </DialogContent>
+        </div>
         <DialogActions>
           <Button type="submit">{t("search:form.submit_button_label")}</Button>
         </DialogActions>

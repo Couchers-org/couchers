@@ -5,7 +5,7 @@ import {
   StringValue,
   UInt32Value,
 } from "google-protobuf/google/protobuf/wrappers_pb";
-import { HostingStatus } from "proto/api_pb";
+import { HostingStatus, SleepingArrangement } from "proto/api_pb";
 import { RectArea, UserSearchReq } from "proto/search_pb";
 import client from "service/client";
 
@@ -16,6 +16,14 @@ export interface UserSearchFilters {
   hostingStatusOptions?: HostingStatus[];
   numGuests?: number;
   completeProfile?: boolean;
+  acceptsKids?: boolean;
+  acceptsPets?: boolean;
+  drinkingAllowed?: boolean;
+  smokingAllowed?: boolean;
+  wheelChairAccessible?: boolean;
+  hasParking?: boolean;
+  campingOk?: boolean;
+  sleepingArrangement?: SleepingArrangement[];
 }
 
 export async function userSearch(
@@ -26,11 +34,60 @@ export async function userSearch(
     hostingStatusOptions,
     numGuests,
     completeProfile,
+    acceptsKids,
+    acceptsPets,
+    drinkingAllowed,
+    smokingAllowed,
+    wheelChairAccessible,
+    hasParking,
+    campingOk,
+    sleepingArrangement,
   }: UserSearchFilters,
   pageToken = ""
 ) {
   const req = new UserSearchReq();
   req.setPageToken(pageToken);
+
+  // Rules
+  if (acceptsKids) {
+    req.setAcceptsKids(new BoolValue().setValue(acceptsKids));
+  }
+  if (acceptsPets) {
+    req.setAcceptsPets(new BoolValue().setValue(acceptsPets));
+  }
+  if (drinkingAllowed) {
+    req.setDrinkingAllowed(new BoolValue().setValue(drinkingAllowed));
+  }
+  if (smokingAllowed) {
+    // setSmokingAllowed(false); // TODO: missing in backend
+  }
+
+  // Other
+  if (wheelChairAccessible) {
+    req.setWheelchairAccessible(new BoolValue().setValue(wheelChairAccessible));
+  }
+  if (hasParking) {
+    req.setParking(new BoolValue().setValue(hasParking));
+  }
+  if (campingOk) {
+    req.setCampingOk(new BoolValue().setValue(campingOk));
+  }
+
+  // Type of place
+  if (sleepingArrangement) {
+    req.setSleepingArrangementFilterList(sleepingArrangement);
+  }
+  /*
+  SLEEPING_ARRANGEMENT_PRIVATE = 2,
+  SLEEPING_ARRANGEMENT_SHARED_ROOM = 4
+  */
+
+  // hosting status
+  req.setHostingStatusFilterList([]);
+  /*
+    HostingStatus.HOSTING_STATUS_CAN_HOST
+    HostingStatus.HOSTING_STATUS_MAYBE
+  */
 
   if (query) {
     req.setQuery(new StringValue().setValue(query));

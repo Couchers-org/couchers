@@ -4,7 +4,7 @@ import { Coordinates } from "features/search/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
-import { HostingStatus, User } from "proto/api_pb";
+import { HostingStatus, User, SleepingArrangement } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -23,6 +23,14 @@ export type TypeHostingStatusOptions = Exclude<
   HostingStatus,
   | HostingStatus.HOSTING_STATUS_UNKNOWN
   | HostingStatus.HOSTING_STATUS_UNSPECIFIED
+>[];
+
+export type TypeSleepingStatusOptions = Exclude<
+  SleepingArrangement,
+  | SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED
+  | SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN
+  | SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON
+  | SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_SPACE  
 >[];
 
 const useStyles = makeStyles((theme) => ({
@@ -79,6 +87,20 @@ export default function SearchPage({
   const map = useRef<MaplibreMap>();
 
   // State
+  const [acceptsKids, setAcceptKids] = useState(false);
+  const [acceptsPets, setAcceptPets] = useState(false);
+  const [drinkingAllowed, setDrinkingAllowed] = useState(false);
+  const [smokingAllowed, setSmokingAllowed] = useState(false);
+
+  // Other
+  const [wheelChairAccessible, setWheelChairAccessible] = useState(false);
+  const [hasParking, setHasParking] = useState(false);
+  const [campingOk, setCampingOk] = useState(false);
+  const [sleepingArrangement, setSleepingArrangement] = useState<TypeSleepingStatusOptions>([]);
+
+  // Other
+  // TODO: make 2 toggles for the hosting status
+  
   const [wasSearchPerformed, setWasSearchPerformed] = useState(false);
   const [locationResult, setLocationResult] = useState<GeocodeResult>({
     bbox: bbox,
