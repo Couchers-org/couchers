@@ -374,6 +374,31 @@ describe("Discussion page", () => {
 
       await assertErrorAlert(errorMessage);
     });
+
+    it("shows an error alert if the comment is empty string", async () => {
+      const errorMessage = "Invalid comment.";
+
+      renderDiscussion();
+      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+      const discussionCommentForm = within(
+        screen.getByTestId(COMMENT_TREE_COMMENT_FORM_TEST_ID)
+      );
+
+      userEvent.type(
+        discussionCommentForm.getByLabelText(
+          t("communities:write_comment_a11y_label")
+        ),
+        ""
+      );
+
+      userEvent.click(
+        discussionCommentForm.getByRole("button", {
+          name: t("communities:comment"),
+        })
+      );
+      await assertErrorAlert(errorMessage);
+    });
   });
 
   describe("Adding a comment/reply to a comment", () => {
