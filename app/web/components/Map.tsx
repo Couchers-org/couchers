@@ -9,8 +9,6 @@ import makeStyles from "utils/makeStyles";
 
 const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-maplibregl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_KEY!;
-
 const useStyles = makeStyles({
   root: {
     position: "relative",

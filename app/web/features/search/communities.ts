@@ -1,15 +1,19 @@
-import { AnyLayer, AnySourceData, Map as MaplibreMap } from "maplibre-gl";
+import {
+  LayerSpecification,
+  Map as MaplibreMap,
+  SourceSpecification,
+} from "maplibre-gl";
 
 const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export const sources: Record<string, AnySourceData> = {
+export const sources: Record<string, SourceSpecification> = {
   communities: {
     data: URL + "/geojson/communities",
     type: "geojson",
   },
 };
 
-export const layers: Record<string, AnyLayer> = {
+export const layers: Record<string, LayerSpecification> = {
   communitiesLayer: {
     id: "communities-layer",
     paint: {

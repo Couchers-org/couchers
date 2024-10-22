@@ -33,7 +33,7 @@ describe("Edit location map", () => {
 
     MapMock.mockImplementation(({ postMapInitialize }) => {
       useEffect(() => {
-        postMapInitialize?.(new mapboxgl.Map());
+        postMapInitialize?.(new mapboxgl.Map({ container: "div" }));
       });
       return <div>Map</div>;
     });

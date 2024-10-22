@@ -11,7 +11,12 @@ import {
 import { Point } from "geojson";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
-import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
+import {
+  LngLat,
+  Map as MaplibreMap,
+  MapGeoJSONFeature,
+  MapMouseEvent,
+} from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import {
@@ -105,9 +110,9 @@ export default function MapWrapper({
    */
   const handleMapUserClick = useCallback(
     (
-      ev: maplibregl.MapMouseEvent & {
-        features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
-      } & EventData
+      ev: MapMouseEvent & {
+        features?: MapGeoJSONFeature[] | undefined;
+      }
     ) => {
       ev.preventDefault();
 
@@ -187,7 +192,7 @@ export default function MapWrapper({
 
   useEffect(() => {
     if (!map.current) return;
-    const handleMapClickAway = (e: EventData) => {
+    const handleMapClickAway = (e: MapMouseEvent) => {
       // DefaultPrevented is true when a map feature has been clicked
       if (!e.defaultPrevented) {
         setSelectedResult(undefined);
