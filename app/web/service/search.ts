@@ -109,7 +109,6 @@ export async function EventSearch({
     req.setMyCommunities(isMyCommunities);
   }
   if (isOnlineOnly !== undefined) {
-    req.setQuery(undefined);
     req.setOnlyOnline(isOnlineOnly);
   }
 

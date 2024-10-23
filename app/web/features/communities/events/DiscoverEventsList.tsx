@@ -124,16 +124,12 @@ const DiscoverEventsList = () => {
   };
 
   const handleFilterIsOnlineOnlyClick = () => {
-    if (isOnlineOnly) {
-      setLocationResult("");
-    }
     setIsOnlineOnly(!isOnlineOnly);
     setPageNumber(1);
   };
 
   const handleOnChangeAutocomplete = (newLocationResult: GeocodeResult) => {
     if (typeof newLocationResult === "object") {
-      setIsOnlineOnly(false);
       setLocationResult(newLocationResult);
     } else {
       setLocationResult("");
