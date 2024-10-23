@@ -30,7 +30,7 @@
     "@material-ui/lab": "^4.0.0-alpha.61",
     "@material-ui/pickers": "3.3.10",
     "@sentry/nextjs": "^6.19.7",
-    "@sentry/react": "^8.30.0",
+    "@sentry/react": "^8.34.0",
     "@stripe/stripe-js": "^4.5.0",
     "@toast-ui/editor": "^3.2.2",
     "@types/react-simple-maps": "^3.0.6",
@@ -60,7 +60,7 @@
     "sharp": "^0.33.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.7",
+    "@babel/core": "^7.25.8",
     "@storybook/addon-actions": "^6.5.10",
     "@storybook/addon-essentials": "^6.5.10",
     "@storybook/addon-links": "^6.5.10",

@@ -18,7 +18,7 @@ click==8.1.7
     # via flask
 flask==3.0.3
     # via -r requirements.in
-grpcio==1.66.2
+grpcio==1.67.0
     # via -r requirements.in
 iniconfig==2.0.0
     # via pytest
@@ -32,7 +32,7 @@ markupsafe==2.1.5
     #   werkzeug
 packaging==24.0
     # via pytest
-pillow==10.4.0
+pillow==11.0.0
     # via -r requirements.in
 pluggy==1.5.0
     # via pytest
@@ -46,9 +46,9 @@ pytest==8.3.3
     # via -r requirements.in
 pyvips==2.2.3
     # via -r requirements.in
-ruff==0.6.9
+ruff==0.7.0
     # via -r requirements.in
-sentry-sdk==2.15.0
+sentry-sdk==2.17.0
     # via -r requirements.in
 urllib3==2.2.1
     # via sentry-sdk
