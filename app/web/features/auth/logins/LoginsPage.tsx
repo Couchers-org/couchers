@@ -46,14 +46,11 @@ export default function LoginsPage() {
     fetchNextPage,
     isFetchingNextPage,
     refetch,
-  } = useInfiniteQuery<ListActiveSessionsRes.AsObject, RpcError>(
-    activeLoginsKey,
-    ({ pageParam }) => service.account.listActiveSessions(pageParam),
-    {
-      getNextPageParam: (lastPage) =>
-        lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-    }
-  );
+  } = useInfiniteQuery<ListActiveSessionsRes.AsObject, RpcError>({
+    queryKey: activeLoginsKey,
+    queryFn: ({ pageParam }) => service.account.listActiveSessions(pageParam),
+    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+  });
 
   const sessions = data?.pages.flatMap((page) => page.activeSessionsList);
 
