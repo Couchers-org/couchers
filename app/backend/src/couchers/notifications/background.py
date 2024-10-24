@@ -103,7 +103,7 @@ def _send_email_notification(session, user: User, notification: Notification):
         sender_name=config["NOTIFICATION_EMAIL_SENDER"],
         sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
         recipient=user.email,
-        subject=config["NOTIFICATION_EMAIL_PREFIX"] + rendered.email_subject,
+        subject=config["NOTIFICATION_PREFIX"] + rendered.email_subject,
         plain=plain,
         html=html,
         source_data=config["VERSION"] + f"/{rendered.email_template_name}",

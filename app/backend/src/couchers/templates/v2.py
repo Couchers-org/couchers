@@ -112,7 +112,7 @@ def send_simple_pretty_email(session, recipient, subject, template_name, templat
         sender_name=config["NOTIFICATION_EMAIL_SENDER"],
         sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
         recipient=recipient,
-        subject=config["NOTIFICATION_EMAIL_PREFIX"] + subject,
+        subject=config["NOTIFICATION_PREFIX"] + subject,
         plain=plain,
         html=html,
         source_data=config["VERSION"] + f"/{template_name}",
