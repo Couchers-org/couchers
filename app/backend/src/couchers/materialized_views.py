@@ -66,6 +66,7 @@ lite_users_selectable = (
         User.geom_radius.label("radius"),
         User.is_visible.label("is_visible"),
         Upload.filename.label("avatar_filename"),
+        User.has_completed_profile.label("completed_profile"),
     )
     .select_from(User)
     .outerjoin(Upload, Upload.key == User.avatar_key)
