@@ -74,6 +74,7 @@ INCOMPLETE_PROFILE_SEND_MESSAGE = "You have to complete your profile before you 
 INCOMPLETE_PROFILE_SEND_REQUEST = "You have to complete your profile before you can send a request."
 INSECURE_PASSWORD = "The password is insecure. Please use one that is not easily guessable."
 INVALID_BIRTHDATE = "You must be at least 18 years old to sign up."
+INVALID_COMMENT = "You cannot post an empty comment."
 INVALID_COORDINATE = "Invalid coordinate."
 INVALID_DATE = "Invalid date."
 INVALID_DELIVERY_METHOD = "Invalid delivery method."

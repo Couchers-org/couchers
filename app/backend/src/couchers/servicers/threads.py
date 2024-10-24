@@ -116,6 +116,10 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
         return threads_pb2.GetThreadRes(replies=replies, next_page_token=next_page_token)
 
     def PostReply(self, request, context, session):
+        logger.info("*************** posting")
+        if request.content.strip() == "":
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COMMENT)
+
         database_id, depth = unpack_thread_id(request.thread_id)
         if depth == 0:
             object_to_add = Comment(thread_id=database_id, author_user_id=context.user_id, content=request.content)
