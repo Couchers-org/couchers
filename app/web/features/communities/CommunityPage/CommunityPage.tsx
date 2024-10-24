@@ -9,7 +9,7 @@ import makeStyles from "utils/makeStyles";
 import CommunityBase from "../CommunityBase";
 import CommunityInfoPage from "../CommunityInfoPage";
 import { DiscussionsListPage, DiscussionsSection } from "../discussions";
-import EventsList from "../events/EventsList";
+import CommunityEventsList from "../events/CommunityEventsList";
 import EventsSection from "../events/EventsSection";
 import PageHeader from "../PageHeader";
 import CommunityPageSubHeader from "./CommunityPageSubHeader";
@@ -101,7 +101,7 @@ export default function CommunityPage({
             ) : tab === "discussions" ? (
               <DiscussionsListPage community={community} />
             ) : tab === "events" ? (
-              <EventsList community={community} />
+              <CommunityEventsList community={community} />
             ) : null}
           </>
         );

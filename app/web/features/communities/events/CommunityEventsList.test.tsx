@@ -15,7 +15,7 @@ import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 
-import EventsList from "./EventsList";
+import CommunityEventsList from "./CommunityEventsList";
 
 const listCommunityEventsMock = service.events
   .listCommunityEvents as jest.MockedFunction<
@@ -45,7 +45,7 @@ describe("Events list", () => {
   });
 
   it("renders the events list successfully", async () => {
-    render(<EventsList community={community} />, { wrapper });
+    render(<CommunityEventsList community={community} />, { wrapper });
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(
@@ -63,7 +63,7 @@ describe("Events list", () => {
       eventsList: [],
       nextPageToken: "",
     });
-    render(<EventsList community={community} />, { wrapper });
+    render(<CommunityEventsList community={community} />, { wrapper });
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(screen.getByText(t("communities:events_empty_state"))).toBeVisible();
@@ -72,7 +72,7 @@ describe("Events list", () => {
   it(`takes user to the page if the "${t(
     "communities:create_an_event"
   )}" button is clicked`, async () => {
-    render(<EventsList community={community} />, { wrapper });
+    render(<CommunityEventsList community={community} />, { wrapper });
 
     userEvent.click(
       screen.getByRole("button", { name: t("communities:create_an_event") })
@@ -87,7 +87,7 @@ describe("Events list", () => {
     mockConsoleError();
     const errorMessage = "Error loading community events";
     listCommunityEventsMock.mockRejectedValue(new Error(errorMessage));
-    render(<EventsList community={community} />, { wrapper });
+    render(<CommunityEventsList community={community} />, { wrapper });
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
@@ -105,7 +105,7 @@ describe("Events list", () => {
           nextPageToken: pageToken ? "" : "2",
         };
       });
-      render(<EventsList community={community} />, { wrapper });
+      render(<CommunityEventsList community={community} />, { wrapper });
 
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
       expect(screen.getAllByRole("link")).toHaveLength(2);

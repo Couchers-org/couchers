@@ -9,6 +9,7 @@ import { Control, useController } from "react-hook-form";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
 interface LocationAutocompleteProps {
+  className?: string;
   control: Control;
   defaultValue: GeocodeResult | "";
   fieldError: string | undefined;
@@ -25,6 +26,7 @@ interface LocationAutocompleteProps {
 }
 
 export default function LocationAutocomplete({
+  className,
   control,
   defaultValue,
   fieldError,
@@ -100,6 +102,7 @@ export default function LocationAutocomplete({
 
   return (
     <Autocomplete
+      className={className}
       id={id}
       innerRef={controller.field.ref}
       label={label}
