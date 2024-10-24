@@ -98,12 +98,20 @@ export async function EventSearch({
     req.setPast(pastEvents);
   }
   if (typeof searchLocation !== "string") {
-    const location = new RectArea();
-    location.setLatMin(searchLocation?.bbox[1] || 0);
-    location.setLatMax(searchLocation?.bbox[3] || 0);
-    location.setLngMin(searchLocation?.bbox[0] || 0);
-    location.setLngMax(searchLocation?.bbox[2] || 0);
-    req.setSearchInRectangle(location);
+    // If it's a region (i.e. "France" or "United States") use query search by name
+    // This will search for events in the region by that name
+    if (searchLocation?.isRegion) {
+      req.setQuery(new StringValue().setValue(searchLocation.name));
+    } else {
+      // Otherwise use rectangle search so we get the area around a city
+      // This is because if you search a small town, you might want to search around it too
+      const location = new RectArea();
+      location.setLatMin(searchLocation?.bbox[1] || 0);
+      location.setLatMax(searchLocation?.bbox[3] || 0);
+      location.setLngMin(searchLocation?.bbox[0] || 0);
+      location.setLngMax(searchLocation?.bbox[2] || 0);
+      req.setSearchInRectangle(location);
+    }
   }
   if (isMyCommunities !== undefined) {
     req.setMyCommunities(isMyCommunities);
