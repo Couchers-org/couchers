@@ -5,10 +5,16 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { Dayjs, Duration } from "./dayjs";
 import { dayMillis } from "./timeAgo";
 
-const dateTimeFormatter = (locale: string) =>
+const monthFormatter = (locale: string) =>
   new Intl.DateTimeFormat(locale, {
     month: "short",
     year: "numeric",
+  });
+
+const dateTimeFormatter = (locale: string) =>
+  new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeStyle: "medium",
   });
 
 const dateFormatter = (locale: string) =>
@@ -53,6 +59,7 @@ export {
   dateTimeFormatter,
   duration2pb,
   isSameOrFutureDate,
+  monthFormatter,
   numNights,
   timestamp2Date,
 };

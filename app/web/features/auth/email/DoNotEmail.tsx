@@ -56,7 +56,7 @@ export default function DoNotEmail({ className }: { className: string }) {
         <CircularProgress />
       ) : (
         <>
-          <Typography variant="body1">
+          <Typography variant="body1" gutterBottom>
             <Trans
               t={t}
               i18nKey={
