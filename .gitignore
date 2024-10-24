@@ -1,6 +1,5 @@
 # general
 .idea
-*.code-workspace
 .DS_Store
 ._.DS_Store
 
