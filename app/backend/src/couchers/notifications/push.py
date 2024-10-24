@@ -36,7 +36,7 @@ def push_to_subscription(
         payload=jobs_pb2.SendRawPushNotificationPayload(
             data=json.dumps(
                 {
-                    "title": title[:500],
+                    "title": config["NOTIFICATION_PREFIX"] + title[:500],
                     "body": body[:2000],
                     "icon": icon or urls.icon_url(),
                     "url": url,
