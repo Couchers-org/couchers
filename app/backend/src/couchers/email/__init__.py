@@ -67,7 +67,7 @@ def enqueue_system_email(session, recipient, template_name, template_args):
         config["NOTIFICATION_EMAIL_SENDER"],
         config["NOTIFICATION_EMAIL_ADDRESS"],
         recipient,
-        config["NOTIFICATION_EMAIL_PREFIX"] + frontmatter["subject"],
+        config["NOTIFICATION_PREFIX"] + frontmatter["subject"],
         plain,
         None,
         source_data=template_name,

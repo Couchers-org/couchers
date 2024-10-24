@@ -301,7 +301,7 @@ def test_email_prefix_config(db, monkeypatch):
     new_config = config.copy()
     new_config["NOTIFICATION_EMAIL_SENDER"] = "TestCo"
     new_config["NOTIFICATION_EMAIL_ADDRESS"] = "testco@testing.co.invalid"
-    new_config["NOTIFICATION_EMAIL_PREFIX"] = ""
+    new_config["NOTIFICATION_PREFIX"] = ""
 
     monkeypatch.setattr(couchers.notifications.background, "config", new_config)
 
