@@ -6,11 +6,13 @@ Present: David, Jesse, Krishna, Nicole, Yannic
 # Notes
 
 - What is the problem with the map?
+
   - We display all users of the platform, but once we search we return a very small subset
   - We don't have pagination
   - These two things combined might confuse the user, since the behavior isn't consistent at all
   - What’s on the sidebar doesn’t always relate to the map
   - Appears like there are less users than there are, bad for users.
+
 - What's been done so far:
 
   - David has a proposal in [#4847](https://github.com/Couchers-org/couchers/issues/4847)
