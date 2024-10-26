@@ -141,7 +141,7 @@ build:web-dev:
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") &&($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") &&($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
@@ -150,7 +150,7 @@ build:web-dev:
     paths:
       - artifacts/web-dev/
   tags:
-      - saas-linux-large-amd64
+    - saas-linux-large-amd64
 
 build:web:
   needs: ["protos"]
@@ -263,7 +263,7 @@ test:backend:
         - app/proto/**/*
         - app/backend/**/*
   tags:
-      - saas-linux-medium-amd64
+    - saas-linux-medium-amd64
 
 test:backend-format:
   needs: ["build:backend"]
@@ -486,10 +486,10 @@ preview:web:
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/web/**/*
+        - app/web/**/*
 
 preview:web-next:
   needs: ["build:web-next"]
@@ -509,13 +509,15 @@ preview:web-next:
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
-      - app/**/*
+        - app/**/*
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
-      - app/web/**/*
+        - app/web/**/*
 
 preview:protos:
-  needs: ["protos"]
+  needs:
+    - job: "protos"
+      artifacts: true # Only run if artifacts exist
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
