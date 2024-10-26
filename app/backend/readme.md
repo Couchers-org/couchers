@@ -2,14 +2,14 @@
 
 [Here is information for debugging the backend inside VS Code](/docs/backend-in-vscode.md)
 
-You can run the whole thing through Docker and docker-compose (see the readme in the `app/` folder).
+You can run the whole thing through Docker and docker compose (see the readme in the `app/` folder).
 
 ## Running tests in docker
 
 You can run all tests in docker with the following command, executed in the `app` folder:
 
 ```sh
-docker-compose -f docker-compose.test.yml up --build
+docker compose -f docker-compose.test.yml up --build
 ```
 
 ## Running tests locally
@@ -21,7 +21,7 @@ docker-compose -f docker-compose.test.yml up --build
 2. Make sure the postgres_tests container is running:
 
 ```sh
-docker-compose -f docker-compose.test.yml up postgres_tests
+docker compose -f docker-compose.test.yml up postgres_tests
 ```
 
 3. Create a virtual environment and enter it, then install the requirements.
@@ -45,7 +45,7 @@ export DATABASE_CONNECTION_STRING=postgresql://postgres:06b3890acd2c235c41be0bbf
 6. Run `pytest` in the `app/backend/src/` folder.
 
 ```sh
-cd src..
+cd src 
 pytest
 ```
 
@@ -57,4 +57,4 @@ A: Doublecheck that your DB test container is running. Then make sure the DATABA
 
 Q: I can't connect to the DB!
 
-A: First doublecheck what port the DB is listening on - run `docker-compose up postgres` and it should say something like `listening on IPv6 address "::", port 6545`. Then doublecheck you have the right password. There are TWO passwords - one for the test db and one for the normal db! See app/postgres.dev.env and app/postgres.test.env
+A: First doublecheck what port the DB is listening on - run `docker compose up postgres` and it should say something like `listening on IPv6 address "::", port 6545`. Then doublecheck you have the right password. There are TWO passwords - one for the test db and one for the normal db! See app/postgres.dev.env and app/postgres.test.env
