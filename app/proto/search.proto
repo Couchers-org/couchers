@@ -216,7 +216,3 @@ message EventSearchRes {
   string next_page_token = 2;
 }
 
-message SearchRequest {
-    int32 min_age = 6;
-    int32 max_age = 7;
-}
