@@ -34,7 +34,7 @@ charset-normalizer==3.3.2
     # via requests
 coverage[toml]==7.5.0
     # via pytest-cov
-cryptography==43.0.1
+cryptography==43.0.3
     # via
     #   -r requirements.in
     #   http-ece
