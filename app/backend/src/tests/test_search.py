@@ -16,6 +16,7 @@ from tests.test_fixtures import (  # noqa
     search_session,
     session_scope,
     testconfig,
+    recreate_database,
 )
 
 
@@ -163,48 +164,39 @@ def test_user_filter_language(db):
     """
     Make sure the language filter returns the rigth profiles
     """
-
-    user_with_danish_fluent, token11 = generate_user()
-    user_with_czech_conversational, token12 = generate_user()
+    recreate_database()
+    user_with_german_fluent, token11 = generate_user()
+    user_with_japanese_conversational, token12 = generate_user()
 
     with session_scope() as session:
-        existing_language = session.query(Language).filter_by(code="dan").one_or_none()
-
-        if not existing_language:
-            # Insert the language record if it doesn't exist
-            session.add(Language(code="dan", name="Danish"))
-
-        existing_language = session.query(Language).filter_by(code="ces").one_or_none()
-
-        if not existing_language:
-            session.add(Language(code="ces", name="Czech"))
 
         session.add(
-            LanguageAbility(user_id=user_with_danish_fluent.id, language_code="dan", fluency=LanguageFluency.fluent)
+            LanguageAbility(user_id=user_with_german_fluent.id, language_code="deu", fluency=LanguageFluency.fluent)
         )
         session.add(
             LanguageAbility(
-                user_id=user_with_czech_conversational.id, language_code="ces", fluency=LanguageFluency.conversational
+                user_id=user_with_japanese_conversational.id, language_code="jpn", fluency=LanguageFluency.conversational
             )
         )
 
     with search_session(token11) as api:
         search_request_1 = search_pb2.UserSearchReq(
             language_ability_filter=[
-                api_pb2.LanguageAbility(code="dan", fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT)
+                api_pb2.LanguageAbility(code="deu", fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT)
             ]
         )
+    with search_session(token12) as api:
         search_request_2 = search_pb2.UserSearchReq(
             language_ability_filter=[
-                api_pb2.LanguageAbility(code="ces", fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL)
+                api_pb2.LanguageAbility(code="jpn", fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL)
             ]
         )
 
         result_1 = api.UserSearch(search_request_1)
         result_2 = api.UserSearch(search_request_2)
 
-        assert [result.user.user_id for result in result_1.results] == [user_with_danish_fluent.id]
-        assert [result.user.user_id for result in result_2.results] == [user_with_czech_conversational.id]
+        assert [result.user.user_id for result in result_1.results] == [user_with_german_fluent.id]
+        assert [result.user.user_id for result in result_2.results] == [user_with_japanese_conversational.id]
 
 
 @pytest.fixture
