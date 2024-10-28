@@ -116,7 +116,6 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
         return threads_pb2.GetThreadRes(replies=replies, next_page_token=next_page_token)
 
     def PostReply(self, request, context, session):
-        logger.info("*************** posting")
         if request.content.strip() == "":
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COMMENT)
 
