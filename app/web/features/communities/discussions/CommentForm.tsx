@@ -92,6 +92,7 @@ function _CommentForm(
           resetInputRef={resetInputRef}
           labelId={`comment-${threadId}-reply-label`}
           name="content"
+          required={t("global:required")}
         />
         <div className={classes.buttonsContainer}>
           {hideable && <Button onClick={onClose}>{t("global:close")}</Button>}
