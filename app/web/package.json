@@ -48,7 +48,7 @@
     "next-i18next": "git+https://github.com/Couchers-org/next-i18next.git#39a50ec9",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "react-error-boundary": "^4.0.13",
+    "react-error-boundary": "^4.1.2",
     "react-gtm-module": "^2.0.11",
     "react-hook-form": "^6.15.8",
     "react-intersection-observer": "^8.32.5",
