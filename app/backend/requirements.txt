@@ -170,7 +170,7 @@ protobuf==4.25.5
     #   -r requirements.in
     #   googleapis-common-protos
     #   opentelemetry-proto
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.10
     # via -r requirements.in
 py-vapid==1.9.1
     # via -r requirements.in
