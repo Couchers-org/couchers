@@ -8,7 +8,7 @@ import TextBody from "components/TextBody";
 import FlagButton from "features/FlagButton";
 import TimeInterval from "features/messages/messagelist/TimeInterval";
 import useCurrentUser from "features/userQueries/useCurrentUser";
-import { useUser } from "features/userQueries/useUsers";
+import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { Message } from "proto/conversations_pb";
 import { timestamp2Date } from "utils/date";
 import useOnVisibleEffect from "utils/useOnVisibleEffect";
@@ -91,7 +91,7 @@ export default function MessageView({
   className,
 }: MessageProps) {
   const classes = useStyles();
-  const { data: author, isLoading: isAuthorLoading } = useUser(
+  const { data: author, isLoading: isAuthorLoading } = useLiteUser(
     message.authorUserId
   );
   const { data: currentUser, isLoading: isCurrentUserLoading } =

@@ -15,6 +15,12 @@ export function userKey(userId?: number) {
   return userId === undefined ? "user" : ["user", userId];
 }
 
+export function liteUserKey(userId?: number) {
+  return userId === undefined ? "liteUser" : ["liteUser", userId];
+}
+
+export const liteUsersKey = (ids: number[]) => ["liteUsers", ...ids];
+
 export function responseRateKey(userId: number) {
   return ["responseRate", userId];
 }
@@ -146,4 +152,4 @@ export const searchQueryKey = (query?: string) =>
 
 // User
 export const userCommunitiesKey = "userCommunities";
-export const myEventsKey = "myEvents";
+export const myEventsKey = (type: EventsType) => ["myEvents", { type }];

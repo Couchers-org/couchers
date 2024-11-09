@@ -4,7 +4,7 @@ import { Coordinates } from "features/search/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
-import { User } from "proto/api_pb";
+import { HostingStatus, User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -18,6 +18,12 @@ import { GeocodeResult } from "utils/hooks";
 import FilterDialog from "./FilterDialog";
 import MapWrapper from "./MapWrapper";
 import SearchResultsList from "./SearchResultsList";
+
+export type TypeHostingStatusOptions = Exclude<
+  HostingStatus,
+  | HostingStatus.HOSTING_STATUS_UNKNOWN
+  | HostingStatus.HOSTING_STATUS_UNSPECIFIED
+>[];
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -86,11 +92,14 @@ export default function SearchPage({
     "location"
   );
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
-  const [hostingStatusFilter, setHostingStatusFilter] = useState(0);
-  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState(0);
+  const [hostingStatusFilter, setHostingStatusFilter] =
+    useState<TypeHostingStatusOptions>([]);
+  const [numberOfGuestFilter, setNumberOfGuestFilter] = useState<
+    number | undefined
+  >(undefined);
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
-    Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
+    Pick<User.AsObject, "userId" | "lng" | "lat"> | undefined
   >();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
@@ -110,23 +119,14 @@ export default function SearchPage({
       completeProfileFilter,
     ],
     ({ pageParam }) => {
-      // @ts-ignore @TODO David fixing these in a separate PR
-      const lastActiveComparation = parseInt(lastActiveFilter);
-      // @ts-ignore @TODO David fixing these in a separate PR
-      const hostingStatusFilterComparation = parseInt(hostingStatusFilter);
-
       return service.search.userSearch(
         {
           query: queryName,
           bbox: locationResult.bbox,
-          lastActive:
-            lastActiveComparation === 0 ? undefined : lastActiveFilter,
+          lastActive: lastActiveFilter === 0 ? undefined : lastActiveFilter,
           hostingStatusOptions:
-            hostingStatusFilterComparation === 0
-              ? undefined
-              : [hostingStatusFilter],
-          numGuests:
-            numberOfGuestFilter === 0 ? undefined : numberOfGuestFilter,
+            hostingStatusFilter.length === 0 ? undefined : hostingStatusFilter,
+          numGuests: numberOfGuestFilter,
           completeProfile:
             completeProfileFilter === false ? undefined : completeProfileFilter,
         },
@@ -151,8 +151,8 @@ export default function SearchPage({
     if (!wasSearchPerformed) {
       if (
         lastActiveFilter !== 0 ||
-        hostingStatusFilter !== 0 ||
-        numberOfGuestFilter !== 0 ||
+        hostingStatusFilter.length !== 0 ||
+        numberOfGuestFilter !== undefined ||
         completeProfileFilter !== false
       ) {
         setWasSearchPerformed(true);

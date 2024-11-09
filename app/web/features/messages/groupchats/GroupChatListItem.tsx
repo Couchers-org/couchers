@@ -15,7 +15,7 @@ import {
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
-import useUsers from "features/userQueries/useUsers";
+import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { GroupChat } from "proto/conversations_pb";
@@ -47,7 +47,7 @@ export default function GroupChatListItem({
 
   //It is possible the last message is sent by someone who has left
   //so include it just in case
-  const groupChatMembersQuery = useUsers([
+  const groupChatMembersQuery = useLiteUsers([
     ...groupChat.memberUserIdsList,
     latestMessageAuthorId,
   ]);

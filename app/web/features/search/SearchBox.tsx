@@ -139,7 +139,13 @@ export default function SearchBox({
           <RadioGroup
             className={classes.justifyContent}
             row
-            onChange={(event) => handleOnChangeRadioButton(event, searchType)}
+            onChange={
+              (event, value) =>
+                handleOnChangeRadioButton(
+                  event,
+                  value as "location" | "keyword"
+                ) // coercion due material-ui has this type as unknown
+            }
             value={searchType}
           >
             <FormControlLabel

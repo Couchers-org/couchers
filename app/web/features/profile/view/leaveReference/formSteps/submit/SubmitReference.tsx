@@ -18,7 +18,7 @@ import {
   ReferenceContextFormData,
   useReferenceStyles,
 } from "features/profile/view/leaveReference/ReferenceForm";
-import { useUser } from "features/userQueries/useUsers";
+import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -73,7 +73,7 @@ export default function SubmitReference({
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
   const { handleSubmit } = useForm<ReferenceContextFormData>();
 
-  const userQuery = useUser(userId);
+  const userQuery = useLiteUser(userId);
   const onFriendReferenceSubmit = () => {
     const formData: WriteFriendReferenceInput =
       referenceData.wasAppropriate === "true"

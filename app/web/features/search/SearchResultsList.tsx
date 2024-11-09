@@ -83,13 +83,9 @@ interface mapWrapperProps {
   results: InfiniteData<UserSearchRes.AsObject> | undefined;
   error?: string | undefined;
   hasNext?: boolean | undefined;
-  selectedResult:
-    | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
-    | undefined;
+  selectedResult: Pick<User.AsObject, "userId" | "lng" | "lat"> | undefined;
   setSelectedResult: Dispatch<
-    SetStateAction<
-      Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
-    >
+    SetStateAction<Pick<User.AsObject, "userId" | "lng" | "lat"> | undefined>
   >;
   searchType: "location" | "keyword";
   setSearchType: Dispatch<SetStateAction<"location" | "keyword">>;
@@ -176,7 +172,6 @@ export default function SearchResultsList({
                   user={result.user!}
                   onSelect={() => {
                     setSelectedResult({
-                      username: result.user!.username,
                       userId: result.user!.userId,
                       lng: result.user!.lng,
                       lat: result.user!.lat,

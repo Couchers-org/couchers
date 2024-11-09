@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import MapUI from "components/Map";
-import mapboxgl from "maplibre-gl";
+import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useEffect } from "react";
 import { server } from "test/restMock";
 import { t } from "test/utils";
@@ -11,10 +11,10 @@ import EditLocationMap from "./EditLocationMap";
 jest.mock("components/Map");
 jest.mock("maplibre-gl");
 
-const getCanvasMock = mapboxgl.Map.prototype.getCanvas as jest.Mock;
+const getCanvasMock = MaplibreMap.prototype.getCanvas as jest.Mock;
 const MapMock = MapUI as jest.Mock;
-const wrapMock = mapboxgl.LngLat.prototype.wrap as jest.Mock;
-const getSourceMock = mapboxgl.Map.prototype.getSource as jest.Mock;
+const wrapMock = LngLat.prototype.wrap as jest.Mock;
+const getSourceMock = MaplibreMap.prototype.getSource as jest.Mock;
 
 describe("Edit location map", () => {
   beforeEach(() => {
@@ -33,7 +33,12 @@ describe("Edit location map", () => {
 
     MapMock.mockImplementation(({ postMapInitialize }) => {
       useEffect(() => {
-        postMapInitialize?.(new mapboxgl.Map());
+        postMapInitialize?.(
+          new MaplibreMap({
+            container: document.createElement("div"),
+            style: "mapbox://styles/mapbox/streets-v11",
+          })
+        );
       });
       return <div>Map</div>;
     });

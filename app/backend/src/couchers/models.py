@@ -366,10 +366,7 @@ class User(Base):
 
     @property
     def coordinates(self):
-        if self.geom:
-            return get_coordinates(self.geom)
-        else:
-            return None
+        return get_coordinates(self.geom)
 
     @property
     def display_joined(self):
@@ -1746,10 +1743,7 @@ class PageVersion(Base):
     @property
     def coordinates(self):
         # returns (lat, lng) or None
-        if self.geom:
-            return get_coordinates(self.geom)
-        else:
-            return None
+        return get_coordinates(self.geom)
 
     def __repr__(self):
         return f"PageVersion({self.id=}, {self.page_id=})"
@@ -1888,10 +1882,7 @@ class EventOccurrence(Base):
     @property
     def coordinates(self):
         # returns (lat, lng) or None
-        if self.geom:
-            return get_coordinates(self.geom)
-        else:
-            return None
+        return get_coordinates(self.geom)
 
     @hybrid_property
     def start_time(self):

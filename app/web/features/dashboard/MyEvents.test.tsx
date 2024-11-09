@@ -31,6 +31,7 @@ describe("My events", () => {
     listMyEventsMock.mockResolvedValue({
       eventsList: nonCancelledEvents,
       nextPageToken: "",
+      totalItems: nonCancelledEvents.length,
     });
   });
 
@@ -49,6 +50,7 @@ describe("My events", () => {
     listMyEventsMock.mockResolvedValue({
       eventsList: [],
       nextPageToken: "",
+      totalItems: 0,
     });
     render(<MyEvents />, { wrapper });
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
@@ -80,6 +82,7 @@ describe("My events", () => {
             ? nonCancelledEvents.slice(2)
             : nonCancelledEvents.slice(0, 2),
           nextPageToken: pageToken ? "" : "2",
+          totalItems: nonCancelledEvents.length,
         };
       });
       render(<MyEvents />, { wrapper });
@@ -116,6 +119,7 @@ describe("My events", () => {
             ? nonCancelledEvents.slice(2)
             : nonCancelledEvents.slice(0, 2),
           nextPageToken: pageToken ? "" : "2",
+          totalItems: nonCancelledEvents.length,
         };
       });
     });

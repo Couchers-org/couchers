@@ -1,5 +1,5 @@
 import UserSummary from "components/UserSummary";
-import { User } from "proto/api_pb";
+import { LiteUser } from "proto/api_pb";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
 
 interface FriendSummaryViewProps {
   children?: React.ReactNode;
-  friend?: User.AsObject;
+  friend?: LiteUser.AsObject;
 }
 
 export const FRIEND_ITEM_TEST_ID = "friend-item";

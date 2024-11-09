@@ -46,6 +46,7 @@ from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.events import Events
+from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
@@ -72,6 +73,7 @@ from proto import (
     discussions_pb2_grpc,
     donations_pb2_grpc,
     events_pb2_grpc,
+    gis_pb2_grpc,
     groups_pb2_grpc,
     iris_pb2_grpc,
     jail_pb2_grpc,
@@ -522,6 +524,13 @@ def real_jail_session(token):
             server.stop(None).wait()
 
 
+@contextmanager
+def gis_session(token):
+    channel = fake_channel(token)
+    gis_pb2_grpc.add_GISServicer_to_server(GIS(), channel)
+    yield gis_pb2_grpc.GISStub(channel)
+
+
 class FakeRpcError(grpc.RpcError):
     def __init__(self, code, details):
         self._code = code
@@ -821,7 +830,7 @@ def testconfig():
     config["ENABLE_EMAIL"] = False
     config["NOTIFICATION_EMAIL_SENDER"] = "Couchers.org"
     config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"
-    config["NOTIFICATION_EMAIL_PREFIX"] = "[TEST] "
+    config["NOTIFICATION_PREFIX"] = "[TEST] "
     config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
     config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"] = "forms@couchers.org.invalid"
     config["MODS_EMAIL_RECIPIENT"] = "mods@couchers.org.invalid"

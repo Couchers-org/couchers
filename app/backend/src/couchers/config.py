@@ -52,7 +52,7 @@ CONFIG_OPTIONS = [
     # Sender email, e.g. "notify@couchers.org"
     ("NOTIFICATION_EMAIL_ADDRESS", str),
     # An optional prefix for email subject, e.g. [STAGING]
-    ("NOTIFICATION_EMAIL_PREFIX", str, ""),
+    ("NOTIFICATION_PREFIX", str, ""),
     # Address to send emails about reported users
     ("REPORTS_EMAIL_RECIPIENT", str),
     # Address to send contributor forms when users sign up/fill the form

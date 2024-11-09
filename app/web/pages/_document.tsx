@@ -8,8 +8,9 @@ export default class MyDocument extends Document {
     return (
       <Html lang={this.props.locale ?? "en"}>
         <Head>
-          {/* PWA primary color */}
           <meta name="theme-color" content={theme.palette.primary.main} />
+          <link rel="manifest" href="/manifest.json" />
+          <link rel="apple-touch-icon" href="/logo512.png" />
         </Head>
         <body>
           <Main />

@@ -1,7 +1,8 @@
 import TextField from "@mui/material/TextField";
-import { DatePicker } from "@mui/x-date-pickers";
+import { DatePicker, PickersDay } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
 import { Control, Controller, UseControllerOptions } from "react-hook-form";
+import { theme } from "theme";
 import dayjs, { Dayjs } from "utils/dayjs";
 
 import { dateFormats } from "./constants";
@@ -69,6 +70,18 @@ export default function Datepicker({
           openTo={openTo}
           views={["year", "month", "day"]}
           inputFormat={getLocaleFormat()}
+          renderDay={(day, selectedDates, pickersDayProps) => {
+            return (
+              <PickersDay
+                {...pickersDayProps}
+                style={{
+                  ...(pickersDayProps.selected && {
+                    backgroundColor: theme.palette.primary.main, // make selected day our primary color
+                  }),
+                }}
+              />
+            );
+          }}
           renderInput={(props) => (
             <TextField
               {...props}

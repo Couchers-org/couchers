@@ -1,8 +1,8 @@
-import { Typography } from "@material-ui/core";
+import { Typography, useMediaQuery } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
+import Avatar from "components/Avatar";
 import CircularProgress from "components/CircularProgress";
-import Divider from "components/Divider";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon } from "components/Icons";
 import PageTitle from "components/PageTitle";
@@ -20,7 +20,7 @@ import {
   hostRequestMessagesKey,
   hostRequestsListKey,
 } from "features/queryKeys";
-import { useUser } from "features/userQueries/useUsers";
+import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -38,11 +38,43 @@ import {
   useQueryClient,
 } from "react-query";
 import { service } from "service";
+import { theme } from "theme";
 import { numNights } from "utils/date";
 import dayjs from "utils/dayjs";
+import makeStyles from "utils/makeStyles";
 import { firstName } from "utils/names";
 
 import { requestStatusToTransKey } from "../constants";
+
+const useLocalStyles = makeStyles((theme) => ({
+  avatar: {
+    height: "2rem",
+    width: "2rem",
+  },
+  largeUserSummary: {
+    borderBottom: `1px solid ${theme.palette.divider}`,
+
+    [theme.breakpoints.down("sm")]: {
+      borderBottom: `1px solid ${theme.palette.divider}`,
+      paddingBottom: theme.spacing(1),
+    },
+
+    [theme.breakpoints.up("sm")]: {
+      padding: theme.spacing(1),
+    },
+  },
+  smallUserSummary: {
+    display: "flex",
+    alignItems: "center",
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    padding: theme.spacing(1, 2),
+  },
+  shortUserInfo: {
+    display: "flex",
+    flexDirection: "column",
+    marginLeft: theme.spacing(2),
+  },
+}));
 
 export default function HostRequestView({
   hostRequestId,
@@ -51,6 +83,9 @@ export default function HostRequestView({
 }) {
   const { t } = useTranslation(MESSAGES);
   const classes = useGroupChatViewStyles();
+  const localClasses = useLocalStyles();
+
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { data: hostRequest, error: hostRequestError } = useQuery<
     HostRequest.AsObject,
@@ -81,8 +116,8 @@ export default function HostRequestView({
     }
   );
 
-  const { data: surfer } = useUser(hostRequest?.surferUserId);
-  const { data: host } = useUser(hostRequest?.hostUserId);
+  const { data: surfer } = useLiteUser(hostRequest?.surferUserId);
+  const { data: host } = useLiteUser(hostRequest?.hostUserId);
   const currentUserId = useAuthContext().authState.userId;
   const isHost = host?.userId === currentUserId;
   const otherUser = isHost ? surfer : host;
@@ -154,23 +189,9 @@ export default function HostRequestView({
 
   const handleBack = () => router.back();
 
-  return !hostRequestId ? (
-    <Alert severity="error">{t("host_request_view.error_message")}</Alert>
-  ) : (
-    <div className={classes.pageWrapper}>
-      <div className={classes.header}>
-        <HeaderButton
-          onClick={handleBack}
-          aria-label={t("host_request_view.back_button_a11y_label")}
-        >
-          <BackIcon />
-        </HeaderButton>
-
-        <PageTitle className={classes.title}>
-          {!title || hostRequestError ? <Skeleton width="100" /> : title}
-        </PageTitle>
-      </div>
-      <UserSummary user={otherUser}>
+  const largeUserSummarySection = (
+    <div className={localClasses.largeUserSummary}>
+      <UserSummary user={otherUser} smallAvatar={isMobile}>
         {hostRequest && (
           <div className={classes.requestedDatesWrapper}>
             <Typography
@@ -196,7 +217,64 @@ export default function HostRequestView({
           </div>
         )}
       </UserSummary>
-      <Divider />
+    </div>
+  );
+
+  const smallUserSummarySection = (
+    <div className={localClasses.smallUserSummary}>
+      {!otherUser ? (
+        <Skeleton variant="circle" className={localClasses.avatar} />
+      ) : (
+        <Avatar
+          className={localClasses.avatar}
+          user={otherUser}
+          isProfileLink
+        />
+      )}
+      <div className={localClasses.shortUserInfo}>
+        <Typography component="p" variant="body2">
+          {!otherUser ? (
+            <Skeleton />
+          ) : (
+            `${
+              (otherUser?.name.length ?? 0) < 25
+                ? otherUser?.name
+                : otherUser?.name.substring(0, 25) + "..."
+            }, ${otherUser?.age}, ${otherUser?.city.split(",")[2]}` // get only country
+          )}
+        </Typography>
+        {hostRequest && (
+          <Typography
+            component="p"
+            variant="h3"
+            className={classes.requestedDates}
+          >
+            {`${dayjs(hostRequest.fromDate).format("ll")} - ${dayjs(
+              hostRequest.fromDate
+            ).format("ll")}`}
+          </Typography>
+        )}
+      </div>
+    </div>
+  );
+
+  return !hostRequestId ? (
+    <Alert severity="error">{t("host_request_view.error_message")}</Alert>
+  ) : (
+    <div className={classes.pageWrapper}>
+      <div className={classes.header}>
+        <HeaderButton
+          onClick={handleBack}
+          aria-label={t("host_request_view.back_button_a11y_label")}
+        >
+          <BackIcon fontSize={isMobile ? "small" : "default"} />
+        </HeaderButton>
+
+        <PageTitle className={classes.title}>
+          {!title || hostRequestError ? <Skeleton width="100" /> : title}
+        </PageTitle>
+      </div>
+      {isMobile ? smallUserSummarySection : largeUserSummarySection}
       {(respondMutation.error || sendMutation.error || hostRequestError) && (
         <Alert severity={"error"}>
           {respondMutation.error?.message ||
@@ -215,6 +293,7 @@ export default function HostRequestView({
           {messagesRes && hostRequest && (
             <>
               <InfiniteMessageLoader
+                className={classes.messageLoader}
                 earliestMessageId={
                   messagesRes.pages[messagesRes.pages.length - 1].lastMessageId
                 }
@@ -229,14 +308,28 @@ export default function HostRequestView({
                     .map((page) => page.messagesList)
                     .flat()}
                 />
+                {isMobile && (
+                  <div className={classes.footer}>
+                    <HostRequestSendField
+                      hostRequest={hostRequest}
+                      sendMutation={sendMutation}
+                      respondMutation={respondMutation}
+                    />
+                  </div>
+                )}
               </InfiniteMessageLoader>
-              <div className={classes.footer}>
-                <HostRequestSendField
-                  hostRequest={hostRequest}
-                  sendMutation={sendMutation}
-                  respondMutation={respondMutation}
-                />
-              </div>
+              {/**
+               * If it's mobile we don't want the send field to be sticky, rather show in scrollable area at the bottom
+               */}
+              {!isMobile && (
+                <div className={classes.footer}>
+                  <HostRequestSendField
+                    hostRequest={hostRequest}
+                    sendMutation={sendMutation}
+                    respondMutation={respondMutation}
+                  />
+                </div>
+              )}
             </>
           )}
         </>

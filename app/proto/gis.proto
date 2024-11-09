@@ -17,6 +17,12 @@ service GIS {
     };
   }
 
+  rpc GetClusteredUsers(google.protobuf.Empty) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      get : "/geojson/clustered-users"
+    };
+  }
+
   rpc GetCommunities(google.protobuf.Empty) returns (google.api.HttpBody) {
     option (google.api.http) = {
       get : "/geojson/communities"

@@ -9,7 +9,7 @@ Communication with the backend is via [protobuf messages](https://github.com/pro
 We recommend `nvm` (the [node version manager](https://github.com/nvm-sh/nvm)). You can install it with:
 
 ```sh
-wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+curl -sL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 ```
 
 **You will need to restart your terminal before `nvm` becomes available.**
@@ -23,7 +23,8 @@ If you don't want `nvm` to be run when you open your shell, you can add `--no-us
 
 On macOS you can alternatively install dependencies via homebrew. You can get nvm with `brew install nvm`, or `nodejs` directly with `brew install node@20`.
 
-You also need `git`, `wget`, and `tar`, they should be preinstalled or be available from the usual places.
+You also need `git`, `curl`, and `tar`, they should be preinstalled or be available from the usual places.
+
 </details>
 
 Now run the following commands to get up and running:
@@ -42,7 +43,7 @@ nvm install
 npm install --global yarn
 
 ## Download & extract the latest protos
-wget -qO- https://develop--protos.preview.couchershq.org/ts.tar.gz | tar xz
+curl -sL https://develop--protos.preview.couchershq.org/ts.tar.gz | tar xz
 
 # install dependencies
 yarn install
@@ -115,7 +116,7 @@ In one terminal, compile protos, run the backend and rest of the infrastructure:
 
 ```sh
 ## terminal 1
-cd app 
+cd app
 # compile protos
 docker run --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
 # launch the rest of the docker containers

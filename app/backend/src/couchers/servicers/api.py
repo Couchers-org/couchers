@@ -34,7 +34,13 @@ from couchers.resources import language_is_allowed, region_is_allowed
 from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
 from couchers.sql import is_valid_user_id, is_valid_username
-from couchers.utils import Timestamp_from_datetime, create_coordinate, is_valid_name, now
+from couchers.utils import (
+    Timestamp_from_datetime,
+    create_coordinate,
+    get_coordinates,
+    is_valid_name,
+    now,
+)
 from proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2
 
 MAX_USERS_PER_QUERY = 200
@@ -206,22 +212,7 @@ class API(api_pb2_grpc.APIServicer):
         if not lite_user:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
 
-        return api_pb2.LiteUser(
-            user_id=lite_user.id,
-            username=lite_user.username,
-            name=lite_user.name,
-            city=lite_user.city,
-            age=int(lite_user.age),
-            avatar_url=urls.media_url(filename=lite_user.avatar_filename, size="full")
-            if lite_user.avatar_filename
-            else None,
-            avatar_thumbnail_url=urls.media_url(filename=lite_user.avatar_filename, size="thumbnail")
-            if lite_user.avatar_filename
-            else None,
-            lat=lite_user.lat,
-            lng=lite_user.lng,
-            radius=lite_user.radius,
-        )
+        return lite_user_to_pb(lite_user)
 
     def GetLiteUsers(self, request, context, session):
         if len(request.users) > MAX_USERS_PER_QUERY:
@@ -252,24 +243,7 @@ class API(api_pb2_grpc.APIServicer):
                 api_pb2.LiteUserRes(
                     query=user,
                     not_found=lite_user is None,
-                    user=api_pb2.LiteUser(
-                        user_id=lite_user.id,
-                        username=lite_user.username,
-                        name=lite_user.name,
-                        city=lite_user.city,
-                        age=int(lite_user.age),
-                        avatar_url=urls.media_url(filename=lite_user.avatar_filename, size="full")
-                        if lite_user.avatar_filename
-                        else None,
-                        avatar_thumbnail_url=urls.media_url(filename=lite_user.avatar_filename, size="thumbnail")
-                        if lite_user.avatar_filename
-                        else None,
-                        lat=lite_user.lat,
-                        lng=lite_user.lng,
-                        radius=lite_user.radius,
-                    )
-                    if lite_user
-                    else None,
+                    user=lite_user_to_pb(lite_user) if lite_user else None,
                 )
             )
 
@@ -973,3 +947,24 @@ def user_model_to_pb(db_user, session, context):
         user.camping_ok.value = db_user.camping_ok
 
     return user
+
+
+def lite_user_to_pb(lite_user):
+    lat, lng = get_coordinates(lite_user.geom) or (0, 0)
+
+    return api_pb2.LiteUser(
+        user_id=lite_user.id,
+        username=lite_user.username,
+        name=lite_user.name,
+        city=lite_user.city,
+        age=int(lite_user.age),
+        avatar_url=urls.media_url(filename=lite_user.avatar_filename, size="full")
+        if lite_user.avatar_filename
+        else None,
+        avatar_thumbnail_url=urls.media_url(filename=lite_user.avatar_filename, size="thumbnail")
+        if lite_user.avatar_filename
+        else None,
+        lat=lat,
+        lng=lng,
+        radius=lite_user.radius,
+    )

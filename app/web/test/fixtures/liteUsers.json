@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Funny Cat current User",
+    "userId": 1,
+    "username": "funnycat",
+    "city": "Los Angeles",
+    "lat": 34.04,
+    "lng": -118.244349,
+    "radius": 200,
+    "age": 28,
+    "avatarUrl": "https://loremflickr.com/200/200?user1",
+    "avatarThumbnailUrl": "https://loremflickr.com/50/50?user1"
+  },
+  {
+    "name": "Funny Dog",
+    "userId": 2,
+    "username": "funnydog",
+    "city": "Helsinki, Finland",
+    "lat": 60.16,
+    "lng": 24.94,
+    "radius": 200,
+    "age": 35,
+    "avatarUrl": "",
+    "avatarThumbnailUrl": ""
+  },
+  {
+    "name": "Funny Kid",
+    "userId": 3,
+    "username": "funnykid",
+    "city": "London, UK",
+    "lat": 51.5,
+    "lng": -0.11,
+    "radius": 200,
+    "age": 28,
+    "avatarUrl": "https://loremflickr.com/200/200?user3",
+    "avatarThumbnailUrl": "https://loremflickr.com/50/50?user3"
+  },
+  {
+    "name": "Funny Chicken",
+    "userId": 4,
+    "username": "funnyChicken",
+    "city": "Melbourne, Australia",
+    "lat": -37.8,
+    "lng": 144.9,
+    "radius": 200,
+    "age": 28,
+    "avatarUrl": "https://loremflickr.com/200/200?user4",
+    "avatarThumbnailUrl": "https://loremflickr.com/50/50?user4"
+  },
+  {
+    "name": "Friendly Cow",
+    "userId": 5,
+    "username": "friendlyCow",
+    "city": "Melbourne, Australia",
+    "lat": -37.8,
+    "lng": 144.9,
+    "radius": 200,
+    "age": 25,
+    "avatarUrl": "https://loremflickr.com/200/200?user5",
+    "avatarThumbnailUrl": "https://loremflickr.com/50/50?user5"
+  }
+]
