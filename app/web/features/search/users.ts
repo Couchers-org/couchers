@@ -1,11 +1,10 @@
 import { MapClickedCallback } from "features/search/constants";
-import { Feature, GeoJsonProperties, Geometry, Point } from "geojson";
+import { Point } from "geojson";
 import {
-  Event as MaplibreEvent,
   GeoJSONSource,
   LayerSpecification,
   Map as MaplibreMap,
-  MapMouseEvent,
+  MapLayerMouseEvent,
   SourceSpecification,
 } from "maplibre-gl";
 import { User } from "proto/api_pb";
@@ -105,48 +104,42 @@ export const layers: Record<LayerKeys, LayerSpecification> = {
   },
 };
 
-const addPinImages = (map: MaplibreMap) => {
-  if (map.hasImage("user-pin")) return;
+const addPinImages = async (map: MaplibreMap) => {
+  try {
+    const image = await map.loadImage(userPin.src);
 
-  map.loadImage(
-    userPin.src,
-    (
-      error: Error | null | undefined,
-      image?: HTMLImageElement | ImageBitmap | null
-    ) => {
-      if (error) {
-        throw error;
-      }
-      //this is twice because of loading race condition
-      if (map.hasImage("user-pin")) return;
+    if (map.hasImage("user-pin")) return;
 
-      if (image) {
-        map.addImage("user-pin", image, { sdf: true });
-      }
+    if (image) {
+      map.addImage("user-pin", image.data, { sdf: true });
     }
-  );
+  } catch (error) {
+    throw error;
+  }
 };
 
-const zoomCluster = (
-  ev: MapMouseEvent & {
-    features?: Feature<Geometry, GeoJsonProperties>[] | undefined;
-  } & MaplibreEvent
-) => {
+const zoomCluster = async (ev: MapLayerMouseEvent) => {
   const map = ev.target;
   const cluster = ev.features?.[0];
   if (!cluster || !cluster.properties?.cluster_id) return;
 
-  (map.getSource("clustered-users") as GeoJSONSource).getClusterExpansionZoom(
-    cluster.properties.cluster_id,
-    (_error, zoom) => {
-      if (zoom !== null && zoom !== undefined) {
-        map.flyTo({
-          center: (cluster.geometry as Point).coordinates as [number, number],
-          zoom,
-        });
-      }
+  try {
+    const source = map.getSource("clustered-users") as GeoJSONSource;
+    const zoom = await source.getClusterExpansionZoom(
+      cluster.properties.cluster_id
+    );
+
+    if (zoom !== null && zoom !== undefined) {
+      const point = cluster.geometry as Point;
+
+      map.flyTo({
+        center: point.coordinates as [number, number],
+        zoom,
+      });
     }
-  );
+  } catch (error) {
+    throw error;
+  }
 };
 
 /**

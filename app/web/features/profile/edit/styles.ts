@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(1),
     paddingTop: theme.spacing(1),
   },
-  // Everything under the mapbox
+  // Everything under the maplibre
   bottomFormContainer: {
     display: "flex",
     flexDirection: "column",

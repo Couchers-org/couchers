@@ -8,13 +8,13 @@ import {
   layers,
   reRenderUsersOnMap,
 } from "features/search/users";
-import { Feature, GeoJsonProperties, Geometry, Point } from "geojson";
+import { Point } from "geojson";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import {
-  Event as MaplibreEvent,
   LngLat,
   Map as MaplibreMap,
+  MapLayerMouseEvent,
   MapMouseEvent,
 } from "maplibre-gl";
 import { User } from "proto/api_pb";
@@ -105,11 +105,7 @@ export default function MapWrapper({
    * User clicks on a user on map
    */
   const handleMapUserClick = useCallback(
-    (
-      ev: MapMouseEvent & {
-        features?: Feature<Geometry, GeoJsonProperties>[] | undefined;
-      } & MaplibreEvent
-    ) => {
+    (ev: MapLayerMouseEvent) => {
       ev.preventDefault();
 
       const props = ev.features?.[0].properties;

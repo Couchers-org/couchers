@@ -1,5 +1,4 @@
 import {
-  Event as MaplibreEvent,
   LayerSpecification,
   Map as MaplibreMap,
   MapLayerEventType,
@@ -31,9 +30,7 @@ export const layers: Record<string, LayerSpecification> = {
 
 export const addPlacesToMap = (
   map: MaplibreMap,
-  placeClickedCallback?: (
-    ev: MapLayerEventType["click"] & MaplibreEvent
-  ) => void
+  placeClickedCallback?: (ev: MapLayerEventType["click"]) => void
 ) => {
   map.addSource("places", sources["places"]);
   map.addLayer(layers["placeLayer"]);

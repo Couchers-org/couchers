@@ -6,7 +6,6 @@ import MapSearch from "components/MapSearch";
 import TextField from "components/TextField";
 import { Feature, GeoJsonProperties, Geometry } from "geojson";
 import {
-  Event as MaplibreEvent,
   GeoJSONSource,
   LngLat,
   Map as MaplibreMap,
@@ -257,7 +256,7 @@ export default function EditLocationMap({
       }
     });
 
-    const onDblClick = (e: MapMouseEvent & MaplibreEvent) => {
+    const onDblClick = (e: MapMouseEvent) => {
       e.preventDefault();
       handleCoordinateMoved(e);
     };
@@ -266,7 +265,7 @@ export default function EditLocationMap({
     const onCircleTouch = (
       e: MapTouchEvent & {
         features?: Feature<Geometry, GeoJsonProperties>[] | undefined;
-      } & MaplibreEvent
+      }
     ) => {
       if (e.points.length !== 1) return;
       onCircleMouseDown(e);
