@@ -1,10 +1,4 @@
-import {
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-  within,
-} from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import userEvent from "@testing-library/user-event";
 import { QUESTIONS_OPTIONAL } from "components/ContributorForm/constants";
@@ -27,6 +21,13 @@ import {
 } from "test/utils";
 
 import Signup from "./Signup";
+
+jest.mock("@mui/x-date-pickers", () => {
+  return {
+    ...jest.requireActual("@mui/x-date-pickers"),
+    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+  };
+});
 
 const startSignupMock = service.auth.startSignup as MockedService<
   typeof service.auth.startSignup
@@ -170,21 +171,8 @@ describe("Signup", () => {
       const birthdayField = screen.getByLabelText(
         t("auth:account_form.birthday.field_label")
       );
-      userEvent.click(birthdayField);
-      const datePickerDialog = await screen.findByRole("dialog");
-      userEvent.click(
-        within(datePickerDialog).getByRole("button", { name: "1990" })
-      );
-      userEvent.click(
-        within(datePickerDialog).getByRole("button", { name: "Jan" })
-      );
-      userEvent.click(
-        within(datePickerDialog).getByRole("gridcell", { name: "1" })
-      );
-      userEvent.click(
-        within(datePickerDialog).getByRole("button", { name: "OK" })
-      );
-      await waitForElementToBeRemoved(datePickerDialog);
+      userEvent.clear(birthdayField);
+      userEvent.type(birthdayField, "01/01/1990");
 
       userEvent.type(
         screen.getByTestId("edit-location-map"),

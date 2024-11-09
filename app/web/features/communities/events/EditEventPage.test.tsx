@@ -3,7 +3,6 @@ import {
   screen,
   waitFor,
   waitForElementToBeRemoved,
-  within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
@@ -17,6 +16,13 @@ import EditEventPage from "./EditEventPage";
 
 jest.mock("components/MarkdownInput");
 
+jest.mock("@mui/x-date-pickers", () => {
+  return {
+    ...jest.requireActual("@mui/x-date-pickers"),
+    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+  };
+});
+
 const getEventMock = service.events.getEvent as jest.MockedFunction<
   typeof service.events.getEvent
 >;
@@ -29,21 +35,6 @@ function renderPage() {
   const { wrapper } = getHookWrapperWithClient();
 
   render(<EditEventPage eventId={1} />, { wrapper });
-}
-
-async function chooseNewDate(dateField: HTMLInputElement) {
-  // Opens the date picker dialog
-  userEvent.click(dateField);
-  const datePickerDialog = await screen.findByRole("dialog");
-
-  // We only care about checking if date updates get passed correctly to the RPC call,
-  // and choosing the 30th June is the easiest way to do that for the rendered event
-  userEvent.click(
-    within(datePickerDialog).getByRole("gridcell", { name: "30" })
-  );
-
-  userEvent.click(within(datePickerDialog).getByRole("button", { name: "OK" }));
-  await waitForElementToBeRemoved(datePickerDialog);
 }
 
 describe("Edit event page", () => {
@@ -79,7 +70,8 @@ describe("Edit event page", () => {
     const endDateField = await screen.findByLabelText<HTMLInputElement>(
       t("communities:end_date")
     );
-    await chooseNewDate(endDateField);
+    userEvent.clear(endDateField);
+    userEvent.type(endDateField, "07012021");
     userEvent.click(screen.getByRole("button", { name: t("global:update") }));
 
     await waitFor(() => {
@@ -92,7 +84,7 @@ describe("Edit event page", () => {
       title: "Weekly Meetup in the dam",
       content: "We are going virtual this week!",
       link: "https://couchers.org/amsterdam-social",
-      endTime: new Date("2021-06-30 03:37"),
+      endTime: new Date("2021-07-01 03:37"),
     });
 
     // Verifies that success re-directs user
@@ -105,7 +97,8 @@ describe("Edit event page", () => {
     const startDateField = await screen.findByLabelText<HTMLInputElement>(
       t("communities:start_date")
     );
-    await chooseNewDate(startDateField);
+    userEvent.clear(startDateField);
+    userEvent.type(startDateField, "08012021");
     userEvent.click(screen.getByRole("button", { name: t("global:update") }));
 
     await waitFor(
@@ -118,8 +111,8 @@ describe("Edit event page", () => {
     expect(updateEventMock).toHaveBeenCalledWith({
       eventId: 1,
       isOnline: false,
-      startTime: new Date("2021-06-30 02:37"),
-      endTime: new Date("2021-06-30 03:37"),
+      startTime: new Date("2021-08-01 02:37"),
+      endTime: new Date("2021-08-01 03:37"),
     });
   });
 

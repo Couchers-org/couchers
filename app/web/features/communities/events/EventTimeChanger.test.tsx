@@ -1,6 +1,3 @@
-// TODO: review tests in this file. Some might not be relevant due to
-// datepicker update, as the new picker makes picking a past date impossible in the
-// test environment.
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Event } from "proto/events_pb";
@@ -11,6 +8,13 @@ import { t } from "test/utils";
 
 import { CreateEventData } from "./EventForm";
 import EventTimeChanger from "./EventTimeChanger";
+
+jest.mock("@mui/x-date-pickers", () => {
+  return {
+    ...jest.requireActual("@mui/x-date-pickers"),
+    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+  };
+});
 
 const onValidSubmit = jest.fn();
 
