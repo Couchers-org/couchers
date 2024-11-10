@@ -45,7 +45,12 @@ export default function HeroSearch() {
         defaultValue={""}
         onChange={(value) => {
           if (value !== "") {
-            const newBbox: [number, number, number, number] = [value.bbox[2], value.bbox[3], value.bbox[0], value.bbox[1]];
+            const newBbox: [number, number, number, number] = [
+              value.bbox[2],
+              value.bbox[3],
+              value.bbox[0],
+              value.bbox[1],
+            ];
             const searchRouteWithSearchQuery = routeToSearch({
               location: value.simplifiedName,
               hostingStatusOptions: [
