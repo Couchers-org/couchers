@@ -68,7 +68,7 @@
     "@storybook/addon-essentials": "^6.5.10",
     "@storybook/addon-links": "^6.5.10",
     "@storybook/builder-webpack5": "^6.5.10",
-    "@storybook/cli": "^8.3.6",
+    "@storybook/cli": "^8.4.2",
     "@storybook/manager-webpack5": "^6.5.10",
     "@storybook/react": "^6.5.10",
     "@testing-library/jest-dom": "^5.16.4",
