@@ -62,7 +62,12 @@ export default function SearchBox({
 
   const handleOnChangeAutocomplete = (event: GeocodeResult) => {
     if (event) {
-      setLocationResult(event);
+      const { bbox } = event;
+      const newLocationResult: GeocodeResult = {
+        ...event,
+        bbox: [bbox[2], bbox[3], bbox[0], bbox[1]], //sw long, sw lat, ne long, ne lat
+      };
+      setLocationResult(newLocationResult);
     }
   };
 
