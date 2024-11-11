@@ -31,7 +31,7 @@
     "@material-ui/icons": "^4.11.3",
     "@material-ui/lab": "^4.0.0-alpha.61",
     "@mui/material": "^5.0.0",
-    "@mui/x-date-pickers": "^5.0.0",
+    "@mui/x-date-pickers": "^7.22.2",
     "@sentry/nextjs": "^6.19.7",
     "@sentry/react": "^8.37.1",
     "@stripe/stripe-js": "^4.5.0",
