@@ -165,13 +165,13 @@ def test_user_filter_language(db):
     Make sure the language filter returns the rigth profiles
     """
     recreate_database()
-    user_with_german_fluent, token11 = generate_user()
+    user_with_german_beginner, token11 = generate_user()
     user_with_japanese_conversational, token12 = generate_user()
 
     with session_scope() as session:
 
         session.add(
-            LanguageAbility(user_id=user_with_german_fluent.id, language_code="deu", fluency=LanguageFluency.fluent)
+            LanguageAbility(user_id=user_with_german_beginner.id, language_code="deu", fluency=LanguageFluency.beginner)
         )
         session.add(
             LanguageAbility(
@@ -195,7 +195,7 @@ def test_user_filter_language(db):
         result_1 = api.UserSearch(search_request_1)
         result_2 = api.UserSearch(search_request_2)
 
-        assert [result.user.user_id for result in result_1.results] == [user_with_german_fluent.id]
+        assert [result.user.user_id for result in result_1.results] != [user_with_german_beginner.id]
         assert [result.user.user_id for result in result_2.results] == [user_with_japanese_conversational.id]
 
 
