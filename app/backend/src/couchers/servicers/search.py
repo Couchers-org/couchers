@@ -472,7 +472,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 statement = statement.where(
                     User.language_abilities.any(
                         (LanguageAbility.language_code == ability_filter.code)
-                        & (LanguageAbility.fluency.in_(conversational_fluent_filter_values))
+                        & (LanguageAbility.fluency.in_(fluency_sql_value))
                     )
                 )
         if request.HasField("profile_completed"):
