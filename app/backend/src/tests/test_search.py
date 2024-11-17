@@ -4,7 +4,7 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers.db import session_scope
-from couchers.models import EventOccurrence, Language, LanguageAbility, LanguageFluency, MeetupStatus
+from couchers.models import EventOccurrence, LanguageAbility, LanguageFluency, MeetupStatus
 from couchers.utils import Timestamp_from_datetime, create_coordinate, millis_from_dt, now
 from proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from tests.test_communities import create_community, testing_communities  # noqa
@@ -13,10 +13,10 @@ from tests.test_fixtures import (  # noqa
     db,
     events_session,
     generate_user,
+    recreate_database,
     search_session,
     session_scope,
     testconfig,
-    recreate_database,
 )
 
 
