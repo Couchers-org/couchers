@@ -18,7 +18,7 @@ import {
 import { service } from "service";
 import messageData from "test/fixtures/messages.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
-import { getGroupChatMessages, getUser } from "test/serviceMockDefaults";
+import { getGroupChatMessages, getLiteUser } from "test/serviceMockDefaults";
 import {
   addDefaultUser,
   assertErrorAlert,
@@ -33,7 +33,7 @@ import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 const getGroupChatMock = service.conversations.getGroupChat as MockedService<
   typeof service.conversations.getGroupChat
 >;
-const getUserMock = service.user.getUser as jest.Mock;
+const getLiteUserMock = service.user.getLiteUser as jest.Mock;
 const listFriendsMock = service.api.listFriends as MockedService<
   typeof service.api.listFriends
 >;
@@ -100,7 +100,7 @@ describe("GroupChatView", () => {
   beforeEach(() => {
     getGroupChatMock.mockResolvedValue(baseGroupChatMockResponse);
     getGroupChatMessagesMock.mockImplementation(getGroupChatMessages);
-    getUserMock.mockImplementation(getUser);
+    getLiteUserMock.mockImplementation(getLiteUser);
     markLastSeenGroupChatMock.mockResolvedValue(new Empty());
     listFriendsMock.mockResolvedValue([1, 2]);
   });
@@ -123,7 +123,7 @@ describe("GroupChatView", () => {
 
       if (message.text?.text) {
         // non-control text message assertions
-        const user = await getUser(message.authorUserId.toString());
+        const user = await getLiteUser(message.authorUserId.toString());
 
         expect(
           messageElement.getByRole("heading", { name: user?.name })

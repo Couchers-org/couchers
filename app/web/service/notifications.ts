@@ -1,5 +1,7 @@
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   GetNotificationSettingsReq,
+  RegisterPushNotificationSubscriptionReq,
   SetNotificationSettingsReq,
   SingleNotificationPreference,
 } from "proto/notifications_pb";
@@ -41,4 +43,26 @@ export async function setNotificationSettingsPreference(
   const res = await client.notifications.setNotificationSettings(req);
 
   return res.toObject();
+}
+
+export async function getVapidPublicKey() {
+  const res = await client.notifications.getVapidPublicKey(new Empty());
+  return res.toObject();
+}
+
+export async function registerPushNotificationSubscription(
+  subscription: PushSubscription
+) {
+  const req = new RegisterPushNotificationSubscriptionReq();
+  req.setFullSubscriptionJson(JSON.stringify(subscription));
+  req.setUserAgent(navigator.userAgent);
+  const res = await client.notifications.registerPushNotificationSubscription(
+    req
+  );
+
+  return res.toObject();
+}
+
+export async function sendTestPushNotification() {
+  await client.notifications.sendTestPushNotification(new Empty());
 }

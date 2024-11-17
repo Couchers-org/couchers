@@ -159,7 +159,8 @@
         "request_description": "Share your plans for the visit and include why you're requesting to stay with this particular host",
         "request_description_empty": "Please write a request message",
         "stay_type_a11y_text": "stay type",
-        "success": "Request sent!"
+        "success": "Request sent!",
+        "guest_count": "Number of guests"
     },
     "reference_filter_label": {
         "friend": "From friends",
@@ -194,7 +195,8 @@
     "response_time_text_almost_all": "Usually in {{p33}} to {{p66}}",
     "unsaved_changes_warning": "You haven't saved your changes. Are you sure you want to leave the page?",
     "profile_tag_input": {
-        "header_text": "Press 'Enter' to add\n<support_link>Email us</support_link> to add a language",
+        "header_text": "Press 'Enter' to add\n<support_link>Email us</support_link> to add an entry",
         "remove_button_a11y_text": "Remove {{tag}}"
-    }
+    },
+    "view_in_admin_console": "View user in admin console"
 }

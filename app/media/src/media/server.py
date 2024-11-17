@@ -8,7 +8,7 @@ import backoff
 import grpc
 import pyvips
 import sentry_sdk
-from flask import Flask, abort, request, send_file
+from flask import Flask, Response, abort, request, send_file, make_response
 from sentry_sdk.integrations import argv, atexit, dedupe, modules, stdlib, threading
 from sentry_sdk.integrations import logging as sentry_logging
 from werkzeug.utils import secure_filename
@@ -47,6 +47,7 @@ def create_app(
     main_server_address: str,
     main_server_use_ssl: bool,
     media_upload_location: Path,
+    media_cors_origin: str,
     thumbnail_size: int,
 ):
     # Create the directories
@@ -142,13 +143,15 @@ def create_app(
         # let the main server know the upload succeeded, or delete the file
         try:
             send_confirmation_to_main_server(req.key, filename)
-            return {
+            res = make_response({
                 "ok": True,
                 "key": req.key,
                 "filename": filename,
                 "full_url": f"{media_server_base_url}/img/full/{filename}",
                 "thumbnail_url": f"{media_server_base_url}/img/thumbnail/{filename}",
-            }
+            })
+            res.access_control_allow_origin = media_cors_origin
+            return res
         except Exception as e:
             os.remove(path)
             raise e
@@ -159,7 +162,7 @@ def create_app(
         if not os.path.isfile(path):
             abort(404, "Not found")
 
-        return send_file(path, mimetype="image/jpeg", conditional=True, max_age=43200)
+        return send_file(path, mimetype="image/jpeg", conditional=True, max_age=7776000)
 
     @app.route("/img/thumbnail/<key>.jpg")
     def thumbnail(key):
@@ -188,7 +191,11 @@ def create_app(
             img = img.resize(thumbnail_size / size)
             img.jpegsave(thumbnail_path, strip=True, interlace=True, Q=75)
 
-        return send_file(thumbnail_path, mimetype="image/jpeg", conditional=True, max_age=43200)
+        return send_file(thumbnail_path, mimetype="image/jpeg", conditional=True, max_age=7776000)
+
+    @app.route("/robots.txt")
+    def robots():
+        return Response("User-agent: *\nDisallow: /\n", mimetype="text/plain")
 
     return app
 
@@ -211,6 +218,9 @@ def create_app_from_env():
 
     MEDIA_UPLOAD_LOCATION = Path(os.environ["MEDIA_UPLOAD_LOCATION"])
 
+    # CORS allowed origin
+    MEDIA_CORS_ORIGIN = os.environ["MEDIA_CORS_ORIGIN"]
+
     THUMBNAIL_SIZE = 200
 
     return create_app(
@@ -220,6 +230,7 @@ def create_app_from_env():
         MAIN_SERVER_ADDRESS,
         MAIN_SERVER_USE_SSL,
         MEDIA_UPLOAD_LOCATION,
+        MEDIA_CORS_ORIGIN,
         THUMBNAIL_SIZE,
     )
 

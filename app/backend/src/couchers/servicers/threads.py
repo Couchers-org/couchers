@@ -5,7 +5,6 @@ import sqlalchemy.exc
 from sqlalchemy.sql import func
 
 from couchers import errors
-from couchers.db import session_scope
 from couchers.models import Comment, Reply, Thread
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
@@ -50,86 +49,84 @@ def thread_to_pb(session, database_id):
 
 
 class Threads(threads_pb2_grpc.ThreadsServicer):
-    def GetThread(self, request, context):
+    def GetThread(self, request, context, session):
         database_id, depth = unpack_thread_id(request.thread_id)
         page_size = request.page_size if 0 < request.page_size < 100000 else 1000
         page_start = unpack_thread_id(int(request.page_token))[0] if request.page_token else 2**50
 
-        with session_scope() as session:
-            if depth == 0:
-                if not session.execute(select(Thread).where(Thread.id == database_id)).scalar_one_or_none():
-                    context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
-
-                res = session.execute(
-                    select(Comment, func.count(Reply.id))
-                    .outerjoin(Reply, Reply.comment_id == Comment.id)
-                    .where(Comment.thread_id == database_id)
-                    .where(Comment.id < page_start)
-                    .group_by(Comment.id)
-                    .order_by(Comment.created.desc())
-                    .limit(page_size + 1)
-                ).all()
-                replies = [
-                    threads_pb2.Reply(
-                        thread_id=pack_thread_id(r.id, 1),
-                        content=r.content,
-                        author_user_id=r.author_user_id,
-                        created_time=Timestamp_from_datetime(r.created),
-                        num_replies=n,
-                    )
-                    for r, n in res[:page_size]
-                ]
-
-            elif depth == 1:
-                if not session.execute(select(Comment).where(Comment.id == database_id)).scalar_one_or_none():
-                    context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
-
-                res = (
-                    session.execute(
-                        select(Reply)
-                        .where(Reply.comment_id == database_id)
-                        .where(Reply.id < page_start)
-                        .order_by(Reply.created.desc())
-                        .limit(page_size + 1)
-                    )
-                    .scalars()
-                    .all()
-                )
-                replies = [
-                    threads_pb2.Reply(
-                        thread_id=pack_thread_id(r.id, 2),
-                        content=r.content,
-                        author_user_id=r.author_user_id,
-                        created_time=Timestamp_from_datetime(r.created),
-                        num_replies=0,
-                    )
-                    for r in res[:page_size]
-                ]
-
-            else:
+        if depth == 0:
+            if not session.execute(select(Thread).where(Thread.id == database_id)).scalar_one_or_none():
                 context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
 
-            if len(res) > page_size:
-                # There's more!
-                next_page_token = str(replies[-1].thread_id)
-            else:
-                next_page_token = ""
+            res = session.execute(
+                select(Comment, func.count(Reply.id))
+                .outerjoin(Reply, Reply.comment_id == Comment.id)
+                .where(Comment.thread_id == database_id)
+                .where(Comment.id < page_start)
+                .group_by(Comment.id)
+                .order_by(Comment.created.desc())
+                .limit(page_size + 1)
+            ).all()
+            replies = [
+                threads_pb2.Reply(
+                    thread_id=pack_thread_id(r.id, 1),
+                    content=r.content,
+                    author_user_id=r.author_user_id,
+                    created_time=Timestamp_from_datetime(r.created),
+                    num_replies=n,
+                )
+                for r, n in res[:page_size]
+            ]
+
+        elif depth == 1:
+            if not session.execute(select(Comment).where(Comment.id == database_id)).scalar_one_or_none():
+                context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+
+            res = (
+                session.execute(
+                    select(Reply)
+                    .where(Reply.comment_id == database_id)
+                    .where(Reply.id < page_start)
+                    .order_by(Reply.created.desc())
+                    .limit(page_size + 1)
+                )
+                .scalars()
+                .all()
+            )
+            replies = [
+                threads_pb2.Reply(
+                    thread_id=pack_thread_id(r.id, 2),
+                    content=r.content,
+                    author_user_id=r.author_user_id,
+                    created_time=Timestamp_from_datetime(r.created),
+                    num_replies=0,
+                )
+                for r in res[:page_size]
+            ]
+
+        else:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+
+        if len(res) > page_size:
+            # There's more!
+            next_page_token = str(replies[-1].thread_id)
+        else:
+            next_page_token = ""
 
         return threads_pb2.GetThreadRes(replies=replies, next_page_token=next_page_token)
 
-    def PostReply(self, request, context):
-        with session_scope() as session:
-            database_id, depth = unpack_thread_id(request.thread_id)
-            if depth == 0:
-                object_to_add = Comment(thread_id=database_id, author_user_id=context.user_id, content=request.content)
-            elif depth == 1:
-                object_to_add = Reply(comment_id=database_id, author_user_id=context.user_id, content=request.content)
-            else:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
-            session.add(object_to_add)
-            try:
-                session.flush()
-            except sqlalchemy.exc.IntegrityError:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+    def PostReply(self, request, context, session):
+        database_id, depth = unpack_thread_id(request.thread_id)
+        if depth == 0:
+            object_to_add = Comment(thread_id=database_id, author_user_id=context.user_id, content=request.content)
+        elif depth == 1:
+            object_to_add = Reply(comment_id=database_id, author_user_id=context.user_id, content=request.content)
+        else:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+        session.add(object_to_add)
+        try:
+            session.flush()
+        except sqlalchemy.exc.IntegrityError:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
 
-            return threads_pb2.PostReplyRes(thread_id=pack_thread_id(object_to_add.id, depth + 1))
+        return threads_pb2.PostReplyRes(thread_id=pack_thread_id(object_to_add.id, depth + 1))

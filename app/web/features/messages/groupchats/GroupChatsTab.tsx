@@ -53,7 +53,9 @@ export default function GroupChatsTab() {
     <div className={classes.root}>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
-        <CircularProgress />
+        <div className={classes.loadingBox}>
+          <CircularProgress />
+        </div>
       ) : (
         data && (
           <List className={classes.list}>

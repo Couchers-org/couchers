@@ -284,7 +284,7 @@ def testing_communities(testconfig):
     create_place(token8, "Global, Attraction", "Place content", "Somewhere in w", 51.5)
     create_place(token6, "Country 2, Region 1, Attraction", "Place content", "Somewhere in c2r1", 59)
 
-    refresh_materialized_views()
+    refresh_materialized_views(None)
 
     yield
 

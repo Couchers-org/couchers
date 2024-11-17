@@ -7,6 +7,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from couchers import errors
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
+from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import FriendRelationship, FriendStatus
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, to_aware_datetime
@@ -163,6 +164,166 @@ def test_get_user(db):
         assert res.user_id == user2.id
         assert res.username == user2.username
         assert res.name == user2.name
+
+
+def test_lite_coords(db):
+    # make them have not added a location
+    user1, token1 = generate_user(geom=None, geom_radius=None)
+    user2, token2 = generate_user()
+
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token2) as api:
+        res = api.Ping(api_pb2.PingReq())
+        assert res.user.city == user2.city
+        lat, lng = user2.coordinates or (0, 0)
+        assert res.user.lat == lat
+        assert res.user.lng == lng
+        assert res.user.radius == user2.geom_radius
+
+    with api_session(token2) as api:
+        res = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user1.username))
+        assert res.city == user1.city
+        assert res.lat == 0.0
+        assert res.lng == 0.0
+        assert res.radius == 0.0
+
+    # Check coordinate wrapping
+    user3, token3 = generate_user(geom=create_coordinate(40.0, -180.5))
+    user4, token4 = generate_user(geom=create_coordinate(40.0, 20.0))
+    user5, token5 = generate_user(geom=create_coordinate(90.5, 20.0))
+
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token3) as api:
+        res = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user3.username))
+        assert res.lat == 40.0
+        assert res.lng == 179.5
+
+    with api_session(token4) as api:
+        res = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user4.username))
+        assert res.lat == 40.0
+        assert res.lng == 20.0
+
+    # PostGIS does not wrap longitude for latitude overflow
+    with api_session(token5) as api:
+        res = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user5.username))
+        assert res.lat == 89.5
+        assert res.lng == 20.0
+
+    with real_jail_session(token1) as jail:
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert res.jailed
+        assert res.has_not_added_location
+
+        res = jail.SetLocation(
+            jail_pb2.SetLocationReq(
+                city="New York City",
+                lat=40.7812,
+                lng=-73.9647,
+                radius=250,
+            )
+        )
+
+        assert not res.jailed
+        assert not res.has_not_added_location
+
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.jailed
+        assert not res.has_not_added_location
+
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token2) as api:
+        res = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user1.username))
+        assert res.city == "New York City"
+        assert res.lat == 40.7812
+        assert res.lng == -73.9647
+        assert res.radius == 250
+
+
+def test_lite_get_user(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        res = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
+        assert res.user_id == user2.id
+        assert res.username == user2.username
+        assert res.name == user2.name
+
+    with api_session(token1) as api:
+        res = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
+        assert res.user_id == user2.id
+        assert res.username == user2.username
+        assert res.name == user2.name
+
+
+def test_GetLiteUsers(db):
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    user4, _ = generate_user()
+    user5, _ = generate_user()
+    user6, _ = generate_user()
+
+    make_user_block(user4, user1)
+
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        res = api.GetLiteUsers(
+            api_pb2.GetLiteUsersReq(
+                users=[
+                    user1.username,
+                    str(user1.id),
+                    "nonexistent",
+                    str(user2.id),
+                    "9994",
+                    user6.username,
+                    str(user5.id),
+                    "notreal",
+                    user4.username,
+                ]
+            )
+        )
+
+        assert len(res.responses) == 9
+        assert res.responses[0].query == user1.username
+        assert res.responses[0].user.user_id == user1.id
+
+        assert res.responses[1].query == str(user1.id)
+        assert res.responses[1].user.user_id == user1.id
+
+        assert res.responses[2].query == "nonexistent"
+        assert res.responses[2].not_found
+
+        assert res.responses[3].query == str(user2.id)
+        assert res.responses[3].user.user_id == user2.id
+
+        assert res.responses[4].query == "9994"
+        assert res.responses[4].not_found
+
+        assert res.responses[5].query == user6.username
+        assert res.responses[5].user.user_id == user6.id
+
+        assert res.responses[6].query == str(user5.id)
+        assert res.responses[6].user.user_id == user5.id
+
+        assert res.responses[7].query == "notreal"
+        assert res.responses[7].not_found
+
+        # blocked
+        assert res.responses[8].query == user4.username
+        assert res.responses[8].not_found
+
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetLiteUsers(api_pb2.GetLiteUsersReq(users=201 * [user1.username]))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == errors.REQUESTED_TOO_MANY_USERS
 
 
 def test_update_profile(db):

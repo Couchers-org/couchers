@@ -4,9 +4,11 @@ import classNames from "classnames";
 import Map from "components/Map";
 import MapSearch from "components/MapSearch";
 import TextField from "components/TextField";
-import maplibregl, {
+import { Feature, GeoJsonProperties, Geometry } from "geojson";
+import {
   GeoJSONSource,
   LngLat,
+  Map as MaplibreMap,
   MapMouseEvent,
   MapTouchEvent,
 } from "maplibre-gl";
@@ -73,7 +75,7 @@ export default function EditLocationMap({
   const theme = useTheme();
   const [error, setError] = useState("");
 
-  const map = useRef<maplibregl.Map | null>(null);
+  const map = useRef<MaplibreMap | null>(null);
 
   // map is imperative so these don't need to cause re-render
   const location = useRef<ApproximateLocation>({
@@ -197,7 +199,7 @@ export default function EditLocationMap({
     }
   };
 
-  const initializeMap = (mapRef: maplibregl.Map) => {
+  const initializeMap = (mapRef: MaplibreMap) => {
     map.current = mapRef;
     map.current.once("load", () => {
       if (!map.current) return;
@@ -254,7 +256,7 @@ export default function EditLocationMap({
       }
     });
 
-    const onDblClick = (e: MapMouseEvent & maplibregl.EventData) => {
+    const onDblClick = (e: MapMouseEvent) => {
       e.preventDefault();
       handleCoordinateMoved(e);
     };
@@ -262,8 +264,8 @@ export default function EditLocationMap({
 
     const onCircleTouch = (
       e: MapTouchEvent & {
-        features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
-      } & maplibregl.EventData
+        features?: Feature<Geometry, GeoJsonProperties>[] | undefined;
+      }
     ) => {
       if (e.points.length !== 1) return;
       onCircleMouseDown(e);

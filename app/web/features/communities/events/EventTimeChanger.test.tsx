@@ -9,6 +9,13 @@ import { t } from "test/utils";
 import { CreateEventData } from "./EventForm";
 import EventTimeChanger from "./EventTimeChanger";
 
+jest.mock("@mui/x-date-pickers", () => {
+  return {
+    ...jest.requireActual("@mui/x-date-pickers"),
+    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+  };
+});
+
 const onValidSubmit = jest.fn();
 
 function TestForm({ event }: { event?: Event.AsObject }) {

@@ -280,6 +280,34 @@
           "change": "The gender displayed on your profile is changed"
         }
       }
+    },
+    "push_notifications": {
+      "title": "Push Notifications",
+      "description": "You can enable push notifications for Couchers.org on your device. We are working on expanding this feature.",
+      "allow_push": "Click the 'Allow' button in your browser popup to enable push notifications.",
+      "enabled_message": "You currently have push notifications <1>enabled</1>.",
+      "disabled_message": "You currently have push notifications <1>disabled</1>.",
+      "error_generic": "Error during subscription to push notifications",
+      "error_unsupported": "Push notifications or Service Workers are not supported in this browser.",
+      "permission_denied": {
+        "platform_settings_description": "Still having issues after enabling notifications in your browser? You may need to adjust your platform settings.",
+        "instructions": {
+          "chrome": "You've blocked notifications. Please enable notifications in your browser settings to continue. In Chrome, click on the padlock icon in the URL bar, then adjust the \"Notifications\" setting.",
+          "firefox": "You've blocked notifications. Please enable notifications in your browser settings to continue. In Firefox, go to Preferences > Privacy & Security > Permissions > Notifications, and modify the website's permission.",
+          "safari": "You've blocked notifications. Please enable notifications in your browser settings to continue. In Safari, go to Preferences > Websites > Notifications to modify permissions.",
+          "generic": "You've blocked notifications. Please enable notifications in your browser settings to continue.",
+          "macos": "In macOS, go to System Settings > Notifications, and modify the app's permission.",
+          "windows": "In Windows, go to Settings > System > Notifications & actions, and adjust the app or website's permission.",
+          "linux": {
+            "gnome": "In GNOME, go to Settings > Notifications to adjust the app's permission.",
+            "kde": "In KDE, go to System Settings > Notifications to modify permissions."
+          },
+          "mobile": {
+            "browser": "In your mobile browser settings, adjust the notifications permission for this website.",
+            "os": "In your mobile device notification settings, adjust the permissions to allow notifications."
+          }
+        }
+      }
     }
   },
   "strong_verification": {
@@ -300,6 +328,7 @@
   },
   "change_phone": {
     "title": "Phone number",
+    "need_to_donate": "You need to <2>donate</2> before you can complete phone verification.",
     "no_phone_description": "You have not added a phone number to your account. To add one, enter it below. We will verify it with a text message.",
     "phone_label": "Your phone number",
     "add_button_text": "Add phone number",

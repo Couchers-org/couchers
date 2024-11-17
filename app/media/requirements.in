@@ -6,5 +6,6 @@ protobuf
 pynacl
 pytest
 pyvips
+ruff
 sentry-sdk
 uwsgi

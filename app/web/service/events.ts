@@ -221,39 +221,67 @@ export interface ListAllEventsInput {
   pastEvents: boolean;
   pageSize?: number;
   pageToken?: string;
+  showCancelled?: boolean;
 }
 
 export async function listAllEvents({
   pastEvents = false,
   pageSize,
   pageToken,
+  showCancelled,
 }: ListAllEventsInput) {
   const req = new ListAllEventsReq();
-  req.setPast(pastEvents);
 
+  if (pastEvents !== undefined) {
+    req.setPast(pastEvents);
+  }
   if (pageSize) {
     req.setPageSize(pageSize);
   }
   if (pageToken) {
     req.setPageToken(pageToken);
+  }
+  if (showCancelled !== undefined) {
+    req.setIncludeCancelled(showCancelled);
   }
 
   const res = await client.events.listAllEvents(req);
   return res.toObject();
 }
 
-interface ListMyEventsInput {
+export interface ListMyEventsInput {
+  pageNumber?: number;
   pageSize?: number;
   pageToken?: string;
+  pastEvents?: boolean;
+  showCancelled?: boolean;
 }
 
-export async function listMyEvents({ pageSize, pageToken }: ListMyEventsInput) {
+export async function listMyEvents({
+  pageNumber,
+  pageSize,
+  pageToken,
+  pastEvents,
+  showCancelled,
+}: ListMyEventsInput) {
   const req = new ListMyEventsReq();
+  req.setAttending(true);
+  req.setOrganizing(true);
+
+  if (pastEvents !== undefined) {
+    req.setPast(pastEvents);
+  }
+  if (pageNumber) {
+    req.setPageNumber(pageNumber);
+  }
   if (pageSize) {
     req.setPageSize(pageSize);
   }
   if (pageToken) {
     req.setPageToken(pageToken);
+  }
+  if (showCancelled !== undefined) {
+    req.setIncludeCancelled(showCancelled);
   }
 
   const res = await client.events.listMyEvents(req);

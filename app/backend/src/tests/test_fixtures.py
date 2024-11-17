@@ -16,7 +16,7 @@ from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import random_hex
 from couchers.db import _get_base_engine, session_scope
 from couchers.descriptor_pool import get_descriptor_pool
-from couchers.interceptors import AuthValidatorInterceptor, _try_get_and_update_user_details
+from couchers.interceptors import AuthValidatorInterceptor, SessionInterceptor, _try_get_and_update_user_details
 from couchers.jobs.worker import process_job
 from couchers.models import (
     Base,
@@ -46,6 +46,7 @@ from couchers.servicers.conversations import Conversations
 from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.events import Events
+from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
@@ -72,6 +73,7 @@ from proto import (
     discussions_pb2_grpc,
     donations_pb2_grpc,
     events_pb2_grpc,
+    gis_pb2_grpc,
     groups_pb2_grpc,
     iris_pb2_grpc,
     jail_pb2_grpc,
@@ -268,6 +270,7 @@ def generate_user(*, delete_user=False, complete_profile=True, **kwargs):
             "geom_radius": 100,
             "onboarding_emails_sent": 1,
             "last_onboarding_email_sent": now(),
+            "has_donated": True,
         }
 
         for key, value in kwargs.items():
@@ -393,20 +396,22 @@ class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
 
 
 @contextmanager
-def auth_api_session():
+def auth_api_session(grpc_channel_options=()):
     """
     Create an Auth API for testing
 
     This needs to use the real server since it plays around with headers
     """
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor(), SessionInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
         auth_pb2_grpc.add_AuthServicer_to_server(Auth(), server)
         server.start()
 
         try:
-            with grpc.secure_channel(f"localhost:{port}", grpc.local_channel_credentials()) as channel:
+            with grpc.secure_channel(
+                f"localhost:{port}", grpc.local_channel_credentials(), options=grpc_channel_options
+            ) as channel:
 
                 class _MetadataKeeperInterceptor(grpc.UnaryUnaryClientInterceptor):
                     def __init__(self):
@@ -441,7 +446,7 @@ def real_api_session(token):
     Create an API for testing, using TCP sockets, uses the token for auth
     """
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor(), SessionInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
         api_pb2_grpc.add_APIServicer_to_server(API(), server)
         server.start()
@@ -462,7 +467,7 @@ def real_admin_session(token):
     Create a Admin service for testing, using TCP sockets, uses the token for auth
     """
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor(), SessionInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
         admin_pb2_grpc.add_AdminServicer_to_server(Admin(), server)
         server.start()
@@ -483,7 +488,7 @@ def real_account_session(token):
     Create a Account service for testing, using TCP sockets, uses the token for auth
     """
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor(), SessionInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
         account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
         server.start()
@@ -504,7 +509,7 @@ def real_jail_session(token):
     Create a Jail service for testing, using TCP sockets, uses the token for auth
     """
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor(), SessionInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
         jail_pb2_grpc.add_JailServicer_to_server(Jail(), server)
         server.start()
@@ -517,6 +522,13 @@ def real_jail_session(token):
                 yield jail_pb2_grpc.JailStub(channel)
         finally:
             server.stop(None).wait()
+
+
+@contextmanager
+def gis_session(token):
+    channel = fake_channel(token)
+    gis_pb2_grpc.add_GISServicer_to_server(GIS(), channel)
+    yield gis_pb2_grpc.GISStub(channel)
 
 
 class FakeRpcError(grpc.RpcError):
@@ -584,7 +596,8 @@ class FakeChannel:
             # response to catch accidental use of unserializable data.
             request = handler.request_deserializer(request_serializer(request))
 
-            response = handler.unary_unary(request, self)
+            with session_scope() as session:
+                response = handler.unary_unary(request, self, session)
 
             return response_deserializer(handler.response_serializer(response))
 
@@ -593,7 +606,9 @@ class FakeChannel:
 
 def fake_channel(token=None):
     if token:
-        user_id, is_jailed, is_superuser, token_expiry = _try_get_and_update_user_details(token, is_api_key=False)
+        user_id, is_jailed, is_superuser, token_expiry = _try_get_and_update_user_details(
+            token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
+        )
         return FakeChannel(user_id=user_id, is_jailed=is_jailed, is_superuser=is_superuser, token_expiry=token_expiry)
     return FakeChannel()
 
@@ -645,7 +660,7 @@ def real_stripe_session():
     Create a Stripe service for testing, using TCP sockets
     """
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor(), SessionInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
         stripe_pb2_grpc.add_StripeServicer_to_server(Stripe(), server)
         server.start()
@@ -662,7 +677,7 @@ def real_stripe_session():
 @contextmanager
 def real_iris_session():
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor()])
+        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor(), SessionInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
         iris_pb2_grpc.add_IrisServicer_to_server(Iris(), server)
         server.start()
@@ -777,7 +792,7 @@ def media_session(bearer_token):
     media_auth_interceptor = get_media_auth_interceptor(bearer_token)
 
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[media_auth_interceptor])
+        server = grpc.server(executor, interceptors=[media_auth_interceptor, SessionInterceptor()])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
         servicer = Media()
         media_pb2_grpc.add_MediaServicer_to_server(servicer, server)
@@ -815,7 +830,7 @@ def testconfig():
     config["ENABLE_EMAIL"] = False
     config["NOTIFICATION_EMAIL_SENDER"] = "Couchers.org"
     config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"
-    config["NOTIFICATION_EMAIL_PREFIX"] = "[TEST] "
+    config["NOTIFICATION_PREFIX"] = "[TEST] "
     config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
     config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"] = "forms@couchers.org.invalid"
     config["MODS_EMAIL_RECIPIENT"] = "mods@couchers.org.invalid"
@@ -844,6 +859,7 @@ def testconfig():
     )
     config["MEDIA_SERVER_BEARER_TOKEN"] = "c02d383897d3b82774ced09c9e17802164c37e7e105d8927553697bf4550e91e"
     config["MEDIA_SERVER_BASE_URL"] = "http://localhost:5001"
+    config["MEDIA_SERVER_UPLOAD_BASE_URL"] = "http://localhost:5001"
 
     config["BUG_TOOL_ENABLED"] = False
     config["BUG_TOOL_GITHUB_REPO"] = "org/repo"

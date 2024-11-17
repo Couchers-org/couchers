@@ -3,7 +3,7 @@ import {
   StringValue,
 } from "google-protobuf/google/protobuf/wrappers_pb";
 import { StatusCode } from "grpc-web";
-import { User } from "proto/api_pb";
+import { LiteUser, User } from "proto/api_pb";
 import {
   CreateGroupChatReq,
   EditGroupChatReq,
@@ -92,14 +92,20 @@ export function inviteToGroupChat(groupChatId: number, users: User.AsObject[]) {
   return Promise.all(promises);
 }
 
-export function makeGroupChatAdmin(groupChatId: number, user: User.AsObject) {
+export function makeGroupChatAdmin(
+  groupChatId: number,
+  user: LiteUser.AsObject
+) {
   const req = new MakeGroupChatAdminReq();
   req.setGroupChatId(groupChatId);
   req.setUserId(user.userId);
   return client.conversations.makeGroupChatAdmin(req);
 }
 
-export function removeGroupChatAdmin(groupChatId: number, user: User.AsObject) {
+export function removeGroupChatAdmin(
+  groupChatId: number,
+  user: LiteUser.AsObject
+) {
   const req = new RemoveGroupChatAdminReq();
   req.setGroupChatId(groupChatId);
   req.setUserId(user.userId);

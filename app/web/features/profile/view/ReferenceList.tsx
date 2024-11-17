@@ -1,5 +1,5 @@
 import { List } from "@material-ui/core";
-import useUsers from "features/userQueries/useUsers";
+import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { ListReferencesRes } from "proto/references_pb";
 import makeStyles from "utils/makeStyles";
 
@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
 interface ReferenceListProps {
   isReceived?: boolean;
   referencePages: ListReferencesRes.AsObject[];
-  referenceUsers: ReturnType<typeof useUsers>["data"];
+  referenceUsers: ReturnType<typeof useLiteUsers>["data"];
 }
 
 export default function ReferenceList({

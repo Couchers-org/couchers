@@ -11,7 +11,6 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import classNames from "classnames";
-import Button from "components/Button";
 import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import { MenuItem } from "components/Menu";
@@ -48,9 +47,9 @@ import {
 } from "routes";
 import makeStyles from "utils/makeStyles";
 
+import GuestMenu from "./GuestMenu";
 import LoggedInMenu from "./LoggedInMenu";
 import NavButton from "./NavButton";
-import ReportButton from "./ReportButton";
 
 interface MenuItemProps {
   name: string;
@@ -254,6 +253,10 @@ const useStyles = makeStyles((theme) => ({
     bottom: "auto",
     top: 0,
     boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
+    paddingRight: theme.spacing(2),
+    [theme.breakpoints.up("md")]: {
+      paddingRight: 0,
+    },
   },
   flex: {
     display: "flex",
@@ -396,7 +399,7 @@ export default function Navigation() {
     </div>
   );
 
-  const menuItems = loggedInMenuDropDown(t, pingData).map(
+  const loggedMenuItems = loggedInMenuDropDown(t, pingData).map(
     ({ name, notificationCount, route, externalLink, hasBottomDivider }) => {
       const hasNotification =
         notificationCount !== undefined && notificationCount > 0;
@@ -543,24 +546,14 @@ export default function Navigation() {
         </div>
         <Hidden implementation="css">
           <div className={classes.menuContainer}>
-            <ReportButton />
+            {/*   <ReportButton /> */}
+
             {authState.authenticated && isMounted ? (
               <LoggedInMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen}>
-                {menuItems}
+                {loggedMenuItems}
               </LoggedInMenu>
             ) : (
-              <>
-                <Hidden smDown implementation="css">
-                  <Link href={signupRoute} passHref>
-                    <Button variant="contained" color="secondary">
-                      {t("sign_up")}
-                    </Button>
-                  </Link>
-                </Hidden>
-                <Link href={loginRoute} passHref>
-                  <Button variant="outlined">{t("login")}</Button>
-                </Link>
-              </>
+              <GuestMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
             )}
           </div>
         </Hidden>

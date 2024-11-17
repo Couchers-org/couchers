@@ -1,3 +1,4 @@
+import { useMediaQuery } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Skeleton } from "@material-ui/lab";
 import Alert from "components/Alert";
@@ -26,7 +27,7 @@ import {
   groupChatMessagesKey,
   groupChatsListKey,
 } from "features/queryKeys";
-import useUsers from "features/userQueries/useUsers";
+import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -43,6 +44,7 @@ import {
 } from "react-query";
 import { groupChatsRoute } from "routes";
 import { service } from "service";
+import { theme } from "theme";
 
 import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 
@@ -51,19 +53,42 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     marginTop: "auto",
     flexGrow: 0,
     paddingBottom: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
   },
   header: {
-    paddingTop: theme.spacing(1),
+    padding: theme.spacing(1, 2),
+    borderBottom: `1px solid ${theme.palette.divider}`,
     alignItems: "center",
     display: "flex",
     flexGrow: 0,
     "& > * + *": {
       marginInlineStart: theme.spacing(2),
     },
+
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    },
+  },
+  messageLoader: {
+    padding: theme.spacing(2, 2),
+
+    [theme.breakpoints.down("sm")]: {
+      padding: theme.spacing(1, 1),
+    },
   },
   pageWrapper: {
     [theme.breakpoints.up("sm")]: {
       height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
+    },
+    [theme.breakpoints.down("sm")]: {
+      height: `calc(100vh - ${theme.shape.navPaddingXs})`,
     },
     alignItems: "stretch",
     display: "flex",
@@ -79,6 +104,10 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     marginInlineEnd: theme.spacing(2),
     marginInlineStart: theme.spacing(2),
     "& > *": { marginInlineEnd: theme.spacing(2) },
+
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "0.9rem",
+    },
   },
   requestedDatesWrapper: {
     display: "flex",
@@ -92,11 +121,18 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
   requestedDates: {
     paddingRight: theme.spacing(1),
   },
+  loadingBox: {
+    display: "flex",
+    justifyContent: "center",
+    padding: theme.spacing(2),
+    width: "100%",
+  },
 }));
 
 export default function GroupChatView({ chatId }: { chatId: number }) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const classes = useGroupChatViewStyles();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const menuAnchor = useRef<HTMLAnchorElement>(null);
   const [isOpen, setIsOpen] = useState({
@@ -160,7 +196,9 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
   //for title text
   const currentUserId = useAuthContext().authState.userId!;
   const isChatAdmin = groupChat?.adminUserIdsList.includes(currentUserId);
-  const groupChatMembersQuery = useUsers(groupChat?.memberUserIdsList ?? []);
+  const groupChatMembersQuery = useLiteUsers(
+    groupChat?.memberUserIdsList ?? []
+  );
 
   const {
     data: messagesRes,
@@ -232,7 +270,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
               onClick={handleBack}
               aria-label={t("messages:chat_view.back_button.a11y_label")}
             >
-              <BackIcon />
+              <BackIcon fontSize={isMobile ? "small" : "default"} />
             </HeaderButton>
 
             {groupChat?.isDm ? (
@@ -280,7 +318,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
                 aria-controls="more-menu"
                 innerRef={menuAnchor}
               >
-                <OverflowMenuIcon />
+                <OverflowMenuIcon fontSize={isMobile ? "small" : "default"} />
               </HeaderButton>
               <Menu
                 id="more-menu"
@@ -397,11 +435,14 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
             </Alert>
           )}
           {isMessagesLoading ? (
-            <CircularProgress />
+            <div className={classes.loadingBox}>
+              <CircularProgress />
+            </div>
           ) : (
             messagesRes && (
               <>
                 <InfiniteMessageLoader
+                  className={classes.messageLoader}
                   earliestMessageId={
                     messagesRes.pages[messagesRes.pages.length - 1]
                       .lastMessageId

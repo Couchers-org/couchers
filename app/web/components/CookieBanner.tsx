@@ -1,4 +1,4 @@
-import { Snackbar, SnackbarCloseReason, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import IconButton from "components/IconButton";
 import { CloseIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
@@ -11,46 +11,53 @@ import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    "&.MuiSnackbar-root": {
-      left: theme.spacing(1),
-      right: theme.spacing(1),
-      transform: "unset",
-    },
-    "& .MuiSnackbarContent-root": {
-      flexGrow: "1",
-      flexWrap: "nowrap",
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.primary.contrastText,
+    position: "fixed",
+    zIndex: theme.zIndex.snackbar,
+    left: theme.spacing(0),
+    right: theme.spacing(0),
+    transform: "translateY(-100%)",
+    backgroundColor: theme.palette.primary.contrastText,
+    top: "100vh",
+    padding: theme.spacing(2, 4),
+    "& .content": {
+      width: "75%",
+      margin: "0 auto",
+      textAlign: "center",
     },
   },
   link: {
     color: theme.palette.secondary.light,
+  },
+  button: {
+    position: "absolute",
+    top: "50%",
+    transform: "translateY(-50%)",
+    right: theme.spacing(1),
   },
 }));
 
 export default function CookieBanner() {
   const { t } = useTranslation();
   const classes = useStyles();
-  const [hasSeen, setHasSeen] = usePersistedState("hasSeenCookieBanner", false);
   // since we are using localStorage, make sure don't render unless mounted
   // or there will be hydration mismatches
   const isMounted = useIsMounted().current;
   const auth = useAuthContext();
+  const [hasSeen, setHasSeen] = usePersistedState("hasSeenCookieBanner", false);
 
   if (auth.authState.authenticated) return null;
 
-  const handleClose = (
-    event: unknown,
-    reason: SnackbarCloseReason | "button"
-  ) => {
-    if (reason !== "button") return;
-    setHasSeen(true);
-  };
-
   //specifically not using our snackbar, which is designed for alerts
-  return isMounted ? (
-    <Snackbar
-      message={
+  return isMounted && !hasSeen ? (
+    <div className={classes.root} aria-live="polite">
+      <IconButton
+        aria-label={t("close")}
+        onClick={() => setHasSeen(true)}
+        className={classes.button}
+      >
+        <CloseIcon />
+      </IconButton>
+      <div className="content">
         <Typography variant="body1">
           <Trans t={t} i18nKey="cookie_message">
             We use cookies to ensure that we give you the best experience on our
@@ -62,19 +69,7 @@ export default function CookieBanner() {
             .
           </Trans>
         </Typography>
-      }
-      open={!hasSeen}
-      onClose={handleClose}
-      className={classes.root}
-      aria-live="polite"
-      action={
-        <IconButton
-          aria-label={t("close")}
-          onClick={(e) => handleClose(e, "button")}
-        >
-          <CloseIcon />
-        </IconButton>
-      }
-    />
+      </div>
+    </div>
   ) : null;
 }

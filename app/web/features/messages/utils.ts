@@ -1,4 +1,4 @@
-import useUsers from "features/userQueries/useUsers";
+import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { GroupChat, Message } from "proto/conversations_pb";
 import { TFunction } from "react-i18next";
 import { firstName } from "utils/names";
@@ -66,7 +66,7 @@ export function controlMessage({
 
 export function groupChatTitleText(
   groupChat: GroupChat.AsObject,
-  groupChatMembersQuery: ReturnType<typeof useUsers>,
+  groupChatMembersQuery: ReturnType<typeof useLiteUsers>,
   currentUserId: number
 ) {
   return groupChat.title
@@ -81,7 +81,7 @@ export function groupChatTitleText(
 
 /** Returns the other user's username, or null if there are more than 2 users. */
 export function getDmUsername(
-  groupChatMembersQuery: ReturnType<typeof useUsers>,
+  groupChatMembersQuery: ReturnType<typeof useLiteUsers>,
   currentUserId: number
 ) {
   const users = Array.from(groupChatMembersQuery.data?.values() ?? []);

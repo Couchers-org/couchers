@@ -9,7 +9,7 @@ const useStyles = makeStyles((theme) => ({
   banner: {
     animation: "2s infinite alternate $attention",
     position: "fixed",
-    bottom: theme.spacing(1),
+    bottom: theme.spacing(12),
     right: theme.spacing(1),
     zIndex: 5000,
     "&.MuiChip-root": {

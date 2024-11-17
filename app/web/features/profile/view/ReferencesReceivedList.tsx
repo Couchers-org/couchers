@@ -1,4 +1,4 @@
-import useUsers from "features/userQueries/useUsers";
+import { useLiteUsers } from "features/userQueries/useLiteUsers";
 
 import { useReferencesReceived } from "../hooks/referencesHooks";
 import { useProfileUser } from "../hooks/useProfileUser";
@@ -22,7 +22,7 @@ export default function ReferencesReceivedList({
       )
       .flat() ?? [];
   const { data: referenceUsers, isLoading: isReferenceUsersLoading } =
-    useUsers(userIds);
+    useLiteUsers(userIds);
 
   return (
     <ReferencesView

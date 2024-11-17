@@ -14,6 +14,10 @@ import makeStyles from "utils/makeStyles";
 import useNotifications from "../useNotifications";
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
   tabBarContainer: {
     display: "flex",
     justifyContent: "flex-start",
@@ -72,7 +76,7 @@ export default function MessagesHeader({
   const router = useRouter();
 
   return (
-    <>
+    <div className={classes.root}>
       <HtmlMeta title={t("messages_page.title")} />
       <PageTitle>{t("messages_page.title")}</PageTitle>
       {tab && <MarkAllReadButton type={tab} />}
@@ -85,6 +89,6 @@ export default function MessagesHeader({
           />
         </TabContext>
       </div>
-    </>
+    </div>
   );
 }

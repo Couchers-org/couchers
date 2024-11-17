@@ -22,6 +22,7 @@ export const foundationRoute = "/foundation";
 export const planRoute = "/plan";
 export const teamRoute = "/team";
 export const donationsRoute = "/donate";
+export const builtWithRoute = "/open-source";
 export const contactRoute = "/contact";
 
 export const loginRoute = "/login";
@@ -162,3 +163,8 @@ export const routeToEditCommunityPage = (id: number, slug: string) =>
 
 export const composingDiscussionHash = "new";
 export const volunteerRoute = "/volunteer";
+
+export const strongVerificationURL = `${process.env.NEXT_PUBLIC_CONSOLE_BASE_URL}/strong-verification`;
+export function adminPanelUserLink(username: string) {
+  return `${process.env.NEXT_PUBLIC_CONSOLE_BASE_URL}/admin/user/${username}`;
+}

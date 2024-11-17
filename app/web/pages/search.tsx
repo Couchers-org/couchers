@@ -18,6 +18,11 @@ export default function SearchPage() {
   const location = router.query.location || "";
   const bbox = router.query.bbox || [390, 82, -173, -66];
 
+  // @TODO - Checking the open street map docs, it looks like the reason this type is being so tricky is because open street map returns
+  // "boundingbox" as a string[] and not a number[] as we have it defined in our codebase in the Coordinates type.
+  // See the docs here with the example response: https://wiki.openstreetmap.org/wiki/Bounding_box
+  // We're calling the openstreet map api in the useGeocodeQuery hook on line 108
+
   return (
     <SearchPageComponent
       locationName={location as string}

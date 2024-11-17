@@ -1,5 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { LngLat } from "maplibre-gl";
+import { UserSearchRes } from "proto/search_pb";
+import { InfiniteData } from "react-query";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
@@ -16,25 +19,28 @@ const getLanguagesMock = service.resources.getLanguages as MockedService<
   typeof service.resources.getLanguages
 >;
 
-function testResults() {
-  return {
+function mockTestResults() {
+  const mockResults: InfiniteData<UserSearchRes.AsObject> | undefined = {
     pageParams: [],
     pages: [
       {
-        nextPageToken: "",
-        resultsList: {
-          community: undefined,
-          event: undefined,
-          snippet: "",
-          group: undefined,
-          guide: undefined,
-          place: undefined,
-          rank: 1,
-          user: users[0],
-        },
+        nextPageToken: "token123",
+        resultsList: [
+          {
+            community: undefined,
+            event: undefined,
+            snippet: "Sample snippet",
+            group: undefined,
+            guide: undefined,
+            place: undefined,
+            rank: 1,
+            user: users[0],
+          },
+        ],
       },
     ],
   };
+  return mockResults;
 }
 
 describe("SearchResultsList", () => {
@@ -52,9 +58,14 @@ describe("SearchResultsList", () => {
           results={undefined}
           selectedResult={undefined}
           setSelectedResult={mockHandleResultClick}
-          searchType={""}
           setSearchType={() => {}}
-          locationResult={""}
+          searchType="location"
+          locationResult={{
+            name: "Oakland",
+            simplifiedName: "Oakland",
+            location: new LngLat(0, 0),
+            bbox: [0, 0, 0, 0],
+          }}
           setLocationResult={() => {}}
           setQueryName={() => {}}
           queryName={"test query"}
@@ -74,14 +85,19 @@ describe("SearchResultsList", () => {
       render(
         <SearchResultsList
           isLoading={false}
-          results={testResults() as any}
+          results={mockTestResults()}
           error={"error message"}
           hasNext={undefined}
           selectedResult={undefined}
           setSelectedResult={mockHandleResultClick}
-          searchType={""}
+          searchType={"location"}
           setSearchType={() => {}}
-          locationResult={""}
+          locationResult={{
+            name: "Oakland",
+            simplifiedName: "Oakland",
+            location: new LngLat(0, 0),
+            bbox: [0, 0, 0, 0],
+          }}
           setLocationResult={() => {}}
           setQueryName={() => {}}
           queryName={"test query"}

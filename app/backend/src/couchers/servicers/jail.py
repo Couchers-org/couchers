@@ -4,7 +4,6 @@ import grpc
 
 from couchers import errors
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
-from couchers.db import session_scope
 from couchers.models import ModNote, User
 from couchers.servicers.account import mod_note_to_pb
 from couchers.sql import couchers_select as select
@@ -47,68 +46,63 @@ class Jail(jail_pb2_grpc.JailServicer):
     fully active
     """
 
-    def JailInfo(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            return _get_jail_info(session, user)
+    def JailInfo(self, request, context, session):
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        return _get_jail_info(session, user)
 
-    def AcceptTOS(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+    def AcceptTOS(self, request, context, session):
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
-            if not request.accept:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNACCEPT_TOS)
+        if not request.accept:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNACCEPT_TOS)
 
-            user.accepted_tos = TOS_VERSION
-            session.commit()
+        user.accepted_tos = TOS_VERSION
+        session.commit()
 
-            return _get_jail_info(session, user)
+        return _get_jail_info(session, user)
 
-    def SetLocation(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+    def SetLocation(self, request, context, session):
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
-            if request.lat == 0 and request.lng == 0:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+        if request.lat == 0 and request.lng == 0:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
 
-            user.city = request.city
-            user.geom = create_coordinate(request.lat, request.lng)
-            user.geom_radius = request.radius
+        user.city = request.city
+        user.geom = create_coordinate(request.lat, request.lng)
+        user.geom_radius = request.radius
 
-            session.commit()
+        session.commit()
 
-            return _get_jail_info(session, user)
+        return _get_jail_info(session, user)
 
-    def AcceptCommunityGuidelines(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+    def AcceptCommunityGuidelines(self, request, context, session):
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
-            if not request.accept:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNACCEPT_COMMUNITY_GUIDELINES)
+        if not request.accept:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNACCEPT_COMMUNITY_GUIDELINES)
 
-            user.accepted_community_guidelines = GUIDELINES_VERSION
-            session.commit()
+        user.accepted_community_guidelines = GUIDELINES_VERSION
+        session.commit()
 
-            return _get_jail_info(session, user)
+        return _get_jail_info(session, user)
 
-    def AcknowledgePendingModNote(self, request, context):
-        with session_scope() as session:
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+    def AcknowledgePendingModNote(self, request, context, session):
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
-            note = session.execute(
-                select(ModNote)
-                .where(ModNote.user_id == user.id)
-                .where(ModNote.is_pending)
-                .where(ModNote.id == request.note_id)
-            ).scalar_one_or_none()
+        note = session.execute(
+            select(ModNote)
+            .where(ModNote.user_id == user.id)
+            .where(ModNote.is_pending)
+            .where(ModNote.id == request.note_id)
+        ).scalar_one_or_none()
 
-            if not note:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.MOD_NOTE_NOT_FOUND)
+        if not note:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.MOD_NOTE_NOT_FOUND)
 
-            if not request.acknowledge:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MOD_NOTE_NEED_TO_ACKNOWELDGE)
+        if not request.acknowledge:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MOD_NOTE_NEED_TO_ACKNOWELDGE)
 
-            note.acknowledged = now()
-            session.flush()
+        note.acknowledged = now()
+        session.flush()
 
-            return _get_jail_info(session, user)
+        return _get_jail_info(session, user)

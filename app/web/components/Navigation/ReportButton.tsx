@@ -42,6 +42,14 @@ const useStyles = makeStyles((theme) => ({
     },
     backgroundColor: theme.palette.error.main,
   },
+  menuLink: {
+    padding: 0,
+    margin: 0,
+    fontSize: "1rem",
+    "&:hover": {
+      backgroundColor: "transparent",
+    },
+  },
   typeButton: {
     display: "block",
     margin: "0 auto",
@@ -63,8 +71,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ReportButton({
   isResponsive = true,
+  isMenuLink,
 }: {
   isResponsive?: boolean;
+  isMenuLink?: boolean;
 }) {
   const { t } = useTranslation("global");
   const theme = useTheme();
@@ -111,6 +121,8 @@ export default function ReportButton({
     reportBug(data);
   });
 
+  console.log(classes.menuLink);
+
   return (
     <>
       {bug && (
@@ -124,19 +136,30 @@ export default function ReportButton({
           </>
         </Snackbar>
       )}
-      <Button
-        aria-label={t("report.label")}
-        onClick={() => setIsOpen(true)}
-        startIcon={<BugIcon />}
-        variant="contained"
-        color="primary"
-        classes={{
-          containedPrimary: classes.button,
-          startIcon: classes.startIcon,
-        }}
-      >
-        {(!isResponsive || !isBelowMd) && t("report.label")}
-      </Button>
+      {isMenuLink ? (
+        <Button
+          variant="text"
+          aria-label={t("report.label")}
+          className={classes.menuLink}
+          onClick={() => setIsOpen(true)}
+        >
+          {t("report.label")}
+        </Button>
+      ) : (
+        <Button
+          aria-label={t("report.label")}
+          onClick={() => setIsOpen(true)}
+          startIcon={<BugIcon />}
+          variant="contained"
+          color="primary"
+          classes={{
+            containedPrimary: classes.button,
+            startIcon: classes.startIcon,
+          }}
+        >
+          {(!isResponsive || !isBelowMd) && t("report.label")}
+        </Button>
+      )}
       <Dialog
         aria-labelledby="bug-reporter"
         open={isOpen}

@@ -18,7 +18,7 @@ import EditLocationMap, {
 import Select from "components/Select";
 import TextField from "components/TextField";
 import TOSLink from "components/TOSLink";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAuthStyles from "features/auth/useAuthStyles";
 import { RpcError } from "grpc-web";
@@ -212,13 +212,15 @@ export default function AccountForm() {
           id="birthdate"
           rules={{
             required: t("auth:account_form.birthday.required_error"),
-            validate: (stringDate) =>
+            validate: (stringDate: string) =>
               validatePastDate(stringDate) ||
               t("auth:account_form.birthday.validation_error"),
           }}
-          minDate={new Date(1899, 12, 1)}
-          name="birthdate"
+          minDate={dayjs("1899-12-01")}
+          maxDate={dayjs().subtract(18, "years")}
+          defaultValue={dayjs().subtract(18, "years")}
           openTo="year"
+          name="birthdate"
         />
         <InputLabel className={authClasses.formLabel} htmlFor="location">
           {t("auth:location.field_label")}

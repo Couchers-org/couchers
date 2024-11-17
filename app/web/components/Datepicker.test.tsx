@@ -9,6 +9,13 @@ import dayjs, { Dayjs } from "utils/dayjs";
 import wrapper from "../test/hookWrapper";
 import Datepicker from "./Datepicker";
 
+jest.mock("@mui/x-date-pickers", () => {
+  return {
+    ...jest.requireActual("@mui/x-date-pickers"),
+    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+  };
+});
+
 const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
   const { t } = useTranslation();
   const { control, handleSubmit } = useForm();
@@ -20,8 +27,10 @@ const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
         error={false}
         helperText=""
         id="date-field"
+        testId="datepicker"
         label="Date field"
         name="datefield"
+        defaultValue={dayjs()}
       />
       <input type="submit" name={t("submit")} />
     </form>
@@ -33,16 +42,20 @@ describe("DatePicker", () => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-03-20"));
   });
+
   afterEach(() => {
     jest.useRealTimers();
+    timezoneMock.unregister();
+    jest.restoreAllMocks();
   });
+
   it("should submit with proper date for clicking", async () => {
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
     userEvent.click(
       screen.getByLabelText(t("global:components.datepicker.change_date"))
     );
-    userEvent.click(screen.getByText("23"));
+
     userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
@@ -67,7 +80,6 @@ describe("DatePicker", () => {
     userEvent.click(
       await screen.findByRole("button", { name: t("global:submit") })
     );
-
     await waitFor(() => {
       expect(date?.format().split("T")[0]).toBe(undefined);
     });
@@ -75,13 +87,12 @@ describe("DatePicker", () => {
     spy.mockRestore();
   });
 
-  // Note - single letter formats don't work with typing, so we changed them to double
   it.each`
     language   | afterOneBackspace | typing         | afterInput
-    ${"en-GB"} | ${"20/03/202_"}   | ${"21032021"}  | ${"21/03/2021"}
-    ${"en-US"} | ${"03/20/202_"}   | ${"03/212021"} | ${"03/21/2021"}
-    ${"or-IN"} | ${"20-03-2_"}     | ${"21-0321"}   | ${"21-03-21"}
-    ${"zh-TW"} | ${"2021/03/2_"}   | ${"20210321"}  | ${"2021/03/21"}
+    ${"en-GB"} | ${"20/03/202"}    | ${"21032021"}  | ${"21/03/2021"}
+    ${"en-US"} | ${"03/20/202"}    | ${"03/212021"} | ${"03/21/2021"}
+    ${"or-IN"} | ${"20-03-2"}      | ${"21-0321"}   | ${"21-03-21"}
+    ${"zh-TW"} | ${"2021/03/2"}    | ${"20210321"}  | ${"2021/03/21"}
   `(
     "typing works in $language",
     async ({ language, afterOneBackspace, typing, afterInput }) => {

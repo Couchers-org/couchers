@@ -3,6 +3,7 @@ import "react-phone-number-input/style.css";
 import { Typography, useMediaQuery, useTheme } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { accountInfoQueryKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -138,34 +139,46 @@ export default function ChangePhone({
         </Alert>
       )}
       {!accountInfo.phone ? (
-        <form className={formClasses.form} onSubmit={onChangeSubmit}>
+        !accountInfo.hasDonated ? (
           <Typography variant="body1">
-            {t("auth:change_phone.no_phone_description")}
+            <Trans i18nKey="auth:change_phone.need_to_donate">
+              You need to{" "}
+              <StyledLink href="https://help.couchers.org/hc/couchersorg-help-center/articles/1715658357-how-to-write-a-request-that-gets-accepted">
+                donate
+              </StyledLink>
+              before you can complete phone verification.
+            </Trans>
           </Typography>
-          <Controller
-            name="phone"
-            control={control}
-            rules={{
-              validate: (value) => isValidPhoneNumber(value),
-            }}
-            render={({ onChange, value }) => (
-              <PhoneInput
-                international
-                placeholder={t("auth:change_phone.phone_label")}
-                value={value}
-                onChange={onChange}
-                id="phone"
-              />
-            )}
-          />
-          <Button
-            fullWidth={!isMdOrWider}
-            loading={isChangeLoading}
-            type="submit"
-          >
-            {t("auth:change_phone.add_button_text")}
-          </Button>
-        </form>
+        ) : (
+          <form className={formClasses.form} onSubmit={onChangeSubmit}>
+            <Typography variant="body1">
+              {t("auth:change_phone.no_phone_description")}
+            </Typography>
+            <Controller
+              name="phone"
+              control={control}
+              rules={{
+                validate: (value) => isValidPhoneNumber(value),
+              }}
+              render={({ onChange, value }) => (
+                <PhoneInput
+                  international
+                  placeholder={t("auth:change_phone.phone_label")}
+                  value={value}
+                  onChange={onChange}
+                  id="phone"
+                />
+              )}
+            />
+            <Button
+              fullWidth={!isMdOrWider}
+              loading={isChangeLoading}
+              type="submit"
+            >
+              {t("auth:change_phone.add_button_text")}
+            </Button>
+          </form>
+        )
       ) : (
         <>
           {!accountInfo.phoneVerified ? (

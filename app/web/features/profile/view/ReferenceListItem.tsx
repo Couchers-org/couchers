@@ -5,7 +5,7 @@ import UserSummary from "components/UserSummary";
 import { referenceBadgeLabel } from "features/profile/constants";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
-import { User } from "proto/api_pb";
+import { LiteUser } from "proto/api_pb";
 import { Reference } from "proto/references_pb";
 import { dateTimeFormatter, timestamp2Date } from "utils/date";
 import makeStyles from "utils/makeStyles";
@@ -43,7 +43,7 @@ export const REFERENCE_LIST_ITEM_TEST_ID = "reference-list-item";
 
 interface ReferenceListItemProps {
   isReceived: boolean;
-  user: User.AsObject;
+  user: LiteUser.AsObject;
   reference: Reference.AsObject;
 }
 

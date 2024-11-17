@@ -3,16 +3,20 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { Typography } from "@material-ui/core";
 import classNames from "classnames";
 import { NO_MAP_SUPPORT } from "components/constants";
-import maplibregl, { LngLat, RequestParameters } from "maplibre-gl";
+import {
+  LngLat,
+  Map as MaplibreMap,
+  NavigationControl,
+  RequestParameters,
+} from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import makeStyles from "utils/makeStyles";
 
 const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-maplibregl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_KEY!;
-
 const useStyles = makeStyles({
   root: {
+    position: "relative",
     height: 200,
     width: 400,
   },
@@ -36,9 +40,9 @@ const useStyles = makeStyles({
 });
 
 export interface MapProps {
-  initialCenter: LngLat;
+  initialCenter: LngLat | undefined;
   initialZoom: number;
-  postMapInitialize?: (map: maplibregl.Map) => void;
+  postMapInitialize?: (map: MaplibreMap) => void;
   className?: string;
   onUpdate?: (center: LngLat, zoom: number) => void;
   grow?: boolean;
@@ -75,7 +79,7 @@ export default function Map({
     return { url };
   };
 
-  const mapRef = useRef<maplibregl.Map>();
+  const mapRef = useRef<MaplibreMap>();
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -84,13 +88,12 @@ export default function Map({
     if (mapRef.current) return;
 
     try {
-      const map = new maplibregl.Map({
+      const map = new MaplibreMap({
         center: initialCenter,
         container: containerRef.current,
         hash: hash ? "loc" : false,
         interactive: interactive,
-        style:
-          "https://maps.couchershq.org/static/couchers-basemap-style-v1.json",
+        style: "https://cdn.couchers.org/maps/couchers-basemap-style-v1.json",
         transformRequest,
         zoom: initialZoom,
       });
@@ -98,9 +101,7 @@ export default function Map({
       mapRef.current = map;
 
       if (interactive) {
-        map.addControl(
-          new maplibregl.NavigationControl({ showCompass: false })
-        );
+        map.addControl(new NavigationControl({ showCompass: false }));
       }
 
       if (onUpdate) {

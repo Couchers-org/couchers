@@ -4,13 +4,18 @@ slug: summer-2024-updates
 description: "Catch up on news with Couchers: read about what's been going on and what's coming up this in the rest of 2024!"
 date: 2024/09/08
 author: Aapeli
-share_image: https://couchers.org/img/share.jpg
+share_image: https://couchers.org/img/blog/20241001_active_couchers_zoom.png
 ---
+
+*This post was updated with a screenshot of volunteers and new member numbers on the 4th of October before the newsletter version was sent out.*
 
 Hi all, we're excited to share with you some news on the Couchers project as well as some updates on what we're still working on and will be releasing next! It's been a while since we sent a newsletter or updated the community on what the volunteering team has been up to, so there are quite a few things to cover.
 
 Many of you might have noticed that there was a period of inactivity on the project: but worry not, we are back! I wrote a little bit about what happened that caused the inactivity and what we've done to make sure we keep moving forward with a steady pace in the future on our [last blog post](https://couchers.org/blog/2024/06/12/where-we-are-and-where-we-are-going).
 
+Our active volunteer group has grown a lot since that post, the following screenshot shows some of our volunteer developers in our weekly meeting. If you'd like to help out as a dev, please [join us on GitHub](https://github.com/Couchers-org/couchers).
+
+![A screenshot of our volunteer developer meeting in late September](/img/blog/20241001_active_couchers_zoom.png)
 
 ## Public roadmap and milestones
 
@@ -37,15 +42,15 @@ This summer, we've launched a bunch of exciting feature updates:
 
 There are also a few less visible or less exciting updates:
 
-* **We removed all password optinality in the backend**: there were some relics of the old password-optional regime that have been removed, and we also simplified the login form to show the username and password inputs straight away.
+* **We removed all password optionality in the backend**: there were some relics of the old password-optional regime that have been removed, and we also simplified the login form to show the username and password inputs straight away.
 * **A variety of behind-the-scenes upgrades**: we've also done a lot of work that's not very visible. There was a really gnarly bug that was causing havoc for a week or so but that we managed to squash last Sunday. We've also created a bunch of reliability-related monitoring and observability infrastructure that has helped us speed up some parts of the platform that, you might notice it's a bit more snappy now (but there's more to come)! We made some upgrades to the infrastructure that helps us run the project. Finally we also built some new admin tooling that helps mods keep the platform safe, fun, and friendly with much less effort!
-* **New support infrastrucutre**: we switched out our support platform from a very old and flaky open source platform to a much more modern open source platform called Chatwoot! We also switched from using a commercial mailing list provider to a self-hosted, open source platform that will save us a bunch of money.
+* **New support infrastructure**: we switched out our support platform from a very old and flaky open source platform to a much more modern open source platform called Chatwoot! We also switched from using a commercial mailing list provider to a self-hosted, open source platform that will save us a bunch of money.
 * **You now "decline" requests** instead of "rejecting" them, because this sounds friendlier and Couchers is a friendly place :).
 
 
-## Celebrating our community of 43k Couchers!
+## Celebrating our community of 44k Couchers!
 
-Couchers is continuing to grow quickly with over 43,000 registered Couchers! Getting many more couch surfers to join our community and getting them onto the platform is one of our most important goals at the moment.
+Couchers is continuing to grow quickly with over 44,500 registered Couchers! Getting many more couch surfers to join our community and getting them onto the platform is one of our most important goals at the moment.
 
 You can help us with this goal by spreading the word online and at events, as well as continuing to use the platform, provide feedback, and help us grow!
 
@@ -54,14 +59,14 @@ You can help us with this goal by spreading the word online and at events, as we
 
 For a long time our marketing has centered around being "like CouchSurfing™, but better". While this is still the core vision and has resonated strongly with current and former CouchSurfing™ users, we believe we need to explain what sets us apart from CouchSurfing™ and other platforms, and also better appeal to fist-time couch surfers.
 
-We believe a core value of couch surfing, and what enables the whole activity, is the trust and safety we have in other humans. This is also (by no coincidence) the biggest inhibitor of outsiders joining our community. Through our many past, current, and future efforts, we believe Couchers can effectively position ourselves to be the **safest couch surfing platform** out there. By focussing our efforts around this goal, we think we can best serve both current and future couch surfers looking for the most safe platform for couch surfing.
+We believe a core value of couch surfing, and what enables the whole activity, is the trust and safety we have in other humans. This is also (by no coincidence) the biggest inhibitor of outsiders joining our community. Through our many past, current, and future efforts, we believe Couchers can effectively position ourselves to be the **safest couch surfing platform** out there. By focusing our efforts around this goal, we think we can best serve both current and future couch surfers looking for the most safe platform for couch surfing.
 
 We have always believed that in building this community, it's important that we set clear expectations for the community, such as via our Community Guidelines. By taking an opinionated stance on these issues and keeping up a system of careful moderation, we believe we can create the safest, healthiest, and most trustworthy couch surfing community.
 
 
 ## Changes to our Board of Directors
 
-Couchers.org is operated by Couchers, Inc., a 501(c)(3) non-profit organization run entirely by volunteers. As part of future-proofing the project, we have invited some new people onto our Board of Directors. The current Board Members are the Founders Aapeli ([@aapeli](https://couchers.org/user/aapeli)) and Itsi ([@itsi](https://couchers.org/user/itsi)), as well as at-large Board Members Emily ([@emily](https://couchers.org/user/emily)), Yannic ([@spreeni](https://couchers.org/user/spreeni)), Natalia ([@natalia](https://couchers.org/user/natalia)), Paul ([@paul](https://couchers.org/user/paul)), and Jesse ([@jesse](https://couchers.org/user/jesse)). These folks have all been involved with the project for a long time and the outgoing board is firm in their belief as good custodians of the project with the right values, spirit, and vision for our community
+Couchers.org is operated by Couchers, Inc., a 501(c)(3) non-profit organization run entirely by volunteers. As part of future-proofing the project, we have invited some new people onto our Board of Directors. The current Board Members are the Founders Aapeli ([@aapeli](https://couchers.org/user/aapeli)) and Itsi ([@itsi](https://couchers.org/user/itsi)), as well as at-large Board Members Emily ([@emily](https://couchers.org/user/emily)), Yannic ([@spreeni](https://couchers.org/user/spreeni)), Natalia ([@natalia](https://couchers.org/user/natalia)), Paul ([@paul](https://couchers.org/user/paul)), and Jesse ([@jesse](https://couchers.org/user/jesse)). These folks have all been involved with the project for a long time and the outgoing board is firm in their belief as good custodians of the project with the right values, spirit, and vision for our community.
 
 You can read more about these wonderful community members and other minor governance changes on the [blog post announcing the changes](https://couchers.org/blog/2024/04/30/new-board-members).
 

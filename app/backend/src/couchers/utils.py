@@ -16,6 +16,7 @@ from sqlalchemy.types import DateTime
 
 from couchers.config import config
 from couchers.constants import EMAIL_REGEX
+from couchers.crypto import decrypt_page_token, encrypt_page_token
 
 utc = pytz.UTC
 
@@ -164,11 +165,14 @@ def to_multi(polygon):
 
 def get_coordinates(geom):
     """
-    Returns EPSG4326 (lat, lng) pair for a given WKT geom point
+    Returns EPSG4326 (lat, lng) pair for a given WKT geom point or None if the input is not truthy
     """
-    shp = to_shape(geom)
-    # note the funiness with 4326 normally being (x, y) = (lng, lat)
-    return (shp.y, shp.x)
+    if geom:
+        shp = to_shape(geom)
+        # note the funiness with 4326 normally being (x, y) = (lng, lat)
+        return (shp.y, shp.x)
+    else:
+        return None
 
 
 def http_date(dt=None):
@@ -302,6 +306,21 @@ def millis_from_dt(dt):
 
 def dt_from_millis(millis):
     return datetime.fromtimestamp(millis / 1000, tz=utc)
+
+
+def dt_to_page_token(dt):
+    """
+    Python has datetime resolution equal to 1 micro, as does postgres
+
+    We pray to deities that this never changes
+    """
+    assert datetime.resolution == timedelta(microseconds=1)
+    return encrypt_page_token(str(round(1_000_000 * dt.timestamp())))
+
+
+def dt_from_page_token(page_token):
+    # see above comment
+    return datetime.fromtimestamp(int(decrypt_page_token(page_token)) / 1_000_000, tz=utc)
 
 
 def last_active_coarsen(dt):

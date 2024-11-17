@@ -18,7 +18,7 @@ service Notifications {
 
   rpc GetVapidPublicKey(google.protobuf.Empty) returns (GetVapidPublicKeyRes);
 
-  rpc RegisterPushNotification(RegisterPushNotificationReq) returns (google.protobuf.Empty);
+  rpc RegisterPushNotificationSubscription(RegisterPushNotificationSubscriptionReq) returns (google.protobuf.Empty);
 
   rpc SendTestPushNotification(google.protobuf.Empty) returns (google.protobuf.Empty);
 }
@@ -102,16 +102,11 @@ message GetVapidPublicKeyRes {
   string vapid_public_key = 1;
 }
 
-message RegisterPushNotificationReq {
-  // these are returned by a call to ServiceWorkerRegistration.pushManager.subscribe
+message RegisterPushNotificationSubscriptionReq {
+  // the output of JSON.stirngify() on a ServiceWorkerRegistration.pushManager.subscribe
   // see also: https://developer.mozilla.org/en-US/docs/Web/API/PushSubscription
-  string endpoint = 1;
-  string auth_key = 2;
-  string p256dh_key = 3;
-
-  // for debug purposes
-  string full_subscription_json = 4;
+  string full_subscription_json = 1;
 
   // the browse user-agent, so we can tell the user what browser notifications are going to
-  string user_agent = 5;
+  string user_agent = 2;
 }

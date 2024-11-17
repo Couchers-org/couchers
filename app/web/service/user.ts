@@ -1,6 +1,8 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
 import {
+  GetLiteUserReq,
+  GetLiteUsersReq,
   GetUserReq,
   LanguageAbility,
   NullableBoolValue,
@@ -97,6 +99,32 @@ export async function getUser(user: string): Promise<User.AsObject> {
   userReq.setUser(user || "");
 
   const response = await client.api.getUser(userReq);
+
+  return response.toObject();
+}
+
+/**
+ * Returns LiteUser record by Username or id
+ *
+ * @param {string} user
+ * @returns {Promise<LiteUser.AsObject>}
+ */
+export async function getLiteUser(user: string) {
+  const userReq = new GetLiteUserReq();
+  userReq.setUser(user || "");
+
+  const response = await client.api.getLiteUser(userReq);
+
+  return response.toObject();
+}
+
+/** Returns LiteUsers by ids
+ */
+export async function getLiteUsers(userIds: number[]) {
+  const req = new GetLiteUsersReq();
+  req.setUsersList(userIds.map(String));
+
+  const response = await client.api.getLiteUsers(req);
 
   return response.toObject();
 }

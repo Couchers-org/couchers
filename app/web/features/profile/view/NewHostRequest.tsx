@@ -1,6 +1,7 @@
 import {
   CardActions,
   FormControlLabel,
+  InputLabel,
   MenuItem,
   Radio,
   RadioGroup,
@@ -13,8 +14,9 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
 import TextField from "components/TextField";
+import dayjs from "dayjs";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
-import { useUser } from "features/userQueries/useUsers";
+import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
@@ -37,15 +39,22 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   title: {
+    marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
   },
   request: {
     display: "flex",
     flexDirection: "row",
+    alignItems: "center",
   },
   date: {
-    marginLeft: theme.spacing(2),
-    marginRight: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  dateRow: {
+    marginTop: theme.spacing(2),
+    display: "flex",
+    flexDirection: "column",
+    width: "72%",
   },
   requestField: {
     marginTop: theme.spacing(2),
@@ -102,7 +111,7 @@ export default function NewHostRequest({
     }
   );
 
-  const { isLoading: hostLoading, error: hostError } = useUser(user.userId);
+  const { isLoading: hostLoading, error: hostError } = useLiteUser(user.userId);
 
   const onSubmit = handleSubmit((data) => {
     mutate(data);
@@ -130,7 +139,7 @@ export default function NewHostRequest({
 
   return (
     <>
-      <Typography variant="h1">
+      <Typography className={classes.title} variant="h1">
         {hostLoading ? (
           <Skeleton width="100" />
         ) : (
@@ -139,7 +148,7 @@ export default function NewHostRequest({
       </Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       {hostError ? (
-        <Alert severity={"error"}>{hostError}</Alert>
+        <Alert severity={"error"}>{hostError?.message}</Alert>
       ) : (
         <form onSubmit={onSubmit}>
           <div className={classes.request}>
@@ -169,53 +178,59 @@ export default function NewHostRequest({
                 )}
               />
             )}
-            <Datepicker
-              control={control}
-              error={!!errors.fromDate}
-              helperText={
-                //@ts-ignore
-                errors?.fromDate?.message
-              }
-              id="from-date"
-              label={t("profile:request_form.arrival_date")}
-              name="fromDate"
-              defaultValue={null}
-              rules={{
-                required: t("profile:request_form.arrival_date_empty"),
-                validate: (stringDate) => stringDate !== "",
-              }}
-            />
-            <Datepicker
-              className={classes.date}
-              control={control}
-              error={!!errors.toDate}
-              helperText={
-                //@ts-ignore
-                errors?.toDate?.message
-              }
-              id="to-date"
-              label={t("profile:request_form.departure_date")}
-              minDate={
-                watchFromDate
-                  ? watchFromDate.add(1, "day").toDate()
-                  : new Date()
-              }
-              name="toDate"
-              defaultValue={null}
-              rules={{
-                required: t("profile:request_form.departure_date_empty"),
-                validate: (stringDate) => stringDate !== "",
-              }}
-            />
-            {isPostBetaEnabled && (
-              <Select
-                name="visitorCount"
-                value={numVisitors}
-                onChange={(event) => setNumVisitors(Number(event.target.value))}
-              >
-                {guests}
-              </Select>
-            )}
+            <div className={classes.dateRow}>
+              <Datepicker
+                className={classes.date}
+                control={control}
+                error={!!errors.fromDate}
+                helperText={
+                  //@ts-ignore
+                  errors?.fromDate?.message
+                }
+                id="from-date"
+                label={t("profile:request_form.arrival_date")}
+                name="fromDate"
+                defaultValue={null}
+                rules={{
+                  required: t("profile:request_form.arrival_date_empty"),
+                  validate: (stringDate) => stringDate !== "",
+                }}
+              />
+              <Datepicker
+                className={classes.date}
+                control={control}
+                error={!!errors.toDate}
+                helperText={
+                  //@ts-ignore
+                  errors?.toDate?.message
+                }
+                id="to-date"
+                label={t("profile:request_form.departure_date")}
+                minDate={watchFromDate ? watchFromDate.add(1, "day") : dayjs()}
+                name="toDate"
+                defaultValue={null}
+                rules={{
+                  required: t("profile:request_form.departure_date_empty"),
+                  validate: (stringDate) => stringDate !== "",
+                }}
+              />
+              {isPostBetaEnabled && (
+                <>
+                  <InputLabel shrink>
+                    {t("profile:request_form.guest_count")}
+                  </InputLabel>
+                  <Select
+                    name="visitorCount"
+                    value={numVisitors}
+                    onChange={(event) =>
+                      setNumVisitors(Number(event.target.value))
+                    }
+                  >
+                    {guests}
+                  </Select>
+                </>
+              )}
+            </div>
           </div>
           <TextField
             id="text"

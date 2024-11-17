@@ -2,7 +2,7 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import TextBody from "components/TextBody";
-import useUsers from "features/userQueries/useUsers";
+import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
@@ -17,7 +17,7 @@ interface ReferencesViewProps {
   isReceived?: boolean;
   isReferenceUsersLoading: boolean;
   referencesQuery: UseInfiniteQueryResult<ListReferencesRes.AsObject, RpcError>;
-  referenceUsers: ReturnType<typeof useUsers>["data"];
+  referenceUsers: ReturnType<typeof useLiteUsers>["data"];
 }
 
 export const useReferencesViewStyles = makeStyles((theme) => ({

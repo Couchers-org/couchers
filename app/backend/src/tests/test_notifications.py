@@ -360,7 +360,7 @@ def test_GetVapidPublicKey(db):
         )
 
 
-def test_RegisterPushNotification(db):
+def test_RegisterPushNotificationSubscription(db):
     _, token = generate_user()
 
     subscription_info = {
@@ -373,11 +373,8 @@ def test_RegisterPushNotification(db):
     }
 
     with notifications_session(token) as notifications:
-        res = notifications.RegisterPushNotification(
-            notifications_pb2.RegisterPushNotificationReq(
-                endpoint=subscription_info["endpoint"],
-                auth_key=subscription_info["keys"]["auth"],
-                p256dh_key=subscription_info["keys"]["p256dh"],
+        res = notifications.RegisterPushNotificationSubscription(
+            notifications_pb2.RegisterPushNotificationSubscriptionReq(
                 full_subscription_json=json.dumps(subscription_info),
             )
         )

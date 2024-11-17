@@ -3,6 +3,7 @@ const { i18n } = require("./next-i18next.config"); // eslint-disable-line
 const { redirects } = require("./redirects"); // eslint-disable-line
 
 module.exports = {
+  assetPrefix: process.env.ASSET_PREFIX,
   reactStrictMode: true,
   eslint: {
     dirs: [
@@ -40,7 +41,7 @@ module.exports = {
         },
         {
           key: "strict-transport-security",
-          value: "max-age=15552000; includeSubdomains; preload",
+          value: "max-age=31536000; includeSubdomains; preload",
         },
         {
           key: "referrer-policy",
@@ -70,6 +71,15 @@ module.exports = {
         {
           key: "access-control-allow-origin",
           value: "*",
+        },
+      ],
+    },
+    {
+      source: "/service-worker.js",
+      headers: [
+        {
+          key: "service-worker-allowed",
+          value: "/",
         },
       ],
     },

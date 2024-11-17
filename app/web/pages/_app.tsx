@@ -2,6 +2,8 @@ import "intersection-observer";
 import "fonts";
 
 import { CssBaseline, ThemeProvider } from "@material-ui/core";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { EnvironmentBanner } from "components/EnvironmentBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import HtmlMeta from "components/HtmlMeta";
@@ -32,6 +34,7 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
       jssStyles.parentElement!.removeChild(jssStyles);
     }
   }, []);
+
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_COUCHERS_ENV === "prod") {
       Sentry.init({
@@ -44,18 +47,20 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
   }, []);
 
   return (
-    <ThemeProvider theme={theme}>
-      <ErrorBoundary isFatal>
-        <ReactQueryClientProvider>
-          <AuthProvider>
-            <CssBaseline />
-            <EnvironmentBanner />
-            <HtmlMeta />
-            {getLayout(<Component {...pageProps} />)}
-          </AuthProvider>
-        </ReactQueryClientProvider>
-      </ErrorBoundary>
-    </ThemeProvider>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <ThemeProvider theme={theme}>
+        <ErrorBoundary isFatal>
+          <ReactQueryClientProvider>
+            <AuthProvider>
+              <CssBaseline />
+              <EnvironmentBanner />
+              <HtmlMeta />
+              {getLayout(<Component {...pageProps} />)}
+            </AuthProvider>
+          </ReactQueryClientProvider>
+        </ErrorBoundary>
+      </ThemeProvider>
+    </LocalizationProvider>
   );
 }
 

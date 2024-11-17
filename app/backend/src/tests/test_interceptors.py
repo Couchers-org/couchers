@@ -12,6 +12,7 @@ from couchers.interceptors import (
     AuthValidatorInterceptor,
     CookieInterceptor,
     ErrorSanitizationInterceptor,
+    SessionInterceptor,
     TracingInterceptor,
 )
 from couchers.metrics import servicer_duration_histogram
@@ -227,7 +228,7 @@ def test_tracing_interceptor_sensitive_ping(db):
 
     with interceptor_dummy_api(
         API().GetUser,
-        interceptors=[TracingInterceptor(), AuthValidatorInterceptor()],
+        interceptors=[TracingInterceptor(), AuthValidatorInterceptor(), SessionInterceptor()],
         request_type=api_pb2.GetUserReq,
         response_type=api_pb2.User,
         service_name="org.couchers.api.core.API",
@@ -307,7 +308,7 @@ def test_auth_interceptor(db):
         "rpc": account.GetAccountInfo,
         "service_name": "org.couchers.api.account.Account",
         "method_name": "GetAccountInfo",
-        "interceptors": [AuthValidatorInterceptor(), CookieInterceptor()],
+        "interceptors": [AuthValidatorInterceptor(), CookieInterceptor(), SessionInterceptor()],
         "request_type": empty_pb2.Empty,
         "response_type": account_pb2.GetAccountInfoRes,
     }
@@ -381,7 +382,7 @@ def test_tracing_interceptor_auth_cookies(db):
         "rpc": account.GetAccountInfo,
         "service_name": "org.couchers.api.account.Account",
         "method_name": "GetAccountInfo",
-        "interceptors": [TracingInterceptor(), AuthValidatorInterceptor()],
+        "interceptors": [TracingInterceptor(), AuthValidatorInterceptor(), SessionInterceptor()],
         "request_type": empty_pb2.Empty,
         "response_type": account_pb2.GetAccountInfoRes,
     }
@@ -418,7 +419,7 @@ def test_tracing_interceptor_auth_api_key(db):
         "rpc": account.GetAccountInfo,
         "service_name": "org.couchers.api.account.Account",
         "method_name": "GetAccountInfo",
-        "interceptors": [TracingInterceptor(), AuthValidatorInterceptor()],
+        "interceptors": [TracingInterceptor(), AuthValidatorInterceptor(), SessionInterceptor()],
         "request_type": empty_pb2.Empty,
         "response_type": account_pb2.GetAccountInfoRes,
     }

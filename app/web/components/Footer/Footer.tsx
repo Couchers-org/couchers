@@ -10,6 +10,7 @@ import Link from "next/link";
 import { ReactNode } from "react";
 import {
   blogRoute,
+  builtWithRoute,
   contactRoute,
   donationsRoute,
   eventsRoute,
@@ -147,6 +148,7 @@ export default function Footer() {
             </Typography>
             <FooterLink href={tosRoute}>{t("terms_of_service")}</FooterLink>
             <FooterLink href={foundationRoute}>{t("legal_name")}</FooterLink>
+            <FooterLink href={builtWithRoute}>{t("nav.built_with")}</FooterLink>
             <FooterLink href={contactRoute}>{t("nav.contact_us")}</FooterLink>
           </div>
           <div className={classes.buttonContainer}>

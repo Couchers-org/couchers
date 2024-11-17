@@ -1,8 +1,10 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { LngLat } from "maplibre-gl";
 import { useState } from "react";
 import { server } from "test/restMock";
 import { t } from "test/utils";
+import { GeocodeResult } from "utils/hooks";
 
 import SearchBox from "./SearchBox";
 
@@ -12,13 +14,19 @@ const View = ({
   searchTypeParam?: "keyword" | "location";
 }) => {
   const [searchType, setSearchType] = useState(searchTypeParam);
-  const [queryNameProp, setQueryNameProp] = useState("");
-  const [locationResultProp, setLocationResultProp] = useState({});
+  const [queryNameProp, setQueryNameProp] = useState<string>("");
+  const [locationResultProp, setLocationResultProp] = useState<GeocodeResult>({
+    bbox: [0, 0, 0, 0],
+    isRegion: false,
+    location: new LngLat(0, 0),
+    name: "",
+    simplifiedName: "",
+  });
 
   return (
     <SearchBox
       searchType={searchType}
-      setSearchType={setSearchType as any}
+      setSearchType={setSearchType}
       setLocationResult={setLocationResultProp}
       locationResult={locationResultProp}
       setQueryName={setQueryNameProp}
@@ -44,7 +52,7 @@ describe("SearchBox", () => {
   });
 
   it("clears keyword search correctly", async () => {
-    render(<View />);
+    render(<View searchTypeParam="keyword" />);
 
     const input = screen.getByLabelText(t("search:form.keywords.field_label"));
 
@@ -73,7 +81,7 @@ describe("SearchBox", () => {
     });
 
     it("result from list is choosable", async () => {
-      render(<View />);
+      render(<View searchTypeParam="location" />);
 
       userEvent.click(
         screen.getByLabelText(t("search:form.by_location_filter_label"))
