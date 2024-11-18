@@ -7,7 +7,7 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import Float
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, func, or_
+from sqlalchemy.sql import and_, func, or_, update
 from sqlalchemy.sql.functions import percentile_disc
 
 from couchers import errors
@@ -44,6 +44,8 @@ hostrequeststatus2api = {
     HostRequestStatus.rejected: conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
     HostRequestStatus.confirmed: conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
     HostRequestStatus.cancelled: conversations_pb2.HOST_REQUEST_STATUS_CANCELLED,
+    HostRequestStatus.expired: conversations_pb2.HOST_REQUEST_STATUS_EXPIRED,
+
 }
 
 
@@ -222,8 +224,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         )
 
         return requests_pb2.CreateHostRequestRes(host_request_id=host_request.conversation_id)
+    
 
-    def GetHostRequest(self, request, context, session):
+    def GetHostRequest(session, context, request):
         host_request = session.execute(
             select(HostRequest)
             .where_users_column_visible(context, HostRequest.surfer_user_id)
@@ -243,7 +246,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
         pagination = min(pagination, MAX_PAGE_SIZE)
-
+        
+        # update status of pending requests that have expired
+        statement = (update(HostRequest).where(HostRequest.status == HostRequest.pending, HostRequest.start_time <= func.now())
+        .values(HostRequest.status == HostRequestStatus.expired))
+        session.execute(statement)
+        session.commit()
+        
         # By outer joining messages on itself where the second id is bigger, only the highest IDs will have
         # none as message_2.id. So just filter for these ones to get highest messages only.
         # See https://stackoverflow.com/a/27802817/6115336
@@ -258,6 +267,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             .where(message_2.id == None)
             .where(or_(Message.id < request.last_request_id, request.last_request_id == 0))
         )
+        
 
         if request.only_sent:
             statement = statement.where(HostRequest.surfer_user_id == context.user_id)

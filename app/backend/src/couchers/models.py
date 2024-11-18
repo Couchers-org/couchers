@@ -1163,6 +1163,7 @@ class HostRequestStatus(enum.Enum):
     rejected = enum.auto()
     confirmed = enum.auto()
     cancelled = enum.auto()
+    expired = enum.auto()
 
 
 class Message(Base):
