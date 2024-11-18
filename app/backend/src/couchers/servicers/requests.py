@@ -287,7 +287,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     HostRequest.status == HostRequestStatus.confirmed,
                 )
             )
-            statement = statement.where(HostRequest.end_time <= func.now())
 
         statement = statement.order_by(Message.id.desc()).limit(pagination + 1)
         results = session.execute(statement).all()
