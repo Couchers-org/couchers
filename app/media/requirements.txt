@@ -6,7 +6,7 @@
 #
 backoff==2.2.1
     # via -r requirements.in
-blinker==1.7.0
+blinker==1.9.0
     # via flask
 certifi==2024.2.2
     # via sentry-sdk
@@ -16,9 +16,9 @@ cffi==1.16.0
     #   pyvips
 click==8.1.7
     # via flask
-flask==3.0.3
+flask==3.1.0
     # via -r requirements.in
-grpcio==1.67.1
+grpcio==1.68.0
     # via -r requirements.in
 iniconfig==2.0.0
     # via pytest
@@ -46,7 +46,7 @@ pytest==8.3.3
     # via -r requirements.in
 pyvips==2.2.3
     # via -r requirements.in
-ruff==0.7.3
+ruff==0.7.4
     # via -r requirements.in
 sentry-sdk==2.18.0
     # via -r requirements.in
@@ -54,5 +54,5 @@ urllib3==2.2.1
     # via sentry-sdk
 uwsgi==2.0.28
     # via -r requirements.in
-werkzeug==3.0.2
+werkzeug==3.1.3
     # via flask

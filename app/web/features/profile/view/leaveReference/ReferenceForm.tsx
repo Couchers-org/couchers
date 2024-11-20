@@ -79,7 +79,7 @@ export default function ReferenceForm({
   const [referenceData, setReferenceData] = useState<ReferenceContextFormData>({
     text: "",
     wasAppropriate: "",
-    rating: 0,
+    rating: 0.33,
   });
 
   const setReferenceValues = (values: ReferenceContextFormData) => {

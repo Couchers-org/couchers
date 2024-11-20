@@ -14,9 +14,9 @@ alembic==1.14.0
     # via -r requirements.in
 attrs==24.2.0
     # via aiohttp
-boto3==1.35.58
+boto3==1.35.63
     # via -r requirements.in
-botocore==1.35.58
+botocore==1.35.63
     # via
     #   boto3
     #   s3transfer
@@ -53,7 +53,7 @@ frozenlist==1.4.1
     # via
     #   aiohttp
     #   aiosignal
-geoalchemy2==0.15.2
+geoalchemy2==0.16.0
     # via -r requirements.in
 geoip2==4.8.0
     # via -r requirements.in
@@ -63,7 +63,7 @@ googleapis-common-protos==1.64.0
     #   opentelemetry-exporter-otlp-proto-http
 greenlet==3.0.3
     # via sqlalchemy
-grpcio==1.67.1
+grpcio==1.68.0
     # via
     #   -r requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -155,7 +155,7 @@ packaging==24.0
     #   geoalchemy2
     #   opentelemetry-instrumentation-sqlalchemy
     #   pytest
-phonenumbers==8.13.49
+phonenumbers==8.13.50
     # via -r requirements.in
 platformdirs==4.2.2
     # via virtualenv
@@ -200,7 +200,7 @@ requests==2.32.3
     #   geoip2
     #   opentelemetry-exporter-otlp-proto-http
     #   stripe
-ruff==0.7.3
+ruff==0.7.4
     # via -r requirements.in
 s3transfer==0.10.1
     # via boto3
