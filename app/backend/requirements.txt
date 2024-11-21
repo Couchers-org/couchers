@@ -172,7 +172,7 @@ protobuf==4.25.5
     #   opentelemetry-proto
 psycopg2-binary==2.9.10
     # via -r requirements.in
-py-vapid==1.9.1
+py-vapid==1.9.2
     # via -r requirements.in
 pycparser==2.22
     # via cffi
