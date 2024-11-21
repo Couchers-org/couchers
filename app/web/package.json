@@ -36,7 +36,7 @@
     "@mui/utils": "^5.16.6",
     "@mui/x-date-pickers": "^5.0.20",
     "@sentry/nextjs": "^6.19.7",
-    "@sentry/react": "^8.37.1",
+    "@sentry/react": "^8.39.0",
     "@stripe/stripe-js": "^4.5.0",
     "@toast-ui/editor": "^3.2.2",
     "@types/react-simple-maps": "^3.0.6",
