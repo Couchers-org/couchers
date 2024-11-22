@@ -1,4 +1,4 @@
-import { Chip, Tooltip } from "@material-ui/core";
+import { Chip, Tooltip } from "@mui/material";
 import { User } from "proto/api_pb";
 import makeStyles from "utils/makeStyles";
 

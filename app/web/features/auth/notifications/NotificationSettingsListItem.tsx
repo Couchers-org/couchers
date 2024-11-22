@@ -2,9 +2,11 @@ import {
   Collapse,
   ListItem,
   ListItemIcon,
+  ListItemProps,
   ListItemText,
+  styled,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import {
   AccountSecurityIcon,
   AccountSettingsIcon,
@@ -19,7 +21,6 @@ import {
 import { AUTH } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
-import makeStyles from "utils/makeStyles";
 
 import { GroupAction, NotificationType } from "./EditNotificationSettingsPage";
 import NotificationSettingsSubListItem from "./NotificationSettingsSubListItem";
@@ -29,18 +30,15 @@ export interface NotificationSettingsListItemProps {
   type: NotificationType;
 }
 
-const useStyles = makeStyles((theme) => ({
-  descriptionText: {
-    fontSize: theme.spacing(1.8),
-    color: theme.palette.text.secondary,
+const StyledListItem = styled(ListItem)<ListItemProps>(({ theme }) => ({
+  background: "transparent",
+  border: "none",
+
+  "&:hover": {
+    backgroundColor: "transparent",
   },
-  listItem: {
-    "&:hover": {
-      backgroundColor: "transparent",
-    },
-    "&:not(:first-child)": {
-      borderTop: `1px solid ${theme.palette.divider}`,
-    },
+  "&:not(:first-of-type)": {
+    borderTop: `1px solid ${theme.palette.divider}`,
   },
 }));
 
@@ -58,7 +56,6 @@ export default function NotificationSettingsListItem({
   items,
   type,
 }: NotificationSettingsListItemProps) {
-  const classes = useStyles();
   const notificationType =
     type as `auth:notification_settings.edit_preferences.list_items.${NotificationType}`;
 
@@ -86,17 +83,13 @@ export default function NotificationSettingsListItem({
 
   return (
     <>
-      <ListItem
-        button
-        className={classes.listItem}
-        onClick={handleCollapseClick}
-      >
+      <StyledListItem component="button" onClick={handleCollapseClick}>
         <ListItemIcon>{mapTypeToIcon[type]}</ListItemIcon>
         <ListItemText>
           <Typography variant="h3">{t(notificationType)}</Typography>
         </ListItemText>
         {isCollapseOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-      </ListItem>
+      </StyledListItem>
       <Collapse in={isCollapseOpen}>{renderItems()}</Collapse>
     </>
   );

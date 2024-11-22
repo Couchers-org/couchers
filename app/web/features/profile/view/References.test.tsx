@@ -126,7 +126,7 @@ describe("References", () => {
     beforeEach(() => {
       renderReferences();
       userEvent.click(
-        screen.getByRole("button", {
+        screen.getByRole("combobox", {
           name: t("profile:references_filter_a11y_label").trim(),
         })
       );
@@ -310,7 +310,7 @@ describe("References", () => {
           });
         renderReferences();
         userEvent.click(
-          screen.getByRole("button", {
+          screen.getByRole("combobox", {
             name: t("profile:references_filter_a11y_label").trim(),
           })
         );
@@ -364,7 +364,7 @@ describe("References", () => {
 
       // Error remains there when switching to a category that has an API error
       userEvent.click(
-        screen.getByRole("button", {
+        screen.getByRole("combobox", {
           name: t("profile:references_filter_a11y_label").trim(),
         })
       );

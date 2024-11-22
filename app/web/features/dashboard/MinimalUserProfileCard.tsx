@@ -1,4 +1,4 @@
-import { Card, Link as MuiLink, Typography } from "@material-ui/core";
+import { Card, Link as MuiLink, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
@@ -32,7 +32,6 @@ export default function MinimalUserProfileCard({
   return (
     <Card className={classes.container}>
       <Avatar user={user} />
-
       <div className={classes.textFieldsContainer}>
         <div>
           <Typography noWrap align="right">
@@ -40,7 +39,9 @@ export default function MinimalUserProfileCard({
           </Typography>
           <Typography noWrap align="right">
             <Link href={routeToProfile()} passHref>
-              <MuiLink>{t("dashboard:profile_mobile_summary_view")}</MuiLink>
+              <MuiLink underline="hover">
+                {t("dashboard:profile_mobile_summary_view")}
+              </MuiLink>
             </Link>
           </Typography>
         </div>

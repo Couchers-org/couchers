@@ -1,4 +1,4 @@
-import { Link, Typography } from "@material-ui/core";
+import { Link, Typography } from "@mui/material";
 import Button from "components/Button";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
@@ -34,8 +34,11 @@ export default function StrongVerification({
       <Typography variant="body1">
         <Trans t={t} i18nKey="strong_verification.complete_in_console">
           You can complete Strong Verification{" "}
-          <Link href={strongVerificationURL}>on this page</Link>. We are working
-          on improving the flow and implementing it fully in the platform.
+          <Link href={strongVerificationURL} underline="hover">
+            on this page
+          </Link>
+          . We are working on improving the flow and implementing it fully in
+          the platform.
         </Trans>
       </Typography>
       <Button href={strongVerificationURL}>

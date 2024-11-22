@@ -1,4 +1,5 @@
-import { Link, makeStyles, Typography } from "@material-ui/core";
+import { Link, Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import classNames from "classnames";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
@@ -40,10 +41,10 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     width: "100%",
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down("lg")]: {
       maxWidth: "42rem",
     },
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       margin: theme.spacing(0, 3),
     },
   },
@@ -57,12 +58,12 @@ const useStyles = makeStyles((theme) => ({
     transform: "translateX(-50%)",
     justifyContent: "center",
     margin: theme.spacing(3, 0, 9, 0),
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down("lg")]: {
       maxWidth: "42rem",
       display: "flex",
       flexDirection: "column",
     },
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       maxWidth: "initial",
       left: "initial",
       transform: "initial",
@@ -151,7 +152,11 @@ export default function Donations() {
           <Typography className={classes.marginBottom3} variant="body2">
             <Trans t={t} i18nKey="donations:donations_info">
               Your donation goes to
-              <Link className={classes.link} href={foundationRoute}>
+              <Link
+                className={classes.link}
+                href={foundationRoute}
+                underline="hover"
+              >
                 {{ legal_name: t("global:legal_name") }}
               </Link>
               , a U.S. 501(c)(3) non-profit that operates the Couchers.org
@@ -166,6 +171,7 @@ export default function Donations() {
               <Link
                 className={classes.link}
                 href={`mailto:${BENEFACTOR_EMAIL}`}
+                underline="hover"
               >
                 {{ email: BENEFACTOR_EMAIL }}
               </Link>

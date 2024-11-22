@@ -1,4 +1,5 @@
-import { Collapse, Typography } from "@material-ui/core";
+import { Collapse } from "@mui/material";
+import { visuallyHidden } from "@mui/utils";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import MarkdownInput, { MarkdownInputProps } from "components/MarkdownInput";
@@ -83,9 +84,9 @@ function _CommentForm(
     <Collapse data-testid={`comment-${threadId}-comment-form`} in={shown}>
       <form className={classes.commentForm} onSubmit={onSubmit} ref={ref}>
         {error && <Alert severity="error">{error.message}</Alert>}
-        <Typography id={`comment-${threadId}-reply-label`} variant="srOnly">
+        <span style={visuallyHidden} id={`comment-${threadId}-reply-label`}>
           {t("communities:write_comment_a11y_label")}
-        </Typography>
+        </span>
         <MarkdownInput
           control={control}
           id={`comment-${threadId}-reply`}

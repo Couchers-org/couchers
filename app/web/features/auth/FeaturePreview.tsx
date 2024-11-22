@@ -1,5 +1,4 @@
-import { CircularProgress, Typography } from "@material-ui/core";
-import { Alert, Alert as MuiAlert } from "@material-ui/lab/";
+import { Alert as MuiAlert, CircularProgress, Typography } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import { AUTH } from "i18n/namespaces";
@@ -43,7 +42,7 @@ export default function FeaturePreview() {
       {isAccountInfoLoading ? (
         <CircularProgress />
       ) : accountInfoError ? (
-        <Alert severity="error">{accountInfoError.message}</Alert>
+        <MuiAlert severity="error">{accountInfoError.message}</MuiAlert>
       ) : (
         <>
           <PushNotificationSettings className={classes.section} />

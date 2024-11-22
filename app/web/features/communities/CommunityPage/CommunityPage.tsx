@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import EditCommunityPage from "features/communities/EditCommunityInfoPage";
 import { useTranslation } from "i18n";
@@ -20,7 +20,7 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(3),
   },
   cardContainer: {
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       //break out of page padding
       left: "50%",
       marginLeft: "-50vw",
@@ -32,11 +32,11 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("sm")]: {
       display: "grid",
       gridTemplateColumns: "repeat(2, 1fr)",
-      gridGap: theme.spacing(2),
+      gap: theme.spacing(2),
     },
     [theme.breakpoints.up("md")]: {
       gridTemplateColumns: "repeat(3, 1fr)",
-      gridGap: theme.spacing(3),
+      gap: theme.spacing(3),
     },
   },
   loadMoreButton: {
@@ -49,7 +49,7 @@ export const useCommunityPageStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("sm")]: {
       width: "100%",
     },
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       margin: theme.spacing(0, 2, 1, 0),
     },
     width: "50%",

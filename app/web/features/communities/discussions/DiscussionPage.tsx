@@ -1,5 +1,4 @@
-import { Typography } from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
+import { Skeleton, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import CircularProgress from "components/CircularProgress";

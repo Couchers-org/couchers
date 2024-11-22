@@ -5,11 +5,12 @@ import {
   Grid,
   Input,
   InputAdornment,
-  makeStyles,
+  SelectChangeEvent,
   Theme,
   Typography,
   useMediaQuery,
-} from "@material-ui/core";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import Button from "components/Button";
 import {
   Dialog,
@@ -156,7 +157,7 @@ export default function FilterDialog({
   };
 
   const isSmDown = useMediaQuery((theme: Theme) =>
-    theme.breakpoints.down("sm")
+    theme.breakpoints.down("md")
   );
 
   const handleNumGuestsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,9 +170,7 @@ export default function FilterDialog({
     setNumberOfGuestFilter(tempNumOfGuest);
   };
 
-  const handleLastActiveChange = (
-    event: React.ChangeEvent<{ value: unknown }>
-  ) => {
+  const handleLastActiveChange = (event: SelectChangeEvent<unknown>) => {
     const value = parseInt(event.target.value as string);
     setLastActiveFilter(value);
   };

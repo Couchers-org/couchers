@@ -1,10 +1,10 @@
-import { Tab } from "@material-ui/core";
-import { TabList } from "@material-ui/lab";
+import { TabList } from "@mui/lab";
+import { Tab } from "@mui/material";
 import makeStyles from "utils/makeStyles";
 
 export const useStyles = makeStyles((theme) => ({
   messagesTab: {
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       overflow: "visible",
       margin: `0 ${theme.spacing(2)}`,
     },
@@ -23,9 +23,11 @@ export default function TabBar<T extends Record<string, React.ReactNode>>({
   labels,
 }: TabBarProps<T>) {
   const classes = useStyles();
-  const handleChange = (event: unknown, newValue: keyof T) => {
+
+  const handleChange = (event: React.SyntheticEvent, newValue: keyof T) => {
     setValue(newValue);
   };
+
   return (
     <TabList
       aria-label={ariaLabel}

@@ -1,4 +1,4 @@
-import { TabContext } from "@material-ui/lab";
+import { TabContext } from "@mui/lab";
 import HtmlMeta from "components/HtmlMeta";
 import NotificationBadge from "components/NotificationBadge";
 import PageTitle from "components/PageTitle";

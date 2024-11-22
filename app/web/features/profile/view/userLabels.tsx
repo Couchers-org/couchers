@@ -1,5 +1,5 @@
-import { Tooltip } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Tooltip } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import { CheckCircleIcon, ErrorIcon } from "components/Icons";
 import LabelAndText from "components/LabelAndText";
 import { useLanguages } from "features/profile/hooks/useLanguages";

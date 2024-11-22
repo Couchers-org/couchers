@@ -7,7 +7,7 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-} from "@material-ui/core";
+} from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Divider from "components/Divider";

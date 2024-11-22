@@ -1,9 +1,4 @@
-import {
-  CircularProgress,
-  DialogProps,
-  List,
-  ListItem,
-} from "@material-ui/core";
+import { CircularProgress, DialogProps, List, ListItem } from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import {

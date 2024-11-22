@@ -1,5 +1,5 @@
-import { Card } from "@material-ui/core";
-import { TabPanel } from "@material-ui/lab";
+import { TabPanel } from "@mui/lab";
+import { Card } from "@mui/material";
 import TabBar from "components/TabBar";
 import { sectionLabels } from "features/profile/constants";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
@@ -18,7 +18,7 @@ const REQUEST_ID = "request";
 
 const useStyles = makeStyles((theme) => ({
   detailsCard: {
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       margin: 0,
       width: "100%",
     },

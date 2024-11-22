@@ -1,5 +1,4 @@
-import { CircularProgress, Theme, useMediaQuery } from "@material-ui/core";
-import { Alert } from "@material-ui/lab";
+import { Alert, CircularProgress, Theme, useMediaQuery } from "@mui/material";
 import Button from "components/Button";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import UserOverview from "features/profile/view/UserOverview";
@@ -8,6 +7,7 @@ import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import { routeToEditProfile, routeToProfile } from "routes";
+import { theme } from "theme";
 import makeStyles from "utils/makeStyles";
 
 import MinimalUserProfileCard from "./MinimalUserProfileCard";
@@ -22,7 +22,19 @@ function DashboardUserProfileSummaryActions() {
         </Button>
       </Link>
       <Link href={routeToProfile()} passHref>
-        <Button component="a" variant="outlined">
+        <Button
+          component="a"
+          variant="outlined"
+          sx={{
+            color: theme.palette.common.black,
+            borderColor: theme.palette.grey[300],
+
+            "&:hover": {
+              borderColor: theme.palette.grey[300],
+              backgroundColor: "#3135390A",
+            },
+          }}
+        >
           {t("dashboard:profile_summary_view")}
         </Button>
       </Link>

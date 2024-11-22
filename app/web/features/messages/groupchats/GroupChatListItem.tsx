@@ -1,11 +1,11 @@
 import {
-  ListItem,
   ListItemAvatar,
+  ListItemButton,
   ListItemProps,
   ListItemText,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { Skeleton } from "@material-ui/lab";
+  Skeleton,
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import Avatar from "components/Avatar";
 import { MuteIcon } from "components/Icons";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -86,7 +86,7 @@ export default function GroupChatListItem({
   }
 
   return (
-    <ListItem button className={className}>
+    <ListItemButton className={className}>
       <ListItemAvatar>
         {groupChatMembersQuery.isLoading ? (
           <Skeleton />
@@ -118,6 +118,6 @@ export default function GroupChatListItem({
         primaryTypographyProps={{ noWrap: true, className: isUnreadClass }}
         secondaryTypographyProps={{ noWrap: true, className: isUnreadClass }}
       />
-    </ListItem>
+    </ListItemButton>
   );
 }

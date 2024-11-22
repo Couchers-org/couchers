@@ -3,10 +3,10 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
+  Skeleton,
   Typography,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { Skeleton } from "@material-ui/lab";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
 import TextBody from "components/TextBody";

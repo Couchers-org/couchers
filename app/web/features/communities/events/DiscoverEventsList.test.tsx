@@ -1,11 +1,11 @@
-import { Pagination } from "@material-ui/lab";
+import { Pagination } from "@mui/material";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import { LngLat } from "maplibre-gl";
 import React from "react";
 import { useController, useForm } from "react-hook-form";
 import mockEvents from "test/fixtures/events.json";
+import wrapper from "test/hookWrapper";
 import { GeocodeResult } from "utils/hooks";
 
 import DiscoverEventsList from "./DiscoverEventsList";
@@ -24,13 +24,8 @@ jest.mock("../events/hooks", () => ({
   useEventSearch: jest.fn(),
 }));
 
-jest.mock("features/auth/AuthProvider", () => ({
-  ...jest.requireActual("features/auth/AuthProvider"),
-  useAuthContext: jest.fn(),
-}));
-
-jest.mock("@material-ui/lab", () => ({
-  ...jest.requireActual("@material-ui/lab"),
+jest.mock("@mui/material", () => ({
+  ...jest.requireActual("@mui/material"),
   Pagination: jest.fn(),
 }));
 
@@ -64,7 +59,6 @@ describe("DiscoverEventsList", () => {
   const mockUseTranslation = useTranslation as jest.Mock;
   const mockUseForm = useForm as jest.Mock;
   const mockUseEventSearch = useEventSearch as jest.Mock;
-  const mockUseAuthContext = useAuthContext as jest.Mock;
   const mockUseController = useController as jest.Mock;
   const mockPagination = Pagination as jest.Mock;
 
@@ -83,11 +77,6 @@ describe("DiscoverEventsList", () => {
         value: "",
       },
     });
-
-    // Mock the return value of useAuthContext to include authState with userId
-    mockUseAuthContext.mockReturnValue({
-      authState: { authenticated: true, userId: 1 },
-    });
   });
 
   afterEach(() => {
@@ -101,7 +90,7 @@ describe("DiscoverEventsList", () => {
       isLoading: false,
     });
 
-    render(<DiscoverEventsList />);
+    render(<DiscoverEventsList />, { wrapper });
 
     expect(
       screen.getByText("communities:discover_events_title")
@@ -121,7 +110,7 @@ describe("DiscoverEventsList", () => {
       isLoading: true,
     });
 
-    render(<DiscoverEventsList />);
+    render(<DiscoverEventsList />, { wrapper });
 
     expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
@@ -133,7 +122,7 @@ describe("DiscoverEventsList", () => {
       isLoading: false,
     });
 
-    render(<DiscoverEventsList />);
+    render(<DiscoverEventsList />, { wrapper });
 
     expect(screen.getByText("Error occurred")).toBeInTheDocument();
   });
@@ -152,7 +141,7 @@ describe("DiscoverEventsList", () => {
       <button onClick={() => onChange({}, 1)}>Change Page</button>
     ));
 
-    render(<DiscoverEventsList />);
+    render(<DiscoverEventsList />, { wrapper });
 
     expect(screen.getByText("Weekly Meetup")).toBeInTheDocument();
     expect(screen.getByText("Planting Season Meetup")).toBeInTheDocument();
@@ -192,7 +181,7 @@ describe("DiscoverEventsList", () => {
       <button onClick={() => onChange({}, 2)}>Change Page</button>
     ));
 
-    render(<DiscoverEventsList />);
+    render(<DiscoverEventsList />, { wrapper });
 
     const paginationButton = screen.getByText("Change Page");
     fireEvent.click(paginationButton);
@@ -211,7 +200,7 @@ describe("DiscoverEventsList", () => {
       isLoading: false,
     });
 
-    render(<DiscoverEventsList />);
+    render(<DiscoverEventsList />, { wrapper });
 
     const communitiesFilter = screen.getByText("communities:my_communities");
     const onlineFilter = screen.getByText("communities:online");
@@ -243,7 +232,7 @@ describe("DiscoverEventsList", () => {
       isLoading: false,
     });
 
-    render(<DiscoverEventsList />);
+    render(<DiscoverEventsList />, { wrapper });
 
     const locationAutocomplete = screen.getByTestId("location-autocomplete");
 

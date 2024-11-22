@@ -1,4 +1,4 @@
-import { Backdrop } from "@material-ui/core";
+import { Backdrop } from "@mui/material";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HtmlMeta from "components/HtmlMeta";

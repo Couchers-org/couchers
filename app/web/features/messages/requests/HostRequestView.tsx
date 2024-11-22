@@ -1,5 +1,4 @@
-import { Typography, useMediaQuery } from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
+import { Skeleton, Typography, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import CircularProgress from "components/CircularProgress";
@@ -54,7 +53,7 @@ const useLocalStyles = makeStyles((theme) => ({
   largeUserSummary: {
     borderBottom: `1px solid ${theme.palette.divider}`,
 
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       borderBottom: `1px solid ${theme.palette.divider}`,
       paddingBottom: theme.spacing(1),
     },
@@ -85,7 +84,7 @@ export default function HostRequestView({
   const classes = useGroupChatViewStyles();
   const localClasses = useLocalStyles();
 
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { data: hostRequest, error: hostRequestError } = useQuery<
     HostRequest.AsObject,
@@ -223,7 +222,7 @@ export default function HostRequestView({
   const smallUserSummarySection = (
     <div className={localClasses.smallUserSummary}>
       {!otherUser ? (
-        <Skeleton variant="circle" className={localClasses.avatar} />
+        <Skeleton variant="circular" className={localClasses.avatar} />
       ) : (
         <Avatar
           className={localClasses.avatar}
@@ -267,7 +266,7 @@ export default function HostRequestView({
           onClick={handleBack}
           aria-label={t("host_request_view.back_button_a11y_label")}
         >
-          <BackIcon fontSize={isMobile ? "small" : "default"} />
+          <BackIcon sx={{ fontSize: isMobile ? "small" : "large" }} />
         </HeaderButton>
 
         <PageTitle className={classes.title}>

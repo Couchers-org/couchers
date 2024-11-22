@@ -1,3 +1,4 @@
+import { useMediaQuery } from "@mui/material";
 import {
   render,
   screen,
@@ -13,6 +14,11 @@ import wrapper from "test/hookWrapper";
 import { MockedService, t, wait } from "test/utils";
 
 import ReportButton from "./ReportButton";
+
+jest.mock("@mui/material", () => ({
+  ...jest.requireActual("@mui/material"),
+  useMediaQuery: jest.fn(),
+}));
 
 const reportBugMock = service.bugs.reportBug as MockedService<
   typeof service.bugs.reportBug
@@ -48,6 +54,10 @@ describe("ReportButton", () => {
       bugId: "#1",
       bugUrl: "https://github.com/Couchers-org/couchers/issues/1",
     });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe("when displayed on a screen at the medium breakpoint or above", () => {
@@ -87,6 +97,9 @@ describe("ReportButton", () => {
     });
 
     it("shows a button with only the bug report icon", () => {
+      // Mock useMediaQuery for this specific test to simulate small screen
+      (useMediaQuery as jest.Mock).mockReturnValue(true);
+
       render(<ReportButton />, { wrapper });
       const reportBugButton = screen.getByRole("button", {
         name: t("global:report.label"),
@@ -298,7 +311,9 @@ describe("ReportButton", () => {
       // Close dialog by clicking on close button
       userEvent.click(screen.getByRole("button", { name: t("global:cancel") }));
       // Wait for the dialog to close properly first before trying to reopen
-      await waitForElementToBeRemoved(screen.getByRole("presentation"));
+      const [, secondElement] = screen.queryAllByRole("presentation");
+      // Wait for the second dialog to be removed
+      await waitForElementToBeRemoved(secondElement);
       userEvent.click(
         screen.getByRole("button", { name: t("global:report.label") })
       );

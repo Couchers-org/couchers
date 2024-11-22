@@ -1,7 +1,12 @@
-import { Button as MuiButton, ButtonProps, useTheme } from "@material-ui/core";
+import { Button as MuiButton, ButtonProps, useTheme } from "@mui/material";
 import classNames from "classnames";
 import Sentry from "platform/sentry";
-import React, { ElementType, ForwardedRef, forwardRef } from "react";
+import React, {
+  ElementType,
+  ForwardedRef,
+  forwardRef,
+  MouseEventHandler,
+} from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
@@ -30,16 +35,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-//type generics required to allow component prop
-//see https://github.com/mui-org/material-ui/issues/15827
-export type AppButtonProps<
-  D extends ElementType = "button",
-  P = Record<string, unknown>
-> = ButtonProps<D, P> & {
-  loading?: boolean;
+type ButtonClasses = {
+  [key: string]: string;
 };
 
-function _Button<D extends ElementType = "button", P = Record<string, unknown>>(
+//type generics required to allow component prop
+//see https://github.com/mui-org/material-ui/issues/15827
+export type AppButtonProps<D extends ElementType = "button"> =
+  ButtonProps<D> & {
+    loading?: boolean;
+    onClick?: MouseEventHandler<HTMLButtonElement>; // Dynamic type for different component types
+    classes?: Partial<ButtonClasses>; // Use the flexible ButtonClasses type here
+  };
+
+function _Button<D extends ElementType = "button">(
   {
     children,
     disabled,
@@ -49,17 +58,20 @@ function _Button<D extends ElementType = "button", P = Record<string, unknown>>(
     variant = "contained",
     color = "primary",
     ...otherProps
-  }: AppButtonProps<D, P>,
+  }: AppButtonProps<D>,
   ref: ForwardedRef<any> // eslint-disable-line
 ) {
   const isMounted = useIsMounted();
   const [waiting, setWaiting] = useSafeState(isMounted, false);
   const classes = useStyles();
   const theme = useTheme();
-  async function asyncOnClick(event: unknown) {
+  async function asyncOnClick(event: React.MouseEvent<HTMLButtonElement>) {
     try {
       setWaiting(true);
-      await onClick(event);
+
+      if (onClick) {
+        await onClick(event);
+      }
     } catch (e) {
       Sentry.captureException(e);
     } finally {

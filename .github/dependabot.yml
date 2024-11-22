@@ -4,7 +4,7 @@ updates:
   - package-ecosystem: "pip"
     directory: "/app/backend"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     labels:
       - "1.topic backend"
       - "dependencies"
@@ -14,7 +14,7 @@ updates:
   - package-ecosystem: "pip"
     directory: "/app/media"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     labels:
       - "1.topic backend"
       - "dependencies"

@@ -1,4 +1,4 @@
-import { ListItem } from "@material-ui/core";
+import { ListItem } from "@mui/material";
 import Pill from "components/Pill";
 import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";

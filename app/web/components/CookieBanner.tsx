@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import IconButton from "components/IconButton";
 import { CloseIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";

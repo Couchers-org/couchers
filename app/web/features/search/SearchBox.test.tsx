@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LngLat } from "maplibre-gl";
 import { useState } from "react";
+import wrapper from "test/hookWrapper";
 import { server } from "test/restMock";
 import { t } from "test/utils";
 import { GeocodeResult } from "utils/hooks";
@@ -37,7 +38,7 @@ const View = ({
 
 describe("SearchBox", () => {
   it("performs a keyword search", async () => {
-    render(<View />);
+    render(<View />, { wrapper });
 
     userEvent.click(
       screen.getByLabelText(t("search:form.by_keyword_filter_label"))
@@ -52,7 +53,7 @@ describe("SearchBox", () => {
   });
 
   it("clears keyword search correctly", async () => {
-    render(<View searchTypeParam="keyword" />);
+    render(<View searchTypeParam="keyword" />, { wrapper });
 
     const input = screen.getByLabelText(t("search:form.keywords.field_label"));
 
@@ -81,7 +82,7 @@ describe("SearchBox", () => {
     });
 
     it("result from list is choosable", async () => {
-      render(<View searchTypeParam="location" />);
+      render(<View searchTypeParam="location" />, { wrapper });
 
       userEvent.click(
         screen.getByLabelText(t("search:form.by_location_filter_label"))

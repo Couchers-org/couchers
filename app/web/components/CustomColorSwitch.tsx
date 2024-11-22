@@ -1,52 +1,63 @@
-import { Switch, SwitchProps } from "@material-ui/core";
-import classNames from "classnames";
+import { styled, Switch, SwitchProps } from "@mui/material";
 import { useEffect, useState } from "react";
 import { theme } from "theme";
-import makeStyles from "utils/makeStyles";
 
 import CircularProgress from "./CircularProgress";
 
-interface SwitchStyleProps {
+interface CustomSwitchProps extends Omit<SwitchProps, "color"> {
   checked: boolean;
-  color: string;
-  size: SwitchProps["size"];
+  customColor?: string; // renamed to avoid conflict with existing color prop
+  size?: SwitchProps["size"];
+  status?: string;
+  isLoading?: boolean;
 }
 
-const useStyles = makeStyles(({ palette, shadows }) => ({
-  circle: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: (props: SwitchStyleProps) => (props.size === "medium" ? 20 : 16),
-    height: (props: SwitchStyleProps) => (props.size === "medium" ? 20 : 16),
-    borderRadius: "50%",
-    backgroundColor: palette.grey[600],
-    boxShadow: shadows[1],
-  },
-  active: {
-    backgroundColor: palette.grey[600],
-  },
-  switchBase: {
-    color: palette.grey[600],
+const StyledCircle = styled("div", {
+  shouldForwardProp: (prop) => prop !== "customColor" && prop !== "isLoading",
+})<CustomSwitchProps>(({ theme, size, checked, customColor, isLoading }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: size === "medium" ? 20 : 16,
+  height: size === "medium" ? 20 : 16,
+  borderRadius: "50%",
+  backgroundColor: checked ? customColor : theme.palette.grey[600],
+  boxShadow: theme.shadows[1],
+  ...(isLoading && {
+    backgroundColor: theme.palette.grey[400], // Change color when loading
+  }),
+}));
+
+const dontPassProps = ["customColor", "isLoading", "status"];
+
+const StyledSwitch = styled(Switch, {
+  shouldForwardProp: (prop) => !dontPassProps.includes(prop as string), // Filter out props that shouldn't be forwarded
+})<CustomSwitchProps>(({ theme, customColor, checked, isLoading, status }) => ({
+  "& .MuiSwitch-switchBase": {
+    color: theme.palette.grey[600],
     "& + .MuiSwitch-track": {
-      backgroundColor: palette.grey[200],
+      backgroundColor: theme.palette.grey[200],
     },
     "&.Mui-checked": {
-      color: (props: { color: string }) => props.color,
+      color: customColor,
       "& + .MuiSwitch-track": {
-        backgroundColor: (props: { color: string }) => props.color,
+        backgroundColor: customColor,
       },
     },
     "&.Mui-disabled": {
-      color: (props: { checked: boolean; color: string }) =>
-        props.checked ? props.color : palette.grey[600],
+      color: checked ? customColor : theme.palette.grey[600],
       "& + .MuiSwitch-track": {
-        backgroundColor: (props: { checked: boolean; color: string }) =>
-          props.checked ? props.color : palette.grey[200],
+        backgroundColor: checked ? customColor : theme.palette.grey[200],
         opacity: 0.4,
       },
     },
   },
+  ...(isLoading || status === "loading"
+    ? {
+        opacity: 0.5, // Reduce opacity when loading or status is "loading"
+        pointerEvents: "none", // Disable interaction when loading
+      }
+    : {}),
 }));
 
 export default function CustomColorSwitch({
@@ -55,17 +66,8 @@ export default function CustomColorSwitch({
   size = "medium",
   status,
   isLoading = false,
-  color = theme.palette.secondary.main,
-}: {
-  checked: boolean;
-  onClick: SwitchProps["onClick"];
-  size?: SwitchProps["size"];
-  status?: string;
-  isLoading?: boolean;
-  color?: string;
-}) {
-  const classes = useStyles({ checked, color, size });
-
+  customColor = theme.palette.secondary.main, // renamed to customColor to avoid conflict with MUI Switch color
+}: CustomSwitchProps) {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -73,11 +75,11 @@ export default function CustomColorSwitch({
   }, []);
 
   const Icon = () => (
-    <div
-      className={classNames(classes.circle, {
-        [classes.active]: checked && !isLoading,
-      })}
-      style={{ backgroundColor: checked ? color : undefined }}
+    <StyledCircle
+      size={size}
+      checked={checked}
+      customColor={customColor}
+      isLoading={isLoading}
     >
       {isLoading && (
         <CircularProgress
@@ -86,7 +88,7 @@ export default function CustomColorSwitch({
           thickness={6}
         />
       )}
-    </div>
+    </StyledCircle>
   );
 
   if (!isMounted) {
@@ -94,16 +96,16 @@ export default function CustomColorSwitch({
   }
 
   return (
-    <Switch
-      classes={{
-        switchBase: classes.switchBase,
-      }}
+    <StyledSwitch
       checked={checked}
       checkedIcon={<Icon />}
       disabled={isLoading || status === "loading"}
       icon={<Icon />}
       onClick={onClick}
       size={size}
+      customColor={customColor} // Pass customColor prop to StyledSwitch
+      isLoading={isLoading}
+      status={status}
     />
   );
 }

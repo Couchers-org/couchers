@@ -1,4 +1,5 @@
-import { Collapse, makeStyles } from "@material-ui/core";
+import { Collapse } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";

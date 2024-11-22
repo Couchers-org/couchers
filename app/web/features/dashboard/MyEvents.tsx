@@ -3,7 +3,7 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-} from "@material-ui/core";
+} from "@mui/material";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -24,21 +24,23 @@ import makeStyles from "utils/makeStyles";
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "grid",
-    justifyItems: "start",
     rowGap: theme.spacing(2),
     margin: theme.spacing(2, 0, 3),
   },
   upcomingEventContainer: {
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+
     [theme.breakpoints.up("sm")]: {
       display: "grid",
-      gridGap: theme.spacing(3),
+      gap: theme.spacing(3),
       gridTemplateColumns: "repeat(2, 1fr)",
     },
   },
   eventCard: {
     width: "90%",
-    [theme.breakpoints.up("sm")]: {
-      width: "auto",
+    [theme.breakpoints.down("md")]: {
+      width: "100%",
     },
   },
   allUpcomingEventsLink: {
@@ -57,7 +59,7 @@ export default function MyEvents() {
   const { t } = useTranslation([COMMUNITIES, DASHBOARD]);
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
   const theme = useTheme();
-  const isBelowSm = useMediaQuery(theme.breakpoints.down("xs"));
+  const isBelowSm = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
     useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
@@ -106,7 +108,19 @@ export default function MyEvents() {
           </HorizontalScroller>
           {hasNextPage && !isBelowSm && (
             <div className={classes.loaderContainer}>
-              <Button onClick={() => fetchNextPage()} variant="outlined">
+              <Button
+                onClick={() => fetchNextPage()}
+                variant="outlined"
+                sx={{
+                  color: theme.palette.common.black,
+                  borderColor: theme.palette.grey[300],
+
+                  "&:hover": {
+                    borderColor: theme.palette.grey[300],
+                    backgroundColor: "#3135390A",
+                  },
+                }}
+              >
                 {t("communities:see_more_events_label")}
               </Button>
             </div>

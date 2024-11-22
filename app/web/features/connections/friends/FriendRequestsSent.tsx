@@ -1,4 +1,4 @@
-import { Box, CircularProgress, IconButton } from "@material-ui/core";
+import { Box, CircularProgress, IconButton } from "@mui/material";
 import { CloseIcon } from "components/Icons";
 import { CONNECTIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
@@ -39,6 +39,7 @@ function CancelFriendRequestAction({
             reset();
             cancelFriendRequest({ friendRequestId, setMutationError, userId });
           }}
+          size="large"
         >
           <CloseIcon />
         </IconButton>

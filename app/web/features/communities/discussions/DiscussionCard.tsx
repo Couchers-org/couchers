@@ -1,5 +1,4 @@
-import { Card, CardContent, Typography } from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
+import { Card, CardContent, Skeleton, Typography } from "@mui/material";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
 import { useLiteUser } from "features/userQueries/useLiteUsers";

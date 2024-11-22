@@ -8,7 +8,7 @@ import {
   Radio,
   RadioGroup,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
@@ -257,7 +257,7 @@ export default function AccountForm() {
         <InputLabel className={authClasses.formLabel} htmlFor="hosting-status">
           {t("auth:account_form.hosting_status.field_label")}
         </InputLabel>
-        <FormControl className={authClasses.formField}>
+        <FormControl variant="standard" className={authClasses.formField}>
           {errors?.hostingStatus?.message && (
             <FormHelperText error>
               {errors.hostingStatus.message}
@@ -306,7 +306,7 @@ export default function AccountForm() {
           defaultValue=""
           rules={{ required: t("auth:account_form.gender.required_error") }}
           render={({ onChange, value }) => (
-            <FormControl component="fieldset">
+            <FormControl variant="standard" component="fieldset">
               <FormLabel component="legend" className={authClasses.formLabel}>
                 {t("auth:account_form.gender.field_label")}
               </FormLabel>

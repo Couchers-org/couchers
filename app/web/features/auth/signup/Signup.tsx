@@ -1,11 +1,10 @@
-import { Divider, Typography } from "@material-ui/core";
-import classNames from "classnames";
+import { Divider, styled, Typography, TypographyProps } from "@mui/material";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HtmlMeta from "components/HtmlMeta";
 import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
-import MobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
+import mobileAuthBg from "features/auth/resources/mobile-auth-bg.jpg";
 import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesForm";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -17,68 +16,167 @@ import vercelLogo from "resources/vercel.svg";
 import { dashboardRoute, loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
-import makeStyles from "utils/makeStyles";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
-import useAuthStyles from "../useAuthStyles";
 import AccountForm from "./AccountForm";
 import BasicForm from "./BasicForm";
 import FeedbackForm from "./FeedbackForm";
 import ResendVerificationEmailForm from "./ResendVerificationEmailForm";
 
-const useStyles = makeStyles((theme) => ({
-  agreement: {
-    textAlign: "center",
-    [theme.breakpoints.up("md")]: {
-      marginTop: theme.spacing(3),
-      textAlign: "left",
-    },
+const StyledAgreement = styled(Typography)<TypographyProps>(({ theme }) => ({
+  textAlign: "center",
+  [theme.breakpoints.up("md")]: {
+    marginTop: theme.spacing(3),
+    textAlign: "left",
   },
-  stickyPage: {
-    position: "fixed",
-    left: 0,
-    right: 0,
-    top: theme.shape.navPaddingXs,
-    [theme.breakpoints.up("sm")]: {
-      top: theme.shape.navPaddingSmUp,
-    },
-    bottom: 0,
-    zIndex: 1,
-    [theme.breakpoints.down("sm")]: {
-      position: "absolute",
-      background: `linear-gradient(rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 1)), url("${MobileAuthBg.src}")`,
-    },
+}));
+
+const StyledScrollingContent = styled("div")(({ theme }) => ({
+  position: "relative",
+  zIndex: 2,
+  justifyContent: "center",
+  minHeight: `calc(100vh - ${theme.shape.navPaddingXs})`,
+  display: "flex",
+  flexDirection: "column",
+  padding: theme.spacing(1, 4),
+  paddingBottom: 0,
+
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(1, 2),
   },
-  scrollingContent: {
+  [theme.breakpoints.up("sm")]: {
+    minHeight: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
+  },
+}));
+
+const StyledMobileEmbed = styled("div")(({ theme }) => ({
+  margin: theme.spacing(3),
+}));
+
+const StyledIntroduction = styled("div")(({ theme }) => ({
+  flexShrink: 0,
+  color: theme.palette.common.white,
+  flexDirection: "column",
+  display: "flex",
+  textAlign: "left",
+  width: "45%",
+  maxWidth: theme.breakpoints.values.md / 2,
+  marginInlineEnd: "10%",
+  [theme.breakpoints.down("md")]: {
+    display: "none",
+  },
+}));
+
+const StyledBackground = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  padding: theme.spacing(1, 4),
+  paddingBottom: 0,
+  background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("${mobileAuthBg.src}")`,
+  backgroundPosition: "top center",
+  backgroundRepeat: "no-repeat",
+  backgroundSize: "cover",
+  width: "100%",
+  height: `calc(100vh - ${theme.shape.navPaddingXs})`,
+  position: "fixed",
+  left: 0,
+  right: 0,
+  top: theme.shape.navPaddingXs,
+  bottom: 0,
+  zIndex: 1,
+
+  [theme.breakpoints.up("sm")]: {
+    height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
+    top: theme.shape.navPaddingSmUp,
+  },
+
+  [theme.breakpoints.down("md")]: {
+    padding: theme.spacing(1, 2),
+    position: "absolute",
+    background: `linear-gradient(rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 1)), url("${mobileAuthBg.src}")`,
+  },
+}));
+
+const StyledContent = styled("div")(({ theme }) => ({
+  width: "100%",
+  marginBottom: theme.spacing(2),
+  [theme.breakpoints.up("md")]: {
+    display: "flex",
+    flexDirection: "row",
+    height: "100%",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    width: "100%",
+  },
+}));
+
+const StyledTitle = styled(Typography)<TypographyProps>(({ theme }) => ({
+  [theme.breakpoints.up("md")]: {
+    fontSize: "2rem",
+    lineHeight: "1.15",
+    textAlign: "left",
+  },
+}));
+
+const StyledSubtitle = styled(Typography)<TypographyProps>(({ theme }) => ({
+  [theme.breakpoints.up("md")]: {
+    display: "inline-block",
+    marginTop: theme.spacing(4),
     position: "relative",
-    zIndex: 2,
-    justifyContent: "center",
-    minHeight: `calc(100vh - ${theme.shape.navPaddingXs})`,
-    [theme.breakpoints.up("sm")]: {
-      minHeight: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
-    },
   },
-  scrollingForm: {
-    flexGrow: 1,
-    alignSelf: "flex-start",
-    marginTop: theme.spacing(10),
-    marginBottom: theme.spacing(4),
-    [theme.breakpoints.up("md")]: {
-      alignSelf: "flex-end",
-    },
-    [theme.breakpoints.down("sm")]: {
-      width: "100%",
-    },
+}));
+
+const StyledFormWrapper = styled("div")(({ theme }) => ({
+  flexShrink: 0,
+  backgroundColor: "#fff",
+  borderRadius: theme.shape.borderRadius,
+  flexGrow: 1,
+  alignSelf: "flex-start",
+  marginTop: theme.spacing(10),
+  marginBottom: theme.spacing(4),
+
+  [theme.breakpoints.up("md")]: {
+    alignSelf: "flex-end",
+    width: "45%",
+    padding: theme.spacing(5, 8),
   },
-  mobileEmbed: {
-    margin: theme.spacing(3),
+
+  [theme.breakpoints.down("md")]: {
+    width: "100%",
+    padding: theme.spacing(5, 8),
+    margin: theme.spacing(2, "auto"),
   },
+
+  [theme.breakpoints.down("sm")]: {
+    width: "100%",
+    padding: theme.spacing(3, 4),
+    margin: theme.spacing(0),
+  },
+}));
+
+const StyledDivider = styled(Divider)(({ theme }) => ({
+  borderTop: `5px solid ${theme.palette.primary.main}`,
+  boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
+  left: theme.spacing(1),
+  position: "absolute",
+  width: "100%",
+}));
+
+const StyledVercelLink = styled("a")(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  [theme.breakpoints.up("md")]: {
+    position: "absolute",
+    right: theme.spacing(2),
+    bottom: theme.spacing(2),
+    "& img": { height: "2.5rem" },
+  },
+  textAlign: "center",
+  "& img": { height: "2rem" },
 }));
 
 function CurrentForm() {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const classes = useStyles();
   const { authState } = useAuthContext();
   const state = authState.flowState;
   if (!state || state.needBasic) {
@@ -96,7 +194,7 @@ function CurrentForm() {
           </Typography>
         )}
         <BasicForm />
-        <Typography variant="body1" className={classes.agreement}>
+        <StyledAgreement variant="body1">
           <Trans i18nKey="auth:basic_sign_up_form.sign_up_agreement_explainer">
             By continuing, you agree to our{" "}
             <StyledLink href={tosRoute} target="_blank">
@@ -104,7 +202,7 @@ function CurrentForm() {
             </StyledLink>
             , including our cookie, email, and data handling policies.
           </Trans>
-        </Typography>
+        </StyledAgreement>
       </>
     );
   } else if (state.needAccount) {
@@ -164,8 +262,6 @@ export default function Signup() {
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
   const error = authState.error;
-  const authClasses = useAuthStyles();
-  const classes = useStyles();
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
@@ -210,14 +306,14 @@ export default function Signup() {
 
   if (isNativeEmbed) {
     return (
-      <div className={classes.mobileEmbed}>
+      <StyledMobileEmbed>
         {error && (
-          <Alert className={authClasses.errorMessage} severity="error">
+          <Alert severity="error" sx={{ width: "100%" }}>
             {error}
           </Alert>
         )}
         {loading ? <CircularProgress /> : <CurrentForm />}
-      </div>
+      </StyledMobileEmbed>
     );
   }
 
@@ -225,60 +321,43 @@ export default function Signup() {
     <>
       {authenticated && <Redirect to={dashboardRoute} />}
       <HtmlMeta title={t("global:sign_up")} />
-      <div
-        className={classNames(
-          authClasses.page,
-          classes.stickyPage,
-          authClasses.pageBackground
-        )}
-      >
-        <div className={authClasses.content}>
-          <div className={authClasses.introduction}>
-            <Typography
-              classes={{ root: authClasses.title }}
-              variant="h1"
-              component="span"
-            >
+      <StyledBackground>
+        <StyledContent>
+          <StyledIntroduction>
+            <StyledTitle variant="h1" component="span">
               {t("auth:introduction_title")}
-            </Typography>
-            <Typography
-              classes={{ root: authClasses.subtitle }}
-              variant="h2"
-              component="span"
-            >
+            </StyledTitle>
+            <StyledSubtitle variant="h2" component="span">
               {t("auth:introduction_subtitle")}
-              <Divider className={authClasses.underline}></Divider>
-            </Typography>
-          </div>
+              <StyledDivider />
+            </StyledSubtitle>
+          </StyledIntroduction>
           <div
             style={{
               //this div is to match the flex layout on the login page
               width: "45%",
             }}
           ></div>
-        </div>
-      </div>
-      <div className={classNames(authClasses.page, classes.scrollingContent)}>
-        <div
-          className={classNames(authClasses.formWrapper, classes.scrollingForm)}
-        >
+        </StyledContent>
+      </StyledBackground>
+      <StyledScrollingContent>
+        <StyledFormWrapper>
           {error && (
-            <Alert className={authClasses.errorMessage} severity="error">
+            <Alert severity="error" sx={{ width: "100%" }}>
               {error}
             </Alert>
           )}
           {loading ? <CircularProgress /> : <CurrentForm />}
-        </div>
+        </StyledFormWrapper>
         {process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" && (
-          <a
-            className={authClasses.vercelLink}
+          <StyledVercelLink
             rel="noopener noreferrer"
             href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
           >
             <img alt={t("auth:vercel_logo_alt_text")} src={vercelLogo.src} />
-          </a>
+          </StyledVercelLink>
         )}
-      </div>
+      </StyledScrollingContent>
     </>
   );
 }

@@ -13,6 +13,7 @@ jest.mock("@mui/x-date-pickers", () => {
   return {
     ...jest.requireActual("@mui/x-date-pickers"),
     DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+    PickersDay: jest.requireActual("@mui/x-date-pickers").DesktopPickersDay,
   };
 });
 
@@ -38,15 +39,23 @@ const Form = ({ setDate }: { setDate: (date: Dayjs) => void }) => {
 };
 
 describe("DatePicker", () => {
-  beforeEach(() => {
+  beforeAll(() => {
     jest.useFakeTimers();
+  });
+
+  beforeEach(() => {
     jest.setSystemTime(new Date("2021-03-20"));
+    timezoneMock.register("UTC");
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
     timezoneMock.unregister();
-    jest.restoreAllMocks();
+    jest.resetAllMocks();
+    jest.clearAllTimers();
   });
 
   it("should submit with proper date for clicking", async () => {
@@ -63,56 +72,168 @@ describe("DatePicker", () => {
     });
   });
 
-  it.each`
-    timezone
-    ${"US/Eastern"}
-    ${"UTC"}
-    ${"Europe/London"}
-    ${"Brazil/East"}
-    ${"Australia/Adelaide"}
-  `("selecting today works with timezone $timezone", async ({ timezone }) => {
-    timezoneMock.register(timezone);
+  it("selecting today works with timezone US/Eastern", async () => {
+    timezoneMock.register("US/Eastern");
     const mockDate = new Date("2021-03-20 00:00");
     //@ts-ignore - ts thinks we mock Date() but actually we want to mock new Date()
-    const spy = jest.spyOn(global, "Date").mockImplementation(() => mockDate);
+    jest.spyOn(global, "Date").mockImplementation(() => mockDate);
+
     let date: Dayjs | undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
     userEvent.click(
       await screen.findByRole("button", { name: t("global:submit") })
     );
+
     await waitFor(() => {
       expect(date?.format().split("T")[0]).toBe(undefined);
     });
-    timezoneMock.unregister();
-    spy.mockRestore();
   });
 
-  it.each`
-    language   | afterOneBackspace | typing         | afterInput
-    ${"en-GB"} | ${"20/03/202"}    | ${"21032021"}  | ${"21/03/2021"}
-    ${"en-US"} | ${"03/20/202"}    | ${"03/212021"} | ${"03/21/2021"}
-    ${"or-IN"} | ${"20-03-2"}      | ${"21-0321"}   | ${"21-03-21"}
-    ${"zh-TW"} | ${"2021/03/2"}    | ${"20210321"}  | ${"2021/03/21"}
-  `(
-    "typing works in $language",
-    async ({ language, afterOneBackspace, typing, afterInput }) => {
-      const langMock = jest.spyOn(navigator, "language", "get");
-      langMock.mockReturnValue(language);
+  it("selecting today works with timezone UTC", async () => {
+    timezoneMock.register("UTC");
+    const mockDate = new Date("2021-03-20 00:00");
+    //@ts-ignore - ts thinks we mock Date() but actually we want to mock new Date()
+    jest.spyOn(global, "Date").mockImplementation(() => mockDate);
 
-      let date: Dayjs | undefined = undefined;
-      render(<Form setDate={(d) => (date = d)} />, { wrapper });
+    let date: Dayjs | undefined;
+    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+    userEvent.click(
+      await screen.findByRole("button", { name: t("global:submit") })
+    );
 
-      const input = screen.getByRole("textbox") as HTMLInputElement;
-      userEvent.type(screen.getByRole("textbox"), "{backspace}");
-      expect(input.value).toBe(afterOneBackspace);
-      userEvent.clear(input);
-      userEvent.type(input, typing);
-      expect(input.value).toBe(afterInput);
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
-      const expectedDate = "2021-03-21";
-      await waitFor(() => {
-        expect(date?.format().split("T")[0]).toEqual(expectedDate);
-      });
-    }
-  );
+    await waitFor(() => {
+      expect(date?.format().split("T")[0]).toBe(undefined);
+    });
+  });
+
+  it("selecting today works with timezone Europe/London", async () => {
+    timezoneMock.register("Europe/London");
+    const mockDate = new Date("2021-03-20 00:00");
+    //@ts-ignore - ts thinks we mock Date() but actually we want to mock new Date()
+    jest.spyOn(global, "Date").mockImplementation(() => mockDate);
+
+    let date: Dayjs | undefined;
+    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+    userEvent.click(
+      await screen.findByRole("button", { name: t("global:submit") })
+    );
+
+    await waitFor(() => {
+      expect(date?.format().split("T")[0]).toBe(undefined);
+    });
+  });
+
+  it("selecting today works with timezone Brazil/East", async () => {
+    timezoneMock.register("Brazil/East");
+    const mockDate = new Date("2021-03-20 00:00");
+    //@ts-ignore - ts thinks we mock Date() but actually we want to mock new Date()
+    jest.spyOn(global, "Date").mockImplementation(() => mockDate);
+
+    let date: Dayjs | undefined;
+    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+    userEvent.click(
+      await screen.findByRole("button", { name: t("global:submit") })
+    );
+
+    await waitFor(() => {
+      expect(date?.format().split("T")[0]).toBe(undefined);
+    });
+  });
+
+  it("selecting today works with timezone Australia/Adelaide", async () => {
+    timezoneMock.register("Australia/Adelaide");
+    const mockDate = new Date("2021-03-20 00:00");
+    //@ts-ignore - ts thinks we mock Date() but actually we want to mock new Date()
+    jest.spyOn(global, "Date").mockImplementation(() => mockDate);
+
+    let date: Dayjs | undefined;
+    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+    userEvent.click(
+      await screen.findByRole("button", { name: t("global:submit") })
+    );
+
+    await waitFor(() => {
+      expect(date?.format().split("T")[0]).toBe(undefined);
+    });
+  });
+
+  it("typing should work in en-GB", async () => {
+    const langMock = jest.spyOn(navigator, "language", "get");
+    langMock.mockReturnValue("en-GB");
+
+    let date: Dayjs | undefined = undefined;
+    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    userEvent.type(screen.getByRole("textbox"), "{backspace}");
+    expect(input.value).toBe("20/03/202");
+    userEvent.clear(input);
+    userEvent.type(input, "21032021");
+    expect(input.value).toBe("21/03/2021");
+    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    const expectedDate = "2021-03-21";
+    await waitFor(() => {
+      expect(date?.format().split("T")[0]).toEqual(expectedDate);
+    });
+  });
+
+  it("typing should work in en-US", async () => {
+    const langMock = jest.spyOn(navigator, "language", "get");
+    langMock.mockReturnValue("en-US");
+
+    let date: Dayjs | undefined = undefined;
+    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    userEvent.type(screen.getByRole("textbox"), "{backspace}");
+    expect(input.value).toBe("03/20/202");
+    userEvent.clear(input);
+    userEvent.type(input, "03212021");
+    expect(input.value).toBe("03/21/2021");
+    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    const expectedDate = "2021-03-21";
+    await waitFor(() => {
+      expect(date?.format().split("T")[0]).toEqual(expectedDate);
+    });
+  });
+
+  it("typing should work in or-IN", async () => {
+    const langMock = jest.spyOn(navigator, "language", "get");
+    langMock.mockReturnValue("or-IN");
+
+    let date: Dayjs | undefined = undefined;
+    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    userEvent.type(screen.getByRole("textbox"), "{backspace}");
+    expect(input.value).toBe("20-03-2");
+    userEvent.clear(input);
+    userEvent.type(input, "21-0321");
+    expect(input.value).toBe("21-03-21");
+    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    const expectedDate = "2021-03-21";
+    await waitFor(() => {
+      expect(date?.format().split("T")[0]).toEqual(expectedDate);
+    });
+  });
+
+  it("typing should work in zh-TW", async () => {
+    const langMock = jest.spyOn(navigator, "language", "get");
+    langMock.mockReturnValue("zh-TW");
+
+    let date: Dayjs | undefined = undefined;
+    render(<Form setDate={(d) => (date = d)} />, { wrapper });
+
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    userEvent.type(screen.getByRole("textbox"), "{backspace}");
+    expect(input.value).toBe("2021/03/2");
+    userEvent.clear(input);
+    userEvent.type(input, "20210321");
+    expect(input.value).toBe("2021/03/21");
+    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    const expectedDate = "2021-03-21";
+    await waitFor(() => {
+      expect(date?.format().split("T")[0]).toEqual(expectedDate);
+    });
+  });
 });

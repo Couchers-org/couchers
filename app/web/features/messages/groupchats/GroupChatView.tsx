@@ -1,6 +1,5 @@
-import { useMediaQuery } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { Skeleton } from "@material-ui/lab";
+import { Skeleton, useMediaQuery } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HeaderButton from "components/HeaderButton";
@@ -56,7 +55,7 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
 
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       paddingLeft: theme.spacing(1),
       paddingRight: theme.spacing(1),
     },
@@ -71,7 +70,7 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
       marginInlineStart: theme.spacing(2),
     },
 
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       paddingLeft: theme.spacing(1),
       paddingRight: theme.spacing(1),
     },
@@ -79,7 +78,7 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
   messageLoader: {
     padding: theme.spacing(2, 2),
 
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       padding: theme.spacing(1, 1),
     },
   },
@@ -87,7 +86,7 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("sm")]: {
       height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
     },
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       height: `calc(100vh - ${theme.shape.navPaddingXs})`,
     },
     alignItems: "stretch",
@@ -105,7 +104,7 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
     marginInlineStart: theme.spacing(2),
     "& > *": { marginInlineEnd: theme.spacing(2) },
 
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       fontSize: "0.9rem",
     },
   },
@@ -132,9 +131,9 @@ export const useGroupChatViewStyles = makeStyles((theme) => ({
 export default function GroupChatView({ chatId }: { chatId: number }) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const classes = useGroupChatViewStyles();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const menuAnchor = useRef<HTMLAnchorElement>(null);
+  const menuAnchor = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState({
     admins: false,
     invite: false,
@@ -270,7 +269,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
               onClick={handleBack}
               aria-label={t("messages:chat_view.back_button.a11y_label")}
             >
-              <BackIcon fontSize={isMobile ? "small" : "default"} />
+              <BackIcon sx={{ fontSize: isMobile ? "small" : "large" }} />
             </HeaderButton>
 
             {groupChat?.isDm ? (
@@ -316,9 +315,11 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
                 aria-label={t("messages:chat_view.actions_menu.a11y_label")}
                 aria-haspopup="true"
                 aria-controls="more-menu"
-                innerRef={menuAnchor}
+                ref={menuAnchor}
               >
-                <OverflowMenuIcon fontSize={isMobile ? "small" : "default"} />
+                <OverflowMenuIcon
+                  sx={{ fontSize: isMobile ? "small" : "large" }}
+                />
               </HeaderButton>
               <Menu
                 id="more-menu"

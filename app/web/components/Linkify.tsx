@@ -1,4 +1,4 @@
-import { Link as MuiLink } from "@material-ui/core";
+import { Link as MuiLink } from "@mui/material";
 import React from "react";
 
 const urlRegex = () => {
@@ -38,6 +38,7 @@ function Linkify({ text }: LinkifyProps) {
           target="_blank"
           rel="noreferrer"
           href={`${protocolPrefix}${href}`}
+          underline="hover"
         >
           {part}
         </MuiLink>

@@ -1,5 +1,4 @@
-import { Card, CircularProgress, Typography } from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
+import { Card, CircularProgress, Skeleton, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import Markdown from "components/Markdown";

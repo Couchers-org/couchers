@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";

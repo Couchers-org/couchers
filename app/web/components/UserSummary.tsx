@@ -1,10 +1,15 @@
-import { ListItemAvatar, ListItemText, Typography } from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
+import {
+  ListItemAvatar,
+  ListItemText,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { LiteUser } from "proto/api_pb";
+import React from "react";
 import { routeToUser } from "routes";
 import makeStyles from "utils/makeStyles";
 
@@ -44,7 +49,7 @@ export const useStyles = makeStyles((theme) => ({
   },
   titleAndBarContainer: {
     display: "grid",
-    gridGap: theme.spacing(0.5),
+    gap: theme.spacing(0.5),
     margin: 0,
     minHeight: theme.spacing(9),
   },
@@ -73,9 +78,15 @@ export default function UserSummary({
 }: UserSummaryProps) {
   const classes = useStyles();
 
+  const headlineComponentWithRef = React.forwardRef(
+    function HeadlineComponentWithRef(props, ref) {
+      return React.createElement(headlineComponent, { ...props, ref });
+    }
+  );
+
   const title = (
     <Typography
-      component={headlineComponent}
+      component={headlineComponentWithRef}
       variant="h2"
       className={classes.title}
       noWrap={nameOnly}
@@ -102,7 +113,7 @@ export default function UserSummary({
     <div className={classes.root}>
       <ListItemAvatar>
         {!user ? (
-          <Skeleton variant="circle" className={avatarClassNames} />
+          <Skeleton variant="circular" className={avatarClassNames} />
         ) : (
           <Avatar
             user={user}

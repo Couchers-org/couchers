@@ -1,4 +1,10 @@
-import { Link as MuiLink, ThemeProvider, Typography } from "@material-ui/core";
+import {
+  Link as MuiLink,
+  StyledEngineProvider,
+  Theme,
+  ThemeProvider,
+  Typography,
+} from "@mui/material";
 import classNames from "classnames";
 import StyledLink from "components/StyledLink";
 import { DASHBOARD } from "i18n/namespaces";
@@ -9,6 +15,11 @@ import makeStyles from "utils/makeStyles";
 
 import CommunitiesDialog from "../CommunitiesDialog";
 import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
+
+declare module "@mui/styles/defaultTheme" {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
 
 const useStyles = makeStyles((theme) => ({
   linksContainer: {
@@ -57,37 +68,38 @@ export default function HeroLinks() {
   return (
     <>
       <div className={classes.linksContainer}>
-        <ThemeProvider theme={imageOverlayTheme}>
-          <Typography
-            color="textPrimary"
-            variant="body1"
-            className={classNames(
-              classes.tabAppearance,
-              classes.selectedTabAppearance
-            )}
-          >
-            {t("find_a_host")}
-          </Typography>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider theme={imageOverlayTheme}>
+            <Typography
+              color="textPrimary"
+              variant="body1"
+              className={classNames(
+                classes.tabAppearance,
+                classes.selectedTabAppearance
+              )}
+            >
+              {t("find_a_host")}
+            </Typography>
 
-          <StyledLink
-            underline="none"
-            href={routeToEditProfile("home")}
-            className={classes.tabAppearance}
-          >
-            {t("become_a_host")}
-          </StyledLink>
+            <StyledLink
+              underline="none"
+              href={routeToEditProfile("home")}
+              className={classes.tabAppearance}
+            >
+              {t("become_a_host")}
+            </StyledLink>
 
-          <MuiLink
-            underline="none"
-            component="button"
-            className={classes.tabAppearance}
-            onClick={() => setCommunitiesDialogOpen(true)}
-          >
-            {t("browse_communities")}
-          </MuiLink>
-        </ThemeProvider>
+            <MuiLink
+              underline="none"
+              component="button"
+              className={classes.tabAppearance}
+              onClick={() => setCommunitiesDialogOpen(true)}
+            >
+              {t("browse_communities")}
+            </MuiLink>
+          </ThemeProvider>
+        </StyledEngineProvider>
       </div>
-
       <CommunitiesDialog
         isOpen={communitiesDialogOpen}
         onClose={() => setCommunitiesDialogOpen(false)}

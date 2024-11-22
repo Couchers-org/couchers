@@ -5,7 +5,7 @@ import {
   Theme,
   Tooltip,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Pill from "components/Pill";
 import { useTranslation } from "i18n";
@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: "flex",
     width: "100%",
     height: theme.spacing(20),
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       height: "auto",
     },
   },
@@ -70,7 +70,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   tags: {
     minWidth: theme.spacing(15),
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       minWidth: theme.spacing(10),
     },
   },

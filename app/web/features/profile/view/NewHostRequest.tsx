@@ -6,23 +6,25 @@ import {
   Radio,
   RadioGroup,
   Select,
+  Skeleton,
   Typography,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { Skeleton } from "@material-ui/lab";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import Datepicker from "components/Datepicker";
+import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import dayjs from "dayjs";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
+import { howToWriteRequestGuideUrl } from "routes";
 import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
 import { isSameOrFutureDate } from "utils/date";
@@ -41,6 +43,10 @@ const useStyles = makeStyles((theme) => ({
   title: {
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
+  },
+  helpText: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
   },
   request: {
     display: "flex",
@@ -220,6 +226,7 @@ export default function NewHostRequest({
                     {t("profile:request_form.guest_count")}
                   </InputLabel>
                   <Select
+                    variant="standard"
                     name="visitorCount"
                     value={numVisitors}
                     onChange={(event) =>
@@ -232,6 +239,14 @@ export default function NewHostRequest({
               )}
             </div>
           </div>
+          <Typography variant="body1" className={classes.helpText}>
+            <Trans i18nKey="profile:request_form.guide_link_help_text">
+              <StyledLink variant="body1" href={howToWriteRequestGuideUrl}>
+                Read our guide
+              </StyledLink>{" "}
+              on how to write a request that will get accepted.
+            </Trans>
+          </Typography>
           <TextField
             id="text"
             className={classes.requestField}
@@ -243,6 +258,7 @@ export default function NewHostRequest({
             placeholder={t("profile:request_form.request_description")}
             error={!!errors.text}
             helperText={errors.text?.message || ""}
+            InputLabelProps={{ shrink: true }}
             inputRef={register({
               required: t("profile:request_form.request_description_empty"),
             })}

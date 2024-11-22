@@ -1,5 +1,5 @@
-import ReplayIcon from "@material-ui/icons/Replay";
-import TuneIcon from "@material-ui/icons/Tune";
+import ReplayIcon from "@mui/icons-material/Replay";
+import TuneIcon from "@mui/icons-material/Tune";
 import Button from "components/Button";
 import Map from "components/Map";
 import {

@@ -1,5 +1,5 @@
-import { Card, CardActions, Tooltip, Typography } from "@material-ui/core";
-import { VerifiedUser } from "@material-ui/icons";
+import { VerifiedUser } from "@mui/icons-material";
+import { Card, CardActions, Tooltip, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
     flexShrink: 0,
     borderRadius: theme.shape.borderRadius * 2,
     padding: theme.spacing(3),
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       marginBottom: theme.spacing(1),
       width: "100%",
     },

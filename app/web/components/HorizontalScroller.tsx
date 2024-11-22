@@ -1,5 +1,5 @@
-import { useMediaQuery, useTheme } from "@material-ui/core";
-import { Breakpoint } from "@material-ui/core/styles/createBreakpoints";
+import { useMediaQuery, useTheme } from "@mui/material";
+import { Breakpoint } from "@mui/material/styles";
 import classNames from "classnames";
 import React, { ReactNode } from "react";
 import makeStyles from "utils/makeStyles";

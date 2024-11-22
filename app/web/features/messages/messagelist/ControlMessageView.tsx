@@ -1,5 +1,5 @@
-import { makeStyles } from "@material-ui/core/styles";
-import { Skeleton } from "@material-ui/lab";
+import { Skeleton } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import classNames from "classnames";
 import TextBody from "components/TextBody";
 import { useLiteUser } from "features/userQueries/useLiteUsers";

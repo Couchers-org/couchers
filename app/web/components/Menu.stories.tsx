@@ -1,4 +1,4 @@
-import { Button } from "@material-ui/core";
+import { Button } from "@mui/material";
 import { Meta, Story } from "@storybook/react";
 import * as React from "react";
 
@@ -11,10 +11,10 @@ export default {
 
 const Template: Story<any> = (args) => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const menuAnchor = React.useRef<HTMLAnchorElement>(null);
+  const menuAnchor = React.useRef<HTMLButtonElement>(null);
   return (
     <>
-      <Button onClick={() => setIsOpen(true)} innerRef={menuAnchor}>
+      <Button onClick={() => setIsOpen(true)} ref={menuAnchor}>
         Open Menu
       </Button>
       <Menu

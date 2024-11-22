@@ -4,7 +4,7 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-} from "@material-ui/core";
+} from "@mui/material";
 import { supportEmail } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   startIcon: {
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       margin: 0,
     },
   },
@@ -78,7 +78,7 @@ export default function ReportButton({
 }) {
   const { t } = useTranslation("global");
   const theme = useTheme();
-  const isBelowMd = useMediaQuery(theme.breakpoints.down("sm"));
+  const isBelowMd = useMediaQuery(theme.breakpoints.down("md"));
 
   const classes = useStyles();
   const [isOpen, setIsOpen] = useState(false);
@@ -170,13 +170,17 @@ export default function ReportButton({
           <>
             <DialogContent>
               <Button
-                onClick={() => setType("bug")}
+                onClick={() => {
+                  setType("bug");
+                }}
                 className={classes.typeButton}
               >
                 {t("report.bug.button_label")}
               </Button>
               <Button
-                onClick={() => setType("content")}
+                onClick={() => {
+                  setType("content");
+                }}
                 className={classes.typeButton}
               >
                 {t("report.content.button_label")}
@@ -186,6 +190,15 @@ export default function ReportButton({
               <Button
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
+                sx={{
+                  color: theme.palette.common.black,
+                  borderColor: theme.palette.grey[300],
+
+                  "&:hover": {
+                    borderColor: theme.palette.grey[300],
+                    backgroundColor: "#3135390A",
+                  },
+                }}
               >
                 {t("cancel")}
               </Button>
@@ -197,12 +210,23 @@ export default function ReportButton({
               <Typography variant="body1" paragraph>
                 {t("report.content.dialog_message")}
               </Typography>
-              <Link href={`mailto:${supportEmail}`}>{supportEmail}</Link>
+              <Link href={`mailto:${supportEmail}`} underline="hover">
+                {supportEmail}
+              </Link>
             </DialogContent>
             <DialogActions>
               <Button
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
+                sx={{
+                  color: theme.palette.common.black,
+                  borderColor: theme.palette.grey[300],
+
+                  "&:hover": {
+                    borderColor: theme.palette.grey[300],
+                    backgroundColor: "#3135390A",
+                  },
+                }}
               >
                 {t("cancel")}
               </Button>
@@ -257,6 +281,15 @@ export default function ReportButton({
               <Button
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
+                sx={{
+                  color: theme.palette.common.black,
+                  borderColor: theme.palette.grey[300],
+
+                  "&:hover": {
+                    borderColor: theme.palette.grey[300],
+                    backgroundColor: "#3135390A",
+                  },
+                }}
               >
                 {t("cancel")}
               </Button>

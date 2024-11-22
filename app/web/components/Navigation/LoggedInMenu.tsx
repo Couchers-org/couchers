@@ -1,10 +1,10 @@
-import { Button } from "@material-ui/core";
-import { grey } from "@material-ui/core/colors";
+import { Button } from "@mui/material";
 import Avatar from "components/Avatar";
 import { MenuIcon } from "components/Icons";
 import Menu from "components/Menu";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import React, { Dispatch, ReactNode, SetStateAction } from "react";
+import { theme } from "theme";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -19,14 +19,14 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    border: `1px solid ${grey[300]}`,
+    border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: 999,
-    backgroundColor: grey[200],
+    backgroundColor: theme.palette.grey[200],
     padding: theme.spacing(1),
     transition: `${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
     "&:hover": {
       opacity: 0.8,
-      backgroundColor: grey[300],
+      backgroundColor: theme.palette.grey[300],
     },
   },
   avatar: {
@@ -58,7 +58,7 @@ export default function LoggedInMenu({
         onClick={() => setMenuOpen((prevMenuOpen: boolean) => !prevMenuOpen)}
         ref={menuRef}
       >
-        <MenuIcon />
+        <MenuIcon sx={{ color: theme.palette.text.primary }} />
         <Avatar user={user} className={classes.avatar} isProfileLink={false} />
       </Button>
       <Menu
@@ -73,7 +73,6 @@ export default function LoggedInMenu({
           vertical: "bottom",
           horizontal: "right",
         }}
-        getContentAnchorEl={null}
         PopoverClasses={{
           root: classes.menuPopover,
         }}

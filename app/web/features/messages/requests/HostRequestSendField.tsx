@@ -1,12 +1,14 @@
+import { Typography } from "@mui/material";
 import Button from "components/Button";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
+import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useSendFieldStyles from "features/messages/useSendFieldStyles";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
 import { HostRequestStatus } from "proto/conversations_pb";
@@ -15,7 +17,12 @@ import { HostRequest, RespondHostRequestReq } from "proto/requests_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
-import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
+import {
+  howToRespondRequestGuideUrl,
+  howToWriteRequestGuideUrl,
+  leaveReferenceBaseRoute,
+  referenceTypeRoute,
+} from "routes";
 
 interface MessageFormData {
   text: string;
@@ -129,8 +136,40 @@ export default function HostRequestSendField({
     }
   };
 
+  const isHostPending =
+    isHost &&
+    hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_PENDING;
+
+  const isSurferRejected =
+    !isHost &&
+    hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
+
   return (
     <form onSubmit={onSubmit}>
+      {isHostPending && (
+        <div className={classes.helpTextContainer}>
+          <Typography variant="body1">
+            <Trans i18nKey="messages:host_pending_request_help_text">
+              <StyledLink variant="body1" href={howToRespondRequestGuideUrl}>
+                Things to consider
+              </StyledLink>{" "}
+              before responding.
+            </Trans>
+          </Typography>
+        </div>
+      )}
+      {isSurferRejected && (
+        <div className={classes.helpTextContainer}>
+          <Typography variant="body1">
+            <Trans i18nKey="messages:surfer_declined_request_help_text">
+              <StyledLink variant="body1" href={howToWriteRequestGuideUrl}>
+                Read our guide
+              </StyledLink>{" "}
+              on how to write a request that will get accepted.
+            </Trans>
+          </Typography>
+        </div>
+      )}
       <div className={classes.buttonContainer}>
         {isHost ? (
           <>

@@ -1,6 +1,6 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import classNames from "classnames";
 import { NO_MAP_SUPPORT } from "components/constants";
 import {

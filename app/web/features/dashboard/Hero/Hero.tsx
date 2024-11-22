@@ -1,8 +1,7 @@
-import { Container } from "@material-ui/core";
+import { Container, styled } from "@mui/material";
 import { DASHBOARD } from "i18n/namespaces";
 import Image from "next/image";
 import { useTranslation } from "next-i18next";
-import makeStyles from "utils/makeStyles";
 
 import HeroButton from "./HeroButton";
 import HeroImageAttribution from "./HeroImageAttribution";
@@ -11,33 +10,32 @@ import HeroSearch from "./HeroSearch";
 // Photo by Mesut Kaya on Unsplash - https://unsplash.com/photos/eOcyhe5-9sQ
 import heroImage from "./mesut-kaya-eOcyhe5-9sQ-unsplash.jpeg";
 
-const useStyles = makeStyles((theme) => ({
-  outerContainer: {
-    position: "relative",
+const StyledContainer = styled(Container)(({ theme }) => ({
+  zIndex: 1,
+  position: "relative",
+  display: "flex",
+  flexDirection: "column",
+  padding: theme.spacing(2, 2),
+
+  [theme.breakpoints.up("sm")]: {
+    padding: theme.spacing(4, 2),
   },
-  contentContainer: {
-    zIndex: 1,
-    position: "relative",
-    display: "flex",
-    flexDirection: "column",
-    padding: theme.spacing(2, 2),
-    [theme.breakpoints.up("sm")]: {
-      padding: theme.spacing(4, 2),
-    },
-  },
+}));
+
+const StyledOuterContainer = styled("div")(({ theme }) => ({
+  position: "relative",
 }));
 
 export default function Hero() {
   const { t } = useTranslation(DASHBOARD);
-  const classes = useStyles();
 
   return (
-    <div className={classes.outerContainer}>
-      <Container maxWidth="md" className={classes.contentContainer}>
+    <StyledOuterContainer>
+      <StyledContainer maxWidth="md">
         <HeroLinks />
         <HeroSearch />
         <HeroButton />
-      </Container>
+      </StyledContainer>
 
       <HeroImageAttribution />
 
@@ -49,6 +47,6 @@ export default function Hero() {
         objectPosition="50% 50%"
         alt={t("hero_image_alt")}
       />
-    </div>
+    </StyledOuterContainer>
   );
 }

@@ -2,11 +2,13 @@ import {
   Breadcrumbs,
   Container,
   Link,
-  makeStyles,
+  styled,
   Typography,
-} from "@material-ui/core";
+  TypographyProps,
+} from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import markdown from "markdown-it";
+import { theme } from "theme";
 
 const mkd = new markdown();
 
@@ -27,80 +29,79 @@ export interface MarkdownPageProps {
   content: string;
 }
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    marginTop: theme.spacing(3),
+const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }) => ({
+  marginTop: theme.spacing(3),
+  marginBottom: theme.spacing(3),
+
+  "& a": {
+    color: theme.palette.primary.main,
   },
-  markdown: {
-    fontSize: theme.typography.fontSize,
-    fontFamily: theme.typography.fontFamily,
-    "& h1, & h2, & h3, & h4, & h5, & h6, & p": {
-      borderBottom: "none",
-      paddingBottom: 0,
-      marginBottom: 0,
-      marginTop: theme.spacing(2),
-      overflowWrap: "break-word",
-      whiteSpace: "pre-wrap",
-    },
-    "& h1": { ...theme.typography.h1, fontSize: "2.5rem", lineHeight: "1.125" },
-    "& h2": { ...theme.typography.h2, fontSize: "1.75em !important" },
-    "& h3": { ...theme.typography.h3, fontSize: "1.5em !important" },
-    "& h4": theme.typography.h4,
-    "& h5": theme.typography.h5,
-    "& h6": theme.typography.h6,
-    "& p": theme.typography.body1,
-    "& ol": theme.typography.body1,
-    "& ul": theme.typography.body1,
-    "& blockquote": theme.typography.body1,
-    "& a": {
-      color: theme.palette.primary.main,
-    },
-    "& img": {
-      width: "100%",
-      maxWidth: "400px",
-      height: "auto",
-    },
-    "& .tag": {
-      color: "#fff",
-      borderRadius: "4px",
-      display: "inline-block",
-      fontSize: "0.75rem",
-      padding: "0.3rem 0.75rem",
-    },
-    "& .tag-large": {
-      fontSize: "1.25rem",
-    },
-    "& .tag-governance": {
-      backgroundColor: "#82bb42",
-    },
-    "& .tag-design": {
-      backgroundColor: "#3da4ab",
-    },
-    "& .tag-tech": {
-      backgroundColor: "#f46d50",
-    },
+}));
+
+const StyledBusTitle = styled(Typography)<TypographyProps>(({ theme }) => ({
+  marginTop: theme.spacing(3),
+  "& > *": {
+    fontSize: "1.5rem",
+    fontWeight: "bold",
   },
-  crumbs: {
-    marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(3),
-    "& a": {
-      color: theme.palette.primary.main,
-    },
+  "& a": {
+    color: theme.palette.primary.main,
   },
-  title: {
-    fontSize: "2.5rem",
-    lineHeight: "1.125",
+}));
+
+const StyledMarkdown = styled("div")(({ theme }) => ({
+  fontSize: theme.typography.fontSize,
+  fontFamily: theme.typography.fontFamily,
+  "& h1, & h2, & h3, & h4, & h5, & h6, & p": {
+    borderBottom: "none",
+    paddingBottom: 0,
+    marginBottom: 0,
+    marginTop: theme.spacing(2),
+    overflowWrap: "break-word",
+    whiteSpace: "pre-wrap",
   },
-  bustitle: {
-    marginTop: theme.spacing(3),
-    "& > *": {
-      fontSize: "1.5rem",
-      fontWeight: "bold",
-    },
-    "& a": {
-      color: theme.palette.primary.main,
-    },
+  "& h1": { ...theme.typography.h1, fontSize: "2.5rem", lineHeight: "1.125" },
+  "& h2": { ...theme.typography.h2, fontSize: "1.75em !important" },
+  "& h3": { ...theme.typography.h3, fontSize: "1.5em !important" },
+  "& h4": theme.typography.h4,
+  "& h5": theme.typography.h5,
+  "& h6": theme.typography.h6,
+  "& p": theme.typography.body1,
+  "& ol": theme.typography.body1,
+  "& ul": theme.typography.body1,
+  "& blockquote": theme.typography.body1,
+  "& a": {
+    color: theme.palette.primary.main,
   },
+  "& img": {
+    width: "100%",
+    maxWidth: "400px",
+    height: "auto",
+  },
+  "& .tag": {
+    color: "#fff",
+    borderRadius: "4px",
+    display: "inline-block",
+    fontSize: "0.75rem",
+    padding: "0.3rem 0.75rem",
+  },
+  "& .tag-large": {
+    fontSize: "1.25rem",
+  },
+  "& .tag-governance": {
+    backgroundColor: "#82bb42",
+  },
+  "& .tag-design": {
+    backgroundColor: "#3da4ab",
+  },
+  "& .tag-tech": {
+    backgroundColor: "#f46d50",
+  },
+}));
+
+const StyledTitle = styled(Typography)(({ theme }) => ({
+  fontSize: "2.5rem",
+  lineHeight: "1.125",
 }));
 
 function createBreadcrumbs({
@@ -147,8 +148,6 @@ export default function MarkdownPage({
   frontmatter,
   content,
 }: MarkdownPageProps) {
-  const classes = useStyles();
-
   const subtitle = !!frontmatter.subtitle
     ? mkd.renderInline(frontmatter.subtitle)
     : null;
@@ -165,8 +164,12 @@ export default function MarkdownPage({
         description={frontmatter.description}
         shareImage={frontmatter.share_image}
       />
-      <Container maxWidth="md" className={classes.root}>
-        <Breadcrumbs aria-label="breadcrumb" className={classes.crumbs}>
+      <Container
+        disableGutters
+        maxWidth="md"
+        sx={{ marginTop: theme.spacing(3) }}
+      >
+        <StyledBreadcrumbs aria-label="breadcrumb">
           {crumbs.map((crumb) => (
             <Link
               key={crumb.key}
@@ -177,23 +180,20 @@ export default function MarkdownPage({
               {crumb.value}
             </Link>
           ))}
-        </Breadcrumbs>
-        <Typography variant="h1" className={classes.title}>
-          {frontmatter.title}
-        </Typography>
+        </StyledBreadcrumbs>
+        <StyledTitle>{frontmatter.title}</StyledTitle>
         {subtitle && (
           <Typography component="h2">
             <div dangerouslySetInnerHTML={{ __html: subtitle }}></div>
           </Typography>
         )}
-        <div
-          className={classes.markdown}
+        <StyledMarkdown
           dangerouslySetInnerHTML={{ __html: content }}
-        ></div>
+        ></StyledMarkdown>
         {bustitle && (
-          <Typography className={classes.bustitle} component="h2">
+          <StyledBusTitle component="h2">
             <div dangerouslySetInnerHTML={{ __html: bustitle }}></div>
-          </Typography>
+          </StyledBusTitle>
         )}
       </Container>
     </>

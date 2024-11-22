@@ -1,4 +1,4 @@
-import { BoxProps, Slider, Typography, useTheme } from "@material-ui/core";
+import { BoxProps, Slider, Typography, useTheme } from "@mui/material";
 import { userLocationMaxRadius, userLocationMinRadius } from "appConstants";
 import classNames from "classnames";
 import Map from "components/Map";

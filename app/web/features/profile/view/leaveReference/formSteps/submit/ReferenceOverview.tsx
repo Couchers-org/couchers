@@ -1,4 +1,10 @@
-import { Card, CardContent, Hidden, Link, Typography } from "@material-ui/core";
+import {
+  Card,
+  CardContent,
+  Link,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import SliderLabel from "components/RatingsSlider/SliderLabel";
 import TextBody from "components/TextBody";
 import UserSummary from "components/UserSummary";
@@ -10,6 +16,7 @@ import {
 } from "features/profile/view/leaveReference/ReferenceForm";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
+import { theme } from "theme";
 
 export default function ReferenceOverview({
   referenceData,
@@ -19,18 +26,21 @@ export default function ReferenceOverview({
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const classes = useReferenceStyles();
   const user = useProfileUser();
+  const isAboveMedium = useMediaQuery(theme.breakpoints.up("md"));
 
   return (
     <>
       <TextBody className={classes.text}>
         {t("profile:leave_reference.thank_you_message")}
       </TextBody>
-      <Hidden mdUp>
-        <TextBody className={classes.text}>
-          {t("profile:leave_reference.writing_for_text")}
-        </TextBody>
-        <UserSummary user={user} />
-      </Hidden>
+      {!isAboveMedium && (
+        <>
+          <TextBody className={classes.text}>
+            {t("profile:leave_reference.writing_for_text")}
+          </TextBody>
+          <UserSummary user={user} />
+        </>
+      )}
       <Typography variant="h3" className={classes.text}>
         {t("profile:leave_reference.public_text_label")}
       </Typography>
@@ -63,7 +73,7 @@ export default function ReferenceOverview({
         <Trans t={t} i18nKey="profile:leave_reference.contact_text">
           If you have any questions or wish to provide additional information,
           please don't hesitate to
-          <Link href={contactLink} target="_blank">
+          <Link href={contactLink} target="_blank" underline="hover">
             contact us here.
           </Link>
         </Trans>

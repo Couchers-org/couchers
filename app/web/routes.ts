@@ -44,8 +44,8 @@ export const userTabs = [
   "photos",
 ] as const;
 export const editUserTabs = ["about", "home"] as const;
-export type UserTab = typeof userTabs[number];
-export type EditUserTab = typeof editUserTabs[number];
+export type UserTab = (typeof userTabs)[number];
+export type EditUserTab = (typeof editUserTabs)[number];
 
 const profileBaseRoute = "/profile";
 export function routeToProfile(tab?: UserTab) {
@@ -65,7 +65,7 @@ export function routeToUser(username: string, tab?: UserTab) {
 
 export const messagesRoute = "/messages";
 export const messageTypeStrings = ["chats", "hosting", "surfing"] as const;
-export type MessageType = typeof messageTypeStrings[number];
+export type MessageType = (typeof messageTypeStrings)[number];
 export const groupChatsRoute = `${messagesRoute}/chats`;
 export const routeToCreateMessage = (username: string) =>
   `${groupChatsRoute}?to=${username}`;
@@ -88,7 +88,7 @@ export const referenceTypeRouteStrings = [
   "hosted",
 ] as const;
 export type ReferenceTypeRouteStrings =
-  typeof referenceTypeRouteStrings[number];
+  (typeof referenceTypeRouteStrings)[number];
 export const referenceTypeRoute: Record<
   ReferenceType,
   ReferenceTypeRouteStrings
@@ -103,7 +103,7 @@ export const referenceStepStrings = [
   "reference",
   "submit",
 ] as const;
-export type ReferenceStep = typeof referenceStepStrings[number];
+export type ReferenceStep = (typeof referenceStepStrings)[number];
 
 export const eventsRoute = "/events";
 export const logoutRoute = "/logout";
@@ -151,7 +151,7 @@ export const communityTabs = [
   "discussions",
   "events",
 ] as const;
-export type CommunityTab = typeof communityTabs[number];
+export type CommunityTab = (typeof communityTabs)[number];
 
 export const routeToCommunity = (
   id: number,
@@ -168,3 +168,16 @@ export const strongVerificationURL = `${process.env.NEXT_PUBLIC_CONSOLE_BASE_URL
 export function adminPanelUserLink(username: string) {
   return `${process.env.NEXT_PUBLIC_CONSOLE_BASE_URL}/admin/user/${username}`;
 }
+
+export const howToRespondRequestGuideUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125658-what-are-some-things-i-should-think-about-before-responding-to-a-request";
+export const howToWriteRequestGuideUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1725943310-quick-reference-writing-great-requests";
+export const howToDonateUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125658-how-do-i-donate-money-to-couchers-org";
+export const howToCompleteProfileUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1725919152-why-do-i-need-to-complete-my-profile-to-use-some-features";
+export const howToInviteCommunityUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1720304409-how-does-the-invite-the-community-feature-work";
+export const howToMakeGreatProfileUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1725919197-how-do-i-create-a-great-profile";

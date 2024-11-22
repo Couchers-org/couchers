@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import LocationAutocomplete from "components/LocationAutocomplete";
 import { DASHBOARD } from "i18n/namespaces";
 import { useRouter } from "next/router";

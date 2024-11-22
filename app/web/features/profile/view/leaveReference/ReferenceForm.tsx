@@ -1,4 +1,4 @@
-import { Alert } from "@material-ui/lab";
+import { Alert } from "@mui/material";
 import Redirect from "components/Redirect";
 import Appropriate from "features/profile/view/leaveReference/formSteps/Appropriate";
 import Rating from "features/profile/view/leaveReference/formSteps/Rating";

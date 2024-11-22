@@ -1,4 +1,4 @@
-import { CircularProgress, Typography } from "@material-ui/core";
+import { CircularProgress, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { useTranslation } from "i18n";
@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     marginBlockStart: theme.spacing(2),
     marginBlockEnd: theme.spacing(6),
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       //break out of page padding
       left: "50%",
       marginLeft: "-50vw",

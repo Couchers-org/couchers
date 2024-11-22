@@ -1,5 +1,5 @@
-import { TextField as MuiTextField, TextFieldProps } from "@material-ui/core";
-import { BaseTextFieldProps } from "@material-ui/core/TextField";
+import { TextField as MuiTextField, TextFieldProps } from "@mui/material";
+import { BaseTextFieldProps } from "@mui/material/TextField";
 import classNames from "classnames";
 import React from "react";
 import makeStyles from "utils/makeStyles";

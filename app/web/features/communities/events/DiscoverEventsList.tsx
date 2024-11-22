@@ -1,10 +1,10 @@
 import {
   CircularProgress,
+  Pagination,
   Typography,
   useMediaQuery,
   useTheme,
-} from "@material-ui/core";
-import { Pagination } from "@material-ui/lab";
+} from "@mui/material";
 import Alert from "components/Alert";
 import LocationAutocomplete from "components/LocationAutocomplete";
 import TextBody from "components/TextBody";
@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "space-between",
     width: "100%",
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       flexDirection: "column",
     },
   },
@@ -90,7 +90,7 @@ const DiscoverEventsList = () => {
   });
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const pageSize = 12;
 
   const [pageNumber, setPageNumber] = useState(1);

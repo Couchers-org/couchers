@@ -1,4 +1,5 @@
-import { Hidden, makeStyles, Paper } from "@material-ui/core";
+import { Paper, useMediaQuery } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
@@ -11,6 +12,7 @@ import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { Dispatch, SetStateAction } from "react";
 import { InfiniteData } from "react-query";
+import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
 import SearchBox from "./SearchBox";
@@ -31,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
   },
   scroller: {
     marginTop: theme.spacing(3),
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       marginTop: 0,
     },
   },
@@ -52,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
     "& .MuiCardContent-root": {
       padding: theme.spacing(3),
     },
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       padding: 0,
       overflow: "hidden",
       flexShrink: 0,
@@ -112,6 +114,8 @@ export default function SearchResultsList({
   const selectedUserData = useUser(selectedResult?.userId);
   const { t } = useTranslation(SEARCH);
   const classes = useStyles();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const hasAtLeastOnePageResults =
     results && results?.pages[0]?.resultsList?.length !== 0;
 
@@ -131,8 +135,7 @@ export default function SearchResultsList({
   return (
     <Paper className={classes.mapResults}>
       {error && <Alert severity="error">{error}</Alert>}
-
-      <Hidden smDown>
+      {!isMobile && (
         <SearchBox
           searchType={searchType}
           setSearchType={setSearchType}
@@ -141,8 +144,7 @@ export default function SearchResultsList({
           setQueryName={setQueryName}
           queryName={queryName}
         />
-      </Hidden>
-
+      )}
       <>
         {isLoading ||
           (selectedUserData.isLoading && (

@@ -1,4 +1,8 @@
-import { ThemeProvider } from "@material-ui/core/styles";
+import {
+  StyledEngineProvider,
+  Theme,
+  ThemeProvider,
+} from "@mui/material/styles";
 import { Meta, Story } from "@storybook/react";
 import { Event } from "proto/events_pb";
 import React from "react";
@@ -7,14 +11,21 @@ import { theme } from "theme";
 
 import LongEventCard from "./LongEventCard";
 
+declare module "@mui/styles/defaultTheme" {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
 export default {
   title: "Communities/Events/LongEventCard",
   component: LongEventCard,
   decorators: [
     (Story) => (
-      <ThemeProvider theme={theme}>
-        <Story />
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <Story />
+        </ThemeProvider>
+      </StyledEngineProvider>
     ),
   ],
 } as Meta;

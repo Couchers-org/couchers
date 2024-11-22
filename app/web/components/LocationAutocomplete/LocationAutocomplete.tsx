@@ -1,4 +1,4 @@
-import { AutocompleteChangeReason } from "@material-ui/lab";
+import { AutocompleteChangeReason } from "@mui/material";
 import Autocomplete from "components/Autocomplete";
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
@@ -25,22 +25,27 @@ interface LocationAutocompleteProps {
   disableRegions?: boolean;
 }
 
-export default function LocationAutocomplete({
-  className,
-  control,
-  defaultValue,
-  fieldError,
-  fullWidth,
-  label,
-  placeholder,
-  id = "location-autocomplete",
-  name,
-  variant = "standard",
-  onChange,
-  required,
-  showFullDisplayName = false,
-  disableRegions = false,
-}: LocationAutocompleteProps) {
+const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
+  props: LocationAutocompleteProps,
+  ref
+) {
+  const {
+    className,
+    control,
+    defaultValue,
+    fieldError,
+    fullWidth,
+    label,
+    placeholder,
+    id = "location-autocomplete",
+    name,
+    variant = "standard",
+    onChange,
+    required,
+    showFullDisplayName = false,
+    disableRegions = false,
+  } = props;
+
   const { t } = useTranslation(GLOBAL);
 
   const controller = useController({
@@ -89,8 +94,8 @@ export default function LocationAutocomplete({
     }
 
     if (typeof value === "string") {
-      //create-option is when enter is pressed on user-entered string
-      if (reason === "create-option") {
+      //createOption is when enter is pressed on user-entered string
+      if (reason === "createOption") {
         query(value);
         setIsOpen(true);
       }
@@ -104,7 +109,7 @@ export default function LocationAutocomplete({
     <Autocomplete
       className={className}
       id={id}
-      innerRef={controller.field.ref}
+      ref={ref}
       label={label}
       error={fieldError || geocodeError}
       fullWidth={fullWidth}
@@ -131,13 +136,13 @@ export default function LocationAutocomplete({
       onKeyDown={(e) => {
         if (e.key === "Enter") {
           e.preventDefault();
-          searchSubmit(controller.field.value, "create-option");
+          searchSubmit(controller.field.value, "createOption");
         }
       }}
       endAdornment={
         <IconButton
           aria-label={t("location_autocomplete.search_location_button")}
-          onClick={() => searchSubmit(controller.field.value, "create-option")}
+          onClick={() => searchSubmit(controller.field.value, "createOption")}
           size="small"
         >
           <SearchIcon />
@@ -148,7 +153,7 @@ export default function LocationAutocomplete({
       multiple={false}
     />
   );
-}
+});
 
 function geocodeResult2String(option: GeocodeResult | string, full: boolean) {
   if (typeof option === "string") {
@@ -159,3 +164,5 @@ function geocodeResult2String(option: GeocodeResult | string, full: boolean) {
   }
   return option.simplifiedName;
 }
+
+export default LocationAutocomplete;

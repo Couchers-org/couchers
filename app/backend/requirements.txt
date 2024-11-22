@@ -14,9 +14,9 @@ alembic==1.14.0
     # via -r requirements.in
 attrs==24.2.0
     # via aiohttp
-boto3==1.35.63
+boto3==1.35.66
     # via -r requirements.in
-botocore==1.35.63
+botocore==1.35.66
     # via
     #   boto3
     #   s3transfer
@@ -55,7 +55,7 @@ frozenlist==1.4.1
     #   aiosignal
 geoalchemy2==0.16.0
     # via -r requirements.in
-geoip2==4.8.0
+geoip2==4.8.1
     # via -r requirements.in
 googleapis-common-protos==1.64.0
     # via
@@ -172,7 +172,7 @@ protobuf==4.25.5
     #   opentelemetry-proto
 psycopg2-binary==2.9.10
     # via -r requirements.in
-py-vapid==1.9.1
+py-vapid==1.9.2
     # via -r requirements.in
 pycparser==2.22
     # via cffi
@@ -218,7 +218,7 @@ sqlalchemy==2.0.36
     #   sqlalchemy-utils
 sqlalchemy-utils==0.41.2
     # via -r requirements.in
-stripe==11.2.0
+stripe==11.3.0
     # via -r requirements.in
 typing-extensions==4.11.0
     # via

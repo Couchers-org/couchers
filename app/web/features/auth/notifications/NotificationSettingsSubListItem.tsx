@@ -1,11 +1,13 @@
+import { MailOutline } from "@mui/icons-material";
 import {
   List,
   ListItem,
   ListItemIcon,
+  ListItemProps,
   ListItemText,
+  styled,
   Typography,
-} from "@material-ui/core";
-import { MailOutline } from "@material-ui/icons";
+} from "@mui/material";
 import Alert from "components/Alert";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import { NotificationNewIcon } from "components/Icons";
@@ -14,7 +16,6 @@ import { useTranslation } from "next-i18next";
 import { useState } from "react";
 import { NotificationPreferenceData } from "service/notifications";
 import { theme } from "theme";
-import makeStyles from "utils/makeStyles";
 
 import useUpdateNotificationSettings from "./useUpdateNotificationSettings";
 
@@ -25,21 +26,23 @@ export interface NotificationSettingsSubListItemProps {
   push: boolean;
 }
 
-const useStyles = makeStyles((theme) => ({
-  descriptionText: {
-    fontSize: theme.spacing(1.8),
-    color: theme.palette.text.secondary,
+const StyledDescriptionText = styled(Typography)(({ theme }) => ({
+  fontSize: theme.spacing(1.8),
+  color: theme.palette.text.secondary,
+}));
+
+const StyledListItem = styled(ListItem)<ListItemProps>(({ theme }) => ({
+  display: "flex",
+  paddingLeft: theme.spacing(4),
+  width: "100%",
+  background: "transparent",
+  border: "none",
+
+  "&:hover": {
+    backgroundColor: "transparent",
   },
-  nested: {
-    display: "flex",
-    paddingLeft: theme.spacing(4),
-    width: "100%",
-    "&:hover": {
-      backgroundColor: "transparent",
-    },
-    "&:not(:first-child)": {
-      borderTop: `1px solid ${theme.palette.divider}`,
-    },
+  "&:not(:first-of-type)": {
+    borderTop: `1px solid ${theme.palette.divider}`,
   },
 }));
 
@@ -49,7 +52,6 @@ export default function NotificationSettingsSubListItem({
   email,
   push,
 }: NotificationSettingsSubListItemProps) {
-  const classes = useStyles();
   const { t } = useTranslation([AUTH, GLOBAL], {
     keyPrefix: "notification_settings.edit_preferences.item_descriptions",
   });
@@ -117,39 +119,39 @@ export default function NotificationSettingsSubListItem({
           {mutationError || t("global:error.unknown")}
         </Alert>
       )}
-      <Typography className={classes.descriptionText}>
+      <StyledDescriptionText>
         {t(
           //@ts-ignore - I spent hours on this type with no luck
           `${topic}.${action}`
         )}
-      </Typography>
+      </StyledDescriptionText>
       <List component="div" disablePadding>
-        <ListItem button className={classes.nested}>
+        <StyledListItem component="button">
           <ListItemIcon>
             <NotificationNewIcon fontSize="medium" />
           </ListItemIcon>
           <ListItemText primary="Push" />
           <CustomColorSwitch
-            color={theme.palette.primary.main}
+            customColor={theme.palette.primary.main}
             checked={push}
             isLoading={isPushLoading}
             onClick={handlePushSwitchClick}
             status={status}
           />
-        </ListItem>
-        <ListItem button className={classes.nested}>
+        </StyledListItem>
+        <StyledListItem component="button">
           <ListItemIcon>
             <MailOutline fontSize="medium" />
           </ListItemIcon>
           <ListItemText primary="Email" />
           <CustomColorSwitch
-            color={theme.palette.primary.main}
+            customColor={theme.palette.primary.main}
             checked={email}
             isLoading={isEmailLoading}
             onClick={handleEmailSwitchClick}
             status={status}
           />
-        </ListItem>
+        </StyledListItem>
       </List>
     </>
   );

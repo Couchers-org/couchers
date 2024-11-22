@@ -1,4 +1,4 @@
-import { Card } from "@material-ui/core";
+import { Card } from "@mui/material";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import NewComment from "components/Comments/NewComment";

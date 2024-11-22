@@ -1,5 +1,4 @@
-import { CircularProgress, Typography } from "@material-ui/core";
-import { Pagination } from "@material-ui/lab";
+import { CircularProgress, Pagination, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import TextBody from "components/TextBody";
 import { EventsType } from "features/queryKeys";

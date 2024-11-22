@@ -4,7 +4,7 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-} from "@material-ui/core";
+} from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
 import { AttendeesIcon, CalendarIcon } from "components/Icons";
 import { useTranslation } from "i18n";
@@ -90,7 +90,7 @@ export default function CommunityLongEventCard({
     eventImageSrc: event.photoUrl || eventImagePlaceholderUrl,
   });
   const theme = useTheme();
-  const isBelowLg = useMediaQuery(theme.breakpoints.down("md"));
+  const isBelowLg = useMediaQuery(theme.breakpoints.down("lg"));
 
   const truncatedContent = useMemo(
     () =>

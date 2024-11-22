@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import MapUI from "components/Map";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useEffect } from "react";
+import wrapper from "test/hookWrapper";
 import { server } from "test/restMock";
 import { t } from "test/utils";
 
@@ -67,7 +68,8 @@ describe("Edit location map", () => {
             radius: 100,
           }}
           updateLocation={jest.fn()}
-        />
+        />,
+        { wrapper }
       );
       await waitFor(() =>
         expect(
@@ -88,7 +90,8 @@ describe("Edit location map", () => {
             radius: 100,
           }}
           updateLocation={jest.fn()}
-        />
+        />,
+        { wrapper }
       );
       await waitFor(() =>
         expect(
@@ -110,7 +113,8 @@ describe("Edit location map", () => {
             radius: 100,
           }}
           updateLocation={updateLocation}
-        />
+        />,
+        { wrapper }
       );
 
       userEvent.type(

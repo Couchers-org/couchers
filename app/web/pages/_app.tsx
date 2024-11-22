@@ -1,7 +1,11 @@
 import "intersection-observer";
 import "fonts";
 
-import { CssBaseline, ThemeProvider } from "@material-ui/core";
+import {
+  CssBaseline,
+  StyledEngineProvider,
+  ThemeProvider,
+} from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { EnvironmentBanner } from "components/EnvironmentBanner";
@@ -13,7 +17,7 @@ import type { AppProps } from "next/app";
 import { appWithTranslation } from "next-i18next";
 import nextI18nextConfig from "next-i18next.config";
 import Sentry from "platform/sentry";
-import { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect } from "react";
 import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
 import { theme } from "theme";
@@ -47,20 +51,22 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
   }, []);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <ThemeProvider theme={theme}>
-        <ErrorBoundary isFatal>
-          <ReactQueryClientProvider>
-            <AuthProvider>
-              <CssBaseline />
-              <EnvironmentBanner />
-              <HtmlMeta />
-              {getLayout(<Component {...pageProps} />)}
-            </AuthProvider>
-          </ReactQueryClientProvider>
-        </ErrorBoundary>
-      </ThemeProvider>
-    </LocalizationProvider>
+    <StyledEngineProvider injectFirst>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <ThemeProvider theme={theme}>
+          <ErrorBoundary isFatal>
+            <ReactQueryClientProvider>
+              <AuthProvider>
+                <CssBaseline />
+                <EnvironmentBanner />
+                <HtmlMeta />
+                {getLayout(<Component {...pageProps} />)}
+              </AuthProvider>
+            </ReactQueryClientProvider>
+          </ErrorBoundary>
+        </ThemeProvider>
+      </LocalizationProvider>
+    </StyledEngineProvider>
   );
 }
 

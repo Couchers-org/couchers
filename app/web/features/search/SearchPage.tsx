@@ -1,4 +1,5 @@
-import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
+import { Collapse, useMediaQuery, useTheme } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import HtmlMeta from "components/HtmlMeta";
 import { Coordinates } from "features/search/constants";
 import { useTranslation } from "i18n";
@@ -77,6 +78,7 @@ export default function SearchPage({
   const classes = useStyles();
   const theme = useTheme();
   const map = useRef<MaplibreMap>();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   // State
   const [wasSearchPerformed, setWasSearchPerformed] = useState(false);
@@ -173,7 +175,7 @@ export default function SearchPage({
       <HtmlMeta title={t("global:nav.map_search")} />
       <div className={classes.container}>
         {/* Desktop */}
-        <Hidden smDown>
+        {!isMobile && (
           <SearchResultsList
             searchType={searchType}
             setSearchType={setSearchType}
@@ -188,9 +190,9 @@ export default function SearchPage({
             setSelectedResult={setSelectedResult}
             isLoading={isLoading || isFetching}
           />
-        </Hidden>
+        )}
         {/* Mobile */}
-        <Hidden mdUp>
+        {isMobile && (
           <Collapse
             in={!!selectedResult}
             timeout={theme.transitions.duration.standard}
@@ -211,7 +213,7 @@ export default function SearchPage({
               isLoading={isLoading || isFetching}
             />
           </Collapse>
-        </Hidden>
+        )}
         <FilterDialog
           isOpen={isFiltersOpen}
           queryName={queryName}

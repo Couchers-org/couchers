@@ -1,4 +1,4 @@
-import { CircularProgress } from "@material-ui/core";
+import { CircularProgress } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { CalendarIcon } from "components/Icons";
@@ -8,6 +8,7 @@ import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { routeToNewEvent } from "routes";
+import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
@@ -23,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
   eventsListContainer: {
     display: "grid",
     rowGap: theme.spacing(3),
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       //break out of page padding
       left: "50%",
       marginLeft: "-50vw",
@@ -77,7 +78,18 @@ export default function CommunityEventsList({
         )}
       </div>
       {hasNextPage && (
-        <Button onClick={() => fetchNextPage()}>
+        <Button
+          onClick={() => fetchNextPage()}
+          sx={{
+            color: theme.palette.common.black,
+            borderColor: theme.palette.grey[300],
+
+            "&:hover": {
+              borderColor: theme.palette.grey[300],
+              backgroundColor: "#3135390A",
+            },
+          }}
+        >
           {t("communities:see_more_events_label")}
         </Button>
       )}

@@ -1,4 +1,4 @@
-import { Checkbox, DialogProps, FormControlLabel } from "@material-ui/core";
+import { Checkbox, DialogProps, FormControlLabel } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {

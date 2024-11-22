@@ -1,4 +1,4 @@
-import { useTabContext } from "@material-ui/lab";
+import { useTabContext } from "@mui/lab";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import { UserTab } from "routes";

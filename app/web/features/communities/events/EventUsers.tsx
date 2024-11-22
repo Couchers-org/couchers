@@ -1,4 +1,4 @@
-import { Card, CircularProgress, Typography } from "@material-ui/core";
+import { Card, CircularProgress, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import UserSummary from "components/UserSummary";

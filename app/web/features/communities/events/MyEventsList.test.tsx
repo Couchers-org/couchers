@@ -1,8 +1,8 @@
-import { Pagination } from "@material-ui/lab";
+import { Pagination } from "@mui/material";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import mockEvents from "test/fixtures/events.json";
+import wrapper from "test/hookWrapper";
 
 import { useListMyEvents } from "./hooks";
 import MyEventsList from "./MyEventsList";
@@ -15,13 +15,8 @@ jest.mock("../events/hooks", () => ({
   useListMyEvents: jest.fn(),
 }));
 
-jest.mock("features/auth/AuthProvider", () => ({
-  ...jest.requireActual("features/auth/AuthProvider"),
-  useAuthContext: jest.fn(),
-}));
-
-jest.mock("@material-ui/lab", () => ({
-  ...jest.requireActual("@material-ui/lab"),
+jest.mock("@mui/material", () => ({
+  ...jest.requireActual("@mui/material"),
   Pagination: jest.fn(),
 }));
 
@@ -33,11 +28,6 @@ describe("MyEventsList", () => {
   beforeEach(() => {
     mockUseTranslation.mockReturnValue({
       t: (key: string) => key,
-    });
-
-    // Mock the return value of useAuthContext to include authState with userId
-    (useAuthContext as jest.Mock).mockReturnValue({
-      authState: { authenticated: true, userId: 1 },
     });
   });
 
@@ -52,7 +42,7 @@ describe("MyEventsList", () => {
       isLoading: true,
     });
 
-    render(<MyEventsList />);
+    render(<MyEventsList />, { wrapper });
 
     expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
@@ -64,7 +54,7 @@ describe("MyEventsList", () => {
       isLoading: false,
     });
 
-    render(<MyEventsList />);
+    render(<MyEventsList />, { wrapper });
 
     expect(screen.getByText("Error loading events")).toBeInTheDocument();
   });
@@ -76,7 +66,7 @@ describe("MyEventsList", () => {
       isLoading: false,
     });
 
-    render(<MyEventsList />);
+    render(<MyEventsList />, { wrapper });
 
     expect(
       screen.getByText("communities:events_empty_state")
@@ -97,7 +87,7 @@ describe("MyEventsList", () => {
       <button onClick={() => onChange({}, 1)}>Change Page</button>
     ));
 
-    render(<MyEventsList />);
+    render(<MyEventsList />, { wrapper });
 
     expect(screen.getByText("Planting Season Meetup")).toBeInTheDocument();
 
@@ -116,7 +106,7 @@ describe("MyEventsList", () => {
       <button onClick={() => onChange({}, 1)}>Change Page</button>
     ));
 
-    render(<MyEventsList />);
+    render(<MyEventsList />, { wrapper });
 
     const pastFilter = screen.getByText("communities:past");
     expect(pastFilter).toBeInTheDocument();
@@ -141,7 +131,7 @@ describe("MyEventsList", () => {
       <button onClick={() => onChange({}, 1)}>Change Page</button>
     ));
 
-    render(<MyEventsList />);
+    render(<MyEventsList />, { wrapper });
 
     const cancelledFilter = screen.getByText(
       "communities:show_cancelled_events"
@@ -185,7 +175,7 @@ describe("MyEventsList", () => {
       <button onClick={() => onChange({}, 2)}>Change Page</button>
     ));
 
-    render(<MyEventsList />);
+    render(<MyEventsList />, { wrapper });
 
     const paginationButton = screen.getByText("Change Page");
     fireEvent.click(paginationButton);

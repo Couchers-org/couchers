@@ -1,4 +1,4 @@
-import { ServerStyleSheets } from "@material-ui/core/styles";
+import { ServerStyleSheets } from "@mui/styles";
 import Document, { Head, Html, Main, NextScript } from "next/document";
 import { Children } from "react";
 import { theme } from "theme";
@@ -11,6 +11,10 @@ export default class MyDocument extends Document {
           <meta name="theme-color" content={theme.palette.primary.main} />
           <link rel="manifest" href="/manifest.json" />
           <link rel="apple-touch-icon" href="/logo512.png" />
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap"
+          />
         </Head>
         <body>
           <Main />

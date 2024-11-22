@@ -3,7 +3,7 @@ import {
   ContainerProps,
   LinearProgress,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import React from "react";
 import makeStyles from "utils/makeStyles";
 

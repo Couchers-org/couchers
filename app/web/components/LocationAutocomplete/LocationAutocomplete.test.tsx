@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LngLat } from "maplibre-gl";
 import { useForm } from "react-hook-form";
+import wrapper from "test/hookWrapper";
 import { rest, server } from "test/restMock";
 import { t } from "test/utils";
 import { GeocodeResult } from "utils/hooks";
@@ -39,7 +40,7 @@ const renderForm = (
       </form>
     );
   };
-  render(<Form />);
+  render(<Form />, { wrapper });
 };
 
 describe("LocationAutocomplete component", () => {

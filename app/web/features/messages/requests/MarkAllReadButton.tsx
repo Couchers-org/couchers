@@ -1,4 +1,5 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import Button from "components/Button";
 import { DoneAllIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
@@ -8,6 +9,7 @@ import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
+import { theme } from "theme";
 import getAllPages from "utils/getAllPages";
 
 const useStyles = makeStyles((theme) => ({
@@ -92,6 +94,7 @@ export default function MarkAllReadButton({
         loading={markAll.isLoading}
         variant="text"
         onClick={() => markAll.mutate()}
+        sx={{ color: theme.palette.text.primary }}
       >
         <DoneAllIcon className={classes.markAsReadIcon} />
         <Typography component="span">

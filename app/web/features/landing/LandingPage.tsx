@@ -6,7 +6,7 @@ import {
   IconButton,
   Paper,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import classNames from "classnames";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -290,12 +290,7 @@ export default function LandingPage() {
         maxWidth="lg"
         className={classes.tileSection}
       >
-        <Grid
-          container
-          spacing={3}
-          justifyContent="center"
-          alignItems="stretch"
-        >
+        <Grid container gap={3} justifyContent="center" alignItems="stretch">
           <Grid item xs={12} md={4}>
             <Paper className={classNames(classes.tile, classes.governanceTile)}>
               <Typography variant="subtitle1">Issue:</Typography>

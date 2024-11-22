@@ -20,9 +20,9 @@ const useStyles = makeStyles((theme) => ({
       ? {
           display: "grid",
 
-          [theme.breakpoints.down("xs")]: {
+          [theme.breakpoints.down("sm")]: {
             gridTemplateColumns: "1fr",
-            gridGap: theme.spacing(2),
+            gap: theme.spacing(2),
             padding: theme.spacing(2),
 
             //break out of page padding
@@ -36,11 +36,11 @@ const useStyles = makeStyles((theme) => ({
           [theme.breakpoints.up("sm")]: {
             display: "grid",
             gridTemplateColumns: "repeat(2, 1fr)",
-            gridGap: theme.spacing(2),
+            gap: theme.spacing(2),
           },
           [theme.breakpoints.up("md")]: {
             gridTemplateColumns: "repeat(3, 1fr)",
-            gridGap: theme.spacing(3),
+            gap: theme.spacing(3),
           },
         }
       : {},
@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "center",
     marginTop: theme.spacing(4),
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       marginBottom: theme.spacing(4),
     },
   },

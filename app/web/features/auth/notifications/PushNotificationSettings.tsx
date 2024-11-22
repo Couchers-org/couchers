@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import Alert from "components/Alert";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import { Trans, useTranslation } from "i18n";
@@ -177,7 +177,7 @@ export default function PushNotificationSettings({
           onClick={
             isPushEnabled ? turnPushNotificationsOff : turnPushNotificationsOn
           }
-          color={theme.palette.primary.main}
+          customColor={theme.palette.primary.main}
           isLoading={isLoading}
         />
       </div>

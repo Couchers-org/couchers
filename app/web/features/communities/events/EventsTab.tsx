@@ -1,4 +1,4 @@
-import { FormControlLabel, Typography } from "@material-ui/core";
+import { FormControlLabel, Typography } from "@mui/material";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -10,6 +10,7 @@ import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { newEventRoute } from "routes";
+import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import makeStyles from "utils/makeStyles";
 
@@ -26,9 +27,9 @@ const useStyles = makeStyles((theme) => ({
     justifyItems: "start",
   },
   container: {
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       gridTemplateColumns: "1fr",
-      gridGap: theme.spacing(2),
+      gap: theme.spacing(2),
     },
     display: "grid",
   },
@@ -102,6 +103,15 @@ export default function EventsTab({
             <Button
               className={classes.moreEventButton}
               onClick={() => fetchNextPage()}
+              sx={{
+                color: theme.palette.common.black,
+                borderColor: theme.palette.grey[300],
+
+                "&:hover": {
+                  borderColor: theme.palette.grey[300],
+                  backgroundColor: "#3135390A",
+                },
+              }}
             >
               {t("communities:see_more_events_label")}
             </Button>

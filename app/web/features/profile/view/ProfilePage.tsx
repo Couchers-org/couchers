@@ -1,4 +1,4 @@
-import { CircularProgress } from "@material-ui/core";
+import { CircularProgress } from "@mui/material";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
@@ -18,7 +18,7 @@ export const useProfileStyles = makeStyles((theme) => ({
     [theme.breakpoints.up("sm")]: {
       display: "grid",
       gridTemplateColumns: "2fr 3fr",
-      gridGap: theme.spacing(3),
+      gap: theme.spacing(3),
       margin: theme.spacing(0, 3),
       padding: 0,
       paddingTop: theme.spacing(3),

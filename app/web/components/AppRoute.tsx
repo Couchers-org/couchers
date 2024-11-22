@@ -1,5 +1,5 @@
-import { Container } from "@material-ui/core";
-import classNames from "classnames";
+import { Container } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import CircularProgress from "components/CircularProgress";
 import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
@@ -9,56 +9,33 @@ import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import { ReactNode, useEffect, useState } from "react";
 import { jailRoute, loginRoute } from "routes";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
 import Navigation from "./Navigation";
 
-export const useAppRouteStyles = makeStyles((theme) => ({
-  fullscreenContainer: {
-    margin: "0 auto",
-    padding: 0,
-  },
-  nonFullScreenStyles: {
-    height: "100%",
-  },
-  standardContainer: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-    flex: 1,
-  },
-  fullWidthContainer: {
-    margin: "0 auto",
-    paddingLeft: 0,
-    paddingRight: 0,
-  },
-  nativeEmbedContainer: {
-    margin: "0 auto",
-    padding: 0,
-  },
-  loader: {
-    //minimal-effort reduction of layout shifting
-    minHeight: "50vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBlockStart: theme.spacing(6),
-  },
-  "@global html": {
+const StyledLoader = styled("div")(({ theme }) => ({
+  minHeight: "50vh",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  marginBlockStart: theme.spacing(6),
+}));
+
+const GlobalStyles = styled("div")(({ theme }) => ({
+  html: {
     scrollPaddingTop: `calc(${theme.shape.navPaddingXs} + ${theme.spacing(2)})`,
     height: "100%",
-  },
-  [theme.breakpoints.up("sm")]: {
-    "@global html": {
+
+    [theme.breakpoints.up("sm")]: {
       scrollPaddingTop: `calc(${theme.shape.navPaddingSmUp} + ${theme.spacing(
         2
       )})`,
     },
   },
-  "@global body": {
+  body: {
     height: "100%",
   },
-  "@global #__next": {
+  "#__next": {
     display: "flex",
     flexDirection: "column",
     minHeight: "100%",
@@ -78,7 +55,6 @@ export default function AppRoute({
   noFooter = false,
   variant = "standard",
 }: AppRouteProps) {
-  const classes = useAppRouteStyles();
   const router = useRouter();
   const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;
@@ -99,36 +75,50 @@ export default function AppRoute({
     if (isAuthenticated && isJailed && router.pathname !== jailRoute) {
       router.push(jailRoute);
     }
-  });
+  }, [isAuthenticated, isJailed, isPrivate, authActions, router]);
+
+  const containerSx = {
+    ...(variant !== "full-screen" && { height: "100%" }),
+    ...(variant === "standard" && {
+      paddingLeft: theme.spacing(2),
+      paddingRight: theme.spacing(2),
+      paddingBottom: theme.spacing(2),
+      flex: 1,
+    }),
+    ...(variant === "full-width" && {
+      margin: "0 auto",
+      paddingLeft: 0,
+      paddingRight: 0,
+    }),
+    ...(isNativeEmbed && {
+      margin: "0 auto",
+      padding: 0,
+    }),
+  };
 
   return (
     <ErrorBoundary>
       {isPrivate && (!isMounted || !isAuthenticated) ? (
-        <div className={classes.loader}>
+        <StyledLoader>
           <CircularProgress />
-        </div>
+        </StyledLoader>
       ) : (
         <>
+          <GlobalStyles />
           {!isNativeEmbed && <Navigation />}
           {/* Temporary container injected for marketing to test dynamic "announcements".
            * Find a better spot to componentise this code once plan is more finalised with this */}
           <div id="announcements"></div>
           <Container
-            className={classNames({
-              [classes.nativeEmbedContainer]: isNativeEmbed,
-              [classes.nonFullScreenStyles]: variant !== "full-screen",
-              [classes.fullWidthContainer]: variant === "full-width",
-              [classes.fullscreenContainer]: variant === "full-screen",
-              [classes.standardContainer]: variant === "standard",
-            })}
+            disableGutters
+            sx={containerSx}
             maxWidth={
               variant === "full-screen" || variant === "full-width"
                 ? false
                 : "lg"
             }
           >
-            {/* Have to wrap this in a fragment because of https://github.com/mui-org/material-ui/issues/21711 */}
-            <>{children}</>
+            {children}
           </Container>
           {!noFooter && !isNativeEmbed && <Footer />}
         </>

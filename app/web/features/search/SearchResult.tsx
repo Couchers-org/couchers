@@ -1,4 +1,4 @@
-import { Card, CardContent, Hidden, Typography } from "@material-ui/core";
+import { Card, CardContent, Typography, useMediaQuery } from "@mui/material";
 import classNames from "classnames";
 import Button from "components/Button";
 import { CouchIcon, LocationIcon } from "components/Icons";
@@ -16,6 +16,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import LinesEllipsis from "react-lines-ellipsis";
+import { theme } from "theme";
 import makeStyles from "utils/makeStyles";
 import { firstName } from "utils/names";
 import stripMarkdown from "utils/stripMarkdown";
@@ -38,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
     marginBottom: 0,
     ...theme.typography.body1,
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       marginTop: theme.spacing(1),
       maxHeight: `calc(3 * ${theme.typography.body1.lineHeight} * ${theme.typography.body1.fontSize})`,
       overflow: "hidden",
@@ -51,18 +52,18 @@ const useStyles = makeStyles((theme) => ({
     "& > div": {
       display: "flex",
     },
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down("lg")]: {
       "& > div": {
         display: "grid",
         gridTemplateColumns: "1.25rem 1fr",
-        gridGap: theme.spacing(1),
+        gap: theme.spacing(1),
         alignItems: "center",
       },
     },
     "& p": {
       wordBreak: "break-all",
     },
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       "& p": {
         width: "100%",
         textOverflow: "ellipsis",
@@ -82,7 +83,7 @@ const useStyles = makeStyles((theme) => ({
     margin: "0 auto",
     maxWidth: "100%",
     marginTop: theme.spacing(2),
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       marginTop: "0.5rem",
     },
     "& .MuiButton-label": {
@@ -111,6 +112,8 @@ export default function SearchResult({
 }: SearchResultProps) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   return (
     <Card
       id={id}
@@ -134,26 +137,37 @@ export default function SearchResult({
           </div>
           <Typography noWrap>{user.city}</Typography>
         </UserSummary>
-        <Hidden mdUp>
+        {!isMobile && (
           <LinesEllipsis
             text={stripMarkdown(aboutText(user, t))}
             maxLine={3}
             component="p"
             className={classes.about}
           />
-        </Hidden>
-        <Hidden smDown>
-          <Typography variant="body1" className={classes.about}>
-            {stripMarkdown(aboutText(user, t))}
-          </Typography>
-          <AgeGenderLanguagesLabels user={user} />
-          <ReferencesLastActiveLabels user={user} />
-        </Hidden>
+        )}
+        {isMobile && (
+          <>
+            <Typography variant="body1" className={classes.about}>
+              {stripMarkdown(aboutText(user, t))}
+            </Typography>
+            <AgeGenderLanguagesLabels user={user} />
+            <ReferencesLastActiveLabels user={user} />
+          </>
+        )}
         <Button
           onClick={() => onSelect(user)}
           variant="outlined"
           className={classes.mapButton}
           size="small"
+          sx={{
+            color: theme.palette.common.black,
+            borderColor: theme.palette.grey[300],
+
+            "&:hover": {
+              borderColor: theme.palette.grey[300],
+              backgroundColor: "#3135390A",
+            },
+          }}
         >
           {t("search:search_result.show_user_button_label", {
             name: firstName(user.name),

@@ -1,4 +1,4 @@
-import { Divider, List, ListItem, ListItemText } from "@material-ui/core";
+import { Divider, List, ListItem, ListItemText } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
@@ -183,9 +183,17 @@ function BrowserColumn({
         communities.map((community) => (
           <ListItem
             key={community.communityId}
-            button
+            component="button"
             onClick={() => handleClick(community)}
             aria-selected={community.communityId === selected}
+            sx={{
+              background: "transparent",
+              border: "none",
+
+              "&:hover": {
+                background: "#3135390A",
+              },
+            }}
           >
             <ListItemText
               primaryTypographyProps={{
