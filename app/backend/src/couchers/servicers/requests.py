@@ -143,6 +143,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         host = session.execute(
             select(User).where_users_visible(context).where(User.id == request.host_user_id)
         ).scalar_one_or_none()
+        if not host:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+
         from_date = parse_date(request.from_date)
         to_date = parse_date(request.to_date)
 
