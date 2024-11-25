@@ -1,4 +1,3 @@
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import {
   Divider,
   DividerProps,
@@ -7,10 +6,13 @@ import {
   styled,
   Typography,
 } from "@mui/material";
+import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
+import UsersList from "components/UsersList";
 import Badge from "features/badges/Badge";
-import { useBadges } from "features/badges/hooks";
+import { useBadges, useBadgeUsers } from "features/badges/hooks";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 
@@ -35,6 +37,31 @@ const CenteredDiv = styled(ContentDiv)(({ theme }) => ({
   alignItems: "center",
   justifyContent: "center",
 }));
+
+export interface BadgeUserListProps {
+  badgeId: string;
+}
+
+function BadgeUserList({ badgeId }: BadgeUserListProps) {
+  const { badgeUserIds, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    useBadgeUsers(badgeId);
+
+  return (
+    <UsersList
+      userIds={badgeUserIds}
+      endChildren={
+        hasNextPage && (
+          <Button loading={isFetchingNextPage} onClick={() => fetchNextPage()}>
+            Load more
+          </Button>
+        )
+      }
+      emptyListChildren={
+        <Typography variant="body1">No people with this badge!</Typography>
+      }
+    />
+  );
+}
 
 export interface BadgesPageProps {
   badgeId?: string;
@@ -75,6 +102,7 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
                   </Typography>
                 </FlexDiv>
                 <StyledDivider />
+                <BadgeUserList badgeId={badgeId} />
               </>
             ) : (
               <>Badge not found</>
