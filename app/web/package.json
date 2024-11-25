@@ -32,7 +32,7 @@
     "@mui/icons-material": "^5.16.7",
     "@mui/lab": "^5.0.0-alpha.164",
     "@mui/material": "^5.16.7",
-    "@mui/styles": "^5.16.7",
+    "@mui/styles": "^6.1.8",
     "@mui/utils": "^5.16.6",
     "@mui/x-date-pickers": "^5.0.20",
     "@sentry/nextjs": "^6.19.7",
