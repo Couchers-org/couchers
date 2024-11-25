@@ -9,8 +9,9 @@ import {
 import CenteredCircularProgress from "components/CenteredCircularProgress";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
+import UserSummary from "components/UserSummary";
 import Badge from "features/badges/Badge";
-import { useBadges } from "features/badges/hooks";
+import { useBadges, useBadgeUsers } from "features/badges/hooks";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 
@@ -35,6 +36,37 @@ const CenteredDiv = styled(ContentDiv)(({ theme }) => ({
   alignItems: "center",
   justifyContent: "center",
 }));
+
+export interface BadgeUserListProps {
+  badgeId: string;
+}
+
+function BadgeUserList({ badgeId }: BadgeUserListProps) {
+  const {
+    badgeUserIds,
+    badgeUsers,
+    isBadgeUsersLoading,
+    isBadgeUsersRefetching,
+  } = useBadgeUsers(badgeId);
+
+  return (
+    <>
+      {badgeUsers &&
+        badgeUserIds.map((userId) => {
+          const user = badgeUsers.get(userId);
+          return user || isBadgeUsersRefetching ? (
+            <UserSummary
+              headlineComponent="h3"
+              key={userId}
+              nameOnly
+              smallAvatar
+              user={user}
+            />
+          ) : null;
+        })}
+    </>
+  );
+}
 
 export interface BadgesPageProps {
   badgeId?: string;
@@ -75,6 +107,7 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
                   </Typography>
                 </FlexDiv>
                 <StyledDivider />
+                <BadgeUserList badgeId={badgeId} />
               </>
             ) : (
               <>Badge not found</>

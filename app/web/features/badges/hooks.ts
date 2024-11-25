@@ -1,10 +1,10 @@
 import { badgesKey, badgeUsersKey } from "features/queryKeys";
+import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { ListBadgeUsersRes } from "proto/api_pb";
 import { Badge } from "proto/resources_pb";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { service } from "service";
-import type { ListBadgeUsersInput } from "service/api";
 
 export const useBadges = () => {
   const { data, ...rest } = useQuery(badgesKey, () =>
@@ -27,14 +27,25 @@ export const useBadges = () => {
   };
 };
 
-export function useBadgeUsers({
-  badgeId,
-  pageSize,
-}: Omit<ListBadgeUsersInput, "pageToken">) {
-  return useInfiniteQuery<ListBadgeUsersRes.AsObject, RpcError>({
-    queryKey: badgeUsersKey,
+export function useBadgeUsers(badgeId: string) {
+  const query = useInfiniteQuery<ListBadgeUsersRes.AsObject, RpcError>({
+    queryKey: badgeUsersKey({ badgeId }),
     queryFn: ({ pageParam }) =>
-      service.api.listBadgeUsers({ badgeId, pageSize, pageToken: pageParam }),
+      service.api.listBadgeUsers({ badgeId, pageToken: pageParam }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken ?? undefined,
   });
+  const badgeUserIds =
+    query.data?.pages.flatMap((res) => res.userIdsList) ?? [];
+  const {
+    data: badgeUsers,
+    isLoading: isBadgeUsersLoading,
+    isRefetching: isBadgeUsersRefetching,
+  } = useLiteUsers(badgeUserIds);
+  return {
+    ...query,
+    badgeUserIds,
+    badgeUsers,
+    isBadgeUsersLoading,
+    isBadgeUsersRefetching,
+  };
 }
