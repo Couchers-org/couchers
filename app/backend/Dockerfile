@@ -1,4 +1,4 @@
-FROM python:3.12-bullseye AS base
+FROM python:3.13-bullseye AS base
 
 RUN apt-get update && apt-get install -y libgeos-c1v5
 
