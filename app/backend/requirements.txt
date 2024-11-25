@@ -204,7 +204,7 @@ ruff==0.7.4
     # via -r requirements.in
 s3transfer==0.10.1
     # via boto3
-sentry-sdk==2.18.0
+sentry-sdk==2.19.0
     # via -r requirements.in
 shapely==2.0.6
     # via -r requirements.in
