@@ -1,5 +1,5 @@
 import { styled } from "@mui/material";
-import CircularProgress from "components/CircularProgress";
+import CenteredCircularProgress from "components/CenteredCircularProgress";
 import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessageLoader";
 import MessageList from "features/messages/messagelist/MessageList";
 import { GetGroupChatMessagesRes } from "proto/conversations_pb";
@@ -45,11 +45,7 @@ const ChatContent = ({
   isError: boolean;
 }) => {
   if (isLoading) {
-    return (
-      <StyledSpinnerWrapper>
-        <CircularProgress />
-      </StyledSpinnerWrapper>
-    );
+    return <CenteredCircularProgress />;
   }
 
   if (!messages || (isHostRequest && !hostRequest)) {

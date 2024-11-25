@@ -121,8 +121,6 @@ export default function ReportButton({
     reportBug(data);
   });
 
-  console.log(classes.menuLink);
-
   return (
     <>
       {bug && (

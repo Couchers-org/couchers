@@ -29,13 +29,7 @@ export const Badges = ({ user }: Props) => {
     <div className={classes.badgeContainer}>
       {(user.badgesList || []).map((badgeId) => {
         const badge = (badges || {})[badgeId];
-        return (
-          <Badge
-            key={badge.id}
-            badge={badge}
-            toolChipLinkProps={{ chipProps: { className: classes.badge } }}
-          />
-        );
+        return <Badge key={badge.id} badge={badge} />;
       })}
     </div>
   );

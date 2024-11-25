@@ -6,7 +6,6 @@
  * NodeJS code.
  */
 const AUTH = "auth";
-const BADGES = "badges";
 const COMMUNITIES = "communities";
 const CONNECTIONS = "connections";
 const DASHBOARD = "dashboard";
@@ -19,7 +18,6 @@ const SEARCH = "search";
 
 const NAMESPACES = [
   AUTH,
-  BADGES,
   COMMUNITIES,
   CONNECTIONS,
   DASHBOARD,
@@ -33,7 +31,6 @@ const NAMESPACES = [
 
 module.exports = {
   AUTH,
-  BADGES,
   COMMUNITIES,
   CONNECTIONS,
   DASHBOARD,

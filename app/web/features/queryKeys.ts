@@ -156,4 +156,4 @@ export const myEventsKey = (type: EventsType) => ["myEvents", { type }];
 export const activeLoginsKey = "activeLogins";
 
 // Badges
-export const badgeUsers = "badgeUsers";
+export const badgeUsersKey = "badgeUsers";
