@@ -34,7 +34,7 @@
     "@mui/material": "^5.16.7",
     "@mui/styles": "^5.16.7",
     "@mui/utils": "^5.16.6",
-    "@mui/x-date-pickers": "^5.0.20",
+    "@mui/x-date-pickers": "^6.19.12",
     "@sentry/nextjs": "^6.19.7",
     "@sentry/react": "^8.39.0",
     "@stripe/stripe-js": "^5.2.0",
