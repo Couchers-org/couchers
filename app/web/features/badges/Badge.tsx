@@ -1,19 +1,24 @@
-import ToolChipLink, { type ToolChipLinkProps } from "components/ToolChipLink";
+import { Chip, Tooltip } from "@mui/material";
+import Link from "next/link";
 import { Badge as BadgeType } from "proto/resources_pb";
 import { routeToBadge } from "routes";
 
 export interface BadgeProps {
   badge: BadgeType.AsObject;
-  toolChipLinkProps: ToolChipLinkProps;
 }
 
-export default function Badge({ badge, toolChipLinkProps = {} }: BadgeProps) {
-  const toolChipLink = {
-    label: badge.name,
-    description: badge.description,
-    href: routeToBadge(badge.id),
-    color: badge.color,
-    ...toolChipLinkProps,
-  };
-  return <ToolChipLink {...toolChipLink} />;
+export default function Badge({ badge }: BadgeProps) {
+  return (
+    <Tooltip title={badge.description}>
+      <Link href={routeToBadge(badge.id)} passHref={true}>
+        <a>
+          <Chip
+            label={badge.name}
+            clickable={true}
+            sx={{ background: badge.color }}
+          />
+        </a>
+      </Link>
+    </Tooltip>
+  );
 }

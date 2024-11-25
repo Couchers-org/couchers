@@ -34,7 +34,7 @@ export function useBadgeUsers({
   return useInfiniteQuery<ListBadgeUsersRes.AsObject, RpcError>({
     queryKey: badgeUsersKey,
     queryFn: ({ pageParam }) =>
-      service.api.listUserBadges({ badgeId, pageSize, pageToken: pageParam }),
+      service.api.listBadgeUsers({ badgeId, pageSize, pageToken: pageParam }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken ?? undefined,
   });
 }

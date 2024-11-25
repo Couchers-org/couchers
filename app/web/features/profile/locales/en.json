@@ -213,5 +213,10 @@
     "header_text": "Press 'Enter' to add\n<support_link>Email us</support_link> to add an entry",
     "remove_button_a11y_text": "Remove {{tag}}"
   },
-  "view_in_admin_console": "View user in admin console"
+  "view_in_admin_console": "View user in admin console",
+  "badges": {
+    "title": "Explore Couchers.org badges",
+    "subtitle": "Learn about user badges, see who has them, and learn how you can get them.",
+    "click_on_left": "Choose a badge on the left to learn more."
+  }
 }

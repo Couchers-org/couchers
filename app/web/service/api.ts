@@ -97,10 +97,11 @@ export async function uploadFile(file: File): Promise<ImageInputValues> {
 }
 
 export interface ListBadgeUsersInput {
-  badgeId: number;
+  badgeId: string;
   pageSize?: number;
   pageToken?: string;
 }
+
 export async function listBadgeUsers({
   badgeId,
   pageSize,
@@ -116,5 +117,5 @@ export async function listBadgeUsers({
   }
 
   const res = await client.api.listBadgeUsers(req);
-  return res.toObject().userIdsList;
+  return res.toObject();
 }
