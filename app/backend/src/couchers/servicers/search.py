@@ -18,13 +18,13 @@ from couchers.models import (
     EventOrganizer,
     EventSubscription,
     LanguageAbility,
+    LanguageFluency,
     Node,
     Page,
     PageType,
     PageVersion,
     Reference,
     User,
-    LanguageFluency
 )
 from couchers.servicers.account import has_strong_verification
 from couchers.servicers.api import (
@@ -49,7 +49,7 @@ from couchers.utils import (
     now,
     to_aware_datetime,
 )
-from proto import api_pb2, search_pb2, search_pb2_grpc
+from proto import search_pb2, search_pb2_grpc
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
 MAX_PAGINATION_LENGTH = 100
