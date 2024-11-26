@@ -6,7 +6,6 @@ import {
   myEventsKey,
   QueryType,
 } from "features/queryKeys";
-import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import {
   Event,
@@ -45,21 +44,11 @@ export function useEventOrganizers({
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     enabled,
   });
-  const organizerIds =
-    query.data?.pages.flatMap((res) => res.organizerUserIdsList) ?? [];
-  const {
-    data: organizers,
-    isLoading: isOrganizersLoading,
-    isRefetching: isOrganizersRefetching,
-  } = useLiteUsers(organizerIds);
+  const organizerIds = query.data?.pages.flatMap(
+    (res) => res.organizerUserIdsList
+  );
 
-  return {
-    ...query,
-    organizerIds,
-    organizers,
-    isOrganizersLoading,
-    isOrganizersRefetching,
-  };
+  return { ...query, organizerIds };
 }
 
 export function useEventAttendees({
@@ -78,20 +67,12 @@ export function useEventAttendees({
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     enabled,
   });
-  const attendeesIds =
-    query.data?.pages.flatMap((data) => data.attendeeUserIdsList) ?? [];
-  const {
-    data: attendees,
-    isLoading: isAttendeesLoading,
-    isRefetching: isAttendeesRefetching,
-  } = useLiteUsers(attendeesIds);
-
+  const attendeesIds = query.data?.pages.flatMap(
+    (data) => data.attendeeUserIdsList
+  );
   return {
     ...query,
     attendeesIds,
-    attendees,
-    isAttendeesLoading,
-    isAttendeesRefetching,
   };
 }
 

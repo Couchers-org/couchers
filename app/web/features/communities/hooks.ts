@@ -12,7 +12,6 @@ import {
   subCommunitiesKey,
   threadKey,
 } from "features/queryKeys";
-import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import {
@@ -152,16 +151,7 @@ export const useListAdmins = (communityId: number, type: QueryType) => {
     }
   );
   const adminIds = query.data?.pages.flatMap((page) => page.adminUserIdsList);
-  const { data: adminUsers, isLoading: isAdminUsersLoading } = useLiteUsers(
-    adminIds ?? []
-  );
-
-  return {
-    ...query,
-    adminIds,
-    adminUsers,
-    isLoading: query.isLoading || isAdminUsersLoading,
-  };
+  return { ...query, adminIds };
 };
 
 export const useListMembers = (communityId?: number) =>

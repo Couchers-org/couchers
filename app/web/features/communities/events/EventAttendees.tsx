@@ -11,14 +11,10 @@ interface EventAttendeesProps {
 }
 
 export default function EventAttendees({ eventId }: EventAttendeesProps) {
-  const {
-    attendees,
-    attendeesIds,
-    error,
-    isLoading,
-    isAttendeesRefetching,
-    hasNextPage,
-  } = useEventAttendees({ eventId, type: "summary" });
+  const { attendeesIds, error, hasNextPage } = useEventAttendees({
+    eventId,
+    type: "summary",
+  });
   const { t } = useTranslation([COMMUNITIES]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -28,10 +24,7 @@ export default function EventAttendees({ eventId }: EventAttendeesProps) {
         emptyState={t("communities:no_attendees")}
         error={error}
         hasNextPage={hasNextPage}
-        isLoading={isLoading}
-        isUsersRefetching={isAttendeesRefetching}
         onSeeAllClick={() => setIsDialogOpen(true)}
-        users={attendees}
         userIds={attendeesIds}
         title={t("communities:attendees")}
       />
