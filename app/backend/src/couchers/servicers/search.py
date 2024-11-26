@@ -24,6 +24,7 @@ from couchers.models import (
     PageVersion,
     Reference,
     User,
+    LanguageFluency
 )
 from couchers.servicers.account import has_strong_verification
 from couchers.servicers.api import (
@@ -58,8 +59,8 @@ TRI_SIMILARITY_THRESHOLD = 0.6
 TRI_SIMILARITY_WEIGHT = 5
 
 conversational_fluent_filter_values = [
-    fluency2sql[api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL],
-    fluency2sql[api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT],
+    LanguageFluency.conversational,
+    LanguageFluency.fluent,
 ]
 
 

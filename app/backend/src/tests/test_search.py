@@ -164,7 +164,7 @@ def test_user_filter_language(db):
     """
     Make sure the language filter returns the rigth profiles
     """
-    recreate_database()
+    # recreate_database()
     user_with_german_beginner, token11 = generate_user()
     user_with_japanese_conversational, token12 = generate_user()
 
