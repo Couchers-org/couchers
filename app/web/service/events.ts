@@ -249,18 +249,39 @@ export async function listAllEvents({
   return res.toObject();
 }
 
-interface ListMyEventsInput {
+export interface ListMyEventsInput {
+  pageNumber?: number;
   pageSize?: number;
   pageToken?: string;
+  pastEvents?: boolean;
+  showCancelled?: boolean;
 }
 
-export async function listMyEvents({ pageSize, pageToken }: ListMyEventsInput) {
+export async function listMyEvents({
+  pageNumber,
+  pageSize,
+  pageToken,
+  pastEvents,
+  showCancelled,
+}: ListMyEventsInput) {
   const req = new ListMyEventsReq();
+  req.setAttending(true);
+  req.setOrganizing(true);
+
+  if (pastEvents !== undefined) {
+    req.setPast(pastEvents);
+  }
+  if (pageNumber) {
+    req.setPageNumber(pageNumber);
+  }
   if (pageSize) {
     req.setPageSize(pageSize);
   }
   if (pageToken) {
     req.setPageToken(pageToken);
+  }
+  if (showCancelled !== undefined) {
+    req.setIncludeCancelled(showCancelled);
   }
 
   const res = await client.events.listMyEvents(req);

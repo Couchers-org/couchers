@@ -1,12 +1,13 @@
-import Button from "components/Button";
+import { styled, Typography } from "@mui/material";
+import Button, { AppButtonProps } from "components/Button";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
+import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
-import useSendFieldStyles from "features/messages/useSendFieldStyles";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
 import { HostRequestStatus } from "proto/conversations_pb";
@@ -15,7 +16,15 @@ import { HostRequest, RespondHostRequestReq } from "proto/requests_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
-import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
+import {
+  howToRespondRequestGuideUrl,
+  howToWriteRequestGuideUrl,
+  leaveReferenceBaseRoute,
+  referenceTypeRoute,
+} from "routes";
+import { theme } from "theme";
+
+import FieldButton from "./FieldButton";
 
 interface MessageFormData {
   text: string;
@@ -31,34 +40,37 @@ export interface HostRequestSendFieldProps {
   >;
 }
 
-function FieldButton({
-  children,
-  callback,
-  disabled,
-  isLoading,
-  isSubmit,
-}: {
-  children: string;
-  callback: () => void;
-  disabled?: boolean;
-  isLoading: boolean;
-  isSubmit?: boolean;
-}) {
-  const classes = useSendFieldStyles();
-  return (
-    <Button
-      className={classes.button}
-      color="primary"
-      disabled={disabled}
-      loading={isLoading}
-      onClick={callback}
-      type={isSubmit ? "submit" : "button"}
-      variant="contained"
-    >
-      {children}
-    </Button>
-  );
-}
+const StyledButtonContainer = styled("div")(({ theme }) => ({
+  "& > button": {
+    marginInline: theme.spacing(2),
+  },
+  display: "flex",
+  flexWrap: "wrap",
+  justifyContent: "center",
+}));
+
+const StyledButton = styled(Button)<AppButtonProps>({
+  display: "block",
+  flexShrink: 0,
+  marginInlineStart: theme.spacing(1),
+  height: theme.spacing(5),
+  marginBottom: 0,
+  marginTop: "auto",
+  alignItems: "center",
+});
+
+const StyledContainer = styled("div")(({ theme }) => ({
+  alignItems: "flex-start",
+  display: "flex",
+  marginTop: theme.spacing(3),
+}));
+
+const StyledHelpTextContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexWrap: "wrap",
+  justifyContent: "center",
+  marginBottom: theme.spacing(2),
+}));
 
 export default function HostRequestSendField({
   hostRequest,
@@ -66,7 +78,6 @@ export default function HostRequestSendField({
   respondMutation,
 }: HostRequestSendFieldProps) {
   const { t } = useTranslation([MESSAGES, GLOBAL]);
-  const classes = useSendFieldStyles();
   const { authState } = useAuthContext();
 
   const isHost = hostRequest.hostUserId === authState.userId;
@@ -129,9 +140,41 @@ export default function HostRequestSendField({
     }
   };
 
+  const isHostPending =
+    isHost &&
+    hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_PENDING;
+
+  const isSurferRejected =
+    !isHost &&
+    hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
+
   return (
     <form onSubmit={onSubmit}>
-      <div className={classes.buttonContainer}>
+      {isHostPending && (
+        <StyledHelpTextContainer>
+          <Typography variant="body1">
+            <Trans i18nKey="messages:host_pending_request_help_text">
+              <StyledLink variant="body1" href={howToRespondRequestGuideUrl}>
+                Things to consider
+              </StyledLink>{" "}
+              before responding.
+            </Trans>
+          </Typography>
+        </StyledHelpTextContainer>
+      )}
+      {isSurferRejected && (
+        <StyledHelpTextContainer>
+          <Typography variant="body1">
+            <Trans i18nKey="messages:surfer_declined_request_help_text">
+              <StyledLink variant="body1" href={howToWriteRequestGuideUrl}>
+                Read our guide
+              </StyledLink>{" "}
+              on how to write a request that will get accepted.
+            </Trans>
+          </Typography>
+        </StyledHelpTextContainer>
+      )}
+      <StyledButtonContainer>
         {isHost ? (
           <>
             {(hostRequest.status ===
@@ -172,13 +215,9 @@ export default function HostRequestSendField({
                 }}
                 passHref
               >
-                <Button
-                  className={classes.button}
-                  color="primary"
-                  component="a"
-                >
+                <StyledButton color="primary" component="a">
                   {t("messages:write_reference_button_text")}
-                </Button>
+                </StyledButton>
               </Link>
             )}
           </>
@@ -223,19 +262,15 @@ export default function HostRequestSendField({
                 }}
                 passHref
               >
-                <Button
-                  className={classes.button}
-                  color="primary"
-                  component="a"
-                >
+                <StyledButton color="primary" component="a">
                   {t("messages:write_reference_button_text")}
-                </Button>
+                </StyledButton>
               </Link>
             )}
           </>
         )}
-      </div>
-      <div className={classes.container}>
+      </StyledButtonContainer>
+      <StyledContainer>
         <TextField
           defaultValue={
             isRequestClosed ? t("messages:request_closed_message") : ""
@@ -246,7 +281,9 @@ export default function HostRequestSendField({
           label={!isRequestClosed ? t("messages:chat_input.label") : ""}
           id="host-request-message"
           InputLabelProps={{
-            className: isRequestClosed ? classes.requestClosedLabel : undefined,
+            style: {
+              transform: isRequestClosed ? "none" : undefined,
+            },
             shrink: isRequestClosed ? false : undefined,
           }}
           inputRef={register}
@@ -255,7 +292,7 @@ export default function HostRequestSendField({
           onKeyDown={handleKeyDown}
           maxRows={6}
           size="small"
-          className={classes.textField}
+          sx={{ background: theme.palette.common.white }}
         />
         <FieldButton
           callback={onSubmit}
@@ -265,7 +302,7 @@ export default function HostRequestSendField({
         >
           {t("global:send")}
         </FieldButton>
-      </div>
+      </StyledContainer>
     </form>
   );
 }

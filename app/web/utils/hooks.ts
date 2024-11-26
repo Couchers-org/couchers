@@ -103,6 +103,7 @@ const useGeocodeQuery = () => {
       };
       try {
         const response = await fetch(url, fetchOptions);
+
         if (!response.ok) throw Error(await response.text());
 
         const nominatimResults: NominatimPlace[] = await response.json();

@@ -204,7 +204,7 @@ def _search_users(session, search_statement, title_only, next_rank, page_size, c
         [User.username, User.name],
         [User.city],
         [User.about_me],
-        [User.my_travels, User.things_i_like, User.about_place, User.additional_information],
+        [User.things_i_like, User.about_place, User.additional_information],
     )
 
     users = execute_search_statement(session, select(User, rank, snippet).where_users_visible(context))
@@ -411,7 +411,6 @@ class Search(search_pb2_grpc.SearchServicer):
                         User.city.ilike(f"%{request.query.value}%"),
                         User.hometown.ilike(f"%{request.query.value}%"),
                         User.about_me.ilike(f"%{request.query.value}%"),
-                        User.my_travels.ilike(f"%{request.query.value}%"),
                         User.things_i_like.ilike(f"%{request.query.value}%"),
                         User.about_place.ilike(f"%{request.query.value}%"),
                         User.additional_information.ilike(f"%{request.query.value}%"),
@@ -681,7 +680,12 @@ class Search(search_pb2_grpc.SearchServicer):
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # the page token is a unix timestamp of where we left off
-        page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
+        page_token = (
+            dt_from_millis(int(request.page_token)) if request.page_token and not request.page_number else now()
+        )
+        page_number = request.page_number or 1
+        # Calculate the offset for pagination
+        offset = (page_number - 1) * page_size
 
         if not request.past:
             statement = statement.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
@@ -692,10 +696,13 @@ class Search(search_pb2_grpc.SearchServicer):
                 EventOccurrence.start_time.desc()
             )
 
-        statement = statement.limit(page_size + 1)
+        total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
+        # Apply pagination by page number
+        statement = statement.offset(offset).limit(page_size) if request.page_number else statement.limit(page_size + 1)
         occurrences = session.execute(statement).scalars().all()
 
         return search_pb2.EventSearchRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
             next_page_token=(str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None),
+            total_items=total_items,
         )

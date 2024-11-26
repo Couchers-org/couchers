@@ -1,5 +1,5 @@
-import { Button, Card, Grid } from "@material-ui/core";
-import { TabContext, TabPanel } from "@material-ui/lab";
+import { TabContext, TabPanel } from "@mui/lab";
+import { Button, Card, Grid } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import TabBar from "components/TabBar";
@@ -15,7 +15,7 @@ import EditProfile from "./EditProfile";
 
 const useStyles = makeStyles((theme) => ({
   detailsCard: {
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       margin: 0,
       width: "100%",
     },

@@ -1,10 +1,11 @@
 import { MapClickedCallback } from "features/search/constants";
 import { Point } from "geojson";
-import maplibregl, {
-  AnyLayer,
-  AnySourceData,
+import {
   GeoJSONSource,
+  LayerSpecification,
   Map as MaplibreMap,
+  MapLayerMouseEvent,
+  SourceSpecification,
 } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
@@ -16,7 +17,7 @@ import userPin from "./resources/userPin.png";
 const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 type SourceKeys = "clustered-users";
-export const sources: Record<SourceKeys, AnySourceData> = {
+export const sources: Record<SourceKeys, SourceSpecification> = {
   "clustered-users": {
     cluster: true,
     clusterMaxZoom: 14,
@@ -28,7 +29,7 @@ export const sources: Record<SourceKeys, AnySourceData> = {
 };
 
 type LayerKeys = "clusterCountLayer" | "clusterLayer" | "unclusteredPointLayer";
-export const layers: Record<LayerKeys, AnyLayer> = {
+export const layers: Record<LayerKeys, LayerSpecification> = {
   clusterCountLayer: {
     filter: ["has", "point_count"],
     id: "clusters-count",
@@ -83,6 +84,8 @@ export const layers: Record<LayerKeys, AnyLayer> = {
         "case",
         ["boolean", ["feature-state", "selected"], false],
         theme.palette.secondary.main,
+        ["==", ["get", "has_completed_profile"], true],
+        theme.palette.primary.main,
         theme.palette.grey[500],
       ],
       "icon-halo-width": 2,
@@ -90,6 +93,8 @@ export const layers: Record<LayerKeys, AnyLayer> = {
         "case",
         ["boolean", ["feature-state", "selected"], false],
         theme.palette.secondary.main,
+        ["==", ["get", "has_completed_profile"], true],
+        theme.palette.primary.main,
         theme.palette.grey[500],
       ],
       "icon-halo-blur": 2,
@@ -99,37 +104,42 @@ export const layers: Record<LayerKeys, AnyLayer> = {
   },
 };
 
-const addPinImages = (map: MaplibreMap) => {
-  if (map.hasImage("user-pin")) return;
+const addPinImages = async (map: MaplibreMap) => {
+  try {
+    const image = await map.loadImage(userPin.src);
 
-  map.loadImage(userPin.src, (error: Error, image: HTMLImageElement) => {
-    if (error) {
-      throw error;
-    }
-    //this is twice because of loading race condition
     if (map.hasImage("user-pin")) return;
-    map.addImage("user-pin", image, { sdf: true });
-  });
+
+    if (image) {
+      map.addImage("user-pin", image.data, { sdf: true });
+    }
+  } catch (error) {
+    throw error;
+  }
 };
 
-const zoomCluster = (
-  ev: maplibregl.MapMouseEvent & {
-    features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
-  } & maplibregl.EventData
-) => {
+const zoomCluster = async (ev: MapLayerMouseEvent) => {
   const map = ev.target;
   const cluster = ev.features?.[0];
   if (!cluster || !cluster.properties?.cluster_id) return;
 
-  (map.getSource("clustered-users") as GeoJSONSource).getClusterExpansionZoom(
-    cluster.properties.cluster_id,
-    (_error, zoom) => {
+  try {
+    const source = map.getSource("clustered-users") as GeoJSONSource;
+    const zoom = await source.getClusterExpansionZoom(
+      cluster.properties.cluster_id
+    );
+
+    if (zoom !== null && zoom !== undefined) {
+      const point = cluster.geometry as Point;
+
       map.flyTo({
-        center: (cluster.geometry as Point).coordinates as [number, number],
+        center: point.coordinates as [number, number],
         zoom,
       });
     }
-  );
+  } catch (error) {
+    throw error;
+  }
 };
 
 /**

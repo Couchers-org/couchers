@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 import classNames from "classnames";
 import TextBody from "components/TextBody";
 import ControlMessageView from "features/messages/messagelist/ControlMessageView";

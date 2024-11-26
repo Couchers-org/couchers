@@ -6,7 +6,7 @@ import {
   IconButton,
   Paper,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import classNames from "classnames";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -183,15 +183,7 @@ export default function LandingPage() {
             </Typography>
           </div>
         </div>
-        {process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" && (
-          <a
-            className={authClasses.vercelLink}
-            rel="noopener noreferrer"
-            href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
-          >
-            <img alt="Powered by Vercel" src={vercelLogo.src} />
-          </a>
-        )}
+
         <MuiButton
           className={classes.scrollMoreButton}
           onClick={scrollToMore}
@@ -206,6 +198,15 @@ export default function LandingPage() {
         >
           <ExpandMoreIcon />
         </IconButton>
+        {process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" && (
+          <a
+            className={authClasses.vercelLink}
+            rel="noopener noreferrer"
+            href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
+          >
+            <img alt="Powered by Vercel" src={vercelLogo.src} />
+          </a>
+        )}
       </section>
       <div className={classes.spacer} />
       <Container component="section" maxWidth="md">
@@ -289,12 +290,7 @@ export default function LandingPage() {
         maxWidth="lg"
         className={classes.tileSection}
       >
-        <Grid
-          container
-          spacing={3}
-          justifyContent="center"
-          alignItems="stretch"
-        >
+        <Grid container gap={3} justifyContent="center" alignItems="stretch">
           <Grid item xs={12} md={4}>
             <Paper className={classNames(classes.tile, classes.governanceTile)}>
               <Typography variant="subtitle1">Issue:</Typography>

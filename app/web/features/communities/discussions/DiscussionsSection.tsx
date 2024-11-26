@@ -1,4 +1,4 @@
-import { Link as MuiLink } from "@material-ui/core";
+import { Link as MuiLink } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
@@ -85,7 +85,7 @@ export default function DiscussionsSection({
               )}
               passHref
             >
-              <MuiLink component="a">
+              <MuiLink component="a" underline="hover">
                 {t("communities:see_more_discussions_label")}
               </MuiLink>
             </Link>

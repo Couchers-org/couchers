@@ -1,4 +1,8 @@
-import { ThemeProvider } from "@material-ui/core/styles";
+import {
+  StyledEngineProvider,
+  Theme,
+  ThemeProvider,
+} from "@mui/material/styles";
 import { Meta, Story } from "@storybook/react";
 import { GetNotificationSettingsRes } from "proto/notifications_pb";
 import React from "react";
@@ -10,15 +14,22 @@ import { theme } from "theme";
 
 import EditNotificationSettingsPage from "./EditNotificationSettingsPage";
 
+declare module "@mui/styles/defaultTheme" {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
 export default {
   title: "Features/Auth/Notifications/EditNotificationSettingsPage",
   component: EditNotificationSettingsPage,
   decorators: [
     (Story) => (
       <I18nextProvider i18n={i18n}>
-        <ThemeProvider theme={theme}>
-          <Story />
-        </ThemeProvider>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider theme={theme}>
+            <Story />
+          </ThemeProvider>
+        </StyledEngineProvider>
       </I18nextProvider>
     ),
   ],

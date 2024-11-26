@@ -1,9 +1,4 @@
-import {
-  CircularProgress,
-  DialogProps,
-  List,
-  ListItem,
-} from "@material-ui/core";
+import { CircularProgress, DialogProps, List, ListItem } from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import {
@@ -13,10 +8,10 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import TextBody from "components/TextBody";
-import useUsers from "features/userQueries/useUsers";
+import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { User } from "proto/api_pb";
+import { LiteUser } from "proto/api_pb";
 import { GroupChat } from "proto/conversations_pb";
 import React from "react";
 import makeStyles from "utils/makeStyles";
@@ -38,7 +33,7 @@ function MemberListItem({
   member,
   memberIsAdmin,
 }: {
-  member: User.AsObject;
+  member: LiteUser.AsObject;
   memberIsAdmin: boolean;
 }) {
   const classes = useMembersDialogStyles();
@@ -59,7 +54,7 @@ export default function MembersDialog({
   ...props
 }: DialogProps & { groupChat?: GroupChat.AsObject }) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
-  const members = useUsers(groupChat?.memberUserIdsList ?? []);
+  const members = useLiteUsers(groupChat?.memberUserIdsList ?? []);
 
   return (
     <Dialog {...props} aria-labelledby="members-dialog-title">

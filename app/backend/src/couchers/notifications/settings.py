@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 from couchers.db import session_scope
 from couchers.models import (
@@ -15,7 +14,7 @@ from proto import notifications_pb2
 logger = logging.getLogger(__name__)
 
 
-def get_preference(session, user_id: int, topic_action: NotificationTopicAction) -> List[NotificationDeliveryType]:
+def get_preference(session, user_id: int, topic_action: NotificationTopicAction) -> list[NotificationDeliveryType]:
     """
     Gets the user's preference from the DB or otherwise falls back to defaults
 
@@ -266,7 +265,7 @@ def check_settings():
 check_settings()
 
 
-def get_user_setting_groups(user_id) -> List[notifications_pb2.NotificationGroup]:
+def get_user_setting_groups(user_id) -> list[notifications_pb2.NotificationGroup]:
     with session_scope() as session:
         groups = []
         for heading, group in settings_layout:

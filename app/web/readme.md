@@ -1,15 +1,19 @@
 # Couchers web frontend
 
-This is the react/nextjs web frontend for Couchers.org. We are using Typescript with [React Query](https://react-query.tanstack.com/) for data fetching and [Material UI](https://material-ui.com/) for components.
+This is the react/nextjs web frontend for Couchers.org. We are using Typescript with [React Query](https://tanstack.com/query/v3) for data fetching and [Material UI](https://mui.com/material-ui/) for components.
 
 Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf-javascript) over [grpc-web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://protobuf.dev/protobuf-javascript/).
 
+*Readme last updated: 2024/11/14.*
+
 ## Quick Start
 
-We recommend `nvm` (the [node version manager](https://github.com/nvm-sh/nvm)). You can install it with:
+*These instructions should work directly on Linux and macOS. If you are using Windows, please [install Ubuntu via WSL2](https://documentation.ubuntu.com/wsl/en/latest/guides/install-ubuntu-wsl2/), then follow these instructions inside Ubuntu.*
+
+You need `nodejs` v20. We recommend using `nvm` (the [node version manager](https://github.com/nvm-sh/nvm)) to do this. You can install it with:
 
 ```sh
-wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+curl -sL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 ```
 
 **You will need to restart your terminal before `nvm` becomes available.**
@@ -17,13 +21,14 @@ wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 <details>
 <summary>More on deps</summary>
 
-You need `nodejs` v20. The recommended way to do this is to use NVM as above.
+The recommended way get `nodejs` is to use NVM as above, but any other way of installing it should work fine too.
 
-If you don't want `nvm` to be run when you open your shell, you can add `--no-use` in your shell's `rc` file, just before where it says `# This loads nvm`. You then need to run `nvm use` every time you enter the `app/web` folder to start developing.
+If you don't want `nvm` to be run when you start your terminal, you can add `--no-use` in your shell's `rc` file (e.g. `~/.zshrc`), just before where it says `# This loads nvm`. You then need to run `nvm use` every time you enter the `app/web` folder to start developing.
 
 On macOS you can alternatively install dependencies via homebrew. You can get nvm with `brew install nvm`, or `nodejs` directly with `brew install node@20`.
 
-You also need `git`, `wget`, and `tar`, they should be preinstalled or be available from the usual places.
+You also need `git`, `curl`, and `tar`, they should be preinstalled or be available from the usual places.
+
 </details>
 
 Now run the following commands to get up and running:
@@ -42,7 +47,7 @@ nvm install
 npm install --global yarn
 
 ## Download & extract the latest protos
-wget -qO- https://develop--protos.preview.couchershq.org/ts.tar.gz | tar xz
+curl -sL https://develop--protos.preview.couchershq.org/ts.tar.gz | tar xz
 
 # install dependencies
 yarn install
@@ -64,6 +69,12 @@ If you're getting logged out right after logging in, it's possible that 3rd part
 This method uses the staging backend/database at <https://next.couchershq.org/> (what we call "next"), and the pre-built protos from today's `develop` branch (they change pretty rarely). You might eventually want to change both of these, but this should get you up and running!
 
 If you have any trouble, someone will be happy to help, just ask!
+
+## Logging in
+
+If you followed the Quick Start instructions, it points to the staging ("next") instance: please create a new account. It's separate from the prod instance but otherwise fully functional and you'll receive a real signup link.
+
+If you are running the backend locally, use username `aapeli` and password `Aapeli's password`.
 
 ## How to contribute
 
@@ -115,7 +126,7 @@ In one terminal, compile protos, run the backend and rest of the infrastructure:
 
 ```sh
 ## terminal 1
-cd app 
+cd app
 # compile protos
 docker run --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
 # launch the rest of the docker containers
@@ -145,7 +156,7 @@ In the project directory, you can run:
 
 ### `yarn start`
 
-Runs the app in the development mode.<br />
+Runs the app in development mode.<br />
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.<br />

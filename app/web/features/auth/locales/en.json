@@ -310,6 +310,19 @@
       }
     }
   },
+  "active_logins": {
+    "heading": "Current logins",
+    "settings_page_text": "See where you are logged in and log out of other sessions",
+    "settings_page_link": "Manage current logins",
+    "description": "This page lists active logins, you can log out of any of them by clicking on the button next to the login, or scrolling to the bottom and clicking the button to log out of all but this session.",
+    "login_header": "Login on {{login_datetime}}",
+    "location": "Near <2>{{approximate_location}}</2>",
+    "last_activity": "Last activity <2>{{last_activity_ago}}</2>",
+    "expiry": "Expires on <1>{{expiry_datetime}}</1>",
+    "current_session": "This is your current session.",
+    "log_out_of_session": "Log out of this session",
+    "log_out_of_all_session": "Log out of all other sessions"
+  },
   "strong_verification": {
     "title": "Strong Verification",
     "subtitle": "Strong Verification is an additional safety feature that allows you to verify your date of birth and gender using your biometric passport.",

@@ -6,11 +6,11 @@ import {
   FormGroup,
   FormHelperText,
   FormLabel,
-  makeStyles,
   Radio,
   RadioGroup,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextField from "components/TextField";
@@ -185,7 +185,7 @@ export default function ContributorForm({
             name="contribute"
             defaultValue=""
             render={({ onChange, value }) => (
-              <FormControl component="fieldset">
+              <FormControl variant="standard" component="fieldset">
                 <FormLabel component="legend" className={classes.radioLabel}>
                   {CONTRIBUTE_LABEL}
                 </FormLabel>
@@ -209,7 +209,7 @@ export default function ContributorForm({
             )}
           />
           <Collapse in={watchContribute !== undefined}>
-            <FormControl component="fieldset">
+            <FormControl variant="standard" component="fieldset">
               <FormLabel component="legend" className={classes.radioLabel}>
                 {CONTRIBUTE_WAYS_LABEL}
               </FormLabel>

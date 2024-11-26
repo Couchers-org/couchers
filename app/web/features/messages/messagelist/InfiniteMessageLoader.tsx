@@ -26,9 +26,30 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
   },
   scroll: {
-    ...theme.shape.scrollBar,
     position: "relative",
     minHeight: "80px",
+
+    "&::-webkit-scrollbar": {
+      background: "rgba(0,0,0,0)",
+      height: "0.5rem",
+      width: "0.5rem",
+    },
+    "&::-webkit-scrollbar:hover": {
+      background: "rgba(0,0,0,0.1)",
+      width: "0.5rem",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background: "rgba(0,0,0,0.2)",
+      borderRadius: "20px",
+    },
+    "&::-webkit-scrollbar-thumb:hover": {
+      background: "rgba(0,0,0,0.3)",
+    },
+    overflowY: "auto",
+    overflowX: "hidden",
+    paddingInlineEnd: `0.5rem`,
+    scrollbarHeight: "thin",
+    scrollbarWidth: "thin",
   },
 }));
 

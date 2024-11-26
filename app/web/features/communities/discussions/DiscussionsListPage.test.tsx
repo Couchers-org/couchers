@@ -9,7 +9,7 @@ import { service } from "service";
 import community from "test/fixtures/community.json";
 import discussions from "test/fixtures/discussions.json";
 import wrapper from "test/hookWrapper";
-import { getUser } from "test/serviceMockDefaults";
+import { getLiteUser } from "test/serviceMockDefaults";
 import {
   assertErrorAlert,
   mockConsoleError,
@@ -22,8 +22,8 @@ import DiscussionsListPage from "./DiscussionsListPage";
 
 jest.mock("components/MarkdownInput");
 
-const getUserMock = service.user.getUser as MockedService<
-  typeof service.user.getUser
+const getLiteUserMock = service.user.getLiteUser as MockedService<
+  typeof service.user.getLiteUser
 >;
 const createDiscussionMock = service.discussions
   .createDiscussion as MockedService<
@@ -34,7 +34,7 @@ const listDiscussionsMock = service.communities
 
 describe("DiscussionsListPage", () => {
   beforeEach(() => {
-    getUserMock.mockImplementation(getUser);
+    getLiteUserMock.mockImplementation(getLiteUser);
     listDiscussionsMock.mockResolvedValue({
       discussionsList: discussions,
       nextPageToken: "",
@@ -50,7 +50,9 @@ describe("DiscussionsListPage", () => {
       await screen.findAllByTestId(DISCUSSION_CARD_TEST_ID)
     ).map((element) => within(element));
 
-    const firstCreator = await getUser(discussions[0].creatorUserId.toString());
+    const firstCreator = await getLiteUser(
+      discussions[0].creatorUserId.toString()
+    );
     expect(
       discussionCards[0].getByText(
         new RegExp(
@@ -72,7 +74,7 @@ describe("DiscussionsListPage", () => {
       )
     ).toBeVisible();
 
-    const secondCreator = await getUser(
+    const secondCreator = await getLiteUser(
       discussions[1].creatorUserId.toString()
     );
     expect(

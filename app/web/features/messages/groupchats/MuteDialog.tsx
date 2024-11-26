@@ -4,7 +4,7 @@ import {
   FormControlLabel,
   Radio,
   RadioGroup,
-} from "@material-ui/core";
+} from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -68,7 +68,7 @@ export default function MuteDialog({
         {muteMutation.error && (
           <Alert severity="error">{muteMutation.error.message}</Alert>
         )}
-        <FormControl component="fieldset">
+        <FormControl variant="standard" component="fieldset">
           <RadioGroup
             aria-labelledby="mute-dialog-title"
             value={selected ?? null}

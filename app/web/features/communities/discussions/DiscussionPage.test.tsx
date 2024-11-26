@@ -14,7 +14,7 @@ import comments from "test/fixtures/comments.json";
 import community from "test/fixtures/community.json";
 import discussions from "test/fixtures/discussions.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
-import { getThread, getUser } from "test/serviceMockDefaults";
+import { getLiteUser, getThread } from "test/serviceMockDefaults";
 import {
   assertErrorAlert,
   mockConsoleError,
@@ -28,8 +28,8 @@ import DiscussionPage, { CREATOR_TEST_ID } from "./DiscussionPage";
 
 jest.mock("components/MarkdownInput");
 
-const getUserMock = service.user.getUser as MockedService<
-  typeof service.user.getUser
+const getLiteUserMock = service.user.getLiteUser as MockedService<
+  typeof service.user.getLiteUser
 >;
 const getCommunityMock = service.communities.getCommunity as MockedService<
   typeof service.communities.getCommunity
@@ -94,7 +94,7 @@ describe("Discussion page", () => {
   });
 
   beforeEach(() => {
-    getUserMock.mockImplementation(getUser);
+    getLiteUserMock.mockImplementation(getLiteUser);
     getCommunityMock.mockResolvedValue(community);
     getDiscussionMock.mockResolvedValue(discussions[0]);
     getThreadMock.mockImplementation(getThread);
@@ -130,7 +130,9 @@ describe("Discussion page", () => {
   });
 
   it("renders a loading skeleton if the user info is still loading", async () => {
-    getUserMock.mockImplementation(async () => new Promise(() => undefined));
+    getLiteUserMock.mockImplementation(
+      async () => new Promise(() => undefined)
+    );
     renderDiscussion();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
@@ -168,7 +170,7 @@ describe("Discussion page", () => {
     ).toBeVisible();
     // check top level comment
     const firstTopLevelComment = comments.find((c) => c.threadId === 6);
-    const commentUser = await getUser(
+    const commentUser = await getLiteUser(
       firstTopLevelComment!.authorUserId.toString()
     );
     expect(
@@ -194,7 +196,7 @@ describe("Discussion page", () => {
     ).toBeVisible();
 
     // check nested comment/reply
-    const replyUser = await getUser("3");
+    const replyUser = await getLiteUser("3");
     expect(
       commentCards[1].getByRole("img", { name: replyUser.name })
     ).toBeVisible();

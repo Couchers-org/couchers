@@ -1,4 +1,4 @@
-import { ThemeProvider } from "@material-ui/core";
+import { StyledEngineProvider, Theme, ThemeProvider } from "@mui/material";
 import Button from "components/Button";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
@@ -8,8 +8,14 @@ import makeStyles from "utils/makeStyles";
 
 import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
 
+declare module "@mui/styles/defaultTheme" {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
 const useStyles = makeStyles((theme) => ({
   textGradient: {
+    backgroundColor: "white",
     background: `-webkit-linear-gradient(0deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
     "-webkit-background-clip": "text",
     "-webkit-text-fill-color": "transparent",
@@ -30,13 +36,15 @@ export default function HeroButton() {
 
   return (
     <div className={classes.buttonContainer}>
-      <ThemeProvider theme={heroTheme}>
-        <Link href={searchRoute} passHref>
-          <Button variant="contained" size="large">
-            <span className={classes.textGradient}>{t("show_map")}</span>
-          </Button>
-        </Link>
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={heroTheme}>
+          <Link href={searchRoute} passHref>
+            <Button variant="contained" size="large">
+              <span className={classes.textGradient}>{t("show_map")}</span>
+            </Button>
+          </Link>
+        </ThemeProvider>
+      </StyledEngineProvider>
     </div>
   );
 }

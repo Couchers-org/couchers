@@ -1,5 +1,5 @@
-import { Card, CircularProgress, Typography } from "@material-ui/core";
-import { CSSProperties } from "@material-ui/styles";
+import { Card, CircularProgress, Typography } from "@mui/material";
+import { CSSProperties } from "@mui/styles";
 import Alert from "components/Alert";
 import TextBody from "components/TextBody";
 import React from "react";

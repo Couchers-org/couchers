@@ -1,9 +1,8 @@
-import { Card, CircularProgress, Typography } from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
+import { Card, CircularProgress, Skeleton, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import Markdown from "components/Markdown";
-import { useUser } from "features/userQueries/useUsers";
+import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Reply } from "proto/threads_pb";
@@ -81,7 +80,7 @@ interface CommentProps {
 export default function Comment({ topLevel = false, comment }: CommentProps) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
-  const { data: user, isLoading: isUserLoading } = useUser(
+  const { data: user, isLoading: isUserLoading } = useLiteUser(
     comment.authorUserId
   );
 

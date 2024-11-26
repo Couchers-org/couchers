@@ -1,9 +1,8 @@
-import { createTheme, ThemeOptions } from "@material-ui/core";
-import createBreakpoints from "@material-ui/core/styles/createBreakpoints";
-import { CSSProperties } from "@material-ui/core/styles/withStyles";
-import type {} from "@material-ui/lab/themeAugmentation";
+import type {} from "@mui/lab/themeAugmentation";
+import { createTheme, Theme } from "@mui/material";
+import { ThemeOptions } from "@mui/material/styles";
 
-declare module "@material-ui/core/styles/createTypography" {
+declare module "@mui/material/styles/createTypography" {
   interface TypographyOptions {
     h1Large: TypographyStyleOptions;
   }
@@ -17,20 +16,31 @@ const borderRadius = 4;
 const navBarHeightXs = 3.5; //rem
 const navBarHeightSmUp = 4; //rem
 
-const breakpoints = createBreakpoints({});
-declare module "@material-ui/core/styles/shape" {
+declare module "@mui/styles/defaultTheme" {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
+declare module "@mui/material/styles" {
   interface Shape {
-    navPaddingSmUp: ReturnType<typeof spacing>;
-    navPaddingXs: ReturnType<typeof spacing>;
-    scrollBar: CSSProperties;
+    borderRadius: number;
+    navPaddingSmUp: string;
+    navPaddingXs: string;
+  }
+
+  interface Theme {
+    shape: Shape;
+  }
+
+  interface ThemeOptions {
+    shape?: Partial<Shape>;
   }
 }
 
 const themeOptions: ThemeOptions = {
-  breakpoints,
-  overrides: {
+  components: {
     MuiCssBaseline: {
-      "@global": {
+      styleOverrides: {
         a: {
           textDecoration: "none",
           color: "inherit",
@@ -38,20 +48,41 @@ const themeOptions: ThemeOptions = {
       },
     },
     MuiFormLabel: {
-      root: {
-        "&$focused": { color: "inherit" },
+      styleOverrides: {
+        root: {
+          "&.Mui-focused": { color: "inherit" },
+        },
       },
     },
     MuiInputBase: {
-      input: {
-        fontSize: "1rem",
+      styleOverrides: {
+        input: {
+          fontSize: "0.875rem",
+        },
       },
     },
-    MuiListItem: { gutters: { paddingLeft: 0, paddingRight: 0 } },
+    MuiButtonBase: {
+      defaultProps: {
+        disableRipple: true,
+      },
+    },
+    // Bc this change in v5 https://github.com/mui/material-ui/pull/26458
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          // up-sm
+          "@media screen and (min-width: 600px)": {
+            minWidth: 160,
+          },
+        },
+      },
+    },
     MuiTabPanel: {
-      root: {
-        padding: 0,
-        paddingTop: spacing(1),
+      styleOverrides: {
+        root: {
+          padding: 0,
+          paddingTop: spacing(1),
+        },
       },
     },
   },
@@ -91,47 +122,10 @@ const themeOptions: ThemeOptions = {
       secondary: "#767676",
     },
   },
-  props: {
-    MuiButtonBase: {
-      disableRipple: true,
-    },
-    MuiCheckbox: {
-      color: "primary",
-    },
-    MuiLink: {
-      color: "primary",
-      variant: "body1",
-    },
-    MuiRadio: {
-      color: "primary",
-    },
-  },
   shape: {
     borderRadius,
     navPaddingSmUp: `${navBarHeightSmUp}rem`,
     navPaddingXs: `${navBarHeightXs}rem`,
-    scrollBar: {
-      "&::-webkit-scrollbar": {
-        background: "rgba(0,0,0,0)",
-        height: "0.5rem",
-        width: "0.5rem",
-      },
-      "&::-webkit-scrollbar:hover": {
-        background: "rgba(0,0,0,0.1)",
-        width: "0.5rem",
-      },
-      "&::-webkit-scrollbar-thumb": {
-        background: "rgba(0,0,0,0.2)",
-        borderRadius: "20px",
-      },
-      "&::-webkit-scrollbar-thumb:hover": {
-        background: "rgba(0,0,0,0.3)",
-      },
-      overflow: "auto",
-      paddingInlineEnd: spacing(1),
-      scrollbarHeight: "thin",
-      scrollbarWidth: "thin",
-    },
   },
   spacing: spacing,
   typography: {
@@ -155,57 +149,33 @@ const themeOptions: ThemeOptions = {
     h1: {
       fontSize: "1.25rem", //20px
       fontWeight: "bold",
-      [breakpoints.up("md")]: {
-        fontSize: "1.5rem", //24px
-      },
     },
     h1Large: {
       fontSize: "1.5rem", //24px
-      [breakpoints.up("md")]: {
-        fontSize: "75rem", //28px
-      },
     },
     h2: {
       fontSize: "1rem", //16px
       fontWeight: "bold",
-      [breakpoints.up("md")]: {
-        fontSize: "1.25rem", //20px
-      },
     },
     h3: {
       fontSize: "0.875rem", //14px
       fontWeight: "bold",
-      [breakpoints.up("md")]: {
-        fontSize: "1rem", //16px
-      },
     },
     h4: {
       fontSize: "0.75rem", //12px
       fontWeight: "bold",
-      [breakpoints.up("md")]: {
-        fontSize: "0.875rem", //14px
-      },
     },
     h5: {
       fontSize: "0.75rem", //12px
       fontWeight: "bold",
-      [breakpoints.up("md")]: {
-        fontSize: "0.875rem", //14px
-      },
     },
     h6: {
       fontSize: "0.75rem", //12px
       fontWeight: "bold",
-      [breakpoints.up("md")]: {
-        fontSize: "0.875rem", //14px
-      },
     },
     overline: {
       fontSize: "0.875rem", //14px
       fontStyle: "italic",
-      [breakpoints.up("md")]: {
-        fontSize: "1rem", //14px
-      },
     },
     subtitle1: {
       fontSize: "1rem", //16px

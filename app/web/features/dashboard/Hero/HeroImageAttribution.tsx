@@ -1,8 +1,19 @@
-import { Link as MuiLink, ThemeProvider, Typography } from "@material-ui/core";
+import {
+  Link as MuiLink,
+  StyledEngineProvider,
+  Theme,
+  ThemeProvider,
+  Typography,
+} from "@mui/material";
 import { Trans } from "next-i18next";
 import makeStyles from "utils/makeStyles";
 
 import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
+
+declare module "@mui/styles/defaultTheme" {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
 
 const useStyles = makeStyles((theme) => ({
   attribution: {
@@ -33,33 +44,37 @@ export default function HeroImageAttribution() {
   const heroBackgroundTheme = useHeroBackgroundTheme();
 
   return (
-    <ThemeProvider theme={heroBackgroundTheme}>
-      <Typography
-        className={classes.attribution}
-        color="textPrimary"
-        variant="body2"
-      >
-        <Trans i18nKey="dashboard:hero_image_attribution">
-          {`Photo by `}
-          <MuiLink
-            href={authorUrl}
-            variant="inherit"
-            rel="noreferrer noopener"
-            target="_blank"
-          >
-            Mesut Kaya
-          </MuiLink>
-          {` on `}
-          <MuiLink
-            href={unsplashUrl}
-            variant="inherit"
-            rel="noreferrer noopener"
-            target="_blank"
-          >
-            Unsplash
-          </MuiLink>
-        </Trans>
-      </Typography>
-    </ThemeProvider>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={heroBackgroundTheme}>
+        <Typography
+          className={classes.attribution}
+          color="textPrimary"
+          variant="body2"
+        >
+          <Trans i18nKey="dashboard:hero_image_attribution">
+            {`Photo by `}
+            <MuiLink
+              href={authorUrl}
+              variant="inherit"
+              rel="noreferrer noopener"
+              target="_blank"
+              underline="hover"
+            >
+              Mesut Kaya
+            </MuiLink>
+            {` on `}
+            <MuiLink
+              href={unsplashUrl}
+              variant="inherit"
+              rel="noreferrer noopener"
+              target="_blank"
+              underline="hover"
+            >
+              Unsplash
+            </MuiLink>
+          </Trans>
+        </Typography>
+      </ThemeProvider>
+    </StyledEngineProvider>
   );
 }

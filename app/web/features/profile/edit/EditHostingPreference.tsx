@@ -1,10 +1,10 @@
 import {
+  Autocomplete,
   Checkbox,
   FormControl,
   FormControlLabel,
   Typography,
-} from "@material-ui/core";
-import { Autocomplete } from "@material-ui/lab";
+} from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
@@ -49,9 +49,9 @@ function HostingPreferenceCheckbox({
   register,
 }: HostingPreferenceCheckboxProps) {
   return (
-    <FormControl className={className} margin="dense">
+    <FormControl variant="standard" className={className} margin="dense">
       <FormControlLabel
-        control={<Checkbox color="primary" defaultChecked={defaultValue} />}
+        control={<Checkbox defaultChecked={defaultValue} />}
         label={label}
         name={name}
         inputRef={register}

@@ -1,4 +1,4 @@
-import { createTheme, Theme, useTheme } from "@material-ui/core";
+import { createTheme, Theme, useTheme } from "@mui/material";
 import { useMemo } from "react";
 
 const getTheme = (theme: Theme) =>

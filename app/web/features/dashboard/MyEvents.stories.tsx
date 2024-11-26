@@ -19,7 +19,7 @@ const Template: Story<EventsListArgs> = ({
   shouldListEventsSucceed = true,
 } = {}) => {
   setMocks({
-    pagesOfEvent,
+    pagesOfEvent: pagesOfEvent as Required<EventsListArgs>["pagesOfEvent"],
     shouldListEventsSucceed,
   });
   return <MyEvents />;
@@ -51,6 +51,7 @@ function setMocks({
       ? {
           eventsList: pagesOfEvent === "none" ? [] : events,
           nextPageToken: pagesOfEvent === "multiple-pages" ? "3" : "",
+          totalItems: events.length,
         }
       : Promise.reject(new Error("Error listing user's events"));
   };

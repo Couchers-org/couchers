@@ -1,4 +1,4 @@
-import { Container, Grid, makeStyles, Typography } from "@material-ui/core";
+import { Container, Grid, Typography } from "@mui/material";
 import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
@@ -7,26 +7,15 @@ import DashboardBanners from "features/dashboard/DashboardBanners";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { blogRoute, donationsRoute } from "routes";
+import { theme } from "theme";
 
 import CommunitiesSection from "./CommunitiesSection";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import Hero from "./Hero";
 import MyEvents from "./MyEvents";
 
-const useStyles = makeStyles((theme) => ({
-  profileOverviewContainer: {
-    marginTop: theme.spacing(3),
-  },
-  mainContentContainer: {
-    [theme.breakpoints.up("sm")]: {
-      paddingLeft: theme.spacing(5),
-    },
-  },
-}));
-
 export default function Dashboard() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
-  const classes = useStyles();
 
   return (
     <>
@@ -36,16 +25,20 @@ export default function Dashboard() {
         because the hero section is full viewport width */}
       <Container maxWidth="lg">
         <Grid container direction="row">
-          <Grid
-            item
-            sm={4}
-            xs={12}
-            className={classes.profileOverviewContainer}
-          >
+          <Grid item sm={4} xs={12} sx={{ marginTop: theme.spacing(3) }}>
             <DashboardUserProfileSummary />
           </Grid>
 
-          <Grid item sm={8} xs={12} className={classes.mainContentContainer}>
+          <Grid
+            item
+            sm={8}
+            xs={12}
+            sx={{
+              [theme.breakpoints.up("sm")]: {
+                paddingLeft: theme.spacing(5),
+              },
+            }}
+          >
             <HtmlMeta title={t("global:nav.dashboard")} />
 
             <PageTitle>{t("dashboard:welcome")}</PageTitle>

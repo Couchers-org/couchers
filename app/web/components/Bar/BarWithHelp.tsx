@@ -1,4 +1,4 @@
-import { IconButton, Tooltip } from "@material-ui/core";
+import { IconButton, Tooltip } from "@mui/material";
 import classNames from "classnames";
 import { HelpIcon } from "components/Icons";
 import React from "react";
@@ -37,7 +37,11 @@ export default function BarWithHelp({
     <div className={classNames(classes.root, className)}>
       <ScoreBar value={value}>{label}</ScoreBar>
       <Tooltip title={description}>
-        <IconButton aria-label="help icon" className={classes.button}>
+        <IconButton
+          aria-label="help icon"
+          className={classes.button}
+          size="large"
+        >
           <HelpIcon />
         </IconButton>
       </Tooltip>

@@ -1,16 +1,9 @@
-import { Typography } from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
+import { Skeleton, styled, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
-import Divider from "components/Divider";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon } from "components/Icons";
 import PageTitle from "components/PageTitle";
-import UserSummary from "components/UserSummary";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { useGroupChatViewStyles } from "features/messages/groupchats/GroupChatView";
-import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessageLoader";
-import MessageList from "features/messages/messagelist/MessageList";
 import HostRequestSendField from "features/messages/requests/HostRequestSendField";
 import useMarkLastSeen, {
   MarkLastSeenVariables,
@@ -20,7 +13,7 @@ import {
   hostRequestMessagesKey,
   hostRequestsListKey,
 } from "features/queryKeys";
-import { useUser } from "features/userQueries/useUsers";
+import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -38,11 +31,69 @@ import {
   useQueryClient,
 } from "react-query";
 import { service } from "service";
-import { numNights } from "utils/date";
-import dayjs from "utils/dayjs";
+import { theme } from "theme";
 import { firstName } from "utils/names";
 
 import { requestStatusToTransKey } from "../constants";
+import ChatContent from "../groupchats/ChatContent";
+import HostRequestUserSummarySection from "./HostRequestUserSummarySection";
+
+const StyledHeader = styled("div")(({ theme }) => ({
+  padding: theme.spacing(1, 2),
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  alignItems: "center",
+  display: "flex",
+  flexGrow: 0,
+  "& > * + *": {
+    marginInlineStart: theme.spacing(2),
+  },
+
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(0, 1.5),
+  },
+}));
+
+const StyledPageTitle = styled(PageTitle)({
+  flexGrow: 1,
+  width: "100%",
+  display: "flex",
+  alignItems: "center",
+  marginInlineEnd: theme.spacing(2),
+  marginInlineStart: theme.spacing(2),
+  "& > *": { marginInlineEnd: theme.spacing(2) },
+
+  [theme.breakpoints.down("sm")]: {
+    fontSize: "0.9rem",
+  },
+});
+
+const StyledPageWrapper = styled("div")(({ theme }) => ({
+  alignItems: "stretch",
+  display: "flex",
+  flexDirection: "column",
+  overflow: "hidden",
+  height: `calc(var(--vh, 1vh) * 100 - ${theme.shape.navPaddingXs})`,
+
+  [theme.breakpoints.up("sm")]: {
+    height: `calc(var(--vh, 1vh) * 100 - ${theme.shape.navPaddingSmUp})`,
+  },
+}));
+
+const StyledFooter = styled("div")(({ theme }) => ({
+  background: theme.palette.common.white,
+  position: "sticky",
+  bottom: 0,
+  marginTop: "auto",
+  flexGrow: 0,
+  paddingBottom: theme.spacing(2),
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2),
+
+  [theme.breakpoints.down("md")]: {
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+  },
+}));
 
 export default function HostRequestView({
   hostRequestId,
@@ -50,7 +101,8 @@ export default function HostRequestView({
   hostRequestId: number;
 }) {
   const { t } = useTranslation(MESSAGES);
-  const classes = useGroupChatViewStyles();
+
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { data: hostRequest, error: hostRequestError } = useQuery<
     HostRequest.AsObject,
@@ -81,8 +133,8 @@ export default function HostRequestView({
     }
   );
 
-  const { data: surfer } = useUser(hostRequest?.surferUserId);
-  const { data: host } = useUser(hostRequest?.hostUserId);
+  const { data: surfer } = useLiteUser(hostRequest?.surferUserId);
+  const { data: host } = useLiteUser(hostRequest?.hostUserId);
   const currentUserId = useAuthContext().authState.userId;
   const isHost = host?.userId === currentUserId;
   const otherUser = isHost ? surfer : host;
@@ -154,50 +206,35 @@ export default function HostRequestView({
 
   const handleBack = () => router.back();
 
-  return !hostRequestId ? (
-    <Alert severity="error">{t("host_request_view.error_message")}</Alert>
-  ) : (
-    <div className={classes.pageWrapper}>
-      <div className={classes.header}>
+  const hasError =
+    respondMutation.error || sendMutation.error || hostRequestError;
+
+  if (!hostRequestId) {
+    return (
+      <Alert severity="error">{t("host_request_view.error_message")}</Alert>
+    );
+  }
+
+  return (
+    <StyledPageWrapper>
+      <StyledHeader>
         <HeaderButton
           onClick={handleBack}
           aria-label={t("host_request_view.back_button_a11y_label")}
+          {...(isMobile ? { size: "small" } : {})}
         >
-          <BackIcon />
+          <BackIcon sx={{ fontSize: isMobile ? "small" : "medium" }} />
         </HeaderButton>
 
-        <PageTitle className={classes.title}>
+        <StyledPageTitle>
           {!title || hostRequestError ? <Skeleton width="100" /> : title}
-        </PageTitle>
-      </div>
-      <UserSummary user={otherUser}>
-        {hostRequest && (
-          <div className={classes.requestedDatesWrapper}>
-            <Typography
-              component="p"
-              variant="h3"
-              className={classes.requestedDates}
-            >
-              {`${dayjs(hostRequest.fromDate).format("LL")} - ${dayjs(
-                hostRequest.toDate
-              ).format("LL")}`}
-            </Typography>
-            <Typography
-              component="p"
-              variant="h3"
-              className={classes.numNights}
-            >
-              (
-              {t("host_request_view.request_duration", {
-                count: numNights(hostRequest.toDate, hostRequest.fromDate),
-              })}
-              )
-            </Typography>
-          </div>
-        )}
-      </UserSummary>
-      <Divider />
-      {(respondMutation.error || sendMutation.error || hostRequestError) && (
+        </StyledPageTitle>
+      </StyledHeader>
+      <HostRequestUserSummarySection
+        hostRequest={hostRequest}
+        otherUser={otherUser}
+      />
+      {hasError && (
         <Alert severity={"error"}>
           {respondMutation.error?.message ||
             sendMutation.error?.message ||
@@ -205,42 +242,27 @@ export default function HostRequestView({
             ""}
         </Alert>
       )}
-      {isMessagesLoading ? (
-        <CircularProgress />
-      ) : (
-        <>
-          {messagesError && (
-            <Alert severity="error">{messagesError.message}</Alert>
-          )}
-          {messagesRes && hostRequest && (
-            <>
-              <InfiniteMessageLoader
-                earliestMessageId={
-                  messagesRes.pages[messagesRes.pages.length - 1].lastMessageId
-                }
-                fetchNextPage={fetchNextPage}
-                isFetchingNextPage={isFetchingNextPage}
-                hasNextPage={!!hasNextPage}
-                isError={!!messagesError}
-              >
-                <MessageList
-                  markLastSeen={markLastSeen}
-                  messages={messagesRes.pages
-                    .map((page) => page.messagesList)
-                    .flat()}
-                />
-              </InfiniteMessageLoader>
-              <div className={classes.footer}>
-                <HostRequestSendField
-                  hostRequest={hostRequest}
-                  sendMutation={sendMutation}
-                  respondMutation={respondMutation}
-                />
-              </div>
-            </>
-          )}
-        </>
-      )}
-    </div>
+      {messagesError && <Alert severity="error">{messagesError.message}</Alert>}
+      <ChatContent
+        isHostRequest
+        isLoading={isMessagesLoading}
+        messages={messagesRes}
+        hostRequest={hostRequest}
+        fetchNextPage={fetchNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        hasNextPage={!!hasNextPage}
+        markLastSeen={markLastSeen}
+        isError={!!messagesError}
+      />
+      <StyledFooter>
+        {hostRequest && (
+          <HostRequestSendField
+            hostRequest={hostRequest}
+            sendMutation={sendMutation}
+            respondMutation={respondMutation}
+          />
+        )}
+      </StyledFooter>
+    </StyledPageWrapper>
   );
 }

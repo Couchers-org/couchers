@@ -1,4 +1,4 @@
-import useUsers from "features/userQueries/useUsers";
+import { useLiteUsers } from "features/userQueries/useLiteUsers";
 
 import { useReferencesGiven } from "../hooks/referencesHooks";
 import { useProfileUser } from "../hooks/useProfileUser";
@@ -13,7 +13,7 @@ export default function ReferencesGivenList() {
       .map((page) => page.referencesList.map((reference) => reference.toUserId))
       .flat() ?? [];
   const { data: referenceUsers, isLoading: isReferenceUsersLoading } =
-    useUsers(userIds);
+    useLiteUsers(userIds);
 
   return (
     <ReferencesView

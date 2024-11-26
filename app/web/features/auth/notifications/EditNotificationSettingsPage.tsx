@@ -1,9 +1,8 @@
-import { CircularProgress, List, Typography } from "@material-ui/core";
+import { CircularProgress, List, styled, Typography } from "@mui/material";
 import Snackbar from "components/Snackbar";
 import { AUTH } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useEffect, useState } from "react";
-import makeStyles from "utils/makeStyles";
 
 import NotificationSettingsListItem from "./NotificationSettingsListItem";
 import useNotificationSettings from "./useNotificationSettings";
@@ -30,39 +29,35 @@ interface GroupsByType {
   [key: string]: GroupAction[];
 }
 
-const useStyles = makeStyles((theme) => ({
-  descriptionText: {
-    fontSize: theme.spacing(1.8),
-    color: theme.palette.text.secondary,
-  },
-  list: {
-    border: `1px solid ${theme.palette.divider}`,
-    marginTop: theme.spacing(1),
-    display: "flex",
-    flexDirection: "column",
-    padding: `0 ${theme.spacing(1)}`,
-  },
-  loading: {
-    position: "absolute",
-  },
-  notificationSettingsContainer: {
-    display: "flex",
-    flexDirection: "column",
-    padding: theme.spacing(4),
-    margin: "0 auto",
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
-      width: "50%",
-    },
-  },
-  notificationDescription: {
-    margin: theme.spacing(1, 0),
-    paddingBottom: theme.spacing(3),
+const StyledNotificationSettingsContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  padding: theme.spacing(4),
+  margin: "0 auto",
+  width: "100%",
+  [theme.breakpoints.up("md")]: {
+    width: "50%",
   },
 }));
 
+const StyledNotificationDescription = styled(Typography)(({ theme }) => ({
+  margin: theme.spacing(1, 0),
+  paddingBottom: theme.spacing(3),
+}));
+
+const StyledCustomList = styled(List)(({ theme }) => ({
+  border: `1px solid ${theme.palette.divider}`,
+  marginTop: theme.spacing(1),
+  display: "flex",
+  flexDirection: "column",
+  padding: `0 ${theme.spacing(1)}`,
+}));
+
+const StyledLoadingSpinner = styled(CircularProgress)({
+  position: "absolute",
+});
+
 export default function EditNotificationSettingsPage() {
-  const classes = useStyles();
   const { t } = useTranslation(AUTH, {
     keyPrefix: "notification_settings.edit_preferences",
   });
@@ -119,11 +114,11 @@ export default function EditNotificationSettingsPage() {
       ));
 
   return (
-    <div className={classes.notificationSettingsContainer}>
+    <StyledNotificationSettingsContainer>
       <Typography variant="h2">{t("title")}</Typography>
-      <Typography className={classes.notificationDescription} variant="body1">
+      <StyledNotificationDescription variant="body1">
         {t("description")}
-      </Typography>
+      </StyledNotificationDescription>
       <Typography variant="h3">{t("list_heading")}</Typography>
       {isError && (
         <Snackbar severity="error">
@@ -131,10 +126,10 @@ export default function EditNotificationSettingsPage() {
         </Snackbar>
       )}
       {!isLoading && !areGroupsLoading ? (
-        <List className={classes.list}>{renderNotificationListItems()}</List>
+        <StyledCustomList>{renderNotificationListItems()}</StyledCustomList>
       ) : (
-        <CircularProgress className={classes.loading} />
+        <StyledLoadingSpinner />
       )}
-    </div>
+    </StyledNotificationSettingsContainer>
   );
 }

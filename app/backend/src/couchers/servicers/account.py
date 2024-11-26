@@ -167,6 +167,7 @@ class Account(account_pb2_grpc.AccountServicer):
             phone_verified=user.phone_is_verified,
             profile_complete=user.has_completed_profile,
             timezone=user.timezone,
+            is_superuser=user.is_superuser,
             **get_strong_verification_fields(session, user),
         )
 

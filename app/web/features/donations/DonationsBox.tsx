@@ -3,11 +3,11 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
-  makeStyles,
   Radio,
   RadioGroup,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -35,14 +35,14 @@ const useStyles = makeStyles((theme) => ({
     gridTemplateColumns: "repeat( auto-fit, minmax(160px, 1fr) )",
     gridAutoRows: "2.75rem",
     display: "grid",
-    gridGap: theme.spacing(2),
+    gap: theme.spacing(2),
     marginBottom: theme.spacing(2),
   },
 
   donationsBoxSubRow: {
     gridTemplateColumns: "repeat( auto-fit, minmax(72px, 1fr) )",
     display: "grid",
-    gridGap: theme.spacing(2),
+    gap: theme.spacing(2),
   },
 
   buttonSecondary: {
@@ -307,7 +307,7 @@ export default function DonationsBox() {
           }}
           defaultValue="monthly"
           render={({ onChange, value }) => (
-            <FormControl className={classes.formGroup}>
+            <FormControl variant="standard" className={classes.formGroup}>
               <RadioGroup
                 className={classes.donationsBoxRow}
                 aria-label={t("donations_box.recurrence_aria_label")}

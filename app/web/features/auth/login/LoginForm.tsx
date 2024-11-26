@@ -1,4 +1,4 @@
-import { FormControlLabel, InputLabel } from "@material-ui/core";
+import { FormControlLabel, InputLabel } from "@mui/material";
 import Button from "components/Button";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import StyledLink from "components/StyledLink";
@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   rememberSwitch: {
     display: "block",
     marginInlineStart: 0,
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       marginBlockEnd: theme.spacing(1),
     },
   },
@@ -42,8 +42,11 @@ export default function LoginForm() {
   const authLoading = authState.loading;
   const [loading, setLoading] = useState(false);
 
-  const { handleSubmit, register, control } =
-    useForm<{ username: string; password: string; rememberDevice: boolean }>();
+  const { handleSubmit, register, control } = useForm<{
+    username: string;
+    password: string;
+    rememberDevice: boolean;
+  }>();
 
   const onSubmit = handleSubmit(
     async (data: {

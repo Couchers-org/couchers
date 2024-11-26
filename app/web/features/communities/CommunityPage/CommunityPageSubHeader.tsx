@@ -1,5 +1,6 @@
-import { Breadcrumbs, makeStyles, Typography } from "@material-ui/core";
-import { TabContext } from "@material-ui/lab";
+import { TabContext } from "@mui/lab";
+import { Breadcrumbs, Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import StyledLink from "components/StyledLink";
 import TabBar from "components/TabBar";
 import { useTranslation } from "i18n";

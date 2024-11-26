@@ -58,4 +58,7 @@ export default function LeaveReferencePage() {
   );
 }
 
-LeaveReferencePage.getLayout = appGetLayout();
+LeaveReferencePage.getLayout = appGetLayout({
+  variant: "full-width",
+  noFooter: true,
+});

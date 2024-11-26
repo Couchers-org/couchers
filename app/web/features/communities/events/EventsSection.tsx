@@ -1,4 +1,4 @@
-import { CircularProgress } from "@material-ui/core";
+import { CircularProgress } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HorizontalScroller from "components/HorizontalScroller";

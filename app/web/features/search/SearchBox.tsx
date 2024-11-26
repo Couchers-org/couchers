@@ -6,7 +6,7 @@ import {
   Radio,
   RadioGroup,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { CrossIcon } from "components/Icons";
 import LocationAutocomplete from "components/LocationAutocomplete";
 import TextField from "components/TextField";
@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     marginInlineStart: "auto",
   },
   mobileHide: {
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       display: "none",
     },
   },
@@ -62,7 +62,12 @@ export default function SearchBox({
 
   const handleOnChangeAutocomplete = (event: GeocodeResult) => {
     if (event) {
-      setLocationResult(event);
+      const { bbox } = event;
+      const newLocationResult: GeocodeResult = {
+        ...event,
+        bbox: [bbox[2], bbox[3], bbox[0], bbox[1]], //sw long, sw lat, ne long, ne lat
+      };
+      setLocationResult(newLocationResult);
     }
   };
 
@@ -135,11 +140,21 @@ export default function SearchBox({
         />
       )}
       <div className={classes.flexRow}>
-        <FormControl className={classes.flexRow} component="fieldset">
+        <FormControl
+          variant="standard"
+          className={classes.flexRow}
+          component="fieldset"
+        >
           <RadioGroup
             className={classes.justifyContent}
             row
-            onChange={(event) => handleOnChangeRadioButton(event, searchType)}
+            onChange={
+              (event, value) =>
+                handleOnChangeRadioButton(
+                  event,
+                  value as "location" | "keyword"
+                ) // coercion due material-ui has this type as unknown
+            }
             value={searchType}
           >
             <FormControlLabel

@@ -1,6 +1,6 @@
 import "react-phone-number-input/style.css";
 
-import { Typography, useMediaQuery, useTheme } from "@material-ui/core";
+import { Typography, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
@@ -18,6 +18,7 @@ import PhoneInput, {
   isValidPhoneNumber,
 } from "react-phone-number-input";
 import { useMutation, useQueryClient } from "react-query";
+import { howToDonateUrl } from "routes";
 import { service } from "service";
 
 import useChangeDetailsFormStyles from "../useChangeDetailsFormStyles";
@@ -142,10 +143,7 @@ export default function ChangePhone({
         !accountInfo.hasDonated ? (
           <Typography variant="body1">
             <Trans i18nKey="auth:change_phone.need_to_donate">
-              You need to{" "}
-              <StyledLink href="https://help.couchers.org/hc/couchersorg-help-center/articles/1715658357-how-to-write-a-request-that-gets-accepted">
-                donate
-              </StyledLink>
+              You need to <StyledLink href={howToDonateUrl}>donate</StyledLink>
               before you can complete phone verification.
             </Trans>
           </Typography>

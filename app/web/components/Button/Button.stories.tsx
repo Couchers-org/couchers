@@ -52,4 +52,4 @@ export const Loading = Template.bind({});
 Loading.args = { loading: true };
 
 export const AsyncOnClick = Template.bind({});
-AsyncOnClick.args = { onClick: () => wait(1e3) };
+AsyncOnClick.args = { onClick: async () => (await wait(1e3)) as void };

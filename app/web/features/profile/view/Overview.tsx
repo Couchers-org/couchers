@@ -18,12 +18,14 @@ import {
   routeToEditProfile,
   UserTab,
 } from "routes";
+import { theme } from "theme";
 import makeStyles from "utils/makeStyles";
 
 import { useProfileUser } from "../hooks/useProfileUser";
+import AdminPanelUserButton from "./AdminPanelUserButton";
 
 const useStyles = makeStyles((theme) => ({
-  flagButton: {
+  modButtons: {
     alignSelf: "center",
   },
 }));
@@ -48,7 +50,19 @@ function LoggedInUserActions({ tab }: { tab: UserTab }) {
         </Button>
       </Link>
       <Link href={connectionsRoute} passHref>
-        <Button component="a" variant="outlined">
+        <Button
+          component="a"
+          variant="outlined"
+          sx={{
+            color: theme.palette.common.black,
+            borderColor: theme.palette.grey[300],
+
+            "&:hover": {
+              borderColor: theme.palette.grey[300],
+              backgroundColor: "#3135390A",
+            },
+          }}
+        >
           {t("profile:my_connections")}
         </Button>
       </Link>
@@ -101,11 +115,13 @@ function DefaultActions({
       <MessageUserButton user={user} setMutationError={setMutationError} />
       <FriendActions user={user} setMutationError={setMutationError} />
 
-      <FlagButton
-        className={classes.flagButton}
-        contentRef={`profile/${user.userId}`}
-        authorUser={user.userId}
-      />
+      <div className={classes.modButtons}>
+        <FlagButton
+          contentRef={`profile/${user.userId}`}
+          authorUser={user.userId}
+        />
+        <AdminPanelUserButton username={user.username} />
+      </div>
 
       {mutationError && <Alert severity="error">{mutationError}</Alert>}
     </>

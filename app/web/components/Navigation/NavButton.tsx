@@ -1,4 +1,4 @@
-import { Typography, TypographyProps } from "@material-ui/core";
+import { Typography, TypographyProps } from "@mui/material";
 import classNames from "classnames";
 import NotificationBadge from "components/NotificationBadge";
 import Link from "next/link";

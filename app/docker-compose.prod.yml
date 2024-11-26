@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgis/postgis:16-3.4
+    image: postgis/postgis:17-3.5
     command:
       - postgres
       # unfortunately the JIT slows down some geo stuff really badly
@@ -136,6 +136,7 @@ services:
 
   jaeger:
     image: jaegertracing/all-in-one:1.60
+    restart: always
     ports:
       - "16686:16686"
     expose:

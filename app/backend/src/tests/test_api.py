@@ -9,6 +9,7 @@ from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
 from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import FriendRelationship, FriendStatus
+from couchers.resources import get_badge_dict
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, to_aware_datetime
 from proto import api_pb2, jail_pb2, notifications_pb2
@@ -67,7 +68,6 @@ def test_ping(db):
     assert res.user.occupation == user.occupation
     assert res.user.education == user.education
     assert res.user.about_me == user.about_me
-    assert res.user.my_travels == user.my_travels
     assert res.user.things_i_like == user.things_i_like
     assert {language_ability.code for language_ability in res.user.language_abilities} == {"fin", "fra"}
     assert res.user.about_place == user.about_place
@@ -368,7 +368,6 @@ def test_update_profile(db):
                 occupation=api_pb2.NullableStringValue(value="Testing"),
                 education=api_pb2.NullableStringValue(value="Couchers U"),
                 about_me=api_pb2.NullableStringValue(value="I rule"),
-                my_travels=api_pb2.NullableStringValue(value="Oh the places you'll go!"),
                 things_i_like=api_pb2.NullableStringValue(value="Couchers"),
                 about_place=api_pb2.NullableStringValue(value="My place"),
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
@@ -393,7 +392,6 @@ def test_update_profile(db):
         assert user_details.hometown == "Walla Walla"
         assert user_details.pronouns == "Ro, Robo, Robots"
         assert user_details.education == "Couchers U"
-        assert user_details.my_travels == "Oh the places you'll go!"
         assert user_details.things_i_like == "Couchers"
         assert user_details.lat == 0.01
         assert user_details.lng == -2
@@ -418,7 +416,6 @@ def test_update_profile(db):
                 occupation=api_pb2.NullableStringValue(is_null=True),
                 education=api_pb2.NullableStringValue(is_null=True),
                 about_me=api_pb2.NullableStringValue(is_null=True),
-                my_travels=api_pb2.NullableStringValue(is_null=True),
                 things_i_like=api_pb2.NullableStringValue(is_null=True),
                 about_place=api_pb2.NullableStringValue(is_null=True),
                 hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
@@ -437,7 +434,6 @@ def test_update_profile(db):
         assert not user_details.occupation
         assert not user_details.education
         assert not user_details.about_me
-        assert not user_details.my_travels
         assert not user_details.things_i_like
         assert not user_details.about_place
         assert user_details.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
@@ -1192,7 +1188,18 @@ def test_badges(db):
 
     update_badges(empty_pb2.Empty())
 
+    founder_badge = get_badge_dict()["founder"]
+    board_member_badge = get_badge_dict()["board_member"]
+
     with api_session(token) as api:
         assert api.GetUser(api_pb2.GetUserReq(user=user1.username)).badges == ["founder", "board_member"]
         assert api.GetUser(api_pb2.GetUserReq(user=user2.username)).badges == ["founder", "board_member"]
         assert api.GetUser(api_pb2.GetUserReq(user=user3.username)).badges == []
+
+        assert api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=founder_badge["id"])).user_ids == [1, 2]
+        res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=board_member_badge["id"], page_size=1))
+        assert res.user_ids == [1]
+        res2 = api.ListBadgeUsers(
+            api_pb2.ListBadgeUsersReq(badge_id=board_member_badge["id"], page_token=res.next_page_token)
+        )
+        assert res2.user_ids == [2]

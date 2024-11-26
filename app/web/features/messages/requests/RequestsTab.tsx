@@ -1,4 +1,4 @@
-import { List } from "@material-ui/core";
+import { List } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";

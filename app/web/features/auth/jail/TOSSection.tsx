@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import Button from "components/Button";
 import TOSLink from "components/TOSLink";
 import { Trans, useTranslation } from "i18n";

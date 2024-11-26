@@ -19,7 +19,7 @@ import {
   SERVER_ERROR,
 } from "service/constants";
 import wrapper from "test/hookWrapper";
-import { rest, server } from "test/restMock";
+import { server } from "test/restMock";
 import {
   assertErrorAlert,
   mockConsoleError,
@@ -87,6 +87,10 @@ describe.each`
       );
     };
     render(<Form />, { wrapper });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it("displays initial preview", async () => {
@@ -329,10 +333,13 @@ describe("ImageInput http error tests", () => {
   });
 
   it("displays the right error if the file is too large", async () => {
-    server.use(
-      rest.post("https://example.com/upload", async (_req, res, ctx) => {
-        return res(ctx.status(413), ctx.text("Payload too large"));
-      })
+    jest.spyOn(global, "fetch").mockImplementation(
+      async () =>
+        new Response(JSON.stringify({ error: "Payload Too Large" }), {
+          status: 413,
+          statusText: "Payload Too Large",
+          headers: { "Content-Type": "application/json" },
+        })
     );
 
     userEvent.upload(
@@ -347,10 +354,13 @@ describe("ImageInput http error tests", () => {
   });
 
   it("displays a general error for server errors", async () => {
-    server.use(
-      rest.post("https://example.com/upload", async (_req, res, ctx) => {
-        return res(ctx.status(500), ctx.text("Internal server error"));
-      })
+    jest.spyOn(global, "fetch").mockImplementation(
+      async () =>
+        new Response(JSON.stringify({ error: "Internal server error" }), {
+          status: 500,
+          statusText: "Internal server error",
+          headers: { "Content-Type": "application/json" },
+        })
     );
 
     userEvent.upload(
@@ -365,11 +375,17 @@ describe("ImageInput http error tests", () => {
   });
 
   it("displays an internal error for bad json", async () => {
-    server.use(
-      rest.post("https://example.com/upload", async (_req, res, ctx) => {
-        return res(ctx.status(200), ctx.text("[{bad: 'json'}}]"));
-      })
-    );
+    jest.spyOn(global, "fetch").mockImplementationOnce(() => {
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        // Simulate a response where .json() will fail
+        json: async () => {
+          throw new SyntaxError("Unexpected token < in JSON at position 0");
+        },
+      }) as unknown as Promise<Response>;
+    });
 
     userEvent.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,

@@ -1,4 +1,4 @@
-import { Card, Typography } from "@material-ui/core";
+import { Card, Typography } from "@mui/material";
 import Button from "components/Button";
 import Markdown from "components/Markdown";
 import { Trans, useTranslation } from "i18n";

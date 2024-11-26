@@ -1,4 +1,4 @@
-import { Alert } from "@material-ui/lab";
+import { Alert } from "@mui/material";
 import Redirect from "components/Redirect";
 import Appropriate from "features/profile/view/leaveReference/formSteps/Appropriate";
 import Rating from "features/profile/view/leaveReference/formSteps/Rating";
@@ -79,7 +79,7 @@ export default function ReferenceForm({
   const [referenceData, setReferenceData] = useState<ReferenceContextFormData>({
     text: "",
     wasAppropriate: "",
-    rating: 0,
+    rating: 0.33,
   });
 
   const setReferenceValues = (values: ReferenceContextFormData) => {

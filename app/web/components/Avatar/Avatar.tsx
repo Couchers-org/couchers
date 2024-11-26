@@ -1,9 +1,8 @@
-import { Avatar as MuiAvatar } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { Skeleton } from "@material-ui/lab";
+import { Avatar as MuiAvatar, Skeleton } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import classNames from "classnames";
 import Link from "next/link";
-import { User } from "proto/api_pb";
+import { LiteUser } from "proto/api_pb";
 import React from "react";
 import { routeToUser } from "routes";
 
@@ -44,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
 
 export interface AvatarProps {
   children?: React.ReactNode;
-  user?: User.AsObject;
+  user?: LiteUser.AsObject;
   grow?: boolean;
   className?: string;
   isProfileLink?: boolean;
@@ -98,7 +97,7 @@ export default function Avatar({
       ) : otherProps.children ? (
         <MuiAvatar className={classes.avatar}>{otherProps.children}</MuiAvatar>
       ) : (
-        <Skeleton variant="circle" className={classes.avatar} />
+        <Skeleton variant="circular" className={classes.avatar} />
       )}
     </div>
   );

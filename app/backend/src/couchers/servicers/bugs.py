@@ -2,7 +2,7 @@ import grpc
 import requests
 from sqlalchemy.sql import func
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.config import config
 from couchers.descriptor_pool import get_descriptors_pb
 from couchers.models import User
@@ -27,7 +27,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
 
         if context.user_id:
             username = session.execute(select(User.username).where(User.id == context.user_id)).scalar_one()
-            user_details = f"{username} ({context.user_id})"
+            user_details = f"[@{username}]({urls.user_link(username=username)}) ({context.user_id})"
         else:
             user_details = "<not logged in>"
 
@@ -46,7 +46,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             f"Page: {request.page}\n"
             f"User: {user_details}"
         )
-        issue_labels = ["bug tool"]
+        issue_labels = ["bug tool", "bug: triage needed"]
 
         json_body = {"title": issue_title, "body": issue_body, "labels": issue_labels}
 

@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Link } from "@material-ui/core";
+import { Box, Button, Grid, Link } from "@mui/material";
 import Markdown from "components/Markdown";
 import TextField from "components/TextField";
 import React, { useState } from "react";

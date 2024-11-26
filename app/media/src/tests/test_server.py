@@ -68,6 +68,7 @@ def client_with_secrets(tmp_path):
         main_server_address="localhost:8088",
         main_server_use_ssl=False,
         media_upload_location=tmp_path,
+        media_cors_origin="*",
         thumbnail_size=200,
     )
 

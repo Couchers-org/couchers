@@ -31,6 +31,7 @@ const accountInfo = {
   genderVerificationStatus: 3,
   doNotEmail: false,
   hasDonated: false,
+  isSuperuser: false,
 };
 
 const incompleteAccountInfo = { ...accountInfo, profileComplete: false };

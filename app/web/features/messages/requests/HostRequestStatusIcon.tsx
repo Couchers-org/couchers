@@ -1,4 +1,4 @@
-import { Avatar, AvatarProps } from "@material-ui/core";
+import { Avatar, AvatarProps } from "@mui/material";
 import classNames from "classnames";
 import { CheckIcon, CrossIcon, QuestionIcon } from "components/Icons";
 import { HostRequestStatus } from "proto/conversations_pb";

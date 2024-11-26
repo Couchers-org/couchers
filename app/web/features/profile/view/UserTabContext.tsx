@@ -1,4 +1,4 @@
-import { TabContext } from "@material-ui/lab";
+import { TabContext } from "@mui/lab";
 import { PropsWithChildren } from "react";
 import { UserTab } from "routes";
 

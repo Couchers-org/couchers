@@ -1,4 +1,4 @@
-import { Checkbox, FormControlLabel, Typography } from "@material-ui/core";
+import { Checkbox, FormControlLabel, Typography } from "@mui/material";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import ImageInput from "components/ImageInput";

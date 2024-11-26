@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import MarkdownInput from "components/MarkdownInput";
 import React from "react";
 import { Control } from "react-hook-form";

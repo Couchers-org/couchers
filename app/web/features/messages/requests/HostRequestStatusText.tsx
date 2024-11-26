@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { HostRequestStatus } from "proto/conversations_pb";

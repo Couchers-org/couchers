@@ -1,4 +1,5 @@
-import { Link as MuiLink, makeStyles, Typography } from "@material-ui/core";
+import { Link as MuiLink, Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import CommunitiesDialog from "features/dashboard/CommunitiesDialog";
 import CommunitiesList from "features/dashboard/CommunitiesList";
 import { Trans, useTranslation } from "i18n";
@@ -36,6 +37,7 @@ export default function CommunitiesSection() {
             onClick={() => {
               setIsCommunitiesDialogOpen(true);
             }}
+            underline="hover"
           >
             {/* @todo: revisit this UI. A button that opens a popup shouldn't look like a link */}
             browse communities
@@ -43,14 +45,11 @@ export default function CommunitiesSection() {
           {` in other locations as well.`}
         </Trans>
       </Typography>
-
       <CommunitiesList />
-
       <CommunitiesDialog
         isOpen={isCommunitiesDialogOpen}
         onClose={() => setIsCommunitiesDialogOpen(false)}
       />
-
       <Typography
         variant="body1"
         paragraph
@@ -62,6 +61,7 @@ export default function CommunitiesSection() {
             href={COMMUNITY_BUILDER_FORM_LINK}
             target="_blank"
             rel="noreferrer noopener"
+            underline="hover"
           >
             Get it started!
           </MuiLink>

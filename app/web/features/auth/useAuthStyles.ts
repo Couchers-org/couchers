@@ -17,7 +17,7 @@ const useAuthStyles = makeStyles((theme) => ({
     flexDirection: "column",
     padding: theme.spacing(1, 4),
     paddingBottom: 0,
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       padding: theme.spacing(1, 2),
     },
   },
@@ -45,7 +45,7 @@ const useAuthStyles = makeStyles((theme) => ({
   },
   content: {
     width: "100%",
-    margin: "auto",
+    marginBottom: theme.spacing(2),
     [theme.breakpoints.up("md")]: {
       display: "flex",
       flexDirection: "row",
@@ -106,12 +106,12 @@ const useAuthStyles = makeStyles((theme) => ({
       width: "45%",
       padding: theme.spacing(5, 8),
     },
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       width: "80%",
       padding: theme.spacing(5, 8),
       margin: theme.spacing(2, "auto"),
     },
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       width: "100%",
       padding: theme.spacing(3, 4),
       margin: theme.spacing(0),
@@ -126,7 +126,7 @@ const useAuthStyles = makeStyles((theme) => ({
     width: "45%",
     maxWidth: theme.breakpoints.values.md / 2,
     marginInlineEnd: "10%",
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       display: "none",
     },
   },
@@ -161,6 +161,7 @@ const useAuthStyles = makeStyles((theme) => ({
     width: "100%",
   },
   vercelLink: {
+    marginTop: theme.spacing(2),
     [theme.breakpoints.up("md")]: {
       position: "absolute",
       right: theme.spacing(2),

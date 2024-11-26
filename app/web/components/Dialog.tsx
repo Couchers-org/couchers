@@ -1,3 +1,4 @@
+import CloseIcon from "@mui/icons-material/Close";
 import {
   Dialog as MuiDialog,
   DialogActions as MuiDialogActions,
@@ -9,8 +10,7 @@ import {
   DialogProps,
   DialogTitle as MuiDialogTitle,
   DialogTitleProps as MuiDialogTitleProps,
-} from "@material-ui/core";
-import CloseIcon from "@material-ui/icons/Close";
+} from "@mui/material";
 import classNames from "classnames";
 import IconButton from "components/IconButton";
 import React from "react";
@@ -94,6 +94,7 @@ export function DialogTitle({
           aria-label="close"
           onClick={onClose}
           className={classes.closeButton}
+          size="large"
         >
           <CloseIcon />
         </IconButton>

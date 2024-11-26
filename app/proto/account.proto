@@ -114,6 +114,9 @@ message GetAccountInfoRes {
 
   // whether the user has all non-security emails off
   bool do_not_email = 13;
+
+  // whether the user is a superuser
+  bool is_superuser = 15;
 }
 
 message ChangePasswordV2Req {

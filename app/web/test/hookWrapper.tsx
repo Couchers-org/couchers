@@ -1,4 +1,6 @@
-import { ThemeProvider } from "@material-ui/core";
+import { StyledEngineProvider, ThemeProvider } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { theme } from "theme";
@@ -19,11 +21,15 @@ export default function hookWrapper({
   });
   return (
     <Suspense fallback="loading...">
-      <ThemeProvider theme={theme}>
-        <QueryClientProvider client={client}>
-          <AuthProvider>{children}</AuthProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider theme={theme}>
+            <QueryClientProvider client={client}>
+              <AuthProvider>{children}</AuthProvider>
+            </QueryClientProvider>
+          </ThemeProvider>
+        </StyledEngineProvider>
+      </LocalizationProvider>
     </Suspense>
   );
 }
@@ -42,11 +48,15 @@ export function getHookWrapperWithClient() {
   });
   const wrapper = ({ children }: { children?: React.ReactNode }) => (
     <Suspense fallback="loading...">
-      <ThemeProvider theme={theme}>
-        <QueryClientProvider client={client}>
-          <AuthProvider>{children}</AuthProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider theme={theme}>
+            <QueryClientProvider client={client}>
+              <AuthProvider>{children}</AuthProvider>
+            </QueryClientProvider>
+          </ThemeProvider>
+        </StyledEngineProvider>
+      </LocalizationProvider>
     </Suspense>
   );
 

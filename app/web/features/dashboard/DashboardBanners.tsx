@@ -1,5 +1,4 @@
-import { Typography } from "@material-ui/core";
-import { Alert as MuiAlert } from "@material-ui/lab/";
+import { Alert as MuiAlert, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { accountInfoQueryKey } from "features/queryKeys";
@@ -48,7 +47,7 @@ export default function DashboardBanners() {
               </Typography>
               <Typography variant="inherit" paragraph>
                 <Link href={routeToEditProfile()} passHref>
-                  <Button component="a" color="default" role="link">
+                  <Button component="a" role="link">
                     {t("dashboard:edit_profile_button_text")}
                   </Button>
                 </Link>

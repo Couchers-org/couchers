@@ -5,7 +5,7 @@ import {
   CardMedia,
   useMediaQuery,
   useTheme,
-} from "@material-ui/core";
+} from "@mui/material";
 import Link from "next/link";
 import { Page } from "proto/pages_pb";
 import React, { useMemo } from "react";
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   placePreview: {
     ...theme.typography.caption,
     marginTop: theme.spacing(0.5),
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       height: `calc(2 * calc(${theme.typography.caption.lineHeight} * ${theme.typography.caption.fontSize}))`,
     },
   },

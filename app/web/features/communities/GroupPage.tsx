@@ -1,4 +1,4 @@
-import { Breadcrumbs } from "@material-ui/core";
+import { Breadcrumbs } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
@@ -147,6 +147,7 @@ export default function GroupPage({
                 if (parent.community) {
                   return (
                     <Link
+                      key={parent.community.communityId}
                       href={routeToCommunity(
                         parent.community.communityId,
                         parent.community.slug
@@ -158,6 +159,7 @@ export default function GroupPage({
                 } else if (parent.group) {
                   return (
                     <Link
+                      key={parent.group.groupId}
                       href={routeToGroup(
                         parent.group.groupId,
                         parent.group.slug

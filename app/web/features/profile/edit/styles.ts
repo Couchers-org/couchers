@@ -17,6 +17,10 @@ const useStyles = makeStyles((theme) => ({
       width: "100%",
     },
   },
+  helpTextContainer: {
+    textAlign: "center",
+    margin: theme.spacing(2),
+  },
   buttonContainer: {
     position: "fixed",
     bottom: 0,
@@ -30,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(1),
     paddingTop: theme.spacing(1),
   },
-  // Everything under the mapbox
+  // Everything under the maplibre
   bottomFormContainer: {
     display: "flex",
     flexDirection: "column",

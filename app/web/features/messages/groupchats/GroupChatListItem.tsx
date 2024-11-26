@@ -1,11 +1,11 @@
 import {
-  ListItem,
   ListItemAvatar,
+  ListItemButton,
   ListItemProps,
   ListItemText,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { Skeleton } from "@material-ui/lab";
+  Skeleton,
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import Avatar from "components/Avatar";
 import { MuteIcon } from "components/Icons";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -15,7 +15,7 @@ import {
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
-import useUsers from "features/userQueries/useUsers";
+import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { GroupChat } from "proto/conversations_pb";
@@ -47,7 +47,7 @@ export default function GroupChatListItem({
 
   //It is possible the last message is sent by someone who has left
   //so include it just in case
-  const groupChatMembersQuery = useUsers([
+  const groupChatMembersQuery = useLiteUsers([
     ...groupChat.memberUserIdsList,
     latestMessageAuthorId,
   ]);
@@ -86,7 +86,7 @@ export default function GroupChatListItem({
   }
 
   return (
-    <ListItem button className={className}>
+    <ListItemButton className={className}>
       <ListItemAvatar>
         {groupChatMembersQuery.isLoading ? (
           <Skeleton />
@@ -118,6 +118,6 @@ export default function GroupChatListItem({
         primaryTypographyProps={{ noWrap: true, className: isUnreadClass }}
         secondaryTypographyProps={{ noWrap: true, className: isUnreadClass }}
       />
-    </ListItem>
+    </ListItemButton>
   );
 }

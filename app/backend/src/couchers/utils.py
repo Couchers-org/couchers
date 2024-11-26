@@ -2,7 +2,6 @@ import http.cookies
 import re
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
-from typing import List
 from zoneinfo import ZoneInfo
 
 import pytz
@@ -165,11 +164,14 @@ def to_multi(polygon):
 
 def get_coordinates(geom):
     """
-    Returns EPSG4326 (lat, lng) pair for a given WKT geom point
+    Returns EPSG4326 (lat, lng) pair for a given WKT geom point or None if the input is not truthy
     """
-    shp = to_shape(geom)
-    # note the funiness with 4326 normally being (x, y) = (lng, lat)
-    return (shp.y, shp.x)
+    if geom:
+        shp = to_shape(geom)
+        # note the funiness with 4326 normally being (x, y) = (lng, lat)
+        return (shp.y, shp.x)
+    else:
+        return None
 
 
 def http_date(dt=None):
@@ -204,7 +206,7 @@ def _create_tasty_cookie(name: str, value, expiry: datetime, httponly: bool):
     return cookie.OutputString()
 
 
-def create_session_cookies(token, user_id, expiry) -> List[str]:
+def create_session_cookies(token, user_id, expiry) -> list[str]:
     """
     Creates our session cookies.
 

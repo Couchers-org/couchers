@@ -1,6 +1,6 @@
-import { Typography } from "@material-ui/core";
-import { OverridableComponent } from "@material-ui/core/OverridableComponent";
-import { SvgIconTypeMap } from "@material-ui/core/SvgIcon";
+import { Typography } from "@mui/material";
+import { OverridableComponent } from "@mui/material/OverridableComponent";
+import { SvgIconTypeMap } from "@mui/material/SvgIcon";
 import React, { ReactNode } from "react";
 import makeStyles from "utils/makeStyles";
 

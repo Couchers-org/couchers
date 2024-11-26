@@ -6,7 +6,7 @@ import {
   Link as MuiLink,
   Theme,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -28,6 +28,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
+import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
@@ -226,13 +227,11 @@ export default function EventPage({
           {eventError?.message || setEventAttendanceError?.message || ""}
         </Alert>
       )}
-
       {showInviteCommunitySuccess && (
         <Snackbar severity="success">
           {t("communities:invite_community_dialog.toast_success")}
         </Snackbar>
       )}
-
       {isLoading ? (
         <CircularProgress />
       ) : (
@@ -261,7 +260,10 @@ export default function EventPage({
                     >
                       {t("communities:virtual_event")}
                     </Typography>
-                    <MuiLink href={event.onlineInformation.link}>
+                    <MuiLink
+                      href={event.onlineInformation.link}
+                      underline="hover"
+                    >
                       {t("communities:event_link")}
                     </MuiLink>
                   </div>
@@ -288,6 +290,15 @@ export default function EventPage({
                         component="a"
                         variant="outlined"
                         disabled={event.isCancelled || isPastEvent}
+                        sx={{
+                          color: theme.palette.common.black,
+                          borderColor: theme.palette.grey[300],
+
+                          "&:hover": {
+                            borderColor: theme.palette.grey[300],
+                            backgroundColor: "#3135390A",
+                          },
+                        }}
                       >
                         {t("communities:edit_event")}
                       </Button>
@@ -346,6 +357,7 @@ export default function EventPage({
                 <Typography variant="h2">
                   {t("communities:details_subheading_colon")}
                 </Typography>
+                {/* @ts-ignore @TODO until we sort out the Markdown thing*/}
                 <Markdown source={event.content} topHeaderLevel={3} />
               </Card>
               <EventOrganizers eventId={event.eventId} />

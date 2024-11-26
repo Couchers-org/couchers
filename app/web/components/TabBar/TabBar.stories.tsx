@@ -1,4 +1,4 @@
-import { TabContext } from "@material-ui/lab";
+import { TabContext } from "@mui/lab";
 import { Meta, Story } from "@storybook/react";
 import { useState } from "react";
 
