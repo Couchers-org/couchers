@@ -70,6 +70,13 @@ DATABASE_CONNECTION_STRING="postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b
 2. Delete the `postgres` folder in `app/data`
 3. Re-run `docker compose up --build`
 
+### Q: I'm seeing issues with proto!
+
+**A**: Generate protos using
+
+```sh
+docker run --pull always --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
+```
 If you have **any trouble**, send Aapeli a message on Slack. He's more than happy to spend a bit of time helping you set things up!
 
 ### Q: How do I log in or sign up when developing?
@@ -81,3 +88,4 @@ If you are using the live dev api ("next"/staging), it will send you real emails
 ### Q: How do I receive emails like the signup confirmation email in local dev?
 
 A: First doublecheck what port the DB is listening on - run `docker compose up postgres` and it should say something like `listening on IPv6 address "::", port 6545`. Then doublecheck you have the right password. There are TWO passwords - one for the test db and one for the normal db! See app/postgres.dev.env and app/postgres.test.env
+
