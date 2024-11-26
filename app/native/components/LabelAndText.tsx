@@ -28,7 +28,7 @@ export default function LabelAndText({ label, text }: LabelAndTextProps) {
   return (
     <View style={styles.root}>
       <View style={styles.flexItem}>
-        <ThemedText type="subtitle" style={styles.label}>{label}</ThemedText>
+        <ThemedText type="defaultSemiBold" style={styles.label}>{label}</ThemedText>
       </View>
       <View style={styles.flexItem}>
         <ThemedText type="default">{text}</ThemedText>
