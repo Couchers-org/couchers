@@ -1,13 +1,12 @@
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
 } from "components/Dialog";
-import UserSummary from "components/UserSummary";
+import UsersList from "components/UsersList";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 
@@ -31,11 +30,8 @@ export default function EventAttendeesDialog({
     error,
     fetchNextPage,
     hasNextPage,
-    isAttendeesRefetching,
     isFetchingNextPage,
-    isLoading,
     attendeesIds,
-    attendees,
   } = useEventAttendees({
     enabled: open,
     eventId,
@@ -53,23 +49,7 @@ export default function EventAttendeesDialog({
       </DialogTitle>
       <DialogContent>
         {error && <Alert severity="error">{error.message}</Alert>}
-        {isLoading ? (
-          <CircularProgress />
-        ) : !!attendeesIds.length && attendees ? (
-          attendeesIds.map((id) => {
-            const user = attendees.get(id);
-
-            return user || isAttendeesRefetching ? (
-              <UserSummary
-                headlineComponent="h3"
-                key={id}
-                nameOnly
-                smallAvatar
-                user={user}
-              />
-            ) : null;
-          })
-        ) : null}
+        <UsersList userIds={attendeesIds} />
       </DialogContent>
       {hasNextPage && (
         <DialogActions>

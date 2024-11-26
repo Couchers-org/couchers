@@ -21,15 +21,8 @@ function renderEventUsers(props: Partial<EventUsersProps> = {}) {
 }
 
 describe("Event users", () => {
-  it("shows the loading state overall if the event user IDs and users map are loading", () => {
-    renderEventUsers({ isLoading: true, users: undefined });
-
-    expect(screen.getByRole("heading", { name: "Users" })).toBeVisible();
-    expect(screen.getByRole("progressbar")).toBeVisible();
-  });
-
   it("shows the users in a list if the event user IDs and users map have loaded", () => {
-    renderEventUsers({ isLoading: false, userIds: [1, 2] });
+    renderEventUsers({ userIds: [1, 2] });
     // User 1
     expect(screen.getByRole("img", { name: users[0].name })).toBeVisible();
     expect(screen.getByRole("heading", { name: users[0].name })).toBeVisible();
@@ -62,7 +55,6 @@ describe("Event users", () => {
   it("shows the 'See all' button if there are more users to show", () => {
     renderEventUsers({
       hasNextPage: true,
-      isLoading: false,
       userIds: [1, 2],
     });
 

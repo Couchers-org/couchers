@@ -12,7 +12,6 @@ import {
   subCommunitiesKey,
   threadKey,
 } from "features/queryKeys";
-import useUsers from "features/userQueries/useUsers";
 import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import {
@@ -151,17 +150,9 @@ export const useListAdmins = (communityId: number, type: QueryType) => {
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
     }
   );
-  const adminIds = query.data?.pages.flatMap((page) => page.adminUserIdsList);
-  const { data: adminUsers, isLoading: isAdminUsersLoading } = useUsers(
-    adminIds ?? []
-  );
-
-  return {
-    ...query,
-    adminIds,
-    adminUsers,
-    isLoading: query.isLoading || isAdminUsersLoading,
-  };
+  const adminIds =
+    query.data?.pages.flatMap((page) => page.adminUserIdsList) || [];
+  return { ...query, adminIds };
 };
 
 export const useListMembers = (communityId?: number) =>

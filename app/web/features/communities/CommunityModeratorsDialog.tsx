@@ -1,4 +1,3 @@
-import { CircularProgress } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -8,7 +7,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "components/Dialog";
-import UserSummary from "components/UserSummary";
+import UsersList from "components/UsersList";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
@@ -29,15 +28,8 @@ export default function CommunityModeratorsDialog({
   open = false,
 }: CommunityModeratorsDialogProps) {
   const { t } = useTranslation([COMMUNITIES]);
-  const {
-    adminIds,
-    adminUsers,
-    error,
-    fetchNextPage,
-    isFetchingNextPage,
-    isLoading,
-    hasNextPage,
-  } = useListAdmins(community.communityId, "all");
+  const { adminIds, error, fetchNextPage, isFetchingNextPage, hasNextPage } =
+    useListAdmins(community.communityId, "all");
 
   return (
     <Dialog aria-labelledby={DIALOG_LABEL_ID} open={open} onClose={onClose}>
@@ -46,20 +38,7 @@ export default function CommunityModeratorsDialog({
       </DialogTitle>
       <DialogContent>
         {error && <Alert severity="error">{error.message}</Alert>}
-        {isLoading ? (
-          <CircularProgress />
-        ) : adminIds && adminIds.length > 0 && adminUsers ? (
-          adminIds.map((id) => (
-            <UserSummary
-              avatarIsLink
-              nameOnly
-              smallAvatar
-              key={id}
-              headlineComponent="h3"
-              user={adminUsers.get(id)}
-            />
-          ))
-        ) : null}
+        <UsersList userIds={adminIds} />
       </DialogContent>
       {hasNextPage && (
         <DialogActions>

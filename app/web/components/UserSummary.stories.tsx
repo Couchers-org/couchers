@@ -11,7 +11,6 @@ const Template: Story<UserSummaryProps> = (args) => <UserSummary {...args} />;
 
 export const userSummary = Template.bind({});
 userSummary.args = {
-  avatarIsLink: true,
   titleIsLink: false,
   user: users[0],
   nameOnly: false,

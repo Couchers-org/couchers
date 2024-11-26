@@ -6,7 +6,6 @@ import {
   myEventsKey,
   QueryType,
 } from "features/queryKeys";
-import useUsers from "features/userQueries/useUsers";
 import { RpcError } from "grpc-web";
 import {
   Event,
@@ -47,19 +46,8 @@ export function useEventOrganizers({
   });
   const organizerIds =
     query.data?.pages.flatMap((res) => res.organizerUserIdsList) ?? [];
-  const {
-    data: organizers,
-    isLoading: isOrganizersLoading,
-    isRefetching: isOrganizersRefetching,
-  } = useUsers(organizerIds);
 
-  return {
-    ...query,
-    organizerIds,
-    organizers,
-    isOrganizersLoading,
-    isOrganizersRefetching,
-  };
+  return { ...query, organizerIds };
 }
 
 export function useEventAttendees({
@@ -80,18 +68,9 @@ export function useEventAttendees({
   });
   const attendeesIds =
     query.data?.pages.flatMap((data) => data.attendeeUserIdsList) ?? [];
-  const {
-    data: attendees,
-    isLoading: isAttendeesLoading,
-    isRefetching: isAttendeesRefetching,
-  } = useUsers(attendeesIds);
-
   return {
     ...query,
     attendeesIds,
-    attendees,
-    isAttendeesLoading,
-    isAttendeesRefetching,
   };
 }
 

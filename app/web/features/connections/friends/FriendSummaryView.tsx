@@ -6,12 +6,6 @@ const useStyles = makeStyles((theme) => ({
   friendItem: {
     padding: `0 ${theme.spacing(1)}`,
   },
-  friendLink: {
-    color: theme.palette.text.primary,
-  },
-  userLoadErrorAlert: {
-    borderRadius: 0,
-  },
 }));
 
 interface FriendSummaryViewProps {

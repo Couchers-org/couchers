@@ -8,10 +8,14 @@ import classNames from "classnames";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
+import { useTranslation } from "next-i18next";
 import { LiteUser } from "proto/api_pb";
 import React from "react";
 import { routeToUser } from "routes";
 import makeStyles from "utils/makeStyles";
+
+import StrongVerificationBadge from "./StrongVerificationBadge";
 
 export const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -35,7 +39,8 @@ export const useStyles = makeStyles((theme) => ({
     maxWidth: 300,
   },
   title: {
-    marginTop: 0,
+    marginTop: "auto",
+    fontSize: "1.2rem",
   },
   link: {
     display: "flex",
@@ -49,16 +54,20 @@ export const useStyles = makeStyles((theme) => ({
   },
   titleAndBarContainer: {
     display: "grid",
-    gap: theme.spacing(0.5),
+    gap: theme.spacing(0.25),
     margin: 0,
     minHeight: theme.spacing(9),
+  },
+  strongVerificationBadge: {
+    display: "flex",
+    alignItems: "center",
+    marginLeft: theme.spacing(0.5),
   },
 }));
 
 export const USER_TITLE_SKELETON_TEST_ID = "user-title-skeleton";
 
 export interface UserSummaryProps {
-  avatarIsLink?: boolean;
   children?: React.ReactNode;
   smallAvatar?: boolean;
   nameOnly?: boolean;
@@ -68,7 +77,6 @@ export interface UserSummaryProps {
 }
 
 export default function UserSummary({
-  avatarIsLink = true,
   children,
   smallAvatar = false,
   nameOnly = false,
@@ -77,6 +85,7 @@ export default function UserSummary({
   titleIsLink = false,
 }: UserSummaryProps) {
   const classes = useStyles();
+  const { t } = useTranslation([GLOBAL, PROFILE]);
 
   const headlineComponentWithRef = React.forwardRef(
     function HeadlineComponentWithRef(props, ref) {
@@ -96,10 +105,11 @@ export default function UserSummary({
           className={classes.titleSkeleton}
           data-testid={USER_TITLE_SKELETON_TEST_ID}
         />
-      ) : nameOnly ? (
-        user.name
       ) : (
-        `${user.name}, ${user.age}`
+        <>
+          {nameOnly ? user.name : `${user.name}, ${user.age}`}
+          <StrongVerificationBadge />
+        </>
       )}
     </Typography>
   );
@@ -118,7 +128,7 @@ export default function UserSummary({
           <Avatar
             user={user}
             className={avatarClassNames}
-            isProfileLink={avatarIsLink}
+            isProfileLink={true}
           />
         )}
       </ListItemAvatar>
