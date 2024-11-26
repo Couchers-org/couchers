@@ -129,6 +129,22 @@ def test_create_request(db):
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
     assert e.value.details() == errors.DATE_TO_AFTER_ONE_YEAR
 
+def test_expiring_request(db):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    now = (today() + timedelta(days=2)).isoformat()
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    with requests_session(token1) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=now, to_date= today_plus_2, text="Test request 1"
+            )
+        ).host_request_id
+
+    
+
+    
+    
 
 def test_create_request_incomplete_profile(db):
     user1, token1 = generate_user(complete_profile=False)
@@ -251,6 +267,8 @@ def test_ListHostRequests_pagination_regression(db):
     user2, token2 = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    now = now()
+
     with requests_session(token1) as api:
         host_request_1 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -269,6 +287,16 @@ def test_ListHostRequests_pagination_regression(db):
                 host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 3"
             )
         ).host_request_id
+        
+        host_request_4 = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today, to_date=today_plus_3, text="Test request 4"
+            )
+        ).host_request_id
+        
+        # how to expire this request
+        # check if gets filtered out after expiring
+        
 
     with requests_session(token2) as api:
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
