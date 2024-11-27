@@ -99,7 +99,6 @@ export default function HostRequestSendField({
   const isPast = hostRequest.toDate < new Date().toISOString().split("T")[0];
 
   const isRequestClosed =
-    isPast ||
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED ||
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
 

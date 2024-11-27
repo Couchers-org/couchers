@@ -1,6 +1,6 @@
 {
   "mark_all_read_button_text": "Mark all as read",
-  "request_closed_message": "This host request is closed or in the past. To continue chatting, send the other person a normal message.",
+  "request_closed_message": "This host request is closed. To continue chatting, send the other person a normal message.",
   "write_reference_button_text": "Write a Reference",
   "close_request_dialog_title": "Are you done messaging?",
   "close_request_dialog_host": "Please make sure you are done chatting before you decline their request.",
@@ -9,6 +9,7 @@
   "confirm_request_button_text": "Confirm",
   "host_pending_request_help_text": "<0>Things to consider</0> before responding.",
   "surfer_declined_request_help_text": "<0>Read our guide</0> on how to write a request that will get accepted.",
+  "past_request_help_text": "This request is in the past, you can still send messages but cannot otherwise modify it.",
   "messages_page": {
     "title": "Messages",
     "tabs": {
