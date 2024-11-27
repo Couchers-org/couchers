@@ -5,10 +5,8 @@ from google.protobuf import wrappers_pb2
 
 from couchers.db import session_scope
 from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus
-
 from couchers.utils import Timestamp_from_datetime, create_coordinate, millis_from_dt, now
 from proto import api_pb2, communities_pb2, events_pb2, search_pb2
-
 from tests.test_communities import create_community, testing_communities  # noqa
 from tests.test_fixtures import (  # noqa
     communities_session,
@@ -185,7 +183,7 @@ def test_user_filter_language(db):
         res = api.UserSearch(
             search_pb2.UserSearchReq(
                 language_ability_filter=[
-                    search_pb2.LanguageAbility(
+                    api_pb2.LanguageAbility(
                         code="deu",
                         fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER,
                     )
@@ -197,7 +195,7 @@ def test_user_filter_language(db):
         res = api.UserSearch(
             search_pb2.UserSearchReq(
                 language_ability_filter=[
-                    search_pb2.LanguageAbility(
+                    api_pb2.LanguageAbility(
                         code="jpn",
                         fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL,
                     )
