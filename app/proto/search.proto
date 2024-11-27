@@ -101,6 +101,20 @@ message SearchRes {
   string next_page_token = 2;
 }
 
+enum Fluency {
+    FLUENCY_UNKNOWN = 0;       // Optional default
+    FLUENCY_BEGINNER = 1;      // Matches Python `beginner = 1`
+    FLUENCY_CONVERSATIONAL = 2; // Matches Python `conversational = 2`
+    FLUENCY_FLUENT = 3;         // Matches Python `fluent = 3`
+}
+
+
+message LanguageAbility {
+    int64 user_id = 1;          // Corresponds to the user ID (optional, may not be needed for search)
+    string language_code = 2;   // ISO code for the language (e.g., "dan" for Danish)
+    org.couchers.api.core.LanguageAbility.Fluency fluency = 3; // The language fluency level
+}
+
 
 message UserSearchReq {
   google.protobuf.StringValue query = 3;
@@ -124,6 +138,7 @@ message UserSearchReq {
   repeated org.couchers.api.core.SleepingArrangement sleeping_arrangement_filter = 7;
   repeated org.couchers.api.core.ParkingDetails parking_details_filter = 8;
   repeated org.couchers.api.core.MeetupStatus meetup_status_filter = 32;
+  repeated org.couchers.api.core.LanguageAbility language_ability_filter = 34;
 
 
 

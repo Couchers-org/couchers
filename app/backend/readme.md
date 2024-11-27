@@ -51,7 +51,9 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 ## Now run the test
-DATABASE_CONNECTION_STRING="postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/postgres" pytest src/tests/
+DATABASE_CONNECTION_STRING="postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/postgres" 
+
+pytest src/tests/
 ```
 
 ## Q/A:

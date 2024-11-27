@@ -4,7 +4,7 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers.db import session_scope
-from couchers.models import EventOccurrence, LanguageAbility, LanguageFluency, MeetupStatus
+from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus
 from couchers.utils import Timestamp_from_datetime, create_coordinate, millis_from_dt, now
 from proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from tests.test_communities import create_community, testing_communities  # noqa
@@ -164,9 +164,8 @@ def test_user_filter_language(db):
     """
     Make sure the language filter returns the rigth profiles
     """
-    # recreate_database()
-    user_with_german_beginner, token11 = generate_user()
-    user_with_japanese_conversational, token12 = generate_user()
+    user_with_german_beginner, token11 = generate_user(hosting_status = HostingStatus.can_host)
+    user_with_japanese_conversational, token12 = generate_user(hosting_status = HostingStatus.can_host)
 
     with session_scope() as session:
 
@@ -179,16 +178,18 @@ def test_user_filter_language(db):
             )
         )
 
-    with search_session(token11) as api:
         search_request_1 = search_pb2.UserSearchReq(
             language_ability_filter=[
-                api_pb2.LanguageAbility(code="deu", fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT)
+                LanguageAbility(
+                    language_code="deu",
+                    fluency=api_pb2.Fluency.FLUENCY_FLUENT
+                )
             ]
         )
     with search_session(token12) as api:
         search_request_2 = search_pb2.UserSearchReq(
             language_ability_filter=[
-                api_pb2.LanguageAbility(code="jpn", fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL)
+                api_pb2.LanguageAbility(code="jpn", fluency=api_pb2.Fluency.FLUENCY_CONVERSATIONAL)
             ]
         )
 
