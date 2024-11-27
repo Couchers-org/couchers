@@ -5,8 +5,10 @@ from google.protobuf import wrappers_pb2
 
 from couchers.db import session_scope
 from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus
+
 from couchers.utils import Timestamp_from_datetime, create_coordinate, millis_from_dt, now
 from proto import api_pb2, communities_pb2, events_pb2, search_pb2
+
 from tests.test_communities import create_community, testing_communities  # noqa
 from tests.test_fixtures import (  # noqa
     communities_session,
@@ -162,42 +164,47 @@ def test_user_filter_meetup_status(db):
 
 def test_user_filter_language(db):
     """
-    Make sure the language filter returns the rigth profiles
+    Test filtering users by language ability.
     """
-    user_with_german_beginner, token11 = generate_user(hosting_status = HostingStatus.can_host)
-    user_with_japanese_conversational, token12 = generate_user(hosting_status = HostingStatus.can_host)
+    user_with_german_beginner, token11 = generate_user(hosting_status=HostingStatus.can_host)
+    user_with_japanese_conversational, token12 = generate_user(hosting_status=HostingStatus.can_host)
 
     with session_scope() as session:
-
         session.add(
             LanguageAbility(user_id=user_with_german_beginner.id, language_code="deu", fluency=LanguageFluency.beginner)
         )
         session.add(
             LanguageAbility(
-                user_id=user_with_japanese_conversational.id, language_code="jpn", fluency=LanguageFluency.conversational
+                user_id=user_with_japanese_conversational.id,
+                language_code="jpn",
+                fluency=LanguageFluency.conversational,
             )
         )
 
-        search_request_1 = search_pb2.UserSearchReq(
-            language_ability_filter=[
-                LanguageAbility(
-                    language_code="deu",
-                    fluency=api_pb2.Fluency.FLUENCY_FLUENT
-                )
-            ]
+    with search_session(token11) as api:
+        res = api.UserSearch(
+            search_pb2.UserSearchReq(
+                language_ability_filter=[
+                    search_pb2.LanguageAbility(
+                        code="deu",
+                        fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER,
+                    )
+                ]
+            )
         )
-    with search_session(token12) as api:
-        search_request_2 = search_pb2.UserSearchReq(
-            language_ability_filter=[
-                api_pb2.LanguageAbility(code="jpn", fluency=api_pb2.Fluency.FLUENCY_CONVERSATIONAL)
-            ]
+        assert [result.user.user_id for result in res.results] == [user_with_german_beginner.id]
+
+        res = api.UserSearch(
+            search_pb2.UserSearchReq(
+                language_ability_filter=[
+                    search_pb2.LanguageAbility(
+                        code="jpn",
+                        fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL,
+                    )
+                ]
+            )
         )
-
-        result_1 = api.UserSearch(search_request_1)
-        result_2 = api.UserSearch(search_request_2)
-
-        assert [result.user.user_id for result in result_1.results] != [user_with_german_beginner.id]
-        assert [result.user.user_id for result in result_2.results] == [user_with_japanese_conversational.id]
+        assert [result.user.user_id for result in res.results] == [user_with_japanese_conversational.id]
 
 
 @pytest.fixture
