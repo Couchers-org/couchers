@@ -112,7 +112,7 @@ enum Fluency {
 message LanguageAbility {
     int64 user_id = 1;          // Corresponds to the user ID (optional, may not be needed for search)
     string language_code = 2;   // ISO code for the language (e.g., "dan" for Danish)
-    org.couchers.api.core.LanguageAbility.Fluency fluency = 3; // The language fluency level
+    Fluency fluency = 3; // The language fluency level
 }
 
 
