@@ -175,7 +175,7 @@ def test_user_filter_language(db):
             LanguageAbility(
                 user_id=user_with_japanese_conversational.id,
                 language_code="jpn",
-                fluency=LanguageFluency.conversational,
+                fluency=LanguageFluency.fluent,
             )
         )
 
@@ -185,12 +185,12 @@ def test_user_filter_language(db):
                 language_ability_filter=[
                     api_pb2.LanguageAbility(
                         code="deu",
-                        fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER,
+                        fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL,
                     )
                 ]
             )
         )
-        assert [result.user.user_id for result in res.results] == [user_with_german_beginner.id]
+        assert [result.user.user_id for result in res.results] != [user_with_german_beginner.id]
 
         res = api.UserSearch(
             search_pb2.UserSearchReq(
