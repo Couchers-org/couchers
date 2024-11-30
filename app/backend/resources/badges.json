@@ -27,7 +27,7 @@
       "description": "This user is a moderator of Couchers.org",
       "color": "#c74f5b",
       "admin_editable": false
-     },
+    },
     {
       "id": "volunteer",
       "name": "Active Volunteer",

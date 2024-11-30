@@ -2291,8 +2291,11 @@ class NotificationTopicAction(enum.Enum):
     event__cancel = ("event:cancel", dt_all, True, nd.EventCancel)
     event__delete = ("event:delete", dt_all, True, nd.EventDelete)
     event__invite_organizer = ("event:invite_organizer", dt_all, True, nd.EventInviteOrganizer)
-    # toplevel comment on an event
-    event__comment = ("event:comment", dt_all, True, nd.EventComment)
+    # toplevel comment on an event..
+    # ...that you organize
+    event__comment_organizing = ("event:comment_organizing", dt_all, True, nd.EventComment)
+    # ...that you are attending
+    event__comment_attending = ("event:comment_attending", [dt.push, dt.digest], True, nd.EventComment)
 
     # discussion created
     discussion__create = ("discussion:create", [], True, nd.DiscussionCreate)
