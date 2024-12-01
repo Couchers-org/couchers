@@ -226,10 +226,13 @@ typing-extensions==4.11.0
     #   opentelemetry-sdk
     #   sqlalchemy
     #   stripe
-ua-parser==0.18.0
+ua-parser==1.0.0
     # via
     #   -r requirements.in
+    #   ua-parser-builtins
     #   user-agents
+ua-parser-builtins==0.18.0
+    # via ua-parser
 urllib3==2.2.1
     # via
     #   botocore
