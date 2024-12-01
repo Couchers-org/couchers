@@ -27,9 +27,12 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
   },
   root: {
+    padding: theme.spacing(1),
     [theme.breakpoints.up("md")]: {
-      display: "flex",
-      justifyContent: "space-around",
+      display: "grid",
+      gridTemplateColumns: "2fr 3fr",
+      gap: theme.spacing(3),
+      margin: theme.spacing(0, 3)
     },
   },
 }));
