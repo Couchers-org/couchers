@@ -58,8 +58,6 @@ export default function CommunityModeratorsSection({
           <div className={classes.moderatorsContainer}>
             {adminIds.map((id) => (
               <UserSummary
-                avatarIsLink
-                nameOnly
                 smallAvatar
                 key={id}
                 headlineComponent="h3"

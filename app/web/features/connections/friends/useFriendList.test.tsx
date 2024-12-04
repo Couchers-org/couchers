@@ -2,19 +2,19 @@ import { renderHook } from "@testing-library/react-hooks";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { service } from "service";
-import users from "test/fixtures/users.json";
+import users from "test/fixtures/liteUsers.json";
 import wrapper from "test/hookWrapper";
-import { getUser, listFriends } from "test/serviceMockDefaults";
+import { getLiteUsers, listFriends } from "test/serviceMockDefaults";
 import { mockConsoleError, wait } from "test/utils";
 
 import useFriendList from "./useFriendList";
 
 const listFriendsMock = service.api.listFriends as jest.Mock;
-const getUserMock = service.user.getUser as jest.Mock;
+const getLiteUsersMock = service.user.getLiteUsers as jest.Mock;
 
 beforeEach(() => {
   listFriendsMock.mockImplementation(listFriends);
-  getUserMock.mockImplementation(getUser);
+  getLiteUsersMock.mockImplementation(getLiteUsers);
 });
 
 describe("when the listFriends query is loading", () => {
@@ -29,33 +29,32 @@ describe("when the listFriends query is loading", () => {
       isError: false,
       isLoading: true,
     });
-    expect(getUserMock).not.toHaveBeenCalled();
+    expect(getLiteUsersMock).not.toHaveBeenCalled();
 
     await waitForNextUpdate();
   });
 });
 
 describe("when the listFriends query succeeds", () => {
-  it("returns the friends data with no errors if all getUser queries succeed", async () => {
+  it("returns the friends data with no errors if getLiteUsers query succeeds", async () => {
     const { result, waitForNextUpdate } = renderHook(() => useFriendList(), {
       wrapper,
     });
     await waitForNextUpdate();
 
     // Called twice since the user has two friends in the fixture data
-    expect(getUserMock).toHaveBeenCalledTimes(2);
+    expect(getLiteUsersMock).toHaveBeenCalledTimes(1);
     expect(result.current).toEqual({
       data: [users[1], users[2]],
+      friendIds: [users[1].userId, users[2].userId],
       errors: [],
       isError: false,
       isLoading: false,
     });
   });
 
-  it("returns isLoading as true with no errors if some getUser queries are loading", async () => {
-    getUserMock.mockImplementation((userId: string) => {
-      return userId === "2" ? getUser(userId) : new Promise(() => void 0);
-    });
+  it("returns isLoading as true with no errors if getLiteUsers query is loading", async () => {
+    getLiteUsersMock.mockImplementation(() => new Promise(() => void 0));
 
     const { result, waitForNextUpdate } = renderHook(() => useFriendList(), {
       wrapper,
@@ -63,53 +62,16 @@ describe("when the listFriends query succeeds", () => {
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
-      data: [
-        {
-          avatarUrl: "",
-          name: "Funny Dog",
-          userId: 2,
-          username: "funnydog",
-        },
-        undefined,
-      ],
+      data: [],
       errors: [],
       isError: false,
       isLoading: true,
     });
   });
 
-  it("returns isError as true and some friends data with the errors if some getUser queries failed", async () => {
+  it("returns isError as true with errors if getLiteUsers query fails", async () => {
     mockConsoleError();
-    getUserMock.mockImplementation((userId: string) => {
-      return userId === "2"
-        ? Promise.reject(new Error(`Error fetching user ${userId}`))
-        : getUser(userId);
-    });
-
-    const { result, waitForNextUpdate } = renderHook(() => useFriendList(), {
-      wrapper,
-    });
-    await waitForNextUpdate();
-
-    expect(result.current).toMatchObject({
-      data: [
-        undefined,
-        {
-          avatarUrl: "https://loremflickr.com/200/200?user3",
-          name: "Funny Kid",
-          userId: 3,
-          username: "funnykid",
-        },
-      ],
-      errors: ["Error fetching user 2"],
-      isError: true,
-      isLoading: false,
-    });
-  });
-
-  it("returns isError as true with errors if all getUser queries fail", async () => {
-    mockConsoleError();
-    getUserMock.mockRejectedValue(new Error("Error fetching user data"));
+    getLiteUsersMock.mockRejectedValue(new Error("Error fetching user data"));
 
     const { result, waitForNextUpdate } = renderHook(() => useFriendList(), {
       wrapper,
@@ -118,7 +80,7 @@ describe("when the listFriends query succeeds", () => {
 
     expect(result.current).toMatchObject({
       data: [undefined, undefined],
-      errors: ["Error fetching user data", "Error fetching user data"],
+      errors: ["Error fetching user data"],
       isError: true,
       isLoading: false,
     });
@@ -141,7 +103,7 @@ describe("when the listFriends query failed", () => {
       isError: true,
       isLoading: false,
     });
-    expect(getUserMock).not.toHaveBeenCalled();
+    expect(getLiteUsersMock).not.toHaveBeenCalled();
   });
 });
 
@@ -166,7 +128,7 @@ describe("with cached user data", () => {
     await wait(0);
 
     listFriendsMock.mockRejectedValue(new Error("Error listing friends"));
-    getUserMock.mockRejectedValue(new Error("Error fetching user data"));
+    getLiteUsersMock.mockRejectedValue(new Error("Error fetching user data"));
 
     const { result, waitForNextUpdate } = renderHook(() => useFriendList(), {
       wrapper: sharedClientWrapper,
@@ -188,11 +150,7 @@ describe("with cached user data", () => {
           username: "funnykid",
         },
       ],
-      errors: [
-        "Error listing friends",
-        "Error fetching user data",
-        "Error fetching user data",
-      ],
+      errors: ["Error listing friends"],
       isError: true,
       isLoading: false,
     });

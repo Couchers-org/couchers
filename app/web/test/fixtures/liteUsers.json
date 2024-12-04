@@ -9,7 +9,8 @@
     "radius": 200,
     "age": 28,
     "avatarUrl": "https://loremflickr.com/200/200?user1",
-    "avatarThumbnailUrl": "https://loremflickr.com/50/50?user1"
+    "avatarThumbnailUrl": "https://loremflickr.com/50/50?user1",
+    "hasStrongVerification": false
   },
   {
     "name": "Funny Dog",
@@ -21,7 +22,8 @@
     "radius": 200,
     "age": 35,
     "avatarUrl": "",
-    "avatarThumbnailUrl": ""
+    "avatarThumbnailUrl": "",
+    "hasStrongVerification": true
   },
   {
     "name": "Funny Kid",
@@ -33,7 +35,8 @@
     "radius": 200,
     "age": 28,
     "avatarUrl": "https://loremflickr.com/200/200?user3",
-    "avatarThumbnailUrl": "https://loremflickr.com/50/50?user3"
+    "avatarThumbnailUrl": "https://loremflickr.com/50/50?user3",
+    "hasStrongVerification": true
   },
   {
     "name": "Funny Chicken",
@@ -45,7 +48,8 @@
     "radius": 200,
     "age": 28,
     "avatarUrl": "https://loremflickr.com/200/200?user4",
-    "avatarThumbnailUrl": "https://loremflickr.com/50/50?user4"
+    "avatarThumbnailUrl": "https://loremflickr.com/50/50?user4",
+    "hasStrongVerification": false
   },
   {
     "name": "Friendly Cow",
@@ -57,6 +61,7 @@
     "radius": 200,
     "age": 25,
     "avatarUrl": "https://loremflickr.com/200/200?user5",
-    "avatarThumbnailUrl": "https://loremflickr.com/50/50?user5"
+    "avatarThumbnailUrl": "https://loremflickr.com/50/50?user5",
+    "hasStrongVerification": false
   }
 ]

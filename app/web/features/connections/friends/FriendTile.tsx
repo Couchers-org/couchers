@@ -11,6 +11,7 @@ const useStyles = makeStyles((theme) => ({
     margin: `0 auto ${theme.spacing(1)}`,
   },
   container: {
+    margin: theme.spacing(2),
     "& > *": {
       marginBottom: theme.spacing(2),
     },

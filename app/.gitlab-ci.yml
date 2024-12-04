@@ -402,6 +402,31 @@ test:storybook:
         - app/proto/**/*
         - app/web/**/*
 
+test:proxy:
+  needs: ["build:proxy"]
+  stage: test
+  script:
+    - docker run --name envoy-config-test -d -p 8888:8888 -p 9901:9901 $PROXY_TAG
+    - sleep 10
+    - |
+      if [ "$(docker inspect -f '{{.State.Running}}' envoy-config-test)" != "true" ]; then
+        echo "Container failed to start. Envoy configuration might be invalid."
+        docker logs envoy-config-test
+        exit 1
+      fi
+    - docker logs envoy-config-test
+  after_script:
+    - docker rm -f envoy-config-test || true
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+        - app/**/*
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
+      changes:
+        - app/proto/**/*
+        - app/proxy/**/*
+
+
 preview:bcov:
   needs: ["test:backend"]
   stage: preview

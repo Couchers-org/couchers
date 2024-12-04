@@ -6,7 +6,6 @@ import logging
 from datetime import date, timedelta
 from math import sqrt
 from types import SimpleNamespace
-from typing import List
 
 import requests
 from google.protobuf import empty_pb2
@@ -524,7 +523,6 @@ def update_recommendation_scores(payload):
         User.occupation,
         User.education,
         User.about_me,
-        User.my_travels,
         User.things_i_like,
         User.about_place,
         User.additional_information,
@@ -737,7 +735,7 @@ update_recommendation_scores.SCHEDULE = timedelta(hours=24)
 def update_badges(payload):
     with session_scope() as session:
 
-        def update_badge(badge_id: str, members: List[int]):
+        def update_badge(badge_id: str, members: list[int]):
             badge = get_badge_dict()[badge_id]
             user_ids = session.execute(select(UserBadge.user_id).where(UserBadge.badge_id == badge_id)).scalars().all()
             # in case the user ids don't exist in the db

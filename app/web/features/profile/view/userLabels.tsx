@@ -13,7 +13,7 @@ import {
 } from "proto/api_pb";
 import { useQuery } from "react-query";
 import { service } from "service";
-import { dateTimeFormatter, timestamp2Date } from "utils/date";
+import { monthFormatter, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import { hourMillis, timeAgoI18n } from "utils/timeAgo";
 
@@ -237,7 +237,7 @@ export const RemainingAboutLabels = ({ user }: Props) => {
         label={t("profile:heading.joined")}
         text={
           user.joined
-            ? dateTimeFormatter(locale).format(timestamp2Date(user.joined))
+            ? monthFormatter(locale).format(timestamp2Date(user.joined))
             : ""
         }
       />

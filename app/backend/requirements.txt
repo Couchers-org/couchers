@@ -14,9 +14,9 @@ alembic==1.14.0
     # via -r requirements.in
 attrs==24.2.0
     # via aiohttp
-boto3==1.35.66
+boto3==1.35.69
     # via -r requirements.in
-botocore==1.35.66
+botocore==1.35.69
     # via
     #   boto3
     #   s3transfer
@@ -200,11 +200,11 @@ requests==2.32.3
     #   geoip2
     #   opentelemetry-exporter-otlp-proto-http
     #   stripe
-ruff==0.7.4
+ruff==0.8.0
     # via -r requirements.in
 s3transfer==0.10.1
     # via boto3
-sentry-sdk==2.18.0
+sentry-sdk==2.19.0
     # via -r requirements.in
 shapely==2.0.6
     # via -r requirements.in

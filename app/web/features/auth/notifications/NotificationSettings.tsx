@@ -14,7 +14,9 @@ export default function NotificationSettings({
 
   return (
     <div className={className}>
-      <Typography variant="h2">{t("notification_settings.title")}</Typography>
+      <Typography variant="h2" gutterBottom>
+        {t("notification_settings.title")}
+      </Typography>
       <Link href={notificationSettingsRoute} passHref>
         <Button>{t("notification_settings.go_to_button")}</Button>
       </Link>

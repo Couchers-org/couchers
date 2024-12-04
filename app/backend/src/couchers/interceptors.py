@@ -16,7 +16,6 @@ from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import observe_in_servicer_duration_histogram
 from couchers.models import APICall, User, UserActivity, UserSession
-from couchers.profiler import CouchersProfiler
 from couchers.sql import couchers_select as select
 from couchers.utils import create_session_cookies, now, parse_api_key, parse_session_cookie, parse_user_id_cookie
 from proto import annotations_pb2
@@ -391,15 +390,14 @@ class TracingInterceptor(grpc.ServerInterceptor):
 
         def tracing_function(request, context):
             try:
-                with CouchersProfiler(do_profile=False) as prof:
-                    start = perf_counter_ns()
-                    res = prev_func(request, context)
-                    finished = perf_counter_ns()
+                start = perf_counter_ns()
+                res = prev_func(request, context)
+                finished = perf_counter_ns()
                 duration = (finished - start) / 1e6  # ms
                 user_id = getattr(context, "user_id", None)
                 is_api_key = getattr(context, "is_api_key", None)
                 self._store_log(
-                    method, None, duration, user_id, is_api_key, request, res, None, prof.report, ip_address, user_agent
+                    method, None, duration, user_id, is_api_key, request, res, None, None, ip_address, user_agent
                 )
                 observe_in_servicer_duration_histogram(method, user_id, "", "", duration / 1000)
             except Exception as e:

@@ -31,4 +31,20 @@ updates:
     reviewers:
       - "aapeliv"
       - "nabramow"
-      - "bakeiro"
+
+  - package-ecosystem: "docker"
+    directories:
+      - "/app/backend"
+      - "/app/media"
+      - "/app/mobile/src"
+      - "/app/nginx"
+      - "/app/prometheus"
+      - "/app/proxy"
+      - "/app/web"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "1.topic devops"
+      - "dependencies"
+    reviewers:
+      - "aapeliv"

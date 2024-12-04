@@ -34,6 +34,7 @@ export const signupRoute = "/signup";
 
 export const settingsRoute = "/account-settings";
 export const notificationSettingsRoute = `${settingsRoute}/notifications`;
+export const loginsSettingsRoute = `${settingsRoute}/logins`;
 
 // profile
 export const userTabs = [
@@ -78,7 +79,7 @@ export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 // REFERENCES
 export const leaveReferenceBaseRoute = "/leave-reference";
 export const routeToLeaveReference = (
-  referenceType: ReferenceTypeStrings,
+  referenceType: ReferenceTypeRouteStrings,
   userId: number,
   hostRequestId?: number
 ) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`;

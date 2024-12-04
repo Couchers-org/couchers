@@ -13,6 +13,8 @@ import React from "react";
 import { routeToUser } from "routes";
 import makeStyles from "utils/makeStyles";
 
+import StrongVerificationBadge from "./StrongVerificationBadge";
+
 export const useStyles = makeStyles((theme) => ({
   avatar: {
     marginInlineEnd: theme.spacing(2),
@@ -35,7 +37,8 @@ export const useStyles = makeStyles((theme) => ({
     maxWidth: 300,
   },
   title: {
-    marginTop: 0,
+    marginTop: "auto",
+    fontSize: "1.2rem",
   },
   link: {
     display: "flex",
@@ -49,7 +52,7 @@ export const useStyles = makeStyles((theme) => ({
   },
   titleAndBarContainer: {
     display: "grid",
-    gap: theme.spacing(0.5),
+    gap: theme.spacing(0.25),
     margin: 0,
     minHeight: theme.spacing(9),
   },
@@ -58,7 +61,6 @@ export const useStyles = makeStyles((theme) => ({
 export const USER_TITLE_SKELETON_TEST_ID = "user-title-skeleton";
 
 export interface UserSummaryProps {
-  avatarIsLink?: boolean;
   children?: React.ReactNode;
   smallAvatar?: boolean;
   nameOnly?: boolean;
@@ -68,7 +70,6 @@ export interface UserSummaryProps {
 }
 
 export default function UserSummary({
-  avatarIsLink = true,
   children,
   smallAvatar = false,
   nameOnly = false,
@@ -96,10 +97,11 @@ export default function UserSummary({
           className={classes.titleSkeleton}
           data-testid={USER_TITLE_SKELETON_TEST_ID}
         />
-      ) : nameOnly ? (
-        user.name
       ) : (
-        `${user.name}, ${user.age}`
+        <>
+          {nameOnly ? user.name : `${user.name}, ${user.age}`}
+          {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
+        </>
       )}
     </Typography>
   );
@@ -118,7 +120,7 @@ export default function UserSummary({
           <Avatar
             user={user}
             className={avatarClassNames}
-            isProfileLink={avatarIsLink}
+            isProfileLink={true}
           />
         )}
       </ListItemAvatar>

@@ -41,6 +41,7 @@ type ButtonClasses = {
 
 //type generics required to allow component prop
 //see https://github.com/mui-org/material-ui/issues/15827
+// @TODO This is fixed now, can refactor: https://github.com/mui/material-ui/pull/35924
 export type AppButtonProps<D extends ElementType = "button"> =
   ButtonProps<D> & {
     loading?: boolean;
@@ -104,5 +105,5 @@ function _Button<D extends ElementType = "button">(
   );
 }
 
-const Button = forwardRef(_Button) as typeof _Button;
+const Button = forwardRef(_Button);
 export default Button;

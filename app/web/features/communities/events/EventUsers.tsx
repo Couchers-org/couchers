@@ -62,7 +62,6 @@ export default function EventUsers({
               <UserSummary
                 headlineComponent="h3"
                 key={userId}
-                nameOnly
                 smallAvatar
                 user={user}
               />

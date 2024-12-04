@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { getUser, listFriends } from "test/serviceMockDefaults";
+import { getLiteUsers, listFriends } from "test/serviceMockDefaults";
 import { MockedService, t } from "test/utils";
 
 import FriendList from "./FriendList";
@@ -10,14 +10,14 @@ import { FRIEND_ITEM_TEST_ID } from "./FriendSummaryView";
 const listFriendsMock = service.api.listFriends as MockedService<
   typeof service.api.listFriends
 >;
-const getUserMock = service.user.getUser as MockedService<
-  typeof service.user.getUser
+const getLiteUsersMock = service.user.getLiteUsers as MockedService<
+  typeof service.user.getLiteUsers
 >;
 
 describe("FriendList", () => {
   beforeEach(() => {
     listFriendsMock.mockImplementation(listFriends);
-    getUserMock.mockImplementation(getUser);
+    getLiteUsersMock.mockImplementation(getLiteUsers);
   });
 
   it("shows a loading indicator when the friend list is still loading", async () => {

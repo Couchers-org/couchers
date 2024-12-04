@@ -199,9 +199,14 @@ export default function FilterDialog({
               name="location"
               defaultValue={""}
               label={t("search:form.location_field_label")}
-              onChange={(e) => {
-                if (e) {
-                  setLocationResult(e);
+              onChange={(event) => {
+                if (event) {
+                  const { bbox } = event;
+                  const newLocationResult: GeocodeResult = {
+                    ...event,
+                    bbox: [bbox[2], bbox[3], bbox[0], bbox[1]], //sw long, sw lat, ne long, ne lat
+                  };
+                  setLocationResult(newLocationResult);
                 }
               }}
               fieldError={errors.location?.message}

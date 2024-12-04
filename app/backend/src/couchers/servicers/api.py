@@ -28,9 +28,10 @@ from couchers.models import (
     SleepingArrangement,
     SmokingLocation,
     User,
+    UserBadge,
 )
 from couchers.notifications.notify import notify
-from couchers.resources import language_is_allowed, region_is_allowed
+from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
 from couchers.sql import is_valid_user_id, is_valid_username
@@ -44,6 +45,7 @@ from couchers.utils import (
 from proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2
 
 MAX_USERS_PER_QUERY = 200
+MAX_PAGINATION_LENGTH = 50
 
 hostingstatus2sql = {
     api_pb2.HOSTING_STATUS_UNKNOWN: None,
@@ -306,12 +308,6 @@ class API(api_pb2_grpc.APIServicer):
                 user.about_me = None
             else:
                 user.about_me = request.about_me.value
-
-        if request.HasField("my_travels"):
-            if request.my_travels.is_null:
-                user.my_travels = None
-            else:
-                user.my_travels = request.my_travels.value
 
         if request.HasField("things_i_like"):
             if request.things_i_like.is_null:
@@ -773,6 +769,30 @@ class API(api_pb2_grpc.APIServicer):
             expiry=Timestamp_from_datetime(expiry),
         )
 
+    def ListBadgeUsers(self, request, context, session):
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        next_user_id = int(request.page_token) if request.page_token else 0
+        badge = get_badge_dict().get(request.badge_id)
+        if not badge:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.BADGE_NOT_FOUND)
+
+        badge_user_ids = (
+            session.execute(
+                select(UserBadge.user_id)
+                .where(UserBadge.badge_id == badge["id"])
+                .where(UserBadge.user_id >= next_user_id)
+                .order_by(UserBadge.user_id)
+                .limit(page_size + 1)
+            )
+            .scalars()
+            .all()
+        )
+
+        return api_pb2.ListBadgeUsersRes(
+            user_ids=badge_user_ids[:page_size],
+            next_page_token=str(badge_user_ids[-1]) if len(badge_user_ids) > page_size else None,
+        )
+
 
 def user_model_to_pb(db_user, session, context):
     num_references = session.execute(
@@ -865,7 +885,6 @@ def user_model_to_pb(db_user, session, context):
         occupation=db_user.occupation,
         education=db_user.education,
         about_me=db_user.about_me,
-        my_travels=db_user.my_travels,
         things_i_like=db_user.things_i_like,
         about_place=db_user.about_place,
         language_abilities=[
@@ -967,4 +986,5 @@ def lite_user_to_pb(lite_user):
         lat=lat,
         lng=lng,
         radius=lite_user.radius,
+        has_strong_verification=lite_user.has_strong_verification,
     )

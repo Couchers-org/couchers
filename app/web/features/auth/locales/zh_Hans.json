@@ -6,31 +6,52 @@
     "current_password": "当前密码",
     "new_email": "新邮箱地址"
   },
+  "do_not_email": {
+    "title": "请勿向我发送邮件",
+    "status": {
+      "no_emails_enabled_message": "您当前已<1>禁用</1>邮件通知。",
+      "no_emails_disabled_message": "您当前已<1>启用</1>邮件通知。"
+    },
+    "action_button": {
+      "no_emails_enable_text": "禁用邮件通知",
+      "no_emails_disable_text": "重新启用邮件通知"
+    },
+    "caveat": "启用此设置后，您的账号将不会接收接待请求，但您仍会收到安全相关邮件（如重置密码的邮件）。您可能仍会收到简报邮件，可通过简报页脚中的链接取消订阅。"
+  },
   "change_email_confirmation": {
     "change_in_progress": "邮箱更改中……",
     "success_message": "您的邮箱已经更改成功！",
     "error_message": "更改邮箱出错了：{{message}}"
   },
   "change_password_form": {
-    "confirm_password": "确认密码",
     "title": "更改密码",
-    "password_changed_success": "您的密码已设好，我们给您的邮箱发了一封确认函。",
+    "subtitle": "使用此表单重置您的登录密码。",
+    "confirm_password": "确认密码",
+    "password_changed_success": "您的新密码已设好，我们给您的邮箱发了一封通知邮件。",
     "old_password": "之前的密码",
     "new_password": "新的密码",
-    "password_mismatch_error": "密码不匹配。"
+    "password_mismatch_error": "密码不匹配。",
+    "user_logged_error": "如果您已登录，则无法重置密码。您可以在设置中更改密码，或登出后重置密码。",
+    "token_error": "处理密码重置令牌时出错，请重试。",
+    "reset_password_success": "您的密码已成功更改！",
+    "reset_password_error": "重置密码时出错：{{message}}"
+  },
+  "jail_set_password_form": {
+    "title": "设置密码",
+    "explanation": "您之前没有为账户设置过密码。请现在创建一个密码再继续操作。"
   },
   "reset_password_form": {
     "enter_email": "输入您的用户名或邮箱地址",
     "success_message": "检查您的邮箱，里面有重置密码的链接！"
   },
   "login_page": {
-    "title": "登陆",
+    "title": "登录",
     "header": "欢迎回家！",
     "no_account_prompt": "还没有账号吗？<2>现在注册</2>",
     "form": {
-      "no_password_login_prompt": "请检查您的邮箱，获取登录链接！:)",
       "username_field_label": "电子邮件/用户名",
       "password_field_label": "密码",
+      "no_password_login_prompt": "请检查您的邮箱，获取登录链接！:)",
       "remember_me": "记住我",
       "forgot_password": "忘记密码？"
     }
@@ -48,13 +69,19 @@
       "username_taken_error": "用户名已被占用。",
       "validation_error": "用户名只可以用英文字母开头，之后跟随英文字母、数字或下划线_。"
     },
+    "password": {
+      "field_label": "密码",
+      "required_error": "输入密码",
+      "validation_error": "密码必须介于8到256个字符，不可以是极其常见的组合。"
+    },
     "birthday": {
       "field_label": "生日",
       "required_error": "输入您的生日",
       "validation_error": "生日得是过去存在的一天。"
     },
     "hosting_status": {
-      "field_label": "接待朋友的喜好",
+      "any": "任意",
+      "field_label": "接待状态",
       "can_host": "可以接待",
       "maybe": "可能可以接待",
       "cant_host": "无法接待"
@@ -63,16 +90,12 @@
       "field_label": "我是……",
       "required_error": "请选择您的性别",
       "man": "男性",
-      "woman": "女性",
-      "non_binary": "非二元性別的"
+      "non_binary": "非二元性别",
+      "woman": "女性"
     },
-    "tos_prompt": "如果需要继续，请您阅读并且接受<1></1>。",
-    "tos_accept_label": "我接受服务条款。",
-    "password": {
-      "field_label": "密码",
-      "required_error": "输入密码",
-      "validation_error": "密码必须介于8到256个字符，不可以是极其常见的组合。"
-    }
+    "opt_in_newsletter": "订阅我们的社区更新偶尔通讯。",
+    "tos_prompt": "请您阅读并且接受<1></1>以继续。",
+    "tos_accept_label": "我接受服务条款。"
   },
   "basic_form": {
     "name": {
@@ -93,25 +116,20 @@
   "community_guidelines_form": {
     "header": "社区守则",
     "guideline": {
-      "required_error": "所有必填项都需要填好",
-      "checkbox_label": "好的，我明白了"
+      "checkbox_label": "好的，我明白了",
+      "required_error": "所有必填项都需要填好"
     }
   },
-  "sign_up_completed_title": "感谢您注册！",
-  "unhandled_sign_up_state": "错误：unhandled signup flow state.",
-  "login_prompt": "点击此处登陆",
-  "about_us": "关于我们",
-  "introduction_subtitle": "永久免费。社区至上。不为营利。面向未来。",
-  "introduction_title": "加入我们，与我们一同成长",
-  "reset_password": "重置密码",
-  "sign_up_completed_prompt": "我们给您的邮箱发了一封带有确认链接的邮件，请点击链接，激活账号。",
-  "sign_up_confirmed_prompt": "完成啦！如果页面没有自动跳转，您可以直接登陆账号。",
+  "feedback_form": {
+    "header": "听听您怎么说",
+    "skip_step_text": "不感兴趣吗？<2>跳过这一步</2>"
+  },
   "jail": {
+    "title": "需要更多信息",
+    "description": "请检查以下问题后继续。",
     "terms_of_service_section": {
       "description": "我们更新了服务条款。请阅读并接受新的<1></1>以继续。"
     },
-    "title": "需要更多信息",
-    "description": "请检查以下问题后继续。",
     "location_section": {
       "title": "请添加您的位置",
       "submit_button": {
@@ -119,9 +137,27 @@
         "inactive_text": "谢谢！"
       },
       "resubmit_button_text": "重新提交"
+    },
+    "mod_note_section": {
+      "title": "您已收到来自管理员的通知",
+      "description": "管理员向您发送了以下通知。请仔细阅读并确认您已阅读并理解该通知，然后再继续。",
+      "note_title": "收到管理员通知于 {{time}}：",
+      "acknowledge": "确认已阅读"
     }
   },
   "logged_out_message": "您已登出。",
+  "sign_up_completed_title": "感谢您注册！",
+  "sign_up_need_verification_title": "快完成了，最后一步！",
+  "sign_up_resend_verification_email_help": "没有收到邮件？点击<2>这里重新发送验证链接</2>。",
+  "sign_up_resend_verification_done": "完成！我们已向您发送了另一封邮件。",
+  "sign_up_completed_prompt": "我们给您的邮箱发了一封带有确认链接的邮件，请点击链接，激活账号。",
+  "sign_up_confirmed_prompt": "完成啦！如果页面没有自动跳转，您可以直接登录账号。",
+  "unhandled_sign_up_state": "错误：未处理的注册流程状态。",
+  "login_prompt": "点击此处登录",
+  "about_us": "关于我们",
+  "introduction_subtitle": "永久免费。社区至上。不为营利。面向未来。",
+  "introduction_title": "加入我们，与我们一同成长",
+  "reset_password": "重置密码",
   "account_settings_page": {
     "title": "账户设置",
     "gender_section": {
@@ -140,76 +176,210 @@
     "username_section": {
       "title": "用户名",
       "description": "您的用户名是<1>{{username}}</1>。",
-      "explanation": "您在创建账户时，就设置了用户名。"
+      "explanation": "您在创建账户时设置的用户名。"
     }
   },
-  "jail_set_password_form": {
-    "title": "设置密码",
-    "explanation": "您之前没有为账户设置过密码。请现在创建一个密码再继续操作。"
-  },
-  "feedback_form": {
-    "header": "听听您怎么说",
-    "skip_step_text": "不感兴趣吗？<2>跳过这一步</2>"
+  "vercel_logo_alt_text": "由Vercel强力驱动",
+  "feature_preview": {
+    "title": "功能预览",
+    "explanation": "此页面允许您尝试尚在开发中的功能，这些功能尚未完全准备好供所有人使用。",
+    "disclaimer": "请注意，这些功能是实验性的。它们可能无法按预期工作，并且可能会随着我们的开发快速变化。欢迎在我们的论坛上提供反馈。如有任何错误，请向我们报告！",
+    "no_previews": {
+      "title": "暂无预览功能",
+      "explanation": "目前暂无活动的预览功能，请稍后再来查看！"
+    }
   },
   "notification_settings": {
-    "title": "通知设置"
+    "title": "通知设置",
+    "edit_in_console": "您可以在<2>此页面</2>更改通知设置。我们将很快将此功能迁移至这里。",
+    "go_to_button": "管理通知设置",
+    "edit_preferences": {
+      "title": "通知设置",
+      "description": "您仍可能会收到与账户和内容相关的重要通知，即使这些通知不在您的首选通知设置中。",
+      "list_heading": "您可能会收到的通知",
+      "error_loading": "加载通知设置时出错",
+      "list_items": {
+        "account_security": "账户安全",
+        "account_settings": "账户设置",
+        "chat": "消息",
+        "event": "活动",
+        "friend_request": "好友请求",
+        "host_request": "接待请求",
+        "reference": "评语"
+      },
+      "item_descriptions": {
+        "host_request": {
+          "create": "有人向您发送接待请求",
+          "accept": "有人接受了您的接待请求",
+          "confirm": "有人确认了他们的接待请求",
+          "reject": "有人拒绝了您的接待请求",
+          "cancel": "有人取消了他们的接待请求",
+          "message": "有人在接待请求中发送了消息",
+          "missed_messages": "您错过了接待请求中的消息"
+        },
+        "chat": {
+          "message": "有人向您发送了消息",
+          "missed_messages": "您错过了聊天中的消息"
+        },
+        "reference": {
+          "receive_hosted": "您收到了一位接待您的人的评语",
+          "receive_surfed": "您收到了一位您接待过的人的评语",
+          "receive_friend": "您收到了一位朋友的评语",
+          "reminder_hosted": "提醒您给曾接待过您的人成写评语",
+          "reminder_surfed": "提醒您给曾与您共同旅行过的人写评语"
+        },
+        "friend_request": {
+          "create": "有人向您发送了好友请求",
+          "accept": "有人接受了您的好友请求"
+        },
+        "event": {
+          "create_approved": "您的社区中创建了一个管理员批准的活动",
+          "create_any": "用户在您的社区中创建了任何活动（未经管理员审核）",
+          "update": "您参加的活动已更新",
+          "cancel": "您参加的活动已取消",
+          "delete": "您参加的活动已删除",
+          "invite_organizer": "有人邀请您共同组织一个活动"
+        },
+        "onboarding": {
+          "reminder": "注册后提醒您完善个人资料"
+        },
+        "badge": {
+          "add": "您的账户添加了一个徽章",
+          "remove": "您的账户移除了一个徽章"
+        },
+        "donation": {
+          "received": "您的捐赠已收到"
+        },
+        "password": {
+          "change": "您的密码已更改"
+        },
+        "password_reset": {
+          "start": "密码重置已启动",
+          "complete": "密码重置已完成"
+        },
+        "email_address": {
+          "change": "电子邮件更改已启动",
+          "verify": "您的新电子邮件已验证"
+        },
+        "account_deletion": {
+          "start": "您已启动账户删除",
+          "complete": "您的账户已删除",
+          "recovered": "您的账户已恢复（未删除）"
+        },
+        "api_key": {
+          "create": "为您的账户创建了API密钥"
+        },
+        "phone_number": {
+          "change": "您的电话号码已更改",
+          "verify": "您的电话号码已验证"
+        },
+        "birthdate": {
+          "change": "您的出生日期已更改"
+        },
+        "gender": {
+          "change": "您的个人资料中显示的性别已更改"
+        }
+      }
+    },
+    "push_notifications": {
+      "title": "推送通知",
+      "description": "您可以在设备上为Couchers.org启用推送通知。我们正在扩展此功能。",
+      "allow_push": "点击浏览器弹出的“允许”按钮以启用推送通知。",
+      "enabled_message": "您当前已<1>启用</1>推送通知。",
+      "disabled_message": "您当前已<1>禁用</1>推送通知。",
+      "error_generic": "订阅推送通知时出错",
+      "error_unsupported": "此浏览器不支持推送通知或服务工作线程。",
+      "permission_denied": {
+        "platform_settings_description": "启用浏览器通知后仍有问题？您可能需要调整设备的通知权限设置。",
+        "instructions": {
+          "chrome": "您已屏蔽通知。请在浏览器设置中启用通知。在Chrome中，点击URL栏中的锁图标，然后调整“通知”设置。",
+          "firefox": "您已屏蔽通知。请在浏览器设置中启用通知。在Firefox中，进入设置 > 隐私与安全 > 权限 > 通知，修改相关网站权限。",
+          "safari": "您已屏蔽通知。请在Safari的偏好设置 > 网站 > 通知中调整权限。",
+          "generic": "您已屏蔽通知。请在浏览器设置中启用通知。",
+          "macos": "在 macOS 中，前往 系统设置 > 通知，并修改应用的权限。",
+          "windows": "在 Windows 中，前往 设置 > 系统 > 通知和操作，调整应用或网站的权限。",
+          "linux": {
+            "gnome": "在 GNOME 中，前往 设置 > 通知，调整应用的权限。",
+            "kde": "在 KDE 中，前往 系统设置 > 通知，修改权限。"
+          },
+          "mobile": {
+            "browser": "在您的移动浏览器设置中，调整此网站的通知权限。",
+            "os": "在您的移动设备通知设置中，调整权限以允许通知。"
+          }
+        }
+      }
+    }
+  },
+  "active_logins": {
+    "heading": "当前登录",
+    "settings_page_text": "查看您的登录位置并退出其他会话",
+    "settings_page_link": "管理当前登录",
+    "description": "此页面列出了活跃登录会话。您可以通过单击登录旁边的按钮退出某个会话，或者滚动到底部并单击按钮退出除当前会话以外的所有会话。",
+    "login_header": "登录于 {{login_datetime}}",
+    "location": "靠近 <2>{{approximate_location}}</2>",
+    "last_activity": "上次活动 <2>{{last_activity_ago}}</2>",
+    "expiry": "过期时间 <1>{{expiry_datetime}}</1>",
+    "current_session": "这是您当前的会话。",
+    "log_out_of_session": "退出此会话",
+    "log_out_of_all_session": "退出其他所有会话"
+  },
+  "strong_verification": {
+    "title": "强验证",
+    "subtitle": "强验证是一项额外的安全功能，允许您通过生物护照验证出生日期和性别。",
+    "status": {
+      "enabled_message": "您当前已完成<1>强验证</1>。",
+      "disabled_message": "您当前未完成<1>强验证</1>。"
+    },
+    "complete_in_console": "您可以在<2>此页面</2>完成强验证。我们正在改进流程并在平台上全面实施。",
+    "go_to_button": "前往强验证设置"
   },
   "unsubscribe": {
     "title": "退订",
     "button_text": "确认退订",
     "error_message": "退订时出错：{{message}}",
-    "missing_payload_or_sig": "URL无效"
+    "missing_payload_or_sig": "无效的URL"
   },
-  "vercel_logo_alt_text": "由Vercel强力驱动",
-  "feature_preview": {
-    "title": "功能预览",
-    "explanation": "这个页面允许您尝试那些仍在开发中，没有完全准备好给所有人使用的功能。",
-    "no_previews": {
-      "title": "暂无预览功能",
-      "explanation": "目前暂无活动的预览功能，请过一阵再来看看！"
-    },
-    "disclaimer": "请记住，这些功能是实验性的。它们可能无法按预期工作，而且随着我们的开发，它们可能会迅速变化。欢迎在我们的论坛上提供反馈。如有任何错误，请向我们报告！"
+  "change_phone": {
+    "title": "电话号码",
+    "need_to_donate": "您需要<2>捐赠</2>后才能完成电话号码验证。",
+    "no_phone_description": "您的账户尚未添加电话号码。请在下方输入，我们会通过短信验证。",
+    "phone_label": "您的电话号码",
+    "add_button_text": "添加电话号码",
+    "add_success": "电话号码已添加。",
+    "phone_not_verified_description": "我们已向 <2>{{phone}}</2> 发送了一条验证码。请在下方输入验证码以验证您的号码：",
+    "code_label": "验证码",
+    "wrong_code": "验证码错误。",
+    "verify_button_text": "验证电话号码",
+    "verify_success": "电话号码已验证。",
+    "remove_phone_description": "您的当前电话号码是 <2>{{phone}}</2>。您可以在下方移除电话号码。",
+    "remove_button_text": "移除当前电话号码",
+    "remove_success": "电话号码已移除。",
+    "change_to_different_description": "如需更改为其他电话号码，请在下方输入。",
+    "change_button_text": "更改电话号码"
   },
   "delete_account": {
     "request": {
       "title": "删除账户",
       "description": "如要删除您的账户，请按以下步骤操作。我们将向您发出确认邮件。",
-      "confirm_username_explanation": "您的用户名是 <1>{{ username }}</1> ，请将它输入到下方，确认删除账户。",
+      "confirm_username_explanation": "您的用户名是 <1>{{username}}</1>，请在下方输入以确认删除账户。",
       "confirm_username_label": "用户名确认",
       "username_mismatch": "用户名不匹配。",
-      "reason_explanation": "请您告诉我们为什么要删除账户，帮助我们改进平台。",
+      "reason_explanation": "请告诉我们删除账户的原因，以帮助我们改进平台。",
       "reason_label": "账户删除原因",
       "success_message": "已启动账户删除。请通过我们发给您的电子邮件完成账户删除。"
     },
-    "recover": {
-      "success": "您的账户已恢复，您可以重新登录了。我们很激动您愿意回来！",
-      "title": "恢复您的Couchers.org账户",
-      "error_message": "恢复账户失败：{{message}}",
-      "button_text": "恢复您的账户"
-    },
-    "missing_token": "错误：missing token",
+    "missing_token": "错误：缺少令牌",
     "confirm": {
       "title": "确认账户删除",
-      "error_message": "删除账户失败：{{message}}",
-      "button_text": "确认账户删除",
+      "error_message": "确认账户删除失败：{{message}}",
+      "button_text": "确认删除账户",
       "account_deleted": "账户已删除。感谢您使用Couchers.org！"
+    },
+    "recover": {
+      "title": "恢复您的Couchers.org账户",
+      "error_message": "恢复账户失败：{{message}}",
+      "button_text": "恢复您的账户",
+      "success": "您的账户已恢复，您可以重新登录了。我们很激动您愿意回来！"
     }
-  },
-  "change_phone": {
-    "verify_success": "电话已验证。",
-    "title": "电话号码",
-    "no_phone_description": "您还没有将电话号码添加到账户中。请在下方添加。我们会给您发送验证短信。",
-    "phone_label": "您的电话号码",
-    "add_button_text": "添加电话号码",
-    "add_success": "电话已添加。",
-    "phone_not_verified_description": "我们已向 <2>{{phone}}</2> 发送了一个验证码。请在下方填写您的验证码，验证您的电话号：",
-    "code_label": "验证码",
-    "wrong_code": "验证码错误。",
-    "verify_button_text": "验证电话号",
-    "remove_button_text": "移除当前电话号",
-    "remove_success": "电话已移除。",
-    "change_to_different_description": "如您需更改为另一个电话号，请在下方输入新的电话号。",
-    "change_button_text": "修改电话号",
-    "remove_phone_description": "您的当前电话号是 <2>{{phone}}</2> 。您可以在下方移除您的电话号。"
   }
 }

@@ -1,10 +1,14 @@
 {
   "mark_all_read_button_text": "全部标记为已读",
+  "request_closed_message": "此沙发主请求已关闭或已过期。如需继续聊天，请发送普通消息给对方。",
   "write_reference_button_text": "编写评语",
   "close_request_dialog_title": "您要结束聊天吗？",
   "close_request_dialog_host": "请确认您在拒绝他们的请求前已结束聊天。",
+  "close_request_dialog_surfer": "请您确认在取消您的请求前已结束聊天。",
   "close_request_button_text": "拒绝",
   "confirm_request_button_text": "确认",
+  "host_pending_request_help_text": "回复前需要考虑的事项。",
+  "surfer_declined_request_help_text": "阅读我们的指南，了解如何写出容易被接受的请求。",
   "messages_page": {
     "title": "消息",
     "tabs": {
@@ -20,18 +24,18 @@
     "back_button": {
       "a11y_label": "返回"
     },
+    "muted_icon": {
+      "a11y_label": "已静音"
+    },
     "actions_menu": {
+      "a11y_label": "显示更多聊天操作",
       "items": {
         "invite_members": "邀请到聊天",
         "show_all_members": "聊天成员",
         "manage_admins": "管理聊天管理员",
         "chat_settings": "聊天设置",
         "leave_chat": "离开聊天"
-      },
-      "a11y_label": "显示更多聊天操作"
-    },
-    "muted_icon": {
-      "a11y_label": "已静音"
+      }
     },
     "mute": {
       "button_label": "静音聊天",
@@ -59,16 +63,13 @@
       "action_a11y_label": "添加管理员角色"
     }
   },
-  "members_dialog": {
-    "title": "聊天成员"
-  },
   "create_chat": {
-    "user_load_error_message": "（用户加载错误）",
-    "friends_input_label": "好友",
     "dm_title": "创建新聊天",
     "group_title": "创建群聊",
     "group_title_field_label": "标题",
-    "no_friends_found_message": "无法找到任何好友"
+    "no_friends_found_message": "无法找到任何好友",
+    "user_load_error_message": "（用户加载错误）",
+    "friends_input_label": "好友"
   },
   "chat_input": {
     "label": "消息"
@@ -86,8 +87,6 @@
     "no_chats_message": "尚无群聊",
     "load_more_button_label": "加载更多"
   },
-  "request_closed_message": "此留宿请求已关闭或处于过去。如要继续聊天，请发送一条普通消息。",
-  "close_request_dialog_surfer": "请您确认在取消您的请求前已结束聊天。",
   "requests_tab": {
     "no_requests_message": "尚无请求",
     "load_more_button_label": "加载更多"
@@ -101,41 +100,22 @@
     },
     "invite_button_label": "邀请"
   },
-  "control_message": {
-    "created_chat_text": "{{user}} 创建了聊天",
-    "invite_user_text": "{{user}} 邀请了 {{target_user}}",
-    "host_request_status_changed_text": "{{user}} 将请求修改为 {{status}}",
-    "edited_chat_text": "{{user}} 修改了聊天",
-    "user_left_chat_text": "{{user}} 离开了聊天",
-    "admin_assignment_text": "{{user}} 将 {{target_user}} 设为了管理员",
-    "admin_removal_text": "{{user}} 移除了 {{target_user}} 的管理员身份",
-    "unknown_message_text": "未知控制消息"
-  },
-  "host_request_item": {
-    "surfer_status": {
-      "cancelled": "您的请求已取消",
-      "accepted": "您的请求已被接受",
-      "confirmed": "您的请求已确认",
-      "rejected": "您的请求已被拒绝"
-    },
-    "pending": "此请求仍在等待中",
-    "host_status": {
-      "accepted": "您已接受此请求",
-      "cancelled": "您已拒绝此请求",
-      "confirmed": "您已确认此请求",
-      "rejected": "您已拒绝此请求"
-    }
-  },
-  "host_request_view": {
-    "title_for_surfer": "向 {{user}} 发出的请求 - {{status}}",
-    "error_message": "无效的留宿请求ID",
-    "back_button_a11y_label": "返回",
-    "title_for_host": "来自{{user}} 的请求 - {{status}}",
-    "request_duration": "{{count}} 晚"
-  },
   "leave_chat_dialog": {
     "title": "离开聊天？",
     "message": "您确认要离开聊天吗？"
+  },
+  "members_dialog": {
+    "title": "聊天成员"
+  },
+  "control_message": {
+    "created_chat_text": "{{user}} 创建了聊天",
+    "edited_chat_text": "{{user}} 修改了聊天",
+    "invite_user_text": "{{user}} 邀请了 {{target_user}}",
+    "user_left_chat_text": "{{user}} 离开了聊天",
+    "admin_assignment_text": "{{user}} 将 {{target_user}} 设为了管理员",
+    "admin_removal_text": "{{user}} 移除了 {{target_user}} 的管理员身份",
+    "host_request_status_changed_text": "{{user}} 将请求修改为 {{status}}",
+    "unknown_message_text": "未知控制消息"
   },
   "host_request_status": {
     "accepted": "已接受",
@@ -143,5 +123,28 @@
     "confirmed": "已确认",
     "pending": "等待中",
     "rejected": "已拒绝"
+  },
+  "host_request_item": {
+    "pending": "此请求仍在等待中",
+    "host_status": {
+      "accepted": "您已接受此请求",
+      "cancelled": "您已拒绝此请求",
+      "confirmed": "您已确认此请求",
+      "rejected": "您已拒绝此请求"
+    },
+    "surfer_status": {
+      "accepted": "您的请求已被接受",
+      "cancelled": "您的请求已取消",
+      "confirmed": "您的请求已确认",
+      "rejected": "您的请求已被拒绝"
+    }
+  },
+  "host_request_view": {
+    "error_message": "无效的留宿请求ID",
+    "back_button_a11y_label": "返回",
+    "title_for_host": "来自{{user}} 的请求 - {{status}}",
+    "title_for_surfer": "向 {{user}} 发出的请求 - {{status}}",
+    "request_duration": "{{count}} 晚",
+    "request_duration_plural": "{{count}} 晚"
   }
 }

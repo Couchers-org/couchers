@@ -6,7 +6,7 @@ import {
   myEventsKey,
   QueryType,
 } from "features/queryKeys";
-import useUsers from "features/userQueries/useUsers";
+import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import {
   Event,
@@ -51,7 +51,7 @@ export function useEventOrganizers({
     data: organizers,
     isLoading: isOrganizersLoading,
     isRefetching: isOrganizersRefetching,
-  } = useUsers(organizerIds);
+  } = useLiteUsers(organizerIds);
 
   return {
     ...query,
@@ -84,7 +84,7 @@ export function useEventAttendees({
     data: attendees,
     isLoading: isAttendeesLoading,
     isRefetching: isAttendeesRefetching,
-  } = useUsers(attendeesIds);
+  } = useLiteUsers(attendeesIds);
 
   return {
     ...query,

@@ -50,6 +50,40 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
     }
   }, []);
 
+  /** @TODO(NA) Workaround likely due to old version of Next.js.
+   * Mobile browser is handling 100vh inconsistently, causing layout shift that
+   * 1. Breaks sticky positioning.
+   * 2. Doesn't resize after mobile keyboard retracts.
+   * Replace 100vh with a custom CSS variable to handle dynamic viewport changes and force scroll reset.
+   * TL;DR The sticky positioning of the send bar was not being recognized on first load on mobile. */
+  useEffect(() => {
+    const updateVH = () => {
+      document.documentElement.style.setProperty(
+        "--vh",
+        `${window.innerHeight * 0.01}px`
+      );
+
+      if (/Firefox/i.test(navigator.userAgent)) {
+        document?.activeElement?.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+
+    const resetScroll = () => {
+      // Scroll the page by a tiny amount to trigger recalibration
+      window.scrollTo(0, window.scrollY + 1);
+      window.scrollTo(0, window.scrollY - 1);
+    };
+
+    updateVH();
+    window.addEventListener("resize", updateVH);
+    window.addEventListener("focusout", resetScroll);
+
+    return () => {
+      window.removeEventListener("resize", updateVH);
+      window.removeEventListener("focusout", resetScroll);
+    };
+  }, []);
+
   return (
     <StyledEngineProvider injectFirst>
       <LocalizationProvider dateAdapter={AdapterDayjs}>

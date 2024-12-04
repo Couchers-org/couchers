@@ -1,4 +1,4 @@
-FROM envoyproxy/envoy:v1.31-latest
+FROM envoyproxy/envoy:v1.32-latest
 
 COPY ./envoy.yaml /etc/envoy/envoy.yaml
 COPY ./descriptors.pb /etc/envoy/descriptors.pb

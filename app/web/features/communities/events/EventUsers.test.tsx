@@ -32,13 +32,17 @@ describe("Event users", () => {
     renderEventUsers({ isLoading: false, userIds: [1, 2] });
     // User 1
     expect(screen.getByRole("img", { name: users[0].name })).toBeVisible();
-    expect(screen.getByRole("heading", { name: users[0].name })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: `${users[0].name}, ${users[0].age}` })
+    ).toBeVisible();
 
     // User 2
     expect(
       screen.getByRole("link", { name: getProfileLinkA11yLabel(users[1].name) })
     ).toBeVisible();
-    expect(screen.getByRole("heading", { name: users[1].name })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: `${users[1].name}, ${users[1].age}` })
+    ).toBeVisible();
   });
 
   it("shows a newly added user in loading state while the users map is refetching", () => {
@@ -53,8 +57,12 @@ describe("Event users", () => {
 
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
     // User 1 and 2 should still be on screen
-    expect(screen.getByRole("heading", { name: users[0].name })).toBeVisible();
-    expect(screen.getByRole("heading", { name: users[1].name })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: `${users[0].name}, ${users[0].age}` })
+    ).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: `${users[1].name}, ${users[1].age}` })
+    ).toBeVisible();
     // User 3 is shown as loading
     expect(screen.getByTestId(USER_TITLE_SKELETON_TEST_ID)).toBeVisible();
   });
@@ -82,8 +90,12 @@ describe("Event users", () => {
     });
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
     // User 1 and 2 should still be on screen
-    expect(screen.getByRole("heading", { name: users[0].name })).toBeVisible();
-    expect(screen.getByRole("heading", { name: users[1].name })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: `${users[0].name}, ${users[0].age}` })
+    ).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: `${users[1].name}, ${users[1].age}` })
+    ).toBeVisible();
     // The mystery user 3 is hidden
     expect(
       screen.queryByTestId(USER_TITLE_SKELETON_TEST_ID)

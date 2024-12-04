@@ -196,7 +196,7 @@ def _search_users(session, search_statement, title_only, next_rank, page_size, c
         [User.username, User.name],
         [User.city],
         [User.about_me],
-        [User.my_travels, User.things_i_like, User.about_place, User.additional_information],
+        [User.things_i_like, User.about_place, User.additional_information],
     )
 
     users = execute_search_statement(session, select(User, rank, snippet).where_users_visible(context))
@@ -403,7 +403,6 @@ class Search(search_pb2_grpc.SearchServicer):
                         User.city.ilike(f"%{request.query.value}%"),
                         User.hometown.ilike(f"%{request.query.value}%"),
                         User.about_me.ilike(f"%{request.query.value}%"),
-                        User.my_travels.ilike(f"%{request.query.value}%"),
                         User.things_i_like.ilike(f"%{request.query.value}%"),
                         User.about_place.ilike(f"%{request.query.value}%"),
                         User.additional_information.ilike(f"%{request.query.value}%"),

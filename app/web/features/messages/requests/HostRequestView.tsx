@@ -1,15 +1,9 @@
-import { Skeleton, Typography, useMediaQuery } from "@mui/material";
+import { Skeleton, styled, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
-import Avatar from "components/Avatar";
-import CircularProgress from "components/CircularProgress";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon } from "components/Icons";
 import PageTitle from "components/PageTitle";
-import UserSummary from "components/UserSummary";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { useGroupChatViewStyles } from "features/messages/groupchats/GroupChatView";
-import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessageLoader";
-import MessageList from "features/messages/messagelist/MessageList";
 import HostRequestSendField from "features/messages/requests/HostRequestSendField";
 import useMarkLastSeen, {
   MarkLastSeenVariables,
@@ -38,40 +32,66 @@ import {
 } from "react-query";
 import { service } from "service";
 import { theme } from "theme";
-import { numNights } from "utils/date";
-import dayjs from "utils/dayjs";
-import makeStyles from "utils/makeStyles";
 import { firstName } from "utils/names";
 
 import { requestStatusToTransKey } from "../constants";
+import ChatContent from "../groupchats/ChatContent";
+import HostRequestUserSummarySection from "./HostRequestUserSummarySection";
 
-const useLocalStyles = makeStyles((theme) => ({
-  avatar: {
-    height: "2rem",
-    width: "2rem",
+const StyledHeader = styled("div")(({ theme }) => ({
+  padding: theme.spacing(1, 2),
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  alignItems: "center",
+  display: "flex",
+  flexGrow: 0,
+  "& > * + *": {
+    marginInlineStart: theme.spacing(2),
   },
-  largeUserSummary: {
-    borderBottom: `1px solid ${theme.palette.divider}`,
 
-    [theme.breakpoints.down("md")]: {
-      borderBottom: `1px solid ${theme.palette.divider}`,
-      paddingBottom: theme.spacing(1),
-    },
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(0, 1.5),
+  },
+}));
 
-    [theme.breakpoints.up("sm")]: {
-      padding: theme.spacing(1),
-    },
+const StyledPageTitle = styled(PageTitle)({
+  flexGrow: 1,
+  width: "100%",
+  display: "flex",
+  alignItems: "center",
+  marginInlineEnd: theme.spacing(2),
+  marginInlineStart: theme.spacing(2),
+  "& > *": { marginInlineEnd: theme.spacing(2) },
+
+  [theme.breakpoints.down("sm")]: {
+    fontSize: "0.9rem",
   },
-  smallUserSummary: {
-    display: "flex",
-    alignItems: "center",
-    borderBottom: `1px solid ${theme.palette.divider}`,
-    padding: theme.spacing(1, 2),
+});
+
+const StyledPageWrapper = styled("div")(({ theme }) => ({
+  alignItems: "stretch",
+  display: "flex",
+  flexDirection: "column",
+  overflow: "hidden",
+  height: `calc(var(--vh, 1vh) * 100 - ${theme.shape.navPaddingXs})`,
+
+  [theme.breakpoints.up("sm")]: {
+    height: `calc(var(--vh, 1vh) * 100 - ${theme.shape.navPaddingSmUp})`,
   },
-  shortUserInfo: {
-    display: "flex",
-    flexDirection: "column",
-    marginLeft: theme.spacing(2),
+}));
+
+const StyledFooter = styled("div")(({ theme }) => ({
+  background: theme.palette.common.white,
+  position: "sticky",
+  bottom: 0,
+  marginTop: "auto",
+  flexGrow: 0,
+  paddingBottom: theme.spacing(2),
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2),
+
+  [theme.breakpoints.down("md")]: {
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
   },
 }));
 
@@ -81,8 +101,6 @@ export default function HostRequestView({
   hostRequestId: number;
 }) {
   const { t } = useTranslation(MESSAGES);
-  const classes = useGroupChatViewStyles();
-  const localClasses = useLocalStyles();
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -188,93 +206,35 @@ export default function HostRequestView({
 
   const handleBack = () => router.back();
 
-  const largeUserSummarySection = (
-    <div className={localClasses.largeUserSummary}>
-      <UserSummary user={otherUser} smallAvatar={isMobile}>
-        {hostRequest && (
-          <div className={classes.requestedDatesWrapper}>
-            <Typography
-              component="p"
-              variant="h3"
-              className={classes.requestedDates}
-            >
-              {`${dayjs(hostRequest.fromDate).format("LL")} - ${dayjs(
-                hostRequest.toDate
-              ).format("LL")}`}
-            </Typography>
-            <Typography
-              component="p"
-              variant="h3"
-              className={classes.numNights}
-            >
-              (
-              {t("host_request_view.request_duration", {
-                count: numNights(hostRequest.toDate, hostRequest.fromDate),
-              })}
-              )
-            </Typography>
-          </div>
-        )}
-      </UserSummary>
-    </div>
-  );
+  const hasError =
+    respondMutation.error || sendMutation.error || hostRequestError;
 
-  const smallUserSummarySection = (
-    <div className={localClasses.smallUserSummary}>
-      {!otherUser ? (
-        <Skeleton variant="circular" className={localClasses.avatar} />
-      ) : (
-        <Avatar
-          className={localClasses.avatar}
-          user={otherUser}
-          isProfileLink
-        />
-      )}
-      <div className={localClasses.shortUserInfo}>
-        <Typography component="p" variant="body2">
-          {!otherUser ? (
-            <Skeleton />
-          ) : (
-            `${
-              (otherUser?.name.length ?? 0) < 25
-                ? otherUser?.name
-                : otherUser?.name.substring(0, 25) + "..."
-            }, ${otherUser?.age}, ${otherUser?.city.split(",")[2]}` // get only country
-          )}
-        </Typography>
-        {hostRequest && (
-          <Typography
-            component="p"
-            variant="h3"
-            className={classes.requestedDates}
-          >
-            {`${dayjs(hostRequest.fromDate).format("ll")} - ${dayjs(
-              hostRequest.fromDate
-            ).format("ll")}`}
-          </Typography>
-        )}
-      </div>
-    </div>
-  );
+  if (!hostRequestId) {
+    return (
+      <Alert severity="error">{t("host_request_view.error_message")}</Alert>
+    );
+  }
 
-  return !hostRequestId ? (
-    <Alert severity="error">{t("host_request_view.error_message")}</Alert>
-  ) : (
-    <div className={classes.pageWrapper}>
-      <div className={classes.header}>
+  return (
+    <StyledPageWrapper>
+      <StyledHeader>
         <HeaderButton
           onClick={handleBack}
           aria-label={t("host_request_view.back_button_a11y_label")}
+          {...(isMobile ? { size: "small" } : {})}
         >
-          <BackIcon sx={{ fontSize: isMobile ? "small" : "large" }} />
+          <BackIcon sx={{ fontSize: isMobile ? "small" : "medium" }} />
         </HeaderButton>
 
-        <PageTitle className={classes.title}>
+        <StyledPageTitle>
           {!title || hostRequestError ? <Skeleton width="100" /> : title}
-        </PageTitle>
-      </div>
-      {isMobile ? smallUserSummarySection : largeUserSummarySection}
-      {(respondMutation.error || sendMutation.error || hostRequestError) && (
+        </StyledPageTitle>
+      </StyledHeader>
+      <HostRequestUserSummarySection
+        hostRequest={hostRequest}
+        otherUser={otherUser}
+      />
+      {hasError && (
         <Alert severity={"error"}>
           {respondMutation.error?.message ||
             sendMutation.error?.message ||
@@ -282,57 +242,27 @@ export default function HostRequestView({
             ""}
         </Alert>
       )}
-      {isMessagesLoading ? (
-        <CircularProgress />
-      ) : (
-        <>
-          {messagesError && (
-            <Alert severity="error">{messagesError.message}</Alert>
-          )}
-          {messagesRes && hostRequest && (
-            <>
-              <InfiniteMessageLoader
-                className={classes.messageLoader}
-                earliestMessageId={
-                  messagesRes.pages[messagesRes.pages.length - 1].lastMessageId
-                }
-                fetchNextPage={fetchNextPage}
-                isFetchingNextPage={isFetchingNextPage}
-                hasNextPage={!!hasNextPage}
-                isError={!!messagesError}
-              >
-                <MessageList
-                  markLastSeen={markLastSeen}
-                  messages={messagesRes.pages
-                    .map((page) => page.messagesList)
-                    .flat()}
-                />
-                {isMobile && (
-                  <div className={classes.footer}>
-                    <HostRequestSendField
-                      hostRequest={hostRequest}
-                      sendMutation={sendMutation}
-                      respondMutation={respondMutation}
-                    />
-                  </div>
-                )}
-              </InfiniteMessageLoader>
-              {/**
-               * If it's mobile we don't want the send field to be sticky, rather show in scrollable area at the bottom
-               */}
-              {!isMobile && (
-                <div className={classes.footer}>
-                  <HostRequestSendField
-                    hostRequest={hostRequest}
-                    sendMutation={sendMutation}
-                    respondMutation={respondMutation}
-                  />
-                </div>
-              )}
-            </>
-          )}
-        </>
-      )}
-    </div>
+      {messagesError && <Alert severity="error">{messagesError.message}</Alert>}
+      <ChatContent
+        isHostRequest
+        isLoading={isMessagesLoading}
+        messages={messagesRes}
+        hostRequest={hostRequest}
+        fetchNextPage={fetchNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        hasNextPage={!!hasNextPage}
+        markLastSeen={markLastSeen}
+        isError={!!messagesError}
+      />
+      <StyledFooter>
+        {hostRequest && (
+          <HostRequestSendField
+            hostRequest={hostRequest}
+            sendMutation={sendMutation}
+            respondMutation={respondMutation}
+          />
+        )}
+      </StyledFooter>
+    </StyledPageWrapper>
   );
 }

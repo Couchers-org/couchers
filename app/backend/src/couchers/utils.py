@@ -2,7 +2,6 @@ import http.cookies
 import re
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
-from typing import List
 from zoneinfo import ZoneInfo
 
 import pytz
@@ -207,7 +206,7 @@ def _create_tasty_cookie(name: str, value, expiry: datetime, httponly: bool):
     return cookie.OutputString()
 
 
-def create_session_cookies(token, user_id, expiry) -> List[str]:
+def create_session_cookies(token, user_id, expiry) -> list[str]:
     """
     Creates our session cookies.
 

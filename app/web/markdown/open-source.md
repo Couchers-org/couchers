@@ -26,6 +26,7 @@ We'd like to thank the amazing folks who built these core technologies, without 
 * The [Prometheus](https://prometheus.io/)/[Victoriametrics](https://victoriametrics.com/)/[Grafana](https://grafana.com/) monitoring stack
 * The [Wiki.js](https://js.wiki/) project that powers our wiki
 * The [Chatwoot](https://www.chatwoot.com/) open source support platform project that powers all our Support systems
+* The [Listmonk](https://listmonk.app/) self-hosted newsletter and mailing list manager we use for our newsletters
 
 ## Company Sponsorships
 

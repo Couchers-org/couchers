@@ -137,7 +137,7 @@ export default function SearchResult({
           </div>
           <Typography noWrap>{user.city}</Typography>
         </UserSummary>
-        {!isMobile && (
+        {isMobile && (
           <LinesEllipsis
             text={stripMarkdown(aboutText(user, t))}
             maxLine={3}
@@ -145,7 +145,7 @@ export default function SearchResult({
             className={classes.about}
           />
         )}
-        {isMobile && (
+        {!isMobile && (
           <>
             <Typography variant="body1" className={classes.about}>
               {stripMarkdown(aboutText(user, t))}

@@ -26,6 +26,7 @@ services:
     networks:
       - postgres_backend
       - postgres_pgprom
+    shm_size: 256m
     logging:
       driver: "json-file"
       options:
