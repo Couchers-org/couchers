@@ -16,6 +16,7 @@ import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
 import SearchBox from "./SearchBox";
+import SearchResultsMobileVerticalList from "./SearchResultsMobileVerticalList";
 
 const useStyles = makeStyles((theme) => ({
   mapResults: {
@@ -43,6 +44,12 @@ const useStyles = makeStyles((theme) => ({
       margin: theme.spacing(2),
     },
   },
+  singleResultMobile: {
+    margin: theme.spacing(0, 2),
+    [theme.breakpoints.up("md")]: {
+      display: "none",
+    },
+  },
   searchResult: {
     borderRadius: theme.shape.borderRadius * 2,
     backgroundColor: theme.palette.background.paper,
@@ -58,10 +65,10 @@ const useStyles = makeStyles((theme) => ({
       padding: 0,
       overflow: "hidden",
       flexShrink: 0,
-      width: "85vw",
+      width: "90%",
       maxWidth: "33rem",
       height: "100%",
-      margin: theme.spacing(0, 2, 0, 0),
+      margin: theme.spacing(0, "auto"),
       scrollSnapAlign: "start",
       "&:last-child": {
         marginRight: 0,
@@ -132,62 +139,72 @@ export default function SearchResultsList({
     resultsList = [{ user: selectedUserData.data, rank: 0, snippet: "" }];
   }
 
+  const resultsSnippet =
+    resultsList &&
+    resultsList.map((result) => (
+      <SearchResult
+        id={`search-result-${result.user!.userId}`}
+        className={classes.searchResult}
+        key={result.user!.userId}
+        user={result.user!}
+        onSelect={() => {
+          setSelectedResult({
+            userId: result.user!.userId,
+            lng: result.user!.lng,
+            lat: result.user!.lat,
+          });
+        }}
+        highlight={
+          selectedResult && selectedResult.userId === result.user!.userId
+        }
+      />
+    ));
+
   return (
-    <Paper className={classes.mapResults}>
-      {error && <Alert severity="error">{error}</Alert>}
-      {!isMobile && (
-        <SearchBox
-          searchType={searchType}
-          setSearchType={setSearchType}
-          locationResult={locationResult}
-          setLocationResult={setLocationResult}
-          setQueryName={setQueryName}
-          queryName={queryName}
-        />
+    <>
+      {/* SHOW VERTICAL LIST ON CLICK FOR MOBILE */}
+      {isMobile && resultsSnippet?.length && (
+        <SearchResultsMobileVerticalList resultsSnippet={resultsSnippet} />
       )}
-      <>
-        {isLoading ||
-          (selectedUserData.isLoading && (
-            <CircularProgress className={classes.baseMargin} />
-          ))}
 
-        {!isLoading && !hasAtLeastOnePageResults && (
-          <TextBody className={classes.baseMargin}>
-            {t("search_result.no_user_result_message")}
-          </TextBody>
-        )}
+      {error && <Alert severity="error">{error}</Alert>}
 
-        {!isLoading && hasAtLeastOnePageResults && (
-          <HorizontalScroller
-            breakpoint="sm"
-            className={classes.scroller}
-            isFetching={isLoading}
-            // fetchNext={fetchNextPage} // TODO: disabled for now (until pagination)
-            hasMore={hasNext}
-          >
-            {resultsList &&
-              resultsList.map((result) => (
-                <SearchResult
-                  id={`search-result-${result.user!.userId}`}
-                  className={classes.searchResult}
-                  key={result.user!.userId}
-                  user={result.user!}
-                  onSelect={() => {
-                    setSelectedResult({
-                      userId: result.user!.userId,
-                      lng: result.user!.lng,
-                      lat: result.user!.lat,
-                    });
-                  }}
-                  highlight={
-                    selectedResult &&
-                    selectedResult.userId === result.user!.userId
-                  }
-                />
-              ))}
-          </HorizontalScroller>
-        )}
-      </>
-    </Paper>
+      {!isMobile && (
+        <Paper className={classes.mapResults}>
+          <SearchBox
+            searchType={searchType}
+            setSearchType={setSearchType}
+            locationResult={locationResult}
+            setLocationResult={setLocationResult}
+            setQueryName={setQueryName}
+            queryName={queryName}
+          />
+
+          {!isLoading && hasAtLeastOnePageResults && (
+            <Paper>
+              {isLoading ||
+                (selectedUserData.isLoading && (
+                  <CircularProgress className={classes.baseMargin} />
+                ))}
+
+              {!isLoading && !hasAtLeastOnePageResults && (
+                <TextBody className={classes.baseMargin}>
+                  {t("search_result.no_user_result_message")}
+                </TextBody>
+              )}
+              <HorizontalScroller
+                breakpoint="sm"
+                className={classes.scroller}
+                isFetching={isLoading}
+                // fetchNext={fetchNextPage} // TODO: disabled for now (until pagination)
+                hasMore={hasNext}
+              >
+                {resultsSnippet}
+              </HorizontalScroller>
+            </Paper>
+          )}
+        </Paper>
+      )}
+    </>
   );
 }

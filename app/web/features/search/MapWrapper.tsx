@@ -19,7 +19,7 @@ import {
 } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
-import {
+import React, {
   Dispatch,
   MutableRefObject,
   SetStateAction,
