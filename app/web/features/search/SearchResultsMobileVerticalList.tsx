@@ -1,113 +1,96 @@
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import { IconButton } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
-import { ReactNode, useState } from "react";
+import { IconButton, List, styled } from "@mui/material";
+import React, { ReactNode, useState } from "react";
 
 interface Props {
   resultsSnippet: ReactNode[];
 }
 
-const useStyles = makeStyles((theme) => ({
-  drawer: {
-    /*  */
-    width: "100%",
-    height: "350px",
-    overflowY: "auto",
-    "&[data-open-state='true']": {
-      height: "100%",
-      top: "56px",
-      position: "fixed",
-      bottom: 0,
-      left: 0,
-      zIndex: theme.zIndex.drawer,
-      backgroundColor: theme.palette.background.default,
-    },
+const StyledDrawer = styled("div")<{
+  open?: boolean;
+}>(({ theme, open }) => ({
+  width: "100%",
+  overflowY: "auto",
+  maxHeight: open ? "none" : "280px",
+  position: open ? "fixed" : "relative",
+  top: open ? "56px" : "auto",
+  bottom: open ? 0 : "auto",
+  left: open ? 0 : "auto",
+  zIndex: open ? theme.zIndex.drawer : "auto",
+  backgroundColor: open ? theme.palette.background.default : "transparent",
+  minHeight: open ? "250px" : "auto",
+  scrollbarWidth: "none", // Firefox
+  "&::-webkit-scrollbar": {
+    display: "none", // Chrome, Safari, Opera
   },
-  singleResult: {
+  msOverflowStyle: "none", // IE and Edge
+}));
+
+const StyledOpenButton = styled(IconButton)(({ theme }) => ({
+  width: "100%",
+  marginLeft: 0,
+  "& svg": { fontSize: "3rem" },
+}));
+
+const StyledCloseButton = styled(IconButton)(({ theme }) => ({
+  width: "100%",
+  marginLeft: 0,
+  position: "sticky",
+  top: 0,
+  backgroundColor: theme.palette.background.default,
+  borderRadius: 0,
+  zIndex: theme.zIndex.drawer,
+  "& svg": { fontSize: "3rem" },
+}));
+
+const StyledVerticalList = styled(List)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: theme.spacing(2),
+  padding: theme.spacing(2),
+  "& .MuiCard-root": {
+    height: "auto",
     width: "100%",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    maxHeight: "400px",
-    paddingBottom: theme.spacing(2),
-    overflowY: "auto",
-  },
-  verticalList: {
-    display: "flex",
-    flexDirection: "column",
-    gap: theme.spacing(2),
-    padding: theme.spacing(2),
-    "& .MuiCard-root": {
+    [theme.breakpoints.down("md")]: {
       height: "auto",
-      width: "100%",
-      [theme.breakpoints.down("md")]: {
+      "& .MuiCardContent-root": {
         height: "auto",
-        "& .MuiCardContent-root": {
-          height: "auto",
-        },
-        "& .MuiCardActionArea-root": {
-          height: "100%",
-        },
+      },
+      "& .MuiCardActionArea-root": {
+        height: "100%",
       },
     },
-  },
-  openButton: {
-    width: "100%",
-    marginLeft: 0,
-  },
-  closeButton: {
-    width: "100%",
-    marginLeft: 0,
-    position: "sticky",
-    top: 0,
-    backgroundColor: theme.palette.background.default,
-    borderRadius: 0,
-    zIndex: theme.zIndex.drawer,
-  },
-  icon: {
-    fontSize: "3rem",
   },
 }));
 
 export default function SearchResultsMobileVerticalList({
   resultsSnippet,
 }: Props) {
-  const classes = useStyles();
   const [open, setOpen] = useState(false);
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
 
+  const shouldShowOpenButton = resultsSnippet.length > 1 && !open;
+
   return (
     <>
-      {!open && (
-        <IconButton
-          edge="start"
-          aria-label="open"
-          color="inherit"
-          onClick={toggleDrawer(true)}
-          className={classes.openButton}
-        >
-          <ExpandLess className={classes.icon} />
-        </IconButton>
+      {shouldShowOpenButton && (
+        <StyledOpenButton onClick={toggleDrawer(true)}>
+          <ExpandLess />
+        </StyledOpenButton>
       )}
-      <div data-open-state={open} className={classes.drawer}>
+
+      <StyledDrawer open={open}>
         {open && (
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={toggleDrawer(false)}
-            aria-label="close"
-            className={classes.closeButton}
-          >
-            <ExpandMore className={classes.icon} />
-          </IconButton>
+          <StyledCloseButton onClick={toggleDrawer(false)}>
+            <ExpandMore />
+          </StyledCloseButton>
         )}
 
-        <div className={classes.verticalList}>{resultsSnippet}</div>
-      </div>
+        <StyledVerticalList>{resultsSnippet}</StyledVerticalList>
+      </StyledDrawer>
     </>
   );
 }

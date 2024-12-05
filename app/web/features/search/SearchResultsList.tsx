@@ -1,5 +1,4 @@
-import { Paper, useMediaQuery } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { Paper, styled, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import HorizontalScroller from "components/HorizontalScroller";
@@ -18,71 +17,61 @@ import { GeocodeResult } from "utils/hooks";
 import SearchBox from "./SearchBox";
 import SearchResultsMobileVerticalList from "./SearchResultsMobileVerticalList";
 
-const useStyles = makeStyles((theme) => ({
-  mapResults: {
-    height: "17rem",
-    overflowY: "auto",
-    backgroundColor: theme.palette.background.default,
-    [theme.breakpoints.up("md")]: {
-      height: "auto",
-      width: "30rem",
-      padding: theme.spacing(3),
-    },
+const StyledMapResults = styled(Paper)(({ theme }) => ({
+  height: "17rem",
+  overflowY: "auto",
+  backgroundColor: theme.palette.background.default,
+  [theme.breakpoints.up("md")]: {
+    height: "auto",
+    width: "30rem",
+    padding: theme.spacing(3),
   },
-  baseMargin: {
-    margin: theme.spacing(2),
+}));
+
+const StyledTextBody = styled(TextBody)(({ theme }) => ({
+  margin: theme.spacing(2),
+}));
+
+const StyledHorizontalScroller = styled(HorizontalScroller)(({ theme }) => ({
+  marginTop: theme.spacing(3),
+  [theme.breakpoints.down("md")]: {
+    marginTop: 0,
   },
-  scroller: {
-    marginTop: theme.spacing(3),
-    [theme.breakpoints.down("md")]: {
-      marginTop: 0,
-    },
-  },
-  singleResult: {
-    maxWidth: "100%",
-    [theme.breakpoints.up("md")]: {
-      margin: theme.spacing(2),
-    },
-  },
-  singleResultMobile: {
-    margin: theme.spacing(0, 2),
-    [theme.breakpoints.up("md")]: {
-      display: "none",
-    },
-  },
-  searchResult: {
-    borderRadius: theme.shape.borderRadius * 2,
-    backgroundColor: theme.palette.background.paper,
-    boxShadow: "0 0 4px rgba(0,0,0,0.25)",
+}));
+
+const StyledSearchResult = styled(SearchResult)(({ theme }) => ({
+  borderRadius: theme.shape.borderRadius * 2,
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: "0 0 4px rgba(0,0,0,0.25)",
+  [theme.breakpoints.up("md")]: {
     marginBottom: theme.spacing(3),
     "&:last-child": {
       marginBottom: 0,
     },
-    "& .MuiCardContent-root": {
-      padding: theme.spacing(3),
+  },
+  "& .MuiCardContent-root": {
+    padding: theme.spacing(3),
+  },
+  [theme.breakpoints.down("md")]: {
+    padding: 0,
+    overflow: "hidden",
+    flexShrink: 0,
+    width: "90%",
+    maxWidth: "33rem",
+    height: "100%",
+    scrollSnapAlign: "start",
+    "&:last-child": {
+      marginRight: 0,
     },
-    [theme.breakpoints.down("md")]: {
-      padding: 0,
-      overflow: "hidden",
-      flexShrink: 0,
-      width: "90%",
-      maxWidth: "33rem",
+    "& .MuiCardActionArea-root": {
       height: "100%",
-      margin: theme.spacing(0, "auto"),
-      scrollSnapAlign: "start",
-      "&:last-child": {
-        marginRight: 0,
-      },
-      "& .MuiCardActionArea-root": {
-        height: "100%",
-      },
-      "& .MuiCardContent-root": {
-        height: "100%",
-        padding: theme.spacing(2),
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-      },
+    },
+    "& .MuiCardContent-root": {
+      height: "100%",
+      padding: theme.spacing(2),
+      overflow: "hidden",
+      display: "flex",
+      flexDirection: "column",
     },
   },
 }));
@@ -120,7 +109,6 @@ export default function SearchResultsList({
 }: mapWrapperProps) {
   const selectedUserData = useUser(selectedResult?.userId);
   const { t } = useTranslation(SEARCH);
-  const classes = useStyles();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const hasAtLeastOnePageResults =
@@ -142,9 +130,8 @@ export default function SearchResultsList({
   const resultsSnippet =
     resultsList &&
     resultsList.map((result) => (
-      <SearchResult
+      <StyledSearchResult
         id={`search-result-${result.user!.userId}`}
-        className={classes.searchResult}
         key={result.user!.userId}
         user={result.user!}
         onSelect={() => {
@@ -160,17 +147,25 @@ export default function SearchResultsList({
       />
     ));
 
+  const isLoadingState = isLoading || selectedUserData.isLoading;
+
   return (
     <>
       {/* SHOW VERTICAL LIST ON CLICK FOR MOBILE */}
-      {isMobile && resultsSnippet?.length && (
+      {isMobile && resultsSnippet && resultsSnippet?.length > 0 && (
         <SearchResultsMobileVerticalList resultsSnippet={resultsSnippet} />
       )}
 
       {error && <Alert severity="error">{error}</Alert>}
 
-      {!isMobile && (
-        <Paper className={classes.mapResults}>
+      {!hasAtLeastOnePageResults && (
+        <StyledTextBody>
+          {t("search_result.no_user_result_message")}
+        </StyledTextBody>
+      )}
+
+      {!isMobile && hasAtLeastOnePageResults && (
+        <StyledMapResults>
           <SearchBox
             searchType={searchType}
             setSearchType={setSearchType}
@@ -180,30 +175,20 @@ export default function SearchResultsList({
             queryName={queryName}
           />
 
-          {!isLoading && hasAtLeastOnePageResults && (
-            <Paper>
-              {isLoading ||
-                (selectedUserData.isLoading && (
-                  <CircularProgress className={classes.baseMargin} />
-                ))}
+          <Paper>
+            {isLoadingState && <CircularProgress />}
 
-              {!isLoading && !hasAtLeastOnePageResults && (
-                <TextBody className={classes.baseMargin}>
-                  {t("search_result.no_user_result_message")}
-                </TextBody>
-              )}
-              <HorizontalScroller
-                breakpoint="md" // below md, the scroller is disabled
-                className={classes.scroller}
+            {hasAtLeastOnePageResults && (
+              <StyledHorizontalScroller
+                breakpoint="md"
                 isFetching={isLoading}
-                // fetchNext={fetchNextPage} // TODO: disabled for now (until pagination)
                 hasMore={hasNext}
               >
                 {resultsSnippet}
-              </HorizontalScroller>
-            </Paper>
-          )}
-        </Paper>
+              </StyledHorizontalScroller>
+            )}
+          </Paper>
+        </StyledMapResults>
       )}
     </>
   );
