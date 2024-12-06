@@ -1,6 +1,6 @@
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { IconButton, List, styled } from "@mui/material";
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 
 interface Props {
   resultsSnippet: ReactNode[];
@@ -67,12 +67,17 @@ export default function SearchResultsMobileVerticalList({
   resultsSnippet,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [shouldShowOpenButton, setShouldShowOpenButton] = useState(false);
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
 
-  const shouldShowOpenButton = resultsSnippet.length > 1 && !open;
+  useEffect(() => {
+    setShouldShowOpenButton(resultsSnippet.length > 1 && !open);
+  }
+    , [resultsSnippet, open]);
+
 
   return (
     <>
