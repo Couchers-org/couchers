@@ -75,9 +75,7 @@ export default function SearchResultsMobileVerticalList({
 
   useEffect(() => {
     setShouldShowOpenButton(resultsSnippet.length > 1 && !open);
-  }
-    , [resultsSnippet, open]);
-
+  }, [resultsSnippet, open]);
 
   return (
     <>
