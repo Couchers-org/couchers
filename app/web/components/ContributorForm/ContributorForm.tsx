@@ -236,7 +236,7 @@ export default function ContributorForm({
                 ))}
               </FormGroup>
               <FormHelperText error={!!errors?.contributeWays?.message}>
-                {errors?.contributeWays?.message ?? " "}
+                {errors?.contributeWays?.message?.toString() ?? " "}
               </FormHelperText>
             </FormControl>
             <Typography

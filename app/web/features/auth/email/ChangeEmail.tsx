@@ -58,8 +58,13 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
       <Typography variant="h2">{t("auth:change_email_form.title")}</Typography>
       <>
         <Typography variant="body1">
-          <Trans t={t} i18nKey="auth:change_email_form.current_email_message">
-            Your email address is currently <strong>{{ email }}</strong>.
+          <Trans
+            i18nKey="auth:change_email_form.current_email_message"
+            values={{ email }}
+          >
+            {`Your email address is currently `}
+            <strong>{email}</strong>
+            {`.`}
           </Trans>
         </Typography>
         {changeEmailError && (

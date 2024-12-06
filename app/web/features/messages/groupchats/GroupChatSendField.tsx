@@ -55,7 +55,7 @@ export default function GroupChatSendField({
     );
 
   const onSubmit = handleSubmit(async (data: MessageFormData) => {
-    handleSend(data.text.trimRight());
+    handleSend(data.text.trimEnd());
     clearPersistedMessage();
     reset({ text: "" });
   });

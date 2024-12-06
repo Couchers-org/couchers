@@ -15,10 +15,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true,
-    "paths": {
-      "react": ["./node_modules/@types/react"] // @TODO until we upgrade to react 18. Some packages are using v18 of react causing type issues. This forces v17 for types. https://github.com/facebook/react/issues/24304
-    }
+    "incremental": true
   },
   "include": [
     "next-env.d.ts",

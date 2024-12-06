@@ -85,9 +85,11 @@ export default function DeleteAccount({
             <Trans
               t={t}
               i18nKey="auth:delete_account.request.confirm_username_explanation"
+              values={{ username }}
             >
-              Your username is <strong>{{ username }}</strong>, please type it
-              in below to confirm account deletion.
+              {`Your username is `}
+              <strong>{username}</strong>
+              {`, please type it in below to confirm account deletion.`}
             </Trans>
           </Typography>
           <TextField

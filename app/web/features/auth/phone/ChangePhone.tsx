@@ -185,10 +185,11 @@ export default function ChangePhone({
                 <Trans
                   t={t}
                   i18nKey="auth:change_phone.phone_not_verified_description"
+                  values={{ phone: formatPhoneNumberIntl(accountInfo.phone) }}
                 >
-                  We sent you a code to{" "}
-                  <b>{{ phone: formatPhoneNumberIntl(accountInfo.phone) }}</b>.
-                  To verify your number, please enter the code below:
+                  {`We sent you a code to `}
+                  <b>{formatPhoneNumberIntl(accountInfo.phone)}</b>.
+                  {`To verify your number, please enter the code below:`}
                 </Trans>
               </Typography>
               <TextField
@@ -219,11 +220,12 @@ export default function ChangePhone({
                 <Trans
                   t={t}
                   i18nKey="auth:change_phone.remove_phone_description"
+                  values={{ phone: formatPhoneNumberIntl(accountInfo.phone) }}
                 >
-                  Your phone number is currently{" "}
-                  <b>{{ phone: formatPhoneNumberIntl(accountInfo.phone) }}</b>.
-                  You can remove your phone number below, but you will loose
-                  verification.
+                  {`Your phone number is currently `}
+                  <b>{formatPhoneNumberIntl(accountInfo.phone)}</b>.
+                  {` You can remove your phone number below, but you will loose
+                  verification.`}
                 </Trans>
               </Typography>
               <Button

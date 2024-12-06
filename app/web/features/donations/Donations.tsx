@@ -150,14 +150,18 @@ export default function Donations() {
 
         <div className={classes.donationsLayoutBenefactorText}>
           <Typography className={classes.marginBottom3} variant="body2">
-            <Trans t={t} i18nKey="donations:donations_info">
+            <Trans
+              t={t}
+              i18nKey="donations:donations_info"
+              values={{ legal_name: t("global:legal_name") }}
+            >
               Your donation goes to
               <Link
                 className={classes.link}
                 href={foundationRoute}
                 underline="hover"
               >
-                {{ legal_name: t("global:legal_name") }}
+                {t("global:legal_name")}
               </Link>
               , a U.S. 501(c)(3) non-profit that operates the Couchers.org
               service and supports the project. Donations are tax exempt, our
@@ -166,14 +170,18 @@ export default function Donations() {
           </Typography>
 
           <Typography className={classes.marginBottom3} variant="body2">
-            <Trans t={t} i18nKey="donations:benefactor_contact">
+            <Trans
+              t={t}
+              i18nKey="donations:benefactor_contact"
+              values={{ email: BENEFACTOR_EMAIL }}
+            >
               If you wish to contribute over $1000, please contact us at
               <Link
                 className={classes.link}
                 href={`mailto:${BENEFACTOR_EMAIL}`}
                 underline="hover"
               >
-                {{ email: BENEFACTOR_EMAIL }}
+                {BENEFACTOR_EMAIL}
               </Link>
               for us to arrange a lower fee transfer.
             </Trans>
