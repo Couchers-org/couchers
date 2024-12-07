@@ -35,7 +35,12 @@ export default function BasicForm({
   const { authActions } = useAuthContext();
   const authClasses = useAuthStyles();
 
-  const { register, handleSubmit, errors } = useForm<SignupBasicInputs>({
+  const {
+    register,
+    handleSubmit,
+
+    formState: { errors },
+  } = useForm<SignupBasicInputs>({
     mode: "onBlur",
     shouldUnregister: false,
   });

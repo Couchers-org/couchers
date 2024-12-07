@@ -67,12 +67,18 @@ export default function AccountForm() {
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
 
-  const { control, register, handleSubmit, errors, watch } =
-    useForm<SignupAccountInputs>({
-      defaultValues: { location: { address: "" } },
-      mode: "onBlur",
-      shouldUnregister: false,
-    });
+  const {
+    control,
+    register,
+    handleSubmit,
+    watch,
+
+    formState: { errors },
+  } = useForm<SignupAccountInputs>({
+    defaultValues: { location: { address: "" } },
+    mode: "onBlur",
+    shouldUnregister: false,
+  });
 
   const classes = useStyles();
   const authClasses = useAuthStyles();

@@ -56,7 +56,12 @@ describe.each`
       full_url: MOCK_FULL_IMAGE,
     });
     const Form = () => {
-      const { control, handleSubmit, errors } = useForm();
+      const {
+        control,
+        handleSubmit,
+
+        formState: { errors },
+      } = useForm();
       const onSubmit = handleSubmit((data) => submitForm(data));
       return (
         <form onSubmit={onSubmit}>

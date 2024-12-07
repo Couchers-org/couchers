@@ -56,12 +56,14 @@ describe("when the listFriends query succeeds", () => {
       wrapper,
     });
 
-   await waitFor(() => expect(result.current).toMatchObject({
-      data: [],
-      errors: [],
-      isError: false,
-      isLoading: true,
-    }));
+    await waitFor(() =>
+      expect(result.current).toMatchObject({
+        data: [],
+        errors: [],
+        isError: false,
+        isLoading: true,
+      })
+    );
   });
 
   it("returns isError as true with errors if getLiteUsers query fails", async () => {
@@ -72,7 +74,7 @@ describe("when the listFriends query succeeds", () => {
       wrapper,
     });
 
-    await waitFor(() => { 
+    await waitFor(() => {
       expect(result.current.isError).toBe(true);
     });
 

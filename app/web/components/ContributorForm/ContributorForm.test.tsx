@@ -11,7 +11,8 @@ import {
   FEATURES_LABEL,
   IDEAS_LABEL,
   SUBMIT,
-  SUCCESS_MSG} from "./constants";
+  SUCCESS_MSG,
+} from "./constants";
 import ContributorForm from "./ContributorForm";
 
 describe("contributor form", () => {
@@ -44,19 +45,24 @@ describe("contributor form", () => {
 
     const user = userEvent.setup();
 
-    await user.type(
-      screen.getByLabelText(IDEAS_LABEL),
-      "I have great ideas"
-    );
+    await user.type(screen.getByLabelText(IDEAS_LABEL), "I have great ideas");
     await user.type(
       screen.getByLabelText(FEATURES_LABEL),
       "I want all the features"
     );
     await user.click(screen.getByRole("radio", { name: "Yes" }));
 
-    await user.click(screen.getByRole("checkbox", { name: CONTRIBUTE_WAYS_OPTIONS[8].description }));
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: CONTRIBUTE_WAYS_OPTIONS[8].description,
+      })
+    );
 
-    await user.click(screen.getByRole("checkbox", { name: CONTRIBUTE_WAYS_OPTIONS[4].description }));
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: CONTRIBUTE_WAYS_OPTIONS[4].description,
+      })
+    );
     await user.type(
       screen.getByLabelText(EXPERTISE_LABEL),
       "I am a robot, I have all the expertise"
@@ -87,10 +93,7 @@ describe("contributor form", () => {
 
     const user = userEvent.setup();
 
-    await user.type(
-      screen.getByLabelText(IDEAS_LABEL),
-      "I have great ideas"
-    );
+    await user.type(screen.getByLabelText(IDEAS_LABEL), "I have great ideas");
 
     await user.click(screen.getByRole("button", { name: SUBMIT }));
     expect(screen.getByRole("alert")).toBeVisible();

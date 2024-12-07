@@ -89,12 +89,13 @@ export default function NewHostRequest({
 
   const {
     control,
-    errors,
     getValues,
     handleSubmit,
     register,
     setValue,
     watch,
+
+    formState: { errors },
   } = useForm<CreateHostRequestWrapper>({
     defaultValues: { hostUserId: user.userId },
   });

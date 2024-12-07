@@ -77,11 +77,17 @@ export default function ContributorForm({
 }: ContributorFormProps) {
   const classes = useStyles();
 
-  const { control, register, handleSubmit, errors, watch } =
-    useForm<ContributorInputs>({
-      mode: "onBlur",
-      shouldUnregister: false,
-    });
+  const {
+    control,
+    register,
+    handleSubmit,
+    watch,
+
+    formState: { errors },
+  } = useForm<ContributorInputs>({
+    mode: "onBlur",
+    shouldUnregister: false,
+  });
 
   const mutation = useMutation<void, RpcError, ContributorInputs>(
     async (data) => {

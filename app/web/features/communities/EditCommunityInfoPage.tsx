@@ -58,7 +58,13 @@ export default function EditCommunityPage({
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
   const queryClient = useQueryClient();
-  const { control, handleSubmit, register, errors } = useForm<UpdatePageData>();
+  const {
+    control,
+    handleSubmit,
+    register,
+
+    formState: { errors },
+  } = useForm<UpdatePageData>();
 
   const {
     error,

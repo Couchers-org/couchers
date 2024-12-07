@@ -85,7 +85,11 @@ const useStyles = makeStyles((theme) => ({
 
 const DiscoverEventsList = () => {
   const classes = useStyles();
-  const { control, errors } = useForm({
+  const {
+    control,
+
+    formState: { errors },
+  } = useForm({
     mode: "onChange",
   });
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);

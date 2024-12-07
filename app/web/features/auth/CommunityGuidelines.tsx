@@ -69,9 +69,11 @@ export default function CommunityGuidelines({
     queryFn: () => service.resources.getCommunityGuidelines(),
   });
 
-  const { control, handleSubmit, errors, formState } = useForm({
+  const { control, handleSubmit, formState } = useForm({
     mode: "onChange",
   });
+
+  const { errors } = formState;
 
   const submit = handleSubmit(async () => {
     try {

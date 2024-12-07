@@ -56,7 +56,11 @@ export default function SearchBox({
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
 
-  const { control, errors } = useForm({
+  const {
+    control,
+
+    formState: { errors },
+  } = useForm({
     mode: "onChange",
   });
 

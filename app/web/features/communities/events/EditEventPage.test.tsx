@@ -60,7 +60,6 @@ describe("Edit event page", () => {
 
     const user = await userEvent.setup();
 
-
     await user.type(titleField, " in the dam");
     await user.click(screen.getByLabelText(t("communities:virtual_event")));
     await user.type(

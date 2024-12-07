@@ -66,10 +66,9 @@ describe("useUpdateHostingPreference hook", () => {
 
     updateHostingPreferenceMock.mockResolvedValue(new Empty());
 
-    const { result } = renderHook(
-      () => useUpdateHostingPreferences(),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useUpdateHostingPreferences(), {
+      wrapper,
+    });
 
     act(() =>
       result.current.updateHostingPreferences({
@@ -93,10 +92,9 @@ describe("useUpdateHostingPreference hook", () => {
     getUserMock.mockResolvedValue(defaultUser);
     const setError = jest.fn();
 
-    const { result } = renderHook(
-      () => useUpdateHostingPreferences(),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useUpdateHostingPreferences(), {
+      wrapper,
+    });
 
     act(() =>
       result.current.updateHostingPreferences({

@@ -120,13 +120,13 @@ export default function EventForm({
 
   const {
     control,
-    errors,
     handleSubmit,
     getValues,
     register,
     setValue,
     watch,
-    formState: { dirtyFields },
+
+    formState: { dirtyFields, errors },
   } = useForm<CreateEventData>();
 
   const isOnline = watch("isOnline", false);

@@ -72,11 +72,13 @@ export default function HostingPreferenceForm() {
   } = useUpdateHostingPreferences();
   const { data: user } = useCurrentUser();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { control, errors, register, handleSubmit, formState } =
+  const { control, register, handleSubmit, formState } =
     useForm<HostingPreferenceData>({
       mode: "onBlur",
       shouldFocusError: true,
     });
+
+  const { errors } = formState;
 
   const isDirty = formState.isDirty;
   const isSubmitted = formState.isSubmitted;

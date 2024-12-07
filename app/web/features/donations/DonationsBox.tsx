@@ -216,7 +216,8 @@ export default function DonationsBox() {
     control,
     handleSubmit,
     reset: resetForm,
-    errors,
+
+    formState: { errors },
   } = useForm<DonationFormData>();
 
   const customAmountInput = useRef<HTMLInputElement>(null);

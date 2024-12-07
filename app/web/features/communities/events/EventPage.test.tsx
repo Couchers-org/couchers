@@ -148,7 +148,7 @@ describe("Event page", () => {
 
     // @TODO should be awaited but doesn't work, try again after more package upgrades
     user.click(
-       screen.getByRole("button", { name: t("communities:previous_page") })
+      screen.getByRole("button", { name: t("communities:previous_page") })
     );
 
     await waitFor(() => expect(mockRouter.back).toBeCalled());

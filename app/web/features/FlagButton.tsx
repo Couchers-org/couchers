@@ -67,8 +67,9 @@ export default function FlagButton({
     control,
     handleSubmit,
     register,
-    errors,
     reset: resetForm,
+
+    formState: { errors },
   } = useForm<ReportInput>();
   const {
     data: report,

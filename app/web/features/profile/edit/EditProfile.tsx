@@ -59,7 +59,7 @@ export default function EditProfileForm() {
     null
   );
   const queryClient = useQueryClient();
-  const { control, errors, register, handleSubmit, setValue, formState } =
+  const { control, register, handleSubmit, setValue, formState } =
     useForm<FormValues>({
       defaultValues: {
         city: user?.city,
@@ -69,6 +69,8 @@ export default function EditProfileForm() {
       },
       shouldFocusError: true,
     });
+
+  const { errors } = formState;
 
   const isDirty = formState.isDirty;
   const isSubmitted = formState.isSubmitted;

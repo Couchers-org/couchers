@@ -24,11 +24,17 @@ type NewPlaceInputs = {
 };
 
 export default function NewPlaceForm() {
-  const { control, register, handleSubmit, setValue, errors } =
-    useForm<NewPlaceInputs>({
-      mode: "onBlur",
-      shouldUnregister: false,
-    });
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+
+    formState: { errors },
+  } = useForm<NewPlaceInputs>({
+    mode: "onBlur",
+    shouldUnregister: false,
+  });
 
   const router = useRouter();
 

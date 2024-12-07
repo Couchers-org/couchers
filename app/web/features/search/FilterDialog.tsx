@@ -140,7 +140,11 @@ export default function FilterDialog({
 }: FilterDialogProps) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
-  const { control, register, errors } = useForm<FilterModalFormData>({
+  const {
+    control,
+    register,
+    formState: { errors },
+  } = useForm<FilterModalFormData>({
     mode: "onBlur",
   });
 

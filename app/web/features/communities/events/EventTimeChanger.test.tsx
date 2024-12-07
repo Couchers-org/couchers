@@ -21,12 +21,12 @@ const onValidSubmit = jest.fn();
 function TestForm({ event }: { event?: Event.AsObject }) {
   const {
     control,
-    errors,
     handleSubmit,
     getValues,
     setValue,
     register,
-    formState: { dirtyFields },
+
+    formState: { dirtyFields, errors },
   } = useForm<CreateEventData>();
 
   return (
@@ -205,15 +205,15 @@ describe("when editing an existing event", () => {
 
     const user = userEvent.setup();
 
-   await user.clear(endDateField);
-   await user.type(endDateField, "07012021");
+    await user.clear(endDateField);
+    await user.type(endDateField, "07012021");
 
     const endTimeField = await screen.findByLabelText(
       t("communities:end_time")
     );
-   await user.clear(endTimeField);
-   await user.type(endTimeField, "0000");
-   await user.click(screen.getByTestId("submit"));
+    await user.clear(endTimeField);
+    await user.type(endTimeField, "0000");
+    await user.click(screen.getByTestId("submit"));
 
     await waitFor(() => {
       const endTimeErrorText = document.getElementById("endTime-helper-text");

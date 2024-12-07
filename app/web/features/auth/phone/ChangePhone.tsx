@@ -80,7 +80,8 @@ export default function ChangePhone({
     handleSubmit: verifyHandleSubmit,
     register: verifyRegister,
     reset: resetVerifyForm,
-    errors: verifyFormErrors,
+
+    formState: { errors: verifyFormErrors },
   } = useForm<VerifyPhoneFormData>({ mode: "onBlur" });
   const onVerifySubmit = verifyHandleSubmit(({ code }) => {
     verifyPhone({ code });

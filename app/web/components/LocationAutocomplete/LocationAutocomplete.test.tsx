@@ -21,7 +21,12 @@ const renderForm = (
   disableRegions = false
 ) => {
   const Form = () => {
-    const { control, handleSubmit, errors } = useForm();
+    const {
+      control,
+      handleSubmit,
+
+      formState: { errors },
+    } = useForm();
     const onSubmit = handleSubmit(submitAction, submitInvalidAction);
 
     return (
@@ -135,8 +140,8 @@ describe("LocationAutocomplete component", () => {
     const alert = await screen.findByText(
       t("global:location_autocomplete.search_location_hint")
     );
- 
-    await waitFor(() => { 
+
+    await waitFor(() => {
       expect(alert).toBeVisible();
     });
   });

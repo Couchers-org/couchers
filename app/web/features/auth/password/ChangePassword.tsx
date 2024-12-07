@@ -32,11 +32,12 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 
   const {
-    errors,
     getValues,
     handleSubmit,
     reset: resetForm,
     register,
+
+    formState: { errors },
   } = useForm<ChangePasswordFormData>({
     mode: "onBlur",
   });

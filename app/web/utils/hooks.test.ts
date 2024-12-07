@@ -81,7 +81,7 @@ describe("useGeocodeQuery hook", () => {
       results: undefined,
       query: expect.anything(),
     });
-    
+
     await act(() => result.current.query("test"));
 
     await waitFor(() => {

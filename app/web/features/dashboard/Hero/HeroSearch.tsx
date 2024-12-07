@@ -22,7 +22,11 @@ export default function HeroSearch() {
   const router = useRouter();
   const searchInputId = "hero-search-input";
 
-  const { control, errors } = useForm({ mode: "onChange" });
+  const {
+    control,
+
+    formState: { errors },
+  } = useForm({ mode: "onChange" });
 
   return (
     <form className={classes.searchBoxContainer}>
