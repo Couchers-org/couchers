@@ -12,14 +12,16 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { LngLat } from "maplibre-gl";
 import { Event } from "proto/events_pb";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { DeepMap, useForm } from "react-hook-form";
 import { UseMutateFunction } from "react-query";
-import { Dayjs } from "utils/dayjs";
+import dayjs, { Dayjs } from "utils/dayjs";
 import type { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
-import EventTimeChanger from "./EventTimeChanger";
+import EventTimeChanger, {
+  splitTimestampToDateAndTime,
+} from "./EventTimeChanger";
 
 export const useEventFormStyles = makeStyles((theme) => ({
   root: {
@@ -115,21 +117,28 @@ export default function EventForm({
   isMutationLoading,
   title,
 }: EventFormProps) {
+  console.log("EVENT FORM event", event);
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useEventFormStyles();
 
-  const {
-    control,
-    handleSubmit,
-    getValues,
-    register,
-    setValue,
-    watch,
+  const now = dayjs();
+  const defaultDate = now.get("hour") === 23 ? now.add(1, "day") : now;
 
-    formState: { dirtyFields, errors },
-  } = useForm<CreateEventData>();
+  const { date: eventStartDate, time: eventStartTime } =
+    splitTimestampToDateAndTime(event?.startTime);
+  const { date: eventEndDate, time: eventEndTime } =
+    splitTimestampToDateAndTime(event?.endTime);
 
-  const isOnline = watch("isOnline", false);
+  const timeDelta = useRef(60);
+  const defaultEndTime = useMemo(
+    () =>
+      dayjs()
+        .add(1, "hour")
+        .add(timeDelta.current, "minutes")
+        .format("HH:[00]"),
+    []
+  );
+
   const locationDefaultValue = useRef(
     event?.offlineInformation
       ? {
@@ -143,6 +152,28 @@ export default function EventForm({
         }
       : ("" as const)
   ).current;
+
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    register,
+    setValue,
+    watch,
+    formState: { dirtyFields, errors },
+  } = useForm<CreateEventData>({
+    defaultValues: {
+      title: "",
+      startDate: eventStartDate ?? defaultDate,
+      startTime: eventStartTime || dayjs().add(1, "hour").format("HH:[00]"),
+      endDate: eventEndDate ?? defaultDate,
+      endTime: eventEndTime || defaultEndTime,
+      isOnline: false,
+      link: event?.onlineInformation?.link,
+    },
+  });
+
+  const isOnline = watch("isOnline", false);
 
   const onSubmit = handleSubmit(
     (data) => {
@@ -181,13 +212,12 @@ export default function EventForm({
       )}
       <form className={classes.form} onSubmit={onSubmit}>
         <TextField
+          id="title"
+          {...register("title", { required: t("communities:title_required") })}
           defaultValue={event?.title}
           error={!!errors.title}
           fullWidth
           helperText={errors.title?.message || ""}
-          id="title"
-          inputRef={register({ required: t("communities:title_required") })}
-          name="title"
           label={t("global:title")}
           variant="standard"
         />
@@ -208,13 +238,14 @@ export default function EventForm({
         >
           {isOnline ? (
             <TextField
+              id="link"
+              {...register("link", {
+                required: t("communities:link_required"),
+              })}
               defaultValue={event?.onlineInformation?.link}
               error={!!errors.link?.message}
               helperText={errors.link?.message || ""}
               fullWidth
-              id="link"
-              name="link"
-              inputRef={register({ required: t("communities:link_required") })}
               label={t("communities:virtual_event_link")}
               variant="standard"
             />
@@ -223,7 +254,6 @@ export default function EventForm({
               control={control}
               name="location"
               defaultValue={locationDefaultValue}
-              // @ts-expect-error
               fieldError={errors.location?.message}
               fullWidth
               label={t("communities:location")}
@@ -235,9 +265,8 @@ export default function EventForm({
             <FormControlLabel
               control={
                 <Checkbox
+                  {...register("isOnline")}
                   defaultChecked={!!event?.onlineInformation}
-                  name="isOnline"
-                  inputRef={register}
                 />
               }
               label={t("communities:virtual_event")}

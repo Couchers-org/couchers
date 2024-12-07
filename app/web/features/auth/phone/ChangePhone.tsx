@@ -159,12 +159,11 @@ export default function ChangePhone({
               rules={{
                 validate: (value) => isValidPhoneNumber(value),
               }}
-              render={({ onChange, value }) => (
+              render={({ field }) => (
                 <PhoneInput
+                  {...field}
                   international
                   placeholder={t("auth:change_phone.phone_label")}
-                  value={value}
-                  onChange={onChange}
                   id="phone"
                 />
               )}
@@ -195,7 +194,7 @@ export default function ChangePhone({
               </Typography>
               <TextField
                 id="code"
-                inputRef={verifyRegister({
+                {...verifyRegister("code", {
                   required: true,
                   validate: (code) =>
                     validatePhoneCode(code) ||
@@ -204,7 +203,6 @@ export default function ChangePhone({
                 helperText={verifyFormErrors?.code?.message ?? " "}
                 error={!!verifyFormErrors?.code?.message}
                 label={t("auth:change_phone.code_label")}
-                name="code"
                 fullWidth={!isMdOrWider}
               />
               <Button
@@ -248,13 +246,14 @@ export default function ChangePhone({
               rules={{
                 validate: (value) => isValidPhoneNumber(value),
               }}
-              render={({ onChange, value }) => (
+              render={({ field }) => (
                 <PhoneInput
+                  {...field}
                   countrySelectProps={{ unicodeFlags: true }}
                   international
                   placeholder={t("auth:change_phone.phone_label")}
-                  value={value}
-                  onChange={onChange}
+                  value={field.value}
+                  onChange={field.onChange}
                   id="phone"
                 />
               )}

@@ -341,17 +341,16 @@ export default function FilterDialog({
                 {t("search:form.accommodation_filters.title")}
               </Typography>
               <TextField
+                id="num-guests-filter"
+                {...register("numGuests", {
+                  valueAsNumber: true,
+                })}
                 className={classes.noMargin}
                 type="number"
                 variant="standard"
-                id="num-guests-filter"
                 value={numberOfGuestFilter}
                 inputProps={{ min: 0 }}
                 onChange={handleNumGuestsChange}
-                inputRef={register({
-                  valueAsNumber: true,
-                })}
-                name="numGuests"
                 fullWidth
                 label={t(
                   "search:form.accommodation_filters.guests_field_label"

@@ -13,7 +13,8 @@ const MarkdownInput = dynamic(
 export default MarkdownInput;
 
 export interface MarkdownInputProps {
-  control: Control;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<any>;
   defaultValue?: string;
   id: string;
   resetInputRef?: MutableRefObject<ToastUIEditor["reset"] | null>;

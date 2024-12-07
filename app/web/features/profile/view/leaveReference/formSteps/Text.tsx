@@ -71,21 +71,21 @@ export default function Text({
       )}
       <div className={classes.card}>
         <Controller
-          render={({ onChange, value }) => (
+          render={({ field }) => (
             <TextField
+              {...field}
               className="multiline"
               fullWidth={true}
               multiline={true}
               minRows={15}
               id="reference-text-input"
-              onChange={(event) => onChange(event.target.value)}
-              value={value}
+              onChange={(event) => field.onChange(event.target.value)}
+              value={field.value}
             />
           )}
           name="text"
           control={control}
           rules={{ required: t("profile:leave_reference.required") }}
-          class={classes.card}
         />
       </div>
       <div className={classes.buttonContainer}>

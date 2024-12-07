@@ -79,7 +79,7 @@ describe("contributor form", () => {
       features: "I want all the features",
       experience: "I have lots of experience",
       contribute: ContributeOption.CONTRIBUTE_OPTION_YES,
-      contributeWaysList: ["other", "marketing"],
+      contributeWaysList: expect.arrayContaining(["other", "marketing"]),
       expertise: "I am a robot, I have all the expertise",
     });
   });

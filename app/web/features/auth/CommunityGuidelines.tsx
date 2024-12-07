@@ -133,7 +133,7 @@ export default function CommunityGuidelines({
                         "auth:community_guidelines_form.guideline.required_error"
                       ),
                     }}
-                    render={({ onChange, value }) => (
+                    render={({ field }) => (
                       <FormControl variant="standard">
                         <FormControlLabel
                           label={
@@ -145,15 +145,16 @@ export default function CommunityGuidelines({
                           }
                           control={
                             <Checkbox
-                              checked={value}
-                              onChange={(_, checked) => onChange(checked)}
+                              {...field}
+                              checked={field.value}
+                              onChange={(_, checked) => field.onChange(checked)}
                             />
                           }
                         />
 
                         {errors?.[`ok${index}`]?.message && (
                           <FormHelperText error={true}>
-                            {errors[`ok${index}`].message}
+                            {String(errors[`ok${index}`]?.message)}
                           </FormHelperText>
                         )}
                       </FormControl>

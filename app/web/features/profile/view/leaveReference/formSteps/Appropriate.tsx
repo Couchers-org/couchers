@@ -89,8 +89,8 @@ export default function Appropriate({
             {t("profile:leave_reference.appropriate_question")}
           </Typography>
           <Controller
-            as={
-              <RadioGroup aria-label="wasAppropriate">
+            render={({ field }) => (
+              <RadioGroup {...field} aria-label="wasAppropriate">
                 <FormControlLabel
                   value="true"
                   control={<Radio />}
@@ -102,7 +102,7 @@ export default function Appropriate({
                   label="No"
                 />
               </RadioGroup>
-            }
+            )}
             name="wasAppropriate"
             control={control}
             rules={{

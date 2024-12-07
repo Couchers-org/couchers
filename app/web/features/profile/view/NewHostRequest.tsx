@@ -94,13 +94,10 @@ export default function NewHostRequest({
     register,
     setValue,
     watch,
-
     formState: { errors },
   } = useForm<CreateHostRequestWrapper>({
     defaultValues: { hostUserId: user.userId },
   });
-
-  useEffect(() => register("hostUserId"));
 
   const { error, mutate } = useMutation<
     number,
@@ -164,12 +161,13 @@ export default function NewHostRequest({
                 name="stayType"
                 control={control}
                 defaultValue={1}
-                render={({ onChange, value }) => (
+                render={({ field }) => (
                   <RadioGroup
+                    {...field}
                     aria-label={t("profile:request_form.stay_type_a11y_text")}
                     name="stay-radio"
-                    value={value}
-                    onChange={(value) => onChange(value)}
+                    value={field.value}
+                    onChange={(value) => field.onChange(value)}
                   >
                     <FormControlLabel
                       value={t("profile:request_form.overnight_stay")}
@@ -190,10 +188,7 @@ export default function NewHostRequest({
                 className={classes.date}
                 control={control}
                 error={!!errors.fromDate}
-                helperText={
-                  //@ts-ignore
-                  errors?.fromDate?.message
-                }
+                helperText={errors?.fromDate?.message}
                 id="from-date"
                 label={t("profile:request_form.arrival_date")}
                 name="fromDate"
@@ -207,10 +202,7 @@ export default function NewHostRequest({
                 className={classes.date}
                 control={control}
                 error={!!errors.toDate}
-                helperText={
-                  //@ts-ignore
-                  errors?.toDate?.message
-                }
+                helperText={errors?.toDate?.message}
                 id="to-date"
                 label={t("profile:request_form.departure_date")}
                 minDate={watchFromDate ? watchFromDate.add(1, "day") : dayjs()}
@@ -250,9 +242,11 @@ export default function NewHostRequest({
           </Typography>
           <TextField
             id="text"
+            {...register("text", {
+              required: t("profile:request_form.request_description_empty"),
+            })}
             className={classes.requestField}
             label={t("profile:request_form.request")}
-            name="text"
             minRows={6}
             multiline
             fullWidth
@@ -260,9 +254,6 @@ export default function NewHostRequest({
             error={!!errors.text}
             helperText={errors.text?.message || ""}
             InputLabelProps={{ shrink: true }}
-            inputRef={register({
-              required: t("profile:request_form.request_description_empty"),
-            })}
           />
           <CardActions className={classes.send}>
             <Button onClick={() => setIsRequesting(false)}>

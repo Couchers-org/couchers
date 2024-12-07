@@ -58,9 +58,8 @@ export default function SearchBox({
 
   const {
     control,
-
     formState: { errors },
-  } = useForm({
+  } = useForm<{ location?: GeocodeResult; keyword?: string }>({
     mode: "onChange",
   });
 

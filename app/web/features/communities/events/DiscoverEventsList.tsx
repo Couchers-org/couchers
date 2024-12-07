@@ -89,7 +89,7 @@ const DiscoverEventsList = () => {
     control,
 
     formState: { errors },
-  } = useForm({
+  } = useForm<{ location: GeocodeResult }>({
     mode: "onChange",
   });
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);

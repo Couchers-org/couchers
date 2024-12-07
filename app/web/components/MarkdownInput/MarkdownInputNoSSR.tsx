@@ -5,7 +5,7 @@ import { ToolbarItem } from "@toast-ui/editor/types/ui";
 import classNames from "classnames";
 import { INSERT_IMAGE } from "components/MarkdownInput/constants";
 import UploadImage from "components/MarkdownInput/UploadImage";
-import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useController } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
 
@@ -64,7 +64,7 @@ export default function MarkdownInput({
   required,
 }: MarkdownInputProps) {
   const classes = useStyles();
-  const { field, meta } = useController({
+  const { field, fieldState } = useController({
     name,
     control,
     defaultValue: defaultValue ?? "",
@@ -76,7 +76,7 @@ export default function MarkdownInput({
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
 
   const initialDefaultValue = useRef(defaultValue);
-  const { ref: fieldRef }: { ref: MutableRefObject<ToastUIEditor> } = field;
+  const fieldRef = useRef<ToastUIEditor | null>(null); // Separate ref for the editor
 
   const rootEl = useRef<HTMLDivElement>(null);
 
@@ -158,7 +158,7 @@ export default function MarkdownInput({
     <>
       <div
         className={classNames(classes.root, {
-          [classes.errorState]: meta.invalid,
+          [classes.errorState]: fieldState.invalid,
         })}
         ref={rootEl}
         id={id}

@@ -90,10 +90,9 @@ export default function CreateDiscussionForm({
       {error && <Alert severity="error">{error.message}</Alert>}
       <form className={classes.form} onSubmit={onSubmit}>
         <TextField
-          fullWidth
           id="title"
-          name="title"
-          inputRef={register({ required: true })}
+          {...register("title", { required: true })}
+          fullWidth
           label={t("communities:new_discussion_title")}
         />
         <Typography id="content-label" variant="h3">

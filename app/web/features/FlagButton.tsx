@@ -145,15 +145,16 @@ export default function FlagButton({
                   validate: (v) => !!v || t("report.flag.reason_required"),
                 }}
                 name="reason"
-                render={({ onChange, value }) => (
+                render={({ field }) => (
                   <Select
+                    {...field}
                     variant="standard"
                     className={classes.field}
                     native
-                    value={value}
+                    value={field.value}
                     label={t("report.flag.reason_label")}
                     id="content-report-reason"
-                    onChange={(event) => onChange(event.target.value)}
+                    onChange={(event) => field.onChange(event.target.value)}
                   >
                     {[
                       "",

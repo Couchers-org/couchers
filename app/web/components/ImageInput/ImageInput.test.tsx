@@ -59,9 +59,8 @@ describe.each`
       const {
         control,
         handleSubmit,
-
         formState: { errors },
-      } = useForm();
+      } = useForm<{ imageInput: File }>();
       const onSubmit = handleSubmit((data) => submitForm(data));
       return (
         <form onSubmit={onSubmit}>

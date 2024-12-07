@@ -78,15 +78,14 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
         <form className={formClasses.form} onSubmit={onSubmit}>
           <TextField
             id="currentPassword"
-            inputRef={register({ required: true })}
+            {...register("currentPassword", { required: true })}
             label={t("auth:change_email_form.current_password")}
-            name="currentPassword"
             type="password"
             fullWidth={!isMdOrWider}
           />
           <TextField
             id="newEmail"
-            inputRef={register({ required: true })}
+            {...register("newEmail", { required: true })}
             label={t("auth:change_email_form.new_email")}
             name="newEmail"
             fullWidth={!isMdOrWider}

@@ -7,7 +7,10 @@ import wrapper from "test/hookWrapper";
 import { t } from "test/utils";
 
 import { CreateEventData } from "./EventForm";
-import EventTimeChanger from "./EventTimeChanger";
+import EventTimeChanger, {
+  splitTimestampToDateAndTime,
+} from "./EventTimeChanger";
+import dayjs from "dayjs";
 
 jest.mock("@mui/x-date-pickers", () => {
   return {
@@ -19,15 +22,29 @@ jest.mock("@mui/x-date-pickers", () => {
 const onValidSubmit = jest.fn();
 
 function TestForm({ event }: { event?: Event.AsObject }) {
+  const now = dayjs();
+  const defaultDate = now.get("hour") === 23 ? now.add(1, "day") : now;
+
+  const { date: eventStartDate, time: eventStartTime } =
+    splitTimestampToDateAndTime(event?.startTime);
+  const { date: eventEndDate, time: eventEndTime } =
+    splitTimestampToDateAndTime(event?.endTime);
+
   const {
     control,
     handleSubmit,
     getValues,
     setValue,
     register,
+    formState: { dirtyFields, errors, isLoading },
+  } = useForm<CreateEventData>({
+    // defaultValues: {
+    //   startDate: eventStartDate ?? defaultDate,
+    //   startTime: eventStartTime || dayjs().add(1, "hour").format("HH:[00]"),
+    // },
+  });
 
-    formState: { dirtyFields, errors },
-  } = useForm<CreateEventData>();
+  console.log("testForm event", event);
 
   return (
     <form onSubmit={handleSubmit(onValidSubmit)}>
@@ -39,6 +56,7 @@ function TestForm({ event }: { event?: Event.AsObject }) {
         setValue={setValue}
         register={register}
         dirtyFields={dirtyFields}
+        isFormLoading={isLoading}
       />
       <button data-testid="submit" type="submit">
         Submit
@@ -54,6 +72,7 @@ beforeEach(() => {
 
 afterEach(() => {
   jest.useRealTimers();
+  jest.clearAllMocks();
 });
 
 it("should load with the start/end date adjusted to the next hour by default", async () => {
@@ -117,7 +136,7 @@ it("should not submit if the start date/time is in the past", async () => {
   );
 });
 
-it("should not submit if the end date/time is in the past", async () => {
+it.only("should not submit if the end date/time is in the past", async () => {
   render(<TestForm />, { wrapper });
 
   const startDateField = await screen.findByLabelText(

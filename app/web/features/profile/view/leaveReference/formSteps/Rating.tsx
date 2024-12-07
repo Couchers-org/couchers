@@ -78,8 +78,12 @@ export default function Rating({
         control={control}
         defaultValue={referenceData.rating}
         name="rating"
-        render={({ onChange, value }) => (
-          <RatingsSlider onChange={onChange} value={value} />
+        render={({ field }) => (
+          <RatingsSlider
+            {...field}
+            onChange={field.onChange}
+            value={field.value}
+          />
         )}
       />
       <div className={classes.buttonContainer}>

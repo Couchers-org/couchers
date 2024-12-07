@@ -94,9 +94,8 @@ export default function DeleteAccount({
           </Typography>
           <TextField
             id="confirmUsername"
-            inputRef={register({ required: true })}
+            {...register("confirmUsername", { required: true })}
             label={t("auth:delete_account.request.confirm_username_label")}
-            name="confirmUsername"
             fullWidth={!isMdOrWider}
           />
           <Typography variant="subtitle1">
@@ -104,9 +103,8 @@ export default function DeleteAccount({
           </Typography>
           <TextField
             id="reason"
-            inputRef={register()}
+            {...register("reason")}
             label={t("auth:delete_account.request.reason_label")}
-            name="reason"
             minRows={4}
             maxRows={6}
             multiline

@@ -67,11 +67,10 @@ export default function NewPlaceForm() {
         <form onSubmit={onSubmit}>
           <TextField
             id="new-place-title"
-            name="title"
-            label="Place Title"
-            inputRef={register({
+            {...register("title", {
               required: "Enter a page title",
             })}
+            label="Place Title"
             helperText={errors?.title?.message}
           />
           <ImageInput

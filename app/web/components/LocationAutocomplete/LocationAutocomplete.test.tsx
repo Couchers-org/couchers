@@ -24,9 +24,8 @@ const renderForm = (
     const {
       control,
       handleSubmit,
-
       formState: { errors },
-    } = useForm();
+    } = useForm<GeocodeResult>();
     const onSubmit = handleSubmit(submitAction, submitInvalidAction);
 
     return (

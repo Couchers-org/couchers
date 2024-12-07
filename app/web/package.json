@@ -88,6 +88,7 @@
     "@types/react": "^18.3.13",
     "@types/react-dom": "^18.3.1",
     "@types/react-gtm-module": "^2.0.4",
+    "@types/react-query": "^1.2.9",
     "@types/react-test-renderer": "^17.0.1",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "babel-loader": "^9.2.1",

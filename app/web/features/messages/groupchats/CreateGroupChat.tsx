@@ -144,12 +144,13 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                       ? [createMessageToUserQuery.data]
                       : []
                   }
-                  render={({ onChange, value }) => {
+                  render={({ field }) => {
                     return (
                       <Autocomplete
+                      {...field}
                         id="users-autocomplete"
                         onChange={(_, newValue) => {
-                          onChange(newValue);
+                          field.onChange(newValue);
                           setIsGroup((newValue?.length ?? 0) > 1);
                         }}
                         multiple={true}
@@ -166,7 +167,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                         }}
                         label={t("messages:create_chat.friends_input_label")}
                         className={classes.field}
-                        value={value ?? []}
+                        value={field.value ?? []}
                       />
                     );
                   }}

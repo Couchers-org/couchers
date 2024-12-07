@@ -74,11 +74,12 @@ export default function InviteDialog({
             control={control}
             defaultValue={[]}
             name="selected"
-            render={({ onChange }) => (
+            render={({ field }) => (
               <Autocomplete
+                {...field}
                 id="selected-autocomplete"
                 onChange={(_, value) => {
-                  onChange(value);
+                  field.onChange(value);
                 }}
                 loading={friends.isLoading}
                 options={friendsNotInChat ?? []}

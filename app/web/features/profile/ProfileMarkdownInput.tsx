@@ -5,7 +5,8 @@ import { Control } from "react-hook-form";
 
 interface ProfileMarkdownInputProps {
   className?: string;
-  control: Control;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<any>;
   defaultValue?: string;
   id: string;
   label: string;

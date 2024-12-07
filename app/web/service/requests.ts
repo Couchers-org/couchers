@@ -84,7 +84,7 @@ export async function getHostRequestMessages(
 export type CreateHostRequestWrapper = Omit<
   Required<CreateHostRequestReq.AsObject>,
   "toDate" | "fromDate"
-> & { toDate: Dayjs; fromDate: Dayjs };
+> & { toDate: Dayjs; fromDate: Dayjs; stayType: number };
 
 export async function createHostRequest(data: CreateHostRequestWrapper) {
   const req = new CreateHostRequestReq();

@@ -81,8 +81,7 @@ export default function GroupChatSettingsDialog({
           <FormControlLabel
             control={
               <Checkbox
-                name="onlyAdminsInvite"
-                inputRef={register}
+                {...register("onlyAdminsInvite")}
                 defaultChecked={groupChat.onlyAdminsInvite}
               />
             }

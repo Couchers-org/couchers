@@ -84,6 +84,13 @@ export default function BasicForm({
         </InputLabel>
         <TextField
           id="name"
+          {...register("name", {
+            pattern: {
+              message: t("auth:basic_form.name.empty_error"),
+              value: nameValidationPattern,
+            },
+            required: t("auth:basic_form.name.required_error"),
+          })}
           fullWidth
           className={authClasses.formField}
           name="name"
@@ -91,13 +98,6 @@ export default function BasicForm({
           inputRef={(el: HTMLInputElement | null) => {
             if (!nameInputRef.current) el?.focus();
             if (el) nameInputRef.current = el;
-            register(el, {
-              pattern: {
-                message: t("auth:basic_form.name.empty_error"),
-                value: nameValidationPattern,
-              },
-              required: t("auth:basic_form.name.required_error"),
-            });
           }}
           helperText={errors?.name?.message ?? " "}
           error={!!errors?.name?.message}
@@ -107,17 +107,17 @@ export default function BasicForm({
         </InputLabel>
         <TextField
           id="email"
-          fullWidth
-          className={authClasses.formField}
-          name="email"
-          variant="standard"
-          inputRef={register({
+          {...register("email", {
             pattern: {
               message: t("auth:basic_form.email.empty_error"),
               value: emailValidationPattern,
             },
             required: t("auth:basic_form.email.required_error"),
           })}
+          fullWidth
+          className={authClasses.formField}
+          name="email"
+          variant="standard"
           helperText={errors?.email?.message ?? " "}
           error={!!errors?.email?.message}
         />

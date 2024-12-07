@@ -7,5 +7,6 @@ interface ProfileTextInputProps extends Omit<TextFieldProps, "margin"> {
 }
 
 export default function ProfileTextInput(props: ProfileTextInputProps) {
-  return <TextField {...props} margin="normal" />;
+  const { ref, ...restProps } = props;
+  return <TextField inputRef={ref} {...restProps} margin="normal" />;
 }

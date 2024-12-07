@@ -45,7 +45,10 @@ type SignupAccountInputs = {
   gender: string;
   acceptTOS: boolean;
   optInToNewsletter: boolean;
-  hostingStatus: HostingStatus;
+  hostingStatus:
+    | HostingStatus.HOSTING_STATUS_CAN_HOST
+    | HostingStatus.HOSTING_STATUS_MAYBE
+    | HostingStatus.HOSTING_STATUS_CANT_HOST;
   location: ApproximateLocation;
 };
 
@@ -140,8 +143,6 @@ export default function AccountForm() {
   return (
     <>
       {errors.location && (
-        //@ts-ignore - we register "location" but rhf thinks the error should be
-        //under location.address
         <Alert severity="error">{errors.location?.message || ""}</Alert>
       )}
       {mutation.error && (
@@ -155,29 +156,28 @@ export default function AccountForm() {
           {t("auth:account_form.username.field_label")}
         </InputLabel>
         <TextField
+          id="username"
+          {...register("username", {
+            pattern: {
+              message: t("auth:account_form.username.validation_error"),
+              value: usernameValidationPattern,
+            },
+            required: t("auth:account_form.username.required_error"),
+            validate: async (username: string) => {
+              const valid = await service.auth.validateUsername(
+                lowercaseAndTrimField(username)
+              );
+              return (
+                valid || t("auth:account_form.username.username_taken_error")
+              );
+            },
+          })}
           className={authClasses.formField}
           variant="standard"
-          id="username"
-          name="username"
           fullWidth
           inputRef={(el: HTMLInputElement | null) => {
             if (!usernameInputRef.current) el?.focus();
             if (el) usernameInputRef.current = el;
-            register(el, {
-              pattern: {
-                message: t("auth:account_form.username.validation_error"),
-                value: usernameValidationPattern,
-              },
-              required: t("auth:account_form.username.required_error"),
-              validate: async (username: string) => {
-                const valid = await service.auth.validateUsername(
-                  lowercaseAndTrimField(username)
-                );
-                return (
-                  valid || t("auth:account_form.username.username_taken_error")
-                );
-              },
-            });
           }}
           helperText={errors?.username?.message ?? " "}
           error={!!errors?.username?.message}
@@ -186,18 +186,17 @@ export default function AccountForm() {
           {t("auth:account_form.password.field_label")}
         </InputLabel>
         <TextField
-          className={authClasses.formField}
-          variant="standard"
-          type="password"
           id="password"
-          name="password"
-          fullWidth
-          inputRef={register({
+          {...register("password", {
             required: t("auth:account_form.password.required_error"),
             validate: (password) =>
               validatePassword(password) ||
               t("auth:account_form.password.validation_error"),
           })}
+          className={authClasses.formField}
+          variant="standard"
+          type="password"
+          fullWidth
           helperText={errors?.password?.message ?? " "}
           error={!!errors?.password?.message}
         />
@@ -207,14 +206,8 @@ export default function AccountForm() {
         <Datepicker
           className={authClasses.formField}
           control={control}
-          error={
-            //@ts-ignore Dayjs type breaks this
-            !!errors?.birthdate?.message
-          }
-          helperText={
-            //@ts-ignore
-            errors?.birthdate?.message ?? " "
-          }
+          error={!!errors?.birthdate?.message}
+          helperText={errors?.birthdate?.message ?? " "}
           id="birthdate"
           rules={{
             required: t("auth:account_form.birthday.required_error"),
@@ -239,19 +232,20 @@ export default function AccountForm() {
           validate: (location) =>
             !!location.address || t("auth:location.validation_error"),
         }}
-        render={({ onChange }) => (
+        render={({ field }) => (
           <EditLocationMap
+            {...field}
             className={classes.locationMap}
             updateLocation={(location) => {
               if (location) {
-                onChange({
+                field.onChange({
                   address: location.address,
                   lat: location.lat,
                   lng: location.lng,
                   radius: location.radius,
                 });
               } else {
-                onChange({
+                field.onChange({
                   address: "",
                 });
               }
@@ -271,15 +265,17 @@ export default function AccountForm() {
           )}
           <Controller
             control={control}
-            defaultValue={""}
             rules={{ required: t("global:required") }}
             name="hostingStatus"
-            render={({ onChange, value }) => (
+            render={({ field }) => (
               <Select
+                {...field}
                 onChange={(event) => {
-                  onChange(Number.parseInt(event.target.value as string) || "");
+                  field.onChange(
+                    Number.parseInt(event.target.value as string) || ""
+                  );
                 }}
-                value={value}
+                value={field.value}
                 id="hosting-status"
                 fullWidth
                 className={authClasses.formField}
@@ -306,22 +302,21 @@ export default function AccountForm() {
           />
         </FormControl>
         <Controller
-          id="gender"
           control={control}
           name="gender"
           defaultValue=""
           rules={{ required: t("auth:account_form.gender.required_error") }}
-          render={({ onChange, value }) => (
+          render={({ field }) => (
             <FormControl variant="standard" component="fieldset">
               <FormLabel component="legend" className={authClasses.formLabel}>
                 {t("auth:account_form.gender.field_label")}
               </FormLabel>
               <RadioGroup
+                id="gender"
+                {...field}
                 row
                 aria-label="gender"
                 name="gender-radio"
-                onChange={(e, value) => onChange(value)}
-                value={value}
               >
                 <FormControlLabel
                   value="Woman"
@@ -356,12 +351,7 @@ export default function AccountForm() {
               control={control}
               name="acceptTOS"
               defaultValue={false}
-              render={({ onChange, value }) => (
-                <Checkbox
-                  value={value}
-                  onChange={(event) => onChange(event.target.checked)}
-                />
-              )}
+              render={({ field }) => <Checkbox {...field} />}
             />
           }
           label={t("auth:account_form.tos_accept_label")}
@@ -372,12 +362,8 @@ export default function AccountForm() {
               control={control}
               name="optInToNewsletter"
               defaultValue={true}
-              render={({ onChange, value }) => (
-                <Checkbox
-                  value={value}
-                  defaultChecked={true}
-                  onChange={(event) => onChange(event.target.checked)}
-                />
+              render={({ field }) => (
+                <Checkbox {...field} defaultChecked={true} />
               )}
             />
           }

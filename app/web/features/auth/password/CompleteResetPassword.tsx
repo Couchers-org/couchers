@@ -124,7 +124,7 @@ export default function CompleteResetPassword() {
         <TextField
           className={formClass.textField}
           id="newPassword"
-          inputRef={register({ required: true })}
+          {...register("newPassword", { required: true })}
           label={t("auth:change_password_form.new_password")}
           name="newPassword"
           type="password"
@@ -134,9 +134,8 @@ export default function CompleteResetPassword() {
         <TextField
           className={formClass.textField}
           id="newPasswordCheck"
-          inputRef={register({ required: true })}
+          {...register("newPasswordCheck", { required: true })}
           label={t("auth:change_password_form.confirm_password")}
-          name="newPasswordCheck"
           type="password"
           variant="outlined"
         />
