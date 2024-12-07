@@ -126,7 +126,7 @@ export default function NewHostRequest({
   const guests = Array.from({ length: 8 }, (_, i) => {
     const num = i + 1;
     return (
-      <MenuItem key={num} value={num} ref={register}>
+      <MenuItem key={num} value={num}>
         {num}
       </MenuItem>
     );

@@ -149,16 +149,14 @@ export default function EditCommunityPage({
               )}
               <input
                 id="pageId"
-                name="pageId"
+                {...register("pageId")}
                 type="hidden"
-                ref={register}
                 value={community.mainPage.pageId}
               />
               <input
                 id="communityId"
-                name="communityId"
+                {...register("communityId")}
                 type="hidden"
-                ref={register}
                 value={community.communityId}
               />
               <Button
