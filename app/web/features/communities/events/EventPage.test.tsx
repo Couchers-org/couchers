@@ -1,8 +1,4 @@
-import {
-  render,
-  screen,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { AttendanceState } from "proto/events_pb";
@@ -73,19 +69,19 @@ describe("Event page", () => {
   it("renders an offline event successfully", async () => {
     renderEventPage();
 
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
     expect(
-      screen.getByRole("heading", { name: firstEvent.title })
+      await screen.findByRole("heading", { name: firstEvent.title })
     ).toBeVisible();
     expect(
-      screen.getByText(firstEvent.offlineInformation!.address)
+      await screen.findByText(firstEvent.offlineInformation!.address)
     ).toBeVisible();
     expect(
-      screen.getByText("Tuesday, June 29, 2021 2:37 AM to 3:37 AM")
+      await screen.findByText("Tuesday, June 29, 2021 2:37 AM to 3:37 AM")
     ).toBeVisible();
     // Event image
-    expect(screen.getByRole("img", { name: "" })).toBeVisible();
+
+    const eventImage = await screen.findByTestId("event-cover-photo");
+    expect(eventImage).toBeVisible();
 
     const attendanceMenuButton = screen.getByRole("button", {
       name: t("communities:going_to_event"),
@@ -122,10 +118,10 @@ describe("Event page", () => {
     getEventMock.mockResolvedValue(secondEvent);
     renderEventPage(secondEvent.eventId, secondEvent.slug);
 
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
     // Should be identical in structure as first test, so only assert on things that are different
-    expect(screen.getByText(t("communities:virtual_event"))).toBeVisible();
+    expect(
+      await screen.findByText(t("communities:virtual_event"))
+    ).toBeVisible();
     expect(
       screen.getByRole("link", { name: t("communities:event_link") })
     ).toBeVisible();
@@ -135,10 +131,8 @@ describe("Event page", () => {
     getEventMock.mockResolvedValue(thirdEvent);
     renderEventPage(thirdEvent.eventId, thirdEvent.slug);
 
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
     expect(
-      screen.getByText(
+      await screen.findByText(
         "Tuesday, June 29, 2021 9:00 PM to Wednesday, June 30, 2021 2:00 AM"
       )
     ).toBeVisible();
@@ -150,11 +144,14 @@ describe("Event page", () => {
     renderEventPage();
     await screen.findByRole("heading", { name: events[0].title });
 
-    userEvent.click(
-      screen.getByRole("button", { name: t("communities:previous_page") })
+    const user = userEvent.setup();
+
+    // @TODO should be awaited but doesn't work, try again after more package upgrades
+    user.click(
+       screen.getByRole("button", { name: t("communities:previous_page") })
     );
 
-    expect(mockRouter.back).toBeCalled();
+    await waitFor(() => expect(mockRouter.back).toBeCalled());
   });
 
   it("shows the 'edit event' button if the user has edit permission", async () => {
@@ -168,10 +165,9 @@ describe("Event page", () => {
 
   it("does not show the 'edit event' button if the user does not have edit permission", async () => {
     renderEventPage();
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(
-      screen.queryByRole("button", { name: t("communities:edit_event") })
+      await screen.queryByRole("button", { name: t("communities:edit_event") })
     ).not.toBeInTheDocument();
   });
 
@@ -202,16 +198,18 @@ describe("Event page", () => {
         return { ...getEventAttendees(), attendeeUserIdsList: [4] };
       });
       renderEventPage();
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      const attendanceMenuButton = screen.getByRole("button", {
+      const attendanceMenuButton = await screen.findByRole("button", {
         name: t("communities:going_to_event"),
       });
-      userEvent.click(attendanceMenuButton);
-      const leaveEventOption = screen.getByRole("menuitem", {
+
+      const user = userEvent.setup();
+      // @TODO should be awaited but doesn't work, try again after more package upgrades
+      user.click(attendanceMenuButton);
+      const leaveEventOption = await screen.findByRole("menuitem", {
         name: t("communities:not_going_to_event"),
       });
-      userEvent.click(leaveEventOption);
+      user.click(leaveEventOption);
 
       expect(
         await screen.findByRole("button", { name: t("communities:join_event") })
@@ -234,16 +232,19 @@ describe("Event page", () => {
       const errorMessage = "Error updating attendance state";
       setEventAttendanceMock.mockRejectedValue(new Error(errorMessage));
       renderEventPage();
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      const attendanceMenuButton = screen.getByRole("button", {
+      const attendanceMenuButton = await screen.findByRole("button", {
         name: t("communities:going_to_event"),
       });
-      userEvent.click(attendanceMenuButton);
-      const leaveEventOption = screen.getByRole("menuitem", {
+
+      const user = await userEvent.setup();
+
+      //@TODO this should be awaited but doesn't work. Try again after more package upgrades
+      user.click(attendanceMenuButton);
+      const leaveEventOption = await screen.findByRole("menuitem", {
         name: t("communities:not_going_to_event"),
       });
-      userEvent.click(leaveEventOption);
+      user.click(leaveEventOption);
 
       await assertErrorAlert(errorMessage);
     });

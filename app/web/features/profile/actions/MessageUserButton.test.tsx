@@ -44,10 +44,13 @@ describe("MessageUserButton", () => {
   it("redirects to thread if dm exists", async () => {
     getAccountInfoMock.mockResolvedValue(accountInfo);
     getDirectMessageMock.mockResolvedValueOnce(99);
-    const user = users[0];
-    render(<MessageUserButton user={user} setMutationError={setErrorMock} />, {
-      wrapper,
-    });
+    const mockUser = users[0];
+    render(
+      <MessageUserButton user={mockUser} setMutationError={setErrorMock} />,
+      {
+        wrapper,
+      }
+    );
 
     const button = screen.getByRole("button");
 
@@ -55,7 +58,9 @@ describe("MessageUserButton", () => {
       expect(button).toBeEnabled();
     });
 
-    userEvent.click(button);
+    const user = userEvent.setup();
+
+    await user.click(button);
 
     await waitFor(() => expect(mockRouter.pathname).toBe(routeToGroupChat(99)));
   });
@@ -63,10 +68,13 @@ describe("MessageUserButton", () => {
   it("redirects to chat tab with state if dm doesn't exist", async () => {
     getAccountInfoMock.mockResolvedValue(accountInfo);
     getDirectMessageMock.mockResolvedValueOnce(false);
-    const user = users[0];
-    render(<MessageUserButton user={user} setMutationError={setErrorMock} />, {
-      wrapper,
-    });
+    const mockUser = users[0];
+    render(
+      <MessageUserButton user={mockUser} setMutationError={setErrorMock} />,
+      {
+        wrapper,
+      }
+    );
 
     const button = screen.getByRole("button");
 
@@ -74,20 +82,25 @@ describe("MessageUserButton", () => {
       expect(button).toBeEnabled();
     });
 
-    userEvent.click(button);
+    const user = userEvent.setup();
+
+    await user.click(button);
 
     await waitFor(() =>
-      expect(mockRouter.asPath).toBe(routeToCreateMessage(user.username))
+      expect(mockRouter.asPath).toBe(routeToCreateMessage(mockUser.username))
     );
   });
 
   it("pops up incomplete profile note if profile is incomplete", async () => {
     getAccountInfoMock.mockResolvedValue(incompleteAccountInfo);
     getDirectMessageMock.mockResolvedValueOnce(false);
-    const user = users[0];
-    render(<MessageUserButton user={user} setMutationError={setErrorMock} />, {
-      wrapper,
-    });
+    const mockUser = users[0];
+    render(
+      <MessageUserButton user={mockUser} setMutationError={setErrorMock} />,
+      {
+        wrapper,
+      }
+    );
 
     const button = screen.getByRole("button");
 
@@ -95,7 +108,9 @@ describe("MessageUserButton", () => {
       expect(button).toBeEnabled();
     });
 
-    userEvent.click(button);
+    const user = userEvent.setup();
+
+    await user.click(button);
 
     await waitFor(async () =>
       expect(

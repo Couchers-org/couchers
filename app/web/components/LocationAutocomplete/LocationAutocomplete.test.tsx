@@ -60,15 +60,18 @@ describe("LocationAutocomplete component", () => {
 
     const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
     expect(input).toBeVisible();
-    userEvent.type(input, "tes{enter}");
+
+    const user = userEvent.setup();
+
+    await user.type(input, "tes{enter}");
 
     const item = await screen.findByText("test city, test country");
     expect(item).toBeVisible();
-    userEvent.click(item);
+    await user.click(item);
     expect(input.value).toBe("test city, test country");
 
     const submitButton = await screen.findByRole("button", { name: "submit" });
-    userEvent.click(submitButton);
+    await user.click(submitButton);
     await waitFor(() => {
       expect(submitAction).toBeCalledWith(
         expect.objectContaining({
@@ -89,7 +92,9 @@ describe("LocationAutocomplete component", () => {
     const onChange = jest.fn();
     renderForm("", onChange, true);
 
-    userEvent.type(await screen.findByLabelText(LABEL), "tes{enter}");
+    const user = userEvent.setup();
+
+    await user.type(await screen.findByLabelText(LABEL), "tes{enter}");
 
     expect(
       await screen.findByText("test city, test county, test country")
@@ -102,8 +107,11 @@ describe("LocationAutocomplete component", () => {
 
     const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
     expect(input).toBeVisible();
-    userEvent.type(input, "tes");
-    userEvent.click(
+
+    const user = userEvent.setup();
+
+    await user.type(input, "tes");
+    await user.click(
       screen.getByRole("button", {
         name: t("global:location_autocomplete.search_location_button"),
       })
@@ -119,14 +127,18 @@ describe("LocationAutocomplete component", () => {
 
     const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
     expect(input).toBeVisible();
-    userEvent.type(input, "test");
-    const submitButton = await screen.findByRole("button", { name: "submit" });
-    userEvent.click(submitButton);
-    expect(
-      await screen.findByText(
-        t("global:location_autocomplete.search_location_hint")
-      )
-    ).toBeVisible();
+
+    const user = userEvent.setup();
+
+    await user.type(input, "test{enter}");
+
+    const alert = await screen.findByText(
+      t("global:location_autocomplete.search_location_hint")
+    );
+ 
+    await waitFor(() => { 
+      expect(alert).toBeVisible();
+    });
   });
 
   it("shows a default value and submits correctly when cleared", async () => {
@@ -145,9 +157,11 @@ describe("LocationAutocomplete component", () => {
     expect(input).toBeVisible();
     expect(input).toHaveValue("test location");
 
-    userEvent.clear(input);
+    const user = userEvent.setup();
+
+    await user.clear(input);
     const submitButton = await screen.findByRole("button", { name: "submit" });
-    userEvent.click(submitButton);
+    await user.click(submitButton);
 
     await waitFor(() => {
       expect(submitAction).toBeCalledWith(
@@ -173,7 +187,10 @@ describe("LocationAutocomplete component", () => {
 
     const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
     expect(input).toBeVisible();
-    userEvent.type(input, "test{enter}");
+
+    const user = userEvent.setup();
+
+    await user.type(input, "test{enter}");
 
     const error = await screen.findByText("generic error");
     expect(error).toBeVisible();
@@ -201,13 +218,16 @@ describe("LocationAutocomplete component", () => {
     renderForm("", () => {}, false, true);
 
     const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
-    userEvent.type(input, "tes{enter}");
+
+    const user = userEvent.setup();
+
+    await user.type(input, "tes{enter}");
 
     const item = await screen.findByText("test country");
-    userEvent.click(item);
+    await user.click(item);
 
     const submitButton = await screen.findByRole("button", { name: "submit" });
-    userEvent.click(submitButton);
+    await user.click(submitButton);
 
     expect(
       await screen.findByText(t("global:location_autocomplete.more_specific"))

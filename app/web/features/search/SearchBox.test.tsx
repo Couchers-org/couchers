@@ -40,12 +40,13 @@ describe("SearchBox", () => {
   it("performs a keyword search", async () => {
     render(<View />, { wrapper });
 
-    userEvent.click(
+    const user = userEvent.setup();
+    await user.click(
       screen.getByLabelText(t("search:form.by_keyword_filter_label"))
     );
 
     const input = screen.getByLabelText(t("search:form.keywords.field_label"));
-    userEvent.type(input, "test");
+    await user.type(input, "test");
 
     await waitFor(() => {
       expect(input).toHaveValue("test");
@@ -57,11 +58,13 @@ describe("SearchBox", () => {
 
     const input = screen.getByLabelText(t("search:form.keywords.field_label"));
 
-    userEvent.type(input, "default value");
+    const user = userEvent.setup();
+
+    await user.type(input, "default value");
 
     expect(input).toHaveValue("default value");
 
-    userEvent.click(
+    await user.click(
       screen.getByRole("button", {
         name: t("search:form.keywords.clear_field_action_a11y_label"),
       })
@@ -84,7 +87,9 @@ describe("SearchBox", () => {
     it("result from list is choosable", async () => {
       render(<View searchTypeParam="location" />, { wrapper });
 
-      userEvent.click(
+      const user = userEvent.setup();
+
+      await user.click(
         screen.getByLabelText(t("search:form.by_location_filter_label"))
       );
 
@@ -92,8 +97,8 @@ describe("SearchBox", () => {
         t("search:form.location_field_label")
       );
 
-      userEvent.type(input, "tes{enter}");
-      userEvent.click(await screen.findByText("test city, test country"));
+      await user.type(input, "tes{enter}");
+      await user.click(await screen.findByText("test city, test country"));
 
       await waitFor(() => {
         expect(input).toHaveValue("test city, test country");

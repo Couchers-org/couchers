@@ -3,7 +3,6 @@ import {
   screen,
   waitFor,
   waitForElementToBeRemoved,
-  within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
@@ -74,7 +73,9 @@ describe("Events list", () => {
   )}" button is clicked`, async () => {
     render(<CommunityEventsList community={community} />, { wrapper });
 
-    userEvent.click(
+    const user = userEvent.setup();
+
+    await user.click(
       screen.getByRole("button", { name: t("communities:create_an_event") })
     );
 
@@ -88,8 +89,6 @@ describe("Events list", () => {
     const errorMessage = "Error loading community events";
     listCommunityEventsMock.mockRejectedValue(new Error(errorMessage));
     render(<CommunityEventsList community={community} />, { wrapper });
-
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     await assertErrorAlert(errorMessage);
     expect(
@@ -107,16 +106,15 @@ describe("Events list", () => {
       });
       render(<CommunityEventsList community={community} />, { wrapper });
 
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-      expect(screen.getAllByRole("link")).toHaveLength(2);
+      expect(await screen.findAllByRole("link")).toHaveLength(2);
 
       const seeMoreEventsButton = screen.getByRole("button", {
         name: t("communities:see_more_events_label"),
       });
-      userEvent.click(seeMoreEventsButton);
-      await waitForElementToBeRemoved(
-        within(seeMoreEventsButton).getByRole("progressbar")
-      );
+
+      const user = userEvent.setup();
+
+      await user.click(seeMoreEventsButton);
 
       expect(screen.getAllByRole("link")).toHaveLength(3);
       expect(listCommunityEventsMock).toHaveBeenCalledTimes(2);

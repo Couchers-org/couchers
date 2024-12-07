@@ -42,9 +42,12 @@ const Form = ({ submit }: { submit(value: string): void }) => {
 
 describe("MarkdownInput", () => {
   it("has a working image upload button", async () => {
-    const mockFile = new File([], "example.jpg");
+    const MOCK_FILE = new File([new Blob(["file content"])], "example.jpg", {
+      type: "image/jpeg",
+    });
+
     uploadFileMock.mockResolvedValue({
-      file: mockFile,
+      file: MOCK_FILE,
       filename: "example.jpg",
       key: "key",
       thumbnail_url: "thumb.jpg",
@@ -53,18 +56,24 @@ describe("MarkdownInput", () => {
     const onSubmit = jest.fn();
 
     render(<Form submit={onSubmit} />, { wrapper });
-    userEvent.click(screen.getByRole("button", { name: INSERT_IMAGE }));
+
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: INSERT_IMAGE }));
     const dialog = await screen.findByRole("dialog");
-    userEvent.upload(within(dialog).getByLabelText(SELECT_AN_IMAGE), mockFile);
-    userEvent.type(
+    await user.upload(
+      within(dialog).getByLabelText(SELECT_AN_IMAGE),
+      MOCK_FILE
+    );
+    await user.type(
       within(dialog).getByLabelText(IMAGE_DESCRIPTION),
       "description"
     );
-    userEvent.click(
+    await user.click(
       await within(dialog).findByRole("button", { name: CONFIRM_UPLOAD })
     );
     await waitForElementToBeRemoved(dialog);
-    userEvent.click(screen.getByRole("button", { name: "Submit" }));
+    await user.click(screen.getByRole("button", { name: "Submit" }));
     await waitFor(() =>
       expect(onSubmit).toBeCalledWith("![description](full.jpg)")
     );

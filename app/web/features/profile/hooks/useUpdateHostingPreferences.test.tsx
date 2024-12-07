@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import useUpdateHostingPreferences from "features/profile/hooks/useUpdateHostingPreferences";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -66,7 +66,7 @@ describe("useUpdateHostingPreference hook", () => {
 
     updateHostingPreferenceMock.mockResolvedValue(new Empty());
 
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useUpdateHostingPreferences(),
       { wrapper }
     );
@@ -93,7 +93,7 @@ describe("useUpdateHostingPreference hook", () => {
     getUserMock.mockResolvedValue(defaultUser);
     const setError = jest.fn();
 
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => useUpdateHostingPreferences(),
       { wrapper }
     );

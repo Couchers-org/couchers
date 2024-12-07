@@ -1,6 +1,7 @@
 import {
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from "@testing-library/react";
@@ -105,7 +106,9 @@ describe("Community info page", () => {
       const editLink = screen.getByRole("link", { name: t("global:edit") });
       expect(editLink).toBeVisible();
 
-      userEvent.click(editLink);
+      const user = userEvent.setup();
+
+      await user.click(editLink);
       expect(mockRouter.pathname).toBe(
         routeToEditCommunityPage(community.communityId, community.slug)
       );
@@ -133,7 +136,9 @@ describe("Community info page", () => {
       render(<CommunityInfoPage community={community} />, { wrapper });
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      userEvent.click(
+      const user = userEvent.setup();
+
+      await user.click(
         screen.getByRole("button", {
           name: t("communities:see_all_moderators"),
         })
@@ -165,9 +170,18 @@ describe("Community info page", () => {
         nextPageToken: "3",
       });
       render(<CommunityInfoPage community={community} />, { wrapper });
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      userEvent.click(
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", {
+            name: t("communities:see_all_moderators"),
+          })
+        ).toBeVisible();
+      });
+
+      const user = userEvent.setup();
+
+      await user.click(
         screen.getByRole("button", {
           name: t("communities:see_all_moderators"),
         })
@@ -183,12 +197,13 @@ describe("Community info page", () => {
         nextPageToken: "",
       });
 
-      userEvent.click(
+      const user = userEvent.setup();
+
+      await user.click(
         screen.getByRole("button", {
           name: t("communities:load_more_moderators"),
         })
       );
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
       const adminDialog = within(
         await screen.findByRole("dialog", {
@@ -206,7 +221,7 @@ describe("Community info page", () => {
       ).toBeVisible();
 
       // Check it doesn't affect the underlying page
-      userEvent.click(document.querySelector(".MuiBackdrop-root")!);
+      await user.click(document.querySelector(".MuiBackdrop-root")!);
       await waitForElementToBeRemoved(
         screen.getByRole("dialog", {
           name: t("communities:community_moderators"),
@@ -221,7 +236,9 @@ describe("Community info page", () => {
     });
 
     it("closes the dialog by clicking the backdrop", async () => {
-      userEvent.click(document.querySelector(".MuiBackdrop-root")!);
+      const user = userEvent.setup();
+
+      await user.click(document.querySelector(".MuiBackdrop-root")!);
       await waitForElementToBeRemoved(
         screen.getByRole("dialog", {
           name: t("communities:community_moderators"),
