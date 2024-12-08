@@ -5,7 +5,7 @@ import makeStyles from "utils/makeStyles";
 export const useStyles = makeStyles((theme) => ({
   messagesTab: {
     [theme.breakpoints.down("md")]: {
-      // overflow: "visible",
+      overflow: "visible",
       margin: `0 ${theme.spacing(2)}`,
     },
   },
