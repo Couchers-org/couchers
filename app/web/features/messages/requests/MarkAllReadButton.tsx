@@ -58,7 +58,24 @@ export default function MarkAllReadButton({
       }
       else if (type == "all") { // add another else if statement to account for requests 
         
-        
+        // copied over from chats 
+        const data = await getAllPages({
+          serviceFunction: service.conversations.listGroupChats,
+          listKey: "groupChatsList",
+          params: (previousData) => previousData?.lastMessageId,
+          hasMore: (previousData) => !previousData.noMore,
+        });
+        await Promise.all(
+          data.map<void>((chat) =>
+            chat.latestMessage &&
+            chat.lastSeenMessageId < chat.latestMessage.messageId
+              ? service.conversations.markLastSeenGroupChat(
+                  chat.groupChatId,
+                  chat.latestMessage.messageId
+                )
+              : Promise.resolve()
+          )
+        );
       }
       else { 
         const data = await getAllPages({
