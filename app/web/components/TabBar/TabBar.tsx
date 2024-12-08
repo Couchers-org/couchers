@@ -5,7 +5,7 @@ import makeStyles from "utils/makeStyles";
 export const useStyles = makeStyles((theme) => ({
   messagesTab: {
     [theme.breakpoints.down("md")]: {
-      overflow: "visible",
+      // overflow: "visible",
       margin: `0 ${theme.spacing(2)}`,
     },
   },
@@ -34,7 +34,8 @@ export default function TabBar<T extends Record<string, React.ReactNode>>({
       onChange={handleChange}
       indicatorColor="primary"
       textColor="primary"
-      scrollButtons="auto"
+      scrollButtons={true}
+      allowScrollButtonsMobile
       variant="scrollable"
     >
       {Object.entries(labels).map(([value, label]) => (
