@@ -1,5 +1,5 @@
 import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useCommunity } from "features/communities/hooks";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";

@@ -1,6 +1,6 @@
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import NotFoundPage from "features/NotFoundPage";
 import { communityEventsBaseKey, eventKey } from "features/queryKeys";

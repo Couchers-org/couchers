@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { communityGuidelinesQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";

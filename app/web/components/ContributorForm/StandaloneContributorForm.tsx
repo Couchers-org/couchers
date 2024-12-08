@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import ContributorForm from "components/ContributorForm";
 import { contributorFormInfoQueryKey } from "features/queryKeys";
 import { GetContributorFormInfoRes } from "proto/account_pb";

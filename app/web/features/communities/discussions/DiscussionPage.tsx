@@ -1,7 +1,7 @@
 import { Skeleton, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon } from "components/Icons";

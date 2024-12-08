@@ -1,5 +1,5 @@
 import { Box, IconButton } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { CheckIcon, CloseIcon } from "components/Icons";
 import { CONNECTIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";

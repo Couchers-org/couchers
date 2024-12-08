@@ -1,7 +1,7 @@
 import { Link as MuiLink } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { EmailIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import { useListDiscussions } from "features/communities/hooks";

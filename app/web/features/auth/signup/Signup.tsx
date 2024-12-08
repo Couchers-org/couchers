@@ -1,6 +1,6 @@
 import { Divider, styled, Typography, TypographyProps } from "@mui/material";
 import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";

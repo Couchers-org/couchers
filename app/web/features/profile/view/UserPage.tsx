@@ -1,6 +1,6 @@
 import { Collapse, styled } from "@mui/material";
 import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Snackbar from "components/Snackbar";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";

@@ -1,6 +1,6 @@
 import { Backdrop } from "@mui/material";
 import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import Redirect from "components/Redirect";

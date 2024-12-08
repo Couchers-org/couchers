@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Select from "components/Select";
 import {
   parkingDetailsLabels,

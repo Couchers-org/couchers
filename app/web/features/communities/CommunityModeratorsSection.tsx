@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { CommunityLeadersIcon } from "components/Icons";
 import UserSummary from "components/UserSummary";
 import { useTranslation } from "i18n";

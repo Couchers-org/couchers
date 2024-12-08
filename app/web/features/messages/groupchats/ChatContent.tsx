@@ -1,5 +1,5 @@
 import { styled } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessageLoader";
 import MessageList from "features/messages/messagelist/MessageList";
 import { GetGroupChatMessagesRes } from "proto/conversations_pb";

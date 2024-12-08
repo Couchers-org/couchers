@@ -1,5 +1,5 @@
 import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import CommentBox from "components/Comments/CommentBox";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";

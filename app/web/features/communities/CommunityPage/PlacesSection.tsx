@@ -1,5 +1,5 @@
 import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HorizontalScroller from "components/HorizontalScroller";
 import { LocationIcon } from "components/Icons";
 import TextBody from "components/TextBody";

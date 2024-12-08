@@ -1,6 +1,6 @@
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import EditLocationMap from "components/EditLocationMap";
 import TextField from "components/TextField";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";

@@ -1,6 +1,6 @@
 import { Alert, Theme, useMediaQuery } from "@mui/material";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import UserOverview from "features/profile/view/UserOverview";
 import useCurrentUser from "features/userQueries/useCurrentUser";

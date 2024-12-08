@@ -2,7 +2,7 @@ import { Collapse } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { EmailIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import {

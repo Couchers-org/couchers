@@ -2,7 +2,7 @@ import { FormControlLabel, Typography } from "@mui/material";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import TextBody from "components/TextBody";
 import { useTranslation } from "i18n";

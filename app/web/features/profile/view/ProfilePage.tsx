@@ -1,5 +1,5 @@
 import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import Overview from "features/profile/view/Overview";

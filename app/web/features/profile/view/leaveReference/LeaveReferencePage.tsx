@@ -1,6 +1,6 @@
 import { useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import ReferenceForm from "features/profile/view/leaveReference/ReferenceForm";

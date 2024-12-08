@@ -1,7 +1,7 @@
 import { List } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import TextBody from "components/TextBody";
 import HostRequestListItem from "features/messages/requests/HostRequestListItem";
 import useMessageListStyles from "features/messages/useMessageListStyles";

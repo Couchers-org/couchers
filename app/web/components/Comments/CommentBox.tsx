@@ -1,6 +1,6 @@
 import { Card } from "@mui/material";
 import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import NewComment from "components/Comments/NewComment";
 import Markdown from "components/Markdown";
 import { useTranslation } from "next-i18next";

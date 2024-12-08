@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { doNotEmailQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";

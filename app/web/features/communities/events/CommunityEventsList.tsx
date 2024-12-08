@@ -1,6 +1,6 @@
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { CalendarIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import { useTranslation } from "i18n";

@@ -2,7 +2,7 @@ import { Typography, useMediaQuery, useTheme } from "@mui/material";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
 import { useCommunityPageStyles } from "features/communities/CommunityPage";
