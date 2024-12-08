@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
       paddingBlockEnd: theme.spacing(3),
     },
     width: "100%",
-    overflow: "hidden"
+    overflow: "hidden",
   },
 }));
 
