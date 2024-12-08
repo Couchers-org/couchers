@@ -34,7 +34,7 @@ export default function TabBar<T extends Record<string, React.ReactNode>>({
       onChange={handleChange}
       indicatorColor="primary"
       textColor="primary"
-      scrollButtons={true}
+      scrollButtons="auto"
       allowScrollButtonsMobile
       variant="scrollable"
     >
