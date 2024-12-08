@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react";
 
-import CenteredSpinner from ".";
+import CenteredSpinner from "./CenteredSpinner";
 
 export default {
   component: CenteredSpinner,
