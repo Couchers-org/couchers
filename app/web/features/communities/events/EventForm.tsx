@@ -117,7 +117,6 @@ export default function EventForm({
   isMutationLoading,
   title,
 }: EventFormProps) {
-  console.log("EVENT FORM event", event);
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useEventFormStyles();
 
@@ -163,7 +162,7 @@ export default function EventForm({
     formState: { dirtyFields, errors },
   } = useForm<CreateEventData>({
     defaultValues: {
-      title: "",
+      title: event?.title || "",
       startDate: eventStartDate ?? defaultDate,
       startTime: eventStartTime || dayjs().add(1, "hour").format("HH:[00]"),
       endDate: eventEndDate ?? defaultDate,
