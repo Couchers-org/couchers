@@ -1,7 +1,6 @@
 import TextField from "@mui/material/TextField";
 import { DatePicker, PickersDay } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
-import { forwardRef } from "react";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
 import { theme } from "theme";
 import dayjs, { Dayjs } from "utils/dayjs";
@@ -32,39 +31,37 @@ interface DatepickerProps {
   testId?: string;
 }
 
-const Datepicker = forwardRef<HTMLInputElement, DatepickerProps>(
-  (
-    {
-      className,
-      control,
-      defaultValue,
-      error,
-      helperText,
-      id,
-      rules,
-      label,
-      minDate = dayjs(),
-      maxDate,
-      name,
-      openTo = "day",
-      onPostChange,
-      testId,
-    }: DatepickerProps,
-    ref
-  ) => {
-    const { t } = useTranslation();
-    return (
-      <Controller
-        control={control}
-        defaultValue={defaultValue}
-        name={name}
-        rules={rules}
-        render={({ field }) => (
+const Datepicker = ({
+  className,
+  control,
+  defaultValue,
+  error,
+  helperText,
+  id,
+  rules,
+  label,
+  minDate = dayjs(),
+  maxDate,
+  name,
+  openTo = "day",
+  onPostChange,
+  testId,
+}: DatepickerProps) => {
+  console.log("error", error, "helperText", helperText);
+  const { t } = useTranslation();
+  return (
+    <Controller
+      control={control}
+      defaultValue={defaultValue}
+      name={name}
+      rules={rules}
+      render={({ field }) => {
+        return (
           <DatePicker
-            {...field}
             data-testid={testId}
+            {...field}
             label={label}
-            value={field.value}
+            value={field.value || null} // Ensure null instead of undefined
             minDate={minDate}
             maxDate={maxDate}
             onChange={(date) => {
@@ -75,12 +72,15 @@ const Datepicker = forwardRef<HTMLInputElement, DatepickerProps>(
             }}
             openTo={openTo}
             views={["year", "month", "day"]}
-            ref={ref}
+            inputRef={field.ref}
             inputFormat={getLocaleFormat()}
             renderDay={(day, selectedDates, pickersDayProps) => {
               return (
                 <PickersDay
-                  {...pickersDayProps}
+                  key={`${name}-${day}`}
+                  day={pickersDayProps.day}
+                  onDaySelect={pickersDayProps.onDaySelect}
+                  outsideCurrentMonth={pickersDayProps.outsideCurrentMonth}
                   style={{
                     ...(pickersDayProps.selected && {
                       backgroundColor: theme.palette.primary.main, // make selected day our primary color
@@ -109,12 +109,10 @@ const Datepicker = forwardRef<HTMLInputElement, DatepickerProps>(
               />
             )}
           />
-        )}
-      />
-    );
-  }
-);
-
-Datepicker.displayName = "Datepicker";
+        );
+      }}
+    />
+  );
+};
 
 export default Datepicker;

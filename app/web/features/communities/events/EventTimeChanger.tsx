@@ -4,8 +4,8 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
-import { useEffect, useMemo, useRef } from "react";
-import { UseFormReturn, useWatch } from "react-hook-form";
+import { useMemo, useRef } from "react";
+import { UseFormReturn } from "react-hook-form";
 import { isSameOrFutureDate, timestamp2Date } from "utils/date";
 import dayjs, { Dayjs, TIME_FORMAT } from "utils/dayjs";
 import { timePattern } from "utils/validation";
@@ -51,31 +51,12 @@ export default function EventTimeChanger({
   const now = dayjs();
   const defaultDate = now.get("hour") === 23 ? now.add(1, "day") : now;
 
-  console.log("event", event, "isFormLoading");
-
   const { date: eventStartDate, time: eventStartTime } =
     splitTimestampToDateAndTime(event?.startTime);
   const { date: eventEndDate, time: eventEndTime } =
     splitTimestampToDateAndTime(event?.endTime);
 
   const dateDelta = useRef(0);
-  const endDate = useWatch({
-    control,
-    name: "endDate",
-    defaultValue: eventEndDate || defaultDate,
-  });
-
-  useEffect(() => {
-    const startDate = getValues("startDate");
-    console.log("startDate in useEffect", startDate);
-    const newDelta = endDate
-      .startOf("day")
-      .diff(startDate.startOf("day"), "days");
-    if (!isNaN(newDelta)) {
-      dateDelta.current = newDelta;
-    }
-  }, [getValues, endDate]);
-
   const timeDelta = useRef(60);
   const defaultEndTime = useMemo(
     () =>
@@ -85,21 +66,6 @@ export default function EventTimeChanger({
         .format("HH:[00]"),
     []
   );
-  const endTime = useWatch({
-    control,
-    name: "endTime",
-    defaultValue: eventEndTime || defaultEndTime,
-  });
-  useEffect(() => {
-    const startTime = getValues("startTime");
-    const newDelta = dayjs(endTime, TIME_FORMAT).diff(
-      dayjs(startTime, TIME_FORMAT),
-      "minutes"
-    );
-    if (!isNaN(newDelta)) {
-      timeDelta.current = newDelta;
-    }
-  }, [getValues, endTime]);
 
   return (
     <>

@@ -1,6 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import dayjs from "dayjs";
 import { Event } from "proto/events_pb";
+import { useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
@@ -10,7 +12,6 @@ import { CreateEventData } from "./EventForm";
 import EventTimeChanger, {
   splitTimestampToDateAndTime,
 } from "./EventTimeChanger";
-import dayjs from "dayjs";
 
 jest.mock("@mui/x-date-pickers", () => {
   return {
@@ -29,22 +30,32 @@ function TestForm({ event }: { event?: Event.AsObject }) {
     splitTimestampToDateAndTime(event?.startTime);
   const { date: eventEndDate, time: eventEndTime } =
     splitTimestampToDateAndTime(event?.endTime);
-
+  const timeDelta = useRef(60);
+  const defaultEndTime = useMemo(
+    () =>
+      dayjs()
+        .add(1, "hour")
+        .add(timeDelta.current, "minutes")
+        .format("HH:[00]"),
+    []
+  );
   const {
     control,
     handleSubmit,
     getValues,
     setValue,
     register,
-    formState: { dirtyFields, errors, isLoading },
+    formState: { dirtyFields, errors },
   } = useForm<CreateEventData>({
-    // defaultValues: {
-    //   startDate: eventStartDate ?? defaultDate,
-    //   startTime: eventStartTime || dayjs().add(1, "hour").format("HH:[00]"),
-    // },
+    defaultValues: {
+      title: "",
+      startDate: eventStartDate ?? defaultDate,
+      startTime: eventStartTime || dayjs().add(1, "hour").format("HH:[00]"),
+      endDate: eventEndDate ?? defaultDate,
+      endTime: eventEndTime || defaultEndTime,
+      isOnline: false,
+    },
   });
-
-  console.log("testForm event", event);
 
   return (
     <form onSubmit={handleSubmit(onValidSubmit)}>
@@ -56,7 +67,6 @@ function TestForm({ event }: { event?: Event.AsObject }) {
         setValue={setValue}
         register={register}
         dirtyFields={dirtyFields}
-        isFormLoading={isLoading}
       />
       <button data-testid="submit" type="submit">
         Submit
@@ -110,15 +120,18 @@ it("should load with the start/end date adjusted correctly to the next hour at 1
 it("should not submit if the start date/time is in the past", async () => {
   render(<TestForm />, { wrapper });
 
-  const startDateField = await screen.findByLabelText(
+  const startDateField = (await screen.findByLabelText(
     t("communities:start_date")
-  );
+  )) as HTMLInputElement;
 
   const user = userEvent.setup();
 
-  await user.clear(startDateField);
-  await user.type(startDateField, "07302021");
-  await user.click(screen.getByTestId("submit"));
+  user.clear(startDateField);
+  user.type(startDateField, "07302021");
+
+  await waitFor(() => expect(startDateField.value).toBe("07/30/2021"));
+
+  user.click(screen.getByTestId("submit"));
 
   await waitFor(() => {
     const startDateErrorText = document.getElementById("startDate-helper-text");
@@ -136,21 +149,26 @@ it("should not submit if the start date/time is in the past", async () => {
   );
 });
 
-it.only("should not submit if the end date/time is in the past", async () => {
+it("should not submit if the end date/time is in the past", async () => {
   render(<TestForm />, { wrapper });
 
-  const startDateField = await screen.findByLabelText(
+  const startDateField = (await screen.findByLabelText(
     t("communities:start_date")
-  );
+  )) as HTMLInputElement;
 
   const user = userEvent.setup();
 
-  await user.clear(startDateField);
-  await user.type(startDateField, "07302021");
+  user.clear(startDateField);
+
+  user.type(startDateField, "07302021");
+  await waitFor(() => expect(startDateField.value).toBe("07/30/2021"));
+
   const endDateField = await screen.findByLabelText(t("communities:end_date"));
-  await user.clear(endDateField);
-  await user.type(endDateField, "07302021");
-  await user.click(screen.getByTestId("submit"));
+  user.clear(endDateField);
+  user.type(endDateField, "07302021");
+  await waitFor(() => expect(startDateField.value).toBe("07/30/2021"));
+
+  user.click(screen.getByTestId("submit"));
 
   await waitFor(() => {
     const endDateErrorText = document.getElementById("endDate-helper-text");
@@ -167,13 +185,17 @@ it.only("should not submit if the end date/time is in the past", async () => {
 it("should not submit if the end date is before the start date", async () => {
   render(<TestForm />, { wrapper });
 
-  const endDateField = await screen.findByLabelText(t("communities:end_date"));
+  const endDateField = (await screen.findByLabelText(
+    t("communities:end_date")
+  )) as HTMLInputElement;
 
   const user = userEvent.setup();
 
-  await user.clear(endDateField);
-  await user.type(endDateField, "07302021");
-  await user.click(screen.getByTestId("submit"));
+  user.clear(endDateField);
+  user.type(endDateField, "07302021");
+
+  await waitFor(() => expect(endDateField.value).toBe("07/30/2021"));
+  user.click(screen.getByTestId("submit"));
 
   await waitFor(() => {
     const endDateErrorText = document.getElementById("endDate-helper-text");
@@ -202,9 +224,14 @@ it.each`
 
     const user = userEvent.setup();
 
-    await user.clear(timeField);
-    await user.type(timeField, "xyz");
-    await user.click(screen.getByTestId("submit"));
+    user.clear(timeField);
+    user.type(timeField, "xyz");
+
+    await waitFor(() => {
+      expect(timeField).toHaveValue("xyz");
+    });
+
+    user.click(screen.getByTestId("submit"));
 
     await waitFor(() => {
       const errorText = document.getElementById(fieldErrorId);
@@ -224,15 +251,24 @@ describe("when editing an existing event", () => {
 
     const user = userEvent.setup();
 
-    await user.clear(endDateField);
-    await user.type(endDateField, "07012021");
+    user.clear(endDateField);
+    user.type(endDateField, "07012021");
+
+    await waitFor(() => {
+      expect(endDateField).toHaveValue("07/01/2021");
+    });
 
     const endTimeField = await screen.findByLabelText(
       t("communities:end_time")
     );
-    await user.clear(endTimeField);
-    await user.type(endTimeField, "0000");
-    await user.click(screen.getByTestId("submit"));
+    user.clear(endTimeField);
+    user.type(endTimeField, "0000");
+
+    await waitFor(() => {
+      expect(endTimeField).toHaveValue("00:00");
+    });
+
+    user.click(screen.getByTestId("submit"));
 
     await waitFor(() => {
       const endTimeErrorText = document.getElementById("endTime-helper-text");
@@ -261,7 +297,7 @@ describe("when editing an existing event", () => {
 
     const user = userEvent.setup();
 
-    await user.click(await screen.findByTestId("submit"));
+    user.click(await screen.findByTestId("submit"));
 
     await waitFor(() => {
       expect(onValidSubmit).toHaveBeenCalledTimes(1);
@@ -278,8 +314,10 @@ it("should update the end date/time by the previous difference to the start date
 
   const user = userEvent.setup();
 
-  await user.clear(startDateField);
-  await user.type(startDateField, "08152021");
+  user.clear(startDateField);
+  user.type(startDateField, "08152021");
+
+  await waitFor(() => expect(startDateField).toHaveValue("08/15/2021"));
 
   expect(startDateField).toHaveValue("08/15/2021");
   expect(screen.getByLabelText(t("communities:end_date"))).toHaveValue(
@@ -287,8 +325,10 @@ it("should update the end date/time by the previous difference to the start date
   );
 
   const startTime = screen.getByLabelText(t("communities:start_time"));
-  await user.clear(startTime);
-  await user.type(startTime, "0330");
+  user.clear(startTime);
+  user.type(startTime, "0330");
+
+  await waitFor(() => expect(startTime).toHaveValue("03:30"));
 
   expect(startTime).toHaveValue("03:30");
   expect(screen.getByLabelText(t("communities:end_time"))).toHaveValue("04:30");
@@ -301,32 +341,42 @@ describe("when the end date/time difference from the start has been changed", ()
     const startDateField = await screen.findByLabelText(
       t("communities:start_date")
     );
-    const endDateField = screen.getByLabelText(t("communities:end_date"));
-    // start date is 1st, so this increases difference between start and end date to 5 days
+    const endDateField = await screen.findByLabelText(
+      t("communities:end_date")
+    );
 
     const user = userEvent.setup();
 
-    await user.clear(endDateField);
-    await user.type(endDateField, "08062021");
+    user.clear(endDateField);
+    user.type(endDateField, "08062021");
 
-    await user.clear(startDateField);
-    await user.type(startDateField, "08112021");
+    await waitFor(() => expect(endDateField).toHaveValue("08/06/2021"));
 
-    expect(startDateField).toHaveValue("08/11/2021");
-    expect(endDateField).toHaveValue("08/16/2021");
+    user.clear(startDateField);
+    user.type(startDateField, "08112021");
+
+    await waitFor(() => expect(startDateField).toHaveValue("08/11/2021"));
+
+    await waitFor(() => expect(endDateField).toHaveValue("08/11/2021"));
 
     const startTime = screen.getByLabelText(t("communities:start_time"));
-    await user.clear(startTime);
+    user.clear(startTime);
     // Reset time first since I can't get timezone mock and fake timer working together...
-    await user.type(startTime, "0000");
-    const endTime = screen.getByLabelText(t("communities:end_time"));
-    await user.clear(endTime);
-    // Increases time difference between start and end time to 3 hours
-    await user.type(endTime, "0300");
-    await user.clear(startTime);
-    await user.type(startTime, "0200");
+    user.type(startTime, "0000");
 
-    expect(startTime).toHaveValue("02:00");
-    expect(endTime).toHaveValue("05:00");
+    await waitFor(() => expect(startTime).toHaveValue("00:00"));
+
+    const endTime = screen.getByLabelText(t("communities:end_time"));
+    user.clear(endTime);
+    // Increases time difference between start and end time to 3 hours
+    user.type(endTime, "0300");
+
+    await waitFor(() => expect(endTime).toHaveValue("03:00"));
+    user.clear(startTime);
+    user.type(startTime, "0300");
+
+    await waitFor(() => expect(startTime).toHaveValue("03:00"));
+
+    expect(endTime).toHaveValue("04:00");
   });
 });

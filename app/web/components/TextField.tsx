@@ -34,7 +34,7 @@ const TextField = forwardRef<HTMLInputElement, AccessibleTextFieldProps>(
     return (
       <MuiTextField
         {...otherProps}
-        ref={ref}
+        inputRef={ref}
         variant={variant}
         className={classNames(classes.root, className, {
           [classes.multiline]: otherProps.multiline,
