@@ -1,7 +1,7 @@
 import { DialogProps, List, ListItem } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner";
 import {
   Dialog,
   DialogActions,

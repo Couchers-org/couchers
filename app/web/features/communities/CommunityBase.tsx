@@ -39,8 +39,7 @@ export default function CommunityBase({
       <Alert severity="error">{t("communities:invalid_community_id")}</Alert>
     );
 
-  if (isCommunityLoading)
-    return <CenteredSpinner />;
+  if (isCommunityLoading) return <CenteredSpinner />;
 
   if (!community || communityError)
     return (

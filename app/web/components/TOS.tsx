@@ -1,4 +1,3 @@
-import CenteredSpinner from "./CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
@@ -10,6 +9,8 @@ import { GetTermsOfServiceRes } from "proto/resources_pb";
 import { useQuery } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
+
+import CenteredSpinner from "./CenteredSpinner";
 
 const useStyles = makeStyles((theme) => ({
   root: {

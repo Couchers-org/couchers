@@ -1,6 +1,6 @@
 import { Pagination, Typography, useMediaQuery, useTheme } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner";
 import Alert from "components/Alert";
+import CenteredSpinner from "components/CenteredSpinner";
 import LocationAutocomplete from "components/LocationAutocomplete";
 import TextBody from "components/TextBody";
 import { useTranslation } from "i18n";

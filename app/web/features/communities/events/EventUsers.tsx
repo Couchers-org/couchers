@@ -1,7 +1,7 @@
 import { Card, Typography } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner";
 import UserSummary from "components/UserSummary";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";

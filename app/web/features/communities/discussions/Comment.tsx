@@ -1,7 +1,7 @@
 import { Card, CircularProgress, Skeleton, Typography } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner";
 import Markdown from "components/Markdown";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";

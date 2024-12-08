@@ -1,5 +1,6 @@
 import { Collapse, styled } from "@mui/material";
 import Alert from "components/Alert";
+import CenteredSpinner from "components/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Snackbar from "components/Snackbar";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
@@ -13,7 +14,6 @@ import { useLayoutEffect, useState } from "react";
 import { routeToUser, UserTab } from "routes";
 
 import UserCard from "./UserCard";
-import CenteredSpinner from "components/CenteredSpinner";
 
 const REQUEST_ID = "request";
 

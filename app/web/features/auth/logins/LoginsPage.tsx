@@ -1,6 +1,7 @@
 import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button, { AppButtonProps } from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner";
 import { activeLoginsKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -11,7 +12,6 @@ import { service } from "service";
 import { timestamp2Date } from "utils/date";
 
 import LoginCard from "./LoginCard";
-import CenteredSpinner from "components/CenteredSpinner";
 
 const StyledLoginsContainer = styled("div")(({ theme }) => ({
   display: "flex",

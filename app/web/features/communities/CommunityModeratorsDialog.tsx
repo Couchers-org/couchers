@@ -1,6 +1,6 @@
-import CenteredSpinner from "components/CenteredSpinner";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner";
 import {
   AccessibleDialogProps,
   Dialog,

@@ -1,8 +1,4 @@
-import {
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Typography, useMediaQuery, useTheme } from "@mui/material";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -45,6 +41,11 @@ const useStyles = makeStyles((theme) => ({
   },
   allUpcomingEventsLink: {
     justifySelf: "center",
+  },
+   loaderContainer: {
+    display: "flex",
+    justifyContent: "center",
+    width: "100%",
   },
 }));
 

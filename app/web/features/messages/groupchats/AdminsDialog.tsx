@@ -1,8 +1,8 @@
 import { DialogProps, List, ListItem } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import {
   Dialog,

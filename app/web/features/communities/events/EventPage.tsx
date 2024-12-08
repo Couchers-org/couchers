@@ -6,10 +6,10 @@ import {
   Theme,
   Typography,
 } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner";
 import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";

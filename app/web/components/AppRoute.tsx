@@ -1,6 +1,5 @@
 import { Container } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import CenteredSpinner from "./CenteredSpinner";
 import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import Footer from "components/Footer";
@@ -11,6 +10,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { jailRoute, loginRoute } from "routes";
 import { theme } from "theme";
 
+import CenteredSpinner from "./CenteredSpinner";
 import Navigation from "./Navigation";
 
 const GlobalStyles = styled("div")(({ theme }) => ({
