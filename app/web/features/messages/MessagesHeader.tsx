@@ -10,6 +10,8 @@ import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import { messagesRoute, MessageType } from "routes";
 import makeStyles from "utils/makeStyles";
+//import RequestsTab from "features/messages/requests/RequestsTab"; // added import statement
+
 
 import useNotifications from "../useNotifications";
 
@@ -57,9 +59,45 @@ export function HostRequestsSentNotification() {
   );
 }
 
+// created new functions to collect all notifications
+export function AllNotifications() {  
+  const { t } = useTranslation(MESSAGES);
+  const { data } = useNotifications();
+
+  // define totalNotifications variable 
+  const totalNotifications = (data?.unseenMessageCount || 0) 
+    + (data?.unseenSentHostRequestCount || 0) 
+    + (data?.unseenReceivedHostRequestCount || 0);
+
+  return (
+    <NotificationBadge count={totalNotifications}>
+      {t("messages_page.tabs.all")}
+    </NotificationBadge>
+  );
+}
+
+// created new function to collect requests 
+export function RequestNotifications() {
+  const { t } = useTranslation(MESSAGES);
+  const { data } = useNotifications();
+
+  // define totalRequests variable
+  const totalRequests =
+    (data?.unseenReceivedHostRequestCount || 0) 
+    + (data?.unseenSentHostRequestCount || 0);
+
+  return (
+    <NotificationBadge count={totalRequests}>
+      {t("messages_page.tabs.requests")}
+    </NotificationBadge>
+  );
+
+}
+
 const labels: Record<MessageType, ReactNode> = {
-  //all: "All",
+  all: <AllNotifications />, // added tab 
   chats: <MessagesNotification />,
+  requests: <RequestNotifications />, // added tab
   hosting: <HostRequestsReceivedNotification />,
   surfing: <HostRequestsSentNotification />,
   //meet: "Meet",
@@ -75,13 +113,14 @@ export default function MessagesHeader({
   const classes = useStyles();
   const router = useRouter();
 
+  // MarkAllReadButton type updated  
   return (
     <div className={classes.root}>
       <HtmlMeta title={t("messages_page.title")} />
       <PageTitle>{t("messages_page.title")}</PageTitle>
-      {tab && <MarkAllReadButton type={tab} />}
+      {tab && <MarkAllReadButton type={tab} />} 
       <div className={classes.tabBarContainer}>
-        <TabContext value={tab ?? ""}>
+        <TabContext value={tab ?? ""}> 
           <TabBar
             ariaLabel={t("messages_page.tabs.aria_label")}
             setValue={(newTab) => router.push(`${messagesRoute}/${newTab}`)}

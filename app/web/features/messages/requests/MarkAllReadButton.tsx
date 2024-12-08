@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
 export default function MarkAllReadButton({
   type,
 }: {
-  type: "chats" | "hosting" | "surfing";
+  type: "all" | "requests" | "chats" | "hosting" | "surfing"; // added types: "all" and "requests"
 }) {
   const classes = useStyles();
   const { t } = useTranslation(MESSAGES);
@@ -52,7 +52,15 @@ export default function MarkAllReadButton({
               : Promise.resolve()
           )
         );
-      } else {
+      } 
+      else if (type == "requests") { // add another else if statement to account for requests 
+        // trying to use the RequestsTab "all" definition 
+      }
+      else if (type == "all") { // add another else if statement to account for requests 
+        
+        
+      }
+      else { 
         const data = await getAllPages({
           serviceFunction: service.requests.listHostRequests,
           listKey: "hostRequestsList",
