@@ -45,9 +45,7 @@ const ChatContent = ({
   isError: boolean;
 }) => {
   if (isLoading) {
-    return (
-      <CenteredSpinner />
-    );
+    return <CenteredSpinner minHeight="100%" />;
   }
 
   if (!messages || (isHostRequest && !hostRequest)) {

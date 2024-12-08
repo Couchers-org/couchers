@@ -48,7 +48,6 @@ export default function DashboardUserProfileSummary() {
   const desktopMode = useMediaQuery((theme: Theme) =>
     theme.breakpoints.up("sm")
   );
-  const classes = useStyles();
   return (
     <>
       {error && <Alert severity="error">{error}</Alert>}
