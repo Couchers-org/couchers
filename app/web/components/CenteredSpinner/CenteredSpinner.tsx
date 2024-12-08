@@ -10,7 +10,6 @@ interface StyleProps {
 
 const StyledCenteredLoaderContainer = styled("div")<StyleProps>(
   ({ theme, minHeight }) => ({
-    //minimal-effort reduction of layout shifting
     minHeight: minHeight,
     display: "flex",
     justifyContent: "center",

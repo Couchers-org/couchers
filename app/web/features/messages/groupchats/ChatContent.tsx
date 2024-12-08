@@ -16,13 +16,6 @@ const StyledInfiniteMessageLoader = styled(InfiniteMessageLoader)(
   })
 );
 
-// const StyledSpinnerWrapper = styled("div")(({ theme }) => ({
-//   display: "flex",
-//   justifyContent: "center",
-//   padding: theme.spacing(2),
-//   width: "100%",
-// }));
-
 const ChatContent = ({
   isHostRequest,
   isLoading,
