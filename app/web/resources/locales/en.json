@@ -161,5 +161,8 @@
     "search_location_hint": "Press enter or click the icon to choose a location",
     "search_location_button": "Search location",
     "select_location_hint": "Press enter or click the icon, then select a location from the list"
+  },
+  "strong_verification": {
+    "helper_text": "This user has verified their identity using a biometric passport"
   }
 }

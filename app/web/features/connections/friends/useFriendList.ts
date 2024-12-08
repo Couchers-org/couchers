@@ -1,38 +1,37 @@
-import { userKey } from "features/queryKeys";
-import { User } from "proto/api_pb";
-import { useQueries, useQuery, UseQueryResult } from "react-query";
+import { useLiteUsersList } from "features/userQueries/useLiteUsers";
+import { useQuery } from "react-query";
 import { service } from "service";
 
 function useFriendList() {
+  const errors = [];
+
   const {
     data: friendIds,
-    error,
+    error: listFriendsError,
     isLoading,
   } = useQuery<number[], Error>("friendIds", service.api.listFriends);
 
-  const friendQueries = useQueries<User.AsObject, Error>(
-    (friendIds ?? []).map((friendId) => {
-      return {
-        enabled: !!friendIds,
-        queryFn: () => service.user.getUser(friendId.toString()),
-        queryKey: userKey(friendId),
-      };
-    })
-  );
+  if (listFriendsError) {
+    errors.push(listFriendsError.message);
+  }
 
-  const errors = [
-    error?.message,
-    ...friendQueries.map(
-      (query: UseQueryResult<unknown, Error>) => query.error?.message
-    ),
-  ].filter((e): e is string => typeof e === "string");
-  const data = friendIds && friendQueries.map((query) => query.data);
+  const {
+    data,
+    isLoading: isLiteUsersLoading,
+    isError: isLiteUserError,
+    error: liteUserError,
+  } = useLiteUsersList(friendIds || []);
+
+  if (liteUserError) {
+    errors.push(liteUserError.message);
+  }
 
   return {
-    data,
-    errors,
-    isError: !!errors.length,
-    isLoading: isLoading || friendQueries.some((query) => query.isLoading),
+    data: friendIds ? data : undefined,
+    friendIds,
+    errors: errors,
+    isError: !!listFriendsError || isLiteUserError,
+    isLoading: isLoading || isLiteUsersLoading,
   };
 }
 

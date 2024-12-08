@@ -172,8 +172,7 @@ describe("when the listFriendRequests succeeds", () => {
       () => useFriendRequests("received"),
       { wrapper }
     );
-    await waitForNextUpdate(); // first attempt
-    await waitForNextUpdate(); // one allowed retry
+    await waitForNextUpdate();
 
     expect(result.current).toEqual({
       data: [],

@@ -1,1 +1,44 @@
-{}
+{
+    "filter_dialog": {
+        "search_here_button": "在此区域搜索",
+        "desktop_title": "筛选",
+        "mobile_title": "搜索"
+    },
+    "last_active_options": {
+        "any": "任何",
+        "last_day": "昨天",
+        "last_week": "上周",
+        "last_2_weeks": "过去两周",
+        "last_month": "上个月",
+        "last_3_months": "过去三个月"
+    },
+    "form": {
+        "location_field_label": "附近位置",
+        "missing_location_validation_error": "指定一个位置以使用此筛选",
+        "keywords": {
+            "field_label": "名称、关键词或用户名",
+            "clear_field_action_a11y_label": "清除搜索"
+        },
+        "by_location_filter_label": "按位置",
+        "by_keyword_filter_label": "按关键词或名称",
+        "host_filters": {
+            "title": "主人筛选",
+            "last_active_field_label": "最后活跃",
+            "hosting_status_field_label": "接待状态",
+            "complete_profiles_label": "完整的资料"
+        },
+        "accommodation_filters": {
+            "title": "住宿筛选",
+            "guests_field_label": "客人数"
+        },
+        "empty_profile_filters": {
+            "title": "筛选掉空白资料"
+        },
+        "submit_button_label": "应用"
+    },
+    "search_result": {
+        "no_user_result_message": "未找到用户。",
+        "show_user_button_label": "在地图上显示{{name}}",
+        "missing_about_description": "{{name}} 还没有介绍自己"
+    }
+}

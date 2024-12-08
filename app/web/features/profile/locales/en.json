@@ -29,7 +29,6 @@
         "travel_section": "Travelled to",
         "lived_section": "Lived in",
         "map_section": "Travel map",
-        "strong_verification": "This user has verified their identity using a biometric passport",
         "age_verification_verified": "This user has verified their date of birth",
         "age_verification_mismatch": "User provided date of birth does not match verified date of birth",
         "gender_verification_verified": "This user has verified their gender",

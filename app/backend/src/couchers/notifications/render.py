@@ -592,7 +592,7 @@ def render_notification(user, notification) -> RenderedNotification:
         elif notification.action in ["receive_hosted", "receive_surfed"]:
             title = f"You've received a reference from {data.from_user.name}!"
             # what was my type? i surfed with them if i received a "hosted" request
-            surfed = (notification.action == "receive_hosted",)
+            surfed = notification.action == "receive_hosted"
             leave_reference_link = urls.leave_reference_link(
                 reference_type="surfed" if surfed else "hosted",
                 to_user_id=data.from_user.user_id,
@@ -625,7 +625,7 @@ def render_notification(user, notification) -> RenderedNotification:
             )
         elif notification.action in ["reminder_hosted", "reminder_surfed"]:
             # what was my type? i surfed with them if i get a surfed reminder
-            surfed = (notification.action == "reminder_surfed",)
+            surfed = notification.action == "reminder_surfed"
             leave_reference_link = urls.leave_reference_link(
                 reference_type="surfed" if surfed else "hosted",
                 to_user_id=data.other_user.user_id,

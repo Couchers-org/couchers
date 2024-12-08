@@ -65,7 +65,6 @@ export default function EventOrganizersDialog({
               <UserSummary
                 headlineComponent="h3"
                 key={id}
-                nameOnly
                 smallAvatar
                 user={user}
               />

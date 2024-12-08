@@ -51,8 +51,6 @@ export default function CommunityModeratorsDialog({
         ) : adminIds && adminIds.length > 0 && adminUsers ? (
           adminIds.map((id) => (
             <UserSummary
-              avatarIsLink
-              nameOnly
               smallAvatar
               key={id}
               headlineComponent="h3"
