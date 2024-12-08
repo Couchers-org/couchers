@@ -1,4 +1,5 @@
-import { Card, CircularProgress, Typography } from "@mui/material";
+import { Card, Typography } from "@mui/material";
+import CenteredSpinner from "components/CenteredSpinner";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import UserSummary from "components/UserSummary";
@@ -53,7 +54,7 @@ export default function EventUsers({
       <Typography variant="h2">{title}</Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading && !users ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : userIds.length > 0 && users ? (
         <div className={classes.users}>
           {userIds.map((userId) => {

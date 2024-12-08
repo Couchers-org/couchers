@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner";
 import { doNotEmailQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
@@ -53,7 +53,7 @@ export default function DoNotEmail({ className }: { className: string }) {
       )}
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading || !data ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : (
         <>
           <Typography variant="body1" gutterBottom>

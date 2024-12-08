@@ -2,7 +2,7 @@ import { Collapse } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner";
 import { EmailIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import {
@@ -76,7 +76,7 @@ export default function DiscussionsListPage({
           >
             {t("communities:new_post_label")}
           </Button>
-          {isRefetching && <CircularProgress />}
+          {isRefetching && <CenteredSpinner />}
         </div>
       </Collapse>
       <Collapse in={isCreatingNewPost}>
@@ -88,7 +88,7 @@ export default function DiscussionsListPage({
       </Collapse>
       <div className={classes.discussionsContainer}>
         {isDiscussionsLoading ? (
-          <CircularProgress />
+          <CenteredSpinner />
         ) : hasAtLeastOnePage(discussions, "discussionsList") ? (
           discussions.pages
             .flatMap((res) => res.discussionsList)

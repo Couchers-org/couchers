@@ -1,7 +1,6 @@
 import {
   Avatar,
   Checkbox,
-  CircularProgress,
   FormControl,
   FormControlLabel,
   FormHelperText,
@@ -10,6 +9,7 @@ import {
 } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner";
 import { communityGuidelinesQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -96,7 +96,7 @@ export default function CommunityGuidelines({
   }
 
   return isLoading ? (
-    <CircularProgress />
+    <CenteredSpinner />
   ) : data ? (
     <>
       <form onSubmit={submit} className={className}>

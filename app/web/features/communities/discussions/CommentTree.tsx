@@ -1,4 +1,5 @@
-import { CircularProgress, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
+import CenteredSpinner from "components/CenteredSpinner";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { useTranslation } from "i18n";
@@ -75,7 +76,7 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
     <>
       {commentsError && <Alert severity="error">{commentsError.message}</Alert>}
       {isCommentsLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : hasAtLeastOnePage(comments, "repliesList") ? (
         <div className={classes.commentsListContainer}>
           {hasNextPage && (

@@ -1,4 +1,4 @@
-import { CircularProgress, styled, Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button, { AppButtonProps } from "components/Button";
 import { activeLoginsKey } from "features/queryKeys";
@@ -11,6 +11,7 @@ import { service } from "service";
 import { timestamp2Date } from "utils/date";
 
 import LoginCard from "./LoginCard";
+import CenteredSpinner from "components/CenteredSpinner";
 
 const StyledLoginsContainer = styled("div")(({ theme }) => ({
   display: "flex",
@@ -75,7 +76,7 @@ export default function LoginsPage() {
         <Alert severity="error">{logoutAllError?.message}</Alert>
       )}
       {isLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : (
         sessions.map((session) => (
           <LoginCard

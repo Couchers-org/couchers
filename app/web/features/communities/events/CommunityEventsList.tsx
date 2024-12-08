@@ -1,4 +1,4 @@
-import { CircularProgress } from "@mui/material";
+import CenteredSpinner from "components/CenteredSpinner";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { CalendarIcon } from "components/Icons";
@@ -65,7 +65,7 @@ export default function CommunityEventsList({
       {error && <Alert severity="error">{error.message}</Alert>}
       <div className={classes.eventsListContainer}>
         {isLoading ? (
-          <CircularProgress />
+          <CenteredSpinner />
         ) : hasAtLeastOnePage(data, "eventsList") ? (
           data.pages
             .flatMap((page) => page.eventsList)

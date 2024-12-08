@@ -1,4 +1,4 @@
-import { CircularProgress } from "@mui/material";
+import CenteredSpinner from "components/CenteredSpinner";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -117,7 +117,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
     eventError ? (
       <Alert severity="error">{eventError.message}</Alert>
     ) : isEventLoading ? (
-      <CircularProgress />
+      <CenteredSpinner />
     ) : (
       <>
         <HtmlMeta title={t("communities:edit_event")} />

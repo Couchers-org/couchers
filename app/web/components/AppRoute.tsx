@@ -1,6 +1,6 @@
 import { Container } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "./CenteredSpinner";
 import CookieBanner from "components/CookieBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import Footer from "components/Footer";
@@ -12,14 +12,6 @@ import { jailRoute, loginRoute } from "routes";
 import { theme } from "theme";
 
 import Navigation from "./Navigation";
-
-const StyledLoader = styled("div")(({ theme }) => ({
-  minHeight: "50vh",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  marginBlockStart: theme.spacing(6),
-}));
 
 const GlobalStyles = styled("div")(({ theme }) => ({
   html: {
@@ -99,9 +91,7 @@ export default function AppRoute({
   return (
     <ErrorBoundary>
       {isPrivate && (!isMounted || !isAuthenticated) ? (
-        <StyledLoader>
-          <CircularProgress />
-        </StyledLoader>
+        <CenteredSpinner minHeight="50vh" />
       ) : (
         <>
           <GlobalStyles />

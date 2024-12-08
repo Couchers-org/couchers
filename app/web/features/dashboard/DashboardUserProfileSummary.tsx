@@ -1,4 +1,4 @@
-import { Alert, CircularProgress, Theme, useMediaQuery } from "@mui/material";
+import { Alert, Theme, useMediaQuery } from "@mui/material";
 import Button from "components/Button";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import UserOverview from "features/profile/view/UserOverview";
@@ -11,6 +11,7 @@ import { theme } from "theme";
 import makeStyles from "utils/makeStyles";
 
 import MinimalUserProfileCard from "./MinimalUserProfileCard";
+import CenteredSpinner from "components/CenteredSpinner";
 
 function DashboardUserProfileSummaryActions() {
   const { t } = useTranslation([DASHBOARD]);
@@ -42,13 +43,6 @@ function DashboardUserProfileSummaryActions() {
   );
 }
 
-const useStyles = makeStyles({
-  loaderContainer: {
-    display: "flex",
-    justifyContent: "center",
-  },
-});
-
 export default function DashboardUserProfileSummary() {
   const { data: user, error, isLoading } = useCurrentUser();
   const desktopMode = useMediaQuery((theme: Theme) =>
@@ -59,9 +53,7 @@ export default function DashboardUserProfileSummary() {
     <>
       {error && <Alert severity="error">{error}</Alert>}
       {isLoading ? (
-        <div className={classes.loaderContainer}>
-          <CircularProgress />
-        </div>
+        <CenteredSpinner />
       ) : user ? (
         desktopMode ? (
           <ProfileUserProvider user={user}>

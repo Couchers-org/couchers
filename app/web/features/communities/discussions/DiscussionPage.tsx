@@ -1,7 +1,7 @@
 import { Skeleton, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner";
 import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon } from "components/Icons";
@@ -88,7 +88,7 @@ export default function DiscussionPage({
       <HtmlMeta title={discussion?.title} />
       {error && <Alert severity="error">{error.message}</Alert>}
       {isDiscussionLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : (
         discussion && (
           <CommunityBase communityId={discussion.ownerCommunityId}>

@@ -1,4 +1,4 @@
-import { CircularProgress } from "@mui/material";
+import CenteredSpinner from "components/CenteredSpinner";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -47,7 +47,7 @@ export default function CommunityModeratorsDialog({
       <DialogContent>
         {error && <Alert severity="error">{error.message}</Alert>}
         {isLoading ? (
-          <CircularProgress />
+          <CenteredSpinner />
         ) : adminIds && adminIds.length > 0 && adminUsers ? (
           adminIds.map((id) => (
             <UserSummary

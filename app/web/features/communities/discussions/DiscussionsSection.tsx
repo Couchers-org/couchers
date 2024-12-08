@@ -1,7 +1,7 @@
 import { Link as MuiLink } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner";
 import { EmailIcon } from "components/Icons";
 import TextBody from "components/TextBody";
 import { useListDiscussions } from "features/communities/hooks";
@@ -62,7 +62,7 @@ export default function DiscussionsSection({
       </Link>
       <div className={classes.discussionsContainer}>
         {isDiscussionsLoading ? (
-          <CircularProgress />
+          <CenteredSpinner />
         ) : hasAtLeastOnePage(discussions, "discussionsList") ? (
           discussions.pages
             .flatMap((res) => res.discussionsList)

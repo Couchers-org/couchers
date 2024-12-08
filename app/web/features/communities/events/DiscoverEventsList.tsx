@@ -1,10 +1,5 @@
-import {
-  CircularProgress,
-  Pagination,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Pagination, Typography, useMediaQuery, useTheme } from "@mui/material";
+import CenteredSpinner from "components/CenteredSpinner";
 import Alert from "components/Alert";
 import LocationAutocomplete from "components/LocationAutocomplete";
 import TextBody from "components/TextBody";
@@ -184,7 +179,7 @@ const DiscoverEventsList = () => {
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading && (
         <div className={classes.loadingBox}>
-          <CircularProgress />
+          <CenteredSpinner />
         </div>
       )}
       {hasEvents && !isLoading && (

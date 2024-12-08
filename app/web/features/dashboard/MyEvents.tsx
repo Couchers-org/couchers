@@ -1,5 +1,4 @@
 import {
-  CircularProgress,
   Typography,
   useMediaQuery,
   useTheme,
@@ -7,6 +6,7 @@ import {
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner";
 import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
 import { useCommunityPageStyles } from "features/communities/CommunityPage";
@@ -46,11 +46,6 @@ const useStyles = makeStyles((theme) => ({
   allUpcomingEventsLink: {
     justifySelf: "center",
   },
-  loaderContainer: {
-    display: "flex",
-    justifyContent: "center",
-    width: "100%",
-  },
 }));
 
 const PAGE_SIZE = 2;
@@ -77,9 +72,7 @@ export default function MyEvents() {
       <Typography variant="h2">{t("dashboard:upcoming_events")}</Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
-        <div className={classes.loaderContainer}>
-          <CircularProgress />
-        </div>
+        <CenteredSpinner />
       ) : hasAtLeastOnePage(data, "eventsList") ? (
         <>
           <HorizontalScroller

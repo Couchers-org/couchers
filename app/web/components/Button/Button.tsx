@@ -10,8 +10,6 @@ import React, {
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
-import CircularProgress from "../CircularProgress";
-
 const useStyles = makeStyles((theme) => ({
   contained: {
     borderRadius: theme.shape.borderRadius,
@@ -94,12 +92,6 @@ function _Button<D extends ElementType = "button">(
       variant={variant}
       color={variant === "contained" ? color : undefined}
     >
-      {(loading || waiting) && (
-        <CircularProgress
-          size={theme.typography.button.fontSize}
-          className={classes.spinner}
-        />
-      )}
       {children}
     </MuiButton>
   );

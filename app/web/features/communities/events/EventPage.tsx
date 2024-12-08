@@ -1,12 +1,12 @@
 import {
   Card,
   Chip,
-  CircularProgress,
   darken,
   Link as MuiLink,
   Theme,
   Typography,
 } from "@mui/material";
+import CenteredSpinner from "components/CenteredSpinner";
 import { eventImagePlaceholderUrl } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -233,7 +233,7 @@ export default function EventPage({
         </Snackbar>
       )}
       {isLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : (
         event && (
           <>

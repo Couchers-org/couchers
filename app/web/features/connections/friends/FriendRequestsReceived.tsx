@@ -1,4 +1,5 @@
-import { Box, CircularProgress, IconButton } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
+import CenteredSpinner from "components/CenteredSpinner";
 import { CheckIcon, CloseIcon } from "components/Icons";
 import { CONNECTIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
@@ -26,7 +27,7 @@ function RespondToFriendRequestAction({
   return friendRequest.state === FriendRequest.FriendRequestStatus.PENDING ? (
     <Box>
       {isLoading || isSuccess ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : (
         <>
           <IconButton

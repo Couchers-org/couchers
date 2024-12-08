@@ -1,4 +1,5 @@
-import { CircularProgress, Pagination, Typography } from "@mui/material";
+import { Pagination, Typography } from "@mui/material";
+import CenteredSpinner from "components/CenteredSpinner";
 import Alert from "components/Alert";
 import TextBody from "components/TextBody";
 import { EventsType } from "features/queryKeys";
@@ -31,13 +32,6 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
-  },
-  loadingBox: {
-    display: "flex",
-    justifyContent: "center",
-    padding: theme.spacing(2),
-    width: "100%",
-    minHeight: theme.spacing(20),
   },
   pagination: {
     display: "flex",
@@ -125,11 +119,7 @@ const MyEventsList = () => {
         </TextBody>
       )}
       {error && <Alert severity="error">{error.message}</Alert>}
-      {isLoading && (
-        <div className={classes.loadingBox}>
-          <CircularProgress />
-        </div>
-      )}
+      {isLoading && <CenteredSpinner minHeight="theme.spacing(20)" />}
       {hasEvents && !isLoading && (
         <>
           <EventsList events={data.eventsList} />

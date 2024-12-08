@@ -1,4 +1,5 @@
-import { CircularProgress, DialogProps, List, ListItem } from "@mui/material";
+import { DialogProps, List, ListItem } from "@mui/material";
+import CenteredSpinner from "components/CenteredSpinner";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import {
@@ -64,7 +65,7 @@ export default function MembersDialog({
       <DialogContent>
         <List>
           {members.isLoading ? (
-            <CircularProgress />
+            <CenteredSpinner />
           ) : (
             Array.from(members.data?.values() ?? []).map((user) =>
               user ? (

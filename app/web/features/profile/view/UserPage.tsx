@@ -1,4 +1,4 @@
-import { CircularProgress, Collapse, styled } from "@mui/material";
+import { Collapse, styled } from "@mui/material";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import Snackbar from "components/Snackbar";
@@ -13,6 +13,7 @@ import { useLayoutEffect, useState } from "react";
 import { routeToUser, UserTab } from "routes";
 
 import UserCard from "./UserCard";
+import CenteredSpinner from "components/CenteredSpinner";
 
 const REQUEST_ID = "request";
 
@@ -64,7 +65,7 @@ export default function UserPage({
       )}
       {error && <Alert severity="error">{error}</Alert>}
       {isLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : user ? (
         <ProfileUserProvider user={user}>
           <StyledProfileRoot>

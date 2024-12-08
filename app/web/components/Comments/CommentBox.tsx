@@ -1,6 +1,6 @@
 import { Card } from "@mui/material";
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner";
 import NewComment from "components/Comments/NewComment";
 import Markdown from "components/Markdown";
 import { useTranslation } from "next-i18next";
@@ -92,7 +92,7 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
   return (
     <>
       {error && <Alert severity="error">{error}</Alert>}
-      {loading && <CircularProgress />}
+      {loading && <CenteredSpinner />}
       {comments.map((comment) => (
         <>
           <Card className={classes.card}>

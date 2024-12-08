@@ -1,4 +1,4 @@
-import { CircularProgress } from "@mui/material";
+import CenteredSpinner from "components/CenteredSpinner";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HorizontalScroller from "components/HorizontalScroller";
@@ -50,7 +50,7 @@ export default function EventsSection({
 
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : hasAtLeastOnePage(data, "eventsList") ? (
         <>
           <HorizontalScroller className={classes.cardContainer}>

@@ -1,10 +1,18 @@
 import { CircularProgress } from "@mui/material";
 import makeStyles from "utils/makeStyles";
 
+interface CenteredSpinnerProps {
+  minHeight?: string;
+}
+
+interface StyleProps {
+  minHeight: string;
+}
+
 const useStyles = makeStyles((theme) => ({
   loader: {
     //minimal-effort reduction of layout shifting
-    minHeight: "100vh",
+    minHeight: (props: StyleProps) => props.minHeight,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -12,8 +20,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function FullPageLoader() {
-  const classes = useStyles();
+export default function CenteredSpinner({
+  minHeight = "auto",
+}: CenteredSpinnerProps) {
+  const classes = useStyles({ minHeight });
 
   return (
     <div className={classes.loader}>
