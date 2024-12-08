@@ -1,4 +1,4 @@
-import { Button as MuiButton, ButtonProps } from "@mui/material";
+import { Button as MuiButton, ButtonProps, useTheme } from "@mui/material";
 import classNames from "classnames";
 import Sentry from "platform/sentry";
 import React, {
@@ -9,6 +9,8 @@ import React, {
 } from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
+
+import CircularProgress from "../CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
   contained: {
@@ -63,6 +65,7 @@ function _Button<D extends ElementType = "button">(
   const isMounted = useIsMounted();
   const [waiting, setWaiting] = useSafeState(isMounted, false);
   const classes = useStyles();
+  const theme = useTheme();
   async function asyncOnClick(event: React.MouseEvent<HTMLButtonElement>) {
     try {
       setWaiting(true);
@@ -91,6 +94,12 @@ function _Button<D extends ElementType = "button">(
       variant={variant}
       color={variant === "contained" ? color : undefined}
     >
+      {(loading || waiting) && (
+        <CircularProgress
+          size={theme.typography.button.fontSize}
+          className={classes.spinner}
+        />
+      )}
       {children}
     </MuiButton>
   );
