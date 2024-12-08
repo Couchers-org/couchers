@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   allUpcomingEventsLink: {
     justifySelf: "center",
   },
-   loaderContainer: {
+  buttonContainer: {
     display: "flex",
     justifyContent: "center",
     width: "100%",
@@ -101,7 +101,7 @@ export default function MyEvents() {
               })}
           </HorizontalScroller>
           {hasNextPage && !isBelowSm && (
-            <div className={classes.loaderContainer}>
+            <div className={classes.buttonContainer}>
               <Button
                 onClick={() => fetchNextPage()}
                 variant="outlined"
