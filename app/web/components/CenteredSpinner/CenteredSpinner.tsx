@@ -11,6 +11,7 @@ interface StyleProps {
 const StyledCenteredLoaderContainer = styled("div")<StyleProps>(
   ({ theme, minHeight }) => ({
     minHeight: minHeight,
+    width: "100%",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
