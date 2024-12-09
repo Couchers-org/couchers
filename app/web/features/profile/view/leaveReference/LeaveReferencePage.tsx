@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
       display: "grid",
       gridTemplateColumns: "2fr 3fr",
       gap: theme.spacing(3),
-      margin: theme.spacing(0, 3)
+      margin: theme.spacing(0, 3),
     },
   },
 }));
