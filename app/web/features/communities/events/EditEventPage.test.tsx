@@ -1,9 +1,4 @@
-import {
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { routeToEditEvent, routeToEvent } from "routes";
@@ -52,29 +47,69 @@ describe("Edit event page", () => {
   it("renders with the existing event and updates it successfully", async () => {
     renderPage();
 
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
     // Brief sanity check that the form has existing data
-    const titleField = screen.getByLabelText(t("global:title"));
+    const titleField = await screen.findByLabelText(t("global:title"));
     expect(titleField).toHaveValue("Weekly Meetup");
 
-    const user = await userEvent.setup();
+    const user = userEvent.setup();
 
-    await user.type(titleField, " in the dam");
-    await user.click(screen.getByLabelText(t("communities:virtual_event")));
-    await user.type(
-      screen.getByLabelText(t("communities:event_link")),
-      "https://couchers.org/amsterdam-social"
+    user.type(titleField, " in the dam");
+
+    await waitFor(() => {
+      expect(titleField).toHaveValue("Weekly Meetup in the dam");
+    });
+
+    const virtualEventCheckBox = screen.getByLabelText(
+      t("communities:virtual_event")
+    ) as HTMLInputElement;
+
+    user.click(virtualEventCheckBox);
+
+    await waitFor(() => {
+      expect(virtualEventCheckBox.checked).toBe(true);
+    });
+
+    const eventLinkInput = (await screen.findByLabelText(
+      t("communities:event_link")
+    )) as HTMLInputElement;
+
+    user.type(eventLinkInput, "https://couchers.org/amsterdam-social");
+
+    await waitFor(
+      () => {
+        expect(eventLinkInput).toHaveValue(
+          "https://couchers.org/amsterdam-social"
+        );
+      },
+      { timeout: 5000 }
     );
+
     const eventDetails = screen.getByLabelText(t("communities:event_details"));
-    await user.clear(eventDetails);
-    await user.type(eventDetails, "We are going virtual this week!");
+
+    user.clear(eventDetails);
+
+    user.type(eventDetails, "We are going virtual this week!");
+
+    await waitFor(
+      () => {
+        expect(eventDetails).toHaveValue("We are going virtual this week!");
+      },
+      { timeout: 5000 }
+    );
+
     const endDateField = await screen.findByLabelText<HTMLInputElement>(
       t("communities:end_date")
     );
-    await user.clear(endDateField);
-    await user.type(endDateField, "07012021");
-    await user.click(screen.getByRole("button", { name: t("global:update") }));
+
+    user.clear(endDateField);
+
+    user.type(endDateField, "07012021");
+
+    await waitFor(() => {
+      expect(endDateField).toHaveValue("07/01/2021");
+    });
+
+    user.click(screen.getByRole("button", { name: t("global:update") }));
 
     await waitFor(() => {
       expect(updateEventMock).toHaveBeenCalledTimes(1);
@@ -100,11 +135,16 @@ describe("Edit event page", () => {
       t("communities:start_date")
     );
 
-    const user = await userEvent.setup();
+    const user = userEvent.setup();
 
-    await user.clear(startDateField);
-    await user.type(startDateField, "08012021");
-    await user.click(screen.getByRole("button", { name: t("global:update") }));
+    user.clear(startDateField);
+    user.type(startDateField, "08012021");
+
+    await waitFor(() => {
+      expect(startDateField).toHaveValue("08/01/2021");
+    });
+
+    user.click(screen.getByRole("button", { name: t("global:update") }));
 
     await waitFor(
       () => {
@@ -124,15 +164,20 @@ describe("Edit event page", () => {
   it("should submit both the start and end date if the start time field is touched", async () => {
     renderPage();
 
-    const startTimeField = await screen.findByLabelText(
+    const startTimeField = (await screen.findByLabelText(
       t("communities:start_time")
-    );
+    )) as HTMLInputElement;
 
-    const user = await userEvent.setup();
+    const user = userEvent.setup();
 
-    await user.clear(startTimeField);
-    await user.type(startTimeField, "0000");
-    await user.click(screen.getByRole("button", { name: t("global:update") }));
+    user.clear(startTimeField);
+    user.type(startTimeField, "0000");
+
+    await waitFor(() => {
+      expect(startTimeField).toHaveValue("00:00");
+    });
+
+    user.click(screen.getByRole("button", { name: t("global:update") }));
 
     await waitFor(
       () => {

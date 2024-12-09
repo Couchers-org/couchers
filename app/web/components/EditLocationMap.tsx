@@ -347,7 +347,7 @@ export default function EditLocationMap({
           }}
           error={error !== ""}
           id="display-address"
-          inputRef={locationDisplayRef}
+          ref={locationDisplayRef}
           InputLabelProps={{ shrink: shrinkLabel }}
           fullWidth
           variant="standard"

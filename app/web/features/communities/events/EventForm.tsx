@@ -176,10 +176,12 @@ export default function EventForm({
 
   const onSubmit = handleSubmit(
     (data) => {
-      mutate({
+      const eventVariables = {
         ...data,
-        dirtyFields,
-      });
+        dirtyFields: dirtyFields as DeepMap<CreateEventData, true>,
+      } as CreateEventVariables;
+
+      mutate(eventVariables);
     },
     (errors) => {
       if (errors.eventImage) {

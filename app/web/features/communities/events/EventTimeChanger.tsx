@@ -4,7 +4,6 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
-import { useMemo, useRef } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { isSameOrFutureDate, timestamp2Date } from "utils/date";
 import dayjs, { Dayjs, TIME_FORMAT } from "utils/dayjs";
@@ -48,38 +47,23 @@ export default function EventTimeChanger({
   const { t } = useTranslation([COMMUNITIES]);
   const classes = useEventFormStyles();
 
-  const now = dayjs();
-  const defaultDate = now.get("hour") === 23 ? now.add(1, "day") : now;
-
-  const { date: eventStartDate, time: eventStartTime } =
-    splitTimestampToDateAndTime(event?.startTime);
-  const { date: eventEndDate, time: eventEndTime } =
-    splitTimestampToDateAndTime(event?.endTime);
-
-  const dateDelta = useRef(0);
-  const timeDelta = useRef(60);
-  const defaultEndTime = useMemo(
-    () =>
-      dayjs()
-        .add(1, "hour")
-        .add(timeDelta.current, "minutes")
-        .format("HH:[00]"),
-    []
-  );
+  const { startDate, startTime, endDate, endTime } = getValues();
 
   return (
     <>
       <div className={classes.duoContainer}>
         <Datepicker
           control={control}
-          defaultValue={eventStartDate ?? defaultDate}
+          defaultValue={startDate}
           error={!!errors.startDate?.message}
           helperText={errors.startDate?.message || ""}
           id="startDate"
           label={t("communities:start_date")}
           name="startDate"
           onPostChange={(date: Dayjs) => {
-            setValue("endDate", date.add(dateDelta.current, "days"), {
+            const newEndDate = date.add(1, "hour");
+
+            setValue("endDate", newEndDate, {
               shouldDirty: true,
             });
           }}
@@ -119,9 +103,7 @@ export default function EventTimeChanger({
               );
             },
           })}
-          defaultValue={
-            eventStartTime || dayjs().add(1, "hour").format("HH:[00]")
-          }
+          defaultValue={startTime}
           error={!!errors.startTime?.message}
           fullWidth
           helperText={errors.startTime?.message || ""}
@@ -130,11 +112,15 @@ export default function EventTimeChanger({
           label={t("communities:start_time")}
           onChange={(e) => {
             const newStartTime = dayjs(e.target.value, TIME_FORMAT);
+
             if (newStartTime.isValid()) {
+              setValue("startTime", newStartTime.format(TIME_FORMAT), {
+                shouldDirty: true,
+              });
               setValue(
                 "endTime",
                 dayjs(e.target.value, TIME_FORMAT)
-                  .add(timeDelta.current, "minutes")
+                  .add(60, "minutes")
                   .format(TIME_FORMAT),
                 { shouldDirty: true }
               );
@@ -147,7 +133,7 @@ export default function EventTimeChanger({
       <div className={classes.duoContainer}>
         <Datepicker
           control={control}
-          defaultValue={eventEndDate ?? defaultDate}
+          defaultValue={endDate}
           error={!!errors.endDate?.message}
           helperText={errors.endDate?.message || ""}
           id="endDate"
@@ -199,7 +185,7 @@ export default function EventTimeChanger({
               );
             },
           })}
-          defaultValue={eventEndTime || defaultEndTime}
+          defaultValue={endTime}
           error={!!errors.endTime?.message}
           fullWidth
           helperText={errors.endTime?.message || ""}

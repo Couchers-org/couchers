@@ -27,7 +27,7 @@ type AccessibleTextFieldProps = Omit<TextFieldProps, "variant"> & {
   variant?: "filled" | "outlined" | "standard";
 };
 
-const TextField = forwardRef<HTMLInputElement, AccessibleTextFieldProps>(
+const TextField = forwardRef<HTMLInputElement | HTMLDivElement, AccessibleTextFieldProps>(
   ({ className, variant = "outlined", ...otherProps }, ref) => {
     const classes = useStyles();
 

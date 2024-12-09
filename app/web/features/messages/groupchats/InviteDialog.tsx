@@ -81,6 +81,7 @@ export default function InviteDialog({
                 onChange={(_, value) => {
                   field.onChange(value);
                 }}
+                value={field.value}
                 loading={friends.isLoading}
                 options={friendsNotInChat ?? []}
                 getOptionLabel={(friend) => {

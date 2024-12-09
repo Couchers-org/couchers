@@ -47,7 +47,6 @@ const Datepicker = ({
   onPostChange,
   testId,
 }: DatepickerProps) => {
-  console.log("error", error, "helperText", helperText);
   const { t } = useTranslation();
   return (
     <Controller

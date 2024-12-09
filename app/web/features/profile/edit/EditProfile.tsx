@@ -19,7 +19,6 @@ import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import { userKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
-import { FieldOptions } from "google-protobuf/google/protobuf/descriptor_pb";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
@@ -40,8 +39,17 @@ import {
 } from "./constants";
 import useStyles from "./styles";
 
-type FormValues = Omit<UpdateUserProfileData, "languageAbilities"> & {
+type FormValues = Omit<
+  UpdateUserProfileData,
+  "languageAbilities" | "city" | "lat" | "lng" | "radius"
+> & {
   fluentLanguages: string[];
+  location: {
+    city: string;
+    lat: number;
+    lng: number;
+    radius: number;
+  };
 };
 
 export default function EditProfileForm() {
@@ -53,7 +61,7 @@ export default function EditProfileForm() {
     isLoading: updateIsLoading,
     isError: updateError,
   } = useUpdateUserProfile();
-  const { data: user, isLoading: userIsLoading } = useCurrentUser();
+  const { data: user } = useCurrentUser();
   const isMounted = useIsMounted();
   const [errorMessage, setErrorMessage] = useSafeState<string | null>(
     isMounted,
@@ -68,10 +76,12 @@ export default function EditProfileForm() {
     formState: { errors, isDirty, isSubmitted },
   } = useForm<FormValues>({
     defaultValues: {
-      city: user?.city,
-      lat: user?.lat,
-      lng: user?.lng,
-      radius: user?.radius,
+      location: {
+        city: user?.city,
+        lat: user?.lat,
+        lng: user?.lng,
+        radius: user?.radius,
+      },
     },
     shouldFocusError: true,
   });
@@ -85,21 +95,21 @@ export default function EditProfileForm() {
   //Although the default value was set above, if the page is just loaded,
   //user will be undefined on first render, so the default values will be undefined.
   //So make sure to set values when user finshes loading
-  useEffect(() => {
-    if (!userIsLoading && user) {
-      setValue("city", user.city);
-      setValue("lat", user.lat);
-      setValue("lng", user.lng);
-      setValue("radius", user.radius);
-    }
-  }, [userIsLoading, setValue, user]);
+  // useEffect(() => {
+  //   if (!userIsLoading && user) {
+  //     setValue("location.city", user.city);
+  //     setValue("location.lat", user.lat);
+  //     setValue("location.lng", user.lng);
+  //     setValue("location.radius", user.radius);
+  //   }
+  // }, [userIsLoading, setValue, user]);
 
   useEffect(() => {
     //register here because these don't exist as actual fields
-    register("city");
-    register("lat");
-    register("lng");
-    register("radius");
+    register("location.city");
+    register("location.lat");
+    register("location.lng");
+    register("location.radius");
   }, [register]);
 
   const { regions, regionsLookup } = useRegions();
@@ -108,10 +118,14 @@ export default function EditProfileForm() {
   const onSubmit = handleSubmit(
     ({ regionsLived, regionsVisited, fluentLanguages, ...data }) => {
       resetUpdate();
+
+      const { location, ...restData } = data;
+
       updateUserProfile(
         {
           profileData: {
-            ...data,
+            ...location,
+            ...restData,
             regionsVisited: regionsVisited.map(
               (region) => (regionsLookup || {})[region]
             ),
@@ -196,7 +210,12 @@ export default function EditProfileForm() {
             />
           </form>
           <Controller
-            defaultValue=""
+            defaultValue={{
+              city: user?.city,
+              lat: user?.lat,
+              lng: user?.lng,
+              radius: user?.radius,
+            }}
             name="location"
             control={control}
             render={({ field }) => (
@@ -211,10 +230,18 @@ export default function EditProfileForm() {
                 }}
                 updateLocation={(location) => {
                   if (location) {
-                    setValue("city", location.address, { shouldDirty: true });
-                    setValue("lat", location.lat, { shouldDirty: true });
-                    setValue("lng", location.lng, { shouldDirty: true });
-                    setValue("radius", location.radius, { shouldDirty: true });
+                    setValue("location.city", location.address, {
+                      shouldDirty: true,
+                    });
+                    setValue("location.lat", location.lat, {
+                      shouldDirty: true,
+                    });
+                    setValue("location.lng", location.lng, {
+                      shouldDirty: true,
+                    });
+                    setValue("location.radius", location.radius, {
+                      shouldDirty: true,
+                    });
                   }
                 }}
               />
@@ -319,7 +346,7 @@ export default function EditProfileForm() {
                       {t("profile:edit_profile_headings.pronouns")}
                     </Typography>
                     <RadioGroup
-                      {...FieldOptions}
+                      {...field}
                       row
                       aria-label={t("profile:edit_profile_headings.pronouns")}
                       name="pronouns"
@@ -364,7 +391,7 @@ export default function EditProfileForm() {
                 name="fluentLanguages"
                 render={({ field }) => (
                   <ProfileTagInput
-                    {...FieldOptions}
+                    {...field}
                     onChange={(_, value) => field.onChange(value)}
                     value={field.value}
                     options={Object.values(languages)}

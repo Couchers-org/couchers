@@ -82,7 +82,6 @@ export default function ContributorForm({
     register,
     handleSubmit,
     watch,
-
     formState: { errors },
   } = useForm<ContributorInputs>({
     mode: "onBlur",

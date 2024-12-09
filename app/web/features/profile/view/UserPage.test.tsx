@@ -127,7 +127,7 @@ describe("User page", () => {
       // Mui introduced support for Next.js AppRouter, but we need to upgrade to Next v13 first for it, that might help
       // https://github.com/mui/material-ui/blob/HEAD/CHANGELOG.old.md#5140
 
-      // userEvent.click(await screen.findByText(sectionLabels(t).about));
+      // await user.click(await screen.findByText(sectionLabels(t).about));
 
       // expect(mockRouter.pathname).toBe("/user/funnydog/about");
     });
