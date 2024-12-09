@@ -10,9 +10,8 @@ import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import { messagesRoute, MessageType } from "routes";
 import makeStyles from "utils/makeStyles";
+
 //import RequestsTab from "features/messages/requests/RequestsTab"; // added import statement
-
-
 import useNotifications from "../useNotifications";
 
 const useStyles = makeStyles((theme) => ({
