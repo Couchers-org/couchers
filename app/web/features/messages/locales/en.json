@@ -13,9 +13,9 @@
     "title": "Messages",
     "tabs": {
       "aria_label": "Tabs for different message types",
-      "all": "All", 
+      "all": "All",
       "chats": "Chats",
-      "requests": "Requests", 
+      "requests": "Requests",
       "hosting": "Hosting",
       "surfing": "Surfing"
     }

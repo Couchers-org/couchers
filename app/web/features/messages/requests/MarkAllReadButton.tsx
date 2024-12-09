@@ -27,7 +27,8 @@ const useStyles = makeStyles((theme) => ({
 export default function MarkAllReadButton({
   type,
 }: {
-  type: "all" | "requests" | "chats" | "hosting" | "surfing"; // added types: "all" and "requests"
+  // added types: "all" and "requests"
+  type: "all" | "requests" | "chats" | "hosting" | "surfing";
 }) {
   const classes = useStyles();
   const { t } = useTranslation(MESSAGES);
@@ -53,10 +54,12 @@ export default function MarkAllReadButton({
           )
         );
       } 
-      else if (type == "requests") { // add another else if statement to account for requests 
+      else if (type == "requests") { 
+        // add another else if statement to account for requests 
         // trying to use the RequestsTab "all" definition 
       }
-      else if (type == "all") { // add another else if statement to account for requests 
+      else if (type == "all") { 
+        // add another else if statement to account for requests 
         
         // copied over from chats 
         const data = await getAllPages({
