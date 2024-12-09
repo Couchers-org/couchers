@@ -227,8 +227,9 @@ const loggedInMenuDropDown = (
     hasBottomDivider: true,
   },
   {
-    name: t("nav.help"),
+    name: t("nav.help_center"),
     route: helpCenterURL,
+    externalLink: true,
   },
   {
     name: t("nav.donate"),
