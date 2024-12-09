@@ -36,6 +36,8 @@ const useStyles = makeStyles((theme) => ({
   },
   referenceText: {
     whiteSpace: "pre-wrap",
+    width: "100%",
+    overflow: "hidden",
   },
 }));
 
