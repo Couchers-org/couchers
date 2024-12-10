@@ -219,9 +219,8 @@ export default function FilterDialog({
             <TextField
               fullWidth
               id="keywords-filter"
+              {...register("query")}
               label={t("search:form.keywords.field_label")}
-              name="query"
-              inputRef={register}
               variant="standard"
               onChange={(e) => {
                 if (e) {

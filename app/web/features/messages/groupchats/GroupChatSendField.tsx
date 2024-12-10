@@ -69,7 +69,7 @@ export default function GroupChatSendField({
   };
 
   const { onChange: textOnChange, ...textRegisterRest } = register("text");
-  
+
   return (
     <StyledForm onSubmit={onSubmit}>
       <TextField

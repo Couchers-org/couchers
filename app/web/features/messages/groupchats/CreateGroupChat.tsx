@@ -122,10 +122,9 @@ export default function CreateGroupChat({ className }: { className?: string }) {
             )}
             {isGroup && (
               <TextField
+                {...register("title")}
                 id="group-chat-title"
                 label={t("global:title")}
-                name="title"
-                inputRef={register}
                 className={classes.field}
               />
             )}
@@ -147,7 +146,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                   render={({ field }) => {
                     return (
                       <Autocomplete
-                      {...field}
+                        {...field}
                         id="users-autocomplete"
                         onChange={(_, newValue) => {
                           field.onChange(newValue);
@@ -160,10 +159,12 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                           "messages:create_chat.no_friends_found_message"
                         )}
                         getOptionLabel={(friend) => {
-                          return (
-                            friend?.name ??
-                            t("messages:create_chat.user_load_error_message")
-                          );
+                          const friendHasNameKey =
+                            typeof friend === "object" && friend !== null;
+
+                          return friendHasNameKey
+                            ? friend.name
+                            : t("messages:create_chat.user_load_error_message");
                         }}
                         label={t("messages:create_chat.friends_input_label")}
                         className={classes.field}

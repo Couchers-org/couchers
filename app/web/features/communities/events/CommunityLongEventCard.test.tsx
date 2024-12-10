@@ -45,7 +45,7 @@ describe("Long event card", () => {
     expect(screen.getByText("Jun 29, 2021 2:37 AM")).toBeVisible();
     expect(screen.getByText("12 attendees")).toBeVisible();
 
-    const eventImage = screen.getByRole("img", { name: "" });
+    const eventImage = screen.getByRole("presentation", { name: "" });
     expect(eventImage).toBeVisible();
     expect(eventImage).toHaveAttribute(
       "src",
@@ -71,7 +71,7 @@ describe("Long event card", () => {
     });
     render(<CommunityLongEventCard event={thirdEvent} />, { wrapper });
 
-    const eventImage = await screen.findByRole("img", { name: "" });
+    const eventImage = await screen.findByRole("presentation", { name: "" });
     expect(eventImage).toBeVisible();
     expect(eventImage).toHaveAttribute("src", eventImagePlaceholderUrl);
   });

@@ -51,10 +51,10 @@ function HostingPreferenceCheckbox({
   return (
     <FormControl variant="standard" className={className} margin="dense">
       <FormControlLabel
+        {...register(name as keyof HostingPreferenceData)}
         control={<Checkbox defaultChecked={defaultValue} />}
         label={label}
         name={name}
-        inputRef={register}
       />
     </FormControl>
   );
@@ -268,10 +268,10 @@ export default function HostingPreferenceForm() {
               />
               <ProfileTextInput
                 id="housemateDetails"
+                {...register("housemateDetails")}
                 label={t("profile:home_info_headings.housemate_details")}
                 name="housemateDetails"
                 defaultValue={user.housemateDetails?.value ?? ""}
-                inputRef={register}
                 maxRows={5}
                 multiline
                 className={classes.field}
@@ -287,10 +287,10 @@ export default function HostingPreferenceForm() {
               />
               <ProfileTextInput
                 id="kidDetails"
+                {...register("kidDetails")}
                 label={t("profile:home_info_headings.kid_details")}
                 name="kidDetails"
                 defaultValue={user.kidDetails?.value ?? ""}
-                inputRef={register}
                 maxRows={5}
                 multiline
                 className={classes.field}
@@ -306,10 +306,10 @@ export default function HostingPreferenceForm() {
               />
               <ProfileTextInput
                 id="petDetails"
+                {...register("petDetails")}
                 label={t("profile:home_info_headings.pet_details")}
                 name="petDetails"
                 defaultValue={user.petDetails?.value ?? ""}
-                inputRef={register}
                 maxRows={5}
                 multiline
                 className={classes.field}
