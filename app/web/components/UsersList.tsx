@@ -45,25 +45,27 @@ export default function UsersList({
   } = useLiteUsers(userIds || []);
 
   // this is undefined if userIds is undefined or users hasn't loaded, otherwise it's an actual list
-  const foundUserIds =
+  const foundUserIds: number[] | undefined =
     userIds &&
     (userIds.length > 0 ? userIds?.filter((userId) => users?.has(userId)) : []);
 
-  return (
-    <ContainingDiv>
-      {error ? (
-        <Alert severity="error">{error.message}</Alert>
-      ) : usersError ? (
-        <Alert severity="error">{usersError.message}</Alert>
-      ) : !userIds ? (
-        <CircularProgress />
-      ) : isLoadingLiteUsers ? (
+  const inner = () => {
+    if (error) {
+      return <Alert severity="error">{error.message}</Alert>;
+    } else if (usersError) {
+      return <Alert severity="error">{usersError.message}</Alert>;
+    } else if (!userIds) {
+      return <CircularProgress />;
+    } else if (isLoadingLiteUsers) {
+      return (
         <StyledUsersDiv>
           {userIds.map((userId) => (
             <UserSummary headlineComponent="h3" key={userId} user={undefined} />
           ))}
         </StyledUsersDiv>
-      ) : foundUserIds && foundUserIds.length > 0 ? (
+      );
+    } else if (foundUserIds && foundUserIds.length > 0) {
+      return (
         <StyledUsersDiv>
           {foundUserIds.map((userId) => (
             <UserSummary
@@ -74,9 +76,11 @@ export default function UsersList({
           ))}
           <>{endChildren}</>
         </StyledUsersDiv>
-      ) : (
-        <>{emptyListChildren}</>
-      )}
-    </ContainingDiv>
-  );
+      );
+    } else {
+      return <>{emptyListChildren}</>;
+    }
+  };
+
+  return <ContainingDiv>{inner()}</ContainingDiv>;
 }
