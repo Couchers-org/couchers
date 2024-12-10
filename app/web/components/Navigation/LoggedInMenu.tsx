@@ -6,6 +6,7 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import React, { Dispatch, ReactNode, SetStateAction } from "react";
 import { theme } from "theme";
 import makeStyles from "utils/makeStyles";
+
 import ReportButton from "./ReportButton";
 
 const useStyles = makeStyles((theme) => ({
