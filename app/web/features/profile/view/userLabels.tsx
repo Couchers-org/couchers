@@ -107,6 +107,11 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(0.5),
     alignSelf: "center",
   },
+  container: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+  },
 }));
 
 const AgeAndGenderRenderer = ({ user }: Props) => {
@@ -180,13 +185,14 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
     }
   };
   return (
-    <>
+    <div className={useStyles().container}>
       <span>{age}</span>
-      {getBirthdateVerificationIcon(birthdateVerificationStatus)} /&nbsp;
+      {getBirthdateVerificationIcon(birthdateVerificationStatus)}
+      <span>/&nbsp;</span>
       <span>{gender}</span>
       {getGenderVerificationIcon(genderVerificationStatus)}
-      <span> {pronouns && ` (${pronouns})`}</span>
-    </>
+      {pronouns && <span>({pronouns.replace(/\s+/g, "")})</span>}
+    </div>
   );
 };
 
@@ -248,3 +254,4 @@ export const RemainingAboutLabels = ({ user }: Props) => {
     </>
   );
 };
+
