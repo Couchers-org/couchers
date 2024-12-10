@@ -4,7 +4,6 @@ import {
   createTheme,
 } from "@mui/material/styles";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { ThemeProvider as Emotion10ThemeProvider } from "emotion-theming";
 
 import { theme } from "../theme";
 import { AuthContext } from "../features/auth/AuthProvider";
@@ -37,13 +36,11 @@ export const decorators = [
           value={{ authState: { authenticated: true, userId: 1 } }}
         >
           <StyledEngineProvider injectFirst>
-            <Emotion10ThemeProvider theme={defaultTheme}>
-              <ThemeProvider theme={theme}>
-                <QueryClientProvider client={client}>
-                  <Story {...context} />
-                </QueryClientProvider>
-              </ThemeProvider>
-            </Emotion10ThemeProvider>
+            <ThemeProvider theme={theme}>
+              <QueryClientProvider client={client}>
+                <Story {...context} />
+              </QueryClientProvider>
+            </ThemeProvider>
           </StyledEngineProvider>
         </AuthContext.Provider>
       </Suspense>
