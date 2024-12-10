@@ -53,15 +53,13 @@ export default function MarkAllReadButton({
               : Promise.resolve()
           )
         );
-      } 
-      else if (type == "requests") { 
-        // add another else if statement to account for requests 
-        // trying to use the RequestsTab "all" definition 
-      }
-      else if (type == "all") { 
-        // add another else if statement to account for requests 
-        
-        // copied over from chats 
+      } else if (type == "requests") {
+        // add another else if statement to account for requests
+        // trying to use the RequestsTab "all" definition
+      } else if (type == "all") {
+        // add another else if statement to account for requests
+
+        // copied over from chats
         const data = await getAllPages({
           serviceFunction: service.conversations.listGroupChats,
           listKey: "groupChatsList",
@@ -79,8 +77,7 @@ export default function MarkAllReadButton({
               : Promise.resolve()
           )
         );
-      }
-      else { 
+      } else {
         const data = await getAllPages({
           serviceFunction: service.requests.listHostRequests,
           listKey: "hostRequestsList",

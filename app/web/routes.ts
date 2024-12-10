@@ -66,7 +66,13 @@ export function routeToUser(username: string, tab?: UserTab) {
 
 // modified to include "all" and "requests"
 export const messagesRoute = "/messages";
-export const messageTypeStrings = ["chats", "hosting", "surfing", "all", "requests"] as const;
+export const messageTypeStrings = [
+  "chats",
+  "hosting",
+  "surfing",
+  "all",
+  "requests",
+] as const;
 export type MessageType = (typeof messageTypeStrings)[number];
 export const groupChatsRoute = `${messagesRoute}/chats`;
 export const routeToCreateMessage = (username: string) =>
