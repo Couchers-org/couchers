@@ -254,4 +254,3 @@ export const RemainingAboutLabels = ({ user }: Props) => {
     </>
   );
 };
-
