@@ -7,6 +7,8 @@ import React, { Dispatch, ReactNode, SetStateAction } from "react";
 import { theme } from "theme";
 import makeStyles from "utils/makeStyles";
 
+import ReportButton from "./ReportButton";
+
 const useStyles = makeStyles((theme) => ({
   menu: {
     boxShadow: theme.shadows[1],
@@ -34,6 +36,9 @@ const useStyles = makeStyles((theme) => ({
     width: "2rem",
     marginLeft: theme.spacing(1),
   },
+  reportBtnContainer: {
+    padding: theme.spacing(2),
+  },
 }));
 
 export default function LoggedInMenu({
@@ -51,6 +56,9 @@ export default function LoggedInMenu({
 
   return (
     <>
+      <div className={classes.reportBtnContainer}>
+        <ReportButton />
+      </div>
       <Button
         aria-controls="navigation-menu"
         aria-haspopup="true"
