@@ -1,6 +1,6 @@
 import { useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import ReferenceForm from "features/profile/view/leaveReference/ReferenceForm";
@@ -75,7 +75,7 @@ export default function LeaveReferencePage({
           {userError || availableReferencesError?.message || ""}
         </Alert>
       )}
-      {(isUserLoading || isAvailableReferencesLoading) && <CircularProgress />}
+      {(isUserLoading || isAvailableReferencesLoading) && <CenteredSpinner />}
       {availableReferences &&
         user &&
         ((referenceType ===

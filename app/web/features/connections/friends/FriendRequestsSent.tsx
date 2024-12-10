@@ -1,4 +1,5 @@
-import { Box, CircularProgress, IconButton } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { CloseIcon } from "components/Icons";
 import { CONNECTIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
@@ -31,7 +32,7 @@ function CancelFriendRequestAction({
   return state === FriendRequest.FriendRequestStatus.PENDING ? (
     <Box>
       {isLoading || isSuccess ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : (
         <IconButton
           aria-label="Cancel request"

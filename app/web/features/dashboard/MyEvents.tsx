@@ -1,12 +1,8 @@
-import {
-  CircularProgress,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Typography, useMediaQuery, useTheme } from "@mui/material";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
 import { useCommunityPageStyles } from "features/communities/CommunityPage";
@@ -46,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   allUpcomingEventsLink: {
     justifySelf: "center",
   },
-  loaderContainer: {
+  buttonContainer: {
     display: "flex",
     justifyContent: "center",
     width: "100%",
@@ -77,9 +73,7 @@ export default function MyEvents() {
       <Typography variant="h2">{t("dashboard:upcoming_events")}</Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
-        <div className={classes.loaderContainer}>
-          <CircularProgress />
-        </div>
+        <CenteredSpinner />
       ) : hasAtLeastOnePage(data, "eventsList") ? (
         <>
           <HorizontalScroller
@@ -107,7 +101,7 @@ export default function MyEvents() {
               })}
           </HorizontalScroller>
           {hasNextPage && !isBelowSm && (
-            <div className={classes.loaderContainer}>
+            <div className={classes.buttonContainer}>
               <Button
                 onClick={() => fetchNextPage()}
                 variant="outlined"

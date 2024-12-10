@@ -2,7 +2,7 @@ import { FormControlLabel, Typography } from "@mui/material";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import TextBody from "components/TextBody";
 import { useTranslation } from "i18n";
@@ -82,7 +82,7 @@ export default function EventsTab({
         </Button>
       )}
       {isLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : hasAtLeastOnePage(data, "eventsList") ? (
         <>
           <div className={classNames(classes.cardContainer, classes.container)}>

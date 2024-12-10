@@ -1,6 +1,6 @@
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import {
   Dialog,
   DialogActions,
@@ -54,7 +54,7 @@ export default function EventAttendeesDialog({
       <DialogContent>
         {error && <Alert severity="error">{error.message}</Alert>}
         {isLoading ? (
-          <CircularProgress />
+          <CenteredSpinner />
         ) : !!attendeesIds.length && attendees ? (
           attendeesIds.map((id) => {
             const user = attendees.get(id);
