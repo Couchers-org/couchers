@@ -290,7 +290,7 @@ export default function MapWrapper({
         <div className={classes.testChildFromGoogle}>
           <Button
             color="primary"
-            loading={isLoading}
+            disabled={isLoading}
             onClick={handleOnClick}
             className={classes.searchHereButton}
             endIcon={<ReplayIcon />}
