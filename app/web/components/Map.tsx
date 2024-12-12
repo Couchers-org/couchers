@@ -84,9 +84,6 @@ export default function Map({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    //don't create a new map if it exists already
-    if (mapRef.current) return;
-
     try {
       const map = new MaplibreMap({
         center: initialCenter,

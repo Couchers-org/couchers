@@ -75,7 +75,6 @@ export default function AccountForm() {
     register,
     handleSubmit,
     watch,
-
     formState: { errors },
   } = useForm<SignupAccountInputs>({
     defaultValues: { location: { address: "" } },
@@ -232,9 +231,10 @@ export default function AccountForm() {
           validate: (location) =>
             !!location.address || t("auth:location.validation_error"),
         }}
-        render={({ field }) => (
+        render={(
+          { field } // don't spread the field here, EditLocationMap uses its own custom refs
+        ) => (
           <EditLocationMap
-            {...field}
             className={classes.locationMap}
             updateLocation={(location) => {
               if (location) {
