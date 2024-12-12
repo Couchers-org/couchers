@@ -129,7 +129,7 @@ it("should not submit if the start date/time is in the past", async () => {
   user.clear(startDateField);
   user.type(startDateField, "07302021");
 
-  await waitFor(() => expect(startDateField.value).toBe("07/30/2021"));
+  await waitFor(() => expect(startDateField).toHaveValue("07/30/2021"));
 
   user.click(screen.getByTestId("submit"));
 
@@ -161,12 +161,12 @@ it("should not submit if the end date/time is in the past", async () => {
   user.clear(startDateField);
 
   user.type(startDateField, "07302021");
-  await waitFor(() => expect(startDateField.value).toBe("07/30/2021"));
+  await waitFor(() => expect(startDateField).toHaveValue("07/30/2021"));
 
   const endDateField = await screen.findByLabelText(t("communities:end_date"));
   user.clear(endDateField);
   user.type(endDateField, "07302021");
-  await waitFor(() => expect(startDateField.value).toBe("07/30/2021"));
+  await waitFor(() => expect(startDateField).toHaveValue("07/30/2021"));
 
   user.click(screen.getByTestId("submit"));
 
@@ -194,7 +194,7 @@ it("should not submit if the end date is before the start date", async () => {
   user.clear(endDateField);
   user.type(endDateField, "07302021");
 
-  await waitFor(() => expect(endDateField.value).toBe("07/30/2021"));
+  await waitFor(() => expect(endDateField).toHaveValue("07/30/2021"));
   user.click(screen.getByTestId("submit"));
 
   await waitFor(() => {

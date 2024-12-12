@@ -159,12 +159,10 @@ describe("DiscussionsListPage", () => {
       );
 
       expect(
-        (
-          (await screen.findByLabelText(
-            t("communities:new_discussion_title")
-          )) as HTMLInputElement
-        ).value
-      ).toEqual("");
+        (await screen.findByLabelText(
+          t("communities:new_discussion_title")
+        )) as HTMLInputElement
+      ).toHaveValue("");
       expect(screen.getAllByTestId(DISCUSSION_CARD_TEST_ID)).toHaveLength(3);
       expect(createDiscussionMock).toHaveBeenCalledTimes(1);
       expect(createDiscussionMock).toHaveBeenCalledWith(
@@ -222,12 +220,10 @@ describe("DiscussionsListPage", () => {
       );
 
       expect(
-        (
-          (await screen.findByLabelText(
-            t("communities:new_discussion_title")
-          )) as HTMLInputElement
-        ).value
-      ).toEqual("");
+        (await screen.findByLabelText(
+          t("communities:new_discussion_title")
+        )) as HTMLInputElement
+      ).toHaveValue("");
     });
   });
 });

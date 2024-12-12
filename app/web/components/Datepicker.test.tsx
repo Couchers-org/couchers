@@ -182,10 +182,10 @@ describe("DatePicker", () => {
 
     user.type(input, "{backspace}");
 
-    await waitFor(() => expect(input.value).toBe("20/03/202"));
+    await waitFor(() => expect(input).toHaveValue("20/03/202"));
     user.clear(input);
     user.type(input, "21032021");
-    await waitFor(() => expect(input.value).toBe("21/03/2021"));
+    await waitFor(() => expect(input).toHaveValue("21/03/2021"));
     user.click(screen.getByRole("button", { name: t("global:submit") }));
     const expectedDate = "2021-03-21";
     await waitFor(() => {
@@ -207,10 +207,10 @@ describe("DatePicker", () => {
     const user = userEvent.setup();
 
     user.type(input, "{backspace}");
-    await waitFor(() => expect(input.value).toBe("03/20/202"));
+    await waitFor(() => expect(input).toHaveValue("03/20/202"));
     user.clear(input);
     user.type(input, "03212021");
-    await waitFor(() => expect(input.value).toBe("03/21/2021"));
+    await waitFor(() => expect(input).toHaveValue("03/21/2021"));
     user.click(screen.getByRole("button", { name: t("global:submit") }));
     const expectedDate = "2021-03-21";
     await waitFor(() => {
@@ -231,10 +231,10 @@ describe("DatePicker", () => {
     const user = userEvent.setup();
 
     user.type(input, "{backspace}");
-    await waitFor(() => expect(input.value).toBe("20-03-2"));
+    await waitFor(() => expect(input).toHaveValue("20-03-2"));
     user.clear(input);
     user.type(input, "21-0321");
-    await waitFor(() => expect(input.value).toBe("21-03-21"));
+    await waitFor(() => expect(input).toHaveValue("21-03-21"));
     user.click(screen.getByRole("button", { name: t("global:submit") }));
     const expectedDate = "2021-03-21";
     await waitFor(() => {
@@ -257,10 +257,10 @@ describe("DatePicker", () => {
     // @TODO These need to be updated to await but seems not to work with old mui-x-datepickers
     user.type(input, "{backspace}");
 
-    await waitFor(() => expect(input.value).toBe("2021/03/2"));
+    await waitFor(() => expect(input).toHaveValue("2021/03/2"));
     user.clear(input);
     user.type(input, "20210321");
-    await waitFor(() => expect(input.value).toBe("2021/03/21"));
+    await waitFor(() => expect(input).toHaveValue("2021/03/21"));
     user.click(screen.getByRole("button", { name: t("global:submit") }));
     const expectedDate = "2021-03-21";
     await waitFor(() => {

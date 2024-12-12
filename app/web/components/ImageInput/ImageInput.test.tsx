@@ -292,9 +292,7 @@ describe.each`
     expect(await screen.findByText("Whoops")).toBeVisible();
   });
 
-  //This doesn't work https://github.com/testing-library/user-event/issues/632
-  //We reset by setting input.value = "" but this doesn't do anything for @testing-library
-  it.skip("previews the image after cancelling and selecting the same image", async () => {
+  it("previews the image after cancelling and selecting the same image", async () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(

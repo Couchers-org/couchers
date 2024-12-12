@@ -241,7 +241,7 @@ describe("Event form", () => {
     user.type(titleInput, "Test event");
 
     await waitFor(() => {
-      expect(titleInput.value).toBe("Test event");
+      expect(titleInput).toHaveValue("Test event");
     });
 
     const virtualEventCheckbox = screen.getByLabelText(
@@ -347,7 +347,7 @@ describe("Event form", () => {
     user.type(titleInput, "Test event");
 
     await waitFor(() => {
-      expect(titleInput.value).toBe("Test event");
+      expect(titleInput).toHaveValue("Test event");
     });
 
     jest.useRealTimers();
