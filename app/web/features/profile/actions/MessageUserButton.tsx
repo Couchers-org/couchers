@@ -1,12 +1,11 @@
-import Button from "components/Button";
 import {
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
+  DialogContent,
+  DialogTitle,
   TextField,
 } from "@mui/material";
-import useAccountInfo from "features/auth/useAccountInfo";
+import Button from "components/Button";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -14,11 +13,10 @@ import { User } from "proto/api_pb";
 import { useState } from "react";
 import { useMutation } from "react-query";
 import {
+  createGroupChat,
   getDirectMessage,
   sendMessage,
-  createGroupChat,
 } from "service/conversations";
-import { routeToCreateMessage } from "routes";
 
 export default function MessageUserButton({
   user,
