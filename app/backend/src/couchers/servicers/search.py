@@ -58,10 +58,6 @@ REGCONFIG = "english"
 TRI_SIMILARITY_THRESHOLD = 0.6
 TRI_SIMILARITY_WEIGHT = 5
 
-conversational_fluent_filter_values = [
-    LanguageFluency.conversational,
-    LanguageFluency.fluent,
-]
 
 
 def _join_with_space(coalesces):

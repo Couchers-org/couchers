@@ -74,12 +74,7 @@ fluency2sql = {
     api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT: LanguageFluency.fluent,
 }
 
-fluency2api = {
-    None: api_pb2.LanguageAbility.Fluency.FLUENCY_UNKNOWN,
-    LanguageFluency.beginner: api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER,
-    LanguageFluency.conversational: api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL,
-    LanguageFluency.fluent: api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
-}
+
 
 meetupstatus2api = {
     None: api_pb2.MEETUP_STATUS_UNKNOWN,

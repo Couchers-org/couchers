@@ -13,7 +13,6 @@ from tests.test_fixtures import (  # noqa
     db,
     events_session,
     generate_user,
-    recreate_database,
     search_session,
     session_scope,
     testconfig,
