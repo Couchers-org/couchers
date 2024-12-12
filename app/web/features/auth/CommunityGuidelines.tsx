@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import FullPageLoader from "components/FullPageLoader";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { communityGuidelinesQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -98,10 +98,14 @@ export default function CommunityGuidelines({
   }
 
   if (isLoading) {
-    return <FullPageLoader />;
+    return <CenteredSpinner />;
   }
 
-  return data ? (
+  if (!data) {
+    return null;
+  }
+
+  return (
     <>
       <form onSubmit={submit} className={className}>
         {title && (
@@ -175,5 +179,5 @@ export default function CommunityGuidelines({
         </Button>
       </form>
     </>
-  ) : null;
+  );
 }

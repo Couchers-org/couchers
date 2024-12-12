@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
 import StyledLink from "components/StyledLink";
@@ -499,7 +499,7 @@ export default function EditProfileForm() {
           </form>
         </>
       ) : (
-        <CircularProgress />
+        <CenteredSpinner />
       )}
     </>
   );

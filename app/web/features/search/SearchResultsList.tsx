@@ -1,7 +1,7 @@
 import { Paper, useMediaQuery } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
 import SearchResult from "features/search/SearchResult";
@@ -146,11 +146,7 @@ export default function SearchResultsList({
         />
       )}
       <>
-        {isLoading ||
-          (selectedUserData.isLoading && (
-            <CircularProgress className={classes.baseMargin} />
-          ))}
-
+        {(isLoading || selectedUserData.isLoading) && <CenteredSpinner />}
         {!isLoading && !hasAtLeastOnePageResults && (
           <TextBody className={classes.baseMargin}>
             {t("search_result.no_user_result_message")}

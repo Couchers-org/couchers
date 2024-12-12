@@ -1,5 +1,5 @@
 import { styled } from "@mui/material";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import InfiniteMessageLoader from "features/messages/messagelist/InfiniteMessageLoader";
 import MessageList from "features/messages/messagelist/MessageList";
 import { GetGroupChatMessagesRes } from "proto/conversations_pb";
@@ -15,13 +15,6 @@ const StyledInfiniteMessageLoader = styled(InfiniteMessageLoader)(
     },
   })
 );
-
-const StyledSpinnerWrapper = styled("div")(({ theme }) => ({
-  display: "flex",
-  justifyContent: "center",
-  padding: theme.spacing(2),
-  width: "100%",
-}));
 
 const ChatContent = ({
   isHostRequest,
@@ -45,11 +38,7 @@ const ChatContent = ({
   isError: boolean;
 }) => {
   if (isLoading) {
-    return (
-      <StyledSpinnerWrapper>
-        <CircularProgress />
-      </StyledSpinnerWrapper>
-    );
+    return <CenteredSpinner minHeight="100%" />;
   }
 
   if (!messages || (isHostRequest && !hostRequest)) {

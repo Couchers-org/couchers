@@ -1,7 +1,7 @@
 import { List } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import TextBody from "components/TextBody";
 import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
 import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
@@ -53,9 +53,7 @@ export default function GroupChatsTab() {
     <div className={classes.root}>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
-        <div className={classes.loadingBox}>
-          <CircularProgress />
-        </div>
+        <CenteredSpinner />
       ) : (
         data && (
           <List className={classes.list}>

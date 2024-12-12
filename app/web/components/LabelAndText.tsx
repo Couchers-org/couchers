@@ -12,6 +12,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     marginTop: theme.spacing(0.5),
+    alignItems: "flex-start", // Ensures the label aligns with the top of multi-line text
   },
   flexItem: {
     flex: "1 1 50%",

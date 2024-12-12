@@ -1,5 +1,5 @@
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useCommunity } from "features/communities/hooks";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
@@ -13,11 +13,6 @@ export const useCommunityBaseStyles = makeStyles((theme) => ({
     "& > section": {
       margin: theme.spacing(3, 0),
     },
-  },
-  center: {
-    display: "block",
-    marginLeft: "auto",
-    marginRight: "auto",
   },
 }));
 
@@ -44,8 +39,7 @@ export default function CommunityBase({
       <Alert severity="error">{t("communities:invalid_community_id")}</Alert>
     );
 
-  if (isCommunityLoading)
-    return <CircularProgress className={classes.center} />;
+  if (isCommunityLoading) return <CenteredSpinner />;
 
   if (!community || communityError)
     return (

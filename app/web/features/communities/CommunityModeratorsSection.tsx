@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { CommunityLeadersIcon } from "components/Icons";
 import UserSummary from "components/UserSummary";
 import { useTranslation } from "i18n";
@@ -52,7 +52,7 @@ export default function CommunityModeratorsSection({
       {error ? (
         <Alert severity="error">{error.message}</Alert>
       ) : isLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : adminIds && adminIds.length > 0 ? (
         adminUsers && (
           <div className={classes.moderatorsContainer}>

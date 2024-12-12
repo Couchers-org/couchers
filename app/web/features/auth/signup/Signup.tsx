@@ -1,6 +1,6 @@
 import { Divider, styled, Typography, TypographyProps } from "@mui/material";
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
@@ -312,7 +312,7 @@ export default function Signup() {
             {error}
           </Alert>
         )}
-        {loading ? <CircularProgress /> : <CurrentForm />}
+        {loading ? <CenteredSpinner /> : <CurrentForm />}
       </StyledMobileEmbed>
     );
   }
@@ -347,7 +347,7 @@ export default function Signup() {
               {error}
             </Alert>
           )}
-          {loading ? <CircularProgress /> : <CurrentForm />}
+          {loading ? <CenteredSpinner /> : <CurrentForm />}
         </StyledFormWrapper>
         {process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" && (
           <StyledVercelLink

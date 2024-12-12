@@ -1,7 +1,7 @@
 import { Breadcrumbs } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import CommentBox from "components/Comments/CommentBox";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
@@ -135,7 +135,7 @@ export default function GroupPage({
     <>
       {error && <Alert severity="error">{error}</Alert>}
       {loading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : group ? (
         <>
           <HtmlMeta title={`${group.name} Group Page`} />
@@ -208,7 +208,7 @@ export default function GroupPage({
           <h1>Admins</h1>
           <p>Total {group.adminCount} admins.</p>
           {adminsLoading ? (
-            <CircularProgress />
+            <CenteredSpinner />
           ) : admins ? (
             admins.map((admin) => {
               return (
@@ -224,7 +224,7 @@ export default function GroupPage({
           <h1>Members</h1>
           <p>Total {group.memberCount} members.</p>
           {membersLoading ? (
-            <CircularProgress />
+            <CenteredSpinner />
           ) : members ? (
             members.map((member) => {
               return (
@@ -239,7 +239,7 @@ export default function GroupPage({
           )}
           <h1>Places</h1>
           {placesLoading ? (
-            <CircularProgress />
+            <CenteredSpinner />
           ) : places ? (
             places.map((place) => {
               return (
@@ -256,7 +256,7 @@ export default function GroupPage({
           )}
           <h1>Guides</h1>
           {guidesLoading ? (
-            <CircularProgress />
+            <CenteredSpinner />
           ) : guides ? (
             guides.map((guide) => {
               return (
@@ -273,7 +273,7 @@ export default function GroupPage({
           )}
           <h1>Discussions</h1>
           {discussionsLoading ? (
-            <CircularProgress />
+            <CenteredSpinner />
           ) : discussions ? (
             discussions.map((discussion) => {
               return (

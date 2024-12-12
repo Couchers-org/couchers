@@ -1,6 +1,6 @@
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import EditLocationMap from "components/EditLocationMap";
 import TextField from "components/TextField";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
@@ -61,7 +61,7 @@ export default function NewGuideForm() {
     <>
       {createError && <Alert severity="error">{createError?.message}</Alert>}
       {isCreateLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : (
         <form onSubmit={onSubmit}>
           <TextField
