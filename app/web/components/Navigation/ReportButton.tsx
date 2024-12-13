@@ -141,7 +141,8 @@ export default function ReportButton({
           variant="text"
           aria-label={t("report.label")}
           className={classes.menuLink}
-          onClick={() => setIsOpen(true)}>
+          onClick={() => setIsOpen(true)}
+        >
           {t("report.label")}
         </Button>
       ) : (
@@ -154,14 +155,16 @@ export default function ReportButton({
           classes={{
             containedPrimary: classes.button,
             startIcon: classes.startIcon,
-          }}>
+          }}
+        >
           {(!isResponsive || !isBelowMd) && t("report.label")}
         </Button>
       )}
       <Dialog
         aria-labelledby="bug-reporter"
         open={isOpen}
-        onClose={handleClose}>
+        onClose={handleClose}
+      >
         <DialogTitle id="bug-reporter">{t("report.label")}</DialogTitle>
         {type === "initial" ? (
           <>
@@ -170,7 +173,8 @@ export default function ReportButton({
                 onClick={() => {
                   setType("bug");
                 }}
-                className={classes.typeButton}>
+                className={classes.typeButton}
+              >
                 {t("report.bug.button_label")}
               </Button>
               <Link href={helpCenterRoute} passHref>
@@ -191,7 +195,8 @@ export default function ReportButton({
                     borderColor: theme.palette.grey[300],
                     backgroundColor: "#3135390A",
                   },
-                }}>
+                }}
+              >
                 {t("cancel")}
               </Button>
             </DialogActions>
@@ -281,7 +286,8 @@ export default function ReportButton({
                     borderColor: theme.palette.grey[300],
                     backgroundColor: "#3135390A",
                   },
-                }}>
+                }}
+              >
                 {t("cancel")}
               </Button>
             </DialogActions>
