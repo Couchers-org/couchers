@@ -28,6 +28,7 @@ import { useMutation } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
 import { helpCenterRoute } from "routes";
+import Link from "next/link";
 
 export interface BugReportFormData {
   subject: string;
