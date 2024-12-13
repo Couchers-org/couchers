@@ -105,7 +105,7 @@ def do_and_check_sv(
         )
         reference_data = mock.call_args.kwargs["json"]["reference"]
         verification_attempt_token = res.verification_attempt_token
-        return_url = f"http://localhost:3000/strong-verification-complete?verification_attempt_token={verification_attempt_token}"
+        return_url = f"http://localhost:3000/complete-strong-verification?verification_attempt_token={verification_attempt_token}"
         assert res.redirect_url == "https://passportreader.app/open?" + urlencode(
             {"token": iris_token, "redirect_url": return_url}
         )

@@ -421,7 +421,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         redirect_params = {
             "token": token,
-            "redirect_url": urls.strong_verification_complete_url(
+            "redirect_url": urls.complete_strong_verification_url(
                 verification_attempt_token=verification_attempt_token
             ),
         }

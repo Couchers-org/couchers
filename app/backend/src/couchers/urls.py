@@ -107,8 +107,8 @@ def donation_success_url():
     return f"{config['BASE_URL']}/donate?success=true"
 
 
-def strong_verification_complete_url(*, verification_attempt_token):
-    return f"{config['BASE_URL']}/strong-verification-complete?verification_attempt_token={verification_attempt_token}"
+def complete_strong_verification_url(*, verification_attempt_token):
+    return f"{config['BASE_URL']}/complete-strong-verification?verification_attempt_token={verification_attempt_token}"
 
 
 def delete_account_link(*, account_deletion_token):
