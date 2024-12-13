@@ -1,6 +1,7 @@
 import json
 from datetime import date, timedelta
 from unittest.mock import ANY, patch
+from urllib.parse import urlencode
 
 import grpc
 import pytest
@@ -104,7 +105,10 @@ def do_and_check_sv(
         )
         reference_data = mock.call_args.kwargs["json"]["reference"]
         verification_attempt_token = res.verification_attempt_token
-        assert res.iris_url == f"iris:///?token={iris_token}"
+        return_url = f"http://localhost:3000/strong-verification-complete?verification_attempt_token={verification_attempt_token}"
+        assert res.redirect_url == "https://passportreader.app/open?" + urlencode(
+            {"token": iris_token, "redirect_url": return_url}
+        )
 
         assert (
             account.GetStrongVerificationAttemptStatus(
