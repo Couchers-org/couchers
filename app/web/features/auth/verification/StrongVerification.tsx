@@ -8,7 +8,9 @@ import {
   DialogContentText,
   DialogTitle,
 } from "components/Dialog";
+import Snackbar from "components/Snackbar";
 import StyledLink from "components/StyledLink";
+import { accountInfoQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -18,7 +20,7 @@ import {
   InitiateStrongVerificationRes,
 } from "proto/account_pb";
 import { useState } from "react";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { tosRoute } from "routes";
 import { service } from "service";
 
@@ -94,6 +96,71 @@ function StartStrongVerificationButton() {
   );
 }
 
+function DeleteStrongVerificationDataButton() {
+  const { t } = useTranslation([GLOBAL, AUTH]);
+
+  const [open, setOpen] = useState(false);
+  const [deleted, setDeleted] = useState(false);
+
+  const queryClient = useQueryClient();
+
+  const {
+    error,
+    isLoading,
+    mutate: deleteData,
+  } = useMutation<void, RpcError>(
+    service.account.deleteStrongVerificationData,
+    {
+      onSuccess: () => {
+        setOpen(false);
+        setDeleted(true);
+        queryClient.invalidateQueries(accountInfoQueryKey);
+      },
+    }
+  );
+
+  return (
+    <>
+      {deleted && (
+        <Snackbar severity="success">
+          <>{t("auth:strong_verification.delete_success")}</>
+        </Snackbar>
+      )}
+      <Dialog aria-labelledby="strong-verification-start-dialog" open={open}>
+        <DialogTitle id="strong-verification-start-dialog">
+          {t("auth:strong_verification.delete_data_title")}
+        </DialogTitle>
+        <DialogContent>
+          {error && (
+            <DialogContentText>
+              <Alert severity="error">{error.message}</Alert>
+            </DialogContentText>
+          )}
+          <DialogContentText>
+            {t("auth:strong_verification.delete_information")}
+          </DialogContentText>
+          <DialogContentText>
+            <strong>
+              {t("auth:strong_verification.delete_information_text2")}
+            </strong>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => deleteData()} loading={isLoading}>
+            {t("auth:strong_verification.delete_my_data_button")}
+          </Button>
+          <Button variant="outlined" onClick={() => setOpen(false)}>
+            {t("global:cancel")}
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Button loading={isLoading} onClick={() => setOpen(true)}>
+        {t("auth:strong_verification.delete_button")}
+      </Button>
+    </>
+  );
+}
+
 type StrongVerificationProps = {
   accountInfo: GetAccountInfoRes.AsObject;
   className?: string;
@@ -120,7 +187,11 @@ export default function StrongVerification({
           You <strong>are currently</strong> verified with Strong Verification.
         </Trans>
       </Typography>
-      {!accountInfo.hasStrongVerification && <StartStrongVerificationButton />}
+      {accountInfo.hasStrongVerification ? (
+        <DeleteStrongVerificationDataButton />
+      ) : (
+        <StartStrongVerificationButton />
+      )}
     </div>
   );
 }

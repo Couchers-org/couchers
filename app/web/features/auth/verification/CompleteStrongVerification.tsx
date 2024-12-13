@@ -21,8 +21,14 @@ export default function CompleteStrongVerification() {
       <HtmlMeta title={t("strong_verification.title")} />
       <Container disableGutters maxWidth="md">
         <PageTitle>{t("strong_verification.complete_title")}</PageTitle>
+        <Typography variant="body1" gutterBottom>
+          {t("strong_verification.complete_message1")}
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+          {t("strong_verification.complete_message2")}
+        </Typography>
         <Typography variant="body1">
-          {t("strong_verification.complete_message")}
+          {t("strong_verification.delete_information")}
         </Typography>
       </Container>
     </>

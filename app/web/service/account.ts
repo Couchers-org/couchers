@@ -135,3 +135,7 @@ export async function initiateStrongVerification() {
   const res = await client.account.initiateStrongVerification(new Empty());
   return res.toObject();
 }
+
+export async function deleteStrongVerificationData() {
+  await client.account.deleteStrongVerificationData(new Empty());
+}

@@ -334,9 +334,16 @@
     "begin_button": "Complete Strong Verification with Iris ID",
     "information_text1": "You will need a biometric passport and an NFC-capable Apple iPhone or Android phone.",
     "information_text2": "By clicking the button below, you will be taken to the Iris ID website to complete the passport verification process.",
-    "information_text3": "You can read more about how we and Iris ID process and store your data in our <2>Terms of Service</2>. As per the Iris ID <5>Privacy policy</5>, they will delete your personal information within 24 hours.",
+    "information_text3": "You can read more about how we and Iris ID process and store your data in our <2>Terms of Service</2>. As per the Iris ID <5>Privacy policy</5>, they will delete your personal information within 24 hours. You can request for this Strong Verification data (except issuing country, expiry date, and the last three digits of the document number) to be deleted from our servers at any time with the click of a button.",
     "complete_title": "We are processing your Strong Verification attempt",
-    "complete_message": "Your passport is being validated. If it matches your gender and date of birth, you will soon receive an email within approximately 15 minutes."
+    "complete_message1": "Your passport is being validated. If it matches your gender and date of birth, you will soon receive an email within approximately 15 minutes.",
+    "complete_message2": "Strong Verification expires when your passport expires, and you will need to complete verification again on a new passport.",
+    "delete_data_title": "Delete your Strong Verification passport data",
+    "delete_information": "You can delete your Strong Verification data (except issuing country, expiry date, and the last three digits of the document number) from our servers at any time.",
+    "delete_information_text2": "If you delete your data, you cannot use the same passport for Strong Verification again.",
+    "delete_my_data_button": "Delete my data",
+    "delete_button": "Delete my Strong Verification data",
+    "delete_success": "Your passport data has been deleted."
   },
   "unsubscribe": {
     "title": "Unsubscribe",
