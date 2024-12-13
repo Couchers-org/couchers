@@ -196,34 +196,35 @@ export default function ReportButton({
               </Button>
             </DialogActions>
           </>
-        ) : type === "content" ? (
-          <>
-            <DialogContent>
-              <Typography variant="body1" paragraph>
-                {t("report.content.dialog_message")}
-              </Typography>
-              <MuiLink href={`mailto:${supportEmail}`} underline="hover">
-                {supportEmail}
-              </MuiLink>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={() => handleClose({}, "button")}
-                variant="outlined"
-                sx={{
-                  color: theme.palette.common.black,
-                  borderColor: theme.palette.grey[300],
+        ) : // type === "content" ? (
+        //   <>
+        //     <DialogContent>
+        //       <Typography variant="body1" paragraph>
+        //         {t("report.content.dialog_message")}
+        //       </Typography>
+        //       <MuiLink href={`mailto:${supportEmail}`} underline="hover">
+        //         {supportEmail}
+        //       </MuiLink>
+        //     </DialogContent>
+        //     <DialogActions>
+        //       <Button
+        //         onClick={() => handleClose({}, "button")}
+        //         variant="outlined"
+        //         sx={{
+        //           color: theme.palette.common.black,
+        //           borderColor: theme.palette.grey[300],
 
-                  "&:hover": {
-                    borderColor: theme.palette.grey[300],
-                    backgroundColor: "#3135390A",
-                  },
-                }}>
-                {t("cancel")}
-              </Button>
-            </DialogActions>
-          </>
-        ) : type === "bug" ? (
+        //           "&:hover": {
+        //             borderColor: theme.palette.grey[300],
+        //             backgroundColor: "#3135390A",
+        //           },
+        //         }}>
+        //         {t("cancel")}
+        //       </Button>
+        //     </DialogActions>
+        //   </>
+        // ) :
+        type === "bug" ? (
           <form onSubmit={onSubmit}>
             <DialogContent>
               {error && <Alert severity="error">{error.message}</Alert>}
