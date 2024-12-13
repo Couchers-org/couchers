@@ -173,13 +173,11 @@ export default function ReportButton({
                 className={classes.typeButton}>
                 {t("report.bug.button_label")}
               </Button>
-              <Button
-                onClick={() => {
-                  setType("content");
-                }}
-                className={classes.typeButton}>
-                {t("report.content.button_label")}
-              </Button>
+              <Link href={helpCenterRoute} passHref>
+                <Button component="a" className={classes.typeButton}>
+                  {t("report.content.button_label")}
+                </Button>
+              </Link>
             </DialogContent>
             <DialogActions>
               <Button
