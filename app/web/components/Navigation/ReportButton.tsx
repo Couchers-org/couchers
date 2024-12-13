@@ -1,6 +1,8 @@
 import {
   darken,
-  Link,
+  Link as MuiLink,
+  // Link,
+  styled,
   Typography,
   useMediaQuery,
   useTheme,
@@ -27,6 +29,8 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
+import { reportRoute } from "routes";
+import Link from "next/link";
 
 export interface BugReportFormData {
   subject: string;
@@ -139,8 +143,7 @@ export default function ReportButton({
           variant="text"
           aria-label={t("report.label")}
           className={classes.menuLink}
-          onClick={() => setIsOpen(true)}
-        >
+          onClick={() => setIsOpen(true)}>
           {t("report.label")}
         </Button>
       ) : (
@@ -153,16 +156,14 @@ export default function ReportButton({
           classes={{
             containedPrimary: classes.button,
             startIcon: classes.startIcon,
-          }}
-        >
+          }}>
           {(!isResponsive || !isBelowMd) && t("report.label")}
         </Button>
       )}
       <Dialog
         aria-labelledby="bug-reporter"
         open={isOpen}
-        onClose={handleClose}
-      >
+        onClose={handleClose}>
         <DialogTitle id="bug-reporter">{t("report.label")}</DialogTitle>
         {type === "initial" ? (
           <>
@@ -171,18 +172,35 @@ export default function ReportButton({
                 onClick={() => {
                   setType("bug");
                 }}
-                className={classes.typeButton}
-              >
+                className={classes.typeButton}>
                 {t("report.bug.button_label")}
               </Button>
-              <Button
+              {/* </DialogContent> */}
+
+              {/* <Button
+                component="a"
+                href={reportRoute}
+                className={classes.typeButton}>
+                {t("report.content.button_label")}
+              </Button> */}
+
+              <Link href={reportRoute} passHref>
+                <Button
+                  component="a"
+                  // onClick={() => {
+                  //   setType("content");
+                  // }}
+                  className={classes.typeButton}>
+                  {t("report.content.button_label")}
+                </Button>
+              </Link>
+              {/* <Button
                 onClick={() => {
                   setType("content");
                 }}
-                className={classes.typeButton}
-              >
+                className={classes.typeButton}>
                 {t("report.content.button_label")}
-              </Button>
+              </Button> */}
             </DialogContent>
             <DialogActions>
               <Button
@@ -196,41 +214,43 @@ export default function ReportButton({
                     borderColor: theme.palette.grey[300],
                     backgroundColor: "#3135390A",
                   },
-                }}
-              >
+                }}>
                 {t("cancel")}
               </Button>
             </DialogActions>
           </>
-        ) : type === "content" ? (
-          <>
-            <DialogContent>
-              <Typography variant="body1" paragraph>
-                {t("report.content.dialog_message")}
-              </Typography>
-              <Link href={`mailto:${supportEmail}`} underline="hover">
-                {supportEmail}
-              </Link>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={() => handleClose({}, "button")}
-                variant="outlined"
-                sx={{
-                  color: theme.palette.common.black,
-                  borderColor: theme.palette.grey[300],
+        ) : // : type === "content" ? (
+        //   <>
+        //     <DialogContent>
+        //       <Typography variant="body1" paragraph>
+        //         {t("report.content.dialog_message")}
+        //       </Typography>
+        //       <MuiLink href={`mailto:${supportEmail}`} underline="hover">
+        //         {supportEmail}
+        //       </MuiLink>
+        //       {/* <Link href={`mailto:${supportEmail}`} underline="hover">
+        //         {supportEmail}
+        //       </Link> */}
+        //     </DialogContent>
+        //     <DialogActions>
+        //       <Button
+        //         onClick={() => handleClose({}, "button")}
+        //         variant="outlined"
+        //         sx={{
+        //           color: theme.palette.common.black,
+        //           borderColor: theme.palette.grey[300],
 
-                  "&:hover": {
-                    borderColor: theme.palette.grey[300],
-                    backgroundColor: "#3135390A",
-                  },
-                }}
-              >
-                {t("cancel")}
-              </Button>
-            </DialogActions>
-          </>
-        ) : type === "bug" ? (
+        //           "&:hover": {
+        //             borderColor: theme.palette.grey[300],
+        //             backgroundColor: "#3135390A",
+        //           },
+        //         }}>
+        //         {t("cancel")}
+        //       </Button>
+        //     </DialogActions>
+        //   </>
+        // )
+        type === "bug" ? (
           <form onSubmit={onSubmit}>
             <DialogContent>
               {error && <Alert severity="error">{error.message}</Alert>}
@@ -287,8 +307,7 @@ export default function ReportButton({
                     borderColor: theme.palette.grey[300],
                     backgroundColor: "#3135390A",
                   },
-                }}
-              >
+                }}>
                 {t("cancel")}
               </Button>
             </DialogActions>
