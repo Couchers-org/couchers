@@ -59,7 +59,7 @@ service Admin {
 
   rpc DeleteEvent(DeleteEventReq) returns (google.protobuf.Empty) {}
 
-  rpc ListUsers(ListUsersReq) returns (ListUsersRes) {}
+  rpc ListUserIds(ListUserIdsReq) returns (ListUserIdsRes) {}
 }
 
 message UserDetails {
@@ -245,7 +245,7 @@ message DeleteEventReq {
   int64 event_id = 1;
 }
 
-message ListUsersReq {
+message ListUserIdsReq {
   google.protobuf.Timestamp start_time = 1;
   google.protobuf.Timestamp end_time = 2;
 
@@ -253,8 +253,8 @@ message ListUsersReq {
   string page_token = 4;
 }
 
-message ListUsersRes {
-  repeated string users = 1;
+message ListUserIdsRes {
+  repeated int64 user_ids = 1;
 
   string next_page_token = 2;
 }
