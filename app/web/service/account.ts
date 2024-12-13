@@ -130,3 +130,8 @@ export async function logOutSession(created: Timestamp.AsObject) {
   const response = await client.account.logOutSession(req);
   return response.toObject();
 }
+
+export async function initiateStrongVerification() {
+  const res = await client.account.initiateStrongVerification(new Empty());
+  return res.toObject();
+}

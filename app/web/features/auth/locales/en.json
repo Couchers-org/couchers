@@ -330,9 +330,10 @@
       "enabled_message": "You <1>are currently</1> verified with Strong Verification.",
       "disabled_message": "You <1>are currently not</1> verified with Strong Verification."
     },
-    "complete_in_console": "You can complete Strong Verification <2>on this page</2>. We are working on improving the flow and implementing it fully in the platform.",
-    "go_to_button": "Go to Strong Verification settings",
+    "begin_button": "Start Strong Verification",
     "complete_title": "We are processing your Strong Verification attempt",
+    "information_text1": "You will need a biometric passport.",
+    "information_text2": "By clicking the button below, you will be taken to the Iris ID website to complete the passport verification process.",
     "complete_message": "Your passport is being validated. If it matches your gender and date of birth, you will soon receive an email within approximately 15 minutes."
   },
   "unsubscribe": {

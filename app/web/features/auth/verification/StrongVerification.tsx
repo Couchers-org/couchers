@@ -1,14 +1,81 @@
-import { Link, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
+import Alert from "components/Alert";
 import Button from "components/Button";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "components/Dialog";
+import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import { GetAccountInfoRes } from "proto/account_pb";
-import { strongVerificationURL } from "routes";
+import { useRouter } from "next/router";
+import {
+  GetAccountInfoRes,
+  InitiateStrongVerificationRes,
+} from "proto/account_pb";
+import { useState } from "react";
+import { useMutation } from "react-query";
+import { service } from "service";
 
 type ChangePhoneProps = {
   accountInfo: GetAccountInfoRes.AsObject;
   className?: string;
 };
+
+function StartStrongVerificationButton() {
+  const { t } = useTranslation(AUTH);
+
+  const [open, setOpen] = useState(false);
+
+  const router = useRouter();
+
+  const {
+    error,
+    isLoading,
+    mutate: startStrongVerification,
+  } = useMutation<InitiateStrongVerificationRes.AsObject, RpcError>(
+    service.account.initiateStrongVerification,
+    {
+      onSuccess: async (data) => {
+        router.push(data.redirectUrl);
+      },
+    }
+  );
+
+  return (
+    <>
+      <Dialog aria-labelledby="strong-verification-start-dialog" open={open}>
+        <DialogTitle id="strong-verification-start-dialog">
+          {t("strong_verification.title")}
+        </DialogTitle>
+        <DialogContent>
+          {error && (
+            <DialogContentText>
+              <Alert severity="error">{error.message}</Alert>
+            </DialogContentText>
+          )}
+          <DialogContentText>
+            {t("strong_verification.information_text1")}
+          </DialogContentText>
+          <DialogContentText>
+            {t("strong_verification.information_text2")}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => startStrongVerification()} loading={isLoading}>
+            {t("strong_verification.begin_button")}
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Button loading={isLoading} onClick={() => setOpen(true)}>
+        {t("strong_verification.begin_button")}
+      </Button>
+    </>
+  );
+}
 
 export default function StrongVerification({
   className,
@@ -31,19 +98,7 @@ export default function StrongVerification({
           You <strong>are currently</strong> verified with Strong Verification.
         </Trans>
       </Typography>
-      <Typography variant="body1">
-        <Trans t={t} i18nKey="strong_verification.complete_in_console">
-          You can complete Strong Verification{" "}
-          <Link href={strongVerificationURL} underline="hover">
-            on this page
-          </Link>
-          . We are working on improving the flow and implementing it fully in
-          the platform.
-        </Trans>
-      </Typography>
-      <Button href={strongVerificationURL}>
-        {t("strong_verification.go_to_button")}
-      </Button>
+      {!accountInfo.hasStrongVerification && <StartStrongVerificationButton />}
     </div>
   );
 }
