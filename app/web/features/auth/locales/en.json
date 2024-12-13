@@ -331,7 +331,9 @@
       "disabled_message": "You <1>are currently not</1> verified with Strong Verification."
     },
     "complete_in_console": "You can complete Strong Verification <2>on this page</2>. We are working on improving the flow and implementing it fully in the platform.",
-    "go_to_button": "Go to Strong Verification settings"
+    "go_to_button": "Go to Strong Verification settings",
+    "complete_title": "We are processing your Strong Verification attempt",
+    "complete_message": "Your passport is being validated. If it matches your gender and date of birth, you will soon receive an email within approximately 15 minutes."
   },
   "unsubscribe": {
     "title": "Unsubscribe",
