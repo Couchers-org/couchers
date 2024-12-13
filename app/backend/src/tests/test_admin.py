@@ -530,12 +530,18 @@ def test_ListUserIds(db):
     normal_user, normal_token = generate_user()
 
     with real_admin_session(super_token) as api:
-        res = api.ListUserIds(admin_pb2.ListUserIdsReq(start_time=Timestamp_from_datetime(datetime(2000,1,1)), end_time=Timestamp_from_datetime(now())))
+        res = api.ListUserIds(
+            admin_pb2.ListUserIdsReq(
+                start_time=Timestamp_from_datetime(datetime(2000, 1, 1)), end_time=Timestamp_from_datetime(now())
+            )
+        )
         assert len(res.user_ids) > 1
         assert any(user == normal_user.id for user in res.user_ids)
 
     with real_admin_session(super_token) as api:
-        res = api.ListUserIds(admin_pb2.ListUserIdsReq(start_time=Timestamp_from_datetime(now()), end_time=Timestamp_from_datetime(now())))
+        res = api.ListUserIds(
+            admin_pb2.ListUserIdsReq(start_time=Timestamp_from_datetime(now()), end_time=Timestamp_from_datetime(now()))
+        )
         assert len(res.user_ids) < 1
 
 
