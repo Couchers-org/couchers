@@ -1,11 +1,8 @@
 import {
   darken,
-  Link as MuiLink,
-  Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { supportEmail } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -21,14 +18,14 @@ import StyledLink from "components/StyledLink";
 import TextField from "components/TextField";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
+import Link from "next/link";
 import { ReportBugRes } from "proto/bugs_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
+import { helpCenterRoute } from "routes";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
-import { helpCenterRoute } from "routes";
-import Link from "next/link";
 
 export interface BugReportFormData {
   subject: string;
