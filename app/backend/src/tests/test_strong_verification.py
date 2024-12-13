@@ -46,7 +46,7 @@ def _emulate_iris_callback(session_id, session_state, reference):
     assert session_state in ["CREATED", "INITIATED", "FAILED", "ABORTED", "COMPLETED", "REJECTED", "APPROVED"]
     with real_iris_session() as iris:
         data = json.dumps(
-            {"session_id": session_id, "session_state": session_state, "session_referenace": reference}
+            {"session_id": session_id, "session_state": session_state, "session_reference": reference}
         ).encode("ascii")
         iris.Webhook(httpbody_pb2.HttpBody(content_type="application/json", data=data))
 

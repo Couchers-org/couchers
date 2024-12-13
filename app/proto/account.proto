@@ -153,8 +153,8 @@ message VerifyPhoneReq {
 message InitiateStrongVerificationRes {
   // use this token to check status
   string verification_attempt_token = 1;
-  // the user should open this link which takes them to the Iris ID app
-  string iris_url = 2;
+  // this is where the user should be redirected for the next step
+  string redirect_url = 3;
 }
 
 message GetStrongVerificationAttemptStatusReq {

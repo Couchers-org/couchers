@@ -1,6 +1,7 @@
 import json
 import logging
 from datetime import timedelta
+from urllib.parse import urlencode
 
 import grpc
 import requests
@@ -8,7 +9,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy.sql import func, update
 from user_agents import parse as user_agents_parse
 
-from couchers import errors
+from couchers import errors, urls
 from couchers.config import config
 from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.crypto import (
@@ -403,22 +404,32 @@ class Account(account_pb2_grpc.AccountServicer):
             },
             timeout=10,
         )
+
         if response.status_code != 200:
             raise Exception(f"Iris didn't return 200: {response.text}")
+
         iris_session_id = response.json()["id"]
         token = response.json()["token"]
-        url = f"iris:///?token={token}"
-        verification_attempt = StrongVerificationAttempt(
-            user_id=user.id,
-            verification_attempt_token=verification_attempt_token,
-            iris_session_id=iris_session_id,
-            iris_token=token,
+        session.add(
+            StrongVerificationAttempt(
+                user_id=user.id,
+                verification_attempt_token=verification_attempt_token,
+                iris_session_id=iris_session_id,
+                iris_token=token,
+            )
         )
-        session.add(verification_attempt)
+
+        redirect_params = {
+            "token": token,
+            "redirect_url": urls.strong_verification_complete_url(
+                verification_attempt_token=verification_attempt_token
+            ),
+        }
+        redirect_url = "https://passportreader.app/open?" + urlencode(redirect_params)
 
         return account_pb2.InitiateStrongVerificationRes(
             verification_attempt_token=verification_attempt_token,
-            iris_url=url,
+            redirect_url=redirect_url,
         )
 
     def GetStrongVerificationAttemptStatus(self, request, context, session):
@@ -597,7 +608,7 @@ class Iris(iris_pb2_grpc.IrisServicer):
     def Webhook(self, request, context, session):
         json_data = json.loads(request.data)
         reference_payload = verification_pb2.VerificationReferencePayload.FromString(
-            simple_decrypt("iris_callback", b64decode(json_data["session_referenace"]))
+            simple_decrypt("iris_callback", b64decode(json_data["session_reference"]))
         )
         # if we make it past the decrypt, we consider this webhook authenticated
         verification_attempt_token = reference_payload.verification_attempt_token
