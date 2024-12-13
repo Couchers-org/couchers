@@ -204,9 +204,9 @@ export default function ReportButton({
               <Typography variant="body1" paragraph>
                 {t("report.content.dialog_message")}
               </Typography>
-              <Link href={`mailto:${supportEmail}`} underline="hover">
+              <MuiLink href={`mailto:${supportEmail}`} underline="hover">
                 {supportEmail}
-              </Link>
+              </MuiLink>
             </DialogContent>
             <DialogActions>
               <Button
