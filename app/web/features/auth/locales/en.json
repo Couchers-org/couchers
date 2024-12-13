@@ -330,10 +330,12 @@
       "enabled_message": "You <1>are currently</1> verified with Strong Verification.",
       "disabled_message": "You <1>are currently not</1> verified with Strong Verification."
     },
-    "begin_button": "Start Strong Verification",
-    "complete_title": "We are processing your Strong Verification attempt",
-    "information_text1": "You will need a biometric passport.",
+    "start_button": "Start Strong Verification",
+    "begin_button": "Complete Strong Verification with Iris ID",
+    "information_text1": "You will need a biometric passport and an NFC-capable Apple iPhone or Android phone.",
     "information_text2": "By clicking the button below, you will be taken to the Iris ID website to complete the passport verification process.",
+    "information_text3": "You can read more about how we and Iris ID process and store your data in our <2>Terms of Service</2>. As per the Iris ID <5>Privacy policy</5>, they will delete your personal information within 24 hours.",
+    "complete_title": "We are processing your Strong Verification attempt",
     "complete_message": "Your passport is being validated. If it matches your gender and date of birth, you will soon receive an email within approximately 15 minutes."
   },
   "unsubscribe": {
