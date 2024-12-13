@@ -58,6 +58,8 @@ service Admin {
   rpc DecideEventCommunityInviteRequest(DecideEventCommunityInviteRequestReq) returns (DecideEventCommunityInviteRequestRes) {}
 
   rpc DeleteEvent(DeleteEventReq) returns (google.protobuf.Empty) {}
+
+  rpc ListUsers(ListUsersReq) returns (ListUsersRes) {}
 }
 
 message UserDetails {
@@ -241,4 +243,18 @@ message DecideEventCommunityInviteRequestRes {}
 
 message DeleteEventReq {
   int64 event_id = 1;
+}
+
+message ListUsersReq {
+  google.protobuf.Timestamp start_time = 1;
+  google.protobuf.Timestamp end_time = 2;
+
+  uint32 page_size = 3;
+  string page_token = 4;
+}
+
+message ListUsersRes {
+  repeated string users = 1;
+
+  string next_page_token = 2;
 }
