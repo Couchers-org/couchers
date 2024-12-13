@@ -28,11 +28,19 @@ const useStyles = makeStyles((theme) => ({
   },
   root: {
     padding: theme.spacing(1),
-    [theme.breakpoints.up("md")]: {
+    [theme.breakpoints.up("sm")]: {
       display: "grid",
       gridTemplateColumns: "2fr 3fr",
       gap: theme.spacing(3),
       margin: theme.spacing(0, 3),
+      padding: 0,
+      paddingTop: theme.spacing(3),
+      paddingBottom: theme.spacing(3),
+    },
+    [theme.breakpoints.up("md")]: {
+      gridTemplateColumns: "2fr 4fr",
+      maxWidth: "61.5rem",
+      margin: "0 auto",
     },
   },
 }));
