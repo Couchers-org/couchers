@@ -1,6 +1,6 @@
 import {
   darken,
-  Link,
+  Link as MuiLink,
   Typography,
   useMediaQuery,
   useTheme,
