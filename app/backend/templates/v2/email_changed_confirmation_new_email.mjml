@@ -1,7 +1,7 @@
 <mj-section padding="0px">
   <mj-column>
     <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-    <mj-text>You requested that your email be changed to this email address on Couchers.org. Your old email address is <code>{{ user.email|v2esc }}</code>. This is the final step in the process.</mj-text>
+    <mj-text>You requested that your email be changed to this email address on Couchers.org. Your old email address is <b>{{ user.email|v2esc }}</b>. This is the final step in the process.</mj-text>
     <mj-text>To complete this change, please confirm your email by clicking the following link:</mj-text>
   </mj-column>
 </mj-section>
