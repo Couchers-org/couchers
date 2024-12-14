@@ -166,11 +166,12 @@ def test_user_filter_language(db):
     user_with_german_beginner, token11 = generate_user(hosting_status=HostingStatus.can_host)
     user_with_japanese_conversational, token12 = generate_user(hosting_status=HostingStatus.can_host)
     user_with_german_fluent, token13 = generate_user(hosting_status=HostingStatus.can_host)
-    
 
     with session_scope() as session:
         session.add(
-            LanguageAbility(user_id=user_with_german_beginner.id, language_code="deu", fluency=LanguageFluency.beginner), 
+            LanguageAbility(
+                user_id=user_with_german_beginner.id, language_code="deu", fluency=LanguageFluency.beginner
+            ),
         )
         session.add(
             LanguageAbility(

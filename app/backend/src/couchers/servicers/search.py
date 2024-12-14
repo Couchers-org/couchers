@@ -18,7 +18,6 @@ from couchers.models import (
     EventOrganizer,
     EventSubscription,
     LanguageAbility,
-    LanguageFluency,
     Node,
     Page,
     PageType,
@@ -57,7 +56,6 @@ MAX_PAGINATION_LENGTH = 100
 REGCONFIG = "english"
 TRI_SIMILARITY_THRESHOLD = 0.6
 TRI_SIMILARITY_WEIGHT = 5
-
 
 
 def _join_with_space(coalesces):

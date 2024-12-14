@@ -75,7 +75,6 @@ fluency2sql = {
 }
 
 
-
 meetupstatus2api = {
     None: api_pb2.MEETUP_STATUS_UNKNOWN,
     MeetupStatus.wants_to_meetup: api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP,
