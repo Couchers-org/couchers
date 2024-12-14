@@ -76,6 +76,7 @@ export default function SearchPage({
   const queryClient = new QueryClient();
   const classes = useStyles();
   const map = useRef<MaplibreMap>();
+  const searchFromDashboard = !!(locationName || bbox);
 
   // State
   const [wasSearchPerformed, setWasSearchPerformed] = useState(false);
@@ -171,6 +172,13 @@ export default function SearchPage({
     locationResult.location.lat,
   ]);
 
+  /**
+   * Every time a new result is set (new search) we unselect the selected result
+   */
+  useEffect(() => {
+    setSelectedResult(undefined);
+  }, [locationResult])
+
   const errorMessage = error?.message;
 
   return (
@@ -191,6 +199,7 @@ export default function SearchPage({
           setSelectedResult={setSelectedResult}
           wasSearchPerformed={wasSearchPerformed}
           isLoading={isLoading || isFetching}
+          searchFromDashboard={searchFromDashboard}
         />
         <FilterDialog
           isOpen={isFiltersOpen}

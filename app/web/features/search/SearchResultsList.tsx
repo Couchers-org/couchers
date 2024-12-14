@@ -97,6 +97,7 @@ interface mapWrapperProps {
   setQueryName: Dispatch<SetStateAction<string>>;
   queryName: string;
   wasSearchPerformed: boolean;
+  searchFromDashboard: boolean;
 }
 
 export default function SearchResultsList({
@@ -113,6 +114,7 @@ export default function SearchResultsList({
   setQueryName,
   queryName,
   wasSearchPerformed,
+  searchFromDashboard,
 }: mapWrapperProps) {
   const [open, setOpen] = useState(false);
   const selectedUserData = useUser(selectedResult?.userId);
@@ -126,7 +128,7 @@ export default function SearchResultsList({
     .flatMap((page) => page.resultsList)
     .filter((result) => result.user);
 
-  if (isMobile && !wasSearchPerformed) {
+  if (isMobile && !wasSearchPerformed && !searchFromDashboard) {
     resultsList = [];
   }
 
