@@ -53,7 +53,7 @@ const StyledUpperContainer = styled("div")(({ theme }) => ({
   rowGap: theme.spacing(1),
   columnGap: theme.spacing(1),
   gridTemplateColumns: "auto auto",
-  maxWidth: theme.breakpoints.values.lg,
+  maxWidth: theme.breakpoints.values.md,
   paddingInlineStart: theme.spacing(4),
   paddingInlineEnd: theme.spacing(4),
 
@@ -80,7 +80,7 @@ const StyledMiddleContainer = styled("div")(({ theme }) => ({
   justifyContent: "center",
   fontStyle: "italic",
   color: theme.palette.grey[500],
-  maxWidth: theme.breakpoints.values.lg,
+  maxWidth: theme.breakpoints.values.md,
   paddingInlineStart: theme.spacing(4),
   paddingInlineEnd: theme.spacing(4),
 }));
@@ -97,7 +97,7 @@ const StyledLowerContainer = styled("div")(({ theme }) => ({
   flexWrap: "wrap",
   margin: "0 auto",
   justifyContent: "center",
-  maxWidth: theme.breakpoints.values.lg,
+  maxWidth: theme.breakpoints.values.md,
   paddingInlineStart: theme.spacing(4),
   paddingInlineEnd: theme.spacing(4),
 

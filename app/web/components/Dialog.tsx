@@ -54,7 +54,7 @@ export interface AccessibleDialogProps extends Omit<DialogProps, "className"> {
 }
 
 export function Dialog(props: AccessibleDialogProps) {
-  return <MuiDialog {...props} fullWidth maxWidth="md" scroll="body" />;
+  return <MuiDialog {...props} fullWidth maxWidth="sm" scroll="body" />;
 }
 
 export function DialogActions(props: Omit<DialogActionsProps, "className">) {

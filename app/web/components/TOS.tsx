@@ -13,7 +13,7 @@ import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    maxWidth: theme.breakpoints.values.xl,
+    maxWidth: theme.breakpoints.values.lg,
     margin: "0 auto",
     padding: theme.spacing(2),
   },
