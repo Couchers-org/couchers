@@ -1,4 +1,3 @@
-import { Collapse, useMediaQuery, useTheme } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import HtmlMeta from "components/HtmlMeta";
 import { Coordinates } from "features/search/constants";
@@ -76,7 +75,6 @@ export default function SearchPage({
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const queryClient = new QueryClient();
   const classes = useStyles();
-  const theme = useTheme();
   const map = useRef<MaplibreMap>();
 
   // State

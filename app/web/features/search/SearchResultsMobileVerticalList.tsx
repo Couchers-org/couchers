@@ -40,7 +40,7 @@ const StyledOpenButton = styled(IconButton)(({ theme }) => ({
 const StyledDiv = styled("div")(({ theme }) => ({
   position: "relative",
   top: "-7px",
-  zIndex: "11",  
+  zIndex: "11",
 }));
 
 const StyledCloseButton = styled(IconButton)(({ theme }) => ({
@@ -79,7 +79,7 @@ const StyledVerticalList = styled(List)(({ theme }) => ({
 export default function SearchResultsMobileVerticalList({
   resultsSnippet,
   open,
-  setOpen
+  setOpen,
 }: Props) {
   const [shouldShowOpenButton, setShouldShowOpenButton] = useState(false);
 
@@ -108,8 +108,6 @@ export default function SearchResultsMobileVerticalList({
 
         <StyledVerticalList>{resultsSnippet}</StyledVerticalList>
       </StyledDrawer>
-
-
     </StyledDiv>
   );
 }

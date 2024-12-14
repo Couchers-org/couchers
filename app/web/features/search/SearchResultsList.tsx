@@ -167,48 +167,50 @@ export default function SearchResultsList({
       {/* Mobile */}
       {isMobile && resultsSnippet && resultsSnippet?.length > 0 && (
         <>
-          <SearchResultsMobileVerticalList open={open} setOpen={setOpen} resultsSnippet={resultsSnippet} />
+          <SearchResultsMobileVerticalList
+            open={open}
+            setOpen={setOpen}
+            resultsSnippet={resultsSnippet}
+          />
           {error && <Alert severity="error">{error}</Alert>}
         </>
       )}
 
       {/* Desktop */}
-      {
-        !isMobile && hasAtLeastOnePageResults && (
-          <StyledMapResults>
-            <SearchBox
-              searchType={searchType}
-              setSearchType={setSearchType}
-              locationResult={locationResult}
-              setLocationResult={setLocationResult}
-              setQueryName={setQueryName}
-              queryName={queryName}
-            />
+      {!isMobile && hasAtLeastOnePageResults && (
+        <StyledMapResults>
+          <SearchBox
+            searchType={searchType}
+            setSearchType={setSearchType}
+            locationResult={locationResult}
+            setLocationResult={setLocationResult}
+            setQueryName={setQueryName}
+            queryName={queryName}
+          />
 
-            <StyledPaper>
-              {isLoadingState && <CenteredSpinner />}
+          <StyledPaper>
+            {isLoadingState && <CenteredSpinner />}
 
-              {error && <Alert severity="error">{error}</Alert>}
+            {error && <Alert severity="error">{error}</Alert>}
 
-              {!isLoading && !hasAtLeastOnePageResults && (
-                <StyledTextBody>
-                  {t("search_result.no_user_result_message")}
-                </StyledTextBody>
-              )}
+            {!isLoading && !hasAtLeastOnePageResults && (
+              <StyledTextBody>
+                {t("search_result.no_user_result_message")}
+              </StyledTextBody>
+            )}
 
-              {hasAtLeastOnePageResults && (
-                <StyledHorizontalScroller
-                  breakpoint="md"
-                  isFetching={isLoading}
-                  hasMore={hasNext}
-                >
-                  {resultsSnippet}
-                </StyledHorizontalScroller>
-              )}
-            </StyledPaper>
-          </StyledMapResults>
-        )
-      }
+            {hasAtLeastOnePageResults && (
+              <StyledHorizontalScroller
+                breakpoint="md"
+                isFetching={isLoading}
+                hasMore={hasNext}
+              >
+                {resultsSnippet}
+              </StyledHorizontalScroller>
+            )}
+          </StyledPaper>
+        </StyledMapResults>
+      )}
     </>
   );
 }
