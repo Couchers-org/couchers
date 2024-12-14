@@ -824,6 +824,8 @@ def finalize_strong_verification(payload):
             .where(StrongVerificationAttempt.passport_expiry_date == expiry_date)
             .where(StrongVerificationAttempt.passport_nationality == nationality)
             .where(StrongVerificationAttempt.passport_last_three_document_chars == last_three_document_chars)
+            .order_by(StrongVerificationAttempt.id)
+            .limit(1)
         ).scalar_one_or_none()
 
         verification_attempt.has_minimal_data = True
@@ -835,6 +837,7 @@ def finalize_strong_verification(payload):
             verification_attempt.status = StrongVerificationAttemptStatus.duplicate
 
             if existing_attempt.user_id != verification_attempt.user_id:
+                session.flush()
                 send_duplicate_strong_verification_email(session, existing_attempt, verification_attempt)
 
             notify(
