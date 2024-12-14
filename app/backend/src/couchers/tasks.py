@@ -106,10 +106,10 @@ def send_duplicate_strong_verification_email(session, old_attempt, new_attempt):
         config["REPORTS_EMAIL_RECIPIENT"],
         "duplicate_strong_verification_report",
         template_args={
-            "new_user": new_attempt.user_id,
+            "new_user": new_attempt.user,
             "new_attempt_id": new_attempt.id,
             "new_user_user_link": urls.user_link(username=new_attempt.user.username),
-            "old_user": old_attempt.user_id,
+            "old_user": old_attempt.user,
             "old_attempt_id": old_attempt.id,
             "old_user_user_link": urls.user_link(username=old_attempt.user.username),
         },
