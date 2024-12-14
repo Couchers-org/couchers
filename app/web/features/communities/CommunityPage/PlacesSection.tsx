@@ -1,5 +1,5 @@
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HorizontalScroller from "components/HorizontalScroller";
 import { LocationIcon } from "components/Icons";
 import TextBody from "components/TextBody";
@@ -34,7 +34,7 @@ export default function PlacesSection({
         {t("communities:places_title")}
       </TitleWithIcon>
       {placesError && <Alert severity="error">{placesError.message}</Alert>}
-      {isPlacesLoading && <CircularProgress />}
+      {isPlacesLoading && <CenteredSpinner />}
       <HorizontalScroller className={classes.cardContainer}>
         {places &&
         places.pages.length > 0 &&

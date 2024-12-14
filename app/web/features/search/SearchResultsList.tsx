@@ -1,6 +1,6 @@
 import { Paper, styled, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
 import SearchResult from "features/search/SearchResult";
@@ -156,40 +156,43 @@ export default function SearchResultsList({
         <SearchResultsMobileVerticalList resultsSnippet={resultsSnippet} />
       )}
 
-      {error && <Alert severity="error">{error}</Alert>}
 
-      {!hasAtLeastOnePageResults && (
-        <StyledTextBody>
-          {t("search_result.no_user_result_message")}
-        </StyledTextBody>
-      )}
+      {
+        !isMobile && hasAtLeastOnePageResults && (
+          <StyledMapResults>
+            <SearchBox
+              searchType={searchType}
+              setSearchType={setSearchType}
+              locationResult={locationResult}
+              setLocationResult={setLocationResult}
+              setQueryName={setQueryName}
+              queryName={queryName}
+            />
 
-      {!isMobile && hasAtLeastOnePageResults && (
-        <StyledMapResults>
-          <SearchBox
-            searchType={searchType}
-            setSearchType={setSearchType}
-            locationResult={locationResult}
-            setLocationResult={setLocationResult}
-            setQueryName={setQueryName}
-            queryName={queryName}
-          />
+            <Paper>
+              {isLoadingState && <CenteredSpinner />}
 
-          <Paper>
-            {isLoadingState && <CircularProgress />}
+              {error && <Alert severity="error">{error}</Alert>}
 
-            {hasAtLeastOnePageResults && (
-              <StyledHorizontalScroller
-                breakpoint="md"
-                isFetching={isLoading}
-                hasMore={hasNext}
-              >
-                {resultsSnippet}
-              </StyledHorizontalScroller>
-            )}
-          </Paper>
-        </StyledMapResults>
-      )}
+              {!isLoading && !hasAtLeastOnePageResults && (
+                <TextBody className={classes.baseMargin}>
+                  {t("search_result.no_user_result_message")}
+                </TextBody>
+              )}
+
+              {hasAtLeastOnePageResults && (
+                <StyledHorizontalScroller
+                  breakpoint="md"
+                  isFetching={isLoading}
+                  hasMore={hasNext}
+                >
+                  {resultsSnippet}
+                </StyledHorizontalScroller>
+              )}
+            </Paper>
+          </StyledMapResults>
+        )
+      }
     </>
   );
 }

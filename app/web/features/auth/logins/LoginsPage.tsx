@@ -1,6 +1,7 @@
-import { CircularProgress, styled, Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button, { AppButtonProps } from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { activeLoginsKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -75,7 +76,7 @@ export default function LoginsPage() {
         <Alert severity="error">{logoutAllError?.message}</Alert>
       )}
       {isLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : (
         sessions.map((session) => (
           <LoginCard

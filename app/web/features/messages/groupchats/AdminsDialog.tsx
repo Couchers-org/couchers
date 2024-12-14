@@ -1,7 +1,8 @@
-import { CircularProgress, DialogProps, List, ListItem } from "@mui/material";
+import { DialogProps, List, ListItem } from "@mui/material";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import {
   Dialog,
@@ -196,7 +197,7 @@ export default function AdminsDialog({
       <DialogContent>
         <List>
           {admins.isLoading ? (
-            <CircularProgress />
+            <CenteredSpinner />
           ) : (
             Array.from(admins.data?.values() ?? [])
               .sort((a, b) => b?.name.localeCompare(a?.name ?? "") ?? 0)
@@ -225,7 +226,7 @@ export default function AdminsDialog({
           <DialogContent>
             <List>
               {nonAdmins.isLoading ? (
-                <CircularProgress />
+                <CenteredSpinner />
               ) : (
                 Array.from(nonAdmins.data?.values() ?? [])
                   .sort((a, b) => b?.name.localeCompare(a?.name ?? "") ?? 0)

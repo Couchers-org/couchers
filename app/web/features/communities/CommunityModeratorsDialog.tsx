@@ -1,6 +1,6 @@
-import { CircularProgress } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import {
   AccessibleDialogProps,
   Dialog,
@@ -47,7 +47,7 @@ export default function CommunityModeratorsDialog({
       <DialogContent>
         {error && <Alert severity="error">{error.message}</Alert>}
         {isLoading ? (
-          <CircularProgress />
+          <CenteredSpinner />
         ) : adminIds && adminIds.length > 0 && adminUsers ? (
           adminIds.map((id) => (
             <UserSummary

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from re import match
 
 import grpc
@@ -523,6 +523,26 @@ def test_DeleteEvent(db):
             )
             occurrence = session.get(EventOccurrence, ident=event_id)
             assert occurrence.is_deleted
+
+
+def test_ListUserIds(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user()
+
+    with real_admin_session(super_token) as api:
+        res = api.ListUserIds(
+            admin_pb2.ListUserIdsReq(
+                start_time=Timestamp_from_datetime(datetime(2000, 1, 1)), end_time=Timestamp_from_datetime(now())
+            )
+        )
+        assert len(res.user_ids) == 2
+        assert sorted(res.user_ids) == sorted([super_user.id, normal_user.id])
+
+    with real_admin_session(super_token) as api:
+        res = api.ListUserIds(
+            admin_pb2.ListUserIdsReq(start_time=Timestamp_from_datetime(now()), end_time=Timestamp_from_datetime(now()))
+        )
+        assert res.user_ids == []
 
 
 # community invite feature tested in test_events.py

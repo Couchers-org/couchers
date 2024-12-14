@@ -5,7 +5,6 @@ Please make sure this file stays in sync with that file as well as
 //app/backend/src/couchers/urls.py
 */
 import { ReferenceType } from "proto/references_pb";
-import { ReferenceTypeStrings } from "service/references";
 import SearchFilters, { parseSearchFiltersToQuery } from "utils/searchFilters";
 
 export const baseRoute = "/";

@@ -1,5 +1,5 @@
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import ChangeEmail from "features/auth/email/ChangeEmail";
@@ -41,7 +41,7 @@ export default function Settings() {
       <HtmlMeta title={t("account_settings_page.title")} />
       <PageTitle>{t("account_settings_page.title")}</PageTitle>
       {isAccountInfoLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : accountInfoError ? (
         <Alert severity="error">{accountInfoError.message}</Alert>
       ) : accountInfo ? (

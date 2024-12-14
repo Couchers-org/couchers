@@ -1,6 +1,6 @@
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
 import TextField from "components/TextField";
@@ -56,7 +56,7 @@ export default function NewPlaceForm() {
     <>
       {createError && <Alert severity="error">{createError?.message}</Alert>}
       {isCreateLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : (
         <form onSubmit={onSubmit}>
           <TextField
