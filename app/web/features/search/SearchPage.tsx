@@ -78,7 +78,6 @@ export default function SearchPage({
   const classes = useStyles();
   const theme = useTheme();
   const map = useRef<MaplibreMap>();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   // State
   const [wasSearchPerformed, setWasSearchPerformed] = useState(false);
@@ -180,46 +179,21 @@ export default function SearchPage({
     <QueryClientProvider client={queryClient}>
       <HtmlMeta title={t("global:nav.map_search")} />
       <div className={classes.container}>
-        {/* Desktop */}
-        {!isMobile && (
-          <SearchResultsList
-            searchType={searchType}
-            setSearchType={setSearchType}
-            locationResult={locationResult}
-            setLocationResult={setLocationResult}
-            queryName={queryName}
-            setQueryName={setQueryName}
-            results={data}
-            error={errorMessage}
-            hasNext={hasNextPage}
-            selectedResult={selectedResult}
-            setSelectedResult={setSelectedResult}
-            isLoading={isLoading || isFetching}
-          />
-        )}
-        {/* Mobile */}
-        {isMobile && (
-          <Collapse
-            in={wasSearchPerformed || !!selectedResult}
-            timeout={theme.transitions.duration.standard}
-            className={classes.mobileCollapse}
-          >
-            <SearchResultsList
-              searchType={searchType}
-              setSearchType={setSearchType}
-              locationResult={locationResult}
-              setLocationResult={setLocationResult}
-              queryName={queryName}
-              setQueryName={setQueryName}
-              results={data}
-              error={errorMessage}
-              hasNext={hasNextPage}
-              selectedResult={selectedResult}
-              setSelectedResult={setSelectedResult}
-              isLoading={isLoading || isFetching}
-            />
-          </Collapse>
-        )}
+        <SearchResultsList
+          searchType={searchType}
+          setSearchType={setSearchType}
+          locationResult={locationResult}
+          setLocationResult={setLocationResult}
+          queryName={queryName}
+          setQueryName={setQueryName}
+          results={data}
+          error={errorMessage}
+          hasNext={hasNextPage}
+          selectedResult={selectedResult}
+          setSelectedResult={setSelectedResult}
+          wasSearchPerformed={wasSearchPerformed}
+          isLoading={isLoading || isFetching}
+        />
         <FilterDialog
           isOpen={isFiltersOpen}
           queryName={queryName}

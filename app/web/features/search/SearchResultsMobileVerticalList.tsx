@@ -29,23 +29,28 @@ const StyledDrawer = styled("div")<{
 const StyledOpenButton = styled(IconButton)(({ theme }) => ({
   width: "100%",
   marginLeft: 0,
-  "& svg": { fontSize: "3rem" },
+  backgroundColor: theme.palette.background.default,
+  borderRadius: 0,
+  maxHeight: "60px",
+  "& svg": { fontSize: "4rem" },
 }));
 
 const StyledCloseButton = styled(IconButton)(({ theme }) => ({
   width: "100%",
   marginLeft: 0,
   position: "sticky",
+  maxHeight: "60px",
   top: 0,
   backgroundColor: theme.palette.background.default,
   borderRadius: 0,
   zIndex: theme.zIndex.drawer,
-  "& svg": { fontSize: "3rem" },
+  "& svg": { fontSize: "4rem" },
 }));
 
 const StyledVerticalList = styled(List)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
+  alignItems: "center",
   gap: theme.spacing(2),
   padding: theme.spacing(2),
   "& .MuiCard-root": {
@@ -79,12 +84,6 @@ export default function SearchResultsMobileVerticalList({
 
   return (
     <>
-      {shouldShowOpenButton && (
-        <StyledOpenButton onClick={toggleDrawer(true)}>
-          <ExpandLess />
-        </StyledOpenButton>
-      )}
-
       <StyledDrawer open={open}>
         {open && (
           <StyledCloseButton onClick={toggleDrawer(false)}>
@@ -94,6 +93,13 @@ export default function SearchResultsMobileVerticalList({
 
         <StyledVerticalList>{resultsSnippet}</StyledVerticalList>
       </StyledDrawer>
+
+      {shouldShowOpenButton && (
+        <StyledOpenButton onClick={toggleDrawer(true)}>
+          <ExpandLess />
+        </StyledOpenButton>
+      )}
+
     </>
   );
 }

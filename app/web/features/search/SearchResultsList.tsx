@@ -33,10 +33,15 @@ const StyledTextBody = styled(TextBody)(({ theme }) => ({
 }));
 
 const StyledHorizontalScroller = styled(HorizontalScroller)(({ theme }) => ({
+  boxShadow: "none",
   marginTop: theme.spacing(3),
   [theme.breakpoints.down("md")]: {
     marginTop: 0,
   },
+}));
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  boxShadow: "none",
 }));
 
 const StyledSearchResult = styled(SearchResult)(({ theme }) => ({
@@ -91,6 +96,7 @@ interface mapWrapperProps {
   setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   setQueryName: Dispatch<SetStateAction<string>>;
   queryName: string;
+  wasSearchPerformed: boolean;
 }
 
 export default function SearchResultsList({
@@ -106,6 +112,7 @@ export default function SearchResultsList({
   setLocationResult,
   setQueryName,
   queryName,
+  wasSearchPerformed,
 }: mapWrapperProps) {
   const selectedUserData = useUser(selectedResult?.userId);
   const { t } = useTranslation(SEARCH);
@@ -117,6 +124,10 @@ export default function SearchResultsList({
   let resultsList = results?.pages
     .flatMap((page) => page.resultsList)
     .filter((result) => result.user);
+
+  if (isMobile && !wasSearchPerformed) {
+    resultsList = [];
+  }
 
   const wasResultFound =
     resultsList?.find(
@@ -151,12 +162,12 @@ export default function SearchResultsList({
 
   return (
     <>
-      {/* SHOW VERTICAL LIST ON CLICK FOR MOBILE */}
+      {/* Mobile */}
       {isMobile && resultsSnippet && resultsSnippet?.length > 0 && (
         <SearchResultsMobileVerticalList resultsSnippet={resultsSnippet} />
       )}
 
-
+      {/* Desktop */}
       {
         !isMobile && hasAtLeastOnePageResults && (
           <StyledMapResults>
@@ -169,15 +180,15 @@ export default function SearchResultsList({
               queryName={queryName}
             />
 
-            <Paper>
+            <StyledPaper>
               {isLoadingState && <CenteredSpinner />}
 
               {error && <Alert severity="error">{error}</Alert>}
 
               {!isLoading && !hasAtLeastOnePageResults && (
-                <TextBody className={classes.baseMargin}>
+                <StyledTextBody>
                   {t("search_result.no_user_result_message")}
-                </TextBody>
+                </StyledTextBody>
               )}
 
               {hasAtLeastOnePageResults && (
@@ -189,7 +200,7 @@ export default function SearchResultsList({
                   {resultsSnippet}
                 </StyledHorizontalScroller>
               )}
-            </Paper>
+            </StyledPaper>
           </StyledMapResults>
         )
       }
