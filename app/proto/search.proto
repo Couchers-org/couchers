@@ -101,8 +101,6 @@ message SearchRes {
   string next_page_token = 2;
 }
 
-
-
 message UserSearchReq {
   google.protobuf.StringValue query = 3;
   // whether the query (if any) should only search through username and display name
