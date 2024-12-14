@@ -61,7 +61,7 @@ const StyledIntroduction = styled("div")(({ theme }) => ({
   display: "flex",
   textAlign: "left",
   width: "45%",
-  maxWidth: theme.breakpoints.values.md / 2,
+  maxWidth: theme.breakpoints.values.lg / 2,
   marginInlineEnd: "10%",
   [theme.breakpoints.down("md")]: {
     display: "none",
