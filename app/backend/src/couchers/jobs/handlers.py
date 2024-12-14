@@ -861,6 +861,7 @@ def finalize_strong_verification(payload):
                 return
 
             user_add_badge(session, user.id, badge_id, do_notify=False)
+            notify(session, user_id=verification_attempt.user_id, topic_action="verification:sv_success")
         else:
             notify(
                 session,
