@@ -474,3 +474,28 @@ class Admin(admin_pb2_grpc.AdminServicer):
         )
 
         return empty_pb2.Empty()
+
+    def ListUserIds(self, request, context, session):
+        start_date = request.start_time.ToDatetime()
+        end_date = request.end_time.ToDatetime()
+
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        next_user_id = int(request.page_token) if request.page_token else 0
+
+        user_ids = (
+            session.execute(
+                select(User.id)
+                .where(User.id >= next_user_id)
+                .where(User.joined >= start_date)
+                .where(User.joined <= end_date)
+                .order_by(User.joined.desc())
+                .limit(page_size + 1)
+            )
+            .scalars()
+            .all()
+        )
+
+        return admin_pb2.ListUserIdsRes(
+            user_ids=user_ids[:page_size],
+            next_page_token=str(user_ids[-1]) if len(user_ids) > page_size else None,
+        )
