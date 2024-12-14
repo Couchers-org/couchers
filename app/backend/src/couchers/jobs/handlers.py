@@ -814,20 +814,21 @@ def finalize_strong_verification(payload):
 
         assert json_data["document_type"] == "PASSPORT"
 
-        verification_attempt.has_minimal_data = True
-        verification_attempt.passport_expiry_date = date.fromisoformat(json_data["expiry_date"])
-        verification_attempt.passport_nationality = json_data["nationality"]
-        verification_attempt.passport_last_three_document_chars = json_data["document_number"][-3:]
+        expiry_date = date.fromisoformat(json_data["expiry_date"])
+        nationality = json_data["nationality"]
+        last_three_document_chars = json_data["document_number"][-3:]
 
         existing_attempt = session.execute(
             select(StrongVerificationAttempt)
-            .where(StrongVerificationAttempt.passport_expiry_date == verification_attempt.passport_expiry_date)
-            .where(StrongVerificationAttempt.passport_nationality == verification_attempt.passport_nationality)
-            .where(
-                StrongVerificationAttempt.passport_last_three_document_chars
-                == verification_attempt.passport_last_three_document_chars
-            )
+            .where(StrongVerificationAttempt.passport_expiry_date == expiry_date)
+            .where(StrongVerificationAttempt.passport_nationality == nationality)
+            .where(StrongVerificationAttempt.passport_last_three_document_chars == last_three_document_chars)
         ).scalar_one_or_none()
+
+        verification_attempt.has_minimal_data = True
+        verification_attempt.passport_expiry_date = expiry_date
+        verification_attempt.passport_nationality = nationality
+        verification_attempt.passport_last_three_document_chars = last_three_document_chars
 
         if existing_attempt:
             if existing_attempt.user_id != verification_attempt.user_id:
