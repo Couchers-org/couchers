@@ -31,10 +31,11 @@ const StyledDrawer = styled("div")<{
 const StyledOpenButton = styled(IconButton)(({ theme }) => ({
   width: "100%",
   marginLeft: 0,
-  borderRadius: "10px",
+  borderRadius: "10px 10px 0 0",
   backgroundColor: theme.palette.background.default,
   maxHeight: "60px",
   "& svg": { fontSize: "4rem" },
+  "&:hover": { backgroundColor: "#e2dcdc" },
 }));
 
 const StyledDiv = styled("div")(({ theme }) => ({

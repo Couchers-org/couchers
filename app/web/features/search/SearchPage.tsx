@@ -76,7 +76,7 @@ export default function SearchPage({
   const queryClient = new QueryClient();
   const classes = useStyles();
   const map = useRef<MaplibreMap>();
-  const searchFromDashboard = !!(locationName || bbox);
+  const searchFromDashboard = locationName !=="";
 
   // State
   const [wasSearchPerformed, setWasSearchPerformed] = useState(false);
