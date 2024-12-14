@@ -4,6 +4,8 @@ import React, { ReactNode, useEffect, useState } from "react";
 
 interface Props {
   resultsSnippet: ReactNode[];
+  open: boolean;
+  setOpen: (newState: boolean) => void;
 }
 
 const StyledDrawer = styled("div")<{
@@ -11,7 +13,7 @@ const StyledDrawer = styled("div")<{
 }>(({ theme, open }) => ({
   width: "100%",
   overflowY: "auto",
-  maxHeight: open ? "none" : "280px",
+  maxHeight: open ? "none" : "250px",
   position: open ? "fixed" : "relative",
   top: open ? "56px" : "auto",
   bottom: open ? 0 : "auto",
@@ -29,10 +31,16 @@ const StyledDrawer = styled("div")<{
 const StyledOpenButton = styled(IconButton)(({ theme }) => ({
   width: "100%",
   marginLeft: 0,
+  borderRadius: "10px",
   backgroundColor: theme.palette.background.default,
-  borderRadius: 0,
   maxHeight: "60px",
   "& svg": { fontSize: "4rem" },
+}));
+
+const StyledDiv = styled("div")(({ theme }) => ({
+  position: "relative",
+  top: "-7px",
+  zIndex: "11",  
 }));
 
 const StyledCloseButton = styled(IconButton)(({ theme }) => ({
@@ -70,8 +78,9 @@ const StyledVerticalList = styled(List)(({ theme }) => ({
 
 export default function SearchResultsMobileVerticalList({
   resultsSnippet,
+  open,
+  setOpen
 }: Props) {
-  const [open, setOpen] = useState(false);
   const [shouldShowOpenButton, setShouldShowOpenButton] = useState(false);
 
   const toggleDrawer = (newOpen: boolean) => () => {
@@ -83,7 +92,13 @@ export default function SearchResultsMobileVerticalList({
   }, [resultsSnippet, open]);
 
   return (
-    <>
+    <StyledDiv>
+      {shouldShowOpenButton && (
+        <StyledOpenButton onClick={toggleDrawer(true)}>
+          <ExpandLess />
+        </StyledOpenButton>
+      )}
+
       <StyledDrawer open={open}>
         {open && (
           <StyledCloseButton onClick={toggleDrawer(false)}>
@@ -94,12 +109,7 @@ export default function SearchResultsMobileVerticalList({
         <StyledVerticalList>{resultsSnippet}</StyledVerticalList>
       </StyledDrawer>
 
-      {shouldShowOpenButton && (
-        <StyledOpenButton onClick={toggleDrawer(true)}>
-          <ExpandLess />
-        </StyledOpenButton>
-      )}
 
-    </>
+    </StyledDiv>
   );
 }

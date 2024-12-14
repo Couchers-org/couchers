@@ -9,7 +9,7 @@ import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { InfiniteData } from "react-query";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
@@ -114,6 +114,7 @@ export default function SearchResultsList({
   queryName,
   wasSearchPerformed,
 }: mapWrapperProps) {
+  const [open, setOpen] = useState(false);
   const selectedUserData = useUser(selectedResult?.userId);
   const { t } = useTranslation(SEARCH);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -146,6 +147,7 @@ export default function SearchResultsList({
         key={result.user!.userId}
         user={result.user!}
         onSelect={() => {
+          setOpen(false);
           setSelectedResult({
             userId: result.user!.userId,
             lng: result.user!.lng,
@@ -165,7 +167,7 @@ export default function SearchResultsList({
       {/* Mobile */}
       {isMobile && resultsSnippet && resultsSnippet?.length > 0 && (
         <>
-          <SearchResultsMobileVerticalList resultsSnippet={resultsSnippet} />
+          <SearchResultsMobileVerticalList open={open} setOpen={setOpen} resultsSnippet={resultsSnippet} />
           {error && <Alert severity="error">{error}</Alert>}
         </>
       )}
