@@ -26,7 +26,6 @@ from couchers.helpers.geoip import geoip_approximate_location
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import (
     account_deletion_initiations_counter,
-    strong_verification_completions_counter,
     strong_verification_data_deletions_counter,
     strong_verification_initiations_counter,
 )
@@ -633,7 +632,6 @@ class Iris(iris_pb2_grpc.IrisServicer):
         elif iris_status == "COMPLETED":
             verification_attempt.status = StrongVerificationAttemptStatus.in_progress_waiting_on_backend
         elif iris_status == "APPROVED":
-            strong_verification_completions_counter.inc()
             verification_attempt.status = StrongVerificationAttemptStatus.in_progress_waiting_on_backend
             session.commit()
             # background worker will go and sort this one out
