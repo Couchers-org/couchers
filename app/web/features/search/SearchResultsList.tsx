@@ -179,7 +179,7 @@ export default function SearchResultsList({
       )}
 
       {/* Desktop */}
-      {!isMobile && hasAtLeastOnePageResults && (
+      {!isMobile && (
         <StyledMapResults>
           <SearchBox
             searchType={searchType}
