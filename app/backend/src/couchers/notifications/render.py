@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from couchers import urls
 from couchers.notifications.unsubscribe import generate_unsub_topic_action
 from couchers.templates.v2 import v2avatar, v2date, v2esc, v2phone, v2timestamp
+from proto import notification_data_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -692,6 +693,48 @@ def render_notification(user, notification) -> RenderedNotification:
             push_body="You need to read and acknowledge the note before continuing to use the platform.",
             push_icon=urls.icon_url(),
             push_url=urls.app_link(),
+        )
+    elif notification.topic_action.display == "verification:sv_success":
+        title = "Strong Verification succeeded"
+        message = "You have been verified with Strong Verification! You will now see a tick next to your name on the platform."
+        return RenderedNotification(
+            is_critical=True,
+            email_subject=title,
+            email_preview=title,
+            email_template_name="security",
+            email_template_args={
+                "title": title,
+                "message": message,
+            },
+            push_title=title,
+            push_body=message,
+            push_icon=urls.icon_url(),
+            push_url=urls.account_settings_link(),
+        )
+    elif notification.topic_action.display == "verification:sv_fail":
+        title = "Strong Verification failed"
+        message: str
+        if data.reason == notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
+            message = "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity."
+        elif data.reason == notification_data_pb2.SV_FAIL_REASON_NOT_PASSPORT:
+            message = "You tried to verify with a non-passport document. You can only use a passport for verification."
+        elif data.reason == notification_data_pb2.SV_FAIL_REASON_DUPLICATE:
+            message = "You tired to verify with a passport that has already been used for verification. Please use another passport."
+        else:
+            raise Exception("Shouldn't get here")
+        return RenderedNotification(
+            is_critical=True,
+            email_subject=title,
+            email_preview=title,
+            email_template_name="security",
+            email_template_args={
+                "title": title,
+                "message": message,
+            },
+            push_title=title,
+            push_body=message,
+            push_icon=urls.icon_url(),
+            push_url=urls.account_settings_link(),
         )
     else:
         raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")

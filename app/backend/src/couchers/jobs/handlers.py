@@ -58,6 +58,7 @@ from couchers.servicers.events import (
 from couchers.servicers.requests import host_request_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
+from couchers.tasks import send_duplicate_strong_verification_email
 from couchers.utils import now
 from proto import notification_data_pb2
 from proto.internal import jobs_pb2, verification_pb2
@@ -798,17 +799,55 @@ def finalize_strong_verification(payload):
         assert verification_attempt.verification_attempt_token == reference_payload.verification_attempt_token
         assert verification_attempt.iris_session_id == json_data["id"]
         assert json_data["state"] == "APPROVED"
+
+        if json_data["document_type"] != "PASSPORT":
+            verification_attempt.status = StrongVerificationAttemptStatus.failed
+            notify(
+                session,
+                user_id=verification_attempt.user_id,
+                topic_action="verification:sv_fail",
+                data=notification_data_pb2.VerificationSVFail(
+                    reason=notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT
+                ),
+            )
+            return
+
         assert json_data["document_type"] == "PASSPORT"
+
+        verification_attempt.has_minimal_data = True
+        verification_attempt.passport_expiry_date = date.fromisoformat(json_data["expiry_date"])
+        verification_attempt.passport_nationality = json_data["nationality"]
+        verification_attempt.passport_last_three_document_chars = json_data["document_number"][-3:]
+
+        existing_attempt = session.execute(
+            select(StrongVerificationAttempt)
+            .where(StrongVerificationAttempt.passport_expiry_date == verification_attempt.passport_expiry_date)
+            .where(StrongVerificationAttempt.passport_nationality == verification_attempt.passport_nationality)
+            .where(
+                StrongVerificationAttempt.passport_last_three_document_chars
+                == verification_attempt.passport_last_three_document_chars
+            )
+        ).scalar_one_or_none()
+
+        if existing_attempt:
+            if existing_attempt.user_id != verification_attempt.user_id:
+                send_duplicate_strong_verification_email(session, existing_attempt, verification_attempt)
+            verification_attempt.status = StrongVerificationAttemptStatus.duplicate
+
+            notify(
+                session,
+                user_id=verification_attempt.user_id,
+                topic_action="verification:sv_fail",
+                data=notification_data_pb2.VerificationSVFail(reason=notification_data_pb2.SV_FAIL_REASON_DUPLICATE),
+            )
+            return
+
         verification_attempt.has_full_data = True
         verification_attempt.passport_encrypted_data = asym_encrypt(
             config["VERIFICATION_DATA_PUBLIC_KEY"], response.text.encode("utf8")
         )
         verification_attempt.passport_date_of_birth = date.fromisoformat(json_data["date_of_birth"])
         verification_attempt.passport_sex = PassportSex[json_data["sex"].lower()]
-        verification_attempt.has_minimal_data = True
-        verification_attempt.passport_expiry_date = date.fromisoformat(json_data["expiry_date"])
-        verification_attempt.passport_nationality = json_data["nationality"]
-        verification_attempt.passport_last_three_document_chars = json_data["document_number"][-3:]
         verification_attempt.status = StrongVerificationAttemptStatus.succeeded
 
         session.flush()
@@ -821,7 +860,16 @@ def finalize_strong_verification(payload):
             ).scalar_one_or_none():
                 return
 
-            user_add_badge(session, user.id, badge_id)
+            user_add_badge(session, user.id, badge_id, do_notify=False)
+        else:
+            notify(
+                session,
+                user_id=verification_attempt.user_id,
+                topic_action="verification:sv_fail",
+                data=notification_data_pb2.VerificationSVFail(
+                    reason=notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER
+                ),
+            )
 
 
 finalize_strong_verification.PAYLOAD = jobs_pb2.FinalizeStrongVerificationPayload

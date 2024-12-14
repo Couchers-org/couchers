@@ -235,6 +235,14 @@ settings_layout = [
                     ("create", "You receive a moderator note"),
                 ],
             ),
+            (
+                "verification",
+                "Verification",
+                [
+                    ("sv_fail", "Strong Verification fails"),
+                    ("sv_success", "Strong Verification succeeds"),
+                ],
+            ),
         ],
     ),
 ]
