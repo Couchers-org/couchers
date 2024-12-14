@@ -54,6 +54,7 @@ describe("SearchResultsList", () => {
     beforeEach(() => {
       render(
         <SearchResultsList
+          wasSearchPerformed={false}
           isLoading={false}
           results={undefined}
           selectedResult={undefined}
@@ -85,6 +86,7 @@ describe("SearchResultsList", () => {
       render(
         <SearchResultsList
           isLoading={false}
+          wasSearchPerformed={true}
           results={mockTestResults()}
           error={"error message"}
           hasNext={undefined}
