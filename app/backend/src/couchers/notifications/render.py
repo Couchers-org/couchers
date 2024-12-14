@@ -716,10 +716,10 @@ def render_notification(user, notification) -> RenderedNotification:
         message: str
         if data.reason == notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
             message = "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity."
-        elif data.reason == notification_data_pb2.SV_FAIL_REASON_NOT_PASSPORT:
-            message = "You tried to verify with a non-passport document. You can only use a passport for verification."
+        elif data.reason == notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT:
+            message = "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification."
         elif data.reason == notification_data_pb2.SV_FAIL_REASON_DUPLICATE:
-            message = "You tired to verify with a passport that has already been used for verification. Please use another passport."
+            message = "You tried to verify with a passport that has already been used for verification. Please use another passport."
         else:
             raise Exception("Shouldn't get here")
         return RenderedNotification(

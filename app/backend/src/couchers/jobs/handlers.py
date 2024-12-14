@@ -21,6 +21,7 @@ from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
+from couchers.metrics import strong_verification_completions_counter
 from couchers.models import (
     AccountDeletionToken,
     Cluster,
@@ -831,9 +832,10 @@ def finalize_strong_verification(payload):
         verification_attempt.passport_last_three_document_chars = last_three_document_chars
 
         if existing_attempt:
+            verification_attempt.status = StrongVerificationAttemptStatus.duplicate
+
             if existing_attempt.user_id != verification_attempt.user_id:
                 send_duplicate_strong_verification_email(session, existing_attempt, verification_attempt)
-            verification_attempt.status = StrongVerificationAttemptStatus.duplicate
 
             notify(
                 session,
@@ -852,6 +854,8 @@ def finalize_strong_verification(payload):
         verification_attempt.status = StrongVerificationAttemptStatus.succeeded
 
         session.flush()
+
+        strong_verification_completions_counter.inc()
 
         user = verification_attempt.user
         if verification_attempt.has_strong_verification(user):

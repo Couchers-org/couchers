@@ -4,7 +4,7 @@ subject: "Duplicate Strong Verification attempt"
 
 A user tried to do Strong Verification, but that passport is already tied to another user.
 
-* User who tried to reverify with the same passport
+* User who tried to reverify with an existing passport
 Verification attempt ID: {{ new_attempt_id }}
 Name: {{ new_user.name }}
 Email: {{ new_user.email }}
