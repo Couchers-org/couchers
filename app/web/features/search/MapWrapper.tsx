@@ -262,6 +262,7 @@ export default function MapWrapper({
             currentBbox[1][1],
           ],
         });
+        setSelectedResult(undefined);
       }
       setWasSearchPerformed(true);
     }

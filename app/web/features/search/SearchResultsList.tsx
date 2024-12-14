@@ -164,7 +164,10 @@ export default function SearchResultsList({
     <>
       {/* Mobile */}
       {isMobile && resultsSnippet && resultsSnippet?.length > 0 && (
-        <SearchResultsMobileVerticalList resultsSnippet={resultsSnippet} />
+        <>
+          <SearchResultsMobileVerticalList resultsSnippet={resultsSnippet} />
+          {error && <Alert severity="error">{error}</Alert>}
+        </>
       )}
 
       {/* Desktop */}
