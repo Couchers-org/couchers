@@ -54,6 +54,7 @@ describe("SearchResultsList", () => {
     beforeEach(() => {
       render(
         <SearchResultsList
+          searchFromDashboard={false}
           wasSearchPerformed={false}
           isLoading={false}
           results={undefined}
@@ -85,6 +86,7 @@ describe("SearchResultsList", () => {
     beforeEach(() => {
       render(
         <SearchResultsList
+          searchFromDashboard={false}
           isLoading={false}
           wasSearchPerformed={true}
           results={mockTestResults()}

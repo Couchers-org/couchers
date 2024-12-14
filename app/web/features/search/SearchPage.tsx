@@ -177,7 +177,7 @@ export default function SearchPage({
    */
   useEffect(() => {
     setSelectedResult(undefined);
-  }, [locationResult])
+  }, [locationResult]);
 
   const errorMessage = error?.message;
 
