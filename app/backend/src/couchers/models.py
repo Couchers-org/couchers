@@ -442,8 +442,11 @@ class StrongVerificationAttemptStatus(enum.Enum):
     in_progress_waiting_on_user_in_app = enum.auto()
     # in progress, waiting for backend to pull verification data
     in_progress_waiting_on_backend = enum.auto()
-    # failed at iris end, no data
+    # failed, no data
     failed = enum.auto()
+
+    # duplicate, at our end, has data
+    duplicate = enum.auto()
 
     ## minimal data states
     # the data, except minimal deduplication data, was deleted
@@ -595,10 +598,10 @@ class StrongVerificationAttempt(Base):
             "(NOT ((status = 'in_progress_waiting_on_user_to_open_app') OR (status = 'in_progress_waiting_on_user_in_app') OR (status = 'in_progress_waiting_on_backend') OR (status = 'failed'))) OR (has_minimal_data IS FALSE)",
             name="in_progress_failed_iris_implies_no_data",
         ),
-        # deleted implies minimal data
+        # deleted or duplicate implies minimal data
         CheckConstraint(
-            "(NOT (status = 'deleted')) OR (has_minimal_data IS TRUE)",
-            name="deleted_implies_minimal_data",
+            "(NOT ((status = 'deleted') OR (status = 'duplicate'))) OR (has_minimal_data IS TRUE)",
+            name="deleted_duplicate_implies_minimal_data",
         ),
     )
 
@@ -2298,6 +2301,9 @@ class NotificationTopicAction(enum.Enum):
     onboarding__reminder = ("onboarding:reminder", dt_sec, True, empty_pb2.Empty)
 
     modnote__create = ("modnote:create", dt_sec, False, empty_pb2.Empty)
+
+    verification__sv_fail = ("verification:sv_fail", dt_sec, False, nd.VerificationSVFail)
+    verification__sv_success = ("verification:sv_success", dt_sec, False, empty_pb2.Empty)
 
 
 class NotificationPreference(Base):
