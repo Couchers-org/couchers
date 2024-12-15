@@ -59,10 +59,12 @@ export default function Map({
   hash,
   interactive = true,
   className,
+  passedMapRef,
   ...otherProps
 }: MapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [noMap, setNoMap] = useState(false);
+  const [isMapInitialized, setIsMapInitialized] = useState(false);
   const classes = useStyles();
 
   /*
@@ -83,6 +85,10 @@ export default function Map({
 
   useEffect(() => {
     if (!containerRef.current) return;
+
+    // don't create a new map if it exists already
+    // use state to track if the map is initialized rather than mapRef.current due to React clearing the useRef during Strict Mode in v18
+    if (isMapInitialized) return;
 
     try {
       const map = new MaplibreMap({
@@ -106,6 +112,7 @@ export default function Map({
       }
 
       postMapInitialize?.(map);
+      setIsMapInitialized(true);
     } catch {
       //probably no webgl
       console.warn("Couldn't initialize maplibre gl");

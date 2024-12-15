@@ -235,6 +235,8 @@ export default function AccountForm() {
           { field } // don't spread the field here, EditLocationMap uses its own custom refs
         ) => (
           <EditLocationMap
+            inputFieldProps={{ field }}
+            inputFieldError={errors.location}
             className={classes.locationMap}
             updateLocation={(location) => {
               if (location) {

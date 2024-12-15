@@ -12,6 +12,7 @@ import {
   SEARCH_FOR_LOCATION,
 } from "./constants";
 import { SearchIcon } from "./Icons";
+import { ControllerFieldState, ControllerRenderProps } from "react-hook-form";
 
 const useSearchStyles = makeStyles((theme) => ({
   autocomplete: {
@@ -54,9 +55,16 @@ interface MapSearchProps {
     address: string,
     simplifiedAddress: string
   ) => void;
+  inputFieldProps?: ControllerRenderProps<ControllerFieldState>;
+  inputFieldError?: ControllerRenderProps["error"];
 }
 
-export default function MapSearch({ setError, setResult }: MapSearchProps) {
+export default function MapSearch({
+  setError,
+  setResult,
+  inputFieldProps,
+  inputFieldError,
+}: MapSearchProps) {
   const classes = useSearchStyles();
 
   const [open, setOpen] = useState(false);
@@ -122,6 +130,8 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
           loading={isLoading}
           open={open}
           onBlur={() => setOpen(false)}
+          inputProps={inputFieldProps}
+          error={inputFieldError?.message}
           onInputChange={(e, v) => setValue(v)}
           onChange={(e, v, reason) => {
             setValue(v);

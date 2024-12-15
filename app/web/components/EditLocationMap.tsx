@@ -25,6 +25,7 @@ import {
   LOCATION_WARN,
   MAP_IS_BLANK,
 } from "./constants";
+import { ControllerFieldState, ControllerRenderProps } from "react-hook-form";
 
 const useStyles = makeStyles({
   root: {
@@ -60,6 +61,8 @@ export interface EditLocationMapProps extends BoxProps {
   showRadiusSlider?: boolean;
   // whether we are selecting an exact point (for pages, etc) or approx circle, doesn't maeks ense with radius slider
   exact?: boolean;
+  inputFieldProps: ControllerRenderProps<ControllerFieldState>;
+  inputFieldError: ControllerRenderProps["error"];
 }
 
 export default function EditLocationMap({
@@ -69,6 +72,8 @@ export default function EditLocationMap({
   grow,
   showRadiusSlider,
   exact,
+  inputFieldProps,
+  inputFieldError,
   ...otherProps
 }: EditLocationMapProps) {
   const classes = useStyles();
@@ -322,6 +327,8 @@ export default function EditLocationMap({
             {...otherProps}
           />
           <MapSearch
+            inputFieldProps={inputFieldProps}
+            inputFieldError={inputFieldError}
             setError={setError}
             setResult={(coordinate, _, simplified) => {
               commit({ address: simplified }, false);

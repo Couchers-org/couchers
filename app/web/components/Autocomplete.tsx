@@ -46,6 +46,8 @@ export default function Autocomplete<
   placeholder,
   variant = "standard",
   endAdornment,
+  inputProps,
+  inputError,
   ...otherProps
 }: AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>) {
   const classes = useStyles();
@@ -59,6 +61,7 @@ export default function Autocomplete<
       renderInput={(params) => (
         <TextField
           {...params}
+          {...inputProps}
           variant={variant}
           error={!!error}
           label={label}

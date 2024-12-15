@@ -54,62 +54,58 @@ const Datepicker = ({
       defaultValue={defaultValue}
       name={name}
       rules={rules}
-      render={({ field }) => {
-        return (
-          <DatePicker
-            data-testid={testId}
-            {...field}
-            label={label}
-            value={field.value || null} // Ensure null instead of undefined
-            minDate={minDate}
-            maxDate={maxDate}
-            onChange={(date) => {
-              if (date?.isValid()) {
-                field.onChange(date);
-                onPostChange?.(date);
-              }
-            }}
-            openTo={openTo}
-            views={["year", "month", "day"]}
-            inputRef={field.ref}
-            inputFormat={getLocaleFormat()}
-            renderDay={(day, selectedDates, pickersDayProps) => {
-              return (
-                <PickersDay
-                  key={`${name}-${day}`}
-                  day={pickersDayProps.day}
-                  onDaySelect={pickersDayProps.onDaySelect}
-                  outsideCurrentMonth={pickersDayProps.outsideCurrentMonth}
-                  style={{
-                    ...(pickersDayProps.selected && {
-                      backgroundColor: theme.palette.primary.main, // make selected day our primary color
-                    }),
-                  }}
-                />
-              );
-            }}
-            renderInput={(props) => (
-              <TextField
-                {...props}
-                fullWidth
-                id={id}
-                error={error}
-                helperText={helperText}
-                data-testid={testId}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                InputProps={{
-                  ...props.InputProps,
-                  className,
-                  "aria-label": t("components.datepicker.change_date"),
-                }}
-                variant="standard"
-              />
-            )}
-          />
-        );
-      }}
+      render={({ field }) => (
+        <DatePicker
+          data-testid={testId}
+          {...field}
+          label={label}
+          value={field.value || null} // Ensure null instead of undefined
+          minDate={minDate}
+          maxDate={maxDate}
+          onChange={(date) => {
+            if (date?.isValid()) {
+              field.onChange(date);
+              onPostChange?.(date);
+            }
+          }}
+          openTo={openTo}
+          views={["year", "month", "day"]}
+          inputRef={field.ref}
+          inputFormat={getLocaleFormat()}
+          renderDay={(day, selectedDates, pickersDayProps) => (
+            <PickersDay
+              key={`${name}-${day}`}
+              day={pickersDayProps.day}
+              onDaySelect={pickersDayProps.onDaySelect}
+              outsideCurrentMonth={pickersDayProps.outsideCurrentMonth}
+              style={{
+                ...(pickersDayProps.selected && {
+                  backgroundColor: theme.palette.primary.main, // make selected day our primary color
+                }),
+              }}
+            />
+          )}
+          renderInput={(props) => (
+            <TextField
+              {...props}
+              fullWidth
+              id={id}
+              error={error}
+              helperText={helperText}
+              data-testid={testId}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              InputProps={{
+                ...props.InputProps,
+                className,
+                "aria-label": t("components.datepicker.change_date"),
+              }}
+              variant="standard"
+            />
+          )}
+        />
+      )}
     />
   );
 };
