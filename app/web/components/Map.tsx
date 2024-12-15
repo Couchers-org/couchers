@@ -124,6 +124,7 @@ export default function Map({
     onUpdate,
     postMapInitialize,
     hash,
+    isMapInitialized,
   ]);
 
   useEffect(() => () => mapRef?.current?.remove(), []);

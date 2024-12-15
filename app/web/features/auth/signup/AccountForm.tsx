@@ -231,12 +231,10 @@ export default function AccountForm() {
           validate: (location) =>
             !!location.address || t("auth:location.validation_error"),
         }}
-        render={(
-          { field } // don't spread the field here, EditLocationMap uses its own custom refs
-        ) => (
+        render={({ field, fieldState: { error } }) => (
           <EditLocationMap
             inputFieldProps={{ field }}
-            inputFieldError={errors.location}
+            inputFieldError={error}
             className={classes.locationMap}
             updateLocation={(location) => {
               if (location) {

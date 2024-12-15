@@ -20,9 +20,9 @@ import ProfileTextInput from "features/profile/ProfileTextInput";
 import { userKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
+import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
-import React, { useEffect } from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { howToMakeGreatProfileUrl } from "routes";
@@ -53,7 +53,7 @@ type FormValues = Omit<
 };
 
 export default function EditProfileForm() {
-  const { t } = useTranslation([GLOBAL, PROFILE]);
+  const { t } = useTranslation([GLOBAL, AUTH, PROFILE]);
   const classes = useStyles();
   const {
     updateUserProfile,
@@ -86,31 +86,13 @@ export default function EditProfileForm() {
     shouldFocusError: true,
   });
 
+  console.log("EditProfile errors", errors);
+
   useUnsavedChangesWarning({
     isDirty,
     isSubmitted,
     warningMessage: t("profile:unsaved_changes_warning"),
   });
-
-  //Although the default value was set above, if the page is just loaded,
-  //user will be undefined on first render, so the default values will be undefined.
-  //So make sure to set values when user finshes loading
-  // useEffect(() => {
-  //   if (!userIsLoading && user) {
-  //     setValue("location.city", user.city);
-  //     setValue("location.lat", user.lat);
-  //     setValue("location.lng", user.lng);
-  //     setValue("location.radius", user.radius);
-  //   }
-  // }, [userIsLoading, setValue, user]);
-
-  useEffect(() => {
-    //register here because these don't exist as actual fields
-    register("location.city");
-    register("location.lat");
-    register("location.lng");
-    register("location.radius");
-  }, [register]);
 
   const { regions, regionsLookup } = useRegions();
   const { languages, languagesLookup } = useLanguages();
@@ -207,20 +189,20 @@ export default function EditProfileForm() {
               defaultValue={user.name}
               error={!!errors.name}
               className={classes.field}
+              helperText={
+                errors.name ? t("profile:edit_profile_name_required") : ""
+              }
             />
           </form>
           <Controller
-            defaultValue={{
-              city: user?.city,
-              lat: user?.lat,
-              lng: user?.lng,
-              radius: user?.radius,
-            }}
+            defaultValue=""
             name="location"
             control={control}
-            render={({ field }) => (
+            render={({ field, fieldState: { error } }) => (
               <EditLocationMap
-                {...field}
+                inputFieldProps={field}
+                inputFieldError={error}
+                register={register}
                 showRadiusSlider
                 initialLocation={{
                   address: user.city,
@@ -391,7 +373,7 @@ export default function EditProfileForm() {
                 name="fluentLanguages"
                 render={({ field }) => (
                   <ProfileTagInput
-                    {...field}
+                    inputFieldProps={field}
                     onChange={(_, value) => field.onChange(value)}
                     value={field.value}
                     options={Object.values(languages)}
@@ -456,7 +438,7 @@ export default function EditProfileForm() {
                   name="regionsVisited"
                   render={({ field }) => (
                     <ProfileTagInput
-                      {...field}
+                      inputFieldProps={field}
                       onChange={(_, values) => field.onChange(values)}
                       value={field.value}
                       options={Object.values(regions)}
@@ -473,7 +455,7 @@ export default function EditProfileForm() {
                   name="regionsLived"
                   render={({ field }) => (
                     <ProfileTagInput
-                      {...field}
+                      inputFieldProps={field}
                       onChange={(_, values) => field.onChange(values)}
                       value={field.value}
                       options={Object.values(regions)}

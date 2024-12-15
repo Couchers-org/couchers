@@ -123,6 +123,7 @@ interface ProfileTagInputProps {
   id: string;
   allowCsv?: boolean;
   className?: string;
+  inputFieldProps?: ControllerRenderProps<ControllerFieldState>;
 }
 
 export default function ProfileTagInput({
@@ -132,6 +133,7 @@ export default function ProfileTagInput({
   label,
   id,
   className,
+  inputFieldProps,
 }: ProfileTagInputProps) {
   const { t } = useTranslation(PROFILE);
   const classes = useStyles();
@@ -216,6 +218,7 @@ export default function ProfileTagInput({
           </Typography>
         </div>
         <Autocomplete
+          {...inputFieldProps}
           open
           onClose={handleClose}
           multiple

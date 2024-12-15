@@ -2,6 +2,7 @@ import { Box, IconButton } from "@mui/material";
 import { AutocompleteChangeReason } from "@mui/material/Autocomplete";
 import { LngLat } from "maplibre-gl";
 import React, { useEffect, useState } from "react";
+import { ControllerFieldState, ControllerRenderProps } from "react-hook-form";
 import { useGeocodeQuery } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
@@ -12,7 +13,6 @@ import {
   SEARCH_FOR_LOCATION,
 } from "./constants";
 import { SearchIcon } from "./Icons";
-import { ControllerFieldState, ControllerRenderProps } from "react-hook-form";
 
 const useSearchStyles = makeStyles((theme) => ({
   autocomplete: {

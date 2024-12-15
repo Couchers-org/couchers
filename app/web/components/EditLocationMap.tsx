@@ -13,6 +13,7 @@ import {
   MapTouchEvent,
 } from "maplibre-gl";
 import React, { useRef, useState } from "react";
+import { ControllerFieldState, ControllerRenderProps } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
 
 import {
@@ -25,7 +26,6 @@ import {
   LOCATION_WARN,
   MAP_IS_BLANK,
 } from "./constants";
-import { ControllerFieldState, ControllerRenderProps } from "react-hook-form";
 
 const useStyles = makeStyles({
   root: {
