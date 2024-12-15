@@ -42,8 +42,11 @@ export default function LoginForm() {
   const authLoading = authState.loading;
   const [loading, setLoading] = useState(false);
 
-  const { handleSubmit, register, control } =
-    useForm<{ username: string; password: string; rememberDevice: boolean }>();
+  const { handleSubmit, register, control } = useForm<{
+    username: string;
+    password: string;
+    rememberDevice: boolean;
+  }>();
 
   const onSubmit = handleSubmit(
     async (data: {

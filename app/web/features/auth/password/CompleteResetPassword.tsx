@@ -48,8 +48,10 @@ export default function CompleteResetPassword() {
   const { authState } = useAuthContext();
   const { t } = useTranslation([AUTH, GLOBAL]);
   const formClass = useStyles();
-  const { handleSubmit, register } =
-    useForm<{ newPassword: string; newPasswordCheck: string }>();
+  const { handleSubmit, register } = useForm<{
+    newPassword: string;
+    newPasswordCheck: string;
+  }>();
 
   const router = useRouter();
   const resetToken = stringOrFirstString(router.query.token);
