@@ -79,6 +79,7 @@ export default function SearchPage({
   const searchFromDashboard = locationName !== "";
 
   // State
+  const [isMobileFullyLoaded, setIsMobileFullyLoaded] = useState(false);
   const [wasSearchPerformed, setWasSearchPerformed] = useState(false);
   const [locationResult, setLocationResult] = useState<GeocodeResult>({
     bbox: bbox,
@@ -186,6 +187,7 @@ export default function SearchPage({
       <HtmlMeta title={t("global:nav.map_search")} />
       <div className={classes.container}>
         <SearchResultsList
+          isMobileFullyLoaded={isMobileFullyLoaded}
           searchType={searchType}
           setSearchType={setSearchType}
           locationResult={locationResult}
@@ -225,6 +227,7 @@ export default function SearchPage({
             setIsFiltersOpen={setIsFiltersOpen}
             setLocationResult={setLocationResult}
             setSelectedResult={setSelectedResult}
+            setMobileFullyLoaded={() => setIsMobileFullyLoaded(true)}
             isLoading={isLoading || isFetching}
             setWasSearchPerformed={setWasSearchPerformed}
             wasSearchPerformed={wasSearchPerformed}

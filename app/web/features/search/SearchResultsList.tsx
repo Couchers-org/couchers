@@ -44,6 +44,11 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   boxShadow: "none",
 }));
 
+const StyledDiv = styled("div")(({ theme }) => ({
+  height: "10px",
+  backgroundColor: "white",
+}));
+
 const StyledSearchResult = styled(SearchResult)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius * 2,
   backgroundColor: theme.palette.background.paper,
@@ -98,6 +103,7 @@ interface mapWrapperProps {
   queryName: string;
   wasSearchPerformed: boolean;
   searchFromDashboard: boolean;
+  isMobileFullyLoaded: boolean;
 }
 
 export default function SearchResultsList({
@@ -115,6 +121,7 @@ export default function SearchResultsList({
   queryName,
   wasSearchPerformed,
   searchFromDashboard,
+  isMobileFullyLoaded
 }: mapWrapperProps) {
   const [open, setOpen] = useState(false);
   const selectedUserData = useUser(selectedResult?.userId);
@@ -167,16 +174,24 @@ export default function SearchResultsList({
   return (
     <>
       {/* Mobile */}
-      {isMobile && resultsSnippet && resultsSnippet?.length > 0 && (
+      {isMobile &&
         <>
-          <SearchResultsMobileVerticalList
-            open={open}
-            setOpen={setOpen}
-            resultsSnippet={resultsSnippet}
-          />
-          {error && <Alert severity="error">{error}</Alert>}
+          {isLoadingState && <CenteredSpinner />}
+          {!isMobileFullyLoaded &&
+            <StyledDiv />
+          }
+          {resultsSnippet && resultsSnippet?.length > 0 && (
+            <>
+              <SearchResultsMobileVerticalList
+                open={open}
+                setOpen={setOpen}
+                resultsSnippet={resultsSnippet}
+              />
+              {error && <Alert severity="error">{error}</Alert>}
+            </>
+          )}
         </>
-      )}
+      }
 
       {/* Desktop */}
       {!isMobile && (

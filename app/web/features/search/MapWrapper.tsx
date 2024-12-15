@@ -90,6 +90,7 @@ interface mapWrapperProps {
   map: MutableRefObject<MaplibreMap | undefined>;
   setWasSearchPerformed: Dispatch<SetStateAction<boolean>>;
   wasSearchPerformed: boolean;
+  setMobileFullyLoaded(): void;
 }
 
 export default function MapWrapper({
@@ -103,6 +104,7 @@ export default function MapWrapper({
   setIsFiltersOpen,
   wasSearchPerformed,
   setWasSearchPerformed,
+  setMobileFullyLoaded,
 }: mapWrapperProps) {
   const { t } = useTranslation([SEARCH]);
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
@@ -284,6 +286,17 @@ export default function MapWrapper({
     });
   };
 
+  /**
+   * Fix empty square on mobile
+   */
+  useEffect(() => {
+    if (isMapStyleLoaded && isMapSourceLoaded && areClustersLoaded) {
+      setTimeout(() => {
+        setMobileFullyLoaded();
+      }, 500)
+    }
+  }, [isMapStyleLoaded, isMapSourceLoaded, areClustersLoaded, setMobileFullyLoaded])
+
   return (
     <>
       <div className={classes.testContainer}>
@@ -306,7 +319,7 @@ export default function MapWrapper({
           />
         </div>
       </div>
-      {isLoading && (
+      {isLoading || (!isMapStyleLoaded || !isMapSourceLoaded || !areClustersLoaded) && (
         <div className={classes.mapLoadingContainer}>
           <CenteredSpinner minHeight="100%" />
         </div>
