@@ -154,6 +154,7 @@ export default function HostRequestSendField({
       </StyledButtonContainer>
       <StyledContainer>
         <TextField
+          {...register("text")}
           defaultValue={
             isRequestClosed ? t("messages:request_closed_message") : ""
           }
@@ -168,9 +169,7 @@ export default function HostRequestSendField({
             },
             shrink: isRequestClosed ? false : undefined,
           }}
-          inputRef={register}
           multiline
-          name="text"
           onKeyDown={handleKeyDown}
           maxRows={6}
           size="small"

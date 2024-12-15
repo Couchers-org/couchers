@@ -59,7 +59,6 @@ export default function Map({
   hash,
   interactive = true,
   className,
-  passedMapRef,
   ...otherProps
 }: MapProps) {
   const containerRef = useRef<HTMLDivElement>(null);

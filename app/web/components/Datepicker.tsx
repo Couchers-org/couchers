@@ -59,7 +59,7 @@ const Datepicker = ({
           data-testid={testId}
           {...field}
           label={label}
-          value={field.value || null} // Ensure null instead of undefined
+          value={field.value}
           minDate={minDate}
           maxDate={maxDate}
           onChange={(date) => {
@@ -70,21 +70,19 @@ const Datepicker = ({
           }}
           openTo={openTo}
           views={["year", "month", "day"]}
-          inputRef={field.ref}
           inputFormat={getLocaleFormat()}
-          renderDay={(day, selectedDates, pickersDayProps) => (
-            <PickersDay
-              key={`${name}-${day}`}
-              day={pickersDayProps.day}
-              onDaySelect={pickersDayProps.onDaySelect}
-              outsideCurrentMonth={pickersDayProps.outsideCurrentMonth}
-              style={{
-                ...(pickersDayProps.selected && {
-                  backgroundColor: theme.palette.primary.main, // make selected day our primary color
-                }),
-              }}
-            />
-          )}
+          renderDay={(day, selectedDates, pickersDayProps) => {
+            return (
+              <PickersDay
+                {...pickersDayProps}
+                style={{
+                  ...(pickersDayProps.selected && {
+                    backgroundColor: theme.palette.primary.main, // make selected day our primary color
+                  }),
+                }}
+              />
+            );
+          }}
           renderInput={(props) => (
             <TextField
               {...props}
@@ -102,6 +100,7 @@ const Datepicker = ({
                 "aria-label": t("components.datepicker.change_date"),
               }}
               variant="standard"
+              ref={field.ref}
             />
           )}
         />

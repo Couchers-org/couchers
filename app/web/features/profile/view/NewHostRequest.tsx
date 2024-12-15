@@ -94,6 +94,7 @@ export default function NewHostRequest({
     register,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<CreateHostRequestWrapper>({
     defaultValues: { hostUserId: user.userId },
@@ -119,6 +120,7 @@ export default function NewHostRequest({
 
   const onSubmit = handleSubmit((data) => {
     mutate(data);
+    reset();
   });
 
   const guests = Array.from({ length: 8 }, (_, i) => {
