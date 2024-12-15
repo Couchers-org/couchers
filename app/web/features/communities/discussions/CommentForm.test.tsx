@@ -1,12 +1,11 @@
-import { render, screen, act } from "@testing-library/react";
+import { act,render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { discussionBaseRoute } from "routes";
-
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-
 import { MockedService, t } from "test/utils";
+
 import CommentForm from "./CommentForm";
 
 jest.mock("components/MarkdownInput");

@@ -143,10 +143,11 @@ export default function GroupPage({
           <Breadcrumbs aria-label="breadcrumb">
             {group.parentsList
               .filter((parent) => !!parent.community || !!parent.group)
-              .map((parent) => {
+              .map((parent, index) => {
                 if (parent.community) {
                   return (
                     <Link
+                      key={index}
                       href={routeToCommunity(
                         parent.community.communityId,
                         parent.community.slug
@@ -158,6 +159,7 @@ export default function GroupPage({
                 } else if (parent.group) {
                   return (
                     <Link
+                      key={index}
                       href={routeToGroup(
                         parent.group.groupId,
                         parent.group.slug
