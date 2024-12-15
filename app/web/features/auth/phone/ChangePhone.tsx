@@ -12,7 +12,8 @@ import { AUTH } from "i18n/namespaces";
 import luhn from "luhn";
 import { Trans, useTranslation } from "next-i18next";
 import { GetAccountInfoRes } from "proto/account_pb";
-import { Controller, useForm } from "react-hook-form";
+import { forwardRef } from "react";
+import { Controller, ControllerRenderProps, useForm } from "react-hook-form";
 import PhoneInput, {
   formatPhoneNumberIntl,
   isValidPhoneNumber,
@@ -38,6 +39,16 @@ type ChangePhoneProps = {
   accountInfo: GetAccountInfoRes.AsObject;
   className?: string;
 };
+
+type ForwardedRefPhoneInputProps = ChangePhoneProps & ControllerRenderProps;
+
+const ForwardedRefPhoneInput = forwardRef<
+  ChangePhoneProps,
+  ForwardedRefPhoneInputProps
+>(({ value, onChange, ...props }, ref: HTMLInputElement) => (
+  <PhoneInput {...props} ref={ref} value={value} onChange={onChange} />
+));
+ForwardedRefPhoneInput.displayName = "ForwardedRefPhoneInput";
 
 export default function ChangePhone({
   className,
@@ -80,7 +91,6 @@ export default function ChangePhone({
     handleSubmit: verifyHandleSubmit,
     register: verifyRegister,
     reset: resetVerifyForm,
-
     formState: { errors: verifyFormErrors },
   } = useForm<VerifyPhoneFormData>({ mode: "onBlur" });
   const onVerifySubmit = verifyHandleSubmit(({ code }) => {
@@ -143,7 +153,12 @@ export default function ChangePhone({
       {!accountInfo.phone ? (
         !accountInfo.hasDonated ? (
           <Typography variant="body1">
-            <Trans i18nKey="auth:change_phone.need_to_donate">
+            <Trans
+              i18nKey="auth:change_phone.need_to_donate"
+              components={{
+                2: <StyledLink href={howToDonateUrl} />,
+              }}
+            >
               You need to <StyledLink href={howToDonateUrl}>donate</StyledLink>
               before you can complete phone verification.
             </Trans>
@@ -160,8 +175,13 @@ export default function ChangePhone({
                 validate: (value) => isValidPhoneNumber(value),
               }}
               render={({ field }) => (
-                <PhoneInput
+                <ForwardedRefPhoneInput
                   {...field}
+                  name="phone"
+                  control={control}
+                  rules={{
+                    validate: (value) => isValidPhoneNumber(value),
+                  }}
                   international
                   placeholder={t("auth:change_phone.phone_label")}
                   id="phone"

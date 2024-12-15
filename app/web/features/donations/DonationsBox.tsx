@@ -216,7 +216,6 @@ export default function DonationsBox() {
     control,
     handleSubmit,
     reset: resetForm,
-
     formState: { errors },
   } = useForm<DonationFormData>();
 
@@ -347,7 +346,7 @@ export default function DonationsBox() {
           control={control}
           defaultValue={DONATIONSBOX_VALUES[2]}
           render={({ field }) => (
-            <div className={classes.donationsBoxRow} {...field}>
+            <div className={classes.donationsBoxRow}>
               <div className={classes.donationsBoxSubRow}>
                 <button
                   type="button"
@@ -459,6 +458,8 @@ export default function DonationsBox() {
                   </button>
                   <div className={classes.inputWrapper}>
                     <input
+                      {...field}
+                      value={Number(field.value)}
                       ref={customAmountInput}
                       type="number"
                       min="1"

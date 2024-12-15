@@ -47,7 +47,6 @@ export default function Autocomplete<
   variant = "standard",
   endAdornment,
   inputProps,
-  inputError,
   ...otherProps
 }: AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>) {
   const classes = useStyles();
