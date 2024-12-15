@@ -11,7 +11,7 @@ import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import React from "react";
-import { routeToEditProfile } from "routes";
+import { howToCompleteProfileUrl, routeToEditProfile } from "routes";
 
 export interface ProfileIncompleteDialogProps {
   open: boolean;
@@ -51,7 +51,7 @@ export default function ProfileIncompleteDialog({
           <Trans i18nKey="dashboard:complete_profile_dialog.description_2">
             This helps build a trusted community and reduce spam. For more
             information,{" "}
-            <StyledLink href="https://help.couchers.org/hc/couchersorg-help-center/articles/1725919152-why-do-i-need-to-complete-my-profile-to-use-some-features">
+            <StyledLink href={howToCompleteProfileUrl}>
               please refer to this help page
             </StyledLink>
             . Thank you for your help!
@@ -64,7 +64,7 @@ export default function ProfileIncompleteDialog({
             {t("dashboard:complete_profile_dialog.edit_profile_button")}
           </Button>
         </Link>
-        <Button onClick={onClose} color="default">
+        <Button onClick={onClose}>
           {t("dashboard:complete_profile_dialog.cancel_button")}
         </Button>
       </DialogActions>

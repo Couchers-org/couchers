@@ -1,6 +1,7 @@
-import { CircularProgress, Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
@@ -19,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     marginBlockStart: theme.spacing(2),
     marginBlockEnd: theme.spacing(6),
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       //break out of page padding
       left: "50%",
       marginLeft: "-50vw",
@@ -75,7 +76,7 @@ export default function CommentTree({ threadId }: CommentTreeProps) {
     <>
       {commentsError && <Alert severity="error">{commentsError.message}</Alert>}
       {isCommentsLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : hasAtLeastOnePage(comments, "repliesList") ? (
         <div className={classes.commentsListContainer}>
           {hasNextPage && (

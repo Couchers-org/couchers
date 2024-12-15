@@ -1,3 +1,4 @@
+import CloseIcon from "@mui/icons-material/Close";
 import {
   Dialog as MuiDialog,
   DialogActions as MuiDialogActions,
@@ -9,8 +10,7 @@ import {
   DialogProps,
   DialogTitle as MuiDialogTitle,
   DialogTitleProps as MuiDialogTitleProps,
-} from "@material-ui/core";
-import CloseIcon from "@material-ui/icons/Close";
+} from "@mui/material";
 import classNames from "classnames";
 import IconButton from "components/IconButton";
 import React from "react";
@@ -19,7 +19,7 @@ import makeStyles from "utils/makeStyles";
 const useStyles = makeStyles((theme) => ({
   actions: {
     display: "flex",
-    justifyContent: "space-around",
+    justifyContent: "center",
     margin: 0,
     padding: theme.spacing(2),
     paddingTop: 0,
@@ -27,18 +27,15 @@ const useStyles = makeStyles((theme) => ({
   content: {
     height: "fit-content",
     padding: theme.spacing(3),
+    paddingTop: 0,
     width: "100%",
   },
   contentText: {
     padding: theme.spacing(2),
   },
   title: {
-    "& > h2": theme.typography.h2,
-    "&:not(:nth-child(1))": {
-      paddingTop: 0,
-    },
+    "&": theme.typography.h2,
     padding: theme.spacing(2),
-    paddingBottom: 0,
     textAlign: "center",
   },
   closeButton: {
@@ -94,6 +91,7 @@ export function DialogTitle({
           aria-label="close"
           onClick={onClose}
           className={classes.closeButton}
+          size="large"
         >
           <CloseIcon />
         </IconButton>

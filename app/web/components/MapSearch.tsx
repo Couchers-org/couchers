@@ -1,5 +1,5 @@
-import { Box, IconButton } from "@material-ui/core";
-import { AutocompleteChangeReason } from "@material-ui/lab/Autocomplete";
+import { Box, IconButton } from "@mui/material";
+import { AutocompleteChangeReason } from "@mui/material/Autocomplete";
 import { LngLat } from "maplibre-gl";
 import React, { useEffect, useState } from "react";
 import { useGeocodeQuery } from "utils/hooks";
@@ -89,8 +89,8 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
     const searchOption = results?.find((o) => value === o.name);
 
     if (!searchOption) {
-      //create-option is when enter is pressed on user-entered string
-      if (reason === "create-option") {
+      //createOption is when enter is pressed on user-entered string
+      if (reason === "createOption") {
         query(value);
         setOpen(true);
       }
@@ -109,7 +109,7 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          searchSubmit(value, "create-option");
+          searchSubmit(value, "createOption");
         }}
         className={classes.form}
       >
@@ -136,14 +136,14 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
           getOptionDisabled={(option) => option === NO_LOCATION_RESULTS_TEXT}
           helperText={PRESS_ENTER_TO_SEARCH}
           onKeyDown={(e) => {
-            if (e.key === "Enter") searchSubmit(value, "create-option");
+            if (e.key === "Enter") searchSubmit(value, "createOption");
           }}
         />
         <IconButton
           aria-label="Search location"
           size="medium"
           onClick={() => {
-            searchSubmit(value, "create-option");
+            searchSubmit(value, "createOption");
           }}
         >
           <SearchIcon />

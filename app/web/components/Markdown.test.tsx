@@ -6,6 +6,7 @@ import {
   render,
   screen,
 } from "@testing-library/react";
+import wrapper from "test/hookWrapper";
 
 import Markdown, { increaseMarkdownHeaderLevel } from "./Markdown";
 
@@ -32,7 +33,8 @@ describe("Markdown widget", () => {
           source={'# <div data-testid="bad">text\n<br></div>\nmore text'}
           topHeaderLevel={1}
         />
-      </div>
+      </div>,
+      { wrapper }
     );
     expect(screen.queryByTestId("bad")).not.toBeInTheDocument();
     expect(screen.getByTestId("root")).toContainHTML("<br>");
@@ -44,7 +46,8 @@ describe("Markdown widget", () => {
           source={"# MD\nan image: ![image](https://example.com)"}
           topHeaderLevel={1}
         />
-      </div>
+      </div>,
+      { wrapper }
     );
     expect(screen.queryByAltText("image")).not.toBeInTheDocument();
     expect(
@@ -62,7 +65,8 @@ describe("Markdown widget", () => {
           topHeaderLevel={1}
           allowImages="couchers"
         />
-      </div>
+      </div>,
+      { wrapper }
     );
     expect(
       getByAltText(screen.getByTestId("allowed"), "image")
@@ -82,7 +86,8 @@ describe("Markdown widget", () => {
           topHeaderLevel={1}
           allowImages="none"
         />
-      </div>
+      </div>,
+      { wrapper }
     );
     expect(
       getByRole(screen.getByTestId("not-allowed"), "link", { name: "image" })
@@ -102,7 +107,8 @@ describe("Markdown widget", () => {
           topHeaderLevel={1}
           allowImages="couchers"
         />
-      </div>
+      </div>,
+      { wrapper }
     );
     expect(
       getByRole(screen.getByTestId("not-allowed"), "link", { name: "image" })

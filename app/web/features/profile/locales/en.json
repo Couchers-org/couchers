@@ -29,7 +29,6 @@
         "travel_section": "Travelled to",
         "lived_section": "Lived in",
         "map_section": "Travel map",
-        "strong_verification": "This user has verified their identity using a biometric passport",
         "age_verification_verified": "This user has verified their date of birth",
         "age_verification_mismatch": "User provided date of birth does not match verified date of birth",
         "gender_verification_verified": "This user has verified their gender",
@@ -62,11 +61,12 @@
         "wheelchair": "Wheelchair accessible",
         "other_info": "Additional information"
     },
+    "edit_profile_helper_text": "Looking for some inspiration on where to start? <2>Check out our guide on creating an awesome profile</2>.",
     "edit_profile_headings": {
         "regions_visited": "Regions I've Visited",
         "regions_lived": "Regions I've Lived In",
         "gender": "Gender",
-        "languages_spoken": "Languages I speak",
+        "languages_spoken": "Languages I speak fluently",
         "meetup_status": "Meetup status",
         "hosting_status": "Hosting status",
         "name": "Name",
@@ -149,6 +149,7 @@
     },
     "request_form": {
         "send_request": "Send {{name}} a request",
+        "guide_link_help_text": "<0>Read our guide</0> on how to write a request that will get accepted.",
         "arrival_date": "Arrival Date",
         "arrival_date_empty": "Please specify an arrival Date",
         "departure_date": "Departure Date",
@@ -159,7 +160,8 @@
         "request_description": "Share your plans for the visit and include why you're requesting to stay with this particular host",
         "request_description_empty": "Please write a request message",
         "stay_type_a11y_text": "stay type",
-        "success": "Request sent!"
+        "success": "Request sent!",
+        "guest_count": "Number of guests"
     },
     "reference_filter_label": {
         "friend": "From friends",
@@ -196,5 +198,6 @@
     "profile_tag_input": {
         "header_text": "Press 'Enter' to add\n<support_link>Email us</support_link> to add an entry",
         "remove_button_a11y_text": "Remove {{tag}}"
-    }
+    },
+    "view_in_admin_console": "View user in admin console"
 }

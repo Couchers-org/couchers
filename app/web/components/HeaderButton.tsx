@@ -1,4 +1,4 @@
-import { IconButton, IconButtonProps } from "@material-ui/core";
+import { IconButton, IconButtonProps } from "@mui/material";
 import classNames from "classnames";
 import React, { ReactNode } from "react";
 import makeStyles from "utils/makeStyles";
@@ -15,20 +15,25 @@ interface HeaderButtonProps extends IconButtonProps {
   onClick: () => void;
 }
 
-export default function HeaderButton({
-  className,
-  children,
-  onClick,
-  ...otherProps
-}: HeaderButtonProps) {
-  const classes = useStyles();
-  return (
-    <IconButton
-      {...otherProps}
-      onClick={onClick}
-      className={classNames(classes.root, className)}
-    >
-      {children}
-    </IconButton>
-  );
-}
+const HeaderButton = React.forwardRef<HTMLButtonElement, HeaderButtonProps>(
+  (props, ref) => {
+    const { className, children, onClick, ...otherProps } = props;
+
+    const classes = useStyles();
+    return (
+      <IconButton
+        {...otherProps}
+        onClick={onClick}
+        className={classNames(classes.root, className)}
+        size="large"
+        ref={ref}
+      >
+        {children}
+      </IconButton>
+    );
+  }
+);
+
+HeaderButton.displayName = "HeaderButton";
+
+export default HeaderButton;

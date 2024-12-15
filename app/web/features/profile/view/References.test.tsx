@@ -10,7 +10,7 @@ import { service } from "service";
 import references from "test/fixtures/references.json";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
-import { getUser } from "test/serviceMockDefaults";
+import { getLiteUser, getLiteUsers } from "test/serviceMockDefaults";
 import { MockedService, t } from "test/utils";
 
 import { referenceBadgeLabel } from "../constants";
@@ -18,8 +18,8 @@ import { ProfileUserProvider } from "../hooks/useProfileUser";
 import { REFERENCE_LIST_ITEM_TEST_ID } from "./ReferenceListItem";
 import References from "./References";
 
-const getUserMock = service.user.getUser as MockedService<
-  typeof service.user.getUser
+const getLiteUsersMock = service.user.getLiteUsers as MockedService<
+  typeof service.user.getLiteUsers
 >;
 const getReferencesReceivedMock = service.references
   .getReferencesReceivedForUser as MockedService<
@@ -57,7 +57,7 @@ const [
 
 describe("References", () => {
   beforeEach(() => {
-    getUserMock.mockImplementation(getUser);
+    getLiteUsersMock.mockImplementation(getLiteUsers);
     getReferencesReceivedMock.mockResolvedValue({
       nextPageToken: "",
       referencesList: [friendReference, guestReference1, guestReference2],
@@ -85,7 +85,7 @@ describe("References", () => {
 
     // References received
     for (let i = 0; i < 3; i++) {
-      const user = await getUser(references[i].fromUserId.toString());
+      const user = await getLiteUser(references[i].fromUserId.toString());
       const referenceType = references[i].referenceType as ReferenceType;
       const reference = within(referenceListItems[i]);
 
@@ -126,7 +126,7 @@ describe("References", () => {
     beforeEach(() => {
       renderReferences();
       userEvent.click(
-        screen.getByRole("button", {
+        screen.getByRole("combobox", {
           name: t("profile:references_filter_a11y_label").trim(),
         })
       );
@@ -183,7 +183,7 @@ describe("References", () => {
 
       references.forEach(async (referenceElement, i) => {
         const reference = within(referenceElement);
-        const user = await getUser(referencesList[i].fromUserId.toString());
+        const user = await getLiteUser(referencesList[i].fromUserId.toString());
         expect(reference.getByRole("heading")).toHaveTextContent(user.name);
         expect(reference.getByText(referencesList[i].text)).toBeVisible();
         // Reference type badge
@@ -310,7 +310,7 @@ describe("References", () => {
           });
         renderReferences();
         userEvent.click(
-          screen.getByRole("button", {
+          screen.getByRole("combobox", {
             name: t("profile:references_filter_a11y_label").trim(),
           })
         );
@@ -364,7 +364,7 @@ describe("References", () => {
 
       // Error remains there when switching to a category that has an API error
       userEvent.click(
-        screen.getByRole("button", {
+        screen.getByRole("combobox", {
           name: t("profile:references_filter_a11y_label").trim(),
         })
       );

@@ -1,1 +1,12 @@
-{}
+{
+    "add_friend": "添加好友",
+    "my_connections": "我的联系人",
+    "friends": "好友",
+    "friend_list_title": "你的好友",
+    "friend_requests": "好友请求",
+    "friend_requests_sent": "你发送的好友请求",
+    "no_friends": "没有好友",
+    "no_friend_requests": "没有待处理的好友请求",
+    "no_friend_requests_sent": "没有待处理的好友请求",
+    "pending": "待处理"
+}

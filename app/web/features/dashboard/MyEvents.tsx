@@ -1,12 +1,8 @@
-import {
-  CircularProgress,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@material-ui/core";
+import { Typography, useMediaQuery, useTheme } from "@mui/material";
 import classNames from "classnames";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
 import { useCommunityPageStyles } from "features/communities/CommunityPage";
@@ -24,27 +20,29 @@ import makeStyles from "utils/makeStyles";
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "grid",
-    justifyItems: "start",
     rowGap: theme.spacing(2),
     margin: theme.spacing(2, 0, 3),
   },
   upcomingEventContainer: {
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+
     [theme.breakpoints.up("sm")]: {
       display: "grid",
-      gridGap: theme.spacing(3),
+      gap: theme.spacing(3),
       gridTemplateColumns: "repeat(2, 1fr)",
     },
   },
   eventCard: {
     width: "90%",
-    [theme.breakpoints.up("sm")]: {
-      width: "auto",
+    [theme.breakpoints.down("md")]: {
+      width: "100%",
     },
   },
   allUpcomingEventsLink: {
     justifySelf: "center",
   },
-  loaderContainer: {
+  buttonContainer: {
     display: "flex",
     justifyContent: "center",
     width: "100%",
@@ -57,11 +55,11 @@ export default function MyEvents() {
   const { t } = useTranslation([COMMUNITIES, DASHBOARD]);
   const classes = { ...useCommunityPageStyles(), ...useStyles() };
   const theme = useTheme();
-  const isBelowSm = useMediaQuery(theme.breakpoints.down("xs"));
+  const isBelowSm = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
     useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
-      queryKey: myEventsKey,
+      queryKey: myEventsKey("upcoming"),
       queryFn: ({ pageParam }) =>
         service.events.listMyEvents({
           pageToken: pageParam,
@@ -75,9 +73,7 @@ export default function MyEvents() {
       <Typography variant="h2">{t("dashboard:upcoming_events")}</Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
-        <div className={classes.loaderContainer}>
-          <CircularProgress />
-        </div>
+        <CenteredSpinner />
       ) : hasAtLeastOnePage(data, "eventsList") ? (
         <>
           <HorizontalScroller
@@ -105,8 +101,20 @@ export default function MyEvents() {
               })}
           </HorizontalScroller>
           {hasNextPage && !isBelowSm && (
-            <div className={classes.loaderContainer}>
-              <Button onClick={() => fetchNextPage()} variant="outlined">
+            <div className={classes.buttonContainer}>
+              <Button
+                onClick={() => fetchNextPage()}
+                variant="outlined"
+                sx={{
+                  color: theme.palette.common.black,
+                  borderColor: theme.palette.grey[300],
+
+                  "&:hover": {
+                    borderColor: theme.palette.grey[300],
+                    backgroundColor: "#3135390A",
+                  },
+                }}
+              >
                 {t("communities:see_more_events_label")}
               </Button>
             </div>

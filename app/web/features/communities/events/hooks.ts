@@ -3,19 +3,22 @@ import {
   eventKey,
   eventOrganizersKey,
   eventsKey,
+  myEventsKey,
   QueryType,
 } from "features/queryKeys";
-import useUsers from "features/userQueries/useUsers";
 import { RpcError } from "grpc-web";
 import {
   Event,
   ListAllEventsRes,
   ListEventAttendeesRes,
   ListEventOrganizersRes,
+  ListMyEventsRes,
 } from "proto/events_pb";
+import { EventSearchRes } from "proto/search_pb";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { service } from "service";
-import type { ListAllEventsInput } from "service/events";
+import type { ListAllEventsInput, ListMyEventsInput } from "service/events";
+import { GeocodeResult } from "utils/hooks";
 
 export interface UseEventUsersInput {
   eventId: number;
@@ -41,21 +44,11 @@ export function useEventOrganizers({
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     enabled,
   });
-  const organizerIds =
-    query.data?.pages.flatMap((res) => res.organizerUserIdsList) ?? [];
-  const {
-    data: organizers,
-    isLoading: isOrganizersLoading,
-    isRefetching: isOrganizersRefetching,
-  } = useUsers(organizerIds);
+  const organizerIds = query.data?.pages.flatMap(
+    (res) => res.organizerUserIdsList
+  );
 
-  return {
-    ...query,
-    organizerIds,
-    organizers,
-    isOrganizersLoading,
-    isOrganizersRefetching,
-  };
+  return { ...query, organizerIds };
 }
 
 export function useEventAttendees({
@@ -74,20 +67,12 @@ export function useEventAttendees({
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     enabled,
   });
-  const attendeesIds =
-    query.data?.pages.flatMap((data) => data.attendeeUserIdsList) ?? [];
-  const {
-    data: attendees,
-    isLoading: isAttendeesLoading,
-    isRefetching: isAttendeesRefetching,
-  } = useUsers(attendeesIds);
-
+  const attendeesIds = query.data?.pages.flatMap(
+    (data) => data.attendeeUserIdsList
+  );
   return {
     ...query,
     attendeesIds,
-    attendees,
-    isAttendeesLoading,
-    isAttendeesRefetching,
   };
 }
 
@@ -122,5 +107,64 @@ export function useListAllEvents({
         showCancelled,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+  });
+}
+
+export function useListMyEvents({
+  pastEvents,
+  pageNumber,
+  pageSize,
+  showCancelled,
+}: Omit<ListMyEventsInput, "pageToken">) {
+  return useQuery<ListMyEventsRes.AsObject, RpcError>({
+    queryKey: [
+      myEventsKey(pastEvents ? "past" : "upcoming"),
+      pageNumber,
+      showCancelled,
+    ],
+    queryFn: ({ pageParam }) =>
+      service.events.listMyEvents({
+        pastEvents,
+        pageNumber,
+        pageSize,
+        pageToken: pageParam,
+        showCancelled,
+      }),
+  });
+}
+
+export function useEventSearch({
+  pageNumber,
+  pageSize,
+  pastEvents,
+  isMyCommunities,
+  isOnlineOnly,
+  searchLocation,
+}: {
+  pageNumber: number;
+  pageSize: number;
+  pastEvents?: boolean;
+  isMyCommunities?: boolean;
+  isOnlineOnly?: boolean;
+  searchLocation?: GeocodeResult | "";
+}) {
+  return useQuery<EventSearchRes.AsObject, RpcError>({
+    queryKey: [
+      "searchEvents",
+      isMyCommunities,
+      isOnlineOnly,
+      pageNumber,
+      pastEvents,
+      searchLocation,
+    ],
+    queryFn: () =>
+      service.search.EventSearch({
+        pageNumber,
+        pageSize,
+        pastEvents,
+        isMyCommunities,
+        isOnlineOnly,
+        searchLocation,
+      }),
   });
 }

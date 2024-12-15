@@ -1,6 +1,6 @@
-import { CircularProgress } from "@material-ui/core";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import NotFoundPage from "features/NotFoundPage";
 import { communityEventsBaseKey, eventKey } from "features/queryKeys";
@@ -117,7 +117,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
     eventError ? (
       <Alert severity="error">{eventError.message}</Alert>
     ) : isEventLoading ? (
-      <CircularProgress />
+      <CenteredSpinner />
     ) : (
       <>
         <HtmlMeta title={t("communities:edit_event")} />

@@ -19,6 +19,7 @@ const Template: Story<any> = (args) => {
         setLoading(true);
         setTimeout(() => setLoading(false), 2000);
       }}
+      size="large"
     >
       <CouchIcon />
     </IconButton>

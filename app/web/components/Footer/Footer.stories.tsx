@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import { Meta, Story } from "@storybook/react";
 import AppRoute from "components/AppRoute";
 
@@ -12,7 +12,7 @@ export default {
 const Template: Story = (args) => (
   <AppRoute isPrivate={false} variant={args.variant}>
     <Typography variant="h1">Page title</Typography>
-    <Typography>Page body</Typography>
+    <Typography variant="body1">Page body</Typography>
   </AppRoute>
 );
 

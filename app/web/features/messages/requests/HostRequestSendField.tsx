@@ -1,8 +1,7 @@
-import Button from "components/Button";
-import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
+import { styled } from "@mui/material";
+import Button, { AppButtonProps } from "components/Button";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
-import useSendFieldStyles from "features/messages/useSendFieldStyles";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
@@ -15,7 +14,12 @@ import { HostRequest, RespondHostRequestReq } from "proto/requests_pb";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
-import { leaveReferenceBaseRoute, referenceTypeRoute } from "routes";
+import { referenceTypeRoute, routeToLeaveReference } from "routes";
+import { theme } from "theme";
+
+import FieldButton from "./FieldButton";
+import HostRequestGuideLinks from "./HostRequestGuideLinks";
+import HostRequestRespondButtons from "./HostRequestRespondButtons";
 
 interface MessageFormData {
   text: string;
@@ -31,34 +35,30 @@ export interface HostRequestSendFieldProps {
   >;
 }
 
-function FieldButton({
-  children,
-  callback,
-  disabled,
-  isLoading,
-  isSubmit,
-}: {
-  children: string;
-  callback: () => void;
-  disabled?: boolean;
-  isLoading: boolean;
-  isSubmit?: boolean;
-}) {
-  const classes = useSendFieldStyles();
-  return (
-    <Button
-      className={classes.button}
-      color="primary"
-      disabled={disabled}
-      loading={isLoading}
-      onClick={callback}
-      type={isSubmit ? "submit" : "button"}
-      variant="contained"
-    >
-      {children}
-    </Button>
-  );
-}
+const StyledButtonContainer = styled("div")(({ theme }) => ({
+  "& > button": {
+    marginInline: theme.spacing(2),
+  },
+  display: "flex",
+  flexWrap: "wrap",
+  justifyContent: "center",
+}));
+
+const StyledButton = styled(Button)<AppButtonProps>({
+  display: "block",
+  flexShrink: 0,
+  marginInlineStart: theme.spacing(1),
+  height: theme.spacing(5),
+  marginBottom: 0,
+  marginTop: "auto",
+  alignItems: "center",
+});
+
+const StyledContainer = styled("div")(({ theme }) => ({
+  alignItems: "flex-start",
+  display: "flex",
+  marginTop: theme.spacing(3),
+}));
 
 export default function HostRequestSendField({
   hostRequest,
@@ -66,7 +66,6 @@ export default function HostRequestSendField({
   respondMutation,
 }: HostRequestSendFieldProps) {
   const { t } = useTranslation([MESSAGES, GLOBAL]);
-  const classes = useSendFieldStyles();
   const { authState } = useAuthContext();
 
   const isHost = hostRequest.hostUserId === authState.userId;
@@ -94,23 +93,13 @@ export default function HostRequestSendField({
       });
       reset();
     });
-  const handleAccept = handleStatus(
-    HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED
-  );
-  const handleReject = handleStatus(
-    HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
-  );
-  const handleCancel = handleStatus(
-    HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
-  );
-  const handleConfirm = handleStatus(
-    HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
-  );
 
   const isButtonLoading = isLoading || isResponseLoading;
 
+  const isPast = hostRequest.toDate < new Date().toISOString().split("T")[0];
+
   const isRequestClosed =
-    hostRequest.toDate < new Date().toISOString().split("T")[0] ||
+    isPast ||
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED ||
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
 
@@ -122,6 +111,16 @@ export default function HostRequestSendField({
       ({ hostRequestId }) => hostRequestId === hostRequest.hostRequestId
     );
 
+  const referenceRoute = routeToLeaveReference(
+    referenceTypeRoute[
+      isHost
+        ? ReferenceType.REFERENCE_TYPE_HOSTED
+        : ReferenceType.REFERENCE_TYPE_SURFED
+    ],
+    isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
+    hostRequest.hostRequestId
+  );
+
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter" && event.ctrlKey) {
       event.preventDefault();
@@ -131,111 +130,29 @@ export default function HostRequestSendField({
 
   return (
     <form onSubmit={onSubmit}>
-      <div className={classes.buttonContainer}>
-        {isHost ? (
-          <>
-            {(hostRequest.status ===
-              HostRequestStatus.HOST_REQUEST_STATUS_PENDING ||
-              hostRequest.status ===
-                HostRequestStatus.HOST_REQUEST_STATUS_REJECTED) && (
-              <FieldButton callback={handleAccept} isLoading={isButtonLoading}>
-                {t("global:accept")}
-              </FieldButton>
-            )}
-            {(hostRequest.status ===
-              HostRequestStatus.HOST_REQUEST_STATUS_PENDING ||
-              hostRequest.status ===
-                HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED ||
-              hostRequest.status ===
-                HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) && (
-              <ConfirmationDialogWrapper
-                title={t("messages:close_request_dialog_title")}
-                message={t("messages:close_request_dialog_host")}
-                onConfirm={handleReject}
-              >
-                {(setIsOpen) => (
-                  <FieldButton
-                    isLoading={isButtonLoading}
-                    callback={() => setIsOpen(true)}
-                  >
-                    {t("messages:close_request_button_text")}
-                  </FieldButton>
-                )}
-              </ConfirmationDialogWrapper>
-            )}
-            {isReferenceAvailable && (
-              <Link
-                href={{
-                  pathname: `${leaveReferenceBaseRoute}/${
-                    referenceTypeRoute[ReferenceType.REFERENCE_TYPE_HOSTED]
-                  }/${hostRequest.surferUserId}/${hostRequest.hostRequestId}`,
-                }}
-                passHref
-              >
-                <Button
-                  className={classes.button}
-                  color="primary"
-                  component="a"
-                >
-                  {t("messages:write_reference_button_text")}
-                </Button>
-              </Link>
-            )}
-          </>
-        ) : (
-          //user is the surfer
-          <>
-            {hostRequest.status ===
-              HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED && (
-              <FieldButton callback={handleConfirm} isLoading={isButtonLoading}>
-                {t("messages:confirm_request_button_text")}
-              </FieldButton>
-            )}
-            {(hostRequest.status ===
-              HostRequestStatus.HOST_REQUEST_STATUS_PENDING ||
-              hostRequest.status ===
-                HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED ||
-              hostRequest.status ===
-                HostRequestStatus.HOST_REQUEST_STATUS_REJECTED ||
-              hostRequest.status ===
-                HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED) && (
-              <ConfirmationDialogWrapper
-                title={t("messages:close_request_dialog_title")}
-                message={t("messages:close_request_dialog_surfer")}
-                onConfirm={handleCancel}
-              >
-                {(setIsOpen) => (
-                  <FieldButton
-                    isLoading={isButtonLoading}
-                    callback={() => setIsOpen(true)}
-                  >
-                    {t("global:cancel")}
-                  </FieldButton>
-                )}
-              </ConfirmationDialogWrapper>
-            )}
-            {isReferenceAvailable && (
-              <Link
-                href={{
-                  pathname: `${leaveReferenceBaseRoute}/${
-                    referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
-                  }/${hostRequest.hostUserId}/${hostRequest.hostRequestId}`,
-                }}
-                passHref
-              >
-                <Button
-                  className={classes.button}
-                  color="primary"
-                  component="a"
-                >
-                  {t("messages:write_reference_button_text")}
-                </Button>
-              </Link>
-            )}
-          </>
+      <HostRequestGuideLinks
+        isPast={isPast}
+        isHost={isHost}
+        status={hostRequest.status}
+      />
+      <StyledButtonContainer>
+        {!isPast && (
+          <HostRequestRespondButtons
+            isHost={isHost}
+            status={hostRequest.status}
+            isLoading={isButtonLoading}
+            handleStatus={handleStatus}
+          />
         )}
-      </div>
-      <div className={classes.container}>
+        {isReferenceAvailable && (
+          <Link href={referenceRoute} passHref>
+            <StyledButton color="primary" component="a">
+              {t("messages:write_reference_button_text")}
+            </StyledButton>
+          </Link>
+        )}
+      </StyledButtonContainer>
+      <StyledContainer>
         <TextField
           defaultValue={
             isRequestClosed ? t("messages:request_closed_message") : ""
@@ -246,7 +163,9 @@ export default function HostRequestSendField({
           label={!isRequestClosed ? t("messages:chat_input.label") : ""}
           id="host-request-message"
           InputLabelProps={{
-            className: isRequestClosed ? classes.requestClosedLabel : undefined,
+            style: {
+              transform: isRequestClosed ? "none" : undefined,
+            },
             shrink: isRequestClosed ? false : undefined,
           }}
           inputRef={register}
@@ -255,7 +174,7 @@ export default function HostRequestSendField({
           onKeyDown={handleKeyDown}
           maxRows={6}
           size="small"
-          className={classes.textField}
+          sx={{ background: theme.palette.common.white }}
         />
         <FieldButton
           callback={onSubmit}
@@ -265,7 +184,7 @@ export default function HostRequestSendField({
         >
           {t("global:send")}
         </FieldButton>
-      </div>
+      </StyledContainer>
     </form>
   );
 }

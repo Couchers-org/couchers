@@ -1,6 +1,6 @@
-import Hidden from "@material-ui/core/Hidden";
+import { useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import ReferenceForm from "features/profile/view/leaveReference/ReferenceForm";
@@ -13,11 +13,12 @@ import { ReferenceType } from "proto/references_pb";
 import React from "react";
 import { ReferenceStep, referenceTypeRoute } from "routes";
 import { ReferenceTypeStrings } from "service/references";
+import { theme } from "theme";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   form: {
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       margin: 0,
       width: "100%",
     },
@@ -46,6 +47,7 @@ export default function LeaveReferencePage({
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const classes = useStyles();
+  const isBelowMedium = useMediaQuery(theme.breakpoints.down("md"));
 
   const {
     data: user,
@@ -73,8 +75,7 @@ export default function LeaveReferencePage({
           {userError || availableReferencesError?.message || ""}
         </Alert>
       )}
-      {(isUserLoading || isAvailableReferencesLoading) && <CircularProgress />}
-
+      {(isUserLoading || isAvailableReferencesLoading) && <CenteredSpinner />}
       {availableReferences &&
         user &&
         ((referenceType ===
@@ -87,9 +88,9 @@ export default function LeaveReferencePage({
           )) ? (
           <div className={classes.root}>
             <ProfileUserProvider user={user}>
-              <Hidden smDown>
+              {!isBelowMedium && (
                 <UserOverview showHostAndMeetAvailability={false} />
-              </Hidden>
+              )}
               <div className={classes.form}>
                 <ReferenceForm
                   hostRequestId={hostRequestId}

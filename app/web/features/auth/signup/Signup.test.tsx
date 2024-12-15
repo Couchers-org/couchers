@@ -22,6 +22,13 @@ import {
 
 import Signup from "./Signup";
 
+jest.mock("@mui/x-date-pickers", () => {
+  return {
+    ...jest.requireActual("@mui/x-date-pickers"),
+    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+  };
+});
+
 const startSignupMock = service.auth.startSignup as MockedService<
   typeof service.auth.startSignup
 >;

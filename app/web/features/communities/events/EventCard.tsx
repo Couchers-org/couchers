@@ -5,7 +5,7 @@ import {
   Chip,
   Theme,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
 import classNames from "classnames";
 import Divider from "components/Divider";

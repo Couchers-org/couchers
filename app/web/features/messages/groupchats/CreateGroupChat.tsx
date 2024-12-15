@@ -1,5 +1,5 @@
-import { ListItem, ListItemAvatar, ListItemText } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { ListItemAvatar, ListItemButton, ListItemText } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import Alert from "components/Alert";
 import Autocomplete from "components/Autocomplete";
 import Avatar from "components/Avatar";
@@ -93,14 +93,14 @@ export default function CreateGroupChat({ className }: { className?: string }) {
 
   return (
     <>
-      <ListItem button onClick={() => setIsOpen(true)} className={className}>
+      <ListItemButton onClick={() => setIsOpen(true)} className={className}>
         <ListItemAvatar>
           <Avatar>
             <AddIcon />
           </Avatar>
         </ListItemAvatar>
         <ListItemText>{t("messages:create_chat.group_title")}</ListItemText>
-      </ListItem>
+      </ListItemButton>
       <Dialog
         aria-labelledby="create-dialog-title"
         open={isOpen}

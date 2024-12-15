@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import dayjs from "utils/dayjs";

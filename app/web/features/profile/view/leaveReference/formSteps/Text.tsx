@@ -1,4 +1,4 @@
-import { useMediaQuery, useTheme } from "@material-ui/core";
+import { useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextBody from "components/TextBody";

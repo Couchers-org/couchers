@@ -1,6 +1,7 @@
-import ReplayIcon from "@material-ui/icons/Replay";
-import TuneIcon from "@material-ui/icons/Tune";
+import ReplayIcon from "@mui/icons-material/Replay";
+import TuneIcon from "@mui/icons-material/Tune";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Map from "components/Map";
 import {
   addClusteredUsersToMap,
@@ -11,7 +12,12 @@ import {
 import { Point } from "geojson";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
-import maplibregl, { EventData, LngLat, Map as MaplibreMap } from "maplibre-gl";
+import {
+  LngLat,
+  Map as MaplibreMap,
+  MapLayerMouseEvent,
+  MapMouseEvent,
+} from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import {
@@ -32,6 +38,15 @@ const useStyles = makeStyles((theme) => ({
     left: "50%",
     position: "relative",
     zIndex: 10,
+  },
+  mapLoadingContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 2,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
   },
   testContainer: {
     position: "absolute",
@@ -63,18 +78,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface mapWrapperProps {
-  selectedResult:
-    | Pick<User.AsObject, "username" | "userId" | "lng" | "lat">
-    | undefined;
+  selectedResult: Pick<User.AsObject, "userId" | "lng" | "lat"> | undefined;
   isLoading: boolean;
   locationResult: GeocodeResult | undefined;
   setLocationResult: Dispatch<SetStateAction<GeocodeResult>>;
   results: InfiniteData<UserSearchRes.AsObject> | undefined;
   setIsFiltersOpen: Dispatch<SetStateAction<boolean>>;
   setSelectedResult: Dispatch<
-    SetStateAction<
-      Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
-    >
+    SetStateAction<Pick<User.AsObject, "userId" | "lng" | "lat"> | undefined>
   >;
   map: MutableRefObject<MaplibreMap | undefined>;
   setWasSearchPerformed: Dispatch<SetStateAction<boolean>>;
@@ -104,11 +115,7 @@ export default function MapWrapper({
    * User clicks on a user on map
    */
   const handleMapUserClick = useCallback(
-    (
-      ev: maplibregl.MapMouseEvent & {
-        features?: maplibregl.MapboxGeoJSONFeature[] | undefined;
-      } & EventData
-    ) => {
+    (ev: MapLayerMouseEvent) => {
       ev.preventDefault();
 
       const props = ev.features?.[0].properties;
@@ -116,11 +123,10 @@ export default function MapWrapper({
 
       if (!props || !geom) return;
 
-      const username = props.username;
       const userId = props.id;
 
       const [lng, lat] = geom.coordinates;
-      setSelectedResult({ username, userId, lng, lat });
+      setSelectedResult({ userId, lng, lat });
     },
     [setSelectedResult]
   );
@@ -187,7 +193,7 @@ export default function MapWrapper({
 
   useEffect(() => {
     if (!map.current) return;
-    const handleMapClickAway = (e: EventData) => {
+    const handleMapClickAway = (e: MapMouseEvent) => {
       // DefaultPrevented is true when a map feature has been clicked
       if (!e.defaultPrevented) {
         setSelectedResult(undefined);
@@ -284,7 +290,7 @@ export default function MapWrapper({
         <div className={classes.testChildFromGoogle}>
           <Button
             color="primary"
-            loading={isLoading}
+            disabled={isLoading}
             onClick={handleOnClick}
             className={classes.searchHereButton}
             endIcon={<ReplayIcon />}
@@ -300,6 +306,11 @@ export default function MapWrapper({
           />
         </div>
       </div>
+      {isLoading && (
+        <div className={classes.mapLoadingContainer}>
+          <CenteredSpinner minHeight="100%" />
+        </div>
+      )}
       <Map
         grow
         initialCenter={new LngLat(0, 0)}

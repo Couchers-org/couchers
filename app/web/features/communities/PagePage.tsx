@@ -1,5 +1,5 @@
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import CommentBox from "components/Comments/CommentBox";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
@@ -60,7 +60,7 @@ export default function PagePage({
     <>
       {error && <Alert severity="error">{error}</Alert>}
       {loading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : page ? (
         <>
           <HtmlMeta title={page.title} />

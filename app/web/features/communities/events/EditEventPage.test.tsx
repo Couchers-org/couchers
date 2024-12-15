@@ -16,6 +16,13 @@ import EditEventPage from "./EditEventPage";
 
 jest.mock("components/MarkdownInput");
 
+jest.mock("@mui/x-date-pickers", () => {
+  return {
+    ...jest.requireActual("@mui/x-date-pickers"),
+    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+  };
+});
+
 const getEventMock = service.events.getEvent as jest.MockedFunction<
   typeof service.events.getEvent
 >;
@@ -60,7 +67,7 @@ describe("Edit event page", () => {
     const eventDetails = screen.getByLabelText(t("communities:event_details"));
     userEvent.clear(eventDetails);
     userEvent.type(eventDetails, "We are going virtual this week!");
-    const endDateField = await screen.findByLabelText(
+    const endDateField = await screen.findByLabelText<HTMLInputElement>(
       t("communities:end_date")
     );
     userEvent.clear(endDateField);
@@ -87,7 +94,7 @@ describe("Edit event page", () => {
   it("should submit both the start and end date if the start date field is touched", async () => {
     renderPage();
 
-    const startDateField = await screen.findByLabelText(
+    const startDateField = await screen.findByLabelText<HTMLInputElement>(
       t("communities:start_date")
     );
     userEvent.clear(startDateField);

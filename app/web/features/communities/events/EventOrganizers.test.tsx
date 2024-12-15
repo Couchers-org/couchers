@@ -8,7 +8,7 @@ import userEvent from "@testing-library/user-event";
 import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { getEventOrganizers, getUser } from "test/serviceMockDefaults";
+import { getEventOrganizers, getLiteUsers } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 
 import EventOrganizers from "./EventOrganizers";
@@ -17,13 +17,13 @@ const listEventOrganizersMock = service.events
   .listEventOrganizers as jest.MockedFunction<
   typeof service.events.listEventOrganizers
 >;
-const getUserMock = service.user.getUser as jest.MockedFunction<
-  typeof service.user.getUser
+const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
+  typeof service.user.getLiteUsers
 >;
 
 describe("Event organizers", () => {
   beforeEach(() => {
-    getUserMock.mockImplementation(getUser);
+    getLiteUsersMock.mockImplementation(getLiteUsers);
     listEventOrganizersMock.mockImplementation(getEventOrganizers);
   });
 
@@ -33,8 +33,12 @@ describe("Event organizers", () => {
     expect(
       await screen.findByRole("heading", { name: t("communities:organizers") })
     ).toBeVisible();
-    expect(screen.getByRole("heading", { name: "Funny Dog" })).toBeVisible();
-    expect(screen.getByRole("heading", { name: "Funny Kid" })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: "Funny Dog, 35" })
+    ).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: "Funny Kid, 28" })
+    ).toBeVisible();
   });
 
   describe("when there are multiple pages of organizers", () => {
@@ -60,10 +64,10 @@ describe("Event organizers", () => {
         await screen.findByRole("dialog", { name: t("communities:organizers") })
       ).toBeVisible();
       expect(
-        screen.getByRole("heading", { name: "Funny Chicken" })
+        screen.getByRole("heading", { name: "Funny Chicken, 28" })
       ).toBeVisible();
       expect(
-        screen.getByRole("heading", { name: "Friendly Cow" })
+        screen.getByRole("heading", { name: "Friendly Cow, 25" })
       ).toBeVisible();
     });
 
@@ -83,9 +87,11 @@ describe("Event organizers", () => {
       );
 
       expect(
-        await dialog.findByRole("heading", { name: "Funny Dog" })
+        await dialog.findByRole("heading", { name: "Funny Dog, 35" })
       ).toBeVisible();
-      expect(dialog.getByRole("heading", { name: "Funny Kid" })).toBeVisible();
+      expect(
+        dialog.getByRole("heading", { name: "Funny Kid, 28" })
+      ).toBeVisible();
     });
 
     it("should hide unknown users in the dialog", async () => {

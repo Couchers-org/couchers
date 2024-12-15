@@ -1,15 +1,15 @@
 import {
   Avatar,
   Checkbox,
-  CircularProgress,
   FormControl,
   FormControlLabel,
   FormHelperText,
   Typography,
   TypographyVariant,
-} from "@material-ui/core";
+} from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { communityGuidelinesQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
   grid: {
     display: "grid",
     gridTemplateColumns: "auto 1fr",
-    gridGap: theme.spacing(2, 2),
+    gap: theme.spacing(2, 2),
   },
   avatar: {
     backgroundColor: theme.palette.grey[300],
@@ -96,7 +96,7 @@ export default function CommunityGuidelines({
   }
 
   return isLoading ? (
-    <CircularProgress />
+    <CenteredSpinner />
   ) : data ? (
     <>
       <form onSubmit={submit} className={className}>
@@ -130,7 +130,7 @@ export default function CommunityGuidelines({
                       ),
                     }}
                     render={({ onChange, value }) => (
-                      <FormControl>
+                      <FormControl variant="standard">
                         <FormControlLabel
                           label={
                             <Typography variant="body1">

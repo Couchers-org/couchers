@@ -1,7 +1,4 @@
-import {
-  Alert as MuiAlert,
-  AlertProps as MuiAlertProps,
-} from "@material-ui/lab/";
+import { Alert as MuiAlert, AlertProps as MuiAlertProps } from "@mui/material";
 import { grpcErrorStrings, ObscureGrpcErrorMessages } from "appConstants";
 import classNames from "classnames";
 import React from "react";

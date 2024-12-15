@@ -1,4 +1,4 @@
-import { DialogProps } from "@material-ui/core";
+import { DialogProps } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {

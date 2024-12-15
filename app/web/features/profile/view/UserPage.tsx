@@ -1,11 +1,11 @@
-import { CircularProgress, Collapse } from "@material-ui/core";
+import { Collapse, styled } from "@mui/material";
 import Alert from "components/Alert";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Snackbar from "components/Snackbar";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import NewHostRequest from "features/profile/view/NewHostRequest";
 import Overview from "features/profile/view/Overview";
-import { useProfileStyles } from "features/profile/view/ProfilePage";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
@@ -17,6 +17,24 @@ import UserCard from "./UserCard";
 
 const REQUEST_ID = "request";
 
+const StyledProfileRoot = styled("div")(({ theme }) => ({
+  padding: theme.spacing(1),
+  [theme.breakpoints.up("sm")]: {
+    display: "grid",
+    gridTemplateColumns: "2fr 3fr",
+    gap: theme.spacing(3),
+    margin: theme.spacing(0, 3),
+    padding: 0,
+    paddingTop: theme.spacing(3),
+    paddingBottom: theme.spacing(3),
+  },
+  [theme.breakpoints.up("md")]: {
+    gridTemplateColumns: "2fr 4fr",
+    maxWidth: "61.5rem",
+    margin: "0 auto",
+  },
+}));
+
 export default function UserPage({
   username,
   tab = "about",
@@ -25,7 +43,6 @@ export default function UserPage({
   tab?: UserTab;
 }) {
   const { t } = useTranslation(PROFILE);
-  const classes = useProfileStyles();
   const router = useRouter();
 
   const { data: user, isLoading, error } = useUserByUsername(username, true);
@@ -48,10 +65,10 @@ export default function UserPage({
       )}
       {error && <Alert severity="error">{error}</Alert>}
       {isLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : user ? (
         <ProfileUserProvider user={user}>
-          <div className={classes.root}>
+          <StyledProfileRoot>
             <Overview setIsRequesting={setIsRequesting} tab={tab} />
             <UserCard
               tab={tab}
@@ -67,7 +84,7 @@ export default function UserPage({
                 </Collapse>
               }
             />
-          </div>
+          </StyledProfileRoot>
         </ProfileUserProvider>
       ) : null}
     </>

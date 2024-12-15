@@ -3,30 +3,31 @@ import { mockedService } from "stories/serviceMocks";
 import community from "test/fixtures/community.json";
 import events from "test/fixtures/events.json";
 
-import EventsList from "./EventsList";
+import CommunityEventsList from "./CommunityEventsList";
 
 export default {
-  component: EventsList,
-  title: "Communities/Events/EventsList",
+  component: CommunityEventsList,
+  title: "Communities/Events/CommunityEventsList",
 } as Meta;
 
-interface EventsListArgs {
+interface CommunityEventsListArgs {
   pagesOfEvent?: "none" | "one-page" | "multiple-pages";
   shouldListAttendeesSucceed?: boolean;
   shouldListEventsSucceed?: boolean;
 }
 
-const Template: Story<EventsListArgs> = ({
+const Template: Story<CommunityEventsListArgs> = ({
   pagesOfEvent = "one-page",
   shouldListAttendeesSucceed = true,
   shouldListEventsSucceed = true,
 } = {}) => {
   setMocks({
-    pagesOfEvent,
+    pagesOfEvent:
+      pagesOfEvent as Required<CommunityEventsListArgs>["pagesOfEvent"],
     shouldListAttendeesSucceed,
     shouldListEventsSucceed,
   });
-  return <EventsList community={community} />;
+  return <CommunityEventsList community={community} />;
 };
 
 export const OnePageOfEvents = Template.bind({});
@@ -49,7 +50,7 @@ ErrorLoadingEvents.args = {
 function setMocks({
   pagesOfEvent,
   shouldListEventsSucceed,
-}: Required<EventsListArgs>) {
+}: Required<CommunityEventsListArgs>) {
   mockedService.events.listCommunityEvents = async () => {
     return shouldListEventsSucceed
       ? {

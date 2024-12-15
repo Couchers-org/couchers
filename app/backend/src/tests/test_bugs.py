@@ -43,7 +43,7 @@ def test_bugs(db):
                     + config["VERSION"]
                     + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser: <not logged in>"
                 ),
-                "labels": ["bug tool"],
+                "labels": ["bug tool", "bug: triage needed"],
             }
 
             class _PostReturn:
@@ -87,9 +87,9 @@ def test_bugs_with_user(db):
                 "body": (
                     "Subject: subject\nDescription:\ndescription\n\nResults:\nresults\n\nBackend version: "
                     + config["VERSION"]
-                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser: testing_user (1)"
+                    + "\nFrontend version: frontend_version\nUser Agent: user_agent\nPage: page\nUser: [@testing_user](http://localhost:3000/user/testing_user) (1)"
                 ),
-                "labels": ["bug tool"],
+                "labels": ["bug tool", "bug: triage needed"],
             }
 
             class _PostReturn:

@@ -4,9 +4,8 @@ import {
   CardContent,
   Container,
   Grid,
-  makeStyles,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
 import { EmailIcon, GlobeIcon, LinkedInIcon, PinIcon } from "components/Icons";
@@ -15,6 +14,7 @@ import PageTitle from "components/PageTitle";
 import StyledLink from "components/StyledLink";
 import Link from "next/link";
 import { volunteerRoute } from "routes";
+import makeStyles from "utils/makeStyles";
 
 import TeamData from "./team.json";
 
@@ -109,7 +109,7 @@ export default function Team() {
                               : GlobeIcon
                           }
                           text={
-                            <Typography>
+                            <Typography variant="body1">
                               <StyledLink href={link.url}>
                                 {link.text}
                               </StyledLink>

@@ -15,6 +15,13 @@ import {
 
 import AccountForm from "./AccountForm";
 
+jest.mock("@mui/x-date-pickers", () => {
+  return {
+    ...jest.requireActual("@mui/x-date-pickers"),
+    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+  };
+});
+
 const signupFlowAccountMock = service.auth.signupFlowAccount as MockedService<
   typeof service.auth.signupFlowAccount
 >;

@@ -1,4 +1,4 @@
-import Slider from "@material-ui/core/Slider";
+import Slider from "@mui/material/Slider";
 import {
   AMAZING,
   NEGATIVE,
@@ -31,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: props.color,
     height: "0.625rem",
     borderRadius: "1.5625rem",
+    borderColor: props.color,
   }),
   rail: {
     height: "0.625rem",
@@ -43,7 +44,22 @@ const useStyles = makeStyles((theme) => ({
   }),
   valueLabel: (props: ColorProps) => ({
     left: "calc(-50% + 0.25rem)",
-    color: props.color,
+    lineHeight: 1.2,
+    background: "unset",
+    padding: 0,
+    width: 32,
+    height: 32,
+    borderRadius: "50% 50% 50% 0",
+    backgroundColor: props.color,
+    transformOrigin: "bottom left",
+    transform: "translate(50%, -100%) rotate(-45deg) scale(0)",
+    "&::before": { display: "none" },
+    "&.MuiSlider-valueLabelOpen": {
+      transform: "translate(50%, -100%) rotate(-45deg) scale(1)",
+    },
+    "& > *": {
+      transform: "rotate(45deg)",
+    },
   }),
   mark: {
     display: "none",

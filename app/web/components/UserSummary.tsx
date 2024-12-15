@@ -1,12 +1,19 @@
-import { ListItemAvatar, ListItemText, Typography } from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
+import {
+  ListItemAvatar,
+  ListItemText,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
-import { User } from "proto/api_pb";
+import { LiteUser } from "proto/api_pb";
+import React from "react";
 import { routeToUser } from "routes";
 import makeStyles from "utils/makeStyles";
+
+import StrongVerificationBadge from "./StrongVerificationBadge";
 
 export const useStyles = makeStyles((theme) => ({
   avatar: {
@@ -30,7 +37,8 @@ export const useStyles = makeStyles((theme) => ({
     maxWidth: 300,
   },
   title: {
-    marginTop: 0,
+    marginTop: "auto",
+    fontSize: "1.2rem",
   },
   link: {
     display: "flex",
@@ -44,7 +52,7 @@ export const useStyles = makeStyles((theme) => ({
   },
   titleAndBarContainer: {
     display: "grid",
-    gridGap: theme.spacing(0.5),
+    gap: theme.spacing(0.25),
     margin: 0,
     minHeight: theme.spacing(9),
   },
@@ -53,17 +61,15 @@ export const useStyles = makeStyles((theme) => ({
 export const USER_TITLE_SKELETON_TEST_ID = "user-title-skeleton";
 
 export interface UserSummaryProps {
-  avatarIsLink?: boolean;
   children?: React.ReactNode;
   smallAvatar?: boolean;
   nameOnly?: boolean;
   headlineComponent?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-  user?: User.AsObject;
+  user?: LiteUser.AsObject;
   titleIsLink?: boolean;
 }
 
 export default function UserSummary({
-  avatarIsLink = true,
   children,
   smallAvatar = false,
   nameOnly = false,
@@ -73,9 +79,15 @@ export default function UserSummary({
 }: UserSummaryProps) {
   const classes = useStyles();
 
+  const headlineComponentWithRef = React.forwardRef(
+    function HeadlineComponentWithRef(props, ref) {
+      return React.createElement(headlineComponent, { ...props, ref });
+    }
+  );
+
   const title = (
     <Typography
-      component={headlineComponent}
+      component={headlineComponentWithRef}
       variant="h2"
       className={classes.title}
       noWrap={nameOnly}
@@ -85,10 +97,11 @@ export default function UserSummary({
           className={classes.titleSkeleton}
           data-testid={USER_TITLE_SKELETON_TEST_ID}
         />
-      ) : nameOnly ? (
-        user.name
       ) : (
-        `${user.name}, ${user.age}`
+        <>
+          {nameOnly ? user.name : `${user.name}, ${user.age}`}
+          {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
+        </>
       )}
     </Typography>
   );
@@ -102,12 +115,12 @@ export default function UserSummary({
     <div className={classes.root}>
       <ListItemAvatar>
         {!user ? (
-          <Skeleton variant="circle" className={avatarClassNames} />
+          <Skeleton variant="circular" className={avatarClassNames} />
         ) : (
           <Avatar
             user={user}
             className={avatarClassNames}
-            isProfileLink={avatarIsLink}
+            isProfileLink={true}
           />
         )}
       </ListItemAvatar>

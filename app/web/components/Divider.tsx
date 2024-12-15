@@ -1,4 +1,4 @@
-import { Divider as MuiDivider, Theme } from "@material-ui/core";
+import { Divider as MuiDivider, Theme } from "@mui/material";
 import classNames from "classnames";
 import React from "react";
 import makeStyles from "utils/makeStyles";

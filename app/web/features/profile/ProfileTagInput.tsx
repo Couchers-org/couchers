@@ -2,16 +2,16 @@ import {
   alpha,
   ButtonBase,
   Checkbox,
-  createStyles,
   IconButton,
   InputBase,
   Link,
   Popper,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import Autocomplete, {
   AutocompleteCloseReason,
-} from "@material-ui/lab/Autocomplete";
+} from "@mui/material/Autocomplete";
+import { createStyles } from "@mui/styles";
 import { CloseIcon, ExpandMoreIcon } from "components/Icons";
 import { Trans, useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
@@ -74,7 +74,7 @@ const useStyles = makeStyles((theme) =>
       '&[aria-selected="true"]': {
         backgroundColor: "transparent",
       },
-      '&[data-focus="true"]': {
+      "&.MuiAutocomplete-option.Mui-focused": {
         backgroundColor: theme.palette.action.hover,
       },
       alignItems: "flex-start",
@@ -188,6 +188,7 @@ export default function ProfileTagInput({
               })}
               edge="start"
               onClick={() => handleRemove(tag)}
+              size="large"
             >
               <CloseIcon fontSize="small" />
             </IconButton>
@@ -206,7 +207,9 @@ export default function ProfileTagInput({
           <Typography>
             <Trans
               components={{
-                support_link: <Link href="mailto:support@couchers.org" />,
+                support_link: (
+                  <Link href="mailto:support@couchers.org" underline="hover" />
+                ),
               }}
               i18nKey="profile:profile_tag_input.header_text"
             />
@@ -249,8 +252,8 @@ export default function ProfileTagInput({
           options={options
             .concat(pendingValue.filter((item) => options.indexOf(item) < 0))
             .sort((a, b) => -b.localeCompare(a))}
-          renderOption={(option, { selected }) => (
-            <>
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
               <Checkbox
                 color="primary"
                 size="small"
@@ -258,7 +261,7 @@ export default function ProfileTagInput({
                 checked={selected}
               />
               {option}
-            </>
+            </li>
           )}
         />
       </Popper>

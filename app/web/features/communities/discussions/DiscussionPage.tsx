@@ -1,15 +1,14 @@
-import { Typography } from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
+import { Skeleton, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
 import { discussionKey } from "features/queryKeys";
-import { useUser } from "features/userQueries/useUsers";
+import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
@@ -80,7 +79,7 @@ export default function DiscussionPage({
     queryFn: () => service.discussions.getDiscussion(discussionId),
   });
 
-  const { data: discussionCreator, isLoading: isCreatorLoading } = useUser(
+  const { data: discussionCreator, isLoading: isCreatorLoading } = useLiteUser(
     discussion?.creatorUserId
   );
 
@@ -89,7 +88,7 @@ export default function DiscussionPage({
       <HtmlMeta title={discussion?.title} />
       {error && <Alert severity="error">{error.message}</Alert>}
       {isDiscussionLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : (
         discussion && (
           <CommunityBase communityId={discussion.ownerCommunityId}>

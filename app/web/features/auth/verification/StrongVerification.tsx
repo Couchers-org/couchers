@@ -1,13 +1,12 @@
-import { Link, Typography } from "@material-ui/core";
-import Button from "components/Button";
+import { Typography } from "@mui/material";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import { GetAccountInfoRes } from "proto/account_pb";
 
-const STRONG_VERIFICATION_URL =
-  process.env.NEXT_PUBLIC_CONSOLE_BASE_URL + "/strong-verification";
+import DeleteStrongVerificationDataButton from "./DeleteStrongVerificationDataButton";
+import StartStrongVerificationButton from "./StartStrongVerificationButton";
 
-type ChangePhoneProps = {
+type StrongVerificationProps = {
   accountInfo: GetAccountInfoRes.AsObject;
   className?: string;
 };
@@ -15,7 +14,7 @@ type ChangePhoneProps = {
 export default function StrongVerification({
   className,
   accountInfo,
-}: ChangePhoneProps) {
+}: StrongVerificationProps) {
   const { t } = useTranslation(AUTH);
 
   return (
@@ -33,17 +32,11 @@ export default function StrongVerification({
           You <strong>are currently</strong> verified with Strong Verification.
         </Trans>
       </Typography>
-      <Typography variant="body1">
-        <Trans t={t} i18nKey="strong_verification.complete_in_console">
-          You can complete Strong Verification{" "}
-          <Link href={STRONG_VERIFICATION_URL}>on this page</Link>. We are
-          working on improving the flow and implementing it fully in the
-          platform.
-        </Trans>
-      </Typography>
-      <Button href={STRONG_VERIFICATION_URL}>
-        {t("strong_verification.go_to_button")}
-      </Button>
+      {accountInfo.hasStrongVerification ? (
+        <DeleteStrongVerificationDataButton />
+      ) : (
+        <StartStrongVerificationButton />
+      )}
     </div>
   );
 }

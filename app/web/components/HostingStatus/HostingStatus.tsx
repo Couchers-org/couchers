@@ -1,4 +1,4 @@
-import { Skeleton } from "@material-ui/lab";
+import { Skeleton } from "@mui/material";
 import { CouchIcon } from "components/Icons";
 import IconText from "components/IconText";
 import { hostingStatusLabels } from "features/profile/constants";

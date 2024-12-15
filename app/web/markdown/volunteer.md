@@ -45,13 +45,17 @@ Want to help but don't see anything listed for you? [Fill out this form](/volunt
 
 #### Development
 
-- [Backend Developer (Python/Django)](/volunteer/backend-developer)
+- [Backend Developer (Python)](/volunteer/backend-developer)
 - [Frontend (web) Developer (React/Typescript)](/volunteer/frontend-developer)
 - [Mobile Development Lead](/volunteer/mobile-development-lead)
 
 #### Operations
 
 - [Volunteer Coordinator](/volunteer/volunteer-coordinator)
+
+#### Design
+
+- [UI/UX Designer](/volunteer/ui-ux-designer)
 
 #### Marketing
 

@@ -4,7 +4,7 @@ import {
   IconButton,
   InputLabel,
   Select,
-} from "@material-ui/core";
+} from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -26,6 +26,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
 import { ReportInput } from "service/reporting";
+import { theme } from "theme";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -111,6 +112,7 @@ export default function FlagButton({
         className={className}
         onClick={() => setIsOpen(true)}
         color="primary"
+        size="large"
       >
         <FlagIcon />
       </IconButton>
@@ -144,6 +146,7 @@ export default function FlagButton({
                 name="reason"
                 render={({ onChange, value }) => (
                   <Select
+                    variant="standard"
                     className={classes.field}
                     native
                     value={value}
@@ -194,6 +197,15 @@ export default function FlagButton({
             <Button
               onClick={() => handleClose({}, "button")}
               variant="outlined"
+              sx={{
+                color: theme.palette.common.black,
+                borderColor: theme.palette.grey[300],
+
+                "&:hover": {
+                  borderColor: theme.palette.grey[300],
+                  backgroundColor: "#3135390A",
+                },
+              }}
             >
               {t("cancel")}
             </Button>

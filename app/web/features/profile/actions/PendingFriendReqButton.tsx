@@ -61,7 +61,7 @@ function PendingFriendReqButton({
         <>
           <Button
             startIcon={<PersonAddIcon />}
-            innerRef={menuAnchor}
+            ref={menuAnchor}
             onClick={handleClick("menu")}
             aria-controls={RESPOND_TO_FRIEND_REQUEST_MENU_ID}
             loading={isLoading}

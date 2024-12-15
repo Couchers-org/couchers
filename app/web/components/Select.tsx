@@ -3,8 +3,9 @@ import {
   InputLabel,
   MenuItem,
   Select as MuiSelect,
+  SelectChangeEvent,
   SelectProps,
-} from "@material-ui/core";
+} from "@mui/material";
 import classnames from "classnames";
 import React from "react";
 import makeStyles from "utils/makeStyles";
@@ -30,6 +31,7 @@ export default function Select<T extends Record<string | number, string>>({
   label,
   variant = "outlined",
   options,
+  onChange,
   ...otherProps
 }: Omit<SelectProps, "children"> & {
   id: string;
@@ -39,6 +41,7 @@ export default function Select<T extends Record<string | number, string>>({
     : keyof T | Array<keyof T>;
   menuItems?: boolean;
   optionLabelMap: T;
+  onChange?: (event: SelectChangeEvent<T>) => void;
 }) {
   const classes = useStyles();
   const OptionComponent: React.ElementType = menuItems ? MenuItem : "option";
@@ -51,8 +54,10 @@ export default function Select<T extends Record<string | number, string>>({
     >
       <InputLabel htmlFor={id}>{label}</InputLabel>
       <MuiSelect
+        variant="standard"
         native={native}
         label={label}
+        onChange={onChange}
         {...otherProps}
         inputProps={{
           name: id,

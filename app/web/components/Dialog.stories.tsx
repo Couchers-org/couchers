@@ -1,4 +1,4 @@
-import { DialogActions } from "@material-ui/core";
+import { DialogActions } from "@mui/material";
 import { Meta, Story } from "@storybook/react";
 import * as React from "react";
 

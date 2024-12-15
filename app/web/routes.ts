@@ -5,7 +5,6 @@ Please make sure this file stays in sync with that file as well as
 //app/backend/src/couchers/urls.py
 */
 import { ReferenceType } from "proto/references_pb";
-import { ReferenceTypeStrings } from "service/references";
 import SearchFilters, { parseSearchFiltersToQuery } from "utils/searchFilters";
 
 export const baseRoute = "/";
@@ -34,6 +33,7 @@ export const signupRoute = "/signup";
 
 export const settingsRoute = "/account-settings";
 export const notificationSettingsRoute = `${settingsRoute}/notifications`;
+export const loginsSettingsRoute = `${settingsRoute}/logins`;
 
 // profile
 export const userTabs = [
@@ -78,7 +78,7 @@ export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 // REFERENCES
 export const leaveReferenceBaseRoute = "/leave-reference";
 export const routeToLeaveReference = (
-  referenceType: ReferenceTypeStrings,
+  referenceType: ReferenceTypeRouteStrings,
   userId: number,
   hostRequestId?: number
 ) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`;
@@ -163,3 +163,21 @@ export const routeToEditCommunityPage = (id: number, slug: string) =>
 
 export const composingDiscussionHash = "new";
 export const volunteerRoute = "/volunteer";
+
+export const strongVerificationURL = `${process.env.NEXT_PUBLIC_CONSOLE_BASE_URL}/strong-verification`;
+export function adminPanelUserLink(username: string) {
+  return `${process.env.NEXT_PUBLIC_CONSOLE_BASE_URL}/admin/user/${username}`;
+}
+
+export const howToRespondRequestGuideUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125658-what-are-some-things-i-should-think-about-before-responding-to-a-request";
+export const howToWriteRequestGuideUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1725943310-quick-reference-writing-great-requests";
+export const howToDonateUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125658-how-do-i-donate-money-to-couchers-org";
+export const howToCompleteProfileUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1725919152-why-do-i-need-to-complete-my-profile-to-use-some-features";
+export const howToInviteCommunityUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1720304409-how-does-the-invite-the-community-feature-work";
+export const howToMakeGreatProfileUrl =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1725919197-how-do-i-create-a-great-profile";

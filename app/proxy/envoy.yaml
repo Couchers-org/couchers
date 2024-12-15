@@ -86,6 +86,25 @@ static_resources:
                   value: Kilroy was here.
                 append_action: OVERWRITE_IF_EXISTS_OR_ADD
           http_filters:
+          - name: envoy.filters.http.compressor
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.compressor.v3.Compressor
+              response_direction_config:
+                common_config:
+                  min_content_length: 100
+                  content_type:
+                  - application/json
+                  - application/grpc-web+proto
+                  - text/plain
+                disable_on_etag_header: true
+              compressor_library:
+                name: gzip
+                typed_config:
+                  "@type": type.googleapis.com/envoy.extensions.compression.gzip.compressor.v3.Gzip
+                  memory_level: 3
+                  window_bits: 10
+                  compression_level: BEST_COMPRESSION
+                  compression_strategy: DEFAULT_STRATEGY
           - name: envoy.filters.http.grpc_web
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_web.v3.GrpcWeb

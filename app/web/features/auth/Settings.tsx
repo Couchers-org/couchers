@@ -1,5 +1,5 @@
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import ChangeEmail from "features/auth/email/ChangeEmail";
@@ -14,6 +14,7 @@ import { AUTH } from "i18n/namespaces";
 import makeStyles from "utils/makeStyles";
 
 import DeleteAccount from "./deletion/DeleteAccount";
+import LoginsLink from "./logins/LoginsLink";
 import useAccountInfo from "./useAccountInfo";
 
 const useStyles = makeStyles((theme) => ({
@@ -40,7 +41,7 @@ export default function Settings() {
       <HtmlMeta title={t("account_settings_page.title")} />
       <PageTitle>{t("account_settings_page.title")}</PageTitle>
       {isAccountInfoLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : accountInfoError ? (
         <Alert severity="error">{accountInfoError.message}</Alert>
       ) : accountInfo ? (
@@ -48,6 +49,7 @@ export default function Settings() {
           <NotificationSettings className={classes.section} />
           <ChangeEmail className={classes.section} email={accountInfo.email} />
           <ChangePassword className={classes.section} />
+          <LoginsLink className={classes.section} />
           <Username
             className={classes.section}
             username={accountInfo.username}

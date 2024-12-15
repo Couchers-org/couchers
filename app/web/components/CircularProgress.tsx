@@ -1,7 +1,7 @@
 import {
   CircularProgress as MuiCircularProgress,
   CircularProgressProps,
-} from "@material-ui/core";
+} from "@mui/material";
 import classNames from "classnames";
 import React, { ForwardedRef } from "react";
 import makeStyles from "utils/makeStyles";

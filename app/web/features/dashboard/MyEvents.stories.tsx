@@ -19,7 +19,7 @@ const Template: Story<EventsListArgs> = ({
   shouldListEventsSucceed = true,
 } = {}) => {
   setMocks({
-    pagesOfEvent,
+    pagesOfEvent: pagesOfEvent as Required<EventsListArgs>["pagesOfEvent"],
     shouldListEventsSucceed,
   });
   return <MyEvents />;

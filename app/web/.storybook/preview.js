@@ -1,4 +1,8 @@
-import { ThemeProvider } from "@material-ui/core";
+import {
+  ThemeProvider,
+  StyledEngineProvider,
+  createTheme,
+} from "@mui/material/styles";
 import { QueryClient, QueryClientProvider } from "react-query";
 
 import { theme } from "../theme";
@@ -7,6 +11,8 @@ import "../fonts";
 import "./i18n";
 import "./reset.css";
 import { Suspense } from "react";
+
+const defaultTheme = createTheme();
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
@@ -29,11 +35,13 @@ export const decorators = [
         <AuthContext.Provider
           value={{ authState: { authenticated: true, userId: 1 } }}
         >
-          <ThemeProvider theme={theme}>
-            <QueryClientProvider client={client}>
-              <Story {...context} />
-            </QueryClientProvider>
-          </ThemeProvider>
+          <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme}>
+              <QueryClientProvider client={client}>
+                <Story {...context} />
+              </QueryClientProvider>
+            </ThemeProvider>
+          </StyledEngineProvider>
         </AuthContext.Provider>
       </Suspense>
     );

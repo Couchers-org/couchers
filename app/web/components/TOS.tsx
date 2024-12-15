@@ -1,4 +1,4 @@
-import { CircularProgress } from "@material-ui/core";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
 import PageTitle from "components/PageTitle";
@@ -37,7 +37,7 @@ export default function TOS() {
   }
 
   return isLoading ? (
-    <CircularProgress />
+    <CenteredSpinner />
   ) : data ? (
     <div className={classes.root}>
       <HtmlMeta title={t("terms_of_service")} />

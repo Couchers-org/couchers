@@ -1,6 +1,6 @@
-import { Backdrop } from "@material-ui/core";
+import { Backdrop } from "@mui/material";
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import Redirect from "components/Redirect";
@@ -63,7 +63,7 @@ export default function Jail() {
         {t("jail.description")}
       </TextBody>
       <Backdrop open={loading || authLoading}>
-        <CircularProgress />
+        <CenteredSpinner />
       </Backdrop>
       {jailInfo?.hasNotAcceptedTos && (
         <TOSSection updateJailed={updateJailed} className={classes.section} />

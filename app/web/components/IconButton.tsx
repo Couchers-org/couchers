@@ -2,7 +2,7 @@ import {
   IconButton as MuiIconButton,
   IconButtonProps as MuiIconButtonProps,
   useTheme,
-} from "@material-ui/core";
+} from "@mui/material";
 import { forwardRef } from "react";
 import makeStyles from "utils/makeStyles";
 

@@ -99,7 +99,7 @@ def verify_hash_signature(message: bytes, key: bytes, sig: bytes) -> bool:
 
 def generate_random_5digit_string():
     """Return a random 5-digit string"""
-    return "%05d" % secrets.randbelow(100000)
+    return f"{secrets.randbelow(100000):05d}"
 
 
 def verify_token(a: str, b: str):

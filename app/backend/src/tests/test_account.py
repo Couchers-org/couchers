@@ -44,6 +44,7 @@ def test_GetAccountInfo(db, fast_passwords):
         assert not res.has_strong_verification
         assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
+        assert not res.is_superuser
 
 
 def test_GetAccountInfo_regression(db):

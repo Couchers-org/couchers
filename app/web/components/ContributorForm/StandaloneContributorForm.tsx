@@ -1,7 +1,7 @@
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import ContributorForm from "components/ContributorForm";
 import { contributorFormInfoQueryKey } from "features/queryKeys";
 import { GetContributorFormInfoRes } from "proto/account_pb";
@@ -35,7 +35,7 @@ export default function StandaloneContributorForm() {
   };
 
   return queryLoading ? (
-    <CircularProgress />
+    <CenteredSpinner />
   ) : (
     <>
       {queryError && <Alert severity="error">{queryError?.message}</Alert>}

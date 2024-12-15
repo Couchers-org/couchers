@@ -17,7 +17,7 @@ const useAuthStyles = makeStyles((theme) => ({
     flexDirection: "column",
     padding: theme.spacing(1, 4),
     paddingBottom: 0,
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       padding: theme.spacing(1, 2),
     },
   },
@@ -83,7 +83,7 @@ const useAuthStyles = makeStyles((theme) => ({
       minHeight: `calc(100vh - 6rem - ${theme.spacing(4)})`,
       alignItems: "center",
       margin: "auto",
-      width: theme.breakpoints.values.md,
+      width: theme.breakpoints.values.lg,
     },
   },
   formField: {
@@ -106,12 +106,12 @@ const useAuthStyles = makeStyles((theme) => ({
       width: "45%",
       padding: theme.spacing(5, 8),
     },
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       width: "80%",
       padding: theme.spacing(5, 8),
       margin: theme.spacing(2, "auto"),
     },
-    [theme.breakpoints.down("xs")]: {
+    [theme.breakpoints.down("sm")]: {
       width: "100%",
       padding: theme.spacing(3, 4),
       margin: theme.spacing(0),
@@ -124,9 +124,9 @@ const useAuthStyles = makeStyles((theme) => ({
     display: "flex",
     textAlign: "left",
     width: "45%",
-    maxWidth: theme.breakpoints.values.md / 2,
+    maxWidth: theme.breakpoints.values.lg / 2,
     marginInlineEnd: "10%",
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       display: "none",
     },
   },

@@ -7,6 +7,7 @@ import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { useMutation, useQueryClient } from "react-query";
 import { service } from "service";
+import { theme } from "theme";
 
 export default function JoinCommunityButton({
   community,
@@ -58,6 +59,17 @@ export default function JoinCommunityButton({
         loading={isLoading}
         variant={community.member ? "outlined" : "contained"}
         onClick={() => (community.member ? leave.mutate() : join.mutate())}
+        sx={{
+          color: community.member
+            ? theme.palette.common.black
+            : theme.palette.common.white,
+          borderColor: theme.palette.grey[300],
+
+          "&:hover": {
+            borderColor: theme.palette.grey[300],
+            backgroundColor: "#3135390A",
+          },
+        }}
       >
         {community.member
           ? t("communities:leave_community")

@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import Actions from "components/Actions";
 import Button from "components/Button";
 import ReportButton from "components/Navigation/ReportButton";
@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { baseRoute } from "routes";
+import { theme } from "theme";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -38,7 +39,19 @@ export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
       <Actions>
         {!isFatal && (
           <Link href={baseRoute} passHref>
-            <Button variant="outlined" component="a">
+            <Button
+              variant="outlined"
+              component="a"
+              sx={{
+                color: theme.palette.common.black,
+                borderColor: theme.palette.grey[300],
+
+                "&:hover": {
+                  borderColor: theme.palette.grey[300],
+                  backgroundColor: "#3135390A",
+                },
+              }}
+            >
               {t("error.fallback.home_page_link_label")}
             </Button>
           </Link>

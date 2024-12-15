@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     height: "8rem",
     width: "100%",
     marginBottom: theme.spacing(1),
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down("lg")]: {
       //break out of page margins
       left: "50%",
       marginLeft: "-50vw",

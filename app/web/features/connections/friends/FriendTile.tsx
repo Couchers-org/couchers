@@ -1,5 +1,5 @@
-import { Card, CircularProgress, Typography } from "@material-ui/core";
-import { CSSProperties } from "@material-ui/styles";
+import { Card, CircularProgress, Typography } from "@mui/material";
+import { CSSProperties } from "@mui/styles";
 import Alert from "components/Alert";
 import TextBody from "components/TextBody";
 import React from "react";
@@ -11,6 +11,7 @@ const useStyles = makeStyles((theme) => ({
     margin: `0 auto ${theme.spacing(1)}`,
   },
   container: {
+    margin: theme.spacing(2),
     "& > *": {
       marginBottom: theme.spacing(2),
     },

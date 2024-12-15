@@ -1,5 +1,5 @@
-import { ListItemText } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { ListItemText } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import Button from "components/Button";
 import { CheckIcon, ExpandLessIcon, ExpandMoreIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
@@ -7,6 +7,7 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { AttendanceState } from "proto/events_pb";
 import { useState } from "react";
+import { theme } from "theme";
 
 const useStyles = makeStyles((theme) => ({
   menuListItem: {
@@ -66,6 +67,17 @@ export default function AttendanceMenu({
         loading={loading}
         variant={isAttending ? "outlined" : "contained"}
         disabled={disabled}
+        sx={{
+          color: isAttending
+            ? theme.palette.common.black
+            : theme.palette.common.white,
+          borderColor: theme.palette.grey[300],
+
+          "&:hover": {
+            borderColor: theme.palette.grey[300],
+            backgroundColor: "#3135390A",
+          },
+        }}
       >
         {isAttending
           ? t("communities:going_to_event")
@@ -82,7 +94,6 @@ export default function AttendanceMenu({
         MenuListProps={{
           "aria-labelledby": buttonId,
         }}
-        getContentAnchorEl={null}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "right",

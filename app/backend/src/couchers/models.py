@@ -131,6 +131,7 @@ class User(Base):
     geom_radius = Column(Float, nullable=True)
     # the display address (text) shown on their profile
     city = Column(String, nullable=False)
+    # "Grew up in" on profile
     hometown = Column(String, nullable=True)
 
     regions_visited = relationship("Region", secondary="regions_visited", order_by="Region.name")
@@ -155,9 +156,6 @@ class User(Base):
     pronouns = Column(String, nullable=True)
     birthdate = Column(Date, nullable=False)  # in the timezone of birthplace
 
-    # name as on official docs for verification, etc. not needed until verification
-    full_name = Column(String, nullable=True)
-
     avatar_key = Column(ForeignKey("uploads.key"), nullable=True)
 
     hosting_status = Column(Enum(HostingStatus), nullable=False)
@@ -168,10 +166,14 @@ class User(Base):
 
     occupation = Column(String, nullable=True)  # CommonMark without images
     education = Column(String, nullable=True)  # CommonMark without images
+
+    # "Who I am" under "About Me" tab
     about_me = Column(String, nullable=True)  # CommonMark without images
-    my_travels = Column(String, nullable=True)  # CommonMark without images
+    # "What I do in my free time" under "About Me" tab
     things_i_like = Column(String, nullable=True)  # CommonMark without images
+    # "About my home" under "My Home" tab
     about_place = Column(String, nullable=True)  # CommonMark without images
+    # "Additional information" under "About Me" tab
     additional_information = Column(String, nullable=True)  # CommonMark without images
 
     is_banned = Column(Boolean, nullable=False, server_default=text("false"))
@@ -201,11 +203,16 @@ class User(Base):
     smokes_at_home = Column(Boolean, nullable=True)
     drinking_allowed = Column(Boolean, nullable=True)
     drinks_at_home = Column(Boolean, nullable=True)
+    # "Additional information" under "My Home" tab
     other_host_info = Column(String, nullable=True)  # CommonMark without images
 
+    # "Sleeping privacy" (not long-form text)
     sleeping_arrangement = Column(Enum(SleepingArrangement), nullable=True)
+    # "Sleeping arrangement" under "My Home" tab
     sleeping_details = Column(String, nullable=True)  # CommonMark without images
+    # "Local area information" under "My Home" tab
     area = Column(String, nullable=True)  # CommonMark without images
+    # "House rules" under "My Home" tab
     house_rules = Column(String, nullable=True)  # CommonMark without images
     parking = Column(Boolean, nullable=True)
     parking_details = Column(Enum(ParkingDetails), nullable=True)  # CommonMark without images
@@ -366,10 +373,7 @@ class User(Base):
 
     @property
     def coordinates(self):
-        if self.geom:
-            return get_coordinates(self.geom)
-        else:
-            return None
+        return get_coordinates(self.geom)
 
     @property
     def display_joined(self):
@@ -438,8 +442,11 @@ class StrongVerificationAttemptStatus(enum.Enum):
     in_progress_waiting_on_user_in_app = enum.auto()
     # in progress, waiting for backend to pull verification data
     in_progress_waiting_on_backend = enum.auto()
-    # failed at iris end, no data
+    # failed, no data
     failed = enum.auto()
+
+    # duplicate, at our end, has data
+    duplicate = enum.auto()
 
     ## minimal data states
     # the data, except minimal deduplication data, was deleted
@@ -509,7 +516,7 @@ class StrongVerificationAttempt(Base):
     @is_valid.expression
     def is_valid(cls):
         return (cls.status == StrongVerificationAttemptStatus.succeeded) & (
-            func.coalesce(cls.passport_expiry_datetime >= now(), False)
+            func.coalesce(cls.passport_expiry_datetime >= func.now(), False)
         )
 
     @hybrid_property
@@ -517,12 +524,18 @@ class StrongVerificationAttempt(Base):
         return self.status != StrongVerificationAttemptStatus.deleted
 
     @hybrid_method
-    def matches_birthdate(self, user):
-        return self.is_valid & (self.passport_date_of_birth == user.birthdate)
+    def _raw_birthdate_match(self, user):
+        """Does not check whether the SV attempt itself is not expired"""
+        return self.passport_date_of_birth == user.birthdate
 
     @hybrid_method
-    def matches_gender(self, user):
-        return self.is_valid & (
+    def matches_birthdate(self, user):
+        return self.is_valid & self._raw_birthdate_match(user)
+
+    @hybrid_method
+    def _raw_gender_match(self, user):
+        """Does not check whether the SV attempt itself is not expired"""
+        return (
             ((user.gender == "Woman") & (self.passport_sex == PassportSex.female))
             | ((user.gender == "Man") & (self.passport_sex == PassportSex.male))
             | (self.passport_sex == PassportSex.unspecified)
@@ -530,8 +543,12 @@ class StrongVerificationAttempt(Base):
         )
 
     @hybrid_method
+    def matches_gender(self, user):
+        return self.is_valid & self._raw_gender_match(user)
+
+    @hybrid_method
     def has_strong_verification(self, user):
-        return self.is_valid & self.matches_birthdate(user) & self.matches_gender(user)
+        return self.is_valid & self._raw_birthdate_match(user) & self._raw_gender_match(user)
 
     __table_args__ = (
         # used to look up verification status for a user
@@ -581,10 +598,10 @@ class StrongVerificationAttempt(Base):
             "(NOT ((status = 'in_progress_waiting_on_user_to_open_app') OR (status = 'in_progress_waiting_on_user_in_app') OR (status = 'in_progress_waiting_on_backend') OR (status = 'failed'))) OR (has_minimal_data IS FALSE)",
             name="in_progress_failed_iris_implies_no_data",
         ),
-        # deleted implies minimal data
+        # deleted or duplicate implies minimal data
         CheckConstraint(
-            "(NOT (status = 'deleted')) OR (has_minimal_data IS TRUE)",
-            name="deleted_implies_minimal_data",
+            "(NOT ((status = 'deleted') OR (status = 'duplicate'))) OR (has_minimal_data IS TRUE)",
+            name="deleted_duplicate_implies_minimal_data",
         ),
     )
 
@@ -1746,10 +1763,7 @@ class PageVersion(Base):
     @property
     def coordinates(self):
         # returns (lat, lng) or None
-        if self.geom:
-            return get_coordinates(self.geom)
-        else:
-            return None
+        return get_coordinates(self.geom)
 
     def __repr__(self):
         return f"PageVersion({self.id=}, {self.page_id=})"
@@ -1888,10 +1902,7 @@ class EventOccurrence(Base):
     @property
     def coordinates(self):
         # returns (lat, lng) or None
-        if self.geom:
-            return get_coordinates(self.geom)
-        else:
-            return None
+        return get_coordinates(self.geom)
 
     @hybrid_property
     def start_time(self):
@@ -2290,6 +2301,9 @@ class NotificationTopicAction(enum.Enum):
     onboarding__reminder = ("onboarding:reminder", dt_sec, True, empty_pb2.Empty)
 
     modnote__create = ("modnote:create", dt_sec, False, empty_pb2.Empty)
+
+    verification__sv_fail = ("verification:sv_fail", dt_sec, False, nd.VerificationSVFail)
+    verification__sv_success = ("verification:sv_success", dt_sec, False, empty_pb2.Empty)
 
 
 class NotificationPreference(Base):

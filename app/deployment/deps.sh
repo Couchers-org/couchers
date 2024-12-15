@@ -1,13 +1,15 @@
 #!/bin/bash
 
-# works on ubuntu 22.04, tested on AWS
-# installs docker, docker-compose, aws-cli
+# works on ubuntu 24.04, tested on AWS
+# installs docker, docker-compose, aws-cli, age
 
 set -e
 
 # update, upgrade
 sudo apt-get -y update
 sudo apt-get -y dist-upgrade
+
+sudo apt-get install -y age
 
 # install docker
 sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common

@@ -1,6 +1,8 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import wrappers from "google-protobuf/google/protobuf/wrappers_pb";
 import {
+  GetLiteUserReq,
+  GetLiteUsersReq,
   GetUserReq,
   LanguageAbility,
   NullableBoolValue,
@@ -36,7 +38,6 @@ export type UpdateUserProfileData = Pick<
   | "occupation"
   | "education"
   | "aboutMe"
-  | "myTravels"
   | "thingsILike"
   | "hostingStatus"
   | "meetupStatus"
@@ -102,6 +103,32 @@ export async function getUser(user: string): Promise<User.AsObject> {
 }
 
 /**
+ * Returns LiteUser record by Username or id
+ *
+ * @param {string} user
+ * @returns {Promise<LiteUser.AsObject>}
+ */
+export async function getLiteUser(user: string) {
+  const userReq = new GetLiteUserReq();
+  userReq.setUser(user || "");
+
+  const response = await client.api.getLiteUser(userReq);
+
+  return response.toObject();
+}
+
+/** Returns LiteUsers by ids
+ */
+export async function getLiteUsers(userIds: number[]) {
+  const req = new GetLiteUsersReq();
+  req.setUsersList(userIds.map(String));
+
+  const response = await client.api.getLiteUsers(req);
+
+  return response.toObject();
+}
+
+/**
  * Updates user profile
  */
 export async function updateProfile(
@@ -122,7 +149,6 @@ export async function updateProfile(
   const occupation = new NullableStringValue().setValue(profile.occupation);
   const education = new NullableStringValue().setValue(profile.education);
   const aboutMe = new NullableStringValue().setValue(profile.aboutMe);
-  const myTravels = new NullableStringValue().setValue(profile.myTravels);
   const thingsILike = new NullableStringValue().setValue(profile.thingsILike);
   const hostingStatus = profile.hostingStatus;
   const meetupStatus = profile.meetupStatus;
@@ -158,7 +184,6 @@ export async function updateProfile(
     .setEducation(education)
     .setLanguageAbilities(languageAbilities)
     .setAboutMe(aboutMe)
-    .setMyTravels(myTravels)
     .setThingsILike(thingsILike)
     .setHostingStatus(hostingStatus)
     .setMeetupStatus(meetupStatus)

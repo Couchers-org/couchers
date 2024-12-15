@@ -1,22 +1,16 @@
 import UserSummary from "components/UserSummary";
-import { User } from "proto/api_pb";
+import { LiteUser } from "proto/api_pb";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   friendItem: {
     padding: `0 ${theme.spacing(1)}`,
   },
-  friendLink: {
-    color: theme.palette.text.primary,
-  },
-  userLoadErrorAlert: {
-    borderRadius: 0,
-  },
 }));
 
 interface FriendSummaryViewProps {
   children?: React.ReactNode;
-  friend?: User.AsObject;
+  friend?: LiteUser.AsObject;
 }
 
 export const FRIEND_ITEM_TEST_ID = "friend-item";

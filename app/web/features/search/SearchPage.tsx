@@ -1,4 +1,5 @@
-import { Collapse, Hidden, makeStyles, useTheme } from "@material-ui/core";
+import { Collapse, useMediaQuery, useTheme } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import HtmlMeta from "components/HtmlMeta";
 import { Coordinates } from "features/search/constants";
 import { useTranslation } from "i18n";
@@ -77,6 +78,7 @@ export default function SearchPage({
   const classes = useStyles();
   const theme = useTheme();
   const map = useRef<MaplibreMap>();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   // State
   const [wasSearchPerformed, setWasSearchPerformed] = useState(false);
@@ -99,8 +101,9 @@ export default function SearchPage({
   >(undefined);
   const [completeProfileFilter, setCompleteProfileFilter] = useState(false);
   const [selectedResult, setSelectedResult] = useState<
-    Pick<User.AsObject, "username" | "userId" | "lng" | "lat"> | undefined
+    Pick<User.AsObject, "userId" | "lng" | "lat"> | undefined
   >();
+
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   // Loads the list of users
@@ -153,7 +156,9 @@ export default function SearchPage({
         lastActiveFilter !== 0 ||
         hostingStatusFilter.length !== 0 ||
         numberOfGuestFilter !== undefined ||
-        completeProfileFilter !== false
+        completeProfileFilter !== false ||
+        queryName !== "" ||
+        (locationResult.location.lng !== 0 && locationResult.location.lat !== 0)
       ) {
         setWasSearchPerformed(true);
       }
@@ -164,6 +169,9 @@ export default function SearchPage({
     numberOfGuestFilter,
     completeProfileFilter,
     wasSearchPerformed,
+    queryName,
+    locationResult.location.lng,
+    locationResult.location.lat,
   ]);
 
   const errorMessage = error?.message;
@@ -173,7 +181,7 @@ export default function SearchPage({
       <HtmlMeta title={t("global:nav.map_search")} />
       <div className={classes.container}>
         {/* Desktop */}
-        <Hidden smDown>
+        {!isMobile && (
           <SearchResultsList
             searchType={searchType}
             setSearchType={setSearchType}
@@ -188,11 +196,11 @@ export default function SearchPage({
             setSelectedResult={setSelectedResult}
             isLoading={isLoading || isFetching}
           />
-        </Hidden>
+        )}
         {/* Mobile */}
-        <Hidden mdUp>
+        {isMobile && (
           <Collapse
-            in={!!selectedResult}
+            in={wasSearchPerformed || !!selectedResult}
             timeout={theme.transitions.duration.standard}
             className={classes.mobileCollapse}
           >
@@ -211,7 +219,7 @@ export default function SearchPage({
               isLoading={isLoading || isFetching}
             />
           </Collapse>
-        </Hidden>
+        )}
         <FilterDialog
           isOpen={isFiltersOpen}
           queryName={queryName}

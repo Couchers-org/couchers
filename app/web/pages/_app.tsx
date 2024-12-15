@@ -1,7 +1,13 @@
 import "intersection-observer";
 import "fonts";
 
-import { CssBaseline, ThemeProvider } from "@material-ui/core";
+import {
+  CssBaseline,
+  StyledEngineProvider,
+  ThemeProvider,
+} from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { EnvironmentBanner } from "components/EnvironmentBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import HtmlMeta from "components/HtmlMeta";
@@ -11,7 +17,7 @@ import type { AppProps } from "next/app";
 import { appWithTranslation } from "next-i18next";
 import nextI18nextConfig from "next-i18next.config";
 import Sentry from "platform/sentry";
-import { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect } from "react";
 import TagManager from "react-gtm-module";
 import { polyfill } from "seamless-scroll-polyfill";
 import { theme } from "theme";
@@ -44,19 +50,57 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
     }
   }, []);
 
+  /** @TODO(NA) Workaround likely due to old version of Next.js.
+   * Mobile browser is handling 100vh inconsistently, causing layout shift that
+   * 1. Breaks sticky positioning.
+   * 2. Doesn't resize after mobile keyboard retracts.
+   * Replace 100vh with a custom CSS variable to handle dynamic viewport changes and force scroll reset.
+   * TL;DR The sticky positioning of the send bar was not being recognized on first load on mobile. */
+  useEffect(() => {
+    const updateVH = () => {
+      document.documentElement.style.setProperty(
+        "--vh",
+        `${window.innerHeight * 0.01}px`
+      );
+
+      if (/Firefox/i.test(navigator.userAgent)) {
+        document?.activeElement?.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+
+    const resetScroll = () => {
+      // Scroll the page by a tiny amount to trigger recalibration
+      window.scrollTo(0, window.scrollY + 1);
+      window.scrollTo(0, window.scrollY - 1);
+    };
+
+    updateVH();
+    window.addEventListener("resize", updateVH);
+    window.addEventListener("focusout", resetScroll);
+
+    return () => {
+      window.removeEventListener("resize", updateVH);
+      window.removeEventListener("focusout", resetScroll);
+    };
+  }, []);
+
   return (
-    <ThemeProvider theme={theme}>
-      <ErrorBoundary isFatal>
-        <ReactQueryClientProvider>
-          <AuthProvider>
-            <CssBaseline />
-            <EnvironmentBanner />
-            <HtmlMeta />
-            {getLayout(<Component {...pageProps} />)}
-          </AuthProvider>
-        </ReactQueryClientProvider>
-      </ErrorBoundary>
-    </ThemeProvider>
+    <StyledEngineProvider injectFirst>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <ThemeProvider theme={theme}>
+          <ErrorBoundary isFatal>
+            <ReactQueryClientProvider>
+              <AuthProvider>
+                <CssBaseline />
+                <EnvironmentBanner />
+                <HtmlMeta />
+                {getLayout(<Component {...pageProps} />)}
+              </AuthProvider>
+            </ReactQueryClientProvider>
+          </ErrorBoundary>
+        </ThemeProvider>
+      </LocalizationProvider>
+    </StyledEngineProvider>
   );
 }
 

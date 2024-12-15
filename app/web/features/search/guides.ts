@@ -1,21 +1,20 @@
 import {
-  AnyLayer,
-  AnySourceData,
-  EventData,
+  LayerSpecification,
   Map as MaplibreMap,
   MapLayerEventType,
+  SourceSpecification,
 } from "maplibre-gl";
 
 const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export const sources: Record<string, AnySourceData> = {
+export const sources: Record<string, SourceSpecification> = {
   guides: {
     data: URL + "/geojson/guides",
     type: "geojson",
   },
 };
 
-export const layers: Record<string, AnyLayer> = {
+export const layers: Record<string, LayerSpecification> = {
   guideLayer: {
     id: "guide-points",
     paint: {
@@ -31,7 +30,7 @@ export const layers: Record<string, AnyLayer> = {
 
 export const addGuidesToMap = (
   map: MaplibreMap,
-  guideClickedCallback?: (ev: MapLayerEventType["click"] & EventData) => void
+  guideClickedCallback?: (ev: MapLayerEventType["click"]) => void
 ) => {
   map.addSource("guides", sources["guides"]);
   map.addLayer(layers["guideLayer"]);

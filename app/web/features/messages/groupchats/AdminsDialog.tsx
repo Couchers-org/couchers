@@ -1,12 +1,8 @@
-import {
-  CircularProgress,
-  DialogProps,
-  List,
-  ListItem,
-} from "@material-ui/core";
+import { DialogProps, List, ListItem } from "@mui/material";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import {
   Dialog,
@@ -24,12 +20,12 @@ import {
   groupChatMessagesKey,
   groupChatsListKey,
 } from "features/queryKeys";
-import useUsers from "features/userQueries/useUsers";
+import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
-import { User } from "proto/api_pb";
+import { LiteUser } from "proto/api_pb";
 import { GroupChat } from "proto/conversations_pb";
 import React, { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
@@ -42,7 +38,7 @@ function AdminListItem({
   setError,
 }: {
   groupChatId: number;
-  member: User.AsObject;
+  member: LiteUser.AsObject;
   memberIsAdmin: boolean;
   setError: (value: string) => void;
 }) {
@@ -175,8 +171,8 @@ export default function AdminsDialog({
   );
 
   const currentUserId = useAuthContext().authState.userId;
-  const admins = useUsers(groupChat?.adminUserIdsList ?? []);
-  const nonAdmins = useUsers(nonAdminIds ?? []);
+  const admins = useLiteUsers(groupChat?.adminUserIdsList ?? []);
+  const nonAdmins = useLiteUsers(nonAdminIds ?? []);
   const onClose = props?.onClose;
   const isOpen = props.open;
 
@@ -201,7 +197,7 @@ export default function AdminsDialog({
       <DialogContent>
         <List>
           {admins.isLoading ? (
-            <CircularProgress />
+            <CenteredSpinner />
           ) : (
             Array.from(admins.data?.values() ?? [])
               .sort((a, b) => b?.name.localeCompare(a?.name ?? "") ?? 0)
@@ -230,7 +226,7 @@ export default function AdminsDialog({
           <DialogContent>
             <List>
               {nonAdmins.isLoading ? (
-                <CircularProgress />
+                <CenteredSpinner />
               ) : (
                 Array.from(nonAdmins.data?.values() ?? [])
                   .sort((a, b) => b?.name.localeCompare(a?.name ?? "") ?? 0)

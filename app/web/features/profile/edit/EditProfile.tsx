@@ -4,12 +4,13 @@ import {
   RadioGroup,
   TextField,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
+import StyledLink from "components/StyledLink";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useRegions } from "features/profile/hooks/useRegions";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
@@ -18,12 +19,13 @@ import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import { userKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
+import { howToMakeGreatProfileUrl } from "routes";
 import { service, UpdateUserProfileData } from "service/index";
 import {
   useIsMounted,
@@ -155,6 +157,17 @@ export default function EditProfileForm() {
       )}
       {user ? (
         <>
+          <div className={classes.helpTextContainer}>
+            <Typography variant="body1">
+              <Trans i18nKey="profile:edit_profile_helper_text">
+                Looking for some inspiration on where to start?{" "}
+                <StyledLink variant="body1" href={howToMakeGreatProfileUrl}>
+                  Check out our guide on creating an awesome profile
+                </StyledLink>
+                .
+              </Trans>
+            </Typography>
+          </div>
           <form onSubmit={onSubmit} className={classes.topFormContainer}>
             <ImageInput
               className={classes.avatar}
@@ -318,6 +331,7 @@ export default function EditProfileForm() {
                         control={<Radio />}
                         label={
                           <TextField
+                            variant="standard"
                             onChange={(event) => onChange(event.target.value)}
                             value={other}
                           />
@@ -445,7 +459,7 @@ export default function EditProfileForm() {
           </form>
         </>
       ) : (
-        <CircularProgress />
+        <CenteredSpinner />
       )}
     </>
   );

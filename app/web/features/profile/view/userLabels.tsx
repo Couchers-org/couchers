@@ -1,5 +1,5 @@
-import { Tooltip } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Tooltip } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import { CheckCircleIcon, ErrorIcon } from "components/Icons";
 import LabelAndText from "components/LabelAndText";
 import { useLanguages } from "features/profile/hooks/useLanguages";
@@ -13,7 +13,7 @@ import {
 } from "proto/api_pb";
 import { useQuery } from "react-query";
 import { service } from "service";
-import { dateTimeFormatter, timestamp2Date } from "utils/date";
+import { monthFormatter, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import { hourMillis, timeAgoI18n } from "utils/timeAgo";
 
@@ -107,6 +107,11 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(0.5),
     alignSelf: "center",
   },
+  container: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+  },
 }));
 
 const AgeAndGenderRenderer = ({ user }: Props) => {
@@ -180,13 +185,14 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
     }
   };
   return (
-    <>
+    <div className={useStyles().container}>
       <span>{age}</span>
-      {getBirthdateVerificationIcon(birthdateVerificationStatus)} /&nbsp;
+      {getBirthdateVerificationIcon(birthdateVerificationStatus)}
+      <span>/&nbsp;</span>
       <span>{gender}</span>
       {getGenderVerificationIcon(genderVerificationStatus)}
-      <span> {pronouns && ` (${pronouns})`}</span>
-    </>
+      {pronouns && <span>({pronouns.replace(/\s+/g, "")})</span>}
+    </div>
   );
 };
 
@@ -237,7 +243,7 @@ export const RemainingAboutLabels = ({ user }: Props) => {
         label={t("profile:heading.joined")}
         text={
           user.joined
-            ? dateTimeFormatter(locale).format(timestamp2Date(user.joined))
+            ? monthFormatter(locale).format(timestamp2Date(user.joined))
             : ""
         }
       />

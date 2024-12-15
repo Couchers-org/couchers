@@ -1,4 +1,4 @@
-import { Typography, useTheme } from "@material-ui/core";
+import { Typography, useTheme } from "@mui/material";
 import Divider from "components/Divider";
 import Markdown from "components/Markdown";
 import { useTranslation } from "i18n";

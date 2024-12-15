@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgis/postgis:16-3.4
+    image: postgis/postgis:17-3.5
     command:
       - postgres
       # unfortunately the JIT slows down some geo stuff really badly
@@ -26,6 +26,7 @@ services:
     networks:
       - postgres_backend
       - postgres_pgprom
+    shm_size: 256m
     logging:
       driver: "json-file"
       options:

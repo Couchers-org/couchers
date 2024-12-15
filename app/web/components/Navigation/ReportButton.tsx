@@ -4,7 +4,7 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-} from "@material-ui/core";
+} from "@mui/material";
 import { supportEmail } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -42,6 +42,14 @@ const useStyles = makeStyles((theme) => ({
     },
     backgroundColor: theme.palette.error.main,
   },
+  menuLink: {
+    padding: 0,
+    margin: 0,
+    fontSize: "1rem",
+    "&:hover": {
+      backgroundColor: "transparent",
+    },
+  },
   typeButton: {
     display: "block",
     margin: "0 auto",
@@ -55,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   startIcon: {
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       margin: 0,
     },
   },
@@ -63,12 +71,14 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ReportButton({
   isResponsive = true,
+  isMenuLink,
 }: {
   isResponsive?: boolean;
+  isMenuLink?: boolean;
 }) {
   const { t } = useTranslation("global");
   const theme = useTheme();
-  const isBelowMd = useMediaQuery(theme.breakpoints.down("sm"));
+  const isBelowMd = useMediaQuery(theme.breakpoints.down("md"));
 
   const classes = useStyles();
   const [isOpen, setIsOpen] = useState(false);
@@ -124,19 +134,30 @@ export default function ReportButton({
           </>
         </Snackbar>
       )}
-      <Button
-        aria-label={t("report.label")}
-        onClick={() => setIsOpen(true)}
-        startIcon={<BugIcon />}
-        variant="contained"
-        color="primary"
-        classes={{
-          containedPrimary: classes.button,
-          startIcon: classes.startIcon,
-        }}
-      >
-        {(!isResponsive || !isBelowMd) && t("report.label")}
-      </Button>
+      {isMenuLink ? (
+        <Button
+          variant="text"
+          aria-label={t("report.label")}
+          className={classes.menuLink}
+          onClick={() => setIsOpen(true)}
+        >
+          {t("report.label")}
+        </Button>
+      ) : (
+        <Button
+          aria-label={t("report.label")}
+          onClick={() => setIsOpen(true)}
+          startIcon={<BugIcon />}
+          variant="contained"
+          color="primary"
+          classes={{
+            containedPrimary: classes.button,
+            startIcon: classes.startIcon,
+          }}
+        >
+          {(!isResponsive || !isBelowMd) && t("report.label")}
+        </Button>
+      )}
       <Dialog
         aria-labelledby="bug-reporter"
         open={isOpen}
@@ -147,13 +168,17 @@ export default function ReportButton({
           <>
             <DialogContent>
               <Button
-                onClick={() => setType("bug")}
+                onClick={() => {
+                  setType("bug");
+                }}
                 className={classes.typeButton}
               >
                 {t("report.bug.button_label")}
               </Button>
               <Button
-                onClick={() => setType("content")}
+                onClick={() => {
+                  setType("content");
+                }}
                 className={classes.typeButton}
               >
                 {t("report.content.button_label")}
@@ -163,6 +188,15 @@ export default function ReportButton({
               <Button
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
+                sx={{
+                  color: theme.palette.common.black,
+                  borderColor: theme.palette.grey[300],
+
+                  "&:hover": {
+                    borderColor: theme.palette.grey[300],
+                    backgroundColor: "#3135390A",
+                  },
+                }}
               >
                 {t("cancel")}
               </Button>
@@ -174,12 +208,23 @@ export default function ReportButton({
               <Typography variant="body1" paragraph>
                 {t("report.content.dialog_message")}
               </Typography>
-              <Link href={`mailto:${supportEmail}`}>{supportEmail}</Link>
+              <Link href={`mailto:${supportEmail}`} underline="hover">
+                {supportEmail}
+              </Link>
             </DialogContent>
             <DialogActions>
               <Button
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
+                sx={{
+                  color: theme.palette.common.black,
+                  borderColor: theme.palette.grey[300],
+
+                  "&:hover": {
+                    borderColor: theme.palette.grey[300],
+                    backgroundColor: "#3135390A",
+                  },
+                }}
               >
                 {t("cancel")}
               </Button>
@@ -234,6 +279,15 @@ export default function ReportButton({
               <Button
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
+                sx={{
+                  color: theme.palette.common.black,
+                  borderColor: theme.palette.grey[300],
+
+                  "&:hover": {
+                    borderColor: theme.palette.grey[300],
+                    backgroundColor: "#3135390A",
+                  },
+                }}
               >
                 {t("cancel")}
               </Button>

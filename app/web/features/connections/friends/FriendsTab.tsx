@@ -1,4 +1,4 @@
-import { Grid } from "@material-ui/core";
+import { Grid } from "@mui/material";
 import makeStyles from "utils/makeStyles";
 
 import FriendList from "./FriendList";
@@ -17,7 +17,7 @@ function FriendsTab() {
   const classes = useStyles();
 
   return (
-    <Grid container spacing={2}>
+    <Grid container gap={2}>
       <Grid item xs={12} md={6} className={classes.gridItem}>
         <FriendRequestsReceived />
       </Grid>

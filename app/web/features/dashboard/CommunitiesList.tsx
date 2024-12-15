@@ -1,5 +1,5 @@
-import { Link as MuiLink, makeStyles, Typography } from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
+import { Link as MuiLink, Skeleton, Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
@@ -36,7 +36,7 @@ export default function CommunitiesList({ all = false }: { all?: boolean }) {
       )}
       {communities.isLoading ? (
         <div className={classes.communityLink}>
-          <MuiLink variant="h2" component="span">
+          <MuiLink variant="h2" component="span" underline="hover">
             <Skeleton width={100} />
           </MuiLink>
           <Typography variant="body2">

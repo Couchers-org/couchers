@@ -1,5 +1,5 @@
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -35,7 +35,7 @@ export default function Logout() {
       {logout.error ? (
         <Alert severity="error">{logout.error.message}</Alert>
       ) : (
-        <CircularProgress />
+        <CenteredSpinner />
       )}
     </>
   );
