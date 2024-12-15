@@ -4,6 +4,7 @@ import {
 } from "@mui/material";
 import classNames from "classnames";
 import React from "react";
+import { ControllerFieldState, ControllerRenderProps } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
 
 import TextField from "./TextField";
@@ -30,6 +31,7 @@ export type AutocompleteProps<
   placeholder?: string;
   helperText?: string;
   variant?: "filled" | "standard" | "outlined" | undefined;
+  inputProps?: ControllerRenderProps<ControllerFieldState>;
 };
 
 export default function Autocomplete<

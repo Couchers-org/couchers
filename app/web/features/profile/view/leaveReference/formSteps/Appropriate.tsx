@@ -70,12 +70,6 @@ export default function Appropriate({
       <TextBody className={classes.text}>
         {t("profile:leave_reference.appropriate_explanation")}
       </TextBody>
-
-      {errors.wasAppropriate?.message && (
-        <Alert className={classes.alert} severity="error">
-          {errors.wasAppropriate.message}
-        </Alert>
-      )}
       <Card className={classes.card}>
         <CardContent>
           <Typography variant="h3">
@@ -85,6 +79,11 @@ export default function Appropriate({
           <TextBody className={classes.text}>
             {t("profile:leave_reference.safety_priority")}
           </TextBody>
+          {errors.wasAppropriate?.message && (
+            <Alert className={classes.alert} severity="error">
+              {errors.wasAppropriate.message}
+            </Alert>
+          )}
           <Typography variant="h3" className={classes.text}>
             {t("profile:leave_reference.appropriate_question")}
           </Typography>
