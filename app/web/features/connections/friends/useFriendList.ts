@@ -20,7 +20,7 @@ function useFriendList() {
     isLoading: isLiteUsersLoading,
     isError: isLiteUserError,
     error: liteUserError,
-  } = useLiteUsersList(friendIds || []);
+  } = useLiteUsersList(friendIds);
 
   if (liteUserError) {
     errors.push(liteUserError.message);

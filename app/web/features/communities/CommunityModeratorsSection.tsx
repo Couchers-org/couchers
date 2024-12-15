@@ -1,9 +1,7 @@
 import { Typography } from "@mui/material";
-import Alert from "components/Alert";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { CommunityLeadersIcon } from "components/Icons";
-import UserSummary from "components/UserSummary";
+import UsersList from "components/UsersList";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
@@ -38,7 +36,7 @@ export default function CommunityModeratorsSection({
 }: CommunityModeratorsSectionProps) {
   const { t } = useTranslation([COMMUNITIES]);
   const classes = useStyles();
-  const { adminIds, adminUsers, error, isLoading, hasNextPage } = useListAdmins(
+  const { adminIds, error, hasNextPage } = useListAdmins(
     community.communityId,
     "summary"
   );
@@ -49,28 +47,15 @@ export default function CommunityModeratorsSection({
       <SectionTitle icon={<CommunityLeadersIcon />} variant="h2">
         {t("communities:community_moderators")}
       </SectionTitle>
-      {error ? (
-        <Alert severity="error">{error.message}</Alert>
-      ) : isLoading ? (
-        <CenteredSpinner />
-      ) : adminIds && adminIds.length > 0 ? (
-        adminUsers && (
-          <div className={classes.moderatorsContainer}>
-            {adminIds.map((id) => (
-              <UserSummary
-                smallAvatar
-                key={id}
-                headlineComponent="h3"
-                user={adminUsers.get(id)}
-              />
-            ))}
-          </div>
-        )
-      ) : (
-        <Typography variant="body1">
-          {t("communities:no_moderators")}
-        </Typography>
-      )}
+      <UsersList
+        error={error}
+        userIds={adminIds}
+        emptyListChildren={
+          <Typography variant="body1">
+            {t("communities:no_moderators")}
+          </Typography>
+        }
+      />
       {hasNextPage && (
         <>
           <Button
