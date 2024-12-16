@@ -27,6 +27,10 @@ describe("Event organizers", () => {
     listEventOrganizersMock.mockImplementation(getEventOrganizers);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("renders the organizers successfully", async () => {
     render(<EventOrganizers eventId={1} />, { wrapper });
 

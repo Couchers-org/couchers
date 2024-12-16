@@ -26,9 +26,11 @@ const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
 >;
 const [, firstAdmin, secondAdmin, thirdAdmin] = users;
 
-function assertAdminsShown(element: typeof screen | ReturnType<typeof within>) {
+async function assertAdminsShown(
+  element: typeof screen | ReturnType<typeof within>
+) {
   expect(
-    element.getByRole("link", {
+    await element.findByRole("link", {
       name: getProfileLinkA11yLabel(firstAdmin.name),
     })
   ).toBeVisible();
@@ -50,6 +52,10 @@ describe("Community info page", () => {
     getLiteUsersMock.mockImplementation(getLiteUsers);
     listAdminsMock.mockImplementation(listCommunityAdmins);
     process.env.NEXT_PUBLIC_MEDIA_BASE_URL = "http://mymedia.com";
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it("renders the info page correctly", async () => {
@@ -77,7 +83,8 @@ describe("Community info page", () => {
         name: t("communities:community_moderators"),
       })
     ).toBeVisible();
-    assertAdminsShown(screen);
+
+    await assertAdminsShown(screen);
 
     // Shouldn't show "see all moderators" button since the page already shows
     // everyone in this case
@@ -155,7 +162,7 @@ describe("Community info page", () => {
           name: t("communities:community_moderators"),
         })
       ).toBeVisible();
-      assertAdminsShown(adminDialog);
+      await assertAdminsShown(adminDialog);
       expect(
         adminDialog.getByRole("button", {
           name: t("communities:load_more_moderators"),
