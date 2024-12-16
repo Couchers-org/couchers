@@ -57,7 +57,7 @@ describe("Event organizers", () => {
     it("should show dialog for seeing all organizers when the 'See all' button is clicked", async () => {
       render(<EventOrganizers eventId={1} />, { wrapper });
 
-      const user = await userEvent.setup();
+      const user = userEvent.setup();
 
       await user.click(
         await screen.findByRole("button", { name: t("communities:see_all") })
@@ -76,7 +76,7 @@ describe("Event organizers", () => {
     it("should load the next page of organizers when the 'Load more organizers' button is clicked", async () => {
       render(<EventOrganizers eventId={1} />, { wrapper });
 
-      const user = await userEvent.setup();
+      const user = userEvent.setup();
 
       await user.click(
         await screen.findByRole("button", { name: t("communities:see_all") })
@@ -114,7 +114,7 @@ describe("Event organizers", () => {
       });
       render(<EventOrganizers eventId={1} />, { wrapper });
 
-      const user = await userEvent.setup();
+      const user = userEvent.setup();
 
       await user.click(
         await screen.findByRole("button", { name: t("communities:see_all") })
@@ -140,7 +140,7 @@ describe("Event organizers", () => {
       const errorMessage = "Error listing organizers";
       listEventOrganizersMock.mockRejectedValue(new Error(errorMessage));
 
-      const user = await userEvent.setup();
+      const user = userEvent.setup();
 
       await user.click(
         await screen.findByRole("button", { name: t("communities:see_all") })
@@ -153,7 +153,7 @@ describe("Event organizers", () => {
     it("closes the dialog when the backdrop is clicked", async () => {
       render(<EventOrganizers eventId={1} />, { wrapper });
 
-      const user = await userEvent.setup();
+      const user = userEvent.setup();
 
       await user.click(
         await screen.findByRole("button", { name: t("communities:see_all") })

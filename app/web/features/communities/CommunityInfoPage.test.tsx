@@ -55,14 +55,15 @@ describe("Community info page", () => {
   it("renders the info page correctly", async () => {
     render(<CommunityInfoPage community={community} />, { wrapper });
 
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
     // General information heading checks
-    expect(
-      screen.getByRole("heading", {
-        name: t("communities:local_info_title", { name: community.name }),
-      })
-    ).toBeVisible();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("heading", {
+          name: t("communities:local_info_title", { name: community.name }),
+        })
+      ).toBeVisible();
+    });
     expect(screen.getByText(community.mainPage.content)).toBeVisible();
 
     // Shouldn't show the edit link since the default user doesn't have permission
