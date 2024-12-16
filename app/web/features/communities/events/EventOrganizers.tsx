@@ -15,10 +15,7 @@ export default function EventOrganizers({ eventId }: EventOrganizersProps) {
   const {
     error: organizerIdsError,
     hasNextPage,
-    isLoading,
-    isOrganizersRefetching,
     organizerIds,
-    organizers,
   } = useEventOrganizers({ eventId, type: "summary" });
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -29,10 +26,7 @@ export default function EventOrganizers({ eventId }: EventOrganizersProps) {
         emptyState={t("communities:no_organizers")}
         error={organizerIdsError}
         hasNextPage={hasNextPage}
-        isLoading={isLoading}
-        isUsersRefetching={isOrganizersRefetching}
         onSeeAllClick={() => setIsDialogOpen(true)}
-        users={organizers}
         userIds={organizerIds}
         title={t("communities:organizers")}
       />

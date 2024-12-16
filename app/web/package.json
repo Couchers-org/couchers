@@ -22,8 +22,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@emotion/react": "^11.13.5",
-    "@emotion/styled": "^11.13.5",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@fontsource/mansalva": "^5.1.0",
     "@fontsource/ubuntu": "^5.1.0",
     "@mui/icons-material": "^5.16.8",
@@ -34,7 +34,7 @@
     "@mui/utils": "^5.16.6",
     "@mui/x-date-pickers": "^5.0.20",
     "@sentry/nextjs": "^6.19.7",
-    "@sentry/react": "^8.41.0",
+    "@sentry/react": "^8.45.0",
     "@stripe/stripe-js": "^5.2.0",
     "@toast-ui/editor": "^3.2.2",
     "classnames": "^2.5.1",

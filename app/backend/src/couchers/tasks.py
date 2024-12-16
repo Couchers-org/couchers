@@ -76,11 +76,7 @@ def send_content_report_email(session, content_report):
         session,
         config["REPORTS_EMAIL_RECIPIENT"],
         "content_report",
-        template_args={
-            "report": content_report,
-            "author_user_user_link": urls.user_link(username=content_report.author_user.username),
-            "reporting_user_user_link": urls.user_link(username=content_report.reporting_user.username),
-        },
+        template_args={"report": content_report},
     )
 
 
@@ -91,11 +87,7 @@ def maybe_send_reference_report_email(session, reference):
             session,
             config["REPORTS_EMAIL_RECIPIENT"],
             "reference_report",
-            template_args={
-                "reference": reference,
-                "from_user_user_link": urls.user_link(username=reference.from_user.username),
-                "to_user_user_link": urls.user_link(username=reference.to_user.username),
-            },
+            template_args={"reference": reference},
         )
 
 
@@ -108,10 +100,8 @@ def send_duplicate_strong_verification_email(session, old_attempt, new_attempt):
         template_args={
             "new_user": new_attempt.user,
             "new_attempt_id": new_attempt.id,
-            "new_user_user_link": urls.user_link(username=new_attempt.user.username),
             "old_user": old_attempt.user,
             "old_attempt_id": old_attempt.id,
-            "old_user_user_link": urls.user_link(username=old_attempt.user.username),
         },
     )
 
@@ -122,7 +112,7 @@ def maybe_send_contributor_form_email(session, form):
             session,
             config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"],
             "contributor_form",
-            template_args={"form": form, "user_link": urls.user_link(username=form.user.username)},
+            template_args={"form": form},
         )
 
 

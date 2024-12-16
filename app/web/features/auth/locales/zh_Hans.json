@@ -329,9 +329,7 @@
     "status": {
       "enabled_message": "您当前已完成<1>强验证</1>。",
       "disabled_message": "您当前未完成<1>强验证</1>。"
-    },
-    "complete_in_console": "您可以在<2>此页面</2>完成强验证。我们正在改进流程并在平台上全面实施。",
-    "go_to_button": "前往强验证设置"
+    }
   },
   "unsubscribe": {
     "title": "退订",
