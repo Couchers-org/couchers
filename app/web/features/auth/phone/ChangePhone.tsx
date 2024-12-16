@@ -12,12 +12,12 @@ import { AUTH } from "i18n/namespaces";
 import luhn from "luhn";
 import { Trans, useTranslation } from "next-i18next";
 import { GetAccountInfoRes } from "proto/account_pb";
-import { forwardRef } from "react";
-import { Controller, ControllerRenderProps, useForm } from "react-hook-form";
-import PhoneInput, {
+import { useForm } from "react-hook-form";
+import {
   formatPhoneNumberIntl,
   isValidPhoneNumber,
 } from "react-phone-number-input";
+import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import { howToDonateUrl } from "routes";
 import { service } from "service";
@@ -39,16 +39,6 @@ type ChangePhoneProps = {
   accountInfo: GetAccountInfoRes.AsObject;
   className?: string;
 };
-
-type ForwardedRefPhoneInputProps = ChangePhoneProps & ControllerRenderProps;
-
-const ForwardedRefPhoneInput = forwardRef<
-  ChangePhoneProps,
-  ForwardedRefPhoneInputProps
->(({ value, onChange, ...props }, ref: HTMLInputElement) => (
-  <PhoneInput {...props} ref={ref} value={value} onChange={onChange} />
-));
-ForwardedRefPhoneInput.displayName = "ForwardedRefPhoneInput";
 
 export default function ChangePhone({
   className,
@@ -168,25 +158,15 @@ export default function ChangePhone({
             <Typography variant="body1">
               {t("auth:change_phone.no_phone_description")}
             </Typography>
-            <Controller
+            <PhoneInputWithCountry
               name="phone"
               control={control}
               rules={{
-                validate: (value) => isValidPhoneNumber(value),
+                validate: (value: string) => isValidPhoneNumber(value),
               }}
-              render={({ field }) => (
-                <ForwardedRefPhoneInput
-                  {...field}
-                  name="phone"
-                  control={control}
-                  rules={{
-                    validate: (value) => isValidPhoneNumber(value),
-                  }}
-                  international
-                  placeholder={t("auth:change_phone.phone_label")}
-                  id="phone"
-                />
-              )}
+              international
+              placeholder={t("auth:change_phone.phone_label")}
+              id="phone"
             />
             <Button
               fullWidth={!isMdOrWider}
@@ -260,23 +240,16 @@ export default function ChangePhone({
             <Typography variant="body1">
               {t("auth:change_phone.change_to_different_description")}
             </Typography>
-            <Controller
+            <PhoneInputWithCountry
               name="phone"
               control={control}
               rules={{
-                validate: (value) => isValidPhoneNumber(value),
+                validate: (value: string) => isValidPhoneNumber(value),
               }}
-              render={({ field }) => (
-                <PhoneInput
-                  {...field}
-                  countrySelectProps={{ unicodeFlags: true }}
-                  international
-                  placeholder={t("auth:change_phone.phone_label")}
-                  value={field.value}
-                  onChange={field.onChange}
-                  id="phone"
-                />
-              )}
+              countrySelectProps={{ unicodeFlags: true }}
+              international
+              placeholder={t("auth:change_phone.phone_label")}
+              id="phone"
             />
             <Button
               fullWidth={!isMdOrWider}

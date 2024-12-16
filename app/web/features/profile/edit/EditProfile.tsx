@@ -39,7 +39,7 @@ import {
 } from "./constants";
 import useStyles from "./styles";
 
-type FormValues = Omit<
+export type EditProfileFormValues = Omit<
   UpdateUserProfileData,
   "languageAbilities" | "city" | "lat" | "lng" | "radius"
 > & {
@@ -74,7 +74,7 @@ export default function EditProfileForm() {
     handleSubmit,
     setValue,
     formState: { errors, isDirty, isSubmitted },
-  } = useForm<FormValues>({
+  } = useForm<EditProfileFormValues>({
     defaultValues: {
       location: {
         city: user?.city,
@@ -85,8 +85,6 @@ export default function EditProfileForm() {
     },
     shouldFocusError: true,
   });
-
-  console.log("EditProfile errors", errors);
 
   useUnsavedChangesWarning({
     isDirty,
@@ -195,14 +193,18 @@ export default function EditProfileForm() {
             />
           </form>
           <Controller
-            defaultValue=""
+            defaultValue={{
+              city: user.city,
+              lat: user.lat,
+              lng: user.lng,
+              radius: user.radius,
+            }}
             name="location"
             control={control}
             render={({ field, fieldState: { error } }) => (
               <EditLocationMap
                 inputFieldProps={field}
                 inputFieldError={error}
-                register={register}
                 showRadiusSlider
                 initialLocation={{
                   address: user.city,

@@ -37,7 +37,7 @@ import {
   validatePastDate,
 } from "utils/validation";
 
-type SignupAccountInputs = {
+export type SignupAccountInputs = {
   username: string;
   password: string;
   name: string;
@@ -233,7 +233,7 @@ export default function AccountForm() {
         }}
         render={({ field, fieldState: { error } }) => (
           <EditLocationMap
-            inputFieldProps={{ field }}
+            inputFieldProps={field}
             inputFieldError={error}
             className={classes.locationMap}
             updateLocation={(location) => {

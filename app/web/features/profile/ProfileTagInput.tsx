@@ -16,6 +16,7 @@ import { CloseIcon, ExpandMoreIcon } from "components/Icons";
 import { Trans, useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import React, { useRef, useState } from "react";
+import { ControllerRenderProps } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) =>
@@ -123,7 +124,8 @@ interface ProfileTagInputProps {
   id: string;
   allowCsv?: boolean;
   className?: string;
-  inputFieldProps?: ControllerRenderProps<ControllerFieldState>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  inputFieldProps?: ControllerRenderProps<any, string>;
 }
 
 export default function ProfileTagInput({

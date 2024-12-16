@@ -1,8 +1,10 @@
 import { Box, IconButton } from "@mui/material";
 import { AutocompleteChangeReason } from "@mui/material/Autocomplete";
+import { SignupAccountInputs } from "features/auth/signup/AccountForm";
+import { EditProfileFormValues } from "features/profile/edit/EditProfile";
 import { LngLat } from "maplibre-gl";
 import React, { useEffect, useState } from "react";
-import { ControllerFieldState, ControllerRenderProps } from "react-hook-form";
+import { ControllerRenderProps, FieldError } from "react-hook-form";
 import { useGeocodeQuery } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
@@ -55,8 +57,10 @@ interface MapSearchProps {
     address: string,
     simplifiedAddress: string
   ) => void;
-  inputFieldProps?: ControllerRenderProps<ControllerFieldState>;
-  inputFieldError?: ControllerRenderProps["error"];
+  inputFieldProps?:
+    | ControllerRenderProps<SignupAccountInputs, "location">
+    | ControllerRenderProps<EditProfileFormValues, "location">;
+  inputFieldError?: FieldError;
 }
 
 export default function MapSearch({

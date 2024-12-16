@@ -4,6 +4,8 @@ import classNames from "classnames";
 import Map from "components/Map";
 import MapSearch from "components/MapSearch";
 import TextField from "components/TextField";
+import { SignupAccountInputs } from "features/auth/signup/AccountForm";
+import { EditProfileFormValues } from "features/profile/edit/EditProfile";
 import { Feature, GeoJsonProperties, Geometry } from "geojson";
 import {
   GeoJSONSource,
@@ -13,7 +15,7 @@ import {
   MapTouchEvent,
 } from "maplibre-gl";
 import React, { useRef, useState } from "react";
-import { ControllerFieldState, ControllerRenderProps } from "react-hook-form";
+import { ControllerRenderProps, FieldError } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
 
 import {
@@ -61,8 +63,10 @@ export interface EditLocationMapProps extends BoxProps {
   showRadiusSlider?: boolean;
   // whether we are selecting an exact point (for pages, etc) or approx circle, doesn't maeks ense with radius slider
   exact?: boolean;
-  inputFieldProps: ControllerRenderProps<ControllerFieldState>;
-  inputFieldError: ControllerRenderProps["error"];
+  inputFieldProps?:
+    | ControllerRenderProps<SignupAccountInputs, "location">
+    | ControllerRenderProps<EditProfileFormValues, "location">;
+  inputFieldError?: FieldError | undefined;
 }
 
 export default function EditLocationMap({
