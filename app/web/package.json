@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.13.5",
+    "@emotion/styled": "^11.14.0",
     "@fontsource/mansalva": "^5.1.0",
     "@fontsource/ubuntu": "^5.1.0",
     "@mui/icons-material": "^5.16.8",
