@@ -1,5 +1,4 @@
-import { Chip, Tooltip } from "@mui/material";
-import Link from "next/link";
+import { Chip, styled, Tooltip } from "@mui/material";
 import { Badge as BadgeType } from "proto/resources_pb";
 import { routeToBadge } from "routes";
 
@@ -7,18 +6,23 @@ export interface BadgeProps {
   badge: BadgeType.AsObject;
 }
 
+const StyledTooltip = styled(Tooltip)(({ theme }) => ({
+  marginInlineStart: theme.spacing(1),
+  marginBottom: theme.spacing(1),
+  "&:hover": {
+    cursor: "pointer",
+  },
+}));
+
 export default function Badge({ badge }: BadgeProps) {
   return (
-    <Tooltip title={badge.description}>
-      <Link href={routeToBadge(badge.id)} passHref={true}>
-        <a>
-          <Chip
-            label={badge.name}
-            clickable={true}
-            sx={{ background: badge.color }}
-          />
-        </a>
-      </Link>
-    </Tooltip>
+    <StyledTooltip title={badge.description}>
+      <Chip
+        label={badge.name}
+        href={routeToBadge(badge.id)}
+        component="a"
+        sx={{ background: badge.color }}
+      />
+    </StyledTooltip>
   );
 }
