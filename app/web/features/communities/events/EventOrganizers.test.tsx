@@ -1,6 +1,7 @@
 import {
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from "@testing-library/react";
@@ -66,14 +67,16 @@ describe("Event organizers", () => {
       await user.click(
         await screen.findByRole("button", { name: t("communities:see_all") })
       );
+
       expect(
         await screen.findByRole("dialog", { name: t("communities:organizers") })
       ).toBeVisible();
+
       expect(
-        screen.getByRole("heading", { name: "Funny Chicken, 28" })
+        await screen.findByRole("heading", { name: "Funny Chicken, 28" })
       ).toBeVisible();
       expect(
-        screen.getByRole("heading", { name: "Friendly Cow, 25" })
+        await screen.findByRole("heading", { name: "Friendly Cow, 25" })
       ).toBeVisible();
     });
 
@@ -98,8 +101,9 @@ describe("Event organizers", () => {
       expect(
         await dialog.findByRole("heading", { name: "Funny Dog, 35" })
       ).toBeVisible();
+
       expect(
-        dialog.getByRole("heading", { name: "Funny Kid, 28" })
+        await dialog.findByRole("heading", { name: "Funny Kid, 28" })
       ).toBeVisible();
     });
 
@@ -128,14 +132,16 @@ describe("Event organizers", () => {
       );
 
       await user.click(
-        dialog.getByRole("button", {
+        await dialog.findByRole("button", {
           name: t("communities:load_more_organizers"),
         })
       );
 
-      expect(
-        dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID)
-      ).not.toBeInTheDocument();
+      await waitFor(() =>
+        expect(
+          dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID)
+        ).not.toBeInTheDocument()
+      );
     });
 
     it("should show an error alert in the dialog if getting attendees failed", async () => {
@@ -169,11 +175,13 @@ describe("Event organizers", () => {
         screen.getByRole("dialog", { name: t("communities:organizers") })
       );
 
-      expect(
-        screen.queryByRole("button", {
-          name: t("communities:load_more_organizers"),
-        })
-      ).not.toBeInTheDocument();
+      await waitFor(() =>
+        expect(
+          screen.queryByRole("button", {
+            name: t("communities:load_more_organizers"),
+          })
+        ).not.toBeInTheDocument()
+      );
     });
   });
 });

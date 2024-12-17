@@ -117,8 +117,11 @@ describe("Community info page", () => {
       const user = userEvent.setup();
 
       await user.click(editLink);
-      expect(mockRouter.pathname).toBe(
-        routeToEditCommunityPage(community.communityId, community.slug)
+
+      await waitFor(() =>
+        expect(mockRouter.pathname).toBe(
+          routeToEditCommunityPage(community.communityId, community.slug)
+        )
       );
     });
   });
@@ -130,6 +133,7 @@ describe("Community info page", () => {
     render(<CommunityInfoPage community={community} />, { wrapper });
 
     await assertErrorAlert(errorMessage);
+
     expect(
       screen.queryByText(t("communities:no_moderators"))
     ).not.toBeInTheDocument();
@@ -220,7 +224,7 @@ describe("Community info page", () => {
       );
       assertAdminsShown(adminDialog);
       expect(
-        adminDialog.getByRole("link", {
+        await adminDialog.findByRole("link", {
           name: getProfileLinkA11yLabel(thirdAdmin.name),
         })
       ).toBeVisible();
@@ -235,11 +239,13 @@ describe("Community info page", () => {
           name: t("communities:community_moderators"),
         })
       );
-      expect(
-        adminDialog.queryByRole("link", {
-          name: getProfileLinkA11yLabel(thirdAdmin.name),
-        })
-      ).not.toBeInTheDocument();
+      await waitFor(() =>
+        expect(
+          adminDialog.queryByRole("link", {
+            name: getProfileLinkA11yLabel(thirdAdmin.name),
+          })
+        ).not.toBeInTheDocument()
+      );
       expect(adminDialog.queryByRole(thirdAdmin.name)).not.toBeInTheDocument();
     });
 
@@ -253,11 +259,13 @@ describe("Community info page", () => {
         })
       );
 
-      expect(
-        screen.queryByRole("button", {
-          name: t("communities:load_more_moderators"),
-        })
-      ).not.toBeInTheDocument();
+      await waitFor(() =>
+        expect(
+          screen.queryByRole("button", {
+            name: t("communities:load_more_moderators"),
+          })
+        ).not.toBeInTheDocument()
+      );
     });
 
     it("closes the dialog by pressing the escape key", async () => {
@@ -276,11 +284,13 @@ describe("Community info page", () => {
         })
       );
 
-      expect(
-        screen.queryByRole("button", {
-          name: t("communities:load_more_moderators"),
-        })
-      ).not.toBeInTheDocument();
+      await waitFor(() =>
+        expect(
+          screen.queryByRole("button", {
+            name: t("communities:load_more_moderators"),
+          })
+        ).not.toBeInTheDocument()
+      );
     });
   });
 });
