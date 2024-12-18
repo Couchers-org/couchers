@@ -5,6 +5,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { completeProfileMinimumCharachters } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -59,16 +60,23 @@ export default function EditProfileForm() {
     null
   );
   const queryClient = useQueryClient();
-  const { control, errors, register, handleSubmit, setValue, formState } =
-    useForm<FormValues>({
-      defaultValues: {
-        city: user?.city,
-        lat: user?.lat,
-        lng: user?.lng,
-        radius: user?.radius,
-      },
-      shouldFocusError: true,
-    });
+  const {
+    control,
+    errors,
+    register,
+    handleSubmit,
+    setValue,
+    formState,
+    watch,
+  } = useForm<FormValues>({
+    defaultValues: {
+      city: user?.city,
+      lat: user?.lat,
+      lng: user?.lng,
+      radius: user?.radius,
+    },
+    shouldFocusError: true,
+  });
 
   const isDirty = formState.isDirty;
   const isSubmitted = formState.isSubmitted;
@@ -100,6 +108,36 @@ export default function EditProfileForm() {
 
   const { regions, regionsLookup } = useRegions();
   const { languages, languagesLookup } = useLanguages();
+
+  const charsRemainingAboutMe = () => {
+    const watchAboutMe = watch("aboutMe");
+
+    if (
+      !watchAboutMe &&
+      watchAboutMe.length > completeProfileMinimumCharachters
+    ) {
+      return null;
+    } else {
+      const missingChars =
+        completeProfileMinimumCharachters - watchAboutMe.length;
+      return (
+        <Alert severity="warning">
+          <Trans i18nKey="profile:edit_profile_incomplete_helper.helper_text">
+            Please write{" "}
+            <strong>
+              {{
+                chars: t("profile:edit_profile_incomplete_helper.chars", {
+                  count: missingChars,
+                }),
+              }}
+            </strong>{" "}
+            in this section to complete your profile. You also need to upload a
+            profile picture.
+          </Trans>
+        </Alert>
+      );
+    }
+  };
 
   const onSubmit = handleSubmit(
     ({ regionsLived, regionsVisited, fluentLanguages, ...data }) => {
@@ -391,6 +429,7 @@ export default function EditProfileForm() {
               defaultValue={user.aboutMe || DEFAULT_ABOUT_ME_HEADINGS}
               control={control}
               className={classes.field}
+              otherChildren={charsRemainingAboutMe()}
             />
             <ProfileMarkdownInput
               id="thingsILike"

@@ -7,6 +7,8 @@ export const supportEmail = "support@couchers.org";
 export const userLocationMaxRadius = 2000;
 export const userLocationMinRadius = 50;
 
+export const completeProfileMinimumCharachters = 150;
+
 export const pingInterval = 10000;
 
 export const reactQueryRetries = 1;
