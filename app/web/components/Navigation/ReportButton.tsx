@@ -1,8 +1,4 @@
-import {
-  darken,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { darken, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -52,6 +48,7 @@ const useStyles = makeStyles((theme) => ({
   typeButton: {
     display: "block",
     margin: "0 auto",
+    maxWidth: "fit-content",
     "& + &": {
       marginBlockStart: theme.spacing(2),
     },
@@ -198,35 +195,7 @@ export default function ReportButton({
               </Button>
             </DialogActions>
           </>
-        ) : // type === "content" ? (
-        //   <>
-        //     <DialogContent>
-        //       <Typography variant="body1" paragraph>
-        //         {t("report.content.dialog_message")}
-        //       </Typography>
-        //       <MuiLink href={`mailto:${supportEmail}`} underline="hover">
-        //         {supportEmail}
-        //       </MuiLink>
-        //     </DialogContent>
-        //     <DialogActions>
-        //       <Button
-        //         onClick={() => handleClose({}, "button")}
-        //         variant="outlined"
-        //         sx={{
-        //           color: theme.palette.common.black,
-        //           borderColor: theme.palette.grey[300],
-
-        //           "&:hover": {
-        //             borderColor: theme.palette.grey[300],
-        //             backgroundColor: "#3135390A",
-        //           },
-        //         }}>
-        //         {t("cancel")}
-        //       </Button>
-        //     </DialogActions>
-        //   </>
-        // ) :
-        type === "bug" ? (
+        ) : type === "bug" ? (
           <form onSubmit={onSubmit}>
             <DialogContent>
               {error && <Alert severity="error">{error.message}</Alert>}
