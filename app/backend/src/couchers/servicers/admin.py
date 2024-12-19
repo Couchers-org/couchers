@@ -1,8 +1,9 @@
 import json
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import grpc
+from geoalchemy2.shape import from_shape
 from google.protobuf import empty_pb2
 from shapely.geometry import shape
 from sqlalchemy.sql import or_, select, update
@@ -12,6 +13,7 @@ from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
+    Cluster,
     ContentReport,
     Event,
     EventCommunityInviteRequest,
@@ -21,8 +23,11 @@ from couchers.models import (
     HostRequest,
     Message,
     ModNote,
+    Node,
     User,
     UserBadge,
+    Page,
+    PageVersion
 )
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
@@ -287,6 +292,96 @@ class Admin(admin_pb2_grpc.AdminServicer):
         create_cluster(session, node.id, request.name, request.description, context.user_id, request.admin_ids, True)
 
         return community_to_pb(session, node, context)
+
+    def UpdateCommunity(self, request, context, session):
+        cluster = session.execute(select(Cluster).where(Cluster.id == request.community_id).where(Cluster.deleted is None)).scalar_one_or_none()
+        if not cluster:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+
+        node = session.execute(select(Node).where(Node.id == cluster.parent_node_id)).scalar_one_or_none()
+        if not node:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+
+        geom = node.geom
+        if request.geojson:
+            geom = shape(json.loads(request.geojson))
+            if geom.geom_type != "MultiPolygon":
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_MULTIPOLYGON)
+            geom = from_shape(geom)
+
+        name = request.name if request.name else cluster.name
+        description = request.description if request.description else cluster.description
+        parent_node_id = request.parent_node_id if request.parent_node_id != 0 else None
+
+        session.execute(
+            update(Node)
+            .where(Node.id == cluster.parent_node_id)
+            .values(
+                parent_node_id=parent_node_id,
+                geom=geom,
+            )
+        )
+
+        session.execute(
+            update(Cluster)
+            .where(Cluster.id == cluster.id)
+            .values(
+                name=name,
+                description=description
+            )
+        )
+
+        session.flush()
+
+        return community_to_pb(session, cluster.parent_node, context)
+
+    def DeleteCommunity(self, request, context, session):
+        cluster = session.execute(select(Cluster).where(Cluster.id == request.community_id).where(Cluster.deleted is None)).scalar_one_or_none()
+        if not cluster:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+
+        now = datetime.utcnow()
+
+        session.execute(
+            update(Cluster)
+            .where(Cluster.id == cluster.id)
+            .values(
+                {"deleted": now}
+            )
+        )
+
+        session.execute(
+            update(Node)
+            .where(Node.id == cluster.parent_node_id)
+            .values(
+                {"deleted": now}
+            )
+        )
+
+        session.flush()
+
+        page = session.execute(select(Page).where(Page.owner_cluster_id == cluster.id).where(Page.deleted is None)).scalar_one_or_none()
+        if not page:
+            return
+
+        session.execute(
+            update(Page)
+            .where(Page.id == page.id)
+            .values(
+                {"deleted": now}
+            )
+        )
+
+        session.execute(
+            update(PageVersion)
+            .where(PageVersion.id == page.id)
+            .values(
+                {"deleted": now}
+            )
+        )
+
+        session.flush()
+        return empty_pb2.Empty()
 
     def GetChats(self, request, context, session):
         def format_user(user):

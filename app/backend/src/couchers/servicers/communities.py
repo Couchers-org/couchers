@@ -102,7 +102,7 @@ def community_to_pb(session, node: Node, context):
 
 class Communities(communities_pb2_grpc.CommunitiesServicer):
     def GetCommunity(self, request, context, session):
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        node = session.execute(select(Node).where(Node.id == request.community_id).where(Node.deleted is None)).scalar_one_or_none()
         if not node:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
@@ -116,6 +116,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 select(Node)
                 .where(or_(Node.parent_node_id == request.community_id, request.community_id == 0))
                 .where(Node.id >= next_node_id)
+                .where(Node.deleted is None)
                 .order_by(Node.id)
                 .limit(page_size + 1)
             )
@@ -136,6 +137,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .where(~Cluster.is_official_cluster)  # not an official group
                 .where(Cluster.parent_node_id == request.community_id)
                 .where(Cluster.id >= next_cluster_id)
+                .where(Cluster.deleted is None)
                 .order_by(Cluster.id)
                 .limit(page_size + 1)
             )
@@ -283,6 +285,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         places = (
             node.official_cluster.owned_pages.where(Page.type == PageType.place)
             .where(Page.id >= next_page_id)
+            .where(Page.deleted is None)
             .order_by(Page.id)
             .limit(page_size + 1)
             .all()
@@ -301,6 +304,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         guides = (
             node.official_cluster.owned_pages.where(Page.type == PageType.guide)
             .where(Page.id >= next_page_id)
+            .where(Page.deleted is None)
             .order_by(Page.id)
             .limit(page_size + 1)
             .all()
@@ -315,7 +319,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         # the page token is a unix timestamp of where we left off
         page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        node = session.execute(select(Node).where(Node.id == request.community_id).where(Node.deleted is None)).scalar_one_or_none()
         if not node:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
@@ -346,7 +350,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
     def ListDiscussions(self, request, context, session):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        node = session.execute(select(Node).where(Node.id == request.community_id).where(Node.deleted is None)).scalar_one_or_none()
         if not node:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
         discussions = (
@@ -361,7 +365,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         )
 
     def JoinCommunity(self, request, context, session):
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        node = session.execute(select(Node).where(Node.id == request.community_id).where(Node.deleted is None)).scalar_one_or_none()
         if not node:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
@@ -411,6 +415,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .where(ClusterSubscription.user_id == user_id)
                 .where(Cluster.is_official_cluster)
                 .where(Node.id >= next_node_id)
+                .where(Node.deleted is None)
                 .order_by(Node.id)
                 .limit(page_size + 1)
             )

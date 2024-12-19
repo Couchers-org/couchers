@@ -1513,6 +1513,7 @@ class Node(Base):
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=True, index=True)
     geom = deferred(Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False))
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    deleted = Column(DateTime(timezone=True), nullable=True, default=None)
 
     parent_node = relationship("Node", backref="child_nodes", remote_side="Node.id")
 
@@ -1539,6 +1540,7 @@ class Cluster(Base):
     # short description
     description = Column(String, nullable=False)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    deleted = Column(DateTime(timezone=True), nullable=True, default=None)
 
     is_official_cluster = Column(Boolean, nullable=False, default=False)
 
@@ -1690,6 +1692,7 @@ class Page(Base):
     owner_cluster_id = Column(ForeignKey("clusters.id"), nullable=True, index=True)
 
     thread_id = Column(ForeignKey("threads.id"), nullable=False, unique=True)
+    deleted = Column(DateTime(timezone=True), nullable=True, default=None)
 
     parent_node = relationship("Node", backref="child_pages", remote_side="Node.id", foreign_keys="Page.parent_node_id")
 
@@ -1745,6 +1748,7 @@ class PageVersion(Base):
     # the human-readable address
     address = Column(String, nullable=True)
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    deleted = Column(DateTime(timezone=True), nullable=True, default=None)
 
     slug = column_property(func.slugify(title))
 
