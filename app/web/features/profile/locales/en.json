@@ -65,7 +65,7 @@
     "edit_profile_incomplete_helper": {
         "chars": "{{count}} more character",
         "chars_plural": "{{count}} more characters",
-        "helper_text": "Please write <1>{{chars}}</1> in this section to complete your profile. You also need to upload a profile picture."
+        "helper_text": "Please write <2>{{chars}}</2> in this section to complete your profile. You also need to upload a profile picture."
     },
     "edit_profile_headings": {
         "regions_visited": "Regions I've Visited",

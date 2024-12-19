@@ -113,7 +113,7 @@ export default function EditProfileForm() {
     const watchAboutMe = watch("aboutMe");
 
     if (
-      !watchAboutMe &&
+      !watchAboutMe ||
       watchAboutMe.length > completeProfileMinimumCharachters
     ) {
       return null;
