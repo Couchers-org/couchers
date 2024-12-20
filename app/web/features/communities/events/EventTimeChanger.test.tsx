@@ -95,7 +95,7 @@ it("should not submit if the start date/time is in the past", async () => {
     t("communities:start_date")
   )) as HTMLInputElement;
 
-  const user = userEvent.setup();
+  const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
   user.clear(startDateField);
   user.type(startDateField, "07302021");
@@ -127,7 +127,7 @@ it("should not submit if the end date/time is in the past", async () => {
     t("communities:start_date")
   )) as HTMLInputElement;
 
-  const user = userEvent.setup();
+  const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
   user.clear(startDateField);
 
@@ -139,18 +139,15 @@ it("should not submit if the end date/time is in the past", async () => {
   user.type(endDateField, "07302021");
   await waitFor(() => expect(startDateField).toHaveValue("07/30/2021"));
 
+  expect(screen.queryByText(t("communities:past_date_error"))).toBeNull();
+  expect(screen.queryByText(t("communities:past_time_error"))).toBeNull();
+
   user.click(screen.getByTestId("submit"));
 
   await waitFor(() => {
-    const endDateErrorText = document.getElementById("endDate-helper-text");
-    expect(endDateErrorText).toBeVisible();
-    expect(endDateErrorText).toHaveTextContent(
-      t("communities:past_date_error")
-    );
+    expect(screen.getByText(t("communities:past_date_error"))).toBeVisible();
   });
-  const endTimeErrorText = document.getElementById("endTime-helper-text");
-  expect(endTimeErrorText).toBeVisible();
-  expect(endTimeErrorText).toHaveTextContent(t("communities:past_time_error"));
+  expect(screen.getByText(t("communities:past_time_error"))).toBeVisible();
 });
 
 it("should not submit if the end date is before the start date", async () => {
@@ -160,7 +157,7 @@ it("should not submit if the end date is before the start date", async () => {
     t("communities:end_date")
   )) as HTMLInputElement;
 
-  const user = userEvent.setup();
+  const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
   user.clear(endDateField);
   user.type(endDateField, "07302021");
@@ -180,37 +177,67 @@ it("should not submit if the end date is before the start date", async () => {
   expect(endTimeErrorText).toHaveTextContent(t("communities:end_time_error"));
 });
 
-it.each`
-  fieldLabel                     | fieldErrorId
-  ${t("communities:start_time")} | ${"startTime-helper-text"}
-  ${t("communities:end_time")}   | ${"endTime-helper-text"}
-`(
-  "should show validation error if the entered $fieldLabel is in the wrong format",
-  async ({ fieldLabel, fieldErrorId }) => {
-    render(<TestForm />, { wrapper });
+it("should show validation error if the entered startTime is in the wrong format", async () => {
+  render(<TestForm />, { wrapper });
 
-    const timeField = await screen.findByLabelText(fieldLabel);
-    // Simulate old browsers which will treat time input type as text
-    (timeField as HTMLInputElement).type = "text";
+  const startDateField = (await screen.findByLabelText(
+    t("communities:start_date")
+  )) as HTMLInputElement;
 
-    const user = userEvent.setup();
+  const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    user.clear(timeField);
-    user.type(timeField, "xyz");
+  user.clear(startDateField);
+  // make sure it will be in the future
+  user.type(startDateField, "08022021");
 
-    await waitFor(() => {
-      expect(timeField).toHaveValue("xyz");
-    });
+  await waitFor(() => {
+    expect(startDateField).toHaveValue("08/02/2021");
+  });
 
-    user.click(screen.getByTestId("submit"));
+  const startTime = screen.getByLabelText(t("communities:start_time"));
+  // Simulate old browsers which will treat time input type as text
+  (startTime as HTMLInputElement).type = "text";
 
-    await waitFor(() => {
-      const errorText = document.getElementById(fieldErrorId);
-      expect(errorText).toBeVisible();
-      expect(errorText).toHaveTextContent(t("communities:invalid_time"));
-    });
-  }
-);
+  user.clear(startTime);
+  user.type(startTime, "xyz");
+
+  await waitFor(() => {
+    expect(startTime).toHaveValue("xyz");
+  });
+
+  user.click(screen.getByTestId("submit"));
+
+  await waitFor(() => {
+    const errorText = document.getElementById("startTime-helper-text");
+    expect(errorText).toBeVisible();
+    expect(errorText).toHaveTextContent(t("communities:invalid_time"));
+  });
+});
+
+it("should show validation error if the entered endTime is in the wrong format", async () => {
+  render(<TestForm />, { wrapper });
+
+  const endTime = screen.getByLabelText(t("communities:end_time"));
+  // Simulate old browsers which will treat time input type as text
+  (endTime as HTMLInputElement).type = "text";
+
+  const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+  user.clear(endTime);
+  user.type(endTime, "xyz");
+
+  await waitFor(() => {
+    expect(endTime).toHaveValue("Invalid Date");
+  });
+
+  user.click(screen.getByTestId("submit"));
+
+  await waitFor(() => {
+    const errorText = document.getElementById("endTime-helper-text");
+    expect(errorText).toBeVisible();
+    expect(errorText).toHaveTextContent(t("communities:invalid_time"));
+  });
+});
 
 describe("when editing an existing event", () => {
   it("should only show validation error for dirty fields if editing an existing event", async () => {
@@ -220,7 +247,7 @@ describe("when editing an existing event", () => {
       t("communities:end_date")
     );
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     user.clear(endDateField);
     user.type(endDateField, "07012021");
@@ -266,7 +293,7 @@ describe("when editing an existing event", () => {
   it("should submit successfully if no date/time fields are touched even if they are in the past", async () => {
     render(<TestForm event={events[0]} />, { wrapper });
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     user.click(await screen.findByTestId("submit"));
 
@@ -283,8 +310,7 @@ it("should update the end date/time by the previous difference to the start date
     t("communities:start_date")
   );
 
-  const user = userEvent.setup();
-
+  const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
   user.clear(startDateField);
   user.type(startDateField, "08152021");
 
@@ -305,7 +331,7 @@ it("should update the end date/time by the previous difference to the start date
 });
 
 describe("when the end date/time difference from the start has been changed", () => {
-  it.only("should update the end date/time by this new difference when the start date/time updates", async () => {
+  it("should update the end date/time by this new difference when the start date/time updates", async () => {
     render(<TestForm />, { wrapper });
 
     const startDateField = await screen.findByLabelText(
@@ -315,8 +341,7 @@ describe("when the end date/time difference from the start has been changed", ()
       t("communities:end_date")
     );
 
-    const user = userEvent.setup();
-
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
     user.clear(endDateField);
     user.type(endDateField, "08062021");
 
@@ -332,9 +357,9 @@ describe("when the end date/time difference from the start has been changed", ()
     const startTime = screen.getByLabelText(t("communities:start_time"));
     user.clear(startTime);
     // Reset time first since I can't get timezone mock and fake timer working together...
-    user.type(startTime, "1200");
+    user.type(startTime, "0000");
 
-    await waitFor(() => expect(startTime).toHaveValue("12:00"));
+    await waitFor(() => expect(startTime).toHaveValue("00:00"));
 
     const endTime = screen.getByLabelText(t("communities:end_time"));
     user.clear(endTime);

@@ -135,7 +135,7 @@ describe("Edit event page", () => {
       t("communities:start_date")
     );
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     user.clear(startDateField);
     user.type(startDateField, "08012021");
@@ -168,7 +168,7 @@ describe("Edit event page", () => {
       t("communities:start_time")
     )) as HTMLInputElement;
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     user.clear(startTimeField);
     user.type(startTimeField, "0000");

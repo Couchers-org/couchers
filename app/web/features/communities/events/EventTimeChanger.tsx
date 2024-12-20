@@ -4,15 +4,13 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { set, UseFormReturn, useWatch } from "react-hook-form";
+import { useMemo, useState } from "react";
+import { UseFormReturn, useWatch } from "react-hook-form";
 import { isSameOrFutureDate, timestamp2Date } from "utils/date";
 import dayjs, { Dayjs, TIME_FORMAT } from "utils/dayjs";
 import { timePattern } from "utils/validation";
-import { debounce } from "@mui/material";
 
 import { CreateEventData, useEventFormStyles } from "./EventForm";
-import { S } from "msw/lib/glossary-2792c6da";
 
 function splitTimestampToDateAndTime(timestamp?: Timestamp.AsObject): {
   date?: Dayjs;
@@ -53,8 +51,6 @@ export default function EventTimeChanger({
   const [timeDelta, setTimeDelta] = useState(60);
   const [dateDelta, setDateDelta] = useState(0);
 
-  console.log("DateDelta", dateDelta);
-
   const { date: eventStartDate, time: eventStartTime } =
     splitTimestampToDateAndTime(event?.startTime);
   const { date: eventEndDate, time: eventEndTime } =
@@ -63,99 +59,87 @@ export default function EventTimeChanger({
   const now = dayjs();
   const defaultDate = now.get("hour") === 23 ? now.add(1, "day") : now;
 
-  // const dateDelta = useRef(0);
   const endDate = useWatch({
     control,
     name: "endDate",
     defaultValue: eventEndDate || defaultDate,
   });
-  // useEffect(() => {
-  //   if (getValues("startDate")) {
-  //     const startDate = getValues("startDate");
-
-  //     console.log('USE EFFECT TRIGGERED BY END DATE CHANGE startDate', startDate.format('MM/DD/YYYY'), 'endDate', endDate.format('MM/DD/YYYY'))
-  //     const newDelta = endDate
-  //       .startOf("day")
-  //       .diff(startDate.startOf("day"), "days");
-
-  //       console.log('NEW DELTA', newDelta)
-  //     if (!isNaN(newDelta)) {
-  //       setDateDelta(newDelta);
-  //     }
-  //   }
-  // }, [getValues, endDate]);
 
   const defaultEndTime = useMemo(
     () => dayjs().add(1, "hour").add(timeDelta, "minutes").format("HH:[00]"),
     []
   );
-  const endTime = useWatch({
-    control,
-    name: "endTime",
-    defaultValue: eventEndTime || defaultEndTime,
-  });
 
-  useEffect(() => {
-    const startTime = getValues("startTime");
-    const newDelta = dayjs(endTime, TIME_FORMAT).diff(
-      dayjs(startTime, TIME_FORMAT),
-      "minutes"
-    );
-
-    if (!isNaN(newDelta)) {
-      setTimeDelta(newDelta);
-    }
-  }, [getValues, endTime]);
-
-  const handleStartTimeChange = debounce((e) => {
+  const handleStartTimeChange = (e: {
+    target: { value: string | number | dayjs.Dayjs | Date | null | undefined };
+  }) => {
     const newStartTime = dayjs(e.target.value, TIME_FORMAT);
-
-    console.log("newSTARTTIME", newStartTime.format("HH:mm"));
+    const newEndTime = dayjs(e.target.value, TIME_FORMAT)
+      .add(timeDelta, "minutes")
+      .format(TIME_FORMAT);
 
     if (newStartTime.isValid()) {
-      // Get the current start date and adjust the end time by the timeDelta
-      const adjustedEndTime = newStartTime
-        .add(timeDelta, "minutes")
-        .format(TIME_FORMAT);
-
-      // Set the new end time value
-      setValue("endTime", adjustedEndTime, { shouldDirty: true });
+      setValue("startTime", newStartTime.format(TIME_FORMAT), {
+        shouldDirty: true,
+      });
+      setValue("endTime", newEndTime, { shouldDirty: true });
     }
-  });
+  };
 
-  const handleStartDateChange = debounce((newStartDate: Dayjs) => {
+  const handleStartDateChange = (newStartDate: Dayjs) => {
+    // get the existing diff between start and end dates
     const oldStartDate = getValues("startDate");
-    console.log("OLD START DATE", oldStartDate.format("MM/DD/YYYY"));
-
     const newDateDelta = endDate
       .startOf("day")
       .diff(oldStartDate.startOf("day"), "days");
 
-    console.log("NEW DELTA", newDateDelta);
+      setValue("startDate", newStartDate, { shouldDirty: true });
+
     if (!isNaN(newDateDelta)) {
+      // if the new start date is before the old start date, set the end date to the new start date
       if (newDateDelta < 0) {
-        setDateDelta(0);
-        setValue("endDate", newStartDate.add(0, "days"), {
+        const newEndDate = newStartDate.add(0, "days");
+        setValue("endDate", newEndDate, {
           shouldDirty: true,
         });
       } else {
-        setDateDelta(newDateDelta);
+        // otherwise, add the diff to the end date to keep same distance apart
         setValue("endDate", newStartDate.add(newDateDelta, "days"), {
           shouldDirty: true,
         });
       }
     }
-  });
+  };
 
-  const handleEndTimeChange = debounce((e) => {
-    const newEndTime = dayjs(e.target.value, TIME_FORMAT);
+  const handleEndTimeChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    const startTime = getValues("startTime");
+    const newEndTime = dayjs(event.target.value, TIME_FORMAT);
+    const newTimeDelta = dayjs(newEndTime, TIME_FORMAT).diff(
+      dayjs(startTime, TIME_FORMAT),
+      "minutes"
+    );
 
-    console.log("newENDTIME", newEndTime.format("HH:mm"));
+    if (!isNaN(newTimeDelta)) {
+      setTimeDelta(newTimeDelta);
+    }
 
     setValue("endTime", newEndTime.format(TIME_FORMAT), { shouldDirty: true });
+  };
 
+  const handleEndDateChange = (newEndDate: Dayjs) => {
+    const startDate = getValues("startDate");
+    const newDelta = endDate
+      .startOf("day")
+      .diff(startDate.startOf("day"), "days");
 
-  });
+    if (!isNaN(newDelta)) {
+      setDateDelta(newDelta);
+    }
+
+    setValue("endDate", newEndDate, { shouldDirty: true });
+  };
 
   return (
     <>
@@ -242,6 +226,7 @@ export default function EventTimeChanger({
             },
           }}
           testId="endDate"
+          onPostChange={handleEndDateChange}
         />
         <TextField
           defaultValue={eventEndTime || defaultEndTime}

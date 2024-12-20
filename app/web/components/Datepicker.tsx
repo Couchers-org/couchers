@@ -65,8 +65,6 @@ const Datepicker = ({
           onChange={(date) => {
             if (date?.isValid()) {
               field.onChange(date);
-
-              console.log('ON POST CHANGE ABOUT TO RUN')
               onPostChange?.(date);
             }
           }}
