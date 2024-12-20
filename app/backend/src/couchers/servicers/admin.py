@@ -294,7 +294,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return community_to_pb(session, node, context)
 
     def UpdateCommunity(self, request, context, session):
-        cluster = session.execute(select(Cluster).where(Cluster.id == request.community_id).where(Cluster.deleted is None)).scalar_one_or_none()
+        cluster = session.execute(select(Cluster).where(Cluster.id == request.community_id).where(Cluster.deleted == None)).scalar_one_or_none()
         if not cluster:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
@@ -336,7 +336,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return community_to_pb(session, cluster.parent_node, context)
 
     def DeleteCommunity(self, request, context, session):
-        cluster = session.execute(select(Cluster).where(Cluster.id == request.community_id).where(Cluster.deleted is None)).scalar_one_or_none()
+        cluster = session.execute(select(Cluster).where(Cluster.id == request.community_id).where(Cluster.deleted == None)).scalar_one_or_none()
         if not cluster:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
@@ -362,7 +362,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
         page = session.execute(select(Page).where(Page.owner_cluster_id == cluster.id).where(Page.deleted is None)).scalar_one_or_none()
         if not page:
-            return
+            return empty_pb2.Empty()
 
         session.execute(
             update(Page)

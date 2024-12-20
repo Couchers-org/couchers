@@ -193,14 +193,14 @@ class Pages(pages_pb2_grpc.PagesServicer):
         return page_to_pb(session, page, context)
 
     def GetPage(self, request, context, session):
-        page = session.execute(select(Page).where(Page.id == request.page_id).where(Page.deleted is None)).scalar_one_or_none()
+        page = session.execute(select(Page).where(Page.id == request.page_id).where(Page.deleted == None)).scalar_one_or_none()
         if not page:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 
         return page_to_pb(session, page, context)
 
     def UpdatePage(self, request, context, session):
-        page = session.execute(select(Page).where(Page.id == request.page_id).where(Page.deleted is None)).scalar_one_or_none()
+        page = session.execute(select(Page).where(Page.id == request.page_id).where(Page.deleted == None)).scalar_one_or_none()
         if not page:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
 

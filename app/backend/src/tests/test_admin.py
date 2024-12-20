@@ -415,6 +415,135 @@ def test_CreateCommunity(db):
             assert community.description == "community for testing"
             assert community.slug == "test-community"
 
+def test_UpdateCommunity_invalid_geojson(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user()
+
+    with session_scope() as session:
+        with real_admin_session(super_token) as api:
+            api.CreateCommunity(
+                admin_pb2.CreateCommunityReq(
+                    name="test community",
+                    description="community for testing",
+                    admin_ids=[],
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
+                )
+            )
+            community = session.execute(select(Cluster).where(Cluster.name == "test community")).scalar_one()
+
+            with pytest.raises(grpc.RpcError) as e:
+                api.UpdateCommunity(
+                    admin_pb2.UpdateCommunityReq(
+                        community_id=community.id,
+                        name="test community 2",
+                        description="community for testing 2",
+                        geojson=POINT_GEOJSON,
+                    )
+                )
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+            assert e.value.details() == errors.NO_MULTIPOLYGON
+
+def test_UpdateCommunity_invalid_id(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user()
+
+    with session_scope() as session:
+        with real_admin_session(super_token) as api:
+            api.CreateCommunity(
+                admin_pb2.CreateCommunityReq(
+                    name="test community",
+                    description="community for testing",
+                    admin_ids=[],
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
+                )
+            )
+
+            with pytest.raises(grpc.RpcError) as e:
+                api.UpdateCommunity(
+                    admin_pb2.UpdateCommunityReq(
+                        community_id=1000,
+                        name="test community",
+                        description="community for testing",
+                        geojson=VALID_GEOJSON_MULTIPOLYGON,
+                    )
+                )
+            assert e.value.code() == grpc.StatusCode.NOT_FOUND
+            assert e.value.details() == errors.COMMUNITY_NOT_FOUND
+
+def test_UpdateCommunity(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user()
+
+    with session_scope() as session:
+        with real_admin_session(super_token) as api:
+            api.CreateCommunity(
+                admin_pb2.CreateCommunityReq(
+                    name="test community",
+                    description="community for testing",
+                    admin_ids=[],
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
+                )
+            )
+            community = session.execute(select(Cluster).where(Cluster.name == "test community")).scalar_one()
+            assert community.description == "community for testing"
+
+            api.UpdateCommunity(
+                admin_pb2.UpdateCommunityReq(
+                    community_id=community.id,
+                    name="test community 2",
+                    description="community for testing 2",
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
+                )
+            )
+            session.commit()
+
+            community_updated = session.execute(select(Cluster).where(Cluster.id == community.id)).scalar_one()
+            assert community_updated.description == "community for testing 2"
+            assert community_updated.slug == "test-community-2"
+
+def test_DeleteCommunity_invalid_id(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user()
+
+    with session_scope() as session:
+        with real_admin_session(super_token) as api:
+            api.CreateCommunity(
+                admin_pb2.CreateCommunityReq(
+                    name="test community",
+                    description="community for testing",
+                    admin_ids=[],
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
+                )
+            )
+
+            with pytest.raises(grpc.RpcError) as e:
+                api.DeleteCommunity(admin_pb2.DeleteCommunityReq(community_id=1000))
+            assert e.value.code() == grpc.StatusCode.NOT_FOUND
+            assert e.value.details() == errors.COMMUNITY_NOT_FOUND
+
+def test_DeleteCommunity(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user()
+
+    with session_scope() as session:
+        with real_admin_session(super_token) as api:
+            api.CreateCommunity(
+                admin_pb2.CreateCommunityReq(
+                    name="test community 1",
+                    description="community for testing",
+                    admin_ids=[],
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
+                )
+            )
+            community = session.execute(select(Cluster).where(Cluster.name == "test community 1")).scalar_one()
+            assert community.deleted == None
+
+            api.DeleteCommunity(admin_pb2.DeleteCommunityReq(community_id=2))
+            session.commit()
+
+            community_deleted = session.execute(select(Cluster).where(Cluster.id == 2)).scalar_one()
+            assert community_deleted.deleted is not None
+
 
 def test_GetChats(db):
     super_user, super_token = generate_user(is_superuser=True)
