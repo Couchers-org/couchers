@@ -65,6 +65,8 @@ const Datepicker = ({
           onChange={(date) => {
             if (date?.isValid()) {
               field.onChange(date);
+
+              console.log('ON POST CHANGE ABOUT TO RUN')
               onPostChange?.(date);
             }
           }}
@@ -72,9 +74,11 @@ const Datepicker = ({
           views={["year", "month", "day"]}
           inputFormat={getLocaleFormat()}
           renderDay={(day, selectedDates, pickersDayProps) => {
+            const { key, ...otherProps } = pickersDayProps;
             return (
               <PickersDay
-                {...pickersDayProps}
+                key={key} // Pass key explicitly to make React happy
+                {...otherProps}
                 style={{
                   ...(pickersDayProps.selected && {
                     backgroundColor: theme.palette.primary.main, // make selected day our primary color
@@ -100,7 +104,6 @@ const Datepicker = ({
                 "aria-label": t("components.datepicker.change_date"),
               }}
               variant="standard"
-              ref={field.ref}
             />
           )}
         />

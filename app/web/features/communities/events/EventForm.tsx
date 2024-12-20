@@ -12,16 +12,14 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { LngLat } from "maplibre-gl";
 import { Event } from "proto/events_pb";
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { DeepMap, useForm } from "react-hook-form";
 import { UseMutateFunction } from "react-query";
-import dayjs, { Dayjs } from "utils/dayjs";
+import { Dayjs } from "utils/dayjs";
 import type { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
-import EventTimeChanger, {
-  splitTimestampToDateAndTime,
-} from "./EventTimeChanger";
+import EventTimeChanger from "./EventTimeChanger";
 
 export const useEventFormStyles = makeStyles((theme) => ({
   root: {
@@ -120,24 +118,17 @@ export default function EventForm({
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useEventFormStyles();
 
-  const now = dayjs();
-  const defaultDate = now.get("hour") === 23 ? now.add(1, "day") : now;
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    register,
+    setValue,
+    watch,
+    formState: { dirtyFields, errors },
+  } = useForm<CreateEventData>();
 
-  const { date: eventStartDate, time: eventStartTime } =
-    splitTimestampToDateAndTime(event?.startTime);
-  const { date: eventEndDate, time: eventEndTime } =
-    splitTimestampToDateAndTime(event?.endTime);
-
-  const timeDelta = useRef(60);
-  const defaultEndTime = useMemo(
-    () =>
-      dayjs()
-        .add(1, "hour")
-        .add(timeDelta.current, "minutes")
-        .format("HH:[00]"),
-    []
-  );
-
+  const isOnline = watch("isOnline", false);
   const locationDefaultValue = useRef(
     event?.offlineInformation
       ? {
@@ -152,33 +143,11 @@ export default function EventForm({
       : ("" as const)
   ).current;
 
-  const {
-    control,
-    handleSubmit,
-    getValues,
-    register,
-    setValue,
-    watch,
-    formState: { dirtyFields, errors },
-  } = useForm<CreateEventData>({
-    defaultValues: {
-      title: event?.title || "",
-      startDate: eventStartDate ?? defaultDate,
-      startTime: eventStartTime || dayjs().add(1, "hour").format("HH:[00]"),
-      endDate: eventEndDate ?? defaultDate,
-      endTime: eventEndTime || defaultEndTime,
-      isOnline: false,
-      link: event?.onlineInformation?.link,
-    },
-  });
-
-  const isOnline = watch("isOnline", false);
-
   const onSubmit = handleSubmit(
     (data) => {
       const eventVariables = {
         ...data,
-        dirtyFields: dirtyFields as DeepMap<CreateEventData, true>,
+        dirtyFields
       } as CreateEventVariables;
 
       mutate(eventVariables);
@@ -268,6 +237,7 @@ export default function EventForm({
                 <Checkbox
                   {...register("isOnline")}
                   defaultChecked={!!event?.onlineInformation}
+                  name="isOnline"
                 />
               }
               label={t("communities:virtual_event")}

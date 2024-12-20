@@ -247,6 +247,7 @@ describe("Discussion page", () => {
       );
 
       await waitFor(() => {
+        // 1 for main discussion + 4 comments + 1 for second page of discussion
         expect(getThreadMock).toHaveBeenCalledTimes(6);
       });
 
@@ -255,7 +256,6 @@ describe("Discussion page", () => {
       expect(
         within(firstCommentAfterLoadMore).getByText(comments[3].content)
       ).toBeVisible();
-      // 1 for main discussion + 4 comments + 1 for second page of discussion
       expect(getThreadMock).toHaveBeenCalledWith(2, "4");
     });
 
