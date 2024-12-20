@@ -4,7 +4,6 @@ import {
   styled,
 } from "@mui/material";
 import { grpcErrorStrings, ObscureGrpcErrorMessages } from "appConstants";
-import classNames from "classnames";
 import React from "react";
 
 const StyledAlert = styled(MuiAlert)(({ theme }) => ({
@@ -27,7 +26,7 @@ export default function Alert({
   );
 
   return (
-    <StyledAlert {...otherProps} className={classNames(className)}>
+    <StyledAlert {...otherProps} className={className}>
       {
         // Search for the error in the ugly grpc error object keys
         // Replace it with the nice error if found
