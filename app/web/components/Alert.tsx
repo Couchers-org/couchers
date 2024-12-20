@@ -6,7 +6,6 @@ import {
 import { grpcErrorStrings, ObscureGrpcErrorMessages } from "appConstants";
 import classNames from "classnames";
 import React from "react";
-// import makeStyles from "utils/makeStyles";
 
 const StyledAlert = styled(MuiAlert)(({ theme }) => ({
   marginBottom: theme.spacing(2),
@@ -22,8 +21,6 @@ export default function Alert({
   children,
   ...otherProps
 }: AlertProps) {
-  // const classes = useStyles();
-
   const oldErrorKey = Object.keys(grpcErrorStrings).find(
     (oldError): oldError is ObscureGrpcErrorMessages =>
       children.includes(oldError)
