@@ -67,7 +67,7 @@ export default function EventTimeChanger({
 
   const defaultEndTime = useMemo(
     () => dayjs().add(1, "hour").add(timeDelta, "minutes").format("HH:[00]"),
-    []
+    [timeDelta]
   );
 
   const handleStartTimeChange = (e: {
@@ -87,27 +87,12 @@ export default function EventTimeChanger({
   };
 
   const handleStartDateChange = (newStartDate: Dayjs) => {
-    // get the existing diff between start and end dates
-    const oldStartDate = getValues("startDate");
-    const newDateDelta = endDate
-      .startOf("day")
-      .diff(oldStartDate.startOf("day"), "days");
+    setValue("startDate", newStartDate, { shouldDirty: true });
 
-      setValue("startDate", newStartDate, { shouldDirty: true });
-
-    if (!isNaN(newDateDelta)) {
-      // if the new start date is before the old start date, set the end date to the new start date
-      if (newDateDelta < 0) {
-        const newEndDate = newStartDate.add(0, "days");
-        setValue("endDate", newEndDate, {
-          shouldDirty: true,
-        });
-      } else {
-        // otherwise, add the diff to the end date to keep same distance apart
-        setValue("endDate", newStartDate.add(newDateDelta, "days"), {
-          shouldDirty: true,
-        });
-      }
+    if (!isNaN(dateDelta)) {
+      setValue("endDate", newStartDate.add(dateDelta, "days"), {
+        shouldDirty: true,
+      });
     }
   };
 
@@ -116,6 +101,9 @@ export default function EventTimeChanger({
   ) => {
     const startTime = getValues("startTime");
     const newEndTime = dayjs(event.target.value, TIME_FORMAT);
+
+    setValue("endTime", newEndTime.format(TIME_FORMAT), { shouldDirty: true });
+
     const newTimeDelta = dayjs(newEndTime, TIME_FORMAT).diff(
       dayjs(startTime, TIME_FORMAT),
       "minutes"
@@ -124,8 +112,6 @@ export default function EventTimeChanger({
     if (!isNaN(newTimeDelta)) {
       setTimeDelta(newTimeDelta);
     }
-
-    setValue("endTime", newEndTime.format(TIME_FORMAT), { shouldDirty: true });
   };
 
   const handleEndDateChange = (newEndDate: Dayjs) => {

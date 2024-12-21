@@ -145,9 +145,15 @@ it("should not submit if the end date/time is in the past", async () => {
   user.click(screen.getByTestId("submit"));
 
   await waitFor(() => {
-    expect(screen.getByText(t("communities:past_date_error"))).toBeVisible();
+    const endDateErrorText = document.getElementById("endDate-helper-text");
+    expect(endDateErrorText).toBeVisible();
+    expect(endDateErrorText).toHaveTextContent(
+      t("communities:past_date_error")
+    );
   });
-  expect(screen.getByText(t("communities:past_time_error"))).toBeVisible();
+  const endTimeErrorText = document.getElementById("endTime-helper-text");
+  expect(endTimeErrorText).toBeVisible();
+  expect(endTimeErrorText).toHaveTextContent(t("communities:past_time_error"));
 });
 
 it("should not submit if the end date is before the start date", async () => {

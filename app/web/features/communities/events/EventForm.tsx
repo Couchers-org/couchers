@@ -147,7 +147,7 @@ export default function EventForm({
     (data) => {
       const eventVariables = {
         ...data,
-        dirtyFields
+        dirtyFields,
       } as CreateEventVariables;
 
       mutate(eventVariables);
