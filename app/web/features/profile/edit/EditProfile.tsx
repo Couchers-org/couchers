@@ -1,4 +1,5 @@
 import {
+  DialogContent,
   FormControlLabel,
   Radio,
   RadioGroup,
@@ -8,6 +9,7 @@ import {
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
 import StyledLink from "components/StyledLink";
@@ -22,7 +24,7 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
-import React from "react";
+import React, { FormEvent, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { howToMakeGreatProfileUrl } from "routes";
@@ -67,6 +69,9 @@ export default function EditProfileForm() {
     isMounted,
     null
   );
+  const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] =
+    useState(false);
+
   const queryClient = useQueryClient();
   const {
     control,
@@ -83,6 +88,7 @@ export default function EditProfileForm() {
         lng: user?.lng,
         radius: user?.radius,
       },
+      aboutMe: user?.aboutMe,
     },
     shouldFocusError: true,
   });
@@ -137,12 +143,25 @@ export default function EditProfileForm() {
           },
         }
       );
+
+      if (showIncompleteProfileDialog) {
+        setShowIncompleteProfileDialog(false);
+      }
     },
     // All field validation errors should scroll to their respective field
     // Except the avatar, so this scrolls to top on avatar validation error
     (errors) =>
       errors.avatarKey && window.scroll({ top: 0, behavior: "smooth" })
   );
+
+  const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (aboutMeField?.length < 150) {
+      setShowIncompleteProfileDialog(true);
+    } else {
+      onSubmit();
+    }
+  };
 
   return (
     <>
@@ -234,7 +253,10 @@ export default function EditProfileForm() {
               />
             )}
           />
-          <form onSubmit={onSubmit} className={classes.bottomFormContainer}>
+          <form
+            onSubmit={handleSubmitButtonClick}
+            className={classes.bottomFormContainer}
+          >
             <Controller
               control={control}
               defaultValue={user.hostingStatus}
@@ -482,12 +504,31 @@ export default function EditProfileForm() {
                 variant="contained"
                 color="primary"
                 loading={updateIsLoading}
-                onClick={onSubmit}
               >
                 {t("global:save")}
               </Button>
             </div>
           </form>
+          <Dialog
+            aria-labelledby={t("profile:incomplete_dialog.title")}
+            maxWidth="xs"
+            open={showIncompleteProfileDialog}
+          >
+            <DialogTitle>{t("profile:incomplete_dialog.title")}</DialogTitle>
+            <DialogContent>
+              <Typography align="center">
+                {t("profile:incomplete_dialog.message")}
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setShowIncompleteProfileDialog(false)}>
+                {t("profile:cancel")}
+              </Button>
+              <Button onClick={onSubmit}>
+                {t("profile:incomplete_dialog.save_anyway")}
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       ) : (
         <CenteredSpinner />
