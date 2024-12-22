@@ -13,7 +13,7 @@ interface ProfileMarkdownInputProps {
   label: string;
   name: string;
   error?: boolean;
-  helperText?: string | undefined;
+  helperText?: string;
 }
 
 export default function ProfileMarkdownInput({
