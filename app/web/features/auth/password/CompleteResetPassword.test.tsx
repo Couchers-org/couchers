@@ -70,7 +70,9 @@ describe("CompletePasswordReset page", () => {
   it("does not submit if empty form", async () => {
     render(<CompletePasswordReset />, { wrapper });
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(CompletePasswordResetMock).not.toHaveBeenCalled();
@@ -80,17 +82,19 @@ describe("CompletePasswordReset page", () => {
   it("does not submit if password don't match", async () => {
     render(<CompletePasswordReset />, { wrapper });
 
-    userEvent.type(
+    const user = userEvent.setup();
+
+    await user.type(
       screen.getByLabelText(t("auth:change_password_form.new_password")),
       "1111"
     );
 
-    userEvent.type(
+    await user.type(
       screen.getByLabelText(t("auth:change_password_form.confirm_password")),
       "2222"
     );
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(CompletePasswordResetMock).not.toHaveBeenCalled();
@@ -104,17 +108,19 @@ describe("CompletePasswordReset page", () => {
 
     render(<CompletePasswordReset />, { wrapper });
 
-    userEvent.type(
+    const user = userEvent.setup();
+
+    await user.type(
       screen.getByLabelText(t("auth:change_password_form.new_password")),
       "1111"
     );
 
-    userEvent.type(
+    await user.type(
       screen.getByLabelText(t("auth:change_password_form.confirm_password")),
       "1111"
     );
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     expect(
       await screen.findByText(
@@ -135,17 +141,19 @@ describe("CompletePasswordReset page", () => {
 
     render(<CompletePasswordReset />, { wrapper });
 
-    userEvent.type(
+    const user = userEvent.setup();
+
+    await user.type(
       screen.getByLabelText(t("auth:change_password_form.new_password")),
       "1111"
     );
 
-    userEvent.type(
+    await user.type(
       screen.getByLabelText(t("auth:change_password_form.confirm_password")),
       "1111"
     );
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     expect(
       screen.queryByText(t("auth:change_password_form.reset_password_success"))

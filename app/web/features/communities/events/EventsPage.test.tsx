@@ -13,7 +13,8 @@ describe("Events page", () => {
   )}" button is clicked`, async () => {
     render(<EventsPage />, { wrapper });
 
-    userEvent.click(
+    const user = userEvent.setup();
+    await user.click(
       screen.getByRole("button", { name: t("communities:create_new_event") })
     );
 

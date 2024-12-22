@@ -37,7 +37,11 @@ export default function LabelAndText({ label, text }: LabelAndTextProps) {
       >
         {label}
       </Typography>
-      <TextBody className={classes.flexItem}>{text}</TextBody>
+      {typeof text === "string" ? (
+        <TextBody className={classes.flexItem}>{text}</TextBody>
+      ) : (
+        text // AgeAndGenderRenderer is a div
+      )}
     </div>
   );
 }

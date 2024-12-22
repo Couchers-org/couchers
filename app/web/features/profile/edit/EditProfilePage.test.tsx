@@ -1,9 +1,4 @@
-import {
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
@@ -49,9 +44,12 @@ describe("Edit profile", () => {
 
   it("should redirect to the user profile page after a successful update", async () => {
     renderPage();
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(screen.getByRole("button", { name: t("global:save") }));
+    const user = userEvent.setup();
+
+    await user.click(
+      await screen.findByRole("button", { name: t("global:save") })
+    );
 
     await waitFor(() =>
       expect(mockRouter.pathname).toBe(routeToProfile("about"))
@@ -67,9 +65,12 @@ describe("Edit profile", () => {
       thingsILike: "",
     }));
     renderPage();
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(screen.getByRole("button", { name: t("global:save") }));
+    const user = userEvent.setup();
+
+    await user.click(
+      await screen.findByRole("button", { name: t("global:save") })
+    );
     await waitFor(() =>
       expect(mockRouter.pathname).toBe(routeToProfile("about"))
     );

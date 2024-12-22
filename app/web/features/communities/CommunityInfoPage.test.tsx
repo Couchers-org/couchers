@@ -1,6 +1,7 @@
 import {
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from "@testing-library/react";
@@ -25,9 +26,11 @@ const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
 >;
 const [, firstAdmin, secondAdmin, thirdAdmin] = users;
 
-function assertAdminsShown(element: typeof screen | ReturnType<typeof within>) {
+async function assertAdminsShown(
+  element: typeof screen | ReturnType<typeof within>
+) {
   expect(
-    element.getByRole("link", {
+    await element.findByRole("link", {
       name: getProfileLinkA11yLabel(firstAdmin.name),
     })
   ).toBeVisible();
@@ -51,17 +54,22 @@ describe("Community info page", () => {
     process.env.NEXT_PUBLIC_MEDIA_BASE_URL = "http://mymedia.com";
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("renders the info page correctly", async () => {
     render(<CommunityInfoPage community={community} />, { wrapper });
 
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
     // General information heading checks
-    expect(
-      screen.getByRole("heading", {
-        name: t("communities:local_info_title", { name: community.name }),
-      })
-    ).toBeVisible();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("heading", {
+          name: t("communities:local_info_title", { name: community.name }),
+        })
+      ).toBeVisible();
+    });
     expect(screen.getByText(community.mainPage.content)).toBeVisible();
 
     // Shouldn't show the edit link since the default user doesn't have permission
@@ -75,7 +83,8 @@ describe("Community info page", () => {
         name: t("communities:community_moderators"),
       })
     ).toBeVisible();
-    assertAdminsShown(screen);
+
+    await assertAdminsShown(screen);
 
     // Shouldn't show "see all moderators" button since the page already shows
     // everyone in this case
@@ -105,9 +114,14 @@ describe("Community info page", () => {
       const editLink = screen.getByRole("link", { name: t("global:edit") });
       expect(editLink).toBeVisible();
 
-      userEvent.click(editLink);
-      expect(mockRouter.pathname).toBe(
-        routeToEditCommunityPage(community.communityId, community.slug)
+      const user = userEvent.setup();
+
+      await user.click(editLink);
+
+      await waitFor(() =>
+        expect(mockRouter.pathname).toBe(
+          routeToEditCommunityPage(community.communityId, community.slug)
+        )
       );
     });
   });
@@ -119,6 +133,7 @@ describe("Community info page", () => {
     render(<CommunityInfoPage community={community} />, { wrapper });
 
     await assertErrorAlert(errorMessage);
+
     expect(
       screen.queryByText(t("communities:no_moderators"))
     ).not.toBeInTheDocument();
@@ -133,7 +148,9 @@ describe("Community info page", () => {
       render(<CommunityInfoPage community={community} />, { wrapper });
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      userEvent.click(
+      const user = userEvent.setup();
+
+      await user.click(
         screen.getByRole("button", {
           name: t("communities:see_all_moderators"),
         })
@@ -149,7 +166,7 @@ describe("Community info page", () => {
           name: t("communities:community_moderators"),
         })
       ).toBeVisible();
-      assertAdminsShown(adminDialog);
+      await assertAdminsShown(adminDialog);
       expect(
         adminDialog.getByRole("button", {
           name: t("communities:load_more_moderators"),
@@ -165,9 +182,18 @@ describe("Community info page", () => {
         nextPageToken: "3",
       });
       render(<CommunityInfoPage community={community} />, { wrapper });
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      userEvent.click(
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", {
+            name: t("communities:see_all_moderators"),
+          })
+        ).toBeVisible();
+      });
+
+      const user = userEvent.setup();
+
+      await user.click(
         screen.getByRole("button", {
           name: t("communities:see_all_moderators"),
         })
@@ -183,12 +209,13 @@ describe("Community info page", () => {
         nextPageToken: "",
       });
 
-      userEvent.click(
+      const user = userEvent.setup();
+
+      await user.click(
         screen.getByRole("button", {
           name: t("communities:load_more_moderators"),
         })
       );
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
       const adminDialog = within(
         await screen.findByRole("dialog", {
@@ -197,7 +224,7 @@ describe("Community info page", () => {
       );
       assertAdminsShown(adminDialog);
       expect(
-        adminDialog.getByRole("link", {
+        await adminDialog.findByRole("link", {
           name: getProfileLinkA11yLabel(thirdAdmin.name),
         })
       ).toBeVisible();
@@ -206,33 +233,39 @@ describe("Community info page", () => {
       ).toBeVisible();
 
       // Check it doesn't affect the underlying page
-      userEvent.click(document.querySelector(".MuiBackdrop-root")!);
+      await user.click(document.querySelector(".MuiBackdrop-root")!);
       await waitForElementToBeRemoved(
         screen.getByRole("dialog", {
           name: t("communities:community_moderators"),
         })
       );
-      expect(
-        adminDialog.queryByRole("link", {
-          name: getProfileLinkA11yLabel(thirdAdmin.name),
-        })
-      ).not.toBeInTheDocument();
+      await waitFor(() =>
+        expect(
+          adminDialog.queryByRole("link", {
+            name: getProfileLinkA11yLabel(thirdAdmin.name),
+          })
+        ).not.toBeInTheDocument()
+      );
       expect(adminDialog.queryByRole(thirdAdmin.name)).not.toBeInTheDocument();
     });
 
     it("closes the dialog by clicking the backdrop", async () => {
-      userEvent.click(document.querySelector(".MuiBackdrop-root")!);
+      const user = userEvent.setup();
+
+      await user.click(document.querySelector(".MuiBackdrop-root")!);
       await waitForElementToBeRemoved(
         screen.getByRole("dialog", {
           name: t("communities:community_moderators"),
         })
       );
 
-      expect(
-        screen.queryByRole("button", {
-          name: t("communities:load_more_moderators"),
-        })
-      ).not.toBeInTheDocument();
+      await waitFor(() =>
+        expect(
+          screen.queryByRole("button", {
+            name: t("communities:load_more_moderators"),
+          })
+        ).not.toBeInTheDocument()
+      );
     });
 
     it("closes the dialog by pressing the escape key", async () => {
@@ -251,11 +284,13 @@ describe("Community info page", () => {
         })
       );
 
-      expect(
-        screen.queryByRole("button", {
-          name: t("communities:load_more_moderators"),
-        })
-      ).not.toBeInTheDocument();
+      await waitFor(() =>
+        expect(
+          screen.queryByRole("button", {
+            name: t("communities:load_more_moderators"),
+          })
+        ).not.toBeInTheDocument()
+      );
     });
   });
 });

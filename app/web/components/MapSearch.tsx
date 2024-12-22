@@ -1,7 +1,10 @@
 import { Box, IconButton } from "@mui/material";
 import { AutocompleteChangeReason } from "@mui/material/Autocomplete";
+import { SignupAccountInputs } from "features/auth/signup/AccountForm";
+import { EditProfileFormValues } from "features/profile/edit/EditProfile";
 import { LngLat } from "maplibre-gl";
 import React, { useEffect, useState } from "react";
+import { ControllerRenderProps, FieldError } from "react-hook-form";
 import { useGeocodeQuery } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
@@ -54,9 +57,18 @@ interface MapSearchProps {
     address: string,
     simplifiedAddress: string
   ) => void;
+  inputFieldProps?:
+    | ControllerRenderProps<SignupAccountInputs, "location">
+    | ControllerRenderProps<EditProfileFormValues, "location">;
+  inputFieldError?: FieldError;
 }
 
-export default function MapSearch({ setError, setResult }: MapSearchProps) {
+export default function MapSearch({
+  setError,
+  setResult,
+  inputFieldProps,
+  inputFieldError,
+}: MapSearchProps) {
   const classes = useSearchStyles();
 
   const [open, setOpen] = useState(false);
@@ -122,6 +134,8 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
           loading={isLoading}
           open={open}
           onBlur={() => setOpen(false)}
+          inputProps={inputFieldProps}
+          error={inputFieldError?.message}
           onInputChange={(e, v) => setValue(v)}
           onChange={(e, v, reason) => {
             setValue(v);

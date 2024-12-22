@@ -34,7 +34,12 @@ export default function Rating({
   const classes = useReferenceStyles();
   const theme = useTheme();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
-  const { control, handleSubmit, errors } = useForm<ReferenceContextFormData>({
+  const {
+    control,
+    handleSubmit,
+
+    formState: { errors },
+  } = useForm<ReferenceContextFormData>({
     defaultValues: {
       rating: referenceData.rating,
     },
@@ -73,8 +78,12 @@ export default function Rating({
         control={control}
         defaultValue={referenceData.rating}
         name="rating"
-        render={({ onChange, value }) => (
-          <RatingsSlider onChange={onChange} value={value} />
+        render={({ field }) => (
+          <RatingsSlider
+            {...field}
+            onChange={field.onChange}
+            value={field.value}
+          />
         )}
       />
       <div className={classes.buttonContainer}>

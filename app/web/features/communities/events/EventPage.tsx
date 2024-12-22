@@ -241,6 +241,7 @@ export default function EventPage({
               className={classes.eventCoverPhoto}
               src={event.photoUrl || eventImagePlaceholderUrl}
               alt=""
+              data-testid="event-cover-photo"
             />
             <div className={classes.header}>
               <HeaderButton

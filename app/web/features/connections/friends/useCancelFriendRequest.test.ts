@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import useCancelFriendRequest from "features/connections/friends/useCancelFriendRequest";
 import { friendRequestKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -38,12 +38,10 @@ describe("useCancelFriendRequest hook", () => {
   it("invalidates the friend request sent list if the mutation succeeded", async () => {
     cancelFriendRequestMock.mockResolvedValue(new Empty());
 
-    const { result, waitForNextUpdate } = renderHook(
-      () => useCancelFriendRequest(),
-      {
-        wrapper,
-      }
-    );
+    const { result } = renderHook(() => useCancelFriendRequest(), {
+      wrapper,
+    });
+
     act(() => {
       result.current.cancelFriendRequest({
         friendRequestId: 1,
@@ -52,8 +50,7 @@ describe("useCancelFriendRequest hook", () => {
       });
     });
 
-    await waitForNextUpdate();
-    expect(setMutationError).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(setMutationError).toHaveBeenCalledTimes(1));
     expect(setMutationError).toHaveBeenCalledWith("");
     expect(client.getQueryState(friendRequestKey("sent"))?.isInvalidated).toBe(
       true
@@ -64,12 +61,9 @@ describe("useCancelFriendRequest hook", () => {
     cancelFriendRequestMock.mockRejectedValue(new Error("API error"));
     jest.spyOn(console, "error").mockReturnValue(undefined);
 
-    const { result, waitForNextUpdate } = renderHook(
-      () => useCancelFriendRequest(),
-      {
-        wrapper,
-      }
-    );
+    const { result } = renderHook(() => useCancelFriendRequest(), {
+      wrapper,
+    });
     act(() => {
       result.current.cancelFriendRequest({
         friendRequestId: 1,
@@ -78,8 +72,7 @@ describe("useCancelFriendRequest hook", () => {
       });
     });
 
-    await waitForNextUpdate();
-    expect(setMutationError).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(setMutationError).toHaveBeenCalledTimes(2));
     expect(setMutationError).toHaveBeenLastCalledWith("API error");
     expect(client.getQueryState(friendRequestKey("sent"))?.isInvalidated).toBe(
       false

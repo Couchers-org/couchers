@@ -20,9 +20,9 @@ import ProfileTextInput from "features/profile/ProfileTextInput";
 import { userKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "i18n";
-import { GLOBAL, PROFILE } from "i18n/namespaces";
+import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
-import React, { useEffect } from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { howToMakeGreatProfileUrl } from "routes";
@@ -39,12 +39,21 @@ import {
 } from "./constants";
 import useStyles from "./styles";
 
-type FormValues = Omit<UpdateUserProfileData, "languageAbilities"> & {
+export type EditProfileFormValues = Omit<
+  UpdateUserProfileData,
+  "languageAbilities" | "city" | "lat" | "lng" | "radius"
+> & {
   fluentLanguages: string[];
+  location: {
+    city: string;
+    lat: number;
+    lng: number;
+    radius: number;
+  };
 };
 
 export default function EditProfileForm() {
-  const { t } = useTranslation([GLOBAL, PROFILE]);
+  const { t } = useTranslation([GLOBAL, AUTH, PROFILE]);
   const classes = useStyles();
   const {
     updateUserProfile,
@@ -52,51 +61,36 @@ export default function EditProfileForm() {
     isLoading: updateIsLoading,
     isError: updateError,
   } = useUpdateUserProfile();
-  const { data: user, isLoading: userIsLoading } = useCurrentUser();
+  const { data: user } = useCurrentUser();
   const isMounted = useIsMounted();
   const [errorMessage, setErrorMessage] = useSafeState<string | null>(
     isMounted,
     null
   );
   const queryClient = useQueryClient();
-  const { control, errors, register, handleSubmit, setValue, formState } =
-    useForm<FormValues>({
-      defaultValues: {
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors, isDirty, isSubmitted },
+  } = useForm<EditProfileFormValues>({
+    defaultValues: {
+      location: {
         city: user?.city,
         lat: user?.lat,
         lng: user?.lng,
         radius: user?.radius,
       },
-      shouldFocusError: true,
-    });
+    },
+    shouldFocusError: true,
+  });
 
-  const isDirty = formState.isDirty;
-  const isSubmitted = formState.isSubmitted;
   useUnsavedChangesWarning({
     isDirty,
     isSubmitted,
     warningMessage: t("profile:unsaved_changes_warning"),
   });
-
-  //Although the default value was set above, if the page is just loaded,
-  //user will be undefined on first render, so the default values will be undefined.
-  //So make sure to set values when user finshes loading
-  useEffect(() => {
-    if (!userIsLoading && user) {
-      setValue("city", user.city);
-      setValue("lat", user.lat);
-      setValue("lng", user.lng);
-      setValue("radius", user.radius);
-    }
-  }, [userIsLoading, setValue, user]);
-
-  useEffect(() => {
-    //register here because these don't exist as actual fields
-    register("city");
-    register("lat");
-    register("lng");
-    register("radius");
-  }, [register]);
 
   const { regions, regionsLookup } = useRegions();
   const { languages, languagesLookup } = useLanguages();
@@ -104,10 +98,14 @@ export default function EditProfileForm() {
   const onSubmit = handleSubmit(
     ({ regionsLived, regionsVisited, fluentLanguages, ...data }) => {
       resetUpdate();
+
+      const { location, ...restData } = data;
+
       updateUserProfile(
         {
           profileData: {
-            ...data,
+            ...location,
+            ...restData,
             regionsVisited: regionsVisited.map(
               (region) => (regionsLookup || {})[region]
             ),
@@ -184,20 +182,29 @@ export default function EditProfileForm() {
             />
             <ProfileTextInput
               id="name"
+              {...register("name", { required: true })}
               label={t("profile:edit_profile_headings.name")}
-              name="name"
               defaultValue={user.name}
               error={!!errors.name}
-              inputRef={register({ required: true })}
               className={classes.field}
+              helperText={
+                errors.name ? t("profile:edit_profile_name_required") : ""
+              }
             />
           </form>
           <Controller
-            defaultValue=""
+            defaultValue={{
+              city: user.city,
+              lat: user.lat,
+              lng: user.lng,
+              radius: user.radius,
+            }}
             name="location"
             control={control}
-            render={() => (
+            render={({ field, fieldState: { error } }) => (
               <EditLocationMap
+                inputFieldProps={field}
+                inputFieldError={error}
                 showRadiusSlider
                 initialLocation={{
                   address: user.city,
@@ -207,10 +214,18 @@ export default function EditProfileForm() {
                 }}
                 updateLocation={(location) => {
                   if (location) {
-                    setValue("city", location.address, { shouldDirty: true });
-                    setValue("lat", location.lat, { shouldDirty: true });
-                    setValue("lng", location.lng, { shouldDirty: true });
-                    setValue("radius", location.radius, { shouldDirty: true });
+                    setValue("location.city", location.address, {
+                      shouldDirty: true,
+                    });
+                    setValue("location.lat", location.lat, {
+                      shouldDirty: true,
+                    });
+                    setValue("location.lng", location.lng, {
+                      shouldDirty: true,
+                    });
+                    setValue("location.radius", location.radius, {
+                      shouldDirty: true,
+                    });
                   }
                 }}
               />
@@ -221,19 +236,22 @@ export default function EditProfileForm() {
               control={control}
               defaultValue={user.hostingStatus}
               name="hostingStatus"
-              render={({ onChange, value }) => (
+              render={({ field }) => (
                 <>
                   <Typography variant="h2">
                     {t("profile:edit_profile_headings.hosting_status")}
                   </Typography>
                   <RadioGroup
+                    {...field}
                     row
                     aria-label={t(
                       "profile:edit_profile_headings.hosting_status"
                     )}
                     name="hostingStatus"
-                    value={value}
-                    onChange={(event) => onChange(Number(event.target.value))}
+                    value={field.value}
+                    onChange={(event) =>
+                      field.onChange(Number(event.target.value))
+                    }
                     className={classes.radioButtons}
                   >
                     <FormControlLabel
@@ -259,19 +277,22 @@ export default function EditProfileForm() {
               control={control}
               defaultValue={user.meetupStatus}
               name="meetupStatus"
-              render={({ onChange, value }) => (
+              render={({ field }) => (
                 <>
                   <Typography variant="h2">
                     {t("profile:edit_profile_headings.meetup_status")}
                   </Typography>
                   <RadioGroup
+                    {...field}
                     row
                     aria-label={t(
                       "profile:edit_profile_headings.meetup_status"
                     )}
                     name="meetupStatus"
-                    value={value}
-                    onChange={(event) => onChange(Number(event.target.value))}
+                    value={field.value}
+                    onChange={(event) =>
+                      field.onChange(Number(event.target.value))
+                    }
                     className={classes.radioButtons}
                   >
                     <FormControlLabel
@@ -297,23 +318,24 @@ export default function EditProfileForm() {
               control={control}
               defaultValue={user.pronouns}
               name="pronouns"
-              render={({ onChange, value }) => {
+              render={({ field }) => {
                 const other =
-                  value === t("profile:pronouns.woman") ||
-                  value === t("profile:pronouns.man")
+                  field.value === t("profile:pronouns.woman") ||
+                  field.value === t("profile:pronouns.man")
                     ? ""
-                    : value;
+                    : field.value;
                 return (
                   <>
                     <Typography variant="h2">
                       {t("profile:edit_profile_headings.pronouns")}
                     </Typography>
                     <RadioGroup
+                      {...field}
                       row
                       aria-label={t("profile:edit_profile_headings.pronouns")}
                       name="pronouns"
-                      value={value}
-                      onChange={(_, value) => onChange(value)}
+                      value={field.value}
+                      onChange={(_, value) => field.onChange(value)}
                       className={classes.radioButtons}
                     >
                       <FormControlLabel
@@ -332,7 +354,9 @@ export default function EditProfileForm() {
                         label={
                           <TextField
                             variant="standard"
-                            onChange={(event) => onChange(event.target.value)}
+                            onChange={(event) =>
+                              field.onChange(event.target.value)
+                            }
                             value={other}
                           />
                         }
@@ -349,10 +373,11 @@ export default function EditProfileForm() {
                   (ability) => languages[ability.code]
                 )}
                 name="fluentLanguages"
-                render={({ onChange, value }) => (
+                render={({ field }) => (
                   <ProfileTagInput
-                    onChange={(_, value) => onChange(value)}
-                    value={value}
+                    inputFieldProps={field}
+                    onChange={(_, value) => field.onChange(value)}
+                    value={field.value}
                     options={Object.values(languages)}
                     label={t("profile:edit_profile_headings.languages_spoken")}
                     id="fluentLanguages"
@@ -362,26 +387,23 @@ export default function EditProfileForm() {
             )}
             <ProfileTextInput
               id="hometown"
+              {...register("hometown")}
               label={t("profile:edit_profile_headings.hometown")}
-              name="hometown"
               defaultValue={user.hometown}
-              inputRef={register}
               className={classes.field}
             />
             <ProfileTextInput
               id="occupation"
+              {...register("occupation")}
               label={t("profile:edit_profile_headings.occupation")}
-              name="occupation"
               defaultValue={user.occupation}
-              inputRef={register}
               className={classes.field}
             />
             <ProfileTextInput
               id="education"
+              {...register("education")}
               label={t("profile:edit_profile_headings.education")}
-              name="education"
               defaultValue={user.education}
-              inputRef={register}
               className={classes.field}
             />
             <ProfileMarkdownInput
@@ -416,10 +438,11 @@ export default function EditProfileForm() {
                     (region) => regions[region]
                   )}
                   name="regionsVisited"
-                  render={({ onChange, value }) => (
+                  render={({ field }) => (
                     <ProfileTagInput
-                      onChange={(_, values) => onChange(values)}
-                      value={value}
+                      inputFieldProps={field}
+                      onChange={(_, values) => field.onChange(values)}
+                      value={field.value}
                       options={Object.values(regions)}
                       label={t("profile:edit_profile_headings.regions_visited")}
                       id="regions-visited"
@@ -432,10 +455,11 @@ export default function EditProfileForm() {
                     (region) => regions[region]
                   )}
                   name="regionsLived"
-                  render={({ onChange, value }) => (
+                  render={({ field }) => (
                     <ProfileTagInput
-                      onChange={(_, values) => onChange(values)}
-                      value={value}
+                      inputFieldProps={field}
+                      onChange={(_, values) => field.onChange(values)}
+                      value={field.value}
                       options={Object.values(regions)}
                       label={t("profile:edit_profile_headings.regions_lived")}
                       id="regions-lived"

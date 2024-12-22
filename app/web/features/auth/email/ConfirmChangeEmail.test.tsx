@@ -50,7 +50,9 @@ describe("ConfirmChangeEmail", () => {
     });
 
     it("shows a link that takes you to the login page when clicked", async () => {
-      userEvent.click(
+      const user = userEvent.setup();
+
+      await user.click(
         await screen.findByRole("link", { name: t("auth:login_prompt") })
       );
 

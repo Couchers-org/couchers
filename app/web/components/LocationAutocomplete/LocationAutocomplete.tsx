@@ -10,7 +10,8 @@ import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
 interface LocationAutocompleteProps {
   className?: string;
-  control: Control;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<any>;
   defaultValue: GeocodeResult | "";
   fieldError: string | undefined;
   fullWidth?: boolean;

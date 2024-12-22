@@ -4,8 +4,8 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
-import { useEffect, useMemo, useRef } from "react";
-import { UseFormMethods, useWatch } from "react-hook-form";
+import { useMemo, useState } from "react";
+import { UseFormReturn, useWatch } from "react-hook-form";
 import { isSameOrFutureDate, timestamp2Date } from "utils/date";
 import dayjs, { Dayjs, TIME_FORMAT } from "utils/dayjs";
 import { timePattern } from "utils/validation";
@@ -28,11 +28,12 @@ function splitTimestampToDateAndTime(timestamp?: Timestamp.AsObject): {
 
 interface EventTimeChangerProps
   extends Pick<
-    UseFormMethods<CreateEventData>,
-    "control" | "errors" | "getValues" | "setValue" | "register"
+    UseFormReturn<CreateEventData>,
+    "control" | "getValues" | "setValue" | "register"
   > {
-  dirtyFields: UseFormMethods<CreateEventData>["formState"]["dirtyFields"];
+  dirtyFields: UseFormReturn<CreateEventData>["formState"]["dirtyFields"];
   event?: Event.AsObject;
+  errors: UseFormReturn<CreateEventData>["formState"]["errors"];
 }
 
 export default function EventTimeChanger({
@@ -47,6 +48,9 @@ export default function EventTimeChanger({
   const { t } = useTranslation([COMMUNITIES]);
   const classes = useEventFormStyles();
 
+  const [timeDelta, setTimeDelta] = useState(60);
+  const [dateDelta, setDateDelta] = useState(0);
+
   const { date: eventStartDate, time: eventStartTime } =
     splitTimestampToDateAndTime(event?.startTime);
   const { date: eventEndDate, time: eventEndTime } =
@@ -55,46 +59,73 @@ export default function EventTimeChanger({
   const now = dayjs();
   const defaultDate = now.get("hour") === 23 ? now.add(1, "day") : now;
 
-  const dateDelta = useRef(0);
   const endDate = useWatch({
     control,
     name: "endDate",
     defaultValue: eventEndDate || defaultDate,
   });
-  useEffect(() => {
+
+  const defaultEndTime = useMemo(
+    () => dayjs().add(1, "hour").add(timeDelta, "minutes").format("HH:[00]"),
+    [timeDelta]
+  );
+
+  const handleStartTimeChange = (e: {
+    target: { value: string | number | dayjs.Dayjs | Date | null | undefined };
+  }) => {
+    const newStartTime = dayjs(e.target.value, TIME_FORMAT);
+    const newEndTime = dayjs(e.target.value, TIME_FORMAT)
+      .add(timeDelta, "minutes")
+      .format(TIME_FORMAT);
+
+    if (newStartTime.isValid()) {
+      setValue("startTime", newStartTime.format(TIME_FORMAT), {
+        shouldDirty: true,
+      });
+      setValue("endTime", newEndTime, { shouldDirty: true });
+    }
+  };
+
+  const handleStartDateChange = (newStartDate: Dayjs) => {
+    setValue("startDate", newStartDate, { shouldDirty: true });
+
+    if (!isNaN(dateDelta)) {
+      setValue("endDate", newStartDate.add(dateDelta, "days"), {
+        shouldDirty: true,
+      });
+    }
+  };
+
+  const handleEndTimeChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    const startTime = getValues("startTime");
+    const newEndTime = dayjs(event.target.value, TIME_FORMAT);
+
+    setValue("endTime", newEndTime.format(TIME_FORMAT), { shouldDirty: true });
+
+    const newTimeDelta = dayjs(newEndTime, TIME_FORMAT).diff(
+      dayjs(startTime, TIME_FORMAT),
+      "minutes"
+    );
+
+    if (!isNaN(newTimeDelta)) {
+      setTimeDelta(newTimeDelta);
+    }
+  };
+
+  const handleEndDateChange = (newEndDate: Dayjs) => {
     const startDate = getValues("startDate");
     const newDelta = endDate
       .startOf("day")
       .diff(startDate.startOf("day"), "days");
-    if (!isNaN(newDelta)) {
-      dateDelta.current = newDelta;
-    }
-  }, [getValues, endDate]);
 
-  const timeDelta = useRef(60);
-  const defaultEndTime = useMemo(
-    () =>
-      dayjs()
-        .add(1, "hour")
-        .add(timeDelta.current, "minutes")
-        .format("HH:[00]"),
-    []
-  );
-  const endTime = useWatch({
-    control,
-    name: "endTime",
-    defaultValue: eventEndTime || defaultEndTime,
-  });
-  useEffect(() => {
-    const startTime = getValues("startTime");
-    const newDelta = dayjs(endTime, TIME_FORMAT).diff(
-      dayjs(startTime, TIME_FORMAT),
-      "minutes"
-    );
     if (!isNaN(newDelta)) {
-      timeDelta.current = newDelta;
+      setDateDelta(newDelta);
     }
-  }, [getValues, endTime]);
+
+    setValue("endDate", newEndDate, { shouldDirty: true });
+  };
 
   return (
     <>
@@ -102,18 +133,12 @@ export default function EventTimeChanger({
         <Datepicker
           control={control}
           defaultValue={eventStartDate ?? defaultDate}
-          // @ts-expect-error - react-hook-form incorrect types the message property for input fields with object values
           error={!!errors.startDate?.message}
-          // @ts-expect-error
           helperText={errors.startDate?.message || ""}
           id="startDate"
           label={t("communities:start_date")}
           name="startDate"
-          onPostChange={(date: Dayjs) => {
-            setValue("endDate", date.add(dateDelta.current, "days"), {
-              shouldDirty: true,
-            });
-          }}
+          onPostChange={handleStartDateChange}
           rules={{
             required: t("communities:date_required"),
             validate: (date: Dayjs) => {
@@ -130,19 +155,13 @@ export default function EventTimeChanger({
           testId="startDate"
         />
         <TextField
-          defaultValue={
-            eventStartTime || dayjs().add(1, "hour").format("HH:[00]")
-          }
-          error={!!errors.startTime?.message}
-          fullWidth
-          helperText={errors.startTime?.message || ""}
           id="startTime"
-          inputRef={register({
+          {...register("startTime", {
             pattern: {
               message: t("communities:invalid_time"),
               value: timePattern,
             },
-            validate: (time: Dayjs) => {
+            validate: (time: string) => {
               if (event && !dirtyFields.startTime) {
                 return true;
               }
@@ -157,21 +176,15 @@ export default function EventTimeChanger({
               );
             },
           })}
+          defaultValue={
+            eventStartTime || dayjs().add(1, "hour").format("HH:[00]")
+          }
+          error={!!errors.startTime?.message}
+          fullWidth
+          helperText={errors.startTime?.message || ""}
           InputLabelProps={{ shrink: true }}
           label={t("communities:start_time")}
-          name="startTime"
-          onChange={(e) => {
-            const newStartTime = dayjs(e.target.value, TIME_FORMAT);
-            if (newStartTime.isValid()) {
-              setValue(
-                "endTime",
-                dayjs(e.target.value, TIME_FORMAT)
-                  .add(timeDelta.current, "minutes")
-                  .format(TIME_FORMAT),
-                { shouldDirty: true }
-              );
-            }
-          }}
+          onChange={handleStartTimeChange}
           type="time"
           variant="standard"
         />
@@ -180,9 +193,7 @@ export default function EventTimeChanger({
         <Datepicker
           control={control}
           defaultValue={eventEndDate ?? defaultDate}
-          // @ts-expect-error
           error={!!errors.endDate?.message}
-          // @ts-expect-error
           helperText={errors.endDate?.message || ""}
           id="endDate"
           label={t("communities:end_date")}
@@ -201,6 +212,7 @@ export default function EventTimeChanger({
             },
           }}
           testId="endDate"
+          onPostChange={handleEndDateChange}
         />
         <TextField
           defaultValue={eventEndTime || defaultEndTime}
@@ -208,7 +220,7 @@ export default function EventTimeChanger({
           fullWidth
           helperText={errors.endTime?.message || ""}
           id="endTime"
-          inputRef={register({
+          {...register("endTime", {
             pattern: {
               message: t("communities:invalid_time"),
               value: timePattern,
@@ -240,9 +252,9 @@ export default function EventTimeChanger({
           })}
           InputLabelProps={{ shrink: true }}
           label={t("communities:end_time")}
-          name="endTime"
           type="time"
           variant="standard"
+          onChange={handleEndTimeChange}
         />
       </div>
     </>

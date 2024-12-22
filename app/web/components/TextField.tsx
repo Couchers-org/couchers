@@ -1,7 +1,7 @@
 import { TextField as MuiTextField, TextFieldProps } from "@mui/material";
 import { BaseTextFieldProps } from "@mui/material/TextField";
 import classNames from "classnames";
-import React from "react";
+import React, { forwardRef } from "react";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -27,19 +27,24 @@ type AccessibleTextFieldProps = Omit<TextFieldProps, "variant"> & {
   variant?: "filled" | "outlined" | "standard";
 };
 
-export default function TextField({
-  className,
-  variant = "outlined",
-  ...otherProps
-}: AccessibleTextFieldProps) {
+const TextField = forwardRef<
+  HTMLInputElement | HTMLDivElement,
+  AccessibleTextFieldProps
+>(({ className, variant = "outlined", ...otherProps }, ref) => {
   const classes = useStyles();
+
   return (
     <MuiTextField
       {...otherProps}
+      inputRef={ref}
       variant={variant}
       className={classNames(classes.root, className, {
         [classes.multiline]: otherProps.multiline,
       })}
     />
   );
-}
+});
+
+TextField.displayName = "TextField";
+
+export default TextField;

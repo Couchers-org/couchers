@@ -116,8 +116,9 @@ describe("SearchResultsList", () => {
           name: firstName(users[0].name),
         }),
       });
+      const user = userEvent.setup();
 
-      userEvent.click(card);
+      await user.click(card);
 
       await waitFor(() => {
         expect(mockHandleResultClick).toBeCalledTimes(1);
