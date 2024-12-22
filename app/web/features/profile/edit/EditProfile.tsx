@@ -73,6 +73,7 @@ export default function EditProfileForm() {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors, isDirty, isSubmitted },
   } = useForm<EditProfileFormValues>({
     defaultValues: {
@@ -85,6 +86,8 @@ export default function EditProfileForm() {
     },
     shouldFocusError: true,
   });
+
+  const aboutMeField = watch("aboutMe");
 
   useUnsavedChangesWarning({
     isDirty,
@@ -413,6 +416,10 @@ export default function EditProfileForm() {
               defaultValue={user.aboutMe || DEFAULT_ABOUT_ME_HEADINGS}
               control={control}
               className={classes.field}
+              error={aboutMeField?.length < 150}
+              helperText={t("profile:helper_text.characters_remaining", {
+                count: 150 - aboutMeField?.length,
+              })}
             />
             <ProfileMarkdownInput
               id="thingsILike"

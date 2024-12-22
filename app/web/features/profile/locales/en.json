@@ -34,6 +34,9 @@
     "gender_verification_verified": "This user has verified their gender",
     "gender_verification_mismatch": "User provided gender does not match verified gender"
   },
+  "helper_text": {
+    "characters_remaining": "You need to write {{count}} more characters about yourself to be able to send requests, messages, or create events."
+  },
   "section_tabs_a11y_label": "tabs for user's details",
   "home_info_headings": {
     "about_home": "About my home",
