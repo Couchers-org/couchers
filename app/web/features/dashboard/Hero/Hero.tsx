@@ -1,6 +1,6 @@
 import { Container, styled } from "@mui/material";
 import { DASHBOARD } from "i18n/namespaces";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { useTranslation } from "next-i18next";
 
 import HeroButton from "./HeroButton";
