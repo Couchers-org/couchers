@@ -68,7 +68,7 @@ export default function EditProfilePage({
       >
         <PageTitle>{t("profile:heading.edit_profile")}</PageTitle>
         <div className={classes.buttonContainer}>
-          <Link href={settingsRoute} passHref>
+          <Link href={settingsRoute} passHref legacyBehavior>
             <Button component="a" variant="contained" color="primary">
               {t("global:nav.account_settings")}
             </Button>

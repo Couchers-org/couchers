@@ -4,7 +4,7 @@ import { forwardRef } from "react";
 
 const StyledLink = forwardRef<HTMLAnchorElement, { href: string } & LinkProps>(
   ({ href, ...props }, ref) => (
-    <Link href={href} passHref>
+    <Link href={href} passHref legacyBehavior>
       <MuiLink ref={ref} {...props} underline={props.underline || "hover"} />
     </Link>
   )

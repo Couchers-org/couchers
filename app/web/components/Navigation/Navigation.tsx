@@ -416,7 +416,7 @@ export default function Navigation() {
               {linkContent}
             </StyledMenuItemLink>
           ) : (
-            <Link href={route}>
+            <Link href={route} legacyBehavior>
               <StyledMenuItemLink onClick={() => setMenuOpen(false)}>
                 {linkContent}
               </StyledMenuItemLink>

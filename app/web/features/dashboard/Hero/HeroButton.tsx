@@ -38,7 +38,7 @@ export default function HeroButton() {
     <div className={classes.buttonContainer}>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={heroTheme}>
-          <Link href={searchRoute} passHref>
+          <Link href={searchRoute} passHref legacyBehavior>
             <Button variant="contained" size="large">
               <span className={classes.textGradient}>{t("show_map")}</span>
             </Button>
