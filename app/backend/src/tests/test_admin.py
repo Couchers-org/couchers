@@ -415,6 +415,7 @@ def test_CreateCommunity(db):
             assert community.description == "community for testing"
             assert community.slug == "test-community"
 
+
 def test_UpdateCommunity_invalid_geojson(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
@@ -443,6 +444,7 @@ def test_UpdateCommunity_invalid_geojson(db):
             assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
             assert e.value.details() == errors.NO_MULTIPOLYGON
 
+
 def test_UpdateCommunity_invalid_id(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
@@ -469,6 +471,7 @@ def test_UpdateCommunity_invalid_id(db):
                 )
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
             assert e.value.details() == errors.COMMUNITY_NOT_FOUND
+
 
 def test_UpdateCommunity(db):
     super_user, super_token = generate_user(is_superuser=True)
@@ -501,6 +504,7 @@ def test_UpdateCommunity(db):
             assert community_updated.description == "community for testing 2"
             assert community_updated.slug == "test-community-2"
 
+
 def test_DeleteCommunity_invalid_id(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
@@ -520,6 +524,7 @@ def test_DeleteCommunity_invalid_id(db):
                 api.DeleteCommunity(admin_pb2.DeleteCommunityReq(community_id=1000))
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
             assert e.value.details() == errors.COMMUNITY_NOT_FOUND
+
 
 def test_DeleteCommunity(db):
     super_user, super_token = generate_user(is_superuser=True)

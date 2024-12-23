@@ -24,10 +24,10 @@ from couchers.models import (
     Message,
     ModNote,
     Node,
+    Page,
+    PageVersion,
     User,
     UserBadge,
-    Page,
-    PageVersion
 )
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
@@ -294,7 +294,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return community_to_pb(session, node, context)
 
     def UpdateCommunity(self, request, context, session):
-        cluster = session.execute(select(Cluster).where(Cluster.id == request.community_id).where(Cluster.deleted == None)).scalar_one_or_none()
+        cluster = session.execute(
+            select(Cluster).where(Cluster.id == request.community_id).where(Cluster.deleted == None)
+        ).scalar_one_or_none()
         if not cluster:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
@@ -322,63 +324,36 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
         )
 
-        session.execute(
-            update(Cluster)
-            .where(Cluster.id == cluster.id)
-            .values(
-                name=name,
-                description=description
-            )
-        )
+        session.execute(update(Cluster).where(Cluster.id == cluster.id).values(name=name, description=description))
 
         session.flush()
 
         return community_to_pb(session, cluster.parent_node, context)
 
     def DeleteCommunity(self, request, context, session):
-        cluster = session.execute(select(Cluster).where(Cluster.id == request.community_id).where(Cluster.deleted == None)).scalar_one_or_none()
+        cluster = session.execute(
+            select(Cluster).where(Cluster.id == request.community_id).where(Cluster.deleted == None)
+        ).scalar_one_or_none()
         if not cluster:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
         now = datetime.utcnow()
 
-        session.execute(
-            update(Cluster)
-            .where(Cluster.id == cluster.id)
-            .values(
-                {"deleted": now}
-            )
-        )
+        session.execute(update(Cluster).where(Cluster.id == cluster.id).values({"deleted": now}))
 
-        session.execute(
-            update(Node)
-            .where(Node.id == cluster.parent_node_id)
-            .values(
-                {"deleted": now}
-            )
-        )
+        session.execute(update(Node).where(Node.id == cluster.parent_node_id).values({"deleted": now}))
 
         session.flush()
 
-        page = session.execute(select(Page).where(Page.owner_cluster_id == cluster.id).where(Page.deleted is None)).scalar_one_or_none()
+        page = session.execute(
+            select(Page).where(Page.owner_cluster_id == cluster.id).where(Page.deleted is None)
+        ).scalar_one_or_none()
         if not page:
             return empty_pb2.Empty()
 
-        session.execute(
-            update(Page)
-            .where(Page.id == page.id)
-            .values(
-                {"deleted": now}
-            )
-        )
+        session.execute(update(Page).where(Page.id == page.id).values({"deleted": now}))
 
-        session.execute(
-            update(PageVersion)
-            .where(PageVersion.id == page.id)
-            .values(
-                {"deleted": now}
-            )
-        )
+        session.execute(update(PageVersion).where(PageVersion.id == page.id).values({"deleted": now}))
 
         session.flush()
         return empty_pb2.Empty()

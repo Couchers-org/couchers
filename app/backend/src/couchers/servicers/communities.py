@@ -415,7 +415,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .where(ClusterSubscription.user_id == user_id)
                 .where(Cluster.is_official_cluster)
                 .where(Node.id >= next_node_id)
-
+                .where(Node.deleted == None)
                 .order_by(Node.id)
                 .limit(page_size + 1)
             )
