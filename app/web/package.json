@@ -44,7 +44,7 @@
     "glob": "^8.0.3",
     "google-protobuf": "^3.21.4",
     "grpc-web": "1.5.0",
-    "i18next": "^22.0.6",
+    "i18next": "^22.5.1",
     "intersection-observer": "^0.12.2",
     "luhn": "^2.4.1",
     "maplibre-gl": "^4.7.1",
