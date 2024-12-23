@@ -89,7 +89,6 @@ export default function EditProfileForm() {
     formState: { errors, isDirty, isSubmitted },
   } = useForm<EditProfileFormValues>({
     defaultValues: {
-      avatarKey: user?.avatarUrl,
       location: {
         city: user?.city,
         lat: user?.lat,
@@ -101,9 +100,9 @@ export default function EditProfileForm() {
     shouldFocusError: true,
   });
 
-  const [avatarKeyField, aboutMeField] = useWatch({
+  const aboutMeField = useWatch({
     control,
-    name: ["avatarKey", "aboutMe"],
+    name: "aboutMe",
   });
 
   useUnsavedChangesWarning({
@@ -168,7 +167,7 @@ export default function EditProfileForm() {
   const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (aboutMeField?.length < ABOUT_ME_MIN_LENGTH || !avatarKeyField) {
+    if (aboutMeField?.length < ABOUT_ME_MIN_LENGTH || !user?.avatarUrl) {
       setShowIncompleteProfileDialog(true);
     } else {
       onSubmit();
@@ -187,6 +186,11 @@ export default function EditProfileForm() {
           {errors.avatarKey?.message || t("global:error.unknown")}
         </Alert>
       )}
+      {!user?.avatarUrl && (
+        <StyledAlert severity="warning">
+          {t("profile:helper_text.missing_profile_photo")}
+        </StyledAlert>
+      )}
       {user ? (
         <>
           <div className={classes.helpTextContainer}>
@@ -199,11 +203,6 @@ export default function EditProfileForm() {
                 .
               </Trans>
             </Typography>
-            {!avatarKeyField && (
-              <StyledAlert severity="warning">
-                {t("profile:helper_text.missing_profile_photo")}
-              </StyledAlert>
-            )}
           </div>
           <form onSubmit={onSubmit} className={classes.topFormContainer}>
             <ImageInput
@@ -543,7 +542,7 @@ export default function EditProfileForm() {
                     {`• ${t("profile:incomplete_dialog.about_me_message")}`}
                   </ListItem>
                 )}
-                {!avatarKeyField && (
+                {!user.avatarUrl && (
                   <ListItem key={2} style={{ display: "list-item" }}>
                     {`• ${t(
                       "profile:incomplete_dialog.missing_photo_message"
