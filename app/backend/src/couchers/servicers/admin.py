@@ -304,6 +304,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not node:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
+        name = request.name if request.name else cluster.name
+        description = request.description if request.description else cluster.description
+
         geom = node.geom
         if request.geojson:
             geom = shape(json.loads(request.geojson))
@@ -311,20 +314,33 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_MULTIPOLYGON)
             geom = from_shape(geom)
 
-        name = request.name if request.name else cluster.name
-        description = request.description if request.description else cluster.description
-        parent_node_id = request.parent_node_id if request.parent_node_id != 0 else None
+        if request.parent_node_id != 0:
+            parent_node_id = request.parent_node_id
+
+            new_node = Node(geom=geom, parent_node_id=parent_node_id)
+            session.add(new_node)
+
+            now = datetime.utcnow()
+            session.execute(update(Node).where(Node.id == node.id).values({"deleted": now}))
+            node = new_node
+        else:
+            session.execute(
+                update(Node)
+                .where(Node.id == cluster.parent_node_id)
+                .values(
+                    geom=geom,
+                )
+            )
 
         session.execute(
-            update(Node)
-            .where(Node.id == cluster.parent_node_id)
+            update(Cluster)
+            .where(Cluster.id == cluster.id)
             .values(
-                parent_node_id=parent_node_id,
-                geom=geom,
+                name=name,
+                description=description,
+                parent_node_id=node.id,
             )
         )
-
-        session.execute(update(Cluster).where(Cluster.id == cluster.id).values(name=name, description=description))
 
         session.flush()
 
