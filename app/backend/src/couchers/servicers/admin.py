@@ -314,7 +314,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_MULTIPOLYGON)
             geom = from_shape(geom)
 
-        if request.parent_node_id != 0:
+        if request.parent_node_id != 0 and request.parent_node_id != node.parent_node_id:
             parent_node_id = request.parent_node_id
 
             new_node = Node(geom=geom, parent_node_id=parent_node_id)
