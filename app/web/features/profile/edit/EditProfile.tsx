@@ -1,8 +1,11 @@
 import {
   DialogContent,
   FormControlLabel,
+  List,
+  ListItem,
   Radio,
   RadioGroup,
+  styled,
   TextField,
   Typography,
 } from "@mui/material";
@@ -25,7 +28,7 @@ import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
 import React, { FormEvent, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { howToMakeGreatProfileUrl } from "routes";
 import { service, UpdateUserProfileData } from "service/index";
@@ -36,10 +39,15 @@ import {
 } from "utils/hooks";
 
 import {
+  ABOUT_ME_MIN_LENGTH,
   DEFAULT_ABOUT_ME_HEADINGS,
   DEFAULT_HOBBIES_HEADINGS,
 } from "./constants";
 import useStyles from "./styles";
+
+const StyledAlert = styled(Alert)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+}));
 
 export type EditProfileFormValues = Omit<
   UpdateUserProfileData,
@@ -78,10 +86,10 @@ export default function EditProfileForm() {
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors, isDirty, isSubmitted },
   } = useForm<EditProfileFormValues>({
     defaultValues: {
+      avatarKey: user?.avatarUrl,
       location: {
         city: user?.city,
         lat: user?.lat,
@@ -93,7 +101,10 @@ export default function EditProfileForm() {
     shouldFocusError: true,
   });
 
-  const aboutMeField = watch("aboutMe");
+  const [avatarKeyField, aboutMeField] = useWatch({
+    control,
+    name: ["avatarKey", "aboutMe"],
+  });
 
   useUnsavedChangesWarning({
     isDirty,
@@ -156,7 +167,8 @@ export default function EditProfileForm() {
 
   const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (aboutMeField?.length < 150) {
+
+    if (aboutMeField?.length < ABOUT_ME_MIN_LENGTH || !avatarKeyField) {
       setShowIncompleteProfileDialog(true);
     } else {
       onSubmit();
@@ -187,6 +199,11 @@ export default function EditProfileForm() {
                 .
               </Trans>
             </Typography>
+            {!avatarKeyField && (
+              <StyledAlert severity="warning">
+                {t("profile:helper_text.missing_profile_photo")}
+              </StyledAlert>
+            )}
           </div>
           <form onSubmit={onSubmit} className={classes.topFormContainer}>
             <ImageInput
@@ -438,9 +455,9 @@ export default function EditProfileForm() {
               defaultValue={user.aboutMe || DEFAULT_ABOUT_ME_HEADINGS}
               control={control}
               className={classes.field}
-              error={aboutMeField?.length < 150}
+              warning={aboutMeField?.length < ABOUT_ME_MIN_LENGTH}
               helperText={t("profile:helper_text.characters_remaining", {
-                count: 150 - aboutMeField?.length,
+                count: ABOUT_ME_MIN_LENGTH - aboutMeField?.length,
               })}
             />
             <ProfileMarkdownInput
@@ -516,13 +533,28 @@ export default function EditProfileForm() {
           >
             <DialogTitle>{t("profile:incomplete_dialog.title")}</DialogTitle>
             <DialogContent>
-              <Typography align="center">
-                {t("profile:incomplete_dialog.message")}
-              </Typography>
+              <Typography></Typography>
+              <List>
+                <Typography paragraph>
+                  {t("profile:incomplete_dialog.description")}
+                </Typography>
+                {aboutMeField.length < ABOUT_ME_MIN_LENGTH && (
+                  <ListItem key={1} style={{ display: "list-item" }}>
+                    {`• ${t("profile:incomplete_dialog.about_me_message")}`}
+                  </ListItem>
+                )}
+                {!avatarKeyField && (
+                  <ListItem key={2} style={{ display: "list-item" }}>
+                    {`• ${t(
+                      "profile:incomplete_dialog.missing_photo_message"
+                    )}`}
+                  </ListItem>
+                )}
+              </List>
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setShowIncompleteProfileDialog(false)}>
-                {t("profile:cancel")}
+                {t("profile:incomplete_dialog.continue_editing")}
               </Button>
               <Button onClick={onSubmit}>
                 {t("profile:incomplete_dialog.save_anyway")}
