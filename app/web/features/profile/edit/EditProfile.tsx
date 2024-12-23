@@ -95,7 +95,7 @@ export default function EditProfileForm() {
         lng: user?.lng,
         radius: user?.radius,
       },
-      aboutMe: user?.aboutMe,
+      aboutMe: user?.aboutMe || DEFAULT_ABOUT_ME_HEADINGS,
     },
     shouldFocusError: true,
   });
@@ -104,6 +104,12 @@ export default function EditProfileForm() {
     control,
     name: "aboutMe",
   });
+
+  // @TODO(NA) This is not entirely perfect, it will pass if they have the default headings
+  // but added just enough to make 150 chars. Will fail if only default headers though. Avoiding
+  // doing a complicated parsing function to count everything expect the default headigns since it'll be mixed in.
+  const aboutMeFieldLength =
+    aboutMeField === DEFAULT_ABOUT_ME_HEADINGS ? 0 : aboutMeField.length;
 
   useUnsavedChangesWarning({
     isDirty,
@@ -167,7 +173,7 @@ export default function EditProfileForm() {
   const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (aboutMeField?.length < ABOUT_ME_MIN_LENGTH || !user?.avatarUrl) {
+    if (aboutMeFieldLength < ABOUT_ME_MIN_LENGTH || !user?.avatarUrl) {
       setShowIncompleteProfileDialog(true);
     } else {
       onSubmit();
@@ -454,9 +460,9 @@ export default function EditProfileForm() {
               defaultValue={user.aboutMe || DEFAULT_ABOUT_ME_HEADINGS}
               control={control}
               className={classes.field}
-              warning={aboutMeField?.length < ABOUT_ME_MIN_LENGTH}
+              warning={aboutMeFieldLength < ABOUT_ME_MIN_LENGTH}
               helperText={t("profile:helper_text.characters_remaining", {
-                count: ABOUT_ME_MIN_LENGTH - aboutMeField?.length,
+                count: ABOUT_ME_MIN_LENGTH - aboutMeFieldLength,
               })}
             />
             <ProfileMarkdownInput
@@ -529,6 +535,7 @@ export default function EditProfileForm() {
             aria-labelledby={t("profile:incomplete_dialog.title")}
             maxWidth="xs"
             open={showIncompleteProfileDialog}
+            data-testid="incomplete-profile-dialog"
           >
             <DialogTitle>{t("profile:incomplete_dialog.title")}</DialogTitle>
             <DialogContent>
@@ -537,7 +544,7 @@ export default function EditProfileForm() {
                 <Typography paragraph>
                   {t("profile:incomplete_dialog.description")}
                 </Typography>
-                {aboutMeField.length < ABOUT_ME_MIN_LENGTH && (
+                {aboutMeFieldLength < ABOUT_ME_MIN_LENGTH && (
                   <ListItem key={1} style={{ display: "list-item" }}>
                     {`• ${t("profile:incomplete_dialog.about_me_message")}`}
                   </ListItem>
