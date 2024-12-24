@@ -44,7 +44,7 @@ if config["SENTRY_ENABLED"]:
     )
 
 # used to export metrics
-# create_prometheus_server(main_process_registry, 8000)
+create_prometheus_server(main_process_registry, 8000)
 
 
 def log_unhandled_exception(exc_type, exc_value, exc_traceback):
@@ -74,11 +74,11 @@ if config["ADD_DUMMY_DATA"]:
 
 logger.info("Starting")
 
-# if config["ROLE"] in ["scheduler", "all"]:
-#     scheduler = start_jobs_scheduler()
-#
-# if config["ROLE"] in ["worker", "all"]:
-#     worker = start_jobs_worker()
+if config["ROLE"] in ["scheduler", "all"]:
+    scheduler = start_jobs_scheduler()
+
+if config["ROLE"] in ["worker", "all"]:
+    worker = start_jobs_worker()
 
 setup_tracing()
 
