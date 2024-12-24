@@ -40,7 +40,7 @@ export default function LabelAndText({ label, text }: LabelAndTextProps) {
       {typeof text === "string" ? (
         <TextBody className={classes.flexItem}>{text}</TextBody>
       ) : (
-        text // AgeAndGenderRenderer is a div
+        <div className={classes.flexItem}>{text}</div> // AgeAndGenderRenderer is a div not string
       )}
     </div>
   );
