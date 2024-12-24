@@ -18,6 +18,7 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { GetGroupChatMessagesRes, GroupChat } from "proto/conversations_pb";
+import { useEffect } from "react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -78,6 +79,21 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
 
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const scrollIntoView = () => {
+      if (/Firefox/i.test(navigator.userAgent)) {
+        document?.activeElement?.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+
+    scrollIntoView();
+    window.addEventListener("resize", scrollIntoView);
+
+    return () => {
+      window.removeEventListener("resize", scrollIntoView);
+    };
+  }, []);
 
   const { data: groupChat, error: groupChatError } = useQuery<
     GroupChat.AsObject,
