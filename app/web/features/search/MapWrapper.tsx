@@ -31,6 +31,8 @@ import {
 import { InfiniteData } from "react-query";
 import { GeocodeResult, usePrevious } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
+import { useMediaQuery, useTheme } from "@mui/material";
+import { TypeHostingStatusOptions } from "./SearchPage";
 
 const useStyles = makeStyles((theme) => ({
   searchHereGroup2: {
@@ -54,7 +56,7 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
   },
   testChildFromGoogle: {
-    width: "300px",
+    width: "365px",
     top: "30px",
     display: "flex",
     position: "relative",
@@ -62,18 +64,21 @@ const useStyles = makeStyles((theme) => ({
     fontSize: " 14px",
     margin: "8px auto 0",
     alignItems: "center",
-
     height: "25px",
     zIndex: 10,
   },
+  searchHereButton: {
+    borderRadius: "4px",
+    marginRight: theme.spacing(1),
+  },
+  clearFiltersButton: {
+    borderRadius: "4px 0px 0px 4px",
+  },
   buttonSearchSettings: {
-    borderRadius: "0 4px 4px 0",
+    borderRadius: "0px 4px 4px 0px",
     "& span": {
       margin: 0,
     },
-  },
-  searchHereButton: {
-    borderRadius: "4px 0 0 4px",
   },
 }));
 
@@ -90,6 +95,12 @@ interface mapWrapperProps {
   map: MutableRefObject<MaplibreMap | undefined>;
   setWasSearchPerformed: Dispatch<SetStateAction<boolean>>;
   wasSearchPerformed: boolean;
+  queryName: string;
+  lastActiveFilter: number;
+  hostingStatusFilter: TypeHostingStatusOptions;
+  numberOfGuestFilter: number | undefined;
+  completeProfileFilter: boolean;
+  handleClearFilters: () => void;
 }
 
 export default function MapWrapper({
@@ -103,13 +114,22 @@ export default function MapWrapper({
   setIsFiltersOpen,
   wasSearchPerformed,
   setWasSearchPerformed,
+  queryName,
+  lastActiveFilter,
+  hostingStatusFilter,
+  numberOfGuestFilter,
+  completeProfileFilter,
+  handleClearFilters,
 }: mapWrapperProps) {
   const { t } = useTranslation([SEARCH]);
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
   const [isMapStyleLoaded, setIsMapStyleLoaded] = useState(false);
   const [isMapSourceLoaded, setIsMapSourceLoaded] = useState(false);
+  const [areFiltersApplied, setAreFiltersApplied] = useState(false);
   const previousResult = usePrevious(selectedResult);
   const classes = useStyles();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   /**
    * User clicks on a user on map
@@ -159,6 +179,29 @@ export default function MapWrapper({
     },
     [map]
   );
+
+  /**
+   * Checks if filters are applied
+   */
+  useEffect(() => {
+    const filtersActive =
+      queryName !== "" ||
+      lastActiveFilter !== 0 ||
+      hostingStatusFilter.length !== 0 ||
+      numberOfGuestFilter !== undefined ||
+      completeProfileFilter !== false ||
+      (locationResult?.location.lng !== 0 &&
+        locationResult?.location.lat !== 0);
+
+    setAreFiltersApplied(filtersActive);
+  }, [
+    queryName,
+    lastActiveFilter,
+    hostingStatusFilter,
+    numberOfGuestFilter,
+    completeProfileFilter,
+    locationResult,
+  ]);
 
   /**
    * Centers selected user
@@ -247,7 +290,7 @@ export default function MapWrapper({
   /**
    * Clicks on 'search here' button
    */
-  const handleOnClick = () => {
+  const handleSearchOnClick = () => {
     const currentBbox = map.current?.getBounds().toArray();
     if (currentBbox) {
       if (map.current?.getBounds && locationResult) {
@@ -265,6 +308,13 @@ export default function MapWrapper({
       }
       setWasSearchPerformed(true);
     }
+  };
+
+  /**
+   * Clicks on 'clear filters' button
+   */
+  const handleClearFiltersOnClick = () => {
+    handleClearFilters();
   };
 
   const initializeMap = (newMap: MaplibreMap) => {
@@ -291,11 +341,21 @@ export default function MapWrapper({
           <Button
             color="primary"
             disabled={isLoading}
-            onClick={handleOnClick}
+            onClick={handleSearchOnClick}
             className={classes.searchHereButton}
             endIcon={<ReplayIcon />}
           >
-            {t("search:filter_dialog.search_here_button")}
+            {isMobile
+              ? t("search:filter_dialog.mobile_search_here_button")
+              : t("search:filter_dialog.desktop_search_here_button")}
+          </Button>
+          <Button
+            color="primary"
+            disabled={!areFiltersApplied}
+            onClick={handleClearFiltersOnClick}
+            className={classes.clearFiltersButton}
+          >
+            {t("search:filter_dialog.clear_filters_button")}
           </Button>
           <Button
             color="primary"

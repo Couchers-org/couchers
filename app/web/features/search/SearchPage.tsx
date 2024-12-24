@@ -174,6 +174,24 @@ export default function SearchPage({
     locationResult.location.lat,
   ]);
 
+  /**
+   * Handler for clearing all filters
+   */
+  const handleClearFilters = () => {
+    setQueryName("");
+    setLocationResult({
+      bbox: bbox,
+      isRegion: false,
+      location: new LngLat(0, 0),
+      name: locationName,
+      simplifiedName: locationName,
+    });
+    setLastActiveFilter(0);
+    setHostingStatusFilter([]);
+    setNumberOfGuestFilter(undefined);
+    setCompleteProfileFilter(false);
+  };
+
   const errorMessage = error?.message;
 
   return (
@@ -247,6 +265,12 @@ export default function SearchPage({
             isLoading={isLoading || isFetching}
             setWasSearchPerformed={setWasSearchPerformed}
             wasSearchPerformed={wasSearchPerformed}
+            queryName={queryName}
+            lastActiveFilter={lastActiveFilter}
+            hostingStatusFilter={hostingStatusFilter}
+            numberOfGuestFilter={numberOfGuestFilter}
+            completeProfileFilter={completeProfileFilter}
+            handleClearFilters={handleClearFilters}
           />
         </div>
       </div>
