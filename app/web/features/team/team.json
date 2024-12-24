@@ -26,6 +26,19 @@
     }
   },
   {
+    "name": "Nicole Abramowski",
+    "director": true,
+    "board_position": "Board Member",
+    "role": "",
+    "location": "Oakland, USA",
+    "img": "https://usercontent.couchershq.org/media/img/full/e107b755bac5cb14cc1961725a392d6018cda49b81bc758ddb793324244143b3.jpg",
+    "link": {
+      "type": "couchers",
+      "text": "Couchers.org",
+      "url": "https://couchers.org/user/unsettleddown"
+    }
+  },
+  {
     "name": "Jesse Allhands",
     "director": true,
     "board_position": "Board Member",
