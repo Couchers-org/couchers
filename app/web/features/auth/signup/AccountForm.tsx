@@ -26,7 +26,7 @@ import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { HostingStatus } from "proto/api_pb";
 import { useRef } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
@@ -136,7 +136,7 @@ export default function AccountForm() {
   );
 
   const acceptTOS = watch("acceptTOS");
-
+  
   const usernameInputRef = useRef<HTMLInputElement>();
 
   return (
@@ -206,17 +206,32 @@ export default function AccountForm() {
           className={authClasses.formField}
           control={control}
           error={!!errors?.birthdate?.message}
-          helperText={errors?.birthdate?.message ?? " "}
+          helperText={errors?.birthdate?.message}
           id="birthdate"
           rules={{
             required: t("auth:account_form.birthday.required_error"),
-            validate: (stringDate: string) =>
-              validatePastDate(stringDate) ||
-              t("auth:account_form.birthday.validation_error"),
+            validate: (stringBirthDate: string) => {
+              const birthDate = dayjs(stringBirthDate);
+              const age = Math.abs(dayjs().diff(birthDate, "year"));
+
+              if (age < 18) {
+                return t("auth:account_form.birthday.too_young_error");
+              }
+
+              if (age > 120) {
+                return t("auth:account_form.birthday.validation_error");
+              }
+
+              if (!validatePastDate(stringBirthDate) || !stringBirthDate) {
+                return t("auth:account_form.birthday.validation_error");
+              }
+
+              return true; // Validation passes
+            },
           }}
-          minDate={dayjs("1899-12-01")}
+          minDate={dayjs("1900-12-01")}
           maxDate={dayjs().subtract(18, "years")}
-          defaultValue={dayjs().subtract(18, "years")}
+          defaultValue={null}
           openTo="year"
           name="birthdate"
         />

@@ -27,7 +27,7 @@ interface DatepickerProps {
   minDate?: Dayjs;
   maxDate?: Dayjs;
   openTo?: "year" | "month" | "day";
-  onPostChange?(date: Dayjs): void;
+  onPostChange?(date: Dayjs | null): void;
   testId?: string;
 }
 
@@ -63,10 +63,8 @@ const Datepicker = ({
           minDate={minDate}
           maxDate={maxDate}
           onChange={(date) => {
-            if (date?.isValid()) {
-              field.onChange(date);
-              onPostChange?.(date);
-            }
+            field.onChange(date);
+            onPostChange?.(date);
           }}
           openTo={openTo}
           views={["year", "month", "day"]}
@@ -91,7 +89,9 @@ const Datepicker = ({
               fullWidth
               id={id}
               error={error}
-              helperText={helperText}
+              helperText={
+                <span data-testid={`${name}-helper-text`}>{helperText}</span>
+              }
               data-testid={testId}
               InputLabelProps={{
                 shrink: true,

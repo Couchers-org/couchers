@@ -77,7 +77,8 @@
     "birthday": {
       "field_label": "Birthday",
       "required_error": "Enter your birthdate",
-      "validation_error": "Must be a valid date in the past."
+      "validation_error": "Must be a valid date in the past.",
+      "too_young_error": "You must be at least 18 years old to use Couchers"
     },
     "hosting_status": {
       "any": "Any",
