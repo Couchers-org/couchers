@@ -1,6 +1,7 @@
 import { Card, CardContent, Skeleton, Typography } from "@mui/material";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
+import FlagButton from "features/FlagButton";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
@@ -25,6 +26,11 @@ const useStyles = makeStyles((theme) => ({
       padding: theme.spacing(2),
     },
     width: "100%",
+  },
+  avatarFlagContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   discussionSummary: {
     display: "flex",
@@ -76,6 +82,12 @@ export default function DiscussionCard({
     [discussion.content]
   );
 
+  const contentRef =
+    (discussion.ownerCommunityId != 0
+      ? `community/${discussion.ownerCommunityId}`
+      : `group/${discussion.ownerGroupId}`) +
+    `/discussion/${discussion.discussionId}`;
+
   return (
     <Card
       className={classNames(classes.root, className)}
@@ -83,11 +95,17 @@ export default function DiscussionCard({
     >
       <Link href={routeToDiscussion(discussion.discussionId, discussion.slug)}>
         <CardContent className={classes.cardContent}>
-          <Avatar
-            user={creator}
-            className={classes.avatar}
-            isProfileLink={false}
-          />
+          <div className={classes.avatarFlagContainer}>
+            <Avatar
+              user={creator}
+              className={classes.avatar}
+              isProfileLink={false}
+            />
+            <FlagButton
+              contentRef={contentRef}
+              authorUser={discussion.creatorUserId}
+            />
+          </div>
           <div className={classes.discussionSummary}>
             <Typography
               variant="body2"
