@@ -1,14 +1,22 @@
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+} from "@mui/material";
 import Button from "components/Button";
-import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
-import useAccountInfo from "features/auth/useAccountInfo";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { User } from "proto/api_pb";
 import { useState } from "react";
 import { useMutation } from "react-query";
-import { routeToCreateMessage, routeToGroupChat } from "routes";
-import { service } from "service";
+import {
+  createGroupChat,
+  getDirectMessage,
+  sendMessage,
+} from "service/conversations";
 
 export default function MessageUserButton({
   user,
@@ -19,8 +27,11 @@ export default function MessageUserButton({
 }) {
   const { t } = useTranslation(PROFILE);
   const router = useRouter();
-  const { mutate, isLoading } = useMutation<number | false, Error>(
-    () => service.conversations.getDirectMessage(user.userId),
+  const [message, setMessage] = useState<string>("");
+  const [showMessageDialog, setShowMessageDialog] = useState<boolean>(false);
+
+  const { mutate, isLoading: isSending } = useMutation<number | false, Error>(
+    () => getDirectMessage(user.userId),
     {
       onMutate() {
         setMutationError("");
@@ -30,43 +41,79 @@ export default function MessageUserButton({
       },
       onSuccess(data) {
         if (!data) {
-          //no existing thread
-          router.push(routeToCreateMessage(user.username));
+          // If no existing thread, create a new group chat
+          createGroupChat(user.name, [user])
+            .then((newThreadId) => {
+              sendMessageToThread(newThreadId); // Send the message to the new thread
+            })
+            .catch((e) => setMutationError(e.message));
         } else {
-          //has thread
-          router.push(routeToGroupChat(data));
+          // If thread exists, send message to the existing thread
+          sendMessageToThread(data);
         }
       },
     }
   );
+  const sendMessageToThread = (threadId: number) => {
+    const req = {
+      groupChatId: threadId,
+      text: message,
+    };
+    sendMessage(req.groupChatId, req.text)
+      .then(() => {
+        setMessage(""); // Clear the input after sending
+        setShowMessageDialog(false); // Close the dialog
+      })
+      .catch((e) => {
+        setMutationError(e.message); // Handle errors
+      });
+  };
 
-  const [showCantMessageDialog, setShowCantMessageDialog] =
-    useState<boolean>(false);
-
-  const { data: accountInfo, isLoading: isAccountInfoLoading } =
-    useAccountInfo();
+  const handleSendMessage = () => {
+    if (!message.trim()) {
+      alert(t("actions.message_empty_warning", "Message cannot be empty!")); // Fallback alert
+      return;
+    }
+    mutate(); // Trigger mutation to check if the thread exists or needs to be created
+  };
 
   const onClick = () => {
-    if (!accountInfo?.profileComplete) {
-      setShowCantMessageDialog(true);
-    } else {
-      mutate();
-    }
+    setShowMessageDialog(true);
   };
 
   return (
     <>
-      <ProfileIncompleteDialog
-        open={showCantMessageDialog}
-        onClose={() => setShowCantMessageDialog(false)}
-        attempted_action="send_message"
-      />
-      <Button
-        loading={isLoading}
-        onClick={onClick}
-        disabled={isAccountInfoLoading}
+      {/* Message Dialog for entering a message */}
+      <Dialog
+        open={showMessageDialog}
+        onClose={() => setShowMessageDialog(false)}
+        maxWidth="sm" // Sets dialog width
+        fullWidth // Expands dialog to full width
       >
-        {t("actions.message_label")}
+        <DialogTitle>Message {user.name}</DialogTitle>
+        <DialogContent>
+          <TextField
+            label={t("actions.message_input_label", "Enter your message")} // Fallback label
+            fullWidth
+            multiline
+            rows={5} // Increase input size
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowMessageDialog(false)}>
+            {t("actions.cancel", "Cancel")}
+          </Button>
+          <Button onClick={handleSendMessage} disabled={isSending}>
+            {t("actions.send", "Send")}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Message Button */}
+      <Button loading={isSending} onClick={onClick} disabled={isSending}>
+        {t("actions.message_label", "Message")}
       </Button>
     </>
   );

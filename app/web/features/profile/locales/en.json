@@ -3,7 +3,11 @@
     "message_label": "Message",
     "accept_friend_label": "Accept",
     "decline_friend_label": "Decline",
-    "request": "Request"
+    "request": "Request",
+    "message_input_label": "Enter your message",
+    "send": "Send",
+    "cancel": "Cancel",
+    "message_empty_warning": "Message cannot be empty!"
   },
   "heading": {
     "about_me": "About Me",
