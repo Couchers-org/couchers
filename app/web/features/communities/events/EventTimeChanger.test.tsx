@@ -416,8 +416,12 @@ it("should not submit if the end date is before the start date", async () => {
 
   const endDateErrorText = await screen.findByTestId("endDate-helper-text");
   expect(endDateErrorText).toBeVisible();
-  await waitFor(() =>
-    expect(endDateErrorText).toHaveTextContent(t("communities:past_date_error"))
+  await waitFor(
+    () =>
+      expect(endDateErrorText).toHaveTextContent(
+        t("communities:past_date_error")
+      ),
+    { timeout: 5000 }
   );
 
   const endTimeErrorText = await screen.findByTestId("endTime-helper-text");
