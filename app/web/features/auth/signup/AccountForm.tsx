@@ -26,7 +26,7 @@ import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { HostingStatus } from "proto/api_pb";
 import { useRef } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
 import makeStyles from "utils/makeStyles";
@@ -136,7 +136,7 @@ export default function AccountForm() {
   );
 
   const acceptTOS = watch("acceptTOS");
-  
+
   const usernameInputRef = useRef<HTMLInputElement>();
 
   return (
