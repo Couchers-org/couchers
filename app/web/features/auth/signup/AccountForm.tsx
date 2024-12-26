@@ -74,6 +74,7 @@ export default function AccountForm() {
     control,
     register,
     handleSubmit,
+    setValue,
     watch,
     formState: { errors },
   } = useForm<SignupAccountInputs>({
@@ -139,6 +140,13 @@ export default function AccountForm() {
 
   const usernameInputRef = useRef<HTMLInputElement>();
 
+  const handleBirthdateChange = (newBirthdate: Dayjs) => {
+    setValue("birthdate", newBirthdate, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
+
   return (
     <>
       {errors.location && (
@@ -180,6 +188,7 @@ export default function AccountForm() {
           }}
           helperText={errors?.username?.message ?? " "}
           error={!!errors?.username?.message}
+          autoComplete="username"
         />
         <InputLabel className={authClasses.formLabel} htmlFor="password">
           {t("auth:account_form.password.field_label")}
@@ -198,6 +207,7 @@ export default function AccountForm() {
           fullWidth
           helperText={errors?.password?.message ?? " "}
           error={!!errors?.password?.message}
+          autoComplete="new-password"
         />
         <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
           {t("auth:account_form.birthday.field_label")}
@@ -229,11 +239,12 @@ export default function AccountForm() {
               return true; // Validation passes
             },
           }}
-          minDate={dayjs("1900-12-01")}
+          minDate={dayjs().subtract(120, "years")}
           maxDate={dayjs().subtract(18, "years")}
           defaultValue={null}
           openTo="year"
           name="birthdate"
+          onPostChange={handleBirthdateChange}
         />
         <InputLabel className={authClasses.formLabel} htmlFor="location">
           {t("auth:location.field_label")}
