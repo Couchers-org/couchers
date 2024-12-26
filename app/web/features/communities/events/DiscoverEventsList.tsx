@@ -81,7 +81,7 @@ const useStyles = makeStyles((theme) => ({
 const DiscoverEventsList = () => {
   const classes = useStyles();
   // @TODO - Basically just making the form since LocationAutocomplete required the control prop
-  // We don't vaidate or require this field so it's just a dummy form
+  // We don't validate or require this field so it's just a dummy form
   // Too much refactoring needed to change existing components to not require the control prop
   // Might be worth making a new uncontrolled omponent that doesn't require the control prop
   const { control } = useForm<{ location: GeocodeResult | undefined }>({

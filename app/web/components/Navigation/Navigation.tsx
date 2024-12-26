@@ -475,7 +475,7 @@ export default function Navigation() {
               </StyledDrawer>
             </>
           )}
-          <CouchersLogo />
+          <CouchersLogo includeEmbellishments />
           {!isMobile && (
             <StyledFlexbox>
               {(authState.authenticated && isMounted

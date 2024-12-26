@@ -1,13 +1,18 @@
 import {
+  DialogContent,
   FormControlLabel,
+  List,
+  ListItem,
   Radio,
   RadioGroup,
+  styled,
   TextField,
   Typography,
 } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
 import StyledLink from "components/StyledLink";
@@ -22,8 +27,8 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
-import React from "react";
-import { Controller, useForm } from "react-hook-form";
+import React, { FormEvent, useState } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useQueryClient } from "react-query";
 import { howToMakeGreatProfileUrl } from "routes";
 import { service, UpdateUserProfileData } from "service/index";
@@ -34,10 +39,15 @@ import {
 } from "utils/hooks";
 
 import {
+  ABOUT_ME_MIN_LENGTH,
   DEFAULT_ABOUT_ME_HEADINGS,
   DEFAULT_HOBBIES_HEADINGS,
 } from "./constants";
 import useStyles from "./styles";
+
+const StyledAlert = styled(Alert)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+}));
 
 export type EditProfileFormValues = Omit<
   UpdateUserProfileData,
@@ -67,6 +77,9 @@ export default function EditProfileForm() {
     isMounted,
     null
   );
+  const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] =
+    useState(false);
+
   const queryClient = useQueryClient();
   const {
     control,
@@ -82,9 +95,21 @@ export default function EditProfileForm() {
         lng: user?.lng,
         radius: user?.radius,
       },
+      aboutMe: user?.aboutMe || DEFAULT_ABOUT_ME_HEADINGS,
     },
     shouldFocusError: true,
   });
+
+  const aboutMeField = useWatch({
+    control,
+    name: "aboutMe",
+  });
+
+  // @TODO(NA) This is not entirely perfect, it will pass if they have the default headings
+  // but added just enough to make 150 chars. Will fail if only default headers though. Avoiding
+  // doing a complicated parsing function to count everything expect the default headigns since it'll be mixed in.
+  const aboutMeFieldLength =
+    aboutMeField === DEFAULT_ABOUT_ME_HEADINGS ? 0 : aboutMeField.length;
 
   useUnsavedChangesWarning({
     isDirty,
@@ -134,12 +159,26 @@ export default function EditProfileForm() {
           },
         }
       );
+
+      if (showIncompleteProfileDialog) {
+        setShowIncompleteProfileDialog(false);
+      }
     },
     // All field validation errors should scroll to their respective field
     // Except the avatar, so this scrolls to top on avatar validation error
     (errors) =>
       errors.avatarKey && window.scroll({ top: 0, behavior: "smooth" })
   );
+
+  const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (aboutMeFieldLength < ABOUT_ME_MIN_LENGTH || !user?.avatarUrl) {
+      setShowIncompleteProfileDialog(true);
+    } else {
+      onSubmit();
+    }
+  };
 
   return (
     <>
@@ -152,6 +191,11 @@ export default function EditProfileForm() {
         <Alert severity="error">
           {errors.avatarKey?.message || t("global:error.unknown")}
         </Alert>
+      )}
+      {!user?.avatarUrl && (
+        <StyledAlert severity="warning">
+          {t("profile:helper_text.missing_profile_photo")}
+        </StyledAlert>
       )}
       {user ? (
         <>
@@ -231,7 +275,10 @@ export default function EditProfileForm() {
               />
             )}
           />
-          <form onSubmit={onSubmit} className={classes.bottomFormContainer}>
+          <form
+            onSubmit={handleSubmitButtonClick}
+            className={classes.bottomFormContainer}
+          >
             <Controller
               control={control}
               defaultValue={user.hostingStatus}
@@ -413,6 +460,10 @@ export default function EditProfileForm() {
               defaultValue={user.aboutMe || DEFAULT_ABOUT_ME_HEADINGS}
               control={control}
               className={classes.field}
+              warning={aboutMeFieldLength < ABOUT_ME_MIN_LENGTH}
+              helperText={t("profile:helper_text.characters_remaining", {
+                count: ABOUT_ME_MIN_LENGTH - aboutMeFieldLength,
+              })}
             />
             <ProfileMarkdownInput
               id="thingsILike"
@@ -475,12 +526,47 @@ export default function EditProfileForm() {
                 variant="contained"
                 color="primary"
                 loading={updateIsLoading}
-                onClick={onSubmit}
               >
                 {t("global:save")}
               </Button>
             </div>
           </form>
+          <Dialog
+            aria-labelledby={t("profile:incomplete_dialog.title")}
+            maxWidth="xs"
+            open={showIncompleteProfileDialog}
+            data-testid="incomplete-profile-dialog"
+          >
+            <DialogTitle>{t("profile:incomplete_dialog.title")}</DialogTitle>
+            <DialogContent>
+              <Typography></Typography>
+              <List>
+                <Typography paragraph>
+                  {t("profile:incomplete_dialog.description")}
+                </Typography>
+                {aboutMeFieldLength < ABOUT_ME_MIN_LENGTH && (
+                  <ListItem key={1} style={{ display: "list-item" }}>
+                    {`• ${t("profile:incomplete_dialog.about_me_message")}`}
+                  </ListItem>
+                )}
+                {!user.avatarUrl && (
+                  <ListItem key={2} style={{ display: "list-item" }}>
+                    {`• ${t(
+                      "profile:incomplete_dialog.missing_photo_message"
+                    )}`}
+                  </ListItem>
+                )}
+              </List>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setShowIncompleteProfileDialog(false)}>
+                {t("profile:incomplete_dialog.continue_editing")}
+              </Button>
+              <Button onClick={onSubmit}>
+                {t("profile:incomplete_dialog.save_anyway")}
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       ) : (
         <CenteredSpinner />

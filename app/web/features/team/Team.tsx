@@ -4,6 +4,7 @@ import {
   CardContent,
   Container,
   Grid,
+  styled,
   Typography,
 } from "@mui/material";
 import Button from "components/Button";
@@ -14,36 +15,35 @@ import PageTitle from "components/PageTitle";
 import StyledLink from "components/StyledLink";
 import Link from "next/link";
 import { volunteerRoute } from "routes";
-import makeStyles from "utils/makeStyles";
 
 import TeamData from "./team.json";
 
-const useStyles = makeStyles((theme) => ({
-  spacer: {
-    height: theme.spacing(4),
-  },
-  cardWrapper: {
-    height: "100%",
-  },
-  card: {
-    display: "flex",
-  },
-  cardContent: {
-    marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-    marginLeft: theme.spacing(2),
-    marginRight: theme.spacing(2),
-    flex: "1 0 auto",
-  },
-  avatar: {
-    width: theme.typography.pxToRem(96),
-    height: theme.typography.pxToRem(96),
-  },
+const SpacerDiv = styled("div")(({ theme }) => ({
+  height: theme.spacing(4),
+}));
+
+const TeamMemberCard = styled(Card)(({ theme }) => ({
+  height: "100%",
+}));
+
+const TeamMembedCardContent = styled(CardContent)(({ theme }) => ({
+  display: "flex",
+}));
+
+const DetailDiv = styled("div")(({ theme }) => ({
+  marginTop: theme.spacing(1),
+  marginBottom: theme.spacing(1),
+  marginLeft: theme.spacing(2),
+  marginRight: theme.spacing(2),
+  flex: "1 0 auto",
+}));
+
+const StyledAvatar = styled(MuiAvatar)(({ theme }) => ({
+  width: theme.typography.pxToRem(96),
+  height: theme.typography.pxToRem(96),
 }));
 
 export default function Team() {
-  const classes = useStyles();
-
   return (
     <>
       <HtmlMeta title="The Team" />
@@ -64,28 +64,22 @@ export default function Team() {
           </Link>
         </Typography>
       </Container>
-      <div className={classes.spacer} />
+      <SpacerDiv />
       <section>
         <Grid
           container
+          maxWidth="xl"
           spacing={2}
           justifyContent="center"
           alignItems="stretch"
         >
           {TeamData.map(
             ({ name, director, board_position, role, location, img, link }) => (
-              <Grid key={name} item xs={12} md={4}>
-                <Card
-                  elevation={director ? 3 : 1}
-                  className={classes.cardWrapper}
-                >
-                  <CardContent className={classes.card}>
-                    <MuiAvatar
-                      alt={`Headshot of ${name}`}
-                      src={img}
-                      className={classes.avatar}
-                    />
-                    <div className={classes.cardContent}>
+              <Grid key={name} item xs={12} md={6} lg={4}>
+                <TeamMemberCard elevation={director ? 3 : 1}>
+                  <TeamMembedCardContent>
+                    <StyledAvatar alt={`Headshot of ${name}`} src={img} />
+                    <DetailDiv>
                       <Typography
                         variant={director ? "h1" : "h2"}
                         component="h2"
@@ -117,15 +111,15 @@ export default function Team() {
                           }
                         />
                       )}
-                    </div>
-                  </CardContent>
-                </Card>
+                    </DetailDiv>
+                  </TeamMembedCardContent>
+                </TeamMemberCard>
               </Grid>
             )
           )}
         </Grid>
       </section>
-      <div className={classes.spacer} />
+      <SpacerDiv />
       <Container maxWidth="md">
         <Typography variant="h2" component="h2">
           Have skills you want to contribute?

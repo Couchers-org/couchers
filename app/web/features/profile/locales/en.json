@@ -34,7 +34,20 @@
     "gender_verification_verified": "This user has verified their gender",
     "gender_verification_mismatch": "User provided gender does not match verified gender"
   },
+  "helper_text": {
+    "characters_remaining": "Please write {{count}} more character to complete your profile.",
+    "characters_remaining_plural": "Please write {{count}} more characters to complete your profile.",
+    "missing_profile_photo": "Please add a photo to complete your profile."
+  },
   "section_tabs_a11y_label": "tabs for user's details",
+  "incomplete_dialog": {
+    "title": "Profile Incomplete",
+    "description": "You won't be able to send requests, messages or create events until you:",
+    "about_me_message": "Make your \"Who I Am\" section at least 150 characters long.",
+    "missing_photo_message": "Add a profile photo.",
+    "save_anyway": "Save anyway?",
+    "continue_editing": "Continue editing"
+  },
   "home_info_headings": {
     "about_home": "About my home",
     "general": "General",
