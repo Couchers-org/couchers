@@ -416,7 +416,9 @@ it("should not submit if the end date is before the start date", async () => {
 
   const endDateErrorText = await screen.findByTestId("endDate-helper-text");
   expect(endDateErrorText).toBeVisible();
-  expect(endDateErrorText).toHaveTextContent(t("communities:past_date_error"));
+  await waitFor(() =>
+    expect(endDateErrorText).toHaveTextContent(t("communities:past_date_error"))
+  );
 
   const endTimeErrorText = await screen.findByTestId("endTime-helper-text");
   expect(endTimeErrorText).toBeEmptyDOMElement();
