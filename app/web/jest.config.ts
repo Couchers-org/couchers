@@ -5,8 +5,7 @@ import type { Config } from "jest";
 const createJestConfig = nextJest({ dir: "./" });
 
 const customJestConfig: Config = {
-  collectCoverage: true,
-  coverageProvider: "v8",
+  verbose: true, // Shows detailed test results
   collectCoverageFrom: [
     "**/*.{js,jsx,ts,tsx}",
     "!**/*.d.ts",
