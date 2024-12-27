@@ -1,7 +1,5 @@
 import { fireEvent, screen } from "@testing-library/react";
 import mediaQuery from "css-mediaquery";
-import { StringMap, TOptions, TFunction } from "i18next";
-import i18n from "test/i18n";
 
 export function addDefaultUser(userId?: number) {
   window.localStorage.setItem("auth.authenticated", JSON.stringify(true));
@@ -58,9 +56,3 @@ export function createMatchMedia(width: number) {
   });
 }
 
-export const t: TFunction = (
-  translationKey: Parameters<TFunction>[0],
-  options?: string | TOptions<StringMap> | undefined
-) => {
-  return i18n.t(translationKey, options);
-};
