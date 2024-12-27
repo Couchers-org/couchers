@@ -1,7 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react";
 import mediaQuery from "css-mediaquery";
-import { TFunction } from "i18n";
-import { StringMap, TOptions } from "i18next";
+import { StringMap, TOptions, TFunction } from "i18next";
 import i18n from "test/i18n";
 
 export function addDefaultUser(userId?: number) {

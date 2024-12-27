@@ -20,7 +20,7 @@ import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import React, { useEffect, useState } from "react";
-import { TFunction } from "react-i18next";
+import { TFunction } from "i18next";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   blogRoute,

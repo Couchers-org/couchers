@@ -1,6 +1,6 @@
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { GroupChat, Message } from "proto/conversations_pb";
-import { TFunction } from "react-i18next";
+import { TFunction } from "i18next";
 import { firstName } from "utils/names";
 
 import { requestStatusToTransKey } from "./constants";
