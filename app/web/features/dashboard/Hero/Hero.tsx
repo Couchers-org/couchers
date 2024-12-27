@@ -1,6 +1,6 @@
 import { Container, styled } from "@mui/material";
 import { DASHBOARD } from "i18n/namespaces";
-import Image from "next/legacy/image";
+import Image from "next/image";
 import { useTranslation } from "next-i18next";
 
 import HeroButton from "./HeroButton";
@@ -36,16 +36,17 @@ export default function Hero() {
         <HeroSearch />
         <HeroButton />
       </StyledContainer>
-
       <HeroImageAttribution />
-
       <Image
         src={heroImage}
         placeholder="blur"
-        layout="fill"
-        objectFit="cover"
-        objectPosition="50% 50%"
         alt={t("hero_image_alt")}
+        fill
+        sizes="100vw"
+        style={{
+          objectFit: "cover",
+          objectPosition: "50% 50%",
+        }}
       />
     </StyledOuterContainer>
   );
