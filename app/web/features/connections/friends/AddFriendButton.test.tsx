@@ -4,9 +4,11 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React, { useState } from "react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { t } from "test/utils";
+import i18n from "test/i18n";
 
 import AddFriendButton from "./AddFriendButton";
+
+const { t } = i18n;
 
 const sendFriendRequestMock = service.api.sendFriendRequest as jest.Mock<
   ReturnType<typeof service.api.sendFriendRequest>

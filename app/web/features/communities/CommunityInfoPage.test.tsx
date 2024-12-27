@@ -14,9 +14,12 @@ import community from "test/fixtures/community.json";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
 import { getLiteUsers, listCommunityAdmins } from "test/serviceMockDefaults";
-import { assertErrorAlert, keyPress, mockConsoleError, t } from "test/utils";
+import { assertErrorAlert, keyPress, mockConsoleError } from "test/utils";
+import i18n from "test/i18n";
 
 import CommunityInfoPage from "./CommunityInfoPage";
+
+const { t } = i18n;
 
 const listAdminsMock = service.communities.listAdmins as jest.MockedFunction<
   typeof service.communities.listAdmins

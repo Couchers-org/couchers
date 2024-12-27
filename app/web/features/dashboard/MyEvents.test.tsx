@@ -13,10 +13,12 @@ import {
   assertErrorAlert,
   createMatchMedia,
   mockConsoleError,
-  t,
 } from "test/utils";
+import i18n from "test/i18n";
 
 import MyEvents from "./MyEvents";
+
+const { t } = i18n;
 
 // ListMyEvents by default does not return cancelled events
 const nonCancelledEvents = events.filter((event) => !event.isCancelled);

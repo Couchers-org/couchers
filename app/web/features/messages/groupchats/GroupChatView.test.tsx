@@ -17,11 +17,13 @@ import {
   assertErrorAlert,
   mockConsoleError,
   MockedService,
-  t,
   wait,
 } from "test/utils";
+import i18n from "test/i18n";
 
 import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
+
+const { t } = i18n;
 
 const getGroupChatMock = service.conversations.getGroupChat as MockedService<
   typeof service.conversations.getGroupChat

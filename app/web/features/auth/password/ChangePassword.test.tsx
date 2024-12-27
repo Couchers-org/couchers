@@ -4,7 +4,10 @@ import ChangePassword from "features/auth/password/ChangePassword";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { MockedService, t } from "test/utils";
+import { MockedService } from "test/utils";
+import i18n from "test/i18n";
+
+const { t } = i18n;
 
 const changePasswordMock = service.account.changePassword as MockedService<
   typeof service.account.changePassword

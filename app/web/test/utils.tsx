@@ -55,4 +55,3 @@ export function createMatchMedia(width: number) {
     dispatchEvent: jest.fn(),
   });
 }
-

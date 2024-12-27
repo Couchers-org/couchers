@@ -6,9 +6,12 @@ import mockRouter from "next-router-mock";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
-import { addDefaultUser, MockedService, t } from "test/utils";
+import { addDefaultUser, MockedService } from "test/utils";
+import i18n from "test/i18n";
 
 import ProfilePage from "./ProfilePage";
+
+const { t } = i18n;
 
 jest.mock("features/userQueries/useCurrentUser");
 

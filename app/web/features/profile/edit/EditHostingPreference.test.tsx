@@ -6,9 +6,12 @@ import { routeToProfile } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
+import i18n from "test/i18n";
 
-import { addDefaultUser, MockedService, t } from "../../../test/utils";
+import { addDefaultUser, MockedService } from "../../../test/utils";
 import EditHostingPreference from "./EditHostingPreference";
+
+const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 

@@ -2,9 +2,12 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert, t } from "test/utils";
+import { assertErrorAlert } from "test/utils";
+import i18n from "test/i18n";
 
 import Login from "./Login";
+
+const { t } = i18n;
 
 const passwordLoginMock = service.user.passwordLogin as jest.MockedFunction<
   typeof service.user.passwordLogin

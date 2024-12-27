@@ -6,12 +6,15 @@ import references from "test/fixtures/references.json";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
 import { getLiteUser, getLiteUsers } from "test/serviceMockDefaults";
-import { MockedService, t } from "test/utils";
+import { MockedService } from "test/utils";
+import i18n from "test/i18n";
 
 import { referenceBadgeLabel } from "../constants";
 import { ProfileUserProvider } from "../hooks/useProfileUser";
 import { REFERENCE_LIST_ITEM_TEST_ID } from "./ReferenceListItem";
 import References from "./References";
+
+const { t } = i18n;
 
 const getLiteUsersMock = service.user.getLiteUsers as MockedService<
   typeof service.user.getLiteUsers

@@ -19,12 +19,14 @@ import {
   assertErrorAlert,
   mockConsoleError,
   MockedService,
-  t,
   wait,
 } from "test/utils";
+import i18n from "test/i18n";
 
 import { COMMENT_TEST_ID, REFETCH_LOADING_TEST_ID } from "./Comment";
 import DiscussionPage, { CREATOR_TEST_ID } from "./DiscussionPage";
+
+const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 

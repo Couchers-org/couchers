@@ -9,9 +9,12 @@ import { service } from "service";
 import users from "test/fixtures/liteUsers.json";
 import wrapper from "test/hookWrapper";
 import { getLiteUsers } from "test/serviceMockDefaults";
-import { assertErrorAlert, t } from "test/utils";
+import { assertErrorAlert } from "test/utils";
+import i18n from "test/i18n";
 
 import EventUsers, { EventUsersProps } from "./EventUsers";
+
+const { t } = i18n;
 
 const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
   typeof service.user.getLiteUsers

@@ -12,11 +12,14 @@ import community from "test/fixtures/community.json";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError, t } from "test/utils";
+import { assertErrorAlert, mockConsoleError } from "test/utils";
 import timezoneMock from "timezone-mock";
+import i18n from "test/i18n";
 
 import { EVENT_CARD_TEST_ID } from "./EventCard";
 import EventsSection from "./EventsSection";
+
+const { t } = i18n;
 
 const getUserMock = service.user.getUser as jest.MockedFunction<
   typeof service.user.getUser

@@ -5,9 +5,12 @@ import { routeToEditEvent, routeToEvent } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError, t } from "test/utils";
+import { assertErrorAlert, mockConsoleError } from "test/utils";
+import i18n from "test/i18n";
 
 import EditEventPage from "./EditEventPage";
+
+const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 

@@ -5,9 +5,12 @@ import mockRouter from "next-router-mock";
 import { loginRoute } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { MockedService, t } from "test/utils";
+import { MockedService } from "test/utils";
+import i18n from "test/i18n";
 
 import ConfirmChangeEmail from "./ConfirmChangeEmail";
+
+const { t } = i18n;
 
 const confirmChangeEmailMock = service.account
   .confirmChangeEmail as MockedService<

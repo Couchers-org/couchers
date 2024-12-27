@@ -10,15 +10,14 @@ import community from "test/fixtures/community.json";
 import discussions from "test/fixtures/discussions.json";
 import wrapper from "test/hookWrapper";
 import { getLiteUser } from "test/serviceMockDefaults";
-import {
-  assertErrorAlert,
-  mockConsoleError,
-  MockedService,
-  t,
-} from "test/utils";
+import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
+
+import i18n from "test/i18n";
 
 import { DISCUSSION_CARD_TEST_ID } from "./DiscussionCard";
 import DiscussionsListPage from "./DiscussionsListPage";
+
+const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 

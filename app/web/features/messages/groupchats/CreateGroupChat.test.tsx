@@ -5,7 +5,10 @@ import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
-import { MockedService, t } from "test/utils";
+import { MockedService } from "test/utils";
+import i18n from "test/i18n";
+
+const { t } = i18n;
 
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser

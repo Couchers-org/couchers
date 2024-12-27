@@ -7,8 +7,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import { EditUserTab, routeToEditProfile, settingsRoute } from "routes";
-import { t } from "test/utils";
 import makeStyles from "utils/makeStyles";
+import { useTranslation } from "react-i18next";
 
 import EditHostingPreference from "./EditHostingPreference";
 import EditProfile from "./EditProfile";
@@ -54,6 +54,7 @@ export default function EditProfilePage({
 }: {
   tab?: EditUserTab;
 }) {
+  const { t } = useTranslation();
   const classes = useStyles();
   const router = useRouter();
 

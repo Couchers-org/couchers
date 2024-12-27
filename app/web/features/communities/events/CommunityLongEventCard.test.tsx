@@ -4,10 +4,12 @@ import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import { getUser } from "test/serviceMockDefaults";
-import { t } from "test/utils";
 import timezoneMock from "timezone-mock";
+import i18n from "test/i18n";
 
 import CommunityLongEventCard from "./CommunityLongEventCard";
+
+const { t } = i18n;
 
 const [firstEvent, secondEvent, thirdEvent] = events;
 

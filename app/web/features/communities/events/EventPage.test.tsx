@@ -12,10 +12,13 @@ import {
   getThread,
   getUser,
 } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError, t } from "test/utils";
+import { assertErrorAlert, mockConsoleError } from "test/utils";
 import timezoneMock from "timezone-mock";
+import i18n from "test/i18n";
 
 import EventPage from "./EventPage";
+
+const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 

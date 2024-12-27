@@ -2,12 +2,14 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { useTranslation } from "i18n";
 import { useForm } from "react-hook-form";
-import { t } from "test/utils";
 import timezoneMock from "timezone-mock";
 import dayjs, { Dayjs } from "utils/dayjs";
+import i18n from "test/i18n";
 
 import wrapper from "../test/hookWrapper";
 import Datepicker from "./Datepicker";
+
+const { t } = i18n;
 
 jest.mock("@mui/x-date-pickers", () => {
   return {

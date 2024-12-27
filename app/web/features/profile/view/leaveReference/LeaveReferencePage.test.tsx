@@ -9,9 +9,12 @@ import { leaveReferenceBaseRoute, ReferenceStep } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import { getAvailableReferences, getUser } from "test/serviceMockDefaults";
-import { MockedService, t } from "test/utils";
+import { MockedService } from "test/utils";
+import i18n from "test/i18n";
 
 import LeaveReferencePage from "./LeaveReferencePage";
+
+const { t } = i18n;
 
 const getAvailableReferencesMock = service.references
   .getAvailableReferences as MockedService<

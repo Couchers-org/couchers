@@ -4,10 +4,12 @@ import { LngLat } from "maplibre-gl";
 import { useForm } from "react-hook-form";
 import wrapper from "test/hookWrapper";
 import { rest, server } from "test/restMock";
-import { t } from "test/utils";
 import { GeocodeResult } from "utils/hooks";
+import i18n from "test/i18n";
 
 import LocationAutocomplete from "./LocationAutocomplete";
+
+const { t } = i18n;
 
 const submitAction = jest.fn();
 const submitInvalidAction = jest.fn();

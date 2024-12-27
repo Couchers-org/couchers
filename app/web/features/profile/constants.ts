@@ -1,4 +1,4 @@
-import { TFunction } from "i18n";
+import { TFunction } from "i18next";
 import {
   HostingStatus,
   MeetupStatus,

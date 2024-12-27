@@ -3,9 +3,11 @@ import userEvent from "@testing-library/user-event";
 import { Community } from "proto/communities_pb";
 import { service } from "service";
 import hookWrapper from "test/hookWrapper";
-import { t } from "test/utils";
+import i18n from "test/i18n";
 
 import CommunityBrowser from "./CommunityBrowser";
+
+const { t } = i18n;
 
 const getCommunityMock = service.communities
   .getCommunity as jest.MockedFunction<typeof service.communities.getCommunity>;

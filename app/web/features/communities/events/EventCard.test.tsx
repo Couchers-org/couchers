@@ -1,10 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
-import { t } from "test/utils";
 import timezoneMock from "timezone-mock";
+import i18n from "test/i18n";
 
 import EventCard from "./EventCard";
+
+const { t } = i18n;
 
 const [firstEvent, secondEvent, thirdEvent, cancelledEvent] = events;
 

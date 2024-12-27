@@ -3,9 +3,11 @@ import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { routeToNewEvent } from "routes";
 import wrapper from "test/hookWrapper";
-import { t } from "test/utils";
+import i18n from "test/i18n";
 
 import EventsPage from "./EventsPage";
+
+const { t } = i18n;
 
 describe("Events page", () => {
   it(`takes user to the page if the "${t(

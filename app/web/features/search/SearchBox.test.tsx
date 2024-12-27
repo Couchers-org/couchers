@@ -4,10 +4,12 @@ import { LngLat } from "maplibre-gl";
 import { useState } from "react";
 import wrapper from "test/hookWrapper";
 import { server } from "test/restMock";
-import { t } from "test/utils";
 import { GeocodeResult } from "utils/hooks";
+import i18n from "test/i18n";
 
 import SearchBox from "./SearchBox";
+
+const { t } = i18n;
 
 const View = ({
   searchTypeParam = "keyword",
