@@ -8,6 +8,7 @@ import "whatwg-fetch";
 import { waitFor } from "@testing-library/react";
 import crypto from "crypto";
 import mediaQuery from "css-mediaquery";
+import Sentry from "platform/sentry";
 import sentryTestkit from "sentry-testkit";
 import i18n from "test/i18n";
 
@@ -45,22 +46,21 @@ global.crypto = {
   },
 };
 
-//sentry testing was causing OOM for some reason
-//const { testkit, sentryTransport } = sentryTestkit();
-//global.testKit = testkit;
+const { testkit, sentryTransport } = sentryTestkit();
+global.testKit = testkit;
 
 beforeAll(() => {
-  /*Sentry.init({
+  Sentry.init({
     dsn: "https://testKey@o782870.ingest.sentry.io/0",
     transport: sentryTransport,
-  });*/
+  });
 });
 
 beforeEach(async () => {
   global.localStorage.clear();
   global.sessionStorage.clear();
   jest.restoreAllMocks();
-  //testkit.reset();
+  testkit.reset();
   await waitFor(() => {
     expect(i18n.isInitialized).toBe(true);
   });
@@ -74,8 +74,10 @@ window.URL.createObjectURL = jest.fn();
 window.matchMedia = createMatchMedia(window.innerWidth);
 
 declare global {
-  var defaultUser: typeof user; // eslint-disable-line
-  var testKit: sentryTestkit.Testkit; // eslint-disable-line
+  /* eslint-disable no-var */ // Disable the rule for this block
+  var defaultUser: typeof user;
+  var testKit: ReturnType<typeof sentryTestkit>["testkit"];
+  /* eslint-enable no-var */ // Re-enable the rule
 }
 
 function createWebStorageMock() {
