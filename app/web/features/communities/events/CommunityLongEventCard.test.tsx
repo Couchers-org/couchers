@@ -3,9 +3,9 @@ import { eventImagePlaceholderUrl } from "appConstants";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getUser } from "test/serviceMockDefaults";
 import timezoneMock from "timezone-mock";
-import i18n from "test/i18n";
 
 import CommunityLongEventCard from "./CommunityLongEventCard";
 

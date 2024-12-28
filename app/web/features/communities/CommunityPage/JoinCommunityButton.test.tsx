@@ -4,8 +4,8 @@ import { useCommunity } from "features/communities/hooks";
 import { service } from "service";
 import mockCommunity from "test/fixtures/community.json";
 import wrapper from "test/hookWrapper";
-import { mockConsoleError, MockedService } from "test/utils";
 import i18n from "test/i18n";
+import { mockConsoleError, MockedService } from "test/utils";
 
 import JoinCommunityButton from "./JoinCommunityButton";
 

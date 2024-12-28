@@ -19,9 +19,9 @@ import {
   SERVER_ERROR,
 } from "service/constants";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { server } from "test/restMock";
 import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
-import i18n from "test/i18n";
 
 import ImageInput from "./ImageInput";
 

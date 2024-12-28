@@ -3,9 +3,9 @@ import userEvent from "@testing-library/user-event";
 import { LngLat } from "maplibre-gl";
 import { useForm } from "react-hook-form";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { rest, server } from "test/restMock";
 import { GeocodeResult } from "utils/hooks";
-import i18n from "test/i18n";
 
 import LocationAutocomplete from "./LocationAutocomplete";
 

@@ -2,8 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert } from "test/utils";
 import i18n from "test/i18n";
+import { assertErrorAlert } from "test/utils";
 
 import Login from "./Login";
 

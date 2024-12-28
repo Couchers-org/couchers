@@ -4,9 +4,9 @@ import mockRouter from "next-router-mock";
 import { routeToProfile } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser } from "test/utils";
-import i18n from "test/i18n";
 
 import EditProfilePage from "./EditProfilePage";
 

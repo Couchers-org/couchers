@@ -5,9 +5,9 @@ import { routeToEvent, routeToNewEvent } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
+import i18n from "test/i18n";
 import { server } from "test/restMock";
 import { MockedService } from "test/utils";
-import i18n from "test/i18n";
 
 import CreateEventPage from "./CreateEventPage";
 

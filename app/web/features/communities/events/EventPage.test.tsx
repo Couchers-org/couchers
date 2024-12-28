@@ -6,6 +6,7 @@ import { eventBaseRoute } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
+import i18n from "test/i18n";
 import {
   getEventAttendees,
   getEventOrganizers,
@@ -14,7 +15,6 @@ import {
 } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 import timezoneMock from "timezone-mock";
-import i18n from "test/i18n";
 
 import EventPage from "./EventPage";
 

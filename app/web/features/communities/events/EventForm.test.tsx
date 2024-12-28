@@ -5,9 +5,9 @@ import { Event } from "proto/events_pb";
 import { useMutation } from "react-query";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { server } from "test/restMock";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
-import i18n from "test/i18n";
 
 import EventForm, { CreateEventVariables } from "./EventForm";
 

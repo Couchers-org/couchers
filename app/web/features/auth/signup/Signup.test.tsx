@@ -12,8 +12,8 @@ import TagManager from "react-gtm-module";
 import { dashboardRoute, signupRoute } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 import i18n from "test/i18n";
+import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import Signup from "./Signup";
 

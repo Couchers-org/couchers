@@ -4,8 +4,8 @@ import { useRouter } from "next/router";
 import { AuthRes } from "proto/auth_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { MockedService } from "test/utils";
 import i18n from "test/i18n";
+import { MockedService } from "test/utils";
 
 import CompletePasswordReset from "./CompleteResetPassword";
 

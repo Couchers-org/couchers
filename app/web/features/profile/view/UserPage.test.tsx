@@ -13,12 +13,12 @@ import React from "react";
 import { routeToUser } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
 import { addDefaultUser, MockedService } from "test/utils";
 
 import { sectionLabels } from "../constants";
 import UserPage from "./UserPage";
-import i18n from "test/i18n";
 
 const { t } = i18n;
 

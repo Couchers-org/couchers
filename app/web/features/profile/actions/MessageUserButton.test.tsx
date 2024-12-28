@@ -7,8 +7,8 @@ import { routeToCreateMessage, routeToGroupChat } from "routes";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
-import { MockedService } from "test/utils";
 import i18n from "test/i18n";
+import { MockedService } from "test/utils";
 
 const { t } = i18n;
 

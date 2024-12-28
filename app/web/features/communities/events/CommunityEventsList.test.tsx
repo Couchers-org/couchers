@@ -11,9 +11,9 @@ import { service } from "service";
 import community from "test/fixtures/community.json";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getUser } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
-import i18n from "test/i18n";
 
 import CommunityEventsList from "./CommunityEventsList";
 

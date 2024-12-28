@@ -9,9 +9,9 @@ import userEvent from "@testing-library/user-event";
 import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getEventAttendees, getLiteUsers } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
-import i18n from "test/i18n";
 
 import EventAttendees from "./EventAttendees";
 

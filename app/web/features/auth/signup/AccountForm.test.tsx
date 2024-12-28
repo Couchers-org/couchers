@@ -6,10 +6,10 @@ import { StatusCode } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import AccountForm from "./AccountForm";
-import i18n from "test/i18n";
 
 const { t } = i18n;
 

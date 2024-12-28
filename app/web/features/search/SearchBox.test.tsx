@@ -3,9 +3,9 @@ import userEvent from "@testing-library/user-event";
 import { LngLat } from "maplibre-gl";
 import { useState } from "react";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { server } from "test/restMock";
 import { GeocodeResult } from "utils/hooks";
-import i18n from "test/i18n";
 
 import SearchBox from "./SearchBox";
 

@@ -4,8 +4,8 @@ import CommunityGuidelinesForm from "features/auth/signup/CommunityGuidelinesFor
 import { StatusCode } from "grpc-web";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { MockedService } from "test/utils";
 import i18n from "test/i18n";
+import { MockedService } from "test/utils";
 
 const { t } = i18n;
 

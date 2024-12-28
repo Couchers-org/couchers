@@ -3,8 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { StatusCode } from "grpc-web";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 import i18n from "test/i18n";
+import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import { useAuthContext } from "../AuthProvider";
 import BasicForm from "./BasicForm";

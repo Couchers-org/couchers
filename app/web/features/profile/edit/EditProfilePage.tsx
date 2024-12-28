@@ -6,9 +6,9 @@ import TabBar from "components/TabBar";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { EditUserTab, routeToEditProfile, settingsRoute } from "routes";
 import makeStyles from "utils/makeStyles";
-import { useTranslation } from "react-i18next";
 
 import EditHostingPreference from "./EditHostingPreference";
 import EditProfile from "./EditProfile";

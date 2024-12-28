@@ -4,8 +4,8 @@ import MapUI from "components/Map";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useEffect } from "react";
 import wrapper from "test/hookWrapper";
-import { server } from "test/restMock";
 import i18n from "test/i18n";
+import { server } from "test/restMock";
 
 import EditLocationMap from "./EditLocationMap";
 

@@ -8,9 +8,9 @@ import mockRouter from "next-router-mock";
 import { leaveReferenceBaseRoute, ReferenceStep } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getAvailableReferences, getUser } from "test/serviceMockDefaults";
 import { MockedService } from "test/utils";
-import i18n from "test/i18n";
 
 import LeaveReferencePage from "./LeaveReferencePage";
 

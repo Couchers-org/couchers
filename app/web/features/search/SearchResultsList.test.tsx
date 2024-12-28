@@ -6,9 +6,9 @@ import { InfiniteData } from "react-query";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { assertErrorAlert, MockedService } from "test/utils";
 import { firstName } from "utils/names";
-import i18n from "test/i18n";
 
 import SearchResultsList from "./SearchResultsList";
 

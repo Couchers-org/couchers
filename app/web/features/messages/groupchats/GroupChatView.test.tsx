@@ -11,6 +11,7 @@ import {
 import { service } from "service";
 import messageData from "test/fixtures/messages.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getGroupChatMessages, getLiteUser } from "test/serviceMockDefaults";
 import {
   addDefaultUser,
@@ -19,7 +20,6 @@ import {
   MockedService,
   wait,
 } from "test/utils";
-import i18n from "test/i18n";
 
 import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
 

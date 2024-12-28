@@ -4,9 +4,9 @@ import mockRouter from "next-router-mock";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getUser } from "test/serviceMockDefaults";
 import { MockedService } from "test/utils";
-import i18n from "test/i18n";
 
 const { t } = i18n;
 

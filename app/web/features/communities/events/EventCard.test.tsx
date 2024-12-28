@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
-import timezoneMock from "timezone-mock";
 import i18n from "test/i18n";
+import timezoneMock from "timezone-mock";
 
 import EventCard from "./EventCard";
 
