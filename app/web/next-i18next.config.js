@@ -23,7 +23,7 @@ module.exports = {
   ns: NAMESPACES,
   returnEmptyString: false,
   serializeConfig: false,
-  nonExplicitSupportedLngs: true, // Handle language codes like "zh-CN" and "zh-Hant" fallback gracefully
+  nonExplicitSupportedLngs: true, // Handle language codes like "zh-CN" and "zh-Hant" fallback to zh gracefully
   localePath: (locale, namespace) => {
     const path = require("path");
     if (namespace === "global") {
