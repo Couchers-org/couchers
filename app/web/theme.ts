@@ -47,6 +47,9 @@ const themeOptions: ThemeOptions = {
           textDecoration: "none",
           color: "inherit",
         },
+        '.maplibregl-ctrl-bottom-right': {
+          bottom: '7px !important',
+        }
       },
     },
     MuiFormLabel: {

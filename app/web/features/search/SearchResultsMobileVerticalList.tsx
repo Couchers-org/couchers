@@ -13,7 +13,7 @@ const StyledDrawer = styled("div")<{
 }>(({ theme, open }) => ({
   width: "100%",
   overflowY: "auto",
-  maxHeight: open ? "none" : "250px",
+  maxHeight: open ? "none" : "220px",
   position: open ? "fixed" : "relative",
   top: open ? "56px" : "auto",
   bottom: open ? 0 : "auto",
@@ -31,16 +31,17 @@ const StyledDrawer = styled("div")<{
 const StyledOpenButton = styled(IconButton)(({ theme }) => ({
   width: "100%",
   marginLeft: 0,
-  borderRadius: "10px 10px 0 0",
+  borderRadius: "15px 15px 0 0",
+  boxShadow: "0px -4px 5px 0px rgba(17, 17, 26, 0.08)",
   backgroundColor: theme.palette.background.default,
-  maxHeight: "60px",
+  maxHeight: "50px",
   "& svg": { fontSize: "4rem" },
   "&:hover": { backgroundColor: "#e2dcdc" },
 }));
 
 const StyledDiv = styled("div")(({ theme }) => ({
   position: "relative",
-  top: "-7px",
+  top: "-12px",
   zIndex: "11",
 }));
 
@@ -53,7 +54,7 @@ const StyledCloseButton = styled(IconButton)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   borderRadius: 0,
   zIndex: theme.zIndex.drawer,
-  "& svg": { fontSize: "4rem" },
+  "& svg": { fontSize: "3.5rem" },
 }));
 
 const StyledVerticalList = styled(List)(({ theme }) => ({
