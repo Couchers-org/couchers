@@ -49,18 +49,10 @@ global.crypto = {
 //const { testkit, sentryTransport } = sentryTestkit();
 //global.testKit = testkit;
 
-beforeAll(() => {
-  /*Sentry.init({
-    dsn: "https://testKey@o782870.ingest.sentry.io/0",
-    transport: sentryTransport,
-  });*/
-});
-
 beforeEach(async () => {
   global.localStorage.clear();
   global.sessionStorage.clear();
   jest.restoreAllMocks();
-  //testkit.reset();
   await waitFor(() => {
     expect(i18n.isInitialized).toBe(true);
   });
