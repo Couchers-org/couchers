@@ -16,9 +16,8 @@ const Template: Story<any> = (args) => {
       error={false}
       helperText=""
       id="date-field"
-      inputRef={register}
+      {...register("datefield")}
       label="Date field"
-      name="datefield"
       {...args}
     />
   );
