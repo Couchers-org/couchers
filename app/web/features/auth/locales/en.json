@@ -76,7 +76,7 @@
     },
     "birthday": {
       "field_label": "Birthday",
-      "required_error": "Enter your birthdate ",
+      "required_error": "Enter your birthdate",
       "validation_error": "Must be a valid date in the past."
     },
     "hosting_status": {
