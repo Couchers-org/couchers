@@ -4,8 +4,7 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
-import { useMemo, useState } from "react";
-import { UseFormReturn, useWatch } from "react-hook-form";
+import { UseFormReturn } from "react-hook-form";
 import { isSameOrFutureDate, timestamp2Date } from "utils/date";
 import dayjs, { Dayjs, TIME_FORMAT } from "utils/dayjs";
 import { timePattern } from "utils/validation";
@@ -48,27 +47,10 @@ export default function EventTimeChanger({
   const { t } = useTranslation([COMMUNITIES]);
   const classes = useEventFormStyles();
 
-  const [timeDelta, setTimeDelta] = useState(60);
-  const [dateDelta, setDateDelta] = useState(0);
-
   const { date: eventStartDate, time: eventStartTime } =
     splitTimestampToDateAndTime(event?.startTime);
   const { date: eventEndDate, time: eventEndTime } =
     splitTimestampToDateAndTime(event?.endTime);
-
-  const now = dayjs();
-  const defaultDate = now.get("hour") === 23 ? now.add(1, "day") : now;
-
-  const endDate = useWatch({
-    control,
-    name: "endDate",
-    defaultValue: eventEndDate || defaultDate,
-  });
-
-  const defaultEndTime = useMemo(
-    () => dayjs().add(1, "hour").add(timeDelta, "minutes").format("HH:[00]"),
-    [timeDelta]
-  );
 
   const handleStartTimeChange = (e: {
     target: { value: string | number | dayjs.Dayjs | Date | null | undefined };
@@ -78,15 +60,8 @@ export default function EventTimeChanger({
       return;
     }
     const newStartTime = dayjs(e.target.value, TIME_FORMAT);
-    const newEndTime = dayjs(e.target.value, TIME_FORMAT)
-      .add(timeDelta, "minutes")
-      .format(TIME_FORMAT);
 
     setValue("startTime", newStartTime.format(TIME_FORMAT), {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
-    setValue("endTime", newEndTime, {
       shouldDirty: true,
       shouldValidate: true,
     });
@@ -97,13 +72,6 @@ export default function EventTimeChanger({
       shouldDirty: true,
       shouldValidate: true,
     });
-
-    if (!isNaN(dateDelta) && newStartDate !== null) {
-      setValue("endDate", newStartDate.add(dateDelta, "days"), {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-    }
   };
 
   const handleEndTimeChange = (
@@ -114,22 +82,12 @@ export default function EventTimeChanger({
       return;
     }
 
-    const startTime = getValues("startTime");
     const newEndTime = dayjs(event.target.value, TIME_FORMAT);
 
     setValue("endTime", newEndTime.format(TIME_FORMAT), {
       shouldDirty: true,
       shouldValidate: true,
     });
-
-    const newTimeDelta = dayjs(newEndTime, TIME_FORMAT).diff(
-      dayjs(startTime, TIME_FORMAT),
-      "minutes"
-    );
-
-    if (!isNaN(newTimeDelta)) {
-      setTimeDelta(newTimeDelta);
-    }
   };
 
   const handleEndDateChange = (newEndDate: Dayjs) => {
@@ -137,19 +95,6 @@ export default function EventTimeChanger({
       shouldDirty: true,
       shouldValidate: true,
     });
-
-    const startDate = getValues("startDate");
-
-    // existing endDate
-    if (!endDate) return;
-
-    const newDelta = endDate
-      .startOf("day")
-      .diff(startDate.startOf("day"), "days");
-
-    if (!isNaN(newDelta)) {
-      setDateDelta(newDelta);
-    }
   };
 
   return (
@@ -157,7 +102,7 @@ export default function EventTimeChanger({
       <div className={classes.duoContainer}>
         <Datepicker
           control={control}
-          defaultValue={eventStartDate ?? defaultDate}
+          defaultValue={eventStartDate ?? null}
           error={!!errors.startDate?.message}
           helperText={errors.startDate?.message}
           id="startDate"
@@ -209,9 +154,7 @@ export default function EventTimeChanger({
               );
             },
           })}
-          defaultValue={
-            eventStartTime || dayjs().add(1, "hour").format("HH:[00]")
-          }
+          defaultValue={eventStartTime || null}
           error={!!errors.startTime?.message}
           fullWidth
           helperText={errors.startTime?.message}
@@ -225,7 +168,7 @@ export default function EventTimeChanger({
       <div className={classes.duoContainer}>
         <Datepicker
           control={control}
-          defaultValue={eventEndDate ?? defaultDate}
+          defaultValue={eventEndDate ?? null}
           error={!!errors.endDate?.message}
           helperText={errors.endDate?.message}
           id="endDate"
@@ -254,7 +197,7 @@ export default function EventTimeChanger({
           onPostChange={handleEndDateChange}
         />
         <TextField
-          defaultValue={eventEndTime || defaultEndTime}
+          defaultValue={eventEndTime || null}
           error={!!errors.endTime?.message}
           fullWidth
           helperText={errors.endTime?.message || ""}

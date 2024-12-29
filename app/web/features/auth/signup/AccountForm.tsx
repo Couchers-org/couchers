@@ -222,14 +222,14 @@ export default function AccountForm() {
             required: t("auth:account_form.birthday.required_error"),
             validate: (stringBirthDate: string) => {
               const birthDate = dayjs(stringBirthDate);
-              const age = Math.abs(dayjs().diff(birthDate, "year"));
+              const age = Math.abs(dayjs().diff(birthDate, "year")); // confirmed dayjs does the difference correctyly by counting months and days
 
               if (age < 18) {
                 return t("auth:account_form.birthday.too_young_error");
               }
 
               if (age > 120) {
-                return t("auth:account_form.birthday.validation_error");
+                return t("auth:account_form.birthday.not_real_date_error");
               }
 
               if (!validatePastDate(stringBirthDate) || !stringBirthDate) {
