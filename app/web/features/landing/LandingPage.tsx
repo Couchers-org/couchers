@@ -26,7 +26,6 @@ import makeStyles from "utils/makeStyles";
 
 import {
   blogRoute,
-  forumURL,
   loginRoute,
   signupRoute,
   tosRoute,
@@ -266,17 +265,6 @@ export default function LandingPage() {
         <Typography className={classes.para}>
           If there's any problems you've found with Couchsurfing™ or any other
           platforms, we'd love to hear about it so we can try to fix them.
-        </Typography>
-        <Typography className={classes.para}>
-          <Link href={forumURL} passHref>
-            <Button
-              variant="contained"
-              color="secondary"
-              className={classes.subNavButtons}
-            >
-              Tell us what you think
-            </Button>
-          </Link>
         </Typography>
       </Container>
       <div className={classes.spacer} />
