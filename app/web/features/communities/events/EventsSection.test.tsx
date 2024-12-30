@@ -84,10 +84,11 @@ describe("Events section", () => {
 
   it("takes the user to the events tab when 'See more events' is clicked", async () => {
     renderEventsSection();
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(
-      screen.getByRole("link", { name: t("global:nav.show_all_events") })
+    const user = userEvent.setup();
+
+    await user.click(
+      await screen.findByRole("link", { name: t("global:nav.show_all_events") })
     );
 
     expect(mockRouter.pathname).toBe(

@@ -77,7 +77,8 @@ const useStyles = makeStyles((theme) => ({
 
 interface ImageInputProps {
   className?: string;
-  control: Control;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<any>;
   id: string;
   initialPreviewSrc?: string;
   name: string;

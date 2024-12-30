@@ -122,10 +122,9 @@ export default function CreateGroupChat({ className }: { className?: string }) {
             )}
             {isGroup && (
               <TextField
+                {...register("title")}
                 id="group-chat-title"
                 label={t("global:title")}
-                name="title"
-                inputRef={register}
                 className={classes.field}
               />
             )}
@@ -144,12 +143,13 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                       ? [createMessageToUserQuery.data]
                       : []
                   }
-                  render={({ onChange, value }) => {
+                  render={({ field }) => {
                     return (
                       <Autocomplete
+                        {...field}
                         id="users-autocomplete"
                         onChange={(_, newValue) => {
-                          onChange(newValue);
+                          field.onChange(newValue);
                           setIsGroup((newValue?.length ?? 0) > 1);
                         }}
                         multiple={true}
@@ -159,14 +159,16 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                           "messages:create_chat.no_friends_found_message"
                         )}
                         getOptionLabel={(friend) => {
-                          return (
-                            friend?.name ??
-                            t("messages:create_chat.user_load_error_message")
-                          );
+                          const friendHasNameKey =
+                            typeof friend === "object" && friend !== null;
+
+                          return friendHasNameKey
+                            ? friend.name
+                            : t("messages:create_chat.user_load_error_message");
                         }}
                         label={t("messages:create_chat.friends_input_label")}
                         className={classes.field}
-                        value={value ?? []}
+                        value={field.value ?? []}
                       />
                     );
                   }}

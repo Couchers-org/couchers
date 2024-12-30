@@ -115,6 +115,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const AgeAndGenderRenderer = ({ user }: Props) => {
+  const classes = useStyles();
+
   const {
     birthdateVerificationStatus,
     genderVerificationStatus,
@@ -185,7 +187,7 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
     }
   };
   return (
-    <div className={useStyles().container}>
+    <div className={classes.container}>
       <span>{age}</span>
       {getBirthdateVerificationIcon(birthdateVerificationStatus)}
       <span>/&nbsp;</span>

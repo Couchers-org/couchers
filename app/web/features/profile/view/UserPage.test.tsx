@@ -85,12 +85,14 @@ describe("User page", () => {
     });
 
     describe("and a tab is opened", () => {
-      it.only("updates the url with the chosen tab value", async () => {
+      it("updates the url with the chosen tab value", async () => {
         renderUserPage("funnycat");
 
         expect(mockRouter.pathname).toBe("/user/funnycat");
 
-        userEvent.click(await screen.findByText(sectionLabels(t).home));
+        const user = userEvent.setup();
+
+        await user.click(await screen.findByText(sectionLabels(t).home));
 
         expect(mockRouter.pathname).toBe("/user/funnycat/home");
 
@@ -99,7 +101,7 @@ describe("User page", () => {
         // Mui introduced support for Next.js AppRouter, but we need to upgrade to Next v13 first for it, that might help
         // https://github.com/mui/material-ui/blob/HEAD/CHANGELOG.old.md#5140
 
-        // userEvent.click(await screen.findByText(sectionLabels(t).about));
+        // await user.click(await screen.findByText(sectionLabels(t).about));
 
         // expect(mockRouter.pathname).toBe("/user/funnycat/about");
       });
@@ -114,7 +116,9 @@ describe("User page", () => {
     it("updates the url with the chosen tab value", async () => {
       expect(mockRouter.pathname).toBe("/user/funnydog");
 
-      userEvent.click(await screen.findByText(sectionLabels(t).home));
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByText(sectionLabels(t).home));
 
       expect(mockRouter.pathname).toBe("/user/funnydog/home");
 
@@ -123,14 +127,15 @@ describe("User page", () => {
       // Mui introduced support for Next.js AppRouter, but we need to upgrade to Next v13 first for it, that might help
       // https://github.com/mui/material-ui/blob/HEAD/CHANGELOG.old.md#5140
 
-      // userEvent.click(await screen.findByText(sectionLabels(t).about));
+      // await user.click(await screen.findByText(sectionLabels(t).about));
 
       // expect(mockRouter.pathname).toBe("/user/funnydog/about");
     });
 
     describe("and the 'report user' option is clicked", () => {
       beforeEach(async () => {
-        userEvent.click(
+        const user = userEvent.setup();
+        await user.click(
           await screen.findByRole("button", {
             name: t("global:report.flag.button_aria_label"),
           })
@@ -146,7 +151,9 @@ describe("User page", () => {
       });
 
       it("closes the report user dialog if the 'Cancel' button is clicked", async () => {
-        userEvent.click(
+        const user = userEvent.setup();
+
+        await user.click(
           await screen.findByRole("button", { name: t("global:cancel") })
         );
 
@@ -162,15 +169,17 @@ describe("User page", () => {
         const reason = "Dating / Flirting";
         const description = "I feel very uncomfortable around this creepy dog";
 
-        userEvent.selectOptions(
+        const user = userEvent.setup();
+
+        await user.selectOptions(
           await screen.findByLabelText(t("global:report.flag.reason_label")),
           reason
         );
-        userEvent.type(
+        await user.type(
           screen.getByLabelText(t("global:report.flag.description_label")),
           description
         );
-        userEvent.click(
+        await user.click(
           screen.getByRole("button", { name: t("global:submit") })
         );
 
@@ -188,7 +197,9 @@ describe("User page", () => {
       });
 
       it("does not submit the user report if the required fields are not filled in", async () => {
-        userEvent.click(
+        const user = userEvent.setup();
+
+        await user.click(
           screen.getByRole("button", { name: t("global:submit") })
         );
 
@@ -204,15 +215,17 @@ describe("User page", () => {
         const reason = "Dating / Flirting";
         const description = " ";
 
-        userEvent.selectOptions(
+        const user = userEvent.setup();
+
+        await user.selectOptions(
           await screen.findByLabelText(t("global:report.flag.reason_label")),
           reason
         );
-        userEvent.type(
+        await user.type(
           screen.getByLabelText(t("global:report.flag.description_label")),
           description
         );
-        userEvent.click(
+        await user.click(
           screen.getByRole("button", { name: t("global:submit") })
         );
 

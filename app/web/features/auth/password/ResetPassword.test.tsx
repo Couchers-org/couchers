@@ -39,7 +39,9 @@ describe("ResetPassword", () => {
   it("does not try to submit the reset password form if the field is not filled in", async () => {
     render(<ResetPassword />, { wrapper });
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(resetPasswordMock).not.toHaveBeenCalled();
@@ -49,11 +51,13 @@ describe("ResetPassword", () => {
   it("submits the reset password request successfully", async () => {
     render(<ResetPassword />, { wrapper });
 
-    userEvent.type(
+    const user = userEvent.setup();
+
+    await user.type(
       screen.getByLabelText(t("auth:reset_password_form.enter_email")),
       "test"
     );
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     expect(
       await screen.findByText(t("auth:reset_password_form.success_message"))
@@ -65,11 +69,13 @@ describe("ResetPassword", () => {
   it("submits the reset password request even if the username is typed in mixed casing", async () => {
     render(<ResetPassword />, { wrapper });
 
-    userEvent.type(
+    const user = userEvent.setup();
+
+    await user.type(
       screen.getByLabelText(t("auth:reset_password_form.enter_email")),
       "TeST"
     );
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     expect(
       await screen.findByText(t("auth:reset_password_form.success_message"))
@@ -83,11 +89,13 @@ describe("ResetPassword", () => {
     resetPasswordMock.mockRejectedValue(new Error("GRPC error"));
     render(<ResetPassword />, { wrapper });
 
-    userEvent.type(
+    const user = userEvent.setup();
+
+    await user.type(
       screen.getByLabelText(t("auth:reset_password_form.enter_email")),
       "test"
     );
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     const errorAlert = await screen.findByRole("alert");
     expect(errorAlert).toBeVisible();

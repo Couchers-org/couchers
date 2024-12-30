@@ -1,9 +1,4 @@
-import {
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
@@ -39,7 +34,9 @@ describe("EditHostingPreference", () => {
   it("should redirect to the user profile route with 'home' tab active after successful update", async () => {
     renderPage();
 
-    userEvent.click(
+    const user = userEvent.setup();
+
+    await user.click(
       await screen.findByRole("button", { name: t("global:save") })
     );
     await waitFor(() =>
@@ -55,9 +52,12 @@ describe("EditHostingPreference", () => {
       aboutPlace: "",
     }));
     renderPage();
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(screen.getByRole("button", { name: t("global:save") }));
+    const user = userEvent.setup();
+
+    await user.click(
+      await screen.findByRole("button", { name: t("global:save") })
+    );
     await waitFor(() =>
       expect(mockRouter.pathname).toBe(routeToProfile("home"))
     );

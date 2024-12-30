@@ -1,9 +1,4 @@
-import {
-  render,
-  screen,
-  waitForElementToBeRemoved,
-  within,
-} from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ReferenceType } from "proto/references_pb";
 import { service } from "service";
@@ -115,17 +110,19 @@ describe("References", () => {
 
     renderReferences();
 
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-    expect(screen.getByText(t("profile:no_references"))).toBeVisible();
+    expect(await screen.findByText(t("profile:no_references"))).toBeVisible();
     expect(
       screen.queryByTestId(REFERENCE_LIST_ITEM_TEST_ID)
     ).not.toBeInTheDocument();
   });
 
   describe("When a specific reference type is selected", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       renderReferences();
-      userEvent.click(
+
+      const user = userEvent.setup();
+
+      await user.click(
         screen.getByRole("combobox", {
           name: t("profile:references_filter_a11y_label").trim(),
         })
@@ -140,7 +137,10 @@ describe("References", () => {
         nextPageToken: "",
         referencesList: [friendReference],
       });
-      userEvent.click(
+
+      const user = userEvent.setup();
+
+      await user.click(
         screen.getByRole("option", {
           name: t("profile:reference_filter_label.friend"),
         })
@@ -171,7 +171,10 @@ describe("References", () => {
         nextPageToken: "",
         referencesList,
       });
-      userEvent.click(
+
+      const user = userEvent.setup();
+
+      await user.click(
         screen.getByRole("option", {
           name: t("profile:reference_filter_label.surfed"),
         })
@@ -205,7 +208,10 @@ describe("References", () => {
         nextPageToken: "",
         referencesList: [hostReference],
       });
-      userEvent.click(
+
+      const user = userEvent.setup();
+
+      await user.click(
         screen.getByRole("option", {
           name: t("profile:reference_filter_label.hosted"),
         })
@@ -235,7 +241,10 @@ describe("References", () => {
         nextPageToken: "",
         referencesList: [givenReference],
       });
-      userEvent.click(
+
+      const user = userEvent.setup();
+
+      await user.click(
         screen.getByRole("option", {
           name: t("profile:reference_filter_label.given"),
         })
@@ -267,12 +276,13 @@ describe("References", () => {
         });
       renderReferences();
 
-      userEvent.click(
+      const user = userEvent.setup();
+
+      await user.click(
         await screen.findByRole("button", {
           name: t("profile:see_more_references"),
         })
       );
-      await waitForElementToBeRemoved(screen.getAllByRole("progressbar"));
 
       // Simpler checks here since the more thorough checks have been done in previous tests already
       expect(
@@ -309,25 +319,27 @@ describe("References", () => {
             ],
           });
         renderReferences();
-        userEvent.click(
+
+        const user = userEvent.setup();
+
+        await user.click(
           screen.getByRole("combobox", {
             name: t("profile:references_filter_a11y_label").trim(),
           })
         );
         // Ignore the API calls from the default "all references" we encounter on first render
         getReferencesReceivedMock.mockClear();
-        userEvent.click(
+        await user.click(
           screen.getByRole("option", {
             name: t("profile:reference_filter_label.friend"),
           })
         );
 
-        userEvent.click(
+        await user.click(
           await screen.findByRole("button", {
             name: t("profile:see_more_references"),
           })
         );
-        await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
         expect(
           screen.getByText("Funny person with dark sense of humour")
@@ -363,12 +375,14 @@ describe("References", () => {
       expect(errorAlert).toHaveTextContent("Error loading references");
 
       // Error remains there when switching to a category that has an API error
-      userEvent.click(
+      const user = userEvent.setup();
+
+      await user.click(
         screen.getByRole("combobox", {
           name: t("profile:references_filter_a11y_label").trim(),
         })
       );
-      userEvent.click(screen.getByRole("option", { name: "From hosts" }));
+      await user.click(screen.getByRole("option", { name: "From hosts" }));
       expect(await screen.findByRole("alert")).toHaveTextContent(
         "Error loading references"
       );
@@ -383,7 +397,9 @@ describe("References", () => {
         });
       renderReferences();
 
-      userEvent.click(
+      const user = userEvent.setup();
+
+      await user.click(
         await screen.findByRole("button", {
           name: t("profile:see_more_references"),
         })

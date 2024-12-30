@@ -22,11 +22,17 @@ type NewGuideInputs = {
 };
 
 export default function NewGuideForm() {
-  const { control, register, handleSubmit, setValue, errors } =
-    useForm<NewGuideInputs>({
-      mode: "onBlur",
-      shouldUnregister: false,
-    });
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+
+    formState: { errors },
+  } = useForm<NewGuideInputs>({
+    mode: "onBlur",
+    shouldUnregister: false,
+  });
 
   const router = useRouter();
 
@@ -60,11 +66,10 @@ export default function NewGuideForm() {
         <form onSubmit={onSubmit}>
           <TextField
             id="new-page-title"
-            name="title"
-            label="Page Title"
-            inputRef={register({
+            {...register("title", {
               required: "Enter a page title",
             })}
+            label="Page Title"
             helperText={errors?.title?.message}
           />
           <ProfileMarkdownInput
@@ -77,8 +82,9 @@ export default function NewGuideForm() {
           <Controller
             name="address"
             control={control}
-            render={() => (
+            render={({ field }) => (
               <EditLocationMap
+                {...field}
                 exact
                 updateLocation={(location) => {
                   if (location) {

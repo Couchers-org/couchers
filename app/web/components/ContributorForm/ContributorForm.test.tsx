@@ -1,15 +1,11 @@
-import {
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ContributeOption } from "proto/auth_pb";
 import wrapper from "test/hookWrapper";
 import { mockConsoleError } from "test/utils";
 
 import {
+  CONTRIBUTE_WAYS_OPTIONS,
   EXPERIENCE_LABEL,
   EXPERTISE_LABEL,
   FEATURES_LABEL,
@@ -23,7 +19,11 @@ describe("contributor form", () => {
   it("can be submitted empty", async () => {
     const processForm = jest.fn(() => Promise.resolve());
     render(<ContributorForm processForm={processForm} />, { wrapper });
-    userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
+
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole("button", { name: SUBMIT }));
+
     expect(await screen.findByText(SUCCESS_MSG)).toBeVisible();
 
     await waitFor(() => {
@@ -40,36 +40,46 @@ describe("contributor form", () => {
   });
 
   it("can be submitted filled", async () => {
-    jest.setTimeout(10000);
     const processForm = jest.fn(() => Promise.resolve());
     render(<ContributorForm processForm={processForm} />, { wrapper });
-    userEvent.type(screen.getByLabelText(IDEAS_LABEL), "I have great ideas");
-    userEvent.type(
+
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(IDEAS_LABEL), "I have great ideas");
+    await user.type(
       screen.getByLabelText(FEATURES_LABEL),
       "I want all the features"
     );
-    userEvent.click(screen.getByRole("radio", { name: "Yes" }));
-    // For some reason, checking boxes makes tests flakey when running jest
-    // either on CI, or with many workers. Go figure. (Performance related?)
-    // userEvent.click(screen.getByRole("checkbox", { name: "Other" }));
-    // userEvent.click(screen.getByRole("checkbox", { name: "Marketing" }));
-    userEvent.type(
+    await user.click(screen.getByRole("radio", { name: "Yes" }));
+
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: CONTRIBUTE_WAYS_OPTIONS[8].description,
+      })
+    );
+
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: CONTRIBUTE_WAYS_OPTIONS[4].description,
+      })
+    );
+    await user.type(
       screen.getByLabelText(EXPERTISE_LABEL),
       "I am a robot, I have all the expertise"
     );
-    userEvent.type(
+    await user.type(
       screen.getByLabelText(EXPERIENCE_LABEL),
       "I have lots of experience"
     );
 
-    userEvent.click(screen.getByRole("button", { name: SUBMIT }));
+    await user.click(screen.getByRole("button", { name: SUBMIT }));
     expect(await screen.findByText(SUCCESS_MSG)).toBeVisible();
     expect(processForm).toHaveBeenCalledWith({
       ideas: "I have great ideas",
       features: "I want all the features",
       experience: "I have lots of experience",
       contribute: ContributeOption.CONTRIBUTE_OPTION_YES,
-      contributeWaysList: [], //["other", "marketing"],
+      contributeWaysList: expect.arrayContaining(["other", "marketing"]),
       expertise: "I am a robot, I have all the expertise",
     });
   });
@@ -80,14 +90,16 @@ describe("contributor form", () => {
     );
     mockConsoleError();
     render(<ContributorForm processForm={processForm} />, { wrapper });
-    userEvent.type(screen.getByLabelText(IDEAS_LABEL), "I have great ideas");
 
-    userEvent.click(screen.getByRole("button", { name: SUBMIT }));
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(IDEAS_LABEL), "I have great ideas");
+
+    await user.click(screen.getByRole("button", { name: SUBMIT }));
     expect(screen.getByRole("alert")).toBeVisible();
     expect(screen.getByRole("alert")).toHaveTextContent("Network error?");
     expect(screen.queryByText(SUCCESS_MSG)).not.toBeInTheDocument();
-    expect((screen.getByLabelText(IDEAS_LABEL) as HTMLInputElement).value).toBe(
+    expect(screen.getByLabelText(IDEAS_LABEL) as HTMLInputElement).toHaveValue(
       "I have great ideas"
     );
     expect(processForm).toHaveBeenCalledWith({

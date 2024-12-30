@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
 import mockRouter from "next-router-mock";
 import { service } from "service";
@@ -29,7 +29,8 @@ describe("CreateGroupChat with query string", () => {
         t("messages:create_chat.friends_input_label")
       )
     ).toBeVisible();
-    expect(screen.getByText(users[0].name)).toBeVisible();
+
+    await waitFor(() => expect(screen.getByText(users[0].name)).toBeVisible());
     expect(
       screen.queryByRole("heading", {
         name: t("messages:create_chat.dm_title"),

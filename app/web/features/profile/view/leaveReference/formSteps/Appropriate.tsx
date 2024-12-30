@@ -42,7 +42,12 @@ export default function Appropriate({
   const theme = useTheme();
   const classes = useReferenceStyles();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
-  const { control, handleSubmit, errors } = useForm<ReferenceContextFormData>({
+  const {
+    control,
+    handleSubmit,
+
+    formState: { errors },
+  } = useForm<ReferenceContextFormData>({
     defaultValues: {
       wasAppropriate: referenceData.wasAppropriate,
     },
@@ -65,12 +70,6 @@ export default function Appropriate({
       <TextBody className={classes.text}>
         {t("profile:leave_reference.appropriate_explanation")}
       </TextBody>
-
-      {errors.wasAppropriate?.message && (
-        <Alert className={classes.alert} severity="error">
-          {errors.wasAppropriate.message}
-        </Alert>
-      )}
       <Card className={classes.card}>
         <CardContent>
           <Typography variant="h3">
@@ -80,12 +79,17 @@ export default function Appropriate({
           <TextBody className={classes.text}>
             {t("profile:leave_reference.safety_priority")}
           </TextBody>
+          {errors.wasAppropriate?.message && (
+            <Alert className={classes.alert} severity="error">
+              {errors.wasAppropriate.message}
+            </Alert>
+          )}
           <Typography variant="h3" className={classes.text}>
             {t("profile:leave_reference.appropriate_question")}
           </Typography>
           <Controller
-            as={
-              <RadioGroup aria-label="wasAppropriate">
+            render={({ field }) => (
+              <RadioGroup {...field} aria-label="wasAppropriate">
                 <FormControlLabel
                   value="true"
                   control={<Radio />}
@@ -97,7 +101,7 @@ export default function Appropriate({
                   label="No"
                 />
               </RadioGroup>
-            }
+            )}
             name="wasAppropriate"
             control={control}
             rules={{

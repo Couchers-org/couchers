@@ -140,7 +140,11 @@ export default function FilterDialog({
 }: FilterDialogProps) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
-  const { control, register, errors } = useForm<FilterModalFormData>({
+  const {
+    control,
+    register,
+    formState: { errors },
+  } = useForm<FilterModalFormData>({
     mode: "onBlur",
   });
 
@@ -215,9 +219,8 @@ export default function FilterDialog({
             <TextField
               fullWidth
               id="keywords-filter"
+              {...register("query")}
               label={t("search:form.keywords.field_label")}
-              name="query"
-              inputRef={register}
               variant="standard"
               onChange={(e) => {
                 if (e) {
@@ -337,17 +340,16 @@ export default function FilterDialog({
                 {t("search:form.accommodation_filters.title")}
               </Typography>
               <TextField
+                id="num-guests-filter"
+                {...register("numGuests", {
+                  valueAsNumber: true,
+                })}
                 className={classes.noMargin}
                 type="number"
                 variant="standard"
-                id="num-guests-filter"
                 value={numberOfGuestFilter}
                 inputProps={{ min: 0 }}
                 onChange={handleNumGuestsChange}
-                inputRef={register({
-                  valueAsNumber: true,
-                })}
-                name="numGuests"
                 fullWidth
                 label={t(
                   "search:form.accommodation_filters.guests_field_label"

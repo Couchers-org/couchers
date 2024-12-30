@@ -78,8 +78,10 @@ describe("MarkAllReadButton", () => {
 
   it("marks expected chats", async () => {
     render(<MarkAllReadButton type="chats" />, { wrapper });
-    userEvent.click(
-      screen.getByRole("button", {
+
+    const user = userEvent.setup();
+    await user.click(
+      await screen.findByRole("button", {
         name: t("messages:mark_all_read_button_text"),
       })
     );
@@ -98,8 +100,10 @@ describe("MarkAllReadButton", () => {
   });
   it("marks expected requests", async () => {
     render(<MarkAllReadButton type="hosting" />, { wrapper });
-    userEvent.click(
-      screen.getByRole("button", {
+    const user = userEvent.setup();
+
+    await user.click(
+      await screen.findByRole("button", {
         name: t("messages:mark_all_read_button_text"),
       })
     );
@@ -121,8 +125,11 @@ describe("MarkAllReadButton", () => {
     mockConsoleError();
     listGroupChatsMock.mockRejectedValueOnce(new Error("Generic error"));
     render(<MarkAllReadButton type="chats" />, { wrapper });
-    userEvent.click(
-      screen.getByRole("button", {
+
+    const user = userEvent.setup();
+
+    await user.click(
+      await screen.findByRole("button", {
         name: t("messages:mark_all_read_button_text"),
       })
     );

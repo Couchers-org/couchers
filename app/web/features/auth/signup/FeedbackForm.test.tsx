@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { renderHook } from "@testing-library/react-hooks";
+import { render, renderHook, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EXPERTISE_LABEL, SUBMIT } from "components/ContributorForm/constants";
 import { ContributeOption } from "proto/auth_pb";
@@ -53,21 +52,25 @@ describe("signup form (feedback part)", () => {
     );
 
     render(<FeedbackForm />, { wrapper });
-    userEvent.type(
+
+    const user = userEvent.setup();
+
+    await user.type(
       await screen.findByLabelText(EXPERTISE_LABEL),
       "I have lots of expertise!"
     );
-    userEvent.click(await screen.findByRole("button", { name: SUBMIT }));
+    await user.click(await screen.findByRole("button", { name: SUBMIT }));
 
     await waitFor(() => {
       expect(signupFlowFeedbackMock).toBeCalledTimes(1);
-      const params = signupFlowFeedbackMock.mock.calls[0];
-      expect(params[0]).toBe("dummy-token");
-      expect(params[1].contribute).toBe(
-        ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED
-      );
-      expect(params[1].expertise).toBe("I have lots of expertise!");
     });
+
+    const params = signupFlowFeedbackMock.mock.calls[0];
+    expect(params[0]).toBe("dummy-token");
+    expect(params[1].contribute).toBe(
+      ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED
+    );
+    expect(params[1].expertise).toBe("I have lots of expertise!");
 
     const { result: result2 } = renderHook(() => useAuthContext(), {
       wrapper,
@@ -84,7 +87,9 @@ describe("signup form (feedback part)", () => {
   it("skips the form successfully if the skip link is used", async () => {
     render(<FeedbackForm />, { wrapper });
 
-    userEvent.click(
+    const user = userEvent.setup();
+
+    await user.click(
       await screen.findByRole("link", { name: "Skip this step" })
     );
 

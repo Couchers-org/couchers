@@ -58,7 +58,7 @@ export default function ResetPassword() {
         <TextField
           classes={{ root: classes.textField }}
           id="userId"
-          inputRef={register({ required: true })}
+          {...register("userId", { required: true })}
           label={t("auth:reset_password_form.enter_email")}
           name="userId"
           variant="standard"

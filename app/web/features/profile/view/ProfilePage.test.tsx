@@ -66,7 +66,11 @@ describe("Profile page", () => {
 
         expect(mockRouter.pathname).toBe("/profile");
 
-        userEvent.click(await screen.findByText(t("profile:heading.home")));
+        const user = userEvent.setup();
+
+        const homeTab = await screen.findByText(t("profile:heading.home"));
+
+        await user.click(homeTab);
 
         expect(mockRouter.pathname).toBe("/profile/home");
 
@@ -75,7 +79,9 @@ describe("Profile page", () => {
         // Mui introduced support for Next.js AppRouter, but we need to upgrade to Next v13 first for it, that might help
         // https://github.com/mui/material-ui/blob/HEAD/CHANGELOG.old.md#5140
 
-        // userEvent.click(await screen.findByText(t("profile:heading.about_me")));
+        // const aboutTab = await screen.findByText(t("profile:heading.about_me"))
+
+        // await fireEvent.click(aboutTab);
 
         // expect(mockRouter.pathname).toBe("/profile/about");
       });

@@ -3,7 +3,10 @@ import {
   AutocompleteProps as MuiAutocompleteProps,
 } from "@mui/material";
 import classNames from "classnames";
+import { SignupAccountInputs } from "features/auth/signup/AccountForm";
+import { EditProfileFormValues } from "features/profile/edit/EditProfile";
 import React from "react";
+import { ControllerRenderProps } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
 
 import TextField from "./TextField";
@@ -30,6 +33,9 @@ export type AutocompleteProps<
   placeholder?: string;
   helperText?: string;
   variant?: "filled" | "standard" | "outlined" | undefined;
+  inputProps?:
+    | ControllerRenderProps<SignupAccountInputs, "location">
+    | ControllerRenderProps<EditProfileFormValues, "location">;
 };
 
 export default function Autocomplete<
@@ -46,6 +52,7 @@ export default function Autocomplete<
   placeholder,
   variant = "standard",
   endAdornment,
+  inputProps,
   ...otherProps
 }: AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>) {
   const classes = useStyles();
@@ -59,6 +66,7 @@ export default function Autocomplete<
       renderInput={(params) => (
         <TextField
           {...params}
+          {...inputProps}
           variant={variant}
           error={!!error}
           label={label}
