@@ -33,8 +33,6 @@ import { InfiniteData } from "react-query";
 import { GeocodeResult, usePrevious } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
-import { TypeHostingStatusOptions } from "./SearchPage";
-
 const useStyles = makeStyles((theme) => ({
   searchHereGroup2: {
     top: "20px",
@@ -96,11 +94,7 @@ interface mapWrapperProps {
   map: MutableRefObject<MaplibreMap | undefined>;
   setWasSearchPerformed: Dispatch<SetStateAction<boolean>>;
   wasSearchPerformed: boolean;
-  queryName: string;
-  lastActiveFilter: number;
-  hostingStatusFilter: TypeHostingStatusOptions;
-  numberOfGuestFilter: number | undefined;
-  completeProfileFilter: boolean;
+  areFiltersCleared: boolean;
   handleClearFilters: () => void;
 }
 
@@ -115,18 +109,13 @@ export default function MapWrapper({
   setIsFiltersOpen,
   wasSearchPerformed,
   setWasSearchPerformed,
-  queryName,
-  lastActiveFilter,
-  hostingStatusFilter,
-  numberOfGuestFilter,
-  completeProfileFilter,
+  areFiltersCleared,
   handleClearFilters,
 }: mapWrapperProps) {
   const { t } = useTranslation([SEARCH]);
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
   const [isMapStyleLoaded, setIsMapStyleLoaded] = useState(false);
   const [isMapSourceLoaded, setIsMapSourceLoaded] = useState(false);
-  const [areFiltersApplied, setAreFiltersApplied] = useState(false);
   const previousResult = usePrevious(selectedResult);
   const classes = useStyles();
   const theme = useTheme();
@@ -180,29 +169,6 @@ export default function MapWrapper({
     },
     [map]
   );
-
-  /**
-   * Checks if filters are applied
-   */
-  useEffect(() => {
-    const filtersActive =
-      queryName !== "" ||
-      lastActiveFilter !== 0 ||
-      hostingStatusFilter.length !== 0 ||
-      numberOfGuestFilter !== undefined ||
-      completeProfileFilter !== false ||
-      (locationResult?.location.lng !== 0 &&
-        locationResult?.location.lat !== 0);
-
-    setAreFiltersApplied(filtersActive);
-  }, [
-    queryName,
-    lastActiveFilter,
-    hostingStatusFilter,
-    numberOfGuestFilter,
-    completeProfileFilter,
-    locationResult,
-  ]);
 
   /**
    * Centers selected user
@@ -273,7 +239,11 @@ export default function MapWrapper({
    * Re-renders users list on map (when results array changed)
    */
   useEffect(() => {
-    if (isMapStyleLoaded && isMapSourceLoaded && wasSearchPerformed) {
+    if (
+      isMapStyleLoaded &&
+      isMapSourceLoaded &&
+      (wasSearchPerformed || areFiltersCleared)
+    ) {
       if (results) {
         const usersToRender = filterData(results);
         reRenderUsersOnMap(map.current!, usersToRender, handleMapUserClick);
@@ -286,6 +256,7 @@ export default function MapWrapper({
     isMapStyleLoaded,
     isMapSourceLoaded,
     wasSearchPerformed,
+    areFiltersCleared,
   ]);
 
   /**
@@ -352,7 +323,7 @@ export default function MapWrapper({
           </Button>
           <Button
             color="primary"
-            disabled={!areFiltersApplied}
+            disabled={areFiltersCleared}
             onClick={onClearFiltersClick}
             className={classes.clearFiltersButton}
           >

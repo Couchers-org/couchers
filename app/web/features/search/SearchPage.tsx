@@ -105,6 +105,7 @@ export default function SearchPage({
   >();
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [areFiltersCleared, setAreFiltersCleared] = useState(true);
 
   // Loads the list of users
   const { data, error, isLoading, isFetching, hasNextPage } = useInfiniteQuery<
@@ -148,21 +149,25 @@ export default function SearchPage({
   }, [locationResult?.bbox]);
 
   /**
-   * Tracks whether a search was perform after the first render (always show all the users of the platform on the first render)
+   * Handles search and filter state:
+   * - Tracks whether a search was performed after first render (shows all users on first render)
+   * - Manages filter state to enable/disable the clear filters button
    */
   useEffect(() => {
-    if (!wasSearchPerformed) {
-      if (
-        lastActiveFilter !== 0 ||
-        hostingStatusFilter.length !== 0 ||
-        numberOfGuestFilter !== undefined ||
-        completeProfileFilter !== false ||
-        queryName !== "" ||
-        (locationResult.location.lng !== 0 && locationResult.location.lat !== 0)
-      ) {
-        setWasSearchPerformed(true);
-      }
+    const filtersApplied =
+      lastActiveFilter !== 0 ||
+      hostingStatusFilter.length !== 0 ||
+      numberOfGuestFilter !== undefined ||
+      completeProfileFilter !== false ||
+      queryName !== "" ||
+      (locationResult.location.lng !== 0 && locationResult.location.lat !== 0);
+
+    // Update wasSearchPerformed only on first search
+    if (!wasSearchPerformed && filtersApplied) {
+      setWasSearchPerformed(true);
     }
+
+    setAreFiltersCleared(!filtersApplied);
   }, [
     lastActiveFilter,
     hostingStatusFilter,
@@ -190,6 +195,7 @@ export default function SearchPage({
     setHostingStatusFilter([]);
     setNumberOfGuestFilter(undefined);
     setCompleteProfileFilter(false);
+    setAreFiltersCleared(true);
   };
 
   const errorMessage = error?.message;
@@ -265,11 +271,7 @@ export default function SearchPage({
             isLoading={isLoading || isFetching}
             setWasSearchPerformed={setWasSearchPerformed}
             wasSearchPerformed={wasSearchPerformed}
-            queryName={queryName}
-            lastActiveFilter={lastActiveFilter}
-            hostingStatusFilter={hostingStatusFilter}
-            numberOfGuestFilter={numberOfGuestFilter}
-            completeProfileFilter={completeProfileFilter}
+            areFiltersCleared={areFiltersCleared}
             handleClearFilters={handleClearFilters}
           />
         </div>
