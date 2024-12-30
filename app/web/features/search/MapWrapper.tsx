@@ -314,7 +314,7 @@ export default function MapWrapper({
   /**
    * Clicks on 'clear filters' button
    */
-  const handleClearFiltersOnClick = () => {
+  const onClearFiltersClick = () => {
     handleClearFilters();
   };
 
@@ -353,7 +353,7 @@ export default function MapWrapper({
           <Button
             color="primary"
             disabled={!areFiltersApplied}
-            onClick={handleClearFiltersOnClick}
+            onClick={onClearFiltersClick}
             className={classes.clearFiltersButton}
           >
             {t("search:filter_dialog.clear_filters_button")}
