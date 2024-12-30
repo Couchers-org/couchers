@@ -1,5 +1,6 @@
 import ReplayIcon from "@mui/icons-material/Replay";
 import TuneIcon from "@mui/icons-material/Tune";
+import { useMediaQuery, useTheme } from "@mui/material";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Map from "components/Map";
@@ -31,7 +32,7 @@ import {
 import { InfiniteData } from "react-query";
 import { GeocodeResult, usePrevious } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
-import { useMediaQuery, useTheme } from "@mui/material";
+
 import { TypeHostingStatusOptions } from "./SearchPage";
 
 const useStyles = makeStyles((theme) => ({
