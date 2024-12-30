@@ -71,10 +71,11 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
   },
   clearFiltersButton: {
-    borderRadius: "4px 0px 0px 4px",
+    borderRadius: "4px",
+    marginRight: theme.spacing(1),
   },
   buttonSearchSettings: {
-    borderRadius: "0px 4px 4px 0px",
+    borderRadius: "4px",
     "& span": {
       margin: 0,
     },
