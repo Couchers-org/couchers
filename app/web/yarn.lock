@@ -1106,7 +1106,7 @@
   resolved "https://registry.yarnpkg.com/@mui/types/-/types-7.2.19.tgz#c941954dd24393fdce5f07830d44440cf4ab6c80"
   integrity sha512-6XpZEM/Q3epK9RN8ENoXuygnqUQxE+siN/6rGRi2iwJPgBUR25mphYQ9ZI87plGh58YoZ5pp40bFvKYOCDJ3tA==
 
-"@mui/utils@^5.10.3", "@mui/utils@^5.15.14", "@mui/utils@^5.16.13", "@mui/utils@^5.16.6", "@mui/utils@^5.16.8":
+"@mui/utils@^5.10.3", "@mui/utils@^5.15.14", "@mui/utils@^5.16.13", "@mui/utils@^5.16.8":
   version "5.16.13"
   resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-5.16.13.tgz#6276eafd15e2c6778cdb6aeb07017c996d3fda52"
   integrity sha512-35kLiShnDPByk57Mz4PP66fQUodCFiOD92HfpW6dK9lc7kjhZsKHRKeYPgWuwEHeXwYsCSFtBCW4RZh/8WT+TQ==
