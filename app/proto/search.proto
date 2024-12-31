@@ -123,16 +123,14 @@ message UserSearchReq {
   repeated org.couchers.api.core.SleepingArrangement sleeping_arrangement_filter = 7;
   repeated org.couchers.api.core.ParkingDetails parking_details_filter = 8;
   repeated org.couchers.api.core.MeetupStatus meetup_status_filter = 32;
-  repeated org.couchers.api.core.LanguageAbility language_ability_filter = 34;
-
-
+  repeated org.couchers.api.core.LanguageAbility language_ability_filter = 11;
 
   repeated string gender = 9;
   google.protobuf.UInt32Value guests = 10;
   bool only_with_references = 12;
 
   // bool friends_only = 13;
-  
+
   google.protobuf.UInt32Value age_min = 14;
   google.protobuf.UInt32Value age_max = 15;
 
@@ -211,4 +209,3 @@ message EventSearchRes {
   string next_page_token = 2;
   uint32 total_items = 4;
 }
-

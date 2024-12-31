@@ -54,12 +54,9 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-## Now run the test
-```
+## Now run the test against the testing postgres database
 DATABASE_CONNECTION_STRING="postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/postgres"
-
 pytest src/tests/
-
 ```
 
 ## Q/A:
@@ -78,21 +75,21 @@ pytest src/tests/
 2. Delete the `postgres` folder in `app/data`
 3. Re-run `docker compose up --build`
 
-### Q: I'm seeing issues with proto!
+If you have **any trouble**, send Aapeli a message on Slack. He's more than happy to spend a bit of time helping you set things up!
 
-**A**: Generate protos using
+### Q: I'm having issues with proto protos!
+
+**A**: Regenerate protos using
 
 ```sh
 docker run --pull always --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
 ```
+
 ### Q: How do I log in or sign up when developing?
 
 **A**: If you are using the local backend, you can log in with the username "aapeli" and the password "Aapeli's password". This comes from the [dummy data](https://github.com/Couchers-org/couchers/blob/develop/app/backend/src/data/dummy_users.json). For emails, see the next question.
 
 If you are using the live dev api ("next"/staging), it will send you real emails so you can sign up. However, all links will point to next.couchershq.org. If you want to open them with the couchers frontend you are working on locally, change the links to http://localhost:3000/rest/of/the/url.
-
-If you have **any trouble**, send Aapeli a message on Slack. He's more than happy to spend a bit of time helping you set things up!
-
 
 ### Q: How do I receive emails like the signup confirmation email in local dev?
 

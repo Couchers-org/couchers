@@ -411,7 +411,6 @@ class Search(search_pb2_grpc.SearchServicer):
                     )
                 )
 
-            # add interests in profile and as filter.
         if request.HasField("last_active"):
             raw_dt = to_aware_datetime(request.last_active)
             statement = statement.where(User.last_active >= last_active_coarsen(raw_dt))

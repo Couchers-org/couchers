@@ -67,13 +67,6 @@ meetupstatus2sql = {
     api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP: MeetupStatus.open_to_meetup,
     api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP: MeetupStatus.does_not_want_to_meetup,
 }
-fluency2sql = {
-    api_pb2.LanguageAbility.Fluency.FLUENCY_UNKNOWN: None,
-    api_pb2.LanguageAbility.Fluency.FLUENCY_BEGINNER: LanguageFluency.beginner,
-    api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL: LanguageFluency.conversational,
-    api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT: LanguageFluency.fluent,
-}
-
 
 meetupstatus2api = {
     None: api_pb2.MEETUP_STATUS_UNKNOWN,
@@ -81,7 +74,6 @@ meetupstatus2api = {
     MeetupStatus.open_to_meetup: api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP,
     MeetupStatus.does_not_want_to_meetup: api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP,
 }
-
 
 smokinglocation2sql = {
     api_pb2.SMOKING_LOCATION_UNKNOWN: None,
