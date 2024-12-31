@@ -14,7 +14,6 @@ module.exports = {
       "pages",
       "resources",
       "service",
-      "stories",
       "test",
       "types",
       "utils",

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "lib": ["dom", "dom.iterable", "esnext"],
     "baseUrl": ".",
     "allowJs": true,
@@ -25,5 +25,5 @@
     "i18n/namespaces.js",
     "i18n/allLanguages.js"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", ".next", "jest.config.ts"]
 }
