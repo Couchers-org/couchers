@@ -498,7 +498,7 @@
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.8.tgz#21a907684723bbbaa5f0974cf7730bd797eb8e62"
   integrity sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==
 
-"@fontsource/mansalva@^5.1.0":
+"@fontsource/mansalva@^5.1.1":
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/@fontsource/mansalva/-/mansalva-5.1.1.tgz#cd02db457e40ab7f11e0c17a8ff98e08562d98c6"
   integrity sha512-Fzezu1MDuU6HFAWC+ST1bXulS7nvbxJ+mEhpaDmXEoXn/N0RYQSIYFt9d2V9CerTgZSCcLfkJBLj5+EL1uxCmQ==
