@@ -157,6 +157,6 @@ static_resources:
 admin:
   address:
     socket_address:
-      address: ::
+      address: "::"
       port_value: 9901
       ipv4_compat: true
