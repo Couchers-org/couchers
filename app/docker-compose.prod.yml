@@ -151,23 +151,34 @@ services:
 networks:
   backend_prometheus:
     driver: bridge
+    enable_ipv6: true
   postgres_backend:
     driver: bridge
+    enable_ipv6: true
   backend_media:
     driver: bridge
+    enable_ipv6: true
   backend_envoy:
     driver: bridge
+    enable_ipv6: true
   media_nginx:
     driver: bridge
+    enable_ipv6: true
   envoy_nginx:
     driver: bridge
+    enable_ipv6: true
   web_nginx:
     driver: bridge
+    enable_ipv6: true
   postgres_pgprom:
     driver: bridge
+    enable_ipv6: true
   pgprom_prometheus:
     driver: bridge
+    enable_ipv6: true
   envoy_prometheus:
     driver: bridge
+    enable_ipv6: true
   backend_jaeger:
     driver: bridge
+    enable_ipv6: true
