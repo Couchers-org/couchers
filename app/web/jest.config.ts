@@ -12,9 +12,7 @@ const customJestConfig: Config = {
     "!**/node_modules/**",
     "!jest.config.ts",
     "!proto/**",
-    "!stories/**",
     "!.next/**",
-    "!**/*.stories.tsx",
     "!**/*.coverage/**",
   ],
   moduleNameMapper: {
