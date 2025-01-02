@@ -54,7 +54,7 @@ const StyledCloseButton = styled(IconButton)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   borderRadius: 0,
   zIndex: theme.zIndex.drawer,
-  "& svg": { fontSize: "3.5rem" },
+  "& svg": { fontSize: "3rem" },
 }));
 
 const StyledVerticalList = styled(List)(({ theme }) => ({
