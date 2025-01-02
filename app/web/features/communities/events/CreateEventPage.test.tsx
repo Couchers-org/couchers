@@ -71,6 +71,8 @@ describe("Create event page", () => {
       expect(titleInput).toHaveValue("Test event");
     });
 
+    // @TODO(NA): Need to add start and end dates now but it's triple tested in EventTimeChanger and I can't seem to type in them from here.
+
     const virtualEventCheckBox = screen.getByLabelText(
       t("communities:virtual_event")
     ) as HTMLInputElement;
