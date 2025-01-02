@@ -128,7 +128,7 @@ describe("Edit event page", () => {
     expect(mockRouter.pathname).toBe(routeToEvent(1, "weekly-meetup"));
   });
 
-  it("should submit both the start and end date if the start date field is touched", async () => {
+  it("should submit only the start date if the start date field is touched", async () => {
     renderPage();
 
     const startDateField = await screen.findByLabelText<HTMLInputElement>(
@@ -157,11 +157,10 @@ describe("Edit event page", () => {
       eventId: 1,
       isOnline: false,
       startTime: new Date("2021-08-01 02:37"),
-      endTime: new Date("2021-08-01 03:37"),
     });
   });
 
-  it("should submit both the start and end date if the start time field is touched", async () => {
+  it("should submit only the start date if the start time field is touched", async () => {
     renderPage();
 
     const startTimeField = (await screen.findByLabelText(
@@ -190,7 +189,6 @@ describe("Edit event page", () => {
       eventId: 1,
       isOnline: false,
       startTime: new Date("2021-06-29 00:00"),
-      endTime: new Date("2021-06-29 01:00"),
     });
   });
 

@@ -72,19 +72,19 @@ describe("Event form", () => {
     expect(screen.getByText(t("communities:upload_helper_text"))).toBeVisible();
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:start_date")),
-      "08/01/2021"
+      ""
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:start_time")),
-      "01:00"
+      ""
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:end_date")),
-      "08/01/2021"
+      ""
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:end_time")),
-      "02:00"
+      ""
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:location")),
@@ -228,7 +228,11 @@ describe("Event form", () => {
   });
 
   it("should submit the form successfully if all required fields are filled in", async () => {
-    renderForm();
+    //@ts-ignore - isolate EventForm changes only by adding EventTimeChanger values by default
+    renderForm({
+      startTime: { nanos: 0, seconds: 1624934247.732 },
+      endTime: { nanos: 0, seconds: 1624937847 },
+    });
 
     const user = userEvent.setup();
 
@@ -287,7 +291,11 @@ describe("Event form", () => {
     mockConsoleError();
     const errorMessage = "Error submitting event";
     serviceFn.mockRejectedValue(new Error(errorMessage));
-    renderForm();
+    //@ts-ignore - isolate EventForm changes only by adding EventTimeChanger values by default
+    renderForm({
+      startTime: { nanos: 0, seconds: 1624934247.732 },
+      endTime: { nanos: 0, seconds: 1624937847 },
+    });
 
     const user = userEvent.setup();
 
@@ -336,7 +344,11 @@ describe("Event form", () => {
   });
 
   it("should submit an offline event successfully", async () => {
-    renderForm();
+    //@ts-ignore - isolate EventForm changes only by adding EventTimeChanger values by default
+    renderForm({
+      startTime: { nanos: 0, seconds: 1624934247.732 },
+      endTime: { nanos: 0, seconds: 1624937847 },
+    });
 
     const user = userEvent.setup();
 

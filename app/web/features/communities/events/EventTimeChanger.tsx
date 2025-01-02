@@ -68,6 +68,8 @@ export default function EventTimeChanger({
   };
 
   const handleStartDateChange = (newStartDate: Dayjs) => {
+
+    console.log('handleStartDateChange', newStartDate);
     setValue("startDate", newStartDate, {
       shouldDirty: true,
       shouldValidate: true,
