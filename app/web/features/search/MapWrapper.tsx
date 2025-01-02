@@ -96,7 +96,7 @@ interface mapWrapperProps {
   setWasSearchPerformed: Dispatch<SetStateAction<boolean>>;
   wasSearchPerformed: boolean;
   areFiltersCleared: boolean;
-  handleClearFilters: () => void;
+  handleClearFilters: (bbox?: [number, number, number, number]) => void;
 }
 
 export default function MapWrapper({
@@ -287,7 +287,18 @@ export default function MapWrapper({
    * Clicks on 'clear filters' button
    */
   const onClearFiltersClick = () => {
-    handleClearFilters();
+    const currentBbox = map.current?.getBounds().toArray();
+    if (currentBbox) {
+      const bbox: [number, number, number, number] = [
+        currentBbox[0][0],
+        currentBbox[0][1],
+        currentBbox[1][0],
+        currentBbox[1][1],
+      ];
+      handleClearFilters(bbox);
+    } else {
+      handleClearFilters();
+    }
   };
 
   const initializeMap = (newMap: MaplibreMap) => {

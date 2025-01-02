@@ -182,10 +182,10 @@ export default function SearchPage({
   /**
    * Handler for clearing all filters
    */
-  const handleClearFilters = () => {
+  const handleClearFilters = (bbox?: [number, number, number, number]) => {
     setQueryName("");
     setLocationResult({
-      bbox: bbox,
+      bbox: bbox || [0, 0, 0, 0],
       isRegion: false,
       location: new LngLat(0, 0),
       name: locationName,
