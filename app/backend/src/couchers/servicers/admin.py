@@ -292,9 +292,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return community_to_pb(session, node, context)
 
     def UpdateCommunity(self, request, context, session):
-        cluster = session.execute(
-            select(Cluster).where(Cluster.id == request.community_id).where(Cluster.deleted == None)
-        ).scalar_one_or_none()
+        cluster = session.execute(select(Cluster).where(Cluster.id == request.community_id)).scalar_one_or_none()
         if not cluster:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
 
