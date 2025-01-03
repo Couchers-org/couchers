@@ -285,7 +285,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         places = (
             node.official_cluster.owned_pages.where(Page.type == PageType.place)
             .where(Page.id >= next_page_id)
-            .where(Page.deleted is None)
+            .where(Page.deleted == None)
             .order_by(Page.id)
             .limit(page_size + 1)
             .all()

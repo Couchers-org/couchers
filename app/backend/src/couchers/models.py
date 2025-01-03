@@ -1513,7 +1513,7 @@ class Node(Base):
     parent_node_id = Column(ForeignKey("nodes.id"), nullable=True, index=True)
     geom = deferred(Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False))
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    deleted = Column(DateTime(timezone=True), nullable=True, default=None)
+    deleted = Column(DateTime(timezone=True), nullable=True)
 
     parent_node = relationship("Node", backref="child_nodes", remote_side="Node.id")
 
