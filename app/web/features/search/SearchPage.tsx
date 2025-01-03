@@ -272,7 +272,7 @@ export default function SearchPage({
             setWasSearchPerformed={setWasSearchPerformed}
             wasSearchPerformed={wasSearchPerformed}
             areFiltersCleared={areFiltersCleared}
-            handleClearFilters={handleClearFilters}
+            onClearFiltersClick={handleClearFilters}
           />
         </div>
       </div>

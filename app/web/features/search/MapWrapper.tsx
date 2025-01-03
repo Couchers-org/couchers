@@ -96,7 +96,7 @@ interface mapWrapperProps {
   setWasSearchPerformed: Dispatch<SetStateAction<boolean>>;
   wasSearchPerformed: boolean;
   areFiltersCleared: boolean;
-  handleClearFilters: (bbox?: [number, number, number, number]) => void;
+  onClearFiltersClick: (bbox?: [number, number, number, number]) => void;
 }
 
 export default function MapWrapper({
@@ -111,7 +111,7 @@ export default function MapWrapper({
   wasSearchPerformed,
   setWasSearchPerformed,
   areFiltersCleared,
-  handleClearFilters,
+  onClearFiltersClick,
 }: mapWrapperProps) {
   const { t } = useTranslation([SEARCH]);
   const [areClustersLoaded, setAreClustersLoaded] = useState(false);
@@ -286,7 +286,7 @@ export default function MapWrapper({
   /**
    * Clicks on 'clear filters' button
    */
-  const onClearFiltersClick = () => {
+  const handleClearFiltersClick = () => {
     const currentBbox = map.current?.getBounds().toArray();
     if (currentBbox) {
       const bbox: [number, number, number, number] = [
@@ -295,9 +295,9 @@ export default function MapWrapper({
         currentBbox[1][0],
         currentBbox[1][1],
       ];
-      handleClearFilters(bbox);
+      onClearFiltersClick(bbox);
     } else {
-      handleClearFilters();
+      onClearFiltersClick();
     }
   };
 
@@ -336,7 +336,7 @@ export default function MapWrapper({
           <Button
             color="primary"
             disabled={areFiltersCleared}
-            onClick={onClearFiltersClick}
+            onClick={handleClearFiltersClick}
             className={classes.clearFiltersButton}
           >
             {t("search:filter_dialog.clear_filters_button")}
