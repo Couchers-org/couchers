@@ -116,7 +116,6 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 select(Node)
                 .where(or_(Node.parent_node_id == request.community_id, request.community_id == 0))
                 .where(Node.id >= next_node_id)
-                .where(Node.deleted == None)
                 .order_by(Node.id)
                 .limit(page_size + 1)
             )
@@ -137,7 +136,6 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .where(~Cluster.is_official_cluster)  # not an official group
                 .where(Cluster.parent_node_id == request.community_id)
                 .where(Cluster.id >= next_cluster_id)
-                .where(Cluster.deleted == None)
                 .order_by(Cluster.id)
                 .limit(page_size + 1)
             )
@@ -285,7 +283,6 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         places = (
             node.official_cluster.owned_pages.where(Page.type == PageType.place)
             .where(Page.id >= next_page_id)
-            .where(Page.deleted == None)
             .order_by(Page.id)
             .limit(page_size + 1)
             .all()
@@ -304,7 +301,6 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         guides = (
             node.official_cluster.owned_pages.where(Page.type == PageType.guide)
             .where(Page.id >= next_page_id)
-            .where(Page.deleted is None)
             .order_by(Page.id)
             .limit(page_size + 1)
             .all()
@@ -415,7 +411,6 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .where(ClusterSubscription.user_id == user_id)
                 .where(Cluster.is_official_cluster)
                 .where(Node.id >= next_node_id)
-                .where(Node.deleted == None)
                 .order_by(Node.id)
                 .limit(page_size + 1)
             )
