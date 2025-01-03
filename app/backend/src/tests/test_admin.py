@@ -516,49 +516,6 @@ def test_UpdateCommunity(db):
             assert node_updated.parent_node_id == community_2.parent_node_id
 
 
-def test_DeleteCommunity_invalid_id(db):
-    super_user, super_token = generate_user(is_superuser=True)
-
-    with session_scope() as session:
-        with real_admin_session(super_token) as api:
-            api.CreateCommunity(
-                admin_pb2.CreateCommunityReq(
-                    name="test community",
-                    description="community for testing",
-                    admin_ids=[],
-                    geojson=VALID_GEOJSON_MULTIPOLYGON,
-                )
-            )
-
-            with pytest.raises(grpc.RpcError) as e:
-                api.DeleteCommunity(admin_pb2.DeleteCommunityReq(community_id=1000))
-            assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == errors.COMMUNITY_NOT_FOUND
-
-
-def test_DeleteCommunity(db):
-    super_user, super_token = generate_user(is_superuser=True)
-
-    with session_scope() as session:
-        with real_admin_session(super_token) as api:
-            api.CreateCommunity(
-                admin_pb2.CreateCommunityReq(
-                    name="test community 1",
-                    description="community for testing",
-                    admin_ids=[],
-                    geojson=VALID_GEOJSON_MULTIPOLYGON,
-                )
-            )
-            community = session.execute(select(Cluster).where(Cluster.name == "test community 1")).scalar_one()
-            assert community.deleted == None
-
-            api.DeleteCommunity(admin_pb2.DeleteCommunityReq(community_id=community.id))
-            session.commit()
-
-            community_deleted = session.execute(select(Cluster).where(Cluster.id == community.id)).scalar_one()
-            assert community_deleted.deleted is not None
-
-
 def test_GetChats(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()

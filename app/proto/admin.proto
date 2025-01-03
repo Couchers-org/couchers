@@ -53,8 +53,6 @@ service Admin {
 
   rpc UpdateCommunity(UpdateCommunityReq) returns (org.couchers.api.communities.Community) {}
 
-  rpc DeleteCommunity(DeleteCommunityReq) returns (google.protobuf.Empty) {}
-
   rpc GetChats(GetChatsReq) returns (GetChatsRes) {}
 
   rpc ListEventCommunityInviteRequests(ListEventCommunityInviteRequestsReq) returns (ListEventCommunityInviteRequestsRes) {}
@@ -211,10 +209,6 @@ message UpdateCommunityReq {
   string description = 3;
   int64 parent_node_id = 4;
   string geojson = 5;
-}
-
-message DeleteCommunityReq {
-  int64 community_id = 1;
 }
 
 message GetChatsReq {
