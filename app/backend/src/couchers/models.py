@@ -2094,6 +2094,7 @@ class Thread(Base):
     id = Column(BigInteger, primary_key=True)
 
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    deleted = Column(DateTime(timezone=True), nullable=True)
 
 
 class Comment(Base):
@@ -2109,6 +2110,7 @@ class Comment(Base):
     author_user_id = Column(ForeignKey("users.id"), nullable=False)
     content = Column(String, nullable=False)  # CommonMark without images
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    deleted = Column(DateTime(timezone=True), nullable=True)
 
     thread = relationship("Thread", backref="comments")
 
@@ -2126,6 +2128,7 @@ class Reply(Base):
     author_user_id = Column(ForeignKey("users.id"), nullable=False)
     content = Column(String, nullable=False)  # CommonMark without images
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    deleted = Column(DateTime(timezone=True), nullable=True)
 
     comment = relationship("Comment", backref="replies")
 
