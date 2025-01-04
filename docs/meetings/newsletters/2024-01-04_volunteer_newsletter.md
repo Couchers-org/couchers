@@ -33,7 +33,7 @@ We’d love your help with:
 * 🗺️ **Map Redesign**: Design and development support needed! Check out the [map redesign ticket](https://github.com/Couchers-org/couchers/issues).
 * 🌐 **Public Events**: We’re adding a feature to create shorter, public versions of events so they can be shared with non-Couchers. [More info in the epic.](https://github.com/Couchers-org/couchers/issues/5339)
 * ⬆️ **Frontend Package Upgrades**: Help us stay current by upgrading to React v19, Next.js v14, Material-UI v6, and react-query v3, among others.
-* 🚫 **User Blocking & Reporting**: We’re working on implementing user-blocking functionality, expanding reporting to comments and implementation of our private feedback flow (designs ready)
+* 🚫 **User Blocking & Reporting**: We’re working on implementing user-blocking functionality, expanding reporting to comments and implementation of our feedback and reference flow (designs ready). Check out [this ticket for references](https://github.com/Couchers-org/couchers/issues/4121). [And this one for private feedback](https://github.com/Couchers-org/couchers/issues/5181).
 
 Curious about what else is cooking? Check out our [Couchers Engineering Task Board](https://github.com/Couchers-org/couchers/projects) for what’s in progress or ready to tackle.
 
