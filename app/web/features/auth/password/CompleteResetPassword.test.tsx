@@ -20,6 +20,11 @@ jest.mock("next/router", () => ({
   useRouter: jest.fn(),
 }));
 
+jest.mock("@sentry/nextjs", () => ({
+  captureException: jest.fn(),
+  setUser: jest.fn(),
+}));
+
 const mockUseRouter = useRouter as jest.Mock;
 
 describe("CompletePasswordReset page", () => {
