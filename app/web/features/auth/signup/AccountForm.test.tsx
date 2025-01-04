@@ -216,14 +216,14 @@ describe("AccountForm", () => {
       const user = userEvent.setup();
 
       await user.clear(field);
-      await user.type(field, "01/01/2150");
+      await user.type(field, "01/01/1750");
       await user.click(
         screen.getByRole("button", { name: t("global:sign_up") })
       );
 
       expect(
         await screen.findByText(
-          t("auth:account_form.birthday.validation_error")
+          t("auth:account_form.birthday.not_real_date_error")
         )
       ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();

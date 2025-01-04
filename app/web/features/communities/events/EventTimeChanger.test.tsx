@@ -72,19 +72,15 @@ it("should load with all empty values by default", async () => {
 it("should show proper error and not submit if the start date is null", async () => {
   render(<TestForm />, { wrapper });
 
-  const startDateField = (await screen.findByLabelText(
-    t("communities:start_date")
-  )) as HTMLInputElement;
-
   const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
   user.click(screen.getByTestId("submit"));
 
   expect(onValidSubmit).not.toHaveBeenCalled();
 
-  const startTimeErrorText = screen.queryByTestId("startTime-helper-text");
+  const startDateErrorText = screen.queryByTestId("startDate-helper-text");
 
-  expect(startTimeErrorText).toBeEmptyDOMElement();
+  expect(startDateErrorText).toBeEmptyDOMElement();
 });
 
 it("should show proper error and not submit if the start date is in the past", async () => {

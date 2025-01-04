@@ -12,6 +12,13 @@ import EventForm, { CreateEventVariables } from "./EventForm";
 
 jest.mock("components/MarkdownInput");
 
+jest.mock("@mui/x-date-pickers", () => {
+  return {
+    ...jest.requireActual("@mui/x-date-pickers"),
+    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+  };
+});
+
 const serviceFn = jest.fn();
 function TestComponent({ event }: { event?: Event.AsObject }) {
   const { error, mutate, isLoading } = useMutation<
@@ -180,6 +187,7 @@ describe("Event form", () => {
     const user = userEvent.setup();
 
     user.click(screen.getByRole("button", { name: t("global:create") }));
+
     await waitFor(() => {
       expect(serviceFn).not.toHaveBeenCalled();
     });
@@ -228,11 +236,7 @@ describe("Event form", () => {
   });
 
   it("should submit the form successfully if all required fields are filled in", async () => {
-    //@ts-ignore - isolate EventForm changes only by adding EventTimeChanger values by default
-    renderForm({
-      startTime: { nanos: 0, seconds: 1624934247.732 },
-      endTime: { nanos: 0, seconds: 1624937847 },
-    });
+    renderForm();
 
     const user = userEvent.setup();
 
@@ -247,6 +251,44 @@ describe("Event form", () => {
     await waitFor(() => {
       expect(titleInput).toHaveValue("Test event");
     });
+
+    const startDateField = (await screen.findByLabelText(
+      t("communities:start_date")
+    )) as HTMLInputElement;
+
+    user.type(startDateField, "08012021");
+
+    await waitFor(() => {
+      expect(startDateField).toHaveValue("08/01/2021");
+    });
+
+    const startTimeField = (await screen.findByLabelText(
+      t("communities:start_time")
+    )) as HTMLInputElement;
+
+    user.type(startTimeField, "01:00");
+
+    await waitFor(() => {
+      expect(startTimeField).toHaveValue("01:00");
+    });
+
+    const endDateField = (await screen.findByLabelText(
+      t("communities:end_date")
+    )) as HTMLInputElement;
+
+    user.type(endDateField, "08012021");
+
+    await waitFor(() => {
+      expect(endDateField).toHaveValue("08/01/2021");
+    });
+
+    const endTimeField = screen.getByLabelText(
+      t("communities:end_time")
+    ) as HTMLInputElement;
+
+    user.type(endTimeField, "02:00");
+
+    await waitFor(() => expect(endTimeField).toHaveValue("02:00"));
 
     const virtualEventCheckbox = screen.getByLabelText(
       t("communities:virtual_event")
@@ -291,11 +333,8 @@ describe("Event form", () => {
     mockConsoleError();
     const errorMessage = "Error submitting event";
     serviceFn.mockRejectedValue(new Error(errorMessage));
-    //@ts-ignore - isolate EventForm changes only by adding EventTimeChanger values by default
-    renderForm({
-      startTime: { nanos: 0, seconds: 1624934247.732 },
-      endTime: { nanos: 0, seconds: 1624937847 },
-    });
+
+    renderForm();
 
     const user = userEvent.setup();
 
@@ -308,6 +347,44 @@ describe("Event form", () => {
         "Test event"
       );
     });
+
+    const startDateField = (await screen.findByLabelText(
+      t("communities:start_date")
+    )) as HTMLInputElement;
+
+    user.type(startDateField, "08012021");
+
+    await waitFor(() => {
+      expect(startDateField).toHaveValue("08/01/2021");
+    });
+
+    const startTimeField = (await screen.findByLabelText(
+      t("communities:start_time")
+    )) as HTMLInputElement;
+
+    user.type(startTimeField, "01:00");
+
+    await waitFor(() => {
+      expect(startTimeField).toHaveValue("01:00");
+    });
+
+    const endDateField = (await screen.findByLabelText(
+      t("communities:end_date")
+    )) as HTMLInputElement;
+
+    user.type(endDateField, "08012021");
+
+    await waitFor(() => {
+      expect(endDateField).toHaveValue("08/01/2021");
+    });
+
+    const endTimeField = screen.getByLabelText(
+      t("communities:end_time")
+    ) as HTMLInputElement;
+
+    user.type(endTimeField, "02:00");
+
+    await waitFor(() => expect(endTimeField).toHaveValue("02:00"));
 
     user.click(screen.getByLabelText(t("communities:virtual_event")));
 
@@ -344,11 +421,7 @@ describe("Event form", () => {
   });
 
   it("should submit an offline event successfully", async () => {
-    //@ts-ignore - isolate EventForm changes only by adding EventTimeChanger values by default
-    renderForm({
-      startTime: { nanos: 0, seconds: 1624934247.732 },
-      endTime: { nanos: 0, seconds: 1624937847 },
-    });
+    renderForm();
 
     const user = userEvent.setup();
 
@@ -361,6 +434,44 @@ describe("Event form", () => {
     await waitFor(() => {
       expect(titleInput).toHaveValue("Test event");
     });
+
+    const startDateField = (await screen.findByLabelText(
+      t("communities:start_date")
+    )) as HTMLInputElement;
+
+    user.type(startDateField, "08012021");
+
+    await waitFor(() => {
+      expect(startDateField).toHaveValue("08/01/2021");
+    });
+
+    const startTimeField = (await screen.findByLabelText(
+      t("communities:start_time")
+    )) as HTMLInputElement;
+
+    user.type(startTimeField, "01:00");
+
+    await waitFor(() => {
+      expect(startTimeField).toHaveValue("01:00");
+    });
+
+    const endDateField = (await screen.findByLabelText(
+      t("communities:end_date")
+    )) as HTMLInputElement;
+
+    user.type(endDateField, "08012021");
+
+    await waitFor(() => {
+      expect(endDateField).toHaveValue("08/01/2021");
+    });
+
+    const endTimeField = screen.getByLabelText(
+      t("communities:end_time")
+    ) as HTMLInputElement;
+
+    user.type(endTimeField, "02:00");
+
+    await waitFor(() => expect(endTimeField).toHaveValue("02:00"));
 
     jest.useRealTimers();
 
