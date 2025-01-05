@@ -875,10 +875,26 @@ def test_send_reference_reminders(db):
         hr5 = create_host_request(session, user9.id, user10.id, timedelta(days=7))
 
     expected_emails = [
-        ("user4@couchers.org.invalid", "[TEST] You have 3 days to write a reference for User 3!"),
-        ("user5@couchers.org.invalid", "[TEST] You have 7 days to write a reference for User 6!"),
-        ("user7@couchers.org.invalid", "[TEST] You have 14 days to write a reference for User 8!"),
-        ("user8@couchers.org.invalid", "[TEST] You have 14 days to write a reference for User 7!"),
+        (
+            "user4@couchers.org.invalid",
+            "[TEST] You have 3 days to write a reference for User 3!",
+            ("from when you surfed with them", "/leave-reference/surfed/"),
+        ),
+        (
+            "user5@couchers.org.invalid",
+            "[TEST] You have 7 days to write a reference for User 6!",
+            ("from when you hosted them", "/leave-reference/hosted/"),
+        ),
+        (
+            "user7@couchers.org.invalid",
+            "[TEST] You have 14 days to write a reference for User 8!",
+            ("from when you surfed with them", "/leave-reference/surfed/"),
+        ),
+        (
+            "user8@couchers.org.invalid",
+            "[TEST] You have 14 days to write a reference for User 7!",
+            ("from when you hosted them", "/leave-reference/hosted/"),
+        ),
     ]
 
     send_reference_reminders(empty_pb2.Empty())
@@ -888,14 +904,22 @@ def test_send_reference_reminders(db):
 
     with session_scope() as session:
         emails = [
-            (email.recipient, email.subject)
+            (email.recipient, email.subject, email.plain, email.html)
             for email in session.execute(select(Email).order_by(Email.recipient.asc())).scalars().all()
         ]
 
-        print(emails)
-        print(expected_emails)
+        actual_addresses_and_subjects = [email[:2] for email in emails]
+        expected_addresses_and_subjects = [email[:2] for email in expected_emails]
 
-        assert emails == expected_emails
+        print(actual_addresses_and_subjects)
+        print(expected_addresses_and_subjects)
+
+        assert actual_addresses_and_subjects == expected_addresses_and_subjects
+
+        for (address, subject, plain, html), (_, _, search_strings) in zip(emails, expected_emails):
+            for find in search_strings:
+                assert find in plain, f"Expected to find string {find} in PLAIN email {subject} to {address}, didn't"
+                assert find in html, f"Expected to find string {find} in HTML email {subject} to {address}, didn't"
 
 
 def test_add_users_to_email_list(db):

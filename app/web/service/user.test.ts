@@ -26,7 +26,6 @@ describe("updateProfile", () => {
     lat: user.lat,
     lng: user.lng,
     meetupStatus: user.meetupStatus,
-    myTravels: user.myTravels,
     name: user.name,
     occupation: user.occupation,
     pronouns: user.pronouns,

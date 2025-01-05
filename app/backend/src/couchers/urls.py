@@ -36,7 +36,7 @@ def account_settings_link():
 
 
 def notification_settings_link():
-    return f"{config['BASE_URL']}/account-settings/notification-settings"
+    return f"{config['BASE_URL']}/account-settings/notifications"
 
 
 def feature_preview_link():
@@ -105,6 +105,10 @@ def donation_cancelled_url():
 
 def donation_success_url():
     return f"{config['BASE_URL']}/donate?success=true"
+
+
+def complete_strong_verification_url(*, verification_attempt_token):
+    return f"{config['BASE_URL']}/complete-strong-verification?verification_attempt_token={verification_attempt_token}"
 
 
 def delete_account_link(*, account_deletion_token):

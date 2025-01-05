@@ -35,6 +35,7 @@ export default function TabBar<T extends Record<string, React.ReactNode>>({
       indicatorColor="primary"
       textColor="primary"
       scrollButtons="auto"
+      allowScrollButtonsMobile
       variant="scrollable"
     >
       {Object.entries(labels).map(([value, label]) => (

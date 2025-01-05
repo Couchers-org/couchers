@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -40,7 +40,6 @@ describe("updateUserProfile action", () => {
       education,
       hometown,
       meetupStatus,
-      myTravels,
       name,
       occupation,
       pronouns,
@@ -56,7 +55,6 @@ describe("updateUserProfile action", () => {
       education,
       hometown,
       meetupStatus,
-      myTravels,
       name,
       occupation,
       pronouns,
@@ -89,7 +87,7 @@ describe("updateUserProfile action", () => {
     /* eslint-enable sort-keys */
     updateProfileMock.mockResolvedValue(new Empty());
 
-    const { result, waitFor } = renderHook(() => useUpdateUserProfile(), {
+    const { result } = renderHook(() => useUpdateUserProfile(), {
       wrapper,
     });
 
@@ -113,7 +111,7 @@ describe("updateUserProfile action", () => {
     getUserMock.mockResolvedValue(defaultUser);
     const setError = jest.fn();
 
-    const { result, waitFor } = renderHook(
+    const { result } = renderHook(
       () => ({
         mutate: useUpdateUserProfile(),
       }),

@@ -1,6 +1,6 @@
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import TextBody from "components/TextBody";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
@@ -53,7 +53,7 @@ export default function ReferencesView({
         <Alert severity="error">{referencesError.message}</Alert>
       )}
       {isReferenceUsersLoading || isReferencesLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : hasAtLeastOnePage(referencesRes, "referencesList") ? (
         <>
           <ReferenceList

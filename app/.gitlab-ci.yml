@@ -380,27 +380,30 @@ test:web-linting:
       changes:
         - app/web/**/*
 
-test:storybook:
-  needs: ["build:web-dev"]
+test:proxy:
+  needs: ["build:proxy"]
   stage: test
-  image: $WEB_DEV_TAG
-  inherit:
-    # no docker login
-    default: false
   script:
-    - cd /app && yarn build-storybook
-    - mkdir -p $CI_PROJECT_DIR/artifacts/storybook-static && cp -a /app/storybook-static $CI_PROJECT_DIR/artifacts/
-  artifacts:
-    paths:
-      - artifacts/storybook-static
+    - docker run --name envoy-config-test -d -p 8888:8888 -p 9901:9901 $PROXY_TAG
+    - sleep 10
+    - |
+      if [ "$(docker inspect -f '{{.State.Running}}' envoy-config-test)" != "true" ]; then
+        echo "Container failed to start. Envoy configuration might be invalid."
+        docker logs envoy-config-test
+        exit 1
+      fi
+    - docker logs envoy-config-test
+  after_script:
+    - docker rm -f envoy-config-test || true
   rules:
-    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
         - app/**/*
-    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+    - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
         - app/proto/**/*
-        - app/web/**/*
+        - app/proxy/**/*
+
 
 preview:bcov:
   needs: ["test:backend"]
@@ -437,28 +440,6 @@ preview:wcov:
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--wcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--wcov.$PREVIEW_DOMAIN/"
-  rules:
-    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
-    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
-      changes:
-        - app/proto/**/*
-        - app/web/**/*
-
-preview:storybook:
-  needs: ["test:storybook"]
-  stage: preview
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
-  inherit:
-    # no docker login
-    default: false
-  script:
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_REF_SLUG/ --recursive
-    - aws s3 cp artifacts/storybook-static s3://$AWS_PREVIEW_BUCKET/storybook/$CI_COMMIT_REF_SLUG/ --recursive
-    - echo "Done, storybook available at https://$CI_COMMIT_SHORT_SHA--storybook.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--storybook.$PREVIEW_DOMAIN/"
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
@@ -603,9 +584,6 @@ wait:before-release:
       artifacts: false
       optional: true
     - job: test:web-linting
-      artifacts: false
-      optional: true
-    - job: test:storybook
       artifacts: false
       optional: true
 

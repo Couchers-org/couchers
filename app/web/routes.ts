@@ -5,7 +5,6 @@ Please make sure this file stays in sync with that file as well as
 //app/backend/src/couchers/urls.py
 */
 import { ReferenceType } from "proto/references_pb";
-import { ReferenceTypeStrings } from "service/references";
 import SearchFilters, { parseSearchFiltersToQuery } from "utils/searchFilters";
 
 export const baseRoute = "/";
@@ -34,6 +33,7 @@ export const signupRoute = "/signup";
 
 export const settingsRoute = "/account-settings";
 export const notificationSettingsRoute = `${settingsRoute}/notifications`;
+export const loginsSettingsRoute = `${settingsRoute}/logins`;
 
 // profile
 export const userTabs = [
@@ -78,7 +78,7 @@ export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 // REFERENCES
 export const leaveReferenceBaseRoute = "/leave-reference";
 export const routeToLeaveReference = (
-  referenceType: ReferenceTypeStrings,
+  referenceType: ReferenceTypeRouteStrings,
   userId: number,
   hostRequestId?: number
 ) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`;

@@ -57,18 +57,60 @@ describe("Create event page", () => {
 
   it("renders and creates an online event successfully", async () => {
     render(<CreateEventPage />, { wrapper });
+    const user = userEvent.setup();
 
-    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
-    userEvent.click(screen.getByLabelText(t("communities:virtual_event")));
-    userEvent.type(
-      screen.getByLabelText(t("communities:event_link")),
-      "https://couchers.org/social"
+    const titleInput = (await screen.findByLabelText(
+      t("global:title")
+    )) as HTMLInputElement;
+
+    // @TODO These should be awaited, but it times out with this component. Try again after upgrading jest and mui x-datepickers maybe?
+
+    user.type(titleInput, "Test event");
+
+    await waitFor(() => {
+      expect(titleInput).toHaveValue("Test event");
+    });
+
+    const virtualEventCheckBox = screen.getByLabelText(
+      t("communities:virtual_event")
+    ) as HTMLInputElement;
+
+    user.click(virtualEventCheckBox);
+
+    await waitFor(() => {
+      expect(virtualEventCheckBox.checked).toBe(true);
+    });
+
+    const eventLinkInput = (await screen.findByLabelText(
+      t("communities:event_link")
+    )) as HTMLInputElement;
+
+    user.type(eventLinkInput, "https://couchers.org/social");
+
+    await waitFor(
+      () => {
+        expect(screen.getByLabelText(t("communities:event_link"))).toHaveValue(
+          "https://couchers.org/social"
+        );
+      },
+      { timeout: 5000 }
     );
-    userEvent.type(
+
+    user.type(
       screen.getByLabelText(t("communities:event_details")),
       "sick social!"
     );
-    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
+
+    await waitFor(
+      () => {
+        expect(
+          screen.getByLabelText(t("communities:event_details"))
+        ).toHaveValue("sick social!");
+      },
+      { timeout: 5000 }
+    );
+
+    user.click(screen.getByRole("button", { name: t("global:create") }));
 
     await waitFor(() => {
       expect(createEventMock).toHaveBeenCalledTimes(1);
@@ -91,26 +133,50 @@ describe("Create event page", () => {
   it("creates on offline event with no route state correctly", async () => {
     renderPageWithState();
 
-    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
+    const user = userEvent.setup();
+
+    const titleInput = (await screen.findByLabelText(
+      t("global:title")
+    )) as HTMLInputElement;
+
+    // @TODO These should be awaited, but it times out with this component. Try again after upgrading jest and mui x-datepickers maybe?
+    user.type(titleInput, "Test event");
+
+    await waitFor(() => {
+      expect(titleInput).toHaveValue("Test event");
+    });
+
     // msw server response doesn't work with fake timers on, so turn it off temporarily
     jest.useRealTimers();
-    userEvent.type(
-      screen.getByLabelText(t("communities:location")),
-      "tes{enter}"
-    );
-    userEvent.click(
-      await screen.findByText("test city, test county, test country")
-    );
-    userEvent.type(
+
+    const locationInput = screen.getByLabelText(
+      t("communities:location")
+    ) as HTMLInputElement;
+
+    user.type(locationInput, "tes{enter}");
+
+    await waitFor(() => {
+      expect(locationInput).toHaveValue("tes");
+    });
+
+    user.click(await screen.findByText("test city, test county, test country"));
+
+    user.type(
       screen.getByLabelText(t("communities:event_details")),
       "sick social!"
     );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
+        "sick social!"
+      );
+    });
 
     // Now we got our location, turn fake timers back on so the default date we got earlier from the "current"
     // date would pass form validation
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-08-01 00:00"));
-    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
+    user.click(screen.getByRole("button", { name: t("global:create") }));
 
     await waitFor(
       () => {
@@ -135,23 +201,47 @@ describe("Create event page", () => {
   it("creates on offline event with route state correctly", async () => {
     renderPageWithState({ communityId: 99 });
 
-    userEvent.type(screen.getByLabelText(t("global:title")), "Test event");
+    const user = userEvent.setup();
+
+    const titleInput = (await screen.findByLabelText(
+      t("global:title")
+    )) as HTMLInputElement;
+
+    // @TODO These should be awaited, but it times out with this component. Try again after upgrading jest and mui x-datepickers maybe?
+    user.type(titleInput, "Test event");
+
+    await waitFor(() => {
+      expect(titleInput).toHaveValue("Test event");
+    });
+
     jest.useRealTimers();
-    userEvent.type(
-      screen.getByLabelText(t("communities:location")),
-      "tes{enter}"
-    );
-    userEvent.click(
-      await screen.findByText("test city, test county, test country")
-    );
-    userEvent.type(
+
+    const locationInput = screen.getByLabelText(
+      t("communities:location")
+    ) as HTMLInputElement;
+
+    user.type(locationInput, "tes{enter}");
+
+    await waitFor(() => {
+      expect(locationInput).toHaveValue("tes");
+    });
+
+    user.click(await screen.findByText("test city, test county, test country"));
+
+    user.type(
       screen.getByLabelText(t("communities:event_details")),
       "sick social!"
     );
 
+    await waitFor(() => {
+      expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
+        "sick social!"
+      );
+    });
+
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-08-01 00:00"));
-    userEvent.click(screen.getByRole("button", { name: t("global:create") }));
+    user.click(screen.getByRole("button", { name: t("global:create") }));
 
     await waitFor(
       () => {

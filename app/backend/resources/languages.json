@@ -244,6 +244,10 @@
     "name": "Chinese (Mandarin)"
   },
   {
+    "code": "cor",
+    "name": "Cornish"
+  },
+  {
     "code": "crh",
     "name": "Crimean Tatar"
   },
@@ -372,8 +376,20 @@
     "name": "Gbaya"
   },
   {
+    "code": "gla",
+    "name": "Scottish Gaelic"
+  },
+  {
+    "code": "gle",
+    "name": "Irish"
+  },
+  {
     "code": "glg",
     "name": "Galician"
+  },
+  {
+    "code": "glv",
+    "name": "Manx"
   },
   {
     "code": "gon",
@@ -888,6 +904,10 @@
     "name": "Russian"
   },
   {
+    "code": "san",
+    "name": "Sanskrit"
+  },
+  {
     "code": "sas",
     "name": "Sasak"
   },
@@ -1012,6 +1032,10 @@
     "name": "Timne"
   },
   {
+    "code": "tet",
+    "name": "Tetum"
+  },
+  {
     "code": "tgk",
     "name": "Tajik"
   },
@@ -1038,6 +1062,10 @@
   {
     "code": "tmh",
     "name": "Tamashek"
+  },
+  {
+    "code": "tok",
+    "name": "Toki Pona"
   },
   {
     "code": "tsm",

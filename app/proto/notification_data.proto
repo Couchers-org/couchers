@@ -170,3 +170,17 @@ message ReferenceReminder {
   // time left to write the req in days
   uint32 days_left = 3;
 }
+
+enum SVFailReason {
+  SV_FAIL_REASON_UNKNOWN = 0;
+  // birthdate doesn't match profile or gender
+  SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER = 1;
+  // not a passport (e.g. used a ID card)
+  SV_FAIL_REASON_NOT_A_PASSPORT = 2;
+  // this passport is already used by someone else or the same user
+  SV_FAIL_REASON_DUPLICATE = 3;
+}
+
+message VerificationSVFail {
+  SVFailReason reason = 1;
+}

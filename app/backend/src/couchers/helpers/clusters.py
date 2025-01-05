@@ -1,5 +1,3 @@
-from typing import List
-
 from geoalchemy2.shape import from_shape
 
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread
@@ -21,7 +19,7 @@ def create_cluster(
     name: str,
     description: str,
     creator_user_id: int,
-    admin_ids: List,
+    admin_ids: list,
     is_community: bool,
 ):
     cluster_type = "community" if is_community else "group"

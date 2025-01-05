@@ -84,7 +84,7 @@ export default function Map({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    //don't create a new map if it exists already
+    // don't create a new map if it exists already
     if (mapRef.current) return;
 
     try {
@@ -114,16 +114,13 @@ export default function Map({
       console.warn("Couldn't initialize maplibre gl");
       setNoMap(true);
     }
-  }, [
-    initialCenter,
-    initialZoom,
-    interactive,
-    onUpdate,
-    postMapInitialize,
-    hash,
-  ]);
 
-  useEffect(() => () => mapRef?.current?.remove(), []);
+    return () => {
+      mapRef.current?.remove();
+      mapRef.current = undefined;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div

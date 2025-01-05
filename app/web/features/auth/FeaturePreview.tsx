@@ -1,4 +1,5 @@
-import { Alert as MuiAlert, CircularProgress, Typography } from "@mui/material";
+import { Alert as MuiAlert, Typography } from "@mui/material";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import { AUTH } from "i18n/namespaces";
@@ -40,7 +41,7 @@ export default function FeaturePreview() {
         </Typography>
       </MuiAlert>
       {isAccountInfoLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : accountInfoError ? (
         <MuiAlert severity="error">{accountInfoError.message}</MuiAlert>
       ) : (

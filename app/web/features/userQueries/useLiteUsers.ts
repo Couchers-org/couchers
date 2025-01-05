@@ -8,22 +8,19 @@ import { service } from "service";
 import { userStaleTime } from "./constants";
 
 // React Query typically retains the last successful data until the next successful fetch
-function useLiteUsers(ids: (number | undefined)[]) {
+// if ids is `[]`, then `data` is `undefined`
+function useLiteUsers(ids: (number | undefined)[] | undefined) {
   const nonFalseyIds = ids?.filter((id): id is number => !!id);
+  // remove duplicate IDs from this list
+  const uniqueIds = Array.from(new Set(nonFalseyIds));
   const query = useQuery<GetLiteUsersRes.AsObject, RpcError>({
-    queryKey: liteUsersKey(nonFalseyIds),
+    queryKey: liteUsersKey(uniqueIds),
     queryFn: () => {
-      const result = service.user.getLiteUsers(nonFalseyIds);
+      const result = service.user.getLiteUsers(uniqueIds);
       return result;
     },
     staleTime: userStaleTime,
-    enabled: nonFalseyIds.length > 0, // run only if there are valid liteUserIds
-    retry: (failureCount, error) => {
-      // don't retry if the user isn't found
-      return (
-        error.code !== StatusCode.NOT_FOUND && failureCount < reactQueryRetries
-      );
-    },
+    enabled: uniqueIds.length > 0, // run only if there are valid userIds
   });
 
   const isDataUndefined = !query.data || !query.data.responsesList;
@@ -41,6 +38,13 @@ function useLiteUsers(ids: (number | undefined)[]) {
     ...query,
     data: usersById,
   };
+}
+
+// Like above, but returns users in a list of the same size in same order
+function useLiteUsersList(ids: (number | undefined)[] | undefined) {
+  const liteUsersMap = useLiteUsers(ids);
+  const usersList = ids?.map((id) => liteUsersMap.data?.get(id));
+  return { ...liteUsersMap, usersById: liteUsersMap.data, data: usersList };
 }
 
 // React Query typically retains the last successful data until the next successful fetch
@@ -61,4 +65,4 @@ function useLiteUser(id: number | undefined) {
   return query;
 }
 
-export { useLiteUser, useLiteUsers };
+export { useLiteUser, useLiteUsers, useLiteUsersList };

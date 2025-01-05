@@ -1,5 +1,5 @@
-import { CircularProgress } from "@mui/material";
 import Alert from "components/Alert";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import Overview from "features/profile/view/Overview";
@@ -44,7 +44,7 @@ export default function ProfilePage({ tab = "about" }: { tab?: UserTab }) {
       <HtmlMeta title={t("global:nav.profile")} />
       {error && <Alert severity="error">{error}</Alert>}
       {isLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : user ? (
         <ProfileUserProvider user={user}>
           <div className={classes.root}>

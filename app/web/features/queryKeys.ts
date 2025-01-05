@@ -153,3 +153,4 @@ export const searchQueryKey = (query?: string) =>
 // User
 export const userCommunitiesKey = "userCommunities";
 export const myEventsKey = (type: EventsType) => ["myEvents", { type }];
+export const activeLoginsKey = "activeLogins";

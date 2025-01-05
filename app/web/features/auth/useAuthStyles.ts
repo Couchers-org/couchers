@@ -83,7 +83,7 @@ const useAuthStyles = makeStyles((theme) => ({
       minHeight: `calc(100vh - 6rem - ${theme.spacing(4)})`,
       alignItems: "center",
       margin: "auto",
-      width: theme.breakpoints.values.md,
+      width: theme.breakpoints.values.lg,
     },
   },
   formField: {
@@ -124,7 +124,7 @@ const useAuthStyles = makeStyles((theme) => ({
     display: "flex",
     textAlign: "left",
     width: "45%",
-    maxWidth: theme.breakpoints.values.md / 2,
+    maxWidth: theme.breakpoints.values.lg / 2,
     marginInlineEnd: "10%",
     [theme.breakpoints.down("md")]: {
       display: "none",

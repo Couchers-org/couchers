@@ -18,19 +18,21 @@ it("shows the known gRPC error from the API", async () => {
   });
   render(<Login />, { wrapper });
 
-  userEvent.type(
+  const user = userEvent.setup();
+
+  await user.type(
     await screen.findByLabelText(
       t("auth:login_page.form.username_field_label")
     ),
     "invalid"
   );
-  userEvent.type(
+  await user.type(
     await screen.findByLabelText(
       t("auth:login_page.form.password_field_label")
     ),
     "wrongpwd"
   );
-  userEvent.click(screen.getByRole("button", { name: t("global:continue") }));
+  await user.click(screen.getByRole("button", { name: t("global:continue") }));
 
   await assertErrorAlert(errorMessage);
 });
@@ -41,19 +43,21 @@ it("shows the fatal error message for unknown errors", async () => {
   });
   render(<Login />, { wrapper });
 
-  userEvent.type(
+  const user = userEvent.setup();
+
+  await user.type(
     await screen.findByLabelText(
       t("auth:login_page.form.username_field_label")
     ),
     "invalid"
   );
-  userEvent.type(
+  await user.type(
     await screen.findByLabelText(
       t("auth:login_page.form.password_field_label")
     ),
     "wrongpwd"
   );
-  userEvent.click(screen.getByRole("button", { name: t("global:continue") }));
+  await user.click(screen.getByRole("button", { name: t("global:continue") }));
 
   await assertErrorAlert(t("global:error.fatal_message"));
 });

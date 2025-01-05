@@ -1,6 +1,7 @@
 import ReplayIcon from "@mui/icons-material/Replay";
 import TuneIcon from "@mui/icons-material/Tune";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Map from "components/Map";
 import {
   addClusteredUsersToMap,
@@ -37,6 +38,15 @@ const useStyles = makeStyles((theme) => ({
     left: "50%",
     position: "relative",
     zIndex: 10,
+  },
+  mapLoadingContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 2,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
   },
   testContainer: {
     position: "absolute",
@@ -280,7 +290,7 @@ export default function MapWrapper({
         <div className={classes.testChildFromGoogle}>
           <Button
             color="primary"
-            loading={isLoading}
+            disabled={isLoading}
             onClick={handleOnClick}
             className={classes.searchHereButton}
             endIcon={<ReplayIcon />}
@@ -296,6 +306,11 @@ export default function MapWrapper({
           />
         </div>
       </div>
+      {isLoading && (
+        <div className={classes.mapLoadingContainer}>
+          <CenteredSpinner minHeight="100%" />
+        </div>
+      )}
       <Map
         grow
         initialCenter={new LngLat(0, 0)}

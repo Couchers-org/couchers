@@ -2,7 +2,7 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
-import "@testing-library/jest-dom/extend-expect";
+import "@testing-library/jest-dom";
 import "whatwg-fetch";
 
 import { waitFor } from "@testing-library/react";
@@ -49,18 +49,10 @@ global.crypto = {
 //const { testkit, sentryTransport } = sentryTestkit();
 //global.testKit = testkit;
 
-beforeAll(() => {
-  /*Sentry.init({
-    dsn: "https://testKey@o782870.ingest.sentry.io/0",
-    transport: sentryTransport,
-  });*/
-});
-
 beforeEach(async () => {
   global.localStorage.clear();
   global.sessionStorage.clear();
   jest.restoreAllMocks();
-  //testkit.reset();
   await waitFor(() => {
     expect(i18n.isInitialized).toBe(true);
   });

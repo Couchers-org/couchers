@@ -140,7 +140,11 @@ export default function FilterDialog({
 }: FilterDialogProps) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
-  const { control, register, errors } = useForm<FilterModalFormData>({
+  const {
+    control,
+    register,
+    formState: { errors },
+  } = useForm<FilterModalFormData>({
     mode: "onBlur",
   });
 
@@ -199,9 +203,14 @@ export default function FilterDialog({
               name="location"
               defaultValue={""}
               label={t("search:form.location_field_label")}
-              onChange={(e) => {
-                if (e) {
-                  setLocationResult(e);
+              onChange={(event) => {
+                if (event) {
+                  const { bbox } = event;
+                  const newLocationResult: GeocodeResult = {
+                    ...event,
+                    bbox: [bbox[2], bbox[3], bbox[0], bbox[1]], //sw long, sw lat, ne long, ne lat
+                  };
+                  setLocationResult(newLocationResult);
                 }
               }}
               fieldError={errors.location?.message}
@@ -210,9 +219,8 @@ export default function FilterDialog({
             <TextField
               fullWidth
               id="keywords-filter"
+              {...register("query")}
               label={t("search:form.keywords.field_label")}
-              name="query"
-              inputRef={register}
               variant="standard"
               onChange={(e) => {
                 if (e) {
@@ -332,17 +340,16 @@ export default function FilterDialog({
                 {t("search:form.accommodation_filters.title")}
               </Typography>
               <TextField
+                id="num-guests-filter"
+                {...register("numGuests", {
+                  valueAsNumber: true,
+                })}
                 className={classes.noMargin}
                 type="number"
                 variant="standard"
-                id="num-guests-filter"
                 value={numberOfGuestFilter}
                 inputProps={{ min: 0 }}
                 onChange={handleNumGuestsChange}
-                inputRef={register({
-                  valueAsNumber: true,
-                })}
-                name="numGuests"
                 fullWidth
                 label={t(
                   "search:form.accommodation_filters.guests_field_label"

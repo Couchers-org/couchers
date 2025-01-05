@@ -120,10 +120,8 @@ export default function NotificationSettingsSubListItem({
         </Alert>
       )}
       <StyledDescriptionText>
-        {t(
-          //@ts-ignore - I spent hours on this type with no luck
-          `${topic}.${action}`
-        )}
+        {/** @ts-ignore - I spent hours on this type with no luck*/}
+        {t(`${topic}.${action}`)}
       </StyledDescriptionText>
       <List component="div" disablePadding>
         <StyledListItem component="button">

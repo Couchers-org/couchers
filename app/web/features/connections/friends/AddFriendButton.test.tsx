@@ -42,7 +42,8 @@ describe("AddFriendButton", () => {
     sendFriendRequestMock.mockImplementation(() => new Promise(() => void 0));
     render(<TestComponent />, { wrapper });
 
-    userEvent.click(
+    const user = userEvent.setup();
+    await user.click(
       screen.getByRole("button", {
         name: t("connections:add_friend"),
       })
@@ -53,8 +54,9 @@ describe("AddFriendButton", () => {
   it("sets no error if the add friend action succeeded", async () => {
     sendFriendRequestMock.mockResolvedValue(new Empty());
     render(<TestComponent />, { wrapper });
+    const user = userEvent.setup();
 
-    userEvent.click(
+    await user.click(
       screen.getByRole("button", {
         name: t("connections:add_friend"),
       })
@@ -70,7 +72,9 @@ describe("AddFriendButton", () => {
     );
     render(<TestComponent />, { wrapper });
 
-    userEvent.click(
+    const user = userEvent.setup();
+
+    await user.click(
       screen.getByRole("button", {
         name: t("connections:add_friend"),
       })

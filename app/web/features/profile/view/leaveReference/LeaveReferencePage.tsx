@@ -1,6 +1,6 @@
 import { useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import ReferenceForm from "features/profile/view/leaveReference/ReferenceForm";
@@ -27,9 +27,20 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
   },
   root: {
+    padding: theme.spacing(1),
+    [theme.breakpoints.up("sm")]: {
+      display: "grid",
+      gridTemplateColumns: "2fr 3fr",
+      gap: theme.spacing(3),
+      margin: theme.spacing(0, 3),
+      padding: 0,
+      paddingTop: theme.spacing(3),
+      paddingBottom: theme.spacing(3),
+    },
     [theme.breakpoints.up("md")]: {
-      display: "flex",
-      justifyContent: "space-around",
+      gridTemplateColumns: "2fr 4fr",
+      maxWidth: "61.5rem",
+      margin: "0 auto",
     },
   },
 }));
@@ -75,7 +86,7 @@ export default function LeaveReferencePage({
           {userError || availableReferencesError?.message || ""}
         </Alert>
       )}
-      {(isUserLoading || isAvailableReferencesLoading) && <CircularProgress />}
+      {(isUserLoading || isAvailableReferencesLoading) && <CenteredSpinner />}
       {availableReferences &&
         user &&
         ((referenceType ===

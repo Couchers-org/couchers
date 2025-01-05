@@ -1,6 +1,7 @@
 import {
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
   within,
 } from "@testing-library/react";
@@ -8,7 +9,7 @@ import userEvent from "@testing-library/user-event";
 import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { getEventOrganizers, getUser } from "test/serviceMockDefaults";
+import { getEventOrganizers, getLiteUsers } from "test/serviceMockDefaults";
 import { assertErrorAlert, mockConsoleError, t } from "test/utils";
 
 import EventOrganizers from "./EventOrganizers";
@@ -17,14 +18,18 @@ const listEventOrganizersMock = service.events
   .listEventOrganizers as jest.MockedFunction<
   typeof service.events.listEventOrganizers
 >;
-const getUserMock = service.user.getUser as jest.MockedFunction<
-  typeof service.user.getUser
+const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
+  typeof service.user.getLiteUsers
 >;
 
 describe("Event organizers", () => {
   beforeEach(() => {
-    getUserMock.mockImplementation(getUser);
+    getLiteUsersMock.mockImplementation(getLiteUsers);
     listEventOrganizersMock.mockImplementation(getEventOrganizers);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it("renders the organizers successfully", async () => {
@@ -33,8 +38,12 @@ describe("Event organizers", () => {
     expect(
       await screen.findByRole("heading", { name: t("communities:organizers") })
     ).toBeVisible();
-    expect(screen.getByRole("heading", { name: "Funny Dog" })).toBeVisible();
-    expect(screen.getByRole("heading", { name: "Funny Kid" })).toBeVisible();
+    expect(
+      await screen.findByRole("heading", { name: "Funny Dog, 35" })
+    ).toBeVisible();
+    expect(
+      await screen.findByRole("heading", { name: "Funny Kid, 28" })
+    ).toBeVisible();
   });
 
   describe("when there are multiple pages of organizers", () => {
@@ -53,39 +62,49 @@ describe("Event organizers", () => {
     it("should show dialog for seeing all organizers when the 'See all' button is clicked", async () => {
       render(<EventOrganizers eventId={1} />, { wrapper });
 
-      userEvent.click(
+      const user = userEvent.setup();
+
+      await user.click(
         await screen.findByRole("button", { name: t("communities:see_all") })
       );
+
       expect(
         await screen.findByRole("dialog", { name: t("communities:organizers") })
       ).toBeVisible();
+
       expect(
-        screen.getByRole("heading", { name: "Funny Chicken" })
+        await screen.findByRole("heading", { name: "Funny Chicken, 28" })
       ).toBeVisible();
       expect(
-        screen.getByRole("heading", { name: "Friendly Cow" })
+        await screen.findByRole("heading", { name: "Friendly Cow, 25" })
       ).toBeVisible();
     });
 
     it("should load the next page of organizers when the 'Load more organizers' button is clicked", async () => {
       render(<EventOrganizers eventId={1} />, { wrapper });
-      userEvent.click(
+
+      const user = userEvent.setup();
+
+      await user.click(
         await screen.findByRole("button", { name: t("communities:see_all") })
       );
       const dialog = within(
         await screen.findByRole("dialog", { name: t("communities:organizers") })
       );
 
-      userEvent.click(
+      await user.click(
         dialog.getByRole("button", {
           name: t("communities:load_more_organizers"),
         })
       );
 
       expect(
-        await dialog.findByRole("heading", { name: "Funny Dog" })
+        await dialog.findByRole("heading", { name: "Funny Dog, 35" })
       ).toBeVisible();
-      expect(dialog.getByRole("heading", { name: "Funny Kid" })).toBeVisible();
+
+      expect(
+        await dialog.findByRole("heading", { name: "Funny Kid, 28" })
+      ).toBeVisible();
     });
 
     it("should hide unknown users in the dialog", async () => {
@@ -102,23 +121,27 @@ describe("Event organizers", () => {
         };
       });
       render(<EventOrganizers eventId={1} />, { wrapper });
-      userEvent.click(
+
+      const user = userEvent.setup();
+
+      await user.click(
         await screen.findByRole("button", { name: t("communities:see_all") })
       );
       const dialog = within(
         await screen.findByRole("dialog", { name: t("communities:organizers") })
       );
 
-      userEvent.click(
-        dialog.getByRole("button", {
+      await user.click(
+        await dialog.findByRole("button", {
           name: t("communities:load_more_organizers"),
         })
       );
 
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-      expect(
-        dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID)
-      ).not.toBeInTheDocument();
+      await waitFor(() =>
+        expect(
+          dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID)
+        ).not.toBeInTheDocument()
+      );
     });
 
     it("should show an error alert in the dialog if getting attendees failed", async () => {
@@ -127,7 +150,9 @@ describe("Event organizers", () => {
       const errorMessage = "Error listing organizers";
       listEventOrganizersMock.mockRejectedValue(new Error(errorMessage));
 
-      userEvent.click(
+      const user = userEvent.setup();
+
+      await user.click(
         await screen.findByRole("button", { name: t("communities:see_all") })
       );
 
@@ -137,21 +162,26 @@ describe("Event organizers", () => {
 
     it("closes the dialog when the backdrop is clicked", async () => {
       render(<EventOrganizers eventId={1} />, { wrapper });
-      userEvent.click(
+
+      const user = userEvent.setup();
+
+      await user.click(
         await screen.findByRole("button", { name: t("communities:see_all") })
       );
       await screen.findByRole("dialog", { name: t("communities:organizers") });
 
-      userEvent.click(document.querySelector(".MuiBackdrop-root")!);
+      await user.click(document.querySelector(".MuiBackdrop-root")!);
       await waitForElementToBeRemoved(
         screen.getByRole("dialog", { name: t("communities:organizers") })
       );
 
-      expect(
-        screen.queryByRole("button", {
-          name: t("communities:load_more_organizers"),
-        })
-      ).not.toBeInTheDocument();
+      await waitFor(() =>
+        expect(
+          screen.queryByRole("button", {
+            name: t("communities:load_more_organizers"),
+          })
+        ).not.toBeInTheDocument()
+      );
     });
   });
 });

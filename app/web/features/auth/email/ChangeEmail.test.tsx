@@ -33,6 +33,10 @@ describe("ChangeEmail", () => {
     changeEmailMock.mockResolvedValue(new Empty());
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe("if the user has a password", () => {
     beforeEach(async () => {
       getAccountInfoMock.mockResolvedValue(accountInfo);
@@ -57,11 +61,15 @@ describe("ChangeEmail", () => {
     });
 
     it("does not try to submit the form if the user didn't provide their old password", async () => {
-      userEvent.type(
+      const user = userEvent.setup();
+
+      await user.type(
         await screen.findByLabelText(t("auth:change_email_form.new_email")),
         "test@example.com"
       );
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+      await user.click(
+        screen.getByRole("button", { name: t("global:submit") })
+      );
 
       await waitFor(() => {
         expect(changeEmailMock).not.toHaveBeenCalled();
@@ -69,13 +77,17 @@ describe("ChangeEmail", () => {
     });
 
     it("does not try to submit the form if the user didn't provide a new email", async () => {
-      userEvent.type(
+      const user = userEvent.setup();
+
+      await user.type(
         await screen.findByLabelText(
           t("auth:change_email_form.current_password")
         ),
         "password"
       );
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+      await user.click(
+        screen.getByRole("button", { name: t("global:submit") })
+      );
 
       await waitFor(() => {
         expect(changeEmailMock).not.toHaveBeenCalled();
@@ -83,17 +95,21 @@ describe("ChangeEmail", () => {
     });
 
     it("changes the user's email successfully if all required fields have been filled in", async () => {
-      userEvent.type(
+      const user = userEvent.setup();
+
+      await user.type(
         await screen.findByLabelText(
           t("auth:change_email_form.current_password")
         ),
         "password"
       );
-      userEvent.type(
+      await user.type(
         screen.getByLabelText(t("auth:change_email_form.new_email")),
         "test@example.com"
       );
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+      await user.click(
+        screen.getByRole("button", { name: t("global:submit") })
+      );
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
@@ -121,17 +137,19 @@ describe("ChangeEmail", () => {
     changeEmailMock.mockRejectedValue(new Error("Invalid email"));
     await render(<ChangeEmail {...accountInfo} />, { wrapper });
 
-    userEvent.type(
+    const user = userEvent.setup();
+
+    await user.type(
       await screen.findByLabelText(
         t("auth:change_email_form.current_password")
       ),
       "password"
     );
-    userEvent.type(
+    await user.type(
       await screen.findByLabelText(t("auth:change_email_form.new_email")),
       "test@example.com"
     );
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     const errorAlert = await screen.findByRole("alert");
     expect(errorAlert).toBeVisible();

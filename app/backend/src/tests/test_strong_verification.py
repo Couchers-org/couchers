@@ -1,6 +1,7 @@
 import json
 from datetime import date, timedelta
 from unittest.mock import ANY, patch
+from urllib.parse import urlencode
 
 import grpc
 import pytest
@@ -15,6 +16,7 @@ from couchers.crypto import asym_decrypt, b64encode_unpadded
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
 from couchers.jobs.worker import process_job
+from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     PassportSex,
     StrongVerificationAttempt,
@@ -23,7 +25,6 @@ from couchers.models import (
     User,
 )
 from couchers.sql import couchers_select as select
-from couchers.utils import now
 from proto import account_pb2, admin_pb2, api_pb2
 from proto.google.api import httpbody_pb2
 from tests.test_fixtures import (  # noqa
@@ -31,6 +32,7 @@ from tests.test_fixtures import (  # noqa
     api_session,
     db,
     generate_user,
+    push_collector,
     real_admin_session,
     real_iris_session,
     testconfig,
@@ -46,7 +48,7 @@ def _emulate_iris_callback(session_id, session_state, reference):
     assert session_state in ["CREATED", "INITIATED", "FAILED", "ABORTED", "COMPLETED", "REJECTED", "APPROVED"]
     with real_iris_session() as iris:
         data = json.dumps(
-            {"session_id": session_id, "session_state": session_state, "session_referenace": reference}
+            {"session_id": session_id, "session_state": session_state, "session_reference": reference}
         ).encode("ascii")
         iris.Webhook(httpbody_pb2.HttpBody(content_type="application/json", data=data))
 
@@ -104,7 +106,10 @@ def do_and_check_sv(
         )
         reference_data = mock.call_args.kwargs["json"]["reference"]
         verification_attempt_token = res.verification_attempt_token
-        assert res.iris_url == f"iris:///?token={iris_token}"
+        return_url = f"http://localhost:3000/complete-strong-verification?verification_attempt_token={verification_attempt_token}"
+        assert res.redirect_url == "https://passportreader.app/open?" + urlencode(
+            {"token": iris_token, "redirect_url": return_url}
+        )
 
         assert (
             account.GetStrongVerificationAttemptStatus(
@@ -125,7 +130,7 @@ def do_and_check_sv(
         )
 
     if return_after == "INITIATED":
-        return
+        return reference_data
 
     _emulate_iris_callback(verification_id, "COMPLETED", reference_data)
 
@@ -138,7 +143,7 @@ def do_and_check_sv(
         )
 
     if return_after == "COMPLETED":
-        return
+        return reference_data
 
     _emulate_iris_callback(verification_id, "APPROVED", reference_data)
 
@@ -151,7 +156,7 @@ def do_and_check_sv(
         )
 
     if return_after == "APPROVED":
-        return
+        return reference_data
 
     with patch("couchers.jobs.handlers.requests.post") as mock:
         json_resp2 = {
@@ -258,6 +263,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
     _, superuser_token = generate_user(is_superuser=True)
 
     update_badges(empty_pb2.Empty())
+    refresh_materialized_views_rapid(None)
 
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
@@ -265,6 +271,10 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert not res.has_strong_verification
         assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == res.has_strong_verification
+        )
 
     do_and_check_sv(
         user,
@@ -290,6 +300,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert verification_attempt.passport_last_three_document_chars == "855"
 
     update_badges(empty_pb2.Empty())
+    refresh_materialized_views_rapid(None)
 
     # the user should now have strong verification
     with api_session(token) as api:
@@ -298,6 +309,10 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert res.has_strong_verification
         assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == res.has_strong_verification
+        )
 
     # wrong dob = no badge
     with session_scope() as session:
@@ -305,6 +320,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
         user_.birthdate = date(1988, 1, 2)
 
     update_badges(empty_pb2.Empty())
+    refresh_materialized_views_rapid(None)
 
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
@@ -312,6 +328,10 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert not res.has_strong_verification
         assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_MISMATCH
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == res.has_strong_verification
+        )
 
     # bad gender-sex correspondence = no badge
     with session_scope() as session:
@@ -320,6 +340,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
         user_.gender = "Woman"
 
     update_badges(empty_pb2.Empty())
+    refresh_materialized_views_rapid(None)
 
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
@@ -327,6 +348,10 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert not res.has_strong_verification
         assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == res.has_strong_verification
+        )
 
     with account_session(token) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
@@ -340,6 +365,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
         user_.gender = "Man"
 
     update_badges(empty_pb2.Empty())
+    refresh_materialized_views_rapid(None)
 
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
@@ -347,6 +373,10 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert res.has_strong_verification
         assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == res.has_strong_verification
+        )
 
     # check has_passport_sex_gender_exception
     with real_admin_session(superuser_token) as admin:
@@ -362,6 +392,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
         admin.ChangeUserGender(admin_pb2.ChangeUserGenderReq(user=user.username, gender="Woman"))
 
     update_badges(empty_pb2.Empty())
+    refresh_materialized_views_rapid(None)
 
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
@@ -369,6 +400,10 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert res.has_strong_verification
         assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == res.has_strong_verification
+        )
 
     with real_admin_session(superuser_token) as admin:
         res = admin.GetUserDetails(admin_pb2.GetUserDetailsReq(user=user.username))
@@ -383,6 +418,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
         )
 
     update_badges(empty_pb2.Empty())
+    refresh_materialized_views_rapid(None)
 
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
@@ -390,6 +426,10 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert not res.has_strong_verification
         assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_MISMATCH
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == res.has_strong_verification
+        )
 
     with real_admin_session(superuser_token) as admin:
         res = admin.GetUserDetails(admin_pb2.GetUserDetailsReq(user=user.username))
@@ -405,8 +445,14 @@ def test_strong_verification_delete_data(db, monkeypatch):
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
     _, superuser_token = generate_user(is_superuser=True)
 
+    refresh_materialized_views_rapid(None)
+
     with api_session(token) as api:
         assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        )
 
     # can remove SV data even if there is none, should do nothing
     with account_session(token) as account:
@@ -424,16 +470,28 @@ def test_strong_verification_delete_data(db, monkeypatch):
         nationality="US",
     )
 
+    refresh_materialized_views_rapid(None)
+
     # the user should now have strong verification
     with api_session(token) as api:
         assert api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        )
 
     # check removing SV data
     with account_session(token) as account:
         account.DeleteStrongVerificationData(empty_pb2.Empty())
 
+    refresh_materialized_views_rapid(None)
+
     with api_session(token) as api:
         assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        )
 
     with session_scope() as session:
         assert (
@@ -460,8 +518,14 @@ def test_strong_verification_expiry(db, monkeypatch):
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
     _, superuser_token = generate_user(is_superuser=True)
 
+    refresh_materialized_views_rapid(None)
+
     with api_session(token) as api:
         assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        )
 
     expiry = date.today() + timedelta(days=10)
 
@@ -484,34 +548,40 @@ def test_strong_verification_expiry(db, monkeypatch):
         assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_VERIFIED
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_VERIFIED
 
-    def after_expiry():
-        return now() + timedelta(days=15)
+    with session_scope() as session:
+        attempt = session.execute(select(StrongVerificationAttempt)).scalars().one()
+        attempt.passport_expiry_date = date.today() - timedelta(days=2)
 
-    with patch("couchers.models.now", after_expiry):
-        with api_session(token) as api:
-            res = api.GetUser(api_pb2.GetUserReq(user=user.username))
-            assert not res.has_strong_verification
-            assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
-            assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
+    with api_session(token) as api:
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert not res.has_strong_verification
+        assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
+        assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
 
-            res = api.GetUser(api_pb2.GetUserReq(user=user.username))
-            assert not res.has_strong_verification
-            assert not res.has_strong_verification
+        res = api.GetUser(api_pb2.GetUserReq(user=user.username))
+        assert not res.has_strong_verification
+        assert not res.has_strong_verification
 
-        do_and_check_sv(
-            user,
-            token,
-            verification_id=5731012934821985,
-            sex="MALE",
-            dob="1988-01-01",
-            document_type="PASSPORT",
-            document_number="PA41323412",
-            document_expiry=date.today() + timedelta(days=365),
-            nationality="AU",
-        )
+    do_and_check_sv(
+        user,
+        token,
+        verification_id=5731012934821985,
+        sex="MALE",
+        dob="1988-01-01",
+        document_type="PASSPORT",
+        document_number="PA41323412",
+        document_expiry=date.today() + timedelta(days=365),
+        nationality="AU",
+    )
 
-        with api_session(token) as api:
-            assert api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+    assert (
+        api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+        == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+    )
 
 
 def test_strong_verification_regression(db, monkeypatch):
@@ -566,8 +636,14 @@ def test_strong_verification_regression2(db, monkeypatch):
         nationality="AU",
     )
 
+    refresh_materialized_views_rapid(None)
+
     with api_session(token) as api:
         assert api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        )
 
 
 def test_strong_verification_disabled(db):
@@ -578,3 +654,361 @@ def test_strong_verification_disabled(db):
             account.InitiateStrongVerification(empty_pb2.Empty())
         assert e.value.code() == grpc.StatusCode.UNAVAILABLE
         assert e.value.details() == errors.STRONG_VERIFICATION_DISABLED
+
+
+def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_collector):
+    monkeypatch_sv_config(monkeypatch)
+
+    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+    _, superuser_token = generate_user(is_superuser=True)
+
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token) as api:
+        assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        )
+
+    do_and_check_sv(
+        user,
+        token,
+        verification_id=5731012934821983,
+        sex="MALE",
+        dob="1988-01-01",
+        document_type="PASSPORT",
+        document_number="31195855",
+        document_expiry=default_expiry,
+        nationality="US",
+    )
+
+    refresh_materialized_views_rapid(None)
+
+    # the user should now have strong verification
+    with api_session(token) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        )
+
+    # check removing SV data
+    with account_session(token) as account:
+        account.DeleteStrongVerificationData(empty_pb2.Empty())
+
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token) as api:
+        assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        )
+
+    with session_scope() as session:
+        assert (
+            len(
+                session.execute(
+                    select(StrongVerificationAttempt).where(
+                        or_(
+                            StrongVerificationAttempt.passport_encrypted_data != None,
+                            StrongVerificationAttempt.passport_date_of_birth != None,
+                            StrongVerificationAttempt.passport_sex != None,
+                        )
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            == 0
+        )
+
+    reference_data = do_and_check_sv(
+        user,
+        token,
+        verification_id=5731012934821984,
+        sex="MALE",
+        dob="1988-01-01",
+        document_type="PASSPORT",
+        document_number="31195855",
+        document_expiry=default_expiry,
+        nationality="US",
+        return_after="APPROVED",
+    )
+
+    with patch("couchers.jobs.handlers.requests.post") as mock:
+        json_resp2 = {
+            "id": 5731012934821984,
+            "created": "2024-05-11T15:46:46Z",
+            "expires": "2024-05-11T16:17:26Z",
+            "state": "APPROVED",
+            "reference": reference_data,
+            "user_ip": "10.123.123.123",
+            "user_agent": "Iris%20ID/168357896 CFNetwork/1494.0.7 Darwin/23.4.0",
+            "given_names": "John Wayne",
+            "surname": "Doe",
+            "nationality": "US",
+            "sex": "MALE",
+            "date_of_birth": "1988-01-01",
+            "document_type": "PASSPORT",
+            "document_number": "31195855",
+            "expiry_date": default_expiry.isoformat(),
+            "issuing_country": "US",
+            "issuer": "Department of State, U.S. Government",
+            "portrait": "dGVzdHRlc3R0ZXN0...",
+        }
+        mock.return_value = type(
+            "__MockResponse",
+            (),
+            {
+                "status_code": 200,
+                "text": json.dumps(json_resp2),
+                "json": lambda: json_resp2,
+            },
+        )
+        while process_job():
+            pass
+
+    mock.assert_called_once_with(
+        "https://passportreader.app/api/v1/session.get",
+        auth=("dummy_pubkey", "dummy_secret"),
+        json={"id": 5731012934821984},
+        timeout=10,
+    )
+
+    with session_scope() as session:
+        verification_attempt = session.execute(
+            select(StrongVerificationAttempt).where(StrongVerificationAttempt.iris_session_id == 5731012934821984)
+        ).scalar_one()
+        assert verification_attempt.user_id == user.id
+        assert verification_attempt.status == StrongVerificationAttemptStatus.duplicate
+
+    push_collector.assert_user_push_matches_fields(
+        user.id,
+        ix=1,
+        title="Strong Verification failed",
+        body="You tried to verify with a passport that has already been used for verification. Please use another passport.",
+    )
+
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token) as api:
+        assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        )
+
+
+def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collector):
+    monkeypatch_sv_config(monkeypatch)
+
+    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+    user2, token2 = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+    _, superuser_token = generate_user(is_superuser=True)
+
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token) as api:
+        assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        )
+
+    # can remove SV data even if there is none, should do nothing
+    with account_session(token) as account:
+        account.DeleteStrongVerificationData(empty_pb2.Empty())
+
+    do_and_check_sv(
+        user,
+        token,
+        verification_id=5731012934821983,
+        sex="MALE",
+        dob="1988-01-01",
+        document_type="PASSPORT",
+        document_number="31195855",
+        document_expiry=default_expiry,
+        nationality="US",
+    )
+
+    refresh_materialized_views_rapid(None)
+
+    # the user should now have strong verification
+    with api_session(token) as api:
+        assert api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        )
+
+    # check removing SV data
+    with account_session(token) as account:
+        account.DeleteStrongVerificationData(empty_pb2.Empty())
+
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token) as api:
+        assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        assert (
+            api.GetLiteUser(api_pb2.GetLiteUserReq(user=user.username)).has_strong_verification
+            == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
+        )
+
+    with session_scope() as session:
+        assert (
+            len(
+                session.execute(
+                    select(StrongVerificationAttempt).where(
+                        or_(
+                            StrongVerificationAttempt.passport_encrypted_data != None,
+                            StrongVerificationAttempt.passport_date_of_birth != None,
+                            StrongVerificationAttempt.passport_sex != None,
+                        )
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            == 0
+        )
+
+    reference_data = do_and_check_sv(
+        user2,
+        token2,
+        verification_id=5731012934821984,
+        sex="MALE",
+        dob="1988-01-01",
+        document_type="PASSPORT",
+        document_number="31195855",
+        document_expiry=default_expiry,
+        nationality="US",
+        return_after="APPROVED",
+    )
+
+    with patch("couchers.jobs.handlers.requests.post") as mock:
+        json_resp2 = {
+            "id": 5731012934821984,
+            "created": "2024-05-11T15:46:46Z",
+            "expires": "2024-05-11T16:17:26Z",
+            "state": "APPROVED",
+            "reference": reference_data,
+            "user_ip": "10.123.123.123",
+            "user_agent": "Iris%20ID/168357896 CFNetwork/1494.0.7 Darwin/23.4.0",
+            "given_names": "John Wayne",
+            "surname": "Doe",
+            "nationality": "US",
+            "sex": "MALE",
+            "date_of_birth": "1988-01-01",
+            "document_type": "PASSPORT",
+            "document_number": "31195855",
+            "expiry_date": default_expiry.isoformat(),
+            "issuing_country": "US",
+            "issuer": "Department of State, U.S. Government",
+            "portrait": "dGVzdHRlc3R0ZXN0...",
+        }
+        mock.return_value = type(
+            "__MockResponse",
+            (),
+            {
+                "status_code": 200,
+                "text": json.dumps(json_resp2),
+                "json": lambda: json_resp2,
+            },
+        )
+        while process_job():
+            pass
+
+    mock.assert_called_once_with(
+        "https://passportreader.app/api/v1/session.get",
+        auth=("dummy_pubkey", "dummy_secret"),
+        json={"id": 5731012934821984},
+        timeout=10,
+    )
+
+    with session_scope() as session:
+        verification_attempt = session.execute(
+            select(StrongVerificationAttempt).where(StrongVerificationAttempt.iris_session_id == 5731012934821984)
+        ).scalar_one()
+        assert verification_attempt.user_id == user2.id
+        assert verification_attempt.status == StrongVerificationAttemptStatus.duplicate
+
+    push_collector.assert_user_push_matches_fields(
+        user2.id,
+        title="Strong Verification failed",
+        body="You tried to verify with a passport that has already been used for verification. Please use another passport.",
+    )
+
+
+def test_strong_verification_non_passport(db, monkeypatch, push_collector):
+    monkeypatch_sv_config(monkeypatch)
+
+    user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
+    _, superuser_token = generate_user(is_superuser=True)
+
+    reference_data = do_and_check_sv(
+        user,
+        token,
+        verification_id=5731012934821984,
+        sex="MALE",
+        dob="1988-01-01",
+        document_type="IDENTITY_CARD",
+        document_number="31195855",
+        document_expiry=default_expiry,
+        nationality="US",
+        return_after="APPROVED",
+    )
+
+    with patch("couchers.jobs.handlers.requests.post") as mock:
+        json_resp2 = {
+            "id": 5731012934821984,
+            "created": "2024-05-11T15:46:46Z",
+            "expires": "2024-05-11T16:17:26Z",
+            "state": "APPROVED",
+            "reference": reference_data,
+            "user_ip": "10.123.123.123",
+            "user_agent": "Iris%20ID/168357896 CFNetwork/1494.0.7 Darwin/23.4.0",
+            "given_names": "John Wayne",
+            "surname": "Doe",
+            "nationality": "US",
+            "sex": "MALE",
+            "date_of_birth": "1988-01-01",
+            "document_type": "IDENTITY_CARD",
+            "document_number": "31195855",
+            "expiry_date": default_expiry.isoformat(),
+            "issuing_country": "US",
+            "issuer": "Department of State, U.S. Government",
+            "portrait": "dGVzdHRlc3R0ZXN0...",
+        }
+        mock.return_value = type(
+            "__MockResponse",
+            (),
+            {
+                "status_code": 200,
+                "text": json.dumps(json_resp2),
+                "json": lambda: json_resp2,
+            },
+        )
+        while process_job():
+            pass
+
+    mock.assert_called_once_with(
+        "https://passportreader.app/api/v1/session.get",
+        auth=("dummy_pubkey", "dummy_secret"),
+        json={"id": 5731012934821984},
+        timeout=10,
+    )
+
+    with session_scope() as session:
+        verification_attempt = session.execute(
+            select(StrongVerificationAttempt).where(StrongVerificationAttempt.iris_session_id == 5731012934821984)
+        ).scalar_one()
+        assert verification_attempt.user_id == user.id
+        assert verification_attempt.status == StrongVerificationAttemptStatus.failed
+
+    push_collector.assert_user_push_matches_fields(
+        user.id,
+        title="Strong Verification failed",
+        body="You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification.",
+    )

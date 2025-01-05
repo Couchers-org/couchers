@@ -71,9 +71,8 @@ export default function GroupChatSettingsDialog({
           )}
           <TextField
             id="group-chat-settings-chat-title"
-            inputRef={register}
+            {...register("title")}
             defaultValue={groupChat.title}
-            name="title"
             label={t(
               "messages:group_chat_settings_dialog.chat_title.field_label"
             )}
@@ -81,8 +80,7 @@ export default function GroupChatSettingsDialog({
           <FormControlLabel
             control={
               <Checkbox
-                name="onlyAdminsInvite"
-                inputRef={register}
+                {...register("onlyAdminsInvite")}
                 defaultChecked={groupChat.onlyAdminsInvite}
               />
             }

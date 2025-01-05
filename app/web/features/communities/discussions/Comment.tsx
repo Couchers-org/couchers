@@ -1,6 +1,7 @@
 import { Card, CircularProgress, Skeleton, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Markdown from "components/Markdown";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
@@ -139,7 +140,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
         )}
       </Card>
       {isCommentsLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : (
         <div className={classes.nestedCommentsContainer}>
           {!showLoadMoreButton && isCommentsRefetching && (

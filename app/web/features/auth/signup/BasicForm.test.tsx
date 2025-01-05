@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { renderHook } from "@testing-library/react-hooks";
+import { render, renderHook, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { StatusCode } from "grpc-web";
 import { service } from "service";
@@ -29,13 +28,21 @@ const stateAfterStart = {
 };
 
 describe("basic signup form", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+    localStorage.clear();
+  });
+
   it("cannot be submitted empty", async () => {
     const { result } = renderHook(() => useAuthContext(), { wrapper });
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.flowState).toBe(null);
 
     render(<BasicForm />, { wrapper });
-    userEvent.click(
+
+    const user = userEvent.setup();
+
+    await user.click(
       await screen.findByRole("button", { name: t("global:continue") })
     );
 
@@ -53,11 +60,14 @@ describe("basic signup form", () => {
     expect(result.current.authState.flowState).toBe(null);
 
     render(<BasicForm />, { wrapper });
-    userEvent.type(
+
+    const user = userEvent.setup();
+
+    await user.type(
       await screen.findByLabelText(t("auth:basic_form.name.field_label")),
       "Frodo"
     );
-    userEvent.click(
+    await user.click(
       await screen.findByRole("button", { name: t("global:continue") })
     );
 
@@ -75,11 +85,14 @@ describe("basic signup form", () => {
     expect(result.current.authState.flowState).toBe(null);
 
     render(<BasicForm />, { wrapper });
-    userEvent.type(
+
+    const user = userEvent.setup();
+
+    await user.type(
       await screen.findByLabelText(t("auth:basic_form.email.field_label")),
       "frodo@couchers.org.invalid"
     );
-    userEvent.click(
+    await user.click(
       await screen.findByRole("button", { name: t("global:continue") })
     );
 
@@ -98,16 +111,19 @@ describe("basic signup form", () => {
     expect(result.current.authState.flowState).toBe(null);
 
     render(<BasicForm />, { wrapper });
-    userEvent.type(
+
+    const user = userEvent.setup();
+
+    await user.type(
       await screen.findByLabelText(t("auth:basic_form.name.field_label")),
       "Frodo"
     );
-    userEvent.type(
+    await user.type(
       await screen.findByLabelText(t("auth:basic_form.email.field_label")),
       "frodo@couchers.org.invalid"
     );
 
-    userEvent.click(
+    await user.click(
       await screen.findByRole("button", { name: t("global:continue") })
     );
 
@@ -128,11 +144,13 @@ describe("basic signup form", () => {
       wrapper,
     });
 
-    userEvent.type(
+    const user = userEvent.setup();
+
+    await user.type(
       screen.getByLabelText(t("auth:basic_form.name.field_label")),
       "Test user"
     );
-    userEvent.type(
+    await user.type(
       screen.getByLabelText(t("auth:basic_form.email.field_label")),
       "test@example.com{enter}"
     );

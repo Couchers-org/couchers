@@ -13,7 +13,7 @@ from sqlalchemy_utils.view import (
 )
 
 from couchers.db import session_scope
-from couchers.models import Base, ClusterRole, ClusterSubscription, Upload, User
+from couchers.models import Base, ClusterRole, ClusterSubscription, StrongVerificationAttempt, Upload, User
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +93,14 @@ def make_lite_users_selectable(create=False):
     else:
         geom_column = User.geom
 
+    strong_verification_subquery = (
+        sa_select(User.id, literal(True).label("true"))
+        .select_from(StrongVerificationAttempt)
+        .where(StrongVerificationAttempt.has_strong_verification(User))
+        .distinct()
+        .subquery(name="sv_subquery")
+    )
+
     return (
         sa_select(
             User.id.label("id"),
@@ -105,9 +113,11 @@ def make_lite_users_selectable(create=False):
             User.is_visible.label("is_visible"),
             Upload.filename.label("avatar_filename"),
             User.has_completed_profile.label("has_completed_profile"),
+            func.coalesce(strong_verification_subquery.c.true, False).label("has_strong_verification"),
         )
         .select_from(User)
         .outerjoin(Upload, Upload.key == User.avatar_key)
+        .outerjoin(strong_verification_subquery, strong_verification_subquery.c.id == User.id)
     )
 
 
@@ -119,7 +129,19 @@ lite_users = create_materialized_view_with_different_ddl(
     lite_users_selectable_select,
     lite_users_selectable_create,
     Base.metadata,
-    [Index("uq_lite_users_id", lite_users_selectable_create.c.id, unique=True)],
+    [
+        Index("uq_lite_users_id", lite_users_selectable_create.c.id, unique=True),
+        Index(
+            "uq_lite_users_id_visible",
+            lite_users_selectable_create.c.id,
+            postgresql_where=lite_users_selectable_create.c.is_visible,
+        ),
+        Index(
+            "uq_lite_users_username_visible",
+            lite_users_selectable_create.c.username,
+            postgresql_where=lite_users_selectable_create.c.is_visible,
+        ),
+    ],
 )
 
 

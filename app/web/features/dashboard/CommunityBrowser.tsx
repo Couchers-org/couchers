@@ -1,7 +1,7 @@
 import { Divider, List, ListItem, ListItemText } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import StyledLink from "components/StyledLink";
 import {
   useCommunity,
@@ -111,7 +111,7 @@ export default function CommunityBrowser() {
       ))}
       {query.isLoading ? ( // div prevents overflow scrollbar from spinner
         <div className={classes.loader}>
-          <CircularProgress />
+          <CenteredSpinner />
         </div>
       ) : query.isSuccess && globalCommunityQuery.isSuccess ? (
         <div ref={lastColumnRef}>

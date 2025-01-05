@@ -1,6 +1,6 @@
 import Alert from "components/Alert";
 import Button from "components/Button";
-import CircularProgress from "components/CircularProgress";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
 import TextField from "components/TextField";
@@ -24,11 +24,17 @@ type NewPlaceInputs = {
 };
 
 export default function NewPlaceForm() {
-  const { control, register, handleSubmit, setValue, errors } =
-    useForm<NewPlaceInputs>({
-      mode: "onBlur",
-      shouldUnregister: false,
-    });
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+
+    formState: { errors },
+  } = useForm<NewPlaceInputs>({
+    mode: "onBlur",
+    shouldUnregister: false,
+  });
 
   const router = useRouter();
 
@@ -56,16 +62,15 @@ export default function NewPlaceForm() {
     <>
       {createError && <Alert severity="error">{createError?.message}</Alert>}
       {isCreateLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : (
         <form onSubmit={onSubmit}>
           <TextField
             id="new-place-title"
-            name="title"
-            label="Place Title"
-            inputRef={register({
+            {...register("title", {
               required: "Enter a page title",
             })}
+            label="Place Title"
             helperText={errors?.title?.message}
           />
           <ImageInput

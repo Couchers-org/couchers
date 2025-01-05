@@ -1,7 +1,6 @@
 import {
   Card,
   Chip,
-  CircularProgress,
   darken,
   Link as MuiLink,
   Theme,
@@ -10,6 +9,7 @@ import {
 import { eventImagePlaceholderUrl } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
@@ -233,7 +233,7 @@ export default function EventPage({
         </Snackbar>
       )}
       {isLoading ? (
-        <CircularProgress />
+        <CenteredSpinner />
       ) : (
         event && (
           <>
@@ -241,6 +241,7 @@ export default function EventPage({
               className={classes.eventCoverPhoto}
               src={event.photoUrl || eventImagePlaceholderUrl}
               alt=""
+              data-testid="event-cover-photo"
             />
             <div className={classes.header}>
               <HeaderButton

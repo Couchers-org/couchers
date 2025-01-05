@@ -12,6 +12,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     marginTop: theme.spacing(0.5),
+    alignItems: "flex-start", // Ensures the label aligns with the top of multi-line text
   },
   flexItem: {
     flex: "1 1 50%",
@@ -36,7 +37,11 @@ export default function LabelAndText({ label, text }: LabelAndTextProps) {
       >
         {label}
       </Typography>
-      <TextBody className={classes.flexItem}>{text}</TextBody>
+      {typeof text === "string" ? (
+        <TextBody className={classes.flexItem}>{text}</TextBody>
+      ) : (
+        <div className={classes.flexItem}>{text}</div> // AgeAndGenderRenderer is a div not string
+      )}
     </div>
   );
 }

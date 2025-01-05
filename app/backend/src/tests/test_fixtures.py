@@ -259,7 +259,6 @@ def generate_user(*, delete_user=False, complete_profile=True, **kwargs):
             "occupation": "Tester",
             "education": "UST(esting)",
             "about_me": "I test things",
-            "my_travels": "Places",
             "things_i_like": "Code",
             "about_place": "My place has a lot of testing paraphenelia",
             "additional_information": "I can be a bit testy",

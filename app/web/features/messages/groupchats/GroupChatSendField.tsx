@@ -1,4 +1,5 @@
-import Button from "components/Button";
+import { styled } from "@mui/material";
+import Button, { AppButtonProps } from "components/Button";
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
@@ -8,12 +9,27 @@ import { usePersistedState } from "platform/usePersistedState";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { UseMutationResult } from "react-query";
-
-import useSendFieldStyles from "../useSendFieldStyles";
+import { theme } from "theme";
 
 interface MessageFormData {
   text: string;
 }
+
+const StyledButton = styled(Button)<AppButtonProps>({
+  display: "block",
+  flexShrink: 0,
+  marginInlineStart: theme.spacing(1),
+  height: theme.spacing(5),
+  marginBottom: 0,
+  marginTop: "auto",
+  alignItems: "center",
+});
+
+const StyledForm = styled("form")(({ theme }) => ({
+  alignItems: "flex-start",
+  display: "flex",
+  marginTop: theme.spacing(3),
+}));
 
 export interface GroupChatSendFieldProps {
   sendMutation: UseMutationResult<string | undefined | Empty, RpcError, string>;
@@ -27,11 +43,11 @@ export default function GroupChatSendField({
   currentUserId,
 }: GroupChatSendFieldProps) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
-  const classes = useSendFieldStyles();
 
   const { mutate: handleSend, isLoading } = sendMutation;
 
   const { register, handleSubmit, reset } = useForm<MessageFormData>();
+
   const [persistedMessage, setPersistedMessage, clearPersistedMessage] =
     usePersistedState(
       `messages.${currentUserId}.${chatId}`,
@@ -40,7 +56,7 @@ export default function GroupChatSendField({
     );
 
   const onSubmit = handleSubmit(async (data: MessageFormData) => {
-    handleSend(data.text.trimRight());
+    handleSend(data.text.trimEnd());
     clearPersistedMessage();
     reset({ text: "" });
   });
@@ -52,33 +68,36 @@ export default function GroupChatSendField({
     }
   };
 
+  const { onChange: textOnChange, ...textRegisterRest } = register("text");
+
   return (
-    <form onSubmit={onSubmit} className={classes.container}>
+    <StyledForm onSubmit={onSubmit}>
       <TextField
         id="group-chat-message-field"
+        {...textRegisterRest}
         label={t("messages:chat_input.label")}
-        name="text"
         defaultValue={persistedMessage ?? ""}
-        inputRef={register}
         multiline
         fullWidth
         onKeyDown={handleKeyDown}
-        onChange={(event) => setPersistedMessage(event.target.value)}
+        onChange={(event) => {
+          setPersistedMessage(event.target.value);
+          textOnChange(event);
+        }}
         maxRows={4}
         size="small"
-        className={classes.textField}
+        sx={{ background: theme.palette.common.white }}
       />
 
-      <Button
+      <StyledButton
         type="submit"
         variant="contained"
         color="primary"
         onClick={onSubmit}
         loading={isLoading}
-        className={classes.button}
       >
         {t("global:send")}
-      </Button>
-    </form>
+      </StyledButton>
+    </StyledForm>
   );
 }

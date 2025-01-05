@@ -3,7 +3,6 @@ import {
   screen,
   waitFor,
   waitForElementToBeRemoved,
-  within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { mockIsIntersecting } from "react-intersection-observer/test-utils";
@@ -92,12 +91,12 @@ describe("My events", () => {
       const seeMoreEventsButton = screen.getByRole("button", {
         name: t("communities:see_more_events_label"),
       });
-      userEvent.click(seeMoreEventsButton);
-      await waitForElementToBeRemoved(
-        within(seeMoreEventsButton).getByRole("progressbar")
-      );
 
-      expect(screen.getAllByRole("link")).toHaveLength(3);
+      const user = userEvent.setup();
+
+      await user.click(seeMoreEventsButton);
+
+      expect(await screen.findAllByRole("link")).toHaveLength(3);
       expect(listMyEventsMock).toHaveBeenCalledTimes(2);
 
       const eventCardPerRow = 2;

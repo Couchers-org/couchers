@@ -237,22 +237,25 @@ describe("Discussion page", () => {
         return getThread(threadId);
       });
       renderDiscussion();
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      userEvent.click(
-        screen.getByRole("button", {
+      const user = userEvent.setup();
+
+      user.click(
+        await screen.findByRole("button", {
           name: t("communities:load_earlier_comments"),
         })
       );
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+      await waitFor(() => {
+        // 1 for main discussion + 4 comments + 1 for second page of discussion
+        expect(getThreadMock).toHaveBeenCalledTimes(6);
+      });
 
       const firstCommentAfterLoadMore =
         screen.getAllByTestId(COMMENT_TEST_ID)[0];
       expect(
         within(firstCommentAfterLoadMore).getByText(comments[3].content)
       ).toBeVisible();
-      // 1 for main discussion + 4 comments + 1 for second page of discussion
-      expect(getThreadMock).toHaveBeenCalledTimes(6);
       expect(getThreadMock).toHaveBeenCalledWith(2, "4");
     });
 
@@ -271,18 +274,21 @@ describe("Discussion page", () => {
         return getThread(threadId);
       });
       renderDiscussion();
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      userEvent.click(
-        screen.getByRole("button", {
+      const user = userEvent.setup();
+
+      user.click(
+        await screen.findByRole("button", {
           name: t("communities:load_earlier_replies"),
         })
       );
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      expect(screen.getByText("Agreed!")).toBeVisible();
-      // 1 for main discussion + 4 comments + 1 for second page of reply for oldest comment
+      await waitFor(() => {
+        expect(screen.getByText("Agreed!")).toBeVisible();
+      });
       expect(getThreadMock).toHaveBeenCalledTimes(6);
+
+      // 1 for main discussion + 4 comments + 1 for second page of reply for oldest comment
       expect(getThreadMock).toHaveBeenCalledWith(3, "71");
     });
   });
@@ -305,11 +311,17 @@ describe("Discussion page", () => {
       name: "What is there to do in Amsterdam?",
     });
 
-    userEvent.click(
-      screen.getByRole("button", { name: t("communities:previous_page") })
+    const user = userEvent.setup();
+
+    user.click(
+      await screen.findByRole("button", {
+        name: t("communities:previous_page"),
+      })
     );
 
-    expect(mockRouter.back).toBeCalled();
+    await waitFor(() => {
+      expect(mockRouter.back).toBeCalled();
+    });
   });
 
   it("shows an error alert if the discussion fails to load", async () => {
@@ -326,22 +338,35 @@ describe("Discussion page", () => {
     const COMMENT_TREE_COMMENT_FORM_TEST_ID = "comment-2-comment-form";
     it("posts and displays the new comment to the discussion successfully", async () => {
       renderDiscussion();
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
       const discussionCommentForm = within(
-        screen.getByTestId(COMMENT_TREE_COMMENT_FORM_TEST_ID)
+        await screen.findByTestId(COMMENT_TREE_COMMENT_FORM_TEST_ID)
       );
 
       const newComment = "Glad I checked it out. It was great!";
+
       getThreadMock.mockImplementation(
         getThreadAfterSuccessfulComment({ newComment, threadIdToUpdate: 2 })
       );
-      userEvent.type(
-        discussionCommentForm.getByLabelText(
-          t("communities:write_comment_a11y_label")
-        ),
-        newComment
+
+      const user = userEvent.setup();
+
+      const commentInput = await discussionCommentForm.findByLabelText(
+        t("communities:write_comment_a11y_label")
       );
-      userEvent.click(
+
+      await waitFor(() => expect(commentInput).toBeVisible());
+
+      user.type(commentInput, newComment);
+
+      await waitFor(
+        () => {
+          expect(commentInput).toHaveValue(newComment);
+        },
+        { timeout: 5000 }
+      );
+
+      user.click(
         discussionCommentForm.getByRole("button", {
           name: t("communities:comment"),
         })
@@ -357,18 +382,29 @@ describe("Discussion page", () => {
       const errorMessage = "Error posting comment";
       postReplyMock.mockRejectedValue(new Error(errorMessage));
       renderDiscussion();
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
       const discussionCommentForm = within(
-        screen.getByTestId(COMMENT_TREE_COMMENT_FORM_TEST_ID)
+        await screen.findByTestId(COMMENT_TREE_COMMENT_FORM_TEST_ID)
       );
 
-      userEvent.type(
-        discussionCommentForm.getByLabelText(
-          t("communities:write_comment_a11y_label")
-        ),
-        "new comment"
+      const user = userEvent.setup();
+
+      const commentInput = await discussionCommentForm.findByLabelText(
+        t("communities:write_comment_a11y_label")
       );
-      userEvent.click(
+
+      await waitFor(() => expect(commentInput).toBeVisible());
+
+      user.type(commentInput, "new comment");
+
+      await waitFor(
+        () => {
+          expect(commentInput).toHaveValue("new comment");
+        },
+        { timeout: 5000 }
+      );
+
+      user.click(
         discussionCommentForm.getByRole("button", {
           name: t("communities:comment"),
         })
@@ -382,17 +418,18 @@ describe("Discussion page", () => {
     const FIRST_COMMENT_FORM_TEST_ID = "comment-6-comment-form";
     it("posts and displays the new comment below the top level comment successfully", async () => {
       renderDiscussion();
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
       const firstComment = within(
         (await screen.findAllByTestId(COMMENT_TEST_ID))[0]
       );
-      userEvent.click(
-        firstComment.getByRole("button", { name: t("global:reply") })
-      );
+
+      const user = userEvent.setup();
+
+      user.click(firstComment.getByRole("button", { name: t("global:reply") }));
       const commentFormContainer = screen.getByTestId(
         FIRST_COMMENT_FORM_TEST_ID
       );
+
       // The comment form is opened when the transition container has height as "auto"
       await waitFor(() => {
         expect(window.getComputedStyle(commentFormContainer).height).toEqual(
@@ -404,13 +441,20 @@ describe("Discussion page", () => {
       getThreadMock.mockImplementation(
         getThreadAfterSuccessfulComment({ newComment, threadIdToUpdate: 6 })
       );
-      userEvent.type(
-        within(commentFormContainer).getByLabelText(
-          t("communities:write_comment_a11y_label")
-        ),
-        newComment
+
+      const commentInput = within(commentFormContainer).getByLabelText(
+        t("communities:write_comment_a11y_label")
       );
-      userEvent.click(
+
+      await waitFor(() => expect(commentInput).toBeVisible());
+
+      user.type(commentInput, newComment);
+
+      await waitFor(() => {
+        expect(commentInput).toHaveValue(newComment);
+      });
+
+      user.click(
         within(commentFormContainer).getByRole("button", {
           name: t("communities:comment"),
         })
@@ -428,15 +472,14 @@ describe("Discussion page", () => {
 
     it("closes the comment form when the close button is clicked", async () => {
       renderDiscussion();
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
       const firstComment = within(
         (await screen.findAllByTestId(COMMENT_TEST_ID))[0]
       );
 
-      userEvent.click(
-        firstComment.getByRole("button", { name: t("global:reply") })
-      );
+      const user = userEvent.setup();
+
+      user.click(firstComment.getByRole("button", { name: t("global:reply") }));
       // The comment form is opened when the transition container has height as "auto"
       const commentFormContainer = screen.getByTestId(
         FIRST_COMMENT_FORM_TEST_ID
@@ -446,7 +489,7 @@ describe("Discussion page", () => {
           "auto"
         );
       });
-      userEvent.click(
+      user.click(
         within(commentFormContainer).getByRole("button", {
           name: t("global:close"),
         })

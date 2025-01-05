@@ -43,7 +43,9 @@ describe("ChangePassword", () => {
     });
 
     it("does not try to submit the form if the user doesn't provide its old password", async () => {
-      userEvent.click(
+      const user = userEvent.setup();
+
+      await user.click(
         await screen.findByRole("button", { name: t("global:submit") })
       );
 
@@ -53,17 +55,21 @@ describe("ChangePassword", () => {
     });
 
     it("does not try to submit the form if the new and confirm password values don't match", async () => {
-      userEvent.type(
+      const user = userEvent.setup();
+
+      await user.type(
         await screen.findByLabelText(
           t("auth:change_password_form.new_password")
         ),
         "password"
       );
-      userEvent.type(
+      await user.type(
         screen.getByLabelText(t("auth:change_password_form.confirm_password")),
         "password1"
       );
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+      await user.click(
+        screen.getByRole("button", { name: t("global:submit") })
+      );
 
       expect(
         await screen.findByText(
@@ -74,21 +80,25 @@ describe("ChangePassword", () => {
     });
 
     it("updates the user's password successfully if a new password has been given", async () => {
-      userEvent.type(
+      const user = userEvent.setup();
+
+      await user.type(
         await screen.findByLabelText(
           t("auth:change_password_form.old_password")
         ),
         "old_password"
       );
-      userEvent.type(
+      await user.type(
         screen.getByLabelText(t("auth:change_password_form.new_password")),
         "new_password"
       );
-      userEvent.type(
+      await user.type(
         screen.getByLabelText(t("auth:change_password_form.confirm_password")),
         "new_password"
       );
-      userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+      await user.click(
+        screen.getByRole("button", { name: t("global:submit") })
+      );
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
@@ -119,19 +129,21 @@ describe("ChangePassword", () => {
     changePasswordMock.mockRejectedValue(new Error("The password is insecure"));
     render(<ChangePassword />, { wrapper });
 
-    userEvent.type(
+    const user = userEvent.setup();
+
+    await user.type(
       await screen.findByLabelText(t("auth:change_password_form.old_password")),
       "old_password"
     );
-    userEvent.type(
+    await user.type(
       await screen.findByLabelText(t("auth:change_password_form.new_password")),
       "new_password"
     );
-    userEvent.type(
+    await user.type(
       screen.getByLabelText(t("auth:change_password_form.confirm_password")),
       "new_password"
     );
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     const errorAlert = await screen.findByRole("alert");
     expect(errorAlert).toBeVisible();

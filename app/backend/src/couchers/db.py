@@ -5,13 +5,11 @@ import os
 from contextlib import contextmanager
 from os import getpid
 from threading import get_ident
-from time import perf_counter_ns
 
 from alembic import command
 from alembic.config import Config
 from opentelemetry import trace
-from sqlalchemy import create_engine, event, text
-from sqlalchemy.engine import Engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.sql import and_, func, literal, or_
@@ -27,9 +25,7 @@ from couchers.models import (
     Node,
     TimezoneArea,
 )
-from couchers.profiler import add_sql_statement
 from couchers.sql import couchers_select as select
-from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
@@ -134,18 +130,6 @@ def db_post_fork():
     """
     # see https://docs.sqlalchemy.org/en/20/core/pooling.html#using-connection-pools-with-multiprocessing-or-os-fork
     _get_base_engine().dispose(close=False)
-
-
-@event.listens_for(Engine, "before_cursor_execute")
-def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
-    conn.info.setdefault("query_profiler_info", []).append((statement, parameters, now(), perf_counter_ns()))
-
-
-@event.listens_for(Engine, "after_cursor_execute")
-def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
-    statement, parameters, start, start_ns = conn.info["query_profiler_info"].pop(-1)
-    end, end_ns = now(), perf_counter_ns()
-    add_sql_statement(statement, parameters, start, start_ns, end, end_ns)
 
 
 def are_friends(session, context, other_user):

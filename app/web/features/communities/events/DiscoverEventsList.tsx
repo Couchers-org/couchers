@@ -1,11 +1,6 @@
-import {
-  CircularProgress,
-  Pagination,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Pagination, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Alert from "components/Alert";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import LocationAutocomplete from "components/LocationAutocomplete";
 import TextBody from "components/TextBody";
 import { useTranslation } from "i18n";
@@ -85,7 +80,11 @@ const useStyles = makeStyles((theme) => ({
 
 const DiscoverEventsList = () => {
   const classes = useStyles();
-  const { control, errors } = useForm({
+  // @TODO - Basically just making the form since LocationAutocomplete required the control prop
+  // We don't validate or require this field so it's just a dummy form
+  // Too much refactoring needed to change existing components to not require the control prop
+  // Might be worth making a new uncontrolled omponent that doesn't require the control prop
+  const { control } = useForm<{ location: GeocodeResult | undefined }>({
     mode: "onChange",
   });
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
@@ -144,7 +143,7 @@ const DiscoverEventsList = () => {
       defaultValue={typeof locationResult === "object" ? locationResult : ""}
       label={t("global:location_autocomplete.search_location_button")}
       onChange={handleOnChangeAutocomplete}
-      fieldError={errors.location?.message}
+      fieldError={undefined}
       fullWidth={isMobile}
     />
   );
@@ -184,7 +183,7 @@ const DiscoverEventsList = () => {
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading && (
         <div className={classes.loadingBox}>
-          <CircularProgress />
+          <CenteredSpinner />
         </div>
       )}
       {hasEvents && !isLoading && (

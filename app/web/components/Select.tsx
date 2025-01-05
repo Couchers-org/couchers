@@ -7,7 +7,7 @@ import {
   SelectProps,
 } from "@mui/material";
 import classnames from "classnames";
-import React from "react";
+import React, { forwardRef } from "react";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -22,27 +22,32 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Select<T extends Record<string | number, string>>({
-  id,
-  className,
-  native = true,
-  menuItems = false,
-  optionLabelMap,
-  label,
-  variant = "outlined",
-  options,
-  onChange,
-  ...otherProps
-}: Omit<SelectProps, "children"> & {
-  id: string;
-  options: Extract<keyof T, string | number>[];
-  value?: T extends undefined
-    ? string | number | number[]
-    : keyof T | Array<keyof T>;
-  menuItems?: boolean;
-  optionLabelMap: T;
-  onChange?: (event: SelectChangeEvent<T>) => void;
-}) {
+const Select = forwardRef(function Select<
+  T extends Record<string | number, string>
+>(
+  {
+    id,
+    className,
+    native = true,
+    menuItems = false,
+    optionLabelMap,
+    label,
+    variant = "outlined",
+    options,
+    onChange,
+    ...otherProps
+  }: Omit<SelectProps, "children"> & {
+    id: string;
+    options: Extract<keyof T, string | number>[];
+    value?: T extends undefined
+      ? string | number | number[]
+      : keyof T | Array<keyof T>;
+    menuItems?: boolean;
+    optionLabelMap: T;
+    onChange?: (event: SelectChangeEvent<T>) => void;
+  },
+  ref: React.Ref<HTMLSelectElement>
+) {
   const classes = useStyles();
   const OptionComponent: React.ElementType = menuItems ? MenuItem : "option";
 
@@ -54,6 +59,7 @@ export default function Select<T extends Record<string | number, string>>({
     >
       <InputLabel htmlFor={id}>{label}</InputLabel>
       <MuiSelect
+        inputRef={ref}
         variant="standard"
         native={native}
         label={label}
@@ -72,4 +78,6 @@ export default function Select<T extends Record<string | number, string>>({
       </MuiSelect>
     </FormControl>
   );
-}
+});
+
+export default Select;
