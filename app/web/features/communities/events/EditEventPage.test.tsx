@@ -201,4 +201,36 @@ describe("Edit event page", () => {
     await assertErrorAlert(errorMessage);
     expect(screen.queryByLabelText(t("global:title"))).not.toBeInTheDocument();
   });
+
+  it.only("should show error if startDate after endDate", async () => {
+    renderPage();
+
+    const startDateField = await screen.findByLabelText<HTMLInputElement>(
+      t("communities:start_date")
+    );
+
+    const user = userEvent.setup();
+
+    user.clear(startDateField);
+    user.type(startDateField, "07012021");
+
+    await waitFor(() => {
+      expect(startDateField).toHaveValue("07/01/2021");
+    });
+
+    const endDateField = await screen.findByLabelText<HTMLInputElement>(
+      t("communities:end_date")
+    );
+
+    user.clear(endDateField);
+    user.type(endDateField, "01012021");
+
+    await waitFor(() => {
+      expect(endDateField).toHaveValue("01/01/2021");
+    });
+
+    const endDateErrorText = screen.getByText(t("communities:end_date_error"));
+
+    expect(endDateErrorText).toBeInTheDocument();
+  });
 });
