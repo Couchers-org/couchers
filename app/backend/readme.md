@@ -31,6 +31,10 @@ This will not currently run the frontend, to do that, please follow the instruct
 
 ### Running tests in docker
 
+**Remember** 
+
+If you've made changes to any \*.proto files, you may need to re-compile the protocol buffers (step 2).
+
 You can run all backend tests in docker with the following command, executed in the `app` folder:
 
 ```sh
@@ -50,8 +54,9 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-## Now run the test
-DATABASE_CONNECTION_STRING="postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/postgres" pytest src/tests/
+## Now run the test against the testing postgres database
+DATABASE_CONNECTION_STRING="postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/postgres"
+pytest src/tests/
 ```
 
 ## Q/A:
@@ -71,6 +76,14 @@ DATABASE_CONNECTION_STRING="postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b
 3. Re-run `docker compose up --build`
 
 If you have **any trouble**, send Aapeli a message on Slack. He's more than happy to spend a bit of time helping you set things up!
+
+### Q: I'm having issues with proto protos!
+
+**A**: Regenerate protos using
+
+```sh
+docker run --pull always --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
+```
 
 ### Q: How do I log in or sign up when developing?
 

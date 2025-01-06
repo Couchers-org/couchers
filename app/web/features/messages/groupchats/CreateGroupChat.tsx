@@ -146,8 +146,10 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                   render={({ field }) => {
                     return (
                       <Autocomplete
-                        {...field}
                         id="users-autocomplete"
+                        isOptionEqualToValue={(friend, value) => {
+                          return friend?.name === value?.name;
+                        }}
                         onChange={(_, newValue) => {
                           field.onChange(newValue);
                           setIsGroup((newValue?.length ?? 0) > 1);
