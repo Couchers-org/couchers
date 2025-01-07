@@ -48,6 +48,8 @@ Curious about what else is cooking? Check out our [Couchers Engineering Task Boa
 
 Shoutout to [Jesse](https://couchers.org/user/jesse), who’s been doing design and support solo! Any Figma whizzes among you? Come help him!
 
+* ❓ **Couchers 2024 User Survey**: We conducted a survey among all Couchers.org users to gain insight into the main issues and priorities of our users. Improvements to the map search and filtering of inactive/incomplete profiles were the most requested feautures in the survey. Shoutout to [Yannic](https://github.com/spreeni) who had the main role in this!
+
 ### ✍️ Top Design Priorities
 
 1. 🗺️ **Map Redesign**: Our top focus. We've talked about it a lot, but we need someone with design thinking to help us make a decision!  
