@@ -12,7 +12,7 @@ What was lost along the way was the influence, strength and moderation of commun
 
 ## The Issues
 
-Here are the largest issues we've identified with the Couchsurfing&#8482; platform. If there are other issues you think we should address, [please let us know](https://community.couchers.org/).
+Here are the largest issues we've identified with the Couchsurfing&#8482; platform.
 
 
 ### [Profit incentives](/issues/profit-and-incentives) <span class="tag tag-governance">Governance</span>
