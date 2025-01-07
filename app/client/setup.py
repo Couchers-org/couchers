@@ -18,7 +18,6 @@ setuptools.setup(
     project_urls={
         "GitHub": "https://github.com/Couchers-org/couchers",
         "Bug Tracker": "https://github.com/Couchers-org/couchers/issues",
-        "Community Forum": "https://community.couchers.org",
     },
     classifiers=[
         "Programming Language :: Python :: 3",

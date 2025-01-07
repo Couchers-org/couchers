@@ -29,7 +29,6 @@ import {
   eventsRoute,
   faqRoute,
   featurePreviewRoute,
-  forumURL,
   helpCenterURL,
   loginRoute,
   logoutRoute,
@@ -84,11 +83,6 @@ const loggedInDrawerMenu = (
     name: t("nav.events"),
     route: eventsRoute,
   },
-  {
-    name: t("nav.forum"),
-    route: forumURL,
-    externalLink: true,
-  },
 ];
 
 // shown on desktop and big screens on top of the screen
@@ -115,11 +109,6 @@ const loggedInNavMenu = (
   {
     name: t("nav.events"),
     route: eventsRoute,
-  },
-  {
-    name: t("nav.forum"),
-    route: forumURL,
-    externalLink: true,
   },
 ];
 
@@ -149,11 +138,6 @@ const loggedOutNavMenu = (
   {
     name: t("nav.the_team"),
     route: teamRoute,
-  },
-  {
-    name: t("nav.forum"),
-    route: forumURL,
-    externalLink: true,
   },
 ];
 
@@ -191,11 +175,6 @@ const loggedOutDrawerMenu = (
   {
     name: t("nav.the_team"),
     route: teamRoute,
-  },
-  {
-    name: t("nav.forum"),
-    route: forumURL,
-    externalLink: true,
   },
 ];
 
