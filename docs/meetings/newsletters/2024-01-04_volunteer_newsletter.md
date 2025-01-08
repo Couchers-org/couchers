@@ -5,13 +5,31 @@
 Hello, amazing Couchers volunteers!  
 If you’re reading this, you’ve volunteered with Couchers in some capacity. With the New Year underway, we have some resolutions of our own and big goals going forward. We’ve had a surge of volunteer activity, so we wanted to share with you what we’ve been working on, what we plan to do, and what we could use help with in case this stirs any FOMO 😉.
 
+## Table of Contents
+- [How to Get Involved](#-how-to-get-involved)
+- [Engineering Accomplishments](#-engineering-accomplishments)
+- [Help Wanted: Engineering](#-help-wanted-engineering)
+- [Design and Operations Accomplishments](#-design--operations-accomplishments)
+- [Help Wanted: Design](#️-help-wanted-design)
+- [Help Wanted: Operations](#️-help-wanted-operations)
+- [Big Picture Goals](#-big-picture-goals)
+
+
 [[[[ PHOTO OF VOLUNTEERS CALL - SOMEONE SEND IT TO ME PLZZZ ]]]]
 
+This could be you. ;-).
 ---
 
-## 💻 Engineering Updates
+## 🤖 [How to get involved](#-how-to-get-involved)
 
-Here’s what we’ve been working on:
+Interested in jumping back in, but not sure how? You can:
+
+* Join our weekly zoom meeting Tuesdays at 21:00 UTC at http://couchers.org/zoom
+* Pop back into our Slack channel and say hi. Email us at volunteers@couchers.org if you need an invite.
+* Tag @nabramow, @aapeliv or @jesseallhands in a ticket you'd like to pick up and assign yourself to it. Check out our [Couchers Engineering Task Board](https://github.com/Couchers-org/couchers/projects) for what’s in progress or ready to tackle. See Help Wanted for [Engineering](#-help-wanted-engineering), [Design](#️-help-wanted-design) and [Operations](#️-help-wanted-operations)
+
+
+## 💻 [Engineering Accomplishments](#-engineering-accomplishments)
 
 * 👤 **Complete Profiles**: Incomplete profiles can now be filtered out on the map. Users with incomplete profiles won’t be able to send messages, host requests, or create events until they upload a photo and fill in their details.
 * 🛡️ **Strong Verification**: Users can now verify gender and age using their passports for enhanced safety. Shoutout to [Aapeli](https://github.com/aapeliv) for setting this up and upgrading it recently!
@@ -25,23 +43,31 @@ Here’s what we’ve been working on:
 
 ---
 
-## 🚀 What’s Next for Engineering & How You Can Help
+## 🚀 [Help Wanted: Engineering](#-help-wanted-engineering)
 
-We’d love your help with:
+Tickets we could use help with:
 
-* 📱 **React Native Mobile App**: We could use more hands here. Help [Ivan](https://github.com/polemius) tackle the standalone app!
-* 🗺️ **Map Redesign**: Design and development support needed! Check out the [map redesign ticket](https://github.com/Couchers-org/couchers/issues).
-* 🌐 **Public Events**: We’re adding a feature to create shorter, public versions of events so they can be shared with non-Couchers. [More info in the epic.](https://github.com/Couchers-org/couchers/issues/5339)
-* ⬆️ **Frontend Package Upgrades**: Help us stay current by upgrading to React v19, Next.js v14, Material-UI v6, and react-query v3, among others.
-* 🚫 **User Blocking & Reporting**: We’re working on implementing user-blocking functionality, expanding reporting to comments and implementation of our feedback and reference flow (designs ready). Check out [this ticket for references](https://github.com/Couchers-org/couchers/issues/4121). [And this one for private feedback](https://github.com/Couchers-org/couchers/issues/5181).
+* **Notifications feed**: [Frontend to implement a feed of recent notifications](https://github.com/Couchers-org/couchers/issues/5434).
+** **Move notifications out of Feature Preview** [We're ready to move push notification enabling out of its experimental phase](https://github.com/Couchers-org/couchers/issues/5006)
+* **Public events**: [Grab a frontend or backend ticket from this epic](https://github.com/Couchers-org/couchers/issues/5339)
+* **Private feedback for references**: [Frontend to add private feedback during reference process](https://github.com/Couchers-org/couchers/issues/4121)
+* **Map user pagination**: [Add user pagination to backend map search result](https://github.com/Couchers-org/couchers/issues/5323).
+* **Moderation tool for support to delete comments** [Option to delete comments on events or discussions for support team in Couchers console](https://github.com/Couchers-org/couchers/issues/5203)
+* **Event page improvements** [Don't show join/leave event buttons for past events](https://github.com/Couchers-org/couchers/issues/4174)
+* **Don't receive messages from empty accounts** [Add a setting for users to not receive messages from empty accounts](https://github.com/Couchers-org/couchers/issues/4089)
+* **Feedback slider defaults to negative** [Change it to default to positive to prevent accidenta negative ratings](https://github.com/Couchers-org/couchers/issues/3443)
+* **Profile image upload issues** [Clicking save while uploading terminate upload](https://github.com/Couchers-org/couchers/issues/5184)
+* **Add number of comments to events** [Add number of comments to event tiles](https://github.com/Couchers-org/couchers/issues/5217)
+* **Show user community events on dashboard** [Add events from city communities user belongs to on dashboard](https://github.com/Couchers-org/couchers/issues/5273)
+* **Upgrade bug reporting to include screenshot/video** [Upgrade bug reporting with sentry to include more context, photo, etc](https://github.com/Couchers-org/couchers/issues/5291)
+* **Frontend Package Upgrades**: Help us stay current by upgrading to [React v19](https://github.com/Couchers-org/couchers/issues/5381), [Next.js v14](https://github.com/Couchers-org/couchers/issues/5451), [Material-UI v6](https://github.com/Couchers-org/couchers/issues/5376), and [react-query v3](https://github.com/Couchers-org/couchers/issues/5263), among others.
+* 📱 **React Native Mobile App**: We could use more hands here. Help [Ivan](https://github.com/polemius) tackle the standalone app! We don't have a specific ticket for this as we're making it from scratch, see [how to get involved](#-how-to-get-involved) to help.
 
-Curious about what else is cooking? Check out our [Couchers Engineering Task Board](https://github.com/Couchers-org/couchers/projects) for what’s in progress or ready to tackle.
+Check out our [Couchers Engineering Task Board](https://github.com/Couchers-org/couchers/projects) for more and see [How To Get Involved](#-how-to-get-involved).
 
 ---
 
-## 🎨 Design & Operations
-
-### 🏆 Accomplishments
+## 🎨 [Design & Operations Accomplishments](#-design-and-operations-accomplishments)
 
 * 📧 **Graphic Email Notifications**: We’ve moved from plain text emails to a polished, graphic design for notifications.
 * 📝 **Private Feedback Flow**: We’ve designed improvements for private feedback during the reference process (implementation pending). 
@@ -50,16 +76,27 @@ Shoutout to [Jesse](https://couchers.org/user/jesse), who’s been doing design 
 
 * ❓ **Couchers 2024 User Survey**: We conducted a survey among all Couchers.org users to gain insight into the main issues and priorities of our users. Improvements to the map search and filtering of inactive/incomplete profiles were the most requested feautures in the survey. Shoutout to [Yannic](https://github.com/spreeni) who had the main role in this!
 
-### ✍️ Top Design Priorities
+### ✍️ [Help Wanted: Design](#️-help-wanted-design)
 
-1. 🗺️ **Map Redesign**: Our top focus. We've talked about it a lot, but we need someone with design thinking to help us make a decision!  
+1. 🗺️ **Map Redesign**: Our top focus. We've talked about it a lot, but we need someone with design thinking to help us make a decision! Want to help?
 2. 🛡️ **Strong Verification Design**: We could use help with the design for this feature to move it out of Feature Preview. 
 3. 🚀 **Signup Flow & Landing Page**: Needs a major overhaul for better user experience.  
 4. 📱 **Native App Design**: We need designs for the standalone mobile app.
 
 ---
 
-## 🌟 Big Picture Goals
+## 🛠️ [Help Wanted: Operations](#️-help-wanted-operations)
+
+We could use a hand with:
+
+* 🌍 **Translations**: We’re behind on translating the site into other languages. If you’re interested in managing the translation process or helping with translations, let us know!  
+* 📰 **Newsletters**: Love writing? Help us create these newsletters and our quarterly updates.  
+
+Want to help? See [How To Get Involved](#-how-to-get-involved)
+
+---
+
+## 🌟 [Big Picture Goals](#-big-picture-goals)
 
 We’re moving away from “better than Couchsurfing” branding to establish our own identity as a modern, safe, and active travel community. Key focuses include:
 
@@ -69,16 +106,6 @@ We’re moving away from “better than Couchsurfing” branding to establish ou
 
 To leave beta, we’re tackling critical map and mobile issues, launching the app, and improving usability.
 
----
-
-## 🛠️ Help Wanted: Operations Edition
-
-We could use a hand with:
-
-* 🌍 **Translations**: We’re behind on translating the site into other languages. If you’re interested in managing the translation process or helping with translations, let us know!  
-* 📰 **Newsletters**: Love writing? Help us create these newsletters and our quarterly updates.  
-
----
 
 ## 💙 Thank You!
 
