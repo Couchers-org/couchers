@@ -15,7 +15,7 @@ Otherwise, please share the link with any of your couch surfing friends that you
 
 Link: <{{ app_link }}>
 
-The platform is still under development, and features are actively being built by our amazing team of Couchers.org contributors around the world. We would like to hear your feedback and thoughts on what we've built and what we're working on. You can head on over to our forum at <https://community.couchers.org> if you'd like to join the conversation.
+The platform is still under development, and features are actively being built by our amazing team of Couchers.org contributors around the world. We would like to hear your feedback and thoughts on what we've built and what we're working on.
 
 
 Thanks so much for joining the platform. We're really excited to have you here and as part of our growing community!

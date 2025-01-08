@@ -30,20 +30,29 @@ type AccessibleTextFieldProps = Omit<TextFieldProps, "variant"> & {
 const TextField = forwardRef<
   HTMLInputElement | HTMLDivElement,
   AccessibleTextFieldProps
->(({ className, variant = "outlined", ...otherProps }, ref) => {
-  const classes = useStyles();
+>(
+  (
+    { className, variant = "outlined", helperText, name, ...otherProps },
+    ref
+  ) => {
+    const classes = useStyles();
 
-  return (
-    <MuiTextField
-      {...otherProps}
-      inputRef={ref}
-      variant={variant}
-      className={classNames(classes.root, className, {
-        [classes.multiline]: otherProps.multiline,
-      })}
-    />
-  );
-});
+    return (
+      <MuiTextField
+        {...otherProps}
+        inputRef={ref}
+        name={name}
+        variant={variant}
+        helperText={
+          <span data-testid={`${name}-helper-text`}>{helperText}</span>
+        }
+        className={classNames(classes.root, className, {
+          [classes.multiline]: otherProps.multiline,
+        })}
+      />
+    );
+  }
+);
 
 TextField.displayName = "TextField";
 

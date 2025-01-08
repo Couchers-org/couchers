@@ -4,7 +4,7 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers.db import session_scope
-from couchers.models import EventOccurrence, MeetupStatus
+from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus
 from couchers.utils import Timestamp_from_datetime, create_coordinate, millis_from_dt, now
 from proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from tests.test_communities import create_community, testing_communities  # noqa
@@ -14,6 +14,7 @@ from tests.test_fixtures import (  # noqa
     events_session,
     generate_user,
     search_session,
+    session_scope,
     testconfig,
 )
 
@@ -156,6 +157,57 @@ def test_user_filter_meetup_status(db):
             search_pb2.UserSearchReq(meetup_status_filter=[api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP])
         )
         assert [result.user.user_id for result in res.results] == [user_does_not_want_to_meet.id]
+
+
+def test_user_filter_language(db):
+    """
+    Test filtering users by language ability.
+    """
+    user_with_german_beginner, token11 = generate_user(hosting_status=HostingStatus.can_host)
+    user_with_japanese_conversational, token12 = generate_user(hosting_status=HostingStatus.can_host)
+    user_with_german_fluent, token13 = generate_user(hosting_status=HostingStatus.can_host)
+
+    with session_scope() as session:
+        session.add(
+            LanguageAbility(
+                user_id=user_with_german_beginner.id, language_code="deu", fluency=LanguageFluency.beginner
+            ),
+        )
+        session.add(
+            LanguageAbility(
+                user_id=user_with_japanese_conversational.id,
+                language_code="jpn",
+                fluency=LanguageFluency.fluent,
+            )
+        )
+        session.add(
+            LanguageAbility(user_id=user_with_german_fluent.id, language_code="deu", fluency=LanguageFluency.fluent)
+        )
+
+    with search_session(token11) as api:
+        res = api.UserSearch(
+            search_pb2.UserSearchReq(
+                language_ability_filter=[
+                    api_pb2.LanguageAbility(
+                        code="deu",
+                        fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_FLUENT,
+                    )
+                ]
+            )
+        )
+        assert [result.user.user_id for result in res.results] == [user_with_german_fluent.id]
+
+        res = api.UserSearch(
+            search_pb2.UserSearchReq(
+                language_ability_filter=[
+                    api_pb2.LanguageAbility(
+                        code="jpn",
+                        fluency=api_pb2.LanguageAbility.Fluency.FLUENCY_CONVERSATIONAL,
+                    )
+                ]
+            )
+        )
+        assert [result.user.user_id for result in res.results] == [user_with_japanese_conversational.id]
 
 
 @pytest.fixture

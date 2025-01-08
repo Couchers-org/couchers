@@ -5,7 +5,9 @@ type: general
 
 ## Commonly asked questions from the couch surfing community
 
-If you have any other questions, please head to the [community forum](https://community.couchers.org/) and ask your question.
+### Is Couchers.org still being actively developed?
+
+Yes! As of mid-2024, we have an active volunteer group of developers, designers, and community builders. We are releasing features every month, we have simply reduced the rate of sending out email newsletters to make sure they are of higher quality and more interesting and relevant!
 
 ### Is Couchers.org an alternative to Couchsurfing&#8482;?
 
@@ -28,8 +30,6 @@ We are keeping the platform as a non-profit forever. Our plan to follow this rel
 3. Our code base is **open source** and anybody can spin up an alternative instance. If the community ever comes to feel that the leaders of the platform are not acting in their interest, they can simply fork the codebase, making a copy that is under control of new management.
 
 Finally, we do hope that you can trust our Founders ([Aapeli](/user/aapeli) and [Itsi](/user/itsi)) and [Board Members](/foundation) in their promise to keep the platform not only community-led, non-profit, and open-source, but in line with the greater interests of the global couch surfing community.
-
-We do encourage you to head to the [community forum](https://community.couchers.org/) and contribute ideas for how we can further secure Couchers.org as being non-profit forever.
 
 ### Why are you working on this? What are you getting out of it?
 
