@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EditLocationMapProps } from "components/EditLocationMap";
+import dayjs from "dayjs";
 import { hostingStatusLabels } from "features/profile/constants";
 import { StatusCode } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
@@ -88,7 +89,7 @@ describe("AccountForm", () => {
         ),
         "a very insecure password"
       );
-      const birthdayField = screen.getByLabelText(
+      const birthdayField = await screen.findByLabelText(
         t("auth:account_form.birthday.field_label")
       );
       await user.clear(birthdayField);
@@ -207,23 +208,67 @@ describe("AccountForm", () => {
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
     });
 
-    it("fails on incorrect birthdate", async () => {
-      const field = screen.getByLabelText(
+    it("Fails on birthdate older than 120", async () => {
+      const field = await screen.findByLabelText(
         t("auth:account_form.birthday.field_label")
       );
 
       const user = userEvent.setup();
 
       await user.clear(field);
-      await user.type(field, "01/01/2099");
+      await user.type(field, "01/01/1750");
       await user.click(
         screen.getByRole("button", { name: t("global:sign_up") })
       );
 
       expect(
         await screen.findByText(
-          t("auth:account_form.birthday.validation_error")
+          t("auth:account_form.birthday.not_real_date_error")
         )
+      ).toBeVisible();
+      expect(signupFlowAccountMock).not.toHaveBeenCalled();
+    });
+
+    it("Fails on birthdate younger than 18", async () => {
+      const field = await screen.findByLabelText(
+        t("auth:account_form.birthday.field_label")
+      );
+
+      const user = userEvent.setup();
+
+      const seventeenYearsAgoDate = dayjs()
+        .subtract(17, "year")
+        .format("MM/DD/YYYY");
+
+      await user.clear(field);
+      await user.type(field, seventeenYearsAgoDate);
+      await user.click(
+        screen.getByRole("button", { name: t("global:sign_up") })
+      );
+
+      expect(
+        await screen.findByText(t("auth:account_form.birthday.too_young_error"))
+      ).toBeVisible();
+      expect(signupFlowAccountMock).not.toHaveBeenCalled();
+    });
+
+    it("Fails on blank birthdate", async () => {
+      const field = await screen.findByLabelText(
+        t("auth:account_form.birthday.field_label")
+      );
+
+      const user = userEvent.setup();
+
+      await user.clear(field);
+
+      expect(field).toHaveValue("");
+
+      await user.click(
+        screen.getByRole("button", { name: t("global:sign_up") })
+      );
+
+      expect(
+        await screen.findByText(t("auth:account_form.birthday.required_error"))
       ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
     });
