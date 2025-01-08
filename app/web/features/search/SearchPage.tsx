@@ -81,7 +81,9 @@ export default function SearchPage({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   // State
-  const [wasSearchPerformed, setWasSearchPerformed] = useState(false);
+  const [wasSearchPerformed, setWasSearchPerformed] = useState(
+    locationName !== ""
+  );
   const [locationResult, setLocationResult] = useState<GeocodeResult>({
     bbox: bbox,
     isRegion: false,
@@ -105,7 +107,9 @@ export default function SearchPage({
   >();
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [areFiltersCleared, setAreFiltersCleared] = useState(true);
+  const [areFiltersCleared, setAreFiltersCleared] = useState(
+    locationResult.name === ""
+  );
 
   // Loads the list of users
   const { data, error, isLoading, isFetching, hasNextPage } = useInfiniteQuery<
@@ -149,9 +153,7 @@ export default function SearchPage({
   }, [locationResult?.bbox]);
 
   /**
-   * Handles search and filter state:
-   * - Tracks whether a search was performed after first render (shows all users on first render)
-   * - Manages filter state to enable/disable the clear filters button
+   * Updates filter status and controls clear filters button
    */
   useEffect(() => {
     const filtersApplied =
@@ -160,9 +162,9 @@ export default function SearchPage({
       numberOfGuestFilter !== undefined ||
       completeProfileFilter !== false ||
       queryName !== "" ||
-      (locationResult.location.lng !== 0 && locationResult.location.lat !== 0);
+      locationResult.name != "" ||
+      wasSearchPerformed !== false;
 
-    // Update wasSearchPerformed only on first search
     if (!wasSearchPerformed && filtersApplied) {
       setWasSearchPerformed(true);
     }
@@ -175,27 +177,27 @@ export default function SearchPage({
     completeProfileFilter,
     wasSearchPerformed,
     queryName,
-    locationResult.location.lng,
-    locationResult.location.lat,
+    locationResult.name,
   ]);
 
   /**
    * Handler for clearing all filters
    */
-  const handleClearFilters = (bbox?: [number, number, number, number]) => {
+  const handleClearFilters = () => {
     setQueryName("");
     setLocationResult({
-      bbox: bbox || [0, 0, 0, 0],
+      bbox: [390, 82, -173, -66],
       isRegion: false,
       location: new LngLat(0, 0),
-      name: locationName,
-      simplifiedName: locationName,
+      name: "",
+      simplifiedName: "",
     });
     setLastActiveFilter(0);
     setHostingStatusFilter([]);
     setNumberOfGuestFilter(undefined);
     setCompleteProfileFilter(false);
     setAreFiltersCleared(true);
+    setWasSearchPerformed(false);
   };
 
   const errorMessage = error?.message;

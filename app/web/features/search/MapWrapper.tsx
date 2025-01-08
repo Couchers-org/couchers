@@ -64,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
     margin: "8px auto 0",
     alignItems: "center",
     height: "25px",
-    zIndex: 10,
+    zIndex: 1,
   },
   searchHereButton: {
     borderRadius: "4px",
@@ -96,7 +96,7 @@ interface mapWrapperProps {
   setWasSearchPerformed: Dispatch<SetStateAction<boolean>>;
   wasSearchPerformed: boolean;
   areFiltersCleared: boolean;
-  onClearFiltersClick: (bbox?: [number, number, number, number]) => void;
+  onClearFiltersClick: () => void;
 }
 
 export default function MapWrapper({
@@ -267,8 +267,9 @@ export default function MapWrapper({
     const currentBbox = map.current?.getBounds().toArray();
     if (currentBbox) {
       if (map.current?.getBounds && locationResult) {
+        // Reset location but persist map position
         setLocationResult({
-          ...locationResult,
+          location: new LngLat(0, 0),
           name: "",
           simplifiedName: "",
           bbox: [
@@ -287,18 +288,7 @@ export default function MapWrapper({
    * Clicks on 'clear filters' button
    */
   const handleClearFiltersClick = () => {
-    const currentBbox = map.current?.getBounds().toArray();
-    if (currentBbox) {
-      const bbox: [number, number, number, number] = [
-        currentBbox[0][0],
-        currentBbox[0][1],
-        currentBbox[1][0],
-        currentBbox[1][1],
-      ];
-      onClearFiltersClick(bbox);
-    } else {
-      onClearFiltersClick();
-    }
+    onClearFiltersClick();
   };
 
   const initializeMap = (newMap: MaplibreMap) => {
