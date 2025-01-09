@@ -16,8 +16,6 @@ We fundamentally believe that a tool like this can enhance the experiences of it
 
 We are working on including the best parts from all the other hospitality exchange platforms out there. This includes hosting, surfing, messaging, live hangouts, planned events, trip planning, maps and many more.
 
-If you have ideas for features you'd like to see, [please let us know](https://community.couchers.org/).
-
 ## Our plan
 
 These are the key concepts that we are building into the foundation of the platform.

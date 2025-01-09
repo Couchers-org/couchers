@@ -126,7 +126,7 @@ export default function EventForm({
     setValue,
     watch,
     formState: { dirtyFields, errors },
-  } = useForm<CreateEventData>();
+  } = useForm<CreateEventData>({ mode: "onBlur" });
 
   const isOnline = watch("isOnline", false);
   const locationDefaultValue = useRef(

@@ -19,7 +19,6 @@ import {
   donationsRoute,
   eventsRoute,
   faqRoute,
-  forumURL,
   foundationRoute,
   githubURL,
   helpCenterURL,
@@ -148,7 +147,6 @@ export default function Footer() {
             <Typography variant="h3" component="h2">
               {t("nav.community")}
             </Typography>
-            <FooterLink href={forumURL}>{t("nav.forum")}</FooterLink>
             <FooterLink href={blogRoute}>{t("nav.blog")}</FooterLink>
             <FooterLink href={teamRoute}>{t("nav.our_team")}</FooterLink>
             <FooterLink href={eventsRoute}>

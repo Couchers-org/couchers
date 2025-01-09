@@ -11,7 +11,6 @@ Note on slugs: each branch has a slug generated from the branch name, normally y
 * Latest compiled protos: <https://gitlab.com/couchers/couchers/-/jobs/artifacts/develop/download?job=protos>
 * Built react web frontend: <https://gitlab.com/couchers/couchers/-/jobs/artifacts/develop/download?job=build:web>
 * Web as at `develop`: <https://develop--web.preview.couchershq.org/>
-* Storybook previews off `develop`: <https://develop--storybook.preview.couchershq.org/>
 * Current backend test coverage on `develop`: <https://develop--bcov.preview.couchershq.org/>
 * Current web test coverage on `develop`: <https://develop--wcov.preview.couchershq.org/>
 
@@ -27,7 +26,7 @@ Similarly you can download a built web frontend, e.g. at <https://gitlab.com/cou
 
 ## Web previews
 
-The pipeline builds previews of the web frontend (`web`), the storybook boards (`storybook`), and code coverage for backend (`bcov`) and web frontend (`wcov`). You can access these are <https://{slug/hash}--{type}.preview.couchershq.org> where `slug/hash` is either the branch slug or its short hash (first 8 characters of the commit hash), `type` is one of `web/storybook/bcov/wcov`. The previews point to the current prod API.
+The pipeline builds previews of the web frontend (`web`) and code coverage for backend (`bcov`) and web frontend (`wcov`). You can access these are <https://{slug/hash}--{type}.preview.couchershq.org> where `slug/hash` is either the branch slug or its short hash (first 8 characters of the commit hash), `type` is one of `web/bcov/wcov`. The previews point to the current prod API.
 
 These links are also printed at the end of the `preview` jobs in the pipeline.
 
