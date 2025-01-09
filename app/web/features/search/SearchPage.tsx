@@ -108,7 +108,7 @@ export default function SearchPage({
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [areFiltersCleared, setAreFiltersCleared] = useState(
-    locationResult.name === ""
+    locationName === ""
   );
 
   // Loads the list of users
@@ -162,7 +162,7 @@ export default function SearchPage({
       numberOfGuestFilter !== undefined ||
       completeProfileFilter !== false ||
       queryName !== "" ||
-      locationResult.name != "" ||
+      locationResult.name !== "" ||
       wasSearchPerformed !== false;
 
     if (!wasSearchPerformed && filtersApplied) {
