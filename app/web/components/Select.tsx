@@ -6,21 +6,8 @@ import {
   SelectChangeEvent,
   SelectProps,
 } from "@mui/material";
-import classnames from "classnames";
 import React, { forwardRef } from "react";
-import makeStyles from "utils/makeStyles";
-
-const useStyles = makeStyles((theme) => ({
-  formControl: {
-    "& .MuiOutlinedInput-root": {
-      borderRadius: theme.shape.borderRadius * 3,
-    },
-    "& .MuiInputBase-input": {
-      height: "auto",
-    },
-    display: "block",
-  },
-}));
+import { theme } from "theme";
 
 const Select = forwardRef(function Select<
   T extends Record<string | number, string>
@@ -48,14 +35,22 @@ const Select = forwardRef(function Select<
   },
   ref: React.Ref<HTMLSelectElement>
 ) {
-  const classes = useStyles();
   const OptionComponent: React.ElementType = menuItems ? MenuItem : "option";
 
   return (
     <FormControl
       variant={variant}
-      className={classnames(className, classes.formControl)}
+      className={className}
       margin="normal"
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          borderRadius: theme.shape.borderRadius * 3,
+        },
+        "& .MuiInputBase-input": {
+          height: "auto",
+        },
+        display: "block",
+      }}
     >
       <InputLabel htmlFor={id}>{label}</InputLabel>
       <MuiSelect

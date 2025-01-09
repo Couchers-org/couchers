@@ -1,21 +1,12 @@
 import { Typography, TypographyProps } from "@mui/material";
-import classNames from "classnames";
-import makeStyles from "utils/makeStyles";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    paddingBottom: theme.spacing(2),
-    paddingTop: theme.spacing(2),
-  },
-}));
+import { theme } from "theme";
 
 export default function PageTitle(props: TypographyProps) {
-  const classes = useStyles();
-
   return (
     <Typography
       {...props}
-      className={classNames(props.className, classes.root)}
+      className={props.className}
+      sx={{ paddingBottom: theme.spacing(2), paddingTop: theme.spacing(2) }}
       variant="h1"
     />
   );
