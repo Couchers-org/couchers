@@ -34,7 +34,6 @@ const StyledCloseButton = styled(IconButton)(({ theme }) => ({
 
 export default function CookieBanner() {
   const { t } = useTranslation();
-  // const classes = useStyles();
   // since we are using localStorage, make sure don't render unless mounted
   // or there will be hydration mismatches
   const isMounted = useIsMounted().current;
