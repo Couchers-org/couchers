@@ -13,10 +13,10 @@
     "message": "Willst du dieses Event wirklich absagen?"
   },
   "by_creator": "Von {{name}}",
-  "comment": "Kommentar",
+  "comment": "Kommentieren",
   "upload_helper_text_replace": "Zum Ändern des Fotos klicken",
   "comments": "Kommentare",
   "comments_count": "Kommentare | {{count}}",
   "community_header": "Willkommen in {{name}}",
-  "community_moderators": "Community Builders"
+  "community_moderators": "Community Builder"
 }
