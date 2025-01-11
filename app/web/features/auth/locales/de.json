@@ -280,6 +280,6 @@
     "wrong_code": "Der Code ist falsch.",
     "verify_button_text": "Telefonnummer verifizieren",
     "verify_success": "Die Telefonnummer wurde verifiziert.",
-    "remove_phone_description": "Deine aktuelle Telefonnummer ist <2>{{phone}}</2>. Du kannst deine Telefonnummer hier drunter entfernen."
+    "remove_phone_description": "Deine aktuelle Telefonnummer ist <2>{{phone}}</2>. Du kannst deine Telefonnummer unten entfernen."
   }
 }
