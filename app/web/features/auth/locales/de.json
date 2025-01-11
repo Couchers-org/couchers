@@ -98,12 +98,12 @@
     "existing_user_prompt": "Du hast bereits einen Account? <2>Einloggen</2>",
     "sign_up_agreement_explainer": "Beim Fortfahren stimmst du unseren <2>Nutzungsvereinbarungen</2> zu, inklusive unseren Vereinbarung zur Verwendung von Cookies, E-Mail-Adresse und digitaler Informationen."
   },
-  "sign_up_completed_title": "Danke, dass du uns beigetreten bist!",
-  "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche, dich einzuloggen.",
+  "sign_up_completed_title": "Danke, dass du dich bei uns registriert hast!",
+  "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche dich einzuloggen.",
   "login_prompt": "Klicke hier, um dich einzuloggen",
   "about_us": "Über uns",
-  "introduction_subtitle": "Auf ewig kostenlos. Von der Community geleitet. Gemeinnützig. Modern.",
-  "introduction_title": "Tritt uns bei und unterstütze uns darin, die neue Alternative zu Couchsurfing™ wachsen zu lassen",
+  "introduction_subtitle": "Für immer kostenlos. Von der Community geleitet. Gemeinnützig. Modern.",
+  "introduction_title": "Schließ dich uns an und unterstütze uns dabei, die neue Alternative zu Couchsurfing™ wachsen zu lassen",
   "reset_password": "Passwort zurücksetzen",
   "account_settings_page": {
     "birth_date_section": {
@@ -121,8 +121,10 @@
     },
     "username_section": {
       "title": "Benutzername",
-      "description": "Dein Benutzername lautet <1>{{username}}</1>."
-    }
+      "description": "Dein Benutzername lautet <1>{{username}}</1>.",
+      "explanation": "Dein Benutzername wird festgelegt, wenn du deinen Account erstellst."
+    },
+    "title": "Kontoeinstellungen"
   },
   "notification_settings": {
     "title": "Benachrichtigungseinstellungen",
@@ -223,8 +225,8 @@
       "explanation": "Es gibt derzeit keine aktiven Features zur Vorschau, bitte schau zu einem späteren Zeitpunkt wieder vorbei!",
       "title": "Keine Features derzeit in der Vorschau"
     },
-    "title": "Feature Vorschau",
-    "explanation": "Diese Seite ermöglicht es dir, Features auszuprobieren, die immer noch in Entwicklung sind und noch nicht ganz für den breiten Nutzen bereit sind."
+    "title": "Feature-Vorschau",
+    "explanation": "Diese Seite ermöglicht es dir Features auszuprobieren, die immer noch in Entwicklung sind und noch nicht ganz für den allgemeinen Nutzen bereit sind."
   },
   "jail": {
     "title": "Mehr Informationen werden benötigt",
@@ -259,5 +261,6 @@
   },
   "feedback_form": {
     "header": "Deine Meinung zählt"
-  }
+  },
+  "unhandled_sign_up_state": "Fehler: unhandled signup flow state."
 }
