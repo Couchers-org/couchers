@@ -41,10 +41,7 @@ On the platform, your community page must be populated with some content. Check 
 
 ## Resources
 
-
-
 * [The Couchers.org Plan](https://couchers.org/plan/)
-* [Community Forum](https://community.couchers.org)
 * [FAQ](https://couchers.org/faq/)
 * [Details about Couchers, Inc.](https://couchers.org/foundation/)
 

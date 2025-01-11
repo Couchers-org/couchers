@@ -10,7 +10,6 @@ import SearchFilters, { parseSearchFiltersToQuery } from "utils/searchFilters";
 export const baseRoute = "/";
 
 export const githubURL = "https://github.com/Couchers-org/couchers";
-export const forumURL = "https://community.couchers.org/";
 export const helpCenterURL = "https://help.couchers.org";
 
 export const dashboardRoute = "/dashboard";

@@ -131,7 +131,7 @@ describe("Edit event page", () => {
     expect(mockRouter.pathname).toBe(routeToEvent(1, "weekly-meetup"));
   });
 
-  it("should submit both the start and end date if the start date field is touched", async () => {
+  it("should submit only the start date if the start date field is touched", async () => {
     renderPage();
 
     const startDateField = await screen.findByLabelText<HTMLInputElement>(
@@ -160,11 +160,10 @@ describe("Edit event page", () => {
       eventId: 1,
       isOnline: false,
       startTime: new Date("2021-08-01 02:37"),
-      endTime: new Date("2021-08-01 03:37"),
     });
   });
 
-  it("should submit both the start and end date if the start time field is touched", async () => {
+  it("should submit only the start date if the start time field is touched", async () => {
     renderPage();
 
     const startTimeField = (await screen.findByLabelText(
@@ -193,7 +192,6 @@ describe("Edit event page", () => {
       eventId: 1,
       isOnline: false,
       startTime: new Date("2021-06-29 00:00"),
-      endTime: new Date("2021-06-29 01:00"),
     });
   });
 
@@ -205,5 +203,37 @@ describe("Edit event page", () => {
 
     await assertErrorAlert(errorMessage);
     expect(screen.queryByLabelText(t("global:title"))).not.toBeInTheDocument();
+  });
+
+  it.only("should show error if startDate after endDate", async () => {
+    renderPage();
+
+    const startDateField = await screen.findByLabelText<HTMLInputElement>(
+      t("communities:start_date")
+    );
+
+    const user = userEvent.setup();
+
+    user.clear(startDateField);
+    user.type(startDateField, "07012021");
+
+    await waitFor(() => {
+      expect(startDateField).toHaveValue("07/01/2021");
+    });
+
+    const endDateField = await screen.findByLabelText<HTMLInputElement>(
+      t("communities:end_date")
+    );
+
+    user.clear(endDateField);
+    user.type(endDateField, "01012021");
+
+    await waitFor(() => {
+      expect(endDateField).toHaveValue("01/01/2021");
+    });
+
+    const endDateErrorText = screen.getByText(t("communities:end_date_error"));
+
+    expect(endDateErrorText).toBeInTheDocument();
   });
 });

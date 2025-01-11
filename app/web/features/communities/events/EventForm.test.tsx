@@ -15,6 +15,13 @@ const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 
+jest.mock("@mui/x-date-pickers", () => {
+  return {
+    ...jest.requireActual("@mui/x-date-pickers"),
+    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+  };
+});
+
 const serviceFn = jest.fn();
 function TestComponent({ event }: { event?: Event.AsObject }) {
   const { error, mutate, isLoading } = useMutation<
@@ -75,19 +82,19 @@ describe("Event form", () => {
     expect(screen.getByText(t("communities:upload_helper_text"))).toBeVisible();
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:start_date")),
-      "08/01/2021"
+      ""
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:start_time")),
-      "01:00"
+      ""
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:end_date")),
-      "08/01/2021"
+      ""
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:end_time")),
-      "02:00"
+      ""
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:location")),
@@ -183,6 +190,7 @@ describe("Event form", () => {
     const user = userEvent.setup();
 
     user.click(screen.getByRole("button", { name: t("global:create") }));
+
     await waitFor(() => {
       expect(serviceFn).not.toHaveBeenCalled();
     });
@@ -247,6 +255,44 @@ describe("Event form", () => {
       expect(titleInput).toHaveValue("Test event");
     });
 
+    const startDateField = (await screen.findByLabelText(
+      t("communities:start_date")
+    )) as HTMLInputElement;
+
+    user.type(startDateField, "08012021");
+
+    await waitFor(() => {
+      expect(startDateField).toHaveValue("08/01/2021");
+    });
+
+    const startTimeField = (await screen.findByLabelText(
+      t("communities:start_time")
+    )) as HTMLInputElement;
+
+    user.type(startTimeField, "01:00");
+
+    await waitFor(() => {
+      expect(startTimeField).toHaveValue("01:00");
+    });
+
+    const endDateField = (await screen.findByLabelText(
+      t("communities:end_date")
+    )) as HTMLInputElement;
+
+    user.type(endDateField, "08012021");
+
+    await waitFor(() => {
+      expect(endDateField).toHaveValue("08/01/2021");
+    });
+
+    const endTimeField = screen.getByLabelText(
+      t("communities:end_time")
+    ) as HTMLInputElement;
+
+    user.type(endTimeField, "02:00");
+
+    await waitFor(() => expect(endTimeField).toHaveValue("02:00"));
+
     const virtualEventCheckbox = screen.getByLabelText(
       t("communities:virtual_event")
     ) as HTMLInputElement;
@@ -290,6 +336,7 @@ describe("Event form", () => {
     mockConsoleError();
     const errorMessage = "Error submitting event";
     serviceFn.mockRejectedValue(new Error(errorMessage));
+
     renderForm();
 
     const user = userEvent.setup();
@@ -303,6 +350,44 @@ describe("Event form", () => {
         "Test event"
       );
     });
+
+    const startDateField = (await screen.findByLabelText(
+      t("communities:start_date")
+    )) as HTMLInputElement;
+
+    user.type(startDateField, "08012021");
+
+    await waitFor(() => {
+      expect(startDateField).toHaveValue("08/01/2021");
+    });
+
+    const startTimeField = (await screen.findByLabelText(
+      t("communities:start_time")
+    )) as HTMLInputElement;
+
+    user.type(startTimeField, "01:00");
+
+    await waitFor(() => {
+      expect(startTimeField).toHaveValue("01:00");
+    });
+
+    const endDateField = (await screen.findByLabelText(
+      t("communities:end_date")
+    )) as HTMLInputElement;
+
+    user.type(endDateField, "08012021");
+
+    await waitFor(() => {
+      expect(endDateField).toHaveValue("08/01/2021");
+    });
+
+    const endTimeField = screen.getByLabelText(
+      t("communities:end_time")
+    ) as HTMLInputElement;
+
+    user.type(endTimeField, "02:00");
+
+    await waitFor(() => expect(endTimeField).toHaveValue("02:00"));
 
     user.click(screen.getByLabelText(t("communities:virtual_event")));
 
@@ -352,6 +437,44 @@ describe("Event form", () => {
     await waitFor(() => {
       expect(titleInput).toHaveValue("Test event");
     });
+
+    const startDateField = (await screen.findByLabelText(
+      t("communities:start_date")
+    )) as HTMLInputElement;
+
+    user.type(startDateField, "08012021");
+
+    await waitFor(() => {
+      expect(startDateField).toHaveValue("08/01/2021");
+    });
+
+    const startTimeField = (await screen.findByLabelText(
+      t("communities:start_time")
+    )) as HTMLInputElement;
+
+    user.type(startTimeField, "01:00");
+
+    await waitFor(() => {
+      expect(startTimeField).toHaveValue("01:00");
+    });
+
+    const endDateField = (await screen.findByLabelText(
+      t("communities:end_date")
+    )) as HTMLInputElement;
+
+    user.type(endDateField, "08012021");
+
+    await waitFor(() => {
+      expect(endDateField).toHaveValue("08/01/2021");
+    });
+
+    const endTimeField = screen.getByLabelText(
+      t("communities:end_time")
+    ) as HTMLInputElement;
+
+    user.type(endTimeField, "02:00");
+
+    await waitFor(() => expect(endTimeField).toHaveValue("02:00"));
 
     jest.useRealTimers();
 

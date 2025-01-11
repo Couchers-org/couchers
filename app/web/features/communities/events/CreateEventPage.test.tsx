@@ -15,6 +15,13 @@ const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 
+jest.mock("@mui/x-date-pickers", () => {
+  return {
+    ...jest.requireActual("@mui/x-date-pickers"),
+    DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+  };
+});
+
 const createEventMock = service.events.createEvent as jest.MockedFunction<
   typeof service.events.createEvent
 >;
@@ -74,6 +81,44 @@ describe("Create event page", () => {
       expect(titleInput).toHaveValue("Test event");
     });
 
+    const startDateField = (await screen.findByLabelText(
+      t("communities:start_date")
+    )) as HTMLInputElement;
+
+    user.type(startDateField, "08012021");
+
+    await waitFor(() => {
+      expect(startDateField).toHaveValue("08/01/2021");
+    });
+
+    const startTimeField = (await screen.findByLabelText(
+      t("communities:start_time")
+    )) as HTMLInputElement;
+
+    user.type(startTimeField, "01:00");
+
+    await waitFor(() => {
+      expect(startTimeField).toHaveValue("01:00");
+    });
+
+    const endDateField = (await screen.findByLabelText(
+      t("communities:end_date")
+    )) as HTMLInputElement;
+
+    user.type(endDateField, "08012021");
+
+    await waitFor(() => {
+      expect(endDateField).toHaveValue("08/01/2021");
+    });
+
+    const endTimeField = screen.getByLabelText(
+      t("communities:end_time")
+    ) as HTMLInputElement;
+
+    user.type(endTimeField, "02:00");
+
+    await waitFor(() => expect(endTimeField).toHaveValue("02:00"));
+
     const virtualEventCheckBox = screen.getByLabelText(
       t("communities:virtual_event")
     ) as HTMLInputElement;
@@ -118,6 +163,7 @@ describe("Create event page", () => {
     await waitFor(() => {
       expect(createEventMock).toHaveBeenCalledTimes(1);
     });
+
     expect(createEventMock).toHaveBeenCalledWith({
       isOnline: true,
       title: "Test event",
@@ -148,6 +194,44 @@ describe("Create event page", () => {
     await waitFor(() => {
       expect(titleInput).toHaveValue("Test event");
     });
+
+    const startDateField = (await screen.findByLabelText(
+      t("communities:start_date")
+    )) as HTMLInputElement;
+
+    user.type(startDateField, "08012021");
+
+    await waitFor(() => {
+      expect(startDateField).toHaveValue("08/01/2021");
+    });
+
+    const startTimeField = (await screen.findByLabelText(
+      t("communities:start_time")
+    )) as HTMLInputElement;
+
+    user.type(startTimeField, "01:00");
+
+    await waitFor(() => {
+      expect(startTimeField).toHaveValue("01:00");
+    });
+
+    const endDateField = (await screen.findByLabelText(
+      t("communities:end_date")
+    )) as HTMLInputElement;
+
+    user.type(endDateField, "08012021");
+
+    await waitFor(() => {
+      expect(endDateField).toHaveValue("08/01/2021");
+    });
+
+    const endTimeField = screen.getByLabelText(
+      t("communities:end_time")
+    ) as HTMLInputElement;
+
+    user.type(endTimeField, "02:00");
+
+    await waitFor(() => expect(endTimeField).toHaveValue("02:00"));
 
     // msw server response doesn't work with fake timers on, so turn it off temporarily
     jest.useRealTimers();
@@ -217,6 +301,44 @@ describe("Create event page", () => {
       expect(titleInput).toHaveValue("Test event");
     });
 
+    const startDateField = (await screen.findByLabelText(
+      t("communities:start_date")
+    )) as HTMLInputElement;
+
+    user.type(startDateField, "08012021");
+
+    await waitFor(() => {
+      expect(startDateField).toHaveValue("08/01/2021");
+    });
+
+    const startTimeField = (await screen.findByLabelText(
+      t("communities:start_time")
+    )) as HTMLInputElement;
+
+    user.type(startTimeField, "01:00");
+
+    await waitFor(() => {
+      expect(startTimeField).toHaveValue("01:00");
+    });
+
+    const endDateField = (await screen.findByLabelText(
+      t("communities:end_date")
+    )) as HTMLInputElement;
+
+    user.type(endDateField, "08012021");
+
+    await waitFor(() => {
+      expect(endDateField).toHaveValue("08/01/2021");
+    });
+
+    const endTimeField = screen.getByLabelText(
+      t("communities:end_time")
+    ) as HTMLInputElement;
+
+    user.type(endTimeField, "02:00");
+
+    await waitFor(() => expect(endTimeField).toHaveValue("02:00"));
+
     jest.useRealTimers();
 
     const locationInput = screen.getByLabelText(
@@ -264,6 +386,31 @@ describe("Create event page", () => {
       startTime: new Date("2021-08-01 01:00"),
       endTime: new Date("2021-08-01 02:00"),
       parentCommunityId: 99,
+    });
+  });
+
+  it("shows a profile incomplete dialog if the profile is not complete", async () => {
+    getAccountInfoMock.mockResolvedValue({
+      username: "tester",
+      email: "email@couchers.org",
+      profileComplete: false,
+      phone: "+46701740605",
+      phoneVerified: true,
+      timezone: "Australia/Broken_Hill",
+      hasStrongVerification: false,
+      birthdateVerificationStatus: 1,
+      genderVerificationStatus: 3,
+      doNotEmail: false,
+      hasDonated: false,
+      isSuperuser: false,
+    });
+
+    render(<CreateEventPage />, { wrapper });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(t("dashboard:complete_profile_dialog.title"))
+      ).toBeInTheDocument();
     });
   });
 });
