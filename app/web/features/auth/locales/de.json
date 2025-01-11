@@ -256,5 +256,8 @@
     "action_button": {
       "no_emails_enable_text": "Von E-Mails abmelden"
     }
+  },
+  "feedback_form": {
+    "header": "Deine Meinung zählt"
   }
 }
