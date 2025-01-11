@@ -25,7 +25,9 @@
     },
     "actions_menu": {
       "items": {
-        "invite_members": "Zum Chat einladen"
+        "invite_members": "Zum Chat einladen",
+        "show_all_members": "Chat Teilnehmende",
+        "manage_admins": "Chat Admins managen"
       }
     }
   }
