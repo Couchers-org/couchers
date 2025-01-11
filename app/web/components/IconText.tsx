@@ -12,7 +12,7 @@ const StyledWrapper = styled("div")(({ theme }) => ({
 }));
 
 const StyledLabel = styled("div")(({ theme }) => ({
-  marginLeft: theme.spacing(1),
+  marginInlineStart: theme.spacing(1),
 }));
 
 interface IconTextProps {
