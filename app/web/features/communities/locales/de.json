@@ -57,6 +57,8 @@
   "previous_page": "Gehe zurück zur vorigen Seite",
   "page_content_field_label": "Seiteninhalt",
   "page_content_required": "Bitte füll den Seiteninhalt aus",
-  "see_all_moderators": "Alle Community Builders anzeigen",
-  "see_more_discussions_label": "Mehr Diskussionen anzeigen"
+  "see_all_moderators": "Alle Community-Builder anzeigen",
+  "see_more_discussions_label": "Weitere Beiträge anzeigen",
+  "see_more_places_label": "Weitere Orte anzeigen",
+  "upload_image": "Foto hochladen"
 }
