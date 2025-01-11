@@ -23,11 +23,11 @@
   "edit_info_page_success_message": "Die Community-Seite wurde erfolgreich aktualisiert.",
   "community_tabs_a11y_label": "Tabs für Community Unterseiten",
   "create_new_discussion_title": "Neuen Beitrag erstellen",
-  "discussions_empty_state": "Im Moment gibt es keine Diskussionen.",
-  "edit_info_page_title": "Lokale Informationen bearbeiten",
+  "discussions_empty_state": "Aktuell gibt es keine Diskussionen.",
+  "edit_info_page_title": "Ortsinformationen bearbeiten",
   "discussions_label": "Diskussionen",
   "edit_event": "Event bearbeiten",
   "discussions_title": "Diskussionen",
   "error_loading_community": "Fehler beim Laden der Community.",
-  "events_empty_state": "Im Moment gibt es keine Events."
+  "events_empty_state": "Aktuell gibt es keine Events."
 }
