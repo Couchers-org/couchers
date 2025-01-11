@@ -306,7 +306,8 @@
     "missing_token": "Fehler: missing token",
     "recover": {
       "title": "Stelle deinen Couchers.org-Account wieder her",
-      "error_message": "Der Account konnte nicht wiederhergestellt werden: {{message}}"
+      "error_message": "Der Account konnte nicht wiederhergestellt werden: {{message}}",
+      "button_text": "Stelle deinen Account wieder her"
     }
   }
 }
