@@ -60,5 +60,16 @@
   "see_all_moderators": "Alle Community-Builder anzeigen",
   "see_more_discussions_label": "Weitere Beiträge anzeigen",
   "see_more_places_label": "Weitere Orte anzeigen",
-  "upload_image": "Foto hochladen"
+  "upload_image": "Foto hochladen",
+  "see_more_information": "Mehr Informationen anzeigen",
+  "details_subheading_colon": "Details:",
+  "details_subheading": "Details",
+  "write_comment_a11y_label": "Schreibe einen Kommentar",
+  "attendees": "Teilnehmende",
+  "create_an_event": "Erstelle ein Event",
+  "create_event_page_title": "Event erstellen",
+  "create_event_disclaimer": "Durch Klicken dieses Buttons wird dein Event öffentlich für die Couchers.org-Community angezeigt.",
+  "date_required": "Bitte gib ein Datum an.",
+  "end_date": "Enddatum",
+  "end_time": "Endzeitpunkt"
 }
