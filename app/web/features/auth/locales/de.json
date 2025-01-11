@@ -282,13 +282,13 @@
     "verify_success": "Die Telefonnummer wurde verifiziert.",
     "remove_phone_description": "Deine aktuelle Telefonnummer ist <2>{{phone}}</2>. Du kannst deine Telefonnummer unten entfernen.",
     "remove_button_text": "Aktuelle Telefonnummer entfernen",
-    "change_to_different_description": "Um deine Telefonnummer zu ändern, gib deine neue Telefonnummer bitte hier ein.",
+    "change_to_different_description": "Um deine Telefonnummer zu ändern, gib deine neue Nummer bitte unten ein.",
     "remove_success": "Telefonnummer wurde entfernt.",
     "change_button_text": "Telefonnummer ändern"
   },
   "delete_account": {
     "request": {
-      "description": "Bitte folge den unten stehenden Schritten, um deinen Account zu löschen. Wir schicken dir eine Bestätigung per E-Mail.",
+      "description": "Um deinen Account zu löschen, folge bitte den unten stehenden Schritten. Wir senden dir anschließend eine Bestätigungs E-Mail.",
       "title": "Account löschen"
     }
   }
