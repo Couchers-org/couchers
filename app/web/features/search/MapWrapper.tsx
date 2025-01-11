@@ -1,6 +1,6 @@
 import ReplayIcon from "@mui/icons-material/Replay";
 import TuneIcon from "@mui/icons-material/Tune";
-import { useMediaQuery, useTheme } from "@mui/material";
+import { useMediaQuery } from "@mui/material";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Map from "components/Map";
@@ -30,6 +30,7 @@ import {
   useState,
 } from "react";
 import { InfiniteData } from "react-query";
+import { theme } from "theme";
 import { GeocodeResult, usePrevious } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
@@ -119,8 +120,7 @@ export default function MapWrapper({
   const [isMapSourceLoaded, setIsMapSourceLoaded] = useState(false);
   const previousResult = usePrevious(selectedResult);
   const classes = useStyles();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   /**
    * User clicks on a user on map
