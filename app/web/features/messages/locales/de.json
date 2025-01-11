@@ -27,8 +27,39 @@
       "items": {
         "invite_members": "Zum Chat einladen",
         "show_all_members": "Chat Teilnehmende",
-        "manage_admins": "Chat Adminstratoren verwalten"
+        "manage_admins": "Chat Adminstratoren verwalten",
+        "chat_settings": "Chat Einstellungen",
+        "leave_chat": "Chat verlassen"
       }
+    },
+    "mute": {
+      "button_label": "Chat stumm schalten",
+      "unmute_button_label": "Stummschalten des Chats aufheben",
+      "dialog_title": "Wie lange willst du stumm schalten?",
+      "1_hour_label": "1 Stunde",
+      "8_hours_label": "8 Stunden",
+      "1_day_label": "1 Tag",
+      "1_week_label": "1 Woche",
+      "1_month_label": "1 Monat",
+      "forever_label": "Bis ich die Stummschaltung aufhebe"
+    }
+  },
+  "create_chat": {
+    "group_title": "Gruppenchat erstellen",
+    "group_title_field_label": "Titel",
+    "dm_title": "Neuen Chat erstellen"
+  },
+  "admins_dialog": {
+    "step_down_confirmation_dialog": {
+      "message": "Bist du dir sicher, dass du nicht mehr Administrator dieses Gruppenchats sein willst? Du kannst nicht wieder Administrator werden, es sei denn, ein anderer Administrator fügt dich hinzu."
+    },
+    "remove_admin": {
+      "title": "Admin entfernen",
+      "action_a11y_label": "Als Admin entfernen"
+    },
+    "add_admin": {
+      "title": "Admin hinzufügen",
+      "action_a11y_label": "Als Administrator hinzufügen"
     }
   }
 }
