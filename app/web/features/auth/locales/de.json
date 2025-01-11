@@ -307,7 +307,8 @@
     "recover": {
       "title": "Stelle deinen Couchers.org-Account wieder her",
       "error_message": "Der Account konnte nicht wiederhergestellt werden: {{message}}",
-      "button_text": "Account wiederherstellen"
+      "button_text": "Account wiederherstellen",
+      "success": "Dein Account wurde wieder hergestellt, du kannst dich jetzt wieder einloggen. Wir freuen uns, dass du wieder zurück bist!"
     }
   }
 }
