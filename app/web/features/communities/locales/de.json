@@ -30,8 +30,8 @@
   "discussions_title": "Diskussionen",
   "error_loading_community": "Fehler beim Laden der Community.",
   "events_empty_state": "Aktuell gibt es keine Events.",
-  "find_host": "Gastgeber finden",
-  "community_info_page_title": "Allgemeine Informationen",
+  "find_host": "Host finden",
+  "community_info_page_title": "Allgemeine Infos",
   "finished": "Beendet",
   "load_earlier_replies": "Frühere Antworten laden",
   "invalid_community_id": "Ungültige Community ID.",
@@ -39,5 +39,7 @@
   "join_community": "Community beitreten",
   "leave_community": "Community verlassen",
   "load_earlier_comments": "Frühere Kommentare laden",
-  "load_more_moderators": "Weitere Community Builder laden"
+  "load_more_moderators": "Weitere Community-Builder laden",
+  "local_info_label": "Ortsangaben",
+  "local_info_link": "Zu Ortsangaben gehen"
 }
