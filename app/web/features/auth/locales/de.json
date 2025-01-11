@@ -7,12 +7,13 @@
     }
   },
   "account_form": {
-    "tos_accept_label": "Ich akzeptiere die $t(global:terms_of_service).",
+    "tos_accept_label": "Ich akzeptiere die Nutzungsbedingungen.",
     "header": "Deine Accountdetails",
     "username": {
       "field_label": "Benutzername",
       "required_error": "Gib deinen Nuternamen ein",
-      "username_taken_error": "Dieser Benutzername ist bereits vergeben."
+      "username_taken_error": "Dieser Benutzername ist bereits vergeben.",
+      "validation_error": "Dein Benutzername muss mit einem Buchstaben beginnen und kann nur Buchstaben, Nummern und Unterstriche (_) enthalten."
     },
     "birthday": {
       "field_label": "Geburtsdatum",
@@ -22,10 +23,11 @@
     "hosting_status": {
       "can_host": "Kann hosten",
       "maybe": "Kann vielleicht hosten",
-      "cant_host": "Kann nicht hosten"
+      "cant_host": "Kann nicht hosten",
+      "field_label": "Hosting-Status"
     },
     "gender": {
-      "field_label": "Ich identifiziere mich als ...",
+      "field_label": "Ich identifiziere mich als…",
       "required_error": "Bitte wähle deine Geschlechts/Gender-Identität aus",
       "man": "Mann",
       "non_binary": "Nicht-binär",
@@ -44,7 +46,7 @@
     "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <2>{{email}}</2>.",
     "current_password": "Aktuelles Passwort",
     "new_email": "Neue E-Mail-Adresse",
-    "success_message": "Die Änderung deiner E-Mail-Adresse wurde empfangen. Überprüfe dein E-Mail-Postfach, um die Änderung abzuschließen."
+    "success_message": "Die Änderung deiner E-Mail-Adresse wurde empfangen. Überprüfe das Postfach deiner neuen E-Mail-Adresse, um die Änderung abzuschließen."
   },
   "change_email_confirmation": {
     "change_in_progress": "E-Mail-Adressänderung wird bearbeitet…",
@@ -54,12 +56,12 @@
   "basic_form": {
     "name": {
       "empty_error": "Bitte gib deinen Namen an",
-      "required_error": "Namen dürfen nicht nur Leerzeichen enthalten.",
+      "required_error": "Dieses Feld darf nicht leer sein.",
       "field_label": "Dein Name"
     },
     "email": {
       "field_label": "E-Mail-Adresse",
-      "empty_error": "Bitte gib eine giltige E-Mail-Adresse an",
+      "empty_error": "Bitte gib eine gültige E-Mail-Adresse an",
       "required_error": "Das Feld \"E-Mail-Adresse\" darf nicht leer sein."
     }
   },
@@ -82,7 +84,7 @@
   "login_page": {
     "title": "Einloggen",
     "header": "Willkommen zurück!",
-    "no_account_prompt": "Hast du noch keinen Account? <2>$t(global:sign_up)</2>",
+    "no_account_prompt": "Hast du noch keinen Account? <2>Erstelle einen.</2>",
     "form": {
       "username_field_label": "E-Mail-Adresse/Benutzername",
       "password_field_label": "Passwort",
@@ -93,7 +95,7 @@
   },
   "basic_sign_up_form": {
     "header": "Lass uns loslegen!",
-    "existing_user_prompt": "Hast du bereits einen Account? <2>$t(global:login)</2>",
+    "existing_user_prompt": "Hast du bereits einen Account? <2>Einloggen</2>",
     "sign_up_agreement_explainer": "Beim Fortfahren stimmst du unseren <2>Nutzungsvereinbarungen</2> zu, inklusive unseren Vereinbarung zur Verwendung von Cookies, E-Mail-Adresse und digitaler Informationen."
   },
   "sign_up_completed_title": "Danke, dass du uns beigetreten bist!",
@@ -235,7 +237,8 @@
       "submit_button": {
         "active_text": "Speichern",
         "inactive_text": "Danke!"
-      }
+      },
+      "resubmit_button_text": "Erneut absenden"
     }
   },
   "logged_out_message": "Du wurdest ausgeloggt.",
