@@ -266,11 +266,11 @@
   "unsubscribe": {
     "button_text": "Abbestellung bestätigen",
     "title": "Abbestellen",
-    "error_message": "Fehler beim deabonnieren: {{message}}",
+    "error_message": "Fehler beim Abbestellen: {{message}}",
     "missing_payload_or_sig": "Ungültige URL"
   },
   "change_phone": {
-    "no_phone_description": "Du hast deinem Account keine Telefonnummer hinzugefügt. Wenn du eine hizufügen willst gib sie einfach unten ein. Wir werden sie dir mit einer Textnachricht bestätigen.",
+    "no_phone_description": "Du hast keine Telefonnummer zu deinem Konto hinzugefügt. Um eine hinzuzufügen, geb sie unten ein. Wir werden die Nummer mit einer SMS verifizieren.",
     "title": "Telefonnummer",
     "phone_label": "Deine Telefonnummer",
     "add_button_text": "Telefonnummer hinzufügen",
@@ -279,6 +279,6 @@
     "code_label": "Bestätigungscode",
     "wrong_code": "Der Code ist falsch.",
     "verify_button_text": "Telefonnummer verifizieren",
-    "verify_success": "Telefonnummer bestätigt."
+    "verify_success": "Die Telefonnummer wurde verifiziert."
   }
 }
