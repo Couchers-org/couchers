@@ -103,7 +103,7 @@
   "login_prompt": "Klicke hier, um dich einzuloggen",
   "about_us": "Über uns",
   "introduction_subtitle": "Für immer kostenlos. Von der Community geleitet. Gemeinnützig. Modern.",
-  "introduction_title": "Schließ dich uns an und unterstütze uns dabei, die neue Alternative zu Couchsurfing™ wachsen zu lassen",
+  "introduction_title": "Schließ dich uns an und unterstütze uns dabei, die neue Couchsurfing™ Alternative zu werden",
   "reset_password": "Passwort zurücksetzen",
   "account_settings_page": {
     "birth_date_section": {
@@ -226,7 +226,7 @@
       "title": "Keine Features derzeit in der Vorschau"
     },
     "title": "Feature-Vorschau",
-    "explanation": "Diese Seite ermöglicht es dir Features auszuprobieren, die immer noch in Entwicklung sind und noch nicht ganz für den allgemeinen Nutzen bereit sind."
+    "explanation": "Diese Seite ermöglicht es dir Features auszuprobieren, die in Entwicklung und noch nicht für den allgemeinen Nutzen bereit sind."
   },
   "jail": {
     "title": "Mehr Informationen werden benötigt",
@@ -262,5 +262,9 @@
   "feedback_form": {
     "header": "Deine Meinung zählt"
   },
-  "unhandled_sign_up_state": "Fehler: unhandled signup flow state."
+  "unhandled_sign_up_state": "Fehler: unhandled signup flow state.",
+  "unsubscribe": {
+    "button_text": "Abbestellung bestätigen",
+    "title": "Abbestellen"
+  }
 }
