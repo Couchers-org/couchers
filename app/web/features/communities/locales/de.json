@@ -74,5 +74,5 @@
   "end_time": "End Zeit",
   "end_time_error": "Das Ende des Events muss nach der Startzeit liegen.",
   "event_details": "Event Details",
-  "event_details_required": "Bitte füll das Event Details Feld aus."
+  "event_details_required": "Bitte das Eventdetailsfeld ausfüllen."
 }
