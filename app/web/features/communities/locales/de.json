@@ -18,5 +18,16 @@
   "comments": "Kommentare",
   "comments_count": "Kommentare | {{count}}",
   "community_header": "Willkommen in {{name}}",
-  "community_moderators": "Community Builder"
+  "community_moderators": "Community Builder",
+  "created_at": "Erstellt am ",
+  "edit_info_page_success_message": "Die Community-Seite wurde erfolgreich aktualisiert.",
+  "community_tabs_a11y_label": "Tabs für Community Unterseiten",
+  "create_new_discussion_title": "Neuen Beitrag erstellen",
+  "discussions_empty_state": "Im Moment gibt es keine Diskussionen.",
+  "edit_info_page_title": "Lokale Informationen bearbeiten",
+  "discussions_label": "Diskussionen",
+  "edit_event": "Event bearbeiten",
+  "discussions_title": "Diskussionen",
+  "error_loading_community": "Fehler beim Laden der Community.",
+  "events_empty_state": "Im Moment gibt es keine Events."
 }
