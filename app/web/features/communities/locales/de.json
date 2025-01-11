@@ -74,5 +74,17 @@
   "end_time": "End Zeit",
   "end_time_error": "Das Ende des Events muss nach der Startzeit liegen.",
   "event_details": "Event Details",
-  "event_details_required": "Bitte das Eventdetailsfeld ausfüllen."
+  "event_details_required": "Bitte das Eventdetailsfeld ausfüllen.",
+  "event_discussion": "Event Diskussion",
+  "event_image_input_alt": "Event Bild-Eingabe",
+  "event_link": "Event Link",
+  "events_label": "Events",
+  "events_title": "Events",
+  "invalid_time": "Zeitangaben müssen im 24 Stunden Format HH:MM angegeben werden.",
+  "not_going_to_event": "Ich nehme nicht teil",
+  "going_to_event": "Ich nehme teil",
+  "join_event": "Event beitreten",
+  "leave_event": "Event verlassen",
+  "link_required": "Bitte gib einen Link zum Event an.",
+  "load_more_attendees": "Lade weitere Teilnehmende"
 }
