@@ -26,11 +26,12 @@
     "actions_menu": {
       "items": {
         "invite_members": "Zum Chat einladen",
-        "show_all_members": "Chat Teilnehmende",
+        "show_all_members": "Chat-Mitglieder",
         "manage_admins": "Chat Adminstratoren verwalten",
         "chat_settings": "Chat Einstellungen",
         "leave_chat": "Chat verlassen"
-      }
+      },
+      "a11y_label": "Mehr Chat-Aktionen anzeigen"
     },
     "mute": {
       "button_label": "Chat stumm schalten",
@@ -42,16 +43,23 @@
       "1_week_label": "1 Woche",
       "1_month_label": "1 Monat",
       "forever_label": "Bis ich die Stummschaltung aufhebe"
+    },
+    "muted_icon": {
+      "a11y_label": "Stumm"
     }
   },
   "create_chat": {
     "group_title": "Gruppenchat erstellen",
     "group_title_field_label": "Titel",
-    "dm_title": "Neuen Chat erstellen"
+    "dm_title": "Neuen Chat erstellen",
+    "no_friends_found_message": "Es konnte keine Freunde gefunden werden",
+    "user_load_error_message": "(Benutzerladefehler)",
+    "friends_input_label": "Freunde"
   },
   "admins_dialog": {
     "step_down_confirmation_dialog": {
-      "message": "Bist du dir sicher, dass du nicht mehr Administrator dieses Gruppenchats sein willst? Du kannst nicht wieder Administrator werden, es sei denn, ein anderer Administrator fügt dich hinzu."
+      "message": "Bist du dir sicher, dass du nicht mehr Administrator dieses Gruppenchats sein willst? Du kannst nicht wieder Administrator werden, es sei denn, ein anderer Administrator fügt dich hinzu.",
+      "title": "Als Admin zurücktreten?"
     },
     "remove_admin": {
       "title": "Admin entfernen",
@@ -61,5 +69,82 @@
       "title": "Admin hinzufügen",
       "action_a11y_label": "Als Administrator hinzufügen"
     }
-  }
+  },
+  "group_chat_settings_dialog": {
+    "only_admins_invite": {
+      "field_label": "Nur Administratoren können andere zum Chat einladen"
+    },
+    "title": "Gruppenchat Einstellungen",
+    "chat_title": {
+      "field_label": "Chattitel"
+    }
+  },
+  "group_chats_tab": {
+    "no_chats_message": "Noch keine Gruppenchats",
+    "load_more_button_label": "Mehr laden"
+  },
+  "control_message": {
+    "invite_user_text": "{{user}} hat {{target_user}} eingeladen",
+    "user_left_chat_text": "{{user}} hat den Chat verlassen",
+    "admin_assignment_text": "{{user}} hat {{target_user}} zum Administrator gemacht",
+    "created_chat_text": "{{user}} hat den Chat erstellt",
+    "edited_chat_text": "{{user}} hat den Chat bearbeitet",
+    "admin_removal_text": "{{user}} hat {{target_user}} als Administrator entfernt",
+    "host_request_status_changed_text": "{{user}} hat die Anfrage in {{status}} geändert",
+    "unknown_message_text": "Unbekannte Kontrollmeldung"
+  },
+  "host_request_status": {
+    "confirmed": "Bestätigt",
+    "pending": "Ausstehend",
+    "rejected": "Abgelehnt",
+    "cancelled": "Storniert",
+    "accepted": "Akzeptiert"
+  },
+  "chat_input": {
+    "label": "Nachricht"
+  },
+  "requests_tab": {
+    "no_requests_message": "Noch keine Anfragen",
+    "load_more_button_label": "Mehr laden"
+  },
+  "invite_dialog": {
+    "title": "Zum Chat einladen",
+    "selected": {
+      "field_label": "Freunde",
+      "no_options_text": "Niemand zum Einladen",
+      "option_load_error_text": "(Benutzerladefehler)"
+    },
+    "invite_button_label": "Einladen"
+  },
+  "leave_chat_dialog": {
+    "title": "Chat verlassen?",
+    "message": "Diesen Chat wirklich verlassen?"
+  },
+  "members_dialog": {
+    "title": "Chat-Mitglieder"
+  },
+  "host_request_item": {
+    "pending": "Diese Anfrage ist noch ausstehend",
+    "host_status": {
+      "accepted": "Du hast diese Anfrage angenommen",
+      "cancelled": "Du hast diese Anfrage storniert",
+      "confirmed": "Du hast diese Anfrage bestätigt",
+      "rejected": "Du hast diese Anfrage abgelehnt"
+    },
+    "surfer_status": {
+      "accepted": "Deine Anfrage wurde angenommen",
+      "cancelled": "Deine Anfrage wurde storniert",
+      "confirmed": "Deine Anfrage wurde bestätigt",
+      "rejected": "Deine Anfrage wurde abgelehnt"
+    }
+  },
+  "host_request_view": {
+    "error_message": "Ungültige Host-Anfrage-ID",
+    "back_button_a11y_label": "Zurück",
+    "title_for_host": "Anfrage von {{user}} – {{status}}",
+    "title_for_surfer": "Anfrage an {{user}} – {{status}}",
+    "request_duration": "{{count}} Nacht",
+    "request_duration_plural": "{{count}} Nächte"
+  },
+  "surfer_declined_request_help_text": "<0>Lies unseren Leitfaden</0>, wie man eine Anfrage schreibt, die angenommen wird."
 }
