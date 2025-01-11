@@ -47,7 +47,7 @@
     "success_message": "Die Änderung deiner E-Mail-Adresse wurde empfangen. Überprüfe dein E-Mail-Postfach, um die Änderung abzuschließen."
   },
   "change_email_confirmation": {
-    "change_in_progress": "Änderung der E-Mail-Adresse in Bearbeitung…",
+    "change_in_progress": "E-Mail-Adressänderung wird bearbeitet…",
     "success_message": "Deine E-Mail-Adresse wurde erfolgreich geändert!",
     "error_message": "Fehler beim Ändern der E-Mail-Adresse: {{message}}"
   },
@@ -73,7 +73,7 @@
     "password_changed_success": "Dein neues Passwort wurde akzeptiert und eine Benachrichtigung wurde an deine E-Mail-Adresse gesendet.",
     "old_password": "Altes Passwort",
     "new_password": "Neues Passwort",
-    "password_mismatch_error": "Dies stimmt nicht mit dem Passwort, das du oben eingegeben hast, überein."
+    "password_mismatch_error": "Die eingegebenen Passwörter stimmen nicht überein."
   },
   "reset_password_form": {
     "success_message": "Überprüfe deine E-Mail-Adresse, für einen Link, um das Passwort zurückzusetzen!",
@@ -243,5 +243,15 @@
   "jail_set_password_form": {
     "title": "Erstelle ein Passwort",
     "explanation": "Du hast noch kein Passwort für deinen Account angegeben. Bitte erstelle eins, um fortzusetzen."
+  },
+  "do_not_email": {
+    "title": "Sendet mir keine E-Mails",
+    "status": {
+      "no_emails_enabled_message": "E-Mails für dein Konto sind derzeit <1>deaktiviert</1>.",
+      "no_emails_disabled_message": "E-Mails für dein Konto sind derzeit <1>aktiviert</1>."
+    },
+    "action_button": {
+      "no_emails_enable_text": "Von E-Mails abmelden"
+    }
   }
 }
