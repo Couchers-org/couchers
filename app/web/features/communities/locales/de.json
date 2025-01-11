@@ -71,5 +71,8 @@
   "create_event_disclaimer": "Durch Klicken dieses Buttons wird dein Event öffentlich für die Couchers.org-Community angezeigt.",
   "date_required": "Bitte gib ein Datum an.",
   "end_date": "Enddatum",
-  "end_time": "End Zeit"
+  "end_time": "End Zeit",
+  "end_time_error": "Das Ende des Events muss nach der Startzeit liegen.",
+  "event_details": "Event Details",
+  "event_details_required": "Bitte füll das Event Details Feld aus."
 }
