@@ -220,7 +220,7 @@
     }
   },
   "feature_preview": {
-    "disclaimer": "Bitte beachte, dass diese Features experimentell sind. Sie werden vielleicht nicht wie vorhergesehen funktionieren und sich während der Entwicklung schnell ändern. Bitte gib uns Feedback dazu in unserem Forum und melde uns Bugs!",
+    "disclaimer": "Bitte beachte, dass diese Features experimentell sind. Sie funktionieren vielleicht nicht wie vorgesehen und können sich während der Entwicklung noch stark ändern. Bitte gib uns Feedback dazu in unserem Forum und melde Bugs!",
     "no_previews": {
       "explanation": "Es gibt derzeit keine aktiven Features zur Vorschau, bitte schau zu einem späteren Zeitpunkt wieder vorbei!",
       "title": "Keine Features derzeit in der Vorschau"
@@ -265,6 +265,20 @@
   "unhandled_sign_up_state": "Fehler: unhandled signup flow state.",
   "unsubscribe": {
     "button_text": "Abbestellung bestätigen",
-    "title": "Abbestellen"
+    "title": "Abbestellen",
+    "error_message": "Fehler beim deabonnieren: {{message}}",
+    "missing_payload_or_sig": "Ungültige URL"
+  },
+  "change_phone": {
+    "no_phone_description": "Du hast deinem Account keine Telefonnummer hinzugefügt. Wenn du eine hizufügen willst gib sie einfach unten ein. Wir werden sie dir mit einer Textnachricht bestätigen.",
+    "title": "Telefonnummer",
+    "phone_label": "Deine Telefonnummer",
+    "add_button_text": "Telefonnummer hinzufügen",
+    "add_success": "Die Telefonnummer wurde hinzugefügt.",
+    "phone_not_verified_description": "Wir haben dir einen Code an <2>{{phone}}</2> geschicht. Gib den Code hier ein, um deine Telefonnummer zu verifizieren:",
+    "code_label": "Bestätigungscode",
+    "wrong_code": "Der Code ist falsch.",
+    "verify_button_text": "Telefonnummer verifizieren",
+    "verify_success": "Telefonnummer bestätigt."
   }
 }
