@@ -80,11 +80,11 @@
   "event_link": "Event Link",
   "events_label": "Events",
   "events_title": "Events",
-  "invalid_time": "Zeitangaben müssen im 24 Stunden Format HH:MM angegeben werden.",
-  "not_going_to_event": "Ich nehme nicht teil",
+  "invalid_time": "Zeitangaben müssen im 24 Stunden Format HH:MM sein.",
+  "not_going_to_event": "Nicht teilnehmen",
   "going_to_event": "Ich nehme teil",
   "join_event": "Event beitreten",
   "leave_event": "Event verlassen",
   "link_required": "Bitte gib einen Link zum Event an.",
-  "load_more_attendees": "Lade weitere Teilnehmende"
+  "load_more_attendees": "Weitere Teilnehmende laden"
 }
