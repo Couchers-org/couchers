@@ -11,9 +11,9 @@
     "header": "Deine Accountdetails",
     "username": {
       "field_label": "Benutzername",
-      "required_error": "Gib deinen Nuternamen ein",
+      "required_error": "Gib deinen Benutzernamen ein",
       "username_taken_error": "Dieser Benutzername ist bereits vergeben.",
-      "validation_error": "Dein Benutzername muss mit einem Buchstaben beginnen und kann nur Buchstaben, Nummern und Unterstriche (_) enthalten."
+      "validation_error": "Dein Benutzername sollte mit einem Buchstaben beginnen und kann Buchstaben, Nummern und Unterstriche '_' enthalten."
     },
     "birthday": {
       "field_label": "Geburtsdatum",
@@ -84,7 +84,7 @@
   "login_page": {
     "title": "Einloggen",
     "header": "Willkommen zurück!",
-    "no_account_prompt": "Hast du noch keinen Account? <2>Erstelle einen.</2>",
+    "no_account_prompt": "Du hast noch keinen Account? <2>Account erstellen</2>",
     "form": {
       "username_field_label": "E-Mail-Adresse/Benutzername",
       "password_field_label": "Passwort",
@@ -95,7 +95,7 @@
   },
   "basic_sign_up_form": {
     "header": "Lass uns loslegen!",
-    "existing_user_prompt": "Hast du bereits einen Account? <2>Einloggen</2>",
+    "existing_user_prompt": "Du hast bereits einen Account? <2>Einloggen</2>",
     "sign_up_agreement_explainer": "Beim Fortfahren stimmst du unseren <2>Nutzungsvereinbarungen</2> zu, inklusive unseren Vereinbarung zur Verwendung von Cookies, E-Mail-Adresse und digitaler Informationen."
   },
   "sign_up_completed_title": "Danke, dass du uns beigetreten bist!",

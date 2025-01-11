@@ -34,7 +34,7 @@
     },
     "mute": {
       "button_label": "Chat stumm schalten",
-      "unmute_button_label": "Stummschalten des Chats aufheben",
+      "unmute_button_label": "Stummschaltung des Chats aufheben",
       "dialog_title": "Wie lange willst du stumm schalten?",
       "1_hour_label": "1 Stunde",
       "8_hours_label": "8 Stunden",
