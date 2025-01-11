@@ -29,8 +29,8 @@ import {
   useEffect,
   useState,
 } from "react";
-import { InfiniteData } from "react-query";
 import { theme } from "theme";
+import { InfiniteData } from "react-query";
 import { GeocodeResult, usePrevious } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
