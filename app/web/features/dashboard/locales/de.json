@@ -1,1 +1,12 @@
-{}
+{
+  "complete_profile_explanation": "Hasst du es nicht auch, dass andere Plattformen leere „Geister“-Profile ohne Informationen haben? Bitte Ghoste uns nicht! 👻👻👻",
+  "please_complete_profile": "Bitte vervollständige dein Profil, um sicher zu gehen, dass du in der Suche angezeigt wirst:",
+  "upload_photo": "2. Lade dein Foto hoch (indem du auf der Bearbeitungsseite auf den Avatar klickst)",
+  "fill_in_who_i_am": "1. Fülle den Abschnitt „Wer ich bin“ mit ein paar Sätzen über dich selbst aus",
+  "edit_profile_button_text": "Bearbeite dein Profil",
+  "dashboard": "Übersicht",
+  "complete_profile_dialog": {
+    "title": "Fast geschafft: Bitte vervollständige dein Profil, um fortzufahren!",
+    "description_2": "Dies trägt dazu bei, eine vertrauenswürdige Community aufzubauen und Spam zu reduzieren. Weitere Informationen findest du <2>auf dieser Hilfeseite</2>. Danke für deine Hilfe!"
+  }
+}

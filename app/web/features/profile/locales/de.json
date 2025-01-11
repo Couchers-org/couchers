@@ -1,1 +1,16 @@
-{}
+{
+  "heading": {
+    "edit": "Bearbeiten",
+    "about_me": "Über mich",
+    "age_gender": "Alter / Geschlecht",
+    "edit_profile": "Profil bearbeiten",
+    "education": "Ausbildung"
+  },
+  "actions": {
+    "message_label": "Nachricht",
+    "accept_friend_label": "Annehmen",
+    "decline_friend_label": "Ablehnen",
+    "request": "Anfragen"
+  },
+  "my_connections": "Meine Verbindungen"
+}

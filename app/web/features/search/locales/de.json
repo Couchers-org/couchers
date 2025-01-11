@@ -1,1 +1,15 @@
-{}
+{
+  "last_active_options": {
+    "last_3_months": "Letzten 3 Monate",
+    "any": "Alle",
+    "last_day": "Letzter Tag",
+    "last_week": "Letzte Woche",
+    "last_2_weeks": "Letzte 2 Wochen",
+    "last_month": "Letzter Monat"
+  },
+  "filter_dialog": {
+    "mobile_title": "Suchen",
+    "desktop_title": "Filter",
+    "search_here_button": "Hier suchen"
+  }
+}
