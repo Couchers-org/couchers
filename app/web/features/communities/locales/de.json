@@ -52,5 +52,11 @@
   "new_discussion_topic_placeholder": "Erstelle einen neuen Beitrag - z. B. Mein Lieblingsmoment in Amsterdam ist, wenn...",
   "online": "Online",
   "overview_label": "Übersicht",
-  "places_title": "Orte"
+  "places_title": "Orte",
+  "post": "Post",
+  "previous_page": "Gehe zurück zur vorigen Seite",
+  "page_content_field_label": "Seiteninhalt",
+  "page_content_required": "Bitte füll den Seiteninhalt aus",
+  "see_all_moderators": "Alle Community Builders anzeigen",
+  "see_more_discussions_label": "Mehr Diskussionen anzeigen"
 }
