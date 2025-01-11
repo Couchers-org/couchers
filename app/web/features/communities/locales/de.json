@@ -1,1 +1,15 @@
-{}
+{
+  "invite_community_dialog": {
+    "title": "Eine Community-Einladung für diese Veranstaltung anfordern"
+  },
+  "show_cancelled_events": "Abgesagte Veranstaltungen anzeigen",
+  "attendees_count": "Teilnehmende Person",
+  "attendees_count_plural": "Teilnehmende",
+  "cancelled": "Abgesagt",
+  "cancel_event": "Event absagen",
+  "cancel_event_success_message": "Das Event wurde erfolgreich abgesagt.",
+  "cancel_event_dialog": {
+    "title": "Event absagen?",
+    "message": "Willst du dieses Event wirklich absagen?"
+  }
+}
