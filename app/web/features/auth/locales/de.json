@@ -290,7 +290,7 @@
     "request": {
       "description": "Um deinen Account zu löschen, folge bitte den unten stehenden Schritten. Wir senden dir anschließend eine Bestätigungs E-Mail.",
       "title": "Account löschen",
-      "confirm_username_explanation": "Dein Benutzername ist <1>{{ username }}</1>. Bitte gib ihn hier ein, um das Löschen deines Accounts zu bestätigen.",
+      "confirm_username_explanation": "Dein Benutzername ist <1>{{ username }}</1>. Bitte gib ihn unten ein, um das Löschen deines Accounts zu bestätigen.",
       "success_message": "Die Accountlöschung wurde eingeleitet. Schließe sie ab, indem du auf den Link in der Bestätigungs-E-Mail klickst, die wir dir geschickt haben.",
       "confirm_username_label": "Bestätigung des Benutzernamens",
       "username_mismatch": "Der Benutzername stimmt nicht überein.",
@@ -298,14 +298,14 @@
       "reason_label": "Grund der Accountlöschung"
     },
     "confirm": {
-      "error_message": "Die Accountlöschung wurde nicht bestätigt: {{message}}",
+      "error_message": "Die Accountlöschung konnte nicht bestätigt werden: {{message}}",
       "title": "Accountlöschung bestätigen",
       "account_deleted": "Dein Account wurde gelöscht. Danke, dass du Couchers.org genutzt hast!",
       "button_text": "Accountlöschung bestätigen"
     },
     "missing_token": "Fehler: missing token",
     "recover": {
-      "title": "Stelle deinen Couchers.org-Account wieder her."
+      "title": "Stelle deinen Couchers.org-Account wieder her"
     }
   }
 }
