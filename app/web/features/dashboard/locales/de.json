@@ -1,1 +1,45 @@
-{}
+{
+  "complete_profile_explanation": "Hasst du es nicht auch, dass andere Plattformen leere „Geister“-Profile ohne Informationen haben? Bitte Ghoste uns nicht! 👻👻👻",
+  "please_complete_profile": "Bitte vervollständige dein Profil, um sicher zu gehen, dass du in der Suche angezeigt wirst:",
+  "upload_photo": "2. Lade dein Foto hoch (indem du auf der Bearbeitungsseite auf den Avatar klickst)",
+  "fill_in_who_i_am": "1. Fülle den Abschnitt „Wer ich bin“ mit ein paar Sätzen über dich selbst aus",
+  "edit_profile_button_text": "Bearbeite dein Profil",
+  "dashboard": "Übersicht",
+  "complete_profile_dialog": {
+    "title": "Fast geschafft: Bitte vervollständige dein Profil, um fortzufahren!",
+    "description_2": "Dies trägt dazu bei, eine vertrauenswürdige Community aufzubauen und Spam zu reduzieren. Weitere Informationen findest du <2>auf dieser Hilfeseite</2>. Danke für deine Hilfe!",
+    "description_1": "Bevor du {{action_name}} kannst, musst du in deinem Profil <4>etwas über sich selbst schreiben</4> und <7>ein Profilfoto hochladen</7>.",
+    "actions": {
+      "send_request": "Eine Anfrage senden",
+      "send_message": "Eine Nachricht senden",
+      "create_event": "Erstelle ein Event"
+    },
+    "edit_profile_button": "Jetzt dein Profil bearbeiten",
+    "cancel_button": "Doch nicht"
+  },
+  "find_a_host": "Finde einen Host",
+  "browse_communities": "Communities durchsuchen",
+  "search_input_label": "Wo gehst du hin?",
+  "search_input_placeholder": "Suche einen Ort",
+  "become_a_host": "Ein Host werden",
+  "your_communities_heading": "Deine Communities",
+  "all_communities_heading": "Alle Communities",
+  "no_community": "Du befindest dich aktuell in keiner Community.",
+  "no_sub_communities": "Keine Sub-Communities.",
+  "load_more": "Weitere laden",
+  "welcome": "Willkommen zur Couchers.org-Beta!",
+  "new_pill": "Neu",
+  "landing_text": "Wir entwickeln neue <1>Funktionen</1> wie Events, Local Guides, Moderation und Hangouts. Wir danken euch für eure Geduld und <3>Unterstützung</3> bei der Entwicklung.",
+  "your_communities_helper_text": "Du wurdest zu allen Communities hinzugefügt, die sich auf deinen Standort beziehen. Du kannst auch an anderen Orten <1>Gemeinschaften durchsuchen</1>.",
+  "community_builder_form_text": "Gründen deine eigene lokale Community",
+  "your_communities_helper_text2": "Du siehst deine Community nicht? <1>Gründe sie!</1>",
+  "upcoming_events": "Kommende Events",
+  "member_count": "{{count}} Mitglied",
+  "member_count_plural": "{{count}} Mitglieder",
+  "profile_summary_edit": "Bearbeiten",
+  "profile_summary_view": "Mein Profil anzeigen",
+  "profile_mobile_summary_view": "Zu Profil gehen",
+  "show_map": "Karte anzeigen",
+  "hero_image_alt": "Heißluftballons in Kapadokien",
+  "hero_image_attribution": "Foto von <1>Mesut Kaya</1> auf <3>Unsplash</3>"
+}
