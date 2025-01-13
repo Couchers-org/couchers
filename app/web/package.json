@@ -58,7 +58,7 @@
     "react-i18next": "^11.8.13",
     "react-intersection-observer": "^8.32.5",
     "react-lines-ellipsis": "^0.15.0",
-    "react-phone-number-input": "^3.4.10",
+    "react-phone-number-input": "^3.4.11",
     "react-query": "^3.39.3",
     "react-simple-maps": "^3.0.0",
     "seamless-scroll-polyfill": "^2.1.8",
