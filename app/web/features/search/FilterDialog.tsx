@@ -347,7 +347,7 @@ export default function FilterDialog({
                 className={classes.noMargin}
                 type="number"
                 variant="standard"
-                value={numberOfGuestFilter}
+                value={numberOfGuestFilter || ""}
                 inputProps={{ min: 0 }}
                 onChange={handleNumGuestsChange}
                 fullWidth
