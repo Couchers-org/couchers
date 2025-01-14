@@ -24,15 +24,4 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Check PRs
-      id: pr-check
-      run: |
-        for pr in $(git branch -r --format="%(refname:lstrip=2)" --sort=committerdate); do
-            echo "Checking PR: $pr"
-            # Here you can add your logic to check the age of each PR
-            # Example: Calculate PR age in seconds
-            pr_age=$(git show -s --format=%ct origin/$pr)
-            now=$(date +%s)
-            age=$((now - pr_age))
-            echo "PR $pr age: $age seconds"
-            # You can define your logic to notify or take action based on age
-          done
+      run: ../scripts/check-pr-age.sh
