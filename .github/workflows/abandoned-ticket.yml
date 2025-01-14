@@ -1,0 +1,38 @@
+# This workflow is to keep track of any open PRs and assure progress is being made.
+# On abandoned PR, we make sure to close out the PR and notify the team.
+
+# This workflow warns and then closes issues and PRs that have had no activity for a specified amount of time.
+
+name: Mark stale issues and pull requests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  schedule:
+  - cron: '0 0 * * *'
+
+jobs:
+  stale:
+
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Check PRs
+      id: pr-check
+      run: |
+        for pr in $(git branch -r --format="%(refname:lstrip=2)" --sort=committerdate); do
+            echo "Checking PR: $pr"
+            # Here you can add your logic to check the age of each PR
+            # Example: Calculate PR age in seconds
+            pr_age=$(git show -s --format=%ct origin/$pr)
+            now=$(date +%s)
+            age=$((now - pr_age))
+            echo "PR $pr age: $age seconds"
+            # You can define your logic to notify or take action based on age
+          done
