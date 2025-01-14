@@ -1,0 +1,1 @@
+export const GROUP_CHAT_REFETCH_INTERVAL = 3000;
