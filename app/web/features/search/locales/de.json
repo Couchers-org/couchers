@@ -9,8 +9,7 @@
   },
   "filter_dialog": {
     "mobile_title": "Suchen",
-    "desktop_title": "Filter",
-    "search_here_button": "Hier suchen"
+    "desktop_title": "Filter"
   },
   "form": {
     "missing_location_validation_error": "Gib einen Ort an, um diesen Filter zu verwenden",
