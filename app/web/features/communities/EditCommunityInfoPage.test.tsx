@@ -9,9 +9,12 @@ import { routeToCommunity, routeToEditCommunityPage } from "routes";
 import { service } from "service";
 import community from "test/fixtures/community.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError, t } from "test/utils";
+import i18n from "test/i18n";
+import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import EditCommunityInfoPage from "./EditCommunityInfoPage";
+
+const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 

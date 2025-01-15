@@ -9,7 +9,10 @@ import chat from "test/fixtures/groupChat.json";
 import request from "test/fixtures/hostRequest.json";
 import messages from "test/fixtures/messages.json";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError, t } from "test/utils";
+import i18n from "test/i18n";
+import { assertErrorAlert, mockConsoleError } from "test/utils";
+
+const { t } = i18n;
 
 const listGroupChatsMock = service.conversations
   .listGroupChats as jest.MockedFunction<

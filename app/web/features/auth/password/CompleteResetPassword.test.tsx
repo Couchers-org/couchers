@@ -4,9 +4,12 @@ import { useRouter } from "next/router";
 import { AuthRes } from "proto/auth_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { MockedService, t } from "test/utils";
+import i18n from "test/i18n";
+import { MockedService } from "test/utils";
 
 import CompletePasswordReset from "./CompleteResetPassword";
+
+const { t } = i18n;
 
 const CompletePasswordResetMock = service.account
   .CompletePasswordResetV2 as MockedService<
@@ -15,6 +18,11 @@ const CompletePasswordResetMock = service.account
 
 jest.mock("next/router", () => ({
   useRouter: jest.fn(),
+}));
+
+jest.mock("@sentry/nextjs", () => ({
+  captureException: jest.fn(),
+  setUser: jest.fn(),
 }));
 
 const mockUseRouter = useRouter as jest.Mock;

@@ -82,38 +82,36 @@ export default function DiscussionCard({
       data-testid={DISCUSSION_CARD_TEST_ID}
     >
       <Link href={routeToDiscussion(discussion.discussionId, discussion.slug)}>
-        <a>
-          <CardContent className={classes.cardContent}>
-            <Avatar
-              user={creator}
-              className={classes.avatar}
-              isProfileLink={false}
-            />
-            <div className={classes.discussionSummary}>
-              <Typography
-                variant="body2"
-                component="p"
-                className={classes.surtitle}
-              >
-                {creator ? (
-                  t("communities:by_creator", { name: creator.name })
-                ) : (
-                  <Skeleton className={classes.userLoading} />
-                )}{" "}
-                {postedTime && `• ${postedTime}`}
-              </Typography>
-              <Typography variant="h2" component="h3">
-                {discussion.title}
-              </Typography>
-              <Typography variant="body1">{truncatedContent}</Typography>
-              <Typography className={classes.commentsCount} variant="body1">
-                {t("communities:comments_count", {
-                  count: discussion.thread?.numResponses,
-                })}
-              </Typography>
-            </div>
-          </CardContent>
-        </a>
+        <CardContent className={classes.cardContent}>
+          <Avatar
+            user={creator}
+            className={classes.avatar}
+            isProfileLink={false}
+          />
+          <div className={classes.discussionSummary}>
+            <Typography
+              variant="body2"
+              component="p"
+              className={classes.surtitle}
+            >
+              {creator ? (
+                t("communities:by_creator", { name: creator.name })
+              ) : (
+                <Skeleton className={classes.userLoading} />
+              )}{" "}
+              {postedTime && `• ${postedTime}`}
+            </Typography>
+            <Typography variant="h2" component="h3">
+              {discussion.title}
+            </Typography>
+            <Typography variant="body1">{truncatedContent}</Typography>
+            <Typography className={classes.commentsCount} variant="body1">
+              {t("communities:comments_count", {
+                count: discussion.thread?.numResponses,
+              })}
+            </Typography>
+          </div>
+        </CardContent>
       </Link>
     </Card>
   );

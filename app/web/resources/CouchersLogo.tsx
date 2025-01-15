@@ -31,7 +31,10 @@ export default function CouchersLogo({
   const { authState } = useAuthContext();
 
   return (
-    <Link href={authState.authenticated ? "/dashboard" : "/login"}>
+    <Link
+      href={authState.authenticated ? "/dashboard" : "/login"}
+      legacyBehavior
+    >
       <Root>
         <Logo
           className={className}

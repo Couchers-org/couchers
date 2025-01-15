@@ -4,9 +4,12 @@ import mockRouter from "next-router-mock";
 import React from "react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { MockedService, t } from "test/utils";
+import i18n from "test/i18n";
+import { MockedService } from "test/utils";
 
 import AdminPanelUserButton from "./AdminPanelUserButton";
+
+const { t } = i18n;
 
 const setErrorMock = jest.fn();
 

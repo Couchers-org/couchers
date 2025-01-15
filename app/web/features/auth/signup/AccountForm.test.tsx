@@ -7,14 +7,12 @@ import { StatusCode } from "grpc-web";
 import { HostingStatus } from "proto/api_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import {
-  assertErrorAlert,
-  mockConsoleError,
-  MockedService,
-  t,
-} from "test/utils";
+import i18n from "test/i18n";
+import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import AccountForm from "./AccountForm";
+
+const { t } = i18n;
 
 jest.mock("@mui/x-date-pickers", () => {
   return {

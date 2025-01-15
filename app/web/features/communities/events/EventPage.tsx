@@ -286,6 +286,7 @@ export default function EventPage({
                     <Link
                       href={routeToEditEvent(event.eventId, event.slug)}
                       passHref
+                      legacyBehavior
                     >
                       <Button
                         component="a"

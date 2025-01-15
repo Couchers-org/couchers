@@ -9,14 +9,16 @@ import { mockIsIntersecting } from "react-intersection-observer/test-utils";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import {
   assertErrorAlert,
   createMatchMedia,
   mockConsoleError,
-  t,
 } from "test/utils";
 
 import MyEvents from "./MyEvents";
+
+const { t } = i18n;
 
 // ListMyEvents by default does not return cancelled events
 const nonCancelledEvents = events.filter((event) => !event.isCancelled);

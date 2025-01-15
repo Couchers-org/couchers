@@ -4,10 +4,12 @@ import MapUI from "components/Map";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";
 import { useEffect } from "react";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { server } from "test/restMock";
-import { t } from "test/utils";
 
 import EditLocationMap from "./EditLocationMap";
+
+const { t } = i18n;
 
 jest.mock("components/Map");
 jest.mock("maplibre-gl");

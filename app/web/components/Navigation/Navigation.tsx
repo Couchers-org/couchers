@@ -17,10 +17,10 @@ import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useNotifications from "features/useNotifications";
 import { GLOBAL } from "i18n/namespaces";
+import { TFunction } from "i18next";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import React, { useEffect, useState } from "react";
-import { TFunction } from "react-i18next";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   blogRoute,
@@ -395,7 +395,7 @@ export default function Navigation() {
               {linkContent}
             </StyledMenuItemLink>
           ) : (
-            <Link href={route}>
+            <Link href={route} legacyBehavior>
               <StyledMenuItemLink onClick={() => setMenuOpen(false)}>
                 {linkContent}
               </StyledMenuItemLink>

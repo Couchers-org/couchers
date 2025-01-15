@@ -58,41 +58,37 @@ export default function PlaceCard({
   return (
     <Card className={className}>
       <Link href={routeToPlace(place.pageId, place.slug)}>
-        <a>
-          <CardActionArea>
-            <CardMedia
-              src={
-                place.photoUrl
-                  ? place.photoUrl
-                  : "/img/placeImagePlaceholder.svg"
-              }
-              className={classes.image}
-              component="img"
+        <CardActionArea>
+          <CardMedia
+            src={
+              place.photoUrl ? place.photoUrl : "/img/placeImagePlaceholder.svg"
+            }
+            className={classes.image}
+            component="img"
+          />
+          <CardContent>
+            <LinesEllipsis
+              text={place.title}
+              maxLine={2}
+              component="h3"
+              className={classes.title}
             />
-            <CardContent>
+            <LinesEllipsis
+              text={place.address}
+              maxLine={isMdUp ? 4 : 2}
+              component="p"
+              className={classes.placePreview}
+            />
+            {contentPreview && (
               <LinesEllipsis
-                text={place.title}
-                maxLine={2}
-                component="h3"
-                className={classes.title}
-              />
-              <LinesEllipsis
-                text={place.address}
-                maxLine={isMdUp ? 4 : 2}
+                text={contentPreview}
+                maxLine={isMdUp ? 6 : 2}
                 component="p"
                 className={classes.placePreview}
               />
-              {contentPreview && (
-                <LinesEllipsis
-                  text={contentPreview}
-                  maxLine={isMdUp ? 6 : 2}
-                  component="p"
-                  className={classes.placePreview}
-                />
-              )}
-            </CardContent>
-          </CardActionArea>
-        </a>
+            )}
+          </CardContent>
+        </CardActionArea>
       </Link>
     </Card>
   );

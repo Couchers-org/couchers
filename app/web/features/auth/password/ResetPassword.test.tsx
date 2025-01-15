@@ -3,9 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { MockedService, t } from "test/utils";
+import i18n from "test/i18n";
+import { MockedService } from "test/utils";
 
 import ResetPassword from "./ResetPassword";
+
+const { t } = i18n;
 
 const resetPasswordMock = service.account.resetPassword as MockedService<
   typeof service.account.resetPassword

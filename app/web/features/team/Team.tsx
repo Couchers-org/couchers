@@ -57,7 +57,7 @@ export default function Team() {
           love to talk to you.
         </Typography>
         <Typography paragraph>
-          <Link href={volunteerRoute} passHref>
+          <Link href={volunteerRoute} passHref legacyBehavior>
             <Button variant="contained" color="secondary">
               Join the team
             </Button>
@@ -131,7 +131,7 @@ export default function Team() {
           click the button below and fill out the short form.
         </Typography>
         <Typography paragraph>
-          <Link href={volunteerRoute} passHref>
+          <Link href={volunteerRoute} passHref legacyBehavior>
             <Button variant="contained" color="secondary">
               Join our team
             </Button>

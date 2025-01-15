@@ -70,12 +70,10 @@ export default function GroupChatsTab() {
                       key={groupChat.groupChatId}
                       href={routeToGroupChat(groupChat.groupChatId)}
                     >
-                      <a>
-                        <GroupChatListItem
-                          groupChat={groupChat}
-                          className={classes.listItem}
-                        />
-                      </a>
+                      <GroupChatListItem
+                        groupChat={groupChat}
+                        className={classes.listItem}
+                      />
                     </Link>
                   ))}
                 </React.Fragment>

@@ -4,10 +4,12 @@ import { Event } from "proto/events_pb";
 import { useForm } from "react-hook-form";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
-import { t } from "test/utils";
+import i18n from "test/i18n";
 
 import { CreateEventData } from "./EventForm";
 import EventTimeChanger from "./EventTimeChanger";
+
+const { t } = i18n;
 
 jest.mock("@mui/x-date-pickers", () => {
   return {

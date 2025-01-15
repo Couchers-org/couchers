@@ -44,12 +44,12 @@ function LoggedInUserActions({ tab }: { tab: UserTab }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   return (
     <>
-      <Link href={routeToEditProfile(getEditTab(tab))} passHref>
+      <Link href={routeToEditProfile(getEditTab(tab))} passHref legacyBehavior>
         <Button component="a" color="primary">
           {t("global:edit")}
         </Button>
       </Link>
-      <Link href={connectionsRoute} passHref>
+      <Link href={connectionsRoute} passHref legacyBehavior>
         <Button
           component="a"
           variant="outlined"

@@ -19,15 +19,13 @@ import {
   SERVER_ERROR,
 } from "service/constants";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { server } from "test/restMock";
-import {
-  assertErrorAlert,
-  mockConsoleError,
-  MockedService,
-  t,
-} from "test/utils";
+import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import ImageInput from "./ImageInput";
+
+const { t } = i18n;
 
 const uploadFileMock = service.api.uploadFile as MockedService<
   typeof service.api.uploadFile
