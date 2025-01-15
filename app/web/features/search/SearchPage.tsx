@@ -165,10 +165,10 @@ export default function SearchPage({
       locationResult.name !== "" ||
       (locationResult.location.lng !== 0 && locationResult.location.lat !== 0);
 
-    if (!wasSearchPerformed && filtersApplied) {
+    if (!wasSearchPerformed) {
       setWasSearchPerformed(true);
     }
-
+    
     setAreFiltersCleared(!filtersApplied);
   }, [
     lastActiveFilter,

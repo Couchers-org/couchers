@@ -13,6 +13,7 @@ import {
 import { Point } from "geojson";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
+import { use } from "i18next";
 import {
   LngLat,
   Map as MaplibreMap,
@@ -31,6 +32,7 @@ import {
 } from "react";
 import { InfiniteData } from "react-query";
 import { theme } from "theme";
+import { isMap } from "util/types";
 import { GeocodeResult, usePrevious } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
@@ -240,11 +242,7 @@ export default function MapWrapper({
    * Re-renders users list on map (when results array changed)
    */
   useEffect(() => {
-    if (
-      isMapStyleLoaded &&
-      isMapSourceLoaded &&
-      wasSearchPerformed
-    ) {
+    if (isMapStyleLoaded && isMapSourceLoaded && wasSearchPerformed) {
       if (results) {
         const usersToRender = filterData(results);
         reRenderUsersOnMap(map.current!, usersToRender, handleMapUserClick);
@@ -256,9 +254,15 @@ export default function MapWrapper({
     map,
     isMapStyleLoaded,
     isMapSourceLoaded,
-    areFiltersCleared,
     wasSearchPerformed,
   ]);
+
+  useEffect(() => {
+    if (isMapStyleLoaded && isMapSourceLoaded && results) {
+      const usersToRender = filterData(results);
+      reRenderUsersOnMap(map.current!, usersToRender, handleMapUserClick);
+    }
+  }, [isMapStyleLoaded, isMapSourceLoaded, areFiltersCleared]);
 
   /**
    * Clicks on 'search here' button
