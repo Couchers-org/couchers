@@ -163,7 +163,7 @@ export default function SearchPage({
       completeProfileFilter !== false ||
       queryName !== "" ||
       locationResult.name !== "" ||
-      wasSearchPerformed !== false;
+      (locationResult.location.lng !== 0 && locationResult.location.lat !== 0);
 
     if (!wasSearchPerformed && filtersApplied) {
       setWasSearchPerformed(true);
@@ -177,6 +177,8 @@ export default function SearchPage({
     completeProfileFilter,
     wasSearchPerformed,
     queryName,
+    locationResult.location.lng,
+    locationResult.location.lat,
     locationResult.name,
   ]);
 
