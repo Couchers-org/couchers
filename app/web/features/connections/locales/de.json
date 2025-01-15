@@ -1,1 +1,12 @@
-{}
+{
+  "add_friend": "Freund hinzufügen",
+  "friend_requests_sent": "Ausstehende Freundschaftsanfragen",
+  "my_connections": "Meine Verbindungen",
+  "friends": "Freunde",
+  "friend_list_title": "Deine Freunde",
+  "friend_requests": "Freundschaftsanfragen",
+  "no_friends": "Keine Freunde vorhanden",
+  "no_friend_requests": "Keine ausstehenden Freundschaftsanfragen",
+  "no_friend_requests_sent": "Keine ausstehenden Freundschaftsanfragen",
+  "pending": "Ausstehend"
+}
