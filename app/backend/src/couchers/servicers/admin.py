@@ -13,7 +13,6 @@ from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
-    Cluster,
     ContentReport,
     Event,
     EventCommunityInviteRequest,
@@ -82,6 +81,15 @@ def append_admin_note(session, context, user, note):
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ADMIN_NOTE_CANT_BE_EMPTY)
     admin = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
     user.admin_note += f"\n[{now().isoformat()}] (id: {admin.id}, username: {admin.username}) {note}\n"
+
+
+def load_community_geom(geojson, context):
+    geom = shape(json.loads(geojson))
+
+    if geom.geom_type != "MultiPolygon":
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_MULTIPOLYGON)
+
+    return geom
 
 
 class Admin(admin_pb2_grpc.AdminServicer):
@@ -280,10 +288,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return _user_to_details(session, user)
 
     def CreateCommunity(self, request, context, session):
-        geom = shape(json.loads(request.geojson))
-
-        if geom.type != "MultiPolygon":
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_MULTIPOLYGON)
+        geom = load_community_geom(request.geojson, context)
 
         parent_node_id = request.parent_node_id if request.parent_node_id != 0 else None
         node = create_node(session, geom, parent_node_id)
@@ -292,13 +297,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return community_to_pb(session, node, context)
 
     def UpdateCommunity(self, request, context, session):
-        cluster = session.execute(select(Cluster).where(Cluster.id == request.community_id)).scalar_one_or_none()
-        if not cluster:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
-
-        node = session.execute(select(Node).where(Node.id == cluster.parent_node_id)).scalar_one_or_none()
+        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+        cluster = node.official_cluster
 
         if request.name:
             cluster.name = request.name
@@ -307,9 +309,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
             cluster.description = request.description
 
         if request.geojson:
-            geom = shape(json.loads(request.geojson))
-            if geom.geom_type != "MultiPolygon":
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_MULTIPOLYGON)
+            geom = load_community_geom(request.geojson, context)
+
             node.geom = from_shape(geom)
 
         if request.parent_node_id != 0:

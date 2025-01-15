@@ -434,7 +434,7 @@ def test_UpdateCommunity_invalid_geojson(db):
             with pytest.raises(grpc.RpcError) as e:
                 api.UpdateCommunity(
                     admin_pb2.UpdateCommunityReq(
-                        community_id=community.id,
+                        community_id=community.parent_node_id,
                         name="test community 2",
                         description="community for testing 2",
                         geojson=POINT_GEOJSON,
@@ -499,7 +499,7 @@ def test_UpdateCommunity(db):
 
             api.UpdateCommunity(
                 admin_pb2.UpdateCommunityReq(
-                    community_id=community.id,
+                    community_id=community.parent_node_id,
                     name="test community 2",
                     description="community for testing 2",
                     geojson=VALID_GEOJSON_MULTIPOLYGON,
