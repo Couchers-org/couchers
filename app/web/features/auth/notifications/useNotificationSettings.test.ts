@@ -56,7 +56,7 @@ describe("useNotificationSettings", () => {
         service.notifications.getNotificationSettings
       ).toHaveBeenCalledTimes(1)
     );
-    await waitFor(() => expect(result.current.data).toEqual(mockData));
+    expect(result.current.data).toEqual(mockData);
   });
 
   it("should return an error when the request fails", async () => {

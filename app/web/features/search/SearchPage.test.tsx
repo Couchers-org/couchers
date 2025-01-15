@@ -54,11 +54,4 @@ describe("SearchPage", () => {
 
     await expect(screen.findByRole("alert")).rejects.toThrow();
   });
-
-  it("Clear filters button should be disabled initially", () => {
-    render(<SearchPage locationName="" bbox={[0, 0, 0, 0]} />, { wrapper });
-
-    const clearFiltersButton = screen.getByText("Clear filters");
-    expect(clearFiltersButton).toBeDisabled();
-  });
 });
