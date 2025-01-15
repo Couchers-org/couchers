@@ -5,10 +5,13 @@ import mockRouter from "next-router-mock";
 import { routeToProfile } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getUser } from "test/serviceMockDefaults";
 
-import { addDefaultUser, MockedService, t } from "../../../test/utils";
+import { addDefaultUser, MockedService } from "../../../test/utils";
 import EditHostingPreference from "./EditHostingPreference";
+
+const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 

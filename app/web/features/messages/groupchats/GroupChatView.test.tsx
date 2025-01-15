@@ -11,17 +11,19 @@ import {
 import { service } from "service";
 import messageData from "test/fixtures/messages.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getGroupChatMessages, getLiteUser } from "test/serviceMockDefaults";
 import {
   addDefaultUser,
   assertErrorAlert,
   mockConsoleError,
   MockedService,
-  t,
   wait,
 } from "test/utils";
 
 import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
+
+const { t } = i18n;
 
 const getGroupChatMock = service.conversations.getGroupChat as MockedService<
   typeof service.conversations.getGroupChat

@@ -155,7 +155,7 @@ export default function LandingPage() {
                 successCallback={() => router.push(signupRoute)}
               />
             ) : (
-              <Link href={signupRoute} passHref>
+              <Link href={signupRoute} passHref legacyBehavior>
                 <Button
                   variant="contained"
                   color="secondary"
@@ -237,7 +237,7 @@ export default function LandingPage() {
           with active local communities and a vibrant global discussion.
         </Typography>
         <Typography className={classes.para}>
-          <Link href={volunteerRoute} passHref>
+          <Link href={volunteerRoute} passHref legacyBehavior>
             <Button
               variant="contained"
               color="secondary"
@@ -246,7 +246,7 @@ export default function LandingPage() {
               Join our team
             </Button>
           </Link>
-          <Link href={volunteerRoute} passHref>
+          <Link href={volunteerRoute} passHref legacyBehavior>
             <Button className={classes.subNavButtons}>Volunteer</Button>
           </Link>
         </Typography>

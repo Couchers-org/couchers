@@ -6,16 +6,19 @@ import { eventBaseRoute } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
+import i18n from "test/i18n";
 import {
   getEventAttendees,
   getEventOrganizers,
   getThread,
   getUser,
 } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError, t } from "test/utils";
+import { assertErrorAlert, mockConsoleError } from "test/utils";
 import timezoneMock from "timezone-mock";
 
 import EventPage from "./EventPage";
+
+const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 

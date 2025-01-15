@@ -11,9 +11,12 @@ import { supportEmail } from "appConstants";
 import mediaQuery from "css-mediaquery";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { MockedService, t, wait } from "test/utils";
+import i18n from "test/i18n";
+import { MockedService, wait } from "test/utils";
 
 import ReportButton from "./ReportButton";
+
+const { t } = i18n;
 
 jest.mock("@mui/material", () => ({
   ...jest.requireActual("@mui/material"),

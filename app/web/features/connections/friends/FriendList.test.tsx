@@ -1,11 +1,14 @@
 import { render, screen, within } from "@testing-library/react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getLiteUsers, listFriends } from "test/serviceMockDefaults";
-import { MockedService, t } from "test/utils";
+import { MockedService } from "test/utils";
 
 import FriendList from "./FriendList";
 import { FRIEND_ITEM_TEST_ID } from "./FriendSummaryView";
+
+const { t } = i18n;
 
 const listFriendsMock = service.api.listFriends as MockedService<
   typeof service.api.listFriends

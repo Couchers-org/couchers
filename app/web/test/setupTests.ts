@@ -14,7 +14,7 @@ import i18n from "test/i18n";
 import user from "./fixtures/defaultUser.json";
 
 jest.mock("service");
-jest.mock("next/dist/client/router", () => require("next-router-mock"));
+jest.mock("next/router", () => require("next-router-mock"));
 // Mock next/dynamic to skip the dynamic part
 // This works by extracting the require("path/to/component")
 // It needs to be in the form dynamic(() => import("components/MarkdownNoSSR"))
@@ -45,9 +45,8 @@ global.crypto = {
   },
 };
 
-//sentry testing was causing OOM for some reason
-//const { testkit, sentryTransport } = sentryTestkit();
-//global.testKit = testkit;
+const { testkit } = sentryTestkit();
+global.testKit = testkit;
 
 beforeEach(async () => {
   global.localStorage.clear();
@@ -66,8 +65,10 @@ window.URL.createObjectURL = jest.fn();
 window.matchMedia = createMatchMedia(window.innerWidth);
 
 declare global {
-  var defaultUser: typeof user; // eslint-disable-line
-  var testKit: sentryTestkit.Testkit; // eslint-disable-line
+  /* eslint-disable no-var */ // Disable the rule for this block
+  var defaultUser: typeof user;
+  var testKit: ReturnType<typeof sentryTestkit>["testkit"];
+  /* eslint-enable no-var */ // Re-enable the rule
 }
 
 function createWebStorageMock() {

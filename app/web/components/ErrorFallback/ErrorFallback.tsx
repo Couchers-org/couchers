@@ -35,10 +35,9 @@ export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
           <ReportButton isResponsive={false} />
         </div>
       )}
-
       <Actions>
         {!isFatal && (
-          <Link href={baseRoute} passHref>
+          <Link href={baseRoute} passHref legacyBehavior>
             <Button
               variant="outlined"
               component="a"

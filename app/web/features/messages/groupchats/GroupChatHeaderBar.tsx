@@ -116,21 +116,18 @@ export default function GroupChatHeaderBar({
       >
         <BackIcon fontSize={isMobile ? "small" : "medium"} />
       </HeaderButton>
-
       {groupChat?.isDm ? (
         <StyledTitleBox>
           <Link href={username ? routeToUser(username) : ""}>
-            <a>
-              <PageTitle
-                sx={{
-                  [theme.breakpoints.down("sm")]: {
-                    fontSize: "0.9rem",
-                  },
-                }}
-              >
-                {title || <Skeleton width={100} />}
-              </PageTitle>
-            </a>
+            <PageTitle
+              sx={{
+                [theme.breakpoints.down("sm")]: {
+                  fontSize: "0.9rem",
+                },
+              }}
+            >
+              {title || <Skeleton width={100} />}
+            </PageTitle>
           </Link>
           {unmuteMutation.isLoading ? (
             <CircularProgress size="1.5rem" />
@@ -164,7 +161,6 @@ export default function GroupChatHeaderBar({
           )}
         </StyledTitleBox>
       )}
-
       <>
         <HeaderButton
           onClick={() => handleClick("menu")}

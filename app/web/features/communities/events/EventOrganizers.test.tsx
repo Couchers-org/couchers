@@ -9,10 +9,13 @@ import userEvent from "@testing-library/user-event";
 import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getEventOrganizers, getLiteUsers } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError, t } from "test/utils";
+import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import EventOrganizers from "./EventOrganizers";
+
+const { t } = i18n;
 
 const listEventOrganizersMock = service.events
   .listEventOrganizers as jest.MockedFunction<

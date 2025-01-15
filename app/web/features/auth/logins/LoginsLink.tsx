@@ -16,7 +16,7 @@ export default function LoginsLink({ className }: { className: string }) {
       <Typography variant="body1" gutterBottom>
         {t("active_logins.settings_page_text")}
       </Typography>
-      <Link href={loginsSettingsRoute} passHref>
+      <Link href={loginsSettingsRoute} passHref legacyBehavior>
         <Button>{t("active_logins.settings_page_link")}</Button>
       </Link>
     </div>

@@ -4,10 +4,13 @@ import mockRouter from "next-router-mock";
 import { routeToProfile } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
-import { addDefaultUser, t } from "test/utils";
+import { addDefaultUser } from "test/utils";
 
 import EditProfilePage from "./EditProfilePage";
+
+const { t } = i18n;
 
 jest.mock("components/Map", () => () => "map");
 jest.mock("components/MarkdownInput");

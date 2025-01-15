@@ -51,6 +51,7 @@ export default function DiscussionsSection({
           "discussions"
         )}#${composingDiscussionHash}`}
         passHref
+        legacyBehavior
       >
         <Button
           size="small"
@@ -84,6 +85,7 @@ export default function DiscussionsSection({
                 "discussions"
               )}
               passHref
+              legacyBehavior
             >
               <MuiLink component="a" underline="hover">
                 {t("communities:see_more_discussions_label")}

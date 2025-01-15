@@ -14,17 +14,19 @@ import comments from "test/fixtures/comments.json";
 import community from "test/fixtures/community.json";
 import discussions from "test/fixtures/discussions.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getLiteUser, getThread } from "test/serviceMockDefaults";
 import {
   assertErrorAlert,
   mockConsoleError,
   MockedService,
-  t,
   wait,
 } from "test/utils";
 
 import { COMMENT_TEST_ID, REFETCH_LOADING_TEST_ID } from "./Comment";
 import DiscussionPage, { CREATOR_TEST_ID } from "./DiscussionPage";
+
+const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 

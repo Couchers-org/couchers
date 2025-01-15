@@ -145,7 +145,7 @@ export default function HostRequestSendField({
           />
         )}
         {isReferenceAvailable && (
-          <Link href={referenceRoute} passHref>
+          <Link href={referenceRoute} passHref legacyBehavior>
             <StyledButton color="primary" component="a">
               {t("messages:write_reference_button_text")}
             </StyledButton>

@@ -14,10 +14,8 @@ export default function TOSLink() {
   const { t } = useTranslation("global");
   const classes = useStyles();
   return (
-    <Link href={tosRoute}>
-      <a target="_blank" className={classes.root}>
-        {t("terms_of_service")}
-      </a>
+    <Link href={tosRoute} target="_blank" className={classes.root}>
+      {t("terms_of_service")}
     </Link>
   );
 }
