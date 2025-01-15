@@ -168,7 +168,7 @@ export default function SearchPage({
     if (!wasSearchPerformed) {
       setWasSearchPerformed(true);
     }
-    
+
     setAreFiltersCleared(!filtersApplied);
   }, [
     lastActiveFilter,
