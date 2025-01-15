@@ -240,11 +240,7 @@ export default function MapWrapper({
    * Re-renders users list on map (when results array changed)
    */
   useEffect(() => {
-    if (
-      isMapStyleLoaded &&
-      isMapSourceLoaded &&
-      (wasSearchPerformed || areFiltersCleared)
-    ) {
+    if (isMapStyleLoaded && isMapSourceLoaded && wasSearchPerformed) {
       if (results) {
         const usersToRender = filterData(results);
         reRenderUsersOnMap(map.current!, usersToRender, handleMapUserClick);
@@ -257,7 +253,6 @@ export default function MapWrapper({
     isMapStyleLoaded,
     isMapSourceLoaded,
     wasSearchPerformed,
-    areFiltersCleared,
   ]);
 
   /**
@@ -289,6 +284,11 @@ export default function MapWrapper({
    */
   const handleClearFiltersClick = () => {
     onClearFiltersClick();
+
+    if (results) {
+      const usersToRender = filterData(results);
+      reRenderUsersOnMap(map.current!, usersToRender, handleMapUserClick);
+    }
   };
 
   const initializeMap = (newMap: MaplibreMap) => {
