@@ -7,7 +7,9 @@ interface CustomRequestCookies {
 export function middleware(
   req: NextRequest & { cookies: CustomRequestCookies }
 ) {
-  if (req.cookies["couchers-sesh"] && req.nextUrl.pathname === "/") {
+  const cookie = req.cookies.get("couchers-sesh")?.value;
+
+  if (cookie && req.nextUrl.pathname === "/") {
     const url = req.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.rewrite(url);
