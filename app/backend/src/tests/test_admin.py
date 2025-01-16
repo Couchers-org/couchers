@@ -7,7 +7,7 @@ from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, ContentReport, EventOccurrence, UserSession
+from couchers.models import Cluster, ContentReport, EventOccurrence, Node, UserSession
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
 from proto import admin_pb2, events_pb2, reporting_pb2
@@ -414,6 +414,106 @@ def test_CreateCommunity(db):
             community = session.execute(select(Cluster).where(Cluster.name == "test community")).scalar_one()
             assert community.description == "community for testing"
             assert community.slug == "test-community"
+
+
+def test_UpdateCommunity_invalid_geojson(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with session_scope() as session:
+        with real_admin_session(super_token) as api:
+            api.CreateCommunity(
+                admin_pb2.CreateCommunityReq(
+                    name="test community",
+                    description="community for testing",
+                    admin_ids=[],
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
+                )
+            )
+            community = session.execute(select(Cluster).where(Cluster.name == "test community")).scalar_one()
+
+            with pytest.raises(grpc.RpcError) as e:
+                api.UpdateCommunity(
+                    admin_pb2.UpdateCommunityReq(
+                        community_id=community.parent_node_id,
+                        name="test community 2",
+                        description="community for testing 2",
+                        geojson=POINT_GEOJSON,
+                    )
+                )
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+            assert e.value.details() == errors.NO_MULTIPOLYGON
+
+
+def test_UpdateCommunity_invalid_id(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with session_scope() as session:
+        with real_admin_session(super_token) as api:
+            api.CreateCommunity(
+                admin_pb2.CreateCommunityReq(
+                    name="test community",
+                    description="community for testing",
+                    admin_ids=[],
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
+                )
+            )
+
+            with pytest.raises(grpc.RpcError) as e:
+                api.UpdateCommunity(
+                    admin_pb2.UpdateCommunityReq(
+                        community_id=1000,
+                        name="test community 1000",
+                        description="community for testing 1000",
+                        geojson=VALID_GEOJSON_MULTIPOLYGON,
+                    )
+                )
+            assert e.value.code() == grpc.StatusCode.NOT_FOUND
+            assert e.value.details() == errors.COMMUNITY_NOT_FOUND
+
+
+def test_UpdateCommunity(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with session_scope() as session:
+        with real_admin_session(super_token) as api:
+            api.CreateCommunity(
+                admin_pb2.CreateCommunityReq(
+                    name="test community",
+                    description="community for testing",
+                    admin_ids=[],
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
+                )
+            )
+            community = session.execute(select(Cluster).where(Cluster.name == "test community")).scalar_one()
+            assert community.description == "community for testing"
+
+            api.CreateCommunity(
+                admin_pb2.CreateCommunityReq(
+                    name="test community 2",
+                    description="community for testing 2",
+                    admin_ids=[],
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
+                )
+            )
+            community_2 = session.execute(select(Cluster).where(Cluster.name == "test community 2")).scalar_one()
+
+            api.UpdateCommunity(
+                admin_pb2.UpdateCommunityReq(
+                    community_id=community.parent_node_id,
+                    name="test community 2",
+                    description="community for testing 2",
+                    geojson=VALID_GEOJSON_MULTIPOLYGON,
+                    parent_node_id=community_2.parent_node_id,
+                )
+            )
+            session.commit()
+
+            community_updated = session.execute(select(Cluster).where(Cluster.id == community.id)).scalar_one()
+            assert community_updated.description == "community for testing 2"
+            assert community_updated.slug == "test-community-2"
+
+            node_updated = session.execute(select(Node).where(Node.id == community_updated.parent_node_id)).scalar_one()
+            assert node_updated.parent_node_id == community_2.parent_node_id
 
 
 def test_GetChats(db):

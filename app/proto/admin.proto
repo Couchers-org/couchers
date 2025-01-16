@@ -51,6 +51,8 @@ service Admin {
 
   rpc CreateCommunity(CreateCommunityReq) returns (org.couchers.api.communities.Community) {}
 
+  rpc UpdateCommunity(UpdateCommunityReq) returns (org.couchers.api.communities.Community) {}
+
   rpc GetChats(GetChatsReq) returns (GetChatsRes) {}
 
   rpc ListEventCommunityInviteRequests(ListEventCommunityInviteRequestsReq) returns (ListEventCommunityInviteRequestsRes) {}
@@ -199,6 +201,14 @@ message CreateCommunityReq {
   int64 parent_node_id = 4;
   repeated int64 admin_ids = 5;
   string geojson = 6;
+}
+
+message UpdateCommunityReq {
+  int64 community_id = 1;
+  string name = 2;
+  string description = 3;
+  int64 parent_node_id = 4;
+  string geojson = 5;
 }
 
 message GetChatsReq {

@@ -3,6 +3,7 @@ import logging
 from datetime import timedelta
 
 import grpc
+from geoalchemy2.shape import from_shape
 from google.protobuf import empty_pb2
 from shapely.geometry import shape
 from sqlalchemy.sql import or_, select, update
@@ -21,6 +22,7 @@ from couchers.models import (
     HostRequest,
     Message,
     ModNote,
+    Node,
     User,
     UserBadge,
 )
@@ -79,6 +81,15 @@ def append_admin_note(session, context, user, note):
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.ADMIN_NOTE_CANT_BE_EMPTY)
     admin = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
     user.admin_note += f"\n[{now().isoformat()}] (id: {admin.id}, username: {admin.username}) {note}\n"
+
+
+def load_community_geom(geojson, context):
+    geom = shape(json.loads(geojson))
+
+    if geom.geom_type != "MultiPolygon":
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_MULTIPOLYGON)
+
+    return geom
 
 
 class Admin(admin_pb2_grpc.AdminServicer):
@@ -277,16 +288,37 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return _user_to_details(session, user)
 
     def CreateCommunity(self, request, context, session):
-        geom = shape(json.loads(request.geojson))
-
-        if geom.type != "MultiPolygon":
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NO_MULTIPOLYGON)
+        geom = load_community_geom(request.geojson, context)
 
         parent_node_id = request.parent_node_id if request.parent_node_id != 0 else None
         node = create_node(session, geom, parent_node_id)
         create_cluster(session, node.id, request.name, request.description, context.user_id, request.admin_ids, True)
 
         return community_to_pb(session, node, context)
+
+    def UpdateCommunity(self, request, context, session):
+        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        if not node:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+        cluster = node.official_cluster
+
+        if request.name:
+            cluster.name = request.name
+
+        if request.description:
+            cluster.description = request.description
+
+        if request.geojson:
+            geom = load_community_geom(request.geojson, context)
+
+            node.geom = from_shape(geom)
+
+        if request.parent_node_id != 0:
+            node.parent_node_id = request.parent_node_id
+
+        session.flush()
+
+        return community_to_pb(session, cluster.parent_node, context)
 
     def GetChats(self, request, context, session):
         def format_user(user):
