@@ -100,6 +100,10 @@ export default function FlagButton({
     reportContent(data);
   });
 
+  const handleFlagButtonClick = (event: { preventDefault: () => void }) => {
+    event.preventDefault();
+  };
+
   return (
     <>
       {report && (
@@ -107,15 +111,17 @@ export default function FlagButton({
           {t("report.content.success_message")}
         </Snackbar>
       )}
-      <IconButton
-        aria-label={t("report.flag.button_aria_label")}
-        className={className}
-        onClick={() => setIsOpen(true)}
-        color="primary"
-        size="large"
-      >
-        <FlagIcon />
-      </IconButton>
+      <div onClick={handleFlagButtonClick}>
+        <IconButton
+          aria-label={t("report.flag.button_aria_label")}
+          className={className}
+          onClick={() => setIsOpen(true)}
+          color="primary"
+          size="large"
+        >
+          <FlagIcon />
+        </IconButton>
+      </div>
       <Dialog
         aria-labelledby="content-reporter"
         open={isOpen}
