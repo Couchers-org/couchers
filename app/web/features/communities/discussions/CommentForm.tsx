@@ -42,7 +42,7 @@ interface CommentData {
   content: string;
 }
 
-function _CommentForm(
+function InternalCommentForm(
   { hideable = false, onClose, shown = false, threadId }: CommentFormProps,
   ref: React.ForwardedRef<HTMLFormElement>
 ) {
@@ -105,5 +105,5 @@ function _CommentForm(
   );
 }
 
-const CommentForm = React.forwardRef(_CommentForm);
+const CommentForm = React.forwardRef(InternalCommentForm);
 export default CommentForm;
