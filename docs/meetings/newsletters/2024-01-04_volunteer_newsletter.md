@@ -3,15 +3,22 @@
 ## 🎉 Welcome to Our First Edition!
 
 Hello, amazing Couchers volunteers!  
-If you’re reading this, you’ve volunteered with Couchers in some capacity. With the New Year underway, we have some resolutions of our own and big goals going forward. We’ve had a surge of volunteer activity, so we wanted to share with you what we’ve been working on, what we plan to do, and what we could use help with in case this stirs any FOMO 😉.
+If you’re reading this, you’ve volunteered with Couchers in some capacity in the past or are doing so now. With the New Year underway, we have some resolutions of our own and big goals going forward. We’ve had a surge of volunteer activity, so we wanted to share with you what we’ve been working on, as well as what we plan to do, and what we could use your help with in case this stirs any FOMO 😉.
+
+We'll be sending out this volunteer newsletter intermittently, maybe once a quarter or so. It probably won't be very frequent since we are a bit lousy at writing newsletters (if you want to help, let us know). We appreciate all of your amazing contributions and want to share some more details with you and let you know of any opportunities to jump back in.
+
+That said, if you don't want to receive these newsletters, please click on the big button below and we'll unsubscribe you, no dramas!
+
+[[UNSUB BUTTON]]
 
 ## Table of Contents
 - [How to Get Involved](#-how-to-get-involved)
-- [Engineering Accomplishments](#-engineering-accomplishments)
+- [Engineering Accomplishments](#-engineering-updates)
 - [Help Wanted: Engineering](#-help-wanted-engineering)
 - [Design and Operations Accomplishments](#-design--operations-accomplishments)
 - [Help Wanted: Design](#️-help-wanted-design)
 - [Help Wanted: Operations](#️-help-wanted-operations)
+- [Help Wanted: Marketing, Branding and Outreach](#help-wanted-marketing-branding-and-outreach)
 - [Big Picture Goals](#-big-picture-goals)
 
 
@@ -25,11 +32,13 @@ This could be you. ;-).
 Interested in jumping back in, but not sure how? You can:
 
 * Join our weekly zoom meeting Tuesdays at 21:00 UTC at http://couchers.org/zoom
-* Pop back into our Slack channel and say hi. Email us at volunteers@couchers.org if you need an invite.
-* Tag @nabramow, @aapeliv or @jesseallhands in a ticket you'd like to pick up and assign yourself to it. Check out our [Couchers Engineering Task Board](https://github.com/Couchers-org/couchers/projects) for what’s in progress or ready to tackle. See Help Wanted for [Engineering](#-help-wanted-engineering), [Design](#️-help-wanted-design) and [Operations](#️-help-wanted-operations)
+* Pop into our Slack channel and say hi. Email us at volunteers@couchers.org if you need an invite.
+* Tag @nabramow, @aapeliv or @jesseallhands on Github in a ticket you'd like to pick up and assign yourself to it. Check out our [Couchers Engineering Task Board](https://github.com/Couchers-org/couchers/projects) for what’s in progress or ready to tackle. See Help Wanted for [Engineering](#-help-wanted-engineering), [Design](#️-help-wanted-design) and [Operations](#️-help-wanted-operations)
 
 
-## 💻 [Engineering Accomplishments](#-engineering-accomplishments)
+## 💻 [Engineering Updates](#-engineering-updates)
+
+Since the last public newsletter went out, we've put our heads down and mostly been grinding out feature updates and bugfixes for the web platform. We also have an ongoing effort to build a mobile app in React Native. Here's a short list of some engineering accomplishments:
 
 * 👤 **Complete Profiles**: Incomplete profiles can now be filtered out on the map. Users with incomplete profiles won’t be able to send messages, host requests, or create events until they upload a photo and fill in their details.
 * 🛡️ **Strong Verification**: Users can now verify gender and age using their passports for enhanced safety. Shoutout to [Aapeli](https://github.com/aapeliv) for setting this up and upgrading it recently!
@@ -60,7 +69,7 @@ Tickets we could use help with:
 * **Add number of comments to events** [Add number of comments to event tiles](https://github.com/Couchers-org/couchers/issues/5217)
 * **Show user community events on dashboard** [Add events from city communities user belongs to on dashboard](https://github.com/Couchers-org/couchers/issues/5273)
 * **Upgrade bug reporting to include screenshot/video** [Upgrade bug reporting with sentry to include more context, photo, etc](https://github.com/Couchers-org/couchers/issues/5291)
-* **Frontend Package Upgrades**: Help us stay current by upgrading to [React v19](https://github.com/Couchers-org/couchers/issues/5381), [Next.js v14](https://github.com/Couchers-org/couchers/issues/5451), [Material-UI v6](https://github.com/Couchers-org/couchers/issues/5376), and [react-query v3](https://github.com/Couchers-org/couchers/issues/5263), among others.
+* **Frontend Package Upgrades**: Help us stay current by upgrading to [React v19](https://github.com/Couchers-org/couchers/issues/5381), [Material-UI v6](https://github.com/Couchers-org/couchers/issues/5376), and [react-query from v3 to latest](https://github.com/Couchers-org/couchers/issues/5263), among others.
 * 📱 **React Native Mobile App**: We could use more hands here. Help [Ivan](https://github.com/polemius) tackle the standalone app! We don't have a specific ticket for this as we're making it from scratch, see [how to get involved](#-how-to-get-involved) to help.
 
 Check out our [Couchers Engineering Task Board](https://github.com/Couchers-org/couchers/projects) for more and see [How To Get Involved](#-how-to-get-involved).
@@ -82,6 +91,11 @@ Shoutout to [Jesse](https://couchers.org/user/jesse), who’s been doing design 
 2. 🛡️ **Strong Verification Design**: We could use help with the design for this feature to move it out of Feature Preview. 
 3. 🚀 **Signup Flow & Landing Page**: Needs a major overhaul for better user experience.  
 4. 📱 **Native App Design**: We need designs for the standalone mobile app.
+5. 💻 **Logo for Couchers Engineering**: We'd like to design a logo specific for the Couchers Engineering group.
+6. 🎨 **Couchers stickers**: Help us design some Couchers stickers to spread the word!
+7. 📮 **Mail verification postcard**: We want to make a snazzy postcard for users who complete mail verification.
+
+Want to help? See [How To Get Involved](#-how-to-get-involved)
 
 ---
 
@@ -89,8 +103,21 @@ Shoutout to [Jesse](https://couchers.org/user/jesse), who’s been doing design 
 
 We could use a hand with:
 
-* 🌍 **Translations**: We’re behind on translating the site into other languages. If you’re interested in managing the translation process or helping with translations, let us know!  
-* 📰 **Newsletters**: Love writing? Help us create these newsletters and our quarterly updates.  
+* 🌍 **Translation Lead Organizer**: With the new feature updates and changes to the platform, we've fallen behind on translating the app. If you're interested in helping organize this effort to translate the new parts, please get in touch!
+* 🗣️ **Translators**: Just want to help us translate the app into your language? Please get in touch! We could especially use help translating into Chinese (Traditional), Czech, Dutch, French, French (Canadian), Hindi, Italian, Japanese, Japanese (Kansai), Norwegian Bokmål, Polish, Portuguese (Brazil), Portuguese(Portugal), Russian, Spanish, and Spanish (Latin America).
+* 👋 **Support People**: Answering support and help requests. Help your fellow Couchers out!
+
+Want to help? See [How To Get Involved](#-how-to-get-involved)
+
+---
+
+## 📝 [Help Wanted: Marketing, Branding, and Outreach](#help-wanted-marketing-branding-and-outreach)
+
+* 📰 **Newsletters**: These are some of the most prominent ways in which we get the word out, and we'd like to send one out four times a year to communicate the latest updates and our latest strategy. Please come help us write some!
+* 🌐 **Website rebranding**: We want to change our branding from being simply an alternative to CouchSurfing.com™ into standing on our own two feet as the safest and coolest couch surfing platform. Come help us rewrite and redesign our landing pages for this new angle!
+* 📢 **Marketing Lead**: We are looking for someone to help us get the word out about Couchers to the right people. This person would handle the strategic thinking for marketing campaigns, social media strategy, community outreach and may recruit other volunteers as needed.
+* 🪽 **Social Media Community Managers**: Take the reigns and help us create content for Instagram, TikTok, Facebook, Bluesky, Facebook, LinkedIn or wherever the cool travel kids are hanging out these days.
+* ✍🏽 **Writers**: We want to create more newbie-friendly content to bring more people into couch surfing, including a section on the website for "what is couch surfing" to explain to those who've never thought about it what it is. Come help in this effort!
 
 Want to help? See [How To Get Involved](#-how-to-get-involved)
 
