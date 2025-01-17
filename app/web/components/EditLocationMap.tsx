@@ -1,6 +1,5 @@
-import { BoxProps, Slider, Typography, useTheme } from "@mui/material";
+import { BoxProps, Slider, styled, Typography, useTheme } from "@mui/material";
 import { userLocationMaxRadius, userLocationMinRadius } from "appConstants";
-import classNames from "classnames";
 import Map from "components/Map";
 import MapSearch from "components/MapSearch";
 import TextField from "components/TextField";
@@ -16,7 +15,6 @@ import {
 } from "maplibre-gl";
 import React, { useRef, useState } from "react";
 import { ControllerRenderProps, FieldError } from "react-hook-form";
-import makeStyles from "utils/makeStyles";
 
 import {
   DISPLAY_LOCATION,
@@ -29,22 +27,15 @@ import {
   MAP_IS_BLANK,
 } from "./constants";
 
-const useStyles = makeStyles({
-  root: {
-    margin: "auto",
-    maxWidth: 700,
-  },
-  map: {
-    height: 400,
-    position: "relative",
-  },
-  grow: {
-    height: "100%",
-    width: "100%",
-  },
-  displayLocation: {
-    width: "100%",
-  },
+const StyledWrapper = styled("div")<{ grow?: boolean }>(({ grow }) => ({
+  margin: "auto",
+  maxWidth: 700,
+  ...(grow ? { height: "100%", width: "100%" } : {}),
+}));
+
+const StyledMap = styled("div")({
+  height: 400,
+  position: "relative",
 });
 
 export interface ApproximateLocation {
@@ -80,7 +71,6 @@ export default function EditLocationMap({
   inputFieldError,
   ...otherProps
 }: EditLocationMapProps) {
-  const classes = useStyles();
   const theme = useTheme();
   const [error, setError] = useState("");
 
@@ -310,14 +300,8 @@ export default function EditLocationMap({
 
   return (
     <>
-      <div
-        className={classNames(
-          classes.root,
-          { [classes.grow]: grow },
-          className
-        )}
-      >
-        <div className={classNames(classes.map)}>
+      <StyledWrapper className={className} grow={grow}>
+        <StyledMap>
           <Map
             // (10, 35, 0.5) is just a pretty view
             initialZoom={isBlank.current ? 0.5 : 12.5}
@@ -343,7 +327,7 @@ export default function EditLocationMap({
               flyToSearch(coordinate);
             }}
           />
-        </div>
+        </StyledMap>
         {showRadiusSlider && (
           <RadiusSlider
             commit={commit}
@@ -367,7 +351,7 @@ export default function EditLocationMap({
           onFocus={() => setShrinkLabel(true)}
           onBlur={() => !location.current.address && setShrinkLabel(false)}
         />
-      </div>
+      </StyledWrapper>
     </>
   );
 }

@@ -1,19 +1,18 @@
-import { Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { SvgIconTypeMap } from "@mui/material/SvgIcon";
 import React, { ReactNode } from "react";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
-const useStyles = makeStyles((theme) => ({
-  label: {
-    marginInlineStart: theme.spacing(1),
-  },
-  root: {
-    alignItems: "center",
-    display: "flex",
-    marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(1),
-  },
+const StyledWrapper = styled("div")(({ theme }) => ({
+  alignItems: "center",
+  display: "flex",
+  marginBottom: theme.spacing(1),
+  marginTop: theme.spacing(1),
+}));
+
+const StyledLabel = styled("div")(({ theme }) => ({
+  marginInlineStart: theme.spacing(1),
 }));
 
 interface IconTextProps {
@@ -22,16 +21,17 @@ interface IconTextProps {
 }
 
 export default function IconText({ icon, text }: IconTextProps) {
-  const classes = useStyles();
   const Icon = icon;
   return (
-    <div className={classes.root}>
+    <StyledWrapper>
       <Icon />
       {typeof text === "string" ? (
-        <Typography className={classes.label}>{text}</Typography>
+        <Typography sx={{ marginInlineStart: theme.spacing(1) }}>
+          {text}
+        </Typography>
       ) : (
-        <div className={classes.label}>{text}</div>
+        <StyledLabel>{text}</StyledLabel>
       )}
-    </div>
+    </StyledWrapper>
   );
 }

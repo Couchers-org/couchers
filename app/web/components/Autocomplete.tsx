@@ -2,20 +2,12 @@ import {
   Autocomplete as MuiAutocomplete,
   AutocompleteProps as MuiAutocompleteProps,
 } from "@mui/material";
-import classNames from "classnames";
 import { SignupAccountInputs } from "features/auth/signup/AccountForm";
 import { EditProfileFormValues } from "features/profile/edit/EditProfile";
 import React from "react";
 import { ControllerRenderProps } from "react-hook-form";
-import makeStyles from "utils/makeStyles";
 
 import TextField from "./TextField";
-
-const useStyles = makeStyles({
-  root: {
-    display: "block",
-  },
-});
 
 export type AutocompleteProps<
   T,
@@ -53,16 +45,16 @@ export default function Autocomplete<
   variant = "standard",
   endAdornment,
   inputProps,
+  sx,
   ...otherProps
 }: AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>) {
-  const classes = useStyles();
-
   return (
     <MuiAutocomplete
       {...otherProps}
       options={otherProps.options}
-      className={classNames(classes.root, className)}
+      className={className}
       id={id}
+      sx={{ display: "block", ...sx }}
       renderInput={(params) => (
         <TextField
           {...params}
