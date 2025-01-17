@@ -48,7 +48,7 @@ Since the last public newsletter went out, we've put our heads down and mostly b
 * 📱 **Mobile Improvements**:
     * **Standalone Mobile App**: Shoutout to [Ivan](https://github.com/polemius), who has been working solo on this!
     * **Mobile Web Enhancements**: Progress continues (though we still need more hands).
-* ⚙️ **Frontend Upgrades**: We’ve upgraded React to v18, Material-UI, and Next.js to v13. Shoutout to [Nicole](https://github.com/nabramow), your author, for this!
+* ⚙️ **Frontend Upgrades**: We’ve upgraded many of our frontend packages after 2-3 years of being neglected. Shoutout to [Nicole](https://github.com/nabramow), your author, for this!
 
 ---
 
