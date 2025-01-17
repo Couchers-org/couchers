@@ -94,9 +94,8 @@ interface mapWrapperProps {
     SetStateAction<Pick<User.AsObject, "userId" | "lng" | "lat"> | undefined>
   >;
   map: MutableRefObject<MaplibreMap | undefined>;
-  setWasSearchPerformed: Dispatch<SetStateAction<boolean>>;
-  wasSearchPerformed: boolean;
   areFiltersCleared: boolean;
+  setMapPositionFilterActive: Dispatch<SetStateAction<boolean>>;
   onClearFiltersClick: () => void;
 }
 
@@ -109,9 +108,8 @@ export default function MapWrapper({
   results,
   setSelectedResult,
   setIsFiltersOpen,
-  wasSearchPerformed,
-  setWasSearchPerformed,
   areFiltersCleared,
+  setMapPositionFilterActive,
   onClearFiltersClick,
 }: mapWrapperProps) {
   const { t } = useTranslation([SEARCH]);
@@ -240,11 +238,7 @@ export default function MapWrapper({
    * Re-renders users list on map (when results array changed)
    */
   useEffect(() => {
-    if (
-      isMapStyleLoaded &&
-      isMapSourceLoaded &&
-      (wasSearchPerformed || areFiltersCleared)
-    ) {
+    if (isMapStyleLoaded && isMapSourceLoaded && areFiltersCleared) {
       if (results) {
         const usersToRender = filterData(results);
         reRenderUsersOnMap(map.current!, usersToRender, handleMapUserClick);
@@ -257,7 +251,7 @@ export default function MapWrapper({
     isMapStyleLoaded,
     isMapSourceLoaded,
     areFiltersCleared,
-    wasSearchPerformed,
+    // wasSearchPerformed, (FIXME: revisit whether I'll need mapPositionFilterActive here or not)
   ]);
 
   /**
@@ -280,7 +274,7 @@ export default function MapWrapper({
           ],
         });
       }
-      setWasSearchPerformed(true);
+      setMapPositionFilterActive(true);
     }
   };
 

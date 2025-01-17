@@ -81,9 +81,8 @@ export default function SearchPage({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   // State
-  const [wasSearchPerformed, setWasSearchPerformed] = useState(
-    locationName !== ""
-  );
+
+  const [mapPositionFilterActive, setMapPositionFilterActive] = useState(false);
   const [locationResult, setLocationResult] = useState<GeocodeResult>({
     bbox: bbox,
     isRegion: false,
@@ -107,6 +106,7 @@ export default function SearchPage({
   >();
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  // Filters = mapPosition, locationResult, queryName, lastActive, hostingStatus, numberOfGuest & completeProfile
   const [areFiltersCleared, setAreFiltersCleared] = useState(
     locationName === ""
   );
@@ -163,11 +163,12 @@ export default function SearchPage({
       completeProfileFilter !== false ||
       queryName !== "" ||
       locationResult.name !== "" ||
-      (locationResult.location.lng !== 0 && locationResult.location.lat !== 0);
+      mapPositionFilterActive === true;
+    // (locationResult.location.lng !== 0 && locationResult.location.lat !== 0);
 
-    if (!wasSearchPerformed) {
-      setWasSearchPerformed(true);
-    }
+    // if (!wasSearchPerformed) {
+    //   setWasSearchPerformed(true);
+    // }
 
     setAreFiltersCleared(!filtersApplied);
   }, [
@@ -175,11 +176,9 @@ export default function SearchPage({
     hostingStatusFilter,
     numberOfGuestFilter,
     completeProfileFilter,
-    wasSearchPerformed,
     queryName,
-    locationResult.location.lng,
-    locationResult.location.lat,
     locationResult.name,
+    mapPositionFilterActive,
   ]);
 
   /**
@@ -198,8 +197,8 @@ export default function SearchPage({
     setHostingStatusFilter([]);
     setNumberOfGuestFilter(undefined);
     setCompleteProfileFilter(false);
+    setMapPositionFilterActive(false);
     setAreFiltersCleared(true);
-    setWasSearchPerformed(false);
   };
 
   const errorMessage = error?.message;
@@ -228,7 +227,7 @@ export default function SearchPage({
         {/* Mobile */}
         {isMobile && (
           <Collapse
-            in={wasSearchPerformed || !!selectedResult}
+            in={!!selectedResult}
             timeout={theme.transitions.duration.standard}
             className={classes.mobileCollapse}
           >
@@ -273,9 +272,8 @@ export default function SearchPage({
             setLocationResult={setLocationResult}
             setSelectedResult={setSelectedResult}
             isLoading={isLoading || isFetching}
-            setWasSearchPerformed={setWasSearchPerformed}
-            wasSearchPerformed={wasSearchPerformed}
             areFiltersCleared={areFiltersCleared}
+            setMapPositionFilterActive={setMapPositionFilterActive}
             onClearFiltersClick={handleClearFilters}
           />
         </div>
