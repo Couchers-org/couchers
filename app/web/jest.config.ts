@@ -1,5 +1,5 @@
-import nextJest from "next/jest";
 import type { Config } from "jest";
+import nextJest from "next/jest";
 
 // Providing the path to your Next.js app which will enable loading next.config.js and .env files
 const createJestConfig = nextJest({ dir: "./" });
@@ -30,8 +30,6 @@ const customJestConfig: Config = {
     // Handle module aliases
     "^@/components/(.*)$": "<rootDir>/components/$1",
 
-    // Handle @next/font
-    "@next/font/(.*)": `<rootDir>/__mocks__/nextFontMock.js`,
     // Handle next/font
     "next/font/(.*)": `<rootDir>/__mocks__/nextFontMock.js`,
     // Disable server-only

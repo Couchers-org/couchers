@@ -49,7 +49,7 @@ export type AppButtonProps<D extends ElementType = "button"> =
     classes?: Partial<ButtonClasses>; // Use the flexible ButtonClasses type here
   };
 
-function _Button<D extends ElementType = "button">(
+function InternalButton<D extends ElementType = "button">(
   {
     children,
     disabled,
@@ -105,5 +105,5 @@ function _Button<D extends ElementType = "button">(
   );
 }
 
-const Button = forwardRef(_Button);
+const Button = forwardRef(InternalButton);
 export default Button;
