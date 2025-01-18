@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import Actions from "components/Actions";
 import Button from "components/Button";
 import ReportButton from "components/Navigation/ReportButton";
@@ -9,17 +9,13 @@ import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import { baseRoute } from "routes";
 import { theme } from "theme";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  report: {
-    marginTop: theme.spacing(2),
-  },
+const StyledReportButton = styled(ReportButton)(({ theme }) => ({
+  marginTop: theme.spacing(2),
 }));
 
 export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
   const { t } = useTranslation(GLOBAL);
-  const classes = useStyles();
   const router = useRouter();
 
   const handleRefresh = () => router.reload();
@@ -30,11 +26,7 @@ export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
       <Typography variant="body1">
         {isFatal ? t("error.fatal_message") : t("error.fallback.subtitle")}
       </Typography>
-      {!isFatal && (
-        <div className={classes.report}>
-          <ReportButton isResponsive={false} />
-        </div>
-      )}
+      {!isFatal && <StyledReportButton isResponsive={false} />}
       <Actions>
         {!isFatal && (
           <Link href={baseRoute} passHref legacyBehavior>

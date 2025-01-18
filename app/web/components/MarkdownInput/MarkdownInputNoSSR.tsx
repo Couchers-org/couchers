@@ -1,55 +1,54 @@
 import "@toast-ui/editor/dist/toastui-editor.css";
 
+import { styled } from "@mui/material";
 import ToastUIEditor from "@toast-ui/editor";
 import { ToolbarItem } from "@toast-ui/editor/types/ui";
-import classNames from "classnames";
 import { INSERT_IMAGE } from "components/MarkdownInput/constants";
 import UploadImage from "components/MarkdownInput/UploadImage";
 import { useEffect, useRef, useState } from "react";
 import { useController } from "react-hook-form";
-import makeStyles from "utils/makeStyles";
 
 import { MarkdownInputProps } from "./MarkdownInput";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    "& .toastui-editor-contents": {
-      fontSize: theme.typography.fontSize,
-      fontFamily: theme.typography.fontFamily,
-      "& h1, & h2, & h3, & h4, & h5, & h6": {
-        borderBottom: "none",
-        paddingBottom: 0,
-        marginBottom: 0,
-        marginTop: theme.spacing(2),
-      },
-      "& h1": {
-        ...theme.typography.h1,
-      },
-      "& h2": {
-        ...theme.typography.h2,
-      },
-      "& h3": theme.typography.h3,
-      "& h4": theme.typography.h4,
-      "& h5": theme.typography.h5,
-      "& h6": theme.typography.h6,
-      "& p": theme.typography.body1,
-      "& ol": theme.typography.body1,
-      "& ul": theme.typography.body1,
-      "& blockquote": theme.typography.body1,
-      "& a": {
-        color: theme.palette.primary.main,
-      },
-      "& img": {
-        width: "100%",
-        maxWidth: "400px",
-      },
+const StyledWrapper = styled("div", {
+  shouldForwardProp: (prop) => prop !== "isErrorState",
+})<{ isErrorState: boolean }>(({ theme, isErrorState }) => ({
+  "& .toastui-editor-contents": {
+    fontSize: theme.typography.fontSize,
+    fontFamily: theme.typography.fontFamily,
+    "& h1, & h2, & h3, & h4, & h5, & h6": {
+      borderBottom: "none",
+      paddingBottom: 0,
+      marginBottom: 0,
+      marginTop: theme.spacing(2),
+    },
+    "& h1": {
+      ...theme.typography.h1,
+    },
+    "& h2": {
+      ...theme.typography.h2,
+    },
+    "& h3": theme.typography.h3,
+    "& h4": theme.typography.h4,
+    "& h5": theme.typography.h5,
+    "& h6": theme.typography.h6,
+    "& p": theme.typography.body1,
+    "& ol": theme.typography.body1,
+    "& ul": theme.typography.body1,
+    "& blockquote": theme.typography.body1,
+    "& a": {
+      color: theme.palette.primary.main,
+    },
+    "& img": {
+      width: "100%",
+      maxWidth: "400px",
     },
   },
-  errorState: {
+  ...(isErrorState && {
     "& .toastui-editor-defaultUI": {
       border: "2px solid red",
     },
-  },
+  }),
 }));
 
 export default function MarkdownInput({
@@ -63,7 +62,6 @@ export default function MarkdownInput({
   autofocus = false,
   required,
 }: MarkdownInputProps) {
-  const classes = useStyles();
   const { field, fieldState } = useController({
     name,
     control,
@@ -156,13 +154,7 @@ export default function MarkdownInput({
 
   return (
     <>
-      <div
-        className={classNames(classes.root, {
-          [classes.errorState]: fieldState.invalid,
-        })}
-        ref={rootEl}
-        id={id}
-      />
+      <StyledWrapper ref={rootEl} id={id} isErrorState={fieldState.invalid} />
       {imageUpload && (
         <UploadImage
           open={imageDialogOpen}

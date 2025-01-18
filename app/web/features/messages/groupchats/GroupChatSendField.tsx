@@ -1,5 +1,5 @@
-import { styled } from "@mui/material";
-import Button, { AppButtonProps } from "components/Button";
+import { ButtonProps, styled } from "@mui/material";
+import Button from "components/Button";
 import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
@@ -15,7 +15,7 @@ interface MessageFormData {
   text: string;
 }
 
-const StyledButton = styled(Button)<AppButtonProps>({
+const StyledButton = styled(Button)<ButtonProps>({
   display: "block",
   flexShrink: 0,
   marginInlineStart: theme.spacing(1),

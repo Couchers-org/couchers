@@ -1,13 +1,10 @@
 import { TabList } from "@mui/lab";
-import { Tab } from "@mui/material";
-import makeStyles from "utils/makeStyles";
+import { styled, Tab } from "@mui/material";
 
-export const useStyles = makeStyles((theme) => ({
-  messagesTab: {
-    [theme.breakpoints.down("md")]: {
-      overflow: "visible",
-      margin: `0 ${theme.spacing(2)}`,
-    },
+const StyledTab = styled(Tab)(({ theme }) => ({
+  [theme.breakpoints.down("md")]: {
+    overflow: "visible",
+    margin: `0 ${theme.spacing(2)}`,
   },
 }));
 
@@ -22,8 +19,6 @@ export default function TabBar<T extends Record<string, React.ReactNode>>({
   setValue,
   labels,
 }: TabBarProps<T>) {
-  const classes = useStyles();
-
   const handleChange = (event: React.SyntheticEvent, newValue: keyof T) => {
     setValue(newValue);
   };
@@ -39,12 +34,7 @@ export default function TabBar<T extends Record<string, React.ReactNode>>({
       variant="scrollable"
     >
       {Object.entries(labels).map(([value, label]) => (
-        <Tab
-          key={value}
-          label={label}
-          value={value}
-          className={classes.messagesTab}
-        />
+        <StyledTab key={value} label={label} value={value} />
       ))}
     </TabList>
   );

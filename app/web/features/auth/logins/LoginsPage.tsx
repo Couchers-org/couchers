@@ -1,6 +1,6 @@
-import { styled, Typography } from "@mui/material";
+import { ButtonProps, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
-import Button, { AppButtonProps } from "components/Button";
+import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { activeLoginsKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
@@ -24,7 +24,7 @@ const StyledLoginsContainer = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledButton = styled(Button)<AppButtonProps>(({ theme }) => ({
+const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
   marginTop: theme.spacing(1),
   marginBottom: theme.spacing(1),
 }));
