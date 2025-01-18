@@ -1,9 +1,9 @@
 import { IconButton, styled, Tooltip } from "@mui/material";
 import { HelpIcon } from "components/Icons";
 import React from "react";
+import { theme } from "theme";
 
 import ScoreBar from "./ScoreBar";
-import { theme } from "theme";
 
 interface BarWithHelpProps {
   value: number;

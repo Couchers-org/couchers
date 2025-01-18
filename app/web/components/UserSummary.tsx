@@ -4,6 +4,7 @@ import {
   Skeleton,
   Typography,
 } from "@mui/material";
+import { styled } from "@mui/system";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
@@ -12,7 +13,6 @@ import React from "react";
 import { routeToUser } from "routes";
 
 import StrongVerificationBadge from "./StrongVerificationBadge";
-import { styled } from "@mui/system";
 
 const StyledWrapper = styled("div")(({ theme }) => ({
   display: "flex",
