@@ -9,13 +9,13 @@ type StorageType = "localStorage" | "sessionStorage";
 export function usePersistedState<T>(
   key: string,
   defaultValue: T,
-  storage: StorageType = "localStorage"
+  storage: StorageType = "localStorage",
 ): [T | undefined, (value: T) => void, () => void] {
   // in ssr, window doesn't exist, just use default
   const saved =
     typeof window !== "undefined" ? window[storage].getItem(key) : null;
   const [_state, _setState] = useState<T | undefined>(
-    saved !== null ? JSON.parse(saved) : defaultValue
+    saved !== null ? JSON.parse(saved) : defaultValue,
   );
   const setState = useCallback(
     (value: T) => {
@@ -27,7 +27,7 @@ export function usePersistedState<T>(
       sendState(key, v);
       _setState(value);
     },
-    [key, storage]
+    [key, storage],
   );
   const clearState = useCallback(() => {
     window[storage].removeItem(key);

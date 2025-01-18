@@ -24,7 +24,7 @@ export default function ConfirmChangeEmail() {
     isSuccess,
     mutate: confirmChangeEmail,
   } = useMutation<Empty, RpcError, string>((resetToken) =>
-    service.account.confirmChangeEmail(resetToken)
+    service.account.confirmChangeEmail(resetToken),
   );
 
   useEffect(() => {

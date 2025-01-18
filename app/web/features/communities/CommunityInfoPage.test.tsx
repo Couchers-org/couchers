@@ -30,23 +30,23 @@ const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
 const [, firstAdmin, secondAdmin, thirdAdmin] = users;
 
 async function assertAdminsShown(
-  element: typeof screen | ReturnType<typeof within>
+  element: typeof screen | ReturnType<typeof within>,
 ) {
   expect(
     await element.findByRole("link", {
       name: getProfileLinkA11yLabel(firstAdmin.name),
-    })
+    }),
   ).toBeVisible();
   expect(
-    element.getByText(`${firstAdmin.name}, ${firstAdmin.age}`)
+    element.getByText(`${firstAdmin.name}, ${firstAdmin.age}`),
   ).toBeVisible();
   expect(
     element.getByRole("link", {
       name: getProfileLinkA11yLabel(secondAdmin.name),
-    })
+    }),
   ).toBeVisible();
   expect(
-    element.getByText(`${secondAdmin.name}, ${secondAdmin.age}`)
+    element.getByText(`${secondAdmin.name}, ${secondAdmin.age}`),
   ).toBeVisible();
 }
 
@@ -70,21 +70,21 @@ describe("Community info page", () => {
       expect(
         screen.getByRole("heading", {
           name: t("communities:local_info_title", { name: community.name }),
-        })
+        }),
       ).toBeVisible();
     });
     expect(screen.getByText(community.mainPage.content)).toBeVisible();
 
     // Shouldn't show the edit link since the default user doesn't have permission
     expect(
-      screen.queryByRole("link", { name: t("global:edit") })
+      screen.queryByRole("link", { name: t("global:edit") }),
     ).not.toBeInTheDocument();
 
     // Community moderators section checks
     expect(
       screen.getByRole("heading", {
         name: t("communities:community_moderators"),
-      })
+      }),
     ).toBeVisible();
 
     await assertAdminsShown(screen);
@@ -94,14 +94,14 @@ describe("Community info page", () => {
     expect(
       screen.queryByRole("button", {
         name: t("communities:see_all_moderators"),
-      })
+      }),
     ).not.toBeInTheDocument();
   });
 
   describe("when the user has permission to edit a community info page", () => {
     it("takes the user to the edit community info page when such a link is clicked", async () => {
       mockRouter.setCurrentUrl(
-        routeToCommunity(community.communityId, community.slug, "info")
+        routeToCommunity(community.communityId, community.slug, "info"),
       );
       render(
         <CommunityInfoPage
@@ -110,7 +110,7 @@ describe("Community info page", () => {
             mainPage: { ...community.mainPage, canEdit: true },
           }}
         />,
-        { wrapper }
+        { wrapper },
       );
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
@@ -123,8 +123,8 @@ describe("Community info page", () => {
 
       await waitFor(() =>
         expect(mockRouter.pathname).toBe(
-          routeToEditCommunityPage(community.communityId, community.slug)
-        )
+          routeToEditCommunityPage(community.communityId, community.slug),
+        ),
       );
     });
   });
@@ -138,7 +138,7 @@ describe("Community info page", () => {
     await assertErrorAlert(errorMessage);
 
     expect(
-      screen.queryByText(t("communities:no_moderators"))
+      screen.queryByText(t("communities:no_moderators")),
     ).not.toBeInTheDocument();
   });
 
@@ -156,24 +156,24 @@ describe("Community info page", () => {
       await user.click(
         screen.getByRole("button", {
           name: t("communities:see_all_moderators"),
-        })
+        }),
       );
       const adminDialog = within(
         await screen.findByRole("dialog", {
           name: t("communities:community_moderators"),
-        })
+        }),
       );
 
       expect(
         adminDialog.getByRole("heading", {
           name: t("communities:community_moderators"),
-        })
+        }),
       ).toBeVisible();
       await assertAdminsShown(adminDialog);
       expect(
         adminDialog.getByRole("button", {
           name: t("communities:load_more_moderators"),
-        })
+        }),
       ).toBeVisible();
     });
   });
@@ -190,7 +190,7 @@ describe("Community info page", () => {
         expect(
           screen.getByRole("button", {
             name: t("communities:see_all_moderators"),
-          })
+          }),
         ).toBeVisible();
       });
 
@@ -199,7 +199,7 @@ describe("Community info page", () => {
       await user.click(
         screen.getByRole("button", {
           name: t("communities:see_all_moderators"),
-        })
+        }),
       );
       await screen.findByRole("dialog", {
         name: t("communities:community_moderators"),
@@ -217,22 +217,22 @@ describe("Community info page", () => {
       await user.click(
         screen.getByRole("button", {
           name: t("communities:load_more_moderators"),
-        })
+        }),
       );
 
       const adminDialog = within(
         await screen.findByRole("dialog", {
           name: t("communities:community_moderators"),
-        })
+        }),
       );
       assertAdminsShown(adminDialog);
       expect(
         await adminDialog.findByRole("link", {
           name: getProfileLinkA11yLabel(thirdAdmin.name),
-        })
+        }),
       ).toBeVisible();
       expect(
-        adminDialog.getByText(`${thirdAdmin.name}, ${thirdAdmin.age}`)
+        adminDialog.getByText(`${thirdAdmin.name}, ${thirdAdmin.age}`),
       ).toBeVisible();
 
       // Check it doesn't affect the underlying page
@@ -240,14 +240,14 @@ describe("Community info page", () => {
       await waitForElementToBeRemoved(
         screen.getByRole("dialog", {
           name: t("communities:community_moderators"),
-        })
+        }),
       );
       await waitFor(() =>
         expect(
           adminDialog.queryByRole("link", {
             name: getProfileLinkA11yLabel(thirdAdmin.name),
-          })
-        ).not.toBeInTheDocument()
+          }),
+        ).not.toBeInTheDocument(),
       );
       expect(adminDialog.queryByRole(thirdAdmin.name)).not.toBeInTheDocument();
     });
@@ -259,15 +259,15 @@ describe("Community info page", () => {
       await waitForElementToBeRemoved(
         screen.getByRole("dialog", {
           name: t("communities:community_moderators"),
-        })
+        }),
       );
 
       await waitFor(() =>
         expect(
           screen.queryByRole("button", {
             name: t("communities:load_more_moderators"),
-          })
-        ).not.toBeInTheDocument()
+          }),
+        ).not.toBeInTheDocument(),
       );
     });
 
@@ -279,20 +279,20 @@ describe("Community info page", () => {
         {
           key: "Escape",
           code: "Escape",
-        }
+        },
       );
       await waitForElementToBeRemoved(
         screen.getByRole("dialog", {
           name: t("communities:community_moderators"),
-        })
+        }),
       );
 
       await waitFor(() =>
         expect(
           screen.queryByRole("button", {
             name: t("communities:load_more_moderators"),
-          })
-        ).not.toBeInTheDocument()
+          }),
+        ).not.toBeInTheDocument(),
       );
     });
   });

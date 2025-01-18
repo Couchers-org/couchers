@@ -103,7 +103,7 @@ export default function SubmitReference({
             router.push(routeToProfile("references"));
           }
         },
-      }
+      },
     );
     window.scroll({ top: 0 });
   };
@@ -134,7 +134,7 @@ export default function SubmitReference({
           onSuccess: () => {
             setIsOpen(true);
           },
-        }
+        },
       );
       window.scroll({ top: 0 });
     }

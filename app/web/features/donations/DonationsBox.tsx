@@ -239,7 +239,7 @@ export default function DonationsBox() {
       const stripe = (await stripePromise)!;
       const session_id = await service.donations.initiateDonation(
         amount,
-        recurring === "monthly"
+        recurring === "monthly",
       );
       // When the customer clicks on the button, redirect them to Checkout.
       const result = await stripe.redirectToCheckout({
@@ -253,7 +253,7 @@ export default function DonationsBox() {
       onSuccess: () => {
         resetForm();
       },
-    }
+    },
   );
 
   const onSubmit = handleSubmit((data) => {
@@ -467,7 +467,7 @@ export default function DonationsBox() {
                         field.onChange(
                           typeof e.target.valueAsNumber === "number"
                             ? e.target.valueAsNumber
-                            : DONATIONSBOX_VALUES[0]
+                            : DONATIONSBOX_VALUES[0],
                         );
                         setisPredefinedAmount(false);
                       }}

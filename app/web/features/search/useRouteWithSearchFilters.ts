@@ -11,12 +11,12 @@ import SearchFilters, {
 export default function useRouteWithSearchFilters(route: string) {
   const router = useRouter();
   const [active, setActive] = useState<SearchFilters>(() =>
-    parsedQueryToSearchFilters(router.query)
+    parsedQueryToSearchFilters(router.query),
   );
   const pending = useRef<SearchFilters>(active);
 
   const expectedRouteWithQuery = `${route}?${parseSearchFiltersToQuery(
-    active
+    active,
   )}`;
   const routerQueryIsReady = router.isReady;
   useEffect(() => {
@@ -31,11 +31,11 @@ export default function useRouteWithSearchFilters(route: string) {
   const change = useCallback(
     <T extends keyof SearchFilters>(
       filter: T,
-      value: Exclude<SearchFilters[T], undefined>
+      value: Exclude<SearchFilters[T], undefined>,
     ) => {
       pending.current = { ...pending.current, [filter]: value };
     },
-    []
+    [],
   );
 
   const remove = useCallback((filter: keyof SearchFilters) => {

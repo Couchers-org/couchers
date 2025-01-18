@@ -45,7 +45,7 @@ function DashboardUserProfileSummaryActions() {
 export default function DashboardUserProfileSummary() {
   const { data: user, error, isLoading } = useCurrentUser();
   const desktopMode = useMediaQuery((theme: Theme) =>
-    theme.breakpoints.up("sm")
+    theme.breakpoints.up("sm"),
   );
   return (
     <>

@@ -29,7 +29,7 @@ describe("AuthInterceptor", () => {
     const interceptor = new AuthInterceptor();
     setUnauthenticatedErrorHandler(errorHandler);
     await expect(() =>
-      interceptor.intercept(null, invokerMock)
+      interceptor.intercept(null, invokerMock),
     ).rejects.toMatchObject({ code: StatusCode.NOT_FOUND });
     expect(errorHandler).not.toBeCalled();
   });

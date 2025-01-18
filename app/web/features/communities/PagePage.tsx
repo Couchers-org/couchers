@@ -43,7 +43,7 @@ export default function PagePage({
           router.push(
             pageType === PageType.PAGE_TYPE_PLACE
               ? routeToPlace(page.pageId, page.slug)
-              : routeToGuide(page.pageId, page.slug)
+              : routeToGuide(page.pageId, page.slug),
           );
         } else {
           setPage(page);
@@ -71,8 +71,8 @@ export default function PagePage({
             {page.ownerUserId !== 0
               ? "user " + page.ownerUserId
               : page.ownerCommunityId !== 0
-              ? "community " + page.ownerCommunityId
-              : "group " + page.ownerGroupId}
+                ? "community " + page.ownerCommunityId
+                : "group " + page.ownerGroupId}
           </p>
           <p>
             Last edited at {page.lastEdited?.seconds} by {page.lastEditorUserId}

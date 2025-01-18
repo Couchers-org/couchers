@@ -100,12 +100,12 @@ export default function ReportButton({
       onSuccess: () => {
         setIsOpen(false);
       },
-    }
+    },
   );
 
   const handleClose = (
     event: unknown,
-    reason: "backdropClick" | "escapeKeyDown" | "button"
+    reason: "backdropClick" | "escapeKeyDown" | "button",
   ) => {
     if (reason !== "button") return;
     resetForm();
@@ -113,7 +113,7 @@ export default function ReportButton({
     setIsOpen(false);
     setTimeout(
       () => setType("initial"),
-      theme.transitions.duration.leavingScreen
+      theme.transitions.duration.leavingScreen,
     );
   };
 

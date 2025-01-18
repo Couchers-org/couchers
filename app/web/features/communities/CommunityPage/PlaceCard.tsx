@@ -53,7 +53,7 @@ export default function PlaceCard({
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
   const contentPreview = useMemo(
     () => stripMarkdown(place.content.substr(0, 300).replace("\n", " ")),
-    [place.content]
+    [place.content],
   );
   return (
     <Card className={className}>

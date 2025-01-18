@@ -20,7 +20,7 @@ export default function FeedbackForm() {
     try {
       const res = await service.auth.signupFlowFeedback(
         authState.flowState!.flowToken,
-        form
+        form,
       );
       TagManager.dataLayer({
         dataLayer: {
@@ -38,7 +38,7 @@ export default function FeedbackForm() {
         },
       });
       authActions.authError(
-        isGrpcError(err) ? err.message : t("error.fatal_message")
+        isGrpcError(err) ? err.message : t("error.fatal_message"),
       );
     }
     window.scroll({ top: 0, behavior: "smooth" });

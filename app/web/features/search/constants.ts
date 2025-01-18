@@ -11,8 +11,8 @@ export const aboutText = (user: User.AsObject, t: TFunction) => {
         name: firstName(user?.name),
       })
     : user.aboutMe.length < 300
-    ? user.aboutMe
-    : user.aboutMe.substring(0, 300) + "...";
+      ? user.aboutMe
+      : user.aboutMe.substring(0, 300) + "...";
 };
 
 export enum lastActiveOptions {

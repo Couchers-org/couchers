@@ -32,7 +32,7 @@ type MessageType = "sendState" | "clearState";
 export function sendToNative(type: MessageType, data: any) {
   if (!isNativeEmbed()) return;
   getReactNativeWebView()!.postMessage(
-    JSON.stringify({ type: type, data: data })
+    JSON.stringify({ type: type, data: data }),
   );
 }
 

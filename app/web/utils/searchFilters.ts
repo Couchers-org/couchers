@@ -43,7 +43,7 @@ export function parsedQueryToSearchFilters(urlQuery: ParsedUrlQuery) {
       case "hostingStatusOptions":
         const rawOptions = urlQuery[key];
         const options =
-          typeof rawOptions === "string" ? [rawOptions] : rawOptions ?? [];
+          typeof rawOptions === "string" ? [rawOptions] : (rawOptions ?? []);
 
         filters[key] = options
           .map((o) => Number.parseInt(o))

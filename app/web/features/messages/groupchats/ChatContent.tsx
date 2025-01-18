@@ -13,7 +13,7 @@ const StyledInfiniteMessageLoader = styled(InfiniteMessageLoader)(
     [theme.breakpoints.down("md")]: {
       padding: theme.spacing(1, 1),
     },
-  })
+  }),
 );
 
 const ChatContent = ({

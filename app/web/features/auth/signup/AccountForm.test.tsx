@@ -69,7 +69,7 @@ describe("AccountForm", () => {
           needFeedback: false,
           needVerifyEmail: false,
           needAcceptCommunityGuidelines: true,
-        })
+        }),
       );
       render(<AccountForm />, { wrapper });
 
@@ -77,42 +77,42 @@ describe("AccountForm", () => {
 
       await user.type(
         await screen.findByLabelText(
-          t("auth:account_form.username.field_label")
+          t("auth:account_form.username.field_label"),
         ),
-        "test"
+        "test",
       );
       await user.type(
         await screen.findByLabelText(
-          t("auth:account_form.password.field_label")
+          t("auth:account_form.password.field_label"),
         ),
-        "a very insecure password"
+        "a very insecure password",
       );
       const birthdayField = await screen.findByLabelText(
-        t("auth:account_form.birthday.field_label")
+        t("auth:account_form.birthday.field_label"),
       );
       await user.clear(birthdayField);
       await user.type(birthdayField, "01/01/1990");
 
       await user.type(
         screen.getByTestId("edit-location-map"),
-        "test city, test country"
+        "test city, test country",
       );
 
       const hostingStatusItem = await screen.findByText(
-        hostingStatusLabels(t)[HostingStatus.HOSTING_STATUS_CAN_HOST]
+        hostingStatusLabels(t)[HostingStatus.HOSTING_STATUS_CAN_HOST],
       );
       await user.selectOptions(
         screen.getByLabelText(
-          t("auth:account_form.hosting_status.field_label")
+          t("auth:account_form.hosting_status.field_label"),
         ),
-        hostingStatusItem
+        hostingStatusItem,
       );
 
       await user.click(
-        screen.getByLabelText(t("auth:account_form.gender.woman"))
+        screen.getByLabelText(t("auth:account_form.gender.woman")),
       );
       await user.click(
-        screen.getByLabelText(t("auth:account_form.tos_accept_label"))
+        screen.getByLabelText(t("auth:account_form.tos_accept_label")),
       );
     });
 
@@ -124,7 +124,7 @@ describe("AccountForm", () => {
       const user = userEvent.setup();
 
       await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") })
+        screen.getByRole("button", { name: t("global:sign_up") }),
       );
 
       await waitFor(() => {
@@ -147,7 +147,7 @@ describe("AccountForm", () => {
 
     it("lowercases the username before submitting", async () => {
       const usernameField = screen.getByLabelText(
-        t("auth:account_form.username.field_label")
+        t("auth:account_form.username.field_label"),
       );
 
       const user = userEvent.setup();
@@ -155,7 +155,7 @@ describe("AccountForm", () => {
       await user.clear(usernameField);
       await user.type(usernameField, "TeSt");
       await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") })
+        screen.getByRole("button", { name: t("global:sign_up") }),
       );
 
       await waitFor(() => {
@@ -178,37 +178,37 @@ describe("AccountForm", () => {
 
     it("fails on incorrect/blank username", async () => {
       const field = screen.getByLabelText(
-        t("auth:account_form.username.field_label")
+        t("auth:account_form.username.field_label"),
       );
 
       const user = userEvent.setup();
 
       await user.clear(field);
       await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") })
+        screen.getByRole("button", { name: t("global:sign_up") }),
       );
 
       expect(
-        await screen.findByText(t("auth:account_form.username.required_error"))
+        await screen.findByText(t("auth:account_form.username.required_error")),
       ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
 
       await user.type(field, "1user");
       await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") })
+        screen.getByRole("button", { name: t("global:sign_up") }),
       );
 
       expect(
         await screen.findByText(
-          t("auth:account_form.username.validation_error")
-        )
+          t("auth:account_form.username.validation_error"),
+        ),
       ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
     });
 
     it("Fails on birthdate older than 120", async () => {
       const field = await screen.findByLabelText(
-        t("auth:account_form.birthday.field_label")
+        t("auth:account_form.birthday.field_label"),
       );
 
       const user = userEvent.setup();
@@ -216,20 +216,20 @@ describe("AccountForm", () => {
       await user.clear(field);
       await user.type(field, "01/01/1750");
       await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") })
+        screen.getByRole("button", { name: t("global:sign_up") }),
       );
 
       expect(
         await screen.findByText(
-          t("auth:account_form.birthday.not_real_date_error")
-        )
+          t("auth:account_form.birthday.not_real_date_error"),
+        ),
       ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
     });
 
     it("Fails on birthdate younger than 18", async () => {
       const field = await screen.findByLabelText(
-        t("auth:account_form.birthday.field_label")
+        t("auth:account_form.birthday.field_label"),
       );
 
       const user = userEvent.setup();
@@ -241,18 +241,20 @@ describe("AccountForm", () => {
       await user.clear(field);
       await user.type(field, seventeenYearsAgoDate);
       await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") })
+        screen.getByRole("button", { name: t("global:sign_up") }),
       );
 
       expect(
-        await screen.findByText(t("auth:account_form.birthday.too_young_error"))
+        await screen.findByText(
+          t("auth:account_form.birthday.too_young_error"),
+        ),
       ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
     });
 
     it("Fails on blank birthdate", async () => {
       const field = await screen.findByLabelText(
-        t("auth:account_form.birthday.field_label")
+        t("auth:account_form.birthday.field_label"),
       );
 
       const user = userEvent.setup();
@@ -262,11 +264,11 @@ describe("AccountForm", () => {
       expect(field).toHaveValue("");
 
       await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") })
+        screen.getByRole("button", { name: t("global:sign_up") }),
       );
 
       expect(
-        await screen.findByText(t("auth:account_form.birthday.required_error"))
+        await screen.findByText(t("auth:account_form.birthday.required_error")),
       ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
     });
@@ -277,25 +279,25 @@ describe("AccountForm", () => {
 
       await user.clear(field);
       await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") })
+        screen.getByRole("button", { name: t("global:sign_up") }),
       );
 
       expect(
-        await screen.findByText(t("auth:location.validation_error"))
+        await screen.findByText(t("auth:location.validation_error")),
       ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
     });
 
     it("fails if hosting status is blank", async () => {
       const field = screen.getByLabelText(
-        t("auth:account_form.hosting_status.field_label")
+        t("auth:account_form.hosting_status.field_label"),
       );
 
       const user = userEvent.setup();
 
       await user.selectOptions(field, "");
       await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") })
+        screen.getByRole("button", { name: t("global:sign_up") }),
       );
 
       expect(await screen.findByText("Required")).toBeVisible();
@@ -304,7 +306,7 @@ describe("AccountForm", () => {
 
     it("fails if TOS not agreed", async () => {
       const checkbox = screen.getByLabelText(
-        t("auth:account_form.tos_accept_label")
+        t("auth:account_form.tos_accept_label"),
       );
       const user = userEvent.setup();
 
@@ -326,7 +328,7 @@ describe("AccountForm", () => {
       const user = userEvent.setup();
 
       await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") })
+        screen.getByRole("button", { name: t("global:sign_up") }),
       );
       await assertErrorAlert("Generic error");
     });
@@ -344,7 +346,7 @@ describe("AccountForm", () => {
           needFeedback: false,
           needVerifyEmail: false,
           needAcceptCommunityGuidelines: true,
-        })
+        }),
       );
       render(<AccountForm />, { wrapper });
 
@@ -352,47 +354,47 @@ describe("AccountForm", () => {
 
       await user.type(
         await screen.findByLabelText(
-          t("auth:account_form.username.field_label")
+          t("auth:account_form.username.field_label"),
         ),
-        "test"
+        "test",
       );
       await user.type(
         await screen.findByLabelText(
-          t("auth:account_form.password.field_label")
+          t("auth:account_form.password.field_label"),
         ),
-        "a very insecure password"
+        "a very insecure password",
       );
       const birthdayField = screen.getByLabelText(
-        t("auth:account_form.birthday.field_label")
+        t("auth:account_form.birthday.field_label"),
       );
       await user.clear(birthdayField);
       await user.type(birthdayField, "01/01/1990");
 
       await user.type(
         screen.getByTestId("edit-location-map"),
-        "test city, test country"
+        "test city, test country",
       );
 
       const hostingStatusItem = await screen.findByText(
-        hostingStatusLabels(t)[HostingStatus.HOSTING_STATUS_CAN_HOST]
+        hostingStatusLabels(t)[HostingStatus.HOSTING_STATUS_CAN_HOST],
       );
       await user.selectOptions(
         screen.getByLabelText(
-          t("auth:account_form.hosting_status.field_label")
+          t("auth:account_form.hosting_status.field_label"),
         ),
-        hostingStatusItem
+        hostingStatusItem,
       );
 
       await user.click(
-        screen.getByLabelText(t("auth:account_form.tos_accept_label"))
+        screen.getByLabelText(t("auth:account_form.tos_accept_label")),
       );
 
       await user.click(
-        screen.getByRole("button", { name: t("global:sign_up") })
+        screen.getByRole("button", { name: t("global:sign_up") }),
       );
 
       expect(
-        await screen.findByText(t("auth:account_form.gender.required_error"))
+        await screen.findByText(t("auth:account_form.gender.required_error")),
       ).toBeVisible();
       expect(signupFlowAccountMock).not.toHaveBeenCalled();
     });

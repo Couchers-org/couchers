@@ -94,7 +94,7 @@ export default function EventsTab({
                   event={event}
                   className={classNames(
                     classes.placeEventCard,
-                    classes.eventsCard
+                    classes.eventsCard,
                   )}
                 />
               ))}

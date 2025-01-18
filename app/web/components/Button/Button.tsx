@@ -60,7 +60,7 @@ function InternalButton<D extends ElementType = "button">(
     color = "primary",
     ...otherProps
   }: AppButtonProps<D>,
-  ref: ForwardedRef<any> // eslint-disable-line
+  ref: ForwardedRef<any>, // eslint-disable-line
 ) {
   const isMounted = useIsMounted();
   const [waiting, setWaiting] = useSafeState(isMounted, false);

@@ -47,10 +47,10 @@ export default function MarkAllReadButton({
             chat.lastSeenMessageId < chat.latestMessage.messageId
               ? service.conversations.markLastSeenGroupChat(
                   chat.groupChatId,
-                  chat.latestMessage.messageId
+                  chat.latestMessage.messageId,
                 )
-              : Promise.resolve()
-          )
+              : Promise.resolve(),
+          ),
         );
       } else {
         const data = await getAllPages({
@@ -68,10 +68,10 @@ export default function MarkAllReadButton({
             request.lastSeenMessageId < request.latestMessage.messageId
               ? service.requests.markLastRequestSeen(
                   request.hostRequestId,
-                  request.latestMessage.messageId
+                  request.latestMessage.messageId,
                 )
-              : Promise.resolve()
-          )
+              : Promise.resolve(),
+          ),
         );
       }
     },
@@ -80,7 +80,7 @@ export default function MarkAllReadButton({
         queryClient.invalidateQueries(hostRequestsListKey());
         queryClient.invalidateQueries(groupChatsListKey);
       },
-    }
+    },
   );
 
   return (

@@ -44,7 +44,7 @@ export default function DiscussionsListPage({
   };
   const hash = typeof window !== "undefined" ? window.location.hash : "";
   const [isCreatingNewPost, setIsCreatingNewPost] = useState(
-    hash.includes("new")
+    hash.includes("new"),
   );
   const {
     isLoading: isDiscussionsLoading,

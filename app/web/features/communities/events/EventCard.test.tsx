@@ -23,20 +23,20 @@ describe("Event card", () => {
     render(<EventCard event={firstEvent} />, { wrapper });
 
     expect(
-      screen.getByRole("heading", { name: firstEvent.title })
+      screen.getByRole("heading", { name: firstEvent.title }),
     ).toBeVisible();
     expect(
-      screen.getByText(firstEvent.offlineInformation!.address)
+      screen.getByText(firstEvent.offlineInformation!.address),
     ).toBeVisible();
     expect(
-      screen.getByText("Tue, Jun 29, 2021 2:37 AM - 3:37 AM")
+      screen.getByText("Tue, Jun 29, 2021 2:37 AM - 3:37 AM"),
     ).toBeVisible();
     expect(
       screen.getByText(
         t("communities:attendees_count", {
           count: firstEvent.goingCount + firstEvent.maybeCount,
-        })
-      )
+        }),
+      ),
     ).toBeVisible();
     expect(screen.getByText("Be there or be square!")).toBeVisible();
   });
@@ -45,20 +45,20 @@ describe("Event card", () => {
     render(<EventCard event={thirdEvent} />, { wrapper });
 
     expect(
-      screen.getByRole("heading", { name: thirdEvent.title })
+      screen.getByRole("heading", { name: thirdEvent.title }),
     ).toBeVisible();
     expect(
-      screen.getByText(thirdEvent.offlineInformation!.address)
+      screen.getByText(thirdEvent.offlineInformation!.address),
     ).toBeVisible();
     expect(
-      screen.getByText("Tue, Jun 29, 2021 9:00 PM - Wed, Jun 30, 2021 2:00 AM")
+      screen.getByText("Tue, Jun 29, 2021 9:00 PM - Wed, Jun 30, 2021 2:00 AM"),
     ).toBeVisible();
     expect(
       screen.getByText(
         t("communities:attendees_count", {
           count: thirdEvent.goingCount + thirdEvent.maybeCount,
-        })
-      )
+        }),
+      ),
     ).toBeVisible();
     expect(screen.getByText(thirdEvent.content)).toBeVisible();
   });
@@ -67,20 +67,20 @@ describe("Event card", () => {
     render(<EventCard event={secondEvent} />, { wrapper });
 
     expect(
-      screen.getByRole("heading", { name: secondEvent.title })
+      screen.getByRole("heading", { name: secondEvent.title }),
     ).toBeVisible();
     expect(
-      screen.getByText(t("communities:virtual_event_location_placeholder"))
+      screen.getByText(t("communities:virtual_event_location_placeholder")),
     ).toBeVisible();
     expect(
-      screen.getByText("Tue, Jun 29, 2021 9:00 PM - 10:00 PM")
+      screen.getByText("Tue, Jun 29, 2021 9:00 PM - 10:00 PM"),
     ).toBeVisible();
     expect(
       screen.getByText(
         t("communities:attendees_count", {
           count: secondEvent.goingCount + secondEvent.maybeCount,
-        })
-      )
+        }),
+      ),
     ).toBeVisible();
     expect(screen.getByText(secondEvent.content)).toBeVisible();
   });
@@ -89,7 +89,7 @@ describe("Event card", () => {
     const { container } = render(<EventCard event={firstEvent} />, { wrapper });
 
     expect(
-      screen.getByRole("heading", { name: firstEvent.title })
+      screen.getByRole("heading", { name: firstEvent.title }),
     ).toBeVisible();
 
     expect(container.getElementsByClassName("MuiChip-root")).toHaveLength(0);
@@ -101,7 +101,7 @@ describe("Event card", () => {
     });
 
     expect(
-      screen.getByRole("heading", { name: cancelledEvent.title })
+      screen.getByRole("heading", { name: cancelledEvent.title }),
     ).toBeVisible();
 
     const chip = container.getElementsByClassName("MuiChip-root")[0];

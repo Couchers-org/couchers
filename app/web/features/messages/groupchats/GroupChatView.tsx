@@ -106,7 +106,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
   //for title text
   const currentUserId = useAuthContext().authState.userId!;
   const groupChatMembersQuery = useLiteUsers(
-    groupChat?.memberUserIdsList ?? []
+    groupChat?.memberUserIdsList ?? [],
   );
 
   const {
@@ -125,7 +125,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
       getNextPageParam: (lastPage) =>
         lastPage.noMore ? undefined : lastPage.lastMessageId,
       refetchInterval: GROUP_CHAT_REFETCH_INTERVAL,
-    }
+    },
   );
 
   const sendMutation = useMutation<Empty, RpcError, string>(
@@ -136,7 +136,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
         queryClient.invalidateQueries([groupChatsListKey]);
         queryClient.invalidateQueries(groupChatKey(chatId));
       },
-    }
+    },
   );
 
   const { mutate: markLastSeenGroupChat } = useMutation<
@@ -150,11 +150,11 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
       onSuccess: () => {
         queryClient.invalidateQueries(groupChatKey(chatId));
       },
-    }
+    },
   );
   const { markLastSeen } = useMarkLastSeen(
     markLastSeenGroupChat,
-    groupChat?.lastSeenMessageId
+    groupChat?.lastSeenMessageId,
   );
 
   const title = groupChat

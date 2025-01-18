@@ -60,7 +60,7 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
     const updateVH = () => {
       document.documentElement.style.setProperty(
         "--vh",
-        `${window.innerHeight * 0.01}px`
+        `${window.innerHeight * 0.01}px`,
       );
     };
 

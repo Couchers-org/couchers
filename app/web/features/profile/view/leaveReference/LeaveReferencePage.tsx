@@ -95,7 +95,7 @@ export default function LeaveReferencePage({
           user.friends === User.FriendshipStatus.FRIENDS) ||
         (hostRequestId &&
           availableReferences.availableWriteReferencesList.find(
-            ({ hostRequestId: availableId }) => availableId === hostRequestId
+            ({ hostRequestId: availableId }) => availableId === hostRequestId,
           )) ? (
           <div className={classes.root}>
             <ProfileUserProvider user={user}>

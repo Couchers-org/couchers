@@ -51,7 +51,7 @@ export default function CommunityPageSubHeader({
             .map((parent) => parent.community)
             .filter(
               (communityParent): communityParent is CommunityParent.AsObject =>
-                !!communityParent
+                !!communityParent,
             )
             .map((communityParent, index, array) =>
               index === array.length - 1 ? (
@@ -66,13 +66,13 @@ export default function CommunityPageSubHeader({
                 <StyledLink
                   href={routeToCommunity(
                     communityParent.communityId,
-                    communityParent.slug
+                    communityParent.slug,
                   )}
                   key={`breadcrumb-${communityParent?.communityId}`}
                 >
                   {communityParent.name}
                 </StyledLink>
-              )
+              ),
             )}
         </Breadcrumbs>
         <JoinCommunityButton community={community} />
@@ -85,8 +85,8 @@ export default function CommunityPageSubHeader({
               `${routeToCommunity(
                 community.communityId,
                 community.slug,
-                newTab === "overview" ? undefined : newTab
-              )}`
+                newTab === "overview" ? undefined : newTab,
+              )}`,
             )
           }
           labels={communityTabBarLabels}

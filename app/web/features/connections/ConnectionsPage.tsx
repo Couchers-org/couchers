@@ -43,7 +43,7 @@ function ConnectionsPage({ type }: { type: "friends" }) {
           ariaLabel="Tabs for different connection types"
           setValue={(newType) =>
             router.push(
-              `${connectionsRoute}/${newType !== "friends" ? newType : ""}`
+              `${connectionsRoute}/${newType !== "friends" ? newType : ""}`,
             )
           }
           labels={labels}

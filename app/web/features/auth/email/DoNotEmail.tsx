@@ -35,7 +35,7 @@ export default function DoNotEmail({ className }: { className: string }) {
       onSuccess: () => {
         queryClient.invalidateQueries(doNotEmailQueryKey);
       },
-    }
+    },
   );
 
   const toggleDoNotEmail = async () => {

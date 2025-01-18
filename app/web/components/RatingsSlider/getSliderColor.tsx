@@ -3,7 +3,7 @@ import { theme } from "theme";
 const goodRatingRed = parseInt(theme.palette.success.main.substring(1, 3), 16);
 const goodRatingGreen = parseInt(
   theme.palette.success.main.substring(3, 5),
-  16
+  16,
 );
 const goodRatingBlue = parseInt(theme.palette.success.main.substring(5, 7), 16);
 const badRatingRed = parseInt(theme.palette.error.main.substring(1, 3), 16);

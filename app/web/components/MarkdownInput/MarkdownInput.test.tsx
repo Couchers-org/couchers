@@ -63,19 +63,19 @@ describe("MarkdownInput", () => {
     const dialog = await screen.findByRole("dialog");
     await user.upload(
       within(dialog).getByLabelText(SELECT_AN_IMAGE),
-      MOCK_FILE
+      MOCK_FILE,
     );
     await user.type(
       within(dialog).getByLabelText(IMAGE_DESCRIPTION),
-      "description"
+      "description",
     );
     await user.click(
-      await within(dialog).findByRole("button", { name: CONFIRM_UPLOAD })
+      await within(dialog).findByRole("button", { name: CONFIRM_UPLOAD }),
     );
     await waitForElementToBeRemoved(dialog);
     await user.click(screen.getByRole("button", { name: "Submit" }));
     await waitFor(() =>
-      expect(onSubmit).toBeCalledWith("![description](full.jpg)")
+      expect(onSubmit).toBeCalledWith("![description](full.jpg)"),
     );
   });
 });

@@ -19,9 +19,9 @@ const server = setupServer(
             display_name: "test city, test county, test country",
             boundingbox: [1, 1, 1, 1],
           },
-        ])
+        ]),
       );
-    }
-  )
+    },
+  ),
 );
 export { rest, server };

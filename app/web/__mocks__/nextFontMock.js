@@ -8,5 +8,5 @@ module.exports = new Proxy(
         style: { fontFamily: "fontFamily" },
       });
     },
-  }
+  },
 );
