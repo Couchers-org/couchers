@@ -96,8 +96,8 @@ const labels: Record<MessageType, ReactNode> = {
   all: <AllNotifications />, // added tab
   chats: <MessagesNotification />,
   requests: <RequestNotifications />, // added tab
-  hosting: <HostRequestsReceivedNotification />,
-  surfing: <HostRequestsSentNotification />,
+  //hosting: <HostRequestsReceivedNotification />,
+  //surfing: <HostRequestsSentNotification />,
   //meet: "Meet",
   //archived: "Archived",
 };

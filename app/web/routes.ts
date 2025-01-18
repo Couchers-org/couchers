@@ -68,8 +68,8 @@ export function routeToUser(username: string, tab?: UserTab) {
 export const messagesRoute = "/messages";
 export const messageTypeStrings = [
   "chats",
-  "hosting",
-  "surfing",
+  // "hosting",
+  // "surfing",
   "all",
   "requests",
 ] as const;
