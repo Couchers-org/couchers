@@ -9,7 +9,8 @@
   },
   "filter_dialog": {
     "mobile_title": "Suchen",
-    "desktop_title": "Filter"
+    "desktop_title": "Filter",
+    "search_here_button": "In diesem Gebiet suchen"
   },
   "form": {
     "missing_location_validation_error": "Gib einen Ort an, um diesen Filter zu verwenden",
