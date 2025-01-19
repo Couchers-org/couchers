@@ -15,15 +15,11 @@ import { service } from "service";
 import type { UpdateEventInput } from "service/events";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 
-import EventForm, {
-  CreateEventVariables,
-  useEventFormStyles,
-} from "./EventForm";
+import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
 
 export default function EditEventPage({ eventId }: { eventId: number }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
-  const classes = useEventFormStyles();
   const router = useRouter();
 
   const {
@@ -130,9 +126,9 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
         >
           {({ isMutationLoading }) => (
             <Button
-              className={classes.submitButton}
               loading={isMutationLoading}
               type="submit"
+              sx={{ justifySelf: "start" }}
             >
               {t("global:update")}
             </Button>

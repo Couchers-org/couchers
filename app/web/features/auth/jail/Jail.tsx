@@ -1,4 +1,4 @@
-import { Backdrop } from "@mui/material";
+import { Backdrop, styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
@@ -15,18 +15,15 @@ import { JailInfoRes } from "proto/jail_pb";
 import React, { useEffect, useState } from "react";
 import { loginRoute } from "routes";
 import { service } from "service";
-import makeStyles from "utils/makeStyles";
 
 import ModNoteSection from "./ModNoteSection";
 
-const useStyles = makeStyles((theme) => ({
-  bottomMargin: { marginBottom: theme.spacing(4) },
-  section: { marginBottom: theme.spacing(4) },
+const StyledContainer = styled("div")(({ theme }) => ({
+  marginBottom: theme.spacing(4),
 }));
 
 export default function Jail() {
   const { t } = useTranslation(AUTH);
-  const classes = useStyles(makeStyles);
 
   const { authState, authActions } = useAuthContext();
   const isJailed = authState.jailed;
@@ -59,33 +56,34 @@ export default function Jail() {
       <HtmlMeta title={t("jail.title")} />
       <PageTitle>{t("jail.title")}</PageTitle>
       {authError && <Alert severity="error">{authError}</Alert>}
-      <TextBody className={classes.bottomMargin}>
-        {t("jail.description")}
-      </TextBody>
+      <StyledContainer>
+        <TextBody>{t("jail.description")}</TextBody>
+      </StyledContainer>
       <Backdrop open={loading || authLoading}>
         <CenteredSpinner />
       </Backdrop>
       {jailInfo?.hasNotAcceptedTos && (
-        <TOSSection updateJailed={updateJailed} className={classes.section} />
+        <StyledContainer>
+          <TOSSection updateJailed={updateJailed} />
+        </StyledContainer>
       )}
       {jailInfo?.hasPendingModNotes && (
-        <ModNoteSection
-          updateJailed={updateJailed}
-          pendingModNotes={jailInfo.pendingModNotesList}
-          className={classes.section}
-        />
+        <StyledContainer>
+          <ModNoteSection
+            updateJailed={updateJailed}
+            pendingModNotes={jailInfo.pendingModNotesList}
+          />
+        </StyledContainer>
       )}
       {jailInfo?.hasNotAcceptedCommunityGuidelines && (
-        <CommunityGuidelinesSection
-          updateJailed={updateJailed}
-          className={classes.section}
-        />
+        <StyledContainer>
+          <CommunityGuidelinesSection updateJailed={updateJailed} />
+        </StyledContainer>
       )}
       {jailInfo?.hasNotAddedLocation && (
-        <LocationSection
-          updateJailed={updateJailed}
-          className={classes.section}
-        />
+        <StyledContainer>
+          <LocationSection updateJailed={updateJailed} />
+        </StyledContainer>
       )}
     </>
   );
