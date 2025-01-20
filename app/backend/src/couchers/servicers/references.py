@@ -322,6 +322,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             .where(HostRequest.can_write_reference)
             .where(HostRequest.surfer_user_id == context.user_id)
             .where(HostRequest.host_user_id == request.to_user_id)
+            .where(HostRequest.surfer_reason_didnt_meetup == None)
         )
 
         q2 = (
@@ -337,6 +338,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             .where(HostRequest.can_write_reference)
             .where(HostRequest.surfer_user_id == request.to_user_id)
             .where(HostRequest.host_user_id == context.user_id)
+            .where(HostRequest.host_reason_didnt_meetup == None)
         )
 
         union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
@@ -369,6 +371,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             .where(Reference.id == None)
             .where(HostRequest.can_write_reference)
             .where(HostRequest.surfer_user_id == context.user_id)
+            .where(HostRequest.surfer_reason_didnt_meetup == None)
         )
 
         q2 = (
@@ -384,6 +387,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             .where(Reference.id == None)
             .where(HostRequest.can_write_reference)
             .where(HostRequest.host_user_id == context.user_id)
+            .where(HostRequest.host_reason_didnt_meetup == None)
         )
 
         union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
