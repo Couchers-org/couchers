@@ -125,7 +125,7 @@ for config_option in CONFIG_OPTIONS:
     elif isinstance(type_, list):
         # list of allowed string values
         if value not in type_:
-            raise ValueError(f'Invalid value for {name}, need one of {", ".join(type_)}')
+            raise ValueError(f"Invalid value for {name}, need one of {', '.join(type_)}")
     else:
         value = type_(value)
 
