@@ -38,19 +38,19 @@ import { TypeHostingStatusOptions } from "./SearchPage";
 const getLastActiveOptions = (t: TFunction) => ({
   [lastActiveOptions.LAST_ACTIVE_ANY]: t("search:last_active_options.any"),
   [lastActiveOptions.LAST_ACTIVE_LAST_DAY]: t(
-    "search:last_active_options.last_day"
+    "search:last_active_options.last_day",
   ),
   [lastActiveOptions.LAST_ACTIVE_LAST_WEEK]: t(
-    "search:last_active_options.last_week"
+    "search:last_active_options.last_week",
   ),
   [lastActiveOptions.LAST_ACTIVE_LAST_2_WEEKS]: t(
-    "search:last_active_options.last_2_weeks"
+    "search:last_active_options.last_2_weeks",
   ),
   [lastActiveOptions.LAST_ACTIVE_LAST_MONTH]: t(
-    "search:last_active_options.last_month"
+    "search:last_active_options.last_month",
   ),
   [lastActiveOptions.LAST_ACTIVE_LAST_3_MONTHS]: t(
-    "search:last_active_options.last_3_months"
+    "search:last_active_options.last_3_months",
   ),
 });
 
@@ -58,7 +58,7 @@ const getHostingStatusOptions = (t: TFunction) => ({
   [HostingStatus.HOSTING_STATUS_CAN_HOST]: t("global:hosting_status.can_host"),
   [HostingStatus.HOSTING_STATUS_MAYBE]: t("global:hosting_status.maybe"),
   [HostingStatus.HOSTING_STATUS_CANT_HOST]: t(
-    "global:hosting_status.cant_host"
+    "global:hosting_status.cant_host",
   ),
 });
 
@@ -161,7 +161,7 @@ export default function FilterDialog({
   };
 
   const isSmDown = useMediaQuery((theme: Theme) =>
-    theme.breakpoints.down("md")
+    theme.breakpoints.down("md"),
   );
 
   const handleNumGuestsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -233,7 +233,7 @@ export default function FilterDialog({
                   <InputAdornment position="end">
                     <IconButton
                       aria-label={t(
-                        "search:form.keywords.clear_field_action_a11y_label"
+                        "search:form.keywords.clear_field_action_a11y_label",
                       )}
                       onClick={() => {
                         setQueryName("");
@@ -280,7 +280,7 @@ export default function FilterDialog({
                 value={hostingStatusFilter}
                 onChange={(e) =>
                   setHostingStatusFilter(
-                    e.target.value as TypeHostingStatusOptions
+                    e.target.value as TypeHostingStatusOptions,
                   )
                 }
                 input={
@@ -300,14 +300,14 @@ export default function FilterDialog({
                           HostingStatus,
                           | HostingStatus.HOSTING_STATUS_UNKNOWN
                           | HostingStatus.HOSTING_STATUS_UNSPECIFIED
-                        >
+                        >,
                       ) => (
                         <Chip
                           key={value}
                           label={getHostingStatusOptions(t)[value]}
                           className={classes.chip}
                         />
-                      )
+                      ),
                     )}
                   </div>
                 )}
@@ -352,7 +352,7 @@ export default function FilterDialog({
                 onChange={handleNumGuestsChange}
                 fullWidth
                 label={t(
-                  "search:form.accommodation_filters.guests_field_label"
+                  "search:form.accommodation_filters.guests_field_label",
                 )}
                 error={!!errors.numGuests}
                 helperText={errors.numGuests?.message}

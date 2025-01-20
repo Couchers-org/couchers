@@ -15,7 +15,7 @@ export async function createPlace(
   address: string,
   lat: number,
   lng: number,
-  photoKey?: string
+  photoKey?: string,
 ) {
   const req = new CreatePlaceReq();
   req.setTitle(title);
@@ -38,7 +38,7 @@ export async function createGuide(
   parentCommunityId: number,
   address: string,
   lat?: number,
-  lng?: number
+  lng?: number,
 ) {
   const req = new CreateGuideReq();
   req.setTitle(title);

@@ -56,7 +56,7 @@ describe("Events section", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(
-      screen.getByRole("heading", { name: t("communities:events_title") })
+      screen.getByRole("heading", { name: t("communities:events_title") }),
     ).toBeVisible();
 
     const eventCards = screen.getAllByTestId(EVENT_CARD_TEST_ID);
@@ -65,12 +65,12 @@ describe("Events section", () => {
     // Basic checks only as more detailed checks covered in EventCard
     const firstCard = within(eventCards[0]);
     expect(
-      firstCard.getByRole("heading", { name: firstEvent.title })
+      firstCard.getByRole("heading", { name: firstEvent.title }),
     ).toBeVisible();
 
     const secondCard = within(eventCards[1]);
     expect(
-      secondCard.getByRole("heading", { name: secondEvent.title })
+      secondCard.getByRole("heading", { name: secondEvent.title }),
     ).toBeVisible();
   });
 
@@ -93,11 +93,11 @@ describe("Events section", () => {
     await user.click(
       await screen.findByRole("link", {
         name: t("global:nav.show_all_events"),
-      })
+      }),
     );
 
     expect(mockRouter.pathname).toBe(
-      routeToCommunity(community.communityId, community.slug, "events")
+      routeToCommunity(community.communityId, community.slug, "events"),
     );
   });
 

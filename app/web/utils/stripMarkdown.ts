@@ -19,7 +19,7 @@ export default function stripMarkdown(
     listUnicodeChar: "",
     stripListLeaders: true,
     useImgAltText: true,
-  }
+  },
 ) {
   let output = md || "";
 
@@ -31,7 +31,7 @@ export default function stripMarkdown(
       if (listUnicodeChar)
         output = output.replace(
           /^([\s\t]*)([*\-+]|\d+\.)\s+/gm,
-          listUnicodeChar + " $1"
+          listUnicodeChar + " $1",
         );
       else output = output.replace(/^([\s\t]*)([*\-+]|\d+\.)\s+/gm, "$1");
     }
@@ -65,7 +65,7 @@ export default function stripMarkdown(
       // Remove atx-style headers
       .replace(
         /^(\n)?\s{0,}#{1,6}\s+| {0,}(\n)?\s{0,}#{0,} {0,}(\n)?\s{0,}$/gm,
-        "$1$2$3"
+        "$1$2$3",
       )
       // Remove emphasis (repeat the line to remove double emphasis)
       .replace(/([*_]{1,3})(\S.*?\S{0,1})\1/g, "$2")

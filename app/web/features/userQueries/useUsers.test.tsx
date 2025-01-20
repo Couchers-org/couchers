@@ -236,7 +236,7 @@ describe("cached data", () => {
       sharedClient
         .getQueryCache()
         .getAll()
-        .every((query) => query.state.isInvalidated)
+        .every((query) => query.state.isInvalidated),
     ).toBe(true);
 
     await waitFor(() => expect(getUserMock).toHaveBeenCalledTimes(3));
@@ -245,14 +245,14 @@ describe("cached data", () => {
       sharedClient
         .getQueryCache()
         .getAll()
-        .every((query) => query.state.isInvalidated)
+        .every((query) => query.state.isInvalidated),
     ).toBe(false);
     rerender();
     expect(
       sharedClient
         .getQueryCache()
         .getAll()
-        .every((query) => query.state.isInvalidated)
+        .every((query) => query.state.isInvalidated),
     ).toBe(false);
   });
 
@@ -265,13 +265,13 @@ describe("cached data", () => {
       },
       {
         wrapper: sharedClientWrapper,
-      }
+      },
     );
     expect(
       sharedClient
         .getQueryCache()
         .getAll()
-        .every((query) => query.state.isInvalidated)
+        .every((query) => query.state.isInvalidated),
     ).toBe(true);
 
     await waitFor(() => expect(getUserMock).toHaveBeenCalledTimes(3));
@@ -280,7 +280,7 @@ describe("cached data", () => {
       sharedClient
         .getQueryCache()
         .getAll()
-        .every((query) => query.state.isInvalidated)
+        .every((query) => query.state.isInvalidated),
     ).toBe(false);
     getUserMock.mockClear();
     act(() => result.current.setIds([1, 2]));
@@ -299,7 +299,7 @@ describe("cached data", () => {
       },
       {
         wrapper: sharedClientWrapper,
-      }
+      },
     );
 
     act(() => result.current.setIds([1, 2, 3, 4]));

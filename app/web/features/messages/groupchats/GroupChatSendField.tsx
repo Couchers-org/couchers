@@ -52,7 +52,7 @@ export default function GroupChatSendField({
     usePersistedState(
       `messages.${currentUserId}.${chatId}`,
       "",
-      "sessionStorage"
+      "sessionStorage",
     );
 
   const onSubmit = handleSubmit(async (data: MessageFormData) => {

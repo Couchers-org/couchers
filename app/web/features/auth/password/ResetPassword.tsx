@@ -42,7 +42,7 @@ export default function ResetPassword() {
     isSuccess,
     mutate: resetPassword,
   } = useMutation<Empty, RpcError, string>((userId) =>
-    service.account.resetPassword(userId)
+    service.account.resetPassword(userId),
   );
 
   const onSubmit = handleSubmit(({ userId }) => {

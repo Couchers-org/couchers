@@ -59,7 +59,7 @@ export type HostingPreferenceData = Omit<
 export async function passwordLogin(
   username: string,
   password: string,
-  rememberDevice: boolean
+  rememberDevice: boolean,
 ) {
   const req = new AuthReq();
   req.setUser(username);
@@ -132,7 +132,7 @@ export async function getLiteUsers(userIds: number[]) {
  * Updates user profile
  */
 export async function updateProfile(
-  profile: UpdateUserProfileData
+  profile: UpdateUserProfileData,
 ): Promise<Empty> {
   const req = new UpdateProfileReq();
 
@@ -154,21 +154,21 @@ export async function updateProfile(
   const meetupStatus = profile.meetupStatus;
 
   const regionsVisited = new RepeatedStringValue().setValueList(
-    profile.regionsVisited
+    profile.regionsVisited,
   );
   const regionsLived = new RepeatedStringValue().setValueList(
-    profile.regionsLived
+    profile.regionsLived,
   );
   const additionalInformation = new NullableStringValue().setValue(
-    profile.additionalInformation
+    profile.additionalInformation,
   );
 
   const languageAbilities = new RepeatedLanguageAbilityValue().setValueList(
     profile.languageAbilities.valueList.map((languageAbility) =>
       new LanguageAbility()
         .setCode(languageAbility.code)
-        .setFluency(languageAbility.fluency)
-    )
+        .setFluency(languageAbility.fluency),
+    ),
   );
 
   req
@@ -230,7 +230,7 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
     .setValue(preferences.hasHousemates)
     .setIsNull(false);
   const housemateDetails = new NullableStringValue().setValue(
-    preferences.housemateDetails
+    preferences.housemateDetails,
   );
   const wheelchairAccessible = new NullableBoolValue()
     .setValue(preferences.wheelchairAccessible)
@@ -246,11 +246,11 @@ export function updateHostingPreference(preferences: HostingPreferenceData) {
     .setValue(preferences.drinksAtHome)
     .setIsNull(false);
   const otherHostInfo = new NullableStringValue().setValue(
-    preferences.otherHostInfo
+    preferences.otherHostInfo,
   );
   const sleepingArrangement = preferences.sleepingArrangement;
   const sleepingDetails = new NullableStringValue().setValue(
-    preferences.sleepingDetails
+    preferences.sleepingDetails,
   );
   const area = new NullableStringValue().setValue(preferences.area);
   const houseRules = new NullableStringValue().setValue(preferences.houseRules);

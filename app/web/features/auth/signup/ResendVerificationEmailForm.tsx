@@ -18,7 +18,7 @@ export default function ResendVerificationEmailForm() {
   const mutation = useMutation<void, RpcError>(
     async () => {
       const state = await service.auth.signupFlowResendVerificationEmail(
-        authState.flowState!.flowToken
+        authState.flowState!.flowToken,
       );
       authActions.updateSignupState(state);
       setResent(true);
@@ -30,7 +30,7 @@ export default function ResendVerificationEmailForm() {
       onSettled() {
         window.scroll({ top: 0, behavior: "smooth" });
       },
-    }
+    },
   );
 
   return (

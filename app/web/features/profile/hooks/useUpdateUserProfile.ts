@@ -36,7 +36,7 @@ export default function useUpdateUserProfile() {
         queryClient.invalidateQueries(accountInfoQueryKey);
         router.push(routeToProfile("about"));
       },
-    }
+    },
   );
 
   return { reset, updateUserProfile, isLoading, isError, status };

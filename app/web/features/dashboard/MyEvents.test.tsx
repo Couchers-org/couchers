@@ -42,7 +42,7 @@ describe("My events", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(
-      screen.getByRole("heading", { name: t("dashboard:upcoming_events") })
+      screen.getByRole("heading", { name: t("dashboard:upcoming_events") }),
     ).toBeVisible();
     expect(screen.getAllByRole("link")).toHaveLength(3);
   });
@@ -71,7 +71,7 @@ describe("My events", () => {
 
     await assertErrorAlert(errorMessage);
     expect(
-      screen.queryByText(t("communities:events_empty_state"))
+      screen.queryByText(t("communities:events_empty_state")),
     ).not.toBeInTheDocument();
   });
 
@@ -137,7 +137,7 @@ describe("My events", () => {
       expect(
         screen.queryByRole("button", {
           name: t("communities:see_more_events_label"),
-        })
+        }),
       ).not.toBeInTheDocument();
 
       // Simulates scrolling horizontally to the end

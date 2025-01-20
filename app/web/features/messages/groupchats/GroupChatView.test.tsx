@@ -106,11 +106,11 @@ describe("GroupChatView", () => {
     renderGroupChatView();
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: "Test group chat" })
+      await screen.findByRole("heading", { level: 1, name: "Test group chat" }),
     ).toBeVisible();
 
     const messageElements = within(
-      screen.getByTestId("message-list")
+      screen.getByTestId("message-list"),
     ).getAllByTestId(/message-\d/);
 
     for (let i = 0; i < messageData.length; i++) {
@@ -123,7 +123,7 @@ describe("GroupChatView", () => {
         const user = await getLiteUser(message.authorUserId.toString());
 
         expect(
-          await messageElement.findByRole("heading", { name: user?.name })
+          await messageElement.findByRole("heading", { name: user?.name }),
         ).toBeVisible();
         expect(messageElement.getByText(message.text.text)).toBeVisible();
 
@@ -131,7 +131,7 @@ describe("GroupChatView", () => {
         if (user?.avatarUrl !== "") {
           // checks that an image is rendered if an avatar exists
           expect(
-            messageElement.getByRole("img", { name: user?.name })
+            messageElement.getByRole("img", { name: user?.name }),
           ).toBeVisible();
         } else {
           // "Funny Dog" is the only user without an image, so check initials are rendered
@@ -140,7 +140,7 @@ describe("GroupChatView", () => {
       } else if (message.chatCreated) {
         // control message assertions
         expect(
-          messageElement.getByText("Funny created the chat")
+          messageElement.getByText("Funny created the chat"),
         ).toBeVisible();
       }
     }
@@ -369,7 +369,7 @@ describe("GroupChatView", () => {
 
     await user.type(screen.getByLabelText("Message"), "Not ready to se-");
     expect(sessionStorage.getItem("messages.1.1")).toEqual(
-      JSON.stringify("Not ready to se-")
+      JSON.stringify("Not ready to se-"),
     );
   });
 
@@ -443,7 +443,7 @@ describe("GroupChatView", () => {
       .click();
 
     const muteButton = await screen.findByText(
-      t("messages:chat_view.mute.button_label")
+      t("messages:chat_view.mute.button_label"),
     );
 
     const user = userEvent.setup();
@@ -479,7 +479,7 @@ describe("GroupChatView", () => {
     const user = userEvent.setup();
 
     const muteButton = await screen.findByText(
-      t("messages:chat_view.mute.button_label")
+      t("messages:chat_view.mute.button_label"),
     );
     await user.click(muteButton);
 

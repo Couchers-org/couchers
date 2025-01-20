@@ -283,7 +283,7 @@ export default function Signup() {
         setLoading(true);
         try {
           authActions.updateSignupState(
-            await service.auth.signupFlowEmailToken(urlToken)
+            await service.auth.signupFlowEmailToken(urlToken),
           );
         } catch (err) {
           Sentry.captureException(err, {
@@ -292,7 +292,7 @@ export default function Signup() {
             },
           });
           authActions.authError(
-            isGrpcError(err) ? err.message : t("global:error.fatal_message")
+            isGrpcError(err) ? err.message : t("global:error.fatal_message"),
           );
           router.push(signupRoute);
           return;

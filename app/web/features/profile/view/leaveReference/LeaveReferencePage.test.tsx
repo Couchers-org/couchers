@@ -27,10 +27,10 @@ const getUserMock = service.user.getUser as MockedService<
 function renderLeaveFriendReferencePage(
   referenceType: string,
   userId: number,
-  step?: ReferenceStep
+  step?: ReferenceStep,
 ) {
   mockRouter.setCurrentUrl(
-    `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${step}`
+    `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${step}`,
   );
 
   render(
@@ -41,7 +41,7 @@ function renderLeaveFriendReferencePage(
     />,
     {
       wrapper,
-    }
+    },
   );
 }
 
@@ -49,10 +49,10 @@ function renderLeaveRequestReferencePage(
   referenceType: string,
   userId: number,
   hostRequestId: number,
-  step?: ReferenceStep
+  step?: ReferenceStep,
 ) {
   mockRouter.setCurrentUrl(
-    `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}/${step}`
+    `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}/${step}`,
   );
 
   render(
@@ -62,7 +62,7 @@ function renderLeaveRequestReferencePage(
       hostRequestId={hostRequestId}
       step={step}
     />,
-    { wrapper }
+    { wrapper },
   );
 }
 
@@ -81,8 +81,8 @@ describe("LeaveReferencePage", () => {
       const errorAlert = await screen.findByRole("alert");
       expect(
         within(errorAlert).getByText(
-          t("profile:leave_reference.invalid_reference_type")
-        )
+          t("profile:leave_reference.invalid_reference_type"),
+        ),
       ).toBeVisible();
     });
 
@@ -90,7 +90,7 @@ describe("LeaveReferencePage", () => {
       expect(
         screen.queryByRole("heading", {
           name: "You met with Friendly Cow",
-        })
+        }),
       ).not.toBeInTheDocument();
     });
   });
@@ -114,7 +114,7 @@ describe("LeaveReferencePage", () => {
         expect(
           await screen.findByRole("heading", {
             name: "You met with Friendly Cow",
-          })
+          }),
         ).toBeInTheDocument();
       });
     });
@@ -133,8 +133,8 @@ describe("LeaveReferencePage", () => {
         const errorAlert = await screen.findByRole("alert");
         expect(
           within(errorAlert).getByText(
-            t("profile:leave_reference.reference_type_not_available")
-          )
+            t("profile:leave_reference.reference_type_not_available"),
+          ),
         ).toBeVisible();
       });
 
@@ -142,7 +142,7 @@ describe("LeaveReferencePage", () => {
         expect(
           screen.queryByRole("heading", {
             name: "You met with Funny Cat current User",
-          })
+          }),
         ).not.toBeInTheDocument();
       });
     });
@@ -167,7 +167,7 @@ describe("LeaveReferencePage", () => {
         expect(
           await screen.findByRole("heading", {
             name: "You hosted Friendly Cow",
-          })
+          }),
         ).toBeInTheDocument();
       });
     });
@@ -186,8 +186,8 @@ describe("LeaveReferencePage", () => {
         const errorAlert = await screen.findByRole("alert");
         expect(
           within(errorAlert).getByText(
-            t("profile:leave_reference.reference_type_not_available")
-          )
+            t("profile:leave_reference.reference_type_not_available"),
+          ),
         ).toBeVisible();
       });
 
@@ -195,7 +195,7 @@ describe("LeaveReferencePage", () => {
         expect(
           screen.queryByRole("heading", {
             name: "You met with Funny Cat current User",
-          })
+          }),
         ).not.toBeInTheDocument();
       });
     });

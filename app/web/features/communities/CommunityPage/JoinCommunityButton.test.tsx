@@ -66,7 +66,7 @@ describe("JoinCommunityButton", () => {
     expect(
       await screen.findByRole("button", {
         name: t("communities:join_community"),
-      })
+      }),
     ).toBeVisible();
   });
 

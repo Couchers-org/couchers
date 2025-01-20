@@ -26,7 +26,7 @@ const StyledWrapper = styled("div")<CustomWrapperProps>(
         flexShrink: 0,
       },
     }),
-  })
+  }),
 );
 
 const StyledLoaderContainer = styled("div")(({ theme }) => ({

@@ -45,7 +45,7 @@ export function useReferencesGiven(user: User.AsObject) {
 
 export function useReferencesReceived(
   user: User.AsObject,
-  referenceType: Exclude<ReferenceTypeState, "given">
+  referenceType: Exclude<ReferenceTypeState, "given">,
 ) {
   const referencesReceivedQuery = useInfiniteQuery<
     ListReferencesRes.AsObject,
@@ -73,7 +73,7 @@ export const useListAvailableReferences = (userId: number) =>
     () =>
       service.references.getAvailableReferences({
         userId,
-      })
+      }),
   );
 
 interface WriteHostRequestReferenceVariables {
@@ -104,7 +104,7 @@ export function useWriteHostReference(userId: number) {
             (queryKey[1] as ReferencesReceivedKeyInputs)?.userId === userId,
         });
       },
-    }
+    },
   );
 
   return { reset, status, writeHostRequestReference, error, isLoading };
@@ -134,7 +134,7 @@ export function useWriteFriendReference(userId: number) {
             (queryKey[1] as ReferencesReceivedKeyInputs)?.userId === userId,
         });
       },
-    }
+    },
   );
 
   return { reset, status, writeFriendReference, error, isLoading };

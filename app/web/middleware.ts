@@ -5,7 +5,7 @@ interface CustomRequestCookies {
 }
 
 export function middleware(
-  req: NextRequest & { cookies: CustomRequestCookies }
+  req: NextRequest & { cookies: CustomRequestCookies },
 ) {
   // Redirect to dashboard if user is logged in and visits the root path
   if (req.cookies.get("couchers-sesh")?.value && req.nextUrl.pathname === "/") {

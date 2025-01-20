@@ -43,7 +43,7 @@ export default function RequestsTab({
     {
       getNextPageParam: (lastPage) =>
         lastPage.noMore ? undefined : lastPage.lastRequestId,
-    }
+    },
   );
 
   const loadMoreRequests = () => fetchNextPage();
@@ -77,7 +77,7 @@ export default function RequestsTab({
                     </Link>
                   ))}
                 </React.Fragment>
-              )
+              ),
             )}
           {hasNextPage && (
             <Button onClick={loadMoreRequests} loading={isFetchingNextPage}>

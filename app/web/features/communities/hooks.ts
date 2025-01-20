@@ -46,7 +46,7 @@ export const useCommunity = (
   options?: Omit<
     UseQueryOptions<Community.AsObject, RpcError>,
     "queryKey" | "queryFn" | "enabled"
-  >
+  >,
 ) => {
   const queryResult = useQuery<Community.AsObject, RpcError>(
     communityKey(id),
@@ -57,7 +57,7 @@ export const useCommunity = (
     {
       ...options,
       enabled: !!id,
-    }
+    },
   );
 
   const router = useRouter();
@@ -92,7 +92,7 @@ export const useListSubCommunities = (communityId?: number) =>
       enabled: communityId !== undefined,
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-    }
+    },
   );
 
 export const useListGroups = (communityId?: number) =>
@@ -103,7 +103,7 @@ export const useListGroups = (communityId?: number) =>
       enabled: !!communityId,
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-    }
+    },
   );
 
 export const useListPlaces = (communityId?: number) =>
@@ -114,7 +114,7 @@ export const useListPlaces = (communityId?: number) =>
       enabled: !!communityId,
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-    }
+    },
   );
 
 export const useListGuides = (communityId?: number) =>
@@ -125,7 +125,7 @@ export const useListGuides = (communityId?: number) =>
       enabled: !!communityId,
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-    }
+    },
   );
 
 export const useListDiscussions = (communityId: number) =>
@@ -137,7 +137,7 @@ export const useListDiscussions = (communityId: number) =>
       enabled: !!communityId,
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-    }
+    },
   );
 
 export const useListAdmins = (communityId: number, type: QueryType) => {
@@ -148,7 +148,7 @@ export const useListAdmins = (communityId: number, type: QueryType) => {
       enabled: !!communityId,
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-    }
+    },
   );
   const adminIds = query.data?.pages.flatMap((page) => page.adminUserIdsList);
   return { ...query, adminIds };
@@ -162,7 +162,7 @@ export const useListMembers = (communityId?: number) =>
       enabled: !!communityId,
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-    }
+    },
   );
 
 export const useListNearbyUsers = (communityId?: number) =>
@@ -174,7 +174,7 @@ export const useListNearbyUsers = (communityId?: number) =>
       enabled: !!communityId,
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-    }
+    },
   );
 
 interface UseListCommunityEventsInput {
@@ -212,10 +212,10 @@ export const useNewDiscussionMutation = (onSuccess?: () => void) => {
       onSuccess(_, { ownerCommunityId }) {
         onSuccess?.();
         queryClient.invalidateQueries(
-          communityDiscussionsKey(ownerCommunityId)
+          communityDiscussionsKey(ownerCommunityId),
         );
       },
-    }
+    },
   );
 };
 
@@ -224,7 +224,7 @@ export const useThread = (
   options?: Omit<
     UseInfiniteQueryOptions<GetThreadRes.AsObject, RpcError>,
     "queryKey" | "queryFn" | "getNextPageParam"
-  >
+  >,
 ) =>
   useInfiniteQuery<GetThreadRes.AsObject, RpcError>({
     queryKey: threadKey(threadId),

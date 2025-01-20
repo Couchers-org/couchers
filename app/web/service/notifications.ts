@@ -17,7 +17,7 @@ export interface NotificationPreferenceData {
 
 export async function getNotificationSettings() {
   const res = await client.notifications.getNotificationSettings(
-    new GetNotificationSettingsReq()
+    new GetNotificationSettingsReq(),
   );
   return res.toObject();
 }
@@ -30,7 +30,7 @@ export async function setNotificationSettings(enableDoNotEmail: boolean) {
 }
 
 export async function setNotificationSettingsPreference(
-  preferenceData: NotificationPreferenceData
+  preferenceData: NotificationPreferenceData,
 ) {
   const req = new SetNotificationSettingsReq();
   const preference = new SingleNotificationPreference();
@@ -51,14 +51,13 @@ export async function getVapidPublicKey() {
 }
 
 export async function registerPushNotificationSubscription(
-  subscription: PushSubscription
+  subscription: PushSubscription,
 ) {
   const req = new RegisterPushNotificationSubscriptionReq();
   req.setFullSubscriptionJson(JSON.stringify(subscription));
   req.setUserAgent(navigator.userAgent);
-  const res = await client.notifications.registerPushNotificationSubscription(
-    req
-  );
+  const res =
+    await client.notifications.registerPushNotificationSubscription(req);
 
   return res.toObject();
 }

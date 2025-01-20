@@ -50,11 +50,11 @@ export default function PushNotificationSettings({
         const existingPushSubscription = await getCurrentSubscription();
         setIsPushEnabled(
           Notification.permission === "granted" &&
-            existingPushSubscription !== null
+            existingPushSubscription !== null,
         );
       } else {
         setErrorMessage(
-          t("notification_settings.push_notifications.error_unsupported")
+          t("notification_settings.push_notifications.error_unsupported"),
         );
         Sentry.captureException(
           new Error("Push notifications or service workers not supported"),
@@ -64,7 +64,7 @@ export default function PushNotificationSettings({
               action: "onPermissionGranted",
               userAgent: navigator.userAgent,
             },
-          }
+          },
         );
       }
       setIsLoading(false);
@@ -108,7 +108,7 @@ export default function PushNotificationSettings({
         await registerPushNotificationSubscription(subscription);
       } else {
         setErrorMessage(
-          t("notification_settings.push_notifications.error_unsupported")
+          t("notification_settings.push_notifications.error_unsupported"),
         );
         Sentry.captureException(
           new Error("Push notifications or service workers not supported"),
@@ -118,13 +118,13 @@ export default function PushNotificationSettings({
               action: "onPermissionGranted",
               userAgent: navigator.userAgent,
             },
-          }
+          },
         );
       }
     } catch (error) {
       console.error("Error subscribing to push notifications", error);
       setErrorMessage(
-        t("notification_settings.push_notifications.error_generic")
+        t("notification_settings.push_notifications.error_generic"),
       );
 
       Sentry.captureException(error, {

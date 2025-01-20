@@ -99,7 +99,7 @@ describe.each`
     expect(screen.getByAltText(getAvatarLabel(NAME))).toBeVisible();
     expect(screen.getByAltText(getAvatarLabel(NAME))).toHaveProperty(
       "src",
-      MOCK_INITIAL_SRC
+      MOCK_INITIAL_SRC,
     );
   });
 
@@ -107,7 +107,7 @@ describe.each`
     const user = userEvent.setup({ applyAccept: false });
     await user.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
-      MOCK_FILE
+      MOCK_FILE,
     );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
@@ -137,7 +137,7 @@ describe.each`
       expect(submitForm).toHaveBeenCalledWith({ imageInput: MOCK_KEY });
     });
     expect(
-      screen.getByAltText(getAvatarLabel(NAME)).getAttribute("src")
+      screen.getByAltText(getAvatarLabel(NAME)).getAttribute("src"),
     ).toMatch(new RegExp(expectedImage));
   });
 
@@ -151,7 +151,7 @@ describe.each`
 
     await user.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
-      MOCK_FILE
+      MOCK_FILE,
     );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
@@ -169,7 +169,7 @@ describe.each`
 
     await user.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
-      MOCK_FILE
+      MOCK_FILE,
     );
 
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
@@ -187,7 +187,7 @@ describe.each`
     });
     expect(screen.getByAltText(getAvatarLabel(NAME))).toHaveProperty(
       "src",
-      MOCK_INITIAL_SRC
+      MOCK_INITIAL_SRC,
     );
   });
 
@@ -211,7 +211,7 @@ describe.each`
 
     await user.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
-      OTHER_MOCK_FILE
+      OTHER_MOCK_FILE,
     );
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
     await user.click(screen.getByLabelText(CONFIRM_UPLOAD));
@@ -220,18 +220,18 @@ describe.each`
       expect(uploadFileMock).toHaveBeenCalled();
     });
     expect(
-      screen.getByAltText(getAvatarLabel(NAME)).getAttribute("src")
+      screen.getByAltText(getAvatarLabel(NAME)).getAttribute("src"),
     ).toMatch(expectedImage);
 
     //2nd upload and cancel
     await user.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
-      MOCK_FILE
+      MOCK_FILE,
     );
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
     await user.click(screen.getByLabelText(CANCEL_UPLOAD));
     expect(
-      (await screen.findByAltText(getAvatarLabel(NAME))).getAttribute("src")
+      (await screen.findByAltText(getAvatarLabel(NAME))).getAttribute("src"),
     ).toMatch(expectedImage);
 
     //submit
@@ -247,7 +247,7 @@ describe.each`
 
     await user.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
-      MOCK_FILE
+      MOCK_FILE,
     );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
@@ -267,10 +267,10 @@ describe.each`
 
     await user.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
-      new File([new Blob(undefined)], "")
+      new File([new Blob(undefined)], ""),
     );
     expect(
-      await screen.findByText(new RegExp(COULDNT_READ_FILE))
+      await screen.findByText(new RegExp(COULDNT_READ_FILE)),
     ).toBeVisible();
   });
 
@@ -282,7 +282,7 @@ describe.each`
 
     await user.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
-      new File([new Blob(undefined)], "")
+      new File([new Blob(undefined)], ""),
     );
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
     await user.click(screen.getByLabelText(CONFIRM_UPLOAD));
@@ -295,19 +295,19 @@ describe.each`
 
     await user.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
-      MOCK_FILE
+      MOCK_FILE,
     );
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
     await user.click(screen.getByLabelText(CANCEL_UPLOAD));
 
     await user.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
-      MOCK_FILE
+      MOCK_FILE,
     );
 
     expect(await screen.findByLabelText(CANCEL_UPLOAD)).toBeVisible();
     expect(
-      screen.getByAltText(getAvatarLabel(NAME)).getAttribute("src")
+      screen.getByAltText(getAvatarLabel(NAME)).getAttribute("src"),
     ).toMatch(/base64/);
   });
 });
@@ -335,7 +335,7 @@ describe("ImageInput http error tests", () => {
     uploadFileMock.mockImplementation(uploadFile);
     const initiateMediaUploadMock = jest.spyOn(
       client.api,
-      "initiateMediaUpload"
+      "initiateMediaUpload",
     );
     initiateMediaUploadMock.mockResolvedValue({
       getUploadUrl: () => "https://example.com/upload",
@@ -356,13 +356,13 @@ describe("ImageInput http error tests", () => {
           status: 413,
           statusText: "Payload Too Large",
           headers: { "Content-Type": "application/json" },
-        })
+        }),
     );
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
-      MOCK_FILE
+      MOCK_FILE,
     );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
@@ -378,14 +378,14 @@ describe("ImageInput http error tests", () => {
           status: 500,
           statusText: "Internal server error",
           headers: { "Content-Type": "application/json" },
-        })
+        }),
     );
 
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
-      MOCK_FILE
+      MOCK_FILE,
     );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
@@ -411,7 +411,7 @@ describe("ImageInput http error tests", () => {
 
     await user.upload(
       screen.getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
-      MOCK_FILE
+      MOCK_FILE,
     );
 
     expect(await screen.findByLabelText(CONFIRM_UPLOAD)).toBeVisible();

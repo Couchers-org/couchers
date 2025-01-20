@@ -20,7 +20,7 @@ const GlobalStyles = styled("div")(({ theme }) => ({
 
     [theme.breakpoints.up("sm")]: {
       scrollPaddingTop: `calc(${theme.shape.navPaddingSmUp} + ${theme.spacing(
-        2
+        2,
       )})`,
     },
   },

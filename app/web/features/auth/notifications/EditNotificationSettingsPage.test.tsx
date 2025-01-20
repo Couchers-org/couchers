@@ -194,7 +194,7 @@ describe("EditNotificationSettingsPage", () => {
         action="host_request"
         email={false}
         push={false}
-      />
+      />,
     );
 
     const emailSwitch = container.getElementsByClassName("MuiSwitch-input")[0];
@@ -209,8 +209,8 @@ describe("EditNotificationSettingsPage", () => {
           preferenceData: { ...preferenceData, enabled: true },
           setMutationError: expect.any(Function),
         },
-        expect.any(Object)
-      )
+        expect.any(Object),
+      ),
     );
   });
 

@@ -98,7 +98,7 @@ export default function CommunityLongEventCard({
         originalContent: event.content,
         maxLength: isBelowLg ? 120 : 300,
       }),
-    [event.content, isBelowLg]
+    [event.content, isBelowLg],
   );
   const startTime = dayjs(timestamp2Date(event.startTime!));
 

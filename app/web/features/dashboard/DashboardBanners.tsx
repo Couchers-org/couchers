@@ -26,7 +26,7 @@ export default function DashboardBanners() {
 
   const { data, error } = useQuery<GetAccountInfoRes.AsObject, RpcError>(
     accountInfoQueryKey,
-    service.account.getAccountInfo
+    service.account.getAccountInfo,
   );
 
   return (

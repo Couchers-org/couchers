@@ -39,10 +39,10 @@ describe("Long event card", () => {
     render(<CommunityLongEventCard event={firstEvent} />, { wrapper });
 
     expect(
-      screen.getByRole("heading", { name: firstEvent.title })
+      screen.getByRole("heading", { name: firstEvent.title }),
     ).toBeVisible();
     expect(
-      screen.getByText(firstEvent.offlineInformation!.address)
+      screen.getByText(firstEvent.offlineInformation!.address),
     ).toBeVisible();
     expect(screen.getByText("Jun 29, 2021 2:37 AM")).toBeVisible();
     expect(screen.getByText("12 attendees")).toBeVisible();
@@ -51,7 +51,7 @@ describe("Long event card", () => {
     expect(eventImage).toBeVisible();
     expect(eventImage).toHaveAttribute(
       "src",
-      "https://loremflickr.com/500/120/amsterdam"
+      "https://loremflickr.com/500/120/amsterdam",
     );
     expect(screen.getByText("Be there or be square!")).toBeVisible();
   });
@@ -60,7 +60,7 @@ describe("Long event card", () => {
     render(<CommunityLongEventCard event={secondEvent} />, { wrapper });
 
     expect(
-      screen.getByRole("heading", { name: secondEvent.title })
+      screen.getByRole("heading", { name: secondEvent.title }),
     ).toBeVisible();
     expect(screen.getByText("Jun 29, 2021 9:00 PM")).toBeVisible();
     expect(screen.getByText(t("communities:online"))).toBeVisible();

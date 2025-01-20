@@ -29,12 +29,12 @@ module.exports = {
     if (namespace === "global") {
       return path.resolve(
         process.cwd(),
-        `resources/locales/${locale.replace("-", "_")}.json`
+        `resources/locales/${locale.replace("-", "_")}.json`,
       );
     }
     return path.resolve(
       process.cwd(),
-      `features/${namespace}/locales/${locale.replace("-", "_")}.json`
+      `features/${namespace}/locales/${locale.replace("-", "_")}.json`,
     );
   },
 };

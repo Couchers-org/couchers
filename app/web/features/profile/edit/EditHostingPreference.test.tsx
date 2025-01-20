@@ -40,15 +40,15 @@ describe("EditHostingPreference", () => {
     const user = userEvent.setup();
 
     await user.click(
-      await screen.findByRole("button", { name: t("global:save") })
+      await screen.findByRole("button", { name: t("global:save") }),
     );
     await waitFor(() =>
-      expect(mockRouter.pathname).toBe(routeToProfile("home"))
+      expect(mockRouter.pathname).toBe(routeToProfile("home")),
     );
   });
 
   it(`should not submit the default headings for the '${t(
-    "profile:home_info_headings.about_home"
+    "profile:home_info_headings.about_home",
   )}'section`, async () => {
     getUserMock.mockImplementation(async (user) => ({
       ...(await getUser(user)),
@@ -59,17 +59,17 @@ describe("EditHostingPreference", () => {
     const user = userEvent.setup();
 
     await user.click(
-      await screen.findByRole("button", { name: t("global:save") })
+      await screen.findByRole("button", { name: t("global:save") }),
     );
     await waitFor(() =>
-      expect(mockRouter.pathname).toBe(routeToProfile("home"))
+      expect(mockRouter.pathname).toBe(routeToProfile("home")),
     );
 
     expect(updateHostingPreferenceMock).toHaveBeenCalledTimes(1);
     expect(updateHostingPreferenceMock).toHaveBeenCalledWith(
       expect.objectContaining({
         aboutPlace: "",
-      })
+      }),
     );
   });
 
@@ -77,25 +77,25 @@ describe("EditHostingPreference", () => {
     renderPage();
 
     await screen.findByText(
-      t("profile:home_info_headings.hosting_preferences")
+      t("profile:home_info_headings.hosting_preferences"),
     );
 
     expect(
       screen.getByLabelText(
-        t("profile:edit_home_questions.accept_smoking")
-      ) as HTMLSelectElement
+        t("profile:edit_home_questions.accept_smoking"),
+      ) as HTMLSelectElement,
     ).toHaveValue("1");
 
     expect(
       screen.getByLabelText(
-        t("profile:home_info_headings.parking_details")
-      ) as HTMLSelectElement
+        t("profile:home_info_headings.parking_details"),
+      ) as HTMLSelectElement,
     ).toHaveValue("3");
 
     expect(
       screen.getByLabelText(
-        t("profile:home_info_headings.space")
-      ) as HTMLSelectElement
+        t("profile:home_info_headings.space"),
+      ) as HTMLSelectElement,
     ).toHaveValue("2");
   });
 });

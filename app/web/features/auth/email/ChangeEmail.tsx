@@ -50,7 +50,7 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
       onSuccess: () => {
         resetForm();
       },
-    }
+    },
   );
 
   return (

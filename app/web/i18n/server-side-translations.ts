@@ -4,7 +4,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 export const serverSideTranslationProps = async (
   locale: string | undefined,
-  namespaces: Array<string>
+  namespaces: Array<string>,
 ) =>
   await serverSideTranslations(locale ?? "en", namespaces, nextI18NextConfig);
 

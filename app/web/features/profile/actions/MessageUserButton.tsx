@@ -37,7 +37,7 @@ export default function MessageUserButton({
           router.push(routeToGroupChat(data));
         }
       },
-    }
+    },
   );
 
   const [showCantMessageDialog, setShowCantMessageDialog] =

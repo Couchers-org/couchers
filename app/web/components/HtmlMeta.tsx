@@ -26,8 +26,8 @@ export default function HtmlMeta({
         {!title
           ? t("html_meta.default_title")
           : noSuffix
-          ? title
-          : `${title}${t("html_meta.title_suffix")}`}
+            ? title
+            : `${title}${t("html_meta.title_suffix")}`}
       </title>
 
       <meta
@@ -37,8 +37,8 @@ export default function HtmlMeta({
           !sharingTitle
             ? t("html_meta.default_title")
             : noSuffix
-            ? sharingTitle
-            : `${sharingTitle}${t("html_meta.title_suffix")}`
+              ? sharingTitle
+              : `${sharingTitle}${t("html_meta.title_suffix")}`
         }
       />
       <meta
@@ -48,8 +48,8 @@ export default function HtmlMeta({
           !sharingTitle
             ? t("html_meta.default_title")
             : noSuffix
-            ? sharingTitle
-            : `${sharingTitle}${t("html_meta.title_suffix")}`
+              ? sharingTitle
+              : `${sharingTitle}${t("html_meta.title_suffix")}`
         }
       />
       <meta
@@ -59,8 +59,8 @@ export default function HtmlMeta({
           !sharingTitle
             ? t("html_meta.default_title")
             : noSuffix
-            ? sharingTitle
-            : `${sharingTitle}${t("html_meta.title_suffix")}`
+              ? sharingTitle
+              : `${sharingTitle}${t("html_meta.title_suffix")}`
         }
       />
 

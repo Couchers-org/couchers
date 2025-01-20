@@ -34,7 +34,7 @@ export default function ReferenceList({
         .map((page) =>
           page.referencesList.map((reference) => {
             const userToShow = referenceUsers?.get(
-              isReceived ? reference.fromUserId : reference.toUserId
+              isReceived ? reference.fromUserId : reference.toUserId,
             );
             return userToShow ? (
               <ReferenceListItem
@@ -44,7 +44,7 @@ export default function ReferenceList({
                 reference={reference}
               />
             ) : null;
-          })
+          }),
         )
         .flat()}
     </List>

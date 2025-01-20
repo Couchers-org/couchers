@@ -22,7 +22,7 @@ const HeaderButton = React.forwardRef<HTMLButtonElement, HeaderButtonProps>(
         {children}
       </IconButton>
     );
-  }
+  },
 );
 
 HeaderButton.displayName = "HeaderButton";

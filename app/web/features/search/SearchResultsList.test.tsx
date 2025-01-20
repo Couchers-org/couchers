@@ -73,7 +73,7 @@ describe("SearchResultsList", () => {
           setQueryName={() => {}}
           queryName={"test query"}
         />,
-        { wrapper }
+        { wrapper },
       );
     });
 
@@ -105,7 +105,7 @@ describe("SearchResultsList", () => {
           setQueryName={() => {}}
           queryName={"test query"}
         />,
-        { wrapper }
+        { wrapper },
       );
     });
 

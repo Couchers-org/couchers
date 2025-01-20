@@ -76,7 +76,7 @@ export default function MembersDialog({
                     groupChat?.adminUserIdsList.includes(user.userId) ?? false
                   }
                 />
-              ) : null
+              ) : null,
             )
           )}
         </List>

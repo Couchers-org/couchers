@@ -49,7 +49,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
   const createMessageToUsername = stringOrFirstString(router.query.to);
   const [isOpen, setIsOpen] = useState(!!createMessageToUsername);
   const createMessageToUserQuery = useUserByUsername(
-    createMessageToUsername ?? ""
+    createMessageToUsername ?? "",
   );
 
   const friends = useFriendList();
@@ -74,11 +74,11 @@ export default function CreateGroupChat({ className }: { className?: string }) {
         resetForm();
         setIsOpen(false);
       },
-    }
+    },
   );
 
   const onSubmit = handleSubmit(({ title, users }: CreateGroupChatFormData) =>
-    createGroupChat({ title, users })
+    createGroupChat({ title, users }),
   );
 
   const handleClose = () => {
@@ -158,7 +158,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
                         loading={friends.isLoading}
                         options={friends.data ?? []}
                         noOptionsText={t(
-                          "messages:create_chat.no_friends_found_message"
+                          "messages:create_chat.no_friends_found_message",
                         )}
                         getOptionLabel={(friend) => {
                           const friendHasNameKey =

@@ -80,7 +80,7 @@ export default function DiscussionPage({
   });
 
   const { data: discussionCreator, isLoading: isCreatorLoading } = useLiteUser(
-    discussion?.creatorUserId
+    discussion?.creatorUserId,
   );
 
   return (
@@ -143,7 +143,7 @@ export default function DiscussionPage({
                         <Typography variant="body2">
                           {t("communities:created_at")}
                           {dateFormatter(locale).format(
-                            timestamp2Date(discussion.created!)
+                            timestamp2Date(discussion.created!),
                           )}
                         </Typography>
                       )}

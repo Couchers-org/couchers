@@ -36,14 +36,14 @@ export default function ModNoteCard({ note, updateJailed }: ModNoteCardProps) {
   const [loading, setLoading] = useState(false);
 
   const formattedTime = dateFormatter(locale).format(
-    timestamp2Date(note.created!)
+    timestamp2Date(note.created!),
   );
 
   const acknowledge = async () => {
     setLoading(true);
     const info = await service.jail.acknowledgePendingModNote(
       note.noteId,
-      true
+      true,
     );
     if (!info.isJailed) {
       updateJailed();
