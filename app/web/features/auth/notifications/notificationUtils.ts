@@ -6,7 +6,7 @@ const getCurrentSubscription = async () => {
       "/service-worker.js",
       {
         scope: "/",
-      }
+      },
     );
   }
 

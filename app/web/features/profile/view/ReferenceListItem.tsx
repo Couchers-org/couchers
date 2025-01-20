@@ -76,7 +76,7 @@ export default function ReferenceListItem({
           {reference.writtenTime && (
             <Pill variant="rounded">
               {monthFormatter(locale).format(
-                timestamp2Date(reference.writtenTime)
+                timestamp2Date(reference.writtenTime),
               )}
             </Pill>
           )}

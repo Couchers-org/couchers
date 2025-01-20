@@ -35,7 +35,7 @@ export default function useUpdateNotificationSettings() {
       onSuccess: () => {
         queryClient.invalidateQueries(notificationSettingsQueryKey);
       },
-    }
+    },
   );
 
   return {

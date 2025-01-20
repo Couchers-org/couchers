@@ -78,12 +78,12 @@ describe("User page", () => {
       renderUserPage("funnycat");
 
       expect(
-        await screen.findByRole("heading", { name: "Funny Cat current User" })
+        await screen.findByRole("heading", { name: "Funny Cat current User" }),
       ).toBeVisible();
       expect(
         screen.queryByRole("button", {
           name: t("profile:more_profile_actions_a11y_text"),
-        })
+        }),
       ).not.toBeInTheDocument();
     });
 
@@ -141,7 +141,7 @@ describe("User page", () => {
         await user.click(
           await screen.findByRole("button", {
             name: t("global:report.flag.button_aria_label"),
-          })
+          }),
         );
       });
 
@@ -149,7 +149,7 @@ describe("User page", () => {
         expect(
           await screen.findByRole("heading", {
             name: t("global:report.flag.title"),
-          })
+          }),
         ).toBeVisible();
       });
 
@@ -157,13 +157,13 @@ describe("User page", () => {
         const user = userEvent.setup();
 
         await user.click(
-          await screen.findByRole("button", { name: t("global:cancel") })
+          await screen.findByRole("button", { name: t("global:cancel") }),
         );
 
         await waitForElementToBeRemoved(
           screen.getByRole("heading", {
             name: t("global:report.flag.title"),
-          })
+          }),
         );
         expect(screen.queryByRole("presentation")).not.toBeInTheDocument();
       });
@@ -176,19 +176,19 @@ describe("User page", () => {
 
         await user.selectOptions(
           await screen.findByLabelText(t("global:report.flag.reason_label")),
-          reason
+          reason,
         );
         await user.type(
           screen.getByLabelText(t("global:report.flag.description_label")),
-          description
+          description,
         );
         await user.click(
-          screen.getByRole("button", { name: t("global:submit") })
+          screen.getByRole("button", { name: t("global:submit") }),
         );
 
         const successAlert = await screen.findByRole("alert");
         expect(
-          within(successAlert).getByText(t("global:report.flag.success"))
+          within(successAlert).getByText(t("global:report.flag.success")),
         ).toBeVisible();
         expect(reportContentMock).toHaveBeenCalledTimes(1);
         expect(reportContentMock).toHaveBeenCalledWith({
@@ -203,11 +203,11 @@ describe("User page", () => {
         const user = userEvent.setup();
 
         await user.click(
-          screen.getByRole("button", { name: t("global:submit") })
+          screen.getByRole("button", { name: t("global:submit") }),
         );
 
         expect(
-          await screen.findByText(t("global:report.flag.reason_required"))
+          await screen.findByText(t("global:report.flag.reason_required")),
         ).toBeVisible();
         expect(reportContentMock).not.toHaveBeenCalled();
       });
@@ -222,14 +222,14 @@ describe("User page", () => {
 
         await user.selectOptions(
           await screen.findByLabelText(t("global:report.flag.reason_label")),
-          reason
+          reason,
         );
         await user.type(
           screen.getByLabelText(t("global:report.flag.description_label")),
-          description
+          description,
         );
         await user.click(
-          screen.getByRole("button", { name: t("global:submit") })
+          screen.getByRole("button", { name: t("global:submit") }),
         );
 
         const errorAlert = await screen.findByRole("alert");

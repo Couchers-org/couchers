@@ -93,7 +93,7 @@ const HostRequestUserSummarySection = ({
             sx={{ paddingRight: theme.spacing(1) }}
           >
             {`${dayjs(hostRequest.fromDate).format("ll")} - ${dayjs(
-              hostRequest.toDate
+              hostRequest.toDate,
             ).format("ll")}`}
           </Typography>
         )}
@@ -112,7 +112,7 @@ const HostRequestUserSummarySection = ({
               sx={{ paddingRight: theme.spacing(1) }}
             >
               {`${dayjs(hostRequest.fromDate).format("LL")} - ${dayjs(
-                hostRequest.toDate
+                hostRequest.toDate,
               ).format("LL")}`}
             </Typography>
             <Typography

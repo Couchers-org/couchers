@@ -59,7 +59,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
         queryClient.invalidateQueries(accountInfoQueryKey);
         resetForm();
       },
-    }
+    },
   );
 
   return (

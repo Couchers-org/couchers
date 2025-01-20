@@ -53,7 +53,7 @@ export const ReferencesLastActiveLabels = ({ user }: Props) => {
 export const ResponseRateLabel = ({ user }: Props) => {
   const { t } = useTranslation("profile");
   const query = useQuery(responseRateKey(user.userId), () =>
-    service.requests.getResponseRate(user.userId)
+    service.requests.getResponseRate(user.userId),
   );
 
   let rateText = undefined;
@@ -128,7 +128,7 @@ const AgeAndGenderRenderer = ({ user }: Props) => {
   const { t } = useTranslation("profile");
 
   const getBirthdateVerificationIcon = (
-    status: BirthdateVerificationStatus
+    status: BirthdateVerificationStatus,
   ) => {
     switch (status) {
       case BirthdateVerificationStatus.BIRTHDATE_VERIFICATION_STATUS_VERIFIED:

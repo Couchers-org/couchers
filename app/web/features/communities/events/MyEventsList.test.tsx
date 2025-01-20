@@ -69,7 +69,7 @@ describe("MyEventsList", () => {
     render(<MyEventsList />, { wrapper });
 
     expect(
-      screen.getByText("communities:events_empty_state")
+      screen.getByText("communities:events_empty_state"),
     ).toBeInTheDocument();
   });
 
@@ -115,8 +115,8 @@ describe("MyEventsList", () => {
 
     await waitFor(() =>
       expect(mockUseListMyEvents).toHaveBeenCalledWith(
-        expect.objectContaining({ pastEvents: true })
-      )
+        expect.objectContaining({ pastEvents: true }),
+      ),
     );
   });
 
@@ -134,7 +134,7 @@ describe("MyEventsList", () => {
     render(<MyEventsList />, { wrapper });
 
     const cancelledFilter = screen.getByText(
-      "communities:show_cancelled_events"
+      "communities:show_cancelled_events",
     );
     expect(cancelledFilter).toBeInTheDocument();
 
@@ -142,8 +142,8 @@ describe("MyEventsList", () => {
 
     await waitFor(() =>
       expect(mockUseListMyEvents).toHaveBeenCalledWith(
-        expect.objectContaining({ showCancelled: true })
-      )
+        expect.objectContaining({ showCancelled: true }),
+      ),
     );
   });
 
@@ -182,8 +182,8 @@ describe("MyEventsList", () => {
 
     await waitFor(() =>
       expect(mockUseListMyEvents).toHaveBeenCalledWith(
-        expect.objectContaining({ pageNumber: 2 })
-      )
+        expect.objectContaining({ pageNumber: 2 }),
+      ),
     );
   });
 });

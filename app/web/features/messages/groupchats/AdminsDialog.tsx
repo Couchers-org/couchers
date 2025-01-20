@@ -67,7 +67,7 @@ function AdminListItem({
           groupChatId,
         ]);
         const newAdminUserIdsList = Array.from(
-          previousGroupChat?.adminUserIdsList ?? []
+          previousGroupChat?.adminUserIdsList ?? [],
         );
         newAdminUserIdsList.push(member.userId);
         queryClient.setQueryData(groupChatKey(groupChatId), {
@@ -76,7 +76,7 @@ function AdminListItem({
         });
         invalidate();
       },
-    }
+    },
   );
   const removeAdmin = useMutation<Empty, RpcError, void>(
     () => service.conversations.removeGroupChatAdmin(groupChatId, member),
@@ -85,14 +85,14 @@ function AdminListItem({
       onMutate: clearError,
       onSuccess: () => {
         const previousGroupChat = queryClient.getQueryData<GroupChat.AsObject>(
-          groupChatKey(groupChatId)
+          groupChatKey(groupChatId),
         );
         const newAdminUserIdsList = Array.from(
-          previousGroupChat?.adminUserIdsList ?? []
+          previousGroupChat?.adminUserIdsList ?? [],
         );
         newAdminUserIdsList.splice(
           newAdminUserIdsList.indexOf(member.userId),
-          1
+          1,
         );
         queryClient.setQueryData(groupChatKey(groupChatId), {
           ...previousGroupChat,
@@ -100,7 +100,7 @@ function AdminListItem({
         });
         invalidate();
       },
-    }
+    },
   );
 
   const handleMakeAdmin = () => makeAdmin.mutate();
@@ -167,7 +167,7 @@ export default function AdminsDialog({
   const [error, setError] = useState("");
 
   const nonAdminIds = groupChat?.memberUserIdsList.filter(
-    (id) => !groupChat?.adminUserIdsList.includes(id)
+    (id) => !groupChat?.adminUserIdsList.includes(id),
   );
 
   const currentUserId = useAuthContext().authState.userId;
@@ -212,7 +212,7 @@ export default function AdminsDialog({
                     groupChatId={groupChat?.groupChatId ?? 0}
                     setError={setError}
                   />
-                ) : null
+                ) : null,
               )
           )}
         </List>
@@ -242,7 +242,7 @@ export default function AdminsDialog({
                         groupChatId={groupChat?.groupChatId ?? 0}
                         setError={setError}
                       />
-                    ) : null
+                    ) : null,
                   )
               )}
             </List>

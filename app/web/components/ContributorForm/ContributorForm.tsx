@@ -113,12 +113,12 @@ export default function ContributorForm({
             //this reduces it to an array of the "ways" which were keys with "true" as a value
             (previous, [contributeWay, checked]) =>
               checked ? [...previous, contributeWay] : previous,
-            []
-          )
+            [],
+          ),
         )
         .setExpertise(data.expertise);
       await processForm(form.toObject());
-    }
+    },
   );
 
   const submit = handleSubmit((data: ContributorInputs) => {

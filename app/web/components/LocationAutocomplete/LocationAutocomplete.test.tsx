@@ -20,7 +20,7 @@ const renderForm = (
   defaultValue: GeocodeResult | "",
   onChange: (value: GeocodeResult | "") => void,
   showFullDisplayName = false,
-  disableRegions = false
+  disableRegions = false,
 ) => {
   const Form = () => {
     const {
@@ -89,7 +89,7 @@ describe("LocationAutocomplete component", () => {
             bbox: [1, 1, 1, 1],
           },
         }),
-        expect.anything()
+        expect.anything(),
       );
     });
   });
@@ -103,7 +103,7 @@ describe("LocationAutocomplete component", () => {
     await user.type(await screen.findByLabelText(LABEL), "tes{enter}");
 
     expect(
-      await screen.findByText("test city, test county, test country")
+      await screen.findByText("test city, test county, test country"),
     ).toBeVisible();
   });
 
@@ -120,7 +120,7 @@ describe("LocationAutocomplete component", () => {
     await user.click(
       screen.getByRole("button", {
         name: t("global:location_autocomplete.search_location_button"),
-      })
+      }),
     );
 
     const item = await screen.findByText("test city, test country");
@@ -139,7 +139,7 @@ describe("LocationAutocomplete component", () => {
     await user.type(input, "test{enter}");
 
     const alert = await screen.findByText(
-      t("global:location_autocomplete.search_location_hint")
+      t("global:location_autocomplete.search_location_hint"),
     );
 
     await waitFor(() => {
@@ -156,7 +156,7 @@ describe("LocationAutocomplete component", () => {
         location: new LngLat(1, 2),
         bbox: [1, 1, 1, 1],
       },
-      onChange
+      onChange,
     );
 
     const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
@@ -174,7 +174,7 @@ describe("LocationAutocomplete component", () => {
         expect.objectContaining({
           location: "",
         }),
-        expect.anything()
+        expect.anything(),
       );
     });
   });
@@ -185,8 +185,8 @@ describe("LocationAutocomplete component", () => {
         `${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`,
         async (_req, res, ctx) => {
           return res(ctx.status(500), ctx.text("generic error"));
-        }
-      )
+        },
+      ),
     );
 
     renderForm("", () => {});
@@ -216,10 +216,10 @@ describe("LocationAutocomplete component", () => {
                 display_name: "test county, test country",
                 boundingbox: [1, 1, 1, 1],
               },
-            ])
+            ]),
           );
-        }
-      )
+        },
+      ),
     );
     renderForm("", () => {}, false, true);
 
@@ -236,7 +236,7 @@ describe("LocationAutocomplete component", () => {
     await user.click(submitButton);
 
     expect(
-      await screen.findByText(t("global:location_autocomplete.more_specific"))
+      await screen.findByText(t("global:location_autocomplete.more_specific")),
     ).toBeVisible();
     expect(submitAction).not.toBeCalled();
   });

@@ -39,13 +39,13 @@ describe("Event organizers", () => {
     render(<EventOrganizers eventId={1} />, { wrapper });
 
     expect(
-      await screen.findByRole("heading", { name: t("communities:organizers") })
+      await screen.findByRole("heading", { name: t("communities:organizers") }),
     ).toBeVisible();
     expect(
-      await screen.findByRole("heading", { name: "Funny Dog, 35" })
+      await screen.findByRole("heading", { name: "Funny Dog, 35" }),
     ).toBeVisible();
     expect(
-      await screen.findByRole("heading", { name: "Funny Kid, 28" })
+      await screen.findByRole("heading", { name: "Funny Kid, 28" }),
     ).toBeVisible();
   });
 
@@ -68,18 +68,20 @@ describe("Event organizers", () => {
       const user = userEvent.setup();
 
       await user.click(
-        await screen.findByRole("button", { name: t("communities:see_all") })
+        await screen.findByRole("button", { name: t("communities:see_all") }),
       );
 
       expect(
-        await screen.findByRole("dialog", { name: t("communities:organizers") })
+        await screen.findByRole("dialog", {
+          name: t("communities:organizers"),
+        }),
       ).toBeVisible();
 
       expect(
-        await screen.findByRole("heading", { name: "Funny Chicken, 28" })
+        await screen.findByRole("heading", { name: "Funny Chicken, 28" }),
       ).toBeVisible();
       expect(
-        await screen.findByRole("heading", { name: "Friendly Cow, 25" })
+        await screen.findByRole("heading", { name: "Friendly Cow, 25" }),
       ).toBeVisible();
     });
 
@@ -89,24 +91,26 @@ describe("Event organizers", () => {
       const user = userEvent.setup();
 
       await user.click(
-        await screen.findByRole("button", { name: t("communities:see_all") })
+        await screen.findByRole("button", { name: t("communities:see_all") }),
       );
       const dialog = within(
-        await screen.findByRole("dialog", { name: t("communities:organizers") })
+        await screen.findByRole("dialog", {
+          name: t("communities:organizers"),
+        }),
       );
 
       await user.click(
         dialog.getByRole("button", {
           name: t("communities:load_more_organizers"),
-        })
+        }),
       );
 
       expect(
-        await dialog.findByRole("heading", { name: "Funny Dog, 35" })
+        await dialog.findByRole("heading", { name: "Funny Dog, 35" }),
       ).toBeVisible();
 
       expect(
-        await dialog.findByRole("heading", { name: "Funny Kid, 28" })
+        await dialog.findByRole("heading", { name: "Funny Kid, 28" }),
       ).toBeVisible();
     });
 
@@ -128,22 +132,24 @@ describe("Event organizers", () => {
       const user = userEvent.setup();
 
       await user.click(
-        await screen.findByRole("button", { name: t("communities:see_all") })
+        await screen.findByRole("button", { name: t("communities:see_all") }),
       );
       const dialog = within(
-        await screen.findByRole("dialog", { name: t("communities:organizers") })
+        await screen.findByRole("dialog", {
+          name: t("communities:organizers"),
+        }),
       );
 
       await user.click(
         await dialog.findByRole("button", {
           name: t("communities:load_more_organizers"),
-        })
+        }),
       );
 
       await waitFor(() =>
         expect(
-          dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID)
-        ).not.toBeInTheDocument()
+          dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID),
+        ).not.toBeInTheDocument(),
       );
     });
 
@@ -156,7 +162,7 @@ describe("Event organizers", () => {
       const user = userEvent.setup();
 
       await user.click(
-        await screen.findByRole("button", { name: t("communities:see_all") })
+        await screen.findByRole("button", { name: t("communities:see_all") }),
       );
 
       await screen.findByRole("dialog", { name: t("communities:organizers") });
@@ -169,21 +175,21 @@ describe("Event organizers", () => {
       const user = userEvent.setup();
 
       await user.click(
-        await screen.findByRole("button", { name: t("communities:see_all") })
+        await screen.findByRole("button", { name: t("communities:see_all") }),
       );
       await screen.findByRole("dialog", { name: t("communities:organizers") });
 
       await user.click(document.querySelector(".MuiBackdrop-root")!);
       await waitForElementToBeRemoved(
-        screen.getByRole("dialog", { name: t("communities:organizers") })
+        screen.getByRole("dialog", { name: t("communities:organizers") }),
       );
 
       await waitFor(() =>
         expect(
           screen.queryByRole("button", {
             name: t("communities:load_more_organizers"),
-          })
-        ).not.toBeInTheDocument()
+          }),
+        ).not.toBeInTheDocument(),
       );
     });
   });

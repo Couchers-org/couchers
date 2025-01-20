@@ -48,7 +48,7 @@ const postReplyMock = service.threads.postReply as MockedService<
 
 function renderDiscussion() {
   mockRouter.setCurrentUrl(
-    `${discussionBaseRoute}/1/what-is-there-to-do-in-amsterdam`
+    `${discussionBaseRoute}/1/what-is-there-to-do-in-amsterdam`,
   );
   const { client, wrapper } = getHookWrapperWithClient();
   render(<DiscussionPage discussionId={1} />, { wrapper });
@@ -115,17 +115,17 @@ describe("Discussion page", () => {
       screen.getByRole("heading", {
         level: 1,
         name: "What is there to do in Amsterdam?",
-      })
+      }),
     ).toBeVisible();
     expect(
-      screen.getByText(/i'm looking for activities to do here!/i)
+      screen.getByText(/i'm looking for activities to do here!/i),
     ).toBeVisible();
 
     const creatorContainer = within(screen.getByTestId(CREATOR_TEST_ID));
     expect(
       creatorContainer.getByRole("link", {
         name: getProfileLinkA11yLabel("Funny Cat current User"),
-      })
+      }),
     ).toBeVisible();
     expect(creatorContainer.getByText("Funny Cat current User")).toBeVisible();
     expect(creatorContainer.getByText("Created at Jan 01, 2020")).toBeVisible();
@@ -133,7 +133,7 @@ describe("Discussion page", () => {
 
   it("renders a loading skeleton if the user info is still loading", async () => {
     getLiteUserMock.mockImplementation(
-      async () => new Promise(() => undefined)
+      async () => new Promise(() => undefined),
     );
     renderDiscussion();
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
@@ -142,18 +142,18 @@ describe("Discussion page", () => {
       await screen.findByRole("heading", {
         level: 1,
         name: "What is there to do in Amsterdam?",
-      })
+      }),
     ).toBeVisible();
     expect(
       screen.queryByRole("link", {
         name: getProfileLinkA11yLabel("Funny Cat current User"),
-      })
+      }),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText("Funny Cat current User")
+      screen.queryByText("Funny Cat current User"),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText("Created at Jan 01, 2020")
+      screen.queryByText("Created at Jan 01, 2020"),
     ).not.toBeInTheDocument();
   });
 
@@ -168,54 +168,54 @@ describe("Discussion page", () => {
     expect(commentCards).toHaveLength(8);
 
     expect(
-      screen.getByRole("heading", { name: t("communities:comments") })
+      screen.getByRole("heading", { name: t("communities:comments") }),
     ).toBeVisible();
     // check top level comment
     const firstTopLevelComment = comments.find((c) => c.threadId === 6);
     const commentUser = await getLiteUser(
-      firstTopLevelComment!.authorUserId.toString()
+      firstTopLevelComment!.authorUserId.toString(),
     );
     expect(
-      commentCards[0].getByRole("img", { name: commentUser.name })
+      commentCards[0].getByRole("img", { name: commentUser.name }),
     ).toBeVisible();
     expect(
       commentCards[0].getByRole("link", {
         name: getProfileLinkA11yLabel(commentUser.name),
-      })
+      }),
     ).toBeVisible();
     expect(
       commentCards[0].getByText(
         `${t("communities:by_creator", {
           name: commentUser.name,
-        })} • 1 year ago`
-      )
+        })} • 1 year ago`,
+      ),
     ).toBeVisible();
     expect(
-      commentCards[0].getByText(firstTopLevelComment!.content)
+      commentCards[0].getByText(firstTopLevelComment!.content),
     ).toBeVisible();
     expect(
-      commentCards[0].getByRole("button", { name: t("global:reply") })
+      commentCards[0].getByRole("button", { name: t("global:reply") }),
     ).toBeVisible();
 
     // check nested comment/reply
     const replyUser = await getLiteUser("3");
     expect(
-      commentCards[1].getByRole("img", { name: replyUser.name })
+      commentCards[1].getByRole("img", { name: replyUser.name }),
     ).toBeVisible();
     expect(
       commentCards[1].getByRole("link", {
         name: getProfileLinkA11yLabel(replyUser.name),
-      })
+      }),
     ).toBeVisible();
     expect(
       commentCards[1].getByText(
-        `${t("communities:by_creator", { name: replyUser.name })} • 1 year ago`
-      )
+        `${t("communities:by_creator", { name: replyUser.name })} • 1 year ago`,
+      ),
     ).toBeVisible();
     expect(commentCards[1].getByText("+6")).toBeVisible();
     // Nested comment cannot be replied on further
     expect(
-      commentCards[1].queryByRole("button", { name: t("global:reply") })
+      commentCards[1].queryByRole("button", { name: t("global:reply") }),
     ).not.toBeInTheDocument();
   });
 
@@ -245,7 +245,7 @@ describe("Discussion page", () => {
       user.click(
         await screen.findByRole("button", {
           name: t("communities:load_earlier_comments"),
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -256,7 +256,7 @@ describe("Discussion page", () => {
       const firstCommentAfterLoadMore =
         screen.getAllByTestId(COMMENT_TEST_ID)[0];
       expect(
-        within(firstCommentAfterLoadMore).getByText(comments[3].content)
+        within(firstCommentAfterLoadMore).getByText(comments[3].content),
       ).toBeVisible();
       expect(getThreadMock).toHaveBeenCalledWith(2, "4");
     });
@@ -282,7 +282,7 @@ describe("Discussion page", () => {
       user.click(
         await screen.findByRole("button", {
           name: t("communities:load_earlier_replies"),
-        })
+        }),
       );
 
       await waitFor(() => {
@@ -318,7 +318,7 @@ describe("Discussion page", () => {
     user.click(
       await screen.findByRole("button", {
         name: t("communities:previous_page"),
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -342,19 +342,19 @@ describe("Discussion page", () => {
       renderDiscussion();
 
       const discussionCommentForm = within(
-        await screen.findByTestId(COMMENT_TREE_COMMENT_FORM_TEST_ID)
+        await screen.findByTestId(COMMENT_TREE_COMMENT_FORM_TEST_ID),
       );
 
       const newComment = "Glad I checked it out. It was great!";
 
       getThreadMock.mockImplementation(
-        getThreadAfterSuccessfulComment({ newComment, threadIdToUpdate: 2 })
+        getThreadAfterSuccessfulComment({ newComment, threadIdToUpdate: 2 }),
       );
 
       const user = userEvent.setup();
 
       const commentInput = await discussionCommentForm.findByLabelText(
-        t("communities:write_comment_a11y_label")
+        t("communities:write_comment_a11y_label"),
       );
 
       await waitFor(() => expect(commentInput).toBeVisible());
@@ -365,13 +365,13 @@ describe("Discussion page", () => {
         () => {
           expect(commentInput).toHaveValue(newComment);
         },
-        { timeout: 5000 }
+        { timeout: 5000 },
       );
 
       user.click(
         discussionCommentForm.getByRole("button", {
           name: t("communities:comment"),
-        })
+        }),
       );
 
       expect(await screen.findByText(newComment)).toBeVisible();
@@ -386,13 +386,13 @@ describe("Discussion page", () => {
       renderDiscussion();
 
       const discussionCommentForm = within(
-        await screen.findByTestId(COMMENT_TREE_COMMENT_FORM_TEST_ID)
+        await screen.findByTestId(COMMENT_TREE_COMMENT_FORM_TEST_ID),
       );
 
       const user = userEvent.setup();
 
       const commentInput = await discussionCommentForm.findByLabelText(
-        t("communities:write_comment_a11y_label")
+        t("communities:write_comment_a11y_label"),
       );
 
       await waitFor(() => expect(commentInput).toBeVisible());
@@ -403,13 +403,13 @@ describe("Discussion page", () => {
         () => {
           expect(commentInput).toHaveValue("new comment");
         },
-        { timeout: 5000 }
+        { timeout: 5000 },
       );
 
       user.click(
         discussionCommentForm.getByRole("button", {
           name: t("communities:comment"),
-        })
+        }),
       );
 
       await assertErrorAlert(errorMessage);
@@ -422,30 +422,30 @@ describe("Discussion page", () => {
       renderDiscussion();
 
       const firstComment = within(
-        (await screen.findAllByTestId(COMMENT_TEST_ID))[0]
+        (await screen.findAllByTestId(COMMENT_TEST_ID))[0],
       );
 
       const user = userEvent.setup();
 
       user.click(firstComment.getByRole("button", { name: t("global:reply") }));
       const commentFormContainer = screen.getByTestId(
-        FIRST_COMMENT_FORM_TEST_ID
+        FIRST_COMMENT_FORM_TEST_ID,
       );
 
       // The comment form is opened when the transition container has height as "auto"
       await waitFor(() => {
         expect(window.getComputedStyle(commentFormContainer).height).toEqual(
-          "auto"
+          "auto",
         );
       });
 
       const newComment = "+100";
       getThreadMock.mockImplementation(
-        getThreadAfterSuccessfulComment({ newComment, threadIdToUpdate: 6 })
+        getThreadAfterSuccessfulComment({ newComment, threadIdToUpdate: 6 }),
       );
 
       const commentInput = within(commentFormContainer).getByLabelText(
-        t("communities:write_comment_a11y_label")
+        t("communities:write_comment_a11y_label"),
       );
 
       await waitFor(() => expect(commentInput).toBeVisible());
@@ -459,11 +459,11 @@ describe("Discussion page", () => {
       user.click(
         within(commentFormContainer).getByRole("button", {
           name: t("communities:comment"),
-        })
+        }),
       );
       // Check refetch loading state is shown while user is waiting for reply
       expect(
-        await screen.findByTestId(REFETCH_LOADING_TEST_ID)
+        await screen.findByTestId(REFETCH_LOADING_TEST_ID),
       ).toBeInTheDocument();
 
       expect(await screen.findByText(newComment)).toBeVisible();
@@ -476,7 +476,7 @@ describe("Discussion page", () => {
       renderDiscussion();
 
       const firstComment = within(
-        (await screen.findAllByTestId(COMMENT_TEST_ID))[0]
+        (await screen.findAllByTestId(COMMENT_TEST_ID))[0],
       );
 
       const user = userEvent.setup();
@@ -484,23 +484,23 @@ describe("Discussion page", () => {
       user.click(firstComment.getByRole("button", { name: t("global:reply") }));
       // The comment form is opened when the transition container has height as "auto"
       const commentFormContainer = screen.getByTestId(
-        FIRST_COMMENT_FORM_TEST_ID
+        FIRST_COMMENT_FORM_TEST_ID,
       );
       await waitFor(() => {
         expect(window.getComputedStyle(commentFormContainer).height).toEqual(
-          "auto"
+          "auto",
         );
       });
       user.click(
         within(commentFormContainer).getByRole("button", {
           name: t("global:close"),
-        })
+        }),
       );
 
       // The transition container has 0 height when the form is closed
       await waitFor(() => {
         expect(window.getComputedStyle(commentFormContainer).height).toEqual(
-          "0px"
+          "0px",
         );
       });
     });

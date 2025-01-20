@@ -113,7 +113,7 @@ const useStyles = makeStyles((theme) =>
       display: "grid",
       gridTemplateColumns: "repeat(auto-fit, minmax(auto, 250px))",
     },
-  })
+  }),
 );
 
 interface ProfileTagInputProps {
@@ -151,7 +151,7 @@ export default function ProfileTagInput({
 
   const handleClose = (
     event: React.ChangeEvent<unknown>,
-    reason: AutocompleteCloseReason
+    reason: AutocompleteCloseReason,
   ) => {
     if (reason === "toggleInput") {
       return;
@@ -163,7 +163,7 @@ export default function ProfileTagInput({
   const handleRemove = (tag: string) => {
     onChange(
       null,
-      value.filter((v) => v !== tag)
+      value.filter((v) => v !== tag),
     );
   };
 
@@ -240,7 +240,7 @@ export default function ProfileTagInput({
               uniqueValues = new Set([]);
             }
             setPendingValue(
-              Array.from(uniqueValues).filter((value) => !/^\s*$/.test(value))
+              Array.from(uniqueValues).filter((value) => !/^\s*$/.test(value)),
             );
           }}
           value={pendingValue}

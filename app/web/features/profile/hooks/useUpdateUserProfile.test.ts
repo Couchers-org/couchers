@@ -95,7 +95,7 @@ describe("updateUserProfile action", () => {
       result.current.updateUserProfile({
         profileData: newUserProfileData,
         setMutationError: () => null,
-      })
+      }),
     );
 
     await waitFor(() => result.current.status === "success");
@@ -115,7 +115,7 @@ describe("updateUserProfile action", () => {
       () => ({
         mutate: useUpdateUserProfile(),
       }),
-      { wrapper }
+      { wrapper },
     );
 
     act(() =>
@@ -130,7 +130,7 @@ describe("updateUserProfile action", () => {
           avatarKey: defaultUser.avatarUrl,
         },
         setMutationError: setError,
-      })
+      }),
     );
     await waitFor(() => result.current.mutate.status === "error");
 

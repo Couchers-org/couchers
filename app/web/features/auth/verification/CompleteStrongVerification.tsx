@@ -11,7 +11,7 @@ export default function CompleteStrongVerification() {
 
   const router = useRouter();
   const verificationAttemptToken = stringOrFirstString(
-    router.query.verification_attempt_token
+    router.query.verification_attempt_token,
   );
 
   console.info("Captured token", verificationAttemptToken);

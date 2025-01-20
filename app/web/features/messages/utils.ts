@@ -13,10 +13,10 @@ export function messageTargetId(message: Message.AsObject) {
   return message.userInvited
     ? message.userInvited.targetUserId
     : message.userMadeAdmin
-    ? message.userMadeAdmin.targetUserId
-    : message.userRemovedAdmin
-    ? message.userRemovedAdmin.targetUserId
-    : undefined;
+      ? message.userMadeAdmin.targetUserId
+      : message.userRemovedAdmin
+        ? message.userRemovedAdmin.targetUserId
+        : undefined;
 }
 
 export function controlMessage({
@@ -56,7 +56,7 @@ export function controlMessage({
     return t("control_message.host_request_status_changed_text", {
       user,
       status: t(
-        requestStatusToTransKey[message.hostRequestStatusChanged.status]
+        requestStatusToTransKey[message.hostRequestStatusChanged.status],
       ),
     });
   } else {
@@ -67,27 +67,27 @@ export function controlMessage({
 export function groupChatTitleText(
   groupChat: GroupChat.AsObject,
   groupChatMembersQuery: ReturnType<typeof useLiteUsers>,
-  currentUserId: number
+  currentUserId: number,
 ) {
   return groupChat.title
     ? groupChat.title
     : groupChatMembersQuery.isLoading
-    ? "Chat"
-    : Array.from(groupChatMembersQuery.data?.values() ?? [])
-        .filter((user) => user?.userId !== currentUserId)
-        .map((user) => firstName(user?.name))
-        .join(", ");
+      ? "Chat"
+      : Array.from(groupChatMembersQuery.data?.values() ?? [])
+          .filter((user) => user?.userId !== currentUserId)
+          .map((user) => firstName(user?.name))
+          .join(", ");
 }
 
 /** Returns the other user's username, or null if there are more than 2 users. */
 export function getDmUsername(
   groupChatMembersQuery: ReturnType<typeof useLiteUsers>,
-  currentUserId: number
+  currentUserId: number,
 ) {
   const users = Array.from(groupChatMembersQuery.data?.values() ?? []);
   if (users.length === 2) {
     const username = users.find(
-      (user) => user?.userId !== currentUserId
+      (user) => user?.userId !== currentUserId,
     )?.username;
     return username ?? null;
   } else {

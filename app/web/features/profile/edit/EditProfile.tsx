@@ -75,7 +75,7 @@ export default function EditProfileForm() {
   const isMounted = useIsMounted();
   const [errorMessage, setErrorMessage] = useSafeState<string | null>(
     isMounted,
-    null
+    null,
   );
   const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] =
     useState(false);
@@ -132,10 +132,10 @@ export default function EditProfileForm() {
             ...location,
             ...restData,
             regionsVisited: regionsVisited.map(
-              (region) => (regionsLookup || {})[region]
+              (region) => (regionsLookup || {})[region],
             ),
             regionsLived: regionsLived.map(
-              (region) => (regionsLookup || {})[region]
+              (region) => (regionsLookup || {})[region],
             ),
             languageAbilities: {
               valueList: fluentLanguages.map((language) => ({
@@ -157,7 +157,7 @@ export default function EditProfileForm() {
           onError: () => {
             window.scroll({ top: 0, behavior: "smooth" });
           },
-        }
+        },
       );
 
       if (showIncompleteProfileDialog) {
@@ -167,7 +167,7 @@ export default function EditProfileForm() {
     // All field validation errors should scroll to their respective field
     // Except the avatar, so this scrolls to top on avatar validation error
     (errors) =>
-      errors.avatarKey && window.scroll({ top: 0, behavior: "smooth" })
+      errors.avatarKey && window.scroll({ top: 0, behavior: "smooth" }),
   );
 
   const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
@@ -292,7 +292,7 @@ export default function EditProfileForm() {
                     {...field}
                     row
                     aria-label={t(
-                      "profile:edit_profile_headings.hosting_status"
+                      "profile:edit_profile_headings.hosting_status",
                     )}
                     name="hostingStatus"
                     value={field.value}
@@ -333,7 +333,7 @@ export default function EditProfileForm() {
                     {...field}
                     row
                     aria-label={t(
-                      "profile:edit_profile_headings.meetup_status"
+                      "profile:edit_profile_headings.meetup_status",
                     )}
                     name="meetupStatus"
                     value={field.value}
@@ -417,7 +417,7 @@ export default function EditProfileForm() {
               <Controller
                 control={control}
                 defaultValue={user.languageAbilitiesList.map(
-                  (ability) => languages[ability.code]
+                  (ability) => languages[ability.code],
                 )}
                 name="fluentLanguages"
                 render={({ field }) => (
@@ -486,7 +486,7 @@ export default function EditProfileForm() {
                 <Controller
                   control={control}
                   defaultValue={user.regionsVisitedList.map(
-                    (region) => regions[region]
+                    (region) => regions[region],
                   )}
                   name="regionsVisited"
                   render={({ field }) => (
@@ -503,7 +503,7 @@ export default function EditProfileForm() {
                 <Controller
                   control={control}
                   defaultValue={user.regionsLivedList.map(
-                    (region) => regions[region]
+                    (region) => regions[region],
                   )}
                   name="regionsLived"
                   render={({ field }) => (
@@ -552,7 +552,7 @@ export default function EditProfileForm() {
                 {!user.avatarUrl && (
                   <ListItem key={2} style={{ display: "list-item" }}>
                     {`• ${t(
-                      "profile:incomplete_dialog.missing_photo_message"
+                      "profile:incomplete_dialog.missing_photo_message",
                     )}`}
                   </ListItem>
                 )}

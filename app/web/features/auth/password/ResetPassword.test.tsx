@@ -23,18 +23,18 @@ describe("ResetPassword", () => {
     render(<ResetPassword />, { wrapper });
 
     expect(
-      screen.getByRole("heading", { level: 1, name: t("auth:reset_password") })
+      screen.getByRole("heading", { level: 1, name: t("auth:reset_password") }),
     ).toBeVisible();
     expect(
-      screen.getByLabelText(t("auth:reset_password_form.enter_email"))
+      screen.getByLabelText(t("auth:reset_password_form.enter_email")),
     ).toBeVisible();
     expect(
-      screen.getByRole("button", { name: t("global:submit") })
+      screen.getByRole("button", { name: t("global:submit") }),
     ).toBeVisible();
 
     // Does not show error state or success message, since we've done nothing yet
     expect(
-      screen.queryByText(t("auth:reset_password_form.success_message"))
+      screen.queryByText(t("auth:reset_password_form.success_message")),
     ).not.toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
@@ -58,12 +58,12 @@ describe("ResetPassword", () => {
 
     await user.type(
       screen.getByLabelText(t("auth:reset_password_form.enter_email")),
-      "test"
+      "test",
     );
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     expect(
-      await screen.findByText(t("auth:reset_password_form.success_message"))
+      await screen.findByText(t("auth:reset_password_form.success_message")),
     ).toBeVisible();
     expect(resetPasswordMock).toHaveBeenCalledTimes(1);
     expect(resetPasswordMock).toHaveBeenCalledWith("test");
@@ -76,12 +76,12 @@ describe("ResetPassword", () => {
 
     await user.type(
       screen.getByLabelText(t("auth:reset_password_form.enter_email")),
-      "TeST"
+      "TeST",
     );
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     expect(
-      await screen.findByText(t("auth:reset_password_form.success_message"))
+      await screen.findByText(t("auth:reset_password_form.success_message")),
     ).toBeVisible();
     expect(resetPasswordMock).toHaveBeenCalledTimes(1);
     expect(resetPasswordMock).toHaveBeenCalledWith("test");
@@ -96,7 +96,7 @@ describe("ResetPassword", () => {
 
     await user.type(
       screen.getByLabelText(t("auth:reset_password_form.enter_email")),
-      "test"
+      "test",
     );
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
@@ -104,7 +104,7 @@ describe("ResetPassword", () => {
     expect(errorAlert).toBeVisible();
     expect(errorAlert).toHaveTextContent("GRPC error");
     expect(
-      screen.queryByText(t("auth:reset_password_form.success_message"))
+      screen.queryByText(t("auth:reset_password_form.success_message")),
     ).not.toBeInTheDocument();
   });
 });

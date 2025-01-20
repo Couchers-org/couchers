@@ -35,10 +35,10 @@ export default function ControlMessageView({
   const { t } = useTranslation(MESSAGES);
   const classes = useStyles();
   const { data: author, isLoading: isAuthorLoading } = useLiteUser(
-    message.authorUserId
+    message.authorUserId,
   );
   const { data: target, isLoading: isTargetLoading } = useLiteUser(
-    messageTargetId(message)
+    messageTargetId(message),
   );
   const { ref } = useOnVisibleEffect(onVisible);
 

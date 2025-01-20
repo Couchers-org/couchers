@@ -48,28 +48,28 @@ describe("contributor form", () => {
     await user.type(screen.getByLabelText(IDEAS_LABEL), "I have great ideas");
     await user.type(
       screen.getByLabelText(FEATURES_LABEL),
-      "I want all the features"
+      "I want all the features",
     );
     await user.click(screen.getByRole("radio", { name: "Yes" }));
 
     await user.click(
       screen.getByRole("checkbox", {
         name: CONTRIBUTE_WAYS_OPTIONS[8].description,
-      })
+      }),
     );
 
     await user.click(
       screen.getByRole("checkbox", {
         name: CONTRIBUTE_WAYS_OPTIONS[4].description,
-      })
+      }),
     );
     await user.type(
       screen.getByLabelText(EXPERTISE_LABEL),
-      "I am a robot, I have all the expertise"
+      "I am a robot, I have all the expertise",
     );
     await user.type(
       screen.getByLabelText(EXPERIENCE_LABEL),
-      "I have lots of experience"
+      "I have lots of experience",
     );
 
     await user.click(screen.getByRole("button", { name: SUBMIT }));
@@ -86,7 +86,7 @@ describe("contributor form", () => {
 
   it("shows the form again if processing the form fails", async () => {
     const processForm = jest.fn(() =>
-      Promise.reject(new Error("Network error?"))
+      Promise.reject(new Error("Network error?")),
     );
     mockConsoleError();
     render(<ContributorForm processForm={processForm} />, { wrapper });
@@ -100,7 +100,7 @@ describe("contributor form", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("Network error?");
     expect(screen.queryByText(SUCCESS_MSG)).not.toBeInTheDocument();
     expect(screen.getByLabelText(IDEAS_LABEL) as HTMLInputElement).toHaveValue(
-      "I have great ideas"
+      "I have great ideas",
     );
     expect(processForm).toHaveBeenCalledWith({
       ideas: "I have great ideas",

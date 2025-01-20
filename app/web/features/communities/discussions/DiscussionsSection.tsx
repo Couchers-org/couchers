@@ -48,7 +48,7 @@ export default function DiscussionsSection({
         href={`${routeToCommunity(
           community.communityId,
           community.slug,
-          "discussions"
+          "discussions",
         )}#${composingDiscussionHash}`}
         passHref
         legacyBehavior
@@ -82,7 +82,7 @@ export default function DiscussionsSection({
               href={routeToCommunity(
                 community.communityId,
                 community.slug,
-                "discussions"
+                "discussions",
               )}
               passHref
               legacyBehavior

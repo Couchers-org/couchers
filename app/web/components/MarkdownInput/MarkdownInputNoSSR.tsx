@@ -119,7 +119,7 @@ export default function MarkdownInput({
         blur: () => fieldOnBlur.current(),
         change: () =>
           fieldOnChange.current(
-            (fieldRef.current as ToastUIEditor).getMarkdown()
+            (fieldRef.current as ToastUIEditor).getMarkdown(),
           ),
       },
       initialEditType: "wysiwyg",
@@ -141,7 +141,7 @@ export default function MarkdownInput({
       editBox.setAttribute("role", "textbox");
     } else {
       console.warn(
-        "Couldn't locate the markdown input area for accessibility tags"
+        "Couldn't locate the markdown input area for accessibility tags",
       );
     }
 

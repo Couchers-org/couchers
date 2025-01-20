@@ -79,8 +79,8 @@ export default function EditNotificationSettingsPage() {
                 group.heading === "Account Security"
                   ? "account_security"
                   : group.heading === "Account Settings"
-                  ? "account_settings"
-                  : topic.topic;
+                    ? "account_settings"
+                    : topic.topic;
 
               if (!acc[key]) {
                 acc[key] = [];
@@ -95,7 +95,7 @@ export default function EditNotificationSettingsPage() {
 
         return acc;
       },
-      {}
+      {},
     );
 
     setGroups(computedGroups);

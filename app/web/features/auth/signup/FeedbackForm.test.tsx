@@ -38,7 +38,7 @@ describe("signup form (feedback part)", () => {
     signupFlowFeedbackMock.mockResolvedValue(stateAfterFeedback);
     window.localStorage.setItem(
       "auth.flowState",
-      JSON.stringify(stateBeforeFeedback)
+      JSON.stringify(stateBeforeFeedback),
     );
   });
 
@@ -48,7 +48,7 @@ describe("signup form (feedback part)", () => {
     });
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.flowState).toStrictEqual(
-      stateBeforeFeedback
+      stateBeforeFeedback,
     );
 
     render(<FeedbackForm />, { wrapper });
@@ -57,7 +57,7 @@ describe("signup form (feedback part)", () => {
 
     await user.type(
       await screen.findByLabelText(EXPERTISE_LABEL),
-      "I have lots of expertise!"
+      "I have lots of expertise!",
     );
     await user.click(await screen.findByRole("button", { name: SUBMIT }));
 
@@ -68,7 +68,7 @@ describe("signup form (feedback part)", () => {
     const params = signupFlowFeedbackMock.mock.calls[0];
     expect(params[0]).toBe("dummy-token");
     expect(params[1].contribute).toBe(
-      ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED
+      ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED,
     );
     expect(params[1].expertise).toBe("I have lots of expertise!");
 
@@ -79,7 +79,7 @@ describe("signup form (feedback part)", () => {
     await waitFor(() => {
       expect(result2.current.authState.authenticated).toBe(false);
       expect(result2.current.authState.flowState).toMatchObject(
-        stateAfterFeedback
+        stateAfterFeedback,
       );
     });
   });
@@ -90,7 +90,7 @@ describe("signup form (feedback part)", () => {
     const user = userEvent.setup();
 
     await user.click(
-      await screen.findByRole("link", { name: "Skip this step" })
+      await screen.findByRole("link", { name: "Skip this step" }),
     );
 
     await waitFor(() => {
@@ -100,7 +100,7 @@ describe("signup form (feedback part)", () => {
       "dummy-token",
       expect.objectContaining({
         contribute: ContributeOption.CONTRIBUTE_OPTION_UNSPECIFIED,
-      })
+      }),
     );
 
     const { result } = renderHook(() => useAuthContext(), {
@@ -110,7 +110,7 @@ describe("signup form (feedback part)", () => {
       expect(result.current.authState.authenticated).toBe(false);
     });
     expect(result.current.authState.flowState).toMatchObject(
-      stateAfterFeedback
+      stateAfterFeedback,
     );
   });
 });

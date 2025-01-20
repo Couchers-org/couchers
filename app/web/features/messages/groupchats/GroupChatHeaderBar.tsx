@@ -82,7 +82,7 @@ export default function GroupChatHeaderBar({
         });
         queryClient.invalidateQueries(groupChatKey(chatId));
       },
-    }
+    },
   );
 
   const handleBack = () => router.push(groupChatsRoute);
@@ -195,7 +195,7 @@ export default function GroupChatHeaderBar({
                       key="invite"
                     >
                       {t(
-                        "messages:chat_view.actions_menu.items.invite_members"
+                        "messages:chat_view.actions_menu.items.invite_members",
                       )}
                     </MenuItem>
                   ) : null,
@@ -204,7 +204,7 @@ export default function GroupChatHeaderBar({
                     key="members"
                   >
                     {t(
-                      "messages:chat_view.actions_menu.items.show_all_members"
+                      "messages:chat_view.actions_menu.items.show_all_members",
                     )}
                   </MenuItem>,
                   isChatAdmin
@@ -214,7 +214,7 @@ export default function GroupChatHeaderBar({
                           key="admins"
                         >
                           {t(
-                            "messages:chat_view.actions_menu.items.manage_admins"
+                            "messages:chat_view.actions_menu.items.manage_admins",
                           )}
                         </MenuItem>,
                         <MenuItem
@@ -222,7 +222,7 @@ export default function GroupChatHeaderBar({
                           key="settings"
                         >
                           {t(
-                            "messages:chat_view.actions_menu.items.chat_settings"
+                            "messages:chat_view.actions_menu.items.chat_settings",
                           )}
                         </MenuItem>,
                       ]

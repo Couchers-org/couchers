@@ -60,7 +60,7 @@ export default function DeleteAccount({
       onSuccess: () => {
         resetForm();
       },
-    }
+    },
   );
 
   return (

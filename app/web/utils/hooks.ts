@@ -46,7 +46,7 @@ function useIsMounted() {
 
 function useSafeState<State>(
   isMounted: MutableRefObject<boolean>,
-  initialState: State | (() => State)
+  initialState: State | (() => State),
 ): [State, Dispatch<SetStateAction<State>>] {
   const [state, setState] = useState(initialState);
 
@@ -56,7 +56,7 @@ function useSafeState<State>(
         setState(newState);
       }
     },
-    [isMounted]
+    [isMounted],
   );
 
   return [state, safeSetState];
@@ -77,11 +77,11 @@ const useGeocodeQuery = () => {
   const [isLoading, setIsLoading] = useSafeState(isMounted, false);
   const [error, setError] = useSafeState<string | undefined>(
     isMounted,
-    undefined
+    undefined,
   );
   const [results, setResults] = useSafeState<GeocodeResult[] | undefined>(
     isMounted,
-    undefined
+    undefined,
   );
 
   const query = useCallback(
@@ -93,7 +93,7 @@ const useGeocodeQuery = () => {
       setError(undefined);
       setResults(undefined);
       const url = `${NOMINATIM_URL!}search?format=jsonv2&q=${encodeURIComponent(
-        value
+        value,
       )}&addressdetails=1`;
       const fetchOptions = {
         headers: {
@@ -121,7 +121,7 @@ const useGeocodeQuery = () => {
             return {
               location: new LngLat(
                 Number(result["lon"]),
-                Number(result["lat"])
+                Number(result["lat"]),
               ),
               name: result["display_name"],
               simplifiedName: simplifyPlaceDisplayName(result),
@@ -142,7 +142,7 @@ const useGeocodeQuery = () => {
       }
       setIsLoading(false);
     },
-    [setError, setIsLoading, setResults]
+    [setError, setIsLoading, setResults],
   );
 
   return { isLoading, error, results, query };

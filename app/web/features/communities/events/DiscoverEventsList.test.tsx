@@ -93,13 +93,13 @@ describe("DiscoverEventsList", () => {
     render(<DiscoverEventsList />, { wrapper });
 
     expect(
-      screen.getByText("communities:discover_events_title")
+      screen.getByText("communities:discover_events_title"),
     ).toBeInTheDocument();
     expect(screen.getByText("communities:my_communities")).toBeInTheDocument();
     expect(screen.getByText("communities:online")).toBeInTheDocument();
     expect(screen.getByTestId("location-autocomplete")).toBeInTheDocument();
     expect(
-      screen.getByText("communities:events_empty_state")
+      screen.getByText("communities:events_empty_state"),
     ).toBeInTheDocument();
   });
 
@@ -147,8 +147,8 @@ describe("DiscoverEventsList", () => {
     expect(screen.getByText("Planting Season Meetup")).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Cherry Blossom Bike Ride around the entire Amsterdam because I like to write long event titles"
-      )
+        "Cherry Blossom Bike Ride around the entire Amsterdam because I like to write long event titles",
+      ),
     ).toBeInTheDocument();
     expect(screen.getByText("Change Page")).toBeInTheDocument();
   });
@@ -188,8 +188,8 @@ describe("DiscoverEventsList", () => {
 
     await waitFor(() =>
       expect(mockUseEventSearch).toHaveBeenCalledWith(
-        expect.objectContaining({ pageNumber: 2 })
-      )
+        expect.objectContaining({ pageNumber: 2 }),
+      ),
     );
   });
 
@@ -211,16 +211,16 @@ describe("DiscoverEventsList", () => {
 
     await waitFor(() =>
       expect(mockUseEventSearch).toHaveBeenCalledWith(
-        expect.objectContaining({ isMyCommunities: true })
-      )
+        expect.objectContaining({ isMyCommunities: true }),
+      ),
     );
     expect(communitiesFilter.className).toContain("selectedFilter");
 
     fireEvent.click(onlineFilter);
     await waitFor(() =>
       expect(mockUseEventSearch).toHaveBeenCalledWith(
-        expect.objectContaining({ isOnlineOnly: true })
-      )
+        expect.objectContaining({ isOnlineOnly: true }),
+      ),
     );
     expect(onlineFilter.className).toContain("selectedFilter");
   });
@@ -253,7 +253,7 @@ describe("DiscoverEventsList", () => {
       expect(mockUseEventSearch).toHaveBeenLastCalledWith(
         expect.objectContaining({
           searchLocation: newLocation,
-        })
+        }),
       );
     });
   });

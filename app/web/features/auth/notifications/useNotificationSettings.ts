@@ -10,7 +10,7 @@ export default function useNotificationSettings() {
     RpcError
   >(
     notificationSettingsQueryKey,
-    service.notifications.getNotificationSettings
+    service.notifications.getNotificationSettings,
   );
 
   return notificationSettingsQuery;

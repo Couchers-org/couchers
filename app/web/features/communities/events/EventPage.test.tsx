@@ -73,13 +73,13 @@ describe("Event page", () => {
     renderEventPage();
 
     expect(
-      await screen.findByRole("heading", { name: firstEvent.title })
+      await screen.findByRole("heading", { name: firstEvent.title }),
     ).toBeVisible();
     expect(
-      await screen.findByText(firstEvent.offlineInformation!.address)
+      await screen.findByText(firstEvent.offlineInformation!.address),
     ).toBeVisible();
     expect(
-      await screen.findByText("Tuesday, June 29, 2021 2:37 AM to 3:37 AM")
+      await screen.findByText("Tuesday, June 29, 2021 2:37 AM to 3:37 AM"),
     ).toBeVisible();
     // Event image
 
@@ -95,25 +95,25 @@ describe("Event page", () => {
     expect(
       screen.getByRole("heading", {
         name: t("communities:details_subheading_colon"),
-      })
+      }),
     ).toBeVisible();
     expect(screen.getByText("Be there")).toBeVisible();
     expect(screen.getByText("or be square!")).toBeVisible();
 
     // Basic checks that the organizers and attendees sections are rendered
     expect(
-      screen.getByRole("heading", { name: t("communities:organizers") })
+      screen.getByRole("heading", { name: t("communities:organizers") }),
     ).toBeVisible();
     expect(
-      screen.getByRole("heading", { name: t("communities:attendees") })
+      screen.getByRole("heading", { name: t("communities:attendees") }),
     ).toBeVisible();
 
     // Basic checks that the discussion has been rendered
     expect(
-      screen.getByRole("heading", { name: t("communities:event_discussion") })
+      screen.getByRole("heading", { name: t("communities:event_discussion") }),
     ).toBeVisible();
     expect(
-      screen.getByLabelText(t("communities:write_comment_a11y_label"))
+      screen.getByLabelText(t("communities:write_comment_a11y_label")),
     ).toBeVisible();
   });
 
@@ -123,10 +123,10 @@ describe("Event page", () => {
 
     // Should be identical in structure as first test, so only assert on things that are different
     expect(
-      await screen.findByText(t("communities:virtual_event"))
+      await screen.findByText(t("communities:virtual_event")),
     ).toBeVisible();
     expect(
-      screen.getByRole("link", { name: t("communities:event_link") })
+      screen.getByRole("link", { name: t("communities:event_link") }),
     ).toBeVisible();
   });
 
@@ -136,8 +136,8 @@ describe("Event page", () => {
 
     expect(
       await screen.findByText(
-        "Tuesday, June 29, 2021 9:00 PM to Wednesday, June 30, 2021 2:00 AM"
-      )
+        "Tuesday, June 29, 2021 9:00 PM to Wednesday, June 30, 2021 2:00 AM",
+      ),
     ).toBeVisible();
   });
 
@@ -151,7 +151,7 @@ describe("Event page", () => {
 
     // @TODO should be awaited but doesn't work, try again after more package upgrades
     user.click(
-      screen.getByRole("button", { name: t("communities:previous_page") })
+      screen.getByRole("button", { name: t("communities:previous_page") }),
     );
 
     await waitFor(() => expect(mockRouter.back).toBeCalled());
@@ -162,7 +162,7 @@ describe("Event page", () => {
     renderEventPage();
 
     expect(
-      await screen.findByRole("link", { name: t("communities:edit_event") })
+      await screen.findByRole("link", { name: t("communities:edit_event") }),
     ).toBeVisible();
   });
 
@@ -170,14 +170,14 @@ describe("Event page", () => {
     renderEventPage();
 
     expect(
-      await screen.queryByRole("button", { name: t("communities:edit_event") })
+      await screen.queryByRole("button", { name: t("communities:edit_event") }),
     ).not.toBeInTheDocument();
   });
 
   it("shows the not found page if the user tries to find an event with an invalid ID in the URL", async () => {
     renderEventPage(0, "event");
     expect(
-      await screen.findByRole("img", { name: "404 Error: Resource Not Found" })
+      await screen.findByRole("img", { name: "404 Error: Resource Not Found" }),
     ).toBeVisible();
   });
 
@@ -215,10 +215,12 @@ describe("Event page", () => {
       user.click(leaveEventOption);
 
       expect(
-        await screen.findByRole("button", { name: t("communities:join_event") })
+        await screen.findByRole("button", {
+          name: t("communities:join_event"),
+        }),
       ).toBeVisible();
       expect(
-        screen.queryByRole("heading", { name: "Funny Cat current User" })
+        screen.queryByRole("heading", { name: "Funny Cat current User" }),
       ).not.toBeInTheDocument();
       expect(setEventAttendanceMock).toHaveBeenCalledTimes(1);
       expect(setEventAttendanceMock).toHaveBeenCalledWith({

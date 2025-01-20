@@ -134,7 +134,7 @@ describe("when the listFriendRequests succeeds", () => {
       () => useFriendRequests("received"),
       {
         wrapper,
-      }
+      },
     );
 
     await waitFor(() =>
@@ -143,14 +143,14 @@ describe("when the listFriendRequests succeeds", () => {
         errors: [],
         isError: false,
         isLoading: false,
-      })
+      }),
     );
 
     const { result: sentRequests } = renderHook(
       () => useFriendRequests("sent"),
       {
         wrapper,
-      }
+      },
     );
     await waitFor(() =>
       expect(sentRequests.current).toEqual({
@@ -158,7 +158,7 @@ describe("when the listFriendRequests succeeds", () => {
         errors: [],
         isError: false,
         isLoading: false,
-      })
+      }),
     );
   });
 
@@ -182,7 +182,7 @@ describe("when the listFriendRequests succeeds", () => {
 describe("when the listFriendRequests query failed", () => {
   it("returns isError as true with the errors and shouldn't try to load liteUsers", async () => {
     listFriendRequestsMock.mockRejectedValue(
-      new Error("Error listing friend requests")
+      new Error("Error listing friend requests"),
     );
     mockConsoleError();
     const { result } = renderHook(() => useFriendRequests("sent"), { wrapper });

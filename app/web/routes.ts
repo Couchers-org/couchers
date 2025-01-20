@@ -79,7 +79,7 @@ export const leaveReferenceBaseRoute = "/leave-reference";
 export const routeToLeaveReference = (
   referenceType: ReferenceTypeRouteStrings,
   userId: number,
-  hostRequestId?: number
+  hostRequestId?: number,
 ) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`;
 export const referenceTypeRouteStrings = [
   "friend",
@@ -155,7 +155,7 @@ export type CommunityTab = (typeof communityTabs)[number];
 export const routeToCommunity = (
   id: number,
   slug: string,
-  page?: CommunityTab
+  page?: CommunityTab,
 ) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
 export const routeToEditCommunityPage = (id: number, slug: string) =>
   `${routeToCommunity(id, slug, "info")}/edit`;

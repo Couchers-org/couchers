@@ -28,7 +28,7 @@ describe("parsedQueryToSearchFilters", () => {
   });
   it("should return a SearchFilters object parsing the URL parameters that a simple search produces", () => {
     const parsedQuery = parse(
-      "location=City+of+Albany%2C+New+York%2C+United+States"
+      "location=City+of+Albany%2C+New+York%2C+United+States",
     );
     expect(parsedQueryToSearchFilters(parsedQuery)).toEqual({
       location: "City of Albany, New York, United States",
@@ -36,7 +36,7 @@ describe("parsedQueryToSearchFilters", () => {
   });
   it("should return a SearchFilters object parsing the URL parameters with all filters", () => {
     const parsedQuery = parse(
-      "location=Madrid%2C+Community+of+Madrid%2C+Spain&query=bike&lastActive=14&hostingStatusOptions=2&hostingStatusOptions=3&numGuests=2"
+      "location=Madrid%2C+Community+of+Madrid%2C+Spain&query=bike&lastActive=14&hostingStatusOptions=2&hostingStatusOptions=3&numGuests=2",
     );
     expect(parsedQueryToSearchFilters(parsedQuery)).toEqual({
       location: "Madrid, Community of Madrid, Spain",
@@ -57,7 +57,7 @@ describe("parseSearchFiltersToQuery", () => {
       parseSearchFiltersToQuery({
         location: "City of Albany, New York, United States",
         numGuests: 3,
-      })
+      }),
     ).toBe("location=City+of+Albany%2C+New+York%2C+United+States&numGuests=3");
   });
   it("should return a string with encoded URL params when all filters are set", () => {
@@ -68,9 +68,9 @@ describe("parseSearchFiltersToQuery", () => {
         lastActive: 14,
         hostingStatusOptions: [2, 3],
         query: "bike",
-      })
+      }),
     ).toBe(
-      "location=Madrid%2C+Community+of+Madrid%2C+Spain&numGuests=2&lastActive=14&hostingStatusOptions=2&hostingStatusOptions=3&query=bike"
+      "location=Madrid%2C+Community+of+Madrid%2C+Spain&numGuests=2&lastActive=14&hostingStatusOptions=2&hostingStatusOptions=3&query=bike",
     );
   });
 });

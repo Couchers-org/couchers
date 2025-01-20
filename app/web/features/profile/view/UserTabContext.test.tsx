@@ -14,7 +14,7 @@ function renderTest(tab: UserTab) {
   render(
     <UserTabContext tab={tab}>
       <Test />
-    </UserTabContext>
+    </UserTabContext>,
   );
 }
 

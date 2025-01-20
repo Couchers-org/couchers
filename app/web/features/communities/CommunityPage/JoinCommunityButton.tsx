@@ -27,11 +27,11 @@ export default function JoinCommunityButton({
                   ...prevData,
                   member: true,
                 }
-              : undefined
+              : undefined,
         );
         queryClient.invalidateQueries(communityKey(community.communityId));
       },
-    }
+    },
   );
   const leave = useMutation<void, RpcError>(
     () => service.communities.leaveCommunity(community.communityId),
@@ -45,11 +45,11 @@ export default function JoinCommunityButton({
                   ...prevData,
                   member: false,
                 }
-              : undefined
+              : undefined,
         );
         queryClient.invalidateQueries(communityKey(community.communityId));
       },
-    }
+    },
   );
   const isLoading = join.isLoading || leave.isLoading;
   return (

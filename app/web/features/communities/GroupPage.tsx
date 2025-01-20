@@ -150,7 +150,7 @@ export default function GroupPage({
                       key={parent.community.communityId}
                       href={routeToCommunity(
                         parent.community.communityId,
-                        parent.community.slug
+                        parent.community.slug,
                       )}
                     >
                       {parent.community.name}
@@ -162,7 +162,7 @@ export default function GroupPage({
                       key={parent.group.groupId}
                       href={routeToGroup(
                         parent.group.groupId,
-                        parent.group.slug
+                        parent.group.slug,
                       )}
                     >
                       {parent.group.name}
@@ -281,7 +281,7 @@ export default function GroupPage({
                   <Link
                     href={routeToDiscussion(
                       discussion.discussionId,
-                      discussion.slug
+                      discussion.slug,
                     )}
                   >
                     {discussion.title}

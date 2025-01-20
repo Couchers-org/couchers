@@ -22,7 +22,7 @@ import client from "./client";
 export async function listCommunityEvents(
   communityId: number,
   pageToken?: string,
-  pageSize?: number
+  pageSize?: number,
 ) {
   const req = new ListEventsReq();
   req.setCommunityId(communityId);

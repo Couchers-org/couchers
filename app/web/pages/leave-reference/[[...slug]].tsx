@@ -26,7 +26,7 @@ export default function LeaveReferencePage() {
   if (!slug?.[0] || !slug?.[1]) return <NotFoundPage />;
   const referenceType = slug[0];
   const parsedReferenceType = referenceTypeRouteStrings.find(
-    (valid) => referenceType === valid
+    (valid) => referenceType === valid,
   );
   if (!parsedReferenceType) return <NotFoundPage />;
   const parsedUserId = Number.parseInt(slug[1]);

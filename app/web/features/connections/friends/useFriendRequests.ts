@@ -5,7 +5,7 @@ import { useQuery } from "react-query";
 import { service } from "service";
 
 export default function useFriendRequests(
-  friendRequestType: FriendRequestType
+  friendRequestType: FriendRequestType,
 ) {
   const {
     data: friendRequestLists,
@@ -18,11 +18,11 @@ export default function useFriendRequests(
       return friendRequestType === "sent"
         ? friendRequests.sentList
         : friendRequests.receivedList;
-    }
+    },
   );
 
   const userIds = (friendRequestLists ?? []).map(
-    (friendReq) => friendReq.userId
+    (friendReq) => friendReq.userId,
   );
 
   const {
@@ -34,8 +34,8 @@ export default function useFriendRequests(
   const errors = error
     ? [error.message, liteUserError?.message]
     : liteUserError?.message
-    ? [liteUserError.message]
-    : [];
+      ? [liteUserError.message]
+      : [];
 
   const isLoading = isFriendReqLoading || isLiteUsersLoading;
 

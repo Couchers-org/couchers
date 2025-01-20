@@ -12,12 +12,12 @@ import isGrpcError from "service/utils/isGrpcError";
 export default function useAuthStore() {
   const [authenticated, setAuthenticated] = usePersistedState(
     "auth.authenticated",
-    false
+    false,
   );
   const [jailed, setJailed] = usePersistedState("auth.jailed", false);
   const [userId, setUserId] = usePersistedState<number | null>(
     "auth.userId",
-    null
+    null,
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +73,7 @@ export default function useAuthStore() {
           const auth = await service.user.passwordLogin(
             username,
             password,
-            rememberDevice
+            rememberDevice,
           );
           setUserId(auth.userId);
           Sentry.setUser({ id: auth.userId.toString() });
@@ -134,7 +134,7 @@ export default function useAuthStore() {
     }),
     //note: there should be no dependenices on the state or t, or
     //some useEffects will break. Eg. the token login in Login.tsx
-    [setAuthenticated, setJailed, setUserId, setFlowState, queryClient]
+    [setAuthenticated, setJailed, setUserId, setFlowState, queryClient],
   );
 
   return {

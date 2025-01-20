@@ -75,7 +75,7 @@ export default function HeroLinks() {
               variant="body1"
               className={classNames(
                 classes.tabAppearance,
-                classes.selectedTabAppearance
+                classes.selectedTabAppearance,
               )}
             >
               {t("find_a_host")}

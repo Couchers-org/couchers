@@ -53,7 +53,7 @@ describe("MarkAllReadButton", () => {
           lastMessageId: chats[chats.length - 1].latestMessage!.messageId,
           noMore: lastMessageId + 1 === mutableStore.chats.length,
         };
-      }
+      },
     );
     listHostRequestsMock.mockImplementation(
       async ({ lastRequestId = 0, count = 1 }) => {
@@ -65,13 +65,13 @@ describe("MarkAllReadButton", () => {
           lastRequestId: requests[requests.length - 1].latestMessage!.messageId,
           noMore: lastRequestId + 1 === mutableStore.requests.length,
         };
-      }
+      },
     );
     markLastRequestSeenMock.mockImplementation(
       async (hostRequestId, messageId) => {
         mutableStore.requests[hostRequestId - 1].lastSeenMessageId = messageId;
         return new Empty();
-      }
+      },
     );
     markLastSeenGroupChatMock.mockImplementation(async (chatId, messageId) => {
       mutableStore.chats[chatId - 1].lastSeenMessageId = messageId;
@@ -86,7 +86,7 @@ describe("MarkAllReadButton", () => {
     await user.click(
       await screen.findByRole("button", {
         name: t("messages:mark_all_read_button_text"),
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -108,7 +108,7 @@ describe("MarkAllReadButton", () => {
     await user.click(
       await screen.findByRole("button", {
         name: t("messages:mark_all_read_button_text"),
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -134,7 +134,7 @@ describe("MarkAllReadButton", () => {
     await user.click(
       await screen.findByRole("button", {
         name: t("messages:mark_all_read_button_text"),
-      })
+      }),
     );
 
     await assertErrorAlert("Generic error");

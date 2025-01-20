@@ -57,23 +57,24 @@ export default function GroupChatListItem({
   const avatarUserId =
     latestMessageAuthorId !== null && latestMessageAuthorId !== currentUserId
       ? latestMessageAuthorId
-      : groupChat.memberUserIdsList.find((id) => id !== currentUserId) ??
-        currentUserId;
+      : (groupChat.memberUserIdsList.find((id) => id !== currentUserId) ??
+        currentUserId);
   //title is the chat title, or all the member's names except current user joined together
   const title = groupChatTitleText(
     groupChat,
     groupChatMembersQuery,
-    currentUserId
+    currentUserId,
   );
   //text is the control message text or message text
   let text = "";
   const authorName = firstName(
-    groupChatMembersQuery.data?.get(groupChat.latestMessage?.authorUserId)?.name
+    groupChatMembersQuery.data?.get(groupChat.latestMessage?.authorUserId)
+      ?.name,
   );
   if (groupChat.latestMessage && isControlMessage(groupChat.latestMessage)) {
     const targetName = firstName(
       groupChatMembersQuery.data?.get(messageTargetId(groupChat.latestMessage))
-        ?.name
+        ?.name,
     );
     text = controlMessage({
       user: authorName,

@@ -10,7 +10,7 @@ import React, { forwardRef } from "react";
 import { theme } from "theme";
 
 const Select = forwardRef(function Select<
-  T extends Record<string | number, string>
+  T extends Record<string | number, string>,
 >(
   {
     id,
@@ -33,7 +33,7 @@ const Select = forwardRef(function Select<
     optionLabelMap: T;
     onChange?: (event: SelectChangeEvent<T>) => void;
   },
-  ref: React.Ref<HTMLSelectElement>
+  ref: React.Ref<HTMLSelectElement>,
 ) {
   const OptionComponent: React.ElementType = menuItems ? MenuItem : "option";
 

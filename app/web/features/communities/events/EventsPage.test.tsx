@@ -11,13 +11,13 @@ const { t } = i18n;
 
 describe("Events page", () => {
   it(`takes user to the page if the "${t(
-    "communities:create_an_event"
+    "communities:create_an_event",
   )}" button is clicked`, async () => {
     render(<EventsPage />, { wrapper });
 
     const user = userEvent.setup();
     await user.click(
-      screen.getByRole("button", { name: t("communities:create_new_event") })
+      screen.getByRole("button", { name: t("communities:create_new_event") }),
     );
 
     await waitFor(() => {

@@ -35,7 +35,7 @@ describe("AddFriendButton", () => {
     expect(
       screen.getByRole("button", {
         name: t("connections:add_friend"),
-      })
+      }),
     ).toBeVisible();
   });
 
@@ -48,7 +48,7 @@ describe("AddFriendButton", () => {
     await user.click(
       screen.getByRole("button", {
         name: t("connections:add_friend"),
-      })
+      }),
     );
     expect(await screen.findByRole("progressbar")).toBeVisible();
   });
@@ -61,7 +61,7 @@ describe("AddFriendButton", () => {
     await user.click(
       screen.getByRole("button", {
         name: t("connections:add_friend"),
-      })
+      }),
     );
 
     expect(await screen.findByText(/Success/)).toBeInTheDocument();
@@ -70,7 +70,7 @@ describe("AddFriendButton", () => {
   it("sets an error if the add friend action failed", async () => {
     jest.spyOn(console, "error").mockReturnValue(undefined);
     sendFriendRequestMock.mockRejectedValue(
-      new Error("Failed to add funny dog")
+      new Error("Failed to add funny dog"),
     );
     render(<TestComponent />, { wrapper });
 
@@ -79,10 +79,10 @@ describe("AddFriendButton", () => {
     await user.click(
       screen.getByRole("button", {
         name: t("connections:add_friend"),
-      })
+      }),
     );
     expect(
-      await screen.findByText("Failed to add funny dog")
+      await screen.findByText("Failed to add funny dog"),
     ).toBeInTheDocument();
   });
 });
