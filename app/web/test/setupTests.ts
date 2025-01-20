@@ -24,7 +24,7 @@ jest.mock("next/router", () => {
       emit: jest.fn(),
     },
   };
-}); 
+});
 // Mock next/dynamic to skip the dynamic part
 // This works by extracting the require("path/to/component")
 // It needs to be in the form dynamic(() => import("components/MarkdownNoSSR"))
