@@ -1,4 +1,4 @@
-import glob from "glob";
+import { glob } from "glob";
 
 export function getAllMarkdownFiles(): Array<string> {
   return glob.sync("markdown/**/*.md");
