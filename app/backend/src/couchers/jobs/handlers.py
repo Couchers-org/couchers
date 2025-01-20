@@ -493,9 +493,10 @@ def add_users_to_email_list(payload):
                 json={
                     "email": user.email,
                     "name": user.name,
-                    "list_uuids": [config["LISTMONK_LIST_UUID"]],
+                    "lists": [config["LISTMONK_LIST_ID"]],
                     "preconfirm_subscriptions": True,
                     "attribs": {"couchers_user_id": user.id},
+                    "status": "enabled",
                 },
                 timeout=10,
             )
