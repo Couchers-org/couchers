@@ -14,7 +14,17 @@ import i18n from "test/i18n";
 import user from "./fixtures/defaultUser.json";
 
 jest.mock("service");
-jest.mock("next/router", () => require("next-router-mock"));
+jest.mock("next/router", () => {
+  const routerMock = jest.requireActual("next-router-mock");
+  return {
+    ...routerMock,
+    events: {
+      on: jest.fn(),
+      off: jest.fn(),
+      emit: jest.fn(),
+    },
+  };
+});
 // Mock next/dynamic to skip the dynamic part
 // This works by extracting the require("path/to/component")
 // It needs to be in the form dynamic(() => import("components/MarkdownNoSSR"))
@@ -32,7 +42,7 @@ jest.mock("next/dynamic", () => ({
 }));
 jest.mock("react-gtm-module");
 
-jest.setTimeout(15000);
+jest.setTimeout(10000);
 
 global.defaultUser = user;
 global.localStorage = createWebStorageMock();

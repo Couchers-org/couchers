@@ -1,4 +1,4 @@
-import { StyledEngineProvider, Theme, ThemeProvider } from "@mui/material";
+import { StyledEngineProvider, ThemeProvider } from "@mui/material";
 import Button from "components/Button";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
@@ -7,11 +7,6 @@ import { searchRoute } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
-
-declare module "@mui/styles/defaultTheme" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
 
 const useStyles = makeStyles((theme) => ({
   textGradient: {
