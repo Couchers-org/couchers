@@ -867,6 +867,7 @@ def testconfig():
 
     config["LISTMONK_ENABLED"] = False
     config["LISTMONK_BASE_URL"] = "https://localhost"
+    config["LISTMONK_API_USERNAME"] = "..."
     config["LISTMONK_API_KEY"] = "..."
     config["LISTMONK_LIST_UUID"] = "..."
 

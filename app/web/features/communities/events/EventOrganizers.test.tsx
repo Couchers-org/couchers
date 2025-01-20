@@ -72,7 +72,9 @@ describe("Event organizers", () => {
       );
 
       expect(
-        await screen.findByRole("dialog", { name: t("communities:organizers") })
+        await screen.findByRole("dialog", {
+          name: t("communities:organizers"),
+        })
       ).toBeVisible();
 
       expect(
@@ -92,7 +94,9 @@ describe("Event organizers", () => {
         await screen.findByRole("button", { name: t("communities:see_all") })
       );
       const dialog = within(
-        await screen.findByRole("dialog", { name: t("communities:organizers") })
+        await screen.findByRole("dialog", {
+          name: t("communities:organizers"),
+        })
       );
 
       await user.click(
@@ -131,7 +135,9 @@ describe("Event organizers", () => {
         await screen.findByRole("button", { name: t("communities:see_all") })
       );
       const dialog = within(
-        await screen.findByRole("dialog", { name: t("communities:organizers") })
+        await screen.findByRole("dialog", {
+          name: t("communities:organizers"),
+        })
       );
 
       await user.click(

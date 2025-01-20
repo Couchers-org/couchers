@@ -91,7 +91,9 @@ describe("Events section", () => {
     const user = userEvent.setup();
 
     await user.click(
-      await screen.findByRole("link", { name: t("global:nav.show_all_events") })
+      await screen.findByRole("link", {
+        name: t("global:nav.show_all_events"),
+      })
     );
 
     expect(mockRouter.pathname).toBe(

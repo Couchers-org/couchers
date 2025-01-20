@@ -32,15 +32,21 @@ describe("UsersList", () => {
     // User 1
     expect(screen.getByRole("img", { name: users[0].name })).toBeVisible();
     expect(
-      screen.getByRole("heading", { name: `${users[0].name}, ${users[0].age}` })
+      screen.getByRole("heading", {
+        name: `${users[0].name}, ${users[0].age}`,
+      })
     ).toBeVisible();
 
     // User 2
     expect(
-      screen.getByRole("link", { name: getProfileLinkA11yLabel(users[1].name) })
+      screen.getByRole("link", {
+        name: getProfileLinkA11yLabel(users[1].name),
+      })
     ).toBeVisible();
     expect(
-      screen.getByRole("heading", { name: `${users[1].name}, ${users[1].age}` })
+      screen.getByRole("heading", {
+        name: `${users[1].name}, ${users[1].age}`,
+      })
     ).toBeVisible();
   });
 
@@ -105,10 +111,14 @@ describe("UsersList", () => {
 
     // have user 2
     expect(
-      screen.getByRole("link", { name: getProfileLinkA11yLabel(users[1].name) })
+      screen.getByRole("link", {
+        name: getProfileLinkA11yLabel(users[1].name),
+      })
     ).toBeVisible();
     expect(
-      screen.getByRole("heading", { name: `${users[1].name}, ${users[1].age}` })
+      screen.getByRole("heading", {
+        name: `${users[1].name}, ${users[1].age}`,
+      })
     ).toBeVisible();
 
     // don't have non-existent user 99
@@ -135,10 +145,14 @@ describe("UsersList", () => {
 
     // have user 2
     expect(
-      screen.getByRole("link", { name: getProfileLinkA11yLabel(users[1].name) })
+      screen.getByRole("link", {
+        name: getProfileLinkA11yLabel(users[1].name),
+      })
     ).toBeVisible();
     expect(
-      screen.getByRole("heading", { name: `${users[1].name}, ${users[1].age}` })
+      screen.getByRole("heading", {
+        name: `${users[1].name}, ${users[1].age}`,
+      })
     ).toBeVisible();
 
     // don't have non-existent user 99

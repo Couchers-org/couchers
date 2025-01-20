@@ -42,7 +42,9 @@ describe("Event attendees", () => {
       await screen.findByRole("heading", { name: t("communities:attendees") })
     ).toBeVisible();
     expect(
-      await screen.findByRole("heading", { name: "Funny Cat current User, 28" })
+      await screen.findByRole("heading", {
+        name: "Funny Cat current User, 28",
+      })
     ).toBeVisible();
     expect(
       await screen.findByRole("heading", { name: "Funny Chicken, 28" })

@@ -48,7 +48,9 @@ describe("ChangeEmail", () => {
 
     it("shows the full change email form", async () => {
       expect(
-        screen.getByRole("heading", { name: t("auth:change_email_form.title") })
+        screen.getByRole("heading", {
+          name: t("auth:change_email_form.title"),
+        })
       ).toBeVisible();
       expect(
         await screen.findByLabelText(

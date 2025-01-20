@@ -215,7 +215,9 @@ describe("Event page", () => {
       user.click(leaveEventOption);
 
       expect(
-        await screen.findByRole("button", { name: t("communities:join_event") })
+        await screen.findByRole("button", {
+          name: t("communities:join_event"),
+        })
       ).toBeVisible();
       expect(
         screen.queryByRole("heading", { name: "Funny Cat current User" })
