@@ -8,7 +8,7 @@ import backoff
 import grpc
 import pyvips
 import sentry_sdk
-from flask import Flask, Response, abort, request, send_file, make_response
+from flask import Flask, Response, abort, make_response, request, send_file
 from sentry_sdk.integrations import argv, atexit, dedupe, modules, stdlib, threading
 from sentry_sdk.integrations import logging as sentry_logging
 from werkzeug.utils import secure_filename
@@ -143,13 +143,15 @@ def create_app(
         # let the main server know the upload succeeded, or delete the file
         try:
             send_confirmation_to_main_server(req.key, filename)
-            res = make_response({
-                "ok": True,
-                "key": req.key,
-                "filename": filename,
-                "full_url": f"{media_server_base_url}/img/full/{filename}",
-                "thumbnail_url": f"{media_server_base_url}/img/thumbnail/{filename}",
-            })
+            res = make_response(
+                {
+                    "ok": True,
+                    "key": req.key,
+                    "filename": filename,
+                    "full_url": f"{media_server_base_url}/img/full/{filename}",
+                    "thumbnail_url": f"{media_server_base_url}/img/thumbnail/{filename}",
+                }
+            )
             res.access_control_allow_origin = media_cors_origin
             return res
         except Exception as e:
