@@ -928,7 +928,7 @@ def test_add_users_to_email_list(db):
     new_config["LISTMONK_BASE_URL"] = "https://example.com"
     new_config["LISTMONK_API_USERNAME"] = "test_user"
     new_config["LISTMONK_API_KEY"] = "dummy_api_key"
-    new_config["LISTMONK_LIST_UUID"] = "baf96eaa-5e70-409d-b776-f5c16fb091b9"
+    new_config["LISTMONK_LIST_ID"] = 6
 
     with patch("couchers.jobs.handlers.config", new_config):
         with patch("couchers.jobs.handlers.requests.post") as mock:
@@ -954,9 +954,10 @@ def test_add_users_to_email_list(db):
                     json={
                         "email": "testing1@couchers.invalid",
                         "name": "Tester1",
-                        "list_uuids": ["baf96eaa-5e70-409d-b776-f5c16fb091b9"],
+                        "lists": [6],
                         "preconfirm_subscriptions": True,
                         "attribs": {"couchers_user_id": 15},
+                        "status": "enabled",
                     },
                     timeout=10,
                 ),
@@ -966,9 +967,10 @@ def test_add_users_to_email_list(db):
                     json={
                         "email": "testing3@couchers.invalid",
                         "name": "Tester3 von test",
-                        "list_uuids": ["baf96eaa-5e70-409d-b776-f5c16fb091b9"],
+                        "lists": [6],
                         "preconfirm_subscriptions": True,
                         "attribs": {"couchers_user_id": 17},
+                        "status": "enabled",
                     },
                     timeout=10,
                 ),

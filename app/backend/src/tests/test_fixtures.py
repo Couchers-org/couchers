@@ -869,7 +869,7 @@ def testconfig():
     config["LISTMONK_BASE_URL"] = "https://localhost"
     config["LISTMONK_API_USERNAME"] = "..."
     config["LISTMONK_API_KEY"] = "..."
-    config["LISTMONK_LIST_UUID"] = "..."
+    config["LISTMONK_LIST_ID"] = 3
 
     config["PUSH_NOTIFICATIONS_ENABLED"] = True
     config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"] = "uI1DCR4G1AdlmMlPfRLemMxrz9f3h4kvjfnI8K9WsVI"

@@ -87,7 +87,7 @@ CONFIG_OPTIONS = [
     ("LISTMONK_BASE_URL", str),
     ("LISTMONK_API_USERNAME", str),
     ("LISTMONK_API_KEY", str),
-    ("LISTMONK_LIST_UUID", str),
+    ("LISTMONK_LIST_ID", int),
     # Whether we're in test
     ("IN_TEST", bool, "0"),
 ]
