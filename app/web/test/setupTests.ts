@@ -14,7 +14,7 @@ import i18n from "test/i18n";
 import user from "./fixtures/defaultUser.json";
 
 jest.mock("service");
-jest.mock("next/router", () => require("next-router-mock"));
+jest.mock("next/router", () => import("next-router-mock"));
 // Mock next/dynamic to skip the dynamic part
 // This works by extracting the require("path/to/component")
 // It needs to be in the form dynamic(() => import("components/MarkdownNoSSR"))
