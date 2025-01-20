@@ -85,6 +85,7 @@ CONFIG_OPTIONS = [
     # Listmonk (mailing list)
     ("LISTMONK_ENABLED", bool),
     ("LISTMONK_BASE_URL", str),
+    ("LISTMONK_API_USERNAME", str),
     ("LISTMONK_API_KEY", str),
     ("LISTMONK_LIST_UUID", str),
     # Whether we're in test
