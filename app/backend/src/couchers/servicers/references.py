@@ -47,7 +47,7 @@ def reference_to_pb(reference: Reference, context):
         ),
     )
 
-def get_host_req_and_check_can_write_ref(context, host_request_id):
+def get_host_req_and_check_can_write_ref(session, context, host_request_id):
     """
     Checks that this can see the given host req and write a ref for it
     
@@ -227,7 +227,7 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         check_valid_reference(request, context)
 
-        host_request, surfed = get_host_req_and_check_can_write_ref(context, request.host_request_id)
+        host_request, surfed = get_host_req_and_check_can_write_ref(session, context, request.host_request_id)
 
         reference_text = request.text.strip()
 
@@ -279,7 +279,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         return reference_to_pb(reference, context)
 
     def HostRequestIndicateDidntMeetup(self, request, context, session):
-        host_request, surfed = get_host_req_and_check_can_write_ref(context, request.host_request_id)
+        host_request, surfed = get_host_req_and_check_can_write_ref(session, context, request.host_request_id)
 
         reason = request.reason_didnt_meetup.strip()
 
