@@ -1,7 +1,6 @@
 import {
   Link as MuiLink,
   StyledEngineProvider,
-  Theme,
   ThemeProvider,
   Typography,
 } from "@mui/material";
@@ -10,10 +9,10 @@ import makeStyles from "utils/makeStyles";
 
 import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
 
-declare module "@mui/styles/defaultTheme" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
+// declare module "@mui/styles/defaultTheme" {
+//   // eslint-disable-next-line @typescript-eslint/no-empty-interface
+//   interface DefaultTheme extends Theme {}
+// }
 
 const useStyles = makeStyles((theme) => ({
   attribution: {
