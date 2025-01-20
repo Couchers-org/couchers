@@ -5,10 +5,10 @@
 * References become visible after min{2 weeks, both reciprocal references written}
 """
 
-from google.protobuf import empty_pb2
 from types import SimpleNamespace
 
 import grpc
+from google.protobuf import empty_pb2
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, literal, or_, union_all
 
@@ -47,10 +47,11 @@ def reference_to_pb(reference: Reference, context):
         ),
     )
 
+
 def get_host_req_and_check_can_write_ref(session, context, host_request_id):
     """
     Checks that this can see the given host req and write a ref for it
-    
+
     Returns the host req and `surfed`, a boolean of if the user was the surfer or not
     """
     host_request = session.execute(
@@ -77,7 +78,7 @@ def get_host_req_and_check_can_write_ref(session, context, host_request_id):
     surfed = host_request.surfer_user_id == context.user_id
 
     if surfed:
-        my_reason = host_request.surfed_reason_didnt_meetup
+        my_reason = host_request.surfer_reason_didnt_meetup
     else:
         my_reason = host_request.host_reason_didnt_meetup
 
@@ -239,7 +240,6 @@ class References(references_pb2_grpc.ReferencesServicer):
             rating=request.rating,
             was_appropriate=request.was_appropriate,
         )
-
 
         if surfed:
             # we requested to surf with someone
