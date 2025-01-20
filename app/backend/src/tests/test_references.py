@@ -543,16 +543,21 @@ def test_WriteHostRequestReference(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
+    user4, token4 = generate_user()
 
     with session_scope() as session:
         # too old
         hr1 = create_host_request(session, user3.id, user1.id, timedelta(days=20))
-        # valid host req
-        hr2 = create_host_request(session, user3.id, user1.id, timedelta(days=10))
+        # valid host req, surfer said we didn't show up but we can still write a req
+        hr2 = create_host_request(session, user3.id, user1.id, timedelta(days=10), surfer_reason_didnt_meetup="No show")
         # valid surfing req
         hr3 = create_host_request(session, user1.id, user3.id, timedelta(days=7))
         # not yet complete
         hr4 = create_host_request(session, user2.id, user1.id, timedelta(days=1), status=HostRequestStatus.pending)
+        # we indicated we didn't meet
+        hr5 = create_host_request(session, user4.id, user1.id, timedelta(days=7), host_reason_didnt_meetup="")
+        # we will indicate we didn't meet
+        hr6 = create_host_request(session, user4.id, user1.id, timedelta(days=8))
 
     with references_session(token3) as api:
         # can write for this one
@@ -619,6 +624,50 @@ def test_WriteHostRequestReference(db):
         api.WriteHostRequestReference(
             references_pb2.WriteHostRequestReferenceReq(
                 host_request_id=hr3,
+                text="Should work!",
+                was_appropriate=True,
+                rating=0.9,
+            )
+        )
+
+        # can't write reference for a HR that we indicated we didn't show up
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=hr5,
+                    text="Shouldn't work...",
+                    was_appropriate=True,
+                    rating=0.9,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_WRITE_REFERENCE_INDICATED_DIDNT_MEETUP
+
+        # can't write reference for a HR that we indicate we didn't show up for
+        api.HostRequestIndicateDidntMeetup(
+            references_pb2.HostRequestIndicateDidntMeetupReq(
+                host_request_id=hr6,
+                reason_didnt_meetup="No clue?",
+            )
+        )
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=hr6,
+                    text="Shouldn't work...",
+                    was_appropriate=True,
+                    rating=0.9,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_WRITE_REFERENCE_INDICATED_DIDNT_MEETUP
+
+    with references_session(token4) as api:
+        # they can still write one
+        api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=hr6,
                 text="Should work!",
                 was_appropriate=True,
                 rating=0.9,
