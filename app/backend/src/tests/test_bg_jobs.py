@@ -926,6 +926,7 @@ def test_add_users_to_email_list(db):
     new_config = config.copy()
     new_config["LISTMONK_ENABLED"] = True
     new_config["LISTMONK_BASE_URL"] = "https://example.com"
+    new_config["LISTMONK_API_USERNAME"] = "test_user"
     new_config["LISTMONK_API_KEY"] = "dummy_api_key"
     new_config["LISTMONK_LIST_UUID"] = "baf96eaa-5e70-409d-b776-f5c16fb091b9"
 
@@ -949,7 +950,7 @@ def test_add_users_to_email_list(db):
             [
                 call(
                     "https://example.com/api/subscribers",
-                    auth=("listmonk", "dummy_api_key"),
+                    auth=("test_user", "dummy_api_key"),
                     json={
                         "email": "testing1@couchers.invalid",
                         "name": "Tester1",
@@ -961,7 +962,7 @@ def test_add_users_to_email_list(db):
                 ),
                 call(
                     "https://example.com/api/subscribers",
-                    auth=("listmonk", "dummy_api_key"),
+                    auth=("test_user", "dummy_api_key"),
                     json={
                         "email": "testing3@couchers.invalid",
                         "name": "Tester3 von test",

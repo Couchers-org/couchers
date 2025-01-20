@@ -489,7 +489,7 @@ def add_users_to_email_list(payload):
 
             r = requests.post(
                 config["LISTMONK_BASE_URL"] + "/api/subscribers",
-                auth=("listmonk", config["LISTMONK_API_KEY"]),
+                auth=(config["LISTMONK_API_USERNAME"], config["LISTMONK_API_KEY"]),
                 json={
                     "email": user.email,
                     "name": user.name,
