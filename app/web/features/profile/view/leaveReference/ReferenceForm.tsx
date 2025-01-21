@@ -75,6 +75,7 @@ export default function ReferenceForm({
   step,
 }: ReferenceRouteParams) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
+  
   const [referenceData, setReferenceData] = useState<ReferenceContextFormData>({
     text: "",
     wasAppropriate: "",
