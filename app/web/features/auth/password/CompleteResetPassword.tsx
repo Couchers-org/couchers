@@ -63,7 +63,7 @@ export default function CompleteResetPassword() {
     RpcError,
     string
   >((newPassword) =>
-    service.account.CompletePasswordResetV2(resetToken as string, newPassword)
+    service.account.CompletePasswordResetV2(resetToken as string, newPassword),
   );
 
   const onSubmit = handleSubmit(({ newPassword, newPasswordCheck }) => {

@@ -117,7 +117,7 @@ export default function AttendanceMenu({
         <MenuItem
           onClick={() => {
             handleChangeAttendanceState(
-              AttendanceState.ATTENDANCE_STATE_NOT_GOING
+              AttendanceState.ATTENDANCE_STATE_NOT_GOING,
             );
           }}
           classes={{ root: classes.menuListItem }}

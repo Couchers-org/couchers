@@ -41,18 +41,18 @@ export default function GroupChatSettingsDialog({
       service.conversations.editGroupChat(
         groupChat.groupChatId,
         title,
-        onlyAdminsInvite
+        onlyAdminsInvite,
       ),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(
-          groupChatMessagesKey(groupChat.groupChatId)
+          groupChatMessagesKey(groupChat.groupChatId),
         );
         queryClient.invalidateQueries(groupChatsListKey);
         queryClient.invalidateQueries(groupChatKey(groupChat.groupChatId));
         if (props.onClose) props.onClose({}, "escapeKeyDown");
       },
-    }
+    },
   );
 
   const onSubmit = handleSubmit((data) => {
@@ -74,7 +74,7 @@ export default function GroupChatSettingsDialog({
             {...register("title")}
             defaultValue={groupChat.title}
             label={t(
-              "messages:group_chat_settings_dialog.chat_title.field_label"
+              "messages:group_chat_settings_dialog.chat_title.field_label",
             )}
           />
           <FormControlLabel
@@ -85,7 +85,7 @@ export default function GroupChatSettingsDialog({
               />
             }
             label={t(
-              "messages:group_chat_settings_dialog.only_admins_invite.field_label"
+              "messages:group_chat_settings_dialog.only_admins_invite.field_label",
             )}
           />
         </form>

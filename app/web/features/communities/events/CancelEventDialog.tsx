@@ -30,7 +30,7 @@ export default function CancelEventDialog({
         queryClient.invalidateQueries(eventKey(eventId));
         if (props.onClose) props.onClose({}, "escapeKeyDown");
       },
-    }
+    },
   );
 
   const handleCancelEvent = () => cancelEventMutation.mutate();

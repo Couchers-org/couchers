@@ -117,13 +117,13 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
       onSuccess: async (data: ImageInputValues) => {
         field.onChange(data.key);
         setImageUrl(
-          props.type === "avatar" ? data.thumbnail_url : data.full_url
+          props.type === "avatar" ? data.thumbnail_url : data.full_url,
         );
         confirmedUpload.current = data;
         setFile(null);
         await props.onSuccess?.(data);
       },
-    }
+    },
   );
   const isConfirming = !mutation.isLoading && file !== null;
   const { field } = useController({
@@ -155,7 +155,7 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
           tags: {
             component: "component/ImageInput",
           },
-        }
+        },
       );
       setReaderError(COULDNT_READ_FILE);
     }

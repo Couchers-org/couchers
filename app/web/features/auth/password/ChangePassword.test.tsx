@@ -27,21 +27,21 @@ describe("ChangePassword", () => {
       expect(
         screen.getByRole("heading", {
           name: t("auth:change_password_form.title"),
-        })
+        }),
       ).toBeVisible();
       expect(
         await screen.findByLabelText(
-          t("auth:change_password_form.old_password")
-        )
+          t("auth:change_password_form.old_password"),
+        ),
       ).toBeVisible();
       expect(
-        screen.getByLabelText(t("auth:change_password_form.new_password"))
+        screen.getByLabelText(t("auth:change_password_form.new_password")),
       ).toBeVisible();
       expect(
-        screen.getByLabelText(t("auth:change_password_form.confirm_password"))
+        screen.getByLabelText(t("auth:change_password_form.confirm_password")),
       ).toBeVisible();
       expect(
-        screen.getByRole("button", { name: t("global:submit") })
+        screen.getByRole("button", { name: t("global:submit") }),
       ).toBeVisible();
     });
 
@@ -49,7 +49,7 @@ describe("ChangePassword", () => {
       const user = userEvent.setup();
 
       await user.click(
-        await screen.findByRole("button", { name: t("global:submit") })
+        await screen.findByRole("button", { name: t("global:submit") }),
       );
 
       await waitFor(() => {
@@ -62,22 +62,22 @@ describe("ChangePassword", () => {
 
       await user.type(
         await screen.findByLabelText(
-          t("auth:change_password_form.new_password")
+          t("auth:change_password_form.new_password"),
         ),
-        "password"
+        "password",
       );
       await user.type(
         screen.getByLabelText(t("auth:change_password_form.confirm_password")),
-        "password1"
+        "password1",
       );
       await user.click(
-        screen.getByRole("button", { name: t("global:submit") })
+        screen.getByRole("button", { name: t("global:submit") }),
       );
 
       expect(
         await screen.findByText(
-          t("auth:change_password_form.password_mismatch_error")
-        )
+          t("auth:change_password_form.password_mismatch_error"),
+        ),
       ).toBeVisible();
       expect(changePasswordMock).not.toHaveBeenCalled();
     });
@@ -87,42 +87,42 @@ describe("ChangePassword", () => {
 
       await user.type(
         await screen.findByLabelText(
-          t("auth:change_password_form.old_password")
+          t("auth:change_password_form.old_password"),
         ),
-        "old_password"
+        "old_password",
       );
       await user.type(
         screen.getByLabelText(t("auth:change_password_form.new_password")),
-        "new_password"
+        "new_password",
       );
       await user.type(
         screen.getByLabelText(t("auth:change_password_form.confirm_password")),
-        "new_password"
+        "new_password",
       );
       await user.click(
-        screen.getByRole("button", { name: t("global:submit") })
+        screen.getByRole("button", { name: t("global:submit") }),
       );
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
       expect(successAlert).toHaveTextContent(
-        t("auth:change_password_form.password_changed_success")
+        t("auth:change_password_form.password_changed_success"),
       );
       expect(changePasswordMock).toHaveBeenCalledTimes(1);
       expect(changePasswordMock).toHaveBeenCalledWith(
         "old_password",
-        "new_password"
+        "new_password",
       );
 
       // Also check form has been cleared
       expect(
-        screen.getByLabelText(t("auth:change_password_form.old_password"))
+        screen.getByLabelText(t("auth:change_password_form.old_password")),
       ).not.toHaveValue();
       expect(
-        screen.getByLabelText(t("auth:change_password_form.new_password"))
+        screen.getByLabelText(t("auth:change_password_form.new_password")),
       ).not.toHaveValue();
       expect(
-        screen.getByLabelText(t("auth:change_password_form.confirm_password"))
+        screen.getByLabelText(t("auth:change_password_form.confirm_password")),
       ).not.toHaveValue();
     });
   });
@@ -136,15 +136,15 @@ describe("ChangePassword", () => {
 
     await user.type(
       await screen.findByLabelText(t("auth:change_password_form.old_password")),
-      "old_password"
+      "old_password",
     );
     await user.type(
       await screen.findByLabelText(t("auth:change_password_form.new_password")),
-      "new_password"
+      "new_password",
     );
     await user.type(
       screen.getByLabelText(t("auth:change_password_form.confirm_password")),
-      "new_password"
+      "new_password",
     );
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
@@ -152,7 +152,7 @@ describe("ChangePassword", () => {
     expect(errorAlert).toBeVisible();
     expect(errorAlert).toHaveTextContent("The password is insecure");
     expect(
-      screen.queryByText(/Your password change has been processed/i)
+      screen.queryByText(/Your password change has been processed/i),
     ).not.toBeInTheDocument();
   });
 });

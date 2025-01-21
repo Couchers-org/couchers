@@ -88,7 +88,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
   const { data: user, isLoading: isUserLoading } = useLiteUser(
-    comment.authorUserId
+    comment.authorUserId,
   );
 
   const {

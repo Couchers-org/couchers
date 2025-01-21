@@ -58,7 +58,7 @@ export default function MessageList({
               message={message}
               className={classes.message}
             />
-          )
+          ),
         )
       ) : (
         <TextBody>{t("chat_view.no_messages_state_text")}</TextBody>

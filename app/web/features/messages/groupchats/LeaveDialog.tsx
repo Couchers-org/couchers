@@ -36,7 +36,7 @@ export default function LeaveDialog({
         queryClient.invalidateQueries(groupChatKey(groupChatId));
         if (props.onClose) props.onClose({}, "escapeKeyDown");
       },
-    }
+    },
   );
   const handleLeaveGroupChat = () => leaveGroupChatMutation.mutate();
 

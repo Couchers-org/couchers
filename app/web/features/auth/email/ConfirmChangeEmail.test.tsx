@@ -29,8 +29,8 @@ describe("ConfirmChangeEmail", () => {
 
     expect(
       await screen.findByText(
-        t("auth:change_email_confirmation.change_in_progress")
-      )
+        t("auth:change_email_confirmation.change_in_progress"),
+      ),
     ).toBeVisible();
   });
 
@@ -44,11 +44,11 @@ describe("ConfirmChangeEmail", () => {
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
       expect(successAlert).toHaveTextContent(
-        t("auth:change_email_confirmation.success_message")
+        t("auth:change_email_confirmation.success_message"),
       );
       expect(confirmChangeEmailMock).toHaveBeenCalledTimes(1);
       expect(confirmChangeEmailMock).toHaveBeenLastCalledWith(
-        "Em4iLR3seTtok3n"
+        "Em4iLR3seTtok3n",
       );
     });
 
@@ -56,7 +56,7 @@ describe("ConfirmChangeEmail", () => {
       const user = userEvent.setup();
 
       await user.click(
-        await screen.findByRole("link", { name: t("auth:login_prompt") })
+        await screen.findByRole("link", { name: t("auth:login_prompt") }),
       );
 
       expect(mockRouter.pathname).toBe(loginRoute);

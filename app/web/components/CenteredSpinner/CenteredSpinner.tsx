@@ -16,7 +16,7 @@ const StyledCenteredLoaderContainer = styled("div")<StyleProps>(
     justifyContent: "center",
     alignItems: "center",
     marginBlockStart: theme.spacing(6),
-  })
+  }),
 );
 
 export default function CenteredSpinner({

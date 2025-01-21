@@ -6,7 +6,7 @@ import React, { ForwardedRef } from "react";
 
 function _CircularProgress(
   { className, ...otherProps }: CircularProgressProps,
-  ref: ForwardedRef<HTMLElement>
+  ref: ForwardedRef<HTMLElement>,
 ) {
   return (
     <MuiCircularProgress {...otherProps} className={className} ref={ref} />

@@ -83,7 +83,7 @@ export default function NotificationSettingsSubListItem({
         onSettled: () => {
           setIsPushLoading(false);
         },
-      }
+      },
     );
   };
 
@@ -108,7 +108,7 @@ export default function NotificationSettingsSubListItem({
         onSettled: () => {
           setIsEmailLoading(false);
         },
-      }
+      },
     );
   };
 

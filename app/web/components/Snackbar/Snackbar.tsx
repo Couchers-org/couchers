@@ -15,7 +15,7 @@ export default function Snackbar({ children, severity }: SnackbarProps) {
     typeof children === "string"
       ? Object.keys(grpcErrorStrings).find<ObscureGrpcErrorMessages>(
           (oldError): oldError is ObscureGrpcErrorMessages =>
-            children.includes(oldError)
+            children.includes(oldError),
         )
       : null;
 

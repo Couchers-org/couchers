@@ -93,11 +93,11 @@ export default function EventCard({ event, className }: EventCardProps) {
 
   const strippedContent = useMemo(
     () => stripMarkdown(event.content),
-    [event.content]
+    [event.content],
   );
 
   const formattedEventDates = `${startTime.format("llll")} - ${endTime.format(
-    endTime.isSame(startTime, "day") ? "LT" : "llll"
+    endTime.isSame(startTime, "day") ? "LT" : "llll",
   )}`;
 
   return (
@@ -105,7 +105,7 @@ export default function EventCard({ event, className }: EventCardProps) {
       className={classNames(
         className,
         classes.root,
-        event.isCancelled ? classes.cancelledEvent : null
+        event.isCancelled ? classes.cancelledEvent : null,
       )}
       data-testid={EVENT_CARD_TEST_ID}
     >

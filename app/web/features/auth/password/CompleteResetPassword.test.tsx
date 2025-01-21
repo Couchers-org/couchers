@@ -43,15 +43,15 @@ describe("CompletePasswordReset page", () => {
       screen.getByRole("heading", {
         level: 1,
         name: t("auth:change_password_form.title"),
-      })
+      }),
     ).toBeVisible();
 
     expect(
-      screen.getByText(t("auth:change_password_form.subtitle"))
+      screen.getByText(t("auth:change_password_form.subtitle")),
     ).toBeVisible();
 
     expect(
-      screen.getByRole("button", { name: t("global:submit") })
+      screen.getByRole("button", { name: t("global:submit") }),
     ).toBeVisible();
   });
 
@@ -63,7 +63,7 @@ describe("CompletePasswordReset page", () => {
     render(<CompletePasswordReset />, { wrapper });
 
     expect(
-      screen.queryByText(t("auth:change_password_form.token_error"))
+      screen.queryByText(t("auth:change_password_form.token_error")),
     ).toBeInTheDocument();
   });
 
@@ -71,7 +71,7 @@ describe("CompletePasswordReset page", () => {
     render(<CompletePasswordReset />, { wrapper });
 
     expect(
-      screen.queryByText(t("auth:change_password_form.token_error"))
+      screen.queryByText(t("auth:change_password_form.token_error")),
     ).not.toBeInTheDocument();
   });
 
@@ -94,12 +94,12 @@ describe("CompletePasswordReset page", () => {
 
     await user.type(
       screen.getByLabelText(t("auth:change_password_form.new_password")),
-      "1111"
+      "1111",
     );
 
     await user.type(
       screen.getByLabelText(t("auth:change_password_form.confirm_password")),
-      "2222"
+      "2222",
     );
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
@@ -120,20 +120,20 @@ describe("CompletePasswordReset page", () => {
 
     await user.type(
       screen.getByLabelText(t("auth:change_password_form.new_password")),
-      "1111"
+      "1111",
     );
 
     await user.type(
       screen.getByLabelText(t("auth:change_password_form.confirm_password")),
-      "1111"
+      "1111",
     );
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     expect(
       await screen.findByText(
-        t("auth:change_password_form.reset_password_success")
-      )
+        t("auth:change_password_form.reset_password_success"),
+      ),
     ).toBeVisible();
 
     expect(CompletePasswordResetMock).toHaveBeenCalledTimes(1);
@@ -153,18 +153,18 @@ describe("CompletePasswordReset page", () => {
 
     await user.type(
       screen.getByLabelText(t("auth:change_password_form.new_password")),
-      "1111"
+      "1111",
     );
 
     await user.type(
       screen.getByLabelText(t("auth:change_password_form.confirm_password")),
-      "1111"
+      "1111",
     );
 
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     expect(
-      screen.queryByText(t("auth:change_password_form.reset_password_success"))
+      screen.queryByText(t("auth:change_password_form.reset_password_success")),
     ).not.toBeInTheDocument();
   });
 });

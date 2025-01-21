@@ -6,7 +6,7 @@ export async function createDiscussion(
   title: string,
   content: string,
   ownerCommunityId?: number,
-  ownerGroupId?: number
+  ownerGroupId?: number,
 ) {
   const req = new CreateDiscussionReq();
   req.setTitle(title);

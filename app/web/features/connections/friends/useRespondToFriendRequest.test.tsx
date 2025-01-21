@@ -32,7 +32,7 @@ describe("useRespondToFriendRequest hook", () => {
     ]);
     client.setQueryData<FriendRequest.AsObject[]>(
       friendRequestKey("received"),
-      []
+      [],
     );
     client.setQueryData<number[]>("friendIds", []);
   });
@@ -59,7 +59,7 @@ describe("useRespondToFriendRequest hook", () => {
     expect(setMutationError).toHaveBeenCalledWith("");
     expect(client.getQueryState("friendIds")?.isInvalidated).toBe(true);
     expect(
-      client.getQueryState(friendRequestKey("received"))?.isInvalidated
+      client.getQueryState(friendRequestKey("received"))?.isInvalidated,
     ).toBe(true);
   });
 
@@ -87,7 +87,7 @@ describe("useRespondToFriendRequest hook", () => {
     expect(setMutationError).toHaveBeenLastCalledWith("API error");
     expect(client.getQueryState("friendIds")?.isInvalidated).toBe(false);
     expect(
-      client.getQueryState(friendRequestKey("received"))?.isInvalidated
+      client.getQueryState(friendRequestKey("received"))?.isInvalidated,
     ).toBe(false);
   });
 });

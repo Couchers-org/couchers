@@ -31,7 +31,7 @@ function useLiteUsers(ids: (number | undefined)[] | undefined) {
           query?.data?.responsesList.map((response) => [
             response?.user?.userId,
             response.user,
-          ])
+          ]),
         );
 
   return {

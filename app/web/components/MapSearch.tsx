@@ -50,7 +50,7 @@ interface MapSearchProps {
   setResult: (
     lngLat: LngLat,
     address: string,
-    simplifiedAddress: string
+    simplifiedAddress: string,
   ) => void;
   inputFieldProps?:
     | ControllerRenderProps<SignupAccountInputs, "location">
@@ -72,14 +72,14 @@ export default function MapSearch({
   const searchOptions = isLoading
     ? []
     : results && results.length === 0
-    ? [
-        {
-          location: new LngLat(0, 0),
-          name: NO_LOCATION_RESULTS_TEXT,
-          simplifiedName: "",
-        },
-      ]
-    : results;
+      ? [
+          {
+            location: new LngLat(0, 0),
+            name: NO_LOCATION_RESULTS_TEXT,
+            simplifiedName: "",
+          },
+        ]
+      : results;
 
   useEffect(() => {
     setError(error || "");
@@ -103,7 +103,7 @@ export default function MapSearch({
       setResult(
         searchOption.location,
         searchOption.name,
-        searchOption.simplifiedName
+        searchOption.simplifiedName,
       );
       setOpen(false);
     }

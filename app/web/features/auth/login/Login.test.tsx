@@ -25,15 +25,15 @@ it("shows the known gRPC error from the API", async () => {
 
   await user.type(
     await screen.findByLabelText(
-      t("auth:login_page.form.username_field_label")
+      t("auth:login_page.form.username_field_label"),
     ),
-    "invalid"
+    "invalid",
   );
   await user.type(
     await screen.findByLabelText(
-      t("auth:login_page.form.password_field_label")
+      t("auth:login_page.form.password_field_label"),
     ),
-    "wrongpwd"
+    "wrongpwd",
   );
   await user.click(screen.getByRole("button", { name: t("global:continue") }));
 
@@ -50,15 +50,15 @@ it("shows the fatal error message for unknown errors", async () => {
 
   await user.type(
     await screen.findByLabelText(
-      t("auth:login_page.form.username_field_label")
+      t("auth:login_page.form.username_field_label"),
     ),
-    "invalid"
+    "invalid",
   );
   await user.type(
     await screen.findByLabelText(
-      t("auth:login_page.form.password_field_label")
+      t("auth:login_page.form.password_field_label"),
     ),
-    "wrongpwd"
+    "wrongpwd",
   );
   await user.click(screen.getByRole("button", { name: t("global:continue") }));
 

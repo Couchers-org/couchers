@@ -82,7 +82,7 @@ export default function UserSummary({
   const headlineComponentWithRef = React.forwardRef(
     function HeadlineComponentWithRef(props, ref) {
       return React.createElement(headlineComponent, { ...props, ref });
-    }
+    },
   );
 
   const title = (
@@ -108,7 +108,7 @@ export default function UserSummary({
 
   const avatarClassNames = classNames(
     classes.avatar,
-    smallAvatar ? classes.avatarSmall : classes.avatarBig
+    smallAvatar ? classes.avatarSmall : classes.avatarBig,
   );
 
   return (

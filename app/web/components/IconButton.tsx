@@ -19,7 +19,7 @@ interface IconButtonProps extends MuiIconButtonProps {
 
 export default forwardRef(function IconButton(
   { loading, ...otherProps }: IconButtonProps,
-  ref: IconButtonProps["ref"]
+  ref: IconButtonProps["ref"],
 ) {
   const theme = useTheme();
   return (

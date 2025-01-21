@@ -121,7 +121,7 @@ export default function LandingPage() {
         className={classNames(
           classes.topSection,
           authClasses.page,
-          authClasses.pageBackground
+          authClasses.pageBackground,
         )}
       >
         <div className={authClasses.content}>
@@ -258,9 +258,9 @@ export default function LandingPage() {
         </Typography>
         <Typography className={classes.para}>
           We're sure that you, like all of us, have had great experiences that
-          couldn't have happened without Couchsurfing™. But we all know it's got
-          its issues. For the next generation in couch surfing apps, we need to
-          fix those issues.
+          couldn't have happened without Couchsurfing™. But we all know it's
+          got its issues. For the next generation in couch surfing apps, we need
+          to fix those issues.
         </Typography>
         <Typography className={classes.para}>
           If there's any problems you've found with Couchsurfing™ or any other

@@ -91,7 +91,7 @@ export default function SearchPage({
   });
   const [queryName, setQueryName] = useState<string>("");
   const [searchType, setSearchType] = useState<"location" | "keyword">(
-    "location"
+    "location",
   );
   const [lastActiveFilter, setLastActiveFilter] = useState(0);
   const [hostingStatusFilter, setHostingStatusFilter] =
@@ -133,13 +133,13 @@ export default function SearchPage({
           completeProfile:
             completeProfileFilter === false ? undefined : completeProfileFilter,
         },
-        pageParam
+        pageParam,
       );
     },
     {
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-    }
+    },
   );
 
   // Relocate map everytime boundingbox changes

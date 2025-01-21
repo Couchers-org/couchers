@@ -53,8 +53,8 @@ describe("useNotificationSettings", () => {
 
     await waitFor(() =>
       expect(
-        service.notifications.getNotificationSettings
-      ).toHaveBeenCalledTimes(1)
+        service.notifications.getNotificationSettings,
+      ).toHaveBeenCalledTimes(1),
     );
     expect(result.current.data).toEqual(mockData);
   });
@@ -73,8 +73,8 @@ describe("useNotificationSettings", () => {
 
     await waitFor(() =>
       expect(
-        service.notifications.getNotificationSettings
-      ).toHaveBeenCalledTimes(1)
+        service.notifications.getNotificationSettings,
+      ).toHaveBeenCalledTimes(1),
     );
     expect(result.current.error).toEqual(mockError);
   });

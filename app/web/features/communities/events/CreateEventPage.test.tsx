@@ -70,7 +70,7 @@ describe("Create event page", () => {
     const user = userEvent.setup();
 
     const titleInput = (await screen.findByLabelText(
-      t("global:title")
+      t("global:title"),
     )) as HTMLInputElement;
 
     // @TODO These should be awaited, but it times out with this component. Try again after upgrading jest and mui x-datepickers maybe?
@@ -82,7 +82,7 @@ describe("Create event page", () => {
     });
 
     const startDateField = (await screen.findByLabelText(
-      t("communities:start_date")
+      t("communities:start_date"),
     )) as HTMLInputElement;
 
     user.type(startDateField, "08012021");
@@ -92,7 +92,7 @@ describe("Create event page", () => {
     });
 
     const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time")
+      t("communities:start_time"),
     )) as HTMLInputElement;
 
     user.type(startTimeField, "01:00");
@@ -102,7 +102,7 @@ describe("Create event page", () => {
     });
 
     const endDateField = (await screen.findByLabelText(
-      t("communities:end_date")
+      t("communities:end_date"),
     )) as HTMLInputElement;
 
     user.type(endDateField, "08012021");
@@ -112,7 +112,7 @@ describe("Create event page", () => {
     });
 
     const endTimeField = screen.getByLabelText(
-      t("communities:end_time")
+      t("communities:end_time"),
     ) as HTMLInputElement;
 
     user.type(endTimeField, "02:00");
@@ -120,7 +120,7 @@ describe("Create event page", () => {
     await waitFor(() => expect(endTimeField).toHaveValue("02:00"));
 
     const virtualEventCheckBox = screen.getByLabelText(
-      t("communities:virtual_event")
+      t("communities:virtual_event"),
     ) as HTMLInputElement;
 
     user.click(virtualEventCheckBox);
@@ -130,7 +130,7 @@ describe("Create event page", () => {
     });
 
     const eventLinkInput = (await screen.findByLabelText(
-      t("communities:event_link")
+      t("communities:event_link"),
     )) as HTMLInputElement;
 
     user.type(eventLinkInput, "https://couchers.org/social");
@@ -138,24 +138,24 @@ describe("Create event page", () => {
     await waitFor(
       () => {
         expect(screen.getByLabelText(t("communities:event_link"))).toHaveValue(
-          "https://couchers.org/social"
+          "https://couchers.org/social",
         );
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     user.type(
       screen.getByLabelText(t("communities:event_details")),
-      "sick social!"
+      "sick social!",
     );
 
     await waitFor(
       () => {
         expect(
-          screen.getByLabelText(t("communities:event_details"))
+          screen.getByLabelText(t("communities:event_details")),
         ).toHaveValue("sick social!");
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     user.click(screen.getByRole("button", { name: t("global:create") }));
@@ -185,7 +185,7 @@ describe("Create event page", () => {
     const user = userEvent.setup();
 
     const titleInput = (await screen.findByLabelText(
-      t("global:title")
+      t("global:title"),
     )) as HTMLInputElement;
 
     // @TODO These should be awaited, but it times out with this component. Try again after upgrading jest and mui x-datepickers maybe?
@@ -196,7 +196,7 @@ describe("Create event page", () => {
     });
 
     const startDateField = (await screen.findByLabelText(
-      t("communities:start_date")
+      t("communities:start_date"),
     )) as HTMLInputElement;
 
     user.type(startDateField, "08012021");
@@ -206,7 +206,7 @@ describe("Create event page", () => {
     });
 
     const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time")
+      t("communities:start_time"),
     )) as HTMLInputElement;
 
     user.type(startTimeField, "01:00");
@@ -216,7 +216,7 @@ describe("Create event page", () => {
     });
 
     const endDateField = (await screen.findByLabelText(
-      t("communities:end_date")
+      t("communities:end_date"),
     )) as HTMLInputElement;
 
     user.type(endDateField, "08012021");
@@ -226,7 +226,7 @@ describe("Create event page", () => {
     });
 
     const endTimeField = screen.getByLabelText(
-      t("communities:end_time")
+      t("communities:end_time"),
     ) as HTMLInputElement;
 
     user.type(endTimeField, "02:00");
@@ -237,7 +237,7 @@ describe("Create event page", () => {
     jest.useRealTimers();
 
     const locationInput = screen.getByLabelText(
-      t("communities:location")
+      t("communities:location"),
     ) as HTMLInputElement;
 
     user.type(locationInput, "tes{enter}");
@@ -250,12 +250,12 @@ describe("Create event page", () => {
 
     user.type(
       screen.getByLabelText(t("communities:event_details")),
-      "sick social!"
+      "sick social!",
     );
 
     await waitFor(() => {
       expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-        "sick social!"
+        "sick social!",
       );
     });
 
@@ -269,7 +269,7 @@ describe("Create event page", () => {
       () => {
         expect(createEventMock).toHaveBeenCalledTimes(1);
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     expect(createEventMock).toHaveBeenCalledWith({
@@ -291,7 +291,7 @@ describe("Create event page", () => {
     const user = userEvent.setup();
 
     const titleInput = (await screen.findByLabelText(
-      t("global:title")
+      t("global:title"),
     )) as HTMLInputElement;
 
     // @TODO These should be awaited, but it times out with this component. Try again after upgrading jest and mui x-datepickers maybe?
@@ -302,7 +302,7 @@ describe("Create event page", () => {
     });
 
     const startDateField = (await screen.findByLabelText(
-      t("communities:start_date")
+      t("communities:start_date"),
     )) as HTMLInputElement;
 
     user.type(startDateField, "08012021");
@@ -312,7 +312,7 @@ describe("Create event page", () => {
     });
 
     const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time")
+      t("communities:start_time"),
     )) as HTMLInputElement;
 
     user.type(startTimeField, "01:00");
@@ -322,7 +322,7 @@ describe("Create event page", () => {
     });
 
     const endDateField = (await screen.findByLabelText(
-      t("communities:end_date")
+      t("communities:end_date"),
     )) as HTMLInputElement;
 
     user.type(endDateField, "08012021");
@@ -332,7 +332,7 @@ describe("Create event page", () => {
     });
 
     const endTimeField = screen.getByLabelText(
-      t("communities:end_time")
+      t("communities:end_time"),
     ) as HTMLInputElement;
 
     user.type(endTimeField, "02:00");
@@ -342,7 +342,7 @@ describe("Create event page", () => {
     jest.useRealTimers();
 
     const locationInput = screen.getByLabelText(
-      t("communities:location")
+      t("communities:location"),
     ) as HTMLInputElement;
 
     user.type(locationInput, "tes{enter}");
@@ -355,12 +355,12 @@ describe("Create event page", () => {
 
     user.type(
       screen.getByLabelText(t("communities:event_details")),
-      "sick social!"
+      "sick social!",
     );
 
     await waitFor(() => {
       expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-        "sick social!"
+        "sick social!",
       );
     });
 
@@ -372,7 +372,7 @@ describe("Create event page", () => {
       () => {
         expect(createEventMock).toHaveBeenCalledTimes(1);
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     expect(createEventMock).toHaveBeenCalledWith({
@@ -409,7 +409,7 @@ describe("Create event page", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(t("dashboard:complete_profile_dialog.title"))
+        screen.getByText(t("dashboard:complete_profile_dialog.title")),
       ).toBeInTheDocument();
     });
   });

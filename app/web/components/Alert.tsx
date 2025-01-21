@@ -22,7 +22,7 @@ export default function Alert({
 }: AlertProps) {
   const oldErrorKey = Object.keys(grpcErrorStrings).find(
     (oldError): oldError is ObscureGrpcErrorMessages =>
-      children.includes(oldError)
+      children.includes(oldError),
   );
 
   return (

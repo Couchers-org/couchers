@@ -34,7 +34,7 @@ export function resetPassword(userId: string) {
 
 export function CompletePasswordResetV2(
   resetToken: string,
-  newPassword: string
+  newPassword: string,
 ) {
   const req = new CompletePasswordResetV2Req();
   req.setPasswordResetToken(resetToken);
@@ -73,8 +73,8 @@ export async function getContributorFormInfo() {
 export async function fillContributorForm(form: ContributorFormPb.AsObject) {
   const res = await client.account.fillContributorForm(
     new FillContributorFormReq().setContributorForm(
-      contributorFormFromObject(form)
-    )
+      contributorFormFromObject(form),
+    ),
   );
   return res.toObject();
 }

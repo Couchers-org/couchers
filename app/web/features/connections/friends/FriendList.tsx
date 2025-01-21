@@ -21,7 +21,7 @@ function FriendList() {
         friends.map((friend) =>
           friend ? (
             <FriendSummaryView key={friend.userId} friend={friend} />
-          ) : null
+          ) : null,
         )}
     </FriendTile>
   );

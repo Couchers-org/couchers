@@ -44,7 +44,7 @@ export default function GroupChatsTab() {
     {
       getNextPageParam: (lastPage) =>
         lastPage.noMore ? undefined : lastPage.lastMessageId,
-    }
+    },
   );
 
   const loadMoreChats = () => fetchNextPage();
@@ -77,7 +77,7 @@ export default function GroupChatsTab() {
                     </Link>
                   ))}
                 </React.Fragment>
-              )
+              ),
             )}
 
             {hasNextPage && (

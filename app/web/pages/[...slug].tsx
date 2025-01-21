@@ -9,7 +9,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { getAllMarkdownSlugs } from "utils/markdownPages";
 
 export async function getMarkdownPageBySlug(
-  slug: Array<string>
+  slug: Array<string>,
 ): Promise<MarkdownPageProps> {
   const md = await import(`markdown/${slug.join("/")}.md`);
   return {
@@ -29,7 +29,7 @@ export const getStaticProps: GetStaticProps = async ({ locale, params }) => ({
     ...(await serverSideTranslations(
       locale ?? "en",
       [GLOBAL, AUTH],
-      nextI18nextConfig
+      nextI18nextConfig,
     )),
     page: await getMarkdownPageBySlug(params!.slug as Array<string>),
   },

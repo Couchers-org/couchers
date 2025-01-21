@@ -113,7 +113,7 @@ export default function NewHostRequest({
         setIsRequesting(false);
         setIsRequestSuccess(true);
       },
-    }
+    },
   );
 
   const { isLoading: hostLoading, error: hostError } = useLiteUser(user.userId);

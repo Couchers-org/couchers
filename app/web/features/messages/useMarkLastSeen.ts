@@ -9,7 +9,7 @@ export type MarkLastSeenVariables = number;
 
 export default function useMarkLastSeen(
   markLastSeenMutate: UseMutateFunction<Empty, Error, MarkLastSeenVariables>,
-  lastSeenMessageId?: number
+  lastSeenMessageId?: number,
 ) {
   const maxMessageIdRef = useRef(0);
   // Sync with latest lastSeenMessageId so anything below that ID doesn't get tried again.
@@ -19,7 +19,7 @@ export default function useMarkLastSeen(
     if (lastSeenMessageId) {
       maxMessageIdRef.current = Math.max(
         maxMessageIdRef.current,
-        lastSeenMessageId
+        lastSeenMessageId,
       );
     }
   }, [lastSeenMessageId]);
@@ -29,7 +29,7 @@ export default function useMarkLastSeen(
       debounce((messageId: number) => {
         markLastSeenMutate(messageId);
       }, MARK_LAST_SEEN_TIMEOUT),
-    [markLastSeenMutate]
+    [markLastSeenMutate],
   );
 
   const markLastSeen = (messageId: number) => {

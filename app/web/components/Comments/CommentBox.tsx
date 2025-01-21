@@ -53,8 +53,8 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
                         .repliesList
                     : [],
               };
-            })
-          )
+            }),
+          ),
         );
       } catch (e) {
         console.error(e);
@@ -80,8 +80,8 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
                       .repliesList
                   : [],
             };
-          })
-        )
+          }),
+        ),
       );
     } catch (e) {
       console.error(e);

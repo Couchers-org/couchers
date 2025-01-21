@@ -45,10 +45,10 @@ export default function LoginsPage({
     t: t,
   });
   const createdDisplay = dateTimeFormatter(locale).format(
-    timestamp2Date(session.created!)
+    timestamp2Date(session.created!),
   );
   const expiryDisplay = dateFormatter(locale).format(
-    timestamp2Date(session.expiry!)
+    timestamp2Date(session.expiry!),
   );
   const queryClient = useQueryClient();
 
@@ -64,7 +64,7 @@ export default function LoginsPage({
       onSuccess: () => {
         queryClient.invalidateQueries(activeLoginsKey);
       },
-    }
+    },
   );
 
   return (

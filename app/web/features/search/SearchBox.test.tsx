@@ -44,7 +44,7 @@ describe("SearchBox", () => {
 
     const user = userEvent.setup();
     await user.click(
-      screen.getByLabelText(t("search:form.by_keyword_filter_label"))
+      screen.getByLabelText(t("search:form.by_keyword_filter_label")),
     );
 
     const input = screen.getByLabelText(t("search:form.keywords.field_label"));
@@ -69,7 +69,7 @@ describe("SearchBox", () => {
     await user.click(
       screen.getByRole("button", {
         name: t("search:form.keywords.clear_field_action_a11y_label"),
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -92,11 +92,11 @@ describe("SearchBox", () => {
       const user = userEvent.setup();
 
       await user.click(
-        screen.getByLabelText(t("search:form.by_location_filter_label"))
+        screen.getByLabelText(t("search:form.by_location_filter_label")),
       );
 
       const input = screen.getByLabelText(
-        t("search:form.location_field_label")
+        t("search:form.location_field_label"),
       );
 
       await user.type(input, "tes{enter}");

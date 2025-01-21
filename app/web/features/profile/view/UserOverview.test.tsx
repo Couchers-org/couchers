@@ -21,7 +21,7 @@ describe("UserOverview", () => {
         <ProfileUserProvider user={defaultUser}>
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
-        { wrapper }
+        { wrapper },
       );
       expect(screen.getByText(defaultUser.name)).toBeInTheDocument();
     });
@@ -31,7 +31,7 @@ describe("UserOverview", () => {
         <ProfileUserProvider user={defaultUser}>
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
-        { wrapper }
+        { wrapper },
       );
       expect(screen.getByText(defaultUser.city)).toBeInTheDocument();
     });
@@ -47,7 +47,7 @@ describe("UserOverview", () => {
           <ProfileUserProvider user={defaultUser}>
             <UserOverview showHostAndMeetAvailability />
           </ProfileUserProvider>,
-          { wrapper }
+          { wrapper },
         );
         expect(screen.getByText(expectedLabelHosting)).toBeInTheDocument();
         expect(screen.getByText(expectedLabelMeeting)).toBeInTheDocument();
@@ -58,13 +58,13 @@ describe("UserOverview", () => {
           <ProfileUserProvider user={defaultUser}>
             <UserOverview showHostAndMeetAvailability={false} />
           </ProfileUserProvider>,
-          { wrapper }
+          { wrapper },
         );
         expect(
-          screen.queryByText(expectedLabelHosting)
+          screen.queryByText(expectedLabelHosting),
         ).not.toBeInTheDocument();
         expect(
-          screen.queryByText(expectedLabelMeeting)
+          screen.queryByText(expectedLabelMeeting),
         ).not.toBeInTheDocument();
       });
     });
@@ -84,7 +84,7 @@ describe("UserOverview", () => {
         <ProfileUserProvider user={defaultUser}>
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
-        { wrapper }
+        { wrapper },
       );
       expect(screen.getByText(expectedLabelCommunity)).toBeInTheDocument();
       expect(screen.getByText(expectedLabelVerification)).toBeInTheDocument();
@@ -107,7 +107,7 @@ describe("UserOverview", () => {
             }
           />
         </ProfileUserProvider>,
-        { wrapper }
+        { wrapper },
       );
       expect(screen.getByText("Edit profile")).toBeInTheDocument();
     });
@@ -119,7 +119,7 @@ describe("UserOverview", () => {
         >
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
-        { wrapper }
+        { wrapper },
       );
 
       const verificationBadge = screen.queryByTestId("error-icon");
@@ -133,7 +133,7 @@ describe("UserOverview", () => {
         >
           <UserOverview showHostAndMeetAvailability={false} />
         </ProfileUserProvider>,
-        { wrapper }
+        { wrapper },
       );
       expect(screen.getByTestId("strong-verification-id")).toBeInTheDocument();
     });

@@ -13,9 +13,9 @@ export const useBadges = () => {
         },
         {
           badges: {} as { [id: string]: Badge.AsObject },
-        }
-      )
-    )
+        },
+      ),
+    ),
   );
 
   return {

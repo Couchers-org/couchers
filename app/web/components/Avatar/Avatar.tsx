@@ -65,7 +65,7 @@ export default function Avatar({
         className,
         { [classes.defaultSize]: !className },
         classes.root,
-        { [classes.grow]: grow }
+        { [classes.grow]: grow },
       )}
       {...otherProps}
     >

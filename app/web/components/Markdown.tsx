@@ -8,7 +8,7 @@ export default Markdown;
 
 export function increaseMarkdownHeaderLevel(
   source: string,
-  topHeaderLevel: number
+  topHeaderLevel: number,
 ) {
   let convertedSource = source;
   for (let i = 6; i >= 1; i--) {
@@ -16,7 +16,7 @@ export function increaseMarkdownHeaderLevel(
     //also put a ~ in front so we know that line is done
     convertedSource = convertedSource.replace(
       new RegExp(`^${"#".repeat(i)}`, "gm"),
-      `~${"#".repeat(Math.min(i + topHeaderLevel - 1, 6))}`
+      `~${"#".repeat(Math.min(i + topHeaderLevel - 1, 6))}`,
     );
   }
   //take out the ~ markers (line start only)

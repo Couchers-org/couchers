@@ -40,7 +40,7 @@ describe("useLiteUsers & useLiteUser", () => {
 
     const ids = [1, 2, 3, 4, 5];
     const mockLiteUsersMap = new Map(
-      mockLiteUsers.map((user) => [user.userId, user])
+      mockLiteUsers.map((user) => [user.userId, user]),
     );
 
     beforeEach(() => {
@@ -76,8 +76,8 @@ describe("useLiteUsers & useLiteUser", () => {
             isFetching: false,
             isLoading: false,
             isRefetching: false,
-          })
-        )
+          }),
+        ),
       );
     });
 
@@ -263,7 +263,7 @@ describe("useLiteUsers & useLiteUser", () => {
           isFetching: false,
           isLoading: false,
           isRefetching: false,
-        })
+        }),
       );
     });
 

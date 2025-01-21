@@ -50,11 +50,11 @@ export default function MuteDialog({
         queryClient.invalidateQueries(groupChatKey(groupChatId));
         if (props.onClose) props.onClose({}, "escapeKeyDown");
       },
-    }
+    },
   );
 
   const [selected, setSelected] = useState<DurationChoice | undefined>(
-    undefined
+    undefined,
   );
 
   const handleSubmit = () => (selected ? muteMutation.mutate(selected) : null);

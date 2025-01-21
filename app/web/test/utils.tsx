@@ -6,7 +6,7 @@ export function addDefaultUser(userId?: number) {
   window.localStorage.setItem("auth.jailed", JSON.stringify(false));
   window.localStorage.setItem(
     "auth.userId",
-    JSON.stringify(userId ?? defaultUser.userId)
+    JSON.stringify(userId ?? defaultUser.userId),
   );
 }
 
@@ -37,7 +37,7 @@ export type MockedService<T extends (...args: any) => any> = jest.Mock<
 
 export function keyPress(
   element: Window | Document | Node | Element,
-  keyEvent: { code: string; key: string }
+  keyEvent: { code: string; key: string },
 ) {
   fireEvent.keyDown(element, keyEvent);
   fireEvent.keyUp(element, keyEvent);

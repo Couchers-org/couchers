@@ -49,10 +49,10 @@ export default function NewGuideForm() {
         router.push(
           page.type === PageType.PAGE_TYPE_PLACE
             ? routeToPlace(page.pageId, page.slug)
-            : routeToGuide(page.pageId, page.slug)
+            : routeToGuide(page.pageId, page.slug),
         );
       },
-    }
+    },
   );
 
   const onSubmit = handleSubmit((data: NewGuideInputs) => createGuide(data));

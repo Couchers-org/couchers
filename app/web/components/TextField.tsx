@@ -33,7 +33,7 @@ const TextField = forwardRef<
 >(
   (
     { className, variant = "outlined", helperText, name, ...otherProps },
-    ref
+    ref,
   ) => {
     const classes = useStyles();
 
@@ -51,7 +51,7 @@ const TextField = forwardRef<
         })}
       />
     );
-  }
+  },
 );
 
 TextField.displayName = "TextField";

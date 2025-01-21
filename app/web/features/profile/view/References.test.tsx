@@ -41,7 +41,7 @@ function renderReferences() {
     <ProfileUserProvider user={users[0]}>
       <References />
     </ProfileUserProvider>,
-    { wrapper }
+    { wrapper },
   );
 }
 
@@ -74,11 +74,11 @@ describe("References", () => {
     renderReferences();
 
     expect(
-      screen.getByRole("heading", { name: t("profile:heading.references") })
+      screen.getByRole("heading", { name: t("profile:heading.references") }),
     ).toBeVisible();
 
     const referenceListItems = await screen.findAllByTestId(
-      REFERENCE_LIST_ITEM_TEST_ID
+      REFERENCE_LIST_ITEM_TEST_ID,
     );
 
     // References received
@@ -88,12 +88,12 @@ describe("References", () => {
       const reference = within(referenceListItems[i]);
 
       expect(reference.getByRole("heading")).toHaveTextContent(
-        new RegExp(user!.name, "i")
+        new RegExp(user!.name, "i"),
       );
       expect(reference.getByText(references[i].text)).toBeVisible();
       // Reference type badge
       expect(
-        reference.getByText(referenceBadgeLabel(t)[referenceType])
+        reference.getByText(referenceBadgeLabel(t)[referenceType]),
       ).toBeVisible();
       assertDateBadgeIsVisible(reference);
     }
@@ -115,7 +115,7 @@ describe("References", () => {
 
     expect(await screen.findByText(t("profile:no_references"))).toBeVisible();
     expect(
-      screen.queryByTestId(REFERENCE_LIST_ITEM_TEST_ID)
+      screen.queryByTestId(REFERENCE_LIST_ITEM_TEST_ID),
     ).not.toBeInTheDocument();
   });
 
@@ -128,7 +128,7 @@ describe("References", () => {
       await user.click(
         screen.getByRole("combobox", {
           name: t("profile:references_filter_a11y_label").trim(),
-        })
+        }),
       );
       // Ignore the API call from the default "all references" we encounter on first render
       getReferencesReceivedMock.mockClear();
@@ -146,19 +146,19 @@ describe("References", () => {
       await user.click(
         screen.getByRole("option", {
           name: t("profile:reference_filter_label.friend"),
-        })
+        }),
       );
 
       const reference = within(
-        await screen.findByTestId(REFERENCE_LIST_ITEM_TEST_ID)
+        await screen.findByTestId(REFERENCE_LIST_ITEM_TEST_ID),
       );
       expect(reference.getByRole("heading")).toHaveTextContent(/Funny Dog/i);
       expect(
-        reference.getByText("Funny person with dark sense of humour")
+        reference.getByText("Funny person with dark sense of humour"),
       ).toBeVisible();
       // Reference type badge
       expect(
-        reference.getByText(t("profile:reference_badge_label.friend"))
+        reference.getByText(t("profile:reference_badge_label.friend")),
       ).toBeVisible();
       assertDateBadgeIsVisible(reference);
       expect(getReferencesReceivedMock).toHaveBeenCalledTimes(1);
@@ -180,11 +180,11 @@ describe("References", () => {
       await user.click(
         screen.getByRole("option", {
           name: t("profile:reference_filter_label.surfed"),
-        })
+        }),
       );
 
       const references = await screen.findAllByTestId(
-        REFERENCE_LIST_ITEM_TEST_ID
+        REFERENCE_LIST_ITEM_TEST_ID,
       );
 
       references.forEach(async (referenceElement, i) => {
@@ -194,7 +194,7 @@ describe("References", () => {
         expect(reference.getByText(referencesList[i].text)).toBeVisible();
         // Reference type badge
         expect(
-          reference.getByText(t("profile:reference_badge_label.surfed"))
+          reference.getByText(t("profile:reference_badge_label.surfed")),
         ).toBeVisible();
         assertDateBadgeIsVisible(reference);
       });
@@ -217,19 +217,19 @@ describe("References", () => {
       await user.click(
         screen.getByRole("option", {
           name: t("profile:reference_filter_label.hosted"),
-        })
+        }),
       );
 
       const reference = within(
-        await screen.findByTestId(REFERENCE_LIST_ITEM_TEST_ID)
+        await screen.findByTestId(REFERENCE_LIST_ITEM_TEST_ID),
       );
       expect(
-        await screen.findByText(t("profile:reference_badge_label.hosted"))
+        await screen.findByText(t("profile:reference_badge_label.hosted")),
       ).toBeVisible();
       expect(
         reference.getByText(
-          "Hosting cat was a pleasure - there was never a dull moment!"
-        )
+          "Hosting cat was a pleasure - there was never a dull moment!",
+        ),
       ).toBeVisible();
       assertDateBadgeIsVisible(reference);
       expect(getReferencesReceivedMock).toHaveBeenCalledTimes(1);
@@ -250,14 +250,14 @@ describe("References", () => {
       await user.click(
         screen.getByRole("option", {
           name: t("profile:reference_filter_label.given"),
-        })
+        }),
       );
 
       const reference = within(
-        await screen.findByTestId(REFERENCE_LIST_ITEM_TEST_ID)
+        await screen.findByTestId(REFERENCE_LIST_ITEM_TEST_ID),
       );
       expect(reference.getByRole("heading")).toHaveTextContent(
-        /Funny Chicken/i
+        /Funny Chicken/i,
       );
       expect(reference.getByText(/Staying with Chicken/)).toBeVisible();
       assertDateBadgeIsVisible(reference);
@@ -284,12 +284,12 @@ describe("References", () => {
       await user.click(
         await screen.findByRole("button", {
           name: t("profile:see_more_references"),
-        })
+        }),
       );
 
       // Simpler checks here since the more thorough checks have been done in previous tests already
       expect(
-        screen.getByText(/Funny person with dark sense of humour/i)
+        screen.getByText(/Funny person with dark sense of humour/i),
       ).toBeVisible();
       expect(screen.getByText(/I had a great time with cat/i)).toBeVisible();
       expect(getReferencesReceivedMock).toHaveBeenCalledTimes(2);
@@ -328,24 +328,24 @@ describe("References", () => {
         await user.click(
           screen.getByRole("combobox", {
             name: t("profile:references_filter_a11y_label").trim(),
-          })
+          }),
         );
         // Ignore the API calls from the default "all references" we encounter on first render
         getReferencesReceivedMock.mockClear();
         await user.click(
           screen.getByRole("option", {
             name: t("profile:reference_filter_label.friend"),
-          })
+          }),
         );
 
         await user.click(
           await screen.findByRole("button", {
             name: t("profile:see_more_references"),
-          })
+          }),
         );
 
         expect(
-          screen.getByText("Funny person with dark sense of humour")
+          screen.getByText("Funny person with dark sense of humour"),
         ).toBeVisible();
         expect(screen.getByText("Cat is great!")).toBeVisible();
         expect(getReferencesReceivedMock).toHaveBeenCalledTimes(2);
@@ -369,7 +369,7 @@ describe("References", () => {
 
     it("shows an error alert", async () => {
       getReferencesReceivedMock.mockRejectedValue(
-        new Error("Error loading references")
+        new Error("Error loading references"),
       );
 
       renderReferences();
@@ -383,11 +383,11 @@ describe("References", () => {
       await user.click(
         screen.getByRole("combobox", {
           name: t("profile:references_filter_a11y_label").trim(),
-        })
+        }),
       );
       await user.click(screen.getByRole("option", { name: "From hosts" }));
       expect(await screen.findByRole("alert")).toHaveTextContent(
-        "Error loading references"
+        "Error loading references",
       );
     });
 
@@ -405,7 +405,7 @@ describe("References", () => {
       await user.click(
         await screen.findByRole("button", {
           name: t("profile:see_more_references"),
-        })
+        }),
       );
 
       // Shows error and the first page of data that didn't error before
@@ -413,7 +413,7 @@ describe("References", () => {
       expect(errorAlert).toBeVisible();
       expect(errorAlert).toHaveTextContent("Connection error");
       expect(
-        screen.getByText("Funny person with dark sense of humour")
+        screen.getByText("Funny person with dark sense of humour"),
       ).toBeVisible();
     });
   });

@@ -62,7 +62,7 @@ describe("when the listFriends query succeeds", () => {
         errors: [],
         isError: false,
         isLoading: true,
-      })
+      }),
     );
   });
 

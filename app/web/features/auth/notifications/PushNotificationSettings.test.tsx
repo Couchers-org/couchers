@@ -65,7 +65,7 @@ describe("PushNotificationSettings Component", () => {
   it("Renders push notifications settings", () => {
     render(<PushNotificationSettings className="test-class" />, { wrapper });
     expect(
-      screen.getByText("notification_settings.push_notifications.title")
+      screen.getByText("notification_settings.push_notifications.title"),
     ).toBeInTheDocument();
   });
 
@@ -137,8 +137,8 @@ describe("PushNotificationSettings Component", () => {
     await waitFor(() => {
       expect(
         screen.getByText(
-          "notification_settings.push_notifications.error_unsupported"
-        )
+          "notification_settings.push_notifications.error_unsupported",
+        ),
       ).toBeInTheDocument();
     });
   });
@@ -159,8 +159,8 @@ describe("PushNotificationSettings Component", () => {
     await waitFor(() => {
       expect(
         screen.getByText(
-          "notification_settings.push_notifications.permission_denied.instructions.generic"
-        )
+          "notification_settings.push_notifications.permission_denied.instructions.generic",
+        ),
       ).toBeInTheDocument();
     });
   });

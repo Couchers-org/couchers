@@ -40,7 +40,7 @@ describe("Edit location map", () => {
           new MaplibreMap({
             container: document.createElement("div"),
             style: "mapbox://styles/mapbox/streets-v11",
-          })
+          }),
         );
       });
       return <div>Map</div>;
@@ -71,14 +71,14 @@ describe("Edit location map", () => {
           }}
           updateLocation={jest.fn()}
         />,
-        { wrapper }
+        { wrapper },
       );
       await waitFor(() =>
         expect(
           screen.getByText(
-            t("global:components.edit_location_map.display_location_label")
-          )
-        ).toHaveAttribute("data-shrink", "false")
+            t("global:components.edit_location_map.display_location_label"),
+          ),
+        ).toHaveAttribute("data-shrink", "false"),
       );
     });
 
@@ -93,14 +93,14 @@ describe("Edit location map", () => {
           }}
           updateLocation={jest.fn()}
         />,
-        { wrapper }
+        { wrapper },
       );
       await waitFor(() =>
         expect(
           screen.getByText(
-            t("global:components.edit_location_map.display_location_label")
-          )
-        ).toHaveAttribute("data-shrink", "true")
+            t("global:components.edit_location_map.display_location_label"),
+          ),
+        ).toHaveAttribute("data-shrink", "true"),
       );
     });
 
@@ -116,38 +116,38 @@ describe("Edit location map", () => {
           }}
           updateLocation={updateLocation}
         />,
-        { wrapper }
+        { wrapper },
       );
 
       const user = userEvent.setup();
 
       await user.type(
         screen.getByLabelText(
-          t("global:components.edit_location_map.search_location_label")
+          t("global:components.edit_location_map.search_location_label"),
         ),
-        "test{enter}"
+        "test{enter}",
       );
       await user.click(
         await screen.findByRole("option", {
           name: "test city, test county, test country",
-        })
+        }),
       );
 
       expect(
         screen.getByText(
-          t("global:components.edit_location_map.display_location_label")
-        )
+          t("global:components.edit_location_map.display_location_label"),
+        ),
       ).toHaveAttribute("data-shrink", "true");
       expect(
         screen.getByLabelText(
-          t("global:components.edit_location_map.display_location_label")
-        )
+          t("global:components.edit_location_map.display_location_label"),
+        ),
       ).toHaveValue("test city, test country");
       await waitFor(() => {
         expect(
           screen
             .getByRole("combobox")
-            .classList.contains("MuiAutocomplete-loading")
+            .classList.contains("MuiAutocomplete-loading"),
         ).toBe(false);
         expect(updateLocation).toHaveBeenCalledTimes(1);
       });

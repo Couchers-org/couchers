@@ -61,7 +61,7 @@ type PingData = ReturnType<typeof useNotifications>["data"];
 // shown on mobile/small screens
 const loggedInDrawerMenu = (
   t: TFunction<"global", undefined>,
-  pingData: PingData
+  pingData: PingData,
 ): Array<MenuItemProps> => [
   {
     name: t("nav.dashboard"),
@@ -88,7 +88,7 @@ const loggedInDrawerMenu = (
 // shown on desktop and big screens on top of the screen
 const loggedInNavMenu = (
   t: TFunction<"global", undefined>,
-  pingData: PingData
+  pingData: PingData,
 ): Array<MenuItemProps> => [
   {
     name: t("nav.dashboard"),
@@ -113,7 +113,7 @@ const loggedInNavMenu = (
 ];
 
 const loggedOutNavMenu = (
-  t: TFunction<"global", undefined>
+  t: TFunction<"global", undefined>,
 ): Array<MenuItemProps> => [
   {
     name: t("nav.about"),
@@ -142,7 +142,7 @@ const loggedOutNavMenu = (
 ];
 
 const loggedOutDrawerMenu = (
-  t: TFunction<"global", undefined>
+  t: TFunction<"global", undefined>,
 ): Array<MenuItemProps> => [
   {
     name: t("login"),
@@ -181,7 +181,7 @@ const loggedOutDrawerMenu = (
 // shown on desktop and big screens in the top right corner when logged in
 const loggedInMenuDropDown = (
   t: TFunction<"global", undefined>,
-  pingData: PingData
+  pingData: PingData,
 ): Array<MenuItemProps> => [
   {
     name: t("nav.profile"),
@@ -346,7 +346,7 @@ export default function Navigation() {
                 />
               )}
             </ListItem>
-          )
+          ),
         )}
       </List>
     </div>
@@ -403,7 +403,7 @@ export default function Navigation() {
           )}
         </MenuItem>
       );
-    }
+    },
   );
 
   const handleDrawerOpen = () => {
@@ -475,7 +475,7 @@ export default function Navigation() {
                       key={`${name}-nav-button`}
                       notificationCount={notificationCount}
                     />
-                  )
+                  ),
               )}
             </StyledFlexbox>
           )}

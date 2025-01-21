@@ -99,8 +99,8 @@ export default function Team() {
                             link.type === "linkedin"
                               ? LinkedInIcon
                               : link.type === "email"
-                              ? EmailIcon
-                              : GlobeIcon
+                                ? EmailIcon
+                                : GlobeIcon
                           }
                           text={
                             <Typography variant="body1">
@@ -115,7 +115,7 @@ export default function Team() {
                   </TeamMembedCardContent>
                 </TeamMemberCard>
               </Grid>
-            )
+            ),
           )}
         </Grid>
       </section>

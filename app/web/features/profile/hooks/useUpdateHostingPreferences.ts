@@ -36,7 +36,7 @@ export default function useUpdateHostingPreferences() {
         queryClient.invalidateQueries(userKey(userId ?? 0));
         router.push(routeToProfile("home"));
       },
-    }
+    },
   );
 
   return {

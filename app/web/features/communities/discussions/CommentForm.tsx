@@ -44,7 +44,7 @@ interface CommentData {
 
 function InternalCommentForm(
   { hideable = false, onClose, shown = false, threadId }: CommentFormProps,
-  ref: React.ForwardedRef<HTMLFormElement>
+  ref: React.ForwardedRef<HTMLFormElement>,
 ) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
@@ -73,7 +73,7 @@ function InternalCommentForm(
         resetMutation();
         onClose?.();
       },
-    }
+    },
   );
 
   const onSubmit = handleSubmit((data) => {
