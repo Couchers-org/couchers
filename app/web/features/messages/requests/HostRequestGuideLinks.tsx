@@ -1,6 +1,7 @@
 import { styled, Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
-import { Trans } from "i18n";
+import { Trans, useTranslation } from "i18n";
+import { MESSAGES } from "i18n/namespaces";
 import { HostRequestStatus } from "proto/conversations_pb";
 import React from "react";
 import { howToRespondRequestGuideUrl, howToWriteRequestGuideUrl } from "routes";
@@ -21,6 +22,8 @@ export default function HostRequestGuideLinks({
   isHost: boolean;
   status: HostRequestStatus;
 }) {
+  const { t } = useTranslation([MESSAGES]);
+
   const isHostPending =
     !isPast &&
     isHost &&
@@ -52,6 +55,14 @@ export default function HostRequestGuideLinks({
             </StyledLink>{" "}
             on how to write a request that will get accepted.
           </Trans>
+        </Typography>
+      </StyledHelpTextContainer>
+    );
+  } else if (isPast) {
+    return (
+      <StyledHelpTextContainer>
+        <Typography variant="body1">
+          {t("messages:past_request_help_text")}
         </Typography>
       </StyledHelpTextContainer>
     );
