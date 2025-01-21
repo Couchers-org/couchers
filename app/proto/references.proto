@@ -25,6 +25,10 @@ service References {
     // exist.
   }
 
+  rpc HostRequestIndicateDidntMeetup(HostRequestIndicateDidntMeetupReq) returns (google.protobuf.Empty) {
+    // Indicate that the user didn't meet up
+  }
+
   rpc AvailableWriteReferences(AvailableWriteReferencesReq) returns (AvailableWriteReferencesRes) {
     // Return the reference types that is, at the moment, possible to write about a user.
   }
@@ -90,6 +94,12 @@ message WriteHostRequestReferenceReq {
   bool was_appropriate = 3;
   // rating is in [0,1]
   double rating = 4;
+}
+
+message HostRequestIndicateDidntMeetupReq {
+  int64 host_request_id = 1;
+  // reason why the host request didn't happen, can be blank
+  string reason_didnt_meetup = 6; // plain text
 }
 
 message AvailableWriteReferencesReq {

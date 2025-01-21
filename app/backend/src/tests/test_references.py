@@ -39,7 +39,13 @@ def _(testconfig):
 
 
 def create_host_request(
-    session, surfer_user_id, host_user_id, host_request_age=timedelta(days=15), status=HostRequestStatus.confirmed
+    session,
+    surfer_user_id,
+    host_user_id,
+    host_request_age=timedelta(days=15),
+    status=HostRequestStatus.confirmed,
+    host_reason_didnt_meetup=None,
+    surfer_reason_didnt_meetup=None,
 ):
     """
     Create a host request that's `host_request_age` old
@@ -75,6 +81,8 @@ def create_host_request(
         to_date=to_date,
         status=status,
         surfer_last_seen_message_id=message.id,
+        host_reason_didnt_meetup=host_reason_didnt_meetup,
+        surfer_reason_didnt_meetup=surfer_reason_didnt_meetup,
     )
     session.add(host_request)
     session.commit()
@@ -535,16 +543,21 @@ def test_WriteHostRequestReference(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
+    user4, token4 = generate_user()
 
     with session_scope() as session:
         # too old
         hr1 = create_host_request(session, user3.id, user1.id, timedelta(days=20))
-        # valid host req
-        hr2 = create_host_request(session, user3.id, user1.id, timedelta(days=10))
+        # valid host req, surfer said we didn't show up but we can still write a req
+        hr2 = create_host_request(session, user3.id, user1.id, timedelta(days=10), surfer_reason_didnt_meetup="No show")
         # valid surfing req
         hr3 = create_host_request(session, user1.id, user3.id, timedelta(days=7))
         # not yet complete
         hr4 = create_host_request(session, user2.id, user1.id, timedelta(days=1), status=HostRequestStatus.pending)
+        # we indicated we didn't meet
+        hr5 = create_host_request(session, user4.id, user1.id, timedelta(days=7), host_reason_didnt_meetup="")
+        # we will indicate we didn't meet
+        hr6 = create_host_request(session, user4.id, user1.id, timedelta(days=8))
 
     with references_session(token3) as api:
         # can write for this one
@@ -617,6 +630,50 @@ def test_WriteHostRequestReference(db):
             )
         )
 
+        # can't write reference for a HR that we indicated we didn't show up
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=hr5,
+                    text="Shouldn't work...",
+                    was_appropriate=True,
+                    rating=0.9,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_WRITE_REFERENCE_INDICATED_DIDNT_MEETUP
+
+        # can't write reference for a HR that we indicate we didn't show up for
+        api.HostRequestIndicateDidntMeetup(
+            references_pb2.HostRequestIndicateDidntMeetupReq(
+                host_request_id=hr6,
+                reason_didnt_meetup="No clue?",
+            )
+        )
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteHostRequestReference(
+                references_pb2.WriteHostRequestReferenceReq(
+                    host_request_id=hr6,
+                    text="Shouldn't work...",
+                    was_appropriate=True,
+                    rating=0.9,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == errors.CANT_WRITE_REFERENCE_INDICATED_DIDNT_MEETUP
+
+    with references_session(token4) as api:
+        # they can still write one
+        api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=hr6,
+                text="Should work!",
+                was_appropriate=True,
+                rating=0.9,
+            )
+        )
+
 
 def test_WriteHostRequestReference_private_text(db, push_collector):
     user1, token1 = generate_user()
@@ -661,6 +718,10 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
     user5, token5 = generate_user(delete_user=True)
     user6, token6 = generate_user()
     user7, token7 = generate_user()
+    user8, token8 = generate_user()
+    user9, token9 = generate_user()
+    user10, token10 = generate_user()
+    user11, token11 = generate_user()
     make_user_block(user1, user6)
     make_user_block(user7, user1)
 
@@ -695,6 +756,22 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
 
         # user7 blocking, reference won't show up as pending
         create_host_request(session, user1.id, user7.id, timedelta(days=5))
+
+        # hosted but we indicated we didn't meet up, no reason; should not show up
+        create_host_request(session, user8.id, user1.id, timedelta(days=11), host_reason_didnt_meetup="")
+
+        # surfed but we indicated we didn't meet up, has reason; should not show up
+        create_host_request(
+            session, user1.id, user9.id, timedelta(days=10), surfer_reason_didnt_meetup="They never showed up!"
+        )
+
+        # surfed but they indicated we didn't meet up, no reason; should show up
+        hr6 = create_host_request(session, user1.id, user10.id, timedelta(days=4), host_reason_didnt_meetup="")
+
+        # hosted but they indicated we didn't meet up, has reason; should show up
+        hr7 = create_host_request(
+            session, user11.id, user1.id, timedelta(days=3), surfer_reason_didnt_meetup="They never showed up!!"
+        )
 
     with references_session(token1) as api:
         # can't write reference for invisible user
@@ -746,9 +823,31 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
         assert now() + timedelta(days=9) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=10)
 
+        # can't write a req if we indicated we didn't meet up
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user8.id))
+        assert len(res.available_write_references) == 0
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user9.id))
+        assert len(res.available_write_references) == 0
+
+        # can still write ref if the other person indicated we didn't meet up
+        # surfed with them
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user10.id))
+        assert len(res.available_write_references) == 1
+        w = res.available_write_references[0]
+        assert w.host_request_id == hr6
+        assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
+        assert now() + timedelta(days=10) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=11)
+        # hosted them
+        res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user11.id))
+        assert len(res.available_write_references) == 1
+        w = res.available_write_references[0]
+        assert w.host_request_id == hr7
+        assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+        assert now() + timedelta(days=11) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=12)
+
         # finally check the general list
         res = api.ListPendingReferencesToWrite(empty_pb2.Empty())
-        assert len(res.pending_references) == 2
+        assert len(res.pending_references) == 4
         w = res.pending_references[0]
         assert w.host_request_id == hr3
         assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
@@ -757,6 +856,14 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         assert w.host_request_id == hr4
         assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
         assert now() + timedelta(days=9) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=10)
+        w = res.pending_references[2]
+        assert w.host_request_id == hr6
+        assert w.reference_type == references_pb2.REFERENCE_TYPE_SURFED
+        assert now() + timedelta(days=10) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=11)
+        w = res.pending_references[3]
+        assert w.host_request_id == hr7
+        assert w.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
+        assert now() + timedelta(days=11) <= to_aware_datetime(w.time_expires) <= now() + timedelta(days=12)
 
 
 @pytest.mark.parametrize("hs", ["host", "surfer"])

@@ -408,6 +408,7 @@ def send_reference_reminders(payload):
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.surfer_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
+                .where(HostRequest.surfer_reason_didnt_meetup == None)
             )
 
             # hosts needing to write a ref
@@ -429,6 +430,7 @@ def send_reference_reminders(payload):
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.host_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
+                .where(HostRequest.host_reason_didnt_meetup == None)
             )
 
             union = union_all(q1, q2).subquery()
