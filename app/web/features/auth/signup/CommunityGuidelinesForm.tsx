@@ -12,7 +12,7 @@ export default function CommunityGuidelinesForm() {
     async (accept) => {
       const state = await service.auth.signupFlowCommunityGuidelines(
         authState.flowState!.flowToken,
-        accept
+        accept,
       );
       authActions.updateSignupState(state);
     },
@@ -23,7 +23,7 @@ export default function CommunityGuidelinesForm() {
       onSettled() {
         window.scroll({ top: 0, behavior: "smooth" });
       },
-    }
+    },
   );
 
   return (

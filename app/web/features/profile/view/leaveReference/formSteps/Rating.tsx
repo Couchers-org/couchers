@@ -34,7 +34,12 @@ export default function Rating({
   const classes = useReferenceStyles();
   const theme = useTheme();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
-  const { control, handleSubmit, errors } = useForm<ReferenceContextFormData>({
+  const {
+    control,
+    handleSubmit,
+
+    formState: { errors },
+  } = useForm<ReferenceContextFormData>({
     defaultValues: {
       rating: referenceData.rating,
     },
@@ -42,13 +47,17 @@ export default function Rating({
 
   const onSubmit = handleSubmit((values) => {
     setReferenceValues(values);
-    referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-      ? router.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[2]}`
-        )
-      : router.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[2]}`
-        );
+    if (
+      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+    ) {
+      router.push(
+        `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[2]}`,
+      );
+    } else {
+      router.push(
+        `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[2]}`,
+      );
+    }
   });
 
   return (
@@ -73,8 +82,12 @@ export default function Rating({
         control={control}
         defaultValue={referenceData.rating}
         name="rating"
-        render={({ onChange, value }) => (
-          <RatingsSlider onChange={onChange} value={value} />
+        render={({ field }) => (
+          <RatingsSlider
+            {...field}
+            onChange={field.onChange}
+            value={field.value}
+          />
         )}
       />
       <div className={classes.buttonContainer}>

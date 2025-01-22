@@ -26,7 +26,7 @@ import {
   SmokingLocation,
 } from "proto/api_pb";
 import { useState } from "react";
-import { Controller, useForm, UseFormMethods } from "react-hook-form";
+import { Controller, useForm, UseFormReturn } from "react-hook-form";
 import { HostingPreferenceData } from "service";
 import { useUnsavedChangesWarning } from "utils/hooks";
 
@@ -38,7 +38,7 @@ interface HostingPreferenceCheckboxProps {
   defaultValue: boolean;
   name: string;
   label: string;
-  register: UseFormMethods<HostingPreferenceData>["register"];
+  register: UseFormReturn<HostingPreferenceData>["register"];
 }
 
 function HostingPreferenceCheckbox({
@@ -51,10 +51,10 @@ function HostingPreferenceCheckbox({
   return (
     <FormControl variant="standard" className={className} margin="dense">
       <FormControlLabel
+        {...register(name as keyof HostingPreferenceData)}
         control={<Checkbox defaultChecked={defaultValue} />}
         label={label}
         name={name}
-        inputRef={register}
       />
     </FormControl>
   );
@@ -72,11 +72,13 @@ export default function HostingPreferenceForm() {
   } = useUpdateHostingPreferences();
   const { data: user } = useCurrentUser();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { control, errors, register, handleSubmit, formState } =
+  const { control, register, handleSubmit, formState } =
     useForm<HostingPreferenceData>({
       mode: "onBlur",
       shouldFocusError: true,
     });
+
+  const { errors } = formState;
 
   const isDirty = formState.isDirty;
   const isSubmitted = formState.isSubmitted;
@@ -103,7 +105,7 @@ export default function HostingPreferenceForm() {
         onError: () => {
           window.scroll({ top: 0, behavior: "smooth" });
         },
-      }
+      },
     );
   });
 
@@ -167,15 +169,16 @@ export default function HostingPreferenceForm() {
             control={control}
             defaultValue={user.maxGuests?.value ?? null}
             name="maxGuests"
-            render={({ onChange, ref }) => (
+            render={({ field }) => (
               <Autocomplete
+                {...field}
                 disableClearable={false}
                 defaultValue={user.maxGuests?.value}
                 forcePopupIcon
                 freeSolo
                 getOptionLabel={(option) => option.toString()}
                 options={[1, 2, 3, 4, 5]}
-                onChange={(e, value) => onChange(value)}
+                onChange={(e, value) => field.onChange(value)}
                 multiple={false}
                 renderInput={(params) => (
                   <ProfileTextInput
@@ -184,8 +187,8 @@ export default function HostingPreferenceForm() {
                     helperText={errors?.maxGuests?.message}
                     label={t("profile:home_info_headings.max_guests")}
                     name="maxGuests"
-                    onChange={(e) => onChange(Number(e.target.value))}
-                    inputRef={ref}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    inputRef={field.ref}
                     className={classes.field}
                   />
                 )}
@@ -193,7 +196,7 @@ export default function HostingPreferenceForm() {
             )}
             rules={{
               validate: (value) =>
-                isNaN(value) ? "Invalid number provided" : true,
+                value && isNaN(value) ? "Invalid number provided" : true,
             }}
           />
           <Controller
@@ -202,12 +205,13 @@ export default function HostingPreferenceForm() {
               user.smokingAllowed || SmokingLocation.SMOKING_LOCATION_UNKNOWN
             }
             name="smokingAllowed"
-            render={({ onChange, value }) => (
+            render={({ field }) => (
               <Select
-                onChange={(event) => onChange(event.target.value)}
+                {...field}
+                onChange={(event) => field.onChange(event.target.value)}
                 label={t("profile:edit_home_questions.accept_smoking")}
                 className={classes.field}
-                value={value}
+                value={field.value}
                 id="smokingAllowed"
                 options={[
                   SmokingLocation.SMOKING_LOCATION_UNKNOWN,
@@ -235,13 +239,13 @@ export default function HostingPreferenceForm() {
               SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN
             }
             name="sleepingArrangement"
-            render={({ onChange, value }) => (
+            render={({ field }) => (
               <Select
-                onChange={(event) => onChange(event.target.value)}
+                onChange={(event) => field.onChange(event.target.value)}
                 id="sleepingArrangement"
                 label={t("profile:home_info_headings.space")}
                 className={classes.field}
-                value={value}
+                value={field.value}
                 options={[
                   SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN,
                   SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE,
@@ -264,10 +268,10 @@ export default function HostingPreferenceForm() {
               />
               <ProfileTextInput
                 id="housemateDetails"
+                {...register("housemateDetails")}
                 label={t("profile:home_info_headings.housemate_details")}
                 name="housemateDetails"
                 defaultValue={user.housemateDetails?.value ?? ""}
-                inputRef={register}
                 maxRows={5}
                 multiline
                 className={classes.field}
@@ -283,10 +287,10 @@ export default function HostingPreferenceForm() {
               />
               <ProfileTextInput
                 id="kidDetails"
+                {...register("kidDetails")}
                 label={t("profile:home_info_headings.kid_details")}
                 name="kidDetails"
                 defaultValue={user.kidDetails?.value ?? ""}
-                inputRef={register}
                 maxRows={5}
                 multiline
                 className={classes.field}
@@ -302,10 +306,10 @@ export default function HostingPreferenceForm() {
               />
               <ProfileTextInput
                 id="petDetails"
+                {...register("petDetails")}
                 label={t("profile:home_info_headings.pet_details")}
                 name="petDetails"
                 defaultValue={user.petDetails?.value ?? ""}
-                inputRef={register}
                 maxRows={5}
                 multiline
                 className={classes.field}
@@ -325,12 +329,12 @@ export default function HostingPreferenceForm() {
                   user.parkingDetails || ParkingDetails.PARKING_DETAILS_UNKNOWN
                 }
                 name="parkingDetails"
-                render={({ onChange, value }) => (
+                render={({ field }) => (
                   <Select
                     label={t("profile:home_info_headings.parking_details")}
-                    onChange={(event) => onChange(event.target.value)}
+                    onChange={(event) => field.onChange(event.target.value)}
                     className={classes.field}
-                    value={value}
+                    value={field.value}
                     id="parkingDetails"
                     options={[
                       ParkingDetails.PARKING_DETAILS_UNKNOWN,

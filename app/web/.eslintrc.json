@@ -3,7 +3,6 @@
     "plugin:@typescript-eslint/recommended",
     "next",
     "next/core-web-vitals",
-    "plugin:storybook/recommended",
     "prettier"
   ],
   "plugins": ["@typescript-eslint", "simple-import-sort", "unused-imports"],
@@ -38,22 +37,11 @@
     "@typescript-eslint/no-non-null-assertion": "off",
     //used in testing
     "@typescript-eslint/no-empty-function": "off",
-    //don't care about this that much
-    "storybook/prefer-pascal-case": "off",
     //not using this right now
     "@next/next/no-img-element": "off",
     //this is ugly
     "react/no-unescaped-entities": "off",
     // Prefer inferred types so that the code is as close to JS as possible
     "@typescript-eslint/explicit-module-boundary-types": "off"
-  },
-  "overrides": [
-    //allow any in stories
-    {
-      "files": ["**/*.stories.tsx"],
-      "rules": {
-        "@typescript-eslint/no-explicit-any": "off"
-      }
-    }
-  ]
+  }
 }

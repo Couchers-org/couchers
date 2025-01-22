@@ -38,7 +38,7 @@ export default function CommunityInfoPage({
             <StyledLink
               href={routeToEditCommunityPage(
                 community.communityId,
-                community.slug
+                community.slug,
               )}
             >
               {t("global:edit")}

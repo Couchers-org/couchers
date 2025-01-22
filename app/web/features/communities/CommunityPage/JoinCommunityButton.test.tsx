@@ -4,9 +4,12 @@ import { useCommunity } from "features/communities/hooks";
 import { service } from "service";
 import mockCommunity from "test/fixtures/community.json";
 import wrapper from "test/hookWrapper";
-import { mockConsoleError, MockedService, t } from "test/utils";
+import i18n from "test/i18n";
+import { mockConsoleError, MockedService } from "test/utils";
 
 import JoinCommunityButton from "./JoinCommunityButton";
+
+const { t } = i18n;
 
 const getCommunityMock = service.communities.getCommunity as MockedService<
   typeof service.communities.getCommunity
@@ -50,19 +53,20 @@ describe("JoinCommunityButton", () => {
       name: t("communities:join_community"),
     });
     expect(joinButton).toBeVisible();
-    userEvent.click(joinButton);
 
-    expect(screen.getByRole("progressbar")).toBeVisible();
+    const user = userEvent.setup();
+
+    await user.click(joinButton);
+
     const leaveButton = await screen.findByRole("button", {
       name: t("communities:leave_community"),
     });
     expect(leaveButton).toBeVisible();
-    userEvent.click(leaveButton);
-    expect(screen.getByRole("progressbar")).toBeVisible();
+    await user.click(leaveButton);
     expect(
       await screen.findByRole("button", {
         name: t("communities:join_community"),
-      })
+      }),
     ).toBeVisible();
   });
 
@@ -73,7 +77,9 @@ describe("JoinCommunityButton", () => {
     const joinButton = await screen.findByRole("button", {
       name: t("communities:join_community"),
     });
-    userEvent.click(joinButton);
+    const user = userEvent.setup();
+
+    await user.click(joinButton);
     const errorAlert = await screen.findByRole("alert");
     expect(errorAlert).toBeVisible();
     expect(errorAlert).toHaveTextContent("generic error");

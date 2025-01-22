@@ -65,25 +65,24 @@ export default function Avatar({
         className,
         { [classes.defaultSize]: !className },
         classes.root,
-        { [classes.grow]: grow }
+        { [classes.grow]: grow },
       )}
       {...otherProps}
     >
       {user ? (
         isProfileLink ? (
-          <Link href={routeToUser(user.username)}>
-            <a
-              className={classes.link}
-              aria-label={getProfileLinkA11yLabel(user.name)}
+          <Link
+            href={routeToUser(user.username)}
+            className={classes.link}
+            aria-label={getProfileLinkA11yLabel(user.name)}
+          >
+            <MuiAvatar
+              className={classes.avatar}
+              alt={user.name}
+              src={user.avatarUrl}
             >
-              <MuiAvatar
-                className={classes.avatar}
-                alt={user.name}
-                src={user.avatarUrl}
-              >
-                {user.name.split(/\s+/).map((name) => name[0])}
-              </MuiAvatar>
-            </a>
+              {user.name.split(/\s+/).map((name) => name[0])}
+            </MuiAvatar>
           </Link>
         ) : (
           <MuiAvatar

@@ -169,10 +169,6 @@ See the section about [running tests](https://facebook.github.io/create-react-ap
 
 **Tip**: before submitting a PR, it might be worth running all the CI tests with `yarn test-ci` to get a quick feedback on your own machine.
 
-### `yarn storybook`
-
-Runs storybook, good for testing and developing components in isolation.
-
 ### Option 2: Use Docker to run the backend, proxy and database locally
 
 [Follow the main instructions](https://github.com/Couchers-org/couchers/blob/develop/app/readme.md) to start the docker containers and generate the protocol buffer code.

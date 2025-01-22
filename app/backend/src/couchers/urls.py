@@ -36,7 +36,7 @@ def account_settings_link():
 
 
 def notification_settings_link():
-    return f"{config['BASE_URL']}/account-settings/notification-settings"
+    return f"{config['BASE_URL']}/account-settings/notifications"
 
 
 def feature_preview_link():

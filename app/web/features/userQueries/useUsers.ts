@@ -8,7 +8,7 @@ import { arrayEq } from "utils/arrayEq";
 
 export default function useUsers(
   ids: (number | undefined)[],
-  invalidate = false
+  invalidate = false,
 ) {
   const queryClient = useQueryClient();
   const idsRef = useRef(ids);
@@ -40,7 +40,7 @@ export default function useUsers(
         queryFn: () => service.user.getUser(id.toString()),
         queryKey: userKey(id),
         staleTime: userStaleTime,
-      }))
+      })),
   );
 
   const errors = queries

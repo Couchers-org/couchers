@@ -1,7 +1,6 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import { Typography } from "@mui/material";
-import classNames from "classnames";
+import { styled, Typography } from "@mui/material";
 import { NO_MAP_SUPPORT } from "components/constants";
 import {
   LngLat,
@@ -10,33 +9,29 @@ import {
   RequestParameters,
 } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
-import makeStyles from "utils/makeStyles";
 
 const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-const useStyles = makeStyles({
-  root: {
-    position: "relative",
-    height: 200,
-    width: 400,
-  },
-  grow: {
-    height: "100%",
-    width: "100%",
-  },
-  map: {
-    position: "absolute",
-    bottom: 0,
-    top: 0,
-    width: "100%",
-  },
-  noMapText: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-    height: "100%",
-  },
+const StyledWrapper = styled("div")<{ grow?: boolean }>(({ grow }) => ({
+  position: "relative",
+  height: grow ? "100%" : "200px",
+  width: grow ? "100%" : "400px",
+}));
+
+const StyledMap = styled("div")({
+  position: "absolute",
+  bottom: 0,
+  top: 0,
+  width: "100%",
+  height: "100%", // Add this to ensure the child takes the parent's height
+});
+
+const StyledNoMapText = styled("div")({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "100%",
+  height: "100%",
 });
 
 export interface MapProps {
@@ -63,7 +58,6 @@ export default function Map({
 }: MapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [noMap, setNoMap] = useState(false);
-  const classes = useStyles();
 
   /*
   Allows sending cookies (counted as sensitive "credentials") on cross-origin requests when we grab GeoJSON/other data from the API.
@@ -84,7 +78,7 @@ export default function Map({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    //don't create a new map if it exists already
+    // don't create a new map if it exists already
     if (mapRef.current) return;
 
     try {
@@ -114,29 +108,23 @@ export default function Map({
       console.warn("Couldn't initialize maplibre gl");
       setNoMap(true);
     }
-  }, [
-    initialCenter,
-    initialZoom,
-    interactive,
-    onUpdate,
-    postMapInitialize,
-    hash,
-  ]);
 
-  useEffect(() => () => mapRef?.current?.remove(), []);
+    return () => {
+      mapRef.current?.remove();
+      mapRef.current = undefined;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <div
-      className={classNames(classes.root, { [classes.grow]: grow }, className)}
-      {...otherProps}
-    >
-      <div className={classes.map} ref={containerRef}>
+    <StyledWrapper className={className} grow={grow} {...otherProps}>
+      <StyledMap ref={containerRef}>
         {noMap && (
-          <div className={classes.noMapText}>
+          <StyledNoMapText>
             <Typography variant="body1">{NO_MAP_SUPPORT}</Typography>
-          </div>
+          </StyledNoMapText>
         )}
-      </div>
-    </div>
+      </StyledMap>
+    </StyledWrapper>
   );
 }

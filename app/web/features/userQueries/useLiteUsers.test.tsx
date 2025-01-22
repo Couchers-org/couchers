@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, waitFor } from "@testing-library/react";
 import { reactQueryRetries } from "appConstants";
 import { liteUserKey, liteUsersKey } from "features/queryKeys";
 import { RpcError, StatusCode } from "grpc-web";
@@ -40,7 +40,7 @@ describe("useLiteUsers & useLiteUser", () => {
 
     const ids = [1, 2, 3, 4, 5];
     const mockLiteUsersMap = new Map(
-      mockLiteUsers.map((user) => [user.userId, user])
+      mockLiteUsers.map((user) => [user.userId, user]),
     );
 
     beforeEach(() => {
@@ -49,7 +49,7 @@ describe("useLiteUsers & useLiteUser", () => {
     });
 
     it("Should return loading state correctly", async () => {
-      const { result, waitFor } = renderHook(() => useLiteUsers(ids), {
+      const { result } = renderHook(() => useLiteUsers(ids), {
         wrapper,
       });
 
@@ -61,35 +61,32 @@ describe("useLiteUsers & useLiteUser", () => {
     it("Should return users map when loading is complete", async () => {
       mockGetLiteUsers.mockResolvedValue(getLiteUsers(ids));
 
-      const { result, waitForNextUpdate } = renderHook(
-        () => useLiteUsers(ids),
-        {
-          wrapper,
-        }
-      );
+      const { result } = renderHook(() => useLiteUsers(ids), {
+        wrapper,
+      });
 
-      await waitForNextUpdate();
-      expect(mockGetLiteUsers).toHaveBeenCalledTimes(1);
+      await waitFor(() => expect(mockGetLiteUsers).toHaveBeenCalledTimes(1));
 
-      expect(result.current).toEqual(
-        expect.objectContaining({
-          data: mockLiteUsersMap,
-          error: null,
-          isError: false,
-          isFetching: false,
-          isLoading: false,
-          isRefetching: false,
-        })
+      await waitFor(() =>
+        expect(result.current).toEqual(
+          expect.objectContaining({
+            data: mockLiteUsersMap,
+            error: null,
+            isError: false,
+            isFetching: false,
+            isLoading: false,
+            isRefetching: false,
+          }),
+        ),
       );
     });
 
     it("Should filter out undefined ids", async () => {
       const idsWithUndefined = [1, undefined, 3];
 
-      const { result, waitFor } = renderHook(
-        () => useLiteUsers(idsWithUndefined),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useLiteUsers(idsWithUndefined), {
+        wrapper,
+      });
 
       await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -101,16 +98,12 @@ describe("useLiteUsers & useLiteUser", () => {
       const error = new RpcError(500, "Some error", {});
       mockGetLiteUsers.mockRejectedValue(error);
 
-      const { result, waitForNextUpdate } = renderHook(
-        () => useLiteUsers([1, 2, 3]),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useLiteUsers([1, 2, 3]), { wrapper });
 
-      // Wait for the initial hook to load the data and then fail
-      await waitForNextUpdate(); // First attempt
-      await waitForNextUpdate(); // One retry allowed
+      await waitFor(() => expect(result.current.isLoading).toBe(false), {
+        timeout: 5000,
+      });
 
-      expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBe(error);
       expect(result.current.data).toBeUndefined();
     });
@@ -127,7 +120,7 @@ describe("useLiteUsers & useLiteUser", () => {
     it("Should not run the query function when ids is undefined", async () => {
       const ids: (number | undefined)[] = [undefined];
 
-      const { result, waitFor } = renderHook(() => useLiteUsers(ids), {
+      const { result } = renderHook(() => useLiteUsers(ids), {
         wrapper,
       });
 
@@ -140,15 +133,11 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUsers.mockResolvedValueOnce(getLiteUsers(ids));
 
       // Render the hook for the first time
-      const { result, waitForNextUpdate, rerender } = renderHook(
-        () => useLiteUsers(ids),
-        {
-          wrapper,
-        }
-      );
+      const { result, rerender } = renderHook(() => useLiteUsers(ids), {
+        wrapper,
+      });
 
-      // Wait for the initial hook to load the data
-      await waitForNextUpdate();
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
 
       // Check that the hook has the expected data and `getLiteUsers` was called
       expect(result.current.data).toBeDefined();
@@ -169,16 +158,13 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUsers.mockResolvedValueOnce(getLiteUsers(ids));
 
       // Render the hook with the wrapper
-      const { result, waitForNextUpdate, rerender } = renderHook(
-        () => useLiteUsers(ids),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useLiteUsers(ids), {
+        wrapper,
+      });
 
-      // Wait for the initial fetch to complete
-      await waitForNextUpdate();
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
 
       // Confirm that initial data was loaded
-      expect(result.current.isLoading).toBe(false);
       expect(result.current.isStale).toBe(false);
       expect(result.current.data).toEqual(mockLiteUsersMap);
       expect(mockGetLiteUsers).toHaveBeenCalledTimes(1);
@@ -196,8 +182,7 @@ describe("useLiteUsers & useLiteUser", () => {
       expect(result.current.isStale).toBe(true);
       expect(result.current.isRefetching).toBe(true);
 
-      // Wait for the refetch to complete
-      await waitForNextUpdate();
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
 
       // Confirm that the data has been updated after the refetch
       expect(result.current.isStale).toBe(false);
@@ -209,16 +194,12 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUsers.mockResolvedValueOnce(getLiteUsers(ids));
 
       // Render the hook with the wrapper
-      const { result, waitForNextUpdate, rerender } = renderHook(
-        () => useLiteUsers(ids),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useLiteUsers(ids), {
+        wrapper,
+      });
 
-      // Wait for the initial fetch to complete
-      await waitForNextUpdate();
-
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
       // Confirm that initial data was loaded
-      expect(result.current.isLoading).toBe(false);
       expect(result.current.isStale).toBe(false);
       expect(result.current.data).toEqual(mockLiteUsersMap);
       expect(mockGetLiteUsers).toHaveBeenCalledTimes(1);
@@ -233,16 +214,13 @@ describe("useLiteUsers & useLiteUser", () => {
       rerender();
 
       // Confirm that initial data is marked as stale and refetching
-      expect(result.current.isStale).toBe(true);
+      await waitFor(() => expect(result.current.isStale).toBe(true));
       expect(result.current.isRefetching).toBe(true);
 
-      // Wait for the refetch to complete
-      await waitForNextUpdate(); // first failed attempt
-      await waitForNextUpdate(); // second failed attempt
-
       // Confirm that the stale data from cache has been returned and isError is true
-      expect(result.current.isStale).toBe(true);
-      expect(result.current.isError).toBe(true);
+      await waitFor(() => expect(result.current.isError).toBe(true), {
+        timeout: 5000,
+      });
       expect(result.current.data).toEqual(mockLiteUsersMap);
       expect(mockGetLiteUsers).toHaveBeenCalledTimes(3);
     });
@@ -259,7 +237,7 @@ describe("useLiteUsers & useLiteUser", () => {
     it("Should return loading state correctly", async () => {
       mockGetLiteUser.mockResolvedValue(getLiteUser("1"));
 
-      const { result, waitFor } = renderHook(() => useLiteUser(1), { wrapper });
+      const { result } = renderHook(() => useLiteUser(1), { wrapper });
 
       expect(result.current.isLoading).toBe(true);
       expect(result.current.data).toBeUndefined();
@@ -270,13 +248,11 @@ describe("useLiteUsers & useLiteUser", () => {
     it("Should return user when loading is complete", async () => {
       mockGetLiteUser.mockResolvedValue(getLiteUser("2"));
 
-      const { result, waitForNextUpdate } = renderHook(() => useLiteUser(1), {
+      const { result } = renderHook(() => useLiteUser(1), {
         wrapper,
       });
 
-      await waitForNextUpdate();
-
-      expect(result.current.isLoading).toBe(false);
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
       expect(mockGetLiteUser).toHaveBeenCalledTimes(1);
 
       expect(result.current).toEqual(
@@ -287,7 +263,7 @@ describe("useLiteUsers & useLiteUser", () => {
           isFetching: false,
           isLoading: false,
           isRefetching: false,
-        })
+        }),
       );
     });
 
@@ -296,21 +272,20 @@ describe("useLiteUsers & useLiteUser", () => {
       const error = new RpcError(500, "Some error", {});
       mockGetLiteUser.mockRejectedValue(error);
 
-      const { result, waitForNextUpdate } = renderHook(() => useLiteUser(1), {
+      const { result } = renderHook(() => useLiteUser(1), {
         wrapper,
       });
 
-      await waitForNextUpdate(); // First attempt
-      await waitForNextUpdate(); // One retry allowed
-
-      expect(result.current.isLoading).toBe(false);
+      await waitFor(() => expect(result.current.isLoading).toBe(false), {
+        timeout: 5000,
+      });
       expect(result.current.error).toBe(error);
       expect(result.current.isError).toBe(true);
       expect(result.current.data).toBeUndefined();
     });
 
     it("Should not run the query function when id is undefined", async () => {
-      const { result, waitFor } = renderHook(() => useLiteUser(undefined), {
+      const { result } = renderHook(() => useLiteUser(undefined), {
         wrapper,
       });
 
@@ -323,15 +298,11 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUser.mockResolvedValueOnce(getLiteUser("1"));
 
       // Render the hook for the first time
-      const { result, waitForNextUpdate, rerender } = renderHook(
-        () => useLiteUser(1),
-        {
-          wrapper,
-        }
-      );
+      const { result, rerender } = renderHook(() => useLiteUser(1), {
+        wrapper,
+      });
 
-      // Wait for the initial hook to load the data
-      await waitForNextUpdate();
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
 
       // Check that the hook has the expected data and `getLiteUser` was called
       expect(result.current.data).toEqual(mockLiteUsers[0]);
@@ -351,16 +322,12 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUser.mockResolvedValueOnce(getLiteUser("2"));
 
       // Render the hook with the wrapper
-      const { result, waitForNextUpdate, rerender } = renderHook(
-        () => useLiteUser(2),
-        { wrapper }
-      );
-
-      // Wait for the initial fetch to complete
-      await waitForNextUpdate();
+      const { result, rerender } = renderHook(() => useLiteUser(2), {
+        wrapper,
+      });
 
       // Confirm that initial data was loaded
-      expect(result.current.isLoading).toBe(false);
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
       expect(result.current.isStale).toBe(false);
       expect(result.current.data).toEqual(mockLiteUsers[1]);
       expect(mockGetLiteUser).toHaveBeenCalledTimes(1);
@@ -379,7 +346,7 @@ describe("useLiteUsers & useLiteUser", () => {
       expect(result.current.isRefetching).toBe(true);
 
       // Wait for the refetch to complete
-      await waitForNextUpdate();
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
 
       // Confirm that the data has been updated after the refetch
       expect(result.current.isStale).toBe(false);
@@ -391,16 +358,14 @@ describe("useLiteUsers & useLiteUser", () => {
       mockGetLiteUser.mockResolvedValueOnce(getLiteUser("1"));
 
       // Render the hook with the wrapper
-      const { result, waitForNextUpdate, rerender } = renderHook(
-        () => useLiteUser(1),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useLiteUser(1), {
+        wrapper,
+      });
 
       // Wait for the initial fetch to complete
-      await waitForNextUpdate();
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
 
       // Confirm that initial data was loaded
-      expect(result.current.isLoading).toBe(false);
       expect(result.current.isStale).toBe(false);
       expect(result.current.data).toEqual(mockLiteUsers[0]);
       expect(mockGetLiteUser).toHaveBeenCalledTimes(1);
@@ -418,13 +383,11 @@ describe("useLiteUsers & useLiteUser", () => {
       expect(result.current.isStale).toBe(true);
       expect(result.current.isRefetching).toBe(true);
 
-      // Wait for the refetch to complete
-      await waitForNextUpdate();
-      await waitForNextUpdate();
-
       // Confirm that the stale data from cache has been returned and isError is true
-      expect(result.current.isStale).toBe(true);
-      expect(result.current.isError).toBe(true);
+      await waitFor(() => expect(result.current.isStale).toBe(true));
+      await waitFor(() => expect(result.current.isError).toBe(true), {
+        timeout: 5000,
+      });
       expect(result.current.data).toEqual(mockLiteUsers[0]);
       expect(mockGetLiteUser).toHaveBeenCalledTimes(3);
     });

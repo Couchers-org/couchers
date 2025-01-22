@@ -58,7 +58,13 @@ export default function EditCommunityPage({
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
   const queryClient = useQueryClient();
-  const { control, handleSubmit, register, errors } = useForm<UpdatePageData>();
+  const {
+    control,
+    handleSubmit,
+    register,
+
+    formState: { errors },
+  } = useForm<UpdatePageData>();
 
   const {
     error,
@@ -83,11 +89,11 @@ export default function EditCommunityPage({
                   ...community,
                   mainPage: newPageData,
                 }
-              : undefined
+              : undefined,
         );
         queryClient.invalidateQueries(communityKey(+communityId));
       },
-    }
+    },
   );
 
   const onSubmit = handleSubmit(
@@ -98,7 +104,7 @@ export default function EditCommunityPage({
       if (errors.communityPhotoKey) {
         window.scroll({ top: 0, behavior: "smooth" });
       }
-    }
+    },
   );
 
   return (
@@ -149,16 +155,14 @@ export default function EditCommunityPage({
               )}
               <input
                 id="pageId"
-                name="pageId"
+                {...register("pageId")}
                 type="hidden"
-                ref={register}
                 value={community.mainPage.pageId}
               />
               <input
                 id="communityId"
-                name="communityId"
+                {...register("communityId")}
                 type="hidden"
-                ref={register}
                 value={community.communityId}
               />
               <Button

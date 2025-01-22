@@ -69,11 +69,11 @@ export default function LoginForm() {
           },
         });
         authActions.authError(
-          isGrpcError(e) ? e.message : t("global:error.fatal_message")
+          isGrpcError(e) ? e.message : t("global:error.fatal_message"),
         );
       }
       setLoading(false);
-    }
+    },
   );
 
   return (
@@ -83,22 +83,21 @@ export default function LoginForm() {
           {t("auth:login_page.form.username_field_label")}
         </InputLabel>
         <TextField
+          id="username"
+          {...register("username", { required: true })}
           className={authClasses.formField}
           fullWidth
-          id="username"
-          inputRef={register({ required: true })}
-          name="username"
           variant="standard"
         />
         <InputLabel className={authClasses.formLabel} htmlFor="password">
           {t("auth:login_page.form.password_field_label")}
         </InputLabel>
         <TextField
+          id="password"
+          {...register("password", { required: true })}
           className={authClasses.formField}
           fullWidth
-          id="password"
           name="password"
-          inputRef={register({ required: true })}
           type="password"
           variant="standard"
         />
@@ -107,14 +106,14 @@ export default function LoginForm() {
             control={control}
             name="rememberDevice"
             defaultValue={true}
-            render={({ onChange, value }) => (
+            render={({ field }) => (
               <FormControlLabel
                 className={classes.rememberSwitch}
                 control={
                   <CustomColorSwitch
                     size="small"
-                    checked={value}
-                    onClick={() => onChange(!value)}
+                    checked={field.value}
+                    onClick={() => field.onChange(!field.value)}
                     isLoading={loading}
                   />
                 }

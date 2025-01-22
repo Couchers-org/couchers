@@ -42,9 +42,9 @@ interface CommentData {
   content: string;
 }
 
-function _CommentForm(
+function InternalCommentForm(
   { hideable = false, onClose, shown = false, threadId }: CommentFormProps,
-  ref: React.ForwardedRef<HTMLFormElement>
+  ref: React.ForwardedRef<HTMLFormElement>,
 ) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
@@ -73,7 +73,7 @@ function _CommentForm(
         resetMutation();
         onClose?.();
       },
-    }
+    },
   );
 
   const onSubmit = handleSubmit((data) => {
@@ -106,5 +106,5 @@ function _CommentForm(
   );
 }
 
-const CommentForm = React.forwardRef(_CommentForm);
+const CommentForm = React.forwardRef(InternalCommentForm);
 export default CommentForm;

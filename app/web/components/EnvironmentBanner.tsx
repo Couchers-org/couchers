@@ -31,7 +31,7 @@ export function EnvironmentBanner() {
   const theme = useTheme();
   const isBelowSm = useMediaQuery(theme.breakpoints.down("md"));
   const [isShown, setIsShown] = useState(
-    process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod"
+    process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod",
   );
 
   return isShown ? (

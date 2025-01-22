@@ -77,11 +77,16 @@ export default function ContributorForm({
 }: ContributorFormProps) {
   const classes = useStyles();
 
-  const { control, register, handleSubmit, errors, watch } =
-    useForm<ContributorInputs>({
-      mode: "onBlur",
-      shouldUnregister: false,
-    });
+  const {
+    control,
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<ContributorInputs>({
+    mode: "onBlur",
+    shouldUnregister: false,
+  });
 
   const mutation = useMutation<void, RpcError, ContributorInputs>(
     async (data) => {
@@ -108,12 +113,12 @@ export default function ContributorForm({
             //this reduces it to an array of the "ways" which were keys with "true" as a value
             (previous, [contributeWay, checked]) =>
               checked ? [...previous, contributeWay] : previous,
-            []
-          )
+            [],
+          ),
         )
         .setExpertise(data.expertise);
       await processForm(form.toObject());
-    }
+    },
   );
 
   const submit = handleSubmit((data: ContributorInputs) => {
@@ -144,14 +149,13 @@ export default function ContributorForm({
             {IDEAS_LABEL}
           </Typography>
           <TextField
+            id="ideas"
+            {...register("ideas")}
             inputRef={(el: HTMLInputElement | null) => {
               if (!ideasInputRef.current && autofocus) el?.focus();
               if (el) ideasInputRef.current = el;
-              register(el);
             }}
-            id="ideas"
             margin="normal"
-            name="ideas"
             helperText={IDEAS_HELPER}
             fullWidth
             multiline
@@ -168,10 +172,9 @@ export default function ContributorForm({
             {FEATURES_LABEL}
           </Typography>
           <TextField
-            inputRef={register}
             id="features"
+            {...register("features")}
             margin="normal"
-            name="features"
             helperText={FEATURES_HELPER}
             fullWidth
             multiline
@@ -180,21 +183,22 @@ export default function ContributorForm({
             className={classes.textbox}
           />
           <Controller
-            id="contribute"
             control={control}
             name="contribute"
             defaultValue=""
-            render={({ onChange, value }) => (
+            render={({ field }) => (
               <FormControl variant="standard" component="fieldset">
                 <FormLabel component="legend" className={classes.radioLabel}>
                   {CONTRIBUTE_LABEL}
                 </FormLabel>
                 <RadioGroup
+                  id="contribute"
+                  {...field}
                   className={classes.contributeRadio}
                   row
                   name="contribute-radio"
-                  onChange={(e, value) => onChange(value)}
-                  value={value}
+                  onChange={(e, value) => field.onChange(value)}
+                  value={field.value}
                 >
                   {CONTRIBUTE_OPTIONS.map((option) => (
                     <FormControlLabel
@@ -220,13 +224,14 @@ export default function ContributorForm({
                     control={control}
                     name={`contributeWays.${name}`}
                     defaultValue={false}
-                    render={({ onChange, value }) => (
+                    render={({ field }) => (
                       <FormControlLabel
                         value={name}
                         control={
                           <Checkbox
-                            checked={value}
-                            onChange={(e, checked) => onChange(checked)}
+                            {...field}
+                            checked={field.value}
+                            onChange={(e, checked) => field.onChange(checked)}
                           />
                         }
                         label={description}
@@ -236,7 +241,7 @@ export default function ContributorForm({
                 ))}
               </FormGroup>
               <FormHelperText error={!!errors?.contributeWays?.message}>
-                {errors?.contributeWays?.message ?? " "}
+                {errors?.contributeWays?.message?.toString() ?? " "}
               </FormHelperText>
             </FormControl>
             <Typography
@@ -248,10 +253,9 @@ export default function ContributorForm({
               {EXPERTISE_LABEL}
             </Typography>
             <TextField
-              inputRef={register}
               id="expertise"
+              {...register("expertise")}
               margin="normal"
-              name="expertise"
               helperText={errors?.expertise?.message ?? EXPERTISE_HELPER}
               error={!!errors?.expertise?.message}
               fullWidth
@@ -269,10 +273,9 @@ export default function ContributorForm({
               {EXPERIENCE_LABEL}
             </Typography>
             <TextField
-              inputRef={register}
               id="experience"
+              {...register("experience")}
               margin="normal"
-              name="experience"
               helperText={EXPERIENCE_HELPER}
               fullWidth
               multiline

@@ -27,9 +27,20 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
   },
   root: {
+    padding: theme.spacing(1),
+    [theme.breakpoints.up("sm")]: {
+      display: "grid",
+      gridTemplateColumns: "2fr 3fr",
+      gap: theme.spacing(3),
+      margin: theme.spacing(0, 3),
+      padding: 0,
+      paddingTop: theme.spacing(3),
+      paddingBottom: theme.spacing(3),
+    },
     [theme.breakpoints.up("md")]: {
-      display: "flex",
-      justifyContent: "space-around",
+      gridTemplateColumns: "2fr 4fr",
+      maxWidth: "61.5rem",
+      margin: "0 auto",
     },
   },
 }));
@@ -84,7 +95,7 @@ export default function LeaveReferencePage({
           user.friends === User.FriendshipStatus.FRIENDS) ||
         (hostRequestId &&
           availableReferences.availableWriteReferencesList.find(
-            ({ hostRequestId: availableId }) => availableId === hostRequestId
+            ({ hostRequestId: availableId }) => availableId === hostRequestId,
           )) ? (
           <div className={classes.root}>
             <ProfileUserProvider user={user}>

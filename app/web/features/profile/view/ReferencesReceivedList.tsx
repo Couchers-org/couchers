@@ -18,7 +18,7 @@ export default function ReferencesReceivedList({
   const userIds =
     referencesReceivedQuery.data?.pages
       .map((page) =>
-        page.referencesList.map((reference) => reference.fromUserId)
+        page.referencesList.map((reference) => reference.fromUserId),
       )
       .flat() ?? [];
   const { data: referenceUsers, isLoading: isReferenceUsersLoading } =

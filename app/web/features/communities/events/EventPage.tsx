@@ -138,18 +138,18 @@ export const useEventPageStyles = makeStyles<Theme, { eventImageSrc: string }>(
     discussionContainer: {
       marginBlockEnd: theme.spacing(5),
     },
-  })
+  }),
 );
 
 function getEventTimeString(
   startTime: Timestamp.AsObject,
-  endTime: Timestamp.AsObject
+  endTime: Timestamp.AsObject,
 ) {
   const start = dayjs(timestamp2Date(startTime));
   const end = dayjs(timestamp2Date(endTime));
 
   return `${start.format("LLLL")} to ${end.format(
-    end.isSame(start, "day") ? "LT" : "LLLL"
+    end.isSame(start, "day") ? "LT" : "LLLL",
   )}`;
 }
 
@@ -185,14 +185,14 @@ export default function EventPage({
       onSuccess(updatedEvent) {
         queryClient.setQueryData<Event.AsObject>(
           eventKey(eventId),
-          updatedEvent
+          updatedEvent,
         );
         queryClient.invalidateQueries(eventKey(eventId), {
           refetchActive: false,
         });
         queryClient.invalidateQueries([eventAttendeesBaseKey, eventId]);
       },
-    }
+    },
   );
 
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
@@ -241,6 +241,7 @@ export default function EventPage({
               className={classes.eventCoverPhoto}
               src={event.photoUrl || eventImagePlaceholderUrl}
               alt=""
+              data-testid="event-cover-photo"
             />
             <div className={classes.header}>
               <HeaderButton
@@ -285,6 +286,7 @@ export default function EventPage({
                     <Link
                       href={routeToEditEvent(event.eventId, event.slug)}
                       passHref
+                      legacyBehavior
                     >
                       <Button
                         component="a"

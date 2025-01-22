@@ -120,14 +120,13 @@ export default function EventForm({
 
   const {
     control,
-    errors,
     handleSubmit,
     getValues,
     register,
     setValue,
     watch,
-    formState: { dirtyFields },
-  } = useForm<CreateEventData>();
+    formState: { dirtyFields, errors },
+  } = useForm<CreateEventData>({ mode: "onBlur" });
 
   const isOnline = watch("isOnline", false);
   const locationDefaultValue = useRef(
@@ -137,25 +136,27 @@ export default function EventForm({
           simplifiedName: event.offlineInformation.address,
           location: new LngLat(
             event.offlineInformation.lng,
-            event.offlineInformation.lat
+            event.offlineInformation.lat,
           ),
           bbox: [0, 0, 0, 0] as Coordinates,
         }
-      : ("" as const)
+      : ("" as const),
   ).current;
 
   const onSubmit = handleSubmit(
     (data) => {
-      mutate({
+      const eventVariables = {
         ...data,
         dirtyFields,
-      });
+      } as CreateEventVariables;
+
+      mutate(eventVariables);
     },
     (errors) => {
       if (errors.eventImage) {
         window.scroll({ top: 0, behavior: "smooth" });
       }
-    }
+    },
   );
 
   return (
@@ -181,13 +182,12 @@ export default function EventForm({
       )}
       <form className={classes.form} onSubmit={onSubmit}>
         <TextField
+          id="title"
+          {...register("title", { required: t("communities:title_required") })}
           defaultValue={event?.title}
           error={!!errors.title}
           fullWidth
           helperText={errors.title?.message || ""}
-          id="title"
-          inputRef={register({ required: t("communities:title_required") })}
-          name="title"
           label={t("global:title")}
           variant="standard"
         />
@@ -203,18 +203,19 @@ export default function EventForm({
         <div
           className={classNames(
             classes.duoContainer,
-            classes.locationContainer
+            classes.locationContainer,
           )}
         >
           {isOnline ? (
             <TextField
+              id="link"
+              {...register("link", {
+                required: t("communities:link_required"),
+              })}
               defaultValue={event?.onlineInformation?.link}
               error={!!errors.link?.message}
               helperText={errors.link?.message || ""}
               fullWidth
-              id="link"
-              name="link"
-              inputRef={register({ required: t("communities:link_required") })}
               label={t("communities:virtual_event_link")}
               variant="standard"
             />
@@ -223,7 +224,6 @@ export default function EventForm({
               control={control}
               name="location"
               defaultValue={locationDefaultValue}
-              // @ts-expect-error
               fieldError={errors.location?.message}
               fullWidth
               label={t("communities:location")}
@@ -235,9 +235,9 @@ export default function EventForm({
             <FormControlLabel
               control={
                 <Checkbox
+                  {...register("isOnline")}
                   defaultChecked={!!event?.onlineInformation}
                   name="isOnline"
-                  inputRef={register}
                 />
               }
               label={t("communities:virtual_event")}

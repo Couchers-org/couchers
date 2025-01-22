@@ -11,40 +11,9 @@ import {
   DialogTitle as MuiDialogTitle,
   DialogTitleProps as MuiDialogTitleProps,
 } from "@mui/material";
-import classNames from "classnames";
 import IconButton from "components/IconButton";
 import React from "react";
-import makeStyles from "utils/makeStyles";
-
-const useStyles = makeStyles((theme) => ({
-  actions: {
-    display: "flex",
-    justifyContent: "center",
-    margin: 0,
-    padding: theme.spacing(2),
-    paddingTop: 0,
-  },
-  content: {
-    height: "fit-content",
-    padding: theme.spacing(3),
-    paddingTop: 0,
-    width: "100%",
-  },
-  contentText: {
-    padding: theme.spacing(2),
-  },
-  title: {
-    "&": theme.typography.h2,
-    padding: theme.spacing(2),
-    textAlign: "center",
-  },
-  closeButton: {
-    position: "absolute",
-    right: theme.spacing(1),
-    top: theme.spacing(1),
-    color: theme.palette.grey[500],
-  },
-}));
+import { theme } from "theme";
 
 export interface AccessibleDialogProps extends Omit<DialogProps, "className"> {
   "aria-labelledby": string;
@@ -55,23 +24,36 @@ export function Dialog(props: AccessibleDialogProps) {
 }
 
 export function DialogActions(props: Omit<DialogActionsProps, "className">) {
-  const classes = useStyles();
-  return <MuiDialogActions {...props} className={classes.actions} />;
+  return (
+    <MuiDialogActions
+      {...props}
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        margin: 0,
+        padding: theme.spacing(2),
+        paddingTop: 0,
+      }}
+    />
+  );
 }
 
 export function DialogContent(props: Omit<DialogContentProps, "className">) {
-  const classes = useStyles();
-  return <MuiDialogContent {...props} className={classes.content} />;
+  return (
+    <MuiDialogContent
+      {...props}
+      sx={{
+        height: "fit-content",
+        padding: theme.spacing(3),
+        paddingTop: 0,
+        width: "100%",
+      }}
+    />
+  );
 }
 
 export function DialogContentText(props: DialogContentTextProps) {
-  const classes = useStyles();
-  return (
-    <MuiDialogContentText
-      {...props}
-      className={classNames(props.className, classes.contentText)}
-    />
-  );
+  return <MuiDialogContentText {...props} sx={{ padding: theme.spacing(2) }} />;
 }
 
 interface DialogTitleProps extends Omit<MuiDialogTitleProps, "className"> {
@@ -83,15 +65,26 @@ export function DialogTitle({
   onClose,
   ...dialogTitleProps
 }: DialogTitleProps) {
-  const classes = useStyles();
   return (
-    <MuiDialogTitle {...dialogTitleProps} className={classes.title}>
+    <MuiDialogTitle
+      {...dialogTitleProps}
+      sx={{
+        "&": theme.typography.h2,
+        padding: theme.spacing(2),
+        textAlign: "center",
+      }}
+    >
       {onClose && (
         <IconButton
           aria-label="close"
           onClick={onClose}
-          className={classes.closeButton}
           size="large"
+          sx={{
+            position: "absolute",
+            right: theme.spacing(1),
+            top: theme.spacing(1),
+            color: theme.palette.grey[500],
+          }}
         >
           <CloseIcon />
         </IconButton>

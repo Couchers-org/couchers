@@ -3,9 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { MockedService, t } from "test/utils";
+import i18n from "test/i18n";
+import { MockedService } from "test/utils";
 
 import ResetPassword from "./ResetPassword";
+
+const { t } = i18n;
 
 const resetPasswordMock = service.account.resetPassword as MockedService<
   typeof service.account.resetPassword
@@ -20,18 +23,18 @@ describe("ResetPassword", () => {
     render(<ResetPassword />, { wrapper });
 
     expect(
-      screen.getByRole("heading", { level: 1, name: t("auth:reset_password") })
+      screen.getByRole("heading", { level: 1, name: t("auth:reset_password") }),
     ).toBeVisible();
     expect(
-      screen.getByLabelText(t("auth:reset_password_form.enter_email"))
+      screen.getByLabelText(t("auth:reset_password_form.enter_email")),
     ).toBeVisible();
     expect(
-      screen.getByRole("button", { name: t("global:submit") })
+      screen.getByRole("button", { name: t("global:submit") }),
     ).toBeVisible();
 
     // Does not show error state or success message, since we've done nothing yet
     expect(
-      screen.queryByText(t("auth:reset_password_form.success_message"))
+      screen.queryByText(t("auth:reset_password_form.success_message")),
     ).not.toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
@@ -39,7 +42,9 @@ describe("ResetPassword", () => {
   it("does not try to submit the reset password form if the field is not filled in", async () => {
     render(<ResetPassword />, { wrapper });
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(resetPasswordMock).not.toHaveBeenCalled();
@@ -49,14 +54,16 @@ describe("ResetPassword", () => {
   it("submits the reset password request successfully", async () => {
     render(<ResetPassword />, { wrapper });
 
-    userEvent.type(
+    const user = userEvent.setup();
+
+    await user.type(
       screen.getByLabelText(t("auth:reset_password_form.enter_email")),
-      "test"
+      "test",
     );
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     expect(
-      await screen.findByText(t("auth:reset_password_form.success_message"))
+      await screen.findByText(t("auth:reset_password_form.success_message")),
     ).toBeVisible();
     expect(resetPasswordMock).toHaveBeenCalledTimes(1);
     expect(resetPasswordMock).toHaveBeenCalledWith("test");
@@ -65,14 +72,16 @@ describe("ResetPassword", () => {
   it("submits the reset password request even if the username is typed in mixed casing", async () => {
     render(<ResetPassword />, { wrapper });
 
-    userEvent.type(
+    const user = userEvent.setup();
+
+    await user.type(
       screen.getByLabelText(t("auth:reset_password_form.enter_email")),
-      "TeST"
+      "TeST",
     );
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     expect(
-      await screen.findByText(t("auth:reset_password_form.success_message"))
+      await screen.findByText(t("auth:reset_password_form.success_message")),
     ).toBeVisible();
     expect(resetPasswordMock).toHaveBeenCalledTimes(1);
     expect(resetPasswordMock).toHaveBeenCalledWith("test");
@@ -83,17 +92,19 @@ describe("ResetPassword", () => {
     resetPasswordMock.mockRejectedValue(new Error("GRPC error"));
     render(<ResetPassword />, { wrapper });
 
-    userEvent.type(
+    const user = userEvent.setup();
+
+    await user.type(
       screen.getByLabelText(t("auth:reset_password_form.enter_email")),
-      "test"
+      "test",
     );
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     const errorAlert = await screen.findByRole("alert");
     expect(errorAlert).toBeVisible();
     expect(errorAlert).toHaveTextContent("GRPC error");
     expect(
-      screen.queryByText(t("auth:reset_password_form.success_message"))
+      screen.queryByText(t("auth:reset_password_form.success_message")),
     ).not.toBeInTheDocument();
   });
 });

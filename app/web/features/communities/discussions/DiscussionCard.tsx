@@ -1,6 +1,7 @@
 import { Card, CardContent, Skeleton, Typography } from "@mui/material";
 import classNames from "classnames";
 import Avatar from "components/Avatar";
+import FlagButton from "features/FlagButton";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
@@ -25,6 +26,11 @@ const useStyles = makeStyles((theme) => ({
       padding: theme.spacing(2),
     },
     width: "100%",
+  },
+  avatarFlagContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   discussionSummary: {
     display: "flex",
@@ -73,8 +79,14 @@ export default function DiscussionCard({
         originalContent: discussion.content,
         maxLength: 300,
       }),
-    [discussion.content]
+    [discussion.content],
   );
+
+  const contentRef =
+    (discussion.ownerCommunityId != 0
+      ? `community/${discussion.ownerCommunityId}`
+      : `group/${discussion.ownerGroupId}`) +
+    `/discussion/${discussion.discussionId}`;
 
   return (
     <Card
@@ -82,38 +94,42 @@ export default function DiscussionCard({
       data-testid={DISCUSSION_CARD_TEST_ID}
     >
       <Link href={routeToDiscussion(discussion.discussionId, discussion.slug)}>
-        <a>
-          <CardContent className={classes.cardContent}>
+        <CardContent className={classes.cardContent}>
+          <div className={classes.avatarFlagContainer}>
             <Avatar
               user={creator}
               className={classes.avatar}
               isProfileLink={false}
             />
-            <div className={classes.discussionSummary}>
-              <Typography
-                variant="body2"
-                component="p"
-                className={classes.surtitle}
-              >
-                {creator ? (
-                  t("communities:by_creator", { name: creator.name })
-                ) : (
-                  <Skeleton className={classes.userLoading} />
-                )}{" "}
-                {postedTime && `• ${postedTime}`}
-              </Typography>
-              <Typography variant="h2" component="h3">
-                {discussion.title}
-              </Typography>
-              <Typography variant="body1">{truncatedContent}</Typography>
-              <Typography className={classes.commentsCount} variant="body1">
-                {t("communities:comments_count", {
-                  count: discussion.thread?.numResponses,
-                })}
-              </Typography>
-            </div>
-          </CardContent>
-        </a>
+            <FlagButton
+              contentRef={contentRef}
+              authorUser={discussion.creatorUserId}
+            />
+          </div>
+          <div className={classes.discussionSummary}>
+            <Typography
+              variant="body2"
+              component="p"
+              className={classes.surtitle}
+            >
+              {creator ? (
+                t("communities:by_creator", { name: creator.name })
+              ) : (
+                <Skeleton className={classes.userLoading} />
+              )}{" "}
+              {postedTime && `• ${postedTime}`}
+            </Typography>
+            <Typography variant="h2" component="h3">
+              {discussion.title}
+            </Typography>
+            <Typography variant="body1">{truncatedContent}</Typography>
+            <Typography className={classes.commentsCount} variant="body1">
+              {t("communities:comments_count", {
+                count: discussion.thread?.numResponses,
+              })}
+            </Typography>
+          </div>
+        </CardContent>
       </Link>
     </Card>
   );

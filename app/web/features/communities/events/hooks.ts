@@ -45,7 +45,7 @@ export function useEventOrganizers({
     enabled,
   });
   const organizerIds = query.data?.pages.flatMap(
-    (res) => res.organizerUserIdsList
+    (res) => res.organizerUserIdsList,
   );
 
   return { ...query, organizerIds };
@@ -68,7 +68,7 @@ export function useEventAttendees({
     enabled,
   });
   const attendeesIds = query.data?.pages.flatMap(
-    (data) => data.attendeeUserIdsList
+    (data) => data.attendeeUserIdsList,
   );
   return {
     ...query,

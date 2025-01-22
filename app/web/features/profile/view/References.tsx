@@ -111,6 +111,7 @@ export default function References() {
                   }/${userId}`,
                 }}
                 passHref
+                legacyBehavior
               >
                 <Button startIcon={<AddIcon />}>
                   {t("profile:write_reference")}

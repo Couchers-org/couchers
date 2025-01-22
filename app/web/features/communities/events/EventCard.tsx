@@ -93,11 +93,11 @@ export default function EventCard({ event, className }: EventCardProps) {
 
   const strippedContent = useMemo(
     () => stripMarkdown(event.content),
-    [event.content]
+    [event.content],
   );
 
   const formattedEventDates = `${startTime.format("llll")} - ${endTime.format(
-    endTime.isSame(startTime, "day") ? "LT" : "llll"
+    endTime.isSame(startTime, "day") ? "LT" : "llll",
   )}`;
 
   return (
@@ -105,68 +105,65 @@ export default function EventCard({ event, className }: EventCardProps) {
       className={classNames(
         className,
         classes.root,
-        event.isCancelled ? classes.cancelledEvent : null
+        event.isCancelled ? classes.cancelledEvent : null,
       )}
       data-testid={EVENT_CARD_TEST_ID}
     >
       <Link href={routeToEvent(event.eventId, event.slug)}>
-        <a>
-          <CardMedia
-            src={event.photoUrl || eventImagePlaceholderUrl}
-            className={classes.image}
+        <CardMedia
+          src={event.photoUrl || eventImagePlaceholderUrl}
+          className={classes.image}
+        >
+          {event.onlineInformation && (
+            <Chip
+              className={classes.chip}
+              size="medium"
+              label={t("communities:online")}
+            />
+          )}
+        </CardMedia>
+        <CardContent>
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            className={classes.eventTime}
+            gutterBottom
+            /* title useful to hover in case it's too long for the card */
+            title={formattedEventDates}
           >
-            {event.onlineInformation && (
-              <Chip
-                className={classes.chip}
-                size="medium"
-                label={t("communities:online")}
-              />
-            )}
-          </CardMedia>
+            {formattedEventDates}
+          </Typography>
 
-          <CardContent>
-            <Typography
-              variant="body2"
-              color="textSecondary"
-              className={classes.eventTime}
-              gutterBottom
-              /* title useful to hover in case it's too long for the card */
-              title={formattedEventDates}
-            >
-              {formattedEventDates}
+          <Typography variant="h3" gutterBottom className={classes.title}>
+            {event.title}
+          </Typography>
+          <Typography noWrap variant="body2" gutterBottom>
+            {event.offlineInformation
+              ? event.offlineInformation.address
+              : t("communities:virtual_event_location_placeholder")}
+          </Typography>
+
+          {event.isCancelled && (
+            <Chip
+              classes={{ root: classes.cancelledChip }}
+              label={t("communities:cancelled")}
+            />
+          )}
+
+          <Divider spacing={1} />
+
+          <div>
+            <Typography className={classes.content} variant="body1" paragraph>
+              {strippedContent}
             </Typography>
 
-            <Typography variant="h3" gutterBottom className={classes.title}>
-              {event.title}
+            <Typography variant="body2" color="textSecondary">
+              {t("communities:attendees_count", {
+                count: event.goingCount + event.maybeCount,
+              })}
             </Typography>
-            <Typography noWrap variant="body2" gutterBottom>
-              {event.offlineInformation
-                ? event.offlineInformation.address
-                : t("communities:virtual_event_location_placeholder")}
-            </Typography>
-
-            {event.isCancelled && (
-              <Chip
-                classes={{ root: classes.cancelledChip }}
-                label={t("communities:cancelled")}
-              />
-            )}
-
-            <Divider spacing={1} />
-
-            <div>
-              <Typography className={classes.content} variant="body1" paragraph>
-                {strippedContent}
-              </Typography>
-
-              <Typography variant="body2" color="textSecondary">
-                {t("communities:attendees_count", {
-                  count: event.goingCount + event.maybeCount,
-                })}
-              </Typography>
-            </div>
-          </CardContent>
-        </a>
+          </div>
+        </CardContent>
       </Link>
     </Card>
   );

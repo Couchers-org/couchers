@@ -23,51 +23,51 @@ const PushNotificationDenied = () => {
   const getBrowserInstructions = () => {
     if (isMobile()) {
       return t(
-        "notification_settings.push_notifications.permission_denied.instructions.mobile.browser"
+        "notification_settings.push_notifications.permission_denied.instructions.mobile.browser",
       );
     }
     if (userAgent.includes("chrome")) {
       return t(
-        "notification_settings.push_notifications.permission_denied.instructions.chrome"
+        "notification_settings.push_notifications.permission_denied.instructions.chrome",
       );
     } else if (userAgent.includes("firefox")) {
       return t(
-        "notification_settings.push_notifications.permission_denied.instructions.firefox"
+        "notification_settings.push_notifications.permission_denied.instructions.firefox",
       );
     } else if (userAgent.includes("safari")) {
       return t(
-        "notification_settings.push_notifications.permission_denied.instructions.safari"
+        "notification_settings.push_notifications.permission_denied.instructions.safari",
       );
     }
 
     return t(
-      "notification_settings.push_notifications.permission_denied.instructions.generic"
+      "notification_settings.push_notifications.permission_denied.instructions.generic",
     );
   };
 
   const getOSInstructions = () => {
     if (isMobile()) {
       return t(
-        "notification_settings.push_notifications.permission_denied.instructions.mobile.os"
+        "notification_settings.push_notifications.permission_denied.instructions.mobile.os",
       );
     }
 
     if (userAgent.includes("mac")) {
       return t(
-        "notification_settings.push_notifications.permission_denied.instructions.macos"
+        "notification_settings.push_notifications.permission_denied.instructions.macos",
       );
     } else if (userAgent.includes("windows")) {
       return t(
-        "notification_settings.push_notifications.permission_denied.instructions.windows"
+        "notification_settings.push_notifications.permission_denied.instructions.windows",
       );
     } else if (userAgent.includes("linux")) {
       return t(
-        "notification_settings.push_notifications.permission_denied.instructions.linux.gnome"
+        "notification_settings.push_notifications.permission_denied.instructions.linux.gnome",
       );
     }
 
     return t(
-      "notification_settings.push_notifications.permission_denied.instructions.generic"
+      "notification_settings.push_notifications.permission_denied.instructions.generic",
     );
   };
 
@@ -78,7 +78,7 @@ const PushNotificationDenied = () => {
       </Alert>
       <Alert className={classes.alert} severity="error">
         {t(
-          "notification_settings.push_notifications.permission_denied.platform_settings_description"
+          "notification_settings.push_notifications.permission_denied.platform_settings_description",
         ) +
           " " +
           getOSInstructions()}

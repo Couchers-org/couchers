@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { renderHook } from "@testing-library/react-hooks";
+import { render, renderHook, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QUESTIONS_OPTIONAL } from "components/ContributorForm/constants";
 import { EditLocationMapProps } from "components/EditLocationMap";
@@ -13,14 +12,12 @@ import TagManager from "react-gtm-module";
 import { dashboardRoute, signupRoute } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import {
-  assertErrorAlert,
-  mockConsoleError,
-  MockedService,
-  t,
-} from "test/utils";
+import i18n from "test/i18n";
+import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import Signup from "./Signup";
+
+const { t } = i18n;
 
 jest.mock("@mui/x-date-pickers", () => {
   return {
@@ -93,6 +90,12 @@ describe("Signup", () => {
       ],
     });
   });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    global.localStorage.clear();
+  });
+
   describe("flow steps", () => {
     it("basic -> account form works", async () => {
       window.localStorage.setItem(
@@ -104,7 +107,7 @@ describe("Signup", () => {
           needAcceptCommunityGuidelines: true,
           needFeedback: true,
           needVerifyEmail: false,
-        })
+        }),
       );
       startSignupMock.mockResolvedValue({
         flowToken: "token",
@@ -117,18 +120,20 @@ describe("Signup", () => {
 
       render(<View />, { wrapper });
 
-      userEvent.type(
+      const user = userEvent.setup();
+
+      await user.type(
         await screen.findByLabelText(t("auth:basic_form.name.field_label")),
-        "Test user"
+        "Test user",
       );
-      userEvent.type(
+      await user.type(
         screen.getByLabelText(t("auth:basic_form.email.field_label")),
-        "test@example.com{enter}"
+        "test@example.com{enter}",
       );
       expect(
         await screen.findByLabelText(
-          t("auth:account_form.username.field_label")
-        )
+          t("auth:account_form.username.field_label"),
+        ),
       ).toBeVisible();
     });
 
@@ -142,7 +147,7 @@ describe("Signup", () => {
           needAcceptCommunityGuidelines: true,
           needFeedback: true,
           needVerifyEmail: false,
-        })
+        }),
       );
       signupFlowAccountMock.mockResolvedValue({
         flowToken: "token",
@@ -156,51 +161,53 @@ describe("Signup", () => {
 
       render(<View />, { wrapper });
 
-      userEvent.type(
+      const user = userEvent.setup();
+
+      await user.type(
         await screen.findByLabelText(
-          t("auth:account_form.username.field_label")
+          t("auth:account_form.username.field_label"),
         ),
-        "test"
+        "test",
       );
-      userEvent.type(
+      await user.type(
         await screen.findByLabelText(
-          t("auth:account_form.password.field_label")
+          t("auth:account_form.password.field_label"),
         ),
-        "a very insecure password"
+        "a very insecure password",
       );
       const birthdayField = screen.getByLabelText(
-        t("auth:account_form.birthday.field_label")
+        t("auth:account_form.birthday.field_label"),
       );
-      userEvent.clear(birthdayField);
-      userEvent.type(birthdayField, "01/01/1990");
+      await user.clear(birthdayField);
+      await user.type(birthdayField, "01/01/1990");
 
-      userEvent.type(
+      await user.type(
         screen.getByTestId("edit-location-map"),
-        "test city, test country"
+        "test city, test country",
       );
 
-      userEvent.selectOptions(
+      await user.selectOptions(
         screen.getByLabelText(
-          t("auth:account_form.hosting_status.field_label")
+          t("auth:account_form.hosting_status.field_label"),
         ),
-        hostingStatusLabels(t)[HostingStatus.HOSTING_STATUS_CAN_HOST]
+        hostingStatusLabels(t)[HostingStatus.HOSTING_STATUS_CAN_HOST],
       );
 
-      userEvent.click(
-        screen.getByLabelText(t("auth:account_form.gender.woman"))
+      await user.click(
+        screen.getByLabelText(t("auth:account_form.gender.woman")),
       );
-      userEvent.click(
-        await screen.findByLabelText(t("auth:account_form.tos_accept_label"))
+      await user.click(
+        await screen.findByLabelText(t("auth:account_form.tos_accept_label")),
       );
 
-      userEvent.click(
-        screen.getByRole("button", { name: t("global:sign_up") })
+      await user.click(
+        screen.getByRole("button", { name: t("global:sign_up") }),
       );
 
       expect(await screen.findByText("Guideline 1")).toBeVisible();
     });
 
-    it("guidelines -> contributor form works", async () => {
+    it.only("guidelines -> contributor form works", async () => {
       window.localStorage.setItem(
         "auth.flowState",
         JSON.stringify({
@@ -210,7 +217,7 @@ describe("Signup", () => {
           needAcceptCommunityGuidelines: true,
           needFeedback: true,
           needVerifyEmail: false,
-        })
+        }),
       );
       signupFlowCommunityGuidelinesMock.mockResolvedValue({
         flowToken: "token",
@@ -222,14 +229,19 @@ describe("Signup", () => {
       });
       render(<View />, { wrapper });
 
+      const user = userEvent.setup({});
+
       const checkboxes = await screen.findAllByLabelText(
-        t("auth:community_guidelines_form.guideline.checkbox_label")
+        t("auth:community_guidelines_form.guideline.checkbox_label"),
       );
-      checkboxes.forEach((checkbox) => userEvent.click(checkbox));
-      const button = screen.getByRole("button", { name: t("global:continue") });
+      checkboxes.forEach(async (checkbox) => await user.click(checkbox));
+      const button = await screen.findByRole("button", {
+        name: t("global:continue"),
+      });
 
       await waitFor(() => expect(button).not.toBeDisabled());
-      userEvent.click(button);
+
+      await user.click(button);
 
       await waitFor(() => {
         expect(screen.getByText(QUESTIONS_OPTIONAL)).toBeVisible();
@@ -248,7 +260,7 @@ describe("Signup", () => {
         needAcceptCommunityGuidelines: false,
         needFeedback: true,
         needVerifyEmail: false,
-      })
+      }),
     );
     signupFlowFeedbackMock.mockResolvedValue({
       flowToken: "token",
@@ -262,7 +274,9 @@ describe("Signup", () => {
 
     render(<View />, { wrapper });
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
     await waitFor(() => expect(mockRouter.pathname).toBe(dashboardRoute));
 
     expect(TagManager.dataLayer).toHaveBeenCalledTimes(1);
@@ -288,7 +302,7 @@ describe("Signup", () => {
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     render(<View />, { wrapper });
     expect(
-      screen.getByLabelText(t("auth:basic_form.email.field_label"))
+      screen.getByLabelText(t("auth:basic_form.email.field_label")),
     ).toBeVisible();
   });
 
@@ -304,7 +318,7 @@ describe("Signup", () => {
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     render(<View />, { wrapper });
     expect(
-      screen.getByLabelText(t("auth:account_form.username.field_label"))
+      screen.getByLabelText(t("auth:account_form.username.field_label")),
     ).toBeVisible();
   });
 
@@ -320,7 +334,7 @@ describe("Signup", () => {
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     render(<View />, { wrapper });
     expect(
-      screen.getByLabelText(t("auth:account_form.username.field_label"))
+      screen.getByLabelText(t("auth:account_form.username.field_label")),
     ).toBeVisible();
   });
 
@@ -336,7 +350,7 @@ describe("Signup", () => {
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     render(<View />, { wrapper });
     expect(
-      screen.getByLabelText(t("auth:account_form.username.field_label"))
+      screen.getByLabelText(t("auth:account_form.username.field_label")),
     ).toBeVisible();
   });
 
@@ -423,7 +437,7 @@ describe("Signup", () => {
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     render(<View />, { wrapper });
     expect(
-      await screen.findByText(t("auth:sign_up_confirmed_prompt"))
+      await screen.findByText(t("auth:sign_up_confirmed_prompt")),
     ).toBeVisible();
   });
 
@@ -459,12 +473,14 @@ describe("Signup", () => {
         needAcceptCommunityGuidelines: false,
         needFeedback: true,
         needVerifyEmail: false,
-      })
+      }),
     );
     render(<View />, { wrapper });
 
-    userEvent.click(
-      await screen.findByRole("button", { name: t("global:submit") })
+    const user = userEvent.setup();
+
+    await user.click(
+      await screen.findByRole("button", { name: t("global:submit") }),
     );
     mockConsoleError();
     await assertErrorAlert("Permission denied");
@@ -494,7 +510,7 @@ describe("Signup", () => {
       wrapper,
     });
     expect(
-      await screen.findByLabelText(t("auth:account_form.username.field_label"))
+      await screen.findByLabelText(t("auth:account_form.username.field_label")),
     ).toBeVisible();
     expect(signupFlowEmailTokenMock).toBeCalledWith("fakeEmailToken");
     const { result } = renderHook(() => useAuthStore(), { wrapper });

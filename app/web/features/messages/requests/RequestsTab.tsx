@@ -43,7 +43,7 @@ export default function RequestsTab({
     {
       getNextPageParam: (lastPage) =>
         lastPage.noMore ? undefined : lastPage.lastRequestId,
-    }
+    },
   );
 
   const loadMoreRequests = () => fetchNextPage();
@@ -70,16 +70,14 @@ export default function RequestsTab({
                       href={routeToHostRequest(hostRequest.hostRequestId)}
                       key={hostRequest.hostRequestId}
                     >
-                      <a>
-                        <HostRequestListItem
-                          hostRequest={hostRequest}
-                          className={classes.listItem}
-                        />
-                      </a>
+                      <HostRequestListItem
+                        hostRequest={hostRequest}
+                        className={classes.listItem}
+                      />
                     </Link>
                   ))}
                 </React.Fragment>
-              )
+              ),
             )}
           {hasNextPage && (
             <Button onClick={loadMoreRequests} loading={isFetchingNextPage}>

@@ -15,25 +15,26 @@ module.exports = {
     defaultLocale: "en",
     localeDetection: false,
     locales: allLanguages,
-    fallbackLng,
   },
+  fallbackLng,
   defaultNS: "global",
   compatibilityJSON: "v3",
   debug: process.env.NODE_ENV === "development",
   ns: NAMESPACES,
   returnEmptyString: false,
   serializeConfig: false,
+  nonExplicitSupportedLngs: true, // Handle language codes like "zh-CN" and "zh-Hant" fallback to zh gracefully
   localePath: (locale, namespace) => {
     const path = require("path");
     if (namespace === "global") {
       return path.resolve(
         process.cwd(),
-        `resources/locales/${locale.replace("-", "_")}.json`
+        `resources/locales/${locale.replace("-", "_")}.json`,
       );
     }
     return path.resolve(
       process.cwd(),
-      `features/${namespace}/locales/${locale.replace("-", "_")}.json`
+      `features/${namespace}/locales/${locale.replace("-", "_")}.json`,
     );
   },
 };

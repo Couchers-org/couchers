@@ -39,7 +39,7 @@ export default function useRespondToFriendRequest() {
               {
                 ...cachedUser,
                 friends: User.FriendshipStatus.FRIENDS,
-              }
+              },
             );
           } else {
             queryClient.setQueryData<User.AsObject>(
@@ -47,7 +47,7 @@ export default function useRespondToFriendRequest() {
               {
                 ...cachedUser,
                 friends: User.FriendshipStatus.NOT_FRIENDS,
-              }
+              },
             );
           }
         }
@@ -65,7 +65,7 @@ export default function useRespondToFriendRequest() {
         queryClient.invalidateQueries(userKey(friendRequest.userId));
         queryClient.invalidateQueries("ping");
       },
-    }
+    },
   );
 
   return { isLoading, isSuccess, reset, respondToFriendRequest };

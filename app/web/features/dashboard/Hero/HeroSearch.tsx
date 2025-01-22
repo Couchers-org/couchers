@@ -6,6 +6,7 @@ import { useTranslation } from "next-i18next";
 import { HostingStatus } from "proto/api_pb";
 import { useForm } from "react-hook-form";
 import { routeToSearch } from "routes";
+import { GeocodeResult } from "utils/hooks";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
@@ -22,7 +23,11 @@ export default function HeroSearch() {
   const router = useRouter();
   const searchInputId = "hero-search-input";
 
-  const { control, errors } = useForm({ mode: "onChange" });
+  const {
+    control,
+
+    formState: { errors },
+  } = useForm<{ location: GeocodeResult }>({ mode: "onChange" });
 
   return (
     <form className={classes.searchBoxContainer}>

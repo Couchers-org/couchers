@@ -2,7 +2,7 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
-import "@testing-library/jest-dom/extend-expect";
+import "@testing-library/jest-dom";
 import "whatwg-fetch";
 
 import { waitFor } from "@testing-library/react";
@@ -14,7 +14,17 @@ import i18n from "test/i18n";
 import user from "./fixtures/defaultUser.json";
 
 jest.mock("service");
-jest.mock("next/dist/client/router", () => require("next-router-mock"));
+jest.mock("next/router", () => {
+  const routerMock = jest.requireActual("next-router-mock");
+  return {
+    ...routerMock,
+    events: {
+      on: jest.fn(),
+      off: jest.fn(),
+      emit: jest.fn(),
+    },
+  };
+});
 // Mock next/dynamic to skip the dynamic part
 // This works by extracting the require("path/to/component")
 // It needs to be in the form dynamic(() => import("components/MarkdownNoSSR"))
@@ -32,7 +42,7 @@ jest.mock("next/dynamic", () => ({
 }));
 jest.mock("react-gtm-module");
 
-jest.setTimeout(15000);
+jest.setTimeout(10000);
 
 global.defaultUser = user;
 global.localStorage = createWebStorageMock();
@@ -45,22 +55,13 @@ global.crypto = {
   },
 };
 
-//sentry testing was causing OOM for some reason
-//const { testkit, sentryTransport } = sentryTestkit();
-//global.testKit = testkit;
-
-beforeAll(() => {
-  /*Sentry.init({
-    dsn: "https://testKey@o782870.ingest.sentry.io/0",
-    transport: sentryTransport,
-  });*/
-});
+const { testkit } = sentryTestkit();
+global.testKit = testkit;
 
 beforeEach(async () => {
   global.localStorage.clear();
   global.sessionStorage.clear();
   jest.restoreAllMocks();
-  //testkit.reset();
   await waitFor(() => {
     expect(i18n.isInitialized).toBe(true);
   });
@@ -74,8 +75,10 @@ window.URL.createObjectURL = jest.fn();
 window.matchMedia = createMatchMedia(window.innerWidth);
 
 declare global {
-  var defaultUser: typeof user; // eslint-disable-line
-  var testKit: sentryTestkit.Testkit; // eslint-disable-line
+  /* eslint-disable no-var */ // Disable the rule for this block
+  var defaultUser: typeof user;
+  var testKit: ReturnType<typeof sentryTestkit>["testkit"];
+  /* eslint-enable no-var */ // Re-enable the rule
 }
 
 function createWebStorageMock() {

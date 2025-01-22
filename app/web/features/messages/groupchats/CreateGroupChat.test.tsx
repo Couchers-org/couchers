@@ -1,11 +1,14 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
 import mockRouter from "next-router-mock";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getUser } from "test/serviceMockDefaults";
-import { MockedService, t } from "test/utils";
+import { MockedService } from "test/utils";
+
+const { t } = i18n;
 
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
@@ -26,15 +29,16 @@ describe("CreateGroupChat with query string", () => {
   it("initially shows the create dialog with a user pre-filled", async () => {
     expect(
       await screen.findByLabelText(
-        t("messages:create_chat.friends_input_label")
-      )
+        t("messages:create_chat.friends_input_label"),
+      ),
     ).toBeVisible();
-    expect(screen.getByText(users[0].name)).toBeVisible();
+
+    await waitFor(() => expect(screen.getByText(users[0].name)).toBeVisible());
     expect(
       screen.queryByRole("heading", {
         name: t("messages:create_chat.dm_title"),
         level: 2,
-      })
+      }),
     ).toBeVisible();
   });
 });
@@ -47,14 +51,14 @@ describe("CreateGroupChat without router state", () => {
 
   it("doesn't initially show the create dialog", async () => {
     expect(
-      screen.getByLabelText(t("messages:create_chat.friends_input_label"))
+      screen.getByLabelText(t("messages:create_chat.friends_input_label")),
     ).not.toBeVisible();
     expect(
       screen.queryByRole("heading", {
         name: t("messages:create_chat.group_title"),
         level: 2,
         hidden: true,
-      })
+      }),
     ).toBeNull();
   });
 });

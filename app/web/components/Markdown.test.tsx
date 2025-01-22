@@ -34,7 +34,7 @@ describe("Markdown widget", () => {
           topHeaderLevel={1}
         />
       </div>,
-      { wrapper }
+      { wrapper },
     );
     expect(screen.queryByTestId("bad")).not.toBeInTheDocument();
     expect(screen.getByTestId("root")).toContainHTML("<br>");
@@ -47,11 +47,11 @@ describe("Markdown widget", () => {
           topHeaderLevel={1}
         />
       </div>,
-      { wrapper }
+      { wrapper },
     );
     expect(screen.queryByAltText("image")).not.toBeInTheDocument();
     expect(
-      getByRole(screen.getByTestId("root"), "link", { name: "image" })
+      getByRole(screen.getByTestId("root"), "link", { name: "image" }),
     ).toHaveAttribute("href", "https://example.com");
   });
 
@@ -66,13 +66,13 @@ describe("Markdown widget", () => {
           allowImages="couchers"
         />
       </div>,
-      { wrapper }
+      { wrapper },
     );
     expect(
-      getByAltText(screen.getByTestId("allowed"), "image")
+      getByAltText(screen.getByTestId("allowed"), "image"),
     ).toHaveAttribute("src", "https://mymedia.com/image.png");
     expect(
-      queryByRole(screen.getByTestId("allowed"), "link", { name: "image" })
+      queryByRole(screen.getByTestId("allowed"), "link", { name: "image" }),
     ).not.toBeInTheDocument();
   });
 
@@ -87,13 +87,13 @@ describe("Markdown widget", () => {
           allowImages="none"
         />
       </div>,
-      { wrapper }
+      { wrapper },
     );
     expect(
-      getByRole(screen.getByTestId("not-allowed"), "link", { name: "image" })
+      getByRole(screen.getByTestId("not-allowed"), "link", { name: "image" }),
     ).toHaveAttribute("href", "https://mymedia.com/image.png");
     expect(
-      queryByAltText(screen.getByTestId("not-allowed"), "image")
+      queryByAltText(screen.getByTestId("not-allowed"), "image"),
     ).not.toBeInTheDocument();
   });
 
@@ -108,13 +108,13 @@ describe("Markdown widget", () => {
           allowImages="couchers"
         />
       </div>,
-      { wrapper }
+      { wrapper },
     );
     expect(
-      getByRole(screen.getByTestId("not-allowed"), "link", { name: "image" })
+      getByRole(screen.getByTestId("not-allowed"), "link", { name: "image" }),
     ).toHaveAttribute("href", "https://otherdomain.com/image.png");
     expect(
-      queryByAltText(screen.getByTestId("not-allowed"), "image")
+      queryByAltText(screen.getByTestId("not-allowed"), "image"),
     ).not.toBeInTheDocument();
   });
 });

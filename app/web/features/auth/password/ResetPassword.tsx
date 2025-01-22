@@ -42,7 +42,7 @@ export default function ResetPassword() {
     isSuccess,
     mutate: resetPassword,
   } = useMutation<Empty, RpcError, string>((userId) =>
-    service.account.resetPassword(userId)
+    service.account.resetPassword(userId),
   );
 
   const onSubmit = handleSubmit(({ userId }) => {
@@ -58,7 +58,7 @@ export default function ResetPassword() {
         <TextField
           classes={{ root: classes.textField }}
           id="userId"
-          inputRef={register({ required: true })}
+          {...register("userId", { required: true })}
           label={t("auth:reset_password_form.enter_email")}
           name="userId"
           variant="standard"

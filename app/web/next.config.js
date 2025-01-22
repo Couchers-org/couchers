@@ -14,7 +14,6 @@ module.exports = {
       "pages",
       "resources",
       "service",
-      "stories",
       "test",
       "types",
       "utils",
@@ -84,7 +83,5 @@ module.exports = {
       ],
     },
   ],
-  experimental: {
-    outputStandalone: true,
-  },
+  output: "standalone",
 };

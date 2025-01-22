@@ -1,13 +1,18 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { service } from "service";
+import i18n from "test/i18n";
 
 import * as client from "../../service/client";
 import wrapper from "../../test/hookWrapper";
-import { addDefaultUser, t } from "../../test/utils";
+import { addDefaultUser } from "../../test/utils";
 import { useAuthContext } from "./AuthProvider";
 import { JAILED_ERROR_MESSAGE, LOGGED_OUT_ERROR_MESSAGE } from "./constants";
+
+const { t } = i18n;
+
+jest.mock("../../service/client");
 
 const logoutMock = service.user.logout as jest.Mock;
 const getIsJailedMock = service.jail.getIsJailed as jest.Mock;

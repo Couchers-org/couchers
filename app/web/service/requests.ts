@@ -57,7 +57,7 @@ export async function sendHostRequestMessage(id: number, text: string) {
 export async function respondHostRequest(
   id: number,
   status: HostRequestStatus,
-  text: string
+  text: string,
 ) {
   const req = new RespondHostRequestReq();
   req.setHostRequestId(id);
@@ -69,7 +69,7 @@ export async function respondHostRequest(
 export async function getHostRequestMessages(
   id: number,
   lastMessageId = 0,
-  count = 20
+  count = 20,
 ) {
   const req = new GetHostRequestMessagesReq();
   req.setHostRequestId(id);
@@ -84,7 +84,7 @@ export async function getHostRequestMessages(
 export type CreateHostRequestWrapper = Omit<
   Required<CreateHostRequestReq.AsObject>,
   "toDate" | "fromDate"
-> & { toDate: Dayjs; fromDate: Dayjs };
+> & { toDate: Dayjs; fromDate: Dayjs; stayType: number };
 
 export async function createHostRequest(data: CreateHostRequestWrapper) {
   const req = new CreateHostRequestReq();

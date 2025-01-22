@@ -19,7 +19,6 @@ import {
   donationsRoute,
   eventsRoute,
   faqRoute,
-  forumURL,
   foundationRoute,
   githubURL,
   helpCenterURL,
@@ -148,7 +147,6 @@ export default function Footer() {
             <Typography variant="h3" component="h2">
               {t("nav.community")}
             </Typography>
-            <FooterLink href={forumURL}>{t("nav.forum")}</FooterLink>
             <FooterLink href={blogRoute}>{t("nav.blog")}</FooterLink>
             <FooterLink href={teamRoute}>{t("nav.our_team")}</FooterLink>
             <FooterLink href={eventsRoute}>
@@ -165,12 +163,12 @@ export default function Footer() {
             <FooterLink href={contactRoute}>{t("nav.contact_us")}</FooterLink>
           </div>
           <StyledButtonContainer>
-            <Link href={donationsRoute} passHref>
+            <Link href={donationsRoute} passHref legacyBehavior>
               <StyledButton component="a" variant="contained">
                 {t("nav.donate")}
               </StyledButton>
             </Link>
-            <Link href={volunteerRoute} passHref>
+            <Link href={volunteerRoute} passHref legacyBehavior>
               <StyledButton component="a" variant="contained" color="secondary">
                 {t("nav.volunteer")}
               </StyledButton>
@@ -219,7 +217,7 @@ export default function Footer() {
         <StyledMiddleContainer>
           <Typography variant="body2">
             <Link href={foundationRoute} passHref>
-              <a>{NON_PROFIT}</a>
+              {NON_PROFIT}
             </Link>
           </Typography>
         </StyledMiddleContainer>

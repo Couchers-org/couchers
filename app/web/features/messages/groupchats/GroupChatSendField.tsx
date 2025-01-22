@@ -47,15 +47,16 @@ export default function GroupChatSendField({
   const { mutate: handleSend, isLoading } = sendMutation;
 
   const { register, handleSubmit, reset } = useForm<MessageFormData>();
+
   const [persistedMessage, setPersistedMessage, clearPersistedMessage] =
     usePersistedState(
       `messages.${currentUserId}.${chatId}`,
       "",
-      "sessionStorage"
+      "sessionStorage",
     );
 
   const onSubmit = handleSubmit(async (data: MessageFormData) => {
-    handleSend(data.text.trimRight());
+    handleSend(data.text.trimEnd());
     clearPersistedMessage();
     reset({ text: "" });
   });
@@ -67,18 +68,22 @@ export default function GroupChatSendField({
     }
   };
 
+  const { onChange: textOnChange, ...textRegisterRest } = register("text");
+
   return (
     <StyledForm onSubmit={onSubmit}>
       <TextField
         id="group-chat-message-field"
+        {...textRegisterRest}
         label={t("messages:chat_input.label")}
-        name="text"
         defaultValue={persistedMessage ?? ""}
-        inputRef={register}
         multiline
         fullWidth
         onKeyDown={handleKeyDown}
-        onChange={(event) => setPersistedMessage(event.target.value)}
+        onChange={(event) => {
+          setPersistedMessage(event.target.value);
+          textOnChange(event);
+        }}
         maxRows={4}
         size="small"
         sx={{ background: theme.palette.common.white }}

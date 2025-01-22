@@ -1044,7 +1044,7 @@ def test_UpdateEvent_all(db):
             res = api.ScheduleEvent(
                 events_pb2.ScheduleEventReq(
                     event_id=event_ids[-1],
-                    content=f"{i+1}th occurrence",
+                    content=f"{i + 1}th occurrence",
                     online_information=events_pb2.OnlineEventInformation(
                         link="https://couchers.org/meet/",
                     ),

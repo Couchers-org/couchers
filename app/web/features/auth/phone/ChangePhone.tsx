@@ -12,11 +12,12 @@ import { AUTH } from "i18n/namespaces";
 import luhn from "luhn";
 import { Trans, useTranslation } from "next-i18next";
 import { GetAccountInfoRes } from "proto/account_pb";
-import { Controller, useForm } from "react-hook-form";
-import PhoneInput, {
+import { useForm } from "react-hook-form";
+import {
   formatPhoneNumberIntl,
   isValidPhoneNumber,
 } from "react-phone-number-input";
+import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import { howToDonateUrl } from "routes";
 import { service } from "service";
@@ -73,14 +74,14 @@ export default function ChangePhone({
         resetVerify();
         resetRemove();
       },
-    }
+    },
   );
 
   const {
     handleSubmit: verifyHandleSubmit,
     register: verifyRegister,
     reset: resetVerifyForm,
-    errors: verifyFormErrors,
+    formState: { errors: verifyFormErrors },
   } = useForm<VerifyPhoneFormData>({ mode: "onBlur" });
   const onVerifySubmit = verifyHandleSubmit(({ code }) => {
     verifyPhone({ code });
@@ -101,7 +102,7 @@ export default function ChangePhone({
         resetChange();
         resetRemove();
       },
-    }
+    },
   );
 
   const {
@@ -142,7 +143,12 @@ export default function ChangePhone({
       {!accountInfo.phone ? (
         !accountInfo.hasDonated ? (
           <Typography variant="body1">
-            <Trans i18nKey="auth:change_phone.need_to_donate">
+            <Trans
+              i18nKey="auth:change_phone.need_to_donate"
+              components={{
+                2: <StyledLink href={howToDonateUrl} />,
+              }}
+            >
               You need to <StyledLink href={howToDonateUrl}>donate</StyledLink>
               before you can complete phone verification.
             </Trans>
@@ -152,21 +158,15 @@ export default function ChangePhone({
             <Typography variant="body1">
               {t("auth:change_phone.no_phone_description")}
             </Typography>
-            <Controller
+            <PhoneInputWithCountry
               name="phone"
               control={control}
               rules={{
-                validate: (value) => isValidPhoneNumber(value),
+                validate: (value: string) => isValidPhoneNumber(value),
               }}
-              render={({ onChange, value }) => (
-                <PhoneInput
-                  international
-                  placeholder={t("auth:change_phone.phone_label")}
-                  value={value}
-                  onChange={onChange}
-                  id="phone"
-                />
-              )}
+              international
+              placeholder={t("auth:change_phone.phone_label")}
+              id="phone"
             />
             <Button
               fullWidth={!isMdOrWider}
@@ -185,15 +185,16 @@ export default function ChangePhone({
                 <Trans
                   t={t}
                   i18nKey="auth:change_phone.phone_not_verified_description"
+                  values={{ phone: formatPhoneNumberIntl(accountInfo.phone) }}
                 >
-                  We sent you a code to{" "}
-                  <b>{{ phone: formatPhoneNumberIntl(accountInfo.phone) }}</b>.
-                  To verify your number, please enter the code below:
+                  {`We sent you a code to `}
+                  <b>{formatPhoneNumberIntl(accountInfo.phone)}</b>.
+                  {`To verify your number, please enter the code below:`}
                 </Trans>
               </Typography>
               <TextField
                 id="code"
-                inputRef={verifyRegister({
+                {...verifyRegister("code", {
                   required: true,
                   validate: (code) =>
                     validatePhoneCode(code) ||
@@ -202,7 +203,6 @@ export default function ChangePhone({
                 helperText={verifyFormErrors?.code?.message ?? " "}
                 error={!!verifyFormErrors?.code?.message}
                 label={t("auth:change_phone.code_label")}
-                name="code"
                 fullWidth={!isMdOrWider}
               />
               <Button
@@ -219,11 +219,12 @@ export default function ChangePhone({
                 <Trans
                   t={t}
                   i18nKey="auth:change_phone.remove_phone_description"
+                  values={{ phone: formatPhoneNumberIntl(accountInfo.phone) }}
                 >
-                  Your phone number is currently{" "}
-                  <b>{{ phone: formatPhoneNumberIntl(accountInfo.phone) }}</b>.
-                  You can remove your phone number below, but you will loose
-                  verification.
+                  {`Your phone number is currently `}
+                  <b>{formatPhoneNumberIntl(accountInfo.phone)}</b>.
+                  {` You can remove your phone number below, but you will loose
+                  verification.`}
                 </Trans>
               </Typography>
               <Button
@@ -239,22 +240,16 @@ export default function ChangePhone({
             <Typography variant="body1">
               {t("auth:change_phone.change_to_different_description")}
             </Typography>
-            <Controller
+            <PhoneInputWithCountry
               name="phone"
               control={control}
               rules={{
-                validate: (value) => isValidPhoneNumber(value),
+                validate: (value: string) => isValidPhoneNumber(value),
               }}
-              render={({ onChange, value }) => (
-                <PhoneInput
-                  countrySelectProps={{ unicodeFlags: true }}
-                  international
-                  placeholder={t("auth:change_phone.phone_label")}
-                  value={value}
-                  onChange={onChange}
-                  id="phone"
-                />
-              )}
+              countrySelectProps={{ unicodeFlags: true }}
+              international
+              placeholder={t("auth:change_phone.phone_label")}
+              id="phone"
             />
             <Button
               fullWidth={!isMdOrWider}

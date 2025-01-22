@@ -9,7 +9,10 @@ import chat from "test/fixtures/groupChat.json";
 import request from "test/fixtures/hostRequest.json";
 import messages from "test/fixtures/messages.json";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert, mockConsoleError, t } from "test/utils";
+import i18n from "test/i18n";
+import { assertErrorAlert, mockConsoleError } from "test/utils";
+
+const { t } = i18n;
 
 const listGroupChatsMock = service.conversations
   .listGroupChats as jest.MockedFunction<
@@ -50,7 +53,7 @@ describe("MarkAllReadButton", () => {
           lastMessageId: chats[chats.length - 1].latestMessage!.messageId,
           noMore: lastMessageId + 1 === mutableStore.chats.length,
         };
-      }
+      },
     );
     listHostRequestsMock.mockImplementation(
       async ({ lastRequestId = 0, count = 1 }) => {
@@ -62,13 +65,13 @@ describe("MarkAllReadButton", () => {
           lastRequestId: requests[requests.length - 1].latestMessage!.messageId,
           noMore: lastRequestId + 1 === mutableStore.requests.length,
         };
-      }
+      },
     );
     markLastRequestSeenMock.mockImplementation(
       async (hostRequestId, messageId) => {
         mutableStore.requests[hostRequestId - 1].lastSeenMessageId = messageId;
         return new Empty();
-      }
+      },
     );
     markLastSeenGroupChatMock.mockImplementation(async (chatId, messageId) => {
       mutableStore.chats[chatId - 1].lastSeenMessageId = messageId;
@@ -78,10 +81,12 @@ describe("MarkAllReadButton", () => {
 
   it("marks expected chats", async () => {
     render(<MarkAllReadButton type="chats" />, { wrapper });
-    userEvent.click(
-      screen.getByRole("button", {
+
+    const user = userEvent.setup();
+    await user.click(
+      await screen.findByRole("button", {
         name: t("messages:mark_all_read_button_text"),
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -98,10 +103,12 @@ describe("MarkAllReadButton", () => {
   });
   it("marks expected requests", async () => {
     render(<MarkAllReadButton type="hosting" />, { wrapper });
-    userEvent.click(
-      screen.getByRole("button", {
+    const user = userEvent.setup();
+
+    await user.click(
+      await screen.findByRole("button", {
         name: t("messages:mark_all_read_button_text"),
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -121,10 +128,13 @@ describe("MarkAllReadButton", () => {
     mockConsoleError();
     listGroupChatsMock.mockRejectedValueOnce(new Error("Generic error"));
     render(<MarkAllReadButton type="chats" />, { wrapper });
-    userEvent.click(
-      screen.getByRole("button", {
+
+    const user = userEvent.setup();
+
+    await user.click(
+      await screen.findByRole("button", {
         name: t("messages:mark_all_read_button_text"),
-      })
+      }),
     );
 
     await assertErrorAlert("Generic error");

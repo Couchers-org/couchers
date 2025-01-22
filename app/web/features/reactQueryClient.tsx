@@ -52,8 +52,8 @@ declare module "react-query" {
   export function useQueries<
     TData = unknown,
     TError = unknown,
-    TQueryFnData = TData
+    TQueryFnData = TData,
   >(
-    queries: UseQueryOptions<TData, TError, TQueryFnData>[]
+    queries: UseQueryOptions<TData, TError, TQueryFnData>[],
   ): UseQueryResult<TData, TError>[];
 }

@@ -48,7 +48,7 @@ export default function CommunityBrowser() {
   //as a workaround, cache query results
   //and only show "Load more" for last column
   const query = useListSubCommunities(
-    selected?.[selected.length - 1]?.communityId || 1
+    selected?.[selected.length - 1]?.communityId || 1,
   );
   const [cachedQueryResults, setCachedQueryResults] = useState<
     {
@@ -65,7 +65,7 @@ export default function CommunityBrowser() {
           behavior: "smooth",
           inline: "end",
         }),
-      50
+      50,
     );
   }, [selected]);
 
@@ -120,7 +120,7 @@ export default function CommunityBrowser() {
               selected?.[selected.length - 1] ?? globalCommunityQuery.data
             }
             communities={query.data.pages.flatMap(
-              (page) => page.communitiesList
+              (page) => page.communitiesList,
             )}
             handleClick={(community) => handleClick(community, selected.length)}
           />

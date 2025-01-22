@@ -10,7 +10,8 @@
     "alert": {
       "success_message": "Danke, dass du für Couchers.org gespendet hast, wir schätzen deine Unterstützung! Du wirst in Kürze eine E-Mail erhalten.",
       "warning_message": "Die Bezahlung wurde abgebrochen."
-    }
+    },
+    "amount_validation_error": "Bitte nur ganze Zahlen eingeben."
   },
   "donate": "Spenden",
   "donations_banner": {

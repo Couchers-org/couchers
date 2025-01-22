@@ -100,12 +100,12 @@ export default function ReportButton({
       onSuccess: () => {
         setIsOpen(false);
       },
-    }
+    },
   );
 
   const handleClose = (
     event: unknown,
-    reason: "backdropClick" | "escapeKeyDown" | "button"
+    reason: "backdropClick" | "escapeKeyDown" | "button",
   ) => {
     if (reason !== "button") return;
     resetForm();
@@ -113,7 +113,7 @@ export default function ReportButton({
     setIsOpen(false);
     setTimeout(
       () => setType("initial"),
-      theme.transitions.duration.leavingScreen
+      theme.transitions.duration.leavingScreen,
     );
   };
 
@@ -239,33 +239,32 @@ export default function ReportButton({
               </DialogContentText>
               <TextField
                 id="bug-report-subject"
+                {...register("subject", { required: true })}
                 className={classes.field}
                 label={t("report.bug.title_label")}
                 helperText={t("report.bug.title_helper")}
-                name="subject"
-                inputRef={register({ required: true })}
                 fullWidth
               />
               <TextField
                 className={classes.field}
                 id="bug-report-description"
+                {...register("description", { required: true })}
                 label={t("report.bug.problem_label")}
                 helperText={t("report.bug.problem_helper")}
                 name="description"
-                inputRef={register({ required: true })}
                 fullWidth
                 multiline
                 minRows={4}
                 maxRows={6}
               />
               <TextField
+                {...register("results")}
                 className={classes.field}
                 id="bug-report-results"
                 defaultValue=""
                 label={t("report.bug.expect_label")}
                 helperText={t("report.bug.expect_helper")}
                 name="results"
-                inputRef={register}
                 fullWidth
                 multiline
                 minRows={4}

@@ -19,8 +19,11 @@ export default function Username({ className, username }: UsernameProps) {
         <Trans
           t={t}
           i18nKey="account_settings_page.username_section.description"
+          values={{ username }}
         >
-          Your username is <strong>{{ username }}</strong>.
+          {`Your username is `}
+          <strong>{username}</strong>
+          {`.`}
         </Trans>
       </Typography>
       <Typography variant="body1">

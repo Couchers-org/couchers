@@ -22,7 +22,7 @@ export default function Logout() {
       onSuccess: () => {
         router.push(baseRoute);
       },
-    }
+    },
   );
 
   const mutate = logout.mutate;

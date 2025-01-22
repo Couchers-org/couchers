@@ -20,10 +20,16 @@ export default function Timezone({ className, timezone }: TimezoneProps) {
         <Trans
           t={t}
           i18nKey="account_settings_page.timezone_section.description"
+          values={{
+            timezone: timezone,
+            time: dayjs().tz(timezone).format("LT"),
+          }}
         >
-          Your timezone is <strong>{{ timezone: timezone }}</strong>, based on
-          this, your local time is approximately{" "}
-          <strong>{{ time: dayjs().tz(timezone).format("LT") }}</strong>.
+          {`Your timezone is `}
+          <strong>{timezone}</strong>
+          {`. Based on this, your local time is approximately `}
+          <strong>{dayjs().tz(timezone).format("LT")}</strong>
+          {`.`}
         </Trans>
       </Typography>
       <Typography variant="body1">

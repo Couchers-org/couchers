@@ -17,10 +17,10 @@ import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useNotifications from "features/useNotifications";
 import { GLOBAL } from "i18n/namespaces";
+import { TFunction } from "i18next";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import React, { useEffect, useState } from "react";
-import { TFunction } from "react-i18next";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   blogRoute,
@@ -29,7 +29,6 @@ import {
   eventsRoute,
   faqRoute,
   featurePreviewRoute,
-  forumURL,
   helpCenterURL,
   loginRoute,
   logoutRoute,
@@ -62,7 +61,7 @@ type PingData = ReturnType<typeof useNotifications>["data"];
 // shown on mobile/small screens
 const loggedInDrawerMenu = (
   t: TFunction<"global", undefined>,
-  pingData: PingData
+  pingData: PingData,
 ): Array<MenuItemProps> => [
   {
     name: t("nav.dashboard"),
@@ -83,18 +82,13 @@ const loggedInDrawerMenu = (
   {
     name: t("nav.events"),
     route: eventsRoute,
-  },
-  {
-    name: t("nav.forum"),
-    route: forumURL,
-    externalLink: true,
   },
 ];
 
 // shown on desktop and big screens on top of the screen
 const loggedInNavMenu = (
   t: TFunction<"global", undefined>,
-  pingData: PingData
+  pingData: PingData,
 ): Array<MenuItemProps> => [
   {
     name: t("nav.dashboard"),
@@ -116,15 +110,10 @@ const loggedInNavMenu = (
     name: t("nav.events"),
     route: eventsRoute,
   },
-  {
-    name: t("nav.forum"),
-    route: forumURL,
-    externalLink: true,
-  },
 ];
 
 const loggedOutNavMenu = (
-  t: TFunction<"global", undefined>
+  t: TFunction<"global", undefined>,
 ): Array<MenuItemProps> => [
   {
     name: t("nav.about"),
@@ -150,15 +139,10 @@ const loggedOutNavMenu = (
     name: t("nav.the_team"),
     route: teamRoute,
   },
-  {
-    name: t("nav.forum"),
-    route: forumURL,
-    externalLink: true,
-  },
 ];
 
 const loggedOutDrawerMenu = (
-  t: TFunction<"global", undefined>
+  t: TFunction<"global", undefined>,
 ): Array<MenuItemProps> => [
   {
     name: t("login"),
@@ -192,17 +176,12 @@ const loggedOutDrawerMenu = (
     name: t("nav.the_team"),
     route: teamRoute,
   },
-  {
-    name: t("nav.forum"),
-    route: forumURL,
-    externalLink: true,
-  },
 ];
 
 // shown on desktop and big screens in the top right corner when logged in
 const loggedInMenuDropDown = (
   t: TFunction<"global", undefined>,
-  pingData: PingData
+  pingData: PingData,
 ): Array<MenuItemProps> => [
   {
     name: t("nav.profile"),
@@ -367,7 +346,7 @@ export default function Navigation() {
                 />
               )}
             </ListItem>
-          )
+          ),
         )}
       </List>
     </div>
@@ -416,7 +395,7 @@ export default function Navigation() {
               {linkContent}
             </StyledMenuItemLink>
           ) : (
-            <Link href={route}>
+            <Link href={route} legacyBehavior>
               <StyledMenuItemLink onClick={() => setMenuOpen(false)}>
                 {linkContent}
               </StyledMenuItemLink>
@@ -424,7 +403,7 @@ export default function Navigation() {
           )}
         </MenuItem>
       );
-    }
+    },
   );
 
   const handleDrawerOpen = () => {
@@ -475,7 +454,7 @@ export default function Navigation() {
               </StyledDrawer>
             </>
           )}
-          <CouchersLogo />
+          <CouchersLogo includeEmbellishments />
           {!isMobile && (
             <StyledFlexbox>
               {(authState.authenticated && isMounted
@@ -496,7 +475,7 @@ export default function Navigation() {
                       key={`${name}-nav-button`}
                       notificationCount={notificationCount}
                     />
-                  )
+                  ),
               )}
             </StyledFlexbox>
           )}

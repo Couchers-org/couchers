@@ -26,6 +26,19 @@
     }
   },
   {
+    "name": "Nicole Abramowski",
+    "director": true,
+    "board_position": "Board Member",
+    "role": "Lead Frontend Developer",
+    "location": "Oakland, CA, USA",
+    "img": "https://usercontent.couchershq.org/media/img/full/e107b755bac5cb14cc1961725a392d6018cda49b81bc758ddb793324244143b3.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "nicoleabramowski",
+      "url": "https://www.linkedin.com/in/nicoleabramowski/"
+    }
+  },
+  {
     "name": "Jesse Allhands",
     "director": true,
     "board_position": "Board Member",
@@ -115,7 +128,7 @@
   },
   {
     "name": "Lucas Levin",
-    "role": "Frontend (Web) Development Lead",
+    "role": "Past Frontend Dev Lead",
     "location": "Melbourne, Australia",
     "img": "/img/team/head-lucas.jpg"
   },

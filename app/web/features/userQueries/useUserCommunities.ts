@@ -11,6 +11,6 @@ export default function useUserCommunities() {
     {
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-    }
+    },
   );
 }

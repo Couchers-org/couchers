@@ -7,25 +7,30 @@
     }
   },
   "account_form": {
-    "tos_accept_label": "Ich akzeptiere die $t(global:terms_of_service).",
+    "tos_accept_label": "Ich akzeptiere die Nutzungsbedingungen.",
     "header": "Deine Accountdetails",
     "username": {
       "field_label": "Benutzername",
-      "required_error": "Gib deinen Nuternamen ein",
-      "username_taken_error": "Dieser Benutzername ist bereits vergeben."
+      "required_error": "Gib deinen Benutzernamen ein",
+      "username_taken_error": "Dieser Benutzername ist bereits vergeben.",
+      "validation_error": "Dein Benutzername sollte mit einem Buchstaben beginnen und kann Buchstaben, Nummern und Unterstriche '_' enthalten."
     },
     "birthday": {
       "field_label": "Geburtsdatum",
       "required_error": "Gib dein Geburtsdatum ein",
-      "validation_error": "Muss ein gültiges Datum aus der Vergangenheit sein."
+      "validation_error": "Muss ein gültiges Datum aus der Vergangenheit sein.",
+      "too_young_error": "Du musst mindestens 18 Jahre alt sein, um Couchers nutzen zu dürfen",
+      "not_real_date_error": "Bitte gib ein echtes Geburtsdatum ein"
     },
     "hosting_status": {
       "can_host": "Kann hosten",
       "maybe": "Kann vielleicht hosten",
-      "cant_host": "Kann nicht hosten"
+      "cant_host": "Kann nicht hosten",
+      "field_label": "Hosting-Status",
+      "any": "Alle"
     },
     "gender": {
-      "field_label": "Ich identifiziere mich als ...",
+      "field_label": "Ich identifiziere mich als…",
       "required_error": "Bitte wähle deine Geschlechts/Gender-Identität aus",
       "man": "Mann",
       "non_binary": "Nicht-binär",
@@ -36,7 +41,8 @@
       "validation_error": "Ein Passwort muss zwischen 8 und 256 Zeichen besitzen und darf keinem häufigen Wort entsprechen.",
       "field_label": "Passwort",
       "required_error": "Gib ein Passwort an"
-    }
+    },
+    "opt_in_newsletter": "Abonnieren unseren gelegentlichen Newsletter über Community-Updates."
   },
   "sign_up_completed_prompt": "Wir haben eine E-Mail-Adresse mit einem Bestätigungslink an deine E-Mail-Adresse gesendet. Bitte klicke auf den Link, um deinen Account zu aktivieren.",
   "change_email_form": {
@@ -44,22 +50,22 @@
     "current_email_message": "Deine aktuelle E-Mail-Adresse lautet <2>{{email}}</2>.",
     "current_password": "Aktuelles Passwort",
     "new_email": "Neue E-Mail-Adresse",
-    "success_message": "Die Änderung deiner E-Mail-Adresse wurde empfangen. Überprüfe dein E-Mail-Postfach, um die Änderung abzuschließen."
+    "success_message": "Die Änderung deiner E-Mail-Adresse wurde empfangen. Überprüfe das Postfach deiner neuen E-Mail-Adresse, um die Änderung abzuschließen."
   },
   "change_email_confirmation": {
-    "change_in_progress": "Änderung der E-Mail-Adresse in Bearbeitung…",
+    "change_in_progress": "E-Mail-Adressänderung wird bearbeitet…",
     "success_message": "Deine E-Mail-Adresse wurde erfolgreich geändert!",
     "error_message": "Fehler beim Ändern der E-Mail-Adresse: {{message}}"
   },
   "basic_form": {
     "name": {
       "empty_error": "Bitte gib deinen Namen an",
-      "required_error": "Namen dürfen nicht nur Leerzeichen enthalten.",
+      "required_error": "Dieses Feld darf nicht leer sein.",
       "field_label": "Dein Name"
     },
     "email": {
       "field_label": "E-Mail-Adresse",
-      "empty_error": "Bitte gib eine giltige E-Mail-Adresse an",
+      "empty_error": "Bitte gib eine gültige E-Mail-Adresse an",
       "required_error": "Das Feld \"E-Mail-Adresse\" darf nicht leer sein."
     }
   },
@@ -73,7 +79,12 @@
     "password_changed_success": "Dein neues Passwort wurde akzeptiert und eine Benachrichtigung wurde an deine E-Mail-Adresse gesendet.",
     "old_password": "Altes Passwort",
     "new_password": "Neues Passwort",
-    "password_mismatch_error": "Dies stimmt nicht mit dem Passwort, das du oben eingegeben hast, überein."
+    "password_mismatch_error": "Die eingegebenen Passwörter stimmen nicht überein.",
+    "subtitle": "Verwende dieses Formular, um dein Passwort zurückzusetzen.",
+    "token_error": "Bei der Verarbeitung des Passwort-Reset-Tokens ist ein Fehler aufgetreten. Bitte versuche erneut, den Link aus der E-Mail zu öffnen.",
+    "reset_password_error": "Fehler beim Zurücksetzen des Passworts: {{message}}",
+    "user_logged_error": "Du kannst dein Passwort nicht zurücksetzen, wenn du angemeldet bist. Du kannst dein Passwort in den Einstellungen ändern oder dich abmelden, um es zurückzusetzen.",
+    "reset_password_success": "Dein Passwort wurde erfolgreich geändert!"
   },
   "reset_password_form": {
     "success_message": "Überprüfe deine E-Mail-Adresse, für einen Link, um das Passwort zurückzusetzen!",
@@ -82,7 +93,7 @@
   "login_page": {
     "title": "Einloggen",
     "header": "Willkommen zurück!",
-    "no_account_prompt": "Hast du noch keinen Account? <2>$t(global:sign_up)</2>",
+    "no_account_prompt": "Du hast noch keinen Account? <2>Account erstellen</2>",
     "form": {
       "username_field_label": "E-Mail-Adresse/Benutzername",
       "password_field_label": "Passwort",
@@ -93,15 +104,15 @@
   },
   "basic_sign_up_form": {
     "header": "Lass uns loslegen!",
-    "existing_user_prompt": "Hast du bereits einen Account? <2>$t(global:login)</2>",
+    "existing_user_prompt": "Du hast bereits einen Account? <2>Einloggen</2>",
     "sign_up_agreement_explainer": "Beim Fortfahren stimmst du unseren <2>Nutzungsvereinbarungen</2> zu, inklusive unseren Vereinbarung zur Verwendung von Cookies, E-Mail-Adresse und digitaler Informationen."
   },
-  "sign_up_completed_title": "Danke, dass du uns beigetreten bist!",
-  "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche, dich einzuloggen.",
+  "sign_up_completed_title": "Danke, dass du dich bei uns registriert hast!",
+  "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche dich einzuloggen.",
   "login_prompt": "Klicke hier, um dich einzuloggen",
   "about_us": "Über uns",
-  "introduction_subtitle": "Auf ewig kostenlos. Von der Community geleitet. Gemeinnützig. Modern.",
-  "introduction_title": "Tritt uns bei und unterstütze uns darin, die neue Alternative zu Couchsurfing™ wachsen zu lassen",
+  "introduction_subtitle": "Für immer kostenlos. Von der Community geleitet. Gemeinnützig. Modern.",
+  "introduction_title": "Schließ dich uns an und unterstütze uns dabei, die neue Couchsurfing™ Alternative zu werden",
   "reset_password": "Passwort zurücksetzen",
   "account_settings_page": {
     "birth_date_section": {
@@ -119,8 +130,10 @@
     },
     "username_section": {
       "title": "Benutzername",
-      "description": "Dein Benutzername lautet <1>{{username}}</1>."
-    }
+      "description": "Dein Benutzername lautet <1>{{username}}</1>.",
+      "explanation": "Dein Benutzername wird festgelegt, wenn du deinen Account erstellst."
+    },
+    "title": "Kontoeinstellungen"
   },
   "notification_settings": {
     "title": "Benachrichtigungseinstellungen",
@@ -213,16 +226,44 @@
           "change": "Das auf Ihrem Profil angezeigte Geschlecht wurde geändert"
         }
       }
+    },
+    "push_notifications": {
+      "permission_denied": {
+        "platform_settings_description": "Hast du immernoch Probleme, nachdem du Benachrichtigungen in deinem Browser aktiviert hast? Möglicherweise musst du dein Plattformeinstellungen anpassen.",
+        "instructions": {
+          "chrome": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren. Klicke im Chrome-Browser auf das Vorhängeschloss-Symbol in der URL-Leiste und passe dann die Einstellung „Benachrichtigungen“ an.",
+          "firefox": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren. Gehe im Firefox-Browser zu „Einstellungen“ > „Datenschutz und Sicherheit“ > „Berechtigungen“ > „Benachrichtigungen“ und ändere die Berechtigung der Website.",
+          "safari": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren. Gehe in Safari zu „Einstellungen“ > „Websites“ > „Benachrichtigungen“, um Berechtigungen zu ändern.",
+          "generic": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren.",
+          "macos": "Gehe in macOS zu Systemeinstellungen > Benachrichtigungen und ändere die Berechtigung der App.",
+          "windows": "Gehe in Windows zu Einstellungen > System > Benachrichtigungen und Aktionen und passe die Berechtigung der App oder Website an.",
+          "linux": {
+            "gnome": "Gehe in GNOME zu Einstellungen > Benachrichtigungen, um die Berechtigung der App anzupassen.",
+            "kde": "Gehe in KDE zu Systemeinstellungen > Benachrichtigungen, um Berechtigungen zu ändern."
+          },
+          "mobile": {
+            "browser": "Passe in den Einstellungen deines Browsers die Benachrichtigungsberechtigung für diese Website an.",
+            "os": "Passe in den Benachrichtigungseinstellungen deines Mobilgeräts die Berechtigungen an, um Benachrichtigungen zuzulassen."
+          }
+        }
+      },
+      "title": "Push-Benachrichtigungen",
+      "description": "Du kannst Push-Benachrichtigungen für Couchers.org auf deinem Gerät aktivieren. Wir arbeiten daran, diese Funktion zu erweitern.",
+      "allow_push": "Klick im Browser-Popup auf die Schaltfläche „Zulassen“, um Push-Benachrichtigungen zu aktivieren.",
+      "enabled_message": "Du hast Push-Benachrichtigungen aktuell <1>aktiviert</1>.",
+      "disabled_message": "Du hast Push-Benachrichtigungen aktuell <1>deaktiviert</1>.",
+      "error_generic": "Fehler beim Abonnieren von Push-Benachrichtigungen",
+      "error_unsupported": "Push-Benachrichtigungen oder Service Worker werden in diesem Browser nicht unterstützt."
     }
   },
   "feature_preview": {
-    "disclaimer": "Bitte beachte, dass diese Features experimentell sind. Sie werden vielleicht nicht wie vorhergesehen funktionieren und sich während der Entwicklung schnell ändern. Bitte gib uns Feedback dazu in unserem Forum und melde uns Bugs!",
+    "disclaimer": "Bitte beachte, dass diese Features experimentell sind. Sie funktionieren vielleicht nicht wie vorgesehen und können sich während der Entwicklung noch stark ändern. Bitte gib uns Feedback dazu in unserem Forum und melde Bugs!",
     "no_previews": {
       "explanation": "Es gibt derzeit keine aktiven Features zur Vorschau, bitte schau zu einem späteren Zeitpunkt wieder vorbei!",
       "title": "Keine Features derzeit in der Vorschau"
     },
-    "title": "Feature Vorschau",
-    "explanation": "Diese Seite ermöglicht es dir, Features auszuprobieren, die immer noch in Entwicklung sind und noch nicht ganz für den breiten Nutzen bereit sind."
+    "title": "Feature-Vorschau",
+    "explanation": "Diese Seite ermöglicht es dir Features auszuprobieren, die in Entwicklung und noch nicht für den allgemeinen Nutzen bereit sind."
   },
   "jail": {
     "title": "Mehr Informationen werden benötigt",
@@ -235,7 +276,14 @@
       "submit_button": {
         "active_text": "Speichern",
         "inactive_text": "Danke!"
-      }
+      },
+      "resubmit_button_text": "Erneut absenden"
+    },
+    "mod_note_section": {
+      "title": "Du hast eine Nachricht von den Moderatoren erhalten",
+      "description": "Die Moderatoren haben dir die folgende Mitteilung geschickt. Bitte lies sie sorgfältig durch und bestätige, dass du sie gelesen und verstanden hast, bevor du fortfährst.",
+      "note_title": "Mod-Notiz erhalten um {{time}}:",
+      "acknowledge": "Mitteilung bestätigen"
     }
   },
   "logged_out_message": "Du wurdest ausgeloggt.",
@@ -243,5 +291,109 @@
   "jail_set_password_form": {
     "title": "Erstelle ein Passwort",
     "explanation": "Du hast noch kein Passwort für deinen Account angegeben. Bitte erstelle eins, um fortzusetzen."
-  }
+  },
+  "do_not_email": {
+    "title": "Sendet mir keine E-Mails",
+    "status": {
+      "no_emails_enabled_message": "E-Mails für dein Konto sind derzeit <1>deaktiviert</1>.",
+      "no_emails_disabled_message": "E-Mails für dein Konto sind derzeit <1>aktiviert</1>."
+    },
+    "action_button": {
+      "no_emails_enable_text": "Von E-Mails abmelden",
+      "no_emails_disable_text": "E-Mails wieder aktivieren"
+    },
+    "caveat": "Wenn du diese Einstellung aktivierst, wird dein Konto so eingestellt, dass es keine Hostanfragen akzeptiert. Du erhälst jedoch weiterhin Sicherheits-E-Mails (z. B. zum Zurücksetzen deines Passworts). Den Newsletter kannst du separat über den Link in der Fußzeile des Newsletters abbestellen."
+  },
+  "feedback_form": {
+    "header": "Deine Meinung zählt",
+    "skip_step_text": "Kein Interesse? <2>Diesen Schritt Überspringen</2>"
+  },
+  "unhandled_sign_up_state": "Fehler: unhandled signup flow state.",
+  "unsubscribe": {
+    "button_text": "Abbestellung bestätigen",
+    "title": "Abbestellen",
+    "error_message": "Fehler beim Abbestellen: {{message}}",
+    "missing_payload_or_sig": "Ungültige URL"
+  },
+  "change_phone": {
+    "no_phone_description": "Du hast keine Telefonnummer zu deinem Konto hinzugefügt. Um eine hinzuzufügen, geb sie unten ein. Wir werden die Nummer mit einer SMS verifizieren.",
+    "title": "Telefonnummer",
+    "phone_label": "Deine Telefonnummer",
+    "add_button_text": "Telefonnummer hinzufügen",
+    "add_success": "Die Telefonnummer wurde hinzugefügt.",
+    "phone_not_verified_description": "Wir haben dir einen Code an <2>{{phone}}</2> geschicht. Gib den Code hier ein, um deine Telefonnummer zu verifizieren:",
+    "code_label": "Bestätigungscode",
+    "wrong_code": "Der Code ist falsch.",
+    "verify_button_text": "Telefonnummer verifizieren",
+    "verify_success": "Die Telefonnummer wurde verifiziert.",
+    "remove_phone_description": "Deine aktuelle Telefonnummer ist <2>{{phone}}</2>. Du kannst deine Telefonnummer unten entfernen.",
+    "remove_button_text": "Aktuelle Telefonnummer entfernen",
+    "change_to_different_description": "Um deine Telefonnummer zu ändern, gib deine neue Nummer bitte unten ein.",
+    "remove_success": "Telefonnummer wurde entfernt.",
+    "change_button_text": "Telefonnummer ändern",
+    "need_to_donate": "Du musst <2>spenden</2>, bevor du die Telefonverifizierung abschließen kannst."
+  },
+  "delete_account": {
+    "request": {
+      "description": "Um deinen Account zu löschen, folge bitte den unten stehenden Schritten. Wir senden dir anschließend eine Bestätigungs E-Mail.",
+      "title": "Account löschen",
+      "confirm_username_explanation": "Dein Benutzername ist <1>{{ username }}</1>. Bitte gib ihn unten ein, um das Löschen deines Accounts zu bestätigen.",
+      "success_message": "Die Accountlöschung wurde eingeleitet. Schließe sie ab, indem du auf den Link in der Bestätigungs-E-Mail klickst, die wir dir geschickt haben.",
+      "confirm_username_label": "Bestätigung des Benutzernamens",
+      "username_mismatch": "Der Benutzername stimmt nicht überein.",
+      "reason_explanation": "Bitte hilf uns, die Plattform zu verbessern, indem du uns sagst warum du deinen Account löschst.",
+      "reason_label": "Grund der Accountlöschung"
+    },
+    "confirm": {
+      "error_message": "Die Accountlöschung konnte nicht bestätigt werden: {{message}}",
+      "title": "Accountlöschung bestätigen",
+      "account_deleted": "Dein Account wurde gelöscht. Danke, dass du Couchers.org genutzt hast!",
+      "button_text": "Accountlöschung bestätigen"
+    },
+    "missing_token": "Fehler: missing token",
+    "recover": {
+      "title": "Stelle deinen Couchers.org-Account wieder her",
+      "error_message": "Der Account konnte nicht wiederhergestellt werden: {{message}}",
+      "button_text": "Account wiederherstellen",
+      "success": "Dein Account wurde wiederhergestellt, du kannst dich jetzt wieder einloggen. Wir freuen uns, dass du wieder zurück bist!"
+    }
+  },
+  "active_logins": {
+    "current_session": "Dies ist deine aktuelle Sitzung.",
+    "heading": "Aktuelle Anmeldungen",
+    "settings_page_text": "Sieh, wo du angemeldet bist, und melden dich von anderen Sitzungen ab",
+    "settings_page_link": "Aktuelle Anmeldungen verwalten",
+    "description": "Auf dieser Seite werden aktive Anmeldungen aufgelistet. Du kannst dich von jeder davon abmelden, indem du auf die Schaltfläche neben der Anmeldung klickst oder nach unten scrollst und auf die Schaltfläche klickst, um dich von allen außer dieser Sitzung abzumelden.",
+    "login_header": "Angemeldet am {{login_datetime}}",
+    "location": "In der Nähe von <2>{{approximate_location}}</2>",
+    "last_activity": "Letzte Aktivität <2>{{last_activity_ago}}</2>",
+    "expiry": "Läuft ab am <1>{{expiry_datetime}}</1>",
+    "log_out_of_session": "Melde dich von dieser Sitzung ab",
+    "log_out_of_all_session": "Melde dich von allen anderen Sitzungen ab"
+  },
+  "strong_verification": {
+    "information_text3": "Weitere Informationen darüber, wie wir und Iris ID deine Daten verarbeiten und speichern, findest du in unseren <2>Nutzungsbedingungen</2>. Gemäß der <5>Datenschutzrichtlinie</5> von Iris ID werden deine persönlichen Daten innerhalb von 24 Stunden gelöscht. Du kannst jederzeit per Knopfdruck die Löschung dieser Daten zur starken Verifizierung (mit Ausnahme des ausstellenden Landes, des Ablaufdatums und der letzten drei Ziffern der Dokumentennummer) von unseren Servern beantragen.",
+    "status": {
+      "enabled_message": "Du <1>bist aktuell</1> mit der starken Verifizierung verifiziert.",
+      "disabled_message": "Du <1>bist aktuell nicht</1> mit der starken Verifizierung verifiziert."
+    },
+    "title": "Starke Verifizierung",
+    "subtitle": "Die starke Verifizierung ist eine zusätzliche Sicherheitsfunktion, die es dir ermöglicht, dein Geburtsdatum und Geschlecht mithilfe deines biometrischen Reisepasses zu überprüfen.",
+    "begin_button": "Schließe die starke Verifizierung mit Iris-ID ab",
+    "start_button": "Starke Verifizierung starten",
+    "information_text1": "Du benötigst einen biometrischen Reisepass und ein NFC-fähiges Apple iPhone oder Android-Smartphone.",
+    "complete_title": "Wir bearbeiten deinen starken Verifizierungsversuch",
+    "complete_message1": "Dein Reisepass wird validiert. Du wirst innerhalb weniger Minuten eine E-Mail mit dem Ergebnis erhalten.",
+    "information_text2": "Durch Klicken auf die Schaltfläche unten wirst du zur Website von Iris ID weitergeleitet, um den Passüberprüfungsprozess abzuschließen.",
+    "complete_message2": "Die starke Verifizierung erlischt, mit ablauf deines Reisepasses. Danach musst du die Verifizierung mit deinem neuen Reisepass erneut durchführen.",
+    "delete_data_title": "Starke Verifizierungs Reisepassdaten löschen",
+    "delete_information": "Du kannst deine Daten zur starken Verifizierung (mit Ausnahme des ausstellenden Landes, des Ablaufdatums und der letzten drei Ziffern der Dokumentnummer) jederzeit von unseren Servern löschen.",
+    "delete_information_text2": "Wenn du deine Daten löschst, kannst du denselben Reisepass nicht erneut für die starke Verifizierung verwenden.",
+    "delete_my_data_button": "Meine Daten löschen",
+    "delete_button": "Meine Starke Verifizierungsdaten löschen",
+    "delete_success": "Deine Reisepassdaten wurden gelöscht."
+  },
+  "sign_up_resend_verification_email_help": "Du hast keine E-Mail erhalten? Klick <2>hier, um den Bestätigungslink erneut zu senden</2>.",
+  "sign_up_resend_verification_done": "Erledigt! Wir haben dir eine weitere E-Mail gesendet.",
+  "sign_up_need_verification_title": "Fast geschafft, noch eine letzte Sache!"
 }

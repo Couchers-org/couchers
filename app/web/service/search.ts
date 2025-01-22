@@ -33,7 +33,7 @@ export async function userSearch(
     numGuests,
     completeProfile,
   }: UserSearchFilters,
-  pageToken = ""
+  pageToken = "",
 ) {
   const req = new UserSearchReq();
   req.setPageToken(pageToken);

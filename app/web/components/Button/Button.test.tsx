@@ -14,13 +14,16 @@ it.skip("should try to log the error to Sentry if one is thrown when the button 
     >
       Test button
     </Button>,
-    { wrapper }
+    { wrapper },
   );
 
-  userEvent.click(await screen.findByRole("button", { name: "Test button" }));
+  const user = userEvent.setup();
+
+  await user.click(await screen.findByRole("button", { name: "Test button" }));
 
   await waitFor(() => {
     expect(testKit.reports()).toHaveLength(1);
-    expect(testKit.reports()[0]).toHaveProperty("error.message", "oops");
   });
+
+  expect(testKit.reports()[0]).toHaveProperty("error.message", "oops");
 });

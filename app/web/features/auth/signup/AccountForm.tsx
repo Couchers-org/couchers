@@ -37,7 +37,7 @@ import {
   validatePastDate,
 } from "utils/validation";
 
-type SignupAccountInputs = {
+export type SignupAccountInputs = {
   username: string;
   password: string;
   name: string;
@@ -45,7 +45,10 @@ type SignupAccountInputs = {
   gender: string;
   acceptTOS: boolean;
   optInToNewsletter: boolean;
-  hostingStatus: HostingStatus;
+  hostingStatus:
+    | HostingStatus.HOSTING_STATUS_CAN_HOST
+    | HostingStatus.HOSTING_STATUS_MAYBE
+    | HostingStatus.HOSTING_STATUS_CANT_HOST;
   location: ApproximateLocation;
 };
 
@@ -67,12 +70,18 @@ export default function AccountForm() {
   const { authState, authActions } = useAuthContext();
   const authLoading = authState.loading;
 
-  const { control, register, handleSubmit, errors, watch } =
-    useForm<SignupAccountInputs>({
-      defaultValues: { location: { address: "" } },
-      mode: "onBlur",
-      shouldUnregister: false,
-    });
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<SignupAccountInputs>({
+    defaultValues: { location: { address: "" } },
+    mode: "onBlur",
+    shouldUnregister: false,
+  });
 
   const classes = useStyles();
   const authClasses = useAuthStyles();
@@ -111,7 +120,7 @@ export default function AccountForm() {
       onSettled() {
         window.scroll({ top: 0, behavior: "smooth" });
       },
-    }
+    },
   );
 
   const submit = handleSubmit(
@@ -124,18 +133,23 @@ export default function AccountForm() {
     () => {
       //location won't focus on error, so scroll to the top
       if (errors.location) window.scroll({ top: 0, behavior: "smooth" });
-    }
+    },
   );
 
   const acceptTOS = watch("acceptTOS");
 
   const usernameInputRef = useRef<HTMLInputElement>();
 
+  const handleBirthdateChange = (newBirthdate: Dayjs) => {
+    setValue("birthdate", newBirthdate, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
+
   return (
     <>
       {errors.location && (
-        //@ts-ignore - we register "location" but rhf thinks the error should be
-        //under location.address
         <Alert severity="error">{errors.location?.message || ""}</Alert>
       )}
       {mutation.error && (
@@ -149,51 +163,51 @@ export default function AccountForm() {
           {t("auth:account_form.username.field_label")}
         </InputLabel>
         <TextField
+          id="username"
+          {...register("username", {
+            pattern: {
+              message: t("auth:account_form.username.validation_error"),
+              value: usernameValidationPattern,
+            },
+            required: t("auth:account_form.username.required_error"),
+            validate: async (username: string) => {
+              const valid = await service.auth.validateUsername(
+                lowercaseAndTrimField(username),
+              );
+              return (
+                valid || t("auth:account_form.username.username_taken_error")
+              );
+            },
+          })}
           className={authClasses.formField}
           variant="standard"
-          id="username"
-          name="username"
           fullWidth
           inputRef={(el: HTMLInputElement | null) => {
             if (!usernameInputRef.current) el?.focus();
             if (el) usernameInputRef.current = el;
-            register(el, {
-              pattern: {
-                message: t("auth:account_form.username.validation_error"),
-                value: usernameValidationPattern,
-              },
-              required: t("auth:account_form.username.required_error"),
-              validate: async (username: string) => {
-                const valid = await service.auth.validateUsername(
-                  lowercaseAndTrimField(username)
-                );
-                return (
-                  valid || t("auth:account_form.username.username_taken_error")
-                );
-              },
-            });
           }}
           helperText={errors?.username?.message ?? " "}
           error={!!errors?.username?.message}
+          autoComplete="username"
         />
         <InputLabel className={authClasses.formLabel} htmlFor="password">
           {t("auth:account_form.password.field_label")}
         </InputLabel>
         <TextField
-          className={authClasses.formField}
-          variant="standard"
-          type="password"
           id="password"
-          name="password"
-          fullWidth
-          inputRef={register({
+          {...register("password", {
             required: t("auth:account_form.password.required_error"),
             validate: (password) =>
               validatePassword(password) ||
               t("auth:account_form.password.validation_error"),
           })}
+          className={authClasses.formField}
+          variant="standard"
+          type="password"
+          fullWidth
           helperText={errors?.password?.message ?? " "}
           error={!!errors?.password?.message}
+          autoComplete="new-password"
         />
         <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
           {t("auth:account_form.birthday.field_label")}
@@ -201,26 +215,36 @@ export default function AccountForm() {
         <Datepicker
           className={authClasses.formField}
           control={control}
-          error={
-            //@ts-ignore Dayjs type breaks this
-            !!errors?.birthdate?.message
-          }
-          helperText={
-            //@ts-ignore
-            errors?.birthdate?.message ?? " "
-          }
+          error={!!errors?.birthdate?.message}
+          helperText={errors?.birthdate?.message}
           id="birthdate"
           rules={{
             required: t("auth:account_form.birthday.required_error"),
-            validate: (stringDate: string) =>
-              validatePastDate(stringDate) ||
-              t("auth:account_form.birthday.validation_error"),
+            validate: (stringBirthDate: string) => {
+              const birthDate = dayjs(stringBirthDate);
+              const age = Math.abs(dayjs().diff(birthDate, "year")); // confirmed dayjs does the difference correctyly by counting months and days
+
+              if (age < 18) {
+                return t("auth:account_form.birthday.too_young_error");
+              }
+
+              if (age > 120) {
+                return t("auth:account_form.birthday.not_real_date_error");
+              }
+
+              if (!validatePastDate(stringBirthDate) || !stringBirthDate) {
+                return t("auth:account_form.birthday.validation_error");
+              }
+
+              return true; // Validation passes
+            },
           }}
-          minDate={dayjs("1899-12-01")}
+          minDate={dayjs().subtract(120, "years")}
           maxDate={dayjs().subtract(18, "years")}
-          defaultValue={dayjs().subtract(18, "years")}
+          defaultValue={null}
           openTo="year"
           name="birthdate"
+          onPostChange={handleBirthdateChange}
         />
         <InputLabel className={authClasses.formLabel} htmlFor="location">
           {t("auth:location.field_label")}
@@ -233,19 +257,21 @@ export default function AccountForm() {
           validate: (location) =>
             !!location.address || t("auth:location.validation_error"),
         }}
-        render={({ onChange }) => (
+        render={({ field, fieldState: { error } }) => (
           <EditLocationMap
+            inputFieldProps={field}
+            inputFieldError={error}
             className={classes.locationMap}
             updateLocation={(location) => {
               if (location) {
-                onChange({
+                field.onChange({
                   address: location.address,
                   lat: location.lat,
                   lng: location.lng,
                   radius: location.radius,
                 });
               } else {
-                onChange({
+                field.onChange({
                   address: "",
                 });
               }
@@ -265,15 +291,17 @@ export default function AccountForm() {
           )}
           <Controller
             control={control}
-            defaultValue={""}
             rules={{ required: t("global:required") }}
             name="hostingStatus"
-            render={({ onChange, value }) => (
+            render={({ field }) => (
               <Select
+                {...field}
                 onChange={(event) => {
-                  onChange(Number.parseInt(event.target.value as string) || "");
+                  field.onChange(
+                    Number.parseInt(event.target.value as string) || "",
+                  );
                 }}
-                value={value}
+                value={field.value}
                 id="hosting-status"
                 fullWidth
                 className={authClasses.formField}
@@ -286,13 +314,13 @@ export default function AccountForm() {
                 optionLabelMap={{
                   "": "",
                   [HostingStatus.HOSTING_STATUS_CAN_HOST]: t(
-                    "auth:account_form.hosting_status.can_host"
+                    "auth:account_form.hosting_status.can_host",
                   ),
                   [HostingStatus.HOSTING_STATUS_MAYBE]: t(
-                    "auth:account_form.hosting_status.maybe"
+                    "auth:account_form.hosting_status.maybe",
                   ),
                   [HostingStatus.HOSTING_STATUS_CANT_HOST]: t(
-                    "auth:account_form.hosting_status.cant_host"
+                    "auth:account_form.hosting_status.cant_host",
                   ),
                 }}
               />
@@ -300,22 +328,21 @@ export default function AccountForm() {
           />
         </FormControl>
         <Controller
-          id="gender"
           control={control}
           name="gender"
           defaultValue=""
           rules={{ required: t("auth:account_form.gender.required_error") }}
-          render={({ onChange, value }) => (
+          render={({ field }) => (
             <FormControl variant="standard" component="fieldset">
               <FormLabel component="legend" className={authClasses.formLabel}>
                 {t("auth:account_form.gender.field_label")}
               </FormLabel>
               <RadioGroup
+                id="gender"
+                {...field}
                 row
                 aria-label="gender"
                 name="gender-radio"
-                onChange={(e, value) => onChange(value)}
-                value={value}
               >
                 <FormControlLabel
                   value="Woman"
@@ -350,12 +377,7 @@ export default function AccountForm() {
               control={control}
               name="acceptTOS"
               defaultValue={false}
-              render={({ onChange, value }) => (
-                <Checkbox
-                  value={value}
-                  onChange={(event) => onChange(event.target.checked)}
-                />
-              )}
+              render={({ field }) => <Checkbox {...field} />}
             />
           }
           label={t("auth:account_form.tos_accept_label")}
@@ -366,12 +388,8 @@ export default function AccountForm() {
               control={control}
               name="optInToNewsletter"
               defaultValue={true}
-              render={({ onChange, value }) => (
-                <Checkbox
-                  value={value}
-                  defaultChecked={true}
-                  onChange={(event) => onChange(event.target.checked)}
-                />
+              render={({ field }) => (
+                <Checkbox {...field} defaultChecked={true} />
               )}
             />
           }

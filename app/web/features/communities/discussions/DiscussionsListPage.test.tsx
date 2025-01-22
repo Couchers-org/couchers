@@ -9,16 +9,14 @@ import { service } from "service";
 import community from "test/fixtures/community.json";
 import discussions from "test/fixtures/discussions.json";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getLiteUser } from "test/serviceMockDefaults";
-import {
-  assertErrorAlert,
-  mockConsoleError,
-  MockedService,
-  t,
-} from "test/utils";
+import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
 import { DISCUSSION_CARD_TEST_ID } from "./DiscussionCard";
 import DiscussionsListPage from "./DiscussionsListPage";
+
+const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 
@@ -51,51 +49,51 @@ describe("DiscussionsListPage", () => {
     ).map((element) => within(element));
 
     const firstCreator = await getLiteUser(
-      discussions[0].creatorUserId.toString()
+      discussions[0].creatorUserId.toString(),
     );
     expect(
       discussionCards[0].getByText(
         new RegExp(
-          `${t("communities:by_creator", { name: firstCreator.name })} • .+ ago`
-        )
-      )
+          `${t("communities:by_creator", { name: firstCreator.name })} • .+ ago`,
+        ),
+      ),
     ).toBeVisible();
     expect(
-      discussionCards[0].getByRole("heading", { name: discussions[0].title })
-    ).toBeVisible();
-    expect(
-      discussionCards[0].getByText(
-        "Hi everyone, I'm looking for fun activities to do here!"
-      )
+      discussionCards[0].getByRole("heading", { name: discussions[0].title }),
     ).toBeVisible();
     expect(
       discussionCards[0].getByText(
-        t("communities:comments_count", { count: 5 })
-      )
+        "Hi everyone, I'm looking for fun activities to do here!",
+      ),
+    ).toBeVisible();
+    expect(
+      discussionCards[0].getByText(
+        t("communities:comments_count", { count: 5 }),
+      ),
     ).toBeVisible();
 
     const secondCreator = await getLiteUser(
-      discussions[1].creatorUserId.toString()
+      discussions[1].creatorUserId.toString(),
     );
     expect(
       discussionCards[1].getByText(
         new RegExp(
           `${t("communities:by_creator", {
             name: secondCreator.name,
-          })} • .+ ago`
-        )
-      )
+          })} • .+ ago`,
+        ),
+      ),
     ).toBeVisible();
     expect(
-      discussionCards[1].getByRole("heading", { name: discussions[1].title })
+      discussionCards[1].getByRole("heading", { name: discussions[1].title }),
     ).toBeVisible();
     expect(
-      discussionCards[1].getByText("Some rules you need to know...")
+      discussionCards[1].getByText("Some rules you need to know..."),
     ).toBeVisible();
     expect(
       discussionCards[1].getByText(
-        t("communities:comments_count", { count: 0 })
-      )
+        t("communities:comments_count", { count: 0 }),
+      ),
     ).toBeVisible();
 
     expect(listDiscussionsMock).toHaveBeenCalledTimes(1);
@@ -106,7 +104,7 @@ describe("DiscussionsListPage", () => {
   it("shows an error alert if the discussions list failed to load", async () => {
     mockConsoleError();
     listDiscussionsMock.mockRejectedValue(
-      new Error("Error listing discussions")
+      new Error("Error listing discussions"),
     );
     render(<DiscussionsListPage community={community} />, { wrapper });
 
@@ -121,10 +119,12 @@ describe("DiscussionsListPage", () => {
     it("creates a new discussion successfully and clears the form", async () => {
       render(<DiscussionsListPage community={community} />, { wrapper });
 
-      userEvent.click(
+      const user = userEvent.setup();
+
+      await user.click(
         await screen.findByRole("button", {
           name: t("communities:new_post_label"),
-        })
+        }),
       );
       listDiscussionsMock.mockResolvedValue({
         discussionsList: [
@@ -144,56 +144,56 @@ describe("DiscussionsListPage", () => {
         nextPageToken: "",
       });
 
-      userEvent.type(
+      await user.type(
         screen.getByLabelText(t("communities:new_discussion_title")),
-        "Hello world"
+        "Hello world",
       );
-      userEvent.type(
+      await user.type(
         screen.getByLabelText(t("communities:new_discussion_topic")),
-        "I love the world!"
+        "I love the world!",
       );
-      userEvent.click(
-        screen.getByRole("button", { name: t("communities:post") })
+      await user.click(
+        screen.getByRole("button", { name: t("communities:post") }),
       );
 
       expect(
-        (
-          (await screen.findByLabelText(
-            t("communities:new_discussion_title")
-          )) as HTMLInputElement
-        ).value
-      ).toEqual("");
+        (await screen.findByLabelText(
+          t("communities:new_discussion_title"),
+        )) as HTMLInputElement,
+      ).toHaveValue("");
       expect(screen.getAllByTestId(DISCUSSION_CARD_TEST_ID)).toHaveLength(3);
       expect(createDiscussionMock).toHaveBeenCalledTimes(1);
       expect(createDiscussionMock).toHaveBeenCalledWith(
         "Hello world",
         "I love the world!",
-        2
+        2,
       );
     });
 
     it("shows an error alert if there is an error creating a new discussion", async () => {
       mockConsoleError();
       createDiscussionMock.mockRejectedValue(
-        new Error("Error creating new discussion")
+        new Error("Error creating new discussion"),
       );
       render(<DiscussionsListPage community={community} />, { wrapper });
 
-      userEvent.click(
+      const user = userEvent.setup();
+
+      await user.click(
         await screen.findByRole("button", {
           name: t("communities:new_post_label"),
-        })
+        }),
       );
-      userEvent.type(
+      await user.type(
         screen.getByLabelText(t("communities:new_discussion_title")),
-        "Hello world"
+        "Hello world",
       );
-      userEvent.type(
+      await user.type(
         screen.getByLabelText(t("communities:new_discussion_topic")),
-        "I love the world!"
+        "I love the world!",
       );
-      userEvent.click(
-        screen.getByRole("button", { name: t("communities:post") })
+      await user.click(
+        screen.getByRole("button", { name: t("communities:post") }),
       );
 
       await assertErrorAlert("Error creating new discussion");
@@ -202,24 +202,26 @@ describe("DiscussionsListPage", () => {
     it("resets the form if the user presses cancel", async () => {
       render(<DiscussionsListPage community={community} />, { wrapper });
 
-      userEvent.click(
+      const user = userEvent.setup();
+
+      await user.click(
         await screen.findByRole("button", {
           name: t("communities:new_post_label"),
-        })
+        }),
       );
-      userEvent.type(
+      await user.type(
         screen.getByLabelText(t("communities:new_discussion_title")),
-        "Hello world"
+        "Hello world",
       );
-      userEvent.click(screen.getByRole("button", { name: t("global:cancel") }));
+      await user.click(
+        screen.getByRole("button", { name: t("global:cancel") }),
+      );
 
       expect(
-        (
-          (await screen.findByLabelText(
-            t("communities:new_discussion_title")
-          )) as HTMLInputElement
-        ).value
-      ).toEqual("");
+        (await screen.findByLabelText(
+          t("communities:new_discussion_title"),
+        )) as HTMLInputElement,
+      ).toHaveValue("");
     });
   });
 });

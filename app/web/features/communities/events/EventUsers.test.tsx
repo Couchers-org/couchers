@@ -8,10 +8,13 @@ import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import { service } from "service";
 import users from "test/fixtures/liteUsers.json";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getLiteUsers } from "test/serviceMockDefaults";
-import { assertErrorAlert, t } from "test/utils";
+import { assertErrorAlert } from "test/utils";
 
 import EventUsers, { EventUsersProps } from "./EventUsers";
+
+const { t } = i18n;
 
 const getLiteUsersMock = service.user.getLiteUsers as jest.MockedFunction<
   typeof service.user.getLiteUsers
@@ -36,21 +39,27 @@ describe("Event users", () => {
     renderEventUsers({ userIds: [1, 2] });
 
     await waitForElementToBeRemoved(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID)
+      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
     );
 
     // User 1
     expect(screen.getByRole("img", { name: users[0].name })).toBeVisible();
     expect(
-      screen.getByRole("heading", { name: `${users[0].name}, ${users[0].age}` })
+      screen.getByRole("heading", {
+        name: `${users[0].name}, ${users[0].age}`,
+      }),
     ).toBeVisible();
 
     // User 2
     expect(
-      screen.getByRole("link", { name: getProfileLinkA11yLabel(users[1].name) })
+      screen.getByRole("link", {
+        name: getProfileLinkA11yLabel(users[1].name),
+      }),
     ).toBeVisible();
     expect(
-      screen.getByRole("heading", { name: `${users[1].name}, ${users[1].age}` })
+      screen.getByRole("heading", {
+        name: `${users[1].name}, ${users[1].age}`,
+      }),
     ).toBeVisible();
   });
 
@@ -61,11 +70,11 @@ describe("Event users", () => {
     });
 
     await waitForElementToBeRemoved(
-      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID)
+      screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
     );
 
     expect(
-      screen.getByRole("button", { name: t("communities:see_all") })
+      screen.getByRole("button", { name: t("communities:see_all") }),
     ).toBeVisible();
   });
 
@@ -83,7 +92,7 @@ describe("Event users", () => {
     await assertErrorAlert(errorMessage);
     // Empty state should not be shown if there is an error
     expect(
-      screen.queryByText("There aren't any users for this event yet!")
+      screen.queryByText("There aren't any users for this event yet!"),
     ).not.toBeInTheDocument();
   });
 });

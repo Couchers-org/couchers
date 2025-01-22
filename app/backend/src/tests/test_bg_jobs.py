@@ -822,6 +822,8 @@ def test_send_reference_reminders(db):
     # case 2: host left ref (surfer needs an email)
     # case 3: surfer left ref (host needs an email)
     # case 4: neither left ref (host & surfer need an email)
+    # case 5: neither left ref, but host blocked surfer, so neither should get an email
+    # case 6: neither left ref, surfer indicated they didn't meet up, (host still needs an email)
 
     send_reference_reminders(empty_pb2.Empty())
 
@@ -842,18 +844,24 @@ def test_send_reference_reminders(db):
     user6, token6 = generate_user(email="user6@couchers.org.invalid", name="User 6")
 
     # case 4: neither left ref (host & surfer need an email)
-    # host
-    user7, token7 = generate_user(email="user7@couchers.org.invalid", name="User 7")
     # surfer
+    user7, token7 = generate_user(email="user7@couchers.org.invalid", name="User 7")
+    # host
     user8, token8 = generate_user(email="user8@couchers.org.invalid", name="User 8")
 
     # case 5: neither left ref, but host blocked surfer, so neither should get an email
-    # host
-    user9, token9 = generate_user(email="user9@couchers.org.invalid", name="User 9")
     # surfer
+    user9, token9 = generate_user(email="user9@couchers.org.invalid", name="User 9")
+    # host
     user10, token10 = generate_user(email="user10@couchers.org.invalid", name="User 10")
 
     make_user_block(user9, user10)
+
+    # case 6: neither left ref, surfer indicated they didn't meet up, (host still needs an email)
+    # host
+    user11, token11 = generate_user(email="user11@couchers.org.invalid", name="User 11")
+    # surfer
+    user12, token12 = generate_user(email="user12@couchers.org.invalid", name="User 12")
 
     with session_scope() as session:
         # note that create_host_reference creates a host request whose age is one day older than the timedelta here
@@ -874,7 +882,15 @@ def test_send_reference_reminders(db):
         # case 5: neither left ref, but host blocked surfer, so neither should get an email
         hr5 = create_host_request(session, user9.id, user10.id, timedelta(days=7))
 
+        # case 6: neither left ref, surfer indicated they didn't meet up, (host still needs an email)
+        hr6 = create_host_request(session, user12.id, user11.id, timedelta(days=6), surfer_reason_didnt_meetup="")
+
     expected_emails = [
+        (
+            "user11@couchers.org.invalid",
+            "[TEST] You have 14 days to write a reference for User 12!",
+            ("from when you hosted them", "/leave-reference/hosted/"),
+        ),
         (
             "user4@couchers.org.invalid",
             "[TEST] You have 3 days to write a reference for User 3!",
@@ -926,8 +942,9 @@ def test_add_users_to_email_list(db):
     new_config = config.copy()
     new_config["LISTMONK_ENABLED"] = True
     new_config["LISTMONK_BASE_URL"] = "https://example.com"
+    new_config["LISTMONK_API_USERNAME"] = "test_user"
     new_config["LISTMONK_API_KEY"] = "dummy_api_key"
-    new_config["LISTMONK_LIST_UUID"] = "baf96eaa-5e70-409d-b776-f5c16fb091b9"
+    new_config["LISTMONK_LIST_ID"] = 6
 
     with patch("couchers.jobs.handlers.config", new_config):
         with patch("couchers.jobs.handlers.requests.post") as mock:
@@ -949,25 +966,27 @@ def test_add_users_to_email_list(db):
             [
                 call(
                     "https://example.com/api/subscribers",
-                    auth=("listmonk", "dummy_api_key"),
+                    auth=("test_user", "dummy_api_key"),
                     json={
                         "email": "testing1@couchers.invalid",
                         "name": "Tester1",
-                        "list_uuids": ["baf96eaa-5e70-409d-b776-f5c16fb091b9"],
+                        "lists": [6],
                         "preconfirm_subscriptions": True,
                         "attribs": {"couchers_user_id": 15},
+                        "status": "enabled",
                     },
                     timeout=10,
                 ),
                 call(
                     "https://example.com/api/subscribers",
-                    auth=("listmonk", "dummy_api_key"),
+                    auth=("test_user", "dummy_api_key"),
                     json={
                         "email": "testing3@couchers.invalid",
                         "name": "Tester3 von test",
-                        "list_uuids": ["baf96eaa-5e70-409d-b776-f5c16fb091b9"],
+                        "lists": [6],
                         "preconfirm_subscriptions": True,
                         "attribs": {"couchers_user_id": 17},
+                        "status": "enabled",
                     },
                     timeout=10,
                 ),

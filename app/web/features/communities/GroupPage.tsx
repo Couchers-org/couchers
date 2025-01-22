@@ -150,10 +150,10 @@ export default function GroupPage({
                       key={parent.community.communityId}
                       href={routeToCommunity(
                         parent.community.communityId,
-                        parent.community.slug
+                        parent.community.slug,
                       )}
                     >
-                      <a>{parent.community.name}</a>
+                      {parent.community.name}
                     </Link>
                   );
                 } else if (parent.group) {
@@ -162,10 +162,10 @@ export default function GroupPage({
                       key={parent.group.groupId}
                       href={routeToGroup(
                         parent.group.groupId,
-                        parent.group.slug
+                        parent.group.slug,
                       )}
                     >
-                      <a>{parent.group.name}</a>
+                      {parent.group.name}
                     </Link>
                   );
                 } else {
@@ -245,7 +245,7 @@ export default function GroupPage({
               return (
                 <>
                   <Link href={routeToPlace(place.pageId, place.slug)}>
-                    <a>{place.title}</a>
+                    {place.title}
                   </Link>
                   <br />
                 </>
@@ -262,7 +262,7 @@ export default function GroupPage({
               return (
                 <>
                   <Link href={routeToGuide(guide.pageId, guide.slug)}>
-                    <a>{guide.title}</a>
+                    {guide.title}
                   </Link>
                   <br />
                 </>
@@ -281,10 +281,10 @@ export default function GroupPage({
                   <Link
                     href={routeToDiscussion(
                       discussion.discussionId,
-                      discussion.slug
+                      discussion.slug,
                     )}
                   >
-                    <a>{discussion.title}</a>
+                    {discussion.title}
                   </Link>
                   <br />
                 </>

@@ -10,7 +10,6 @@ Name: {{ new_user.name }}
 Email: {{ new_user.email }}
 Username: {{ new_user.username }}
 User ID: {{ new_user.id }}
-Profile: <{{ new_user_user_link }}>
 
 
 * User who the passport is already tied to
@@ -19,4 +18,3 @@ Name: {{ old_user.name }}
 Email: {{ old_user.email }}
 Username: {{ old_user.username }}
 User ID: {{ old_user.id }}
-Profile: <{{ old_user_user_link }}>

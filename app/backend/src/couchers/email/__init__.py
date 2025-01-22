@@ -60,7 +60,9 @@ def enqueue_system_email(session, recipient, template_name, template_args):
     rendered_frontmatter = env.from_string(frontmatter_source).render(**template_args, plain=True, html=False)
     frontmatter = yaml.load(rendered_frontmatter, Loader=yaml.FullLoader)
 
-    plain = env.from_string(text_source).render({**template_args, "frontmatter": frontmatter}, plain=True, html=False)
+    plain = env.from_string(text_source.strip()).render(
+        {**template_args, "frontmatter": frontmatter}, plain=True, html=False
+    )
 
     queue_email(
         session,

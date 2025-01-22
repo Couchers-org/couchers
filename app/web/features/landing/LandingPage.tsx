@@ -26,7 +26,6 @@ import makeStyles from "utils/makeStyles";
 
 import {
   blogRoute,
-  forumURL,
   loginRoute,
   signupRoute,
   tosRoute,
@@ -122,7 +121,7 @@ export default function LandingPage() {
         className={classNames(
           classes.topSection,
           authClasses.page,
-          authClasses.pageBackground
+          authClasses.pageBackground,
         )}
       >
         <div className={authClasses.content}>
@@ -156,7 +155,7 @@ export default function LandingPage() {
                 successCallback={() => router.push(signupRoute)}
               />
             ) : (
-              <Link href={signupRoute} passHref>
+              <Link href={signupRoute} passHref legacyBehavior>
                 <Button
                   variant="contained"
                   color="secondary"
@@ -238,7 +237,7 @@ export default function LandingPage() {
           with active local communities and a vibrant global discussion.
         </Typography>
         <Typography className={classes.para}>
-          <Link href={volunteerRoute} passHref>
+          <Link href={volunteerRoute} passHref legacyBehavior>
             <Button
               variant="contained"
               color="secondary"
@@ -247,7 +246,7 @@ export default function LandingPage() {
               Join our team
             </Button>
           </Link>
-          <Link href={volunteerRoute} passHref>
+          <Link href={volunteerRoute} passHref legacyBehavior>
             <Button className={classes.subNavButtons}>Volunteer</Button>
           </Link>
         </Typography>
@@ -259,24 +258,13 @@ export default function LandingPage() {
         </Typography>
         <Typography className={classes.para}>
           We're sure that you, like all of us, have had great experiences that
-          couldn't have happened without Couchsurfing™. But we all know it's got
-          its issues. For the next generation in couch surfing apps, we need to
-          fix those issues.
+          couldn't have happened without Couchsurfing™. But we all know it's
+          got its issues. For the next generation in couch surfing apps, we need
+          to fix those issues.
         </Typography>
         <Typography className={classes.para}>
           If there's any problems you've found with Couchsurfing™ or any other
           platforms, we'd love to hear about it so we can try to fix them.
-        </Typography>
-        <Typography className={classes.para}>
-          <Link href={forumURL} passHref>
-            <Button
-              variant="contained"
-              color="secondary"
-              className={classes.subNavButtons}
-            >
-              Tell us what you think
-            </Button>
-          </Link>
         </Typography>
       </Container>
       <div className={classes.spacer} />

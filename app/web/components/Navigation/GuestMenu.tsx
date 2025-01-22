@@ -65,10 +65,14 @@ export default function GuestMenu({
         }}
       >
         <MenuItem>
-          <Link href={signupRoute}>{t("sign_up")}</Link>
+          <Link href={signupRoute} legacyBehavior>
+            {t("sign_up")}
+          </Link>
         </MenuItem>
         <MenuItem>
-          <Link href={loginRoute}>{t("login")}</Link>
+          <Link href={loginRoute} legacyBehavior>
+            {t("login")}
+          </Link>
         </MenuItem>
         <Divider />
         <MenuItem>
@@ -76,7 +80,7 @@ export default function GuestMenu({
         </MenuItem>
         <Divider />
         <MenuItem>
-          <Link href={helpCenterURL} target="_blank">
+          <Link href={helpCenterURL} target="_blank" legacyBehavior>
             {t("nav.help")}
           </Link>
         </MenuItem>

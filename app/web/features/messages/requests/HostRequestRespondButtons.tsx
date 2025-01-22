@@ -20,16 +20,16 @@ export default function HostRequestRespondButtons({
   const { t } = useTranslation([MESSAGES, GLOBAL]);
 
   const handleAccept = handleStatus(
-    HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED
+    HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED,
   );
   const handleReject = handleStatus(
-    HostRequestStatus.HOST_REQUEST_STATUS_REJECTED
+    HostRequestStatus.HOST_REQUEST_STATUS_REJECTED,
   );
   const handleCancel = handleStatus(
-    HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED
+    HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED,
   );
   const handleConfirm = handleStatus(
-    HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED
+    HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED,
   );
 
   if (isHost) {

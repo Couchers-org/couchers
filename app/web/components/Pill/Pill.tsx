@@ -1,51 +1,44 @@
 import { Typography } from "@mui/material";
-import classNames from "classnames";
-import makeStyles from "utils/makeStyles";
+import { styled } from "@mui/system";
+import { theme } from "theme";
 
 interface PillStylesProps {
   backgroundColor?: string;
   color?: string;
 }
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    backgroundColor: (props: PillStylesProps) =>
-      props.backgroundColor ?? theme.palette.grey[200],
-    color: (props: PillStylesProps) =>
-      props.color ?? theme.palette.text.primary,
-    padding: theme.spacing(0.5, 1),
-    textAlign: "center",
-    fontWeight: "bold",
-    margin: theme.spacing(0.5),
-  },
-  rounded: {
-    borderRadius: theme.shape.borderRadius * 6,
-  },
+const StyledPill = styled(Typography)<PillStylesProps>(({ theme }) => ({
+  padding: theme.spacing(0.6, 1),
+  textAlign: "center",
+  fontWeight: "bold",
+  margin: theme.spacing(0.5),
+  fontSize: ".8rem",
 }));
 
 export interface PillProps {
   children: React.ReactNode;
   backgroundColor?: string;
   color?: string;
-  variant?: "rounded" | "square";
+  variant?: "rounded";
 }
 
 export default function Pill({
   children,
-  backgroundColor,
-  color,
+  backgroundColor = theme.palette.grey[200],
+  color = theme.palette.text.primary,
   variant = "rounded",
 }: PillProps) {
-  const classes = useStyles({ backgroundColor, color });
-
   return (
-    <Typography
-      className={classNames(classes.root, {
-        [classes.rounded]: variant === "rounded",
-      })}
-      variant="body2"
+    <StyledPill
+      sx={{
+        backgroundColor,
+        color,
+        ...(variant === "rounded" && {
+          borderRadius: theme.shape.borderRadius * 6,
+        }),
+      }}
     >
       {children}
-    </Typography>
+    </StyledPill>
   );
 }

@@ -1,17 +1,15 @@
 import {
   IconButton as MuiIconButton,
   IconButtonProps as MuiIconButtonProps,
+  styled,
   useTheme,
 } from "@mui/material";
 import { forwardRef } from "react";
-import makeStyles from "utils/makeStyles";
 
 import CircularProgress from "./CircularProgress";
 
-const useStyles = makeStyles((theme) => ({
-  circularProgress: {
-    margin: 3,
-  },
+const StyledCircularProgress = styled(CircularProgress)(({ theme }) => ({
+  margin: 3,
 }));
 
 interface IconButtonProps extends MuiIconButtonProps {
@@ -21,18 +19,13 @@ interface IconButtonProps extends MuiIconButtonProps {
 
 export default forwardRef(function IconButton(
   { loading, ...otherProps }: IconButtonProps,
-  ref: IconButtonProps["ref"]
+  ref: IconButtonProps["ref"],
 ) {
-  const classes = useStyles();
   const theme = useTheme();
   return (
     <MuiIconButton {...otherProps} ref={ref}>
       {loading ? (
-        <CircularProgress
-          className={classes.circularProgress}
-          //stolen from source for MUI IconButton
-          size={theme.typography.pxToRem(18)}
-        />
+        <StyledCircularProgress size={theme.typography.pxToRem(18)} />
       ) : (
         otherProps.children
       )}

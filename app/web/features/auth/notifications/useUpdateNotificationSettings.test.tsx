@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react";
 import { notificationSettingsQueryKey } from "features/queryKeys";
 import { RpcError, StatusCode } from "grpc-web";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -42,7 +42,7 @@ describe("useUpdateNotificationSettings", () => {
     (
       service.notifications.setNotificationSettingsPreference as jest.Mock
     ).mockResolvedValue(
-      {} // Mocked successful response
+      {}, // Mocked successful response
     );
 
     jest.spyOn(queryClient, "invalidateQueries");
@@ -59,10 +59,10 @@ describe("useUpdateNotificationSettings", () => {
     });
 
     expect(
-      service.notifications.setNotificationSettingsPreference
+      service.notifications.setNotificationSettingsPreference,
     ).toHaveBeenCalledWith(mockData);
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith(
-      notificationSettingsQueryKey
+      notificationSettingsQueryKey,
     );
   });
 
@@ -70,7 +70,7 @@ describe("useUpdateNotificationSettings", () => {
     const mockError = new RpcError(
       StatusCode.CANCELLED,
       "Test error message",
-      {}
+      {},
     );
     const setMutationError = jest.fn();
 

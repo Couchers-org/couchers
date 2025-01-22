@@ -32,11 +32,12 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 
   const {
-    errors,
     getValues,
     handleSubmit,
     reset: resetForm,
     register,
+
+    formState: { errors },
   } = useForm<ChangePasswordFormData>({
     mode: "onBlur",
   });
@@ -58,7 +59,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
         queryClient.invalidateQueries(accountInfoQueryKey);
         resetForm();
       },
-    }
+    },
   );
 
   return (
@@ -76,16 +77,15 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
       )}
       <form className={classes.form} onSubmit={onSubmit}>
         <TextField
+          {...register("oldPassword", { required: true })}
           id="oldPassword"
-          inputRef={register({ required: true })}
           label={t("auth:change_password_form.old_password")}
-          name="oldPassword"
           type="password"
           fullWidth={!isMdOrWider}
         />
         <TextField
           id="newPassword"
-          inputRef={register({ required: true })}
+          {...register("newPassword", { required: true })}
           label={t("auth:change_password_form.new_password")}
           name="newPassword"
           type="password"
@@ -93,13 +93,12 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
         />
         <TextField
           id="passwordConfirmation"
-          inputRef={register({
+          {...register("passwordConfirmation", {
             validate: (value) =>
               value === getValues("newPassword") ||
               t("auth:change_password_form.password_mismatch_error"),
           })}
           label={t("auth:change_password_form.confirm_password")}
-          name="passwordConfirmation"
           fullWidth={!isMdOrWider}
           type="password"
           helperText={errors.passwordConfirmation?.message}

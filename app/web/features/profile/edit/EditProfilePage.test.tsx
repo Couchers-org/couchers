@@ -1,19 +1,16 @@
-import {
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
 import { routeToProfile } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
-import { addDefaultUser, t } from "test/utils";
+import { addDefaultUser } from "test/utils";
 
 import EditProfilePage from "./EditProfilePage";
+
+const { t } = i18n;
 
 jest.mock("components/Map", () => () => "map");
 jest.mock("components/MarkdownInput");
@@ -34,32 +31,56 @@ const updateProfileMock = service.user.updateProfile as jest.MockedFunction<
   typeof service.user.updateProfile
 >;
 
-const renderPage = () => {
-  render(<EditProfilePage />, { wrapper });
+const renderPage = async () => {
+  act(() => render(<EditProfilePage />, { wrapper }));
 };
 
 describe("Edit profile", () => {
   beforeEach(() => {
     addDefaultUser();
-    getUserMock.mockImplementation(getUser);
     getRegionsMock.mockImplementation(getRegions);
     getLanguagesMock.mockImplementation(getLanguages);
-    updateProfileMock.mockResolvedValue(new Empty());
   });
 
-  it("should redirect to the user profile page after a successful update", async () => {
+  it("Should update and redirect to the user profile page when aboutMe and avatar filled out on first go", async () => {
+    // prevent the unsavedChanged pop up by mocking window.confirm
+    jest.spyOn(window, "confirm").mockImplementation(() => true);
+    const aboutMeText =
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam. Ad nauseum.";
+
+    getUserMock.mockImplementation(getUser);
+
     renderPage();
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(screen.getByRole("button", { name: t("global:save") }));
+    const user = userEvent.setup();
 
-    await waitFor(() =>
-      expect(mockRouter.pathname).toBe(routeToProfile("about"))
+    const aboutMeInput = await screen.findByLabelText(
+      t("profile:heading.who_section"),
+    );
+
+    await user.clear(aboutMeInput);
+    await user.type(aboutMeInput, aboutMeText);
+
+    await waitFor(() => expect(aboutMeInput).toHaveValue(aboutMeText), {
+      timeout: 5000,
+    });
+
+    await user.click(
+      await screen.findByRole("button", { name: t("global:save") }),
+    );
+
+    expect(updateProfileMock).toHaveBeenCalledWith(
+      expect.objectContaining({ aboutMe: aboutMeText }),
+    );
+
+    await waitFor(
+      () => expect(mockRouter.pathname).toBe(routeToProfile("about")),
+      { timeout: 5000 },
     );
   });
 
   it(`should not submit the default headings for the '${t(
-    "profile:heading.who_section"
+    "profile:heading.who_section",
   )}' and '${t("profile:heading.hobbies_section")}' sections`, async () => {
     getUserMock.mockImplementation(async (user) => ({
       ...(await getUser(user)),
@@ -67,18 +88,51 @@ describe("Edit profile", () => {
       thingsILike: "",
     }));
     renderPage();
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    userEvent.click(screen.getByRole("button", { name: t("global:save") }));
+    const user = userEvent.setup();
+
+    await user.click(
+      await screen.findByRole("button", { name: t("global:save") }),
+    );
+
+    const saveAnywayButton = await screen.findByRole("button", {
+      name: t("profile:incomplete_dialog.save_anyway"),
+    });
+
+    await user.click(saveAnywayButton);
+
     await waitFor(() =>
-      expect(mockRouter.pathname).toBe(routeToProfile("about"))
+      expect(mockRouter.pathname).toBe(routeToProfile("about")),
     );
     expect(updateProfileMock).toHaveBeenCalledTimes(1);
     expect(updateProfileMock).toHaveBeenCalledWith(
       expect.objectContaining({
         aboutMe: "",
         thingsILike: "",
-      })
+      }),
     );
+  });
+
+  it("Should not update profile automatically if the user has not filled out aboutMe section besides deafault headers", async () => {
+    getUserMock.mockImplementation(async (user) => ({
+      ...(await getUser(user)),
+      aboutMe: "",
+      thingsILike: "",
+    }));
+
+    await renderPage();
+
+    const user = userEvent.setup();
+
+    await user.click(
+      await screen.findByRole("button", { name: t("global:save") }),
+    );
+
+    const profileIncompleteDialog = await screen.findByTestId(
+      "incomplete-profile-dialog",
+    );
+
+    expect(profileIncompleteDialog).toBeVisible();
+    expect(updateProfileMock).not.toHaveBeenCalled();
   });
 });

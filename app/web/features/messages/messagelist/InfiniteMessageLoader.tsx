@@ -94,7 +94,7 @@ export default function InfiniteMessageLoader({
   useLayoutEffect(() => {
     if (isFetchingNextPage) return;
     const messageEl = document.getElementById(
-      messageElementId(prevTopMessageId.current ?? 0)
+      messageElementId(prevTopMessageId.current ?? 0),
     );
     messageEl?.scrollIntoView();
   }, [isFetchingNextPage]);

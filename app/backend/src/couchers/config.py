@@ -85,8 +85,9 @@ CONFIG_OPTIONS = [
     # Listmonk (mailing list)
     ("LISTMONK_ENABLED", bool),
     ("LISTMONK_BASE_URL", str),
+    ("LISTMONK_API_USERNAME", str),
     ("LISTMONK_API_KEY", str),
-    ("LISTMONK_LIST_UUID", str),
+    ("LISTMONK_LIST_ID", int),
     # Whether we're in test
     ("IN_TEST", bool, "0"),
 ]
@@ -124,7 +125,7 @@ for config_option in CONFIG_OPTIONS:
     elif isinstance(type_, list):
         # list of allowed string values
         if value not in type_:
-            raise ValueError(f'Invalid value for {name}, need one of {", ".join(type_)}')
+            raise ValueError(f"Invalid value for {name}, need one of {', '.join(type_)}")
     else:
         value = type_(value)
 

@@ -35,7 +35,7 @@ export default function InviteDialog({
     selected: User.AsObject[];
   }>();
   const friendsNotInChat = friends.data?.filter(
-    (friend) => !groupChat.memberUserIdsList.includes(friend?.userId ?? 0)
+    (friend) => !groupChat.memberUserIdsList.includes(friend?.userId ?? 0),
   );
 
   const queryClient = useQueryClient();
@@ -45,13 +45,13 @@ export default function InviteDialog({
     {
       onSuccess: () => {
         queryClient.invalidateQueries(
-          groupChatMessagesKey(groupChat.groupChatId)
+          groupChatMessagesKey(groupChat.groupChatId),
         );
         queryClient.invalidateQueries(groupChatsListKey);
         queryClient.invalidateQueries(groupChatKey(groupChat.groupChatId));
         if (props.onClose) props.onClose({}, "escapeKeyDown");
       },
-    }
+    },
   );
 
   const onSubmit = handleSubmit(({ selected }) => {
@@ -74,12 +74,14 @@ export default function InviteDialog({
             control={control}
             defaultValue={[]}
             name="selected"
-            render={({ onChange }) => (
+            render={({ field }) => (
               <Autocomplete
+                {...field}
                 id="selected-autocomplete"
                 onChange={(_, value) => {
-                  onChange(value);
+                  field.onChange(value);
                 }}
+                value={field.value}
                 loading={friends.isLoading}
                 options={friendsNotInChat ?? []}
                 getOptionLabel={(friend) => {
@@ -89,7 +91,7 @@ export default function InviteDialog({
                   );
                 }}
                 noOptionsText={t(
-                  "messages:invite_dialog.selected.no_options_text"
+                  "messages:invite_dialog.selected.no_options_text",
                 )}
                 label={t("messages:invite_dialog.selected.field_label")}
                 multiple={true}

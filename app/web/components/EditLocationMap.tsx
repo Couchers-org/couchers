@@ -1,9 +1,10 @@
-import { BoxProps, Slider, Typography, useTheme } from "@mui/material";
+import { BoxProps, Slider, styled, Typography, useTheme } from "@mui/material";
 import { userLocationMaxRadius, userLocationMinRadius } from "appConstants";
-import classNames from "classnames";
 import Map from "components/Map";
 import MapSearch from "components/MapSearch";
 import TextField from "components/TextField";
+import { SignupAccountInputs } from "features/auth/signup/AccountForm";
+import { EditProfileFormValues } from "features/profile/edit/EditProfile";
 import { Feature, GeoJsonProperties, Geometry } from "geojson";
 import {
   GeoJSONSource,
@@ -13,7 +14,7 @@ import {
   MapTouchEvent,
 } from "maplibre-gl";
 import React, { useRef, useState } from "react";
-import makeStyles from "utils/makeStyles";
+import { ControllerRenderProps, FieldError } from "react-hook-form";
 
 import {
   DISPLAY_LOCATION,
@@ -26,22 +27,15 @@ import {
   MAP_IS_BLANK,
 } from "./constants";
 
-const useStyles = makeStyles({
-  root: {
-    margin: "auto",
-    maxWidth: 700,
-  },
-  map: {
-    height: 400,
-    position: "relative",
-  },
-  grow: {
-    height: "100%",
-    width: "100%",
-  },
-  displayLocation: {
-    width: "100%",
-  },
+const StyledWrapper = styled("div")<{ grow?: boolean }>(({ grow }) => ({
+  margin: "auto",
+  maxWidth: 700,
+  ...(grow ? { height: "100%", width: "100%" } : {}),
+}));
+
+const StyledMap = styled("div")({
+  height: 400,
+  position: "relative",
 });
 
 export interface ApproximateLocation {
@@ -60,6 +54,10 @@ export interface EditLocationMapProps extends BoxProps {
   showRadiusSlider?: boolean;
   // whether we are selecting an exact point (for pages, etc) or approx circle, doesn't maeks ense with radius slider
   exact?: boolean;
+  inputFieldProps?:
+    | ControllerRenderProps<SignupAccountInputs, "location">
+    | ControllerRenderProps<EditProfileFormValues, "location">;
+  inputFieldError?: FieldError | undefined;
 }
 
 export default function EditLocationMap({
@@ -69,9 +67,10 @@ export default function EditLocationMap({
   grow,
   showRadiusSlider,
   exact,
+  inputFieldProps,
+  inputFieldError,
   ...otherProps
 }: EditLocationMapProps) {
-  const classes = useStyles();
   const theme = useTheme();
   const [error, setError] = useState("");
 
@@ -86,11 +85,11 @@ export default function EditLocationMap({
   });
   // have not selected a location in any way yet
   const isBlank = useRef<boolean>(
-    !(initialLocation?.lng || initialLocation?.lat)
+    !(initialLocation?.lng || initialLocation?.lat),
   );
   const locationDisplayRef = useRef<HTMLInputElement>(null);
   const [shrinkLabel, setShrinkLabel] = useState(
-    location.current.address !== ""
+    location.current.address !== "",
   );
 
   const onCircleMouseDown = (e: MapMouseEvent | MapTouchEvent) => {
@@ -105,7 +104,7 @@ export default function EditLocationMap({
         onCircleMove(e);
       map.current.on("touchmove", handleTouchMove);
       map.current.once("touchend", (e) =>
-        handleCoordinateMoved(e, handleTouchMove)
+        handleCoordinateMoved(e, handleTouchMove),
       );
     } else {
       const handleMove = (e: MapMouseEvent | MapTouchEvent) => onCircleMove(e);
@@ -121,14 +120,14 @@ export default function EditLocationMap({
         lat: wrapped.lat,
         lng: wrapped.lng,
       },
-      false
+      false,
     );
     redrawMap();
   };
 
   const handleCoordinateMoved = (
     e: MapMouseEvent | MapTouchEvent,
-    moveHandler: (x: MapMouseEvent | MapTouchEvent) => void = () => null
+    moveHandler: (x: MapMouseEvent | MapTouchEvent) => void = () => null,
   ) => {
     if (!map.current) return;
     map.current.off("mousemove", moveHandler);
@@ -150,18 +149,18 @@ export default function EditLocationMap({
     if (!map.current) return;
     if (!exact) {
       (map.current.getSource("circle") as GeoJSONSource).setData(
-        circleGeoJson(extractLngLat(location.current), location.current.radius)
+        circleGeoJson(extractLngLat(location.current), location.current.radius),
       );
     } else {
       (map.current.getSource("circle") as GeoJSONSource).setData(
-        pointGeoJson(extractLngLat(location.current))
+        pointGeoJson(extractLngLat(location.current)),
       );
     }
   };
 
   const commit = (
     updates: Partial<ApproximateLocation>,
-    shouldUpdate = true
+    shouldUpdate = true,
   ) => {
     const addressNotEmpty = !!updates.address;
     if (updates.address !== undefined) {
@@ -207,7 +206,7 @@ export default function EditLocationMap({
         map.current.addSource("circle", {
           data: circleGeoJson(
             extractLngLat(location.current),
-            location.current.radius
+            location.current.radius,
           ),
           type: "geojson",
         });
@@ -250,7 +249,7 @@ export default function EditLocationMap({
       if (!initialLocation && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           flyToSearch(
-            new LngLat(position.coords.longitude, position.coords.latitude)
+            new LngLat(position.coords.longitude, position.coords.latitude),
           );
         });
       }
@@ -265,7 +264,7 @@ export default function EditLocationMap({
     const onCircleTouch = (
       e: MapTouchEvent & {
         features?: Feature<Geometry, GeoJsonProperties>[] | undefined;
-      }
+      },
     ) => {
       if (e.points.length !== 1) return;
       onCircleMouseDown(e);
@@ -287,7 +286,7 @@ export default function EditLocationMap({
       const randomizedLocation = displaceLngLat(
         coords,
         Math.random() * location.current.radius,
-        Math.random() * 2 * Math.PI
+        Math.random() * 2 * Math.PI,
       );
       handleCoordinateMoved({
         lngLat: randomizedLocation,
@@ -301,14 +300,8 @@ export default function EditLocationMap({
 
   return (
     <>
-      <div
-        className={classNames(
-          classes.root,
-          { [classes.grow]: grow },
-          className
-        )}
-      >
-        <div className={classNames(classes.map)}>
+      <StyledWrapper className={className} grow={grow}>
+        <StyledMap>
           <Map
             // (10, 35, 0.5) is just a pretty view
             initialZoom={isBlank.current ? 0.5 : 12.5}
@@ -322,6 +315,8 @@ export default function EditLocationMap({
             {...otherProps}
           />
           <MapSearch
+            inputFieldProps={inputFieldProps}
+            inputFieldError={inputFieldError}
             setError={setError}
             setResult={(coordinate, _, simplified) => {
               commit({ address: simplified }, false);
@@ -332,7 +327,7 @@ export default function EditLocationMap({
               flyToSearch(coordinate);
             }}
           />
-        </div>
+        </StyledMap>
         {showRadiusSlider && (
           <RadiusSlider
             commit={commit}
@@ -347,7 +342,7 @@ export default function EditLocationMap({
           }}
           error={error !== ""}
           id="display-address"
-          inputRef={locationDisplayRef}
+          ref={locationDisplayRef}
           InputLabelProps={{ shrink: shrinkLabel }}
           fullWidth
           variant="standard"
@@ -356,7 +351,7 @@ export default function EditLocationMap({
           onFocus={() => setShrinkLabel(true)}
           onBlur={() => !location.current.address && setShrinkLabel(false)}
         />
-      </div>
+      </StyledWrapper>
     </>
   );
 }
@@ -403,7 +398,7 @@ function extractLngLat(loc: ApproximateLocation): LngLat {
 }
 
 function pointGeoJson(
-  coords: LngLat
+  coords: LngLat,
 ): GeoJSON.FeatureCollection<GeoJSON.Geometry> {
   return {
     features: [
@@ -422,7 +417,7 @@ function pointGeoJson(
 
 function circleGeoJson(
   coords: LngLat,
-  radius: number
+  radius: number,
 ): GeoJSON.FeatureCollection<GeoJSON.Geometry> {
   return {
     features: [
@@ -437,7 +432,7 @@ function circleGeoJson(
                   return displaceLngLat(
                     coords,
                     radius,
-                    (index * 2 * Math.PI) / 60
+                    (index * 2 * Math.PI) / 60,
                   ).toArray();
                 }),
               displaceLngLat(coords, radius, 0).toArray(),

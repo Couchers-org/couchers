@@ -24,11 +24,17 @@ type NewPlaceInputs = {
 };
 
 export default function NewPlaceForm() {
-  const { control, register, handleSubmit, setValue, errors } =
-    useForm<NewPlaceInputs>({
-      mode: "onBlur",
-      shouldUnregister: false,
-    });
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+
+    formState: { errors },
+  } = useForm<NewPlaceInputs>({
+    mode: "onBlur",
+    shouldUnregister: false,
+  });
 
   const router = useRouter();
 
@@ -44,10 +50,10 @@ export default function NewPlaceForm() {
         router.push(
           page.type === PageType.PAGE_TYPE_PLACE
             ? routeToPlace(page.pageId, page.slug)
-            : routeToGuide(page.pageId, page.slug)
+            : routeToGuide(page.pageId, page.slug),
         );
       },
-    }
+    },
   );
 
   const onSubmit = handleSubmit((data: NewPlaceInputs) => createPlace(data));
@@ -61,11 +67,10 @@ export default function NewPlaceForm() {
         <form onSubmit={onSubmit}>
           <TextField
             id="new-place-title"
-            name="title"
-            label="Place Title"
-            inputRef={register({
+            {...register("title", {
               required: "Enter a page title",
             })}
+            label="Place Title"
             helperText={errors?.title?.message}
           />
           <ImageInput

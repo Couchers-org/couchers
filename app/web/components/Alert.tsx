@@ -1,13 +1,13 @@
-import { Alert as MuiAlert, AlertProps as MuiAlertProps } from "@mui/material";
+import {
+  Alert as MuiAlert,
+  AlertProps as MuiAlertProps,
+  styled,
+} from "@mui/material";
 import { grpcErrorStrings, ObscureGrpcErrorMessages } from "appConstants";
-import classNames from "classnames";
 import React from "react";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    marginBottom: theme.spacing(2),
-  },
+const StyledAlert = styled(MuiAlert)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
 }));
 
 interface AlertProps extends MuiAlertProps {
@@ -20,20 +20,18 @@ export default function Alert({
   children,
   ...otherProps
 }: AlertProps) {
-  const classes = useStyles();
-
   const oldErrorKey = Object.keys(grpcErrorStrings).find(
     (oldError): oldError is ObscureGrpcErrorMessages =>
-      children.includes(oldError)
+      children.includes(oldError),
   );
 
   return (
-    <MuiAlert {...otherProps} className={classNames(classes.root, className)}>
+    <StyledAlert {...otherProps} className={className}>
       {
         // Search for the error in the ugly grpc error object keys
         // Replace it with the nice error if found
         oldErrorKey ? grpcErrorStrings[oldErrorKey] : children
       }
-    </MuiAlert>
+    </StyledAlert>
   );
 }

@@ -3,11 +3,13 @@ import { eventImagePlaceholderUrl } from "appConstants";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getUser } from "test/serviceMockDefaults";
-import { t } from "test/utils";
 import timezoneMock from "timezone-mock";
 
 import CommunityLongEventCard from "./CommunityLongEventCard";
+
+const { t } = i18n;
 
 const [firstEvent, secondEvent, thirdEvent] = events;
 
@@ -37,19 +39,19 @@ describe("Long event card", () => {
     render(<CommunityLongEventCard event={firstEvent} />, { wrapper });
 
     expect(
-      screen.getByRole("heading", { name: firstEvent.title })
+      screen.getByRole("heading", { name: firstEvent.title }),
     ).toBeVisible();
     expect(
-      screen.getByText(firstEvent.offlineInformation!.address)
+      screen.getByText(firstEvent.offlineInformation!.address),
     ).toBeVisible();
     expect(screen.getByText("Jun 29, 2021 2:37 AM")).toBeVisible();
     expect(screen.getByText("12 attendees")).toBeVisible();
 
-    const eventImage = screen.getByRole("img", { name: "" });
+    const eventImage = screen.getByRole("presentation", { name: "" });
     expect(eventImage).toBeVisible();
     expect(eventImage).toHaveAttribute(
       "src",
-      "https://loremflickr.com/500/120/amsterdam"
+      "https://loremflickr.com/500/120/amsterdam",
     );
     expect(screen.getByText("Be there or be square!")).toBeVisible();
   });
@@ -58,7 +60,7 @@ describe("Long event card", () => {
     render(<CommunityLongEventCard event={secondEvent} />, { wrapper });
 
     expect(
-      screen.getByRole("heading", { name: secondEvent.title })
+      screen.getByRole("heading", { name: secondEvent.title }),
     ).toBeVisible();
     expect(screen.getByText("Jun 29, 2021 9:00 PM")).toBeVisible();
     expect(screen.getByText(t("communities:online"))).toBeVisible();
@@ -71,7 +73,7 @@ describe("Long event card", () => {
     });
     render(<CommunityLongEventCard event={thirdEvent} />, { wrapper });
 
-    const eventImage = await screen.findByRole("img", { name: "" });
+    const eventImage = await screen.findByRole("presentation", { name: "" });
     expect(eventImage).toBeVisible();
     expect(eventImage).toHaveAttribute("src", eventImagePlaceholderUrl);
   });

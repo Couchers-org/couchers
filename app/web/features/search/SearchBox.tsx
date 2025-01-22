@@ -56,7 +56,10 @@ export default function SearchBox({
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const classes = useStyles();
 
-  const { control, errors } = useForm({
+  const {
+    control,
+    formState: { errors },
+  } = useForm<{ location?: GeocodeResult; keyword?: string }>({
     mode: "onChange",
   });
 
@@ -72,7 +75,7 @@ export default function SearchBox({
   };
 
   const handleOnChangeKeyword = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setQueryName(event.target.value);
     setLocationResult({
@@ -83,7 +86,7 @@ export default function SearchBox({
 
   const handleOnChangeRadioButton = (
     event: React.ChangeEvent<HTMLInputElement>,
-    value: "location" | "keyword"
+    value: "location" | "keyword",
   ) => {
     setSearchType(value);
     setLocationResult({
@@ -121,7 +124,7 @@ export default function SearchBox({
               <InputAdornment position="end">
                 <IconButton
                   aria-label={t(
-                    "search:form.keywords.clear_field_action_a11y_label"
+                    "search:form.keywords.clear_field_action_a11y_label",
                   )}
                   onClick={() => {
                     setQueryName("");
@@ -152,7 +155,7 @@ export default function SearchBox({
               (event, value) =>
                 handleOnChangeRadioButton(
                   event,
-                  value as "location" | "keyword"
+                  value as "location" | "keyword",
                 ) // coercion due material-ui has this type as unknown
             }
             value={searchType}

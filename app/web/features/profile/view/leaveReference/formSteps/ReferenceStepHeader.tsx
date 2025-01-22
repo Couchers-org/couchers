@@ -45,18 +45,18 @@ export default function ReferenceStepHeader({
         {isSubmitStep
           ? t("profile:leave_reference.reference_submit_heading")
           : referenceType ===
-            referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-          ? t("profile:leave_reference.reference_form_heading_friend", {
-              name,
-            })
-          : referenceType ===
-            referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
-          ? t("profile:leave_reference.reference_form_heading_surfed", {
-              name,
-            })
-          : t("profile:leave_reference.reference_form_heading_hosted", {
-              name,
-            })}
+              referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+            ? t("profile:leave_reference.reference_form_heading_friend", {
+                name,
+              })
+            : referenceType ===
+                referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
+              ? t("profile:leave_reference.reference_form_heading_surfed", {
+                  name,
+                })
+              : t("profile:leave_reference.reference_form_heading_hosted", {
+                  name,
+                })}
       </Typography>
     </div>
   );

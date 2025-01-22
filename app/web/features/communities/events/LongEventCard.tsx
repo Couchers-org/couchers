@@ -105,56 +105,55 @@ const LongEventCard = ({
 
   return (
     <Card className={classes.root} data-testid="event-item">
-      <Link href={routeToEvent(event.eventId, event.slug)}>
-        <a className={classes.card}>
-          <CardMedia
-            className={classes.cardMedia}
-            component="img"
-            image={event.photoUrl || eventImagePlaceholderUrl}
-          />
-          <CardContent className={classes.cardContent}>
-            <div className={classes.row}>
-              <Tooltip title={event.title}>
-                <Typography variant="h3" className={classes.title}>
-                  {event.title}
-                </Typography>
-              </Tooltip>
-              <div className={classes.tags}>
-                {isCreatedByMe && (
-                  <Pill variant="rounded">
-                    {t("communities:created_by_me")}
-                  </Pill>
-                )}
-                {isOnline && (
-                  <Pill variant="rounded">{t("communities:online")}</Pill>
-                )}
-                {isCancelled && (
-                  <Pill
-                    backgroundColor={theme.palette.error.main}
-                    color={theme.palette.common.white}
-                    variant="rounded"
-                  >
-                    {t("communities:cancelled")}
-                  </Pill>
-                )}
-              </div>
+      <Link
+        href={routeToEvent(event.eventId, event.slug)}
+        className={classes.card}
+      >
+        <CardMedia
+          className={classes.cardMedia}
+          component="img"
+          image={event.photoUrl || eventImagePlaceholderUrl}
+        />
+        <CardContent className={classes.cardContent}>
+          <div className={classes.row}>
+            <Tooltip title={event.title}>
+              <Typography variant="h3" className={classes.title}>
+                {event.title}
+              </Typography>
+            </Tooltip>
+            <div className={classes.tags}>
+              {isCreatedByMe && (
+                <Pill variant="rounded">{t("communities:created_by_me")}</Pill>
+              )}
+              {isOnline && (
+                <Pill variant="rounded">{t("communities:online")}</Pill>
+              )}
+              {isCancelled && (
+                <Pill
+                  backgroundColor={theme.palette.error.main}
+                  color={theme.palette.common.white}
+                  variant="rounded"
+                >
+                  {t("communities:cancelled")}
+                </Pill>
+              )}
             </div>
-            <div className={classes.row}>
-              <div className={classes.eventInfo}>
-                {event.offlineInformation
-                  ? event.offlineInformation.address
-                  : t("communities:virtual_event_location_placeholder")}
+          </div>
+          <div className={classes.row}>
+            <div className={classes.eventInfo}>
+              {event.offlineInformation
+                ? event.offlineInformation.address
+                : t("communities:virtual_event_location_placeholder")}
 
-                <div>{startTime}</div>
-              </div>
-              <div className={classes.attendees}>
-                {t("communities:attendees_count", {
-                  count: event.goingCount + event.maybeCount,
-                })}
-              </div>
+              <div>{startTime}</div>
             </div>
-          </CardContent>
-        </a>
+            <div className={classes.attendees}>
+              {t("communities:attendees_count", {
+                count: event.goingCount + event.maybeCount,
+              })}
+            </div>
+          </div>
+        </CardContent>
       </Link>
     </Card>
   );

@@ -13,11 +13,14 @@ import React from "react";
 import { routeToUser } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
-import { addDefaultUser, MockedService, t } from "test/utils";
+import { addDefaultUser, MockedService } from "test/utils";
 
 import { sectionLabels } from "../constants";
 import UserPage from "./UserPage";
+
+const { t } = i18n;
 
 jest.mock("features/userQueries/useCurrentUser");
 
@@ -75,22 +78,24 @@ describe("User page", () => {
       renderUserPage("funnycat");
 
       expect(
-        await screen.findByRole("heading", { name: "Funny Cat current User" })
+        await screen.findByRole("heading", { name: "Funny Cat current User" }),
       ).toBeVisible();
       expect(
         screen.queryByRole("button", {
           name: t("profile:more_profile_actions_a11y_text"),
-        })
+        }),
       ).not.toBeInTheDocument();
     });
 
     describe("and a tab is opened", () => {
-      it.only("updates the url with the chosen tab value", async () => {
+      it("updates the url with the chosen tab value", async () => {
         renderUserPage("funnycat");
 
         expect(mockRouter.pathname).toBe("/user/funnycat");
 
-        userEvent.click(await screen.findByText(sectionLabels(t).home));
+        const user = userEvent.setup();
+
+        await user.click(await screen.findByText(sectionLabels(t).home));
 
         expect(mockRouter.pathname).toBe("/user/funnycat/home");
 
@@ -99,7 +104,7 @@ describe("User page", () => {
         // Mui introduced support for Next.js AppRouter, but we need to upgrade to Next v13 first for it, that might help
         // https://github.com/mui/material-ui/blob/HEAD/CHANGELOG.old.md#5140
 
-        // userEvent.click(await screen.findByText(sectionLabels(t).about));
+        // await user.click(await screen.findByText(sectionLabels(t).about));
 
         // expect(mockRouter.pathname).toBe("/user/funnycat/about");
       });
@@ -114,7 +119,9 @@ describe("User page", () => {
     it("updates the url with the chosen tab value", async () => {
       expect(mockRouter.pathname).toBe("/user/funnydog");
 
-      userEvent.click(await screen.findByText(sectionLabels(t).home));
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByText(sectionLabels(t).home));
 
       expect(mockRouter.pathname).toBe("/user/funnydog/home");
 
@@ -123,17 +130,18 @@ describe("User page", () => {
       // Mui introduced support for Next.js AppRouter, but we need to upgrade to Next v13 first for it, that might help
       // https://github.com/mui/material-ui/blob/HEAD/CHANGELOG.old.md#5140
 
-      // userEvent.click(await screen.findByText(sectionLabels(t).about));
+      // await user.click(await screen.findByText(sectionLabels(t).about));
 
       // expect(mockRouter.pathname).toBe("/user/funnydog/about");
     });
 
     describe("and the 'report user' option is clicked", () => {
       beforeEach(async () => {
-        userEvent.click(
+        const user = userEvent.setup();
+        await user.click(
           await screen.findByRole("button", {
             name: t("global:report.flag.button_aria_label"),
-          })
+          }),
         );
       });
 
@@ -141,19 +149,21 @@ describe("User page", () => {
         expect(
           await screen.findByRole("heading", {
             name: t("global:report.flag.title"),
-          })
+          }),
         ).toBeVisible();
       });
 
       it("closes the report user dialog if the 'Cancel' button is clicked", async () => {
-        userEvent.click(
-          await screen.findByRole("button", { name: t("global:cancel") })
+        const user = userEvent.setup();
+
+        await user.click(
+          await screen.findByRole("button", { name: t("global:cancel") }),
         );
 
         await waitForElementToBeRemoved(
           screen.getByRole("heading", {
             name: t("global:report.flag.title"),
-          })
+          }),
         );
         expect(screen.queryByRole("presentation")).not.toBeInTheDocument();
       });
@@ -162,21 +172,23 @@ describe("User page", () => {
         const reason = "Dating / Flirting";
         const description = "I feel very uncomfortable around this creepy dog";
 
-        userEvent.selectOptions(
+        const user = userEvent.setup();
+
+        await user.selectOptions(
           await screen.findByLabelText(t("global:report.flag.reason_label")),
-          reason
+          reason,
         );
-        userEvent.type(
+        await user.type(
           screen.getByLabelText(t("global:report.flag.description_label")),
-          description
+          description,
         );
-        userEvent.click(
-          screen.getByRole("button", { name: t("global:submit") })
+        await user.click(
+          screen.getByRole("button", { name: t("global:submit") }),
         );
 
         const successAlert = await screen.findByRole("alert");
         expect(
-          within(successAlert).getByText(t("global:report.flag.success"))
+          within(successAlert).getByText(t("global:report.flag.success")),
         ).toBeVisible();
         expect(reportContentMock).toHaveBeenCalledTimes(1);
         expect(reportContentMock).toHaveBeenCalledWith({
@@ -188,12 +200,14 @@ describe("User page", () => {
       });
 
       it("does not submit the user report if the required fields are not filled in", async () => {
-        userEvent.click(
-          screen.getByRole("button", { name: t("global:submit") })
+        const user = userEvent.setup();
+
+        await user.click(
+          screen.getByRole("button", { name: t("global:submit") }),
         );
 
         expect(
-          await screen.findByText(t("global:report.flag.reason_required"))
+          await screen.findByText(t("global:report.flag.reason_required")),
         ).toBeVisible();
         expect(reportContentMock).not.toHaveBeenCalled();
       });
@@ -204,16 +218,18 @@ describe("User page", () => {
         const reason = "Dating / Flirting";
         const description = " ";
 
-        userEvent.selectOptions(
+        const user = userEvent.setup();
+
+        await user.selectOptions(
           await screen.findByLabelText(t("global:report.flag.reason_label")),
-          reason
+          reason,
         );
-        userEvent.type(
+        await user.type(
           screen.getByLabelText(t("global:report.flag.description_label")),
-          description
+          description,
         );
-        userEvent.click(
-          screen.getByRole("button", { name: t("global:submit") })
+        await user.click(
+          screen.getByRole("button", { name: t("global:submit") }),
         );
 
         const errorAlert = await screen.findByRole("alert");

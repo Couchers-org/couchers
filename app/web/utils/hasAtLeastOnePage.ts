@@ -11,10 +11,10 @@ export type ObjectWithListValue<TData> = {
  * @returns true if there is at least one page of data, false otherwise.
  */
 export default function hasAtLeastOnePage<
-  TData extends ObjectWithListValue<TData>
+  TData extends ObjectWithListValue<TData>,
 >(
   data: InfiniteData<TData> | undefined,
-  listKey: keyof TData & EndsWithList
+  listKey: keyof TData & EndsWithList,
 ): data is InfiniteData<TData> {
   return !!data && data.pages.length > 0 && data.pages[0][listKey].length > 0;
 }

@@ -18,6 +18,7 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { GetGroupChatMessagesRes, GroupChat } from "proto/conversations_pb";
+import { useEffect } from "react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -79,6 +80,21 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
 
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    const scrollIntoView = () => {
+      if (/Firefox/i.test(navigator.userAgent)) {
+        document?.activeElement?.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+
+    scrollIntoView();
+    window.addEventListener("resize", scrollIntoView);
+
+    return () => {
+      window.removeEventListener("resize", scrollIntoView);
+    };
+  }, []);
+
   const { data: groupChat, error: groupChatError } = useQuery<
     GroupChat.AsObject,
     RpcError
@@ -90,7 +106,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
   //for title text
   const currentUserId = useAuthContext().authState.userId!;
   const groupChatMembersQuery = useLiteUsers(
-    groupChat?.memberUserIdsList ?? []
+    groupChat?.memberUserIdsList ?? [],
   );
 
   const {
@@ -109,7 +125,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
       getNextPageParam: (lastPage) =>
         lastPage.noMore ? undefined : lastPage.lastMessageId,
       refetchInterval: GROUP_CHAT_REFETCH_INTERVAL,
-    }
+    },
   );
 
   const sendMutation = useMutation<Empty, RpcError, string>(
@@ -120,7 +136,7 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
         queryClient.invalidateQueries([groupChatsListKey]);
         queryClient.invalidateQueries(groupChatKey(chatId));
       },
-    }
+    },
   );
 
   const { mutate: markLastSeenGroupChat } = useMutation<
@@ -134,11 +150,11 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
       onSuccess: () => {
         queryClient.invalidateQueries(groupChatKey(chatId));
       },
-    }
+    },
   );
   const { markLastSeen } = useMarkLastSeen(
     markLastSeenGroupChat,
-    groupChat?.lastSeenMessageId
+    groupChat?.lastSeenMessageId,
   );
 
   const title = groupChat

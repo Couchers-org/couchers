@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, waitFor } from "@testing-library/react";
 import { service } from "service";
 import liteUsers from "test/fixtures/liteUsers.json";
 import wrapper from "test/hookWrapper";
@@ -77,12 +77,9 @@ describe("when the listFriendRequests succeeds", () => {
   });
 
   it("returns the friend requests sent if 'Sent' is passed to the hook", async () => {
-    const { result, waitForNextUpdate } = renderHook(
-      () => useFriendRequests("sent"),
-      { wrapper }
-    );
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useFriendRequests("sent"), { wrapper });
 
+    await waitFor(() => expect(getLiteUsersMock).toHaveBeenCalledTimes(1));
     expect(result.current).toEqual({
       data: [
         {
@@ -100,12 +97,10 @@ describe("when the listFriendRequests succeeds", () => {
   });
 
   it("returns the friend requests received if 'Received' is passed to the hook", async () => {
-    const { result, waitForNextUpdate } = renderHook(
-      () => useFriendRequests("received"),
-      { wrapper }
-    );
-    await waitForNextUpdate();
-
+    const { result } = renderHook(() => useFriendRequests("received"), {
+      wrapper,
+    });
+    await waitFor(() => expect(getLiteUsersMock).toHaveBeenCalledTimes(1));
     expect(result.current).toEqual({
       data: [
         {
@@ -135,45 +130,46 @@ describe("when the listFriendRequests succeeds", () => {
       sentList: [],
     });
 
-    const {
-      result: receivedRequests,
-      waitForNextUpdate: waitForReceivedFriendRequests,
-    } = renderHook(() => useFriendRequests("received"), {
-      wrapper,
-    });
-    await waitForReceivedFriendRequests();
-    expect(receivedRequests.current).toEqual({
-      data: [],
-      errors: [],
-      isError: false,
-      isLoading: false,
-    });
+    const { result: receivedRequests } = renderHook(
+      () => useFriendRequests("received"),
+      {
+        wrapper,
+      },
+    );
 
-    const {
-      result: sentRequests,
-      waitForNextUpdate: waitForSentFriendRequests,
-    } = renderHook(() => useFriendRequests("sent"), {
-      wrapper,
-    });
-    await waitForSentFriendRequests();
-    expect(sentRequests.current).toEqual({
-      data: [],
-      errors: [],
-      isError: false,
-      isLoading: false,
-    });
+    await waitFor(() =>
+      expect(receivedRequests.current).toEqual({
+        data: [],
+        errors: [],
+        isError: false,
+        isLoading: false,
+      }),
+    );
+
+    const { result: sentRequests } = renderHook(
+      () => useFriendRequests("sent"),
+      {
+        wrapper,
+      },
+    );
+    await waitFor(() =>
+      expect(sentRequests.current).toEqual({
+        data: [],
+        errors: [],
+        isError: false,
+        isLoading: false,
+      }),
+    );
   });
 
   it("returns isError as true with the error if the getLiteUsers query failed", async () => {
     const error = new Error("Error fetching users");
     getLiteUsersMock.mockRejectedValue(error);
 
-    const { result, waitForNextUpdate } = renderHook(
-      () => useFriendRequests("received"),
-      { wrapper }
-    );
-    await waitForNextUpdate();
-
+    const { result } = renderHook(() => useFriendRequests("received"), {
+      wrapper,
+    });
+    await waitFor(() => expect(getLiteUsersMock).toHaveBeenCalledTimes(1));
     expect(result.current).toEqual({
       data: [],
       errors: ["Error fetching users"],
@@ -186,15 +182,14 @@ describe("when the listFriendRequests succeeds", () => {
 describe("when the listFriendRequests query failed", () => {
   it("returns isError as true with the errors and shouldn't try to load liteUsers", async () => {
     listFriendRequestsMock.mockRejectedValue(
-      new Error("Error listing friend requests")
+      new Error("Error listing friend requests"),
     );
     mockConsoleError();
-    const { result, waitForNextUpdate } = renderHook(
-      () => useFriendRequests("sent"),
-      { wrapper }
-    );
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useFriendRequests("sent"), { wrapper });
 
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
     expect(result.current).toEqual({
       data: [],
       errors: ["Error listing friend requests"],

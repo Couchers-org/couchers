@@ -4,9 +4,12 @@ import mockRouter from "next-router-mock";
 import React from "react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { MockedService, t } from "test/utils";
+import i18n from "test/i18n";
+import { MockedService } from "test/utils";
 
 import AdminPanelUserButton from "./AdminPanelUserButton";
+
+const { t } = i18n;
 
 const setErrorMock = jest.fn();
 
@@ -45,7 +48,7 @@ describe("AdminPanelUserButton", () => {
       expect(getAccountInfoMock).toHaveBeenCalledTimes(1);
     });
 
-    const button = screen.getByRole("button", {
+    const button = await screen.findByRole("button", {
       name: t("profile:view_in_admin_console"),
     });
 
@@ -53,7 +56,9 @@ describe("AdminPanelUserButton", () => {
       expect(button).toBeVisible();
     });
 
-    userEvent.click(button);
+    const user = userEvent.setup();
+
+    await user.click(button);
     await waitFor(() => expect(mockRouter.pathname).toBe("/admin/user/test"));
   });
 
@@ -69,7 +74,7 @@ describe("AdminPanelUserButton", () => {
     });
 
     expect(
-      screen.queryByText(t("profile:view_in_admin_console"))
+      screen.queryByText(t("profile:view_in_admin_console")),
     ).not.toBeInTheDocument();
   });
 });

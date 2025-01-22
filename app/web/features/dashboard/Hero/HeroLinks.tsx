@@ -1,7 +1,6 @@
 import {
   Link as MuiLink,
   StyledEngineProvider,
-  Theme,
   ThemeProvider,
   Typography,
 } from "@mui/material";
@@ -15,11 +14,6 @@ import makeStyles from "utils/makeStyles";
 
 import CommunitiesDialog from "../CommunitiesDialog";
 import useHeroBackgroundTheme from "./useHeroBackgroundTheme";
-
-declare module "@mui/styles/defaultTheme" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
 
 const useStyles = makeStyles((theme) => ({
   linksContainer: {
@@ -75,7 +69,7 @@ export default function HeroLinks() {
               variant="body1"
               className={classNames(
                 classes.tabAppearance,
-                classes.selectedTabAppearance
+                classes.selectedTabAppearance,
               )}
             >
               {t("find_a_host")}

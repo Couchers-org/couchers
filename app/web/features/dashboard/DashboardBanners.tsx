@@ -26,7 +26,7 @@ export default function DashboardBanners() {
 
   const { data, error } = useQuery<GetAccountInfoRes.AsObject, RpcError>(
     accountInfoQueryKey,
-    service.account.getAccountInfo
+    service.account.getAccountInfo,
   );
 
   return (
@@ -46,7 +46,7 @@ export default function DashboardBanners() {
                 {t("dashboard:upload_photo")}
               </Typography>
               <Typography variant="inherit" paragraph>
-                <Link href={routeToEditProfile()} passHref>
+                <Link href={routeToEditProfile()} passHref legacyBehavior>
                   <Button component="a" role="link">
                     {t("dashboard:edit_profile_button_text")}
                   </Button>

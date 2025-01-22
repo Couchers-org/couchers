@@ -2,9 +2,12 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert, t } from "test/utils";
+import i18n from "test/i18n";
+import { assertErrorAlert } from "test/utils";
 
 import Login from "./Login";
+
+const { t } = i18n;
 
 const passwordLoginMock = service.user.passwordLogin as jest.MockedFunction<
   typeof service.user.passwordLogin
@@ -18,19 +21,21 @@ it("shows the known gRPC error from the API", async () => {
   });
   render(<Login />, { wrapper });
 
-  userEvent.type(
+  const user = userEvent.setup();
+
+  await user.type(
     await screen.findByLabelText(
-      t("auth:login_page.form.username_field_label")
+      t("auth:login_page.form.username_field_label"),
     ),
-    "invalid"
+    "invalid",
   );
-  userEvent.type(
+  await user.type(
     await screen.findByLabelText(
-      t("auth:login_page.form.password_field_label")
+      t("auth:login_page.form.password_field_label"),
     ),
-    "wrongpwd"
+    "wrongpwd",
   );
-  userEvent.click(screen.getByRole("button", { name: t("global:continue") }));
+  await user.click(screen.getByRole("button", { name: t("global:continue") }));
 
   await assertErrorAlert(errorMessage);
 });
@@ -41,19 +46,21 @@ it("shows the fatal error message for unknown errors", async () => {
   });
   render(<Login />, { wrapper });
 
-  userEvent.type(
+  const user = userEvent.setup();
+
+  await user.type(
     await screen.findByLabelText(
-      t("auth:login_page.form.username_field_label")
+      t("auth:login_page.form.username_field_label"),
     ),
-    "invalid"
+    "invalid",
   );
-  userEvent.type(
+  await user.type(
     await screen.findByLabelText(
-      t("auth:login_page.form.password_field_label")
+      t("auth:login_page.form.password_field_label"),
     ),
-    "wrongpwd"
+    "wrongpwd",
   );
-  userEvent.click(screen.getByRole("button", { name: t("global:continue") }));
+  await user.click(screen.getByRole("button", { name: t("global:continue") }));
 
   await assertErrorAlert(t("global:error.fatal_message"));
 });

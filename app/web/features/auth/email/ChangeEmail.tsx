@@ -50,7 +50,7 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
       onSuccess: () => {
         resetForm();
       },
-    }
+    },
   );
 
   return (
@@ -58,8 +58,13 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
       <Typography variant="h2">{t("auth:change_email_form.title")}</Typography>
       <>
         <Typography variant="body1">
-          <Trans t={t} i18nKey="auth:change_email_form.current_email_message">
-            Your email address is currently <strong>{{ email }}</strong>.
+          <Trans
+            i18nKey="auth:change_email_form.current_email_message"
+            values={{ email }}
+          >
+            {`Your email address is currently `}
+            <strong>{email}</strong>
+            {`.`}
           </Trans>
         </Typography>
         {changeEmailError && (
@@ -73,15 +78,14 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
         <form className={formClasses.form} onSubmit={onSubmit}>
           <TextField
             id="currentPassword"
-            inputRef={register({ required: true })}
+            {...register("currentPassword", { required: true })}
             label={t("auth:change_email_form.current_password")}
-            name="currentPassword"
             type="password"
             fullWidth={!isMdOrWider}
           />
           <TextField
             id="newEmail"
-            inputRef={register({ required: true })}
+            {...register("newEmail", { required: true })}
             label={t("auth:change_email_form.new_email")}
             name="newEmail"
             fullWidth={!isMdOrWider}

@@ -53,7 +53,7 @@ export default function HostRequestListItem({
   const isHost = authState.userId === hostRequest.hostUserId;
   const { data: currentUser } = useCurrentUser();
   const { data: otherUser, isLoading: isOtherUserLoading } = useLiteUser(
-    isHost ? hostRequest.surferUserId : hostRequest.hostUserId
+    isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
   );
   const isUnread =
     hostRequest.lastSeenMessageId !== hostRequest.latestMessage?.messageId;
@@ -115,7 +115,7 @@ export default function HostRequestListItem({
             </div>
             <Typography component="div" display="inline" variant="h3">
               {`${dayjs(hostRequest.fromDate).format("LL")} - ${dayjs(
-                hostRequest.toDate
+                hostRequest.toDate,
               ).format("LL")}`}
             </Typography>
             <TextBody

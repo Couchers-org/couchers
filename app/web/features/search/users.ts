@@ -126,7 +126,7 @@ const zoomCluster = async (ev: MapLayerMouseEvent) => {
   try {
     const source = map.getSource("clustered-users") as GeoJSONSource;
     const zoom = await source.getClusterExpansionZoom(
-      cluster.properties.cluster_id
+      cluster.properties.cluster_id,
     );
 
     if (zoom !== null && zoom !== undefined) {
@@ -157,7 +157,7 @@ export const filterData = (data: InfiniteData<UserSearchRes.AsObject>) => {
 
 export const addClusteredUsersToMap = (
   map: MaplibreMap,
-  userClickedCallback?: MapClickedCallback
+  userClickedCallback?: MapClickedCallback,
 ) => {
   map.addSource("clustered-users", sources["clustered-users"]);
   addPinImages(map);
@@ -182,7 +182,7 @@ export const addClusteredUsersToMap = (
 export const reRenderUsersOnMap = (
   map: MaplibreMap,
   ids: number[] | null,
-  userClickedCallback?: MapClickedCallback
+  userClickedCallback?: MapClickedCallback,
 ) => {
   //clusters can only be filtered at the source before rendering
   //so we have to remove the layers and sources and re-add

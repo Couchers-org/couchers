@@ -1,12 +1,5 @@
 import { Badge } from "@mui/material";
 import React from "react";
-import makeStyles from "utils/makeStyles";
-
-const useStyles = makeStyles((theme) => ({
-  badge: {
-    right: "-0.8rem",
-  },
-}));
 
 interface NotificationBadgeProps {
   children?: React.ReactNode;
@@ -17,14 +10,8 @@ export default function NotificationBadge({
   children,
   count,
 }: NotificationBadgeProps) {
-  const classes = useStyles();
-
   return (
-    <Badge
-      badgeContent={count}
-      classes={{ badge: classes.badge }}
-      color="primary"
-    >
+    <Badge badgeContent={count} color="primary" sx={{ right: "-0.8rem" }}>
       {children}
     </Badge>
   );

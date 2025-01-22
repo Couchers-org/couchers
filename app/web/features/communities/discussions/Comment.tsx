@@ -3,6 +3,7 @@ import Avatar from "components/Avatar";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Markdown from "components/Markdown";
+import FlagButton from "features/FlagButton";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
@@ -34,6 +35,11 @@ const useStyles = makeStyles((theme) => ({
     gridTemplateRows: "auto",
     padding: theme.spacing(2),
     width: "100%",
+  },
+  buttonsContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   commentContent: {
     "& > * + *": {
@@ -82,7 +88,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
   const { data: user, isLoading: isUserLoading } = useLiteUser(
-    comment.authorUserId
+    comment.authorUserId,
   );
 
   const {
@@ -114,7 +120,13 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
   return (
     <>
       <Card className={classes.commentContainer} data-testid={COMMENT_TEST_ID}>
-        <Avatar user={user} className={classes.avatar} />
+        <div className={classes.buttonsContainer}>
+          <Avatar user={user} className={classes.avatar} />
+          <FlagButton
+            contentRef={`comment/${comment.threadId}`}
+            authorUser={comment.authorUserId}
+          />
+        </div>
         <div className={classes.commentContent}>
           {isUserLoading ? (
             <Skeleton />

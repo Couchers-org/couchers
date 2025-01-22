@@ -37,7 +37,7 @@ export async function setLocation(
   city: string,
   lat: number,
   lng: number,
-  radius: number
+  radius: number,
 ) {
   const req = new SetLocationReq();
   req.setCity(city).setLat(lat).setLng(lng).setRadius(radius);
@@ -54,7 +54,7 @@ export async function setAcceptedCommunityGuidelines(accepted: boolean) {
 
 export async function acknowledgePendingModNote(
   modNoteId: number,
-  acknowledge: boolean
+  acknowledge: boolean,
 ) {
   const req = new AcknowledgePendingModNoteReq();
   req.setNoteId(modNoteId);

@@ -30,7 +30,7 @@ export const layers: Record<string, LayerSpecification> = {
 
 export const addGuidesToMap = (
   map: MaplibreMap,
-  guideClickedCallback?: (ev: MapLayerEventType["click"]) => void
+  guideClickedCallback?: (ev: MapLayerEventType["click"]) => void,
 ) => {
   map.addSource("guides", sources["guides"]);
   map.addLayer(layers["guideLayer"]);

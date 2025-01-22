@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, waitFor } from "@testing-library/react";
 import { userKey } from "features/queryKeys";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import React from "react";
@@ -28,12 +28,9 @@ beforeEach(() => {
 
 describe("while loading", () => {
   it("returns loading with no errors", async () => {
-    const { result, waitForNextUpdate } = renderHook(
-      () => useUserByUsername("funnydog"),
-      {
-        wrapper,
-      }
-    );
+    const { result } = renderHook(() => useUserByUsername("funnydog"), {
+      wrapper,
+    });
 
     expect(result.current).toEqual({
       data: undefined,
@@ -42,7 +39,6 @@ describe("while loading", () => {
       isFetching: true,
       isLoading: true,
     });
-    await waitForNextUpdate();
   });
 });
 
@@ -52,13 +48,10 @@ describe("when user has loaded", () => {
     getUserMock.mockResolvedValueOnce({ userId: 2, username: "funnydog" });
   });
   it("returns the user data with no errors", async () => {
-    const { result, waitFor } = renderHook(
-      () => useUserByUsername("funnydog"),
-      {
-        wrapper,
-      }
-    );
-    await waitFor(() => !result.current.isLoading);
+    const { result } = renderHook(() => useUserByUsername("funnydog"), {
+      wrapper,
+    });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(result.current).toEqual({
       data: users[1],
@@ -74,13 +67,11 @@ describe("when user has loaded", () => {
     mockConsoleError();
     getUserMock.mockRejectedValue(new Error("Error fetching user funnydog"));
 
-    const { result, waitForNextUpdate } = renderHook(
-      () => useUserByUsername("funnydog"),
-      {
-        wrapper,
-      }
-    );
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useUserByUsername("funnydog"), {
+      wrapper,
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(result.current).toMatchObject({
       data: undefined,
@@ -124,27 +115,21 @@ describe("cached data", () => {
   });
 
   it("is invalidated when requested, userid2user map not invalidated", async () => {
-    const { waitForNextUpdate } = renderHook(
-      () => useUserByUsername("funnydog", true),
-      {
-        wrapper: sharedClientWrapper,
-      }
-    );
+    renderHook(() => useUserByUsername("funnydog", true), {
+      wrapper: sharedClientWrapper,
+    });
 
     expect(getUserMock).toBeCalledTimes(1);
-    await waitForNextUpdate();
   });
 
   it("is returned when stale if subsequent refetch queries fail", async () => {
     mockConsoleError();
     getUserMock.mockRejectedValue(new Error("Error fetching user data"));
-    const { result, waitForNextUpdate } = renderHook(
-      () => useUserByUsername("funnydog", true),
-      {
-        wrapper: sharedClientWrapper,
-      }
-    );
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useUserByUsername("funnydog", true), {
+      wrapper: sharedClientWrapper,
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(result.current).toMatchObject({
       data: {

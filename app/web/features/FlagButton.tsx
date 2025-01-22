@@ -67,8 +67,8 @@ export default function FlagButton({
     control,
     handleSubmit,
     register,
-    errors,
     reset: resetForm,
+    formState: { errors },
   } = useForm<ReportInput>();
   const {
     data: report,
@@ -83,12 +83,12 @@ export default function FlagButton({
       onSuccess: () => {
         setIsOpen(false);
       },
-    }
+    },
   );
 
   const handleClose = (
     event: unknown,
-    reason: "backdropClick" | "escapeKeyDown" | "button"
+    reason: "backdropClick" | "escapeKeyDown" | "button",
   ) => {
     if (reason !== "button") return;
     resetForm();
@@ -100,6 +100,10 @@ export default function FlagButton({
     reportContent(data);
   });
 
+  const handleFlagButtonClick = (event: { preventDefault: () => void }) => {
+    event.preventDefault();
+  };
+
   return (
     <>
       {report && (
@@ -107,15 +111,17 @@ export default function FlagButton({
           {t("report.content.success_message")}
         </Snackbar>
       )}
-      <IconButton
-        aria-label={t("report.flag.button_aria_label")}
-        className={className}
-        onClick={() => setIsOpen(true)}
-        color="primary"
-        size="large"
-      >
-        <FlagIcon />
-      </IconButton>
+      <div onClick={handleFlagButtonClick}>
+        <IconButton
+          aria-label={t("report.flag.button_aria_label")}
+          className={className}
+          onClick={() => setIsOpen(true)}
+          color="primary"
+          size="large"
+        >
+          <FlagIcon />
+        </IconButton>
+      </div>
       <Dialog
         aria-labelledby="content-reporter"
         open={isOpen}
@@ -144,15 +150,16 @@ export default function FlagButton({
                   validate: (v) => !!v || t("report.flag.reason_required"),
                 }}
                 name="reason"
-                render={({ onChange, value }) => (
+                render={({ field }) => (
                   <Select
+                    {...field}
                     variant="standard"
                     className={classes.field}
                     native
-                    value={value}
+                    value={field.value}
                     label={t("report.flag.reason_label")}
                     id="content-report-reason"
-                    onChange={(event) => onChange(event.target.value)}
+                    onChange={field.onChange}
                   >
                     {[
                       "",
@@ -180,10 +187,9 @@ export default function FlagButton({
             <TextField
               className={classes.field}
               id="content-report-description"
+              {...register("description")}
               label={t("report.flag.description_label")}
               helperText={t("report.flag.description_helper")}
-              name="description"
-              inputRef={register}
               fullWidth
               multiline
               minRows={4}

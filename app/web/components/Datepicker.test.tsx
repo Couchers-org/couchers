@@ -1,13 +1,15 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@testing-library/user-event";
 import { useTranslation } from "i18n";
 import { useForm } from "react-hook-form";
-import { t } from "test/utils";
+import i18n from "test/i18n";
 import timezoneMock from "timezone-mock";
 import dayjs, { Dayjs } from "utils/dayjs";
 
 import wrapper from "../test/hookWrapper";
 import Datepicker from "./Datepicker";
+
+const { t } = i18n;
 
 jest.mock("@mui/x-date-pickers", () => {
   return {
@@ -61,11 +63,16 @@ describe("DatePicker", () => {
   it("should submit with proper date for clicking", async () => {
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
-    userEvent.click(
-      screen.getByLabelText(t("global:components.datepicker.change_date"))
+
+    const user = userEvent.setup();
+
+    // @TODO(NA) These should be awaited according to the testing-library docs, but timesout now
+    // I think bc old mui-x-datepickers package. Try again once we upgrade MUI to latest version.
+    user.click(
+      screen.getByLabelText(t("global:components.datepicker.change_date")),
     );
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(date?.date).toEqual(dayjs("2021-03-23").date);
@@ -80,9 +87,10 @@ describe("DatePicker", () => {
 
     let date: Dayjs | undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
-    userEvent.click(
-      await screen.findByRole("button", { name: t("global:submit") })
-    );
+
+    const user = userEvent.setup();
+
+    user.click(await screen.findByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(date?.format().split("T")[0]).toBe(undefined);
@@ -97,9 +105,10 @@ describe("DatePicker", () => {
 
     let date: Dayjs | undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
-    userEvent.click(
-      await screen.findByRole("button", { name: t("global:submit") })
-    );
+
+    const user = userEvent.setup();
+
+    user.click(await screen.findByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(date?.format().split("T")[0]).toBe(undefined);
@@ -114,9 +123,10 @@ describe("DatePicker", () => {
 
     let date: Dayjs | undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
-    userEvent.click(
-      await screen.findByRole("button", { name: t("global:submit") })
-    );
+
+    const user = userEvent.setup();
+
+    user.click(await screen.findByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(date?.format().split("T")[0]).toBe(undefined);
@@ -131,9 +141,10 @@ describe("DatePicker", () => {
 
     let date: Dayjs | undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
-    userEvent.click(
-      await screen.findByRole("button", { name: t("global:submit") })
-    );
+
+    const user = userEvent.setup();
+
+    user.click(await screen.findByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(date?.format().split("T")[0]).toBe(undefined);
@@ -148,9 +159,10 @@ describe("DatePicker", () => {
 
     let date: Dayjs | undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
-    userEvent.click(
-      await screen.findByRole("button", { name: t("global:submit") })
-    );
+
+    const user = userEvent.setup();
+
+    user.click(await screen.findByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(date?.format().split("T")[0]).toBe(undefined);
@@ -165,12 +177,18 @@ describe("DatePicker", () => {
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
     const input = screen.getByRole("textbox") as HTMLInputElement;
-    userEvent.type(screen.getByRole("textbox"), "{backspace}");
-    expect(input.value).toBe("20/03/202");
-    userEvent.clear(input);
-    userEvent.type(input, "21032021");
-    expect(input.value).toBe("21/03/2021");
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+
+    await waitFor(() => expect(input).toBeEnabled());
+
+    const user = userEvent.setup();
+
+    user.type(input, "{backspace}");
+
+    await waitFor(() => expect(input).toHaveValue("20/03/202"));
+    user.clear(input);
+    user.type(input, "21032021");
+    await waitFor(() => expect(input).toHaveValue("21/03/2021"));
+    user.click(screen.getByRole("button", { name: t("global:submit") }));
     const expectedDate = "2021-03-21";
     await waitFor(() => {
       expect(date?.format().split("T")[0]).toEqual(expectedDate);
@@ -185,12 +203,17 @@ describe("DatePicker", () => {
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
     const input = screen.getByRole("textbox") as HTMLInputElement;
-    userEvent.type(screen.getByRole("textbox"), "{backspace}");
-    expect(input.value).toBe("03/20/202");
-    userEvent.clear(input);
-    userEvent.type(input, "03212021");
-    expect(input.value).toBe("03/21/2021");
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+
+    await waitFor(() => expect(input).toBeEnabled());
+
+    const user = userEvent.setup();
+
+    user.type(input, "{backspace}");
+    await waitFor(() => expect(input).toHaveValue("03/20/202"));
+    user.clear(input);
+    user.type(input, "03212021");
+    await waitFor(() => expect(input).toHaveValue("03/21/2021"));
+    user.click(screen.getByRole("button", { name: t("global:submit") }));
     const expectedDate = "2021-03-21";
     await waitFor(() => {
       expect(date?.format().split("T")[0]).toEqual(expectedDate);
@@ -205,12 +228,16 @@ describe("DatePicker", () => {
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
     const input = screen.getByRole("textbox") as HTMLInputElement;
-    userEvent.type(screen.getByRole("textbox"), "{backspace}");
-    expect(input.value).toBe("20-03-2");
-    userEvent.clear(input);
-    userEvent.type(input, "21-0321");
-    expect(input.value).toBe("21-03-21");
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await waitFor(() => expect(input).toBeEnabled());
+
+    const user = userEvent.setup();
+
+    user.type(input, "{backspace}");
+    await waitFor(() => expect(input).toHaveValue("20-03-2"));
+    user.clear(input);
+    user.type(input, "21-0321");
+    await waitFor(() => expect(input).toHaveValue("21-03-21"));
+    user.click(screen.getByRole("button", { name: t("global:submit") }));
     const expectedDate = "2021-03-21";
     await waitFor(() => {
       expect(date?.format().split("T")[0]).toEqual(expectedDate);
@@ -225,12 +252,18 @@ describe("DatePicker", () => {
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
 
     const input = screen.getByRole("textbox") as HTMLInputElement;
-    userEvent.type(screen.getByRole("textbox"), "{backspace}");
-    expect(input.value).toBe("2021/03/2");
-    userEvent.clear(input);
-    userEvent.type(input, "20210321");
-    expect(input.value).toBe("2021/03/21");
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await waitFor(() => expect(input).toBeEnabled());
+
+    const user = userEvent.setup();
+
+    // @TODO These need to be updated to await but seems not to work with old mui-x-datepickers
+    user.type(input, "{backspace}");
+
+    await waitFor(() => expect(input).toHaveValue("2021/03/2"));
+    user.clear(input);
+    user.type(input, "20210321");
+    await waitFor(() => expect(input).toHaveValue("2021/03/21"));
+    user.click(screen.getByRole("button", { name: t("global:submit") }));
     const expectedDate = "2021-03-21";
     await waitFor(() => {
       expect(date?.format().split("T")[0]).toEqual(expectedDate);

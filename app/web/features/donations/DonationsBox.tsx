@@ -216,7 +216,7 @@ export default function DonationsBox() {
     control,
     handleSubmit,
     reset: resetForm,
-    errors,
+    formState: { errors },
   } = useForm<DonationFormData>();
 
   const customAmountInput = useRef<HTMLInputElement>(null);
@@ -239,7 +239,7 @@ export default function DonationsBox() {
       const stripe = (await stripePromise)!;
       const session_id = await service.donations.initiateDonation(
         amount,
-        recurring === "monthly"
+        recurring === "monthly",
       );
       // When the customer clicks on the button, redirect them to Checkout.
       const result = await stripe.redirectToCheckout({
@@ -253,7 +253,7 @@ export default function DonationsBox() {
       onSuccess: () => {
         resetForm();
       },
-    }
+    },
   );
 
   const onSubmit = handleSubmit((data) => {
@@ -299,21 +299,22 @@ export default function DonationsBox() {
           {t("donations_box.title")}
         </Typography>
         <Controller
-          id="recurring"
           control={control}
           name="recurring"
           rules={{
             required: t("donations_box.validation_message"),
           }}
           defaultValue="monthly"
-          render={({ onChange, value }) => (
+          render={({ field }) => (
             <FormControl variant="standard" className={classes.formGroup}>
               <RadioGroup
+                {...field}
+                id="recurring"
                 className={classes.donationsBoxRow}
                 aria-label={t("donations_box.recurrence_aria_label")}
                 name="recurring-radio"
-                onChange={(e, value) => onChange(value)}
-                value={value}
+                onChange={(e, value) => field.onChange(value)}
+                value={field.value}
               >
                 <FormControlLabel
                   className={classes.buttonSecondaryRadio}
@@ -344,18 +345,19 @@ export default function DonationsBox() {
           name="amount"
           control={control}
           defaultValue={DONATIONSBOX_VALUES[2]}
-          render={({ onChange, value }) => (
+          render={({ field }) => (
             <div className={classes.donationsBoxRow}>
               <div className={classes.donationsBoxSubRow}>
                 <button
                   type="button"
                   onClick={handleDonationAmountClick({
                     amount: DONATIONSBOX_VALUES[0],
-                    onChange,
+                    onChange: field.onChange,
                   })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[0] && isPredefinedAmount,
+                      field.value === DONATIONSBOX_VALUES[0] &&
+                      isPredefinedAmount,
                   })}
                 >
                   {formatDonationValue(DONATIONSBOX_VALUES[0])}
@@ -364,11 +366,12 @@ export default function DonationsBox() {
                   type="button"
                   onClick={handleDonationAmountClick({
                     amount: DONATIONSBOX_VALUES[1],
-                    onChange,
+                    onChange: field.onChange,
                   })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[1] && isPredefinedAmount,
+                      field.value === DONATIONSBOX_VALUES[1] &&
+                      isPredefinedAmount,
                   })}
                 >
                   {formatDonationValue(DONATIONSBOX_VALUES[1])}
@@ -380,11 +383,12 @@ export default function DonationsBox() {
                   type="button"
                   onClick={handleDonationAmountClick({
                     amount: DONATIONSBOX_VALUES[2],
-                    onChange,
+                    onChange: field.onChange,
                   })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[2] && isPredefinedAmount,
+                      field.value === DONATIONSBOX_VALUES[2] &&
+                      isPredefinedAmount,
                   })}
                 >
                   {formatDonationValue(DONATIONSBOX_VALUES[2])}
@@ -393,11 +397,12 @@ export default function DonationsBox() {
                   type="button"
                   onClick={handleDonationAmountClick({
                     amount: DONATIONSBOX_VALUES[3],
-                    onChange,
+                    onChange: field.onChange,
                   })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[3] && isPredefinedAmount,
+                      field.value === DONATIONSBOX_VALUES[3] &&
+                      isPredefinedAmount,
                   })}
                 >
                   {formatDonationValue(DONATIONSBOX_VALUES[3])}
@@ -409,11 +414,12 @@ export default function DonationsBox() {
                   type="button"
                   onClick={handleDonationAmountClick({
                     amount: DONATIONSBOX_VALUES[4],
-                    onChange,
+                    onChange: field.onChange,
                   })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[4] && isPredefinedAmount,
+                      field.value === DONATIONSBOX_VALUES[4] &&
+                      isPredefinedAmount,
                   })}
                 >
                   {formatDonationValue(DONATIONSBOX_VALUES[4])}
@@ -422,11 +428,12 @@ export default function DonationsBox() {
                   type="button"
                   onClick={handleDonationAmountClick({
                     amount: DONATIONSBOX_VALUES[5],
-                    onChange,
+                    onChange: field.onChange,
                   })}
                   className={classNames(classes.buttonSecondary, {
                     [classes.buttonSecondaryActive]:
-                      value === DONATIONSBOX_VALUES[5] && isPredefinedAmount,
+                      field.value === DONATIONSBOX_VALUES[5] &&
+                      isPredefinedAmount,
                   })}
                 >
                   {formatDonationValue(DONATIONSBOX_VALUES[5])}
@@ -439,25 +446,28 @@ export default function DonationsBox() {
                     type="button"
                     onClick={handleDonationAmountClick({
                       amount: DONATIONSBOX_VALUES[6],
-                      onChange,
+                      onChange: field.onChange,
                     })}
                     className={classNames(classes.buttonSecondary, {
                       [classes.buttonSecondaryActive]:
-                        value === DONATIONSBOX_VALUES[6] && isPredefinedAmount,
+                        field.value === DONATIONSBOX_VALUES[6] &&
+                        isPredefinedAmount,
                     })}
                   >
                     {formatDonationValue(DONATIONSBOX_VALUES[6])}
                   </button>
                   <div className={classes.inputWrapper}>
                     <input
+                      {...field}
+                      value={Number(field.value)}
                       ref={customAmountInput}
                       type="number"
                       min="1"
                       onChange={(e) => {
-                        onChange(
+                        field.onChange(
                           typeof e.target.valueAsNumber === "number"
                             ? e.target.valueAsNumber
-                            : DONATIONSBOX_VALUES[0]
+                            : DONATIONSBOX_VALUES[0],
                         );
                         setisPredefinedAmount(false);
                       }}

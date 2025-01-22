@@ -1,6 +1,6 @@
+import { styled } from "@mui/material";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { Event } from "proto/events_pb";
-import makeStyles from "utils/makeStyles";
 
 import EventCard from "./EventCard";
 import LongEventCard from "./LongEventCard";
@@ -10,47 +10,35 @@ interface EventListProps {
   isVerticalStyle?: boolean;
 }
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-    flexDirection: "column",
+const StyledRoot = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+});
+
+const StyledVerticalStyleContainer = styled("div")(({ theme }) => ({
+  display: "grid",
+
+  [theme.breakpoints.down("sm")]: {
+    gridTemplateColumns: "1fr",
+    gap: theme.spacing(2),
+    padding: theme.spacing(2),
+
+    //break out of page padding
+    left: "50%",
+    marginLeft: "-50vw",
+    marginRight: "-50vw",
+    position: "relative",
+    right: "50%",
+    width: "100vw",
   },
-  eventsContainer: (props: { isVerticalStyle: boolean }) =>
-    props.isVerticalStyle
-      ? {
-          display: "grid",
-
-          [theme.breakpoints.down("sm")]: {
-            gridTemplateColumns: "1fr",
-            gap: theme.spacing(2),
-            padding: theme.spacing(2),
-
-            //break out of page padding
-            left: "50%",
-            marginLeft: "-50vw",
-            marginRight: "-50vw",
-            position: "relative",
-            right: "50%",
-            width: "100vw",
-          },
-          [theme.breakpoints.up("sm")]: {
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gap: theme.spacing(2),
-          },
-          [theme.breakpoints.up("md")]: {
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: theme.spacing(3),
-          },
-        }
-      : {},
-  seeMoreContainer: {
-    display: "flex",
-    justifyContent: "center",
-    marginTop: theme.spacing(4),
-    [theme.breakpoints.down("md")]: {
-      marginBottom: theme.spacing(4),
-    },
+  [theme.breakpoints.up("sm")]: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, 1fr)",
+    gap: theme.spacing(2),
+  },
+  [theme.breakpoints.up("md")]: {
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: theme.spacing(3),
   },
 }));
 
@@ -60,24 +48,24 @@ const EventsList = ({
   events = DEFAULT_EVENTS,
   isVerticalStyle = false,
 }: EventListProps) => {
-  const classes = useStyles({ isVerticalStyle });
-
   const {
     authState: { userId },
   } = useAuthContext();
 
   return (
-    <div className={classes.root}>
-      <div className={classes.eventsContainer}>
-        {events.map((event) =>
-          isVerticalStyle ? (
+    <StyledRoot>
+      {isVerticalStyle ? (
+        <StyledVerticalStyleContainer>
+          {events.map((event) => (
             <EventCard key={event.eventId} event={event} />
-          ) : (
-            <LongEventCard key={event.eventId} event={event} userId={userId} />
-          )
-        )}
-      </div>
-    </div>
+          ))}
+        </StyledVerticalStyleContainer>
+      ) : (
+        events.map((event) => (
+          <LongEventCard key={event.eventId} event={event} userId={userId} />
+        ))
+      )}
+    </StyledRoot>
   );
 };
 

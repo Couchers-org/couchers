@@ -6,8 +6,8 @@ import TabBar from "components/TabBar";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { EditUserTab, routeToEditProfile, settingsRoute } from "routes";
-import { t } from "test/utils";
 import makeStyles from "utils/makeStyles";
 
 import EditHostingPreference from "./EditHostingPreference";
@@ -54,6 +54,7 @@ export default function EditProfilePage({
 }: {
   tab?: EditUserTab;
 }) {
+  const { t } = useTranslation();
   const classes = useStyles();
   const router = useRouter();
 
@@ -68,7 +69,7 @@ export default function EditProfilePage({
       >
         <PageTitle>{t("profile:heading.edit_profile")}</PageTitle>
         <div className={classes.buttonContainer}>
-          <Link href={settingsRoute} passHref>
+          <Link href={settingsRoute} passHref legacyBehavior>
             <Button component="a" variant="contained" color="primary">
               {t("global:nav.account_settings")}
             </Button>

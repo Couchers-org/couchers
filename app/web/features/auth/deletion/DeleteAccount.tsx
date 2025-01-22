@@ -60,7 +60,7 @@ export default function DeleteAccount({
       onSuccess: () => {
         resetForm();
       },
-    }
+    },
   );
 
   return (
@@ -85,16 +85,17 @@ export default function DeleteAccount({
             <Trans
               t={t}
               i18nKey="auth:delete_account.request.confirm_username_explanation"
+              values={{ username }}
             >
-              Your username is <strong>{{ username }}</strong>, please type it
-              in below to confirm account deletion.
+              {`Your username is `}
+              <strong>{username}</strong>
+              {`, please type it in below to confirm account deletion.`}
             </Trans>
           </Typography>
           <TextField
             id="confirmUsername"
-            inputRef={register({ required: true })}
+            {...register("confirmUsername", { required: true })}
             label={t("auth:delete_account.request.confirm_username_label")}
-            name="confirmUsername"
             fullWidth={!isMdOrWider}
           />
           <Typography variant="subtitle1">
@@ -102,9 +103,8 @@ export default function DeleteAccount({
           </Typography>
           <TextField
             id="reason"
-            inputRef={register()}
+            {...register("reason")}
             label={t("auth:delete_account.request.reason_label")}
-            name="reason"
             minRows={4}
             maxRows={6}
             multiline

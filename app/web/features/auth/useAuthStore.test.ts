@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { StatusCode } from "grpc-web";
 import { usePersistedState } from "platform/usePersistedState";
@@ -29,7 +29,7 @@ describe("usePersistedState hook", () => {
     expect(result.current[0]).toStrictEqual(value);
     expect(localStorage.getItem("key")).toBe(JSON.stringify(value));
     const { result: result2 } = renderHook(() =>
-      usePersistedState("key", { test: "" })
+      usePersistedState("key", { test: "" }),
     );
     expect(result2.current[0]).toStrictEqual(value);
   });
@@ -37,21 +37,21 @@ describe("usePersistedState hook", () => {
   it("saves then loads a value from sessionStorage", () => {
     const value = { test: "session test" };
     const { result } = renderHook(() =>
-      usePersistedState("key", { test: "" }, "sessionStorage")
+      usePersistedState("key", { test: "" }, "sessionStorage"),
     );
     expect(result.current[0]).toStrictEqual({ test: "" });
     act(() => result.current[1](value));
     expect(result.current[0]).toStrictEqual(value);
     expect(sessionStorage.getItem("key")).toBe(JSON.stringify(value));
     const { result: result2 } = renderHook(() =>
-      usePersistedState("key", { test: "" }, "sessionStorage")
+      usePersistedState("key", { test: "" }, "sessionStorage"),
     );
     expect(result2.current[0]).toStrictEqual(value);
   });
 
   it("clears a value", () => {
     const { result } = renderHook(() =>
-      usePersistedState("key", { test: "" }, "sessionStorage")
+      usePersistedState("key", { test: "" }, "sessionStorage"),
     );
     expect(result.current[0]).toStrictEqual({ test: "" });
     act(() => result.current[2]());
@@ -105,7 +105,7 @@ describe("passwordLogin action", () => {
         password: "pass",
         username: "user",
         rememberDevice: true,
-      })
+      }),
     );
     expect(result.current.authState.authenticated).toBe(true);
   });
@@ -121,11 +121,11 @@ describe("passwordLogin action", () => {
         password: "pass",
         username: "user",
         rememberDevice: true,
-      })
+      }),
     );
     expect(result.current.authState.authenticated).toBe(false);
     expect(result.current.authState.error).toBe(
-      "Invalid username or password."
+      "Invalid username or password.",
     );
   });
 });
@@ -141,7 +141,7 @@ describe("firstLogin action", () => {
       result.current.authActions.firstLogin({
         userId: 55,
         jailed: false,
-      })
+      }),
     );
     expect(result.current.authState.error).toBe(null);
     expect(result.current.authState.userId).toBe(55);
@@ -166,7 +166,7 @@ describe("updateSignupState action", () => {
         needFeedback: true,
         needVerifyEmail: true,
         needAcceptCommunityGuidelines: true,
-      })
+      }),
     );
     expect(result.current.authState.error).toBe(null);
     expect(result.current.authState.userId).toBe(null);
@@ -194,7 +194,7 @@ describe("updateSignupState action", () => {
         needFeedback: false,
         needVerifyEmail: false,
         needAcceptCommunityGuidelines: false,
-      })
+      }),
     );
     expect(result.current.authState.error).toBe(null);
     expect(result.current.authState.userId).toBe(51);

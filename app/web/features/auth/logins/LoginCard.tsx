@@ -45,10 +45,10 @@ export default function LoginsPage({
     t: t,
   });
   const createdDisplay = dateTimeFormatter(locale).format(
-    timestamp2Date(session.created!)
+    timestamp2Date(session.created!),
   );
   const expiryDisplay = dateFormatter(locale).format(
-    timestamp2Date(session.expiry!)
+    timestamp2Date(session.expiry!),
   );
   const queryClient = useQueryClient();
 
@@ -64,7 +64,7 @@ export default function LoginsPage({
       onSuccess: () => {
         queryClient.invalidateQueries(activeLoginsKey);
       },
-    }
+    },
   );
 
   return (
@@ -79,28 +79,38 @@ export default function LoginsPage({
         <IconText
           icon={LocationIcon}
           text={
-            <Trans t={t} i18nKey="auth:active_logins.location">
-              Near{" "}
-              <strong>
-                {{ approximate_location: session.approximateLocation }}
-              </strong>
+            <Trans
+              t={t}
+              i18nKey="auth:active_logins.location"
+              values={{ approximate_location: session.approximateLocation }}
+            >
+              {`Near `}
+              <strong>{session.approximateLocation}</strong>
             </Trans>
           }
         />
         <IconText
           icon={ClockIcon}
           text={
-            <Trans t={t} i18nKey="auth:active_logins.last_activity">
-              Last activity{" "}
-              <strong>{{ last_activity_ago: lastSeenDisplay }}</strong>
+            <Trans
+              t={t}
+              i18nKey="auth:active_logins.last_activity"
+              values={{ last_activity_ago: lastSeenDisplay }}
+            >
+              Last activity <strong>{lastSeenDisplay}</strong>
             </Trans>
           }
         />
         <IconText
           icon={CalendarIcon}
           text={
-            <Trans t={t} i18nKey="auth:active_logins.expiry">
-              Expires on <strong>{{ expiry_datetime: expiryDisplay }}</strong>
+            <Trans
+              t={t}
+              i18nKey="auth:active_logins.expiry"
+              values={{ expiry_datetime: expiryDisplay }}
+            >
+              {`Expires on `}
+              <strong>{expiryDisplay}</strong>
             </Trans>
           }
         />

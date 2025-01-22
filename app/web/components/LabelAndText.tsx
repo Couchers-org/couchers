@@ -1,24 +1,18 @@
-import { Typography } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
-import classNames from "classnames";
+import { styled, Typography } from "@mui/material";
+import { theme } from "theme";
 
 import TextBody from "./TextBody";
 
-const useStyles = makeStyles((theme) => ({
-  label: {
-    margin: 0,
-    marginInlineEnd: theme.spacing(1),
-  },
-  root: {
-    display: "flex",
-    marginTop: theme.spacing(0.5),
-    alignItems: "flex-start", // Ensures the label aligns with the top of multi-line text
-  },
-  flexItem: {
-    flex: "1 1 50%",
-    display: "flex",
-    alignItems: "center",
-  },
+const StyledWrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  marginTop: theme.spacing(0.5),
+  alignItems: "flex-start", // Ensures the label aligns with the top of multi-line text
+}));
+
+const StyledFlexItem = styled("div")(({ theme }) => ({
+  flex: "1 1 50%",
+  display: "flex",
+  alignItems: "center",
 }));
 
 export interface LabelAndTextProps {
@@ -27,17 +21,29 @@ export interface LabelAndTextProps {
 }
 
 export default function LabelAndText({ label, text }: LabelAndTextProps) {
-  const classes = useStyles();
-
   return (
-    <div className={classes.root}>
+    <StyledWrapper>
       <Typography
         variant="h3"
-        className={classNames(classes.label, classes.flexItem)}
+        sx={{
+          margin: 0,
+          marginInlineEnd: theme.spacing(1),
+          flex: "1 1 50%",
+          display: "flex",
+          alignItems: "center",
+        }}
       >
         {label}
       </Typography>
-      <TextBody className={classes.flexItem}>{text}</TextBody>
-    </div>
+      {typeof text === "string" ? (
+        <TextBody
+          sx={{ flex: "1 1 50%", display: "flex", alignItems: "center" }}
+        >
+          {text}
+        </TextBody>
+      ) : (
+        <StyledFlexItem>{text}</StyledFlexItem> // AgeAndGenderRenderer is a div not string
+      )}
+    </StyledWrapper>
   );
 }

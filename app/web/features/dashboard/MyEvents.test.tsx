@@ -3,21 +3,22 @@ import {
   screen,
   waitFor,
   waitForElementToBeRemoved,
-  within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { mockIsIntersecting } from "react-intersection-observer/test-utils";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import {
   assertErrorAlert,
   createMatchMedia,
   mockConsoleError,
-  t,
 } from "test/utils";
 
 import MyEvents from "./MyEvents";
+
+const { t } = i18n;
 
 // ListMyEvents by default does not return cancelled events
 const nonCancelledEvents = events.filter((event) => !event.isCancelled);
@@ -41,7 +42,7 @@ describe("My events", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(
-      screen.getByRole("heading", { name: t("dashboard:upcoming_events") })
+      screen.getByRole("heading", { name: t("dashboard:upcoming_events") }),
     ).toBeVisible();
     expect(screen.getAllByRole("link")).toHaveLength(3);
   });
@@ -70,7 +71,7 @@ describe("My events", () => {
 
     await assertErrorAlert(errorMessage);
     expect(
-      screen.queryByText(t("communities:events_empty_state"))
+      screen.queryByText(t("communities:events_empty_state")),
     ).not.toBeInTheDocument();
   });
 
@@ -92,12 +93,12 @@ describe("My events", () => {
       const seeMoreEventsButton = screen.getByRole("button", {
         name: t("communities:see_more_events_label"),
       });
-      userEvent.click(seeMoreEventsButton);
-      await waitForElementToBeRemoved(
-        within(seeMoreEventsButton).getByRole("progressbar")
-      );
 
-      expect(screen.getAllByRole("link")).toHaveLength(3);
+      const user = userEvent.setup();
+
+      await user.click(seeMoreEventsButton);
+
+      expect(await screen.findAllByRole("link")).toHaveLength(3);
       expect(listMyEventsMock).toHaveBeenCalledTimes(2);
 
       const eventCardPerRow = 2;
@@ -136,7 +137,7 @@ describe("My events", () => {
       expect(
         screen.queryByRole("button", {
           name: t("communities:see_more_events_label"),
-        })
+        }),
       ).not.toBeInTheDocument();
 
       // Simulates scrolling horizontally to the end

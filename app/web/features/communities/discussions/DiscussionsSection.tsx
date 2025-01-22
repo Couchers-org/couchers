@@ -48,9 +48,10 @@ export default function DiscussionsSection({
         href={`${routeToCommunity(
           community.communityId,
           community.slug,
-          "discussions"
+          "discussions",
         )}#${composingDiscussionHash}`}
         passHref
+        legacyBehavior
       >
         <Button
           size="small"
@@ -81,9 +82,10 @@ export default function DiscussionsSection({
               href={routeToCommunity(
                 community.communityId,
                 community.slug,
-                "discussions"
+                "discussions",
               )}
               passHref
+              legacyBehavior
             >
               <MuiLink component="a" underline="hover">
                 {t("communities:see_more_discussions_label")}

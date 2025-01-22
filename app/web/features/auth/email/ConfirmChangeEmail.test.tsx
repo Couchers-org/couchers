@@ -5,9 +5,12 @@ import mockRouter from "next-router-mock";
 import { loginRoute } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { MockedService, t } from "test/utils";
+import i18n from "test/i18n";
+import { MockedService } from "test/utils";
 
 import ConfirmChangeEmail from "./ConfirmChangeEmail";
+
+const { t } = i18n;
 
 const confirmChangeEmailMock = service.account
   .confirmChangeEmail as MockedService<
@@ -26,8 +29,8 @@ describe("ConfirmChangeEmail", () => {
 
     expect(
       await screen.findByText(
-        t("auth:change_email_confirmation.change_in_progress")
-      )
+        t("auth:change_email_confirmation.change_in_progress"),
+      ),
     ).toBeVisible();
   });
 
@@ -41,17 +44,19 @@ describe("ConfirmChangeEmail", () => {
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
       expect(successAlert).toHaveTextContent(
-        t("auth:change_email_confirmation.success_message")
+        t("auth:change_email_confirmation.success_message"),
       );
       expect(confirmChangeEmailMock).toHaveBeenCalledTimes(1);
       expect(confirmChangeEmailMock).toHaveBeenLastCalledWith(
-        "Em4iLR3seTtok3n"
+        "Em4iLR3seTtok3n",
       );
     });
 
     it("shows a link that takes you to the login page when clicked", async () => {
-      userEvent.click(
-        await screen.findByRole("link", { name: t("auth:login_prompt") })
+      const user = userEvent.setup();
+
+      await user.click(
+        await screen.findByRole("link", { name: t("auth:login_prompt") }),
       );
 
       expect(mockRouter.pathname).toBe(loginRoute);

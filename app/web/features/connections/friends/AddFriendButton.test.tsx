@@ -4,9 +4,11 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React, { useState } from "react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { t } from "test/utils";
+import i18n from "test/i18n";
 
 import AddFriendButton from "./AddFriendButton";
+
+const { t } = i18n;
 
 const sendFriendRequestMock = service.api.sendFriendRequest as jest.Mock<
   ReturnType<typeof service.api.sendFriendRequest>
@@ -33,7 +35,7 @@ describe("AddFriendButton", () => {
     expect(
       screen.getByRole("button", {
         name: t("connections:add_friend"),
-      })
+      }),
     ).toBeVisible();
   });
 
@@ -42,10 +44,11 @@ describe("AddFriendButton", () => {
     sendFriendRequestMock.mockImplementation(() => new Promise(() => void 0));
     render(<TestComponent />, { wrapper });
 
-    userEvent.click(
+    const user = userEvent.setup();
+    await user.click(
       screen.getByRole("button", {
         name: t("connections:add_friend"),
-      })
+      }),
     );
     expect(await screen.findByRole("progressbar")).toBeVisible();
   });
@@ -53,11 +56,12 @@ describe("AddFriendButton", () => {
   it("sets no error if the add friend action succeeded", async () => {
     sendFriendRequestMock.mockResolvedValue(new Empty());
     render(<TestComponent />, { wrapper });
+    const user = userEvent.setup();
 
-    userEvent.click(
+    await user.click(
       screen.getByRole("button", {
         name: t("connections:add_friend"),
-      })
+      }),
     );
 
     expect(await screen.findByText(/Success/)).toBeInTheDocument();
@@ -66,17 +70,19 @@ describe("AddFriendButton", () => {
   it("sets an error if the add friend action failed", async () => {
     jest.spyOn(console, "error").mockReturnValue(undefined);
     sendFriendRequestMock.mockRejectedValue(
-      new Error("Failed to add funny dog")
+      new Error("Failed to add funny dog"),
     );
     render(<TestComponent />, { wrapper });
 
-    userEvent.click(
+    const user = userEvent.setup();
+
+    await user.click(
       screen.getByRole("button", {
         name: t("connections:add_friend"),
-      })
+      }),
     );
     expect(
-      await screen.findByText("Failed to add funny dog")
+      await screen.findByText("Failed to add funny dog"),
     ).toBeInTheDocument();
   });
 });

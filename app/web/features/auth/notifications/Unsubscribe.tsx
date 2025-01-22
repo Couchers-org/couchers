@@ -35,7 +35,7 @@ export default function Unsubscribe() {
         throw Error(t("auth:unsubscribe.missing_payload_or_sig"));
       }
       return await service.auth.unsubscribe(payload, sig);
-    }
+    },
   );
 
   return (

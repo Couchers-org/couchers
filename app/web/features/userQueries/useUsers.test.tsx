@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { userKey } from "features/queryKeys";
 import useUsers, { useUser } from "features/userQueries/useUsers";
 import React, { useState } from "react";
@@ -28,7 +28,7 @@ beforeEach(() => {
 
 describe("while queries are loading", () => {
   it("returns loading with no errors", async () => {
-    const { result, waitFor } = renderHook(() => useUsers([1, 2, 3]), {
+    const { result } = renderHook(() => useUsers([1, 2, 3]), {
       wrapper,
     });
 
@@ -40,16 +40,16 @@ describe("while queries are loading", () => {
       isLoading: true,
       isRefetching: false,
     });
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
   });
 });
 
 describe("useUser (singular)", () => {
   it("works", async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useUser(1), {
+    const { result } = renderHook(() => useUser(1), {
       wrapper,
     });
-    await waitForNextUpdate();
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(getUserMock).toHaveBeenCalledTimes(1);
     expect(result.current).toEqual({
@@ -62,7 +62,7 @@ describe("useUser (singular)", () => {
   });
 
   it("returns undefined when given undefined userId", async () => {
-    const { result, waitFor } = renderHook(() => useUser(undefined), {
+    const { result } = renderHook(() => useUser(undefined), {
       wrapper,
     });
     await waitFor(() => !result.current.isLoading);
@@ -80,7 +80,7 @@ describe("useUser (singular)", () => {
 
 describe("when useUsers has loaded", () => {
   it("omits falsey user id", async () => {
-    const { result, waitFor } = renderHook(() => useUsers([0, undefined]), {
+    const { result } = renderHook(() => useUsers([0, undefined]), {
       wrapper,
     });
     await waitFor(() => !result.current.isLoading);
@@ -96,13 +96,11 @@ describe("when useUsers has loaded", () => {
   });
 
   it("returns the user data with no errors if all queries succeed", async () => {
-    const { result, waitForNextUpdate } = renderHook(
-      () => useUsers([1, 2, 3]),
-      {
-        wrapper,
-      }
-    );
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useUsers([1, 2, 3]), {
+      wrapper,
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(getUserMock).toHaveBeenCalledTimes(3);
     expect(result.current).toEqual({
@@ -127,13 +125,11 @@ describe("when useUsers has loaded", () => {
         : getUser(userId);
     });
 
-    const { result, waitForNextUpdate } = renderHook(
-      () => useUsers([1, 2, 3]),
-      {
-        wrapper,
-      }
-    );
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useUsers([1, 2, 3]), {
+      wrapper,
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(result.current).toMatchObject({
       data: new Map([
@@ -152,13 +148,10 @@ describe("when useUsers has loaded", () => {
     mockConsoleError();
     getUserMock.mockRejectedValue(new Error("Error fetching user data"));
 
-    const { result, waitForNextUpdate } = renderHook(
-      () => useUsers([1, 2, 3]),
-      {
-        wrapper,
-      }
-    );
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useUsers([1, 2, 3]), {
+      wrapper,
+    });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(result.current).toMatchObject({
       data: new Map([
@@ -202,24 +195,21 @@ describe("cached data", () => {
   });
 
   it("is invalidated when requested", async () => {
-    const { waitForNextUpdate } = renderHook(() => useUsers([1, 2, 3], true), {
+    renderHook(() => useUsers([1, 2, 3], true), {
       wrapper: sharedClientWrapper,
     });
 
     expect(getUserMock).toBeCalledTimes(3);
-    await waitForNextUpdate();
   });
 
   it("is returned when stale if subsequent refetch queries fail", async () => {
     mockConsoleError();
     getUserMock.mockRejectedValue(new Error("Error fetching user data"));
-    const { result, waitForNextUpdate } = renderHook(
-      () => useUsers([1, 2, 3], true),
-      {
-        wrapper: sharedClientWrapper,
-      }
-    );
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useUsers([1, 2, 3], true), {
+      wrapper: sharedClientWrapper,
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(result.current).toMatchObject({
       data: new Map([
@@ -239,36 +229,35 @@ describe("cached data", () => {
   });
 
   it("is only invalidated on first render with invalidate=true", async () => {
-    const { waitForNextUpdate, rerender } = renderHook(
-      () => useUsers([1, 2, 3], true),
-      {
-        wrapper: sharedClientWrapper,
-      }
-    );
+    const { rerender } = renderHook(() => useUsers([1, 2, 3], true), {
+      wrapper: sharedClientWrapper,
+    });
     expect(
       sharedClient
         .getQueryCache()
         .getAll()
-        .every((query) => query.state.isInvalidated)
+        .every((query) => query.state.isInvalidated),
     ).toBe(true);
-    await waitForNextUpdate();
+
+    await waitFor(() => expect(getUserMock).toHaveBeenCalledTimes(3));
+
     expect(
       sharedClient
         .getQueryCache()
         .getAll()
-        .every((query) => query.state.isInvalidated)
+        .every((query) => query.state.isInvalidated),
     ).toBe(false);
     rerender();
     expect(
       sharedClient
         .getQueryCache()
         .getAll()
-        .every((query) => query.state.isInvalidated)
+        .every((query) => query.state.isInvalidated),
     ).toBe(false);
   });
 
   it("is invalidated with invalidate=true on id change", async () => {
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => {
         const [ids, setIds] = useState([1, 2, 3]);
         const users = useUsers(ids, true);
@@ -276,31 +265,33 @@ describe("cached data", () => {
       },
       {
         wrapper: sharedClientWrapper,
-      }
+      },
     );
     expect(
       sharedClient
         .getQueryCache()
         .getAll()
-        .every((query) => query.state.isInvalidated)
+        .every((query) => query.state.isInvalidated),
     ).toBe(true);
-    await waitForNextUpdate();
+
+    await waitFor(() => expect(getUserMock).toHaveBeenCalledTimes(3));
+
     expect(
       sharedClient
         .getQueryCache()
         .getAll()
-        .every((query) => query.state.isInvalidated)
+        .every((query) => query.state.isInvalidated),
     ).toBe(false);
     getUserMock.mockClear();
     act(() => result.current.setIds([1, 2]));
     //testing for query.state.isInvalidated doesn't work here
     //probably await act(... waits too long
+
     expect(getUserMock).toBeCalledTimes(2);
-    await waitForNextUpdate();
   });
 
   it("returns isRefetching as true when new IDs are being added", async () => {
-    const { result, waitForNextUpdate } = renderHook(
+    const { result } = renderHook(
       () => {
         const [ids, setIds] = useState([1, 2, 3]);
         const users = useUsers(ids);
@@ -308,18 +299,16 @@ describe("cached data", () => {
       },
       {
         wrapper: sharedClientWrapper,
-      }
+      },
     );
 
     act(() => result.current.setIds([1, 2, 3, 4]));
-    // act waits too long so have to inspect the hook's render result
-    // history to see `isRefetching` has one point become true
-    expect(result.all[1]).toMatchObject({
+
+    expect(result.current).toMatchObject({
       users: expect.objectContaining({
         isRefetching: true,
       }),
     });
     expect(getUserMock).toHaveBeenCalledTimes(1);
-    await waitForNextUpdate();
   });
 });

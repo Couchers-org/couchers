@@ -1,7 +1,7 @@
 import TextField from "@mui/material/TextField";
 import { DatePicker, PickersDay } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
-import { Control, Controller, UseControllerOptions } from "react-hook-form";
+import { Control, Controller, UseControllerProps } from "react-hook-form";
 import { theme } from "theme";
 import dayjs, { Dayjs } from "utils/dayjs";
 
@@ -15,22 +15,23 @@ const getLocaleFormat = () => {
 
 interface DatepickerProps {
   className?: string;
-  control: Control;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<any>;
   defaultValue?: Dayjs | null;
   error: boolean;
   helperText: React.ReactNode;
   id: string;
-  rules?: UseControllerOptions["rules"];
+  rules?: UseControllerProps["rules"];
   label?: string;
   name: string;
   minDate?: Dayjs;
   maxDate?: Dayjs;
   openTo?: "year" | "month" | "day";
-  onPostChange?(date: Dayjs): void;
+  onPostChange?(date: Dayjs | null): void;
   testId?: string;
 }
 
-export default function Datepicker({
+const Datepicker = ({
   className,
   control,
   defaultValue,
@@ -45,7 +46,7 @@ export default function Datepicker({
   openTo = "day",
   onPostChange,
   testId,
-}: DatepickerProps) {
+}: DatepickerProps) => {
   const { t } = useTranslation();
   return (
     <Controller
@@ -53,26 +54,27 @@ export default function Datepicker({
       defaultValue={defaultValue}
       name={name}
       rules={rules}
-      render={({ value, onChange }) => (
+      render={({ field }) => (
         <DatePicker
           data-testid={testId}
+          {...field}
           label={label}
-          value={value}
+          value={field.value}
           minDate={minDate}
           maxDate={maxDate}
           onChange={(date) => {
-            if (date?.isValid()) {
-              onChange(date);
-              onPostChange?.(date);
-            }
+            field.onChange(date);
+            onPostChange?.(date);
           }}
           openTo={openTo}
           views={["year", "month", "day"]}
           inputFormat={getLocaleFormat()}
           renderDay={(day, selectedDates, pickersDayProps) => {
+            const { key, ...otherProps } = pickersDayProps;
             return (
               <PickersDay
-                {...pickersDayProps}
+                key={key} // Pass key explicitly to make React happy
+                {...otherProps}
                 style={{
                   ...(pickersDayProps.selected && {
                     backgroundColor: theme.palette.primary.main, // make selected day our primary color
@@ -87,7 +89,9 @@ export default function Datepicker({
               fullWidth
               id={id}
               error={error}
-              helperText={helperText}
+              helperText={
+                <span data-testid={`${name}-helper-text`}>{helperText}</span>
+              }
               data-testid={testId}
               InputLabelProps={{
                 shrink: true,
@@ -104,4 +108,6 @@ export default function Datepicker({
       )}
     />
   );
-}
+};
+
+export default Datepicker;

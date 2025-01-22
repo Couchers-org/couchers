@@ -28,19 +28,18 @@ export default function NavButton({
       : router.asPath.includes(route);
 
   return (
-    <Link href={route}>
-      <a
-        className={classNames(classes.link, {
-          [classes.notification]: !!notificationCount,
-          [classes.selected]: isActive,
-        })}
-      >
-        <NotificationBadge count={notificationCount}>
-          <Typography variant={labelVariant} className={classes.label} noWrap>
-            {label}
-          </Typography>
-        </NotificationBadge>
-      </a>
+    <Link
+      href={route}
+      className={classNames(classes.link, {
+        [classes.notification]: !!notificationCount,
+        [classes.selected]: isActive,
+      })}
+    >
+      <NotificationBadge count={notificationCount}>
+        <Typography variant={labelVariant} className={classes.label} noWrap>
+          {label}
+        </Typography>
+      </NotificationBadge>
     </Link>
   );
 }

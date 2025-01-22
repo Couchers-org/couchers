@@ -60,7 +60,7 @@ export default function LoginsPage() {
       onSuccess: () => {
         queryClient.invalidateQueries(activeLoginsKey);
       },
-    }
+    },
   );
 
   return (

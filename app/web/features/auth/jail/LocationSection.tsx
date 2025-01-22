@@ -68,18 +68,19 @@ export default function LocationSection({
         <Controller
           name="location"
           control={control}
-          render={({ onChange }) => (
+          render={({ field }) => (
             <EditLocationMap
+              {...field}
               updateLocation={(location) => {
                 if (location) {
-                  onChange({
+                  field.onChange({
                     address: location.address,
                     lat: location.lat,
                     lng: location.lng,
                     radius: location.radius,
                   });
                 } else {
-                  onChange({
+                  field.onChange({
                     address: "",
                   });
                 }

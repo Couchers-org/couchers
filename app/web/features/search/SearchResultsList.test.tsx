@@ -6,10 +6,13 @@ import { InfiniteData } from "react-query";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
-import { assertErrorAlert, MockedService, t } from "test/utils";
+import i18n from "test/i18n";
+import { assertErrorAlert, MockedService } from "test/utils";
 import { firstName } from "utils/names";
 
 import SearchResultsList from "./SearchResultsList";
+
+const { t } = i18n;
 
 const mockHandleResultClick = jest.fn();
 
@@ -70,7 +73,7 @@ describe("SearchResultsList", () => {
           setQueryName={() => {}}
           queryName={"test query"}
         />,
-        { wrapper }
+        { wrapper },
       );
     });
 
@@ -102,7 +105,7 @@ describe("SearchResultsList", () => {
           setQueryName={() => {}}
           queryName={"test query"}
         />,
-        { wrapper }
+        { wrapper },
       );
     });
 
@@ -116,8 +119,9 @@ describe("SearchResultsList", () => {
           name: firstName(users[0].name),
         }),
       });
+      const user = userEvent.setup();
 
-      userEvent.click(card);
+      await user.click(card);
 
       await waitFor(() => {
         expect(mockHandleResultClick).toBeCalledTimes(1);

@@ -7,7 +7,10 @@ import { routeToCreateMessage, routeToGroupChat } from "routes";
 import { service } from "service";
 import users from "test/fixtures/users.json";
 import wrapper from "test/hookWrapper";
-import { MockedService, t } from "test/utils";
+import i18n from "test/i18n";
+import { MockedService } from "test/utils";
+
+const { t } = i18n;
 
 const setErrorMock = jest.fn();
 const getDirectMessageMock = service.conversations
@@ -44,10 +47,13 @@ describe("MessageUserButton", () => {
   it("redirects to thread if dm exists", async () => {
     getAccountInfoMock.mockResolvedValue(accountInfo);
     getDirectMessageMock.mockResolvedValueOnce(99);
-    const user = users[0];
-    render(<MessageUserButton user={user} setMutationError={setErrorMock} />, {
-      wrapper,
-    });
+    const mockUser = users[0];
+    render(
+      <MessageUserButton user={mockUser} setMutationError={setErrorMock} />,
+      {
+        wrapper,
+      },
+    );
 
     const button = screen.getByRole("button");
 
@@ -55,7 +61,9 @@ describe("MessageUserButton", () => {
       expect(button).toBeEnabled();
     });
 
-    userEvent.click(button);
+    const user = userEvent.setup();
+
+    await user.click(button);
 
     await waitFor(() => expect(mockRouter.pathname).toBe(routeToGroupChat(99)));
   });
@@ -63,10 +71,13 @@ describe("MessageUserButton", () => {
   it("redirects to chat tab with state if dm doesn't exist", async () => {
     getAccountInfoMock.mockResolvedValue(accountInfo);
     getDirectMessageMock.mockResolvedValueOnce(false);
-    const user = users[0];
-    render(<MessageUserButton user={user} setMutationError={setErrorMock} />, {
-      wrapper,
-    });
+    const mockUser = users[0];
+    render(
+      <MessageUserButton user={mockUser} setMutationError={setErrorMock} />,
+      {
+        wrapper,
+      },
+    );
 
     const button = screen.getByRole("button");
 
@@ -74,20 +85,25 @@ describe("MessageUserButton", () => {
       expect(button).toBeEnabled();
     });
 
-    userEvent.click(button);
+    const user = userEvent.setup();
+
+    await user.click(button);
 
     await waitFor(() =>
-      expect(mockRouter.asPath).toBe(routeToCreateMessage(user.username))
+      expect(mockRouter.asPath).toBe(routeToCreateMessage(mockUser.username)),
     );
   });
 
   it("pops up incomplete profile note if profile is incomplete", async () => {
     getAccountInfoMock.mockResolvedValue(incompleteAccountInfo);
     getDirectMessageMock.mockResolvedValueOnce(false);
-    const user = users[0];
-    render(<MessageUserButton user={user} setMutationError={setErrorMock} />, {
-      wrapper,
-    });
+    const mockUser = users[0];
+    render(
+      <MessageUserButton user={mockUser} setMutationError={setErrorMock} />,
+      {
+        wrapper,
+      },
+    );
 
     const button = screen.getByRole("button");
 
@@ -95,14 +111,16 @@ describe("MessageUserButton", () => {
       expect(button).toBeEnabled();
     });
 
-    userEvent.click(button);
+    const user = userEvent.setup();
+
+    await user.click(button);
 
     await waitFor(async () =>
       expect(
         await screen.findByLabelText(
-          t("dashboard:complete_profile_dialog.title")
-        )
-      ).toBeVisible()
+          t("dashboard:complete_profile_dialog.title"),
+        ),
+      ).toBeVisible(),
     );
   });
 });

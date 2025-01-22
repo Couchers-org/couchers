@@ -69,9 +69,11 @@ export default function CommunityGuidelines({
     queryFn: () => service.resources.getCommunityGuidelines(),
   });
 
-  const { control, handleSubmit, errors, formState } = useForm({
+  const { control, handleSubmit, formState } = useForm({
     mode: "onChange",
   });
+
+  const { errors } = formState;
 
   const submit = handleSubmit(async () => {
     try {
@@ -95,9 +97,15 @@ export default function CommunityGuidelines({
     throw loadError;
   }
 
-  return isLoading ? (
-    <CenteredSpinner />
-  ) : data ? (
+  if (isLoading) {
+    return <CenteredSpinner />;
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return (
     <>
       <form onSubmit={submit} className={className}>
         {title && (
@@ -126,30 +134,31 @@ export default function CommunityGuidelines({
                     defaultValue={false}
                     rules={{
                       required: t(
-                        "auth:community_guidelines_form.guideline.required_error"
+                        "auth:community_guidelines_form.guideline.required_error",
                       ),
                     }}
-                    render={({ onChange, value }) => (
+                    render={({ field }) => (
                       <FormControl variant="standard">
                         <FormControlLabel
                           label={
                             <Typography variant="body1">
                               {t(
-                                "auth:community_guidelines_form.guideline.checkbox_label"
+                                "auth:community_guidelines_form.guideline.checkbox_label",
                               )}
                             </Typography>
                           }
                           control={
                             <Checkbox
-                              checked={value}
-                              onChange={(_, checked) => onChange(checked)}
+                              {...field}
+                              checked={field.value}
+                              onChange={(_, checked) => field.onChange(checked)}
                             />
                           }
                         />
 
                         {errors?.[`ok${index}`]?.message && (
                           <FormHelperText error={true}>
-                            {errors[`ok${index}`].message}
+                            {String(errors[`ok${index}`]?.message)}
                           </FormHelperText>
                         )}
                       </FormControl>
@@ -157,7 +166,7 @@ export default function CommunityGuidelines({
                   />
                 </div>
               </React.Fragment>
-            )
+            ),
           )}
         </div>
 
@@ -170,5 +179,5 @@ export default function CommunityGuidelines({
         </Button>
       </form>
     </>
-  ) : null;
+  );
 }

@@ -1,11 +1,4 @@
-import {
-  act,
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-  within,
-} from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MARK_LAST_SEEN_TIMEOUT } from "features/messages/constants";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
@@ -18,17 +11,19 @@ import {
 import { service } from "service";
 import messageData from "test/fixtures/messages.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getGroupChatMessages, getLiteUser } from "test/serviceMockDefaults";
 import {
   addDefaultUser,
   assertErrorAlert,
   mockConsoleError,
   MockedService,
-  t,
   wait,
 } from "test/utils";
 
 import { GROUP_CHAT_REFETCH_INTERVAL } from "./constants";
+
+const { t } = i18n;
 
 const getGroupChatMock = service.conversations.getGroupChat as MockedService<
   typeof service.conversations.getGroupChat
@@ -85,10 +80,6 @@ const sendMessageMock = service.conversations.sendMessage as MockedService<
 // const leaveGroupChatMock = service.conversations
 //   .leaveGroupChat as MockedService<typeof service.conversations.leaveGroupChat>;
 
-beforeEach(() => {
-  addDefaultUser();
-});
-
 function renderGroupChatView() {
   const { client, wrapper } = getHookWrapperWithClient();
   render(<GroupChatView chatId={1} />, { wrapper });
@@ -98,6 +89,8 @@ function renderGroupChatView() {
 
 describe("GroupChatView", () => {
   beforeEach(() => {
+    addDefaultUser();
+
     getGroupChatMock.mockResolvedValue(baseGroupChatMockResponse);
     getGroupChatMessagesMock.mockImplementation(getGroupChatMessages);
     getLiteUserMock.mockImplementation(getLiteUser);
@@ -105,15 +98,19 @@ describe("GroupChatView", () => {
     listFriendsMock.mockResolvedValue([1, 2]);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("renders the chat correctly", async () => {
     renderGroupChatView();
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: "Test group chat" })
+      await screen.findByRole("heading", { level: 1, name: "Test group chat" }),
     ).toBeVisible();
 
     const messageElements = within(
-      screen.getByTestId("message-list")
+      screen.getByTestId("message-list"),
     ).getAllByTestId(/message-\d/);
 
     for (let i = 0; i < messageData.length; i++) {
@@ -126,7 +123,7 @@ describe("GroupChatView", () => {
         const user = await getLiteUser(message.authorUserId.toString());
 
         expect(
-          messageElement.getByRole("heading", { name: user?.name })
+          await messageElement.findByRole("heading", { name: user?.name }),
         ).toBeVisible();
         expect(messageElement.getByText(message.text.text)).toBeVisible();
 
@@ -134,7 +131,7 @@ describe("GroupChatView", () => {
         if (user?.avatarUrl !== "") {
           // checks that an image is rendered if an avatar exists
           expect(
-            messageElement.getByRole("img", { name: user?.name })
+            messageElement.getByRole("img", { name: user?.name }),
           ).toBeVisible();
         } else {
           // "Funny Dog" is the only user without an image, so check initials are rendered
@@ -143,7 +140,7 @@ describe("GroupChatView", () => {
       } else if (message.chatCreated) {
         // control message assertions
         expect(
-          messageElement.getByText("Funny created the chat")
+          messageElement.getByText("Funny created the chat"),
         ).toBeVisible();
       }
     }
@@ -300,15 +297,13 @@ describe("GroupChatView", () => {
     renderGroupChatView();
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
 
-    userEvent.type(screen.getByLabelText("Message"), "Sounds good");
-    const sendButton = screen.getByRole("button", { name: t("global:send") });
-    userEvent.click(sendButton);
-    await waitForElementToBeRemoved(
-      within(sendButton).getByRole("progressbar")
-    );
+    const user = userEvent.setup();
 
-    expect(await screen.findByText("Sounds good")).toBeVisible();
-    expect(sendMessageMock).toHaveBeenCalledTimes(1);
+    await user.type(screen.getByLabelText("Message"), "Sounds good");
+    const sendButton = screen.getByRole("button", { name: t("global:send") });
+    await user.click(sendButton);
+
+    await waitFor(() => expect(sendMessageMock).toHaveBeenCalledTimes(1));
     expect(sendMessageMock).toHaveBeenCalledWith(1, "Sounds good");
     expect(getGroupChatMock).toHaveBeenCalledTimes(2);
     expect(getGroupChatMessagesMock).toHaveBeenCalledTimes(2);
@@ -350,12 +345,14 @@ describe("GroupChatView", () => {
     renderGroupChatView();
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
 
-    userEvent.type(screen.getByLabelText("Message"), "Sounds good");
-    userEvent.keyboard("{enter}");
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText("Message"), "Sounds good");
+    await user.keyboard("[Enter]");
 
     expect(sendMessageMock).toHaveBeenCalledTimes(0);
 
-    userEvent.keyboard("{ctrl>}{enter}{/ctrl}");
+    await user.keyboard("[ControlLeft>][Enter][/ControlLeft]");
 
     expect(await screen.findByText("Sounds good")).toBeVisible();
     expect(sendMessageMock).toHaveBeenCalledTimes(1);
@@ -367,9 +364,12 @@ describe("GroupChatView", () => {
   it("persists message draft state in sessionStorage", async () => {
     renderGroupChatView();
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
-    userEvent.type(screen.getByLabelText("Message"), "Not ready to se-");
+
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText("Message"), "Not ready to se-");
     expect(sessionStorage.getItem("messages.1.1")).toEqual(
-      JSON.stringify("Not ready to se-")
+      JSON.stringify("Not ready to se-"),
     );
   });
 
@@ -386,10 +386,10 @@ describe("GroupChatView", () => {
     await screen.findByRole("heading", { level: 1, name: "Test group chat" });
 
     const sendButton = screen.getByRole("button", { name: t("global:send") });
-    userEvent.click(sendButton);
-    await waitForElementToBeRemoved(
-      within(sendButton).getByRole("progressbar")
-    );
+
+    const user = userEvent.setup();
+
+    await user.click(sendButton);
 
     expect(sessionStorage.getItem("messages.1.1")).toBeNull();
   });
@@ -436,14 +436,21 @@ describe("GroupChatView", () => {
       },
     });
 
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
     screen
       .getByRole("button", {
         name: t("messages:chat_view.actions_menu.a11y_label"),
       })
       .click();
-    screen.getByText(t("messages:chat_view.mute.button_label")).click();
-    within(screen.getByRole("dialog"))
+
+    const muteButton = await screen.findByText(
+      t("messages:chat_view.mute.button_label"),
+    );
+
+    const user = userEvent.setup();
+
+    await user.click(muteButton);
+
+    within(await screen.findByRole("dialog"))
       .getByLabelText(t("messages:chat_view.mute.forever_label"))
       .click();
     within(screen.getByRole("dialog"))
@@ -463,13 +470,19 @@ describe("GroupChatView", () => {
     muteChatMock.mockRejectedValue(Error("Can't mute"));
     renderGroupChatView();
 
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
     screen
       .getByRole("button", {
         name: t("messages:chat_view.actions_menu.a11y_label"),
       })
       .click();
-    screen.getByText(t("messages:chat_view.mute.button_label")).click();
+
+    const user = userEvent.setup();
+
+    const muteButton = await screen.findByText(
+      t("messages:chat_view.mute.button_label"),
+    );
+    await user.click(muteButton);
+
     within(screen.getByRole("dialog"))
       .getByLabelText(t("messages:chat_view.mute.forever_label"))
       .click();

@@ -98,49 +98,48 @@ export default function CommunityLongEventCard({
         originalContent: event.content,
         maxLength: isBelowLg ? 120 : 300,
       }),
-    [event.content, isBelowLg]
+    [event.content, isBelowLg],
   );
   const startTime = dayjs(timestamp2Date(event.startTime!));
 
   return (
     <Card className={classes.overviewRoot}>
-      <Link href={routeToEvent(event.eventId, event.slug)}>
-        <a className={classes.overviewContent}>
-          <div className={classes.eventInfoContainer}>
-            <Typography variant="h2">{event.title}</Typography>
-            <Typography
-              className={classes.onlineOrOfflineInfo}
-              color="primary"
-              variant="body1"
-            >
-              {event.offlineInformation
-                ? event.offlineInformation.address
-                : t("communities:online")}
-            </Typography>
-            <div className={classes.eventTimeContainer}>
-              <CalendarIcon className={classes.icon} />
-              <Typography variant="body1">
-                {startTime.format("ll LT")}
-              </Typography>
-            </div>
-            <div className={classes.attendeesCountContainer}>
-              <AttendeesIcon className={classes.icon} />
-              <Typography variant="body1">
-                {t("communities:attendees_count", {
-                  count: event.goingCount + event.maybeCount,
-                })}
-              </Typography>
-            </div>
-          </div>
-          <Typography className={classes.content} variant="body1">
-            {truncatedContent}
+      <Link
+        href={routeToEvent(event.eventId, event.slug)}
+        className={classes.overviewContent}
+      >
+        <div className={classes.eventInfoContainer}>
+          <Typography variant="h2">{event.title}</Typography>
+          <Typography
+            className={classes.onlineOrOfflineInfo}
+            color="primary"
+            variant="body1"
+          >
+            {event.offlineInformation
+              ? event.offlineInformation.address
+              : t("communities:online")}
           </Typography>
-          <img
-            alt=""
-            className={classes.image}
-            src={event.photoUrl || eventImagePlaceholderUrl}
-          />
-        </a>
+          <div className={classes.eventTimeContainer}>
+            <CalendarIcon className={classes.icon} />
+            <Typography variant="body1">{startTime.format("ll LT")}</Typography>
+          </div>
+          <div className={classes.attendeesCountContainer}>
+            <AttendeesIcon className={classes.icon} />
+            <Typography variant="body1">
+              {t("communities:attendees_count", {
+                count: event.goingCount + event.maybeCount,
+              })}
+            </Typography>
+          </div>
+        </div>
+        <Typography className={classes.content} variant="body1">
+          {truncatedContent}
+        </Typography>
+        <img
+          alt=""
+          className={classes.image}
+          src={event.photoUrl || eventImagePlaceholderUrl}
+        />
       </Link>
     </Card>
   );

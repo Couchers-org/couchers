@@ -1,6 +1,7 @@
 import { StyledEngineProvider, ThemeProvider } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { MemoryRouterProvider } from "next-router-mock/MemoryRouterProvider";
 import React, { Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { theme } from "theme";
@@ -25,7 +26,9 @@ export default function hookWrapper({
         <StyledEngineProvider injectFirst>
           <ThemeProvider theme={theme}>
             <QueryClientProvider client={client}>
-              <AuthProvider>{children}</AuthProvider>
+              <MemoryRouterProvider>
+                <AuthProvider>{children}</AuthProvider>
+              </MemoryRouterProvider>
             </QueryClientProvider>
           </ThemeProvider>
         </StyledEngineProvider>
@@ -52,7 +55,9 @@ export function getHookWrapperWithClient() {
         <StyledEngineProvider injectFirst>
           <ThemeProvider theme={theme}>
             <QueryClientProvider client={client}>
-              <AuthProvider>{children}</AuthProvider>
+              <MemoryRouterProvider>
+                <AuthProvider>{children}</AuthProvider>
+              </MemoryRouterProvider>
             </QueryClientProvider>
           </ThemeProvider>
         </StyledEngineProvider>

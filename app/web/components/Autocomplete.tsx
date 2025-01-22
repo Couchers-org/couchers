@@ -2,23 +2,18 @@ import {
   Autocomplete as MuiAutocomplete,
   AutocompleteProps as MuiAutocompleteProps,
 } from "@mui/material";
-import classNames from "classnames";
+import { SignupAccountInputs } from "features/auth/signup/AccountForm";
+import { EditProfileFormValues } from "features/profile/edit/EditProfile";
 import React from "react";
-import makeStyles from "utils/makeStyles";
+import { ControllerRenderProps } from "react-hook-form";
 
 import TextField from "./TextField";
-
-const useStyles = makeStyles({
-  root: {
-    display: "block",
-  },
-});
 
 export type AutocompleteProps<
   T,
   Multiple extends boolean | undefined,
   DisableClearable extends boolean | undefined,
-  FreeSolo extends boolean | undefined
+  FreeSolo extends boolean | undefined,
 > = Omit<
   MuiAutocompleteProps<T, Multiple, DisableClearable, FreeSolo>,
   "renderInput"
@@ -30,13 +25,16 @@ export type AutocompleteProps<
   placeholder?: string;
   helperText?: string;
   variant?: "filled" | "standard" | "outlined" | undefined;
+  inputProps?:
+    | ControllerRenderProps<SignupAccountInputs, "location">
+    | ControllerRenderProps<EditProfileFormValues, "location">;
 };
 
 export default function Autocomplete<
   T,
   Multiple extends boolean | undefined,
   DisableClearable extends boolean | undefined,
-  FreeSolo extends boolean | undefined
+  FreeSolo extends boolean | undefined,
 >({
   className,
   error,
@@ -46,19 +44,21 @@ export default function Autocomplete<
   placeholder,
   variant = "standard",
   endAdornment,
+  inputProps,
+  sx,
   ...otherProps
 }: AutocompleteProps<T, Multiple, DisableClearable, FreeSolo>) {
-  const classes = useStyles();
-
   return (
     <MuiAutocomplete
       {...otherProps}
       options={otherProps.options}
-      className={classNames(classes.root, className)}
+      className={className}
       id={id}
+      sx={{ display: "block", ...sx }}
       renderInput={(params) => (
         <TextField
           {...params}
+          {...inputProps}
           variant={variant}
           error={!!error}
           label={label}

@@ -32,7 +32,7 @@ export default function useCancelFriendRequest() {
         queryClient.invalidateQueries(friendRequestKey("sent"));
         queryClient.invalidateQueries(userKey(userId));
       },
-    }
+    },
   );
 
   return { cancelFriendRequest, isLoading, isSuccess, reset };

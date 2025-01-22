@@ -15,24 +15,24 @@ export function GlobalMessage() {
   // data from the global message file
   const [data, setData] = usePersistedState<GlobalMessageData | null>(
     "globalmessage.data",
-    null
+    null,
   );
   // last time we queried it
   const [lastCheck, setLastCheck] = usePersistedState<number | null>(
     "globalmessage.lastcheck",
-    null
+    null,
   );
   // the epoch value of the last message we dismissed
   const [dismissedEpoch, setDismissedEpoch] = usePersistedState<string | null>(
     "globalmessage.dismissed",
-    null
+    null,
   );
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          process.env.NEXT_PUBLIC_GLOBAL_MESSAGE_URL
+          process.env.NEXT_PUBLIC_GLOBAL_MESSAGE_URL,
         );
 
         if (!response.ok) {

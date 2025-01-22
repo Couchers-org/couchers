@@ -34,3 +34,5 @@ export const DEFAULT_ABOUT_HOME_HEADINGS = `# What I can share with guests
 e.g. I can share...
 <br>
 `;
+
+export const ABOUT_ME_MIN_LENGTH = 150;

@@ -33,7 +33,12 @@ export default function Text({
   const classes = useReferenceStyles();
   const theme = useTheme();
   const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
-  const { control, handleSubmit, errors } = useForm<ReferenceContextFormData>({
+  const {
+    control,
+    handleSubmit,
+
+    formState: { errors },
+  } = useForm<ReferenceContextFormData>({
     defaultValues: {
       text: referenceData.text,
     },
@@ -41,13 +46,17 @@ export default function Text({
 
   const onSubmit = handleSubmit((values) => {
     setReferenceValues(values);
-    referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-      ? router.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[3]}`
-        )
-      : router.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[3]}`
-        );
+    if (
+      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+    ) {
+      router.push(
+        `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[3]}`,
+      );
+    } else {
+      router.push(
+        `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[3]}`,
+      );
+    }
   });
 
   return (
@@ -66,21 +75,21 @@ export default function Text({
       )}
       <div className={classes.card}>
         <Controller
-          render={({ onChange, value }) => (
+          render={({ field }) => (
             <TextField
+              {...field}
               className="multiline"
               fullWidth={true}
               multiline={true}
               minRows={15}
               id="reference-text-input"
-              onChange={(event) => onChange(event.target.value)}
-              value={value}
+              onChange={(event) => field.onChange(event.target.value)}
+              value={field.value}
             />
           )}
           name="text"
           control={control}
           rules={{ required: t("profile:leave_reference.required") }}
-          class={classes.card}
         />
       </div>
       <div className={classes.buttonContainer}>

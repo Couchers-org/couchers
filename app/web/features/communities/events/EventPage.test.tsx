@@ -1,8 +1,4 @@
-import {
-  render,
-  screen,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { AttendanceState } from "proto/events_pb";
@@ -10,16 +6,19 @@ import { eventBaseRoute } from "routes";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
+import i18n from "test/i18n";
 import {
   getEventAttendees,
   getEventOrganizers,
   getThread,
   getUser,
 } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError, t } from "test/utils";
+import { assertErrorAlert, mockConsoleError } from "test/utils";
 import timezoneMock from "timezone-mock";
 
 import EventPage from "./EventPage";
+
+const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 
@@ -73,19 +72,19 @@ describe("Event page", () => {
   it("renders an offline event successfully", async () => {
     renderEventPage();
 
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
     expect(
-      screen.getByRole("heading", { name: firstEvent.title })
+      await screen.findByRole("heading", { name: firstEvent.title }),
     ).toBeVisible();
     expect(
-      screen.getByText(firstEvent.offlineInformation!.address)
+      await screen.findByText(firstEvent.offlineInformation!.address),
     ).toBeVisible();
     expect(
-      screen.getByText("Tuesday, June 29, 2021 2:37 AM to 3:37 AM")
+      await screen.findByText("Tuesday, June 29, 2021 2:37 AM to 3:37 AM"),
     ).toBeVisible();
     // Event image
-    expect(screen.getByRole("img", { name: "" })).toBeVisible();
+
+    const eventImage = await screen.findByTestId("event-cover-photo");
+    expect(eventImage).toBeVisible();
 
     const attendanceMenuButton = screen.getByRole("button", {
       name: t("communities:going_to_event"),
@@ -96,25 +95,25 @@ describe("Event page", () => {
     expect(
       screen.getByRole("heading", {
         name: t("communities:details_subheading_colon"),
-      })
+      }),
     ).toBeVisible();
     expect(screen.getByText("Be there")).toBeVisible();
     expect(screen.getByText("or be square!")).toBeVisible();
 
     // Basic checks that the organizers and attendees sections are rendered
     expect(
-      screen.getByRole("heading", { name: t("communities:organizers") })
+      screen.getByRole("heading", { name: t("communities:organizers") }),
     ).toBeVisible();
     expect(
-      screen.getByRole("heading", { name: t("communities:attendees") })
+      screen.getByRole("heading", { name: t("communities:attendees") }),
     ).toBeVisible();
 
     // Basic checks that the discussion has been rendered
     expect(
-      screen.getByRole("heading", { name: t("communities:event_discussion") })
+      screen.getByRole("heading", { name: t("communities:event_discussion") }),
     ).toBeVisible();
     expect(
-      screen.getByLabelText(t("communities:write_comment_a11y_label"))
+      screen.getByLabelText(t("communities:write_comment_a11y_label")),
     ).toBeVisible();
   });
 
@@ -122,12 +121,12 @@ describe("Event page", () => {
     getEventMock.mockResolvedValue(secondEvent);
     renderEventPage(secondEvent.eventId, secondEvent.slug);
 
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
     // Should be identical in structure as first test, so only assert on things that are different
-    expect(screen.getByText(t("communities:virtual_event"))).toBeVisible();
     expect(
-      screen.getByRole("link", { name: t("communities:event_link") })
+      await screen.findByText(t("communities:virtual_event")),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: t("communities:event_link") }),
     ).toBeVisible();
   });
 
@@ -135,12 +134,10 @@ describe("Event page", () => {
     getEventMock.mockResolvedValue(thirdEvent);
     renderEventPage(thirdEvent.eventId, thirdEvent.slug);
 
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
     expect(
-      screen.getByText(
-        "Tuesday, June 29, 2021 9:00 PM to Wednesday, June 30, 2021 2:00 AM"
-      )
+      await screen.findByText(
+        "Tuesday, June 29, 2021 9:00 PM to Wednesday, June 30, 2021 2:00 AM",
+      ),
     ).toBeVisible();
   });
 
@@ -150,11 +147,14 @@ describe("Event page", () => {
     renderEventPage();
     await screen.findByRole("heading", { name: events[0].title });
 
-    userEvent.click(
-      screen.getByRole("button", { name: t("communities:previous_page") })
+    const user = userEvent.setup();
+
+    // @TODO should be awaited but doesn't work, try again after more package upgrades
+    user.click(
+      screen.getByRole("button", { name: t("communities:previous_page") }),
     );
 
-    expect(mockRouter.back).toBeCalled();
+    await waitFor(() => expect(mockRouter.back).toBeCalled());
   });
 
   it("shows the 'edit event' button if the user has edit permission", async () => {
@@ -162,23 +162,22 @@ describe("Event page", () => {
     renderEventPage();
 
     expect(
-      await screen.findByRole("link", { name: t("communities:edit_event") })
+      await screen.findByRole("link", { name: t("communities:edit_event") }),
     ).toBeVisible();
   });
 
   it("does not show the 'edit event' button if the user does not have edit permission", async () => {
     renderEventPage();
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(
-      screen.queryByRole("button", { name: t("communities:edit_event") })
+      await screen.queryByRole("button", { name: t("communities:edit_event") }),
     ).not.toBeInTheDocument();
   });
 
   it("shows the not found page if the user tries to find an event with an invalid ID in the URL", async () => {
     renderEventPage(0, "event");
     expect(
-      await screen.findByRole("img", { name: "404 Error: Resource Not Found" })
+      await screen.findByRole("img", { name: "404 Error: Resource Not Found" }),
     ).toBeVisible();
   });
 
@@ -202,22 +201,26 @@ describe("Event page", () => {
         return { ...getEventAttendees(), attendeeUserIdsList: [4] };
       });
       renderEventPage();
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      const attendanceMenuButton = screen.getByRole("button", {
+      const attendanceMenuButton = await screen.findByRole("button", {
         name: t("communities:going_to_event"),
       });
-      userEvent.click(attendanceMenuButton);
-      const leaveEventOption = screen.getByRole("menuitem", {
+
+      const user = userEvent.setup();
+      // @TODO should be awaited but doesn't work, try again after more package upgrades
+      user.click(attendanceMenuButton);
+      const leaveEventOption = await screen.findByRole("menuitem", {
         name: t("communities:not_going_to_event"),
       });
-      userEvent.click(leaveEventOption);
+      user.click(leaveEventOption);
 
       expect(
-        await screen.findByRole("button", { name: t("communities:join_event") })
+        await screen.findByRole("button", {
+          name: t("communities:join_event"),
+        }),
       ).toBeVisible();
       expect(
-        screen.queryByRole("heading", { name: "Funny Cat current User" })
+        screen.queryByRole("heading", { name: "Funny Cat current User" }),
       ).not.toBeInTheDocument();
       expect(setEventAttendanceMock).toHaveBeenCalledTimes(1);
       expect(setEventAttendanceMock).toHaveBeenCalledWith({
@@ -234,16 +237,19 @@ describe("Event page", () => {
       const errorMessage = "Error updating attendance state";
       setEventAttendanceMock.mockRejectedValue(new Error(errorMessage));
       renderEventPage();
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-      const attendanceMenuButton = screen.getByRole("button", {
+      const attendanceMenuButton = await screen.findByRole("button", {
         name: t("communities:going_to_event"),
       });
-      userEvent.click(attendanceMenuButton);
-      const leaveEventOption = screen.getByRole("menuitem", {
+
+      const user = await userEvent.setup();
+
+      //@TODO this should be awaited but doesn't work. Try again after more package upgrades
+      user.click(attendanceMenuButton);
+      const leaveEventOption = await screen.findByRole("menuitem", {
         name: t("communities:not_going_to_event"),
       });
-      userEvent.click(leaveEventOption);
+      user.click(leaveEventOption);
 
       await assertErrorAlert(errorMessage);
     });

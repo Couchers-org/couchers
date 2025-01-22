@@ -124,6 +124,7 @@ Replace the last line (`host all all all scram-sha-256`) of `pg_hba.conf` with:
 
 ```
 hostssl all             +humans         0.0.0.0/0               scram-sha-256
+hostssl all             +humans         ::/0                    scram-sha-256
 host            all     postgres        172.16.0.0/12           scram-sha-256
 
 host all all all reject

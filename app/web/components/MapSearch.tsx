@@ -1,9 +1,11 @@
-import { Box, IconButton } from "@mui/material";
+import { Box, IconButton, styled } from "@mui/material";
 import { AutocompleteChangeReason } from "@mui/material/Autocomplete";
+import { SignupAccountInputs } from "features/auth/signup/AccountForm";
+import { EditProfileFormValues } from "features/profile/edit/EditProfile";
 import { LngLat } from "maplibre-gl";
 import React, { useEffect, useState } from "react";
+import { ControllerRenderProps, FieldError } from "react-hook-form";
 import { useGeocodeQuery } from "utils/hooks";
-import makeStyles from "utils/makeStyles";
 
 import Autocomplete from "./Autocomplete";
 import {
@@ -13,38 +15,34 @@ import {
 } from "./constants";
 import { SearchIcon } from "./Icons";
 
-const useSearchStyles = makeStyles((theme) => ({
-  autocomplete: {
-    flexGrow: 1,
+const StyledBox = styled(Box)(({ theme }) => ({
+  "& *": {
+    opacity: 1,
   },
-  form: {
-    display: "flex",
-    alignItems: "center",
-    width: "100%",
+  "& .MuiAutocomplete-input": {
+    fontSize: "0.75rem",
   },
-  root: {
-    "& *": {
-      opacity: 1,
-    },
-    "& .MuiAutocomplete-input": {
-      fontSize: "0.75rem",
-    },
-    "& .MuiFormHelperText-root": {
-      fontSize: "0.65rem",
-    },
-    "& .MuiInputLabel-root": {
-      fontSize: "0.75rem",
-    },
-    background: theme.palette.background.default,
-    borderRadius: theme.shape.borderRadius * 3,
-    left: 10,
-    opacity: 0.9,
-    padding: theme.spacing(1),
-    position: "absolute",
-    top: 10,
-    width: "70%",
-    zIndex: 1,
+  "& .MuiFormHelperText-root": {
+    fontSize: "0.65rem",
   },
+  "& .MuiInputLabel-root": {
+    fontSize: "0.75rem",
+  },
+  background: theme.palette.background.default,
+  borderRadius: theme.shape.borderRadius * 3,
+  left: 10,
+  opacity: 0.9,
+  padding: theme.spacing(1),
+  position: "absolute",
+  top: 10,
+  width: "70%",
+  zIndex: 1,
+}));
+
+const StyledForm = styled("form")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  width: "100%",
 }));
 
 interface MapSearchProps {
@@ -52,13 +50,20 @@ interface MapSearchProps {
   setResult: (
     lngLat: LngLat,
     address: string,
-    simplifiedAddress: string
+    simplifiedAddress: string,
   ) => void;
+  inputFieldProps?:
+    | ControllerRenderProps<SignupAccountInputs, "location">
+    | ControllerRenderProps<EditProfileFormValues, "location">;
+  inputFieldError?: FieldError;
 }
 
-export default function MapSearch({ setError, setResult }: MapSearchProps) {
-  const classes = useSearchStyles();
-
+export default function MapSearch({
+  setError,
+  setResult,
+  inputFieldProps,
+  inputFieldError,
+}: MapSearchProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const { query, isLoading, results, error } = useGeocodeQuery();
@@ -67,14 +72,14 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
   const searchOptions = isLoading
     ? []
     : results && results.length === 0
-    ? [
-        {
-          location: new LngLat(0, 0),
-          name: NO_LOCATION_RESULTS_TEXT,
-          simplifiedName: "",
-        },
-      ]
-    : results;
+      ? [
+          {
+            location: new LngLat(0, 0),
+            name: NO_LOCATION_RESULTS_TEXT,
+            simplifiedName: "",
+          },
+        ]
+      : results;
 
   useEffect(() => {
     setError(error || "");
@@ -98,20 +103,19 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
       setResult(
         searchOption.location,
         searchOption.name,
-        searchOption.simplifiedName
+        searchOption.simplifiedName,
       );
       setOpen(false);
     }
   };
 
   return (
-    <Box className={classes.root}>
-      <form
+    <StyledBox>
+      <StyledForm
         onSubmit={(e) => {
           e.preventDefault();
           searchSubmit(value, "createOption");
         }}
-        className={classes.form}
       >
         <Autocomplete
           id="map-search"
@@ -122,6 +126,8 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
           loading={isLoading}
           open={open}
           onBlur={() => setOpen(false)}
+          inputProps={inputFieldProps}
+          error={inputFieldError?.message}
           onInputChange={(e, v) => setValue(v)}
           onChange={(e, v, reason) => {
             setValue(v);
@@ -132,7 +138,7 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
           // show all returned results, don't do a filter client side
           filterOptions={(x) => x}
           disableClearable
-          className={classes.autocomplete}
+          sx={{ flexGrow: 1 }}
           getOptionDisabled={(option) => option === NO_LOCATION_RESULTS_TEXT}
           helperText={PRESS_ENTER_TO_SEARCH}
           onKeyDown={(e) => {
@@ -148,7 +154,7 @@ export default function MapSearch({ setError, setResult }: MapSearchProps) {
         >
           <SearchIcon />
         </IconButton>
-      </form>
-    </Box>
+      </StyledForm>
+    </StyledBox>
   );
 }

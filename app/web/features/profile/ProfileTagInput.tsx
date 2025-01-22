@@ -16,6 +16,7 @@ import { CloseIcon, ExpandMoreIcon } from "components/Icons";
 import { Trans, useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import React, { useRef, useState } from "react";
+import { ControllerRenderProps } from "react-hook-form";
 import makeStyles from "utils/makeStyles";
 
 const useStyles = makeStyles((theme) =>
@@ -112,7 +113,7 @@ const useStyles = makeStyles((theme) =>
       display: "grid",
       gridTemplateColumns: "repeat(auto-fit, minmax(auto, 250px))",
     },
-  })
+  }),
 );
 
 interface ProfileTagInputProps {
@@ -123,6 +124,8 @@ interface ProfileTagInputProps {
   id: string;
   allowCsv?: boolean;
   className?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  inputFieldProps?: ControllerRenderProps<any, string>;
 }
 
 export default function ProfileTagInput({
@@ -132,6 +135,7 @@ export default function ProfileTagInput({
   label,
   id,
   className,
+  inputFieldProps,
 }: ProfileTagInputProps) {
   const { t } = useTranslation(PROFILE);
   const classes = useStyles();
@@ -147,7 +151,7 @@ export default function ProfileTagInput({
 
   const handleClose = (
     event: React.ChangeEvent<unknown>,
-    reason: AutocompleteCloseReason
+    reason: AutocompleteCloseReason,
   ) => {
     if (reason === "toggleInput") {
       return;
@@ -159,7 +163,7 @@ export default function ProfileTagInput({
   const handleRemove = (tag: string) => {
     onChange(
       null,
-      value.filter((v) => v !== tag)
+      value.filter((v) => v !== tag),
     );
   };
 
@@ -216,6 +220,7 @@ export default function ProfileTagInput({
           </Typography>
         </div>
         <Autocomplete
+          {...inputFieldProps}
           open
           onClose={handleClose}
           multiple
@@ -235,7 +240,7 @@ export default function ProfileTagInput({
               uniqueValues = new Set([]);
             }
             setPendingValue(
-              Array.from(uniqueValues).filter((value) => !/^\s*$/.test(value))
+              Array.from(uniqueValues).filter((value) => !/^\s*$/.test(value)),
             );
           }}
           value={pendingValue}

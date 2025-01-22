@@ -5,7 +5,6 @@ subject: "New sign up"
 Name: {{ form.user.name }}
 Email: {{ form.user.email }}
 Username: {{ form.user.username }}
-Profile: <{{ user_link }}>
 
 Wants to contribute: {{ ("missing" if not form.contribute else form.contribute.name) }}
 Ways: {{ ("missing" if not form.contribute_ways else ", ".join(form.contribute_ways)) }}

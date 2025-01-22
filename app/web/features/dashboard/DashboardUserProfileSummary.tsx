@@ -16,12 +16,12 @@ function DashboardUserProfileSummaryActions() {
   const { t } = useTranslation([DASHBOARD]);
   return (
     <>
-      <Link href={routeToEditProfile()} passHref>
+      <Link href={routeToEditProfile()} passHref legacyBehavior>
         <Button component="a" color="primary">
           {t("dashboard:profile_summary_edit")}
         </Button>
       </Link>
-      <Link href={routeToProfile()} passHref>
+      <Link href={routeToProfile()} passHref legacyBehavior>
         <Button
           component="a"
           variant="outlined"
@@ -45,7 +45,7 @@ function DashboardUserProfileSummaryActions() {
 export default function DashboardUserProfileSummary() {
   const { data: user, error, isLoading } = useCurrentUser();
   const desktopMode = useMediaQuery((theme: Theme) =>
-    theme.breakpoints.up("sm")
+    theme.breakpoints.up("sm"),
   );
   return (
     <>

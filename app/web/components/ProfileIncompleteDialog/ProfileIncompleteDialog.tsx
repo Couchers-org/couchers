@@ -27,7 +27,7 @@ export default function ProfileIncompleteDialog({
   const { t } = useTranslation([DASHBOARD]);
 
   const action_text = t(
-    `dashboard:complete_profile_dialog.actions.${attempted_action}`
+    `dashboard:complete_profile_dialog.actions.${attempted_action}`,
   );
 
   return (
@@ -59,7 +59,7 @@ export default function ProfileIncompleteDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Link href={routeToEditProfile()} passHref>
+        <Link href={routeToEditProfile()} passHref legacyBehavior>
           <Button>
             {t("dashboard:complete_profile_dialog.edit_profile_button")}
           </Button>

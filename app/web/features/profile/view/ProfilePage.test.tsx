@@ -5,10 +5,13 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
-import { addDefaultUser, MockedService, t } from "test/utils";
+import { addDefaultUser, MockedService } from "test/utils";
 
 import ProfilePage from "./ProfilePage";
+
+const { t } = i18n;
 
 jest.mock("features/userQueries/useCurrentUser");
 
@@ -66,7 +69,11 @@ describe("Profile page", () => {
 
         expect(mockRouter.pathname).toBe("/profile");
 
-        userEvent.click(await screen.findByText(t("profile:heading.home")));
+        const user = userEvent.setup();
+
+        const homeTab = await screen.findByText(t("profile:heading.home"));
+
+        await user.click(homeTab);
 
         expect(mockRouter.pathname).toBe("/profile/home");
 
@@ -75,7 +82,9 @@ describe("Profile page", () => {
         // Mui introduced support for Next.js AppRouter, but we need to upgrade to Next v13 first for it, that might help
         // https://github.com/mui/material-ui/blob/HEAD/CHANGELOG.old.md#5140
 
-        // userEvent.click(await screen.findByText(t("profile:heading.about_me")));
+        // const aboutTab = await screen.findByText(t("profile:heading.about_me"))
+
+        // await fireEvent.click(aboutTab);
 
         // expect(mockRouter.pathname).toBe("/profile/about");
       });

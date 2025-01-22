@@ -3,11 +3,13 @@ import userEvent from "@testing-library/user-event";
 import { LngLat } from "maplibre-gl";
 import { useState } from "react";
 import wrapper from "test/hookWrapper";
+import i18n from "test/i18n";
 import { server } from "test/restMock";
-import { t } from "test/utils";
 import { GeocodeResult } from "utils/hooks";
 
 import SearchBox from "./SearchBox";
+
+const { t } = i18n;
 
 const View = ({
   searchTypeParam = "keyword",
@@ -40,12 +42,13 @@ describe("SearchBox", () => {
   it("performs a keyword search", async () => {
     render(<View />, { wrapper });
 
-    userEvent.click(
-      screen.getByLabelText(t("search:form.by_keyword_filter_label"))
+    const user = userEvent.setup();
+    await user.click(
+      screen.getByLabelText(t("search:form.by_keyword_filter_label")),
     );
 
     const input = screen.getByLabelText(t("search:form.keywords.field_label"));
-    userEvent.type(input, "test");
+    await user.type(input, "test");
 
     await waitFor(() => {
       expect(input).toHaveValue("test");
@@ -57,14 +60,16 @@ describe("SearchBox", () => {
 
     const input = screen.getByLabelText(t("search:form.keywords.field_label"));
 
-    userEvent.type(input, "default value");
+    const user = userEvent.setup();
+
+    await user.type(input, "default value");
 
     expect(input).toHaveValue("default value");
 
-    userEvent.click(
+    await user.click(
       screen.getByRole("button", {
         name: t("search:form.keywords.clear_field_action_a11y_label"),
-      })
+      }),
     );
 
     await waitFor(() => {
@@ -84,16 +89,18 @@ describe("SearchBox", () => {
     it("result from list is choosable", async () => {
       render(<View searchTypeParam="location" />, { wrapper });
 
-      userEvent.click(
-        screen.getByLabelText(t("search:form.by_location_filter_label"))
+      const user = userEvent.setup();
+
+      await user.click(
+        screen.getByLabelText(t("search:form.by_location_filter_label")),
       );
 
       const input = screen.getByLabelText(
-        t("search:form.location_field_label")
+        t("search:form.location_field_label"),
       );
 
-      userEvent.type(input, "tes{enter}");
-      userEvent.click(await screen.findByText("test city, test country"));
+      await user.type(input, "tes{enter}");
+      await user.click(await screen.findByText("test city, test country"));
 
       await waitFor(() => {
         expect(input).toHaveValue("test city, test country");

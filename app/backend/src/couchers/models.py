@@ -1345,9 +1345,26 @@ class HostRequest(Base):
     host_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
     surfer_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
 
+    # reason why the host/surfer marked that they didn't meet up
+    # if null then they haven't marked it such
+    host_reason_didnt_meetup = Column(String, nullable=True)
+    surfer_reason_didnt_meetup = Column(String, nullable=True)
+
     surfer = relationship("User", backref="host_requests_sent", foreign_keys="HostRequest.surfer_user_id")
     host = relationship("User", backref="host_requests_received", foreign_keys="HostRequest.host_user_id")
     conversation = relationship("Conversation")
+
+    __table_args__ = (
+        # allows fast lookup as to whether they didn't meet up
+        Index(
+            "ix_host_requests_host_didnt_meetup",
+            host_reason_didnt_meetup != None,
+        ),
+        Index(
+            "ix_host_requests_surfer_didnt_meetup",
+            surfer_reason_didnt_meetup != None,
+        ),
+    )
 
     @hybrid_property
     def can_write_reference(self):

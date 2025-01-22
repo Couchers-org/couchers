@@ -4,9 +4,12 @@ import { useRouter } from "next/router";
 import { AuthRes } from "proto/auth_pb";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { MockedService, t } from "test/utils";
+import i18n from "test/i18n";
+import { MockedService } from "test/utils";
 
 import CompletePasswordReset from "./CompleteResetPassword";
+
+const { t } = i18n;
 
 const CompletePasswordResetMock = service.account
   .CompletePasswordResetV2 as MockedService<
@@ -15,6 +18,11 @@ const CompletePasswordResetMock = service.account
 
 jest.mock("next/router", () => ({
   useRouter: jest.fn(),
+}));
+
+jest.mock("@sentry/nextjs", () => ({
+  captureException: jest.fn(),
+  setUser: jest.fn(),
 }));
 
 const mockUseRouter = useRouter as jest.Mock;
@@ -35,15 +43,15 @@ describe("CompletePasswordReset page", () => {
       screen.getByRole("heading", {
         level: 1,
         name: t("auth:change_password_form.title"),
-      })
+      }),
     ).toBeVisible();
 
     expect(
-      screen.getByText(t("auth:change_password_form.subtitle"))
+      screen.getByText(t("auth:change_password_form.subtitle")),
     ).toBeVisible();
 
     expect(
-      screen.getByRole("button", { name: t("global:submit") })
+      screen.getByRole("button", { name: t("global:submit") }),
     ).toBeVisible();
   });
 
@@ -55,7 +63,7 @@ describe("CompletePasswordReset page", () => {
     render(<CompletePasswordReset />, { wrapper });
 
     expect(
-      screen.queryByText(t("auth:change_password_form.token_error"))
+      screen.queryByText(t("auth:change_password_form.token_error")),
     ).toBeInTheDocument();
   });
 
@@ -63,14 +71,16 @@ describe("CompletePasswordReset page", () => {
     render(<CompletePasswordReset />, { wrapper });
 
     expect(
-      screen.queryByText(t("auth:change_password_form.token_error"))
+      screen.queryByText(t("auth:change_password_form.token_error")),
     ).not.toBeInTheDocument();
   });
 
   it("does not submit if empty form", async () => {
     render(<CompletePasswordReset />, { wrapper });
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(CompletePasswordResetMock).not.toHaveBeenCalled();
@@ -80,17 +90,19 @@ describe("CompletePasswordReset page", () => {
   it("does not submit if password don't match", async () => {
     render(<CompletePasswordReset />, { wrapper });
 
-    userEvent.type(
+    const user = userEvent.setup();
+
+    await user.type(
       screen.getByLabelText(t("auth:change_password_form.new_password")),
-      "1111"
+      "1111",
     );
 
-    userEvent.type(
+    await user.type(
       screen.getByLabelText(t("auth:change_password_form.confirm_password")),
-      "2222"
+      "2222",
     );
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(CompletePasswordResetMock).not.toHaveBeenCalled();
@@ -104,22 +116,24 @@ describe("CompletePasswordReset page", () => {
 
     render(<CompletePasswordReset />, { wrapper });
 
-    userEvent.type(
+    const user = userEvent.setup();
+
+    await user.type(
       screen.getByLabelText(t("auth:change_password_form.new_password")),
-      "1111"
+      "1111",
     );
 
-    userEvent.type(
+    await user.type(
       screen.getByLabelText(t("auth:change_password_form.confirm_password")),
-      "1111"
+      "1111",
     );
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     expect(
       await screen.findByText(
-        t("auth:change_password_form.reset_password_success")
-      )
+        t("auth:change_password_form.reset_password_success"),
+      ),
     ).toBeVisible();
 
     expect(CompletePasswordResetMock).toHaveBeenCalledTimes(1);
@@ -135,20 +149,22 @@ describe("CompletePasswordReset page", () => {
 
     render(<CompletePasswordReset />, { wrapper });
 
-    userEvent.type(
+    const user = userEvent.setup();
+
+    await user.type(
       screen.getByLabelText(t("auth:change_password_form.new_password")),
-      "1111"
+      "1111",
     );
 
-    userEvent.type(
+    await user.type(
       screen.getByLabelText(t("auth:change_password_form.confirm_password")),
-      "1111"
+      "1111",
     );
 
-    userEvent.click(screen.getByRole("button", { name: t("global:submit") }));
+    await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     expect(
-      screen.queryByText(t("auth:change_password_form.reset_password_success"))
+      screen.queryByText(t("auth:change_password_form.reset_password_success")),
     ).not.toBeInTheDocument();
   });
 });
