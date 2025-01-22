@@ -148,11 +148,6 @@ export default function EditCommunityPage({
                 imageUpload
                 required={t("communities:page_content_required")}
               />
-              {errors.content && (
-                <Typography color="error" variant="body2">
-                  {errors.content.message}
-                </Typography>
-              )}
               <input
                 id="pageId"
                 {...register("pageId")}

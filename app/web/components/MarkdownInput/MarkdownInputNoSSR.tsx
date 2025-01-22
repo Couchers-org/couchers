@@ -50,6 +50,10 @@ const useStyles = makeStyles((theme) => ({
       border: "2px solid red",
     },
   },
+  errorText: {
+    color: theme.palette.error.main,
+    marginTop: "8px",
+  },
 }));
 
 export default function MarkdownInput({
@@ -70,6 +74,13 @@ export default function MarkdownInput({
     defaultValue: defaultValue ?? "",
     rules: {
       required,
+      validate: (value) => {
+        const trimmedValue = value.trim();
+        if (trimmedValue.length === 0) {
+          return required;
+        }
+        return true;
+      },
     },
   });
 
@@ -171,6 +182,11 @@ export default function MarkdownInput({
             (fieldRef.current as ToastUIEditor | undefined)?.eventEmitter
           }
         />
+      )}
+      {fieldState.error && (
+        <div className={classes.errorText} data-testid="markdown-error-text">
+          {fieldState.error.message}
+        </div>
       )}
     </>
   );

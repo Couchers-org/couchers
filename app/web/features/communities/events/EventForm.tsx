@@ -259,11 +259,6 @@ export default function EventForm({
             labelId="content-label"
             required={t("communities:event_details_required")}
           />
-          {errors.content && (
-            <Typography color="error" variant="body2">
-              {errors.content.message}
-            </Typography>
-          )}
         </div>
         {children({ isMutationLoading })}
       </form>

@@ -99,6 +99,17 @@ def test_threads_errors(db):
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == errors.THREAD_NOT_FOUND
 
+        # post empty content
+        with pytest.raises(grpc.RpcError) as e:
+            api.PostReply(threads_pb2.PostReplyReq(thread_id=19, content=""))
+        assert e.value.code() == grpc.StatusCode.INVALID_COMMENT
+        assert e.value.details() == errors.THREAD_INVALID_COMMENT
+
+        # post whitespace only content
+        with pytest.raises(grpc.RpcError) as e:
+            api.PostReply(threads_pb2.PostReplyReq(thread_id=19, content="    "))
+        assert e.value.code() == grpc.StatusCode.INVALID_COMMENT
+        assert e.value.details() == errors.THREAD_INVALID_COMMENT
 
 def pagination_test(api, parent_id):
     # Post some data

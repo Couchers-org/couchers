@@ -1,12 +1,15 @@
-import { act,render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { discussionBaseRoute } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
-import { MockedService, t } from "test/utils";
+import i18n from "test/i18n";
+import { MockedService } from "test/utils";
 
 import CommentForm from "./CommentForm";
+
+const { t } = i18n;
 
 jest.mock("components/MarkdownInput");
 
@@ -15,22 +18,16 @@ const postReplyMock = service.threads.postReply as MockedService<
 >;
 
 function renderCommentForm() {
-  console.log("rendering comment form");
   mockRouter.setCurrentUrl(
-    `${discussionBaseRoute}/1/what-is-there-to-do-in-amsterdam`
+    `${discussionBaseRoute}/1/what-is-there-to-do-in-amsterdam`,
   );
   render(<CommentForm threadId={999} shown={true} />, { wrapper });
 }
 
 describe("Comment form", () => {
   beforeAll(() => {
-    console.log("Running tests for comment form!");
     jest.useFakeTimers();
     jest.setSystemTime(new Date("2021-05-10"));
-  });
-
-  afterAll(() => {
-    console.log("Finished running tests for comment form!");
   });
 
   it("renders the comment form successfully", async () => {
@@ -38,35 +35,63 @@ describe("Comment form", () => {
 
     //can't check if visible, since this renders collapsed
     expect(screen.getByTestId("comment-999-comment-form")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Comment" })).toBeInTheDocument(); //can't check if visible, since this renders collapsed
+    expect(
+      screen.getByRole("button", { name: t("communities:comment") }),
+    ).toBeInTheDocument(); //can't check if visible, since this renders collapsed
   });
 
   it("submits valid comment without issue", async () => {
     renderCommentForm();
     const newComment = "This is a valid comment";
 
-    await act(async () => {
-      userEvent.type(
-        screen.getByLabelText(t("communities:write_comment_a11y_label")),
-        newComment
-      );
+    const user = userEvent.setup();
 
-      userEvent.click(screen.getByRole("button", { name: "Comment" }));
-    });
+    const commentInput = (await screen.findByLabelText(
+      t("communities:write_comment_a11y_label"),
+    )) as HTMLInputElement;
 
-    expect(postReplyMock).toHaveBeenCalledTimes(1);
+    user.type(commentInput, newComment);
+
+    await waitFor(
+      () => {
+        expect(commentInput).toHaveValue(newComment);
+      },
+      { timeout: 2000 },
+    );
+
+    user.click(screen.getByRole("button", { name: t("communities:comment") }));
+
+    await waitFor(() => expect(postReplyMock).toHaveBeenCalledTimes(1));
   });
 
   it("cannot be submitted empty", async () => {
     renderCommentForm();
 
     expect(
-      screen.getByLabelText(t("communities:write_comment_a11y_label"))
+      screen.getByLabelText(t("communities:write_comment_a11y_label")),
     ).toBeEmptyDOMElement();
 
-    await act(async () => {
-      userEvent.click(screen.getByRole("button", { name: "Comment" }));
-    });
+    const user = userEvent.setup();
+
+    user.click(screen.getByRole("button", { name: t("communities:comment") }));
+
+    expect(postReplyMock).not.toHaveBeenCalled();
+  });
+
+  it("cannot be submitted with only whitespace", async () => {
+    renderCommentForm();
+
+    const user = userEvent.setup();
+
+    const commentInput = (await screen.findByLabelText(
+      t("communities:write_comment_a11y_label"),
+    )) as HTMLInputElement;
+
+    user.type(commentInput, "   ");
+
+    await waitFor(() => expect(commentInput).toHaveValue("   "));
+
+    user.click(screen.getByRole("button", { name: t("communities:comment") }));
 
     expect(postReplyMock).not.toHaveBeenCalled();
   });
