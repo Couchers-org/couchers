@@ -77,7 +77,12 @@ function InternalCommentForm(
   );
 
   const onSubmit = handleSubmit((data) => {
-    postComment(data);
+    const trimmedValue = data.content.trim();
+    const newData = {
+      content: trimmedValue,
+    };
+
+    postComment(newData);
   });
 
   return (
@@ -93,6 +98,7 @@ function InternalCommentForm(
           resetInputRef={resetInputRef}
           labelId={`comment-${threadId}-reply-label`}
           name="content"
+          required={t("communities:fill_out_comment")}
         />
         <div className={classes.buttonsContainer}>
           {hideable && <Button onClick={onClose}>{t("global:close")}</Button>}
