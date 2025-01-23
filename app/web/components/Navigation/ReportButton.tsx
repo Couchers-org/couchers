@@ -1,4 +1,4 @@
-import { darken, Link, styled,Typography, useMediaQuery } from "@mui/material";
+import { darken, Link, styled, Typography, useMediaQuery } from "@mui/material";
 import { supportEmail } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -28,13 +28,26 @@ export interface BugReportFormData {
   results: string;
 }
 
+const StyledReportButton = styled(Button)(() => ({
+  flexShrink: 0,
+  backgroundColor: theme.palette.error.main,
+  "&:hover": {
+    backgroundColor: darken(theme.palette.error.main, 0.1),
+  },
+  "& .MuiButton-startIcon": {
+    [theme.breakpoints.down("md")]: {
+      margin: 0,
+    },
+  },
+}));
+
 const StyledTextField = styled(TextField)(() => ({
   "& + &": {
     marginBlockStart: theme.spacing(2),
   },
 }));
 
-const StyledReportButton = styled(Button)(() => ({
+const StyledReportTypeButton = styled(Button)(() => ({
   display: "block",
   margin: "0 auto",
   "& + &": {
@@ -123,33 +136,21 @@ export default function ReportButton({
             padding: 0,
             margin: 0,
             fontSize: "1rem",
-            "&:hover": { bgcolor: "transparent" },
+            "&:hover": { backgroundColor: "transparent" },
           }}
         >
           {t("report.label")}
         </Button>
       ) : (
-        <Button
+        <StyledReportButton
           aria-label={t("report.label")}
           onClick={() => setIsOpen(true)}
           startIcon={<BugIcon />}
           variant="contained"
           color="primary"
-          sx={{
-            flexShrink: 0,
-            bgcolor: theme.palette.error.main,
-            "&:hover": {
-              bgcolor: darken(theme.palette.error.main, 0.1),
-            },
-            "& .MuiButton-startIcon": {
-              [theme.breakpoints.down("md")]: {
-                margin: 0,
-              },
-            },
-          }}
         >
           {(!isResponsive || !isBelowMd) && t("report.label")}
-        </Button>
+        </StyledReportButton>
       )}
       <Dialog
         aria-labelledby="bug-reporter"
@@ -160,20 +161,20 @@ export default function ReportButton({
         {type === "initial" ? (
           <>
             <DialogContent>
-              <StyledReportButton
+              <StyledReportTypeButton
                 onClick={() => {
                   setType("bug");
                 }}
               >
                 {t("report.bug.button_label")}
-              </StyledReportButton>
-              <StyledReportButton
+              </StyledReportTypeButton>
+              <StyledReportTypeButton
                 onClick={() => {
                   setType("content");
                 }}
               >
                 {t("report.content.button_label")}
-              </StyledReportButton>
+              </StyledReportTypeButton>
             </DialogContent>
             <DialogActions>
               <StyledCancelButton
