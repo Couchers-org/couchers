@@ -52,7 +52,8 @@ const useStyles = makeStyles((theme) => ({
   },
   errorText: {
     color: theme.palette.error.main,
-    marginTop: "8px",
+    marginTop: theme.spacing(0.25),
+    fontSize: "0.875rem",
   },
 }));
 
