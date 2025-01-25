@@ -148,8 +148,10 @@ it("should show proper error if startDate is today but startTime is in the past"
 
   const startTimeErrorText = await screen.findByTestId("startTime-helper-text");
 
-  expect(startTimeErrorText).toHaveTextContent(
-    t("communities:past_time_error")
+  await waitFor(() =>
+    expect(startTimeErrorText).toHaveTextContent(
+      t("communities:past_time_error")
+    )
   );
 
   user.click(screen.getByTestId("submit"));
