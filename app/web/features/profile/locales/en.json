@@ -217,6 +217,7 @@
   "badges": {
     "title": "Explore Couchers.org badges",
     "subtitle": "Learn about user badges, see who has them, and learn how you can get them.",
-    "click_on_left": "Choose a badge on the left to learn more."
+    "click_on_left": "Choose a badge on the left to learn more.",
+    "no_people": "There are no people with that badge!"
   }
 }

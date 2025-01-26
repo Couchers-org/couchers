@@ -1,10 +1,10 @@
 import {
   Divider,
   DividerProps,
-  List,
-  ListItem,
   styled,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -16,6 +16,16 @@ import { useBadges, useBadgeUsers } from "features/badges/hooks";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 
+const BadgeList = styled("div")(({ theme }) => ({
+  // display: "inline-block"
+}));
+
+const BadgeListItem = styled("div")(({ theme }) => ({
+  [theme.breakpoints.down("md")]: {
+    display: "inline-block",
+  },
+}));
+
 const StyledDivider = styled(Divider)<DividerProps>(({ theme }) => ({
   margin: theme.spacing(2),
 }));
@@ -24,6 +34,13 @@ const FlexDiv = styled("div")(({ theme }) => ({
   display: "flex",
   gap: theme.spacing(2),
   alignItems: "start",
+}));
+
+const ParentFlexDiv = styled(FlexDiv)(({ theme }) => ({
+  [theme.breakpoints.down("md")]: {
+    flexDirection: "column",
+    gap: theme.spacing(0),
+  },
 }));
 
 const ContentDiv = styled("div")(({ theme }) => ({
@@ -43,6 +60,8 @@ export interface BadgeUserListProps {
 }
 
 function BadgeUserList({ badgeId }: BadgeUserListProps) {
+  const { t } = useTranslation([PROFILE]);
+
   const { badgeUserIds, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useBadgeUsers(badgeId);
 
@@ -57,7 +76,7 @@ function BadgeUserList({ badgeId }: BadgeUserListProps) {
         )
       }
       emptyListChildren={
-        <Typography variant="body1">No people with this badge!</Typography>
+        <Typography variant="body1">{t("profile:badges.no_people")}</Typography>
       }
     />
   );
@@ -70,6 +89,9 @@ export interface BadgesPageProps {
 export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const { badges, isLoading: isBadgesLoading } = useBadges();
+  const theme = useTheme();
+
+  const isBelowMd = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <>
@@ -79,16 +101,19 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
         {t("profile:badges.subtitle")}
       </Typography>
       <StyledDivider />
-      <FlexDiv>
-        <List>
+      <ParentFlexDiv>
+        <BadgeList>
           {badges &&
             Object.values(badges).map((badge) => (
-              <ListItem key={badge.id}>
+              <BadgeListItem key={badge.id}>
                 <Badge badge={badge} />
-              </ListItem>
+              </BadgeListItem>
             ))}
-        </List>
-        <StyledDivider orientation="vertical" flexItem />
+        </BadgeList>
+        <StyledDivider
+          orientation={isBelowMd ? "horizontal" : "vertical"}
+          flexItem
+        />
         {badgeId ? (
           <ContentDiv>
             {isBadgesLoading ? (
@@ -101,7 +126,6 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
                     {badges[badgeId].description}
                   </Typography>
                 </FlexDiv>
-                <StyledDivider />
                 <BadgeUserList badgeId={badgeId} />
               </>
             ) : (
@@ -115,7 +139,7 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
             </Typography>
           </CenteredDiv>
         )}
-      </FlexDiv>
+      </ParentFlexDiv>
     </>
   );
 }
