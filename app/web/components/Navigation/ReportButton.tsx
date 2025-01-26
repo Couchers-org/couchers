@@ -1,10 +1,4 @@
-import {
-  darken,
-  Link,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { darken, Link, styled, Typography, useMediaQuery } from "@mui/material";
 import { supportEmail } from "appConstants";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -26,7 +20,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
 export interface BugReportFormData {
   subject: string;
@@ -34,38 +28,39 @@ export interface BugReportFormData {
   results: string;
 }
 
-const useStyles = makeStyles((theme) => ({
-  button: {
-    flexShrink: 0,
-    "&:hover": {
-      backgroundColor: darken(theme.palette.error.main, 0.1),
-    },
-    backgroundColor: theme.palette.error.main,
+const StyledReportButton = styled(Button)(() => ({
+  flexShrink: 0,
+  backgroundColor: theme.palette.error.main,
+  "&:hover": {
+    backgroundColor: darken(theme.palette.error.main, 0.1),
   },
-  menuLink: {
-    padding: 0,
-    margin: 0,
-    fontSize: "1rem",
-    "&:hover": {
-      backgroundColor: "transparent",
-    },
-  },
-  typeButton: {
-    display: "block",
-    margin: "0 auto",
-    "& + &": {
-      marginBlockStart: theme.spacing(2),
-    },
-  },
-  field: {
-    "& + &": {
-      marginBlockStart: theme.spacing(2),
-    },
-  },
-  startIcon: {
+  "& .MuiButton-startIcon": {
     [theme.breakpoints.down("md")]: {
       margin: 0,
     },
+  },
+}));
+
+const StyledTextField = styled(TextField)(() => ({
+  "& + &": {
+    marginBlockStart: theme.spacing(2),
+  },
+}));
+
+const StyledReportTypeButton = styled(Button)(() => ({
+  display: "block",
+  margin: "0 auto",
+  "& + &": {
+    marginBlockStart: theme.spacing(2),
+  },
+}));
+
+const StyledCancelButton = styled(Button)(() => ({
+  color: theme.palette.common.black,
+  borderColor: theme.palette.grey[300],
+  "&:hover": {
+    borderColor: theme.palette.grey[300],
+    backgroundColor: "#3135390A",
   },
 }));
 
@@ -77,10 +72,8 @@ export default function ReportButton({
   isMenuLink?: boolean;
 }) {
   const { t } = useTranslation("global");
-  const theme = useTheme();
   const isBelowMd = useMediaQuery(theme.breakpoints.down("md"));
 
-  const classes = useStyles();
   const [isOpen, setIsOpen] = useState(false);
   const [type, setType] = useState<"initial" | "bug" | "content">("initial");
   const {
@@ -138,25 +131,26 @@ export default function ReportButton({
         <Button
           variant="text"
           aria-label={t("report.label")}
-          className={classes.menuLink}
           onClick={() => setIsOpen(true)}
+          sx={{
+            padding: 0,
+            margin: 0,
+            fontSize: "1rem",
+            "&:hover": { backgroundColor: "transparent" },
+          }}
         >
           {t("report.label")}
         </Button>
       ) : (
-        <Button
+        <StyledReportButton
           aria-label={t("report.label")}
           onClick={() => setIsOpen(true)}
           startIcon={<BugIcon />}
           variant="contained"
           color="primary"
-          classes={{
-            containedPrimary: classes.button,
-            startIcon: classes.startIcon,
-          }}
         >
           {(!isResponsive || !isBelowMd) && t("report.label")}
-        </Button>
+        </StyledReportButton>
       )}
       <Dialog
         aria-labelledby="bug-reporter"
@@ -167,39 +161,28 @@ export default function ReportButton({
         {type === "initial" ? (
           <>
             <DialogContent>
-              <Button
+              <StyledReportTypeButton
                 onClick={() => {
                   setType("bug");
                 }}
-                className={classes.typeButton}
               >
                 {t("report.bug.button_label")}
-              </Button>
-              <Button
+              </StyledReportTypeButton>
+              <StyledReportTypeButton
                 onClick={() => {
                   setType("content");
                 }}
-                className={classes.typeButton}
               >
                 {t("report.content.button_label")}
-              </Button>
+              </StyledReportTypeButton>
             </DialogContent>
             <DialogActions>
-              <Button
+              <StyledCancelButton
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
-                sx={{
-                  color: theme.palette.common.black,
-                  borderColor: theme.palette.grey[300],
-
-                  "&:hover": {
-                    borderColor: theme.palette.grey[300],
-                    backgroundColor: "#3135390A",
-                  },
-                }}
               >
                 {t("cancel")}
-              </Button>
+              </StyledCancelButton>
             </DialogActions>
           </>
         ) : type === "content" ? (
@@ -213,21 +196,12 @@ export default function ReportButton({
               </Link>
             </DialogContent>
             <DialogActions>
-              <Button
+              <StyledCancelButton
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
-                sx={{
-                  color: theme.palette.common.black,
-                  borderColor: theme.palette.grey[300],
-
-                  "&:hover": {
-                    borderColor: theme.palette.grey[300],
-                    backgroundColor: "#3135390A",
-                  },
-                }}
               >
                 {t("cancel")}
-              </Button>
+              </StyledCancelButton>
             </DialogActions>
           </>
         ) : type === "bug" ? (
@@ -237,16 +211,14 @@ export default function ReportButton({
               <DialogContentText>
                 {t("report.bug.warning_message")}
               </DialogContentText>
-              <TextField
+              <StyledTextField
                 id="bug-report-subject"
                 {...register("subject", { required: true })}
-                className={classes.field}
                 label={t("report.bug.title_label")}
                 helperText={t("report.bug.title_helper")}
                 fullWidth
               />
-              <TextField
-                className={classes.field}
+              <StyledTextField
                 id="bug-report-description"
                 {...register("description", { required: true })}
                 label={t("report.bug.problem_label")}
@@ -257,9 +229,8 @@ export default function ReportButton({
                 minRows={4}
                 maxRows={6}
               />
-              <TextField
+              <StyledTextField
                 {...register("results")}
-                className={classes.field}
                 id="bug-report-results"
                 defaultValue=""
                 label={t("report.bug.expect_label")}
@@ -275,21 +246,12 @@ export default function ReportButton({
               <Button type="submit" loading={isLoading} onClick={onSubmit}>
                 {t("submit")}
               </Button>
-              <Button
+              <StyledCancelButton
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
-                sx={{
-                  color: theme.palette.common.black,
-                  borderColor: theme.palette.grey[300],
-
-                  "&:hover": {
-                    borderColor: theme.palette.grey[300],
-                    backgroundColor: "#3135390A",
-                  },
-                }}
               >
                 {t("cancel")}
-              </Button>
+              </StyledCancelButton>
             </DialogActions>
           </form>
         ) : null}
