@@ -62,7 +62,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
     with session_scope() as session:
         database_id, depth = unpack_thread_id(payload.thread_id)
         if depth == 1:
-            # this is a top-level Cmment on a Thread attached to event, discussion, etc
+            # this is a top-level Comment on a Thread attached to event, discussion, etc
             comment = session.execute(select(Comment).where(Comment.id == database_id)).scalar_one()
             thread = session.execute(select(Thread).where(Thread.id == comment.thread_id)).scalar_one()
             author_user = session.execute(select(User).where(User.id == comment.author_user_id)).scalar_one()
