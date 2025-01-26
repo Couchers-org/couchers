@@ -45,12 +45,10 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
 }));
 
 const StyledButton = styled(Button)<AppButtonProps>({
-  display: "block",
+  display: "flex",
   flexShrink: 0,
   marginInlineStart: theme.spacing(1),
   height: theme.spacing(5),
-  marginBottom: 0,
-  marginTop: "auto",
   alignItems: "center",
 });
 
