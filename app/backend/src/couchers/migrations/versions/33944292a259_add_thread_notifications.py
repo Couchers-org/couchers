@@ -16,7 +16,8 @@ depends_on = None
 
 
 def upgrade():
-    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__comment'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__comment_organizing'")
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__comment_attending'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'discussion__create'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'discussion__comment'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'thread__reply'")
