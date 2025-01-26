@@ -130,7 +130,8 @@ settings_layout = [
                     ("create_approved", "An event that is approved by the moderators is created in your community"),
                     ("create_any", "A user creates any event in your community (not checked by an admin)"),
                     ("update", "An event you are attending is updated"),
-                    ("comment", "Someone comments on an event you are organizing or attending"),
+                    ("comment_organizing", "Someone comments on an event you are organizing"),
+                    ("comment_attending", "Someone comments on an event you are attending"),
                     ("cancel", "An event you are attending is cancelled"),
                     ("delete", "An event you are attending is deleted"),
                     ("invite_organizer", "Someone invites you to co-organize an event"),
@@ -280,9 +281,9 @@ def check_settings():
             actions_by_topic_check[topic] = actions
 
     for topic, actions in actions_by_topic.items():
-        assert sorted(actions) == sorted(
-            actions_by_topic_check[topic]
-        ), f"Expected {actions} == {actions_by_topic_check[topic]} for {topic}"
+        assert sorted(actions) == sorted(actions_by_topic_check[topic]), (
+            f"Expected {actions} == {actions_by_topic_check[topic]} for {topic}"
+        )
     assert sorted(actions_by_topic.keys()) == sorted(actions_by_topic_check.keys())
 
 

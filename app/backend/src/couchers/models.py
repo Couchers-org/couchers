@@ -2298,7 +2298,7 @@ class NotificationTopicAction(enum.Enum):
     event__comment_attending = ("event:comment_attending", [dt.push, dt.digest], True, nd.EventComment)
 
     # discussion created
-    discussion__create = ("discussion:create", [], True, nd.DiscussionCreate)
+    discussion__create = ("discussion:create", [dt.digest], True, nd.DiscussionCreate)
     # someone comments on your discussion
     discussion__comment = ("discussion:comment", dt_all, True, nd.DiscussionComment)
 

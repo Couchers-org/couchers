@@ -82,10 +82,11 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             if event:
                 # thread is an event thread
                 occurrence = event.occurrences.order_by(EventOccurrence.id.desc()).first()
+                organizer_user_ids = {user.id for user in event.organizers}
                 subscribed_user_ids = [user.id for user in event.subscribers]
                 attending_user_ids = [user.user_id for user in occurrence.attendances]
 
-                for user_id in set(subscribed_user_ids + attending_user_ids):
+                for user_id in set(organizer_user_ids + subscribed_user_ids + attending_user_ids):
                     if are_blocked(session, user_id, comment.author_user_id):
                         continue
                     if user_id == comment.author_user_id:
@@ -94,7 +95,9 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     notify(
                         session,
                         user_id=user_id,
-                        topic_action="event:comment",
+                        topic_action="event:comment_organizing"
+                        if user_id in organizer_user_ids
+                        else "event:comment_attending",
                         key=occurrence.id,
                         data=notification_data_pb2.EventComment(
                             reply=reply,

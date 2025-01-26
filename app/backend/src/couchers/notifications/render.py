@@ -572,7 +572,7 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_icon=v2avatar(data.inviting_user),
                 push_url=event_link,
             )
-        elif notification.action == "comment":
+        elif notification.action in ["comment_organizing", "comment_attending"]:
             body = f"{time_display}\n"
             body += f"{data.author.name} commented:\n\n"
             body += data.reply.content
