@@ -572,13 +572,13 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_icon=v2avatar(data.inviting_user),
                 push_url=event_link,
             )
-        elif notification.action in ["comment_organizing", "comment_attending"]:
+        elif notification.action == "comment":
             body = f"{time_display}\n"
             body += f"{data.author.name} commented:\n\n"
             body += data.reply.content
             return RenderedNotification(
                 email_subject=f'{data.author.name} commented on "{event.title}"',
-                email_preview="Someone commented on an event you are subscribed to.",
+                email_preview="Someone commented on an event you are attending.",
                 email_template_name="event_comment",
                 email_template_args={
                     "author": data.author,
