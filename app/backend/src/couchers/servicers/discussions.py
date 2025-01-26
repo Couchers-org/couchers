@@ -59,7 +59,7 @@ def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDis
                 topic_action="discussion:create",
                 key=payload.discussion_id,
                 data=notification_data_pb2.DiscussionCreate(
-                    creator=user_model_to_pb(discussion.creator_user, session, context),
+                    author=user_model_to_pb(discussion.creator_user, session, context),
                     discussion=discussion_to_pb(session, discussion, context),
                 ),
             )

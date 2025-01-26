@@ -62,10 +62,18 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
     with session_scope() as session:
         database_id, depth = unpack_thread_id(payload.thread_id)
         if depth == 1:
-            # this is a top-level comment on a thread attached to event, discussion, etc
+            # this is a top-level Cmment on a Thread attached to event, discussion, etc
             comment = session.execute(select(Comment).where(Comment.id == database_id)).scalar_one()
             thread = session.execute(select(Thread).where(Thread.id == comment.thread_id)).scalar_one()
             author_user = session.execute(select(User).where(User.id == comment.author_user_id)).scalar_one()
+            # reply object for notif
+            reply = threads_pb2.Reply(
+                thread_id=payload.thread_id,
+                content=comment.content,
+                author_user_id=comment.author_user_id,
+                created_time=Timestamp_from_datetime(comment.created),
+                num_replies=0,
+            )
             # figure out if the thread is related to an event or discussion
             event = session.execute(select(Event).where(Event.thread_id == thread.id)).scalar_one_or_none()
             discussion = session.execute(
@@ -89,13 +97,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                         topic_action="event:comment",
                         key=occurrence.id,
                         data=notification_data_pb2.EventComment(
-                            reply=threads_pb2.Reply(
-                                thread_id=payload.thread_id,
-                                content=comment.content,
-                                author_user_id=comment.author_user_id,
-                                created_time=Timestamp_from_datetime(comment.created),
-                                num_replies=0,
-                            ),
+                            reply=reply,
                             event=event_to_pb(session, occurrence, context),
                             author=user_model_to_pb(author_user, session, context),
                         ),
@@ -120,13 +122,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                         topic_action="discussion:comment",
                         key=discussion.id,
                         data=notification_data_pb2.DiscussionComment(
-                            reply=threads_pb2.Reply(
-                                thread_id=payload.thread_id,
-                                content=comment.content,
-                                author_user_id=comment.author_user_id,
-                                created_time=Timestamp_from_datetime(comment.created),
-                                num_replies=0,
-                            ),
+                            reply=reply,
                             discussion=discussion_to_pb(session, discussion, context),
                             author=user_model_to_pb(author_user, session, context),
                         ),
@@ -134,7 +130,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             else:
                 raise NotImplementedError("I can only do event and discussion threads for now")
         elif depth == 2:
-            # this is a second-levle reply to a comment
+            # this is a second-level reply to a comment
             reply = session.execute(select(Reply).where(Reply.id == database_id)).scalar_one()
             # the comment we're replying to
             parent_comment = session.execute(select(Comment).where(Comment.id == reply.comment_id)).scalar_one()
@@ -147,6 +143,15 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             if parent_comment.author_user_id == reply.author_user_id:
                 return
 
+            context = SimpleNamespace(user_id=parent_comment.author_user_id)
+            reply = threads_pb2.Reply(
+                thread_id=payload.thread_id,
+                content=reply.content,
+                author_user_id=reply.author_user_id,
+                created_time=Timestamp_from_datetime(reply.created),
+                num_replies=0,
+            )
+
             event = session.execute(
                 select(Event).where(Event.thread_id == parent_comment.thread_id)
             ).scalar_one_or_none()
@@ -156,40 +161,26 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
             if event:
                 # thread is an event thread
                 occurrence = event.occurrences.order_by(EventOccurrence.id.desc()).first()
-                context = SimpleNamespace(user_id=parent_comment.author_user_id)
                 notify(
                     session,
                     user_id=parent_comment.author_user_id,
                     topic_action="thread:reply",
                     key=occurrence.id,
                     data=notification_data_pb2.ThreadReply(
-                        reply=threads_pb2.Reply(
-                            thread_id=payload.thread_id,
-                            content=reply.content,
-                            author_user_id=reply.author_user_id,
-                            created_time=Timestamp_from_datetime(reply.created),
-                            num_replies=0,
-                        ),
+                        reply=reply,
                         event=event_to_pb(session, occurrence, context),
                         author=user_model_to_pb(author_user, session, context),
                     ),
                 )
             elif discussion:
                 # community discussion thread
-                context = SimpleNamespace(user_id=parent_comment.author_user_id)
                 notify(
                     session,
                     user_id=parent_comment.author_user_id,
-                    topic_action="discussion:comment",
+                    topic_action="thread:reply",
                     key=discussion.id,
-                    data=notification_data_pb2.DiscussionComment(
-                        reply=threads_pb2.Reply(
-                            thread_id=payload.thread_id,
-                            content=reply.content,
-                            author_user_id=reply.author_user_id,
-                            created_time=Timestamp_from_datetime(reply.created),
-                            num_replies=0,
-                        ),
+                    data=notification_data_pb2.ThreadReply(
+                        reply=reply,
                         discussion=discussion_to_pb(session, discussion, context),
                         author=user_model_to_pb(author_user, session, context),
                     ),
@@ -286,12 +277,14 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
         except sqlalchemy.exc.IntegrityError:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
 
+        thread_id = pack_thread_id(object_to_add.id, depth + 1)
+
         queue_job(
             session,
             job_type="generate_reply_notifications",
             payload=jobs_pb2.GenerateReplyNotificationsPayload(
-                thread_id=pack_thread_id(object_to_add.id, depth + 1),
+                thread_id=thread_id,
             ),
         )
 
-        return threads_pb2.PostReplyRes(thread_id=pack_thread_id(object_to_add.id, depth + 1))
+        return threads_pb2.PostReplyRes(thread_id=thread_id)

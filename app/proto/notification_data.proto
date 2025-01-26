@@ -195,7 +195,7 @@ message EventComment {
 
 message DiscussionCreate {
   org.couchers.api.discussions.Discussion discussion = 1;
-  org.couchers.api.core.User creator = 2;
+  org.couchers.api.core.User author = 2;
 }
 
 message DiscussionComment {
