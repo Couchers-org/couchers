@@ -68,7 +68,7 @@ export async function getReferencesReceivedForUser({
   const req = new ListReferencesReq();
   req.setToUserId(userId);
   req.setReferenceTypeFilterList(
-    referenceType !== "all" ? [referenceType] : []
+    referenceType !== "all" ? [referenceType] : [],
   );
   req.setPageSize(REFERENCES_PAGE_SIZE);
   req.setPageToken(pageToken);

@@ -30,7 +30,7 @@ const reportBugMock = service.bugs.reportBug as MockedService<
 async function fillInAndSubmitReportButton(
   subjectFieldLabel: string,
   descriptionFieldLabel: string,
-  resultsFieldLabel = ""
+  resultsFieldLabel = "",
 ) {
   const subjectField = await screen.findByLabelText(subjectFieldLabel);
   const descriptionField = await screen.findByLabelText(descriptionFieldLabel);
@@ -43,7 +43,7 @@ async function fillInAndSubmitReportButton(
   if (resultsField) {
     await user.type(
       resultsField,
-      "Log in didn't work, and I expected it to work"
+      "Log in didn't work, and I expected it to work",
     );
   }
 
@@ -131,17 +131,17 @@ describe("ReportButton", () => {
       const user = userEvent.setup();
 
       await user.click(
-        screen.getByRole("button", { name: t("global:report.label") })
+        screen.getByRole("button", { name: t("global:report.label") }),
       );
       expect(
         await screen.findByRole("button", {
           name: t("global:report.bug.button_label"),
-        })
+        }),
       ).toBeVisible();
       expect(
         screen.getByRole("button", {
           name: t("global:report.content.button_label"),
-        })
+        }),
       ).toBeVisible();
     });
 
@@ -151,16 +151,16 @@ describe("ReportButton", () => {
       const user = userEvent.setup();
 
       await user.click(
-        screen.getByRole("button", { name: t("global:report.label") })
+        screen.getByRole("button", { name: t("global:report.label") }),
       );
       await user.click(
         screen.getByRole("button", {
           name: t("global:report.content.button_label"),
-        })
+        }),
       );
 
       expect(
-        await screen.findByRole("link", { name: supportEmail })
+        await screen.findByRole("link", { name: supportEmail }),
       ).toBeVisible();
     });
 
@@ -171,16 +171,16 @@ describe("ReportButton", () => {
       const user = userEvent.setup();
 
       await user.click(
-        screen.getByRole("button", { name: t("global:report.label") })
+        screen.getByRole("button", { name: t("global:report.label") }),
       );
       await user.click(
         screen.getByRole("button", {
           name: t("global:report.bug.button_label"),
-        })
+        }),
       );
 
       expect(
-        await screen.findByRole("heading", { name: "Report a problem" })
+        await screen.findByRole("heading", { name: "Report a problem" }),
       ).toBeVisible();
       expect(screen.getByText(infoText)).toBeVisible();
       expect(screen.getByLabelText(subjectFieldLabel)).toBeVisible();
@@ -194,15 +194,15 @@ describe("ReportButton", () => {
       const user = userEvent.setup();
 
       await user.click(
-        screen.getByRole("button", { name: t("global:report.label") })
+        screen.getByRole("button", { name: t("global:report.label") }),
       );
       await user.click(
         screen.getByRole("button", {
           name: t("global:report.bug.button_label"),
-        })
+        }),
       );
       await user.click(
-        await screen.findByRole("button", { name: t("global:submit") })
+        await screen.findByRole("button", { name: t("global:submit") }),
       );
 
       await waitFor(() => {
@@ -223,27 +223,27 @@ describe("ReportButton", () => {
       const user = userEvent.setup();
 
       await user.click(
-        screen.getByRole("button", { name: t("global:report.label") })
+        screen.getByRole("button", { name: t("global:report.label") }),
       );
       await user.click(
         screen.getByRole("button", {
           name: t("global:report.bug.button_label"),
-        })
+        }),
       );
 
       await fillInAndSubmitReportButton(
         subjectFieldLabel,
-        descriptionFieldLabel
+        descriptionFieldLabel,
       );
 
       const successAlert = await screen.findByRole("alert");
       expect(
         within(successAlert).getByText(t("global:report.bug.success_message"), {
           exact: false,
-        })
+        }),
       ).toBeVisible();
       expect(await within(successAlert).findByRole("link")).toHaveTextContent(
-        "#1"
+        "#1",
       );
       expect(reportBugMock).toHaveBeenCalledTimes(1);
       expect(reportBugMock).toHaveBeenCalledWith({
@@ -259,18 +259,18 @@ describe("ReportButton", () => {
       const user = userEvent.setup();
 
       await user.click(
-        screen.getByRole("button", { name: t("global:report.label") })
+        screen.getByRole("button", { name: t("global:report.label") }),
       );
       await user.click(
         screen.getByRole("button", {
           name: t("global:report.bug.button_label"),
-        })
+        }),
       );
 
       await fillInAndSubmitReportButton(
         subjectFieldLabel,
         descriptionFieldLabel,
-        resultsFieldLabel
+        resultsFieldLabel,
       );
 
       await waitFor(() => {
@@ -291,17 +291,17 @@ describe("ReportButton", () => {
       const user = userEvent.setup();
 
       await user.click(
-        screen.getByRole("button", { name: t("global:report.label") })
+        screen.getByRole("button", { name: t("global:report.label") }),
       );
       await user.click(
         screen.getByRole("button", {
           name: t("global:report.bug.button_label"),
-        })
+        }),
       );
 
       await fillInAndSubmitReportButton(
         subjectFieldLabel,
-        descriptionFieldLabel
+        descriptionFieldLabel,
       );
 
       const errorAlert = await screen.findByRole("alert");
@@ -316,34 +316,34 @@ describe("ReportButton", () => {
       const user = userEvent.setup();
 
       await user.click(
-        screen.getByRole("button", { name: t("global:report.label") })
+        screen.getByRole("button", { name: t("global:report.label") }),
       );
       await user.click(
         screen.getByRole("button", {
           name: t("global:report.bug.button_label"),
-        })
+        }),
       );
       await fillInAndSubmitReportButton(
         subjectFieldLabel,
-        descriptionFieldLabel
+        descriptionFieldLabel,
       );
       await screen.findByRole("alert");
 
       // Close dialog by clicking on close button
       await user.click(
-        screen.getByRole("button", { name: t("global:cancel") })
+        screen.getByRole("button", { name: t("global:cancel") }),
       );
       // Wait for the dialog to close properly first before trying to reopen
       const [, secondElement] = screen.queryAllByRole("presentation");
       // Wait for the second dialog to be removed
       await waitForElementToBeRemoved(secondElement);
       await user.click(
-        screen.getByRole("button", { name: t("global:report.label") })
+        screen.getByRole("button", { name: t("global:report.label") }),
       );
       await user.click(
         screen.getByRole("button", {
           name: t("global:report.bug.button_label"),
-        })
+        }),
       );
 
       await waitFor(() => {

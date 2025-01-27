@@ -211,5 +211,12 @@
     "no_phone_description": "Você não adicionou um número de telefone à sua conta. Para adicionar, digite abaixo. Enviaremos uma mensagem de texto para verificá-lo.",
     "title": "Número de telefone",
     "remove_success": "Telefone removido."
+  },
+  "do_not_email": {
+    "title": "Não envie e-mails para mim",
+    "status": {
+      "no_emails_disabled_message": "Agora os e-mails estão <1>habilitados</1> para você.",
+      "no_emails_enabled_message": "Agora os e-mails estão <1>desabilitados</1> para sua conta."
+    }
   }
 }

@@ -55,7 +55,7 @@ describe("Edit profile", () => {
     const user = userEvent.setup();
 
     const aboutMeInput = await screen.findByLabelText(
-      t("profile:heading.who_section")
+      t("profile:heading.who_section"),
     );
 
     await user.clear(aboutMeInput);
@@ -66,21 +66,21 @@ describe("Edit profile", () => {
     });
 
     await user.click(
-      await screen.findByRole("button", { name: t("global:save") })
+      await screen.findByRole("button", { name: t("global:save") }),
     );
 
     expect(updateProfileMock).toHaveBeenCalledWith(
-      expect.objectContaining({ aboutMe: aboutMeText })
+      expect.objectContaining({ aboutMe: aboutMeText }),
     );
 
     await waitFor(
       () => expect(mockRouter.pathname).toBe(routeToProfile("about")),
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
   });
 
   it(`should not submit the default headings for the '${t(
-    "profile:heading.who_section"
+    "profile:heading.who_section",
   )}' and '${t("profile:heading.hobbies_section")}' sections`, async () => {
     getUserMock.mockImplementation(async (user) => ({
       ...(await getUser(user)),
@@ -92,7 +92,7 @@ describe("Edit profile", () => {
     const user = userEvent.setup();
 
     await user.click(
-      await screen.findByRole("button", { name: t("global:save") })
+      await screen.findByRole("button", { name: t("global:save") }),
     );
 
     const saveAnywayButton = await screen.findByRole("button", {
@@ -102,14 +102,14 @@ describe("Edit profile", () => {
     await user.click(saveAnywayButton);
 
     await waitFor(() =>
-      expect(mockRouter.pathname).toBe(routeToProfile("about"))
+      expect(mockRouter.pathname).toBe(routeToProfile("about")),
     );
     expect(updateProfileMock).toHaveBeenCalledTimes(1);
     expect(updateProfileMock).toHaveBeenCalledWith(
       expect.objectContaining({
         aboutMe: "",
         thingsILike: "",
-      })
+      }),
     );
   });
 
@@ -125,11 +125,11 @@ describe("Edit profile", () => {
     const user = userEvent.setup();
 
     await user.click(
-      await screen.findByRole("button", { name: t("global:save") })
+      await screen.findByRole("button", { name: t("global:save") }),
     );
 
     const profileIncompleteDialog = await screen.findByTestId(
-      "incomplete-profile-dialog"
+      "incomplete-profile-dialog",
     );
 
     expect(profileIncompleteDialog).toBeVisible();

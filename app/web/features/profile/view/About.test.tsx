@@ -28,11 +28,11 @@ describe("About (user)", () => {
 
     // Australia is displayed both for lived and visited regions
     expect(
-      (await screen.findAllByText("Australia", { exact: false })).length
+      (await screen.findAllByText("Australia", { exact: false })).length,
     ).toBe(2);
     // Sweden is only displayed for lived regions
     expect(
-      (await screen.findAllByText("Sweden", { exact: false })).length
+      (await screen.findAllByText("Sweden", { exact: false })).length,
     ).toBe(1);
   });
 

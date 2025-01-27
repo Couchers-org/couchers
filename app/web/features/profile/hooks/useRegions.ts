@@ -14,9 +14,9 @@ export const useRegions = () => {
         {
           regions: {} as { [code: string]: string },
           regionsLookup: {} as { [name: string]: string },
-        }
-      )
-    )
+        },
+      ),
+    ),
   );
 
   return {

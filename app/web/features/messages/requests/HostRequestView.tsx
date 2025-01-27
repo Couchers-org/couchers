@@ -112,7 +112,7 @@ export default function HostRequestView({
     () => service.requests.getHostRequest(hostRequestId),
     {
       enabled: !!hostRequestId,
-    }
+    },
   );
 
   const {
@@ -130,7 +130,7 @@ export default function HostRequestView({
       enabled: !!hostRequestId,
       getNextPageParam: (lastPage) =>
         lastPage.noMore ? undefined : lastPage.lastMessageId,
-    }
+    },
   );
 
   const { data: surfer } = useLiteUser(hostRequest?.surferUserId);
@@ -160,7 +160,7 @@ export default function HostRequestView({
         queryClient.invalidateQueries(hostRequestMessagesKey(hostRequestId));
         queryClient.invalidateQueries(hostRequestsListKey());
       },
-    }
+    },
   );
   const respondMutation = useMutation<
     void,
@@ -171,17 +171,17 @@ export default function HostRequestView({
       service.requests.respondHostRequest(
         req.hostRequestId,
         req.status,
-        req.text
+        req.text,
       ),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(
-          hostRequestKey(hostRequest?.hostRequestId)
+          hostRequestKey(hostRequest?.hostRequestId),
         );
         queryClient.invalidateQueries(hostRequestMessagesKey(hostRequestId));
         queryClient.invalidateQueries(hostRequestsListKey());
       },
-    }
+    },
   );
 
   const { mutate: markLastRequestSeen } = useMutation<
@@ -195,11 +195,11 @@ export default function HostRequestView({
       onSuccess: () => {
         queryClient.invalidateQueries(hostRequestKey(hostRequestId));
       },
-    }
+    },
   );
   const { markLastSeen } = useMarkLastSeen(
     markLastRequestSeen,
-    hostRequest?.lastSeenMessageId
+    hostRequest?.lastSeenMessageId,
   );
 
   const router = useRouter();

@@ -27,8 +27,8 @@ export default function LeaveReferencePage() {
     typeof router.query.slug === "undefined"
       ? ["chats"]
       : typeof router.query.slug === "string"
-      ? [router.query.slug]
-      : router.query.slug;
+        ? [router.query.slug]
+        : router.query.slug;
   let content: ReactNode;
 
   const tab = messageTypeStrings.find((valid) => valid === slugs?.[0]);

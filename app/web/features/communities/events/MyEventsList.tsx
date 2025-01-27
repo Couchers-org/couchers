@@ -74,7 +74,7 @@ const MyEventsList = () => {
 
   const handlePageNumberChange = (
     event: React.ChangeEvent<unknown>,
-    value: number
+    value: number,
   ) => {
     setPageNumber(value);
   };

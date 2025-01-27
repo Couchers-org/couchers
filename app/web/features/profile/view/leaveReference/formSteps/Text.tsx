@@ -46,13 +46,17 @@ export default function Text({
 
   const onSubmit = handleSubmit((values) => {
     setReferenceValues(values);
-    referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
-      ? router.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[3]}`
-        )
-      : router.push(
-          `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[3]}`
-        );
+    if (
+      referenceType === referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]
+    ) {
+      router.push(
+        `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${referenceStepStrings[3]}`,
+      );
+    } else {
+      router.push(
+        `${leaveReferenceBaseRoute}/${referenceType}/${user.userId}/${hostRequestId}/${referenceStepStrings[3]}`,
+      );
+    }
   });
 
   return (

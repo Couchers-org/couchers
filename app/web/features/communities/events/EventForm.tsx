@@ -136,11 +136,11 @@ export default function EventForm({
           simplifiedName: event.offlineInformation.address,
           location: new LngLat(
             event.offlineInformation.lng,
-            event.offlineInformation.lat
+            event.offlineInformation.lat,
           ),
           bbox: [0, 0, 0, 0] as Coordinates,
         }
-      : ("" as const)
+      : ("" as const),
   ).current;
 
   const onSubmit = handleSubmit(
@@ -156,7 +156,7 @@ export default function EventForm({
       if (errors.eventImage) {
         window.scroll({ top: 0, behavior: "smooth" });
       }
-    }
+    },
   );
 
   return (
@@ -203,7 +203,7 @@ export default function EventForm({
         <div
           className={classNames(
             classes.duoContainer,
-            classes.locationContainer
+            classes.locationContainer,
           )}
         >
           {isOnline ? (
@@ -259,11 +259,6 @@ export default function EventForm({
             labelId="content-label"
             required={t("communities:event_details_required")}
           />
-          {errors.content && (
-            <Typography color="error" variant="body2">
-              {errors.content.message}
-            </Typography>
-          )}
         </div>
         {children({ isMutationLoading })}
       </form>

@@ -47,7 +47,7 @@ export const MenuItem = React.forwardRef(
         ref={ref}
       />
     );
-  }
+  },
 );
 
 MenuItem.displayName = "MenuItem";

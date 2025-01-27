@@ -73,7 +73,7 @@ export default function UserSummary({
   const headlineComponentWithRef = React.forwardRef(
     function HeadlineComponentWithRef(props, ref) {
       return React.createElement(headlineComponent, { ...props, ref });
-    }
+    },
   );
 
   const title = (

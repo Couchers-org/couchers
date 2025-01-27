@@ -79,7 +79,7 @@ export default function MyEvents() {
           <HorizontalScroller
             className={classNames(
               classes.cardContainer,
-              classes.upcomingEventContainer
+              classes.upcomingEventContainer,
             )}
             fetchNext={isBelowSm ? fetchNextPage : undefined}
             hasMore={hasNextPage}
@@ -94,7 +94,7 @@ export default function MyEvents() {
                     event={event}
                     className={classNames(
                       classes.placeEventCard,
-                      classes.eventCard
+                      classes.eventCard,
                     )}
                   />
                 );

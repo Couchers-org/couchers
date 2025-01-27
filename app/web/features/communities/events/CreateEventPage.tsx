@@ -96,14 +96,14 @@ export default function CreateEventPage() {
         queryClient.invalidateQueries(
           context?.parentCommunityId
             ? [communityEventsBaseKey, context.parentCommunityId]
-            : communityEventsBaseKey
+            : communityEventsBaseKey,
         );
         router.push(routeToEvent(event.eventId, event.slug));
       },
       onSettled() {
         window.scroll({ top: 0, behavior: "smooth" });
       },
-    }
+    },
   );
 
   const { data: accountInfo, isLoading: isAccountInfoLoading } =

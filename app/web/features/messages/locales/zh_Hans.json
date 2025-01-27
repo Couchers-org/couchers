@@ -144,7 +144,6 @@
     "back_button_a11y_label": "返回",
     "title_for_host": "来自{{user}} 的请求 - {{status}}",
     "title_for_surfer": "向 {{user}} 发出的请求 - {{status}}",
-    "request_duration": "{{count}} 晚",
-    "request_duration_plural": "{{count}} 晚"
+    "request_duration_0": "{{count}} 晚"
   }
 }

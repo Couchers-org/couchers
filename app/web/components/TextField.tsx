@@ -20,7 +20,7 @@ const StyledMuiTextField = styled(MuiTextField)<TextFieldProps>(
         borderColor: theme.palette.grey[900],
       },
     }),
-  })
+  }),
 );
 
 type AccessibleTextFieldProps = Omit<TextFieldProps, "variant"> & {
@@ -35,7 +35,7 @@ const TextField = forwardRef<
 >(
   (
     { className, variant = "outlined", helperText, name, ...otherProps },
-    ref
+    ref,
   ) => {
     return (
       <StyledMuiTextField
@@ -50,7 +50,7 @@ const TextField = forwardRef<
         className={className}
       />
     );
-  }
+  },
 );
 
 TextField.displayName = "TextField";

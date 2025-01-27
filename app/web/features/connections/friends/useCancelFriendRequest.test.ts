@@ -31,7 +31,7 @@ describe("useCancelFriendRequest hook", () => {
     ]);
     client.setQueryData<FriendRequest.AsObject[]>(
       friendRequestKey("received"),
-      []
+      [],
     );
   });
 
@@ -53,7 +53,7 @@ describe("useCancelFriendRequest hook", () => {
     await waitFor(() => expect(setMutationError).toHaveBeenCalledTimes(1));
     expect(setMutationError).toHaveBeenCalledWith("");
     expect(client.getQueryState(friendRequestKey("sent"))?.isInvalidated).toBe(
-      true
+      true,
     );
   });
 
@@ -75,7 +75,7 @@ describe("useCancelFriendRequest hook", () => {
     await waitFor(() => expect(setMutationError).toHaveBeenCalledTimes(2));
     expect(setMutationError).toHaveBeenLastCalledWith("API error");
     expect(client.getQueryState(friendRequestKey("sent"))?.isInvalidated).toBe(
-      false
+      false,
     );
   });
 });

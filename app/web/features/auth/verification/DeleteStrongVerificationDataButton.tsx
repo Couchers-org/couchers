@@ -36,7 +36,7 @@ export default function DeleteStrongVerificationDataButton() {
         setDeleted(true);
         queryClient.invalidateQueries(accountInfoQueryKey);
       },
-    }
+    },
   );
 
   return (

@@ -51,10 +51,10 @@ describe("Events list", () => {
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
     expect(
-      screen.getByRole("heading", { name: t("communities:events_title") })
+      screen.getByRole("heading", { name: t("communities:events_title") }),
     ).toBeVisible();
     expect(
-      screen.getByRole("button", { name: t("communities:create_an_event") })
+      screen.getByRole("button", { name: t("communities:create_an_event") }),
     ).toBeVisible();
     // High level check that there are 3 events cards
     expect(screen.getAllByRole("link")).toHaveLength(3);
@@ -72,14 +72,14 @@ describe("Events list", () => {
   });
 
   it(`takes user to the page if the "${t(
-    "communities:create_an_event"
+    "communities:create_an_event",
   )}" button is clicked`, async () => {
     render(<CommunityEventsList community={community} />, { wrapper });
 
     const user = userEvent.setup();
 
     await user.click(
-      screen.getByRole("button", { name: t("communities:create_an_event") })
+      screen.getByRole("button", { name: t("communities:create_an_event") }),
     );
 
     await waitFor(() => {
@@ -95,7 +95,7 @@ describe("Events list", () => {
 
     await assertErrorAlert(errorMessage);
     expect(
-      screen.queryByText(t("communities:events_empty_state"))
+      screen.queryByText(t("communities:events_empty_state")),
     ).not.toBeInTheDocument();
   });
 

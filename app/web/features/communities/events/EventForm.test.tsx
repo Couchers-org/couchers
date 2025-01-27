@@ -77,39 +77,39 @@ describe("Event form", () => {
     expect(
       await screen.findByRole("heading", {
         name: t("communities:create_an_event"),
-      })
+      }),
     ).toBeVisible();
     expect(screen.getByText(t("communities:upload_helper_text"))).toBeVisible();
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:start_date")),
-      ""
+      "",
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:start_time")),
-      ""
+      "",
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:end_date")),
-      ""
+      "",
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:end_time")),
-      ""
+      "",
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:location")),
-      ""
+      "",
     );
     expect(screen.getByText(t("communities:virtual_event"))).toBeVisible();
     expect(
-      screen.getByLabelText(t("communities:virtual_event"))
+      screen.getByLabelText(t("communities:virtual_event")),
     ).not.toBeChecked();
     expect(screen.getByLabelText(t("communities:event_details"))).toBeVisible();
     expect(
-      screen.getByRole("button", { name: t("global:create") })
+      screen.getByRole("button", { name: t("global:create") }),
     ).toBeVisible();
     expect(
-      screen.getByRole("img", { name: t("communities:event_image_input_alt") })
+      screen.getByRole("img", { name: t("communities:event_image_input_alt") }),
     ).toHaveAttribute("src", "/img/imagePlaceholder.svg");
   });
 
@@ -118,37 +118,37 @@ describe("Event form", () => {
 
     assertFieldVisibleWithValue(
       await screen.findByLabelText(t("global:title")),
-      "Weekly Meetup"
+      "Weekly Meetup",
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:start_date")),
-      "06/29/2021"
+      "06/29/2021",
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:start_time")),
-      "02:37"
+      "02:37",
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:end_date")),
-      "06/29/2021"
+      "06/29/2021",
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:end_time")),
-      "03:37"
+      "03:37",
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:location")),
-      "Concertgebouw"
+      "Concertgebouw",
     );
     expect(
-      screen.getByLabelText(t("communities:virtual_event"))
+      screen.getByLabelText(t("communities:virtual_event")),
     ).not.toBeChecked();
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:event_details")),
-      "*Be there* or be square!"
+      "*Be there* or be square!",
     );
     expect(
-      screen.getByRole("img", { name: t("communities:event_image_input_alt") })
+      screen.getByRole("img", { name: t("communities:event_image_input_alt") }),
     ).toHaveAttribute("src", "https://loremflickr.com/500/120/amsterdam");
   });
 
@@ -158,7 +158,7 @@ describe("Event form", () => {
     expect(
       await screen.findByRole("img", {
         name: t("communities:event_image_input_alt"),
-      })
+      }),
     ).toHaveAttribute("src", "/img/imagePlaceholder.svg");
   });
 
@@ -168,19 +168,19 @@ describe("Event form", () => {
     const user = userEvent.setup();
 
     const virtualEventCheckbox = screen.getByLabelText(
-      t("communities:virtual_event")
+      t("communities:virtual_event"),
     );
 
     user.click(virtualEventCheckbox);
 
     await waitFor(() =>
       expect(
-        screen.getByLabelText(t("communities:virtual_event"))
-      ).toBeChecked()
+        screen.getByLabelText(t("communities:virtual_event")),
+      ).toBeChecked(),
     );
     expect(screen.getByLabelText(t("communities:event_link"))).toBeVisible();
     expect(
-      screen.queryByLabelText(t("communities:location"))
+      screen.queryByLabelText(t("communities:location")),
     ).not.toBeInTheDocument();
   });
 
@@ -206,7 +206,7 @@ describe("Event form", () => {
     user.click(screen.getByRole("button", { name: t("global:create") }));
 
     expect(
-      await screen.findByText(t("communities:location_required"))
+      await screen.findByText(t("communities:location_required")),
     ).toBeVisible();
     expect(serviceFn).not.toHaveBeenCalled();
   });
@@ -219,7 +219,7 @@ describe("Event form", () => {
     user.type(screen.getByLabelText(t("global:title")), "Test event");
 
     const virtualEventCheckbox = screen.getByLabelText(
-      t("communities:virtual_event")
+      t("communities:virtual_event"),
     ) as HTMLInputElement;
 
     user.click(virtualEventCheckbox);
@@ -230,7 +230,7 @@ describe("Event form", () => {
     user.click(screen.getByRole("button", { name: t("global:create") }));
 
     const linkRequiredHelperText = await screen.findByText(
-      t("communities:link_required")
+      t("communities:link_required"),
     );
 
     await waitFor(async () => expect(linkRequiredHelperText).toBeVisible());
@@ -244,7 +244,7 @@ describe("Event form", () => {
     const user = userEvent.setup();
 
     const titleInput = screen.getByLabelText(
-      t("global:title")
+      t("global:title"),
     ) as HTMLInputElement;
 
     // @TODO These should be awaited, but it times out with this component. Try again after upgrading jest and mui x-datepickers maybe?
@@ -256,7 +256,7 @@ describe("Event form", () => {
     });
 
     const startDateField = (await screen.findByLabelText(
-      t("communities:start_date")
+      t("communities:start_date"),
     )) as HTMLInputElement;
 
     user.type(startDateField, "08012021");
@@ -266,7 +266,7 @@ describe("Event form", () => {
     });
 
     const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time")
+      t("communities:start_time"),
     )) as HTMLInputElement;
 
     user.type(startTimeField, "01:00");
@@ -276,7 +276,7 @@ describe("Event form", () => {
     });
 
     const endDateField = (await screen.findByLabelText(
-      t("communities:end_date")
+      t("communities:end_date"),
     )) as HTMLInputElement;
 
     user.type(endDateField, "08012021");
@@ -286,7 +286,7 @@ describe("Event form", () => {
     });
 
     const endTimeField = screen.getByLabelText(
-      t("communities:end_time")
+      t("communities:end_time"),
     ) as HTMLInputElement;
 
     user.type(endTimeField, "02:00");
@@ -294,7 +294,7 @@ describe("Event form", () => {
     await waitFor(() => expect(endTimeField).toHaveValue("02:00"));
 
     const virtualEventCheckbox = screen.getByLabelText(
-      t("communities:virtual_event")
+      t("communities:virtual_event"),
     ) as HTMLInputElement;
 
     user.click(virtualEventCheckbox);
@@ -304,24 +304,24 @@ describe("Event form", () => {
     });
 
     const eventLinkInput = await screen.findByLabelText(
-      t("communities:event_link")
+      t("communities:event_link"),
     );
 
     user.type(eventLinkInput, "https://couchers.org/social");
 
     await waitFor(
       () => expect(eventLinkInput).toHaveValue("https://couchers.org/social"),
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     user.type(
       screen.getByLabelText(t("communities:event_details")),
-      "sick social!"
+      "sick social!",
     );
 
     await waitFor(() => {
       expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-        "sick social!"
+        "sick social!",
       );
     });
 
@@ -347,12 +347,12 @@ describe("Event form", () => {
 
     await waitFor(() => {
       expect(screen.getByLabelText(t("global:title"))).toHaveValue(
-        "Test event"
+        "Test event",
       );
     });
 
     const startDateField = (await screen.findByLabelText(
-      t("communities:start_date")
+      t("communities:start_date"),
     )) as HTMLInputElement;
 
     user.type(startDateField, "08012021");
@@ -362,7 +362,7 @@ describe("Event form", () => {
     });
 
     const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time")
+      t("communities:start_time"),
     )) as HTMLInputElement;
 
     user.type(startTimeField, "01:00");
@@ -372,7 +372,7 @@ describe("Event form", () => {
     });
 
     const endDateField = (await screen.findByLabelText(
-      t("communities:end_date")
+      t("communities:end_date"),
     )) as HTMLInputElement;
 
     user.type(endDateField, "08012021");
@@ -382,7 +382,7 @@ describe("Event form", () => {
     });
 
     const endTimeField = screen.getByLabelText(
-      t("communities:end_time")
+      t("communities:end_time"),
     ) as HTMLInputElement;
 
     user.type(endTimeField, "02:00");
@@ -392,7 +392,7 @@ describe("Event form", () => {
     user.click(screen.getByLabelText(t("communities:virtual_event")));
 
     const eventLinkInput = (await screen.findByLabelText(
-      t("communities:event_link")
+      t("communities:event_link"),
     )) as HTMLInputElement;
 
     user.type(eventLinkInput, "https://couchers.org/social");
@@ -401,17 +401,17 @@ describe("Event form", () => {
       () => {
         expect(eventLinkInput).toHaveValue("https://couchers.org/social");
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     user.type(
       screen.getByLabelText(t("communities:event_details")),
-      "sick social!"
+      "sick social!",
     );
 
     await waitFor(() => {
       expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-        "sick social!"
+        "sick social!",
       );
     });
 
@@ -429,7 +429,7 @@ describe("Event form", () => {
     const user = userEvent.setup();
 
     const titleInput = screen.getByLabelText(
-      t("global:title")
+      t("global:title"),
     ) as HTMLInputElement;
 
     user.type(titleInput, "Test event");
@@ -439,7 +439,7 @@ describe("Event form", () => {
     });
 
     const startDateField = (await screen.findByLabelText(
-      t("communities:start_date")
+      t("communities:start_date"),
     )) as HTMLInputElement;
 
     user.type(startDateField, "08012021");
@@ -449,7 +449,7 @@ describe("Event form", () => {
     });
 
     const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time")
+      t("communities:start_time"),
     )) as HTMLInputElement;
 
     user.type(startTimeField, "01:00");
@@ -459,7 +459,7 @@ describe("Event form", () => {
     });
 
     const endDateField = (await screen.findByLabelText(
-      t("communities:end_date")
+      t("communities:end_date"),
     )) as HTMLInputElement;
 
     user.type(endDateField, "08012021");
@@ -469,7 +469,7 @@ describe("Event form", () => {
     });
 
     const endTimeField = screen.getByLabelText(
-      t("communities:end_time")
+      t("communities:end_time"),
     ) as HTMLInputElement;
 
     user.type(endTimeField, "02:00");
@@ -482,7 +482,7 @@ describe("Event form", () => {
 
     await waitFor(() => {
       expect(screen.getByLabelText(t("communities:location"))).toHaveValue(
-        "tes"
+        "tes",
       );
     });
 
@@ -490,12 +490,12 @@ describe("Event form", () => {
 
     user.type(
       screen.getByLabelText(t("communities:event_details")),
-      "sick social!"
+      "sick social!",
     );
 
     await waitFor(() => {
       expect(screen.getByLabelText(t("communities:event_details"))).toHaveValue(
-        "sick social!"
+        "sick social!",
       );
     });
 
@@ -508,7 +508,7 @@ describe("Event form", () => {
       () => {
         expect(serviceFn).toHaveBeenCalledTimes(1);
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
   });
 });

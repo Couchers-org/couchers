@@ -89,11 +89,11 @@ export default function EditCommunityPage({
                   ...community,
                   mainPage: newPageData,
                 }
-              : undefined
+              : undefined,
         );
         queryClient.invalidateQueries(communityKey(+communityId));
       },
-    }
+    },
   );
 
   const onSubmit = handleSubmit(
@@ -104,7 +104,7 @@ export default function EditCommunityPage({
       if (errors.communityPhotoKey) {
         window.scroll({ top: 0, behavior: "smooth" });
       }
-    }
+    },
   );
 
   return (
@@ -148,11 +148,6 @@ export default function EditCommunityPage({
                 imageUpload
                 required={t("communities:page_content_required")}
               />
-              {errors.content && (
-                <Typography color="error" variant="body2">
-                  {errors.content.message}
-                </Typography>
-              )}
               <input
                 id="pageId"
                 {...register("pageId")}

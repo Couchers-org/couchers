@@ -33,7 +33,7 @@ export default function AddFriendButton({
       await queryClient.cancelQueries(userKey(userId));
 
       const cachedUser = queryClient.getQueryData<User.AsObject>(
-        userKey(userId)
+        userKey(userId),
       );
 
       if (cachedUser) {

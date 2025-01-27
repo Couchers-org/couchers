@@ -125,7 +125,7 @@ export default function SearchResultsList({
 
   const wasResultFound =
     resultsList?.find(
-      (value) => value.user?.userId === selectedResult?.userId
+      (value) => value.user?.userId === selectedResult?.userId,
     ) !== undefined;
 
   if (!wasResultFound && selectedUserData.data) {

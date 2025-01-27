@@ -16,9 +16,9 @@ export const useLanguages = () => {
           {
             languages: {} as { [code: string]: string },
             languagesLookup: {} as { [name: string]: string },
-          }
-        )
-      )
+          },
+        ),
+      ),
   );
 
   return {

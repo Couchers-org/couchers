@@ -35,7 +35,7 @@ export default function StartStrongVerificationButton() {
       onSuccess: async (data) => {
         router.push(data.redirectUrl);
       },
-    }
+    },
   );
 
   return (

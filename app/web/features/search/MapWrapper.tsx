@@ -128,7 +128,7 @@ export default function MapWrapper({
       const [lng, lat] = geom.coordinates;
       setSelectedResult({ userId, lng, lat });
     },
-    [setSelectedResult]
+    [setSelectedResult],
   );
 
   /**
@@ -157,7 +157,7 @@ export default function MapWrapper({
         center: [user.lng, user.lat],
       });
     },
-    [map]
+    [map],
   );
 
   /**
@@ -170,7 +170,7 @@ export default function MapWrapper({
       if (areClustersLoaded) {
         map.current?.setFeatureState(
           { source: "clustered-users", id: previousResult.userId },
-          { selected: false }
+          { selected: false },
         );
       }
     }
@@ -180,7 +180,7 @@ export default function MapWrapper({
       if (areClustersLoaded) {
         map.current?.setFeatureState(
           { source: "clustered-users", id: selectedResult.userId },
-          { selected: true }
+          { selected: true },
         );
       }
 
@@ -204,7 +204,7 @@ export default function MapWrapper({
     map.current.on(
       "click",
       layers.unclusteredPointLayer.id,
-      handleMapUserClick
+      handleMapUserClick,
     );
 
     map.current.on("click", handleMapClickAway);
@@ -220,7 +220,7 @@ export default function MapWrapper({
       map.current.off(
         "click",
         layers.unclusteredPointLayer.id,
-        handleMapUserClick
+        handleMapUserClick,
       );
     };
   }, [handleMapUserClick, handleMapSourceData, map, setSelectedResult]);

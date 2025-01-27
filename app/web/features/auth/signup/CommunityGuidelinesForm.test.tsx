@@ -29,7 +29,7 @@ describe("community guidelines signup form", () => {
         needFeedback: false,
         needVerifyEmail: false,
         needAcceptCommunityGuidelines: true,
-      })
+      }),
     );
     getCommunityGuidelinesMock.mockResolvedValue({
       communityGuidelinesList: [
@@ -58,7 +58,7 @@ describe("community guidelines signup form", () => {
     render(<CommunityGuidelinesForm />, { wrapper });
 
     const checkboxes = await screen.findAllByLabelText(
-      t("auth:community_guidelines_form.guideline.checkbox_label")
+      t("auth:community_guidelines_form.guideline.checkbox_label"),
     );
     const button = await screen.findByRole("button", {
       name: t("global:continue"),
@@ -76,7 +76,7 @@ describe("community guidelines signup form", () => {
     await waitFor(() => {
       expect(signupFlowCommunityGuidelinesMock).toBeCalledWith(
         "dummy-token",
-        true
+        true,
       );
     });
   });
@@ -91,7 +91,7 @@ describe("community guidelines signup form", () => {
     });
 
     const checkboxes = await screen.findAllByLabelText(
-      t("auth:community_guidelines_form.guideline.checkbox_label")
+      t("auth:community_guidelines_form.guideline.checkbox_label"),
     );
     const user = userEvent.setup();
 
@@ -102,7 +102,7 @@ describe("community guidelines signup form", () => {
     await waitFor(() => expect(button).not.toBeDisabled());
 
     expect(
-      screen.queryByText("All checkboxes are required")
+      screen.queryByText("All checkboxes are required"),
     ).not.toBeInTheDocument();
 
     const lastCheckbox = checkboxes[checkboxes.length - 1];

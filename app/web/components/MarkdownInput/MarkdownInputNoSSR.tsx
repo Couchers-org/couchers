@@ -51,6 +51,12 @@ const StyledWrapper = styled("div", {
   }),
 }));
 
+const StyledErrorText = styled("div")(({ theme }) => ({
+  color: theme.palette.error.main,
+  marginTop: theme.spacing(0.25),
+  fontSize: "0.875rem",
+}));
+
 export default function MarkdownInput({
   control,
   defaultValue,
@@ -68,6 +74,13 @@ export default function MarkdownInput({
     defaultValue: defaultValue ?? "",
     rules: {
       required,
+      validate: (value) => {
+        const trimmedValue = value.trim();
+        if (trimmedValue.length === 0) {
+          return required;
+        }
+        return true;
+      },
     },
   });
 
@@ -117,7 +130,7 @@ export default function MarkdownInput({
         blur: () => fieldOnBlur.current(),
         change: () =>
           fieldOnChange.current(
-            (fieldRef.current as ToastUIEditor).getMarkdown()
+            (fieldRef.current as ToastUIEditor).getMarkdown(),
           ),
       },
       initialEditType: "wysiwyg",
@@ -139,7 +152,7 @@ export default function MarkdownInput({
       editBox.setAttribute("role", "textbox");
     } else {
       console.warn(
-        "Couldn't locate the markdown input area for accessibility tags"
+        "Couldn't locate the markdown input area for accessibility tags",
       );
     }
 
@@ -163,6 +176,11 @@ export default function MarkdownInput({
             (fieldRef.current as ToastUIEditor | undefined)?.eventEmitter
           }
         />
+      )}
+      {fieldState.error && (
+        <StyledErrorText data-testid="markdown-error-text">
+          {fieldState.error.message}
+        </StyledErrorText>
       )}
     </>
   );

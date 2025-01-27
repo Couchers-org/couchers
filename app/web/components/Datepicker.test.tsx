@@ -69,7 +69,7 @@ describe("DatePicker", () => {
     // @TODO(NA) These should be awaited according to the testing-library docs, but timesout now
     // I think bc old mui-x-datepickers package. Try again once we upgrade MUI to latest version.
     user.click(
-      screen.getByLabelText(t("global:components.datepicker.change_date"))
+      screen.getByLabelText(t("global:components.datepicker.change_date")),
     );
 
     user.click(screen.getByRole("button", { name: t("global:submit") }));

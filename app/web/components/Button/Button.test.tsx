@@ -14,7 +14,7 @@ it.skip("should try to log the error to Sentry if one is thrown when the button 
     >
       Test button
     </Button>,
-    { wrapper }
+    { wrapper },
   );
 
   const user = userEvent.setup();

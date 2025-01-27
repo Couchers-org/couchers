@@ -74,7 +74,7 @@ export default function ChangePhone({
         resetVerify();
         resetRemove();
       },
-    }
+    },
   );
 
   const {
@@ -102,7 +102,7 @@ export default function ChangePhone({
         resetChange();
         resetRemove();
       },
-    }
+    },
   );
 
   const {

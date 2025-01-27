@@ -120,7 +120,7 @@ export default function AccountForm() {
       onSettled() {
         window.scroll({ top: 0, behavior: "smooth" });
       },
-    }
+    },
   );
 
   const submit = handleSubmit(
@@ -133,7 +133,7 @@ export default function AccountForm() {
     () => {
       //location won't focus on error, so scroll to the top
       if (errors.location) window.scroll({ top: 0, behavior: "smooth" });
-    }
+    },
   );
 
   const acceptTOS = watch("acceptTOS");
@@ -172,7 +172,7 @@ export default function AccountForm() {
             required: t("auth:account_form.username.required_error"),
             validate: async (username: string) => {
               const valid = await service.auth.validateUsername(
-                lowercaseAndTrimField(username)
+                lowercaseAndTrimField(username),
               );
               return (
                 valid || t("auth:account_form.username.username_taken_error")
@@ -298,7 +298,7 @@ export default function AccountForm() {
                 {...field}
                 onChange={(event) => {
                   field.onChange(
-                    Number.parseInt(event.target.value as string) || ""
+                    Number.parseInt(event.target.value as string) || "",
                   );
                 }}
                 value={field.value}
@@ -314,13 +314,13 @@ export default function AccountForm() {
                 optionLabelMap={{
                   "": "",
                   [HostingStatus.HOSTING_STATUS_CAN_HOST]: t(
-                    "auth:account_form.hosting_status.can_host"
+                    "auth:account_form.hosting_status.can_host",
                   ),
                   [HostingStatus.HOSTING_STATUS_MAYBE]: t(
-                    "auth:account_form.hosting_status.maybe"
+                    "auth:account_form.hosting_status.maybe",
                   ),
                   [HostingStatus.HOSTING_STATUS_CANT_HOST]: t(
-                    "auth:account_form.hosting_status.cant_host"
+                    "auth:account_form.hosting_status.cant_host",
                   ),
                 }}
               />

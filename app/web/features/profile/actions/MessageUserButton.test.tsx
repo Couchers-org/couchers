@@ -52,7 +52,7 @@ describe("MessageUserButton", () => {
       <MessageUserButton user={mockUser} setMutationError={setErrorMock} />,
       {
         wrapper,
-      }
+      },
     );
 
     const button = screen.getByRole("button");
@@ -76,7 +76,7 @@ describe("MessageUserButton", () => {
       <MessageUserButton user={mockUser} setMutationError={setErrorMock} />,
       {
         wrapper,
-      }
+      },
     );
 
     const button = screen.getByRole("button");
@@ -90,7 +90,7 @@ describe("MessageUserButton", () => {
     await user.click(button);
 
     await waitFor(() =>
-      expect(mockRouter.asPath).toBe(routeToCreateMessage(mockUser.username))
+      expect(mockRouter.asPath).toBe(routeToCreateMessage(mockUser.username)),
     );
   });
 
@@ -102,7 +102,7 @@ describe("MessageUserButton", () => {
       <MessageUserButton user={mockUser} setMutationError={setErrorMock} />,
       {
         wrapper,
-      }
+      },
     );
 
     const button = screen.getByRole("button");
@@ -118,9 +118,9 @@ describe("MessageUserButton", () => {
     await waitFor(async () =>
       expect(
         await screen.findByLabelText(
-          t("dashboard:complete_profile_dialog.title")
-        )
-      ).toBeVisible()
+          t("dashboard:complete_profile_dialog.title"),
+        ),
+      ).toBeVisible(),
     );
   });
 });

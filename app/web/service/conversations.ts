@@ -44,7 +44,7 @@ export async function getGroupChat(id: number) {
 export async function getGroupChatMessages(
   groupChatId: number,
   lastMessageId = 0,
-  count = 20
+  count = 20,
 ) {
   const req = new GetGroupChatMessagesReq();
   req.setGroupChatId(groupChatId);
@@ -58,7 +58,7 @@ export async function getGroupChatMessages(
 
 export async function createGroupChat(
   title: string,
-  users: User.AsObject[]
+  users: User.AsObject[],
 ): Promise<number> {
   const req = new CreateGroupChatReq();
   req.setRecipientUserIdsList(users.map((user) => user.userId));
@@ -94,7 +94,7 @@ export function inviteToGroupChat(groupChatId: number, users: User.AsObject[]) {
 
 export function makeGroupChatAdmin(
   groupChatId: number,
-  user: LiteUser.AsObject
+  user: LiteUser.AsObject,
 ) {
   const req = new MakeGroupChatAdminReq();
   req.setGroupChatId(groupChatId);
@@ -104,7 +104,7 @@ export function makeGroupChatAdmin(
 
 export function removeGroupChatAdmin(
   groupChatId: number,
-  user: LiteUser.AsObject
+  user: LiteUser.AsObject,
 ) {
   const req = new RemoveGroupChatAdminReq();
   req.setGroupChatId(groupChatId);
@@ -115,7 +115,7 @@ export function removeGroupChatAdmin(
 export function editGroupChat(
   groupChatId: number,
   title?: string,
-  onlyAdminsInvite?: boolean
+  onlyAdminsInvite?: boolean,
 ) {
   const req = new EditGroupChatReq();
   req.setGroupChatId(groupChatId);
@@ -127,7 +127,7 @@ export function editGroupChat(
 
 export function markLastSeenGroupChat(
   groupChatId: number,
-  lastSeenMessageId: number
+  lastSeenMessageId: number,
 ) {
   const req = new MarkLastSeenGroupChatReq();
   req.setGroupChatId(groupChatId);

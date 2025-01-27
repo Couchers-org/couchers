@@ -2,7 +2,7 @@ import { User } from "proto/api_pb";
 import * as React from "react";
 
 const ProfileUserContext = React.createContext<User.AsObject>(
-  {} as User.AsObject
+  {} as User.AsObject,
 );
 ProfileUserContext.displayName = "ProfileUserContext";
 

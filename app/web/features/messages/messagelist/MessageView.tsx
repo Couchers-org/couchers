@@ -91,7 +91,7 @@ export default function MessageView({
 }: MessageProps) {
   const classes = useStyles();
   const { data: author, isLoading: isAuthorLoading } = useLiteUser(
-    message.authorUserId
+    message.authorUserId,
   );
   const { data: currentUser, isLoading: isCurrentUserLoading } =
     useCurrentUser();

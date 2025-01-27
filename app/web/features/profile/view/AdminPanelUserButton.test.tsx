@@ -74,7 +74,7 @@ describe("AdminPanelUserButton", () => {
     });
 
     expect(
-      screen.queryByText(t("profile:view_in_admin_console"))
+      screen.queryByText(t("profile:view_in_admin_console")),
     ).not.toBeInTheDocument();
   });
 });

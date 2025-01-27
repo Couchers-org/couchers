@@ -44,7 +44,7 @@ interface CommentData {
 
 function InternalCommentForm(
   { hideable = false, onClose, shown = false, threadId }: CommentFormProps,
-  ref: React.ForwardedRef<HTMLFormElement>
+  ref: React.ForwardedRef<HTMLFormElement>,
 ) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
@@ -73,11 +73,16 @@ function InternalCommentForm(
         resetMutation();
         onClose?.();
       },
-    }
+    },
   );
 
   const onSubmit = handleSubmit((data) => {
-    postComment(data);
+    const trimmedValue = data.content.trim();
+    const newData = {
+      content: trimmedValue,
+    };
+
+    postComment(newData);
   });
 
   return (
@@ -93,6 +98,7 @@ function InternalCommentForm(
           resetInputRef={resetInputRef}
           labelId={`comment-${threadId}-reply-label`}
           name="content"
+          required={t("communities:fill_out_comment")}
         />
         <div className={classes.buttonsContainer}>
           {hideable && <Button onClick={onClose}>{t("global:close")}</Button>}

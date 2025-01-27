@@ -21,7 +21,7 @@
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
-		"python.defaultInterpreterPath": "/workspace/venv/bin/python3.12",
+		"python.defaultInterpreterPath": "/workspace/venv/bin/python3.13",
 		"python.languageServer": "Jedi"
 	},
 

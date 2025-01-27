@@ -62,12 +62,12 @@ export default function FlagButton({
       onSuccess: () => {
         setIsOpen(false);
       },
-    }
+    },
   );
 
   const handleClose = (
     event: unknown,
-    reason: "backdropClick" | "escapeKeyDown" | "button"
+    reason: "backdropClick" | "escapeKeyDown" | "button",
   ) => {
     if (reason !== "button") return;
     resetForm();

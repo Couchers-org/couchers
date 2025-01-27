@@ -23,7 +23,7 @@ const serviceStubs = Object.keys(originalService).reduce(
     serviceStub[serviceKey] = {};
     return serviceStub;
   },
-  {}
+  {},
 );
 
 export const mockedService = {
@@ -99,9 +99,9 @@ export const service = new Proxy(
               return async (...args: unknown[]) => {
                 console.log(
                   `Service method '${String(serviceName)}.${String(
-                    methodName
+                    methodName,
                   )}' is called with args:`,
-                  ...args
+                  ...args,
                 );
                 await wait(1e3);
                 const result = await serviceMethod(...args);
@@ -112,15 +112,15 @@ export const service = new Proxy(
               return () => {
                 console.warn(
                   `Service method '${String(serviceName)}.${String(
-                    methodName
-                  )}' is called. You should probably mock it.`
+                    methodName,
+                  )}' is called. You should probably mock it.`,
                 );
                 return Promise.resolve();
               };
             }
           },
-        }
+        },
       );
     },
-  }
+  },
 );

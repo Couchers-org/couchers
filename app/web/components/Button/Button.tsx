@@ -42,7 +42,7 @@ function InternalButton<D extends ElementType = "button">(
     color = "primary",
     ...otherProps
   }: ButtonProps<D>,
-  ref: ForwardedRef<HTMLButtonElement>
+  ref: ForwardedRef<HTMLButtonElement>,
 ) {
   const isMounted = useIsMounted();
   const [waiting, setWaiting] = useSafeState(isMounted, false);

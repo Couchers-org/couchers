@@ -38,7 +38,7 @@ export default function CommunityModeratorsSection({
   const classes = useStyles();
   const { adminIds, error, hasNextPage } = useListAdmins(
     community.communityId,
-    "summary"
+    "summary",
   );
   const [isModeratorsDialogOpen, setIsModeratorsDialogOpen] = useState(false);
 

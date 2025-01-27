@@ -91,7 +91,7 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
       onSuccess(updatedEvent, _, context) {
         queryClient.setQueryData<Event.AsObject>(
           eventKey(eventId),
-          updatedEvent
+          updatedEvent,
         );
         queryClient.invalidateQueries(eventKey(eventId), {
           refetchActive: false,
@@ -99,14 +99,14 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
         queryClient.invalidateQueries(
           context?.parentCommunityId
             ? [communityEventsBaseKey, context.parentCommunityId]
-            : communityEventsBaseKey
+            : communityEventsBaseKey,
         );
         router.push(routeToEvent(updatedEvent.eventId, updatedEvent.slug));
       },
       onSettled() {
         window.scroll({ top: 0, behavior: "smooth" });
       },
-    }
+    },
   );
 
   return isValidEventId ? (

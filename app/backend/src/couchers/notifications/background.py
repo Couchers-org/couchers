@@ -72,7 +72,7 @@ def _send_email_notification(session, user: User, notification: Notification):
             plain_unsub_section += f"\n\nTurn off emails for {tk}: <{tk_link}>"
             unsub_options.append(f'<a href="{tk_link}">{tk}</a>')
         if unsub_options:
-            html_unsub_section += f'<br />Turn off emails for: {" / ".join(unsub_options)}.'
+            html_unsub_section += f"<br />Turn off emails for: {' / '.join(unsub_options)}."
         dne_link = generate_do_not_email(user)
         plain_unsub_section += f"\n\nDo not email me (disables hosting): <{dne_link}>"
         html_unsub_section += f'<br /><a href="{dne_link}">Do not email me (disables hosting)</a>.'

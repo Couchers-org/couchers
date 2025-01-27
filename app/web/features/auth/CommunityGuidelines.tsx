@@ -132,7 +132,7 @@ export default function CommunityGuidelines({
                     defaultValue={false}
                     rules={{
                       required: t(
-                        "auth:community_guidelines_form.guideline.required_error"
+                        "auth:community_guidelines_form.guideline.required_error",
                       ),
                     }}
                     render={({ field }) => (
@@ -141,7 +141,7 @@ export default function CommunityGuidelines({
                           label={
                             <Typography variant="body1">
                               {t(
-                                "auth:community_guidelines_form.guideline.checkbox_label"
+                                "auth:community_guidelines_form.guideline.checkbox_label",
                               )}
                             </Typography>
                           }
@@ -164,7 +164,7 @@ export default function CommunityGuidelines({
                   />
                 </div>
               </React.Fragment>
-            )
+            ),
           )}
         </StyledGrid>
 

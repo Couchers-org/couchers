@@ -63,7 +63,7 @@ describe("Edit event page", () => {
     });
 
     const virtualEventCheckBox = screen.getByLabelText(
-      t("communities:virtual_event")
+      t("communities:virtual_event"),
     ) as HTMLInputElement;
 
     user.click(virtualEventCheckBox);
@@ -73,7 +73,7 @@ describe("Edit event page", () => {
     });
 
     const eventLinkInput = (await screen.findByLabelText(
-      t("communities:event_link")
+      t("communities:event_link"),
     )) as HTMLInputElement;
 
     user.type(eventLinkInput, "https://couchers.org/amsterdam-social");
@@ -81,10 +81,10 @@ describe("Edit event page", () => {
     await waitFor(
       () => {
         expect(eventLinkInput).toHaveValue(
-          "https://couchers.org/amsterdam-social"
+          "https://couchers.org/amsterdam-social",
         );
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     const eventDetails = screen.getByLabelText(t("communities:event_details"));
@@ -97,11 +97,11 @@ describe("Edit event page", () => {
       () => {
         expect(eventDetails).toHaveValue("We are going virtual this week!");
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     const endDateField = await screen.findByLabelText<HTMLInputElement>(
-      t("communities:end_date")
+      t("communities:end_date"),
     );
 
     user.clear(endDateField);
@@ -135,7 +135,7 @@ describe("Edit event page", () => {
     renderPage();
 
     const startDateField = await screen.findByLabelText<HTMLInputElement>(
-      t("communities:start_date")
+      t("communities:start_date"),
     );
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -153,7 +153,7 @@ describe("Edit event page", () => {
       () => {
         expect(updateEventMock).toHaveBeenCalledTimes(1);
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     expect(updateEventMock).toHaveBeenCalledWith({
@@ -167,7 +167,7 @@ describe("Edit event page", () => {
     renderPage();
 
     const startTimeField = (await screen.findByLabelText(
-      t("communities:start_time")
+      t("communities:start_time"),
     )) as HTMLInputElement;
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -185,7 +185,7 @@ describe("Edit event page", () => {
       () => {
         expect(updateEventMock).toHaveBeenCalledTimes(1);
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     expect(updateEventMock).toHaveBeenCalledWith({
@@ -209,7 +209,7 @@ describe("Edit event page", () => {
     renderPage();
 
     const startDateField = await screen.findByLabelText<HTMLInputElement>(
-      t("communities:start_date")
+      t("communities:start_date"),
     );
 
     const user = userEvent.setup();
@@ -222,7 +222,7 @@ describe("Edit event page", () => {
     });
 
     const endDateField = await screen.findByLabelText<HTMLInputElement>(
-      t("communities:end_date")
+      t("communities:end_date"),
     );
 
     user.clear(endDateField);

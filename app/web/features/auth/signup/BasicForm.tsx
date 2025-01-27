@@ -51,7 +51,7 @@ export default function BasicForm({
       const sanitizedName = data.name.trim();
       const state = await service.auth.startSignup(
         sanitizedName,
-        sanitizedEmail
+        sanitizedEmail,
       );
       return authActions.updateSignupState(state);
     },
@@ -64,7 +64,7 @@ export default function BasicForm({
           successCallback();
         }
       },
-    }
+    },
   );
 
   const onSubmit = handleSubmit((data: SignupBasicInputs) => {

@@ -559,9 +559,9 @@ def _check_user_perms(method, user_id, is_jailed, is_superuser, token_expiry):
     if not user_id:
         assert auth_level == annotations_pb2.AUTH_LEVEL_OPEN
     else:
-        assert not (
-            auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser
-        ), "Non-superuser tried to call superuser API"
+        assert not (auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser), (
+            "Non-superuser tried to call superuser API"
+        )
         assert not (
             is_jailed and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]
         ), "User is jailed but tried to call non-open/non-jailed API"
@@ -867,8 +867,9 @@ def testconfig():
 
     config["LISTMONK_ENABLED"] = False
     config["LISTMONK_BASE_URL"] = "https://localhost"
+    config["LISTMONK_API_USERNAME"] = "..."
     config["LISTMONK_API_KEY"] = "..."
-    config["LISTMONK_LIST_UUID"] = "..."
+    config["LISTMONK_LIST_ID"] = 3
 
     config["PUSH_NOTIFICATIONS_ENABLED"] = True
     config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"] = "uI1DCR4G1AdlmMlPfRLemMxrz9f3h4kvjfnI8K9WsVI"
@@ -976,9 +977,9 @@ def push_collector():
             push = self.by_user(user_id)[ix]
             for kwarg in kwargs:
                 assert kwarg in push.kwargs, f"Push notification {user_id=}, {ix=} missing field '{kwarg}'"
-                assert (
-                    push.kwargs[kwarg] == kwargs[kwarg]
-                ), f"Push notification {user_id=}, {ix=} mismatch in field '{kwarg}', expected '{kwargs[kwarg]}' but got '{push.kwargs[kwarg]}'"
+                assert push.kwargs[kwarg] == kwargs[kwarg], (
+                    f"Push notification {user_id=}, {ix=} mismatch in field '{kwarg}', expected '{kwargs[kwarg]}' but got '{push.kwargs[kwarg]}'"
+                )
 
         def assert_user_has_single_matching(self, user_id, **kwargs):
             self.assert_user_has_count(user_id, 1)

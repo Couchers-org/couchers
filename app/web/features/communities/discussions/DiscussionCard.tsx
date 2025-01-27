@@ -79,7 +79,7 @@ export default function DiscussionCard({
         originalContent: discussion.content,
         maxLength: 300,
       }),
-    [discussion.content]
+    [discussion.content],
   );
 
   const contentRef =

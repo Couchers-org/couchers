@@ -71,7 +71,7 @@ export default function EventsSection({
                 href={routeToCommunity(
                   community.communityId,
                   community.slug,
-                  "events"
+                  "events",
                 )}
               >
                 {t("global:nav.show_all_events")}

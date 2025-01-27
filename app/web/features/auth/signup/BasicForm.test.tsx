@@ -41,7 +41,7 @@ describe("basic signup form", () => {
     const user = userEvent.setup();
 
     await user.click(
-      await screen.findByRole("button", { name: t("global:continue") })
+      await screen.findByRole("button", { name: t("global:continue") }),
     );
 
     await waitFor(() => {
@@ -63,10 +63,10 @@ describe("basic signup form", () => {
 
     await user.type(
       await screen.findByLabelText(t("auth:basic_form.name.field_label")),
-      "Frodo"
+      "Frodo",
     );
     await user.click(
-      await screen.findByRole("button", { name: t("global:continue") })
+      await screen.findByRole("button", { name: t("global:continue") }),
     );
 
     await waitFor(() => {
@@ -88,10 +88,10 @@ describe("basic signup form", () => {
 
     await user.type(
       await screen.findByLabelText(t("auth:basic_form.email.field_label")),
-      "frodo@couchers.org.invalid"
+      "frodo@couchers.org.invalid",
     );
     await user.click(
-      await screen.findByRole("button", { name: t("global:continue") })
+      await screen.findByRole("button", { name: t("global:continue") }),
     );
 
     await waitFor(() => {
@@ -114,21 +114,21 @@ describe("basic signup form", () => {
 
     await user.type(
       await screen.findByLabelText(t("auth:basic_form.name.field_label")),
-      "Frodo"
+      "Frodo",
     );
     await user.type(
       await screen.findByLabelText(t("auth:basic_form.email.field_label")),
-      "frodo@couchers.org.invalid"
+      "frodo@couchers.org.invalid",
     );
 
     await user.click(
-      await screen.findByRole("button", { name: t("global:continue") })
+      await screen.findByRole("button", { name: t("global:continue") }),
     );
 
     await waitFor(() => {
       expect(startSignupMock).toBeCalledWith(
         "Frodo",
-        "frodo@couchers.org.invalid"
+        "frodo@couchers.org.invalid",
       );
     });
   });
@@ -146,11 +146,11 @@ describe("basic signup form", () => {
 
     await user.type(
       screen.getByLabelText(t("auth:basic_form.name.field_label")),
-      "Test user"
+      "Test user",
     );
     await user.type(
       screen.getByLabelText(t("auth:basic_form.email.field_label")),
-      "test@example.com{enter}"
+      "test@example.com{enter}",
     );
     mockConsoleError();
     await assertErrorAlert("Permission denied");

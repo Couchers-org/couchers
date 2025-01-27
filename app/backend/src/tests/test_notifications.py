@@ -346,7 +346,7 @@ def test_list_notifications(db, push_collector):
             if not page_token:
                 break
 
-    bodys = [f"Test message {16-i}" for i in range(17)] + [f"You've received a friend request from {user2.name}"]
+    bodys = [f"Test message {16 - i}" for i in range(17)] + [f"You've received a friend request from {user2.name}"]
     assert bodys == [n.body for n in all_notifs]
 
 

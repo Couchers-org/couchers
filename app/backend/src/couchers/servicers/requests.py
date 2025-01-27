@@ -514,9 +514,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if host_request.status == HostRequestStatus.rejected or host_request.status == HostRequestStatus.cancelled:
             context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.HOST_REQUEST_CLOSED)
 
-        if host_request.end_time < now():
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOST_REQUEST_IN_PAST)
-
         if host_request.host_user_id == context.user_id:
             _possibly_observe_first_response_time(session, host_request, context.user_id, "message")
 

@@ -45,12 +45,10 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
 }));
 
 const StyledButton = styled(Button)<ButtonProps>({
-  display: "block",
+  display: "flex",
   flexShrink: 0,
   marginInlineStart: theme.spacing(1),
   height: theme.spacing(5),
-  marginBottom: 0,
-  marginTop: "auto",
   alignItems: "center",
 });
 
@@ -71,7 +69,7 @@ export default function HostRequestSendField({
   const isHost = hostRequest.hostUserId === authState.userId;
 
   const { data: availableRefrences } = useListAvailableReferences(
-    isHost ? hostRequest.surferUserId : hostRequest.hostUserId
+    isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
   );
 
   const { mutate: handleSend, isLoading } = sendMutation;
@@ -99,7 +97,6 @@ export default function HostRequestSendField({
   const isPast = hostRequest.toDate < new Date().toISOString().split("T")[0];
 
   const isRequestClosed =
-    isPast ||
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED ||
     hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_REJECTED;
 
@@ -108,7 +105,7 @@ export default function HostRequestSendField({
       hostRequest.status === HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED) &&
     availableRefrences &&
     availableRefrences.availableWriteReferencesList.find(
-      ({ hostRequestId }) => hostRequestId === hostRequest.hostRequestId
+      ({ hostRequestId }) => hostRequestId === hostRequest.hostRequestId,
     );
 
   const referenceRoute = routeToLeaveReference(
@@ -118,7 +115,7 @@ export default function HostRequestSendField({
         : ReferenceType.REFERENCE_TYPE_SURFED
     ],
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
-    hostRequest.hostRequestId
+    hostRequest.hostRequestId,
   );
 
   const handleKeyDown = (event: React.KeyboardEvent) => {

@@ -48,18 +48,20 @@ describe("ChangeEmail", () => {
 
     it("shows the full change email form", async () => {
       expect(
-        screen.getByRole("heading", { name: t("auth:change_email_form.title") })
+        screen.getByRole("heading", {
+          name: t("auth:change_email_form.title"),
+        }),
       ).toBeVisible();
       expect(
         await screen.findByLabelText(
-          t("auth:change_email_form.current_password")
-        )
+          t("auth:change_email_form.current_password"),
+        ),
       ).toBeVisible();
       expect(
-        screen.getByLabelText(t("auth:change_email_form.new_email"))
+        screen.getByLabelText(t("auth:change_email_form.new_email")),
       ).toBeVisible();
       expect(
-        screen.getByRole("button", { name: t("global:submit") })
+        screen.getByRole("button", { name: t("global:submit") }),
       ).toBeVisible();
     });
 
@@ -68,10 +70,10 @@ describe("ChangeEmail", () => {
 
       await user.type(
         await screen.findByLabelText(t("auth:change_email_form.new_email")),
-        "test@example.com"
+        "test@example.com",
       );
       await user.click(
-        screen.getByRole("button", { name: t("global:submit") })
+        screen.getByRole("button", { name: t("global:submit") }),
       );
 
       await waitFor(() => {
@@ -84,12 +86,12 @@ describe("ChangeEmail", () => {
 
       await user.type(
         await screen.findByLabelText(
-          t("auth:change_email_form.current_password")
+          t("auth:change_email_form.current_password"),
         ),
-        "password"
+        "password",
       );
       await user.click(
-        screen.getByRole("button", { name: t("global:submit") })
+        screen.getByRole("button", { name: t("global:submit") }),
       );
 
       await waitFor(() => {
@@ -102,35 +104,35 @@ describe("ChangeEmail", () => {
 
       await user.type(
         await screen.findByLabelText(
-          t("auth:change_email_form.current_password")
+          t("auth:change_email_form.current_password"),
         ),
-        "password"
+        "password",
       );
       await user.type(
         screen.getByLabelText(t("auth:change_email_form.new_email")),
-        "test@example.com"
+        "test@example.com",
       );
       await user.click(
-        screen.getByRole("button", { name: t("global:submit") })
+        screen.getByRole("button", { name: t("global:submit") }),
       );
 
       const successAlert = await screen.findByRole("alert");
       expect(successAlert).toBeVisible();
       expect(successAlert).toHaveTextContent(
-        t("auth:change_email_form.success_message")
+        t("auth:change_email_form.success_message"),
       );
       expect(changeEmailMock).toHaveBeenCalledTimes(1);
       expect(changeEmailMock).toHaveBeenCalledWith(
         "test@example.com",
-        "password"
+        "password",
       );
 
       // Also check form has been cleared
       expect(
-        screen.getByLabelText(t("auth:change_email_form.current_password"))
+        screen.getByLabelText(t("auth:change_email_form.current_password")),
       ).not.toHaveValue();
       expect(
-        screen.getByLabelText(t("auth:change_email_form.new_email"))
+        screen.getByLabelText(t("auth:change_email_form.new_email")),
       ).not.toHaveValue();
     });
   });
@@ -144,13 +146,13 @@ describe("ChangeEmail", () => {
 
     await user.type(
       await screen.findByLabelText(
-        t("auth:change_email_form.current_password")
+        t("auth:change_email_form.current_password"),
       ),
-      "password"
+      "password",
     );
     await user.type(
       await screen.findByLabelText(t("auth:change_email_form.new_email")),
-      "test@example.com"
+      "test@example.com",
     );
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
@@ -158,7 +160,7 @@ describe("ChangeEmail", () => {
     expect(errorAlert).toBeVisible();
     expect(errorAlert).toHaveTextContent("Invalid email");
     expect(
-      screen.queryByText(/Your email change has been received/i)
+      screen.queryByText(/Your email change has been received/i),
     ).not.toBeInTheDocument();
   });
 });

@@ -75,7 +75,7 @@ export default function EventTimeChanger({
   };
 
   const handleEndTimeChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
   ) => {
     if (!event.target.value) {
       setValue("endTime", "", { shouldDirty: true, shouldValidate: true });

@@ -7,7 +7,7 @@ const MarkdownInput = dynamic(
   () => import("components/MarkdownInput/MarkdownInputNoSSR"),
   {
     ssr: false,
-  }
+  },
 );
 
 export default MarkdownInput;

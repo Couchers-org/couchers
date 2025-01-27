@@ -25,7 +25,7 @@ export default function StandaloneContributorForm() {
     error: queryError,
   } = useQuery<GetContributorFormInfoRes.AsObject, Error>(
     contributorFormInfoQueryKey,
-    service.account.getContributorFormInfo
+    service.account.getContributorFormInfo,
   );
 
   const handleSubmit = async (form: ContributorFormPb.AsObject) => {

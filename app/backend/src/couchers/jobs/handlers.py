@@ -408,6 +408,7 @@ def send_reference_reminders(payload):
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.surfer_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
+                .where(HostRequest.surfer_reason_didnt_meetup == None)
             )
 
             # hosts needing to write a ref
@@ -429,6 +430,7 @@ def send_reference_reminders(payload):
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.host_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
+                .where(HostRequest.host_reason_didnt_meetup == None)
             )
 
             union = union_all(q1, q2).subquery()
@@ -489,13 +491,14 @@ def add_users_to_email_list(payload):
 
             r = requests.post(
                 config["LISTMONK_BASE_URL"] + "/api/subscribers",
-                auth=("listmonk", config["LISTMONK_API_KEY"]),
+                auth=(config["LISTMONK_API_USERNAME"], config["LISTMONK_API_KEY"]),
                 json={
                     "email": user.email,
                     "name": user.name,
-                    "list_uuids": [config["LISTMONK_LIST_UUID"]],
+                    "lists": [config["LISTMONK_LIST_ID"]],
                     "preconfirm_subscriptions": True,
                     "attribs": {"couchers_user_id": user.id},
+                    "status": "enabled",
                 },
                 timeout=10,
             )

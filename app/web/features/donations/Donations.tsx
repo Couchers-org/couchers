@@ -142,7 +142,7 @@ export default function Donations() {
         <div
           className={classNames(
             classes.marginBottom2,
-            classes.donationsLayoutBox
+            classes.donationsLayoutBox,
           )}
         >
           <DonationsBox />
@@ -190,7 +190,7 @@ export default function Donations() {
         <div
           className={classNames(
             classes.marginBottom3,
-            classes.donationsLayoutText
+            classes.donationsLayoutText,
           )}
         >
           <Typography variant="h1">{t("donations:donations_title")}</Typography>
@@ -210,7 +210,7 @@ export default function Donations() {
         <Markdown
           className={classNames(
             classes.donationsText,
-            classes.donationsLayoutSecondaryText
+            classes.donationsLayoutSecondaryText,
           )}
           source={t("donations:donations_text2")}
         />

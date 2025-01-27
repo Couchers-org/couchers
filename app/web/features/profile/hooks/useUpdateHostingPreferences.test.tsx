@@ -74,14 +74,14 @@ describe("useUpdateHostingPreference hook", () => {
       result.current.updateHostingPreferences({
         preferenceData: newHostingPreferenceData,
         setMutationError: () => null,
-      })
+      }),
     );
 
     await waitFor(() => result.current.status === "success");
 
     expect(updateHostingPreferenceMock).toHaveBeenCalledTimes(1);
     expect(updateHostingPreferenceMock).toHaveBeenCalledWith(
-      newHostingPreferenceData
+      newHostingPreferenceData,
     );
   });
 
@@ -100,7 +100,7 @@ describe("useUpdateHostingPreference hook", () => {
       result.current.updateHostingPreferences({
         preferenceData: newHostingPreferenceData,
         setMutationError: setError,
-      })
+      }),
     );
 
     await waitFor(() => result.current.status === "error");

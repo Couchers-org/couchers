@@ -33,7 +33,7 @@ export default function InviteCommunityDialog({
         queryClient.invalidateQueries(eventKey(eventId));
         if (props.onClose) props.onClose({}, "escapeKeyDown");
       },
-    }
+    },
   );
 
   const inviteCommunity = () => inviteCommunityMutation.mutate();

@@ -36,7 +36,7 @@ export default function ConfirmDeleteAccount() {
       onSuccess: () => {
         router.push(logoutRoute);
       },
-    }
+    },
   );
 
   return (

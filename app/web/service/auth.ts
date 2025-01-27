@@ -87,7 +87,7 @@ export function contributorFormFromObject(form: ContributorFormPb.AsObject) {
 
 export async function signupFlowFeedback(
   flowToken: string,
-  form: ContributorFormPb.AsObject
+  form: ContributorFormPb.AsObject,
 ) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
@@ -106,7 +106,7 @@ export async function signupFlowEmailToken(emailToken: string) {
 
 export async function signupFlowCommunityGuidelines(
   flowToken: string,
-  accept: boolean
+  accept: boolean,
 ) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
