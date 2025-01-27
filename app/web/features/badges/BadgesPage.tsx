@@ -16,10 +16,6 @@ import { useBadges, useBadgeUsers } from "features/badges/hooks";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 
-const BadgeList = styled("div")(({ theme }) => ({
-  // display: "inline-block"
-}));
-
 const BadgeListItem = styled("div")(({ theme }) => ({
   [theme.breakpoints.down("md")]: {
     display: "inline-block",
@@ -91,7 +87,7 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
   const { badges, isLoading: isBadgesLoading } = useBadges();
   const theme = useTheme();
 
-  const isBelowMd = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <>
@@ -102,16 +98,16 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
       </Typography>
       <StyledDivider />
       <ParentFlexDiv>
-        <BadgeList>
+        <div>
           {badges &&
             Object.values(badges).map((badge) => (
               <BadgeListItem key={badge.id}>
                 <Badge badge={badge} />
               </BadgeListItem>
             ))}
-        </BadgeList>
+        </div>
         <StyledDivider
-          orientation={isBelowMd ? "horizontal" : "vertical"}
+          orientation={isMobile ? "horizontal" : "vertical"}
           flexItem
         />
         {badgeId ? (
@@ -129,7 +125,7 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
                 <BadgeUserList badgeId={badgeId} />
               </>
             ) : (
-              <>Badge not found</>
+              <>{t("profile:badges.not_found")}</>
             )}
           </ContentDiv>
         ) : (
