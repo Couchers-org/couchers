@@ -1,6 +1,6 @@
 # CI/CD
 
-This lists some of the stuff the CI/CD pipeline does.
+This lists some of the stuff the [CI/CD](https://en.wikipedia.org/wiki/CI/CD) pipeline does.
 
 It runs on GitLab at [couchers/couchers](https://gitlab.com/couchers/couchers/). Their CI/CD is super awesome and we're supposed to be getting an open-source license to get even more of that good stuff.
 
