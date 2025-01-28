@@ -1,4 +1,4 @@
-import { Card } from "@mui/material";
+import { Card, styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import NewComment from "components/Comments/NewComment";
@@ -8,15 +8,6 @@ import { Reply } from "proto/threads_pb";
 import React, { useEffect, useState } from "react";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
-import makeStyles from "utils/makeStyles";
-
-const useStyles = makeStyles(() => ({
-  card: {
-    border: "1px solid",
-    marginTop: "1em",
-    padding: "1em",
-  },
-}));
 
 interface CommentBoxProps {
   threadId: number;
@@ -28,9 +19,15 @@ interface MultiLevelReply extends Reply.AsObject {
   // page token, etc? not sure what's needed for react query
 }
 
+const StyledCard = styled(Card)(() => ({
+  border: "1px solid",
+  marginTop: "1em",
+  padding: "1em",
+  fontSize: "1.2em",
+}));
+
 export default function CommentBox({ threadId }: CommentBoxProps) {
   const { t } = useTranslation();
-  const classes = useStyles();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -95,24 +92,24 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
       {loading && <CenteredSpinner />}
       {comments.map((comment) => (
         <>
-          <Card className={classes.card}>
+          <StyledCard>
             Comment: by user id {comment.authorUserId}, posted at{" "}
             {comment.createdTime!.seconds}, {comment.numReplies} replies.
             <Markdown source={comment.content} />
             Replies:
             {comment.replies.map((reply) => (
               <>
-                <Card className={classes.card}>
+                <StyledCard>
                   Reply: by user id {reply.authorUserId}, posted at{" "}
                   {reply.createdTime!.seconds}.
                   <Markdown source={reply.content} />
-                </Card>
+                </StyledCard>
               </>
             ))}
             <NewComment
               onComment={(content) => handleComment(comment.threadId, content)}
             />
-          </Card>
+          </StyledCard>
         </>
       ))}
       <NewComment onComment={(content) => handleComment(threadId, content)} />

@@ -1,21 +1,18 @@
+import { styled } from "@mui/material";
 import Link from "next/link";
 import { useTranslation } from "next-i18next";
 import { tosRoute } from "routes";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    color: theme.palette.primary.main,
-    textDecoration: "underline",
-  },
+const StyledLink = styled(Link)(({ theme }) => ({
+  color: theme.palette.primary.main,
+  textDecoration: "underline",
 }));
 
 export default function TOSLink() {
   const { t } = useTranslation("global");
-  const classes = useStyles();
   return (
-    <Link href={tosRoute} target="_blank" className={classes.root}>
+    <StyledLink href={tosRoute} target="_blank">
       {t("terms_of_service")}
-    </Link>
+    </StyledLink>
   );
 }

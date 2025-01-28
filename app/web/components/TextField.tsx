@@ -1,25 +1,27 @@
-import { TextField as MuiTextField, TextFieldProps } from "@mui/material";
+import {
+  styled,
+  TextField as MuiTextField,
+  TextFieldProps,
+} from "@mui/material";
 import { BaseTextFieldProps } from "@mui/material/TextField";
-import classNames from "classnames";
 import React, { forwardRef } from "react";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  multiline: {
-    "& .MuiOutlinedInput-notchedOutline": {
-      borderColor: theme.palette.grey[500],
-    },
-    "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
-      borderColor: theme.palette.grey[900],
-    },
-  },
-  root: {
+const StyledMuiTextField = styled(MuiTextField)<TextFieldProps>(
+  ({ theme, multiline }) => ({
     "& .MuiOutlinedInput-root": {
       borderRadius: theme.shape.borderRadius * 3,
     },
     display: "block",
-  },
-}));
+    ...(multiline && {
+      "& .MuiOutlinedInput-notchedOutline": {
+        borderColor: theme.palette.grey[500],
+      },
+      "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+        borderColor: theme.palette.grey[900],
+      },
+    }),
+  }),
+);
 
 type AccessibleTextFieldProps = Omit<TextFieldProps, "variant"> & {
   id: BaseTextFieldProps["id"];
@@ -35,10 +37,8 @@ const TextField = forwardRef<
     { className, variant = "outlined", helperText, name, ...otherProps },
     ref,
   ) => {
-    const classes = useStyles();
-
     return (
-      <MuiTextField
+      <StyledMuiTextField
         {...otherProps}
         inputRef={ref}
         name={name}
@@ -46,9 +46,8 @@ const TextField = forwardRef<
         helperText={
           <span data-testid={`${name}-helper-text`}>{helperText}</span>
         }
-        className={classNames(classes.root, className, {
-          [classes.multiline]: otherProps.multiline,
-        })}
+        multiline={otherProps.multiline !== undefined}
+        className={className}
       />
     );
   },

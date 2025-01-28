@@ -27,27 +27,6 @@ import { useMutation } from "react-query";
 import { service } from "service";
 import { ReportInput } from "service/reporting";
 import { theme } from "theme";
-import makeStyles from "utils/makeStyles";
-
-const useStyles = makeStyles((theme) => ({
-  typeButton: {
-    display: "block",
-    margin: "0 auto",
-    "& + &": {
-      marginBlockStart: theme.spacing(2),
-    },
-  },
-  field: {
-    "& + &": {
-      marginBlockStart: theme.spacing(2),
-    },
-  },
-  formControl: {
-    "& .MuiOutlinedInput-root": {
-      borderRadius: theme.shape.borderRadius * 3,
-    },
-  },
-}));
 
 export interface FlagButtonProps {
   contentRef: string;
@@ -61,7 +40,7 @@ export default function FlagButton({
   className,
 }: FlagButtonProps) {
   const { t } = useTranslation(GLOBAL);
-  const classes = useStyles();
+
   const [isOpen, setIsOpen] = useState(false);
   const {
     control,
@@ -137,8 +116,12 @@ export default function FlagButton({
             <FormControl
               variant="outlined"
               fullWidth
-              className={classes.formControl}
               margin="normal"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: theme.shape.borderRadius * 3,
+                },
+              }}
             >
               <InputLabel htmlFor="content-report-reason">
                 {t("report.flag.reason_label")}
@@ -154,12 +137,16 @@ export default function FlagButton({
                   <Select
                     {...field}
                     variant="standard"
-                    className={classes.field}
                     native
                     value={field.value}
                     label={t("report.flag.reason_label")}
                     id="content-report-reason"
                     onChange={field.onChange}
+                    sx={{
+                      "& + &": {
+                        marginBlockStart: theme.spacing(2),
+                      },
+                    }}
                   >
                     {[
                       "",
@@ -185,7 +172,6 @@ export default function FlagButton({
               </FormHelperText>
             </FormControl>
             <TextField
-              className={classes.field}
               id="content-report-description"
               {...register("description")}
               label={t("report.flag.description_label")}
@@ -194,6 +180,11 @@ export default function FlagButton({
               multiline
               minRows={4}
               maxRows={6}
+              sx={{
+                "& + &": {
+                  marginBlockStart: theme.spacing(2),
+                },
+              }}
             />
           </DialogContent>
           <DialogActions>

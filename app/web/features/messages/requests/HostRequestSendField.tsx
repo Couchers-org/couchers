@@ -1,5 +1,5 @@
-import { styled } from "@mui/material";
-import Button, { AppButtonProps } from "components/Button";
+import { ButtonProps, styled } from "@mui/material";
+import Button from "components/Button";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useListAvailableReferences } from "features/profile/hooks/referencesHooks";
@@ -44,7 +44,7 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
   justifyContent: "center",
 }));
 
-const StyledButton = styled(Button)<AppButtonProps>({
+const StyledButton = styled(Button)<ButtonProps>({
   display: "flex",
   flexShrink: 0,
   marginInlineStart: theme.spacing(1),

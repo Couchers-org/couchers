@@ -1,23 +1,9 @@
-import { IconButton, Tooltip } from "@mui/material";
-import classNames from "classnames";
+import { IconButton, styled, Tooltip } from "@mui/material";
 import { HelpIcon } from "components/Icons";
 import React from "react";
-import makeStyles from "utils/makeStyles";
+import { theme } from "theme";
 
 import ScoreBar from "./ScoreBar";
-
-const useStyles = makeStyles((theme) => ({
-  button: {
-    padding: 0,
-    paddingLeft: theme.spacing(1),
-  },
-
-  root: {
-    alignItems: "center",
-    display: "flex",
-    marginBottom: theme.spacing(2),
-  },
-}));
 
 interface BarWithHelpProps {
   value: number;
@@ -26,25 +12,30 @@ interface BarWithHelpProps {
   className?: string;
 }
 
+const StyledWrapper = styled("div")(({ theme }) => ({
+  alignItems: "center",
+  display: "flex",
+  marginBottom: theme.spacing(2),
+}));
+
 export default function BarWithHelp({
   value,
   label,
   description,
   className,
 }: BarWithHelpProps) {
-  const classes = useStyles();
   return process.env.NEXT_PUBLIC_IS_POST_BETA_ENABLED ? (
-    <div className={classNames(classes.root, className)}>
+    <StyledWrapper className={className}>
       <ScoreBar value={value}>{label}</ScoreBar>
       <Tooltip title={description}>
         <IconButton
           aria-label="help icon"
-          className={classes.button}
           size="large"
+          sx={{ padding: 0, paddingLeft: theme.spacing(1) }}
         >
           <HelpIcon />
         </IconButton>
       </Tooltip>
-    </div>
+    </StyledWrapper>
   ) : null;
 }
