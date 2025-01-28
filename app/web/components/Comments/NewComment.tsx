@@ -2,20 +2,12 @@ import { Box, Button, Grid, Link } from "@mui/material";
 import Markdown from "components/Markdown";
 import TextField from "components/TextField";
 import React, { useState } from "react";
-import makeStyles from "utils/makeStyles";
-
-const useStyles = makeStyles({
-  reverseAlignment: {
-    textAlign: "end",
-  },
-});
 
 interface NewCommentProps {
   onComment: (comment: string) => Promise<void>;
 }
 
 export default function NewComment({ onComment }: NewCommentProps) {
-  const classes = useStyles();
   const [preview, setPreview] = useState(false);
   const [comment, setComment] = useState("");
 
@@ -39,7 +31,7 @@ export default function NewComment({ onComment }: NewCommentProps) {
             value={comment}
             margin="normal"
           />
-          <Box className={classes.reverseAlignment}>
+          <Box sx={{ textAlign: "end" }}>
             <Button component={Link} href="https://www.markdowntutorial.com/">
               Formatting?
             </Button>

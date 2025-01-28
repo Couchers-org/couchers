@@ -6,11 +6,12 @@ import {
   FormGroup,
   FormHelperText,
   FormLabel,
+  FormLabelProps,
   Radio,
   RadioGroup,
+  styled,
   Typography,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import TextField from "components/TextField";
@@ -22,6 +23,7 @@ import {
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
+import { theme } from "theme";
 
 import {
   CONTRIBUTE_LABEL,
@@ -50,33 +52,26 @@ type ContributorInputs = {
   expertise: string;
 };
 
-const useStyles = makeStyles((theme) => ({
-  contributeRadio: {
-    marginBlockEnd: theme.spacing(3),
-  },
-  label: { display: "block" },
-  textbox: {
-    marginBlockEnd: theme.spacing(3),
-    marginBlockStart: theme.spacing(1),
-  },
-  radioLabel: {
-    ...theme.typography.body1,
-    color: theme.palette.text.primary,
-    marginBlockEnd: theme.spacing(1),
-  },
-}));
-
 interface ContributorFormProps {
   processForm: (form: ContributorFormPb.AsObject) => Promise<void>;
   autofocus?: boolean;
 }
 
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  marginBlockEnd: theme.spacing(3),
+  marginBlockStart: theme.spacing(1),
+}));
+
+const StyledFormLabel = styled(FormLabel)<FormLabelProps>(({ theme }) => ({
+  ...theme.typography.body1,
+  color: theme.palette.text.primary,
+  marginBlockEnd: theme.spacing(1),
+}));
+
 export default function ContributorForm({
   processForm,
   autofocus = false,
 }: ContributorFormProps) {
-  const classes = useStyles();
-
   const {
     control,
     register,
@@ -144,11 +139,11 @@ export default function ContributorForm({
             variant="body1"
             htmlFor="ideas"
             component="label"
-            className={classes.label}
+            sx={{ display: "block" }}
           >
             {IDEAS_LABEL}
           </Typography>
-          <TextField
+          <StyledTextField
             id="ideas"
             {...register("ideas")}
             inputRef={(el: HTMLInputElement | null) => {
@@ -161,17 +156,16 @@ export default function ContributorForm({
             multiline
             minRows={4}
             maxRows={6}
-            className={classes.textbox}
           />
           <Typography
             variant="body1"
             htmlFor="features"
             component="label"
-            className={classes.label}
+            sx={{ display: "block" }}
           >
             {FEATURES_LABEL}
           </Typography>
-          <TextField
+          <StyledTextField
             id="features"
             {...register("features")}
             margin="normal"
@@ -180,7 +174,6 @@ export default function ContributorForm({
             multiline
             minRows={4}
             maxRows={6}
-            className={classes.textbox}
           />
           <Controller
             control={control}
@@ -188,13 +181,13 @@ export default function ContributorForm({
             defaultValue=""
             render={({ field }) => (
               <FormControl variant="standard" component="fieldset">
-                <FormLabel component="legend" className={classes.radioLabel}>
+                <StyledFormLabel component="legend">
                   {CONTRIBUTE_LABEL}
-                </FormLabel>
+                </StyledFormLabel>
                 <RadioGroup
                   id="contribute"
                   {...field}
-                  className={classes.contributeRadio}
+                  sx={{ marginBlockEnd: theme.spacing(3) }}
                   row
                   name="contribute-radio"
                   onChange={(e, value) => field.onChange(value)}
@@ -214,9 +207,9 @@ export default function ContributorForm({
           />
           <Collapse in={watchContribute !== undefined}>
             <FormControl variant="standard" component="fieldset">
-              <FormLabel component="legend" className={classes.radioLabel}>
+              <StyledFormLabel component="legend">
                 {CONTRIBUTE_WAYS_LABEL}
-              </FormLabel>
+              </StyledFormLabel>
               <FormGroup>
                 {CONTRIBUTE_WAYS_OPTIONS.map(({ name, description }) => (
                   <Controller
@@ -248,11 +241,11 @@ export default function ContributorForm({
               variant="body1"
               htmlFor="expertise"
               component="label"
-              className={classes.label}
+              sx={{ display: "block" }}
             >
               {EXPERTISE_LABEL}
             </Typography>
-            <TextField
+            <StyledTextField
               id="expertise"
               {...register("expertise")}
               margin="normal"
@@ -262,17 +255,16 @@ export default function ContributorForm({
               multiline
               minRows={4}
               maxRows={6}
-              className={classes.textbox}
             />
             <Typography
               variant="body1"
               htmlFor="experience"
               component="label"
-              className={classes.label}
+              sx={{ display: "block" }}
             >
               {EXPERIENCE_LABEL}
             </Typography>
-            <TextField
+            <StyledTextField
               id="experience"
               {...register("experience")}
               margin="normal"
@@ -281,7 +273,6 @@ export default function ContributorForm({
               multiline
               minRows={4}
               maxRows={6}
-              className={classes.textbox}
             />
           </Collapse>
           <Button
