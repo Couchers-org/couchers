@@ -1,7 +1,6 @@
+import { styled } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import MuiIconButton from "@mui/material/IconButton";
-import makeStyles from "@mui/styles/makeStyles";
-import classNames from "classnames";
 import Alert from "components/Alert";
 import CircularProgress from "components/CircularProgress";
 import {
@@ -23,57 +22,6 @@ import { service } from "service";
 import { ImageInputValues } from "service/api";
 
 import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "./constants";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-  inputRoot: {
-    display: "flex",
-    width: "100%",
-  },
-  avatar: {
-    "& img": { objectFit: "cover" },
-  },
-  confirmationButtonContainer: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    "& > * + *": {
-      marginTop: theme.spacing(1),
-    },
-  },
-  image: {
-    height: 100,
-    [theme.breakpoints.up("md")]: {
-      height: 200,
-    },
-    width: "100%",
-    objectFit: "cover",
-    cursor: "pointer",
-    "&:hover": {
-      backgroundColor: theme.palette.action.hover,
-    },
-  },
-  imageGrow: {
-    maxWidth: "100%",
-    height: "auto",
-  },
-  input: {
-    display: "none",
-  },
-  label: {
-    alignItems: "center",
-    display: "flex",
-    justifyContent: "center",
-    width: "100%",
-  },
-  loading: {
-    position: "absolute",
-  },
-}));
 
 interface ImageInputProps {
   className?: string;
@@ -98,9 +46,59 @@ interface RectImgInputProps extends ImageInputProps {
   width?: string;
 }
 
+const StyledWrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+}));
+
+const FlexWrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  width: "100%",
+}));
+
+const ConfirmationButtonContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  "& > * + *": {
+    marginTop: theme.spacing(1),
+  },
+}));
+
+const StyledImage = styled("img", {
+  shouldForwardProp: (prop) => prop !== "grow",
+})<{ grow: boolean | undefined }>(({ theme, grow }) => ({
+  height: 100,
+  [theme.breakpoints.up("md")]: {
+    height: 200,
+  },
+  width: "100%",
+  objectFit: "cover",
+  cursor: "pointer",
+  "&:hover": {
+    backgroundColor: theme.palette.action.hover,
+  },
+  ...(grow && { maxWidth: "100%", height: "auto" }),
+}));
+
+const StyledLabel = styled("label")(({ theme }) => ({
+  alignItems: "center",
+  display: "flex",
+  justifyContent: "center",
+  width: "100%",
+}));
+
+const StyledCircularProgress = styled(CircularProgress)(({ theme }) => ({
+  position: "absolute",
+}));
+
+const StyledInput = styled("input")(({ theme }) => ({
+  display: "none",
+}));
+
 export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   const { className, control, id, initialPreviewSrc, name } = props;
-  const classes = useStyles();
   //this ref handles the case where the user uploads an image, selects another image,
   //but then cancels - it should go to the previous image rather than the original
   const confirmedUpload = useRef<ImageInputValues>();
@@ -178,15 +176,14 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   };
 
   return (
-    <div className={classes.root}>
+    <StyledWrapper>
       {mutation.isError && (
         <Alert severity="error">{mutation.error?.message || ""}</Alert>
       )}
       {readerError && <Alert severity="error">{readerError}</Alert>}
-      <div className={classes.inputRoot}>
-        <input
+      <FlexWrapper>
+        <StyledInput
           aria-label={SELECT_AN_IMAGE}
-          className={classes.input}
           accept="image/jpeg,image/png,image/gif"
           id={id}
           type="file"
@@ -194,35 +191,33 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
           onClick={handleClick}
           ref={inputRef}
         />
-        <label className={classes.label} htmlFor={id} ref={field.ref}>
+        <StyledLabel htmlFor={id} ref={field.ref}>
           {props.type === "avatar" ? (
             <MuiIconButton component="span">
               <Avatar
-                className={classNames(classes.avatar, className)}
+                className={className}
                 src={imageUrl}
                 alt={getAvatarLabel(props.userName ?? "")}
+                sx={{ "& img": { objectFit: "cover" } }}
               >
                 {props.userName?.split(/\s+/).map((name) => name[0])}
               </Avatar>
             </MuiIconButton>
           ) : (
-            <img
-              className={classNames(classes.image, className, {
-                [classes.imageGrow]: props.grow,
-              })}
+            <StyledImage
+              className={className}
               src={imageUrl ?? "/img/imagePlaceholder.svg"}
               style={{ objectFit: !imageUrl ? "contain" : undefined }}
               alt={props.alt}
               width={props.width ?? DEFAULT_WIDTH}
               height={props.height ?? DEFAULT_HEIGHT}
+              grow={props.grow}
             />
           )}
-          {mutation.isLoading && (
-            <CircularProgress className={classes.loading} />
-          )}
-        </label>
+          {mutation.isLoading && <StyledCircularProgress />}
+        </StyledLabel>
         {isConfirming && (
-          <div className={classes.confirmationButtonContainer}>
+          <ConfirmationButtonContainer>
             <IconButton
               aria-label={CANCEL_UPLOAD}
               onClick={handleCancel}
@@ -237,10 +232,10 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
             >
               <CheckIcon />
             </IconButton>
-          </div>
+          </ConfirmationButtonContainer>
         )}
-      </div>
-    </div>
+      </FlexWrapper>
+    </StyledWrapper>
   );
 }
 

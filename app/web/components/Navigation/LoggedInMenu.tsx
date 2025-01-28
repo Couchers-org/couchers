@@ -1,44 +1,47 @@
-import { Button } from "@mui/material";
+import { Button, styled } from "@mui/material";
 import Avatar from "components/Avatar";
 import { MenuIcon } from "components/Icons";
 import Menu from "components/Menu";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import React, { Dispatch, ReactNode, SetStateAction } from "react";
 import { theme } from "theme";
-import makeStyles from "utils/makeStyles";
 
 import ReportButton from "./ReportButton";
 
-const useStyles = makeStyles((theme) => ({
-  menu: {
+const StyledMenu = styled(Menu)(({ theme }) => ({
+  "& .MuiPaper-root": {
     boxShadow: theme.shadows[1],
     minWidth: "12rem",
   },
-  menuPopover: {
+
+  "& .MuiPopover-root": {
     transform: "translateY(1rem)",
   },
-  menuBtn: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    border: `1px solid ${theme.palette.grey[300]}`,
-    borderRadius: 999,
-    backgroundColor: theme.palette.grey[200],
-    padding: theme.spacing(1),
-    transition: `${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
-    "&:hover": {
-      opacity: 0.8,
-      backgroundColor: theme.palette.grey[300],
-    },
+}));
+
+const StyledMenuButton = styled(Button)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  border: `1px solid ${theme.palette.grey[300]}`,
+  borderRadius: 999,
+  backgroundColor: theme.palette.grey[200],
+  padding: theme.spacing(1),
+  transition: `${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
+  "&:hover": {
+    opacity: 0.8,
+    backgroundColor: theme.palette.grey[300],
   },
-  avatar: {
-    height: "2rem",
-    width: "2rem",
-    marginLeft: theme.spacing(1),
-  },
-  reportBtnContainer: {
-    padding: theme.spacing(2),
-  },
+}));
+
+const StyledAvatar = styled(Avatar)(({ theme }) => ({
+  height: "2rem",
+  width: "2rem",
+  marginLeft: theme.spacing(1),
+}));
+
+const ReportButtonContainer = styled("div")(({ theme }) => ({
+  padding: theme.spacing(2),
 }));
 
 export default function LoggedInMenu({
@@ -50,43 +53,35 @@ export default function LoggedInMenu({
   setMenuOpen: Dispatch<SetStateAction<boolean>>;
   children: ReactNode;
 }) {
-  const classes = useStyles();
   const menuRef = React.useRef<HTMLButtonElement>(null);
   const { data: user } = useCurrentUser();
 
   return (
     <>
-      <div className={classes.reportBtnContainer}>
+      <ReportButtonContainer>
         <ReportButton />
-      </div>
-      <Button
+      </ReportButtonContainer>
+      <StyledMenuButton
         aria-controls="navigation-menu"
         aria-haspopup="true"
-        className={classes.menuBtn}
         onClick={() => setMenuOpen((prevMenuOpen: boolean) => !prevMenuOpen)}
         ref={menuRef}
       >
         <MenuIcon sx={{ color: theme.palette.text.primary }} />
-        <Avatar user={user} className={classes.avatar} isProfileLink={false} />
-      </Button>
-      <Menu
+        <StyledAvatar user={user} isProfileLink={false} />
+      </StyledMenuButton>
+      <StyledMenu
         id="navigation-menu"
         open={menuOpen}
         anchorEl={menuRef.current}
         onClose={() => setMenuOpen(false)}
-        classes={{
-          paper: classes.menu,
-        }}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "right",
         }}
-        PopoverClasses={{
-          root: classes.menuPopover,
-        }}
       >
         {children}
-      </Menu>
+      </StyledMenu>
     </>
   );
 }
