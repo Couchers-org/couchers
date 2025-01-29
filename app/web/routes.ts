@@ -79,7 +79,7 @@ export const leaveReferenceBaseRoute = "/leave-reference";
 export const routeToLeaveReference = (
   referenceType: ReferenceTypeRouteStrings,
   userId: number,
-  hostRequestId?: number,
+  hostRequestId?: number
 ) => `${leaveReferenceBaseRoute}/${referenceType}/${userId}/${hostRequestId}`;
 export const referenceTypeRouteStrings = [
   "friend",
@@ -155,7 +155,7 @@ export type CommunityTab = (typeof communityTabs)[number];
 export const routeToCommunity = (
   id: number,
   slug: string,
-  page?: CommunityTab,
+  page?: CommunityTab
 ) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
 export const routeToEditCommunityPage = (id: number, slug: string) =>
   `${routeToCommunity(id, slug, "info")}/edit`;
@@ -180,3 +180,5 @@ export const howToInviteCommunityUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1720304409-how-does-the-invite-the-community-feature-work";
 export const howToMakeGreatProfileUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1725919197-how-do-i-create-a-great-profile";
+export const helpCenterReportContentURL =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1715125657-how-do-i-report-someone-or-something-that-violates-the-community-guidelines-or-terms-of-use-to_u";
