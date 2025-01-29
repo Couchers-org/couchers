@@ -17,7 +17,12 @@
     "new_password": "Nova senha",
     "password_mismatch_error": "A senha não corresponde com a digitada anteriormente.",
     "password_changed_success": "Sua senha foi definida e uma notificação foi enviada para o seu e-mail.",
-    "old_password": "Antiga senha"
+    "old_password": "Antiga senha",
+    "subtitle": "Use este formulário para redefinir sua senha de login.",
+    "user_logged_error": "Você não pode redefinir sua senha enquanto estiver logado. Altere sua senha nas configurações ou faça log out para redefini-la.",
+    "token_error": "Houve um erro ao processar o token de redefinição de senha. Tente abrir o link do e-mail novamente.",
+    "reset_password_success": "Sua senha foi alterada com sucesso!",
+    "reset_password_error": "Erro ao redefinir a senha: {{message}}"
   },
   "reset_password_form": {
     "enter_email": "Digite seu nome de usuário/e-mail",
@@ -63,7 +68,9 @@
     "birthday": {
       "required_error": "Digite sua data de nascimento",
       "validation_error": "Deve ser uma data válida no passado.",
-      "field_label": "Data de nascimento"
+      "field_label": "Data de nascimento",
+      "too_young_error": "Você precisa ter 18 anos ou mais para usar o Couchers",
+      "not_real_date_error": "Insira uma data de nascimento verdadeira"
     },
     "tos_prompt": "Para continuar, leia e aceite o <1></1>.",
     "tos_accept_label": "Aceito os Termos de Serviço.",
@@ -71,8 +78,10 @@
       "can_host": "Pode hospedar",
       "cant_host": "Não pode hospedar",
       "maybe": "Talvez possa hospedar",
-      "field_label": "Estado de anfitrião"
-    }
+      "field_label": "Estado de anfitrião",
+      "any": "Sem preferência"
+    },
+    "opt_in_newsletter": "Inscreva-se em nossa newsletter periódica sobre atualizações da comunidade."
   },
   "jail_set_password_form": {
     "title": "Definir uma senha",
@@ -116,6 +125,12 @@
     "description": "Para continuar, marque a seguir para continuar.",
     "terms_of_service_section": {
       "description": "Atualizamos os nossos Termos de Serviço. Para continuar, leia e aceite os novos <1></1>."
+    },
+    "mod_note_section": {
+      "title": "Você recebeu uma mensagem dos moderadores",
+      "description": "Os moderadores enviaram a seguinte mensagem para você. Leia com atenção e confirme que você a leu e entendeu antes de continuar.",
+      "note_title": "Mensagem dos moderadores recebida às {{time}}:",
+      "acknowledge": "Confirmar mensagem"
     }
   },
   "account_settings_page": {
@@ -140,7 +155,125 @@
     }
   },
   "notification_settings": {
-    "title": "Definições de notificações"
+    "title": "Definições de notificações",
+    "edit_preferences": {
+      "list_heading": "Notificações que você pode receber",
+      "item_descriptions": {
+        "friend_request": {
+          "accept": "Alguém aceita sua solicitação de amizade",
+          "create": "Alguém envia uma solicitação de amizade para você"
+        },
+        "reference": {
+          "receive_hosted": "Você recebe uma referência de alguém que te hospedou",
+          "receive_friend": "Você recebeu uma referência de um amigo",
+          "reminder_hosted": "Lembrete para escrever uma referência para alguém que você hospedou",
+          "reminder_surfed": "Lembrete para escrever uma referência para alguém com quem você se hospedou",
+          "receive_surfed": "Você recebe uma referência de alguém que hospedou"
+        },
+        "event": {
+          "invite_organizer": "Alguém convida você para ser co-organizador de um evento",
+          "create_approved": "Um evento aprovado pelos moderadores é criado em sua comunidade",
+          "create_any": "Um usuário cria um evento em sua comunidade (não verificado por um administrador)",
+          "update": "Um evento do qual você vai participar é atualizado",
+          "cancel": "Um evento do qual você vai participar é cancelado",
+          "delete": "Um evento do qual você vai participar é excluído"
+        },
+        "host_request": {
+          "reject": "Alguém recusa sua solicitação de hospedagem",
+          "create": "Alguém envia uma solicitação de hospedagem para você",
+          "accept": "Alguém aceita sua solicitação de hospedagem",
+          "confirm": "Alguém confirma a solicitação de hospedagem recebida",
+          "cancel": "Alguém cancela sua solicitação de hospedagem",
+          "message": "Alguém envia uma mensagem em uma solicitação de hospedagem",
+          "missed_messages": "Você tem mensagens pendentes em uma solicitação de hospedagem"
+        },
+        "badge": {
+          "remove": "Uma insígnia foi removida da sua conta",
+          "add": "Uma insígnia é adicionada à sua conta"
+        },
+        "chat": {
+          "message": "Alguém envia uma mensagem para você",
+          "missed_messages": "Mensagens pendentes em uma conversa"
+        },
+        "email_address": {
+          "verify": "Se novo e-mail foi verificado",
+          "change": "A alteração de e-mail foi iniciada"
+        },
+        "account_deletion": {
+          "start": "Você inicia a exclusão da conta",
+          "complete": "Sua conta foi excluída",
+          "recovered": "Sua conta foi recuperada (exclusão revertida)"
+        },
+        "api_key": {
+          "create": "Uma chave de API foi criada para sua conta"
+        },
+        "phone_number": {
+          "change": "Seu número de telefone foi alterado",
+          "verify": "Seu número de telefone foi verificado"
+        },
+        "birthdate": {
+          "change": "Sua data de nascimento foi alterada"
+        },
+        "gender": {
+          "change": "O sexo exibido no seu perfil foi alterado"
+        },
+        "password": {
+          "change": "Sua senha foi alterada"
+        },
+        "password_reset": {
+          "start": "A redefinição de senha foi iniciada",
+          "complete": "A redefinição de senha foi concluída"
+        },
+        "onboarding": {
+          "reminder": "Lembrete para completar seu perfil após se registrar"
+        },
+        "donation": {
+          "received": "Sua doação foi recebida"
+        }
+      },
+      "description": "Você ainda pode receber notificações importantes sobre sua conta e conteúdo, apesar de suas preferências de notificações.",
+      "error_loading": "Erro ao carregar preferências de notificações",
+      "list_items": {
+        "chat": "Mensagens",
+        "host_request": "Solicitações de hospedagem",
+        "event": "Eventos",
+        "friend_request": "Solicitações de amizade",
+        "reference": "Referências",
+        "account_security": "Segurança da conta",
+        "account_settings": "Configurações da conta"
+      },
+      "title": "Preferências de Notificações"
+    },
+    "push_notifications": {
+      "permission_denied": {
+        "instructions": {
+          "generic": "Você bloqueou as notificações. Habilite as notificações nas configurações do seu navegador para continuar.",
+          "macos": "No macOS, vá para Configurações do Sistema > Notificações, e modifique as permissões do aplicativo.",
+          "chrome": "Você bloqueou as notificações. Habilite as notificações nas configurações do seu navegador para continuar. No Chrome, clique no ícone de cadeado, na barra de endereço, em seguida, ajuste a configuração \"Notificações\".",
+          "firefox": "Você bloqueou as notificações. Habilite as notificações nas configurações do seu navegador para continuar. No Firefox, vá para Preferências > Privacidade e Segurança > Permissões > Notificações, e modifique a permissão do website.",
+          "safari": "Você bloqueou as notificações. Habilite as notificações nas configurações do seu navegador para continuar. No Safari, vá para Preferências > Websites > Notificações para modificar as permissões.",
+          "mobile": {
+            "browser": "Nas configurações do navegador do seu dispositivo móvel, ajuste as permissões de notificações para este website.",
+            "os": "Nas configurações de notificações do seu dispositivo móvel, ajuste as permissões para permitir notificações."
+          },
+          "windows": "No Windows, vá para Configurações > Sistema > Notificações e ações, e ajuste as permissões do aplicativo ou website.",
+          "linux": {
+            "gnome": "No GNOME, vá para Configurações > Notificações para ajustar as permissões do aplicativo.",
+            "kde": "No KDE, vá para Configurações do Sistema > Notificações para modificar as permissões."
+          }
+        },
+        "platform_settings_description": "Ainda enfrentando problemas após habilitar as notificações em seu navegador? Pode ser necessário ajustar as configurações da sua plataforma."
+      },
+      "description": "Você pode habilitar notificações por push para Couchers.org em seu dispositivo. Estamos trabalhando para expandir essa funcionalidade.",
+      "allow_push": "Clique no botão \"Permitir\" na pop-up do seu navegador para habilitar notificações por push.",
+      "title": "Notificações por Push",
+      "error_generic": "Erro durante a inscrição para notificações por push",
+      "error_unsupported": "Não há suporte para notificações por push ou Service Workers neste navegador.",
+      "enabled_message": "Atualmente as notificações por push estão <1>habilitadas</1>.",
+      "disabled_message": "Atualmente as notificações por push estão <1>desabilitadas</1>."
+    },
+    "edit_in_console": "Você pode alterar suas preferências de notificações <2>nesta página</2>. Em breve, elas serão movidas para cá.",
+    "go_to_button": "Gerenciar preferências de notificações"
   },
   "about_us": "Sobre nós",
   "introduction_subtitle": "Grátis para sempre. Construído pela Comunidade. Sem fins lucrativos. Moderno.",
@@ -210,13 +343,57 @@
     "change_button_text": "Alterar número de telefone",
     "no_phone_description": "Você não adicionou um número de telefone à sua conta. Para adicionar, digite abaixo. Enviaremos uma mensagem de texto para verificá-lo.",
     "title": "Número de telefone",
-    "remove_success": "Telefone removido."
+    "remove_success": "Telefone removido.",
+    "need_to_donate": "Você precisa <2>doar</2> para concluir a verificação de telefone."
   },
   "do_not_email": {
     "title": "Não envie e-mails para mim",
     "status": {
       "no_emails_disabled_message": "Agora os e-mails estão <1>habilitados</1> para você.",
       "no_emails_enabled_message": "Agora os e-mails estão <1>desabilitados</1> para sua conta."
+    },
+    "caveat": "Ao habilitar esta configuração, sua conta será configurada para não aceitar solicitações de hospedagem. Você continuará recebendo e-mails de segurança (como redefinição de senha). Você ainda pode receber a newsletter. Para cancelar a assinatura, use o link no rodapé da newsletter.",
+    "action_button": {
+      "no_emails_enable_text": "Não me envie e-mails",
+      "no_emails_disable_text": "Habilitar e-mails novamente"
     }
-  }
+  },
+  "active_logins": {
+    "settings_page_text": "Veja onde você está conectado ou desconectado de outras sessões",
+    "description": "Esta página lista os logins atuais. Você pode se desconectar de qualquer um deles clicando no botão ao lado do login, ou rolando até o final e clicando no botão para encerrar sessão em todos, exceto nesta.",
+    "heading": "Logins atuais",
+    "login_header": "Login efetuado em {{login_datetime}}",
+    "location": "Próximo a <2>{{approximate_location}}</2>",
+    "last_activity": "Última atividade <2>{{last_activity_ago}}</2>",
+    "expiry": "Expira em <1>{{expiry_datetime}}</1>",
+    "current_session": "Esta é sua sessão atual.",
+    "log_out_of_all_session": "Encerrar todas as sessões",
+    "log_out_of_session": "Encerrar esta sessão",
+    "settings_page_link": "Gerenciar logins atuais"
+  },
+  "strong_verification": {
+    "begin_button": "Concluir Autenticação Forte com Iris ID",
+    "delete_information": "Você pode excluir seus dados de Autenticação Forte (exceto país expedidor, data de validade e últimos três dígitos do número do documento) dos nossos servidores a qualquer momento.",
+    "information_text1": "Você precisará de um passaporte biométrico e um dispositivo Apple iPhone ou Android compatível com NFC.",
+    "information_text3": "Você pode ler mais sobre como nós e o Iris ID processamos e armazenamos seus dados nos nossos <2>Termos de Serviço</2>. Segundo a <5>Política de Privacidade</5> do Iris ID, eles excluirão suas informações pessoais em até 24 horas. Você pode solicitar que os dados dessa Autenticação Forte (exceto país expedidor, data validade e os últimos três dígitos do número do documento) sejam excluídos de nossos servidores a qualquer momento com um clique.",
+    "title": "Autenticação Forte",
+    "subtitle": "A Autenticação Forte é uma funcionalidade de segurança adicional que permite que você verifique sua data de nascimento e sexo usando seu passaporte biométrico.",
+    "start_button": "Iniciar Autenticação Forte",
+    "information_text2": "Ao clicar no botão abaixo, você será redirecionado para o website do Iris ID para concluir o processo de verificação de passaporte.",
+    "status": {
+      "disabled_message": "Você< 1>não foi</1> verificado com Autenticação Forte.",
+      "enabled_message": "Você <1>foi</1> verificado com Autenticação Forte."
+    },
+    "complete_title": "Estamos processando sua tentativa de Autenticação Forte",
+    "complete_message1": "Seu passaporte está sendo autenticado. Você receberá um e-mail com os resultados em alguns minutos.",
+    "complete_message2": "A Autenticação Forte expira quando seu passaporte expirar, e você precisará realizar a autenticação novamente com o novo passaporte.",
+    "delete_data_title": "Excluir os dados de passaporte da sua Autenticação Forte",
+    "delete_information_text2": "Se excluir seus dados, você não poderá usar o mesmo passaporte para Autenticação Forte novamente.",
+    "delete_my_data_button": "Excluir meus dados",
+    "delete_button": "Excluir meus dados da Autenticação Forte",
+    "delete_success": "Os dados do seu passaporte foram excluídos."
+  },
+  "sign_up_resend_verification_email_help": "Não recebeu o e-mail? Clique <2>aqui para reenviar o link de verificação</2>.",
+  "sign_up_resend_verification_done": "Pronto! Enviamos outro e-mail.",
+  "sign_up_need_verification_title": "Quase lá, falta só mais uma coisa!"
 }
