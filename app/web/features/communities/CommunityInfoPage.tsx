@@ -1,3 +1,4 @@
+import { styled } from "@mui/material";
 import { InfoIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import StyledLink from "components/StyledLink";
@@ -8,7 +9,6 @@ import { routeToEditCommunityPage } from "routes";
 
 import CommunityModeratorsSection from "./CommunityModeratorsSection";
 import { SectionTitle } from "./CommunityPage";
-import { styled } from "@mui/material";
 
 const StyledTitleContainer = styled("div")(() => ({
   display: "flex",

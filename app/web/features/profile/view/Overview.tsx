@@ -1,3 +1,4 @@
+import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
@@ -22,7 +23,6 @@ import { theme } from "theme";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import AdminPanelUserButton from "./AdminPanelUserButton";
-import { styled } from "@mui/material";
 
 const StyledModButtons = styled("div")(({ theme }) => ({
   alignSelf: "center",

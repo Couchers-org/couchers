@@ -1,3 +1,4 @@
+import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -8,11 +9,10 @@ import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { ListReferencesRes } from "proto/references_pb";
 import { UseInfiniteQueryResult } from "react-query";
+import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import ReferenceList from "./ReferenceList";
-import { styled } from "@mui/material";
-import { theme } from "theme";
 
 interface ReferencesViewProps {
   isReceived?: boolean;
