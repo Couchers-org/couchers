@@ -1,3 +1,4 @@
+import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
@@ -11,19 +12,20 @@ import Timezone from "features/auth/timezone/Timezone";
 import Username from "features/auth/username/Username";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import makeStyles from "utils/makeStyles";
 
 import DeleteAccount from "./deletion/DeleteAccount";
 import LoginsLink from "./logins/LoginsLink";
 import useAccountInfo from "./useAccountInfo";
 
-const useStyles = makeStyles((theme) => ({
-  section: {
-    margin: theme.spacing(4, 0),
-    "&:first-of-type": {
-      marginTop: theme.spacing(2),
-    },
+const TopMarginWrapper = styled("div")(({ theme }) => ({
+  margin: theme.spacing(4, 0),
+  "&:first-of-type": {
+    marginTop: theme.spacing(2),
   },
+}));
+
+const MarginWrapper = styled("div")(({ theme }) => ({
+  margin: theme.spacing(4, 0),
 }));
 
 export default function Settings() {
@@ -33,8 +35,6 @@ export default function Settings() {
     error: accountInfoError,
     isLoading: isAccountInfoLoading,
   } = useAccountInfo();
-
-  const classes = useStyles();
 
   return (
     <>
@@ -46,33 +46,44 @@ export default function Settings() {
         <Alert severity="error">{accountInfoError.message}</Alert>
       ) : accountInfo ? (
         <>
-          <NotificationSettings className={classes.section} />
-          <ChangeEmail className={classes.section} email={accountInfo.email} />
-          <ChangePassword className={classes.section} />
-          <LoginsLink className={classes.section} />
-          <Username
-            className={classes.section}
-            username={accountInfo.username}
-          />
-          <Timezone
-            className={classes.section}
-            timezone={accountInfo.timezone}
-          />
-          <DoNotEmail className={classes.section} />
-          <Section
-            className={classes.section}
-            title={t("account_settings_page.gender_section.title")}
-            content={t("account_settings_page.gender_section.explanation")}
-          />
-          <Section
-            className={classes.section}
-            title={t("account_settings_page.birth_date_section.title")}
-            content={t("account_settings_page.birth_date_section.explanation")}
-          />
-          <DeleteAccount
-            className={classes.section}
-            username={accountInfo.username}
-          />
+          <TopMarginWrapper>
+            <NotificationSettings />
+          </TopMarginWrapper>
+          <MarginWrapper>
+            <ChangeEmail email={accountInfo.email} />
+          </MarginWrapper>
+          <MarginWrapper>
+            <ChangePassword />
+          </MarginWrapper>
+          <MarginWrapper>
+            <LoginsLink />
+          </MarginWrapper>
+          <MarginWrapper>
+            <Username username={accountInfo.username} />
+          </MarginWrapper>
+          <MarginWrapper>
+            <Timezone timezone={accountInfo.timezone} />
+          </MarginWrapper>
+          <MarginWrapper>
+            <DoNotEmail />
+          </MarginWrapper>
+          <MarginWrapper>
+            <Section
+              title={t("account_settings_page.gender_section.title")}
+              content={t("account_settings_page.gender_section.explanation")}
+            />
+          </MarginWrapper>
+          <MarginWrapper>
+            <Section
+              title={t("account_settings_page.birth_date_section.title")}
+              content={t(
+                "account_settings_page.birth_date_section.explanation",
+              )}
+            />
+          </MarginWrapper>
+          <MarginWrapper>
+            <DeleteAccount username={accountInfo.username} />
+          </MarginWrapper>
         </>
       ) : null}
     </>

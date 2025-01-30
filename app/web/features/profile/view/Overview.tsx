@@ -19,15 +19,13 @@ import {
   UserTab,
 } from "routes";
 import { theme } from "theme";
-import makeStyles from "utils/makeStyles";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import AdminPanelUserButton from "./AdminPanelUserButton";
+import { styled } from "@mui/material";
 
-const useStyles = makeStyles((theme) => ({
-  modButtons: {
-    alignSelf: "center",
-  },
+const StyledModButtons = styled("div")(({ theme }) => ({
+  alignSelf: "center",
 }));
 
 const getEditTab = (tab: UserTab): EditUserTab | undefined => {
@@ -76,7 +74,6 @@ function DefaultActions({
   setIsRequesting: (value: boolean) => void;
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
-  const classes = useStyles();
   const user = useProfileUser();
   const disableHosting =
     user.hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST;
@@ -115,13 +112,13 @@ function DefaultActions({
       <MessageUserButton user={user} setMutationError={setMutationError} />
       <FriendActions user={user} setMutationError={setMutationError} />
 
-      <div className={classes.modButtons}>
+      <StyledModButtons>
         <FlagButton
           contentRef={`profile/${user.userId}`}
           authorUser={user.userId}
         />
         <AdminPanelUserButton username={user.username} />
-      </div>
+      </StyledModButtons>
 
       {mutationError && <Alert severity="error">{mutationError}</Alert>}
     </>

@@ -1,9 +1,11 @@
-import { InputLabel } from "@mui/material";
 import Alert from "components/Alert";
-import Button from "components/Button";
-import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
-import useAuthStyles from "features/auth/useAuthStyles";
+import {
+  StyledButton,
+  StyledForm,
+  StyledInputLabel,
+  StyledTextField,
+} from "features/auth/useAuthStyles";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -33,7 +35,6 @@ export default function BasicForm({
 }: BasicFormProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions } = useAuthContext();
-  const authClasses = useAuthStyles();
 
   const {
     register,
@@ -78,11 +79,11 @@ export default function BasicForm({
       {mutation.error && (
         <Alert severity="error">{mutation.error.message || ""}</Alert>
       )}
-      <form className={authClasses.form} onSubmit={onSubmit}>
-        <InputLabel className={authClasses.formLabel} htmlFor="name">
+      <StyledForm onSubmit={onSubmit}>
+        <StyledInputLabel htmlFor="name">
           {t("auth:basic_form.name.field_label")}
-        </InputLabel>
-        <TextField
+        </StyledInputLabel>
+        <StyledTextField
           id="name"
           {...register("name", {
             pattern: {
@@ -92,7 +93,6 @@ export default function BasicForm({
             required: t("auth:basic_form.name.required_error"),
           })}
           fullWidth
-          className={authClasses.formField}
           name="name"
           variant="standard"
           inputRef={(el: HTMLInputElement | null) => {
@@ -101,11 +101,12 @@ export default function BasicForm({
           }}
           helperText={errors?.name?.message ?? " "}
           error={!!errors?.name?.message}
+          autoComplete="name"
         />
-        <InputLabel className={authClasses.formLabel} htmlFor="email">
+        <StyledInputLabel htmlFor="email">
           {t("auth:basic_form.email.field_label")}
-        </InputLabel>
-        <TextField
+        </StyledInputLabel>
+        <StyledTextField
           id="email"
           {...register("email", {
             pattern: {
@@ -115,25 +116,21 @@ export default function BasicForm({
             required: t("auth:basic_form.email.required_error"),
           })}
           fullWidth
-          className={authClasses.formField}
           name="email"
           variant="standard"
           helperText={errors?.email?.message ?? " "}
           error={!!errors?.email?.message}
+          autoComplete="email"
         />
-        <Button
-          classes={{
-            label: authClasses.buttonText,
-            root: authClasses.button,
-          }}
+        <StyledButton
           onClick={onSubmit}
           type="submit"
           loading={mutation.isLoading}
           fullWidth
         >
           {submitText || t("global:continue")}
-        </Button>
-      </form>
+        </StyledButton>
+      </StyledForm>
     </>
   );
 }

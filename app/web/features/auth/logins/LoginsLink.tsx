@@ -5,11 +5,11 @@ import { AUTH } from "i18n/namespaces";
 import Link from "next/link";
 import { loginsSettingsRoute } from "routes";
 
-export default function LoginsLink({ className }: { className: string }) {
+export default function LoginsLink() {
   const { t } = useTranslation(AUTH);
 
   return (
-    <div className={className}>
+    <div>
       <Typography variant="h2" gutterBottom>
         {t("active_logins.settings_page_text")}
       </Typography>

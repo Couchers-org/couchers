@@ -1,25 +1,20 @@
-import { Alert as MuiAlert, Typography } from "@mui/material";
+import { Alert as MuiAlert, styled, Typography } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import { AUTH } from "i18n/namespaces";
 import { useTranslation } from "react-i18next";
-import makeStyles from "utils/makeStyles";
 
 import PushNotificationSettings from "./notifications/PushNotificationSettings";
 import ChangePhone from "./phone/ChangePhone";
 import useAccountInfo from "./useAccountInfo";
 import StrongVerification from "./verification/StrongVerification";
 
-const useStyles = makeStyles((theme) => ({
-  section: {
-    margin: theme.spacing(4, 0),
-  },
+const MarginWrapper = styled("div")(({ theme }) => ({
+  margin: theme.spacing(4, 0),
 }));
 
 export default function FeaturePreview() {
-  const classes = useStyles();
-
   const { t } = useTranslation(AUTH);
 
   const {
@@ -46,12 +41,15 @@ export default function FeaturePreview() {
         <MuiAlert severity="error">{accountInfoError.message}</MuiAlert>
       ) : (
         <>
-          <PushNotificationSettings className={classes.section} />
-          <StrongVerification
-            className={classes.section}
-            accountInfo={accountInfo!}
-          />
-          <ChangePhone className={classes.section} accountInfo={accountInfo!} />
+          <MarginWrapper>
+            <PushNotificationSettings />
+          </MarginWrapper>
+          <MarginWrapper>
+            <StrongVerification accountInfo={accountInfo!} />
+          </MarginWrapper>
+          <MarginWrapper>
+            <ChangePhone accountInfo={accountInfo!} />
+          </MarginWrapper>
         </>
       )}
     </>

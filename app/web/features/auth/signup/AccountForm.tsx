@@ -4,23 +4,26 @@ import {
   FormControlLabel,
   FormHelperText,
   FormLabel,
-  InputLabel,
+  FormLabelProps,
   Radio,
   RadioGroup,
+  styled,
   Typography,
 } from "@mui/material";
 import Alert from "components/Alert";
-import Button from "components/Button";
 import Datepicker from "components/Datepicker";
 import EditLocationMap, {
   ApproximateLocation,
 } from "components/EditLocationMap";
 import Select from "components/Select";
-import TextField from "components/TextField";
 import TOSLink from "components/TOSLink";
 import dayjs, { Dayjs } from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
-import useAuthStyles from "features/auth/useAuthStyles";
+import {
+  StyledButton,
+  StyledInputLabel,
+  StyledTextField,
+} from "features/auth/useAuthStyles";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -29,7 +32,6 @@ import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
-import makeStyles from "utils/makeStyles";
 import {
   lowercaseAndTrimField,
   usernameValidationPattern,
@@ -52,17 +54,47 @@ export type SignupAccountInputs = {
   location: ApproximateLocation;
 };
 
-const useStyles = makeStyles((theme) => ({
-  locationMap: {
-    "&&": { marginBottom: theme.spacing(2) },
-    width: "100%",
+const StyledForm = styled("form")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  marginBottom: theme.spacing(2),
+  paddingBottom: 0,
+  width: "100%",
+
+  [theme.breakpoints.up("md")]: {
+    alignItems: "flex-start",
   },
-  firstForm: {
-    paddingBottom: 0,
+}));
+
+const StyledFormLabel = styled(FormLabel)<FormLabelProps>(({ theme }) => ({
+  color: theme.palette.text.primary,
+  fontWeight: 700,
+  [theme.breakpoints.up("md")]: {
+    marginBottom: theme.spacing(2),
   },
-  errorAlert: {
-    marginTop: theme.spacing(2),
-  },
+}));
+
+const StyledSelect = styled(Select)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  marginTop: 0,
+  width: "100%",
+}));
+
+const StyledDatepicker = styled(Datepicker)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  marginTop: 0,
+  width: "100%",
+}));
+
+const StyledFormControl = styled(FormControl)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  marginTop: 0,
+  width: "100%",
+}));
+
+const StyledEditLocationMap = styled(EditLocationMap)(({ theme }) => ({
+  "&&": { marginBottom: theme.spacing(2) },
+  width: "100%",
 }));
 
 export default function AccountForm() {
@@ -82,9 +114,6 @@ export default function AccountForm() {
     mode: "onBlur",
     shouldUnregister: false,
   });
-
-  const classes = useStyles();
-  const authClasses = useAuthStyles();
 
   const mutation = useMutation<void, RpcError, SignupAccountInputs>(
     async ({
@@ -155,14 +184,11 @@ export default function AccountForm() {
       {mutation.error && (
         <Alert severity="error">{mutation.error.message || ""}</Alert>
       )}
-      <form
-        className={`${authClasses.form} ${classes.firstForm}`}
-        onSubmit={submit}
-      >
-        <InputLabel className={authClasses.formLabel} htmlFor="username">
+      <StyledForm onSubmit={submit}>
+        <StyledInputLabel htmlFor="username">
           {t("auth:account_form.username.field_label")}
-        </InputLabel>
-        <TextField
+        </StyledInputLabel>
+        <StyledTextField
           id="username"
           {...register("username", {
             pattern: {
@@ -179,7 +205,6 @@ export default function AccountForm() {
               );
             },
           })}
-          className={authClasses.formField}
           variant="standard"
           fullWidth
           inputRef={(el: HTMLInputElement | null) => {
@@ -190,10 +215,10 @@ export default function AccountForm() {
           error={!!errors?.username?.message}
           autoComplete="username"
         />
-        <InputLabel className={authClasses.formLabel} htmlFor="password">
+        <StyledInputLabel htmlFor="password">
           {t("auth:account_form.password.field_label")}
-        </InputLabel>
-        <TextField
+        </StyledInputLabel>
+        <StyledTextField
           id="password"
           {...register("password", {
             required: t("auth:account_form.password.required_error"),
@@ -201,7 +226,6 @@ export default function AccountForm() {
               validatePassword(password) ||
               t("auth:account_form.password.validation_error"),
           })}
-          className={authClasses.formField}
           variant="standard"
           type="password"
           fullWidth
@@ -209,11 +233,10 @@ export default function AccountForm() {
           error={!!errors?.password?.message}
           autoComplete="new-password"
         />
-        <InputLabel className={authClasses.formLabel} htmlFor="birthdate">
+        <StyledInputLabel htmlFor="birthdate">
           {t("auth:account_form.birthday.field_label")}
-        </InputLabel>
-        <Datepicker
-          className={authClasses.formField}
+        </StyledInputLabel>
+        <StyledDatepicker
           control={control}
           error={!!errors?.birthdate?.message}
           helperText={errors?.birthdate?.message}
@@ -246,10 +269,10 @@ export default function AccountForm() {
           name="birthdate"
           onPostChange={handleBirthdateChange}
         />
-        <InputLabel className={authClasses.formLabel} htmlFor="location">
+        <StyledInputLabel htmlFor="location">
           {t("auth:location.field_label")}
-        </InputLabel>
-      </form>
+        </StyledInputLabel>
+      </StyledForm>
       <Controller
         name="location"
         control={control}
@@ -258,10 +281,9 @@ export default function AccountForm() {
             !!location.address || t("auth:location.validation_error"),
         }}
         render={({ field, fieldState: { error } }) => (
-          <EditLocationMap
+          <StyledEditLocationMap
             inputFieldProps={field}
             inputFieldError={error}
-            className={classes.locationMap}
             updateLocation={(location) => {
               if (location) {
                 field.onChange({
@@ -279,11 +301,11 @@ export default function AccountForm() {
           />
         )}
       />
-      <form className={authClasses.form} onSubmit={submit}>
-        <InputLabel className={authClasses.formLabel} htmlFor="hosting-status">
+      <StyledForm onSubmit={submit}>
+        <StyledInputLabel htmlFor="hosting-status">
           {t("auth:account_form.hosting_status.field_label")}
-        </InputLabel>
-        <FormControl variant="standard" className={authClasses.formField}>
+        </StyledInputLabel>
+        <StyledFormControl variant="standard">
           {errors?.hostingStatus?.message && (
             <FormHelperText error>
               {errors.hostingStatus.message}
@@ -294,7 +316,7 @@ export default function AccountForm() {
             rules={{ required: t("global:required") }}
             name="hostingStatus"
             render={({ field }) => (
-              <Select
+              <StyledSelect
                 {...field}
                 onChange={(event) => {
                   field.onChange(
@@ -304,7 +326,6 @@ export default function AccountForm() {
                 value={field.value}
                 id="hosting-status"
                 fullWidth
-                className={authClasses.formField}
                 options={[
                   "",
                   HostingStatus.HOSTING_STATUS_CAN_HOST,
@@ -326,7 +347,7 @@ export default function AccountForm() {
               />
             )}
           />
-        </FormControl>
+        </StyledFormControl>
         <Controller
           control={control}
           name="gender"
@@ -334,9 +355,9 @@ export default function AccountForm() {
           rules={{ required: t("auth:account_form.gender.required_error") }}
           render={({ field }) => (
             <FormControl variant="standard" component="fieldset">
-              <FormLabel component="legend" className={authClasses.formLabel}>
+              <StyledFormLabel component="legend">
                 {t("auth:account_form.gender.field_label")}
-              </FormLabel>
+              </StyledFormLabel>
               <RadioGroup
                 id="gender"
                 {...field}
@@ -395,11 +416,7 @@ export default function AccountForm() {
           }
           label={t("auth:account_form.opt_in_newsletter")}
         />
-        <Button
-          classes={{
-            label: authClasses.buttonText,
-            root: authClasses.button,
-          }}
+        <StyledButton
           onClick={submit}
           type="submit"
           loading={authLoading || mutation.isLoading}
@@ -407,8 +424,8 @@ export default function AccountForm() {
           fullWidth
         >
           {t("global:sign_up")}
-        </Button>
-      </form>
+        </StyledButton>
+      </StyledForm>
     </>
   );
 }

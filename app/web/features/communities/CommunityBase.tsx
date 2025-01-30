@@ -1,3 +1,4 @@
+import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useCommunity } from "features/communities/hooks";
@@ -5,28 +6,24 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import React from "react";
-import makeStyles from "utils/makeStyles";
-
-export const useCommunityBaseStyles = makeStyles((theme) => ({
-  root: {
-    marginBottom: theme.spacing(2),
-    "& > section": {
-      margin: theme.spacing(3, 0),
-    },
-  },
-}));
 
 interface CommunityBaseProps {
   children(communityParams: { community: Community.AsObject }): React.ReactNode;
   communityId: number;
 }
 
+const StyledWrapper = styled("div")(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  "& > section": {
+    margin: theme.spacing(3, 0),
+  },
+}));
+
 export default function CommunityBase({
   children,
   communityId,
 }: CommunityBaseProps) {
   const { t } = useTranslation([COMMUNITIES]);
-  const classes = useCommunityBaseStyles();
 
   const {
     isLoading: isCommunityLoading,
@@ -48,5 +45,5 @@ export default function CommunityBase({
       </Alert>
     );
 
-  return <div className={classes.root}>{children({ community })}</div>;
+  return <StyledWrapper>{children({ community })}</StyledWrapper>;
 }
