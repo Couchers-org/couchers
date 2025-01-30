@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import { Trans, useTranslation } from "i18n";
@@ -11,32 +11,22 @@ import {
 } from "service/notifications";
 import { theme } from "theme";
 import { arrayBufferToBase64 } from "utils/arrayBufferToBase64";
-import makeStyles from "utils/makeStyles";
 
 import { getCurrentSubscription } from "./notificationUtils";
 import PushNotificationDenied from "./PushNotificationDenied";
 
-const useStyles = makeStyles((theme) => ({
-  alert: {
-    marginBottom: theme.spacing(3),
-    marginTop: theme.spacing(2),
-  },
-  status: {
-    marginBottom: theme.spacing(2),
-  },
-  titleBox: {
-    display: "flex",
-    alignItems: "center",
-  },
+const StyledAlert = styled(Alert)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+  marginTop: theme.spacing(2),
 }));
 
-export default function PushNotificationSettings({
-  className,
-}: {
-  className: string;
-}) {
+const StyledTitleBox = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+}));
+
+export default function PushNotificationSettings() {
   const { t } = useTranslation(AUTH);
-  const classes = useStyles();
   const isNotificationSupported = typeof Notification !== "undefined";
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -167,8 +157,8 @@ export default function PushNotificationSettings({
   };
 
   return (
-    <div className={className}>
-      <div className={classes.titleBox}>
+    <div>
+      <StyledTitleBox>
         <Typography variant="h2">
           {t("notification_settings.push_notifications.title")}
         </Typography>
@@ -180,12 +170,12 @@ export default function PushNotificationSettings({
           customColor={theme.palette.primary.main}
           isLoading={isLoading}
         />
-      </div>
+      </StyledTitleBox>
       {errorMessage && (
-        <Alert className={classes.alert} severity="error">
+        <StyledAlert severity="error">
           {errorMessage ||
             t("notification_settings.push_notifications.error_generic")}
-        </Alert>
+        </StyledAlert>
       )}
       {shouldPromptAllow && (
         <Alert severity="info">
@@ -195,7 +185,7 @@ export default function PushNotificationSettings({
       {isNotificationSupported && Notification.permission === "denied" && (
         <PushNotificationDenied />
       )}
-      <Typography variant="body1" className={classes.status}>
+      <Typography variant="body1" sx={{ marginBottom: theme.spacing(2) }}>
         {isPushEnabled ? (
           <Trans i18nKey="auth:notification_settings.push_notifications.enabled_message">
             You currently have push notifications <strong>enabled</strong>.

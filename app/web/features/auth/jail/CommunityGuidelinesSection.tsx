@@ -1,13 +1,10 @@
-import classNames from "classnames";
+import { styled } from "@mui/styles";
 import CommunityGuidelines from "features/auth/CommunityGuidelines";
 import React from "react";
 import { service } from "service";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles(() => ({
-  root: {
-    maxWidth: "30rem",
-  },
+const StyledCommunityGuidelines = styled(CommunityGuidelines)(() => ({
+  maxWidth: "30rem",
 }));
 
 interface CommunityGuidelinesSectionProps {
@@ -19,8 +16,6 @@ export default function CommunityGuidelinesSection({
   updateJailed,
   className,
 }: CommunityGuidelinesSectionProps) {
-  const classes = useStyles();
-
   const handleSubmit = async (accept: boolean) => {
     const info = await service.jail.setAcceptedCommunityGuidelines(accept);
     if (!info.isJailed) {
@@ -29,8 +24,8 @@ export default function CommunityGuidelinesSection({
   };
 
   return (
-    <CommunityGuidelines
-      className={classNames(className, classes.root)}
+    <StyledCommunityGuidelines
+      className={className}
       title="h2"
       onSubmit={handleSubmit}
     />
