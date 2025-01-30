@@ -2,7 +2,6 @@ import { View, Dimensions, TouchableOpacity } from "react-native";
 import MapLibreGL, { MapViewRef } from "@maplibre/maplibre-react-native";
 import { StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Text } from "react-native";
 
 import LocationAutocomplete from "@/components/LocationAutocomplete";
 import { useForm } from "react-hook-form";

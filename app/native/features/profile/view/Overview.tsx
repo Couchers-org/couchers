@@ -25,6 +25,7 @@ import { ThemedText } from "@/components/ThemedText";
 import UserOverview from "./UserOverview";
 import useAccountInfo from "@/features/auth/useAccountInfo";
 import MessageUserButton from "../actions/MessageUserButton";
+import FriendActions from "../actions/FriendActions";
 // import makeStyles from "utils/makeStyles";
 
 // import { useProfileUser } from "../hooks/useProfileUser";
@@ -105,7 +106,7 @@ function DefaultActions({
       </Button> */}
 
       <MessageUserButton user={user} setMutationError={setMutationError} />
-      {/* <FriendActions user={user} setMutationError={setMutationError} /> */}
+      <FriendActions user={user} setMutationError={setMutationError} />
 
       {/* <FlagButton
         className={classes.flagButton}
