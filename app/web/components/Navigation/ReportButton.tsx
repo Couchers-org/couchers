@@ -19,9 +19,9 @@ import { ReportBugRes } from "proto/bugs_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
+import { helpCenterReportContentURL } from "routes";
 import { service } from "service";
-import makeStyles from "utils/makeStyles";
-import { helpCenterURL } from "routes";
+import { theme } from "theme";
 
 export interface BugReportFormData {
   subject: string;
@@ -29,36 +29,13 @@ export interface BugReportFormData {
   results: string;
 }
 
-const useStyles = makeStyles((theme) => ({
-  button: {
-    flexShrink: 0,
-    "&:hover": {
-      backgroundColor: darken(theme.palette.error.main, 0.1),
-    },
-    backgroundColor: theme.palette.error.main,
+const StyledReportButton = styled(Button)(() => ({
+  flexShrink: 0,
+  backgroundColor: theme.palette.error.main,
+  "&:hover": {
+    backgroundColor: darken(theme.palette.error.main, 0.1),
   },
-  menuLink: {
-    padding: 0,
-    margin: 0,
-    fontSize: "1rem",
-    "&:hover": {
-      backgroundColor: "transparent",
-    },
-  },
-  typeButton: {
-    display: "block",
-    margin: "0 auto",
-    maxWidth: "fit-content",
-    "& + &": {
-      marginBlockStart: theme.spacing(2),
-    },
-  },
-  field: {
-    "& + &": {
-      marginBlockStart: theme.spacing(2),
-    },
-  },
-  startIcon: {
+  "& .MuiButton-startIcon": {
     [theme.breakpoints.down("md")]: {
       margin: 0,
     },
@@ -117,12 +94,12 @@ export default function ReportButton({
       onSuccess: () => {
         setIsOpen(false);
       },
-    }
+    },
   );
 
   const handleClose = (
     event: unknown,
-    reason: "backdropClick" | "escapeKeyDown" | "button"
+    reason: "backdropClick" | "escapeKeyDown" | "button",
   ) => {
     if (reason !== "button") return;
     resetForm();
@@ -130,7 +107,7 @@ export default function ReportButton({
     setIsOpen(false);
     setTimeout(
       () => setType("initial"),
-      theme.transitions.duration.leavingScreen
+      theme.transitions.duration.leavingScreen,
     );
   };
 
@@ -155,8 +132,13 @@ export default function ReportButton({
         <Button
           variant="text"
           aria-label={t("report.label")}
-          className={classes.menuLink}
-          onClick={() => setIsOpen(true)}>
+          onClick={() => setIsOpen(true)}
+          sx={{
+            padding: 0,
+            margin: 0,
+            fontSize: "1rem",
+            "&:hover": { backgroundColor: "transparent" },
+          }}>
           {t("report.label")}
         </Button>
       ) : (
@@ -165,11 +147,7 @@ export default function ReportButton({
           onClick={() => setIsOpen(true)}
           startIcon={<BugIcon />}
           variant="contained"
-          color="primary"
-          classes={{
-            containedPrimary: classes.button,
-            startIcon: classes.startIcon,
-          }}>
+          color="primary">
           {(!isResponsive || !isBelowMd) && t("report.label")}
         </StyledReportButton>
       )}
@@ -184,27 +162,37 @@ export default function ReportButton({
               <StyledReportTypeButton
                 onClick={() => {
                   setType("bug");
-                }}
-                className={classes.typeButton}>
+                }}>
                 {t("report.bug.button_label")}
-              </Button>
-              <Button href={helpCenterURL} className={classes.typeButton}>
+              </StyledReportTypeButton>
+              <StyledReportTypeButton
+                href={helpCenterReportContentURL}
+                style={{ maxWidth: "fit-content", textAlign: "center" }}>
                 {t("report.content.button_label")}
               </StyledReportTypeButton>
             </DialogContent>
             <DialogActions>
               <StyledCancelButton
                 onClick={() => handleClose({}, "button")}
-                variant="outlined"
-                sx={{
-                  color: theme.palette.common.black,
-                  borderColor: theme.palette.grey[300],
-
-                  "&:hover": {
-                    borderColor: theme.palette.grey[300],
-                    backgroundColor: "#3135390A",
-                  },
-                }}>
+                variant="outlined">
+                {t("cancel")}
+              </StyledCancelButton>
+            </DialogActions>
+          </>
+        ) : type === "content" ? (
+          <>
+            <DialogContent>
+              <Typography variant="body1" paragraph>
+                {t("report.content.dialog_message")}
+              </Typography>
+              <Link href={`mailto:${supportEmail}`} underline="hover">
+                {supportEmail}
+              </Link>
+            </DialogContent>
+            <DialogActions>
+              <StyledCancelButton
+                onClick={() => handleClose({}, "button")}
+                variant="outlined">
                 {t("cancel")}
               </StyledCancelButton>
             </DialogActions>
@@ -253,16 +241,7 @@ export default function ReportButton({
               </Button>
               <StyledCancelButton
                 onClick={() => handleClose({}, "button")}
-                variant="outlined"
-                sx={{
-                  color: theme.palette.common.black,
-                  borderColor: theme.palette.grey[300],
-
-                  "&:hover": {
-                    borderColor: theme.palette.grey[300],
-                    backgroundColor: "#3135390A",
-                  },
-                }}>
+                variant="outlined">
                 {t("cancel")}
               </StyledCancelButton>
             </DialogActions>
