@@ -23,7 +23,7 @@ export function reportContent({
   req.setAuthorUser(authorUser.toString());
 
   req.setUserAgent(navigator.userAgent);
-  req.setPage(window.location.href);
+  // req.setPage(window.location.href);
 
   return client.reporting.report(req);
 }

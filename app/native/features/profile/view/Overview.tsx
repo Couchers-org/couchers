@@ -26,6 +26,7 @@ import UserOverview from "./UserOverview";
 import useAccountInfo from "@/features/auth/useAccountInfo";
 import MessageUserButton from "../actions/MessageUserButton";
 import FriendActions from "../actions/FriendActions";
+import FlagButton from "@/features/FlagButton";
 // import makeStyles from "utils/makeStyles";
 
 // import { useProfileUser } from "../hooks/useProfileUser";
@@ -108,13 +109,12 @@ function DefaultActions({
       <MessageUserButton user={user} setMutationError={setMutationError} />
       <FriendActions user={user} setMutationError={setMutationError} />
 
-      {/* <FlagButton
-        className={classes.flagButton}
+      <FlagButton
         contentRef={`profile/${user.userId}`}
         authorUser={user.userId}
       />
 
-      {mutationError && <Alert severity="error">{mutationError}</Alert>} */}
+      {mutationError && <Alert>{mutationError}</Alert>}
     </>
   );
 }
