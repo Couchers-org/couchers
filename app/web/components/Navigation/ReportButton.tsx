@@ -138,7 +138,8 @@ export default function ReportButton({
             margin: 0,
             fontSize: "1rem",
             "&:hover": { backgroundColor: "transparent" },
-          }}>
+          }}
+        >
           {t("report.label")}
         </Button>
       ) : (
@@ -147,14 +148,16 @@ export default function ReportButton({
           onClick={() => setIsOpen(true)}
           startIcon={<BugIcon />}
           variant="contained"
-          color="primary">
+          color="primary"
+        >
           {(!isResponsive || !isBelowMd) && t("report.label")}
         </StyledReportButton>
       )}
       <Dialog
         aria-labelledby="bug-reporter"
         open={isOpen}
-        onClose={handleClose}>
+        onClose={handleClose}
+      >
         <DialogTitle id="bug-reporter">{t("report.label")}</DialogTitle>
         {type === "initial" ? (
           <>
@@ -162,19 +165,22 @@ export default function ReportButton({
               <StyledReportTypeButton
                 onClick={() => {
                   setType("bug");
-                }}>
+                }}
+              >
                 {t("report.bug.button_label")}
               </StyledReportTypeButton>
               <StyledReportTypeButton
                 href={helpCenterReportContentURL}
-                style={{ maxWidth: "fit-content", textAlign: "center" }}>
+                style={{ maxWidth: "fit-content", textAlign: "center" }}
+              >
                 {t("report.content.button_label")}
               </StyledReportTypeButton>
             </DialogContent>
             <DialogActions>
               <StyledCancelButton
                 onClick={() => handleClose({}, "button")}
-                variant="outlined">
+                variant="outlined"
+              >
                 {t("cancel")}
               </StyledCancelButton>
             </DialogActions>
@@ -192,7 +198,8 @@ export default function ReportButton({
             <DialogActions>
               <StyledCancelButton
                 onClick={() => handleClose({}, "button")}
-                variant="outlined">
+                variant="outlined"
+              >
                 {t("cancel")}
               </StyledCancelButton>
             </DialogActions>
@@ -241,7 +248,8 @@ export default function ReportButton({
               </Button>
               <StyledCancelButton
                 onClick={() => handleClose({}, "button")}
-                variant="outlined">
+                variant="outlined"
+              >
                 {t("cancel")}
               </StyledCancelButton>
             </DialogActions>
