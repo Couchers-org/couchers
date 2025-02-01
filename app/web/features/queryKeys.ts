@@ -154,3 +154,12 @@ export const searchQueryKey = (query?: string) =>
 export const userCommunitiesKey = "userCommunities";
 export const myEventsKey = (type: EventsType) => ["myEvents", { type }];
 export const activeLoginsKey = "activeLogins";
+
+// Badges
+export interface BadgeUsersInput {
+  badgeId: string;
+}
+export const badgeUsersKey = ({ badgeId }: BadgeUsersInput) => [
+  "badgeUsers",
+  badgeId,
+];
