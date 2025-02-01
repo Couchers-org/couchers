@@ -55,7 +55,7 @@ frozenlist==1.5.0
     #   aiosignal
 geoalchemy2==0.17.0
     # via -r requirements.in
-geoip2==4.8.1
+geoip2==5.0.1
     # via -r requirements.in
 googleapis-common-protos==1.66.0
     # via
