@@ -1,11 +1,8 @@
-import { Typography, TypographyProps } from "@mui/material";
-import classNames from "classnames";
+import { styled, Typography, TypographyProps } from "@mui/material";
 import NotificationBadge from "components/NotificationBadge";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { baseRoute } from "routes";
-
-import { useNavLinkStyles } from "./useNavLinkStyles";
 
 interface NavButtonProps {
   route: string;
@@ -14,13 +11,34 @@ interface NavButtonProps {
   notificationCount?: number;
 }
 
+const StyledNextLink = styled(Link, {
+  shouldForwardProp: (prop) =>
+    prop !== "isNotification" && prop !== "isSelected",
+})<{
+  isNotification: boolean;
+  isSelected: boolean;
+}>(({ theme, isNotification, isSelected }) => ({
+  color: theme.palette.text.secondary,
+  display: "flex",
+  flex: "1",
+  fontSize: "2rem",
+  maxWidth: "10.5rem",
+  padding: theme.spacing(1, 1.5),
+  ...(isNotification && { marginRight: "0.8rem" }),
+  ...(isSelected && { color: theme.palette.secondary.main }),
+}));
+
+const StyledTypography = styled(Typography)(({ theme }) => ({
+  alignSelf: "center",
+  marginTop: 0,
+}));
+
 export default function NavButton({
   route,
   label,
   labelVariant = "h3",
   notificationCount,
 }: NavButtonProps) {
-  const classes = useNavLinkStyles();
   const router = useRouter();
   const isActive =
     route === baseRoute
@@ -28,18 +46,16 @@ export default function NavButton({
       : router.asPath.includes(route);
 
   return (
-    <Link
+    <StyledNextLink
       href={route}
-      className={classNames(classes.link, {
-        [classes.notification]: !!notificationCount,
-        [classes.selected]: isActive,
-      })}
+      isNotification={!!notificationCount}
+      isSelected={isActive}
     >
       <NotificationBadge count={notificationCount}>
-        <Typography variant={labelVariant} className={classes.label} noWrap>
+        <StyledTypography variant={labelVariant} noWrap>
           {label}
-        </Typography>
+        </StyledTypography>
       </NotificationBadge>
-    </Link>
+    </StyledNextLink>
   );
 }

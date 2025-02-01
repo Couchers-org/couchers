@@ -4,58 +4,51 @@ import {
   Skeleton,
   Typography,
 } from "@mui/material";
-import classNames from "classnames";
+import { styled } from "@mui/system";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import { LiteUser } from "proto/api_pb";
 import React from "react";
 import { routeToUser } from "routes";
-import makeStyles from "utils/makeStyles";
 
 import StrongVerificationBadge from "./StrongVerificationBadge";
 
-export const useStyles = makeStyles((theme) => ({
-  avatar: {
-    marginInlineEnd: theme.spacing(2),
-  },
-  avatarBig: {
-    height: "4.5rem",
-    width: "4.5rem",
-  },
-  avatarSmall: {
-    height: "3rem",
-    width: "3rem",
-  },
-  root: {
-    display: "flex",
-    padding: 0,
-    width: "100%",
-    alignItems: "center",
-  },
-  titleSkeleton: {
-    maxWidth: 300,
-  },
-  title: {
-    marginTop: "auto",
-    fontSize: "1.2rem",
-  },
-  link: {
-    display: "flex",
-    alignItems: "center",
-  },
-  linkIcon: {
-    display: "block",
-    marginInlineStart: theme.spacing(0.5),
-    height: "1.25rem",
-    width: "1.25rem",
-  },
-  titleAndBarContainer: {
-    display: "grid",
-    gap: theme.spacing(0.25),
-    margin: 0,
-    minHeight: theme.spacing(9),
-  },
+const StyledWrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  padding: 0,
+  width: "100%",
+  alignItems: "center",
+}));
+
+const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
+  display: "block",
+  marginInlineStart: theme.spacing(0.5),
+  height: "1.25rem",
+  width: "1.25rem",
+}));
+
+const StyledListItemText = styled(ListItemText)(({ theme }) => ({
+  display: "grid",
+  gap: theme.spacing(0.25),
+  margin: 0,
+  minHeight: theme.spacing(9),
+}));
+
+const StyledSkeleton = styled(Skeleton, {
+  shouldForwardProp: (prop) => prop !== "isSmallAvatar",
+})<{ isSmallAvatar: boolean }>(({ theme, isSmallAvatar }) => ({
+  marginInlineEnd: theme.spacing(2),
+  height: isSmallAvatar ? "3rem" : "4.5rem",
+  width: isSmallAvatar ? "3rem" : "4.5rem",
+}));
+
+const StyledAvatar = styled(Avatar, {
+  shouldForwardProp: (prop) => prop !== "isSmallAvatar",
+})<{ isSmallAvatar: boolean }>(({ theme, isSmallAvatar }) => ({
+  marginInlineEnd: theme.spacing(2),
+  height: isSmallAvatar ? "3rem" : "4.5rem",
+  width: isSmallAvatar ? "3rem" : "4.5rem",
 }));
 
 export const USER_TITLE_SKELETON_TEST_ID = "user-title-skeleton";
@@ -77,8 +70,6 @@ export default function UserSummary({
   user,
   titleIsLink = false,
 }: UserSummaryProps) {
-  const classes = useStyles();
-
   const headlineComponentWithRef = React.forwardRef(
     function HeadlineComponentWithRef(props, ref) {
       return React.createElement(headlineComponent, { ...props, ref });
@@ -89,13 +80,13 @@ export default function UserSummary({
     <Typography
       component={headlineComponentWithRef}
       variant="h2"
-      className={classes.title}
       noWrap={nameOnly}
+      sx={{ marginTop: "auto", fontSize: "1.2rem" }}
     >
       {!user ? (
         <Skeleton
-          className={classes.titleSkeleton}
           data-testid={USER_TITLE_SKELETON_TEST_ID}
+          sx={{ maxWidth: 300 }}
         />
       ) : (
         <>
@@ -106,26 +97,20 @@ export default function UserSummary({
     </Typography>
   );
 
-  const avatarClassNames = classNames(
-    classes.avatar,
-    smallAvatar ? classes.avatarSmall : classes.avatarBig,
-  );
-
   return (
-    <div className={classes.root}>
+    <StyledWrapper>
       <ListItemAvatar>
         {!user ? (
-          <Skeleton variant="circular" className={avatarClassNames} />
+          <StyledSkeleton variant="circular" isSmallAvatar={smallAvatar} />
         ) : (
-          <Avatar
+          <StyledAvatar
             user={user}
-            className={avatarClassNames}
             isProfileLink={true}
+            isSmallAvatar={smallAvatar}
           />
         )}
       </ListItemAvatar>
-      <ListItemText
-        className={classes.titleAndBarContainer}
+      <StyledListItemText
         disableTypography
         primary={
           titleIsLink && user ? (
@@ -133,10 +118,10 @@ export default function UserSummary({
               href={routeToUser(user.username)}
               target="_blank"
               rel="noopener noreferrer"
-              className={classes.link}
+              sx={{ display: "flex", alignItems: "center" }}
             >
               {title}
-              <OpenInNewIcon className={classes.linkIcon} />
+              <StyledOpenInNewIcon />
             </StyledLink>
           ) : (
             title
@@ -157,6 +142,6 @@ export default function UserSummary({
           </>
         }
       />
-    </div>
+    </StyledWrapper>
   );
 }

@@ -76,6 +76,7 @@ describe("useNotificationSettings", () => {
         service.notifications.getNotificationSettings,
       ).toHaveBeenCalledTimes(1),
     );
+
     expect(result.current.error).toEqual(mockError);
   });
 

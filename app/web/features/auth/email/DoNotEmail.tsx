@@ -14,7 +14,7 @@ interface DoNotEmailFormData {
   doNotEmailEnabled: boolean;
 }
 
-export default function DoNotEmail({ className }: { className: string }) {
+export default function DoNotEmail() {
   const { t } = useTranslation(AUTH);
 
   const queryClient = useQueryClient();
@@ -46,7 +46,7 @@ export default function DoNotEmail({ className }: { className: string }) {
   };
 
   return (
-    <div className={className}>
+    <div>
       <Typography variant="h2">{t("do_not_email.title")}</Typography>
       {mutation.error && (
         <Alert severity="error">{mutation.error.message}</Alert>

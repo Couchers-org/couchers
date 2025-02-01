@@ -1,19 +1,16 @@
+import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  alert: {
-    marginBottom: theme.spacing(3),
-    marginTop: theme.spacing(2),
-  },
+const StyledAlert = styled(Alert)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+  marginTop: theme.spacing(2),
 }));
 
 const PushNotificationDenied = () => {
   const { t } = useTranslation(AUTH);
   const userAgent = navigator.userAgent.toLowerCase();
-  const classes = useStyles();
 
   // @TODO - Add mobile browser and OS instructions per platform
   const isMobile = () => {
@@ -73,16 +70,14 @@ const PushNotificationDenied = () => {
 
   return (
     <>
-      <Alert className={classes.alert} severity="error">
-        {getBrowserInstructions()}
-      </Alert>
-      <Alert className={classes.alert} severity="error">
+      <StyledAlert severity="error">{getBrowserInstructions()}</StyledAlert>
+      <StyledAlert severity="error">
         {t(
           "notification_settings.push_notifications.permission_denied.platform_settings_description",
         ) +
           " " +
           getOSInstructions()}
-      </Alert>
+      </StyledAlert>
     </>
   );
 };

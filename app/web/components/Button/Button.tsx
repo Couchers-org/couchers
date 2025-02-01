@@ -1,53 +1,35 @@
-import { Button as MuiButton, ButtonProps, useTheme } from "@mui/material";
-import classNames from "classnames";
+import {
+  Button as MuiButton,
+  ButtonProps,
+  styled,
+  useTheme,
+} from "@mui/material";
 import Sentry from "platform/sentry";
-import React, {
-  ElementType,
-  ForwardedRef,
-  forwardRef,
-  MouseEventHandler,
-} from "react";
+import React, { ElementType, ForwardedRef, forwardRef } from "react";
 import { useIsMounted, useSafeState } from "utils/hooks";
-import makeStyles from "utils/makeStyles";
 
 import CircularProgress from "../CircularProgress";
 
-const useStyles = makeStyles((theme) => ({
-  contained: {
+const StyledMuiButton = styled(MuiButton, {
+  shouldForwardProp: (prop) => prop !== "contained",
+})<{ contained: boolean }>(({ theme, contained }) => ({
+  minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
+    theme.typography.button.fontSize
+  }) + ${theme.typography.pxToRem(12)})`, //from padding
+  ...(contained && {
     borderRadius: theme.shape.borderRadius,
     boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.25)",
-  },
-  loading: {
-    height: theme.typography.button.fontSize,
-  },
-  spinner: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    top: 0,
-    margin: "auto",
-  },
-  root: {
-    minHeight: `calc(calc(${theme.typography.button.lineHeight} * ${
-      theme.typography.button.fontSize
-    }) + ${theme.typography.pxToRem(12)})`, //from padding
-  },
+  }),
 }));
 
-type ButtonClasses = {
-  [key: string]: string;
-};
-
-//type generics required to allow component prop
-//see https://github.com/mui-org/material-ui/issues/15827
-// @TODO This is fixed now, can refactor: https://github.com/mui/material-ui/pull/35924
-export type AppButtonProps<D extends ElementType = "button"> =
-  ButtonProps<D> & {
-    loading?: boolean;
-    onClick?: MouseEventHandler<HTMLButtonElement>; // Dynamic type for different component types
-    classes?: Partial<ButtonClasses>; // Use the flexible ButtonClasses type here
-  };
+const StyledCircularProgress = styled(CircularProgress)(() => ({
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  right: 0,
+  top: 0,
+  margin: "auto",
+}));
 
 function InternalButton<D extends ElementType = "button">(
   {
@@ -59,12 +41,11 @@ function InternalButton<D extends ElementType = "button">(
     variant = "contained",
     color = "primary",
     ...otherProps
-  }: AppButtonProps<D>,
-  ref: ForwardedRef<any>, // eslint-disable-line
+  }: ButtonProps<D>,
+  ref: ForwardedRef<HTMLButtonElement>,
 ) {
   const isMounted = useIsMounted();
   const [waiting, setWaiting] = useSafeState(isMounted, false);
-  const classes = useStyles();
   const theme = useTheme();
   async function asyncOnClick(event: React.MouseEvent<HTMLButtonElement>) {
     try {
@@ -83,25 +64,21 @@ function InternalButton<D extends ElementType = "button">(
     throw new Error("Only contained buttons should have color.");
   }
   return (
-    <MuiButton
+    <StyledMuiButton
       {...otherProps}
       ref={ref}
       onClick={onClick && asyncOnClick}
       disabled={disabled ? true : loading || waiting}
-      className={classNames(classes.root, className, {
-        [classes.contained]: variant === "contained",
-      })}
+      className={className}
+      contained={variant === "contained"}
       variant={variant}
       color={variant === "contained" ? color : undefined}
     >
       {(loading || waiting) && (
-        <CircularProgress
-          size={theme.typography.button.fontSize}
-          className={classes.spinner}
-        />
+        <StyledCircularProgress size={theme.typography.button.fontSize} />
       )}
       {children}
-    </MuiButton>
+    </StyledMuiButton>
   );
 }
 

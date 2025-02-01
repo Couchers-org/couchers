@@ -1,3 +1,4 @@
+import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -8,8 +9,8 @@ import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { ListReferencesRes } from "proto/references_pb";
 import { UseInfiniteQueryResult } from "react-query";
+import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
-import makeStyles from "utils/makeStyles";
 
 import ReferenceList from "./ReferenceList";
 
@@ -20,15 +21,10 @@ interface ReferencesViewProps {
   referenceUsers: ReturnType<typeof useLiteUsers>["data"];
 }
 
-export const useReferencesViewStyles = makeStyles((theme) => ({
-  noReferencesText: {
-    marginBlockStart: theme.spacing(1),
-  },
-  seeMoreReferencesButtonContainer: {
-    display: "flex",
-    justifyContent: "center",
-    width: "100%",
-  },
+const SeeMoreReferencesButtonContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  width: "100%",
 }));
 
 export default function ReferencesView({
@@ -45,7 +41,6 @@ export default function ReferencesView({
   referenceUsers,
 }: ReferencesViewProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
-  const classes = useReferencesViewStyles();
 
   return (
     <>
@@ -62,18 +57,18 @@ export default function ReferencesView({
             referenceUsers={referenceUsers}
           />
           {hasNextPage && (
-            <div className={classes.seeMoreReferencesButtonContainer}>
+            <SeeMoreReferencesButtonContainer>
               <Button
                 loading={isFetchingNextPage}
                 onClick={() => fetchNextPage()}
               >
                 {t("profile:see_more_references")}
               </Button>
-            </div>
+            </SeeMoreReferencesButtonContainer>
           )}
         </>
       ) : (
-        <TextBody className={classes.noReferencesText}>
+        <TextBody sx={{ marginBlockStart: theme.spacing(1) }}>
           {t("profile:no_references")}
         </TextBody>
       )}

@@ -4,6 +4,7 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
+  styled,
   Typography,
   TypographyVariant,
 } from "@mui/material";
@@ -22,26 +23,6 @@ import { useQuery } from "react-query";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
 import { useIsMounted, useSafeState } from "utils/hooks";
-import makeStyles from "utils/makeStyles";
-
-const useStyles = makeStyles((theme) => ({
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "auto 1fr",
-    gap: theme.spacing(2, 2),
-  },
-  avatar: {
-    backgroundColor: theme.palette.grey[300],
-    "& img": {
-      fill: "none",
-      width: "2rem",
-      objectFit: "unset",
-    },
-  },
-  button: {
-    marginBlockStart: theme.spacing(2),
-  },
-}));
 
 interface CommunityGuidelinesProps {
   onSubmit: (accept: boolean) => Promise<void>;
@@ -49,13 +30,31 @@ interface CommunityGuidelinesProps {
   title?: TypographyVariant;
 }
 
+const StyledGrid = styled("div")(({ theme }) => ({
+  display: "grid",
+  gridTemplateColumns: "auto 1fr",
+  gap: theme.spacing(2, 2),
+}));
+
+const StyledAvatar = styled(Avatar)(({ theme }) => ({
+  backgroundColor: theme.palette.grey[300],
+  "& img": {
+    fill: "none",
+    width: "2rem",
+    objectFit: "unset",
+  },
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  marginBlockStart: theme.spacing(2),
+}));
+
 export default function CommunityGuidelines({
   onSubmit,
   className,
   title,
 }: CommunityGuidelinesProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const classes = useStyles();
   const isMounted = useIsMounted();
   const [completed, setCompleted] = useSafeState(isMounted, false);
   const [error, setError] = useState("");
@@ -115,12 +114,11 @@ export default function CommunityGuidelines({
         )}
         {error && <Alert severity="error">{error}</Alert>}
 
-        <div className={classes.grid}>
+        <StyledGrid>
           {data.communityGuidelinesList.map(
             ({ title, guideline, iconSvg }, index) => (
               <React.Fragment key={index}>
-                <Avatar
-                  className={classes.avatar}
+                <StyledAvatar
                   src={`data:image/svg+xml,${encodeURIComponent(iconSvg)}`}
                 />
                 <div>
@@ -168,15 +166,14 @@ export default function CommunityGuidelines({
               </React.Fragment>
             ),
           )}
-        </div>
+        </StyledGrid>
 
-        <Button
+        <StyledButton
           onClick={submit}
           disabled={completed || !formState.isValid}
-          className={classes.button}
         >
           {completed ? t("global:thanks") : t("global:continue")}
-        </Button>
+        </StyledButton>
       </form>
     </>
   );

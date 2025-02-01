@@ -1,30 +1,27 @@
-import classNames from "classnames";
+import { styled } from "@mui/material";
 import Map from "components/Map";
 import { LngLat } from "maplibre-gl";
 import { Page } from "proto/pages_pb";
 import React from "react";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    height: "8rem",
-    width: "100%",
-    marginBottom: theme.spacing(1),
-    [theme.breakpoints.down("lg")]: {
-      //break out of page margins
-      left: "50%",
-      marginLeft: "-50vw",
-      marginRight: "-50vw",
-      position: "relative",
-      right: "50%",
-      width: "100vw",
-    },
-    [theme.breakpoints.up("md")]: {
-      height: "16rem",
-      marginTop: theme.spacing(-2),
-    },
+const StyledWrapper = styled("div")(({ theme }) => ({
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  height: "8rem",
+  width: "100%",
+  marginBottom: theme.spacing(1),
+  [theme.breakpoints.down("lg")]: {
+    //break out of page margins
+    left: "50%",
+    marginLeft: "-50vw",
+    marginRight: "-50vw",
+    position: "relative",
+    right: "50%",
+    width: "100vw",
+  },
+  [theme.breakpoints.up("md")]: {
+    height: "16rem",
+    marginTop: theme.spacing(-2),
   },
 }));
 
@@ -35,12 +32,10 @@ export default function PageHeader({
   page: Page.AsObject;
   className?: string;
 }) {
-  const classes = useStyles();
-
   if (page.photoUrl) {
     return (
-      <div
-        className={classNames(classes.root, className)}
+      <StyledWrapper
+        className={className}
         style={{ backgroundImage: `url(${page.photoUrl})` }}
       />
     );
@@ -52,8 +47,8 @@ export default function PageHeader({
   const lngLat = new LngLat(page.location?.lng ?? 0, page.location?.lat ?? 0);
 
   return (
-    <div className={classNames(classes.root, className)}>
+    <StyledWrapper className={className}>
       <Map grow interactive={false} initialCenter={lngLat} initialZoom={zoom} />
-    </div>
+    </StyledWrapper>
   );
 }

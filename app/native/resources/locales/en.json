@@ -154,8 +154,8 @@
   },
   "location_autocomplete": {
     "more_specific": "Please choose a more specific place",
-    "search_location_hint": "Press enter or click the icon to choose a location",
+    "search_location_hint": "Press Enter or click the search icon to choose a location",
     "search_location_button": "Search location",
-    "select_location_hint": "Press enter or click the icon, then select a location from the list"
+    "select_location_hint": "Press Enter or click the search icon, then select a location from the list"
   }
 }

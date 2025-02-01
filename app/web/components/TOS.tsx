@@ -1,3 +1,4 @@
+import { styled } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
@@ -9,19 +10,15 @@ import { GLOBAL } from "i18n/namespaces";
 import { GetTermsOfServiceRes } from "proto/resources_pb";
 import { useQuery } from "react-query";
 import { service } from "service";
-import makeStyles from "utils/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    maxWidth: theme.breakpoints.values.lg,
-    margin: "0 auto",
-    padding: theme.spacing(2),
-  },
+const StyledWrapper = styled("div")(({ theme }) => ({
+  maxWidth: theme.breakpoints.values.lg,
+  margin: "0 auto",
+  padding: theme.spacing(2),
 }));
 
 export default function TOS() {
   const { t } = useTranslation(GLOBAL);
-  const classes = useStyles();
   const { data, error, isLoading } = useQuery<
     GetTermsOfServiceRes.AsObject,
     RpcError
@@ -39,10 +36,10 @@ export default function TOS() {
   return isLoading ? (
     <CenteredSpinner />
   ) : data ? (
-    <div className={classes.root}>
+    <StyledWrapper>
       <HtmlMeta title={t("terms_of_service")} />
       <PageTitle>{t("terms_of_service")}</PageTitle>
       <Markdown source={data?.termsOfService} />
-    </div>
+    </StyledWrapper>
   ) : null;
 }

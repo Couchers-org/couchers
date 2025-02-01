@@ -5,15 +5,11 @@ import { AUTH } from "i18n/namespaces";
 import Link from "next/link";
 import { notificationSettingsRoute } from "routes";
 
-export default function NotificationSettings({
-  className,
-}: {
-  className: string;
-}) {
+export default function NotificationSettings() {
   const { t } = useTranslation(AUTH);
 
   return (
-    <div className={className}>
+    <div>
       <Typography variant="h2" gutterBottom>
         {t("notification_settings.title")}
       </Typography>

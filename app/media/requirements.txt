@@ -18,7 +18,7 @@ click==8.1.8
     # via flask
 flask==3.1.0
     # via -r requirements.in
-grpcio==1.69.0
+grpcio==1.70.0
     # via -r requirements.in
 iniconfig==2.0.0
     # via pytest
@@ -46,7 +46,7 @@ pytest==8.3.4
     # via -r requirements.in
 pyvips==2.2.3
     # via -r requirements.in
-ruff==0.9.2
+ruff==0.9.4
     # via -r requirements.in
 sentry-sdk==2.20.0
     # via -r requirements.in

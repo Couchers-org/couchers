@@ -146,5 +146,6 @@
     "request_duration": "{{count}} Nacht",
     "request_duration_plural": "{{count}} Nächte"
   },
-  "surfer_declined_request_help_text": "<0>Lies unseren Leitfaden</0>, wie man eine Anfrage schreibt, die angenommen wird."
+  "surfer_declined_request_help_text": "<0>Lies unseren Leitfaden</0>, wie man eine Anfrage schreibt, die angenommen wird.",
+  "past_request_help_text": "Diese Anfrage liegt in der Vergangenheit, du kannst weiterhin Nachrichten versenden, aber keine sonstige Änderungen vornehmen."
 }

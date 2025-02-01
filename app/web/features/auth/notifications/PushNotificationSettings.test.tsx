@@ -63,7 +63,7 @@ describe("PushNotificationSettings Component", () => {
   });
 
   it("Renders push notifications settings", () => {
-    render(<PushNotificationSettings className="test-class" />, { wrapper });
+    render(<PushNotificationSettings />, { wrapper });
     expect(
       screen.getByText("notification_settings.push_notifications.title"),
     ).toBeInTheDocument();
@@ -87,7 +87,7 @@ describe("PushNotificationSettings Component", () => {
 
     Object.assign(global.Notification, mockGranted);
 
-    render(<PushNotificationSettings className="test-class" />, { wrapper });
+    render(<PushNotificationSettings />, { wrapper });
 
     await waitFor(() => {
       expect(screen.getByText("enabled")).toBeInTheDocument();
@@ -107,7 +107,7 @@ describe("PushNotificationSettings Component", () => {
     };
 
     Object.assign(global.Notification, mockDefault);
-    render(<PushNotificationSettings className="test-class" />, { wrapper });
+    render(<PushNotificationSettings />, { wrapper });
 
     Object.defineProperty(Notification, "permission", {
       value: "default",
@@ -130,7 +130,7 @@ describe("PushNotificationSettings Component", () => {
 
     Object.assign(global.Notification, mockChangeDefaultToGranted);
 
-    render(<PushNotificationSettings className="test-class" />, { wrapper });
+    render(<PushNotificationSettings />, { wrapper });
 
     fireEvent.click(document.querySelector("input[type='checkbox']")!);
 
@@ -153,7 +153,7 @@ describe("PushNotificationSettings Component", () => {
 
     Object.assign(global.Notification, mockDenied);
 
-    render(<PushNotificationSettings className="test-class" />, { wrapper });
+    render(<PushNotificationSettings />, { wrapper });
     fireEvent.click(document.querySelector("input[type='checkbox']")!);
 
     await waitFor(() => {
@@ -195,7 +195,7 @@ describe("PushNotificationSettings Component", () => {
       },
     });
 
-    render(<PushNotificationSettings className="test-class" />, { wrapper });
+    render(<PushNotificationSettings />, { wrapper });
 
     fireEvent.click(document.querySelector("input[type='checkbox']")!);
 
@@ -230,7 +230,7 @@ describe("PushNotificationSettings Component", () => {
       },
     });
 
-    render(<PushNotificationSettings className="test-class" />, { wrapper });
+    render(<PushNotificationSettings />, { wrapper });
 
     fireEvent.click(document.querySelector("input[type='checkbox']")!);
 

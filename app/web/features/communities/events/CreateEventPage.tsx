@@ -13,24 +13,14 @@ import { useMutation, useQueryClient } from "react-query";
 import { dashboardRoute, routeToEvent } from "routes";
 import { service } from "service";
 import type { CreateEventInput } from "service/events";
+import { theme } from "theme";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
-import makeStyles from "utils/makeStyles";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-import EventForm, {
-  CreateEventVariables,
-  useEventFormStyles,
-} from "./EventForm";
-
-const useStyles = makeStyles((theme) => ({
-  disclaimer: {
-    color: theme.palette.grey[600],
-  },
-}));
+import EventForm, { CreateEventVariables } from "./EventForm";
 
 export default function CreateEventPage() {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
-  const classes = { ...useEventFormStyles(), ...useStyles() };
   const router = useRouter();
 
   const urlCommunityIdString =
@@ -136,13 +126,13 @@ export default function CreateEventPage() {
         {({ isMutationLoading }) => (
           <>
             <Button
-              className={classes.submitButton}
               loading={isMutationLoading}
               type="submit"
+              sx={{ justifySelf: "start" }}
             >
               {t("global:create")}
             </Button>
-            <Typography className={classes.disclaimer} variant="body1">
+            <Typography variant="body1" sx={{ color: theme.palette.grey[600] }}>
               {t("communities:create_event_disclaimer")}
             </Typography>
           </>

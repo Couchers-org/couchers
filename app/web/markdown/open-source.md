@@ -40,7 +40,8 @@ We want to thank the following companies that provide us with freebies (either s
 * [Monday](https://monday.com/) sponsors us a plan that helps us organize our recruiting processes
 * [Stripe](https://stripe.com/) gives us a discount on processing fees
 * [Maxmind](https://www.maxmind.com/en/home) gives us access to free GeoIP data
-* [Slack](https://slack.com/) sponsors our Slack workspace with a free Pro Plan where we collaborate
+* [Slack](https://slack.com/) sponsors our Slack workspace with a free Pro Plan where core volunteers collaborate
+* [Zulip](https://zulip.com/) sponsors our Zulip workspace with a free Standard Plan where Community Builders collaborate
 
 ## Past Company Sponsorships
 
