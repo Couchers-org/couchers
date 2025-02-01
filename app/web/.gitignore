@@ -56,3 +56,6 @@ revision.txt
 
 # For gitlabci and helm stuff
 requirements.lock
+
+# Sentry Config File
+.env.sentry-build-plugin
