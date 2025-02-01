@@ -5,6 +5,7 @@ services:
     ports:
       - 8888:8888
       - 9901:9901
+    dns_search: ""
   postgres:
     image: postgis/postgis:17-3.5
     env_file: postgres.dev.env
