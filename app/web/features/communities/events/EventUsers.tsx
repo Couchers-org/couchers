@@ -49,7 +49,7 @@ export default function EventUsers({
           )
         }
         emptyListChildren={
-          !error && <Typography variant="body1">{emptyState}</Typography>
+          <Typography variant="body1">{emptyState}</Typography>
         }
       />
     </Card>

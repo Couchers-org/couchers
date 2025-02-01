@@ -1,25 +1,17 @@
-import { Chip, Tooltip } from "@mui/material";
+import { styled } from "@mui/styles";
+import Badge from "features/badges/Badge";
+import { useBadges } from "features/badges/hooks";
 import { User } from "proto/api_pb";
-import makeStyles from "utils/makeStyles";
-
-import { useBadges } from "../hooks/useBadges";
 
 interface Props {
   user: User.AsObject;
 }
 
-const useStyles = makeStyles((theme) => ({
-  badgeContainer: {
-    marginTop: theme.spacing(1),
-  },
-  badge: {
-    marginInlineStart: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-  },
+const StyledContainer = styled("div")(({ theme }) => ({
+  marginTop: theme.spacing(1),
 }));
 
 export const Badges = ({ user }: Props) => {
-  const classes = useStyles();
   const { badges } = useBadges();
 
   if (badges === undefined || user.badgesList === undefined) {
@@ -27,19 +19,11 @@ export const Badges = ({ user }: Props) => {
   }
 
   return (
-    <div className={classes.badgeContainer}>
+    <StyledContainer>
       {(user.badgesList || []).map((badgeId) => {
         const badge = (badges || {})[badgeId];
-        return (
-          <Tooltip key={badge.id} title={badge.description}>
-            <Chip
-              className={classes.badge}
-              label={badge.name}
-              style={{ background: badge.color }}
-            />
-          </Tooltip>
-        );
+        return <Badge key={badge.id} badge={badge} />;
       })}
-    </div>
+    </StyledContainer>
   );
 };
