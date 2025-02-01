@@ -6,15 +6,15 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
-import UsersList from "components/UsersList";
 import Badge from "features/badges/Badge";
-import { useBadges, useBadgeUsers } from "features/badges/hooks";
+import { useBadges } from "features/badges/hooks";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
+
+import BadgeUserList from "./BadgeUserList";
 
 const BadgeListItem = styled("div")(({ theme }) => ({
   [theme.breakpoints.down("md")]: {
@@ -50,33 +50,6 @@ const CenteredDiv = styled(ContentDiv)(({ theme }) => ({
   alignItems: "center",
   justifyContent: "center",
 }));
-
-export interface BadgeUserListProps {
-  badgeId: string;
-}
-
-function BadgeUserList({ badgeId }: BadgeUserListProps) {
-  const { t } = useTranslation([PROFILE]);
-
-  const { badgeUserIds, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useBadgeUsers(badgeId);
-
-  return (
-    <UsersList
-      userIds={badgeUserIds}
-      endChildren={
-        hasNextPage && (
-          <Button loading={isFetchingNextPage} onClick={() => fetchNextPage()}>
-            Load more
-          </Button>
-        )
-      }
-      emptyListChildren={
-        <Typography variant="body1">{t("profile:badges.no_people")}</Typography>
-      }
-    />
-  );
-}
 
 export interface BadgesPageProps {
   badgeId?: string;
