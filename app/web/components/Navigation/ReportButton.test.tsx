@@ -7,8 +7,8 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { supportEmail } from "appConstants";
 import mediaQuery from "css-mediaquery";
+import { helpCenterReportContentURL } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -139,13 +139,13 @@ describe("ReportButton", () => {
         }),
       ).toBeVisible();
       expect(
-        screen.getByRole("button", {
+        screen.getByRole("link", {
           name: t("global:report.content.button_label"),
         }),
       ).toBeVisible();
     });
 
-    it("shows the content report email correctly when that option is clicked", async () => {
+    it("redirects to help center report URL", async () => {
       render(<ReportButton />, { wrapper });
 
       const user = userEvent.setup();
@@ -153,15 +153,16 @@ describe("ReportButton", () => {
       await user.click(
         screen.getByRole("button", { name: t("global:report.label") }),
       );
-      await user.click(
-        screen.getByRole("button", {
-          name: t("global:report.content.button_label"),
-        }),
-      );
 
-      expect(
-        await screen.findByRole("link", { name: supportEmail }),
-      ).toBeVisible();
+      const reportContentLink = await screen.findByRole("link", {
+        name: t("global:report.content.button_label"),
+      });
+
+      expect(reportContentLink).toBeVisible();
+      expect(reportContentLink).toHaveAttribute(
+        "href",
+        helpCenterReportContentURL,
+      );
     });
 
     it("shows the bug report form correctly when that option is clicked", async () => {
