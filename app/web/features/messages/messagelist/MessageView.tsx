@@ -60,7 +60,8 @@ const useStyles = makeStyles((theme) => ({
     margin: 0,
   },
   otherCard: {
-    borderColor: theme.palette.secondary.main,
+    borderColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.grey[200],
   },
   otherRoot: { justifyContent: "flex-start" },
   root: {
