@@ -1,5 +1,5 @@
 import { Slot, useRouter } from "expo-router";
-import { PaperProvider } from "react-native-paper";
+import { PaperProvider, MD3LightTheme as DefaultTheme } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -43,9 +43,18 @@ const TabBar = () => {
   );
 };
 
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: 'black',
+    onSurfaceVariant: 'black'
+  },
+};
+
 export default function AppLayout() {
   return (
-    <PaperProvider>
+    <PaperProvider theme={theme}>
       <View style={styles.container}>
         <Slot />
         <TabBar />
