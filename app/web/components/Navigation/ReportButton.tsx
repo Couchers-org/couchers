@@ -1,5 +1,4 @@
-import { darken, Link, styled, Typography, useMediaQuery } from "@mui/material";
-import { supportEmail } from "appConstants";
+import { darken, styled, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -19,6 +18,7 @@ import { ReportBugRes } from "proto/bugs_pb";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
+import { helpCenterReportContentURL } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
@@ -75,7 +75,7 @@ export default function ReportButton({
   const isBelowMd = useMediaQuery(theme.breakpoints.down("md"));
 
   const [isOpen, setIsOpen] = useState(false);
-  const [type, setType] = useState<"initial" | "bug" | "content">("initial");
+  const [type, setType] = useState<"initial" | "bug">("initial");
   const {
     register,
     handleSubmit,
@@ -169,31 +169,11 @@ export default function ReportButton({
                 {t("report.bug.button_label")}
               </StyledReportTypeButton>
               <StyledReportTypeButton
-                onClick={() => {
-                  setType("content");
-                }}
+                href={helpCenterReportContentURL}
+                style={{ maxWidth: "fit-content", textAlign: "center" }}
               >
                 {t("report.content.button_label")}
               </StyledReportTypeButton>
-            </DialogContent>
-            <DialogActions>
-              <StyledCancelButton
-                onClick={() => handleClose({}, "button")}
-                variant="outlined"
-              >
-                {t("cancel")}
-              </StyledCancelButton>
-            </DialogActions>
-          </>
-        ) : type === "content" ? (
-          <>
-            <DialogContent>
-              <Typography variant="body1" paragraph>
-                {t("report.content.dialog_message")}
-              </Typography>
-              <Link href={`mailto:${supportEmail}`} underline="hover">
-                {supportEmail}
-              </Link>
             </DialogContent>
             <DialogActions>
               <StyledCancelButton

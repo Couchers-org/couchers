@@ -2,8 +2,6 @@ import { LngLat } from "maplibre-gl";
 
 export const eventImagePlaceholderUrl = "/img/eventImagePlaceholder.svg";
 
-export const supportEmail = "support@couchers.org";
-
 export const userLocationMaxRadius = 2000;
 export const userLocationMinRadius = 50;
 
