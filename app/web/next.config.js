@@ -96,6 +96,7 @@ module.exports = withSentryConfig(module.exports, {
 
   org: "couchers",
   project: "frontend",
+  release: process.env.NEXT_PUBLIC_VERSION,
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
