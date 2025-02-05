@@ -1,5 +1,5 @@
 {
-  "request_closed_message": "Diese Host-Anfrage wurde geschlossen oder liegt in der Vergangenheit. Sende dieser Person eine normale Nachricht um die Unterhaltung fortzuführen.",
+  "request_closed_message": "Diese Host-Anfrage wurde geschlossen. Sende dieser Person eine normale Nachricht um die Unterhaltung fortzuführen.",
   "host_pending_request_help_text": "<0>Das solltest du beachten</0>, bevor du antwortest.",
   "mark_all_read_button_text": "Alle als gelesen markieren",
   "write_reference_button_text": "Schreibe eine Referenz",
