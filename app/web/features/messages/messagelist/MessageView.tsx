@@ -60,7 +60,8 @@ const useStyles = makeStyles((theme) => ({
     margin: 0,
   },
   otherCard: {
-    borderColor: theme.palette.primary.main,
+    borderColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.grey[200],
   },
   otherRoot: { justifyContent: "flex-start" },
   root: {
@@ -68,7 +69,9 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
   },
   userCard: {
-    borderColor: theme.palette.secondary.main,
+    borderColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.common.white,
   },
   userRoot: { justifyContent: "flex-end" },
   leftOfMessage: {
