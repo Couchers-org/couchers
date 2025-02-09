@@ -219,5 +219,12 @@
   "write_reference": "Referenz schreiben",
   "last_active_false": "Unbekannt",
   "references_filter_a11y_label": "Referenzen anzeigen: ",
-  "edit_profile_helper_text": "Suchst du nach Inspirationen, wo du anfangen sollst? <2>Schau dir unseren Leitfaden zum Erstellen eines tollen Profils an</2>."
+  "edit_profile_helper_text": "Suchst du nach Inspirationen, wo du anfangen sollst? <2>Schau dir unseren Leitfaden zum Erstellen eines tollen Profils an</2>.",
+  "badges": {
+    "click_on_left": "Wähle ein Abzeichen auf der linken Seite, um mehr zu erfahren.",
+    "no_people": "Es gibt keine Leute mit diesem Abzeichen!",
+    "not_found": "Abzeichen nicht gefunden",
+    "title": "Couchers.org Abzeichen erforschen",
+    "subtitle": "Erfahre mehr über Benutzerabzeichen, sieh wer sie hat und erfahre wie du sie bekommen kannst."
+  }
 }
