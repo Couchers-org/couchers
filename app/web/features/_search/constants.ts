@@ -1,8 +1,10 @@
 import { TFunction } from "i18n";
+import { MapLayerMouseEvent } from "maplibre-gl";
 import { User } from "proto/api_pb";
+import { UserSearchFilters } from "service/search";
 import { firstName } from "utils/names";
 
-const aboutText = (user: User.AsObject, t: TFunction) => {
+export const aboutText = (user: User.AsObject, t: TFunction) => {
   const missingAbout = user.aboutMe.length === 0;
   return missingAbout
     ? t("search:search_result.missing_about_description", {
@@ -13,7 +15,7 @@ const aboutText = (user: User.AsObject, t: TFunction) => {
       : user.aboutMe.substring(0, 300) + "...";
 };
 
-enum lastActiveOptions {
+export enum lastActiveOptions {
   LAST_ACTIVE_ANY = 0,
   LAST_ACTIVE_LAST_DAY = 1,
   LAST_ACTIVE_LAST_WEEK = 7,
@@ -22,8 +24,12 @@ enum lastActiveOptions {
   LAST_ACTIVE_LAST_3_MONTHS = 93,
 }
 
-const selectedUserZoom = 10;
+export const selectedUserZoom = 10;
 
-type Coordinates = [number, number, number, number];
+// export type Coordinates = [number, number, number, number];
 
-export type { Coordinates };
+export type MapClickedCallback = (ev: MapLayerMouseEvent) => void;
+
+export interface SearchParams extends UserSearchFilters {
+  location?: string;
+}

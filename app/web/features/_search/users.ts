@@ -1,4 +1,4 @@
-import { MapClickedCallback } from "features/search/constants";
+import { MapClickedCallback } from "features/_search/constants";
 import { Point } from "geojson";
 import {
   GeoJSONSource,

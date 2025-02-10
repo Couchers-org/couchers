@@ -3,6 +3,7 @@ import classNames from "classnames";
 import Button from "components/Button";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import UserSummary from "components/UserSummary";
+import { aboutText } from "features/_search/constants";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
@@ -11,7 +12,6 @@ import {
   AgeGenderLanguagesLabels,
   ReferencesLastActiveLabels,
 } from "features/profile/view/userLabels";
-import { aboutText } from "features/search/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";

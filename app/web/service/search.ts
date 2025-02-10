@@ -1,4 +1,4 @@
-import { Coordinates } from "features/search/constants";
+import { Coordinates } from "features/_search/constants";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
   BoolValue,

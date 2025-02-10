@@ -8,7 +8,7 @@ import {
   filterData,
   layers,
   reRenderUsersOnMap,
-} from "features/search/users";
+} from "features/_search/users";
 import { Point } from "geojson";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";

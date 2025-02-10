@@ -4,7 +4,7 @@ import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HorizontalScroller from "components/HorizontalScroller";
 import TextBody from "components/TextBody";
-import SearchResult from "features/search/SearchResult";
+import SearchResult from "features/_search/SearchResult";
 import { useUser } from "features/userQueries/useUsers";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
