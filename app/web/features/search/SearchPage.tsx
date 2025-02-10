@@ -3,7 +3,6 @@ import HtmlMeta from "components/HtmlMeta";
 import { Coordinates } from "features/search/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { HostingStatus } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
 import { useReducer, useState } from "react";
 import {
@@ -15,14 +14,18 @@ import { service } from "service";
 import { theme } from "theme";
 
 import DesktopMapView from "./DesktopMapView";
-import { mapSearchReducer } from "./mapSearchReducers";
+import {
+  initialState,
+  MapSearchAction,
+  mapSearchActionTypes,
+  mapSearchReducer,
+} from "./mapSearchReducers";
 import MobileMapView from "./MobileMapView";
+import { GeocodeResult } from "utils/hooks";
+import { UserSearchFilters } from "service/search";
 
-export type TypeHostingStatusOptions = Exclude<
-  HostingStatus,
-  | HostingStatus.HOSTING_STATUS_UNKNOWN
-  | HostingStatus.HOSTING_STATUS_UNSPECIFIED
->[];
+type FilterKey = "location" | "query";
+type FilterValue = string | GeocodeResult | null;
 
 /**
  * Search page, creates the state, obtains the users, renders all its sub-components
@@ -40,8 +43,9 @@ export default function SearchPage({
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [filters, dispatch] = useReducer(mapSearchReducer, {
-    locationName,
+    ...initialState,
     bbox,
+    query: locationName,
   });
 
   const { data, error, isLoading, isFetching, hasNextPage } = useInfiniteQuery<
@@ -58,10 +62,26 @@ export default function SearchPage({
     },
   );
 
+  const handleFiltersChange = (key: FilterKey, newValue: FilterValue): void => {
+    dispatch({
+      type: mapSearchActionTypes.SET_FILTER,
+      payload: {
+        key,
+        value: newValue,
+      },
+    });
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <HtmlMeta title={t("global:nav.map_search")} />
-      {isMobile ? <MobileMapView /> : <DesktopMapView />}
+      {isMobile ? (
+        <MobileMapView />
+      ) : (
+        <DesktopMapView onFilterChange={handleFiltersChange} />
+      )}
     </QueryClientProvider>
   );
 }
+
+export type { FilterKey, FilterValue };

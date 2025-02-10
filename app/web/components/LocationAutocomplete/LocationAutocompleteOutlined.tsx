@@ -1,5 +1,6 @@
 import {
   Autocomplete,
+  AutocompleteChangeReason,
   InputAdornment,
   styled,
   TextFieldProps,
@@ -7,9 +8,10 @@ import {
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
 import TextField from "components/TextField";
+import { FilterKey, FilterValue } from "features/search/SearchPage";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
-import { forwardRef, useState } from "react";
+import { forwardRef, SyntheticEvent, useState } from "react";
 import { theme } from "theme";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
@@ -22,7 +24,7 @@ interface LocationAutocompleteOutlinedProps {
   id?: string;
   label?: string;
   name: string;
-  onChange: (value: string) => void;
+  onChange: (filterKey: FilterKey, value: FilterValue) => void;
   placeholder?: string;
   required?: string;
   showFullDisplayName?: boolean;
@@ -40,7 +42,7 @@ const StyledTextField = styled(TextField)<TextFieldProps>(({ theme }) => ({
   },
 }));
 
-const LocationAutocomplete = forwardRef(function LocationAutocomplete(
+const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   props: LocationAutocompleteOutlinedProps,
   ref,
 ) {
@@ -68,8 +70,18 @@ const LocationAutocomplete = forwardRef(function LocationAutocomplete(
     isLoading,
   } = useGeocodeQuery();
 
-  const handleChange = () => {
-    onChange(value);
+  const handleChange = (
+    event: SyntheticEvent<Element, Event>,
+    value: string | GeocodeResult | null,
+    reason: AutocompleteChangeReason,
+  ) => {
+    console.log("ON CHANGE", value, reason);
+
+    if (reason === "selectOption") {
+      onChange("location", value);
+
+      setIsOpen(false);
+    }
   };
 
   const handleSearchSubmit = () => {
@@ -160,4 +172,4 @@ function geocodeResult2String(option: GeocodeResult | string, full: boolean) {
   return option.simplifiedName;
 }
 
-export default LocationAutocomplete;
+export default LocationAutocompleteOutlined;

@@ -3,6 +3,8 @@ import LocationAutocompleteOutlined from "components/LocationAutocomplete/Locati
 import ResizeableDrawer from "components/ResizeableDrawer";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
+import { FilterKey, FilterValue } from "./SearchPage";
+import MapSearchType from "./MapSearchType";
 
 const StyledMapContainer = styled("div")(({ theme }) => ({}) => ({
   display: "flex",
@@ -24,28 +26,35 @@ const StyledMapContainer = styled("div")(({ theme }) => ({}) => ({
 
 const CenteredContainer = styled("div")(({ theme }) => ({
   display: "flex",
+  flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
   height: "100%",
   width: "100%",
 }));
 
-const DesktopMapView = () => {
+const DesktopMapView = ({
+  defaultValue,
+  onFilterChange,
+}: {
+  defaultValue?: string;
+  onFilterChange: (key: FilterKey, value: FilterValue) => void;
+}) => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
-
-  const handleChange = (value: string) => {};
 
   return (
     <StyledMapContainer>
       <ResizeableDrawer>
         <CenteredContainer>
           <LocationAutocompleteOutlined
+            defaultValue={defaultValue}
             fieldError=""
             fullWidth={false}
             placeholder={t("search:form.location_field_label")}
             name="location"
-            onChange={handleChange}
+            onChange={onFilterChange}
           />
+          <MapSearchType onChange={onFilterChange}/>
         </CenteredContainer>
       </ResizeableDrawer>
     </StyledMapContainer>

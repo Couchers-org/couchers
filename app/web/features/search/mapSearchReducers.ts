@@ -1,27 +1,53 @@
-const actionTypes = {
-  SET_FILTER: "SET_FILTER",
-  RESET_FILTERS: "RESET_FILTERS",
+import { GeocodeResult } from "utils/hooks";
+import { FilterKey, FilterValue } from "./SearchPage";
+import { UserSearchFilters } from "service/search";
+import { Reducer } from "react";
+
+enum mapSearchActionTypes {
+  SET_FILTER = "SET_FILTER",
+  RESET_FILTERS = "RESET_FILTERS",
+}
+
+type MapSearchAction =
+  | {
+      type: mapSearchActionTypes.SET_FILTER;
+      payload: { key: FilterKey; value: FilterValue };
+    }
+  | { type: mapSearchActionTypes.RESET_FILTERS };
+
+const initialState: UserSearchFilters = {
+  query: "",
+  bbox: undefined,
+  lastActive: 0,
+  hostingStatusOptions: [],
+  numGuests: undefined,
+  completeProfile: false,
 };
 
-const initialState = {
-  queryName: "",
-  locationResult: undefined,
-  searchType: "location",
-  lastActiveFilter: 0,
-  hostingStatusFilter: [],
-  numberOfGuestFilter: undefined,
-  completeProfileFilter: false,
-};
-
-const mapSearchReducer = (state, action) => {
+const mapSearchReducer = (
+  state: UserSearchFilters,
+  action: MapSearchAction,
+): UserSearchFilters => {
   switch (action.type) {
-    case actionTypes.SET_FILTER:
+    case mapSearchActionTypes.SET_FILTER:
+      if (action.payload.key === "location") {
+        return {
+          ...state,
+          bbox: (action.payload.value as GeocodeResult).bbox,
+        };
+      }
+
+      if (action.payload.key === "query") {
+        return { ...state, query: action.payload.value as string };
+      }
+
       return { ...state, [action.payload.key]: action.payload.value };
-    case actionTypes.RESET_FILTERS:
+    case mapSearchActionTypes.RESET_FILTERS:
       return initialState;
     default:
       return state;
   }
 };
 
-export { mapSearchReducer };
+export { mapSearchActionTypes, initialState, mapSearchReducer };
+export type { MapSearchAction };
