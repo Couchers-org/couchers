@@ -1,10 +1,13 @@
-import { styled } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import LocationAutocompleteOutlined from "components/LocationAutocomplete/LocationAutocompleteOutlined";
 import ResizeableDrawer from "components/ResizeableDrawer";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { FilterKey, FilterValue } from "./SearchPage";
 import MapSearchType from "./MapSearchType";
+import { User } from "proto/api_pb";
+import SearchResultsList from "./SearchResultsList";
+import { theme } from "theme";
 
 const StyledMapContainer = styled("div")(({ theme }) => ({}) => ({
   display: "flex",
@@ -29,16 +32,17 @@ const CenteredContainer = styled("div")(({ theme }) => ({
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  height: "100%",
   width: "100%",
 }));
 
 const DesktopMapView = ({
-  defaultValue,
   onFilterChange,
+  query,
+  users,
 }: {
-  defaultValue?: string;
   onFilterChange: (key: FilterKey, value: FilterValue) => void;
+  query: string | undefined;
+  users: User.AsObject[] | undefined;
 }) => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
 
@@ -47,14 +51,22 @@ const DesktopMapView = ({
       <ResizeableDrawer>
         <CenteredContainer>
           <LocationAutocompleteOutlined
-            defaultValue={defaultValue}
+            defaultValue={query}
             fieldError=""
             fullWidth={false}
             placeholder={t("search:form.location_field_label")}
             name="location"
             onChange={onFilterChange}
           />
-          <MapSearchType onChange={onFilterChange}/>
+          <MapSearchType onChange={onFilterChange} />
+          <Typography variant="caption" sx={{ marginTop: theme.spacing(2) }}>
+            {!users
+              ? t("search:search_result.no_user_result_message")
+              : t("search:search_result.users_found_message", {
+                  count: users.length,
+                })}
+          </Typography>
+          <SearchResultsList users={users} />
         </CenteredContainer>
       </ResizeableDrawer>
     </StyledMapContainer>

@@ -26,4 +26,5 @@ const selectedUserZoom = 10;
 
 type Coordinates = [number, number, number, number];
 
+export { aboutText, lastActiveOptions, selectedUserZoom };
 export type { Coordinates };

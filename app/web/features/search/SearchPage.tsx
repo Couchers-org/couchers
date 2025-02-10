@@ -3,7 +3,7 @@ import HtmlMeta from "components/HtmlMeta";
 import { Coordinates } from "features/search/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { UserSearchRes } from "proto/search_pb";
+import { Result, UserSearchRes } from "proto/search_pb";
 import { useReducer, useState } from "react";
 import {
   QueryClient,
@@ -16,13 +16,12 @@ import { theme } from "theme";
 import DesktopMapView from "./DesktopMapView";
 import {
   initialState,
-  MapSearchAction,
   mapSearchActionTypes,
   mapSearchReducer,
 } from "./mapSearchReducers";
 import MobileMapView from "./MobileMapView";
 import { GeocodeResult } from "utils/hooks";
-import { UserSearchFilters } from "service/search";
+import { User } from "proto/api_pb";
 
 type FilterKey = "location" | "query";
 type FilterValue = string | GeocodeResult | null;
@@ -61,6 +60,12 @@ export default function SearchPage({
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
     },
   );
+  const formattedResults = data?.pages
+    .flatMap((page) => page.resultsList)
+    .map((result) => result.user)
+    .filter((user): user is User.AsObject => Boolean(user)); // Type guard to remove undefined
+
+  console.log("formattedResults", formattedResults);
 
   const handleFiltersChange = (key: FilterKey, newValue: FilterValue): void => {
     dispatch({
@@ -78,7 +83,11 @@ export default function SearchPage({
       {isMobile ? (
         <MobileMapView />
       ) : (
-        <DesktopMapView onFilterChange={handleFiltersChange} />
+        <DesktopMapView
+          onFilterChange={handleFiltersChange}
+          query={filters.query}
+          users={formattedResults}
+        />
       )}
     </QueryClientProvider>
   );

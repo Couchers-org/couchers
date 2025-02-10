@@ -2,9 +2,9 @@ import { DragHandleOutlined } from "@mui/icons-material";
 import { Drawer, styled } from "@mui/material";
 import React, { useCallback } from "react";
 
-const defaultDrawerWidth = 300;
+const defaultDrawerWidth = 400;
 const minDrawerWidth = 150;
-const maxDrawerWidth = 800;
+const maxDrawerWidth = 1200;
 
 interface ResizeableDrawerProps {
   children: React.ReactNode;
@@ -13,15 +13,11 @@ interface ResizeableDrawerProps {
 interface MouseEventHandler {
   (e: MouseEvent): void;
 }
+
 const StyledDragger = styled("div")(({ theme }) => ({
-  width: "5px",
+  width: "8px",
   cursor: "col-resize",
-  borderTop: `1px solid ${theme.palette.divider}`,
-  position: "absolute",
-  top: 0,
-  right: 0,
-  bottom: 0,
-  zIndex: 10,
+  borderLeft: `1px solid ${theme.palette.divider}`,
   backgroundColor: theme.palette.grey[50],
   display: "flex",
   alignItems: "center",
@@ -32,8 +28,18 @@ const StyledDragger = styled("div")(({ theme }) => ({
   },
 }));
 
-const ContentWrapper = styled("div")(({ theme }) => ({
+const DrawerContentWrapper = styled("div")(() => ({
+  display: "flex",
+  flexDirection: "row",
+  height: "100%",
+}));
+
+const ScrollableContent = styled("div")(({ theme }) => ({
+  flexGrow: 1, // Take up remaining space
   padding: theme.spacing(2),
+  overflowY: "auto",
+  overflowX: "hidden",
+  height: "100%",
 }));
 
 export default function ResizeableDrawer({ children }: ResizeableDrawerProps) {
@@ -67,10 +73,12 @@ export default function ResizeableDrawer({ children }: ResizeableDrawerProps) {
       }}
       sx={{ flexShrink: 0 }}
     >
-      <StyledDragger onMouseDown={() => handleMouseDown()}>
-        <DragHandleOutlined sx={{ rotate: "90deg", zIndex: 10 }} />
-      </StyledDragger>
-      <ContentWrapper>{children}</ContentWrapper>
+      <DrawerContentWrapper>
+        <ScrollableContent>{children}</ScrollableContent>
+        <StyledDragger onMouseDown={handleMouseDown}>
+          <DragHandleOutlined sx={{ rotate: "90deg", zIndex: 10 }} />
+        </StyledDragger>
+      </DrawerContentWrapper>
     </Drawer>
   );
 }

@@ -5,6 +5,7 @@ import {
   styled,
   TextFieldProps,
 } from "@mui/material";
+import { minWidth } from "@mui/system";
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
 import TextField from "components/TextField";
@@ -35,6 +36,7 @@ const StyledTextField = styled(TextField)<TextFieldProps>(({ theme }) => ({
     padding: theme.spacing(0.5),
     borderRadius: 100,
     width: "100%",
+    minWidth: "300px",
   },
 
   "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
@@ -112,11 +114,6 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
           variant="outlined"
           value={value}
           placeholder={placeholder}
-          helperText={
-            fieldError === t("location_autocomplete.select_location_hint")
-              ? t("location_autocomplete.select_location_hint")
-              : t("location_autocomplete.search_location_hint")
-          }
           InputProps={{
             ...params.InputProps,
             endAdornment: (
