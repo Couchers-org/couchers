@@ -151,7 +151,7 @@ const SearchResultUserCard = ({
         </Typography>
         <FlexRow alignItems="flex-end">
           <UserDetailsRow>
-            <Typography variant="body2">{`${user.numReferences} ${t("profile:heading.references").toLowerCase()}`}</Typography>
+            <Typography variant="body2">{`${user.numReferences >= 100 ? `100+` : user.numReferences} ${t("profile:heading.references").toLowerCase()}`}</Typography>
             <BulletPoint>•</BulletPoint>
             <Typography variant="body2">
               {user.lastActive
