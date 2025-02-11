@@ -56,6 +56,7 @@ export default function MarkAllReadButton({
       } else if (type == "requests") {
         // add another else if statement to account for requests
         // trying to use the RequestsTab "all" definition
+        // *seem to be having issue converting "requests" into "all" (from requests.ts)
       } else if (type == "all") {
         // add another else if statement to account for requests
 

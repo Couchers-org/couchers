@@ -25,7 +25,7 @@ export default function LeaveReferencePage() {
   const router = useRouter();
   const slugs =
     typeof router.query.slug === "undefined"
-      ? ["all"] // "chats"
+      ? ["all"] // changed default (from "chats")
       : typeof router.query.slug === "string"
       ? [router.query.slug]
       : router.query.slug;
