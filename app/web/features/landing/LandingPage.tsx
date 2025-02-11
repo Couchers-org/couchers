@@ -214,60 +214,60 @@ export default function LandingPage() {
           <StyledIntroduction>
             <StyledIntroductionText>
               <Typography
-                  variant="h1"
-                  component="h1"
-                  sx={{
-                    [theme.breakpoints.up("md")]: {
-                      fontSize: "2rem",
-                      lineHeight: "1.15",
-                      textAlign: "left",
-                    },
-                  }}
+                variant="h1"
+                component="h1"
+                sx={{
+                  [theme.breakpoints.up("md")]: {
+                    fontSize: "2rem",
+                    lineHeight: "1.15",
+                    textAlign: "left",
+                  },
+                }}
               >
                 {t("landing:introduction_title")}
               </Typography>
               <Typography
-                  variant="h2"
-                  component="span"
-                  sx={{
-                    [theme.breakpoints.up("md")]: {
-                      display: "inline-block",
-                      marginTop: theme.spacing(4),
-                      position: "relative",
-                    },
-                  }}
+                variant="h2"
+                component="span"
+                sx={{
+                  [theme.breakpoints.up("md")]: {
+                    display: "inline-block",
+                    marginTop: theme.spacing(4),
+                    position: "relative",
+                  },
+                }}
               >
                 {t("landing:introduction_subtitle")}
                 <StyledDivider />
               </Typography>
             </StyledIntroductionText>
             <Box
-                display={{ xs: "none", md: "flex" }}
-                flexDirection="column"
-                width="100%"
-                mt={2}
+              display={{ xs: "none", md: "flex" }}
+              flexDirection="column"
+              width="100%"
+              mt={2}
             >
               <MuiButton
-                  onClick={scrollToMore}
-                  variant="text"
-                  size="medium"
-                  sx={{
-                    color: theme.palette.common.white,
-                    background: "none",
-                    border: "none",
-                    textAlign: "center",
-                  }}
+                onClick={scrollToMore}
+                variant="text"
+                size="medium"
+                sx={{
+                  color: theme.palette.common.white,
+                  background: "none",
+                  border: "none",
+                  textAlign: "center",
+                }}
               >
                 Read more
               </MuiButton>
               <IconButton
-                  onClick={scrollToMore}
-                  size="small"
-                  sx={{
-                    color: theme.palette.common.white,
-                    background: "none",
-                    border: "none",
-                  }}
+                onClick={scrollToMore}
+                size="small"
+                sx={{
+                  color: theme.palette.common.white,
+                  background: "none",
+                  border: "none",
+                }}
               >
                 <ExpandMoreIcon fontSize="large" />
               </IconButton>
@@ -313,30 +313,30 @@ export default function LandingPage() {
             </Typography>
           </StyledFormWrapper>
           <Box
-              display={{ xs: "flex", md: "none" }}
-              flexDirection="column"
-              width="100%"
-              mt={2}
+            display={{ xs: "flex", md: "none" }}
+            flexDirection="column"
+            width="100%"
+            mt={2}
           >
             <MuiButton
-                onClick={scrollToMore}
-                variant="text"
-                sx={{
-                  color: theme.palette.common.white,
-                  background: "none",
-                  border: "none",
-                }}
+              onClick={scrollToMore}
+              variant="text"
+              sx={{
+                color: theme.palette.common.white,
+                background: "none",
+                border: "none",
+              }}
             >
               Read more
             </MuiButton>
             <IconButton
-                onClick={scrollToMore}
-                size="small"
-                sx={{
-                  color: theme.palette.common.white,
-                  background: "none",
-                  border: "none",
-                }}
+              onClick={scrollToMore}
+              size="small"
+              sx={{
+                color: theme.palette.common.white,
+                background: "none",
+                border: "none",
+              }}
             >
               <ExpandMoreIcon />
             </IconButton>
