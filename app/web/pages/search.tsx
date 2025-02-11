@@ -1,5 +1,5 @@
 import { appGetLayout } from "components/AppRoute";
-import { Coordinates } from "features/search/constants";
+import { Coordinates } from "features/search/utils/constants";
 import SearchPageComponent from "features/search/SearchPage";
 import { GLOBAL, PROFILE, SEARCH } from "i18n/namespaces";
 import { translationStaticProps } from "i18n/server-side-translations";

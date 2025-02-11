@@ -9,17 +9,15 @@ import {
 import { FilterKey, FilterValue } from "./SearchPage";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { ChangeEvent, SyntheticEvent, useState } from "react";
-import { set } from "react-hook-form";
+import { ChangeEvent, useState } from "react";
 
 type MapSearchTypes = "location" | "keyword";
 
 const CenteredContainer = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  justifyContent: "center",
+  justifyContent: "flex-start",
   height: "100%",
-  width: "100%",
 }));
 
 const MapSearchType = ({

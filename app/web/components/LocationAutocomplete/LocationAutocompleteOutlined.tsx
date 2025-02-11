@@ -26,6 +26,7 @@ interface LocationAutocompleteOutlinedProps {
   label?: string;
   name: string;
   onChange: (filterKey: FilterKey, value: FilterValue) => void;
+  onClear: () => void;
   placeholder?: string;
   required?: string;
   showFullDisplayName?: boolean;
@@ -57,6 +58,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     id = "location-autocomplete",
     label,
     onChange,
+    onClear,
     showFullDisplayName = false,
   } = props;
 
@@ -77,12 +79,13 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     value: string | GeocodeResult | null,
     reason: AutocompleteChangeReason,
   ) => {
-    console.log("ON CHANGE", value, reason);
-
     if (reason === "selectOption") {
       onChange("location", value);
-
       setIsOpen(false);
+    }
+
+    if (reason === "clear") {
+      onClear();
     }
   };
 

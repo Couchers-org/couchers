@@ -2,12 +2,13 @@ import { DragHandleOutlined } from "@mui/icons-material";
 import { Drawer, styled } from "@mui/material";
 import React, { useCallback } from "react";
 
-const defaultDrawerWidth = 400;
 const minDrawerWidth = 150;
 const maxDrawerWidth = 1200;
 
 interface ResizeableDrawerProps {
   children: React.ReactNode;
+  drawerWidth: number;
+  onDrawerWidthChange: (width: number) => void;
 }
 
 interface MouseEventHandler {
@@ -42,9 +43,11 @@ const ScrollableContent = styled("div")(({ theme }) => ({
   height: "100%",
 }));
 
-export default function ResizeableDrawer({ children }: ResizeableDrawerProps) {
-  const [drawerWidth, setDrawerWidth] = React.useState(defaultDrawerWidth);
-
+export default function ResizeableDrawer({
+  children,
+  drawerWidth,
+  onDrawerWidthChange,
+}: ResizeableDrawerProps) {
   const handleMouseDown = () => {
     document.addEventListener("mouseup", handleMouseUp, true);
     document.addEventListener("mousemove", handleMouseMove, true);
@@ -58,7 +61,7 @@ export default function ResizeableDrawer({ children }: ResizeableDrawerProps) {
   const handleMouseMove: MouseEventHandler = useCallback((e) => {
     const newWidth = e.clientX - document.body.offsetLeft;
     if (newWidth > minDrawerWidth && newWidth < maxDrawerWidth) {
-      setDrawerWidth(newWidth);
+      onDrawerWidthChange(newWidth);
     }
   }, []);
 
@@ -76,7 +79,7 @@ export default function ResizeableDrawer({ children }: ResizeableDrawerProps) {
       <DrawerContentWrapper>
         <ScrollableContent>{children}</ScrollableContent>
         <StyledDragger onMouseDown={handleMouseDown}>
-          <DragHandleOutlined sx={{ rotate: "90deg", zIndex: 10 }} />
+          <DragHandleOutlined sx={{ rotate: "90deg" }} />
         </StyledDragger>
       </DrawerContentWrapper>
     </Drawer>

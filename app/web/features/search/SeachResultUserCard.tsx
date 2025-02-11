@@ -8,21 +8,27 @@ import {
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, MeetupStatus, User } from "proto/api_pb";
-import { aboutText } from "./constants";
+import { aboutText } from "./utils/constants";
 import stripMarkdown from "utils/stripMarkdown";
 import { hourMillis, timeAgoI18n } from "utils/timeAgo";
 import { timestamp2Date } from "utils/date";
 import { calculateResponseRate } from "features/profile/view/userLabels";
 import { FlexboxProps } from "@mui/system";
+import StyledLink from "components/StyledLink";
+import { routeToUser } from "routes";
+import { OpenInNewIcon } from "components/Icons";
 
 interface SearchResultUserCardProps {
   isHighlighted: boolean;
   user: User.AsObject;
 }
 
-const StyledCard = styled(Card)(({ theme }) => ({
+const StyledCard = styled(Card, {
+  shouldForwardProp: (prop) => prop !== "isHighlighted",
+})<{ isHighlighted: boolean }>(({ theme, isHighlighted }) => ({
   display: "flex",
   flexDirection: "column",
+  border: isHighlighted ? `2px solid ${theme.palette.primary.main}` : "none",
   borderRadius: 8,
   boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
   height: "100%",
@@ -44,6 +50,20 @@ const StyledBottomContent = styled("div")(({ theme }) => ({
   padding: theme.spacing(1, 2, 1),
 }));
 
+const StyledCardHeader = styled(Typography)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  fontSize: "1.2rem",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+}));
+
+const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
+  height: "1.25rem",
+  width: "1.25rem",
+}));
+
 const FlexRow = styled("div")<{ alignItems?: FlexboxProps["alignItems"] }>(
   ({ theme, alignItems }) => ({
     display: "flex",
@@ -55,6 +75,7 @@ const FlexRow = styled("div")<{ alignItems?: FlexboxProps["alignItems"] }>(
 const FlexColumn = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
+  width: "100%",
 }));
 
 const StyledTypography = styled(Typography, {
@@ -65,11 +86,11 @@ const StyledTypography = styled(Typography, {
   opacity: isNegative ? 0.5 : 0.65,
   fontSize: "0.875rem",
 
-  "&:first-child": {
+  "&:first-of-type": {
     marginRight: theme.spacing(1),
   },
 
-  "&:last-child": {
+  "&:last-of-type": {
     marginLeft: theme.spacing(1),
   },
 }));
@@ -98,22 +119,28 @@ const SearchResultUserCard = ({
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
   return (
-    <StyledCard variant="outlined" square={false} elevation={0}>
+    <StyledCard
+      isHighlighted={isHighlighted}
+      variant="outlined"
+      square={false}
+      elevation={0}
+    >
       <StyledTopContent>
         <Avatar user={user} />
         <FlexColumn>
-          <Typography
-            variant="h2"
-            sx={{
-              fontSize: "1.2rem",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              maxWidth: "100%",
-            }}
-          >
-            {user.name}
-            {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
-          </Typography>
+          <StyledCardHeader variant="h2">
+            <div>
+              {user.name}
+              {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
+            </div>
+            <StyledLink
+              href={routeToUser(user.username)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <StyledOpenInNewIcon />
+            </StyledLink>
+          </StyledCardHeader>
           <FlexRow>
             <StyledTypography
               display="inline"

@@ -3,6 +3,7 @@ import { User } from "proto/api_pb";
 import SearchResultUserCard from "./SeachResultUserCard";
 
 interface SearchResultsListProps {
+  selectedUserId: number | undefined;
   users: User.AsObject[] | undefined;
 }
 
@@ -18,19 +19,35 @@ const StyledCardWrapper = styled(Box)(({ theme }) => ({
   flex: `1 1 calc(50% - ${theme.spacing(2)})`, // 2 columns by default
 }));
 
-const SearchResultsList = ({ users }: SearchResultsListProps) => {
+const SearchResultsList = ({
+  selectedUserId,
+  users,
+}: SearchResultsListProps) => {
   if (!users) {
     return null;
   }
 
-  // @TODO(NA): Add highlighting behavior
+  const selectedUser = users.find((user) => user.userId === selectedUserId);
+
   return (
     <StyledContainer>
-      {users.map((user) => (
-        <StyledCardWrapper key={user.userId}>
-          <SearchResultUserCard isHighlighted={false} user={user} />
+      {selectedUserId && (
+        <StyledCardWrapper key={selectedUser?.userId}>
+          <SearchResultUserCard
+            isHighlighted={selectedUserId === selectedUser?.userId}
+            user={selectedUser!}
+          />
         </StyledCardWrapper>
-      ))}
+      )}
+      {!selectedUserId &&
+        users.map((user) => (
+          <StyledCardWrapper key={user.userId}>
+            <SearchResultUserCard
+              isHighlighted={selectedUserId === user.userId}
+              user={user}
+            />
+          </StyledCardWrapper>
+        ))}
     </StyledContainer>
   );
 };
