@@ -1,6 +1,7 @@
-import { GeocodeResult } from "utils/hooks";
-import { FilterKey, FilterValue } from "./SearchPage";
 import { UserSearchFilters } from "service/search";
+import { GeocodeResult } from "utils/hooks";
+
+import { FilterKey, FilterValue } from "./SearchPage";
 
 enum mapSearchActionTypes {
   SET_FILTER = "SET_FILTER",
@@ -81,5 +82,5 @@ const mapSearchReducer = (
   }
 };
 
-export { mapSearchActionTypes, initialState, mapSearchReducer };
+export { initialState, mapSearchActionTypes, mapSearchReducer };
 export type { MapSearchAction };

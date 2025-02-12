@@ -1,18 +1,17 @@
-import { MutableRefObject, useState } from "react";
 import { styled, Typography } from "@mui/material";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import LocationAutocompleteOutlined from "components/LocationAutocomplete/LocationAutocompleteOutlined";
 import ResizeableDrawer from "components/ResizeableDrawer";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { FilterKey, FilterValue } from "./SearchPage";
-import MapSearchType from "./MapSearchType";
 import { User } from "proto/api_pb";
-import SearchResultsList from "./SearchResultsList";
+import { useState } from "react";
 import { theme } from "theme";
-import { Map as MaplibreMap } from "maplibre-gl";
 
+import MapSearchType from "./MapSearchType";
 import MapView from "./MapView";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import { FilterKey, FilterValue } from "./SearchPage";
+import SearchResultsList from "./SearchResultsList";
 import { Coordinates } from "./utils/constants";
 
 const DEFAULT_DRAWER_WIDTH = 400;
@@ -23,7 +22,6 @@ interface DesktopMapViewProps {
   onClearFilters: () => void;
   onFilterChange: (key: FilterKey, value: FilterValue) => void;
   query: string | undefined;
-  map: MutableRefObject<MaplibreMap | undefined>;
   selectedUserId: number | undefined;
   users: User.AsObject[] | undefined;
   wasSearchPerformed: boolean | undefined;
@@ -74,7 +72,7 @@ const DesktopMapView = ({
   onClearFilters,
   onFilterChange,
   query,
-  map,
+  // map,
   selectedUserId,
   users,
   wasSearchPerformed,
@@ -132,7 +130,6 @@ const DesktopMapView = ({
           <MapView
             bbox={bbox}
             isLoading={isLoading}
-            map={map}
             onFiltersChange={onFilterChange}
             selectedUserId={selectedUserId}
             users={users}

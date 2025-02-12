@@ -1,22 +1,23 @@
 import { Card, styled, Typography } from "@mui/material";
+import { FlexboxProps } from "@mui/system";
 import Avatar from "components/Avatar";
+import { OpenInNewIcon } from "components/Icons";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
+import StyledLink from "components/StyledLink";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
 } from "features/profile/constants";
+import { calculateResponseRate } from "features/profile/view/userLabels";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, MeetupStatus, User } from "proto/api_pb";
-import { aboutText } from "./utils/constants";
+import { routeToUser } from "routes";
+import { timestamp2Date } from "utils/date";
 import stripMarkdown from "utils/stripMarkdown";
 import { hourMillis, timeAgoI18n } from "utils/timeAgo";
-import { timestamp2Date } from "utils/date";
-import { calculateResponseRate } from "features/profile/view/userLabels";
-import { FlexboxProps } from "@mui/system";
-import StyledLink from "components/StyledLink";
-import { routeToUser } from "routes";
-import { OpenInNewIcon } from "components/Icons";
+
+import { aboutText } from "./utils/constants";
 
 interface SearchResultUserCardProps {
   isHighlighted: boolean;

@@ -58,12 +58,15 @@ export default function ResizeableDrawer({
     document.removeEventListener("mousemove", handleMouseMove, true);
   };
 
-  const handleMouseMove: MouseEventHandler = useCallback((e) => {
-    const newWidth = e.clientX - document.body.offsetLeft;
-    if (newWidth > minDrawerWidth && newWidth < maxDrawerWidth) {
-      onDrawerWidthChange(newWidth);
-    }
-  }, []);
+  const handleMouseMove: MouseEventHandler = useCallback(
+    (e) => {
+      const newWidth = e.clientX - document.body.offsetLeft;
+      if (newWidth > minDrawerWidth && newWidth < maxDrawerWidth) {
+        onDrawerWidthChange(newWidth);
+      }
+    },
+    [onDrawerWidthChange],
+  );
 
   return (
     <Drawer

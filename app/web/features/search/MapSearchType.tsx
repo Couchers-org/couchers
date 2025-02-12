@@ -6,10 +6,11 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import { FilterKey, FilterValue } from "./SearchPage";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { ChangeEvent, useState } from "react";
+
+import { FilterKey, FilterValue } from "./SearchPage";
 
 type MapSearchTypes = "location" | "keyword";
 

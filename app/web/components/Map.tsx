@@ -1,68 +1,48 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import { styled, Typography } from "@mui/material";
-import { NO_MAP_SUPPORT } from "components/constants";
 import {
+  CLUSTER_LAYER_ID,
+  clusterCountLayer,
+  clusterLayer,
+  unclusteredPointLayer,
+} from "features/search/utils/mapLayers";
+import { Point } from "geojson";
+import {
+  GeoJSONSource,
   LngLat,
-  Map as MaplibreMap,
-  NavigationControl,
+  MapLayerMouseEvent,
   RequestParameters,
 } from "maplibre-gl";
-import { useEffect, useRef, useState } from "react";
+import React from "react";
+import {
+  Layer,
+  Map as MaplibreMap,
+  NavigationControl,
+  Source,
+  useMap,
+} from "react-map-gl/maplibre";
 
 const URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-const StyledWrapper = styled("div")<{ grow?: boolean }>(({ grow }) => ({
-  position: "relative",
-  height: grow ? "100%" : "200px",
-  width: grow ? "100%" : "400px",
-}));
-
-const StyledMap = styled("div")({
-  position: "absolute",
-  bottom: 0,
-  top: 0,
-  width: "100%",
-  height: "100%", // Add this to ensure the child takes the parent's height
-});
-
-const StyledNoMapText = styled("div")({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "100%",
-  height: "100%",
-});
-
-export interface MapProps {
+interface MapProps {
+  grow?: boolean;
+  hash?: boolean;
   initialCenter: LngLat | undefined;
   initialZoom: number;
-  postMapInitialize?: (map: MaplibreMap) => void;
-  className?: string;
-  onUpdate?: (center: LngLat, zoom: number) => void;
-  grow?: boolean;
-  interactive?: boolean;
-  hash?: boolean;
+  onClick: (ev: MapLayerMouseEvent) => void;
+  onLoad: () => void;
 }
 
-export default function Map({
+const Map = ({
+  grow,
+  hash,
   initialCenter,
   initialZoom,
-  grow,
-  postMapInitialize,
-  onUpdate,
-  hash,
-  interactive = true,
-  className,
-  ...otherProps
-}: MapProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [noMap, setNoMap] = useState(false);
+  onClick,
+  onLoad,
+}: MapProps) => {
+  const { map } = useMap();
 
-  /*
-  Allows sending cookies (counted as sensitive "credentials") on cross-origin requests when we grab GeoJSON/other data from the API.
-  Those APIs will return an error if the session cookie is not set as these APIs are secure and not public.
-  */
   const transformRequest = (url: string): RequestParameters => {
     if (url.startsWith(URL)) {
       return {
@@ -73,58 +53,74 @@ export default function Map({
     return { url };
   };
 
-  const mapRef = useRef<MaplibreMap>();
+  const handleMapLoad = () => {
+    onLoad();
+  };
 
-  useEffect(() => {
-    if (!containerRef.current) return;
+  const handleMapClick = async (ev: MapLayerMouseEvent) => {
+    const feature = ev.features?.[0];
 
-    // don't create a new map if it exists already
-    if (mapRef.current) return;
+    if (!feature) return;
 
-    try {
-      const map = new MaplibreMap({
-        center: initialCenter,
-        container: containerRef.current,
-        hash: hash ? "loc" : false,
-        interactive: interactive,
-        style: "https://cdn.couchers.org/maps/couchers-basemap-style-v1.json",
-        transformRequest,
-        zoom: initialZoom,
-      });
+    const clusterId = feature?.properties.cluster_id;
 
-      mapRef.current = map;
+    if (clusterId === CLUSTER_LAYER_ID) {
+      const source = map?.getSource("clustered-users") as GeoJSONSource;
+      const zoom = await source.getClusterExpansionZoom(
+        feature.properties.cluster_id,
+      );
 
-      if (interactive) {
-        map.addControl(new NavigationControl({ showCompass: false }));
+      if (zoom !== null && zoom !== undefined) {
+        const point = feature.geometry as Point;
+
+        map?.flyTo({
+          center: point.coordinates as [number, number],
+          zoom,
+        });
       }
-
-      if (onUpdate) {
-        map.on("moveend", () => onUpdate(map.getCenter(), map.getZoom()));
-      }
-
-      postMapInitialize?.(map);
-    } catch {
-      //probably no webgl
-      console.warn("Couldn't initialize maplibre gl");
-      setNoMap(true);
     }
 
-    return () => {
-      mapRef.current?.remove();
-      mapRef.current = undefined;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    onClick(ev);
+  };
 
   return (
-    <StyledWrapper className={className} grow={grow} {...otherProps}>
-      <StyledMap ref={containerRef}>
-        {noMap && (
-          <StyledNoMapText>
-            <Typography variant="body1">{NO_MAP_SUPPORT}</Typography>
-          </StyledNoMapText>
-        )}
-      </StyledMap>
-    </StyledWrapper>
+    <>
+      <MaplibreMap
+        id="map"
+        initialViewState={{
+          longitude: initialCenter?.lng ?? 0,
+          latitude: initialCenter?.lat ?? 0,
+          zoom: initialZoom,
+        }}
+        style={{
+          height: grow ? "100%" : "200px",
+          width: grow ? "100%" : "400px",
+        }}
+        interactive={true}
+        transformRequest={transformRequest}
+        mapStyle="https://cdn.couchers.org/maps/couchers-basemap-style-v1.json"
+        interactiveLayerIds={clusterLayer.id ? [clusterLayer.id] : []}
+        onClick={handleMapClick}
+        onLoad={handleMapLoad}
+        hash={hash}
+      >
+        <Source
+          id="clustered-users"
+          cluster={true}
+          clusterMaxZoom={14}
+          clusterRadius={50}
+          data={URL + "/geojson/users"}
+          promoteId={"id"}
+          type={"geojson"}
+        >
+          <Layer {...clusterLayer} />
+          <Layer {...clusterCountLayer} />
+          <Layer {...unclusteredPointLayer} />
+        </Source>
+        <NavigationControl position="top-right" showCompass={false} />
+      </MaplibreMap>
+    </>
   );
-}
+};
+
+export default Map;

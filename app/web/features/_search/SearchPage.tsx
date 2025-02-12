@@ -1,7 +1,7 @@
 import { Collapse, useMediaQuery, useTheme } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import HtmlMeta from "components/HtmlMeta";
-import { Coordinates } from "features/_search/constants";
+import { Coordinates } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { LngLat, Map as MaplibreMap } from "maplibre-gl";

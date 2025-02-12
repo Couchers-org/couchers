@@ -5,11 +5,12 @@ import {
   Map as MaplibreMap,
   MapLayerMouseEvent,
 } from "maplibre-gl";
+import { MutableRefObject } from "react";
+import { MapRef } from "react-map-gl/maplibre";
 
 import userPin from "../resources/userPin.png";
 import { layers } from "./mapLayers";
 import { sources } from "./mapSources";
-import { MutableRefObject } from "react";
 
 const addPinImages = async (map: MaplibreMap) => {
   try {
@@ -74,7 +75,7 @@ const zoomCluster = async (ev: MapLayerMouseEvent) => {
  * @param userClickedCallback callback to be executed when user clicks
  */
 const reRenderUsersOnMap = (
-  map: MaplibreMap,
+  map: MapRef,
   ids: number[] | null,
   userClickedCallback?: MapClickedCallback,
 ) => {

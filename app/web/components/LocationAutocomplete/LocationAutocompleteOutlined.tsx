@@ -5,7 +5,6 @@ import {
   styled,
   TextFieldProps,
 } from "@mui/material";
-import { minWidth } from "@mui/system";
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
 import TextField from "components/TextField";

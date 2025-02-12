@@ -1,5 +1,6 @@
 import { Box, styled } from "@mui/material";
 import { User } from "proto/api_pb";
+
 import SearchResultUserCard from "./SeachResultUserCard";
 
 interface SearchResultsListProps {

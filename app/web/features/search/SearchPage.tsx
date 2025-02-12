@@ -3,8 +3,10 @@ import HtmlMeta from "components/HtmlMeta";
 import { Coordinates } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
+import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
-import { useReducer, useRef } from "react";
+import { useReducer } from "react";
+import { MapProvider } from "react-map-gl/maplibre";
 import {
   QueryClient,
   QueryClientProvider,
@@ -12,7 +14,7 @@ import {
 } from "react-query";
 import { service } from "service";
 import { theme } from "theme";
-import { Map as MaplibreMap } from "maplibre-gl";
+import { GeocodeResult } from "utils/hooks";
 
 import DesktopMapView from "./DesktopMapView";
 import {
@@ -21,8 +23,6 @@ import {
   mapSearchReducer,
 } from "./mapSearchReducers";
 import MobileMapView from "./MobileMapView";
-import { GeocodeResult } from "utils/hooks";
-import { User } from "proto/api_pb";
 
 type FilterKey = "location" | "query" | "lng" | "lat" | "selectedUserId";
 type FilterValue = string | GeocodeResult | number | null;
@@ -40,7 +40,6 @@ export default function SearchPage({
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const queryClient = new QueryClient();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const map = useRef<MaplibreMap>();
 
   const [filters, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
@@ -48,7 +47,7 @@ export default function SearchPage({
     query: locationName,
   });
 
-  const { data, error, isLoading, isFetching, hasNextPage } = useInfiniteQuery<
+  const { data, isLoading, isFetching } = useInfiniteQuery<
     UserSearchRes.AsObject,
     Error
   >(
@@ -82,24 +81,25 @@ export default function SearchPage({
   };
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <HtmlMeta title={t("global:nav.map_search")} />
-      {isMobile && <MobileMapView />}
+    <MapProvider>
+      <QueryClientProvider client={queryClient}>
+        <HtmlMeta title={t("global:nav.map_search")} />
+        {isMobile && <MobileMapView />}
 
-      {!isMobile && (
-        <DesktopMapView
-          bbox={filters.bbox}
-          isLoading={isLoading || isFetching}
-          onClearFilters={handleClearFilters}
-          onFilterChange={handleFiltersChange}
-          query={filters.query}
-          map={map}
-          selectedUserId={filters.selectedUserId}
-          users={formattedResults}
-          wasSearchPerformed={filters.wasSearchPerformed}
-        />
-      )}
-    </QueryClientProvider>
+        {!isMobile && (
+          <DesktopMapView
+            bbox={filters.bbox}
+            isLoading={isLoading || isFetching}
+            onClearFilters={handleClearFilters}
+            onFilterChange={handleFiltersChange}
+            query={filters.query}
+            selectedUserId={filters.selectedUserId}
+            users={formattedResults}
+            wasSearchPerformed={filters.wasSearchPerformed}
+          />
+        )}
+      </QueryClientProvider>
+    </MapProvider>
   );
 }
 
