@@ -168,6 +168,7 @@ class Account(account_pb2_grpc.AccountServicer):
             profile_complete=user.has_completed_profile,
             timezone=user.timezone,
             is_superuser=user.is_superuser,
+            ui_language_preference=user.ui_language_preference,
             **get_strong_verification_fields(session, user),
         )
 

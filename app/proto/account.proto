@@ -117,6 +117,8 @@ message GetAccountInfoRes {
 
   // whether the user is a superuser
   bool is_superuser = 15;
+
+  string ui_language_preference = 16;
 }
 
 message ChangePasswordV2Req {
