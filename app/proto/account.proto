@@ -36,6 +36,10 @@ service Account {
     // Fill the contributor form; this can be done multiple times
   }
 
+  rpc ChangeLanguagePreference(ChangeLanguagePreferenceReq) returns (google.protobuf.Empty) {
+    // Changes the user's interface language
+  }
+
   rpc ChangePhone(ChangePhoneReq) returns (google.protobuf.Empty) {
     // Set/Change/Remove phone number. An verification sms with a 6-digit code will be sent out,
     // And returned in a call to in VerifyPhone() to complete the phone number change.
@@ -129,6 +133,10 @@ message ChangePasswordV2Req {
 message ChangeEmailV2Req {
   string password = 1 [ (sensitive) = true ];
   string new_email = 2;
+}
+
+message ChangeLanguagePreferenceReq {
+  string ui_language_preference = 1;
 }
 
 message GetContributorFormInfoRes {
