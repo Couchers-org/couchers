@@ -528,6 +528,19 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector):
     )
 
 
+def test_ChangePreferredLanguage(db, fast_passwords):
+    # user changes from default to ISO 639-1 language code
+    newLanguageCode = "zh"
+    user, token = generate_user()
+
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert res.ui_language_preference == ""
+
+        account.ChangeLanguagePreference(account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=newLanguageCode))
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert res.ui_language_preference == "zh"
+
 def test_contributor_form(db):
     user, token = generate_user()
 
