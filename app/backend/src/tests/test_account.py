@@ -537,9 +537,12 @@ def test_ChangePreferredLanguage(db, fast_passwords):
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.ui_language_preference == ""
 
-        account.ChangeLanguagePreference(account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=newLanguageCode))
+        account.ChangeLanguagePreference(
+            account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=newLanguageCode)
+        )
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.ui_language_preference == "zh"
+
 
 def test_contributor_form(db):
     user, token = generate_user()
