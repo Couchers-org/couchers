@@ -6,6 +6,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { useState } from "react";
+import { MapRef, ViewState } from "react-map-gl/maplibre";
 import { theme } from "theme";
 
 import MapSearchType from "./MapSearchType";
@@ -19,12 +20,14 @@ const DEFAULT_DRAWER_WIDTH = 400;
 interface DesktopMapViewProps {
   bbox: Coordinates;
   isLoading: boolean;
+  mapRef: React.RefObject<MapRef>;
   onClearFilters: () => void;
   onFilterChange: (key: FilterKey, value: FilterValue) => void;
+  onViewStateChange: (viewState: ViewState) => void;
   query: string | undefined;
   selectedUserId: number | undefined;
   users: User.AsObject[] | undefined;
-  wasSearchPerformed: boolean | undefined;
+  viewState: ViewState;
 }
 
 const StyledMapContainer = styled("div")(({ theme }) => () => ({
@@ -71,11 +74,12 @@ const DesktopMapView = ({
   isLoading,
   onClearFilters,
   onFilterChange,
+  onViewStateChange,
   query,
-  // map,
+  mapRef,
   selectedUserId,
   users,
-  wasSearchPerformed,
+  viewState,
 }: DesktopMapViewProps) => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const [drawerWidth, setDrawerWidth] = useState(DEFAULT_DRAWER_WIDTH);
@@ -130,10 +134,12 @@ const DesktopMapView = ({
           <MapView
             bbox={bbox}
             isLoading={isLoading}
+            mapRef={mapRef}
             onFiltersChange={onFilterChange}
+            onViewStateChange={onViewStateChange}
             selectedUserId={selectedUserId}
             users={users}
-            wasSearchPerformed={wasSearchPerformed}
+            viewState={viewState}
           />
         </MapContainer>
       </StyledMapContainer>

@@ -6,7 +6,7 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(2),
   justifyContent: "flex-end",
   padding: theme.spacing(1),
-  "& :not(:first-child)": {
+  "& :not(:first-of-type)": {
     marginInlineStart: theme.spacing(1),
   },
 }));

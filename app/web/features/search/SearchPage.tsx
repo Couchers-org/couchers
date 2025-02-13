@@ -5,8 +5,8 @@ import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
-import { useReducer } from "react";
-import { MapProvider } from "react-map-gl/maplibre";
+import { useReducer, useRef, useState } from "react";
+import { MapProvider, MapRef, ViewState } from "react-map-gl/maplibre";
 import {
   QueryClient,
   QueryClientProvider,
@@ -40,6 +40,16 @@ export default function SearchPage({
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const queryClient = new QueryClient();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const mapRef = useRef<MapRef | null>(null);
+
+  const [viewState, setViewState] = useState<ViewState>({
+    latitude: 0,
+    longitude: 0,
+    zoom: 1,
+    pitch: 0,
+    bearing: 0,
+    padding: { top: 0, bottom: 0, left: 0, right: 0 },
+  });
 
   const [filters, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
@@ -74,10 +84,33 @@ export default function SearchPage({
         value: newValue,
       },
     });
+
+    if (key === "location") {
+      const geojson = newValue as GeocodeResult;
+
+      setViewState({
+        ...viewState,
+        longitude: geojson.location.lng,
+        latitude: geojson.location.lat,
+        zoom: 10,
+      });
+    }
   };
 
   const handleClearFilters = () => {
     dispatch({ type: mapSearchActionTypes.RESET_FILTERS });
+    setViewState({
+      latitude: 0,
+      longitude: 0,
+      zoom: 1,
+      pitch: 0,
+      bearing: 0,
+      padding: { top: 0, bottom: 0, left: 0, right: 0 },
+    });
+  };
+
+  const handleViewStateChange = (newViewState: ViewState) => {
+    setViewState(newViewState);
   };
 
   return (
@@ -90,12 +123,14 @@ export default function SearchPage({
           <DesktopMapView
             bbox={filters.bbox}
             isLoading={isLoading || isFetching}
+            mapRef={mapRef}
             onClearFilters={handleClearFilters}
             onFilterChange={handleFiltersChange}
+            onViewStateChange={handleViewStateChange}
             query={filters.query}
             selectedUserId={filters.selectedUserId}
             users={formattedResults}
-            wasSearchPerformed={filters.wasSearchPerformed}
+            viewState={viewState}
           />
         )}
       </QueryClientProvider>

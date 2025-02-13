@@ -11,7 +11,6 @@ enum mapSearchActionTypes {
 type MapSearchState = UserSearchFilters & {
   hasFilters: boolean;
   selectedUserId?: number;
-  wasSearchPerformed?: boolean;
 };
 
 type MapSearchAction =
@@ -30,7 +29,6 @@ const initialState: MapSearchState = {
   completeProfile: false,
   hasFilters: false,
   selectedUserId: undefined,
-  wasSearchPerformed: false,
 };
 
 const mapSearchReducer = (
@@ -47,7 +45,6 @@ const mapSearchReducer = (
           ...state,
           bbox: formattedBbox,
           hasFilters: true,
-          wasSearchPerformed: true,
         };
       } else if (action.payload.key === "query") {
         return {
@@ -55,14 +52,12 @@ const mapSearchReducer = (
           query: action.payload.value as string,
           hasFilters: true,
           selectedUserId: undefined,
-          wasSearchPerformed: true,
         };
       } else if (action.payload.key === "selectedUserId") {
         return {
           ...state,
           hasFilters: true,
           selectedUserId: action.payload.value as number,
-          wasSearchPerformed: false,
         };
       }
 
@@ -71,13 +66,10 @@ const mapSearchReducer = (
         [action.payload.key]: action.payload.value,
         hasFilters: true,
         selectedUserId: undefined,
-        wasSearchPerformed: false,
       };
     case mapSearchActionTypes.RESET_FILTERS:
-      console.log("RESETTING FILTERS");
       return initialState;
     default:
-      console.log("REDUCER DEFAULT");
       return state;
   }
 };
