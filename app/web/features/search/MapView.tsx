@@ -6,6 +6,7 @@ import { GeoJSONSource, MapLayerMouseEvent } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { useCallback } from "react";
 import { MapRef, ViewState } from "react-map-gl/maplibre";
+import { usePrevious } from "utils/hooks";
 
 import userPin from "./resources/userPin.png";
 import { FilterKey, FilterValue } from "./SearchPage";
@@ -56,17 +57,18 @@ const MapView = ({
   // @TODO(NA) Should I useMemo this?
   const pins = usersToGeoJSON(users);
 
-  // const previousSelectedUserId = usePrevious(selectedUserId);
+  const previousSelectedUserId = usePrevious(selectedUserId);
 
+  //@TODO - make it stop re-rendering and loading spinner when a user is selected
   const handleClick = useCallback(
     async (ev: MapLayerMouseEvent) => {
-      ev.preventDefault();
-
-      const feature = ev.features?.[0];
+      const features = mapRef.current?.queryRenderedFeatures(ev.point);
+      const feature = features ? features[0] : undefined;
 
       if (!feature) return;
 
       const clusterId = feature?.properties.cluster_id;
+      const layerId = feature?.layer.id;
 
       if (clusterId === CLUSTER_LAYER_ID) {
         const source = mapRef.current?.getSource(
@@ -89,27 +91,28 @@ const MapView = ({
         }
       }
 
-      if (clusterId === UNCLUSTERED_LAYER_ID) {
-        const props = ev.features?.[0].properties;
-        const geom = ev.features?.[0].geometry as Point;
+      if (layerId === UNCLUSTERED_LAYER_ID) {
+        const userId = feature.properties.id;
 
-        if (!props || !geom) return;
+        mapRef.current?.setFeatureState(
+          { source: "clustered-users", id: previousSelectedUserId },
+          { selected: false },
+        );
 
-        const userId = props.id;
-
-        const [lng, lat] = geom.coordinates;
-
-        onViewStateChange({
-          ...viewState,
-          latitude: lat,
-          longitude: lng,
-          zoom: 12,
-        });
-
+        mapRef.current?.setFeatureState(
+          { source: "clustered-users", id: userId },
+          { selected: true },
+        );
         onFiltersChange("selectedUserId", userId);
       }
     },
-    [mapRef, onFiltersChange, onViewStateChange, viewState],
+    [
+      mapRef,
+      onFiltersChange,
+      onViewStateChange,
+      previousSelectedUserId,
+      viewState,
+    ],
   );
 
   const handleLoad = async () => {

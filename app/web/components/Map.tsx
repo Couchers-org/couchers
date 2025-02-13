@@ -28,6 +28,8 @@ interface MapProps {
   viewState: ViewState;
 }
 
+//@TODO(NA) - switch back to map backend call? More efficient?
+
 const Map = ({
   grow,
   hash,
@@ -76,7 +78,7 @@ const Map = ({
           clusterMaxZoom={14}
           clusterRadius={50}
           data={pins}
-          promoteId={"id"}
+          promoteId="id"
           type={"geojson"}
         >
           <Layer {...clusterLayer} />

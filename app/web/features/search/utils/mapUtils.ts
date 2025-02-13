@@ -10,13 +10,16 @@ const usersToGeoJSON = (pins: User.AsObject[]): FeatureCollection => ({
       coordinates: [pin.lng, pin.lat], // GeoJSON expects [lng, lat]
     },
     properties: {
-      userId: pin.userId,
-      username: pin.username,
-      city: pin.city,
-      age: pin.age,
-      gender: pin.gender,
-      hostingStatus: pin.hostingStatus,
-      avatarUrl: pin.avatarUrl,
+      id: pin.userId,
+      // No has completed profile here - is that only on the geojson endpoint?
+      hasCompletedProfile:
+        pin.avatarUrl && pin.aboutMe && pin.aboutMe.length >= 150,
+      // username: pin.username,
+      // city: pin.city,
+      // age: pin.age,
+      // gender: pin.gender,
+      // hostingStatus: pin.hostingStatus,
+      // avatarUrl: pin.avatarUrl,
       // Add other properties as needed
     },
   })),
