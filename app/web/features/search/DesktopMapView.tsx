@@ -6,27 +6,26 @@ import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { useState } from "react";
-import { MapRef, ViewState } from "react-map-gl/maplibre";
+import { MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 
 import MapSearchType from "./MapSearchType";
 import MapView from "./MapView";
-import { FilterKey, FilterValue } from "./SearchPage";
+import { FilterKey, FilterValue, FlyToLocationProps } from "./SearchPage";
 import SearchResultsList from "./SearchResultsList";
 
 const DEFAULT_DRAWER_WIDTH = 400;
 
 interface DesktopMapViewProps {
+  flyToLocation: (location: FlyToLocationProps) => void;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   onClearFilters: () => void;
   onFilterChange: (key: FilterKey, value: FilterValue) => void;
-  onViewStateChange: (viewState: ViewState) => void;
   onSelectedUserIdClick: (userId: number) => void;
   query: string | undefined;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
-  viewState: ViewState;
 }
 
 const StyledMapContainer = styled("div")(({ theme }) => () => ({
@@ -69,16 +68,15 @@ const MapContainer = styled("div")<{ drawerWidth: number }>(
 );
 
 const DesktopMapView = ({
+  flyToLocation,
   isLoading,
   onClearFilters,
   onFilterChange,
   onSelectedUserIdClick,
-  onViewStateChange,
   query,
   mapRef,
   selectedUserIds,
   users,
-  viewState,
 }: DesktopMapViewProps) => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const [drawerWidth, setDrawerWidth] = useState(DEFAULT_DRAWER_WIDTH);
@@ -131,13 +129,12 @@ const DesktopMapView = ({
         </DrawerContainer>
         <MapContainer drawerWidth={drawerWidth}>
           <MapView
+            flyToLocation={flyToLocation}
             isLoading={isLoading}
             mapRef={mapRef}
             onSelectedUserIdClick={onSelectedUserIdClick}
-            onViewStateChange={onViewStateChange}
             selectedUserIds={selectedUserIds}
             users={users}
-            viewState={viewState}
           />
         </MapContainer>
       </StyledMapContainer>

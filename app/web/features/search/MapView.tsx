@@ -5,20 +5,23 @@ import { Point } from "geojson";
 import { GeoJSONSource, MapLayerMouseEvent } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { useCallback } from "react";
-import { MapRef, ViewState } from "react-map-gl/maplibre";
+import { MapRef } from "react-map-gl/maplibre";
 
-import userPin from "./resources/userPin.png";
+import { FlyToLocationProps } from "./SearchPage";
 import { CLUSTER_LAYER_ID, UNCLUSTERED_LAYER_ID } from "./utils/mapLayers";
-import { usersToGeoJSON } from "./utils/mapUtils";
+import {
+  loadMapUserPins,
+  setMapFeatureState,
+  usersToGeoJSON,
+} from "./utils/mapUtils";
 
 interface MapViewProps {
+  flyToLocation: (location: FlyToLocationProps) => void;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   onSelectedUserIdClick: (userId: number) => void;
-  onViewStateChange: (viewState: ViewState) => void;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
-  viewState: ViewState;
 }
 
 const StyledMapWrapper = styled("div")(({ theme }) => ({
@@ -42,13 +45,12 @@ const MapLoadingContainer = styled("div")(({ theme }) => ({
 const DEFAULT_USERS: User.AsObject[] = [];
 
 const MapView = ({
+  flyToLocation,
   isLoading,
   mapRef,
   onSelectedUserIdClick,
-  onViewStateChange,
   selectedUserIds,
   users = DEFAULT_USERS,
-  viewState,
 }: MapViewProps) => {
   // @TODO(NA) Should I useMemo this?
   const pins = usersToGeoJSON(users);
@@ -75,8 +77,7 @@ const MapView = ({
         if (zoom) {
           const point = feature.geometry as Point;
 
-          onViewStateChange({
-            ...viewState,
+          flyToLocation({
             latitude: point.coordinates[1],
             longitude: point.coordinates[0],
             zoom,
@@ -86,42 +87,30 @@ const MapView = ({
 
       if (layerId === UNCLUSTERED_LAYER_ID) {
         const userId = feature.properties.id;
+        const point = feature.geometry as Point;
+
+        const [longitude, latitude] = point.coordinates;
+
+        flyToLocation({
+          latitude,
+          longitude,
+          zoom: 12.5,
+        });
 
         if (selectedUserIds.includes(userId)) {
-          mapRef.current?.setFeatureState(
-            { source: "clustered-users", id: userId },
-            { selected: false },
-          );
+          setMapFeatureState(mapRef, userId, false);
         } else {
-          mapRef.current?.setFeatureState(
-            { source: "clustered-users", id: userId },
-            { selected: true },
-          );
+          setMapFeatureState(mapRef, userId, true);
         }
+
         onSelectedUserIdClick(userId);
       }
     },
-    [
-      mapRef,
-      onSelectedUserIdClick,
-      onViewStateChange,
-      selectedUserIds,
-      viewState,
-    ],
+    [flyToLocation, mapRef, onSelectedUserIdClick, selectedUserIds],
   );
 
   const handleLoad = async () => {
-    try {
-      const image = await mapRef.current?.loadImage(userPin.src);
-
-      if (mapRef.current?.hasImage("user-pin")) return;
-
-      if (image) {
-        mapRef.current?.addImage("user-pin", image.data, { sdf: true });
-      }
-    } catch (error) {
-      throw error;
-    }
+    await loadMapUserPins(mapRef);
   };
 
   return (
@@ -137,9 +126,7 @@ const MapView = ({
         mapRef={mapRef}
         onClick={handleClick}
         onLoad={handleLoad}
-        onViewStateChange={onViewStateChange}
         pins={pins}
-        viewState={viewState}
       />
     </StyledMapWrapper>
   );

@@ -13,8 +13,6 @@ import {
   MapRef,
   NavigationControl,
   Source,
-  ViewState,
-  ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
 
 interface MapProps {
@@ -23,23 +21,10 @@ interface MapProps {
   mapRef: React.RefObject<MapRef>;
   onClick: (ev: MapLayerMouseEvent) => void;
   onLoad: () => void;
-  onViewStateChange: (viewState: ViewState) => void;
   pins: GeoJSON.FeatureCollection;
-  viewState: ViewState;
 }
 
-//@TODO(NA) - switch back to map backend call? More efficient?
-
-const Map = ({
-  grow,
-  hash,
-  mapRef,
-  onClick,
-  onLoad,
-  onViewStateChange,
-  pins,
-  viewState,
-}: MapProps) => {
+const Map = ({ grow, hash, mapRef, onClick, onLoad, pins }: MapProps) => {
   const handleMapLoad = () => {
     if (mapRef.current) {
       onLoad();
@@ -50,14 +35,9 @@ const Map = ({
     onClick(ev);
   };
 
-  const handleMoveEnd = (event: ViewStateChangeEvent) => {
-    onViewStateChange(event.viewState);
-  };
-
   return (
     <>
       <MaplibreMap
-        {...viewState}
         id="map"
         style={{
           height: grow ? "100%" : "200px",
@@ -68,7 +48,6 @@ const Map = ({
         interactiveLayerIds={clusterLayer.id ? [clusterLayer.id] : []}
         onClick={handleMapClick}
         onLoad={handleMapLoad}
-        onMoveEnd={handleMoveEnd}
         hash={hash}
         ref={mapRef}
       >

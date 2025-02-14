@@ -5,8 +5,8 @@ import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
-import { useReducer, useRef, useState } from "react";
-import { MapProvider, MapRef, ViewState } from "react-map-gl/maplibre";
+import { useCallback, useEffect, useReducer, useRef } from "react";
+import { MapProvider, MapRef } from "react-map-gl/maplibre";
 import {
   QueryClient,
   QueryClientProvider,
@@ -27,6 +27,12 @@ import MobileMapView from "./MobileMapView";
 type FilterKey = "location" | "query" | "lng" | "lat" | "selectedUserId";
 type FilterValue = string | GeocodeResult | number | null;
 
+export interface FlyToLocationProps {
+  longitude: number;
+  latitude: number;
+  zoom?: number;
+}
+
 /**
  * Search page, creates the state, obtains the users, renders all its sub-components
  */
@@ -42,15 +48,6 @@ export default function SearchPage({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const mapRef = useRef<MapRef | null>(null);
 
-  const [viewState, setViewState] = useState<ViewState>({
-    latitude: 0,
-    longitude: 0,
-    zoom: 1,
-    pitch: 0,
-    bearing: 0,
-    padding: { top: 0, bottom: 0, left: 0, right: 0 },
-  });
-
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
     filters: {
@@ -59,6 +56,26 @@ export default function SearchPage({
       query: locationName,
     },
   });
+
+  const flyToLocation = useCallback(
+    ({ longitude, latitude, zoom }: FlyToLocationProps) => {
+      mapRef.current?.flyTo({
+        center: [longitude, latitude],
+        zoom: zoom || 12,
+        duration: 2000,
+      });
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (bbox) {
+      flyToLocation({
+        longitude: (bbox[0] + bbox[2]) / 2,
+        latitude: (bbox[1] + bbox[3]) / 2,
+      });
+    }
+  }, [bbox, flyToLocation, locationName]);
 
   const { data, isLoading, isFetching } = useInfiniteQuery<
     UserSearchRes.AsObject,
@@ -91,11 +108,9 @@ export default function SearchPage({
     if (key === "location") {
       const geojson = newValue as GeocodeResult;
 
-      setViewState({
-        ...viewState,
+      flyToLocation({
         longitude: geojson.location.lng,
         latitude: geojson.location.lat,
-        zoom: 10,
       });
     }
   };
@@ -111,18 +126,12 @@ export default function SearchPage({
 
   const handleClearFilters = () => {
     dispatch({ type: mapSearchActionTypes.RESET_FILTERS });
-    setViewState({
-      latitude: 0,
-      longitude: 0,
-      zoom: 1,
-      pitch: 0,
-      bearing: 0,
-      padding: { top: 0, bottom: 0, left: 0, right: 0 },
-    });
-  };
 
-  const handleViewStateChange = (newViewState: ViewState) => {
-    setViewState(newViewState);
+    flyToLocation({
+      longitude: 0,
+      latitude: 0,
+      zoom: 1,
+    });
   };
 
   return (
@@ -133,16 +142,15 @@ export default function SearchPage({
 
         {!isMobile && (
           <DesktopMapView
+            flyToLocation={flyToLocation}
             isLoading={isLoading || isFetching}
             mapRef={mapRef}
             onClearFilters={handleClearFilters}
             onFilterChange={handleFiltersChange}
             onSelectedUserIdClick={handleSelectedUserIdClick}
-            onViewStateChange={handleViewStateChange}
             query={mapSearchState.filters.query}
             selectedUserIds={mapSearchState.selectedUserIds}
             users={formattedResults}
-            viewState={viewState}
           />
         )}
       </QueryClientProvider>

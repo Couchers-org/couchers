@@ -60,7 +60,6 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     onClear,
     showFullDisplayName = false,
   } = props;
-
   const { t } = useTranslation(GLOBAL);
 
   const [isOpen, setIsOpen] = useState(false);
@@ -75,11 +74,11 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
 
   const handleChange = (
     event: SyntheticEvent<Element, Event>,
-    value: string | GeocodeResult | null,
+    newValue: string | GeocodeResult | null,
     reason: AutocompleteChangeReason,
   ) => {
     if (reason === "selectOption") {
-      onChange("location", value);
+      onChange("location", newValue);
       setIsOpen(false);
     }
 
@@ -105,6 +104,16 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   return (
     <Autocomplete
       className={className}
+      defaultValue={
+        options?.find(
+          (o) => geocodeResult2String(o, showFullDisplayName) === defaultValue,
+        ) || null
+      }
+      value={
+        options?.find(
+          (o) => geocodeResult2String(o, showFullDisplayName) === value,
+        ) || null
+      } // Convert string to GeocodeResult to appease TS and match options type
       id={id}
       ref={ref}
       renderInput={(params) => (
@@ -114,7 +123,6 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
           error={!!fieldError || !!geocodeError}
           fullWidth={fullWidth}
           variant="outlined"
-          value={value}
           placeholder={placeholder}
           InputProps={{
             ...params.InputProps,
