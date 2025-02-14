@@ -24,8 +24,20 @@ import {
 } from "./mapSearchReducers";
 import MobileMapView from "./MobileMapView";
 
-type FilterKey = "location" | "query" | "lng" | "lat" | "selectedUserId";
-type FilterValue = string | GeocodeResult | number | null;
+type FilterKey =
+  | "bbox"
+  | "location"
+  | "query"
+  | "lng"
+  | "lat"
+  | "selectedUserId";
+
+type FilterValue =
+  | string
+  | GeocodeResult["bbox"]
+  | GeocodeResult
+  | number
+  | null;
 
 export interface FlyToLocationProps {
   longitude: number;
@@ -143,6 +155,7 @@ export default function SearchPage({
         {!isMobile && (
           <DesktopMapView
             flyToLocation={flyToLocation}
+            hasActiveFilters={mapSearchState.hasActiveFilters}
             isLoading={isLoading || isFetching}
             mapRef={mapRef}
             onClearFilters={handleClearFilters}

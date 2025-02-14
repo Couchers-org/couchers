@@ -18,6 +18,7 @@ const DEFAULT_DRAWER_WIDTH = 400;
 
 interface DesktopMapViewProps {
   flyToLocation: (location: FlyToLocationProps) => void;
+  hasActiveFilters: boolean;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   onClearFilters: () => void;
@@ -69,6 +70,7 @@ const MapContainer = styled("div")<{ drawerWidth: number }>(
 
 const DesktopMapView = ({
   flyToLocation,
+  hasActiveFilters,
   isLoading,
   onClearFilters,
   onFilterChange,
@@ -130,8 +132,11 @@ const DesktopMapView = ({
         <MapContainer drawerWidth={drawerWidth}>
           <MapView
             flyToLocation={flyToLocation}
+            hasActiveFilters={hasActiveFilters}
             isLoading={isLoading}
             mapRef={mapRef}
+            onClearFilters={onClearFilters}
+            onFilterChange={onFilterChange}
             onSelectedUserIdClick={onSelectedUserIdClick}
             selectedUserIds={selectedUserIds}
             users={users}

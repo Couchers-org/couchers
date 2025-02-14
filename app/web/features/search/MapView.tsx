@@ -7,7 +7,9 @@ import { User } from "proto/api_pb";
 import { useCallback } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
-import { FlyToLocationProps } from "./SearchPage";
+import FloatingSearchControls from "./FloatingSearchControls";
+import { FilterKey, FilterValue, FlyToLocationProps } from "./SearchPage";
+import { Coordinates } from "./utils/constants";
 import { CLUSTER_LAYER_ID, UNCLUSTERED_LAYER_ID } from "./utils/mapLayers";
 import {
   loadMapUserPins,
@@ -17,8 +19,11 @@ import {
 
 interface MapViewProps {
   flyToLocation: (location: FlyToLocationProps) => void;
+  hasActiveFilters: boolean;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
+  onClearFilters: () => void;
+  onFilterChange: (key: FilterKey, value: FilterValue) => void;
   onSelectedUserIdClick: (userId: number) => void;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
@@ -46,8 +51,11 @@ const DEFAULT_USERS: User.AsObject[] = [];
 
 const MapView = ({
   flyToLocation,
+  hasActiveFilters,
   isLoading,
   mapRef,
+  onClearFilters,
+  onFilterChange,
   onSelectedUserIdClick,
   selectedUserIds,
   users = DEFAULT_USERS,
@@ -113,8 +121,24 @@ const MapView = ({
     await loadMapUserPins(mapRef);
   };
 
+  const handleMapMove = () => {
+    const mapBounds = mapRef.current?.getMap().getBounds();
+    if (!mapBounds) return;
+    const ne = mapBounds.getNorthEast();
+    const sw = mapBounds.getSouthWest();
+    const bbox: Coordinates = [sw.lng, sw.lat, ne.lng, ne.lat];
+
+    onFilterChange("bbox", bbox);
+  };
+
   return (
     <StyledMapWrapper>
+      <FloatingSearchControls
+        hasActiveFilters={hasActiveFilters}
+        isLoading={isLoading}
+        onClearFilters={onClearFilters}
+        onFilterChange={onFilterChange}
+      />
       {isLoading && (
         <MapLoadingContainer>
           <CenteredSpinner minHeight="100%" />
@@ -126,6 +150,7 @@ const MapView = ({
         mapRef={mapRef}
         onClick={handleClick}
         onLoad={handleLoad}
+        onMapMove={handleMapMove}
         pins={pins}
       />
     </StyledMapWrapper>

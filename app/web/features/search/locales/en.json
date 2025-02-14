@@ -41,5 +41,7 @@
     "show_user_button_label": "Show {{name}} on the map",
     "missing_about_description": "{{name}} hasn't said anything about themselves yet",
     "users_found_message": "{{count}} users found"
-  }
+  },
+  "search_filters": "Search filters",
+  "clear_filters": "Clear filters"
 }

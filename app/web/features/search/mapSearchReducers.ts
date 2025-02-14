@@ -12,6 +12,7 @@ enum mapSearchActionTypes {
 
 type MapSearchState = {
   filters: UserSearchFilters;
+  hasActiveFilters: boolean;
   selectedUserIds: User.AsObject["userId"][];
 };
 
@@ -35,6 +36,7 @@ const initialState: MapSearchState = {
     numGuests: undefined,
     completeProfile: false,
   },
+  hasActiveFilters: false,
   selectedUserIds: [],
 };
 
@@ -54,6 +56,7 @@ const mapSearchReducer = (
             ...state.filters,
             bbox: formattedBbox,
           },
+          hasActiveFilters: true,
         };
       } else if (action.payload.key === "query") {
         return {
@@ -62,6 +65,7 @@ const mapSearchReducer = (
             ...state.filters,
             query: action.payload.value as string,
           },
+          hasActiveFilters: true,
           selectedUserIds: [],
         };
       }
@@ -72,6 +76,7 @@ const mapSearchReducer = (
           ...state.filters,
           [action.payload.key]: action.payload.value,
         },
+        hasActiveFilters: true,
         selectedUserIds: [],
       };
     case mapSearchActionTypes.RESET_FILTERS:
@@ -81,15 +86,19 @@ const mapSearchReducer = (
       const currentSelectedUserIds = state.selectedUserIds;
 
       if (currentSelectedUserIds.includes(action.payload.userId)) {
+        const newSelectedUserIds = currentSelectedUserIds.filter(
+          (userId) => userId !== action.payload.userId,
+        );
+
         return {
           ...state,
-          selectedUserIds: currentSelectedUserIds.filter(
-            (userId) => userId !== action.payload.userId,
-          ),
+          hasActiveFilters: newSelectedUserIds.length > 0,
+          selectedUserIds: newSelectedUserIds,
         };
       }
       return {
         ...state,
+        hasActiveFilters: true,
         selectedUserIds: [...currentSelectedUserIds, action.payload.userId],
       };
 

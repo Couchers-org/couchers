@@ -21,18 +21,31 @@ interface MapProps {
   mapRef: React.RefObject<MapRef>;
   onClick: (ev: MapLayerMouseEvent) => void;
   onLoad: () => void;
+  onMapMove: () => void;
   pins: GeoJSON.FeatureCollection;
 }
 
-const Map = ({ grow, hash, mapRef, onClick, onLoad, pins }: MapProps) => {
+const Map = ({
+  grow,
+  hash,
+  mapRef,
+  onClick,
+  onLoad,
+  onMapMove,
+  pins,
+}: MapProps) => {
   const handleMapLoad = () => {
     if (mapRef.current) {
       onLoad();
     }
   };
 
-  const handleMapClick = async (ev: MapLayerMouseEvent) => {
-    onClick(ev);
+  const handleMapClick = async (event: MapLayerMouseEvent) => {
+    onClick(event);
+  };
+
+  const handleMoveMap = () => {
+    onMapMove();
   };
 
   return (
@@ -48,6 +61,7 @@ const Map = ({ grow, hash, mapRef, onClick, onLoad, pins }: MapProps) => {
         interactiveLayerIds={clusterLayer.id ? [clusterLayer.id] : []}
         onClick={handleMapClick}
         onLoad={handleMapLoad}
+        onDragEnd={handleMoveMap}
         hash={hash}
         ref={mapRef}
       >
