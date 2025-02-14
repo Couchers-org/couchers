@@ -13,19 +13,18 @@ import MapSearchType from "./MapSearchType";
 import MapView from "./MapView";
 import { FilterKey, FilterValue } from "./SearchPage";
 import SearchResultsList from "./SearchResultsList";
-import { Coordinates } from "./utils/constants";
 
 const DEFAULT_DRAWER_WIDTH = 400;
 
 interface DesktopMapViewProps {
-  bbox: Coordinates;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   onClearFilters: () => void;
   onFilterChange: (key: FilterKey, value: FilterValue) => void;
   onViewStateChange: (viewState: ViewState) => void;
+  onSelectedUserIdClick: (userId: number) => void;
   query: string | undefined;
-  selectedUserId: number | undefined;
+  selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
   viewState: ViewState;
 }
@@ -70,14 +69,14 @@ const MapContainer = styled("div")<{ drawerWidth: number }>(
 );
 
 const DesktopMapView = ({
-  bbox,
   isLoading,
   onClearFilters,
   onFilterChange,
+  onSelectedUserIdClick,
   onViewStateChange,
   query,
   mapRef,
-  selectedUserId,
+  selectedUserIds,
   users,
   viewState,
 }: DesktopMapViewProps) => {
@@ -122,7 +121,7 @@ const DesktopMapView = ({
                         })}
                   </Typography>
                   <SearchResultsList
-                    selectedUserId={selectedUserId}
+                    selectedUserIds={selectedUserIds}
                     users={users}
                   />
                 </>
@@ -132,12 +131,11 @@ const DesktopMapView = ({
         </DrawerContainer>
         <MapContainer drawerWidth={drawerWidth}>
           <MapView
-            bbox={bbox}
             isLoading={isLoading}
             mapRef={mapRef}
-            onFiltersChange={onFilterChange}
+            onSelectedUserIdClick={onSelectedUserIdClick}
             onViewStateChange={onViewStateChange}
-            selectedUserId={selectedUserId}
+            selectedUserIds={selectedUserIds}
             users={users}
             viewState={viewState}
           />

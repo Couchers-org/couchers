@@ -15,6 +15,23 @@ interface MouseEventHandler {
   (e: MouseEvent): void;
 }
 
+const StyledDrawer = styled(Drawer, {
+  shouldForwardProp: (prop) => prop !== "drawerWidth",
+})<{ drawerWidth: number }>(({ theme, drawerWidth }) => ({
+  flexShrink: 0,
+
+  "& .MuiDrawer-paper": {
+    height: `calc(100% - ${theme.shape.navPaddingXs})`,
+    top: theme.shape.navPaddingXs,
+    width: drawerWidth,
+
+    [theme.breakpoints.up("sm")]: {
+      height: `calc(100% - ${theme.shape.navPaddingSmUp})`,
+      top: theme.shape.navPaddingSmUp,
+    },
+  },
+}));
+
 const StyledDragger = styled("div")(({ theme }) => ({
   width: "8px",
   cursor: "col-resize",
@@ -69,22 +86,13 @@ export default function ResizeableDrawer({
   );
 
   return (
-    <Drawer
-      variant="permanent"
-      PaperProps={{
-        style: {
-          width: drawerWidth,
-          position: "absolute", // Ensure it respects top
-        },
-      }}
-      sx={{ flexShrink: 0 }}
-    >
+    <StyledDrawer variant="permanent" drawerWidth={drawerWidth}>
       <DrawerContentWrapper>
         <ScrollableContent>{children}</ScrollableContent>
         <StyledDragger onMouseDown={handleMouseDown}>
           <DragHandleOutlined sx={{ rotate: "90deg" }} />
         </StyledDragger>
       </DrawerContentWrapper>
-    </Drawer>
+    </StyledDrawer>
   );
 }

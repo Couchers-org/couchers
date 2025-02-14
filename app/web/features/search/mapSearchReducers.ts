@@ -1,3 +1,4 @@
+import { User } from "proto/api_pb";
 import { UserSearchFilters } from "service/search";
 import { GeocodeResult } from "utils/hooks";
 
@@ -6,11 +7,12 @@ import { FilterKey, FilterValue } from "./SearchPage";
 enum mapSearchActionTypes {
   SET_FILTER = "SET_FILTER",
   RESET_FILTERS = "RESET_FILTERS",
+  SET_SELECTED_USER_IDS = "SET_SELECTED_USER_IDS",
 }
 
-type MapSearchState = UserSearchFilters & {
-  hasFilters: boolean;
-  selectedUserId?: number;
+type MapSearchState = {
+  filters: UserSearchFilters;
+  selectedUserIds: User.AsObject["userId"][];
 };
 
 type MapSearchAction =
@@ -18,17 +20,22 @@ type MapSearchAction =
       type: mapSearchActionTypes.SET_FILTER;
       payload: { key: FilterKey; value: FilterValue };
     }
-  | { type: mapSearchActionTypes.RESET_FILTERS };
+  | { type: mapSearchActionTypes.RESET_FILTERS }
+  | {
+      type: mapSearchActionTypes.SET_SELECTED_USER_IDS;
+      payload: { userId: User.AsObject["userId"] };
+    };
 
 const initialState: MapSearchState = {
-  query: "",
-  bbox: [390, 82, -173, -66],
-  lastActive: 0,
-  hostingStatusOptions: [],
-  numGuests: undefined,
-  completeProfile: false,
-  hasFilters: false,
-  selectedUserId: undefined,
+  filters: {
+    query: "",
+    bbox: [390, 82, -173, -66],
+    lastActive: 0,
+    hostingStatusOptions: [],
+    numGuests: undefined,
+    completeProfile: false,
+  },
+  selectedUserIds: [],
 };
 
 const mapSearchReducer = (
@@ -43,32 +50,49 @@ const mapSearchReducer = (
 
         return {
           ...state,
-          bbox: formattedBbox,
-          hasFilters: true,
+          filters: {
+            ...state.filters,
+            bbox: formattedBbox,
+          },
         };
       } else if (action.payload.key === "query") {
         return {
           ...state,
-          query: action.payload.value as string,
-          hasFilters: true,
-          selectedUserId: undefined,
-        };
-      } else if (action.payload.key === "selectedUserId") {
-        return {
-          ...state,
-          hasFilters: true,
-          selectedUserId: action.payload.value as number,
+          filters: {
+            ...state.filters,
+            query: action.payload.value as string,
+          },
+          selectedUserIds: [],
         };
       }
 
       return {
         ...state,
-        [action.payload.key]: action.payload.value,
-        hasFilters: true,
-        selectedUserId: undefined,
+        filters: {
+          ...state.filters,
+          [action.payload.key]: action.payload.value,
+        },
+        selectedUserIds: [],
       };
     case mapSearchActionTypes.RESET_FILTERS:
       return initialState;
+
+    case mapSearchActionTypes.SET_SELECTED_USER_IDS:
+      const currentSelectedUserIds = state.selectedUserIds;
+
+      if (currentSelectedUserIds.includes(action.payload.userId)) {
+        return {
+          ...state,
+          selectedUserIds: currentSelectedUserIds.filter(
+            (userId) => userId !== action.payload.userId,
+          ),
+        };
+      }
+      return {
+        ...state,
+        selectedUserIds: [...currentSelectedUserIds, action.payload.userId],
+      };
+
     default:
       return state;
   }

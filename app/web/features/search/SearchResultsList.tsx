@@ -4,7 +4,7 @@ import { User } from "proto/api_pb";
 import SearchResultUserCard from "./SeachResultUserCard";
 
 interface SearchResultsListProps {
-  selectedUserId: number | undefined;
+  selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
 }
 
@@ -14,6 +14,7 @@ const StyledContainer = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2),
   marginTop: theme.spacing(2),
   width: "100%",
+  height: "100%",
 }));
 
 const StyledCardWrapper = styled(Box)(({ theme }) => ({
@@ -21,32 +22,30 @@ const StyledCardWrapper = styled(Box)(({ theme }) => ({
 }));
 
 const SearchResultsList = ({
-  selectedUserId,
+  selectedUserIds,
   users,
 }: SearchResultsListProps) => {
+
   if (!users) {
     return null;
   }
 
-  const selectedUser = users.find((user) => user.userId === selectedUserId);
+  const selectedUsers = users.filter((user) =>
+    selectedUserIds.includes(user.userId),
+  );
 
   return (
     <StyledContainer>
-      {selectedUserId && (
-        <StyledCardWrapper key={selectedUser?.userId}>
-          <SearchResultUserCard
-            isHighlighted={selectedUserId === selectedUser?.userId}
-            user={selectedUser!}
-          />
-        </StyledCardWrapper>
-      )}
-      {!selectedUserId &&
+      {selectedUserIds.length > 0 &&
+        selectedUsers.map((selectedUser) => (
+          <StyledCardWrapper key={selectedUser?.userId}>
+            <SearchResultUserCard isHighlighted user={selectedUser} />
+          </StyledCardWrapper>
+        ))}
+      {selectedUserIds.length < 1 &&
         users.map((user) => (
           <StyledCardWrapper key={user.userId}>
-            <SearchResultUserCard
-              isHighlighted={selectedUserId === user.userId}
-              user={user}
-            />
+            <SearchResultUserCard isHighlighted={false} user={user} />
           </StyledCardWrapper>
         ))}
     </StyledContainer>

@@ -51,19 +51,22 @@ export default function SearchPage({
     padding: { top: 0, bottom: 0, left: 0, right: 0 },
   });
 
-  const [filters, dispatch] = useReducer(mapSearchReducer, {
+  const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
-    bbox,
-    query: locationName,
+    filters: {
+      ...initialState.filters,
+      bbox,
+      query: locationName,
+    },
   });
 
   const { data, isLoading, isFetching } = useInfiniteQuery<
     UserSearchRes.AsObject,
     Error
   >(
-    ["userSearch", filters],
+    ["userSearch", mapSearchState.filters],
     ({ pageParam }) => {
-      return service.search.userSearch(filters, pageParam);
+      return service.search.userSearch(mapSearchState.filters, pageParam);
     },
     {
       getNextPageParam: (lastPage) =>
@@ -97,6 +100,15 @@ export default function SearchPage({
     }
   };
 
+  const handleSelectedUserIdClick = (userId: number) => {
+    dispatch({
+      type: mapSearchActionTypes.SET_SELECTED_USER_IDS,
+      payload: {
+        userId,
+      },
+    });
+  };
+
   const handleClearFilters = () => {
     dispatch({ type: mapSearchActionTypes.RESET_FILTERS });
     setViewState({
@@ -121,14 +133,14 @@ export default function SearchPage({
 
         {!isMobile && (
           <DesktopMapView
-            bbox={filters.bbox}
             isLoading={isLoading || isFetching}
             mapRef={mapRef}
             onClearFilters={handleClearFilters}
             onFilterChange={handleFiltersChange}
+            onSelectedUserIdClick={handleSelectedUserIdClick}
             onViewStateChange={handleViewStateChange}
-            query={filters.query}
-            selectedUserId={filters.selectedUserId}
+            query={mapSearchState.filters.query}
+            selectedUserIds={mapSearchState.selectedUserIds}
             users={formattedResults}
             viewState={viewState}
           />

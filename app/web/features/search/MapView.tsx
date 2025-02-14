@@ -6,21 +6,17 @@ import { GeoJSONSource, MapLayerMouseEvent } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { useCallback } from "react";
 import { MapRef, ViewState } from "react-map-gl/maplibre";
-import { usePrevious } from "utils/hooks";
 
 import userPin from "./resources/userPin.png";
-import { FilterKey, FilterValue } from "./SearchPage";
-import { Coordinates } from "./utils/constants";
 import { CLUSTER_LAYER_ID, UNCLUSTERED_LAYER_ID } from "./utils/mapLayers";
 import { usersToGeoJSON } from "./utils/mapUtils";
 
 interface MapViewProps {
-  bbox: Coordinates;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
-  onFiltersChange: (key: FilterKey, value: FilterValue) => void;
+  onSelectedUserIdClick: (userId: number) => void;
   onViewStateChange: (viewState: ViewState) => void;
-  selectedUserId: number | undefined;
+  selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
   viewState: ViewState;
 }
@@ -48,18 +44,15 @@ const DEFAULT_USERS: User.AsObject[] = [];
 const MapView = ({
   isLoading,
   mapRef,
-  onFiltersChange,
+  onSelectedUserIdClick,
   onViewStateChange,
-  selectedUserId,
+  selectedUserIds,
   users = DEFAULT_USERS,
   viewState,
 }: MapViewProps) => {
   // @TODO(NA) Should I useMemo this?
   const pins = usersToGeoJSON(users);
 
-  const previousSelectedUserId = usePrevious(selectedUserId);
-
-  //@TODO - make it stop re-rendering and loading spinner when a user is selected
   const handleClick = useCallback(
     async (ev: MapLayerMouseEvent) => {
       const features = mapRef.current?.queryRenderedFeatures(ev.point);
@@ -94,23 +87,25 @@ const MapView = ({
       if (layerId === UNCLUSTERED_LAYER_ID) {
         const userId = feature.properties.id;
 
-        mapRef.current?.setFeatureState(
-          { source: "clustered-users", id: previousSelectedUserId },
-          { selected: false },
-        );
-
-        mapRef.current?.setFeatureState(
-          { source: "clustered-users", id: userId },
-          { selected: true },
-        );
-        onFiltersChange("selectedUserId", userId);
+        if (selectedUserIds.includes(userId)) {
+          mapRef.current?.setFeatureState(
+            { source: "clustered-users", id: userId },
+            { selected: false },
+          );
+        } else {
+          mapRef.current?.setFeatureState(
+            { source: "clustered-users", id: userId },
+            { selected: true },
+          );
+        }
+        onSelectedUserIdClick(userId);
       }
     },
     [
       mapRef,
-      onFiltersChange,
+      onSelectedUserIdClick,
       onViewStateChange,
-      previousSelectedUserId,
+      selectedUserIds,
       viewState,
     ],
   );
