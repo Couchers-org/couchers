@@ -58,7 +58,10 @@ const mapSearchReducer = (
           },
           hasActiveFilters: true,
         };
-      } else if (action.payload.key === "query") {
+      } else if (
+        action.payload.key === "query" ||
+        action.payload.key === "keyword"
+      ) {
         return {
           ...state,
           filters: {

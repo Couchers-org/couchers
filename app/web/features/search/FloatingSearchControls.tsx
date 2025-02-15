@@ -1,16 +1,24 @@
 import { Clear, Tune } from "@mui/icons-material";
-import { MenuItem, Select, SelectChangeEvent, styled, Tooltip } from "@mui/material";
+import {
+  debounce,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  styled,
+  TextField,
+  Tooltip,
+} from "@mui/material";
 import IconButton from "components/IconButton";
 import LocationAutocompleteOutlined from "components/LocationAutocomplete/LocationAutocompleteOutlined";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { useState } from "react";
+import { theme } from "theme";
 
 import { FilterKey, FilterValue } from "./SearchPage";
 
 interface FloatingSearchNavigationProps {
   hasActiveFilters: boolean;
-  isLoading: boolean;
   onClearFilters: () => void;
   onFilterChange: (key: FilterKey, value: FilterValue) => void;
   query: string | undefined;
@@ -39,6 +47,7 @@ const StyledButtonsContainer = styled("div")(({ theme }) => ({
   boxShadow: theme.shadows[2],
   width: "100%",
   border: `3px solid ${theme.palette.primary.main}`,
+  padding: theme.spacing(0.5, 1),
 }));
 
 const StyledFlexRow = styled("div")({
@@ -47,22 +56,42 @@ const StyledFlexRow = styled("div")({
   justifyContent: "space-between",
 });
 
-const StyledLocationAutocompleteOutlined = styled(LocationAutocompleteOutlined)(
-  ({ theme }) => ({
+const sharedInputStyles = () => ({
+  height: "40px",
+  minWidth: "200px",
+  maxWidth: "200px",
+  marginLeft: theme.spacing(1),
+
+  "& .MuiInputBase-root": {
+    height: "40px",
+    minWidth: "200px",
     maxWidth: "200px",
-    "& .MuiInputBase-root": {
-      padding: `0 0 0 ${theme.spacing(1)}`,
-    },
 
-    "& .MuiOutlinedInput-notchedOutline": {
-      border: "none",
-    },
+    padding: 0,
+  },
 
-    "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
-      border: "none",
-    },
-  }),
+  "& .MuiInputBase-input": {
+    height: "40px",
+    padding: 0,
+  },
+
+  "& .MuiOutlinedInput-notchedOutline": {
+    border: "none",
+  },
+});
+
+const StyledLocationAutocompleteOutlined = styled(LocationAutocompleteOutlined)(
+  sharedInputStyles,
 );
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  ...sharedInputStyles(), // Apply same styles
+
+  "& .MuiInputBase-input": {
+    padding: 0,
+    height: "40px",
+  },
+}));
 
 const StyledSelect = styled(Select)(({ theme }) => ({
   backgroundColor: "white",
@@ -72,13 +101,10 @@ const StyledSelect = styled(Select)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   height: "40px", // Match height with LocationAutocompleteOutlined
+  width: theme.spacing(15),
 
   "& .MuiSelect-select": {
     padding: 0,
-  },
-
-  "& .MuiOutlinedInput-root": {
-    height: "40px",
   },
 
   "& .MuiOutlinedInput-notchedOutline": {
@@ -88,34 +114,35 @@ const StyledSelect = styled(Select)(({ theme }) => ({
   "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
     border: "none",
   },
-
-  "& .MuiInputBase-root": {
-    height: "40px",
-  },
 }));
 
-const StyledTuneIcon = styled(Tune)<{ hasActiveFilters: boolean }>(
-  ({ theme, hasActiveFilters }) => ({
-    color: hasActiveFilters
-      ? theme.palette.primary.main
-      : theme.palette.grey[500],
-    padding: `0 ${theme.spacing(1)}`,
-    fontSize: "38px",
-    cursor: "pointer",
+const StyledTuneIcon = styled(Tune, {
+  shouldForwardProp: (prop) => prop !== "hasActiveFilters",
+})<{ hasActiveFilters: boolean }>(({ theme, hasActiveFilters }) => ({
+  color: hasActiveFilters
+    ? theme.palette.primary.main
+    : theme.palette.grey[500],
+  fontSize: "38px",
+  cursor: "pointer",
+  height: "20px",
+  width: "20px",
+  padding: 0,
 
-    "&:hover": {
-      cursor: "pointer",
-      color: hasActiveFilters
-        ? theme.palette.secondary.dark
-        : theme.palette.primary.light,
-    },
-  }),
-);
+  "&:hover": {
+    cursor: "pointer",
+    color: hasActiveFilters
+      ? theme.palette.secondary.dark
+      : theme.palette.primary.light,
+  },
+}));
 
 const StyledClearIcon = styled(Clear)(({ theme }) => ({
   color: theme.palette.grey[500],
   fontSize: "30px",
   paddingRight: theme.spacing(1),
+  height: "20px",
+  width: "20px",
+  padding: 0,
 
   "&:hover": {
     cursor: "pointer",
@@ -125,7 +152,6 @@ const StyledClearIcon = styled(Clear)(({ theme }) => ({
 
 const FloatingSearchControls = ({
   hasActiveFilters,
-  isLoading,
   onClearFilters,
   onFilterChange,
   query,
@@ -137,29 +163,41 @@ const FloatingSearchControls = ({
     "location",
   );
 
-  // @TODO(NA) - Instead of search here button just automatically search when moving
-  // Put search input here instead
-
-
-
   const handleSearchTypeChange = (event: SelectChangeEvent<unknown>) => {
-      const value = event.target.value as "location" | "keyword";
-      setSearchType(value);
-    };
+    const value = event.target.value as "location" | "keyword";
+    setSearchType(value);
+  };
+
+  const handleKeywordChange = debounce(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onFilterChange("keyword", event.target.value);
+    },
+    500,
+  );
 
   return (
     <StyledControlsWrapper>
       <StyledButtonsContainer>
         <StyledFlexRow>
-          <StyledLocationAutocompleteOutlined
-            defaultValue={query}
-            fieldError="" // TODO(NA) - Add error state?
-            fullWidth={false}
-            placeholder={t("search:form.location_field_label")}
-            name="location"
-            onChange={onFilterChange}
-            showSearchIcon={false}
-          />
+          {searchType === "location" && (
+            <StyledLocationAutocompleteOutlined
+              defaultValue={query}
+              fullWidth={false}
+              placeholder={t("search:form.location_field_label")}
+              name="location"
+              onChange={onFilterChange}
+              showSearchIcon={false}
+            />
+          )}
+          {searchType === "keyword" && (
+            <StyledTextField
+              fullWidth={false}
+              placeholder={t("search:form.keyword_field_label")}
+              name="keyword"
+              onChange={handleKeywordChange}
+            />
+          )}
+
           <StyledSelect
             labelId="search-type-select"
             id="search-type"
@@ -173,18 +211,18 @@ const FloatingSearchControls = ({
           </StyledSelect>
         </StyledFlexRow>
 
-        <Tooltip title={t("search:search_filters")}>
+        <Tooltip title={t("search:form.search_filters")}>
           <IconButton
-            aria-label={t("search:search_filters")}
+            aria-label={t("search:form.search_filters")}
             onClick={() => setIsFiltersOpen(true)}
           >
             <StyledTuneIcon hasActiveFilters={hasActiveFilters} />
           </IconButton>
         </Tooltip>
         {hasActiveFilters && (
-          <Tooltip title={t("search:clear_filters")}>
+          <Tooltip title={t("search:form.clear_filters")}>
             <IconButton
-              aria-label={t("search:clear_filters")}
+              aria-label={t("search:form.clear_filters")}
               onClick={onClearFilters}
             >
               <StyledClearIcon />

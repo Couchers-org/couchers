@@ -13,7 +13,8 @@
     "last_3_months": "Last 3 months"
   },
   "form": {
-    "location_field_label": "Near location",
+    "keyword_field_label": "Search keyword",
+    "location_field_label": "Search location",
     "missing_location_validation_error": "Specify a location to use this filter",
     "keywords": {
       "field_label": "Name, keywords, or username",
@@ -34,14 +35,14 @@
     "empty_profile_filters": {
       "title": "Filter out empty profiles"
     },
-    "submit_button_label": "Apply"
+    "submit_button_label": "Apply",
+    "search_filters": "Search filters",
+    "clear_filters": "Clear filters"
   },
   "search_result": {
     "no_user_result_message": "No users found.",
     "show_user_button_label": "Show {{name}} on the map",
     "missing_about_description": "{{name}} hasn't said anything about themselves yet",
     "users_found_message": "{{count}} users found"
-  },
-  "search_filters": "Search filters",
-  "clear_filters": "Clear filters"
+  }
 }

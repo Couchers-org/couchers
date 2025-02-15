@@ -137,7 +137,6 @@ const MapView = ({
     <StyledMapWrapper>
       <FloatingSearchControls
         hasActiveFilters={hasActiveFilters}
-        isLoading={isLoading}
         onClearFilters={onClearFilters}
         onFilterChange={onFilterChange}
         query={query}

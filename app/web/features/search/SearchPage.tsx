@@ -26,6 +26,7 @@ import MobileMapView from "./MobileMapView";
 
 type FilterKey =
   | "bbox"
+  | "keyword"
   | "location"
   | "query"
   | "lng"

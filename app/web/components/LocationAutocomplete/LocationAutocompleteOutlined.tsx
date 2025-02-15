@@ -2,8 +2,6 @@ import {
   Autocomplete,
   AutocompleteChangeReason,
   InputAdornment,
-  styled,
-  TextFieldProps,
 } from "@mui/material";
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
@@ -19,7 +17,7 @@ interface LocationAutocompleteOutlinedProps {
   className?: string;
   defaultValue?: string;
   disableRegions?: boolean;
-  fieldError: string | undefined;
+  fieldError?: string | undefined;
   fullWidth?: boolean;
   id?: string;
   label?: string;
@@ -31,19 +29,6 @@ interface LocationAutocompleteOutlinedProps {
   showSearchIcon?: boolean;
   showFullDisplayName?: boolean;
 }
-
-const StyledTextField = styled(TextField)<TextFieldProps>(({ theme }) => ({
-  "& .MuiInputBase-root": {
-    padding: theme.spacing(0.5),
-    borderRadius: 100,
-    width: "100%",
-    minWidth: "300px",
-  },
-
-  "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
-    borderWidth: 1,
-  },
-}));
 
 const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   props: LocationAutocompleteOutlinedProps,
@@ -120,35 +105,41 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
       id={id}
       ref={ref}
       renderInput={(params) => (
-        <StyledTextField
+        <TextField
           {...params}
           label={label}
           error={!!fieldError || !!geocodeError}
           fullWidth={fullWidth}
           variant="outlined"
           placeholder={placeholder}
-          InputProps={showSearchIcon ? {
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {params.InputProps.endAdornment}
-                <InputAdornment
-                  position="end"
-                  sx={{ marginRight: value === "" ? theme.spacing(1) : 0 }}
-                >
-                  <IconButton
-                    aria-label={t(
-                      "location_autocomplete.search_location_button",
-                    )}
-                    onClick={handleSearchSubmit}
-                    size="small"
-                  >
-                    <SearchIcon />
-                  </IconButton>
-                </InputAdornment>
-              </>
-            ),
-          } : params.InputProps}
+          InputProps={
+            showSearchIcon
+              ? {
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {params.InputProps.endAdornment}
+                      <InputAdornment
+                        position="end"
+                        sx={{
+                          marginRight: value === "" ? theme.spacing(1) : 0,
+                        }}
+                      >
+                        <IconButton
+                          aria-label={t(
+                            "location_autocomplete.search_location_button",
+                          )}
+                          onClick={handleSearchSubmit}
+                          size="small"
+                        >
+                          <SearchIcon />
+                        </IconButton>
+                      </InputAdornment>
+                    </>
+                  ),
+                }
+              : params.InputProps
+          }
         />
       )}
       loading={isLoading}
