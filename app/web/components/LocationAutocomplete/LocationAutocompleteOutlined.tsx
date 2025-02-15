@@ -20,14 +20,15 @@ interface LocationAutocompleteOutlinedProps {
   defaultValue?: string;
   disableRegions?: boolean;
   fieldError: string | undefined;
-  fullWidth: boolean;
+  fullWidth?: boolean;
   id?: string;
   label?: string;
   name: string;
   onChange: (filterKey: FilterKey, value: FilterValue) => void;
-  onClear: () => void;
+  onClear?: () => void;
   placeholder?: string;
   required?: string;
+  showSearchIcon?: boolean;
   showFullDisplayName?: boolean;
 }
 
@@ -54,11 +55,12 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     fieldError,
     fullWidth,
     placeholder,
-    id = "location-autocomplete",
+    id = "location-autocomplete-outlined",
     label,
     onChange,
     onClear,
     showFullDisplayName = false,
+    showSearchIcon = true,
   } = props;
   const { t } = useTranslation(GLOBAL);
 
@@ -82,7 +84,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
       setIsOpen(false);
     }
 
-    if (reason === "clear") {
+    if (reason === "clear" && onClear) {
       onClear();
     }
   };
@@ -104,6 +106,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   return (
     <Autocomplete
       className={className}
+      disableClearable={!onClear}
       defaultValue={
         options?.find(
           (o) => geocodeResult2String(o, showFullDisplayName) === defaultValue,
@@ -124,7 +127,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
           fullWidth={fullWidth}
           variant="outlined"
           placeholder={placeholder}
-          InputProps={{
+          InputProps={showSearchIcon ? {
             ...params.InputProps,
             endAdornment: (
               <>
@@ -145,7 +148,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
                 </InputAdornment>
               </>
             ),
-          }}
+          } : params.InputProps}
         />
       )}
       loading={isLoading}

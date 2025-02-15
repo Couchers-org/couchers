@@ -1,6 +1,7 @@
 import { FeatureCollection } from "geojson";
 import { User } from "proto/api_pb";
 import { MapRef } from "react-map-gl/maplibre";
+
 import userPin from "../resources/userPin.png";
 
 const usersToGeoJSON = (pins: User.AsObject[]): FeatureCollection => ({

@@ -25,6 +25,7 @@ interface MapViewProps {
   onClearFilters: () => void;
   onFilterChange: (key: FilterKey, value: FilterValue) => void;
   onSelectedUserIdClick: (userId: number) => void;
+  query: string | undefined;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
 }
@@ -57,6 +58,7 @@ const MapView = ({
   onClearFilters,
   onFilterChange,
   onSelectedUserIdClick,
+  query,
   selectedUserIds,
   users = DEFAULT_USERS,
 }: MapViewProps) => {
@@ -138,6 +140,7 @@ const MapView = ({
         isLoading={isLoading}
         onClearFilters={onClearFilters}
         onFilterChange={onFilterChange}
+        query={query}
       />
       {isLoading && (
         <MapLoadingContainer>

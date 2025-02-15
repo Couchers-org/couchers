@@ -1,6 +1,5 @@
 import { styled, Typography } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import LocationAutocompleteOutlined from "components/LocationAutocomplete/LocationAutocompleteOutlined";
 import ResizeableDrawer from "components/ResizeableDrawer";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
@@ -9,7 +8,6 @@ import { useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 
-import MapSearchType from "./MapSearchType";
 import MapView from "./MapView";
 import { FilterKey, FilterValue, FlyToLocationProps } from "./SearchPage";
 import SearchResultsList from "./SearchResultsList";
@@ -96,16 +94,6 @@ const DesktopMapView = ({
             onDrawerWidthChange={handleDrawerWidthChange}
           >
             <CenteredContainer>
-              <LocationAutocompleteOutlined
-                defaultValue={query}
-                fieldError=""
-                fullWidth={false}
-                placeholder={t("search:form.location_field_label")}
-                name="location"
-                onChange={onFilterChange}
-                onClear={onClearFilters}
-              />
-              <MapSearchType onChange={onFilterChange} />
               {isLoading ? (
                 <CenteredSpinner />
               ) : (
@@ -138,6 +126,7 @@ const DesktopMapView = ({
             onClearFilters={onClearFilters}
             onFilterChange={onFilterChange}
             onSelectedUserIdClick={onSelectedUserIdClick}
+            query={query}
             selectedUserIds={selectedUserIds}
             users={users}
           />
