@@ -2,10 +2,11 @@ import { User } from "proto/api_pb";
 import { UserSearchFilters } from "service/search";
 import { GeocodeResult } from "utils/hooks";
 
-import { FilterKey, FilterValue } from "./SearchPage";
+import { FilterOptions } from "./SearchPage";
 
 enum mapSearchActionTypes {
-  SET_FILTER = "SET_FILTER",
+  CLEAR_LOCATION = "CLEAR_LOCATION",
+  SET_FILTERS = "SET_FILTERS",
   RESET_FILTERS = "RESET_FILTERS",
   SET_SELECTED_USER_IDS = "SET_SELECTED_USER_IDS",
 }
@@ -17,9 +18,10 @@ type MapSearchState = {
 };
 
 type MapSearchAction =
+  | { type: mapSearchActionTypes.CLEAR_LOCATION }
   | {
-      type: mapSearchActionTypes.SET_FILTER;
-      payload: { key: FilterKey; value: FilterValue };
+      type: mapSearchActionTypes.SET_FILTERS;
+      payload: FilterOptions;
     }
   | { type: mapSearchActionTypes.RESET_FILTERS }
   | {
@@ -45,42 +47,50 @@ const mapSearchReducer = (
   action: MapSearchAction,
 ): MapSearchState => {
   switch (action.type) {
-    case mapSearchActionTypes.SET_FILTER:
-      if (action.payload.key === "location") {
-        const bbox = (action.payload.value as GeocodeResult).bbox;
-        const formattedBbox = [bbox[2], bbox[3], bbox[0], bbox[1]]; //sw long, sw lat, ne long, ne lat
-
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            bbox: formattedBbox,
-          },
-          hasActiveFilters: true,
-        };
-      } else if (
-        action.payload.key === "query" ||
-        action.payload.key === "keyword"
-      ) {
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            query: action.payload.value as string,
-          },
-          hasActiveFilters: true,
-          selectedUserIds: [],
-        };
-      }
+    case mapSearchActionTypes.CLEAR_LOCATION:
+      // determine if there's still active filters besides bbox and query
+      const hasActiveFilters =
+        state.filters.hostingStatusOptions !==
+          initialState.filters.hostingStatusOptions ||
+        state.filters.numGuests !== initialState.filters.numGuests ||
+        state.filters.completeProfile !== initialState.filters.completeProfile;
 
       return {
         ...state,
         filters: {
           ...state.filters,
-          [action.payload.key]: action.payload.value,
+          bbox: initialState.filters.bbox,
+          query: initialState.filters.query,
         },
+        hasActiveFilters,
+      };
+    case mapSearchActionTypes.SET_FILTERS:
+      const updatedFilters = { ...state.filters };
+
+      for (const key in action.payload) {
+        if (key === "location") {
+          const bbox = (action.payload[key] as GeocodeResult).bbox;
+          const formattedBbox = [bbox[2], bbox[3], bbox[0], bbox[1]];
+
+          updatedFilters.bbox = formattedBbox; // sw long, sw lat, ne long, ne lat
+        } else if (key === "query" || key === "keyword") {
+          updatedFilters.query = action.payload[key];
+          updatedFilters.bbox = initialState.filters.bbox;
+        } else if (key === "hostingStatus") {
+          updatedFilters.hostingStatusOptions =
+            action.payload[key] && action.payload[key].length === 0
+              ? undefined
+              : action.payload[key];
+        } else if (key === "numGuests") {
+          updatedFilters.numGuests =
+            action.payload[key] === 0 ? undefined : action.payload[key];
+        }
+      }
+
+      return {
+        ...state,
+        filters: updatedFilters,
         hasActiveFilters: true,
-        selectedUserIds: [],
       };
     case mapSearchActionTypes.RESET_FILTERS:
       return initialState;

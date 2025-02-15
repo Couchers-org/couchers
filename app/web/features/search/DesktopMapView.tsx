@@ -9,7 +9,7 @@ import { MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 
 import MapView from "./MapView";
-import { FilterKey, FilterValue, FlyToLocationProps } from "./SearchPage";
+import { FilterOptions, FlyToLocationProps } from "./SearchPage";
 import SearchResultsList from "./SearchResultsList";
 
 const DEFAULT_DRAWER_WIDTH = 400;
@@ -20,7 +20,8 @@ interface DesktopMapViewProps {
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   onClearFilters: () => void;
-  onFilterChange: (key: FilterKey, value: FilterValue) => void;
+  onClearLocation: () => void;
+  onSetFilters: (filters: FilterOptions) => void;
   onSelectedUserIdClick: (userId: number) => void;
   query: string | undefined;
   selectedUserIds: User.AsObject["userId"][];
@@ -62,7 +63,7 @@ const MapContainer = styled("div")<{ drawerWidth: number }>(
   ({ theme, drawerWidth }) => ({
     display: "flex",
     width: `calc(100% - ${drawerWidth}px)`,
-    position: "relative", // Make sure child elements are positioned relative to this container
+    position: "relative",
   }),
 );
 
@@ -71,7 +72,8 @@ const DesktopMapView = ({
   hasActiveFilters,
   isLoading,
   onClearFilters,
-  onFilterChange,
+  onClearLocation,
+  onSetFilters,
   onSelectedUserIdClick,
   query,
   mapRef,
@@ -124,7 +126,8 @@ const DesktopMapView = ({
             isLoading={isLoading}
             mapRef={mapRef}
             onClearFilters={onClearFilters}
-            onFilterChange={onFilterChange}
+            onClearLocation={onClearLocation}
+            onSetFilters={onSetFilters}
             onSelectedUserIdClick={onSelectedUserIdClick}
             query={query}
             selectedUserIds={selectedUserIds}

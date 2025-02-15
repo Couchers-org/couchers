@@ -25,7 +25,6 @@ const SearchResultsList = ({
   selectedUserIds,
   users,
 }: SearchResultsListProps) => {
-
   if (!users) {
     return null;
   }

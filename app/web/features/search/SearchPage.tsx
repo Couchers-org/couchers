@@ -1,11 +1,14 @@
 import { useMediaQuery } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
-import { Coordinates } from "features/search/utils/constants";
+import {
+  Coordinates,
+  HostingStatusOptions,
+} from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
-import { useCallback, useEffect, useReducer, useRef } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { MapProvider, MapRef } from "react-map-gl/maplibre";
 import {
   QueryClient,
@@ -24,21 +27,19 @@ import {
 } from "./mapSearchReducers";
 import MobileMapView from "./MobileMapView";
 
-type FilterKey =
-  | "bbox"
-  | "keyword"
-  | "location"
-  | "query"
-  | "lng"
-  | "lat"
-  | "selectedUserId";
-
-type FilterValue =
-  | string
-  | GeocodeResult["bbox"]
-  | GeocodeResult
-  | number
-  | null;
+export type FilterOptions = {
+  bbox?: GeocodeResult["bbox"];
+  completeProfile?: boolean;
+  hostingStatus?: HostingStatusOptions[];
+  keyword?: string;
+  location?: GeocodeResult;
+  numGuests?: number;
+  query?: string;
+  lastActive?: number;
+  lng?: number;
+  lat?: number;
+  selectedUserId?: number;
+};
 
 export interface FlyToLocationProps {
   longitude: number;
@@ -104,28 +105,43 @@ export default function SearchPage({
     },
   );
 
-  const formattedResults = data?.pages
+  const formattedUsers = data?.pages
     .flatMap((page) => page.resultsList)
     .map((result) => result.user)
     .filter((user): user is User.AsObject => Boolean(user)); // Type guard to remove undefined
 
-  const handleFiltersChange = (key: FilterKey, newValue: FilterValue): void => {
-    dispatch({
-      type: mapSearchActionTypes.SET_FILTER,
-      payload: {
-        key,
-        value: newValue,
-      },
-    });
+  const memoizedUsers = useMemo(() => formattedUsers, [formattedUsers]);
 
-    if (key === "location") {
-      const geojson = newValue as GeocodeResult;
+  const handleSetFilters = (newFilters: FilterOptions) => {
+    dispatch({
+      type: mapSearchActionTypes.SET_FILTERS,
+      payload: newFilters,
+    });
+    if (newFilters.location) {
+      const geojson = newFilters.location as GeocodeResult;
 
       flyToLocation({
         longitude: geojson.location.lng,
         latitude: geojson.location.lat,
       });
     }
+
+    if (newFilters.keyword === "") {
+      flyToLocation({
+        longitude: 0,
+        latitude: 0,
+        zoom: 1,
+      });
+    }
+  };
+
+  const handleClearLocation = () => {
+    dispatch({ type: mapSearchActionTypes.CLEAR_LOCATION });
+    flyToLocation({
+      longitude: 0,
+      latitude: 0,
+      zoom: 1,
+    });
   };
 
   const handleSelectedUserIdClick = (userId: number) => {
@@ -160,16 +176,15 @@ export default function SearchPage({
             isLoading={isLoading || isFetching}
             mapRef={mapRef}
             onClearFilters={handleClearFilters}
-            onFilterChange={handleFiltersChange}
+            onClearLocation={handleClearLocation}
+            onSetFilters={handleSetFilters}
             onSelectedUserIdClick={handleSelectedUserIdClick}
             query={mapSearchState.filters.query}
             selectedUserIds={mapSearchState.selectedUserIds}
-            users={formattedResults}
+            users={memoizedUsers}
           />
         )}
       </QueryClientProvider>
     </MapProvider>
   );
 }
-
-export type { FilterKey, FilterValue };

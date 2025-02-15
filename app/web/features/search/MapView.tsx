@@ -4,11 +4,11 @@ import Map from "components/Map";
 import { Point } from "geojson";
 import { GeoJSONSource, MapLayerMouseEvent } from "maplibre-gl";
 import { User } from "proto/api_pb";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
 import FloatingSearchControls from "./FloatingSearchControls";
-import { FilterKey, FilterValue, FlyToLocationProps } from "./SearchPage";
+import { FilterOptions, FlyToLocationProps } from "./SearchPage";
 import { Coordinates } from "./utils/constants";
 import { CLUSTER_LAYER_ID, UNCLUSTERED_LAYER_ID } from "./utils/mapLayers";
 import {
@@ -23,7 +23,8 @@ interface MapViewProps {
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   onClearFilters: () => void;
-  onFilterChange: (key: FilterKey, value: FilterValue) => void;
+  onClearLocation: () => void;
+  onSetFilters: (filters: FilterOptions) => void;
   onSelectedUserIdClick: (userId: number) => void;
   query: string | undefined;
   selectedUserIds: User.AsObject["userId"][];
@@ -56,14 +57,15 @@ const MapView = ({
   isLoading,
   mapRef,
   onClearFilters,
-  onFilterChange,
+  onClearLocation,
+  onSetFilters,
   onSelectedUserIdClick,
   query,
   selectedUserIds,
   users = DEFAULT_USERS,
 }: MapViewProps) => {
-  // @TODO(NA) Should I useMemo this?
   const pins = usersToGeoJSON(users);
+  const memoizedPins = useMemo(() => pins, [pins]);
 
   const handleClick = useCallback(
     async (ev: MapLayerMouseEvent) => {
@@ -130,7 +132,9 @@ const MapView = ({
     const sw = mapBounds.getSouthWest();
     const bbox: Coordinates = [sw.lng, sw.lat, ne.lng, ne.lat];
 
-    onFilterChange("bbox", bbox);
+    onSetFilters({
+      bbox,
+    });
   };
 
   return (
@@ -138,7 +142,8 @@ const MapView = ({
       <FloatingSearchControls
         hasActiveFilters={hasActiveFilters}
         onClearFilters={onClearFilters}
-        onFilterChange={onFilterChange}
+        onClearLocation={onClearLocation}
+        onSetFilters={onSetFilters}
         query={query}
       />
       {isLoading && (
@@ -153,7 +158,7 @@ const MapView = ({
         onClick={handleClick}
         onLoad={handleLoad}
         onMapMove={handleMapMove}
-        pins={pins}
+        pins={memoizedPins}
       />
     </StyledMapWrapper>
   );

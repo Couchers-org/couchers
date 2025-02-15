@@ -6,7 +6,6 @@ import {
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
 import TextField from "components/TextField";
-import { FilterKey, FilterValue } from "features/search/SearchPage";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { forwardRef, SyntheticEvent, useState } from "react";
@@ -22,7 +21,7 @@ interface LocationAutocompleteOutlinedProps {
   id?: string;
   label?: string;
   name: string;
-  onChange: (filterKey: FilterKey, value: FilterValue) => void;
+  onChange: (value: GeocodeResult | undefined) => void;
   onClear?: () => void;
   placeholder?: string;
   required?: string;
@@ -61,11 +60,11 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
 
   const handleChange = (
     event: SyntheticEvent<Element, Event>,
-    newValue: string | GeocodeResult | null,
+    newValue: NonNullable<string | GeocodeResult> | null,
     reason: AutocompleteChangeReason,
   ) => {
     if (reason === "selectOption") {
-      onChange("location", newValue);
+      onChange(newValue as GeocodeResult | undefined);
       setIsOpen(false);
     }
 

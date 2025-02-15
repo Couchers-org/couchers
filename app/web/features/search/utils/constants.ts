@@ -1,5 +1,5 @@
 import { TFunction } from "i18n";
-import { User } from "proto/api_pb";
+import { HostingStatus, User } from "proto/api_pb";
 import { firstName } from "utils/names";
 
 const aboutText = (user: User.AsObject, t: TFunction) => {
@@ -26,5 +26,16 @@ const selectedUserZoom = 10;
 
 type Coordinates = [number, number, number, number];
 
+type HostingStatusType = Exclude<
+  HostingStatus,
+  | HostingStatus.HOSTING_STATUS_UNKNOWN
+  | HostingStatus.HOSTING_STATUS_UNSPECIFIED
+>[];
+
+type HostingStatusOptions =
+  | HostingStatus.HOSTING_STATUS_CANT_HOST
+  | HostingStatus.HOSTING_STATUS_MAYBE
+  | HostingStatus.HOSTING_STATUS_CAN_HOST;
+
 export { aboutText, lastActiveOptions, selectedUserZoom };
-export type { Coordinates };
+export type { Coordinates, HostingStatusOptions, HostingStatusType };
