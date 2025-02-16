@@ -22,6 +22,8 @@ export interface UserSearchFilters {
   hostingStatusOptions?: HostingStatus[];
   numGuests?: number;
   completeProfile?: boolean;
+  pageNumber?: number;
+  pageSize?: number;
 }
 
 export async function userSearch(
@@ -32,11 +34,24 @@ export async function userSearch(
     hostingStatusOptions,
     numGuests,
     completeProfile,
+    pageNumber,
+    pageSize,
   }: UserSearchFilters,
   pageToken = "",
 ) {
   const req = new UserSearchReq();
   req.setPageToken(pageToken);
+
+  if (pageToken) {
+    req.setPageToken(pageToken);
+  }
+
+  if (pageNumber) {
+    req.setPageNumber(pageNumber);
+  }
+  if (pageSize) {
+    req.setPageSize(pageSize);
+  }
 
   if (query) {
     req.setQuery(new StringValue().setValue(query));
