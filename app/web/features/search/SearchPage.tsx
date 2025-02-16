@@ -28,8 +28,14 @@ import {
 import MobileMapView from "./MobileMapView";
 
 export type FilterOptions = {
+  acceptsKids?: boolean;
+  acceptsPets?: boolean;
+  acceptsLastMinRequests?: boolean;
   bbox?: GeocodeResult["bbox"];
   completeProfile?: boolean;
+  drinkingAllowed?: boolean;
+  hasReferences?: boolean;
+  hasStrongVerification?: boolean;
   hostingStatus?: HostingStatusOptions[];
   keyword?: string;
   location?: GeocodeResult;
@@ -39,6 +45,7 @@ export type FilterOptions = {
   lng?: number;
   lat?: number;
   selectedUserId?: number;
+  smokingAllowed?: boolean;
 };
 
 export interface FlyToLocationProps {
@@ -66,7 +73,6 @@ export default function SearchPage({
     ...initialState,
     filters: {
       ...initialState.filters,
-      bbox,
       query: locationName,
     },
   });
@@ -104,6 +110,10 @@ export default function SearchPage({
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
     },
   );
+
+  console.log("isLoading", isLoading);
+  console.log("isFetching", isFetching);
+  console.log("data", data);
 
   const formattedUsers = data?.pages
     .flatMap((page) => page.resultsList)

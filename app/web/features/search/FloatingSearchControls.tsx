@@ -48,9 +48,8 @@ const StyledButtonsContainer = styled("div")(({ theme }) => ({
   zIndex: 10,
   backgroundColor: theme.palette.common.white,
   borderRadius: "50px",
-  boxShadow: theme.shadows[2],
+  boxShadow: theme.shadows[4],
   width: "100%",
-  border: `3px solid ${theme.palette.primary.main}`,
   padding: theme.spacing(0.5, 1),
 }));
 

@@ -1,4 +1,4 @@
-import { Coordinates } from "features/_search/constants";
+import { Coordinates } from "features/search/utils/constants";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
   BoolValue,
@@ -16,41 +16,58 @@ import client from "service/client";
 import { GeocodeResult } from "utils/hooks";
 
 export interface UserSearchFilters {
+  acceptsKids?: boolean;
+  acceptsPets?: boolean;
+  acceptsLastMinRequests?: boolean;
+  drinkingAllowed?: boolean;
   query?: string;
   bbox?: Coordinates;
   lastActive?: number; //within x days
+  hasReferences?: boolean;
+  hasStrongVerification?: boolean;
   hostingStatusOptions?: HostingStatus[];
   numGuests?: number;
   completeProfile?: boolean;
   pageNumber?: number;
   pageSize?: number;
+  smokingAllowed?: boolean;
 }
 
 export async function userSearch(
   {
+    acceptsKids,
+    acceptsLastMinRequests,
+    acceptsPets,
+    drinkingAllowed,
     query,
     bbox,
     lastActive,
+    hasReferences,
+    hasStrongVerification,
     hostingStatusOptions,
     numGuests,
     completeProfile,
-    pageNumber,
-    pageSize,
+    smokingAllowed,
   }: UserSearchFilters,
   pageToken = "",
 ) {
   const req = new UserSearchReq();
   req.setPageToken(pageToken);
 
-  if (pageToken) {
-    req.setPageToken(pageToken);
+  if (acceptsKids) {
+    req.setAcceptsKids(new BoolValue().setValue(acceptsKids));
   }
 
-  if (pageNumber) {
-    req.setPageNumber(pageNumber);
+  if (acceptsLastMinRequests) {
+    req.setLastMinute(new BoolValue().setValue(acceptsLastMinRequests));
   }
-  if (pageSize) {
-    req.setPageSize(pageSize);
+
+  if (acceptsPets) {
+    req.setAcceptsPets(new BoolValue().setValue(acceptsPets));
+  }
+
+  if (drinkingAllowed) {
+    req.setDrinkingAllowed(new BoolValue().setValue(drinkingAllowed));
   }
 
   if (query) {
@@ -78,6 +95,14 @@ export async function userSearch(
     req.setProfileCompleted(new BoolValue().setValue(completeProfile));
   }
 
+  if (hasReferences) {
+    req.setOnlyWithReferences(hasReferences);
+  }
+
+  // if (hasStrongVerification) {
+  //   req.setHasStrongVerification(new BoolValue().setValue(hasStrongVerification));
+  // }
+
   if (hostingStatusOptions && hostingStatusOptions.length !== 0) {
     req.setHostingStatusFilterList(hostingStatusOptions);
   }
@@ -85,6 +110,10 @@ export async function userSearch(
   if (numGuests) {
     req.setGuests(new UInt32Value().setValue(numGuests));
   }
+
+  // if (smokingAllowed) {
+  //   req.setSmokingAllowed(new BoolValue().setValue(smokingAllowed));
+  // }
 
   const response = await client.search.userSearch(req);
   return response.toObject();

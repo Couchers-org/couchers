@@ -8,7 +8,7 @@ import {
   hostingStatusLabels,
   meetupStatusLabels,
 } from "features/profile/constants";
-import { calculateResponseRate } from "features/profile/view/userLabels";
+import { ResponseRateText } from "features/profile/view/userLabels";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, MeetupStatus, User } from "proto/api_pb";
@@ -194,8 +194,9 @@ const SearchResultUserCard = ({
                 : t("last_active_false")}
             </Typography>
             <BulletPoint>•</BulletPoint>
-            <Typography variant="body2">
-              {`${t("profile:response_rate_label")}: ${calculateResponseRate(user)}`}
+            <Typography variant="body2" sx={{ display: "flex" }}>
+              {`${t("profile:response_rate_label")}: `}
+              <ResponseRateText user={user} />
             </Typography>
           </UserDetailsRow>
         </FlexRow>

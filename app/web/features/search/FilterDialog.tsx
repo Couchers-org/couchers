@@ -1,3 +1,4 @@
+import { InfoOutlined } from "@mui/icons-material";
 import {
   Button,
   DialogActions,
@@ -6,6 +7,7 @@ import {
   SelectChangeEvent,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { styled, useMediaQuery } from "@mui/system";
@@ -43,6 +45,8 @@ const FilterItemsContainer = styled("div")({
   display: "flex",
   flexDirection: "column",
   padding: theme.spacing(1, 2),
+  overflowY: "auto",
+  maxHeight: "60vh",
 });
 
 const FilterItemRow = styled("div")({
@@ -61,14 +65,37 @@ const FilterDialog = ({
   const { t } = useTranslation([SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+  const [acceptsPets, setAcceptsPets] = useState(false);
+  const [acceptsKids, setAcceptsKids] = useState(false);
+  const [acceptsLastMinRequests, setAcceptsLastMinRequests] = useState(false);
+  const [drinkingAllowed, setDrinkingAllowed] = useState(false);
   const [showEmptyProfiles, setShowEmptyProfiles] = useState(true);
   const [lastActive, setLastActive] = useState(
     lastActiveOptions.LAST_ACTIVE_ANY,
   );
+  const [hasReferences, setHasReferences] = useState<boolean>(false);
+  const [hasStrongVerification, setHasStrongVerification] = useState(false);
   const [hostingStatus, setHostingStatus] = useState<
     HostingStatusOptions[] | undefined
   >();
   const [numberOfGuests, setNumberOfGuests] = useState<number | undefined>();
+  const [smokingAllowed, setSmokingAllowed] = useState(false);
+
+  const handleAcceptsPetsChange = () => {
+    setAcceptsPets(!acceptsPets);
+  };
+
+  const handleAcceptsKidsChange = () => {
+    setAcceptsKids(!acceptsKids);
+  };
+
+  const handleAcceptsLastMinRequestsChange = () => {
+    setAcceptsLastMinRequests(!acceptsLastMinRequests);
+  };
+
+  const handleDrinkingAllowedChange = () => {
+    setDrinkingAllowed(!drinkingAllowed);
+  };
 
   const handleShowEmptyProfilesChange = () => {
     setShowEmptyProfiles(!showEmptyProfiles);
@@ -77,6 +104,14 @@ const FilterDialog = ({
   const handleLastActiveSelect = (event: SelectChangeEvent<number>) => {
     const value = event.target.value as lastActiveOptions;
     setLastActive(value);
+  };
+
+  const handleHasReferencesChange = () => {
+    setHasReferences(!hasReferences);
+  };
+
+  const handleHasStrongVerificationChange = () => {
+    setHasStrongVerification(!hasStrongVerification);
   };
 
   const handleHostingStatusChange = (
@@ -90,19 +125,37 @@ const FilterDialog = ({
     setNumberOfGuests(value);
   };
 
+  const handleSmokingAllowedChange = () => {
+    setSmokingAllowed(!smokingAllowed);
+  };
+
   const handleClearFilters = () => {
+    setAcceptsKids(false);
+    setAcceptsPets(false);
+    setAcceptsLastMinRequests(false);
+    setDrinkingAllowed(false);
     setShowEmptyProfiles(true);
     setLastActive(lastActiveOptions.LAST_ACTIVE_ANY);
+    setHasReferences(false);
+    setHasStrongVerification(false);
     setHostingStatus(undefined);
     setNumberOfGuests(undefined);
+    setSmokingAllowed(false);
   };
 
   const handleApplyFilters = () => {
     onSetFilters({
+      acceptsKids,
+      acceptsPets,
+      acceptsLastMinRequests,
+      drinkingAllowed,
       completeProfile: !showEmptyProfiles,
       lastActive,
+      hasReferences,
+      hasStrongVerification,
       hostingStatus,
       numGuests: numberOfGuests,
+      smokingAllowed,
     });
     onCloseDialog();
   };
@@ -137,6 +190,80 @@ const FilterDialog = ({
           <CustomColorSwitch
             checked={!showEmptyProfiles}
             onClick={handleShowEmptyProfilesChange}
+            customColor={theme.palette.primary.main}
+          />
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>Has references</Typography>
+          <CustomColorSwitch
+            checked={hasReferences}
+            onClick={handleHasReferencesChange}
+            customColor={theme.palette.primary.main}
+          />
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>
+            Has strong verification{" "}
+            <Tooltip title="User has verified their identity with their passport">
+              <InfoOutlined
+                sx={{
+                  fontSize: "16px",
+                  color: theme.palette.primary.main,
+
+                  "$:hover": {
+                    cursor: "pointer",
+                  },
+                }}
+              />
+            </Tooltip>
+          </Typography>
+          <CustomColorSwitch
+            checked={hasStrongVerification}
+            onClick={handleHasStrongVerificationChange}
+            customColor={theme.palette.primary.main}
+          />
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>Accepts last minute requests</Typography>
+          <CustomColorSwitch
+            checked={acceptsLastMinRequests}
+            onClick={handleAcceptsLastMinRequestsChange}
+            customColor={theme.palette.primary.main}
+          />
+        </FilterItemRow>
+        <Divider />
+        <Typography variant="h3" sx={{ marginBottom: theme.spacing(2) }}>
+          Rules
+        </Typography>
+        <FilterItemRow>
+          <Typography>Kids allowed</Typography>
+          <CustomColorSwitch
+            checked={acceptsKids}
+            onClick={handleAcceptsKidsChange}
+            customColor={theme.palette.primary.main}
+          />
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>Pets allowed</Typography>
+          <CustomColorSwitch
+            checked={acceptsPets}
+            onClick={handleAcceptsPetsChange}
+            customColor={theme.palette.primary.main}
+          />
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>Smoking allowed</Typography>
+          <CustomColorSwitch
+            checked={smokingAllowed}
+            onClick={handleSmokingAllowedChange}
+            customColor={theme.palette.primary.main}
+          />
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>Alcohol allowed</Typography>
+          <CustomColorSwitch
+            checked={drinkingAllowed}
+            onClick={handleDrinkingAllowedChange}
             customColor={theme.palette.primary.main}
           />
         </FilterItemRow>

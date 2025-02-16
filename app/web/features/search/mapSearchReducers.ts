@@ -3,6 +3,7 @@ import { UserSearchFilters } from "service/search";
 import { GeocodeResult } from "utils/hooks";
 
 import { FilterOptions } from "./SearchPage";
+import { Coordinates } from "./utils/constants";
 
 enum mapSearchActionTypes {
   CLEAR_LOCATION = "CLEAR_LOCATION",
@@ -31,12 +32,19 @@ type MapSearchAction =
 
 const initialState: MapSearchState = {
   filters: {
+    acceptsKids: undefined,
+    acceptsLastMinRequests: undefined,
+    acceptsPets: undefined,
+    completeProfile: false,
+    drinkingAllowed: undefined,
     query: "",
-    bbox: [390, 82, -173, -66],
+    bbox: [0, 0, 0, 0],
     lastActive: 0,
+    hasReferences: undefined,
+    hasStrongVerification: undefined,
     hostingStatusOptions: [],
     numGuests: undefined,
-    completeProfile: false,
+    smokingAllowed: undefined,
   },
   hasActiveFilters: false,
   selectedUserIds: [],
@@ -53,7 +61,18 @@ const mapSearchReducer = (
         state.filters.hostingStatusOptions !==
           initialState.filters.hostingStatusOptions ||
         state.filters.numGuests !== initialState.filters.numGuests ||
-        state.filters.completeProfile !== initialState.filters.completeProfile;
+        state.filters.completeProfile !==
+          initialState.filters.completeProfile ||
+        state.filters.query !== initialState.filters.query ||
+        state.filters.acceptsKids !== initialState.filters.acceptsKids ||
+        state.filters.acceptsLastMinRequests !==
+          initialState.filters.acceptsLastMinRequests ||
+        state.filters.drinkingAllowed !==
+          initialState.filters.drinkingAllowed ||
+        state.filters.hasReferences !== initialState.filters.hasReferences ||
+        state.filters.hasStrongVerification !==
+          initialState.filters.hasStrongVerification ||
+        state.filters.smokingAllowed !== initialState.filters.smokingAllowed;
 
       return {
         ...state,
@@ -70,7 +89,12 @@ const mapSearchReducer = (
       for (const key in action.payload) {
         if (key === "location") {
           const bbox = (action.payload[key] as GeocodeResult).bbox;
-          const formattedBbox = [bbox[2], bbox[3], bbox[0], bbox[1]];
+          const formattedBbox = [
+            bbox[2],
+            bbox[3],
+            bbox[0],
+            bbox[1],
+          ] as Coordinates;
 
           updatedFilters.bbox = formattedBbox; // sw long, sw lat, ne long, ne lat
         } else if (key === "query" || key === "keyword") {
@@ -84,6 +108,24 @@ const mapSearchReducer = (
         } else if (key === "numGuests") {
           updatedFilters.numGuests =
             action.payload[key] === 0 ? undefined : action.payload[key];
+        } else if (key === "acceptsKids") {
+          updatedFilters.acceptsKids =
+            action.payload[key] === false ? undefined : action.payload[key];
+        } else if (key === "acceptsLastMinRequests") {
+          updatedFilters.acceptsLastMinRequests =
+            action.payload[key] === false ? undefined : action.payload[key];
+        } else if (key === "drinkingAllowed") {
+          updatedFilters.drinkingAllowed =
+            action.payload[key] === false ? undefined : action.payload[key];
+        } else if (key === "hasReferences") {
+          updatedFilters.hasReferences =
+            action.payload[key] === false ? undefined : action.payload[key];
+        } else if (key === "hasStrongVerification") {
+          updatedFilters.hasStrongVerification =
+            action.payload[key] === false ? undefined : action.payload[key];
+        } else if (key === "smokingAllowed") {
+          updatedFilters.smokingAllowed =
+            action.payload[key] === false ? undefined : action.payload[key];
         }
       }
 
