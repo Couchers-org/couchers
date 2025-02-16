@@ -542,8 +542,15 @@ class Search(search_pb2_grpc.SearchServicer):
         # bool friends_only = 13;
         # google.protobuf.UInt32Value age_min = 14;
         # google.protobuf.UInt32Value age_max = 15;
-
+        
+        # Count total users
+        total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+
+        # Calculate page number and skip count
+        page_number = request.page_number or 1  # default to 1 if no page number is provided
+        skip_count = (page_number - 1) * page_size
+
         next_recommendation_score = float(decrypt_page_token(request.page_token)) if request.page_token else 1e10
 
         statement = (
@@ -551,6 +558,12 @@ class Search(search_pb2_grpc.SearchServicer):
             .order_by(User.recommendation_score.desc())
             .limit(page_size + 1)
         )
+
+        # Jump to the desired page without using OFFSET which is inefficent for large datasets
+        if page_number > 1:
+            # Jump to the desired page using recommendation_score as a cursor
+            statement = statement.where(User.recommendation_score < next_recommendation_score)
+
         users = session.execute(statement).scalars().all()
 
         return search_pb2.UserSearchRes(
@@ -564,6 +577,8 @@ class Search(search_pb2_grpc.SearchServicer):
             next_page_token=(
                 encrypt_page_token(str(users[-1].recommendation_score)) if len(users) > page_size else None
             ),
+            page_number=page_number,
+            total_items=total_items
         )
 
     def EventSearch(self, request, context, session):

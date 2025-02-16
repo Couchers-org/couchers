@@ -149,7 +149,11 @@ message UserSearchReq {
   google.protobuf.BoolValue profile_completed = 31;
 
   uint32 page_size = 1;
-  string page_token = 2;
+  
+  oneof pagination {
+    string page_token = 2;
+    uint32 page_number = 34;
+  }
 }
 
 message UserSearchRes {
@@ -158,6 +162,7 @@ message UserSearchRes {
   repeated Result results = 1;
 
   string next_page_token = 2;
+  int32 total_items = 3;
 }
 
 message EventSearchReq {
