@@ -567,9 +567,7 @@ class Search(search_pb2_grpc.SearchServicer):
             next_page_token=(
                 encrypt_page_token(str(users[-1].recommendation_score)) if len(users) > page_size else None
             ),
-            prev_page_token = (
-                encrypt_page_token(str(users[0].recommendation_score)) if last_seen_score else None
-            ),
+            prev_page_token=(encrypt_page_token(str(users[0].recommendation_score)) if last_seen_score else None),
             total_items=total_items,
         )
 
