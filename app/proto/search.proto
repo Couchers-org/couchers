@@ -158,6 +158,8 @@ message UserSearchRes {
   repeated Result results = 1;
 
   string next_page_token = 2;
+  int32 total_items = 3;
+  string prev_page_token = 4;
 }
 
 message EventSearchReq {

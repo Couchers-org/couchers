@@ -1,6 +1,6 @@
 import { BoxProps, Slider, styled, Typography, useTheme } from "@mui/material";
 import { userLocationMaxRadius, userLocationMinRadius } from "appConstants";
-import Map from "components/Map";
+import Map from "components/_Map";
 import MapSearch from "components/MapSearch";
 import TextField from "components/TextField";
 import { SignupAccountInputs } from "features/auth/signup/AccountForm";

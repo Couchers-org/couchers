@@ -543,7 +543,10 @@ class Search(search_pb2_grpc.SearchServicer):
         # google.protobuf.UInt32Value age_min = 14;
         # google.protobuf.UInt32Value age_max = 15;
 
+        total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        last_seen_score = decrypt_page_token(request.page_token) if request.page_token else None
+
         next_recommendation_score = float(decrypt_page_token(request.page_token)) if request.page_token else 1e10
 
         statement = (
@@ -564,6 +567,10 @@ class Search(search_pb2_grpc.SearchServicer):
             next_page_token=(
                 encrypt_page_token(str(users[-1].recommendation_score)) if len(users) > page_size else None
             ),
+            prev_page_token = (
+                encrypt_page_token(str(users[0].recommendation_score)) if last_seen_score else None
+            ),
+            total_items=total_items,
         )
 
     def EventSearch(self, request, context, session):
