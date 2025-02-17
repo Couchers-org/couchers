@@ -13,33 +13,28 @@ import { theme } from "theme";
 
 import Navigation from "./Navigation";
 
-const GlobalStyles = styled("div")(({ theme }) => ({
-  html: {
-    scrollPaddingTop: `calc(${theme.shape.navPaddingXs} + ${theme.spacing(2)})`,
-    height: "100%",
-
-    [theme.breakpoints.up("sm")]: {
-      scrollPaddingTop: `calc(${theme.shape.navPaddingSmUp} + ${theme.spacing(
-        2,
-      )})`,
-    },
-  },
-  body: {
-    height: "100%",
-  },
-  "#__next": {
-    display: "flex",
-    flexDirection: "column",
-    minHeight: "100%",
-  },
-}));
-
 interface AppRouteProps {
   isPrivate: boolean;
   noFooter?: boolean;
   variant?: "standard" | "full-screen" | "full-width";
   children: ReactNode;
 }
+
+const ContentWrapper = styled("div")<{ variant: AppRouteProps["variant"] }>(
+  ({ theme, variant }) => ({
+    ...(variant === "standard" && {
+      marginLeft: theme.spacing(2),
+      marginRight: theme.spacing(2),
+      paddingBottom: theme.spacing(2),
+      flex: 1,
+    }),
+    ...(variant === "full-width" && {
+      margin: "0 auto",
+      paddingLeft: 0,
+      paddingRight: 0,
+    }),
+  }),
+);
 
 export default function AppRoute({
   children,
@@ -70,18 +65,14 @@ export default function AppRoute({
   }, [isAuthenticated, isJailed, isPrivate, authActions, router]);
 
   const containerSx = {
-    ...(variant !== "full-screen" && { height: "100%" }),
-    ...(variant === "standard" && {
-      paddingLeft: theme.spacing(2),
-      paddingRight: theme.spacing(2),
-      paddingBottom: theme.spacing(2),
-      flex: 1,
-    }),
-    ...(variant === "full-width" && {
-      margin: "0 auto",
-      paddingLeft: 0,
-      paddingRight: 0,
-    }),
+    position: "fixed",
+    top: theme.shape.navPaddingXs,
+    bottom: 0,
+    overflowY: "auto",
+
+    [theme.breakpoints.up("sm")]: {
+      top: theme.shape.navPaddingSmUp,
+    },
     ...(isNativeEmbed && {
       margin: "0 auto",
       padding: 0,
@@ -94,7 +85,6 @@ export default function AppRoute({
         <CenteredSpinner minHeight="50vh" />
       ) : (
         <>
-          <GlobalStyles />
           {!isNativeEmbed && <Navigation />}
           {/* Temporary container injected for marketing to test dynamic "announcements".
            * Find a better spot to componentise this code once plan is more finalised with this */}
@@ -108,9 +98,9 @@ export default function AppRoute({
                 : "lg"
             }
           >
-            {children}
+            <ContentWrapper variant={variant}> {children}</ContentWrapper>
+            {!noFooter && !isNativeEmbed && <Footer />}
           </Container>
-          {!noFooter && !isNativeEmbed && <Footer />}
         </>
       )}
       {!isPrivate && !isNativeEmbed && <CookieBanner />}
