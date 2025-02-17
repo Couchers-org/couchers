@@ -1,6 +1,5 @@
 import { appGetLayout } from "components/AppRoute";
 import SearchPageComponent from "features/search/SearchPage";
-import { Coordinates } from "features/search/utils/constants";
 import { GLOBAL, PROFILE, SEARCH } from "i18n/namespaces";
 import { translationStaticProps } from "i18n/server-side-translations";
 import { GetStaticProps } from "next";
@@ -20,4 +19,4 @@ export default function SearchPage() {
   return <SearchPageComponent locationName={location} />;
 }
 
-SearchPage.getLayout = appGetLayout({ noFooter: true });
+SearchPage.getLayout = appGetLayout({ noFooter: true, variant: "full-width" });

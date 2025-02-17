@@ -1,9 +1,6 @@
 import { styled, useMediaQuery } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
-import {
-  Coordinates,
-  HostingStatusOptions,
-} from "features/search/utils/constants";
+import { HostingStatusOptions } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
@@ -55,10 +52,15 @@ export interface FlyToLocationProps {
 }
 
 const SearchPageContainer = styled("div")(({ theme }) => ({
-  width: "100%",
-  height: "100%",
+  height: `calc(100vh - 10px - ${theme.shape.navPaddingXs})`,
+
+  [theme.breakpoints.up("sm")]: {
+    height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
+  },
+
   overflow: "hidden",
-  position: "relative",
+  paddingLeft: `-${theme.spacing(2)}`,
+  paddingRight: `-${theme.spacing(2)}`,
 }));
 
 /**
@@ -70,7 +72,10 @@ export default function SearchPage({ locationName }: { locationName: string }) {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const mapRef = useRef<MapRef | null>(null);
 
-  const [mapSearchState, dispatch] = useReducer(mapSearchReducer, initialState);
+  const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
+    ...initialState,
+    filters: { ...initialState.filters, query: locationName },
+  });
 
   const flyToLocation = useCallback(
     ({ longitude, latitude, zoom }: FlyToLocationProps) => {
@@ -90,7 +95,7 @@ export default function SearchPage({ locationName }: { locationName: string }) {
       latitude: (bbox[1] + bbox[3]) / 2,
       zoom: 1,
     });
-  }, []);
+  }, [flyToLocation]);
 
   const { data, isLoading, isFetching } = useInfiniteQuery<
     UserSearchRes.AsObject,

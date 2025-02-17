@@ -30,8 +30,8 @@ interface FloatingSearchNavigationProps {
 }
 
 const StyledControlsWrapper = styled("div")(({ theme }) => ({
-  position: "absolute",
-  left: "50%",
+  // position: "absolute",
+  // left: "50%",
   display: "flex",
   alignItems: "center",
 }));

@@ -1,5 +1,5 @@
 import { DragHandleOutlined } from "@mui/icons-material";
-import { Drawer, styled } from "@mui/material";
+import { styled } from "@mui/material";
 import React, { useCallback } from "react";
 
 const minDrawerWidth = 150;
@@ -7,30 +7,12 @@ const maxDrawerWidth = 1200;
 
 interface ResizeableDrawerProps {
   children: React.ReactNode;
-  drawerWidth: number;
   onDrawerWidthChange: (width: number) => void;
 }
 
 interface MouseEventHandler {
   (e: MouseEvent): void;
 }
-
-const StyledDrawer = styled(Drawer, {
-  shouldForwardProp: (prop) => prop !== "drawerWidth",
-})<{ drawerWidth: number }>(({ theme, drawerWidth }) => ({
-  flexShrink: 0,
-
-  "& .MuiDrawer-paper": {
-    height: `calc(100% - ${theme.shape.navPaddingXs})`,
-    top: theme.shape.navPaddingXs,
-    width: drawerWidth,
-
-    [theme.breakpoints.up("sm")]: {
-      height: `calc(100% - ${theme.shape.navPaddingSmUp})`,
-      top: theme.shape.navPaddingSmUp,
-    },
-  },
-}));
 
 const StyledDragger = styled("div")(({ theme }) => ({
   width: "8px",
@@ -50,6 +32,7 @@ const DrawerContentWrapper = styled("div")(() => ({
   display: "flex",
   flexDirection: "row",
   height: "100%",
+  width: "100%",
 }));
 
 const ScrollableContent = styled("div")(({ theme }) => ({
@@ -62,7 +45,6 @@ const ScrollableContent = styled("div")(({ theme }) => ({
 
 export default function ResizeableDrawer({
   children,
-  drawerWidth,
   onDrawerWidthChange,
 }: ResizeableDrawerProps) {
   const handleMouseDown = () => {
@@ -86,13 +68,11 @@ export default function ResizeableDrawer({
   );
 
   return (
-    <StyledDrawer variant="permanent" drawerWidth={drawerWidth}>
-      <DrawerContentWrapper>
-        <ScrollableContent>{children}</ScrollableContent>
-        <StyledDragger onMouseDown={handleMouseDown}>
-          <DragHandleOutlined sx={{ rotate: "90deg" }} />
-        </StyledDragger>
-      </DrawerContentWrapper>
-    </StyledDrawer>
+    <DrawerContentWrapper>
+      <ScrollableContent>{children}</ScrollableContent>
+      <StyledDragger onMouseDown={handleMouseDown}>
+        <DragHandleOutlined sx={{ rotate: "90deg" }} />
+      </StyledDragger>
+    </DrawerContentWrapper>
   );
 }

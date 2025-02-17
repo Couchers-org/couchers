@@ -7,7 +7,6 @@ import { User } from "proto/api_pb";
 import { useCallback, useMemo } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
-import FloatingSearchControls from "./FloatingSearchControls";
 import { FilterOptions, FlyToLocationProps } from "./SearchPage";
 import { Coordinates } from "./utils/constants";
 import { CLUSTER_LAYER_ID, UNCLUSTERED_LAYER_ID } from "./utils/mapLayers";
@@ -19,48 +18,30 @@ import {
 
 interface MapViewProps {
   flyToLocation: (location: FlyToLocationProps) => void;
-  hasActiveFilters: boolean;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
-  onClearFilters: () => void;
-  onClearLocation: () => void;
   onSetFilters: (filters: FilterOptions) => void;
   onSelectedUserIdClick: (userId: number) => void;
-  query: string | undefined;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
 }
-
-const StyledMapWrapper = styled("div")(({ theme }) => ({
-  position: "absolute",
-  width: "100%",
-  height: "100%",
-}));
 
 const MapLoadingContainer = styled("div")(({ theme }) => ({
   position: "absolute",
   backgroundColor: "rgba(255, 255, 255, 0.7)",
   width: "100%",
   zIndex: 2,
-  height: `calc(100% - ${theme.shape.navPaddingXs})`,
-
-  [theme.breakpoints.up("sm")]: {
-    height: `calc(100% - ${theme.shape.navPaddingSmUp})`,
-  },
+  height: "100%",
 }));
 
 const DEFAULT_USERS: User.AsObject[] = [];
 
 const MapView = ({
   flyToLocation,
-  hasActiveFilters,
   isLoading,
   mapRef,
-  onClearFilters,
-  onClearLocation,
   onSetFilters,
   onSelectedUserIdClick,
-  query,
   selectedUserIds,
   users = DEFAULT_USERS,
 }: MapViewProps) => {
@@ -138,14 +119,7 @@ const MapView = ({
   };
 
   return (
-    <StyledMapWrapper>
-      <FloatingSearchControls
-        hasActiveFilters={hasActiveFilters}
-        onClearFilters={onClearFilters}
-        onClearLocation={onClearLocation}
-        onSetFilters={onSetFilters}
-        query={query}
-      />
+    <>
       {isLoading && (
         <MapLoadingContainer>
           <CenteredSpinner minHeight="100%" />
@@ -160,7 +134,7 @@ const MapView = ({
         onMapMove={handleMapMove}
         pins={memoizedPins}
       />
-    </StyledMapWrapper>
+    </>
   );
 };
 

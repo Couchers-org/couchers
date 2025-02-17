@@ -8,6 +8,7 @@ import { useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 
+import FloatingSearchControls from "./FloatingSearchControls";
 import MapView from "./MapView";
 import { FilterOptions, FlyToLocationProps } from "./SearchPage";
 import SearchResultsList from "./SearchResultsList";
@@ -39,27 +40,11 @@ interface DesktopMapViewProps {
   users: User.AsObject[] | undefined;
 }
 
-const StyledMapContainer = styled("div")(({ theme }) => () => ({
-  display: "flex",
-  position: "fixed",
-  top: theme.shape.navPaddingXs,
-  left: 0,
-  bottom: 0,
-  right: 0,
+const Wrapper = styled("div")(({ theme }) => ({
   height: "100%",
   width: "100%",
-
-  [theme.breakpoints.up("sm")]: {
-    top: theme.shape.navPaddingSmUp,
-  },
-}));
-
-const CenteredContainer = styled("div")(() => ({
+  overflow: "hidden",
   display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "100%",
 }));
 
 const DrawerContainer = styled("div")<{ drawerWidth: number }>(
@@ -67,16 +52,28 @@ const DrawerContainer = styled("div")<{ drawerWidth: number }>(
     display: "flex",
     width: `${drawerWidth}px`,
     height: "100%",
+    overflow: "hidden",
+    position: "relative",
   }),
 );
 
 const MapContainer = styled("div")<{ drawerWidth: number }>(
   ({ theme, drawerWidth }) => ({
-    display: "flex",
     width: `calc(100% - ${drawerWidth}px)`,
+    height: "100%",
+    overflow: "hidden",
     position: "relative",
+    display: "flex",
+    alignItems: "center",
   }),
 );
+
+const MapControlsWrapper = styled("div")(({ theme }) => ({
+  position: "absolute",
+  top: theme.spacing(1),
+  left: "50%",
+  zIndex: 10,
+}));
 
 const DesktopMapView = ({
   flyToLocation,
@@ -99,54 +96,58 @@ const DesktopMapView = ({
   };
 
   return (
-    <>
-      <StyledMapContainer>
-        <DrawerContainer drawerWidth={drawerWidth}>
-          <ResizeableDrawer
-            drawerWidth={drawerWidth}
-            onDrawerWidthChange={handleDrawerWidthChange}
-          >
-            <CenteredContainer>
-              {isLoading ? (
-                <CenteredSpinner />
-              ) : (
-                <>
-                  <Typography
-                    variant="caption"
-                    sx={{ marginTop: theme.spacing(2) }}
-                  >
-                    {!users
-                      ? t("search:search_result.no_user_result_message")
-                      : t("search:search_result.users_found_message", {
-                          count: users.length,
-                        })}
-                  </Typography>
-                  <SearchResultsList
-                    selectedUserIds={selectedUserIds}
-                    users={users}
-                  />
-                </>
-              )}
-            </CenteredContainer>
-          </ResizeableDrawer>
-        </DrawerContainer>
-        <MapContainer drawerWidth={drawerWidth}>
-          <MapView
-            flyToLocation={flyToLocation}
+    <Wrapper>
+      <DrawerContainer drawerWidth={drawerWidth}>
+        <ResizeableDrawer onDrawerWidthChange={handleDrawerWidthChange}>
+          <>
+            {isLoading ? (
+              <CenteredSpinner />
+            ) : (
+              <>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    marginTop: theme.spacing(2),
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  {!users
+                    ? t("search:search_result.no_user_result_message")
+                    : t("search:search_result.users_found_message", {
+                        count: users.length,
+                      })}
+                </Typography>
+                <SearchResultsList
+                  selectedUserIds={selectedUserIds}
+                  users={users}
+                />
+              </>
+            )}
+          </>
+        </ResizeableDrawer>
+      </DrawerContainer>
+      <MapContainer drawerWidth={drawerWidth}>
+        <MapControlsWrapper>
+          <FloatingSearchControls
             hasActiveFilters={hasActiveFilters}
-            isLoading={isLoading}
-            mapRef={mapRef}
             onClearFilters={onClearFilters}
             onClearLocation={onClearLocation}
             onSetFilters={onSetFilters}
-            onSelectedUserIdClick={onSelectedUserIdClick}
             query={query}
-            selectedUserIds={selectedUserIds}
-            users={users}
           />
-        </MapContainer>
-      </StyledMapContainer>
-    </>
+        </MapControlsWrapper>
+        <MapView
+          flyToLocation={flyToLocation}
+          isLoading={isLoading}
+          mapRef={mapRef}
+          onSetFilters={onSetFilters}
+          onSelectedUserIdClick={onSelectedUserIdClick}
+          selectedUserIds={selectedUserIds}
+          users={users}
+        />
+      </MapContainer>
+    </Wrapper>
   );
 };
 
