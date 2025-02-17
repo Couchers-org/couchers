@@ -14,6 +14,17 @@ import SearchResultsList from "./SearchResultsList";
 
 const DEFAULT_DRAWER_WIDTH = 400;
 
+export enum MapViews {
+  MAP_AND_LIST = "MAP_AND_LIST",
+  LIST_ONLY = "LIST_ONLY",
+  MAP_ONLY = "MAP_ONLY",
+}
+
+export type MapViewOptions =
+  | MapViews.MAP_AND_LIST
+  | MapViews.LIST_ONLY
+  | MapViews.MAP_ONLY;
+
 interface DesktopMapViewProps {
   flyToLocation: (location: FlyToLocationProps) => void;
   hasActiveFilters: boolean;

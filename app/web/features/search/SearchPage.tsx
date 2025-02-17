@@ -111,10 +111,6 @@ export default function SearchPage({
     },
   );
 
-  console.log("isLoading", isLoading);
-  console.log("isFetching", isFetching);
-  console.log("data", data);
-
   const formattedUsers = data?.pages
     .flatMap((page) => page.resultsList)
     .map((result) => result.user)
