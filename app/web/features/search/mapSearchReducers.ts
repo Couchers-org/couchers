@@ -38,7 +38,7 @@ const initialState: MapSearchState = {
     completeProfile: false,
     drinkingAllowed: undefined,
     query: "",
-    bbox: [0, 0, 0, 0],
+    bbox: [390, 82, -173, -66],
     lastActive: 0,
     hasReferences: undefined,
     hasStrongVerification: undefined,

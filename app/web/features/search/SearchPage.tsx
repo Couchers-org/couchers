@@ -1,4 +1,4 @@
-import { useMediaQuery } from "@mui/material";
+import { styled, useMediaQuery } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import {
   Coordinates,
@@ -54,28 +54,23 @@ export interface FlyToLocationProps {
   zoom?: number;
 }
 
+const SearchPageContainer = styled("div")(({ theme }) => ({
+  width: "100%",
+  height: "100%",
+  overflow: "hidden",
+  position: "relative",
+}));
+
 /**
  * Search page, creates the state, obtains the users, renders all its sub-components
  */
-export default function SearchPage({
-  locationName,
-  bbox,
-}: {
-  locationName: string;
-  bbox: Coordinates;
-}) {
+export default function SearchPage({ locationName }: { locationName: string }) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const queryClient = new QueryClient();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const mapRef = useRef<MapRef | null>(null);
 
-  const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
-    ...initialState,
-    filters: {
-      ...initialState.filters,
-      query: locationName,
-    },
-  });
+  const [mapSearchState, dispatch] = useReducer(mapSearchReducer, initialState);
 
   const flyToLocation = useCallback(
     ({ longitude, latitude, zoom }: FlyToLocationProps) => {
@@ -89,13 +84,13 @@ export default function SearchPage({
   );
 
   useEffect(() => {
-    if (bbox) {
-      flyToLocation({
-        longitude: (bbox[0] + bbox[2]) / 2,
-        latitude: (bbox[1] + bbox[3]) / 2,
-      });
-    }
-  }, [bbox, flyToLocation, locationName]);
+    const bbox = initialState.filters.bbox!;
+    flyToLocation({
+      longitude: (bbox[0] + bbox[2]) / 2,
+      latitude: (bbox[1] + bbox[3]) / 2,
+      zoom: 1,
+    });
+  }, []);
 
   const { data, isLoading, isFetching } = useInfiniteQuery<
     UserSearchRes.AsObject,
@@ -170,27 +165,29 @@ export default function SearchPage({
   };
 
   return (
-    <MapProvider>
-      <QueryClientProvider client={queryClient}>
-        <HtmlMeta title={t("global:nav.map_search")} />
-        {isMobile && <MobileMapView />}
+    <SearchPageContainer>
+      <MapProvider>
+        <QueryClientProvider client={queryClient}>
+          <HtmlMeta title={t("global:nav.map_search")} />
+          {isMobile && <MobileMapView />}
 
-        {!isMobile && (
-          <DesktopMapView
-            flyToLocation={flyToLocation}
-            hasActiveFilters={mapSearchState.hasActiveFilters}
-            isLoading={isLoading || isFetching}
-            mapRef={mapRef}
-            onClearFilters={handleClearFilters}
-            onClearLocation={handleClearLocation}
-            onSetFilters={handleSetFilters}
-            onSelectedUserIdClick={handleSelectedUserIdClick}
-            query={mapSearchState.filters.query}
-            selectedUserIds={mapSearchState.selectedUserIds}
-            users={memoizedUsers}
-          />
-        )}
-      </QueryClientProvider>
-    </MapProvider>
+          {!isMobile && (
+            <DesktopMapView
+              flyToLocation={flyToLocation}
+              hasActiveFilters={mapSearchState.hasActiveFilters}
+              isLoading={isLoading || isFetching}
+              mapRef={mapRef}
+              onClearFilters={handleClearFilters}
+              onClearLocation={handleClearLocation}
+              onSetFilters={handleSetFilters}
+              onSelectedUserIdClick={handleSelectedUserIdClick}
+              query={mapSearchState.filters.query}
+              selectedUserIds={mapSearchState.selectedUserIds}
+              users={memoizedUsers}
+            />
+          )}
+        </QueryClientProvider>
+      </MapProvider>
+    </SearchPageContainer>
   );
 }
