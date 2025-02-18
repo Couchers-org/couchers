@@ -148,6 +148,7 @@ message UserSearchReq {
   google.protobuf.BoolValue camping_ok = 27;
   google.protobuf.BoolValue profile_completed = 31;
   google.protobuf.BoolValue has_strong_verification = 34;
+  google.protobuf.BoolValue smoking_allowed = 35;
 
   uint32 page_size = 1;
   string page_token = 2;
