@@ -32,9 +32,7 @@ const StyledCard = styled(Card, {
   border: isHighlighted ? `2px solid ${theme.palette.primary.main}` : "none",
   borderRadius: 8,
   boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
-  height: "100%",
   paddingTop: theme.spacing(1),
-  maxHeight: theme.spacing(30),
 }));
 
 const StyledTopContent = styled("div")(({ theme }) => ({

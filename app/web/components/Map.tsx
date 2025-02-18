@@ -63,6 +63,7 @@ const Map = ({
   const handleMapClick = async (event: MapLayerMouseEvent) => {
     if (!enablePinTooltip) {
       onClick(event);
+      return;
     }
 
     const map = mapRef.current;
