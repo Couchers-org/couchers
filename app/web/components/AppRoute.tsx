@@ -119,7 +119,7 @@ export default function AppRoute({
           </PageWrapper>
         </>
       )}
-      <CookieBanner />
+      {!isPrivate && !isNativeEmbed && <CookieBanner />}
     </ErrorBoundary>
   );
 }
