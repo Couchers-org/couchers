@@ -1,5 +1,5 @@
 import { FormatListBulleted, MapOutlined } from "@mui/icons-material";
-import { ToggleButton, ToggleButtonGroup, Tooltip } from "@mui/material";
+import { Box, ToggleButton, ToggleButtonGroup, Tooltip } from "@mui/material";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { theme } from "theme";
@@ -38,6 +38,7 @@ const MapViewToggle = ({ mapView, onMapViewChange }: MapViewToggleProps) => {
         sx={{
           backgroundColor: theme.palette.common.white,
           borderRadius: "20px 0 0 20px",
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
 
           "&.Mui-selected": {
             backgroundColor: theme.palette.common.white,
@@ -54,7 +55,7 @@ const MapViewToggle = ({ mapView, onMapViewChange }: MapViewToggleProps) => {
         }}
       >
         <Tooltip title={t("search:views.map_only_view")}>
-          <MapOutlined />
+          <MapOutlined sx={{ fontSize: "18px" }} />
         </Tooltip>
       </ToggleButton>
       <ToggleButton
@@ -63,6 +64,7 @@ const MapViewToggle = ({ mapView, onMapViewChange }: MapViewToggleProps) => {
         sx={{
           backgroundColor: theme.palette.common.white,
           borderLeft: `1px solid ${theme.palette.grey[300]} !important`,
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
 
           "&.Mui-selected": {
             backgroundColor: theme.palette.common.white,
@@ -79,9 +81,10 @@ const MapViewToggle = ({ mapView, onMapViewChange }: MapViewToggleProps) => {
         }}
       >
         <Tooltip title={t("search:views.map_and_list_view")}>
-          <>
-            <FormatListBulleted /> / <MapOutlined />
-          </>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <FormatListBulleted sx={{ fontSize: "18px" }} /> /{" "}
+            <MapOutlined sx={{ fontSize: "18px" }} />
+          </Box>
         </Tooltip>
       </ToggleButton>
       <ToggleButton
@@ -91,6 +94,7 @@ const MapViewToggle = ({ mapView, onMapViewChange }: MapViewToggleProps) => {
           backgroundColor: theme.palette.common.white,
           borderRadius: "0 20px 20px 0",
           borderLeft: `1px solid ${theme.palette.grey[300]} !important`,
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
 
           "&.Mui-selected": {
             backgroundColor: theme.palette.common.white,
@@ -106,7 +110,7 @@ const MapViewToggle = ({ mapView, onMapViewChange }: MapViewToggleProps) => {
         }}
       >
         <Tooltip title={t("search:views.list_only_view")}>
-          <FormatListBulleted />
+          <FormatListBulleted sx={{ fontSize: "18px" }} />
         </Tooltip>
       </ToggleButton>
     </ToggleButtonGroup>

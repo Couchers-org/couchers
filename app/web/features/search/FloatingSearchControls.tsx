@@ -30,22 +30,17 @@ interface FloatingSearchNavigationProps {
 }
 
 const StyledControlsWrapper = styled("div")(({ theme }) => ({
-  // position: "absolute",
-  // left: "50%",
   display: "flex",
   alignItems: "center",
 }));
 
 const StyledButtonsContainer = styled("div")(({ theme }) => ({
-  top: "30px",
   display: "flex",
   position: "relative",
-  left: "-50%",
   fontSize: " 14px",
   alignItems: "center",
   justifyContent: "space-between",
   height: "auto",
-  zIndex: 10,
   backgroundColor: theme.palette.common.white,
   borderRadius: "50px",
   boxShadow: theme.shadows[4],

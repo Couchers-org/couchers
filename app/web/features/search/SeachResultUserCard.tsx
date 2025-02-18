@@ -20,7 +20,7 @@ import { hourMillis, timeAgoI18n } from "utils/timeAgo";
 import { aboutText } from "./utils/constants";
 
 interface SearchResultUserCardProps {
-  isHighlighted: boolean;
+  isHighlighted?: boolean;
   user: User.AsObject;
 }
 
@@ -34,6 +34,7 @@ const StyledCard = styled(Card, {
   boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
   height: "100%",
   paddingTop: theme.spacing(1),
+  maxHeight: theme.spacing(30),
 }));
 
 const StyledTopContent = styled("div")(({ theme }) => ({
@@ -114,7 +115,7 @@ const UserDetailsRow = styled("div")(({ theme }) => ({
 }));
 
 const SearchResultUserCard = ({
-  isHighlighted,
+  isHighlighted = false,
   user,
 }: SearchResultUserCardProps) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);

@@ -1,6 +1,8 @@
 import { styled, Typography } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import ResizeableDrawer from "components/ResizeableDrawer";
+import ResizeableDrawer, {
+  DEFAULT_DRAWER_WIDTH,
+} from "components/ResizeableDrawer";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
@@ -10,10 +12,9 @@ import { theme } from "theme";
 
 import FloatingSearchControls from "./FloatingSearchControls";
 import MapView from "./MapView";
+import MapViewToggle from "./MapViewToggle";
 import { FilterOptions, FlyToLocationProps } from "./SearchPage";
 import SearchResultsList from "./SearchResultsList";
-
-const DEFAULT_DRAWER_WIDTH = 400;
 
 export enum MapViews {
   MAP_AND_LIST = "MAP_AND_LIST",
@@ -47,19 +48,33 @@ const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",
 }));
 
-const DrawerContainer = styled("div")<{ drawerWidth: number }>(
-  ({ theme, drawerWidth }) => ({
+const DrawerContainer = styled("div", {
+  shouldForwardProp: (prop) => prop !== "drawerWidth" && prop !== "isDualView",
+})<{ drawerWidth: number; isDualView: boolean }>(
+  ({ theme, drawerWidth, isDualView }) => ({
     display: "flex",
-    width: `${drawerWidth}px`,
+    width: isDualView ? `${drawerWidth}px` : "100%",
     height: "100%",
     overflow: "hidden",
     position: "relative",
   }),
 );
 
-const MapContainer = styled("div")<{ drawerWidth: number }>(
-  ({ theme, drawerWidth }) => ({
-    width: `calc(100% - ${drawerWidth}px)`,
+const ListContentWrapper = styled("div", {
+  shouldForwardProp: (prop) => prop !== "showTopSpace",
+})<{ showTopSpace: boolean }>(({ theme, showTopSpace }) => ({
+  width: "100%",
+  height: "100%",
+
+  ...(showTopSpace && { paddingTop: theme.spacing(6) }),
+}));
+
+const MapContainer = styled("div", {
+  shouldForwardProp: (prop) =>
+    prop !== "drawerWidth" && prop !== "isMapOnlyView",
+})<{ drawerWidth: number; isMapOnlyView: boolean }>(
+  ({ theme, drawerWidth, isMapOnlyView }) => ({
+    width: isMapOnlyView ? "100%" : `calc(100% - ${drawerWidth}px)`,
     height: "100%",
     overflow: "hidden",
     position: "relative",
@@ -68,11 +83,31 @@ const MapContainer = styled("div")<{ drawerWidth: number }>(
   }),
 );
 
-const MapControlsWrapper = styled("div")(({ theme }) => ({
-  position: "absolute",
-  top: theme.spacing(1),
-  left: "50%",
-  zIndex: 10,
+const MapControlsWrapper = styled("div", {
+  shouldForwardProp: (prop) => prop !== "isDualView" && prop !== "drawerWidth",
+})<{ drawerWidth: number; isDualView: boolean }>(
+  ({ theme, drawerWidth, isDualView }) => ({
+    position: "absolute",
+    top: theme.spacing(2),
+    zIndex: 10,
+    display: "flex",
+    alignItems: "center",
+    width: "100%",
+
+    ...(isDualView && {
+      ...(drawerWidth > window.innerWidth / 2
+        ? { left: 0, width: `${drawerWidth}px` }
+        : { right: 0, width: `calc(100% - ${drawerWidth}px)` }),
+    }),
+  }),
+);
+
+const CenterAligner = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  width: "100%",
+  gap: theme.spacing(1),
+  justifyContent: "center",
 }));
 
 const DesktopMapView = ({
@@ -89,46 +124,29 @@ const DesktopMapView = ({
   users,
 }: DesktopMapViewProps) => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
-  const [drawerWidth, setDrawerWidth] = useState(DEFAULT_DRAWER_WIDTH);
+  const [drawerWidth, setDrawerWidth] = useState<number>(DEFAULT_DRAWER_WIDTH);
+  const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
 
   const handleDrawerWidthChange = (width: number) => {
     setDrawerWidth(width);
   };
 
+  const handleMapViewChange = (view: MapViewOptions) => {
+    setMapView(view);
+  };
+
   return (
     <Wrapper>
-      <DrawerContainer drawerWidth={drawerWidth}>
-        <ResizeableDrawer onDrawerWidthChange={handleDrawerWidthChange}>
-          <>
-            {isLoading ? (
-              <CenteredSpinner />
-            ) : (
-              <>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    marginTop: theme.spacing(2),
-                    display: "flex",
-                    justifyContent: "center",
-                  }}
-                >
-                  {!users
-                    ? t("search:search_result.no_user_result_message")
-                    : t("search:search_result.users_found_message", {
-                        count: users.length,
-                      })}
-                </Typography>
-                <SearchResultsList
-                  selectedUserIds={selectedUserIds}
-                  users={users}
-                />
-              </>
-            )}
-          </>
-        </ResizeableDrawer>
-      </DrawerContainer>
-      <MapContainer drawerWidth={drawerWidth}>
-        <MapControlsWrapper>
+      <MapControlsWrapper
+        drawerWidth={drawerWidth}
+        isDualView={mapView === MapViews.MAP_AND_LIST}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <CenterAligner>
+          <MapViewToggle
+            mapView={mapView}
+            onMapViewChange={handleMapViewChange}
+          />
           <FloatingSearchControls
             hasActiveFilters={hasActiveFilters}
             onClearFilters={onClearFilters}
@@ -136,17 +154,68 @@ const DesktopMapView = ({
             onSetFilters={onSetFilters}
             query={query}
           />
-        </MapControlsWrapper>
-        <MapView
-          flyToLocation={flyToLocation}
-          isLoading={isLoading}
-          mapRef={mapRef}
-          onSetFilters={onSetFilters}
-          onSelectedUserIdClick={onSelectedUserIdClick}
-          selectedUserIds={selectedUserIds}
-          users={users}
-        />
-      </MapContainer>
+        </CenterAligner>
+      </MapControlsWrapper>
+      {mapView !== MapViews.MAP_ONLY && (
+        <DrawerContainer
+          drawerWidth={drawerWidth}
+          isDualView={mapView === MapViews.MAP_AND_LIST}
+        >
+          <ResizeableDrawer
+            onDrawerWidthChange={handleDrawerWidthChange}
+            showDragger={mapView !== MapViews.LIST_ONLY}
+          >
+            <>
+              {isLoading ? (
+                <CenteredSpinner />
+              ) : (
+                <ListContentWrapper
+                  showTopSpace={
+                    mapView === MapViews.LIST_ONLY ||
+                    drawerWidth > window.innerWidth / 2
+                  }
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      marginTop: theme.spacing(2),
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {!users
+                      ? t("search:search_result.no_user_result_message")
+                      : t("search:search_result.users_found_message", {
+                          count: users.length,
+                        })}
+                  </Typography>
+                  <SearchResultsList
+                    selectedUserIds={selectedUserIds}
+                    users={users}
+                  />
+                </ListContentWrapper>
+              )}
+            </>
+          </ResizeableDrawer>
+        </DrawerContainer>
+      )}
+      {mapView !== MapViews.LIST_ONLY && (
+        <MapContainer
+          drawerWidth={drawerWidth}
+          isMapOnlyView={mapView === MapViews.MAP_ONLY}
+        >
+          <MapView
+            enablePinTooltip={mapView === MapViews.MAP_ONLY}
+            flyToLocation={flyToLocation}
+            isLoading={isLoading}
+            mapRef={mapRef}
+            onSetFilters={onSetFilters}
+            onSelectedUserIdClick={onSelectedUserIdClick}
+            selectedUserIds={selectedUserIds}
+            users={users}
+          />
+        </MapContainer>
+      )}
     </Wrapper>
   );
 };

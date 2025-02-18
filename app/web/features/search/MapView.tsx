@@ -17,6 +17,7 @@ import {
 } from "./utils/mapUtils";
 
 interface MapViewProps {
+  enablePinTooltip: boolean;
   flyToLocation: (location: FlyToLocationProps) => void;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
@@ -30,13 +31,14 @@ const MapLoadingContainer = styled("div")(({ theme }) => ({
   position: "absolute",
   backgroundColor: "rgba(255, 255, 255, 0.7)",
   width: "100%",
-  zIndex: 2,
+  zIndex: 10,
   height: "100%",
 }));
 
 const DEFAULT_USERS: User.AsObject[] = [];
 
 const MapView = ({
+  enablePinTooltip,
   flyToLocation,
   isLoading,
   mapRef,
@@ -126,6 +128,7 @@ const MapView = ({
         </MapLoadingContainer>
       )}
       <Map
+        enablePinTooltip={enablePinTooltip}
         grow
         hash
         mapRef={mapRef}

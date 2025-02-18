@@ -1,17 +1,13 @@
-import { DragHandleOutlined } from "@mui/icons-material";
+import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
 import { styled } from "@mui/material";
-import React, { useCallback } from "react";
+import React from "react";
 
-const minDrawerWidth = 150;
-const maxDrawerWidth = 1200;
+export const DEFAULT_DRAWER_WIDTH = 400;
 
 interface ResizeableDrawerProps {
   children: React.ReactNode;
   onDrawerWidthChange: (width: number) => void;
-}
-
-interface MouseEventHandler {
-  (e: MouseEvent): void;
+  showDragger?: boolean;
 }
 
 const StyledDragger = styled("div")(({ theme }) => ({
@@ -46,33 +42,36 @@ const ScrollableContent = styled("div")(({ theme }) => ({
 export default function ResizeableDrawer({
   children,
   onDrawerWidthChange,
+  showDragger,
 }: ResizeableDrawerProps) {
-  const handleMouseDown = () => {
-    document.addEventListener("mouseup", handleMouseUp, true);
-    document.addEventListener("mousemove", handleMouseMove, true);
-  };
+  const [isExpanded, setIsExpanded] = React.useState(false);
 
-  const handleMouseUp = () => {
-    document.removeEventListener("mouseup", handleMouseUp, true);
-    document.removeEventListener("mousemove", handleMouseMove, true);
-  };
+  const handleDrawerExpansion = () => {
+    setIsExpanded(!isExpanded);
 
-  const handleMouseMove: MouseEventHandler = useCallback(
-    (e) => {
-      const newWidth = e.clientX - document.body.offsetLeft;
-      if (newWidth > minDrawerWidth && newWidth < maxDrawerWidth) {
-        onDrawerWidthChange(newWidth);
-      }
-    },
-    [onDrawerWidthChange],
-  );
+    onDrawerWidthChange(
+      isExpanded ? DEFAULT_DRAWER_WIDTH : Math.floor(window?.innerWidth * 0.6),
+    );
+  };
 
   return (
     <DrawerContentWrapper>
       <ScrollableContent>{children}</ScrollableContent>
-      <StyledDragger onMouseDown={handleMouseDown}>
-        <DragHandleOutlined sx={{ rotate: "90deg" }} />
-      </StyledDragger>
+      {showDragger && (
+        <StyledDragger>
+          {isExpanded ? (
+            <KeyboardArrowLeft
+              onClick={handleDrawerExpansion}
+              sx={{ fontSize: "24px", "&:hover": { cursor: "pointer" } }}
+            />
+          ) : (
+            <KeyboardArrowRight
+              onClick={handleDrawerExpansion}
+              sx={{ fontSize: "24px", "&:hover": { cursor: "pointer" } }}
+            />
+          )}
+        </StyledDragger>
+      )}
     </DrawerContentWrapper>
   );
 }

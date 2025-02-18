@@ -43,5 +43,11 @@
     "show_user_button_label": "Show {{name}} on the map",
     "missing_about_description": "{{name}} hasn't said anything about themselves yet",
     "users_found_message": "{{count}} users found"
+  },
+  "views": {
+    "choose_map_view": "Choose map view",
+    "map_only_view": "Map only view",
+    "list_only_view": "List only view",
+    "map_and_list_view": "Map and list view"
   }
 }
