@@ -99,9 +99,9 @@ export async function userSearch(
     req.setOnlyWithReferences(hasReferences);
   }
 
-  // if (hasStrongVerification) {
-  //   req.setHasStrongVerification(new BoolValue().setValue(hasStrongVerification));
-  // }
+  if (hasStrongVerification) {
+    req.setHasStrongVerification(new BoolValue().setValue(hasStrongVerification));
+  }
 
   if (hostingStatusOptions && hostingStatusOptions.length !== 0) {
     req.setHostingStatusFilterList(hostingStatusOptions);

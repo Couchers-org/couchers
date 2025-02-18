@@ -1,4 +1,4 @@
-import { Card, styled, Typography } from "@mui/material";
+import { Card, styled, Tooltip, Typography } from "@mui/material";
 import { FlexboxProps } from "@mui/system";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
@@ -18,6 +18,7 @@ import stripMarkdown from "utils/stripMarkdown";
 import { hourMillis, timeAgoI18n } from "utils/timeAgo";
 
 import { aboutText } from "./utils/constants";
+import { theme } from "theme";
 
 interface SearchResultUserCardProps {
   isHighlighted?: boolean;
@@ -32,7 +33,9 @@ const StyledCard = styled(Card, {
   border: isHighlighted ? `2px solid ${theme.palette.primary.main}` : "none",
   borderRadius: 8,
   boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
+  height: "100%",
   paddingTop: theme.spacing(1),
+  maxHeight: theme.spacing(60),
 }));
 
 const StyledTopContent = styled("div")(({ theme }) => ({
@@ -134,11 +137,20 @@ const SearchResultUserCard = ({
               {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
             </div>
             <StyledLink
+              aria-label={t("profile:open_profile_new_tab")}
               href={routeToUser(user.username)}
               target="_blank"
               rel="noopener noreferrer"
             >
-              <StyledOpenInNewIcon />
+              <Tooltip title={t("profile:open_profile_new_tab")}>
+                <StyledOpenInNewIcon
+                  sx={{
+                    "&:hover": {
+                      color: theme.palette.primary.dark,
+                    },
+                  }}
+                />
+              </Tooltip>
             </StyledLink>
           </StyledCardHeader>
           <FlexRow>
