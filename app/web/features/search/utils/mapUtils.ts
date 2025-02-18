@@ -26,6 +26,7 @@ const usersToGeoJSON = (pins: User.AsObject[]): FeatureCollection => ({
       lng: pin.lng,
       radius: pin.radius,
       hasStrongVerification: pin.hasStrongVerification,
+      timezone: pin.timezone,
     },
   })),
 });
