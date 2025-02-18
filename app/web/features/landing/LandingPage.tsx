@@ -252,10 +252,10 @@ export default function LandingPage() {
                 variant="text"
                 size="medium"
                 sx={{
+                  "&.MuiButtonBase-root:hover": {
+                    bgcolor: "transparent"
+                  },
                   color: theme.palette.common.white,
-                  background: "none",
-                  border: "none",
-                  textAlign: "center",
                 }}
               >
                 Read more
@@ -264,9 +264,10 @@ export default function LandingPage() {
                 onClick={scrollToMore}
                 size="small"
                 sx={{
+                  "&.MuiButtonBase-root:hover": {
+                    bgcolor: "transparent"
+                  },
                   color: theme.palette.common.white,
-                  background: "none",
-                  border: "none",
                 }}
               >
                 <ExpandMoreIcon fontSize="large" />
@@ -323,9 +324,11 @@ export default function LandingPage() {
               variant="text"
               sx={{
                 color: theme.palette.common.white,
-                background: "none",
-                border: "none",
+                "&.MuiButtonBase-root:hover": {
+                  bgcolor: "transparent"
+                }
               }}
+              disableRipple
             >
               Read more
             </MuiButton>
@@ -334,8 +337,9 @@ export default function LandingPage() {
               size="small"
               sx={{
                 color: theme.palette.common.white,
-                background: "none",
-                border: "none",
+                "&.MuiButtonBase-root:hover": {
+                  bgcolor: "transparent"
+                }
               }}
             >
               <ExpandMoreIcon />
