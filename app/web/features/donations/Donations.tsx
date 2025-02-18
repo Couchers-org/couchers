@@ -14,6 +14,7 @@ import DonationsBox from "./DonationsBox";
 
 const useStyles = makeStyles((theme) => ({
   donationsImage: {
+    position: "absolute",
     width: "100%",
     height: "100%",
     objectFit: "cover",
@@ -28,6 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
 
   donationsWrapper: {
+    position: "relative",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -35,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
   },
 
   donationsLogoHeader: {
-    position: "absolute",
+    position: "relative",
     zIndex: 1,
     maxWidth: "68.75rem",
     display: "flex",
