@@ -43,7 +43,6 @@ const StyledHeader = styled("div")(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.divider}`,
   alignItems: "center",
   display: "flex",
-  position: "sticky",
   flexGrow: 0,
   "& > * + *": {
     marginInlineStart: theme.spacing(2),
@@ -69,8 +68,6 @@ const StyledPageTitle = styled(PageTitle)({
 });
 
 const StyledPageWrapper = styled("div")(({ theme }) => ({
-  position: "fixed",
-  width: "100%",
   alignItems: "stretch",
   display: "flex",
   flexDirection: "column",
