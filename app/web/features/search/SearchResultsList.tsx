@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.paper,
     boxShadow: "0 0 4px rgba(0,0,0,0.25)",
     marginBottom: theme.spacing(3),
-    scrollMarginTop: "200px",
+    scrollMarginTop: theme.shape.navPaddingSmUp,
     overflow: "initial",
     "&:last-child": {
       marginBottom: 0,
