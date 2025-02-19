@@ -29,6 +29,7 @@ const accountInfo = {
   doNotEmail: false,
   hasDonated: false,
   isSuperuser: false,
+  uiLanguagePreference: "",
 };
 
 describe("ChangeEmail", () => {
