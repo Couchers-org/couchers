@@ -7,7 +7,7 @@ import {
   unclusteredPointLayer,
 } from "features/search/utils/mapLayers";
 import { MapLayerMouseEvent } from "maplibre-gl";
-import React from "react";
+import React, { useRef } from "react";
 import {
   Layer,
   Map as MaplibreMap,
@@ -15,7 +15,6 @@ import {
   NavigationControl,
   Source,
 } from "react-map-gl/maplibre";
-
 
 interface MapProps {
   grow?: boolean;
@@ -36,8 +35,14 @@ const Map = ({
   onMapMove,
   pins,
 }: MapProps) => {
+  const navControlRef = useRef<HTMLDivElement | null>(null);
+
   const handleMapLoad = () => {
     if (mapRef.current) {
+      mapRef.current
+        .getContainer()
+        .addEventListener("click", handleNavControlClick);
+
       onLoad();
     }
   };
@@ -46,8 +51,12 @@ const Map = ({
     onClick(event);
   };
 
-  const handleMoveMap = () => {
-    onMapMove();
+  const handleDragEnd = () => {
+    const zoom = mapRef.current?.getZoom();
+
+    if (zoom && zoom >= 5) {
+      onMapMove();
+    }
   };
 
   const handleMouseMove = (event: MapLayerMouseEvent) => {
@@ -65,6 +74,16 @@ const Map = ({
     }
   };
 
+  const handleNavControlClick = () => {
+    console.log("navControlRef clicked");
+    const zoom = mapRef.current?.getZoom();
+    console.log("zoom", zoom);
+    // Zoom is too large an area, don't reload pins
+    if (zoom && zoom >= 5) {
+      onMapMove();
+    }
+  };
+
   return (
     <>
       <MaplibreMap
@@ -78,7 +97,7 @@ const Map = ({
         interactiveLayerIds={clusterLayer.id ? [clusterLayer.id] : []}
         onClick={handleMapClick}
         onLoad={handleMapLoad}
-        onDragEnd={handleMoveMap}
+        onDragEnd={handleDragEnd}
         onMouseMove={handleMouseMove}
         hash={hash}
         ref={mapRef}
@@ -96,7 +115,10 @@ const Map = ({
           <Layer {...clusterCountLayer} />
           <Layer {...unclusteredPointLayer} />
         </Source>
-        <NavigationControl position="top-right" showCompass={false} />
+        {/* Wrap NavigationControl in a div to detect clicks */}
+        <div ref={navControlRef}>
+          <NavigationControl position="top-right" showCompass={false} />
+        </div>{" "}
       </MaplibreMap>
     </>
   );

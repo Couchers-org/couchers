@@ -81,7 +81,7 @@ const MapControlsWrapper = styled("div", {
   ({ theme, drawerWidth, isDualView }) => ({
     position: "absolute",
     top: theme.spacing(2),
-    zIndex: 10,
+    zIndex: 1,
     display: "flex",
     alignItems: "center",
     width: "100%",

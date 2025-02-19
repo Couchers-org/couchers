@@ -119,6 +119,8 @@ export default function SearchPage({ locationName }: { locationName: string }) {
   const memoizedUsers = useMemo(() => formattedUsers, [formattedUsers]);
 
   const handleSetFilters = (newFilters: FilterOptions) => {
+
+    console.log("newFilters", newFilters);
     dispatch({
       type: mapSearchActionTypes.SET_FILTERS,
       payload: newFilters,
@@ -132,6 +134,7 @@ export default function SearchPage({ locationName }: { locationName: string }) {
       });
     }
 
+    // Indicates field was cleared
     if (newFilters.keyword === "") {
       flyToLocation({
         longitude: 0,

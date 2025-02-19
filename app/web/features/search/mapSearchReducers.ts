@@ -30,6 +30,24 @@ type MapSearchAction =
       payload: { userId: User.AsObject["userId"] };
     };
 
+const getHasActiveFilters = (state: MapSearchState) => {
+  return (
+    state.filters.hostingStatusOptions !==
+      initialState.filters.hostingStatusOptions ||
+    state.filters.numGuests !== initialState.filters.numGuests ||
+    state.filters.completeProfile !== initialState.filters.completeProfile ||
+    state.filters.query !== initialState.filters.query ||
+    state.filters.acceptsKids !== initialState.filters.acceptsKids ||
+    state.filters.acceptsLastMinRequests !==
+      initialState.filters.acceptsLastMinRequests ||
+    state.filters.drinkingAllowed !== initialState.filters.drinkingAllowed ||
+    state.filters.hasReferences !== initialState.filters.hasReferences ||
+    state.filters.hasStrongVerification !==
+      initialState.filters.hasStrongVerification ||
+    state.filters.smokingAllowed !== initialState.filters.smokingAllowed
+  );
+};
+
 const initialState: MapSearchState = {
   filters: {
     acceptsKids: undefined,
@@ -57,22 +75,7 @@ const mapSearchReducer = (
   switch (action.type) {
     case mapSearchActionTypes.CLEAR_LOCATION:
       // determine if there's still active filters besides bbox and query
-      const hasActiveFilters =
-        state.filters.hostingStatusOptions !==
-          initialState.filters.hostingStatusOptions ||
-        state.filters.numGuests !== initialState.filters.numGuests ||
-        state.filters.completeProfile !==
-          initialState.filters.completeProfile ||
-        state.filters.query !== initialState.filters.query ||
-        state.filters.acceptsKids !== initialState.filters.acceptsKids ||
-        state.filters.acceptsLastMinRequests !==
-          initialState.filters.acceptsLastMinRequests ||
-        state.filters.drinkingAllowed !==
-          initialState.filters.drinkingAllowed ||
-        state.filters.hasReferences !== initialState.filters.hasReferences ||
-        state.filters.hasStrongVerification !==
-          initialState.filters.hasStrongVerification ||
-        state.filters.smokingAllowed !== initialState.filters.smokingAllowed;
+      const hasActiveFilters = getHasActiveFilters(state);
 
       return {
         ...state,
@@ -87,7 +90,9 @@ const mapSearchReducer = (
       const updatedFilters = { ...state.filters };
 
       for (const key in action.payload) {
-        if (key === "location") {
+        if (key === "bbox") {
+          updatedFilters.bbox = action.payload[key];
+        } else if (key === "location") {
           const bbox = (action.payload[key] as GeocodeResult).bbox;
           const formattedBbox = [
             bbox[2],
@@ -132,7 +137,7 @@ const mapSearchReducer = (
       return {
         ...state,
         filters: updatedFilters,
-        hasActiveFilters: true,
+        hasActiveFilters: getHasActiveFilters(state),
       };
     case mapSearchActionTypes.RESET_FILTERS:
       return initialState;

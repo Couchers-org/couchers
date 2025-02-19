@@ -113,6 +113,8 @@ const MapView = ({
     const sw = mapBounds.getSouthWest();
     const bbox: Coordinates = [sw.lng, sw.lat, ne.lng, ne.lat];
 
+    console.log("Map moved, setting filters", bbox);
+
     onSetFilters({
       bbox,
     });
