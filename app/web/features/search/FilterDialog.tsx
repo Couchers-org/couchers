@@ -406,9 +406,21 @@ const FilterDialog = ({
             }
             value={ageRange}
             onChange={handleAgeRangeChange}
-            valueLabelDisplay="on"
+            valueLabelDisplay="auto"
             slots={{ thumb: SliderThumbComponent }}
             defaultValue={[18, 100]}
+            min={18}
+            max={100}
+            marks={[
+              {
+                value: 18,
+                label: "18",
+              },
+              {
+                value: 100,
+                label: "100",
+              },
+            ]}
           />
         </FilterItemRow>
         <Divider />
