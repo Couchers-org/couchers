@@ -125,13 +125,6 @@ const StyledTuneIcon = styled(Tune, {
   height: "20px",
   width: "20px",
   padding: 0,
-
-  "&:hover": {
-    cursor: "pointer",
-    color: hasActiveFilters
-      ? theme.palette.secondary.dark
-      : theme.palette.primary.light,
-  },
 }));
 
 const StyledClearIcon = styled(Clear)(({ theme }) => ({

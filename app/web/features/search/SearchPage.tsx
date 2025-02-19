@@ -28,6 +28,8 @@ export type FilterOptions = {
   acceptsKids?: boolean;
   acceptsPets?: boolean;
   acceptsLastMinRequests?: boolean;
+  ageMin?: number;
+  ageMax?: number;
   bbox?: GeocodeResult["bbox"];
   completeProfile?: boolean;
   drinkingAllowed?: boolean;
@@ -119,8 +121,6 @@ export default function SearchPage({ locationName }: { locationName: string }) {
   const memoizedUsers = useMemo(() => formattedUsers, [formattedUsers]);
 
   const handleSetFilters = (newFilters: FilterOptions) => {
-
-    console.log("newFilters", newFilters);
     dispatch({
       type: mapSearchActionTypes.SET_FILTERS,
       payload: newFilters,

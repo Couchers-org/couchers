@@ -5,6 +5,8 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  Slider,
+  SliderThumb,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -57,6 +59,55 @@ const FilterItemRow = styled("div")({
   marginBottom: theme.spacing(2),
 });
 
+const StyledSlider = styled(Slider)(({ theme }) => ({
+  height: 3,
+  padding: "13px 0",
+  "& .MuiSlider-thumb": {
+    height: 27,
+    width: 27,
+    backgroundColor: "#fff",
+    border: "1px solid currentColor",
+    "&:hover": {
+      boxShadow: "0 0 0 8px rgba(58, 133, 137, 0.16)",
+    },
+    "& .thumb-bar": {
+      height: 9,
+      width: 1,
+      backgroundColor: "currentColor",
+      marginLeft: 1,
+      marginRight: 1,
+    },
+  },
+  "& .MuiSlider-track": {
+    height: 3,
+  },
+  "& .MuiSlider-rail": {
+    color: theme.palette.grey[200],
+    opacity: 1,
+    height: 3,
+    ...theme.applyStyles("dark", {
+      color: "#bfbfbf",
+      opacity: undefined,
+    }),
+  },
+}));
+
+interface SliderThumbComponentProps extends React.HTMLAttributes<unknown> {
+  children?: React.ReactNode;
+}
+
+function SliderThumbComponent(props: SliderThumbComponentProps) {
+  const { children, ...other } = props;
+  return (
+    <SliderThumb {...other}>
+      {children}
+      <span className="thumb-bar" />
+      <span className="thumb-bar" />
+      <span className="thumb-bar" />
+    </SliderThumb>
+  );
+}
+
 const FilterDialog = ({
   isOpen,
   onCloseDialog,
@@ -68,6 +119,7 @@ const FilterDialog = ({
   const [acceptsPets, setAcceptsPets] = useState(false);
   const [acceptsKids, setAcceptsKids] = useState(false);
   const [acceptsLastMinRequests, setAcceptsLastMinRequests] = useState(false);
+  const [ageRange, setAgeRange] = useState<number[]>([18, 100]);
   const [drinkingAllowed, setDrinkingAllowed] = useState(false);
   const [showEmptyProfiles, setShowEmptyProfiles] = useState(true);
   const [lastActive, setLastActive] = useState(
@@ -91,6 +143,10 @@ const FilterDialog = ({
 
   const handleAcceptsLastMinRequestsChange = () => {
     setAcceptsLastMinRequests(!acceptsLastMinRequests);
+  };
+
+  const handleAgeRangeChange = (event: Event, newValue: number | number[]) => {
+    setAgeRange(newValue as number[]);
   };
 
   const handleDrinkingAllowedChange = () => {
@@ -133,6 +189,7 @@ const FilterDialog = ({
     setAcceptsKids(false);
     setAcceptsPets(false);
     setAcceptsLastMinRequests(false);
+    setAgeRange([18, 100]);
     setDrinkingAllowed(false);
     setShowEmptyProfiles(true);
     setLastActive(lastActiveOptions.LAST_ACTIVE_ANY);
@@ -148,6 +205,8 @@ const FilterDialog = ({
       acceptsKids,
       acceptsPets,
       acceptsLastMinRequests,
+      ageMin: ageRange[0],
+      ageMax: ageRange[1],
       drinkingAllowed,
       completeProfile: !showEmptyProfiles,
       lastActive,
@@ -336,6 +395,21 @@ const FilterDialog = ({
               {t("global:hosting_status.cant_host")}
             </ToggleButton>
           </ToggleButtonGroup>
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>Age</Typography>
+        </FilterItemRow>
+        <FilterItemRow>
+          <StyledSlider
+            getAriaLabel={(index) =>
+              index === 0 ? "Minimum age" : "Maximum age"
+            }
+            value={ageRange}
+            onChange={handleAgeRangeChange}
+            valueLabelDisplay="on"
+            slots={{ thumb: SliderThumbComponent }}
+            defaultValue={[18, 100]}
+          />
         </FilterItemRow>
         <Divider />
         <Typography variant="h3" sx={{ marginBottom: theme.spacing(2) }}>

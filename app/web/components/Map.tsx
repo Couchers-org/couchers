@@ -54,6 +54,7 @@ const Map = ({
   const handleDragEnd = () => {
     const zoom = mapRef.current?.getZoom();
 
+    // If zoom is too large an area, don't reload pins
     if (zoom && zoom >= 5) {
       onMapMove();
     }
@@ -75,10 +76,8 @@ const Map = ({
   };
 
   const handleNavControlClick = () => {
-    console.log("navControlRef clicked");
     const zoom = mapRef.current?.getZoom();
-    console.log("zoom", zoom);
-    // Zoom is too large an area, don't reload pins
+    // If zoom is too large an area, don't reload pins
     if (zoom && zoom >= 5) {
       onMapMove();
     }

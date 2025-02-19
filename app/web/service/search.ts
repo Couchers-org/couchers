@@ -19,6 +19,8 @@ export interface UserSearchFilters {
   acceptsKids?: boolean;
   acceptsPets?: boolean;
   acceptsLastMinRequests?: boolean;
+  ageMin?: number;
+  ageMax?: number;
   drinkingAllowed?: boolean;
   query?: string;
   bbox?: Coordinates;
@@ -38,6 +40,8 @@ export async function userSearch(
     acceptsKids,
     acceptsLastMinRequests,
     acceptsPets,
+    ageMin,
+    ageMax,
     drinkingAllowed,
     query,
     bbox,
@@ -100,11 +104,21 @@ export async function userSearch(
   }
 
   if (hasStrongVerification) {
-    req.setHasStrongVerification(new BoolValue().setValue(hasStrongVerification));
+    req.setHasStrongVerification(
+      new BoolValue().setValue(hasStrongVerification),
+    );
   }
 
   if (hostingStatusOptions && hostingStatusOptions.length !== 0) {
     req.setHostingStatusFilterList(hostingStatusOptions);
+  }
+
+  if (ageMin) {
+    req.setAgeMin(new UInt32Value().setValue(ageMin));
+  }
+
+  if (ageMax) {
+    req.setAgeMax(new UInt32Value().setValue(ageMax));
   }
 
   if (numGuests) {

@@ -32,6 +32,9 @@ type MapSearchAction =
 
 const getHasActiveFilters = (state: MapSearchState) => {
   return (
+    state.filters.ageMin !== initialState.filters.ageMin ||
+    state.filters.ageMax !== initialState.filters.ageMax ||
+    state.filters.acceptsPets !== initialState.filters.acceptsPets ||
     state.filters.hostingStatusOptions !==
       initialState.filters.hostingStatusOptions ||
     state.filters.numGuests !== initialState.filters.numGuests ||
@@ -53,6 +56,8 @@ const initialState: MapSearchState = {
     acceptsKids: undefined,
     acceptsLastMinRequests: undefined,
     acceptsPets: undefined,
+    ageMin: 18,
+    ageMax: 200,
     completeProfile: false,
     drinkingAllowed: undefined,
     query: "",
@@ -90,9 +95,16 @@ const mapSearchReducer = (
       const updatedFilters = { ...state.filters };
 
       for (const key in action.payload) {
+        if (key === "ageMin") {
+          updatedFilters.ageMin = action.payload[key];
+        }
+        if (key === "ageMax") {
+          updatedFilters.ageMax = action.payload[key];
+        }
         if (key === "bbox") {
           updatedFilters.bbox = action.payload[key];
-        } else if (key === "location") {
+        }
+        if (key === "location") {
           const bbox = (action.payload[key] as GeocodeResult).bbox;
           const formattedBbox = [
             bbox[2],
@@ -102,33 +114,42 @@ const mapSearchReducer = (
           ] as Coordinates;
 
           updatedFilters.bbox = formattedBbox; // sw long, sw lat, ne long, ne lat
-        } else if (key === "query" || key === "keyword") {
+        }
+        if (key === "query" || key === "keyword") {
           updatedFilters.query = action.payload[key];
           updatedFilters.bbox = initialState.filters.bbox;
-        } else if (key === "hostingStatus") {
+        }
+        if (key === "hostingStatus") {
           updatedFilters.hostingStatusOptions =
             action.payload[key] && action.payload[key].length === 0
               ? undefined
               : action.payload[key];
-        } else if (key === "numGuests") {
+        }
+        if (key === "numGuests") {
           updatedFilters.numGuests =
             action.payload[key] === 0 ? undefined : action.payload[key];
-        } else if (key === "acceptsKids") {
+        }
+        if (key === "acceptsKids") {
           updatedFilters.acceptsKids =
             action.payload[key] === false ? undefined : action.payload[key];
-        } else if (key === "acceptsLastMinRequests") {
+        }
+        if (key === "acceptsLastMinRequests") {
           updatedFilters.acceptsLastMinRequests =
             action.payload[key] === false ? undefined : action.payload[key];
-        } else if (key === "drinkingAllowed") {
+        }
+        if (key === "drinkingAllowed") {
           updatedFilters.drinkingAllowed =
             action.payload[key] === false ? undefined : action.payload[key];
-        } else if (key === "hasReferences") {
+        }
+        if (key === "hasReferences") {
           updatedFilters.hasReferences =
             action.payload[key] === false ? undefined : action.payload[key];
-        } else if (key === "hasStrongVerification") {
+        }
+        if (key === "hasStrongVerification") {
           updatedFilters.hasStrongVerification =
             action.payload[key] === false ? undefined : action.payload[key];
-        } else if (key === "smokingAllowed") {
+        }
+        if (key === "smokingAllowed") {
           updatedFilters.smokingAllowed =
             action.payload[key] === false ? undefined : action.payload[key];
         }
