@@ -111,9 +111,9 @@ export async function userSearch(
     req.setGuests(new UInt32Value().setValue(numGuests));
   }
 
-  // if (smokingAllowed) {
-  //   req.setSmokingAllowed(new BoolValue().setValue(smokingAllowed));
-  // }
+  if (smokingAllowed) {
+    req.setSmokingAllowed(new BoolValue().setValue(smokingAllowed));
+  }
 
   const response = await client.search.userSearch(req);
   return response.toObject();

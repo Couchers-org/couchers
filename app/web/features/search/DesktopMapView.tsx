@@ -19,14 +19,9 @@ import SearchResultsList from "./SearchResultsList";
 export enum MapViews {
   MAP_AND_LIST = "MAP_AND_LIST",
   LIST_ONLY = "LIST_ONLY",
-  MAP_ONLY = "MAP_ONLY",
 }
 
-export type MapViewOptions =
-  | MapViews.MAP_AND_LIST
-  | MapViews.LIST_ONLY
-  | MapViews.MAP_ONLY;
-
+export type MapViewOptions = MapViews.MAP_AND_LIST | MapViews.LIST_ONLY;
 interface DesktopMapViewProps {
   flyToLocation: (location: FlyToLocationProps) => void;
   hasActiveFilters: boolean;
@@ -70,18 +65,15 @@ const ListContentWrapper = styled("div", {
 }));
 
 const MapContainer = styled("div", {
-  shouldForwardProp: (prop) =>
-    prop !== "drawerWidth" && prop !== "isMapOnlyView",
-})<{ drawerWidth: number; isMapOnlyView: boolean }>(
-  ({ theme, drawerWidth, isMapOnlyView }) => ({
-    width: isMapOnlyView ? "100%" : `calc(100% - ${drawerWidth}px)`,
-    height: "100%",
-    overflow: "hidden",
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-  }),
-);
+  shouldForwardProp: (prop) => prop !== "drawerWidth",
+})<{ drawerWidth: number }>(({ theme, drawerWidth }) => ({
+  width: `calc(100% - ${drawerWidth}px)`,
+  height: "100%",
+  overflow: "hidden",
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+}));
 
 const MapControlsWrapper = styled("div", {
   shouldForwardProp: (prop) => prop !== "isDualView" && prop !== "drawerWidth",
@@ -156,56 +148,50 @@ const DesktopMapView = ({
           />
         </CenterAligner>
       </MapControlsWrapper>
-      {mapView !== MapViews.MAP_ONLY && (
-        <DrawerContainer
-          drawerWidth={drawerWidth}
-          isDualView={mapView === MapViews.MAP_AND_LIST}
+      <DrawerContainer
+        drawerWidth={drawerWidth}
+        isDualView={mapView === MapViews.MAP_AND_LIST}
+      >
+        <ResizeableDrawer
+          onDrawerWidthChange={handleDrawerWidthChange}
+          showDragger={mapView !== MapViews.LIST_ONLY}
         >
-          <ResizeableDrawer
-            onDrawerWidthChange={handleDrawerWidthChange}
-            showDragger={mapView !== MapViews.LIST_ONLY}
-          >
-            <>
-              {isLoading ? (
-                <CenteredSpinner />
-              ) : (
-                <ListContentWrapper
-                  showTopSpace={
-                    mapView === MapViews.LIST_ONLY ||
-                    drawerWidth > window.innerWidth / 2
-                  }
+          <>
+            {isLoading ? (
+              <CenteredSpinner />
+            ) : (
+              <ListContentWrapper
+                showTopSpace={
+                  mapView === MapViews.LIST_ONLY ||
+                  drawerWidth > window.innerWidth / 2
+                }
+              >
+                <Typography
+                  variant="caption"
+                  sx={{
+                    marginTop: theme.spacing(2),
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
                 >
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      marginTop: theme.spacing(2),
-                      display: "flex",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {!users
-                      ? t("search:search_result.no_user_result_message")
-                      : t("search:search_result.users_found_message", {
-                          count: users.length,
-                        })}
-                  </Typography>
-                  <SearchResultsList
-                    selectedUserIds={selectedUserIds}
-                    users={users}
-                  />
-                </ListContentWrapper>
-              )}
-            </>
-          </ResizeableDrawer>
-        </DrawerContainer>
-      )}
+                  {!users
+                    ? t("search:search_result.no_user_result_message")
+                    : t("search:search_result.users_found_message", {
+                        count: users.length,
+                      })}
+                </Typography>
+                <SearchResultsList
+                  selectedUserIds={selectedUserIds}
+                  users={users}
+                />
+              </ListContentWrapper>
+            )}
+          </>
+        </ResizeableDrawer>
+      </DrawerContainer>
       {mapView !== MapViews.LIST_ONLY && (
-        <MapContainer
-          drawerWidth={drawerWidth}
-          isMapOnlyView={mapView === MapViews.MAP_ONLY}
-        >
+        <MapContainer drawerWidth={drawerWidth}>
           <MapView
-            enablePinTooltip={mapView === MapViews.MAP_ONLY}
             flyToLocation={flyToLocation}
             isLoading={isLoading}
             mapRef={mapRef}

@@ -33,37 +33,11 @@ const MapViewToggle = ({ mapView, onMapViewChange }: MapViewToggleProps) => {
       color="primary"
     >
       <ToggleButton
-        value={MapViews.MAP_ONLY}
-        aria-label={t("search:views.map_only_view")}
-        sx={{
-          backgroundColor: theme.palette.common.white,
-          borderRadius: "20px 0 0 20px",
-          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-
-          "&.Mui-selected": {
-            backgroundColor: theme.palette.common.white,
-
-            "&:hover": {
-              backgroundColor: theme.palette.grey[50],
-            },
-          },
-
-          "&:hover": {
-            backgroundColor: theme.palette.grey[50],
-            color: theme.palette.primary.dark,
-          },
-        }}
-      >
-        <Tooltip title={t("search:views.map_only_view")}>
-          <MapOutlined sx={{ fontSize: "18px" }} />
-        </Tooltip>
-      </ToggleButton>
-      <ToggleButton
         value={MapViews.MAP_AND_LIST}
         aria-label={t("search:views.map_and_list_view")}
         sx={{
           backgroundColor: theme.palette.common.white,
-          borderLeft: `1px solid ${theme.palette.grey[300]} !important`,
+          borderRadius: "20px 0 0 20px",
           boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
 
           "&.Mui-selected": {
