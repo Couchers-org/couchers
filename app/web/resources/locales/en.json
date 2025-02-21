@@ -1,5 +1,7 @@
 {
   "close": "Close",
+  "expand": "Expand",
+  "retract": "Retract",
   "couchers": "Couchers.org",
   "legal_name": "Couchers, Inc.",
   "login": "Log in",

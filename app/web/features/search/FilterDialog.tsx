@@ -20,7 +20,7 @@ import IconButton from "components/IconButton";
 import { CloseIcon } from "components/Icons";
 import PlusMinusSelector from "components/PlusMinusSelector";
 import { useTranslation } from "i18n";
-import { SEARCH } from "i18n/namespaces";
+import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { HostingStatus } from "proto/api_pb";
 import { useState } from "react";
 import { theme } from "theme";
@@ -62,6 +62,9 @@ const FilterItemRow = styled("div")({
 const StyledSlider = styled(Slider)(({ theme }) => ({
   height: 3,
   padding: "13px 0",
+  marginLeft: theme.spacing(1.5),
+  marginRight: theme.spacing(1.5),
+
   "& .MuiSlider-thumb": {
     height: 27,
     width: 27,
@@ -113,7 +116,7 @@ const FilterDialog = ({
   onCloseDialog,
   onSetFilters,
 }: FilterDialogProps) => {
-  const { t } = useTranslation([SEARCH]);
+  const { t } = useTranslation([GLOBAL, SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [acceptsPets, setAcceptsPets] = useState(false);
@@ -221,7 +224,7 @@ const FilterDialog = ({
 
   return (
     <StyledDialog
-      aria-labelledby="Search Filters Dialog"
+      aria-labelledby={t("search:filter_dialog.desktop_title")}
       open={isOpen}
       onClose={() => {}}
       title={t("search:filter_dialog.desktop_title")}
@@ -245,7 +248,9 @@ const FilterDialog = ({
       </IconButton>
       <FilterItemsContainer>
         <FilterItemRow>
-          <Typography>Filter out empty profiles</Typography>
+          <Typography>
+            {t("search:form.empty_profile_filters.title")}
+          </Typography>
           <CustomColorSwitch
             checked={!showEmptyProfiles}
             onClick={handleShowEmptyProfilesChange}
@@ -253,7 +258,9 @@ const FilterDialog = ({
           />
         </FilterItemRow>
         <FilterItemRow>
-          <Typography>Has references</Typography>
+          <Typography>
+            {t("search:form.general_filters.has_references")}
+          </Typography>
           <CustomColorSwitch
             checked={hasReferences}
             onClick={handleHasReferencesChange}
@@ -262,8 +269,8 @@ const FilterDialog = ({
         </FilterItemRow>
         <FilterItemRow>
           <Typography>
-            Has strong verification{" "}
-            <Tooltip title="User has verified their identity with their passport">
+            {t("search:form.general_filters.has_strong_verification")}{" "}
+            <Tooltip title={t("global:strong_verification.helper_text")}>
               <InfoOutlined
                 sx={{
                   fontSize: "16px",
@@ -283,7 +290,9 @@ const FilterDialog = ({
           />
         </FilterItemRow>
         <FilterItemRow>
-          <Typography>Accepts last minute requests</Typography>
+          <Typography>
+            {t("search:form.general_filters.accepts_last_minute_requests")}
+          </Typography>
           <CustomColorSwitch
             checked={acceptsLastMinRequests}
             onClick={handleAcceptsLastMinRequestsChange}
@@ -292,10 +301,10 @@ const FilterDialog = ({
         </FilterItemRow>
         <Divider />
         <Typography variant="h3" sx={{ marginBottom: theme.spacing(2) }}>
-          Rules
+          {t("search:form.rules.title")}
         </Typography>
         <FilterItemRow>
-          <Typography>Kids allowed</Typography>
+          <Typography> {t("search:form.rules.kids_allowed")}</Typography>
           <CustomColorSwitch
             checked={acceptsKids}
             onClick={handleAcceptsKidsChange}
@@ -303,7 +312,7 @@ const FilterDialog = ({
           />
         </FilterItemRow>
         <FilterItemRow>
-          <Typography>Pets allowed</Typography>
+          <Typography> {t("search:form.rules.pets_allowed")}</Typography>
           <CustomColorSwitch
             checked={acceptsPets}
             onClick={handleAcceptsPetsChange}
@@ -311,7 +320,7 @@ const FilterDialog = ({
           />
         </FilterItemRow>
         <FilterItemRow>
-          <Typography>Smoking allowed</Typography>
+          <Typography> {t("search:form.rules.smoking_allowed")}</Typography>
           <CustomColorSwitch
             checked={smokingAllowed}
             onClick={handleSmokingAllowedChange}
@@ -319,7 +328,7 @@ const FilterDialog = ({
           />
         </FilterItemRow>
         <FilterItemRow>
-          <Typography>Alcohol allowed</Typography>
+          <Typography> {t("search:form.rules.alcohol_allowed")}</Typography>
           <CustomColorSwitch
             checked={drinkingAllowed}
             onClick={handleDrinkingAllowedChange}
@@ -328,10 +337,12 @@ const FilterDialog = ({
         </FilterItemRow>
         <Divider />
         <Typography variant="h3" sx={{ marginBottom: theme.spacing(2) }}>
-          Host filters
+          {t("search:form.host_filters.title")}
         </Typography>
         <FilterItemRow>
-          <Typography>Last active</Typography>
+          <Typography>
+            {t("search:form.host_filters.last_active_field_label")}
+          </Typography>
           <Select<number>
             id="last_active_filter"
             onChange={handleLastActiveSelect}
@@ -360,7 +371,9 @@ const FilterDialog = ({
           </Select>
         </FilterItemRow>
         <FilterItemRow>
-          <Typography>Hosting status</Typography>
+          <Typography>
+            {t("search:form.host_filters.hosting_status_field_label")}
+          </Typography>
           <ToggleButtonGroup
             onChange={handleHostingStatusChange}
             value={hostingStatus}
@@ -397,12 +410,16 @@ const FilterDialog = ({
           </ToggleButtonGroup>
         </FilterItemRow>
         <FilterItemRow>
-          <Typography>Age</Typography>
+          <Typography>
+            {t("search:form.host_filters.age.field_label")}
+          </Typography>
         </FilterItemRow>
         <FilterItemRow>
           <StyledSlider
             getAriaLabel={(index) =>
-              index === 0 ? "Minimum age" : "Maximum age"
+              index === 0
+                ? t("search:form.host_filters.age.min_age")
+                : t("search:form.host_filters.age.max_age")
             }
             value={ageRange}
             onChange={handleAgeRangeChange}
@@ -425,10 +442,12 @@ const FilterDialog = ({
         </FilterItemRow>
         <Divider />
         <Typography variant="h3" sx={{ marginBottom: theme.spacing(2) }}>
-          Accommodation filters
+          {t("search:form.accommodation_filters.title")}
         </Typography>
         <FilterItemRow>
-          <Typography>Number of guests</Typography>
+          <Typography>
+            {t("search:form.accommodation_filters.guests_field_label")}
+          </Typography>
           <PlusMinusSelector
             onChange={handleNumberOfGuestsChange}
             value={numberOfGuests}
@@ -436,7 +455,9 @@ const FilterDialog = ({
         </FilterItemRow>
       </FilterItemsContainer>
       <DialogActions sx={{ display: "flex", justifyContent: "space-between" }}>
-        <Button onClick={handleClearFilters}>Clear all</Button>
+        <Button onClick={handleClearFilters}>
+          {t("search:form.clear_filters")}
+        </Button>
         <Button
           onClick={handleApplyFilters}
           sx={{
@@ -448,7 +469,7 @@ const FilterDialog = ({
             },
           }}
         >
-          Apply
+          {t("search:form.submit_button_label")}
         </Button>
       </DialogActions>
     </StyledDialog>

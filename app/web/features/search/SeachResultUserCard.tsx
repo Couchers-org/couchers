@@ -33,9 +33,9 @@ const StyledCard = styled(Card, {
   border: isHighlighted ? `2px solid ${theme.palette.primary.main}` : "none",
   borderRadius: 8,
   boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
-  height: "100%",
+  // height: "100%",
   paddingTop: theme.spacing(1),
-  maxHeight: theme.spacing(60),
+  height: theme.spacing(50),
 }));
 
 const StyledTopContent = styled("div")(({ theme }) => ({
@@ -60,6 +60,7 @@ const StyledCardHeader = styled(Typography)(({ theme }) => ({
   fontSize: "1.2rem",
   overflow: "hidden",
   textOverflow: "ellipsis",
+  wordBreak: "break-word",
 }));
 
 const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({

@@ -22,6 +22,11 @@
     "by_location_filter_label": "By location",
     "by_keyword_filter_label": "By keyword or name",
     "host_filters": {
+      "age": {
+        "field_label": "Age",
+        "min_age": "Minimum age",
+        "max_age": "Maximum age"
+      },
       "title": "Host filters",
       "last_active_field_label": "Last active",
       "hosting_status_field_label": "Hosting status",
@@ -33,6 +38,18 @@
     },
     "empty_profile_filters": {
       "title": "Filter out empty profiles"
+    },
+    "general_filters": {
+      "accepts_last_minute_requests": "Accepts last minute requests",
+      "has_strong_verification": "Has strong verification",
+      "has_references": "Has references"
+    },
+    "rules": {
+      "title": "Rules",
+      "alcohol_allowed": "Alcohol allowed",
+      "kids_allowed": "Kids allowed",
+      "pets_allowed": "Pets allowed",
+      "smoking_allowed": "Smoking allowed"
     },
     "submit_button_label": "Apply",
     "search_filters": "Search filters",
@@ -46,8 +63,7 @@
   },
   "views": {
     "choose_map_view": "Choose map view",
-    "map_only_view": "Map only view",
-    "list_only_view": "List only view",
-    "map_and_list_view": "Map and list view"
+    "list": "List",
+    "map_and_list": "Map and List"
   }
 }

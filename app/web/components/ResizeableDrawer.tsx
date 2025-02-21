@@ -1,6 +1,11 @@
 import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
 import { styled } from "@mui/material";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import React from "react";
+import { theme } from "theme";
+
+import IconButton from "./IconButton";
 
 export const DEFAULT_DRAWER_WIDTH = 400;
 
@@ -18,10 +23,12 @@ const StyledDragger = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  "& svg": {
-    fontSize: 24,
-    color: theme.palette.grey[600],
-  },
+  position: "relative",
+  overflow: "visible",
+  // "& svg": {
+  //   fontSize: 24,
+  //   color: theme.palette.grey[600],
+  // },
 }));
 
 const DrawerContentWrapper = styled("div")(() => ({
@@ -44,6 +51,8 @@ export default function ResizeableDrawer({
   onDrawerWidthChange,
   showDragger,
 }: ResizeableDrawerProps) {
+  const { t } = useTranslation([GLOBAL]);
+
   const [isExpanded, setIsExpanded] = React.useState(false);
 
   const handleDrawerExpansion = () => {
@@ -59,17 +68,24 @@ export default function ResizeableDrawer({
       <ScrollableContent>{children}</ScrollableContent>
       {showDragger && (
         <StyledDragger>
-          {isExpanded ? (
-            <KeyboardArrowLeft
-              onClick={handleDrawerExpansion}
-              sx={{ fontSize: "24px", "&:hover": { cursor: "pointer" } }}
-            />
-          ) : (
-            <KeyboardArrowRight
-              onClick={handleDrawerExpansion}
-              sx={{ fontSize: "24px", "&:hover": { cursor: "pointer" } }}
-            />
-          )}
+          <IconButton
+            onClick={handleDrawerExpansion}
+            aria-label={t(`global:${isExpanded ? "retract" : "expand"}`)}
+            sx={{
+              fontSize: "24px",
+              backgroundColor: theme.palette.common.white,
+              border: `1px solid ${theme.palette.divider}`,
+              height: "35px",
+              width: "35px",
+              zIndex: 100,
+
+              "&:hover": {
+                backgroundColor: theme.palette.common.white,
+              },
+            }}
+          >
+            {isExpanded ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+          </IconButton>
         </StyledDragger>
       )}
     </DrawerContentWrapper>

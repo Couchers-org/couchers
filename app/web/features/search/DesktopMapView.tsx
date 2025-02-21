@@ -50,7 +50,7 @@ const DrawerContainer = styled("div", {
     display: "flex",
     width: isDualView ? `${drawerWidth}px` : "100%",
     height: "100%",
-    overflow: "hidden",
+    // overflow: "hidden",
     position: "relative",
   }),
 );
@@ -85,6 +85,7 @@ const MapControlsWrapper = styled("div", {
     display: "flex",
     alignItems: "center",
     width: "100%",
+    right: 0, // Ensure it stays within bounds
 
     ...(isDualView && {
       ...(drawerWidth > window.innerWidth / 2
@@ -157,35 +158,32 @@ const DesktopMapView = ({
           showDragger={mapView !== MapViews.LIST_ONLY}
         >
           <>
-            {isLoading ? (
-              <CenteredSpinner />
-            ) : (
-              <ListContentWrapper
-                showTopSpace={
-                  mapView === MapViews.LIST_ONLY ||
-                  drawerWidth > window.innerWidth / 2
-                }
+            <ListContentWrapper
+              showTopSpace={
+                mapView === MapViews.LIST_ONLY ||
+                drawerWidth > window.innerWidth / 2
+              }
+            >
+              <Typography
+                variant="caption"
+                sx={{
+                  marginTop: theme.spacing(2),
+                  display: "flex",
+                  justifyContent: "center",
+                }}
               >
-                <Typography
-                  variant="caption"
-                  sx={{
-                    marginTop: theme.spacing(2),
-                    display: "flex",
-                    justifyContent: "center",
-                  }}
-                >
-                  {!users
-                    ? t("search:search_result.no_user_result_message")
-                    : t("search:search_result.users_found_message", {
-                        count: users.length,
-                      })}
-                </Typography>
-                <SearchResultsList
-                  selectedUserIds={selectedUserIds}
-                  users={users}
-                />
-              </ListContentWrapper>
-            )}
+                {!users
+                  ? t("search:search_result.no_user_result_message")
+                  : t("search:search_result.users_found_message", {
+                      count: users.length,
+                    })}
+              </Typography>
+              <SearchResultsList
+                isLoading={isLoading}
+                selectedUserIds={selectedUserIds}
+                users={users}
+              />
+            </ListContentWrapper>
           </>
         </ResizeableDrawer>
       </DrawerContainer>

@@ -2,8 +2,10 @@ import { Box, styled } from "@mui/material";
 import { User } from "proto/api_pb";
 
 import SearchResultUserCard from "./SeachResultUserCard";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 
 interface SearchResultsListProps {
+  isLoading?: boolean;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
 }
@@ -18,10 +20,12 @@ const StyledContainer = styled(Box)(({ theme }) => ({
 }));
 
 const StyledCardWrapper = styled(Box)(({ theme }) => ({
-  flex: `1 1 calc(50% - ${theme.spacing(2)})`, // 2 columns by default
+  // 3 columns by default
+  flex: `1 1 calc(33% - ${theme.spacing(2)})`,
 }));
 
 const SearchResultsList = ({
+  isLoading,
   selectedUserIds,
   users,
 }: SearchResultsListProps) => {
@@ -32,6 +36,10 @@ const SearchResultsList = ({
   const selectedUsers = users.filter((user) =>
     selectedUserIds.includes(user.userId),
   );
+
+  if (isLoading) {
+    <CenteredSpinner />;
+  }
 
   return (
     <StyledContainer>
