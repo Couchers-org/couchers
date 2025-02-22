@@ -14,6 +14,7 @@ import EventsSection from "../events/EventsSection";
 import PageHeader from "../PageHeader";
 import CommunityPageSubHeader from "./CommunityPageSubHeader";
 import InfoPageSection from "./InfoPageSection";
+import CommunityMembersList from "../members/CommunityMembersList";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
   title: {
@@ -102,6 +103,8 @@ export default function CommunityPage({
               <DiscussionsListPage community={community} />
             ) : tab === "events" ? (
               <CommunityEventsList community={community} />
+            ) : tab === "members" ? (
+              <CommunityMembersList communityId={community.communityId} />
             ) : null}
           </>
         );

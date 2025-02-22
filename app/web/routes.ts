@@ -149,6 +149,7 @@ export const communityTabs = [
   "info",
   "discussions",
   "events",
+  "members",
 ] as const;
 export type CommunityTab = (typeof communityTabs)[number];
 
