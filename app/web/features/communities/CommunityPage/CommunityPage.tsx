@@ -11,10 +11,10 @@ import CommunityInfoPage from "../CommunityInfoPage";
 import { DiscussionsListPage, DiscussionsSection } from "../discussions";
 import CommunityEventsList from "../events/CommunityEventsList";
 import EventsSection from "../events/EventsSection";
+import CommunityMembersList from "../members/CommunityMembersList";
 import PageHeader from "../PageHeader";
 import CommunityPageSubHeader from "./CommunityPageSubHeader";
 import InfoPageSection from "./InfoPageSection";
-import CommunityMembersList from "../members/CommunityMembersList";
 
 export const useCommunityPageStyles = makeStyles((theme) => ({
   title: {

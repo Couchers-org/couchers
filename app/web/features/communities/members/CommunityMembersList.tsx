@@ -1,10 +1,11 @@
+import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HorizontalScroller from "components/HorizontalScroller";
 import { PersonIcon } from "components/Icons";
-
 import TextBody from "components/TextBody";
+import UsersList from "components/UsersList";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
@@ -12,8 +13,6 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import { SectionTitle } from "../CommunityPage";
 import { useListMembers } from "../hooks";
-import UsersList from "components/UsersList";
-import { styled } from "@mui/material";
 
 const StyledHorizontalScroller = styled(HorizontalScroller)(({ theme }) => ({
   [theme.breakpoints.down("sm")]: {
@@ -34,6 +33,8 @@ const StyledHorizontalScroller = styled(HorizontalScroller)(({ theme }) => ({
     gridTemplateColumns: "repeat(3, 1fr)",
     gap: theme.spacing(3),
   },
+  width: "100%",
+  overflow: "hidden",
 }));
 
 const LoadMoreButtonWrapper = styled("div")(({ theme }) => ({
