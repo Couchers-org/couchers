@@ -41,6 +41,7 @@ export default function CommunityPageSubHeader({
     info: t("communities:local_info_label"),
     discussions: t("communities:discussions_label"),
     events: t("communities:events_label"),
+    members: t("communities:members_label"),
   };
 
   return (
