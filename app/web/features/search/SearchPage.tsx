@@ -160,6 +160,11 @@ export default function SearchPage({ locationName }: { locationName: string }) {
         userId,
       },
     });
+
+    //update result list
+    document
+      .getElementById(`search-result-${userId}`)
+      ?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleClearFilters = () => {

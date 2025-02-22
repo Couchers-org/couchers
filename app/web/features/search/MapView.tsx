@@ -80,15 +80,6 @@ const MapView = ({
 
       if (layerId === UNCLUSTERED_LAYER_ID) {
         const userId = feature.properties.id;
-        const point = feature.geometry as Point;
-
-        const [longitude, latitude] = point.coordinates;
-
-        flyToLocation({
-          latitude,
-          longitude,
-          zoom: 12.5,
-        });
 
         if (selectedUserIds.includes(userId)) {
           setMapFeatureState(mapRef, userId, false);
@@ -112,8 +103,6 @@ const MapView = ({
     const ne = mapBounds.getNorthEast();
     const sw = mapBounds.getSouthWest();
     const bbox: Coordinates = [sw.lng, sw.lat, ne.lng, ne.lat];
-
-    console.log("Map moved, setting filters", bbox);
 
     onSetFilters({
       bbox,

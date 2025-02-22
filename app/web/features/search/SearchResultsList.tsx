@@ -33,28 +33,23 @@ const SearchResultsList = ({
     return null;
   }
 
-  const selectedUsers = users.filter((user) =>
-    selectedUserIds.includes(user.userId),
-  );
-
   if (isLoading) {
     <CenteredSpinner />;
   }
 
   return (
     <StyledContainer>
-      {selectedUserIds.length > 0 &&
-        selectedUsers.map((selectedUser) => (
-          <StyledCardWrapper key={selectedUser?.userId}>
-            <SearchResultUserCard isHighlighted user={selectedUser} />
-          </StyledCardWrapper>
-        ))}
-      {selectedUserIds.length < 1 &&
-        users.map((user) => (
-          <StyledCardWrapper key={user.userId}>
-            <SearchResultUserCard isHighlighted={false} user={user} />
-          </StyledCardWrapper>
-        ))}
+      {users.map((user) => (
+        <StyledCardWrapper
+          key={user?.userId}
+          id={`search-result-${user?.userId}`}
+        >
+          <SearchResultUserCard
+            isHighlighted={selectedUserIds.includes(user.userId)}
+            user={user}
+          />
+        </StyledCardWrapper>
+      ))}
     </StyledContainer>
   );
 };

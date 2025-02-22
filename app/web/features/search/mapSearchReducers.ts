@@ -173,13 +173,11 @@ const mapSearchReducer = (
 
         return {
           ...state,
-          hasActiveFilters: newSelectedUserIds.length > 0,
           selectedUserIds: newSelectedUserIds,
         };
       }
       return {
         ...state,
-        hasActiveFilters: true,
         selectedUserIds: [...currentSelectedUserIds, action.payload.userId],
       };
 

@@ -1,5 +1,4 @@
 import { styled, Typography } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import ResizeableDrawer, {
   DEFAULT_DRAWER_WIDTH,
 } from "components/ResizeableDrawer";
@@ -41,6 +40,7 @@ const Wrapper = styled("div")(({ theme }) => ({
   width: "100%",
   overflow: "hidden",
   display: "flex",
+  position: "relative",
 }));
 
 const DrawerContainer = styled("div", {
@@ -50,7 +50,6 @@ const DrawerContainer = styled("div", {
     display: "flex",
     width: isDualView ? `${drawerWidth}px` : "100%",
     height: "100%",
-    // overflow: "hidden",
     position: "relative",
   }),
 );
@@ -81,7 +80,7 @@ const MapControlsWrapper = styled("div", {
   ({ theme, drawerWidth, isDualView }) => ({
     position: "absolute",
     top: theme.spacing(2),
-    zIndex: 1,
+    zIndex: 10,
     display: "flex",
     alignItems: "center",
     width: "100%",
