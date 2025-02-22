@@ -38,7 +38,7 @@ const MapViewToggle = ({ mapView, onMapViewChange }: MapViewToggleProps) => {
     >
       <ToggleButton
         value={MapViews.MAP_AND_LIST}
-        aria-label={t("search:views.map_and_list_view")}
+        aria-label={t("search:views.map_and_list")}
         sx={{
           borderRadius: "20px 0 0 20px",
         }}
@@ -47,7 +47,7 @@ const MapViewToggle = ({ mapView, onMapViewChange }: MapViewToggleProps) => {
       </ToggleButton>
       <ToggleButton
         value={MapViews.LIST_ONLY}
-        aria-label={t("search:views.list_only_view")}
+        aria-label={t("search:views.list")}
         sx={{ borderRadius: "0 20px 20px 0" }}
       >
         {t("search:views.list")}

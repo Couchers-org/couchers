@@ -1,8 +1,8 @@
 import { Box, styled } from "@mui/material";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { User } from "proto/api_pb";
 
 import SearchResultUserCard from "./SeachResultUserCard";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 
 interface SearchResultsListProps {
   isLoading?: boolean;

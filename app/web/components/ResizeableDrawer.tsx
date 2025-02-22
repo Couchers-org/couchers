@@ -17,7 +17,6 @@ interface ResizeableDrawerProps {
 
 const StyledDragger = styled("div")(({ theme }) => ({
   width: "8px",
-  cursor: "col-resize",
   borderLeft: `1px solid ${theme.palette.divider}`,
   backgroundColor: theme.palette.grey[50],
   display: "flex",
@@ -25,10 +24,6 @@ const StyledDragger = styled("div")(({ theme }) => ({
   justifyContent: "center",
   position: "relative",
   overflow: "visible",
-  // "& svg": {
-  //   fontSize: 24,
-  //   color: theme.palette.grey[600],
-  // },
 }));
 
 const DrawerContentWrapper = styled("div")(() => ({

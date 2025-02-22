@@ -2,6 +2,7 @@ import { FeatureCollection } from "geojson";
 import { User } from "proto/api_pb";
 import { MapRef } from "react-map-gl/maplibre";
 
+import { MapSearchState } from "../mapSearchReducers";
 import userPin from "../resources/userPin.png";
 
 const usersToGeoJSON = (pins: User.AsObject[]): FeatureCollection => ({
@@ -52,4 +53,32 @@ const loadMapUserPins = async (mapRef: React.RefObject<MapRef>) => {
   }
 };
 
-export { loadMapUserPins, setMapFeatureState, usersToGeoJSON };
+const getHasActiveFilters = (
+  state: MapSearchState,
+  initialState: MapSearchState,
+) => {
+  return (
+    state.filters.ageMin !== initialState.filters.ageMin ||
+    state.filters.ageMax !== initialState.filters.ageMax ||
+    state.filters.acceptsPets !== initialState.filters.acceptsPets ||
+    state.filters.hostingStatusOptions !==
+      initialState.filters.hostingStatusOptions ||
+    state.filters.numGuests !== initialState.filters.numGuests ||
+    state.filters.completeProfile !== initialState.filters.completeProfile ||
+    state.filters.acceptsKids !== initialState.filters.acceptsKids ||
+    state.filters.acceptsLastMinRequests !==
+      initialState.filters.acceptsLastMinRequests ||
+    state.filters.drinkingAllowed !== initialState.filters.drinkingAllowed ||
+    state.filters.hasReferences !== initialState.filters.hasReferences ||
+    state.filters.hasStrongVerification !==
+      initialState.filters.hasStrongVerification ||
+    state.filters.smokingAllowed !== initialState.filters.smokingAllowed
+  );
+};
+
+export {
+  getHasActiveFilters,
+  loadMapUserPins,
+  setMapFeatureState,
+  usersToGeoJSON,
+};

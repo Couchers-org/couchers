@@ -12,7 +12,11 @@ import { theme } from "theme";
 import FloatingSearchControls from "./FloatingSearchControls";
 import MapView from "./MapView";
 import MapViewToggle from "./MapViewToggle";
-import { FilterOptions, FlyToLocationProps } from "./SearchPage";
+import {
+  FilterOptions,
+  FlyToLocationProps,
+  SearchQueryOptions,
+} from "./SearchPage";
 import SearchResultsList from "./SearchResultsList";
 
 export enum MapViews {
@@ -27,10 +31,11 @@ interface DesktopMapViewProps {
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   onClearFilters: () => void;
-  onClearLocation: () => void;
+  onClearSearchQuery: () => void;
   onSetFilters: (filters: FilterOptions) => void;
+  onSetSearchQuery: (searchQuery: SearchQueryOptions) => void;
   onSelectedUserIdClick: (userId: number) => void;
-  query: string | undefined;
+  searchQuery: string | undefined;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
 }
@@ -80,7 +85,7 @@ const MapControlsWrapper = styled("div", {
   ({ theme, drawerWidth, isDualView }) => ({
     position: "absolute",
     top: theme.spacing(2),
-    zIndex: 10,
+    zIndex: 2,
     display: "flex",
     alignItems: "center",
     width: "100%",
@@ -107,10 +112,11 @@ const DesktopMapView = ({
   hasActiveFilters,
   isLoading,
   onClearFilters,
-  onClearLocation,
+  onClearSearchQuery,
   onSetFilters,
+  onSetSearchQuery,
   onSelectedUserIdClick,
-  query,
+  searchQuery,
   mapRef,
   selectedUserIds,
   users,
@@ -142,9 +148,10 @@ const DesktopMapView = ({
           <FloatingSearchControls
             hasActiveFilters={hasActiveFilters}
             onClearFilters={onClearFilters}
-            onClearLocation={onClearLocation}
+            onClearSearchQuery={onClearSearchQuery}
             onSetFilters={onSetFilters}
-            query={query}
+            onSetSearchQuery={onSetSearchQuery}
+            searchQuery={searchQuery}
           />
         </CenterAligner>
       </MapControlsWrapper>
@@ -192,7 +199,7 @@ const DesktopMapView = ({
             flyToLocation={flyToLocation}
             isLoading={isLoading}
             mapRef={mapRef}
-            onSetFilters={onSetFilters}
+            onSetSearchQuery={onSetSearchQuery}
             onSelectedUserIdClick={onSelectedUserIdClick}
             selectedUserIds={selectedUserIds}
             users={users}

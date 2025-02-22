@@ -13,12 +13,12 @@ import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, MeetupStatus, User } from "proto/api_pb";
 import { routeToUser } from "routes";
+import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import stripMarkdown from "utils/stripMarkdown";
 import { hourMillis, timeAgoI18n } from "utils/timeAgo";
 
 import { aboutText } from "./utils/constants";
-import { theme } from "theme";
 
 interface SearchResultUserCardProps {
   isHighlighted?: boolean;

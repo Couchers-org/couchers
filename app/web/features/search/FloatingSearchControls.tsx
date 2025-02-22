@@ -18,14 +18,15 @@ import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
 import FilterDialog from "./FilterDialog";
-import { FilterOptions } from "./SearchPage";
+import { FilterOptions, SearchQueryOptions } from "./SearchPage";
 
 interface FloatingSearchNavigationProps {
   hasActiveFilters: boolean;
   onClearFilters: () => void;
-  onClearLocation: () => void;
+  onClearSearchQuery: () => void;
   onSetFilters: (filters: FilterOptions) => void;
-  query: string | undefined;
+  onSetSearchQuery: (searchQuery: SearchQueryOptions) => void;
+  searchQuery: string | undefined;
   showSearchIcon?: boolean;
 }
 
@@ -144,9 +145,10 @@ const StyledClearIcon = styled(Clear)(({ theme }) => ({
 const FloatingSearchControls = ({
   hasActiveFilters,
   onClearFilters,
-  onClearLocation,
+  onClearSearchQuery,
   onSetFilters,
-  query,
+  onSetSearchQuery,
+  searchQuery,
 }: FloatingSearchNavigationProps) => {
   const { t } = useTranslation([SEARCH]);
 
@@ -161,9 +163,12 @@ const FloatingSearchControls = ({
     setSearchType(value);
   };
 
-  const debouncedKeywordChange = debounce((value: string) => {
-    onSetFilters({ keyword: value });
-  }, 500);
+  const debouncedKeywordChange = debounce(
+    (value: SearchQueryOptions["keyword"]) => {
+      onSetSearchQuery({ keyword: value });
+    },
+    500,
+  );
 
   const handleKeywordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     debouncedKeywordChange(event.target.value);
@@ -172,15 +177,15 @@ const FloatingSearchControls = ({
 
   const handleClearKeyword = () => {
     setKeyword("");
-    onSetFilters({ keyword: "" });
+    onSetSearchQuery({ keyword: "" });
   };
 
   const handleLocationChange = (value: GeocodeResult | undefined) => {
-    onSetFilters({ location: value });
+    onSetSearchQuery({ location: value });
   };
 
   const handleClearLocation = () => {
-    onClearLocation();
+    onClearSearchQuery();
   };
 
   const handleCloseDialog = () => {
@@ -194,7 +199,7 @@ const FloatingSearchControls = ({
           <StyledFlexRow>
             {searchType === "location" && (
               <StyledLocationAutocompleteOutlined
-                defaultValue={query}
+                defaultValue={searchQuery}
                 fullWidth={false}
                 placeholder={t("search:form.location_field_label")}
                 name="location"
@@ -220,7 +225,7 @@ const FloatingSearchControls = ({
                               position="end"
                               sx={{
                                 marginRight:
-                                  query === "" ? theme.spacing(1) : 0,
+                                  searchQuery === "" ? theme.spacing(1) : 0,
                               }}
                             >
                               <IconButton

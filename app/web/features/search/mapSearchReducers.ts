@@ -2,11 +2,13 @@ import { User } from "proto/api_pb";
 import { UserSearchFilters } from "service/search";
 import { GeocodeResult } from "utils/hooks";
 
-import { FilterOptions } from "./SearchPage";
+import { FilterOptions, SearchQueryOptions } from "./SearchPage";
 import { Coordinates } from "./utils/constants";
+import { getHasActiveFilters } from "./utils/mapUtils";
 
 enum mapSearchActionTypes {
-  CLEAR_LOCATION = "CLEAR_LOCATION",
+  SET_SEARCH_QUERY = "SET_SEARCH_QUERY",
+  CLEAR_SEARCH_QUERY = "CLEAR_SEARCH_QUERY",
   SET_FILTERS = "SET_FILTERS",
   RESET_FILTERS = "RESET_FILTERS",
   SET_SELECTED_USER_IDS = "SET_SELECTED_USER_IDS",
@@ -15,11 +17,20 @@ enum mapSearchActionTypes {
 type MapSearchState = {
   filters: UserSearchFilters;
   hasActiveFilters: boolean;
+  hasSearchQuery: boolean;
+  searchQuery: {
+    bbox?: Coordinates;
+    query?: string;
+  };
   selectedUserIds: User.AsObject["userId"][];
 };
 
 type MapSearchAction =
-  | { type: mapSearchActionTypes.CLEAR_LOCATION }
+  | {
+      type: mapSearchActionTypes.SET_SEARCH_QUERY;
+      payload: SearchQueryOptions;
+    }
+  | { type: mapSearchActionTypes.CLEAR_SEARCH_QUERY }
   | {
       type: mapSearchActionTypes.SET_FILTERS;
       payload: FilterOptions;
@@ -30,46 +41,31 @@ type MapSearchAction =
       payload: { userId: User.AsObject["userId"] };
     };
 
-const getHasActiveFilters = (state: MapSearchState) => {
-  return (
-    state.filters.ageMin !== initialState.filters.ageMin ||
-    state.filters.ageMax !== initialState.filters.ageMax ||
-    state.filters.acceptsPets !== initialState.filters.acceptsPets ||
-    state.filters.hostingStatusOptions !==
-      initialState.filters.hostingStatusOptions ||
-    state.filters.numGuests !== initialState.filters.numGuests ||
-    state.filters.completeProfile !== initialState.filters.completeProfile ||
-    state.filters.query !== initialState.filters.query ||
-    state.filters.acceptsKids !== initialState.filters.acceptsKids ||
-    state.filters.acceptsLastMinRequests !==
-      initialState.filters.acceptsLastMinRequests ||
-    state.filters.drinkingAllowed !== initialState.filters.drinkingAllowed ||
-    state.filters.hasReferences !== initialState.filters.hasReferences ||
-    state.filters.hasStrongVerification !==
-      initialState.filters.hasStrongVerification ||
-    state.filters.smokingAllowed !== initialState.filters.smokingAllowed
-  );
-};
+const DEFAULT_AGE_MIN = 18;
+const DEFAULT_AGE_MAX = 100;
 
 const initialState: MapSearchState = {
   filters: {
     acceptsKids: undefined,
     acceptsLastMinRequests: undefined,
     acceptsPets: undefined,
-    ageMin: 18,
-    ageMax: 200,
+    ageMin: undefined,
+    ageMax: undefined,
     completeProfile: false,
     drinkingAllowed: undefined,
-    query: "",
-    bbox: [390, 82, -173, -66],
     lastActive: 0,
     hasReferences: undefined,
     hasStrongVerification: undefined,
-    hostingStatusOptions: [],
+    hostingStatusOptions: undefined,
     numGuests: undefined,
     smokingAllowed: undefined,
   },
   hasActiveFilters: false,
+  hasSearchQuery: false,
+  searchQuery: {
+    bbox: [390, 82, -173, -66],
+    query: "",
+  },
   selectedUserIds: [],
 };
 
@@ -78,46 +74,57 @@ const mapSearchReducer = (
   action: MapSearchAction,
 ): MapSearchState => {
   switch (action.type) {
-    case mapSearchActionTypes.CLEAR_LOCATION:
-      // determine if there's still active filters besides bbox and query
-      const hasActiveFilters = getHasActiveFilters(state);
+    case mapSearchActionTypes.CLEAR_SEARCH_QUERY:
+      return {
+        ...state,
+        searchQuery: initialState.searchQuery,
+        hasSearchQuery: false,
+      };
+    case mapSearchActionTypes.SET_SEARCH_QUERY:
+      const updatedSearchQuery = { ...state.searchQuery };
+      if (action.payload.bbox) {
+        updatedSearchQuery.bbox = action.payload.bbox;
+      }
+      if (action.payload.location) {
+        const bbox = (action.payload.location as GeocodeResult).bbox;
+        const formattedBbox = [
+          bbox[2],
+          bbox[3],
+          bbox[0],
+          bbox[1],
+        ] as Coordinates;
+
+        updatedSearchQuery.bbox = formattedBbox; // sw long, sw lat, ne long, ne lat
+      }
+      if (action.payload.query) {
+        updatedSearchQuery.query = action.payload.query;
+        updatedSearchQuery.bbox = initialState.filters.bbox;
+      }
+      if (action.payload.keyword) {
+        updatedSearchQuery.query = action.payload.keyword;
+        updatedSearchQuery.bbox = initialState.filters.bbox;
+      }
 
       return {
         ...state,
-        filters: {
-          ...state.filters,
-          bbox: initialState.filters.bbox,
-          query: initialState.filters.query,
-        },
-        hasActiveFilters,
+        searchQuery: updatedSearchQuery,
+        hasSearchQuery: true,
       };
     case mapSearchActionTypes.SET_FILTERS:
       const updatedFilters = { ...state.filters };
 
       for (const key in action.payload) {
         if (key === "ageMin") {
-          updatedFilters.ageMin = action.payload[key];
+          updatedFilters.ageMin =
+            action.payload[key] === DEFAULT_AGE_MIN
+              ? undefined
+              : action.payload[key];
         }
         if (key === "ageMax") {
-          updatedFilters.ageMax = action.payload[key];
-        }
-        if (key === "bbox") {
-          updatedFilters.bbox = action.payload[key];
-        }
-        if (key === "location") {
-          const bbox = (action.payload[key] as GeocodeResult).bbox;
-          const formattedBbox = [
-            bbox[2],
-            bbox[3],
-            bbox[0],
-            bbox[1],
-          ] as Coordinates;
-
-          updatedFilters.bbox = formattedBbox; // sw long, sw lat, ne long, ne lat
-        }
-        if (key === "query" || key === "keyword") {
-          updatedFilters.query = action.payload[key];
-          updatedFilters.bbox = initialState.filters.bbox;
+          updatedFilters.ageMax =
+            action.payload[key] === DEFAULT_AGE_MAX
+              ? undefined
+              : action.payload[key];
         }
         if (key === "hostingStatus") {
           updatedFilters.hostingStatusOptions =
@@ -155,10 +162,14 @@ const mapSearchReducer = (
         }
       }
 
-      return {
+      const newState = {
         ...state,
         filters: updatedFilters,
-        hasActiveFilters: getHasActiveFilters(state),
+      };
+
+      return {
+        ...newState,
+        hasActiveFilters: getHasActiveFilters(newState, initialState),
       };
     case mapSearchActionTypes.RESET_FILTERS:
       return initialState;
@@ -186,5 +197,11 @@ const mapSearchReducer = (
   }
 };
 
-export { initialState, mapSearchActionTypes, mapSearchReducer };
-export type { MapSearchAction };
+export {
+  DEFAULT_AGE_MAX,
+  DEFAULT_AGE_MIN,
+  initialState,
+  mapSearchActionTypes,
+  mapSearchReducer,
+};
+export type { MapSearchAction, MapSearchState };

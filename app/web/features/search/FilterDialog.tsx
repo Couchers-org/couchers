@@ -25,6 +25,7 @@ import { HostingStatus } from "proto/api_pb";
 import { useState } from "react";
 import { theme } from "theme";
 
+import { DEFAULT_AGE_MAX, DEFAULT_AGE_MIN } from "./mapSearchReducers";
 import { FilterOptions } from "./SearchPage";
 import { HostingStatusOptions, lastActiveOptions } from "./utils/constants";
 
@@ -122,7 +123,8 @@ const FilterDialog = ({
   const [acceptsPets, setAcceptsPets] = useState(false);
   const [acceptsKids, setAcceptsKids] = useState(false);
   const [acceptsLastMinRequests, setAcceptsLastMinRequests] = useState(false);
-  const [ageRange, setAgeRange] = useState<number[]>([18, 100]);
+  const [ageMin, setAgeMin] = useState(DEFAULT_AGE_MIN);
+  const [ageMax, setAgeMax] = useState(DEFAULT_AGE_MAX);
   const [drinkingAllowed, setDrinkingAllowed] = useState(false);
   const [showEmptyProfiles, setShowEmptyProfiles] = useState(true);
   const [lastActive, setLastActive] = useState(
@@ -149,7 +151,10 @@ const FilterDialog = ({
   };
 
   const handleAgeRangeChange = (event: Event, newValue: number | number[]) => {
-    setAgeRange(newValue as number[]);
+    if (Array.isArray(newValue)) {
+      setAgeMin(newValue[0]);
+      setAgeMax(newValue[1]);
+    }
   };
 
   const handleDrinkingAllowedChange = () => {
@@ -192,7 +197,8 @@ const FilterDialog = ({
     setAcceptsKids(false);
     setAcceptsPets(false);
     setAcceptsLastMinRequests(false);
-    setAgeRange([18, 100]);
+    setAgeMin(DEFAULT_AGE_MIN);
+    setAgeMax(DEFAULT_AGE_MAX);
     setDrinkingAllowed(false);
     setShowEmptyProfiles(true);
     setLastActive(lastActiveOptions.LAST_ACTIVE_ANY);
@@ -208,8 +214,8 @@ const FilterDialog = ({
       acceptsKids,
       acceptsPets,
       acceptsLastMinRequests,
-      ageMin: ageRange[0],
-      ageMax: ageRange[1],
+      ageMin,
+      ageMax,
       drinkingAllowed,
       completeProfile: !showEmptyProfiles,
       lastActive,
@@ -219,6 +225,7 @@ const FilterDialog = ({
       numGuests: numberOfGuests,
       smokingAllowed,
     });
+
     onCloseDialog();
   };
 
@@ -421,21 +428,21 @@ const FilterDialog = ({
                 ? t("search:form.host_filters.age.min_age")
                 : t("search:form.host_filters.age.max_age")
             }
-            value={ageRange}
+            value={[ageMin, ageMax]}
             onChange={handleAgeRangeChange}
             valueLabelDisplay="auto"
             slots={{ thumb: SliderThumbComponent }}
-            defaultValue={[18, 100]}
-            min={18}
-            max={100}
+            defaultValue={[DEFAULT_AGE_MIN, DEFAULT_AGE_MAX]}
+            min={DEFAULT_AGE_MIN}
+            max={DEFAULT_AGE_MAX}
             marks={[
               {
-                value: 18,
-                label: "18",
+                value: DEFAULT_AGE_MIN,
+                label: `${DEFAULT_AGE_MIN}`,
               },
               {
-                value: 100,
-                label: "100",
+                value: DEFAULT_AGE_MAX,
+                label: `${DEFAULT_AGE_MAX}`,
               },
             ]}
           />

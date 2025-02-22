@@ -7,7 +7,7 @@ import { User } from "proto/api_pb";
 import { useCallback, useMemo } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
-import { FilterOptions, FlyToLocationProps } from "./SearchPage";
+import { FlyToLocationProps, SearchQueryOptions } from "./SearchPage";
 import { Coordinates } from "./utils/constants";
 import { CLUSTER_LAYER_ID, UNCLUSTERED_LAYER_ID } from "./utils/mapLayers";
 import {
@@ -20,7 +20,7 @@ interface MapViewProps {
   flyToLocation: (location: FlyToLocationProps) => void;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
-  onSetFilters: (filters: FilterOptions) => void;
+  onSetSearchQuery: (searchQuery: SearchQueryOptions) => void;
   onSelectedUserIdClick: (userId: number) => void;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
@@ -40,7 +40,7 @@ const MapView = ({
   flyToLocation,
   isLoading,
   mapRef,
-  onSetFilters,
+  onSetSearchQuery,
   onSelectedUserIdClick,
   selectedUserIds,
   users = DEFAULT_USERS,
@@ -104,7 +104,7 @@ const MapView = ({
     const sw = mapBounds.getSouthWest();
     const bbox: Coordinates = [sw.lng, sw.lat, ne.lng, ne.lat];
 
-    onSetFilters({
+    onSetSearchQuery({
       bbox,
     });
   };

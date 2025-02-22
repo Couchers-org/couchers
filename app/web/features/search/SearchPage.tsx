@@ -28,23 +28,26 @@ export type FilterOptions = {
   acceptsKids?: boolean;
   acceptsPets?: boolean;
   acceptsLastMinRequests?: boolean;
-  ageMin?: number;
-  ageMax?: number;
-  bbox?: GeocodeResult["bbox"];
+  ageMin?: number | undefined;
+  ageMax?: number | undefined;
   completeProfile?: boolean;
   drinkingAllowed?: boolean;
   hasReferences?: boolean;
   hasStrongVerification?: boolean;
   hostingStatus?: HostingStatusOptions[];
-  keyword?: string;
-  location?: GeocodeResult;
   numGuests?: number;
-  query?: string;
   lastActive?: number;
   lng?: number;
   lat?: number;
   selectedUserId?: number;
   smokingAllowed?: boolean;
+};
+
+export type SearchQueryOptions = {
+  bbox?: GeocodeResult["bbox"];
+  query?: string;
+  keyword?: string;
+  location?: GeocodeResult;
 };
 
 export interface FlyToLocationProps {
@@ -76,7 +79,11 @@ export default function SearchPage({ locationName }: { locationName: string }) {
 
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
-    filters: { ...initialState.filters, query: locationName },
+    searchQuery: {
+      ...initialState.searchQuery,
+      query: locationName,
+    },
+    hasSearchQuery: Boolean(locationName),
   });
 
   const flyToLocation = useCallback(
@@ -91,7 +98,7 @@ export default function SearchPage({ locationName }: { locationName: string }) {
   );
 
   useEffect(() => {
-    const bbox = initialState.filters.bbox!;
+    const bbox = initialState.searchQuery.bbox!;
     flyToLocation({
       longitude: (bbox[0] + bbox[2]) / 2,
       latitude: (bbox[1] + bbox[3]) / 2,
@@ -103,9 +110,15 @@ export default function SearchPage({ locationName }: { locationName: string }) {
     UserSearchRes.AsObject,
     Error
   >(
-    ["userSearch", mapSearchState.filters],
+    [
+      "userSearch",
+      { ...mapSearchState.filters, ...mapSearchState.searchQuery },
+    ],
     ({ pageParam }) => {
-      return service.search.userSearch(mapSearchState.filters, pageParam);
+      return service.search.userSearch(
+        { ...mapSearchState.filters, ...mapSearchState.searchQuery },
+        pageParam,
+      );
     },
     {
       getNextPageParam: (lastPage) =>
@@ -120,13 +133,13 @@ export default function SearchPage({ locationName }: { locationName: string }) {
 
   const memoizedUsers = useMemo(() => formattedUsers, [formattedUsers]);
 
-  const handleSetFilters = (newFilters: FilterOptions) => {
+  const handleSetSearchQuery = (searchQuery: SearchQueryOptions) => {
     dispatch({
-      type: mapSearchActionTypes.SET_FILTERS,
-      payload: newFilters,
+      type: mapSearchActionTypes.SET_SEARCH_QUERY,
+      payload: searchQuery,
     });
-    if (newFilters.location) {
-      const geojson = newFilters.location as GeocodeResult;
+    if (searchQuery.location) {
+      const geojson = searchQuery.location as GeocodeResult;
 
       flyToLocation({
         longitude: geojson.location.lng,
@@ -135,7 +148,7 @@ export default function SearchPage({ locationName }: { locationName: string }) {
     }
 
     // Indicates field was cleared
-    if (newFilters.keyword === "") {
+    if (searchQuery.keyword === "") {
       flyToLocation({
         longitude: 0,
         latitude: 0,
@@ -144,8 +157,15 @@ export default function SearchPage({ locationName }: { locationName: string }) {
     }
   };
 
-  const handleClearLocation = () => {
-    dispatch({ type: mapSearchActionTypes.CLEAR_LOCATION });
+  const handleSetFilters = (newFilters: FilterOptions) => {
+    dispatch({
+      type: mapSearchActionTypes.SET_FILTERS,
+      payload: newFilters,
+    });
+  };
+
+  const handleClearSearchQuery = () => {
+    dispatch({ type: mapSearchActionTypes.CLEAR_SEARCH_QUERY });
     flyToLocation({
       longitude: 0,
       latitude: 0,
@@ -169,12 +189,6 @@ export default function SearchPage({ locationName }: { locationName: string }) {
 
   const handleClearFilters = () => {
     dispatch({ type: mapSearchActionTypes.RESET_FILTERS });
-
-    flyToLocation({
-      longitude: 0,
-      latitude: 0,
-      zoom: 1,
-    });
   };
 
   return (
@@ -191,10 +205,11 @@ export default function SearchPage({ locationName }: { locationName: string }) {
               isLoading={isLoading || isFetching}
               mapRef={mapRef}
               onClearFilters={handleClearFilters}
-              onClearLocation={handleClearLocation}
+              onClearSearchQuery={handleClearSearchQuery}
               onSetFilters={handleSetFilters}
+              onSetSearchQuery={handleSetSearchQuery}
               onSelectedUserIdClick={handleSelectedUserIdClick}
-              query={mapSearchState.filters.query}
+              searchQuery={mapSearchState.searchQuery.query}
               selectedUserIds={mapSearchState.selectedUserIds}
               users={memoizedUsers}
             />
