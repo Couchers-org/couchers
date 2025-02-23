@@ -12,11 +12,7 @@ import { theme } from "theme";
 import FloatingSearchControls from "./FloatingSearchControls";
 import MapView from "./MapView";
 import MapViewToggle from "./MapViewToggle";
-import {
-  FilterOptions,
-  FlyToLocationProps,
-  SearchQueryOptions,
-} from "./SearchPage";
+import { FilterOptions, SearchQueryOptions } from "./SearchPage";
 import SearchResultsList from "./SearchResultsList";
 
 export enum MapViews {
@@ -26,7 +22,6 @@ export enum MapViews {
 
 export type MapViewOptions = MapViews.MAP_AND_LIST | MapViews.LIST_ONLY;
 interface DesktopMapViewProps {
-  flyToLocation: (location: FlyToLocationProps) => void;
   hasActiveFilters: boolean;
   hasSearchQuery: boolean;
   isLoading: boolean;
@@ -109,7 +104,6 @@ const CenterAligner = styled("div")(({ theme }) => ({
 }));
 
 const DesktopMapView = ({
-  flyToLocation,
   hasActiveFilters,
   hasSearchQuery,
   isLoading,
@@ -204,14 +198,13 @@ const DesktopMapView = ({
       {mapView !== MapViews.LIST_ONLY && (
         <MapContainer drawerWidth={drawerWidth}>
           <MapView
-            flyToLocation={flyToLocation}
+            hasActiveFilters={hasActiveFilters}
             isLoading={isLoading}
             mapRef={mapRef}
             onClearSearchQuery={onClearSearchQuery}
             onSetSearchQuery={onSetSearchQuery}
             onSelectedUserIdClick={onSelectedUserIdClick}
             selectedUserIds={selectedUserIds}
-            searchQuery={searchQuery}
             users={users}
           />
         </MapContainer>

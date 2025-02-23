@@ -8,22 +8,21 @@ import { useCallback, useMemo, useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
 import { FlyToLocationProps, SearchQueryOptions } from "./SearchPage";
-import { Coordinates } from "./utils/constants";
-import { CLUSTER_LAYER_ID, UNCLUSTERED_LAYER_ID } from "./utils/mapLayers";
+import { UNCLUSTERED_LAYER_ID } from "./utils/mapLayers";
 import {
+  getMapBounds,
   loadMapUserPins,
   setMapFeatureState,
   usersToGeoJSON,
 } from "./utils/mapUtils";
 
 interface MapViewProps {
-  flyToLocation: (location: FlyToLocationProps) => void;
+  hasActiveFilters: boolean;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   onClearSearchQuery: () => void;
   onSetSearchQuery: (searchQuery: SearchQueryOptions) => void;
   onSelectedUserIdClick: (userId: number) => void;
-  searchQuery: SearchQueryOptions;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
 }
@@ -39,7 +38,7 @@ const MapLoadingContainer = styled("div")(({ theme }) => ({
 const DEFAULT_USERS: User.AsObject[] = [];
 
 const MapView = ({
-  flyToLocation,
+  hasActiveFilters,
   isLoading,
   mapRef,
   onClearSearchQuery,
@@ -54,6 +53,25 @@ const MapView = ({
 
   const [zoom, setZoom] = useState<number>(1);
 
+  // If zoomed in or has active filters, use the memoized pins form api query in SearchPage
+  const pinsSource =
+    zoom >= 5 || hasActiveFilters ? memoizedPins : zoomedOutDataSource;
+
+  const flyToLocation = useCallback(
+    ({ longitude, latitude, zoom }: FlyToLocationProps) => {
+      mapRef.current?.flyTo({
+        center: [longitude, latitude],
+        zoom: zoom || 12,
+        duration: 2000,
+      });
+    },
+    [mapRef],
+  );
+
+  const handleSetZoom = useCallback((newZoom: number) => {
+    setZoom(newZoom);
+  }, []);
+
   const handleClick = useCallback(
     async (ev: MapLayerMouseEvent) => {
       const features = mapRef.current?.queryRenderedFeatures(ev.point);
@@ -61,26 +79,34 @@ const MapView = ({
 
       if (!feature) return;
 
-      const clusterId = feature?.properties.cluster_id;
       const layerId = feature?.layer.id;
+      const isCluster = feature?.properties.cluster;
 
-      if (clusterId === CLUSTER_LAYER_ID) {
+      if (isCluster) {
         const source = mapRef.current?.getSource(
           "clustered-users",
         ) as GeoJSONSource;
 
-        const zoom = await source.getClusterExpansionZoom(
+        const newZoom = await source.getClusterExpansionZoom(
           feature.properties.cluster_id,
         );
 
-        if (zoom) {
+        if (newZoom) {
           const point = feature.geometry as Point;
 
           flyToLocation({
             latitude: point.coordinates[1],
             longitude: point.coordinates[0],
-            zoom,
+            zoom: newZoom,
           });
+
+          if (newZoom >= 5) {
+            const bbox = getMapBounds(mapRef);
+
+            onSetSearchQuery({
+              bbox,
+            });
+          }
         }
       }
 
@@ -96,7 +122,7 @@ const MapView = ({
         onSelectedUserIdClick(userId);
       }
     },
-    [flyToLocation, mapRef, onSelectedUserIdClick, selectedUserIds],
+    [flyToLocation, mapRef, onSelectedUserIdClick, onSetSearchQuery, selectedUserIds],
   );
 
   const handleLoad = async () => {
@@ -105,34 +131,37 @@ const MapView = ({
 
   const handleMapMove = () => {
     // If zoom is too large an area, don't reload pins
-
     if (zoom && zoom >= 5) {
-      const mapBounds = mapRef.current?.getMap().getBounds();
-      if (!mapBounds) return;
-      const ne = mapBounds.getNorthEast();
-      const sw = mapBounds.getSouthWest();
-      const bbox: Coordinates = [sw.lng, sw.lat, ne.lng, ne.lat];
+      const bbox = getMapBounds(mapRef);
 
       onSetSearchQuery({
         bbox,
       });
-    } else {
-      onClearSearchQuery();
     }
   };
 
-  const handleNavControlClick = () => {
-    const newZoom = mapRef.current?.getZoom() || 1;
-    console.log("HANDLE ZOOM", newZoom);
+  const handleZoomIn = (newZoom: number) => {
+    if (newZoom >= 5) {
+      const bbox = getMapBounds(mapRef);
 
-    if (newZoom >= 5 && zoom < 5) {
-      handleMapMove();
+      onSetSearchQuery({
+        bbox,
+      });
+    }
+  };
+
+  const handleZoomOut = (newZoom: number) => {
+    if (newZoom >= 5) {
+      const bbox = getMapBounds(mapRef);
+
+      onSetSearchQuery({
+        bbox,
+      });
     }
 
     if (zoom >= 5 && newZoom < 5) {
       onClearSearchQuery();
     }
-    setZoom(newZoom);
   };
 
   return (
@@ -149,8 +178,10 @@ const MapView = ({
         onClick={handleClick}
         onLoad={handleLoad}
         onMapMove={handleMapMove}
-        onNavControlClick={handleNavControlClick}
-        pins={zoom < 5 ? zoomedOutDataSource : memoizedPins}
+        onSetZoom={handleSetZoom}
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        pins={pinsSource}
       />
     </>
   );

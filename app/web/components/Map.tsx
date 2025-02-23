@@ -6,14 +6,15 @@ import {
   UNCLUSTERED_LAYER_ID,
   unclusteredPointLayer,
 } from "features/search/utils/mapLayers";
+import ZoomControl from "features/search/ZoomControl";
 import { MapLayerMouseEvent, RequestParameters } from "maplibre-gl";
 import React from "react";
 import {
   Layer,
   Map as MaplibreMap,
   MapRef,
-  NavigationControl,
   Source,
+  ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -25,7 +26,9 @@ interface MapProps {
   onClick: (ev: MapLayerMouseEvent) => void;
   onLoad: () => void;
   onMapMove: () => void;
-  onNavControlClick: () => void;
+  onSetZoom: (newZoom: number) => void;
+  onZoomIn: (newZoom: number) => void;
+  onZoomOut: (newZoom: number) => void;
   pins: string | GeoJSON.FeatureCollection;
 }
 
@@ -36,7 +39,9 @@ const Map = ({
   onClick,
   onLoad,
   onMapMove,
-  onNavControlClick,
+  onZoomIn,
+  onZoomOut,
+  onSetZoom,
   pins,
 }: MapProps) => {
   const handleMapLoad = () => {
@@ -68,8 +73,8 @@ const Map = ({
     }
   };
 
-  const handleNavControlClick = () => {
-    onNavControlClick();
+  const handleSetZoom = (viewState: ViewStateChangeEvent) => {
+    onSetZoom(viewState.viewState.zoom);
   };
 
   /*
@@ -94,6 +99,11 @@ const Map = ({
           height: grow ? "100%" : "200px",
           width: grow ? "100%" : "400px",
         }}
+        initialViewState={{
+          latitude: 0,
+          longitude: 0,
+          zoom: 1,
+        }}
         interactive={true}
         mapStyle="https://cdn.couchers.org/maps/couchers-basemap-style-v1.json"
         interactiveLayerIds={clusterLayer.id ? [clusterLayer.id] : []}
@@ -101,6 +111,7 @@ const Map = ({
         onLoad={handleMapLoad}
         onDragEnd={handleDragEnd}
         onMouseMove={handleMouseMove}
+        onZoomEnd={handleSetZoom}
         hash={hash}
         ref={mapRef}
         transformRequest={transformRequest}
@@ -118,20 +129,14 @@ const Map = ({
           <Layer {...clusterCountLayer} />
           <Layer {...unclusteredPointLayer} />
         </Source>
-        <div
-          id="nav-control"
-          onClick={handleNavControlClick}
-          style={{
-            position: "absolute",
-            right: 10,
-            top: 10,
-            zIndex: 4,
-            height: "80px",
-            width: "40px",
-          }}
-        >
-          <NavigationControl position="top-right" showCompass={false} />
-        </div>
+        {/** WHY BUILD OUR OWN ZOOM CONTROL? The built in NavigationControl component from react-map-gl doesn't offer a
+         * click event, nor does the underlying map-libre. We need a click event to control the api queries for the pins
+         * and user cards on the map. */}
+        <ZoomControl
+          mapRef={mapRef}
+          onZoomIn={onZoomIn}
+          onZoomOut={onZoomOut}
+        />
       </MaplibreMap>
     </>
   );

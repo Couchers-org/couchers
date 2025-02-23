@@ -4,6 +4,7 @@ import { MapRef } from "react-map-gl/maplibre";
 
 import { MapSearchState } from "../mapSearchReducers";
 import userPin from "../resources/userPin.png";
+import { Coordinates } from "./constants";
 
 const usersToGeoJSON = (pins: User.AsObject[]): FeatureCollection => ({
   type: "FeatureCollection",
@@ -76,8 +77,18 @@ const getHasActiveFilters = (
   );
 };
 
+const getMapBounds = (mapRef: React.RefObject<MapRef>) => {
+  const mapBounds = mapRef.current?.getMap().getBounds();
+  if (!mapBounds) return;
+  const ne = mapBounds.getNorthEast();
+  const sw = mapBounds.getSouthWest();
+  const bbox: Coordinates = [sw.lng, sw.lat, ne.lng, ne.lat];
+  return bbox;
+};
+
 export {
   getHasActiveFilters,
+  getMapBounds,
   loadMapUserPins,
   setMapFeatureState,
   usersToGeoJSON,

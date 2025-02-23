@@ -5,14 +5,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useMemo, useReducer, useRef } from "react";
 import { MapProvider, MapRef } from "react-map-gl/maplibre";
 import {
   QueryClient,
@@ -30,7 +23,6 @@ import {
   mapSearchReducer,
 } from "./mapSearchReducers";
 import MobileMapView from "./MobileMapView";
-import { set } from "react-hook-form";
 
 export type FilterOptions = {
   acceptsKids?: boolean;
@@ -107,15 +99,6 @@ export default function SearchPage({ locationName }: { locationName: string }) {
     [],
   );
 
-  // Zoom all the way out on initial load
-  useEffect(() => {
-    flyToLocation({
-      longitude: 0,
-      latitude: 0,
-      zoom: 1,
-    });
-  }, []);
-
   const { data, isLoading, isFetching } = useInfiniteQuery<
     UserSearchRes.AsObject,
     Error
@@ -131,10 +114,10 @@ export default function SearchPage({ locationName }: { locationName: string }) {
       );
     },
     {
-      // enabled:
-      //   zoom >= 5 ||
-      //   mapSearchState.hasActiveFilters ||
-      //   mapSearchState.hasSearchQuery, // only fetch when zoomed in or filters
+      enabled:
+        zoom >= 5 ||
+        mapSearchState.hasActiveFilters ||
+        mapSearchState.hasSearchQuery, // only fetch when zoomed in or filters
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
     },
@@ -160,15 +143,6 @@ export default function SearchPage({ locationName }: { locationName: string }) {
         latitude: geojson.location.lat,
       });
     }
-
-    // Indicates field was cleared
-    if (searchQuery.keyword === "") {
-      flyToLocation({
-        longitude: 0,
-        latitude: 0,
-        zoom: 1,
-      });
-    }
   };
 
   const handleSetFilters = (newFilters: FilterOptions) => {
@@ -179,13 +153,7 @@ export default function SearchPage({ locationName }: { locationName: string }) {
   };
 
   const handleClearSearchQuery = () => {
-    console.log("HANDLE CLEAR SEARCH QUERY");
     dispatch({ type: mapSearchActionTypes.CLEAR_SEARCH_QUERY });
-    // flyToLocation({
-    //   longitude: 0,
-    //   latitude: 0,
-    //   zoom: 1,
-    // });
   };
 
   const handleSelectedUserIdClick = (userId: number) => {
@@ -215,7 +183,6 @@ export default function SearchPage({ locationName }: { locationName: string }) {
 
           {!isMobile && (
             <DesktopMapView
-              flyToLocation={flyToLocation}
               hasActiveFilters={mapSearchState.hasActiveFilters}
               hasSearchQuery={mapSearchState.hasSearchQuery}
               isLoading={isLoading || isFetching}

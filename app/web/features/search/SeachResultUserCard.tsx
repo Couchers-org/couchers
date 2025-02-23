@@ -96,11 +96,6 @@ const VerticalLine = styled("div")(({ theme }) => ({
   paddingLeft: theme.spacing(0.5),
 }));
 
-const BulletPoint = styled("span")(({ theme }) => ({
-  marginLeft: theme.spacing(1),
-  marginRight: theme.spacing(1),
-}));
-
 const UserDetailsRow = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",

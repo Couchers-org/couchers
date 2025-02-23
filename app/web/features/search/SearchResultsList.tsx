@@ -1,10 +1,10 @@
 import { Alert, Box, styled } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import { useTranslation } from "i18n";
+import { SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 
 import SearchResultUserCard from "./SeachResultUserCard";
-import { useTranslation } from "i18n";
-import { SEARCH } from "i18n/namespaces";
 
 interface SearchResultsListProps {
   hasSearchCriteria: boolean;
