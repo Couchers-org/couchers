@@ -23,6 +23,7 @@ from couchers.models import (
     PageType,
     PageVersion,
     Reference,
+    StrongVerificationAttempt,
     User,
 )
 from couchers.servicers.account import has_strong_verification
@@ -486,8 +487,6 @@ class Search(search_pb2_grpc.SearchServicer):
             statement = statement.where(User.accepts_kids == request.accepts_kids.value)
         if request.HasField("has_housemates"):
             statement = statement.where(User.has_housemates == request.has_housemates.value)
-        if request.HasField("has_strong_verification"):
-            statement = statement.where(User.has_strong_verification == request.has_strong_verification.value)
         if request.HasField("wheelchair_accessible"):
             statement = statement.where(User.wheelchair_accessible == request.wheelchair_accessible.value)
         if request.HasField("smoking_allowed"):
@@ -541,8 +540,15 @@ class Search(search_pb2_grpc.SearchServicer):
         if request.only_with_references:
             statement = statement.join(Reference, Reference.to_user_id == User.id)
 
+        if request.only_with_strong_verification:
+            statement = statement.join(
+                StrongVerificationAttempt,
+                and_(
+                    StrongVerificationAttempt.user_id == User.id,
+                    StrongVerificationAttempt.has_strong_verification(User),
+                ),
+            )
         # TODO:
-        # google.protobuf.StringValue language = 11;
         # bool friends_only = 13;
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
