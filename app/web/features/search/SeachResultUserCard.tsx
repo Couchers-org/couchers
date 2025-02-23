@@ -33,7 +33,6 @@ const StyledCard = styled(Card, {
   border: isHighlighted ? `2px solid ${theme.palette.primary.main}` : "none",
   borderRadius: 8,
   boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
-  // height: "100%",
   paddingTop: theme.spacing(1),
   height: theme.spacing(50),
 }));
@@ -89,18 +88,12 @@ const StyledTypography = styled(Typography, {
   color: isNegative ? theme.palette.grey[100] : theme.palette.common.black,
   opacity: isNegative ? 0.5 : 0.65,
   fontSize: "0.875rem",
-
-  "&:first-of-type": {
-    marginRight: theme.spacing(1),
-  },
-
-  "&:last-of-type": {
-    marginLeft: theme.spacing(1),
-  },
 }));
 
 const VerticalLine = styled("div")(({ theme }) => ({
   color: theme.palette.grey[300],
+  paddingRight: theme.spacing(0.5),
+  paddingLeft: theme.spacing(0.5),
 }));
 
 const BulletPoint = styled("span")(({ theme }) => ({
@@ -114,6 +107,8 @@ const UserDetailsRow = styled("div")(({ theme }) => ({
   color: theme.palette.grey[600],
   fontSize: "1.2rem",
   marginTop: "auto",
+  justifyContent: "space-between",
+  width: "100%",
 }));
 
 const SearchResultUserCard = ({
@@ -155,6 +150,11 @@ const SearchResultUserCard = ({
             </StyledLink>
           </StyledCardHeader>
           <FlexRow>
+            <Typography variant="body2" sx={{ marginBottom: theme.spacing(1) }}>
+              {`${user.age}, ${user.gender}, ${user.city}`}
+            </Typography>
+          </FlexRow>
+          <FlexRow>
             <StyledTypography
               display="inline"
               variant="body1"
@@ -175,6 +175,11 @@ const SearchResultUserCard = ({
             >
               {meetupStatusLabels(t)[user.meetupStatus]}
             </StyledTypography>
+            <VerticalLine>|</VerticalLine>
+            <StyledTypography
+              variant="body2"
+              isNegative={false}
+            >{`${user.numReferences >= 100 ? `100+` : user.numReferences} ${t("profile:heading.references").toLowerCase()}`}</StyledTypography>
           </FlexRow>
         </FlexColumn>
       </StyledTopContent>
@@ -191,11 +196,11 @@ const SearchResultUserCard = ({
         </Typography>
         <FlexRow alignItems="flex-end">
           <UserDetailsRow>
-            <Typography variant="body2">{`${user.numReferences >= 100 ? `100+` : user.numReferences} ${t("profile:heading.references").toLowerCase()}`}</Typography>
-            <BulletPoint>•</BulletPoint>
+            {/* <BulletPoint>•</BulletPoint> */}
             <Typography variant="body2">
               {user.lastActive
-                ? timeAgoI18n({
+                ? `Active: ` +
+                  timeAgoI18n({
                     input: timestamp2Date(user.lastActive),
                     t,
                     fuzzy: {
@@ -205,7 +210,7 @@ const SearchResultUserCard = ({
                   })
                 : t("last_active_false")}
             </Typography>
-            <BulletPoint>•</BulletPoint>
+            {/* <BulletPoint>•</BulletPoint> */}
             <Typography variant="body2" sx={{ display: "flex" }}>
               {`${t("profile:response_rate_label")}: `}
               <ResponseRateText user={user} />

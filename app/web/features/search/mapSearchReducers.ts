@@ -21,6 +21,7 @@ type MapSearchState = {
   searchQuery: {
     bbox?: Coordinates;
     query?: string;
+    shouldZoomTo?: boolean;
   };
   selectedUserIds: User.AsObject["userId"][];
 };

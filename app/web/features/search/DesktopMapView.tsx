@@ -28,6 +28,7 @@ export type MapViewOptions = MapViews.MAP_AND_LIST | MapViews.LIST_ONLY;
 interface DesktopMapViewProps {
   flyToLocation: (location: FlyToLocationProps) => void;
   hasActiveFilters: boolean;
+  hasSearchQuery: boolean;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   onClearFilters: () => void;
@@ -110,6 +111,7 @@ const CenterAligner = styled("div")(({ theme }) => ({
 const DesktopMapView = ({
   flyToLocation,
   hasActiveFilters,
+  hasSearchQuery,
   isLoading,
   onClearFilters,
   onClearSearchQuery,
@@ -124,6 +126,9 @@ const DesktopMapView = ({
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const [drawerWidth, setDrawerWidth] = useState<number>(DEFAULT_DRAWER_WIDTH);
   const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
+  const zoom = mapRef.current?.getZoom() || 1;
+
+  const hasSearchCriteria = hasActiveFilters || hasSearchQuery || zoom >= 5;
 
   const handleDrawerWidthChange = (width: number) => {
     setDrawerWidth(width);
@@ -178,16 +183,19 @@ const DesktopMapView = ({
                   justifyContent: "center",
                 }}
               >
-                {!users
-                  ? t("search:search_result.no_user_result_message")
-                  : t("search:search_result.users_found_message", {
-                      count: users.length,
-                    })}
+                {!hasSearchCriteria
+                  ? null
+                  : !users
+                    ? t("search:search_result.no_user_result_message")
+                    : t("search:search_result.users_found_message", {
+                        count: users.length,
+                      })}
               </Typography>
               <SearchResultsList
                 isLoading={isLoading}
                 selectedUserIds={selectedUserIds}
                 users={users}
+                hasSearchCriteria={hasSearchCriteria}
               />
             </ListContentWrapper>
           </>
@@ -199,9 +207,11 @@ const DesktopMapView = ({
             flyToLocation={flyToLocation}
             isLoading={isLoading}
             mapRef={mapRef}
+            onClearSearchQuery={onClearSearchQuery}
             onSetSearchQuery={onSetSearchQuery}
             onSelectedUserIdClick={onSelectedUserIdClick}
             selectedUserIds={selectedUserIds}
+            searchQuery={searchQuery}
             users={users}
           />
         </MapContainer>

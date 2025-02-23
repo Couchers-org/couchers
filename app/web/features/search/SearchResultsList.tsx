@@ -1,10 +1,13 @@
-import { Box, styled } from "@mui/material";
+import { Alert, Box, styled } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { User } from "proto/api_pb";
 
 import SearchResultUserCard from "./SeachResultUserCard";
+import { useTranslation } from "i18n";
+import { SEARCH } from "i18n/namespaces";
 
 interface SearchResultsListProps {
+  hasSearchCriteria: boolean;
   isLoading?: boolean;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
@@ -25,11 +28,14 @@ const StyledCardWrapper = styled(Box)(({ theme }) => ({
 }));
 
 const SearchResultsList = ({
+  hasSearchCriteria,
   isLoading,
   selectedUserIds,
   users,
 }: SearchResultsListProps) => {
-  if (!users) {
+  const { t } = useTranslation([SEARCH]);
+
+  if (!users && hasSearchCriteria) {
     return null;
   }
 
@@ -39,17 +45,23 @@ const SearchResultsList = ({
 
   return (
     <StyledContainer>
-      {users.map((user) => (
-        <StyledCardWrapper
-          key={user?.userId}
-          id={`search-result-${user?.userId}`}
-        >
-          <SearchResultUserCard
-            isHighlighted={selectedUserIds.includes(user.userId)}
-            user={user}
-          />
-        </StyledCardWrapper>
-      ))}
+      {!hasSearchCriteria && (
+        <Alert severity="info" sx={{ height: "fit-content" }}>
+          {t("search:choose_search_criteria")}
+        </Alert>
+      )}
+      {hasSearchCriteria &&
+        users?.map((user) => (
+          <StyledCardWrapper
+            key={user?.userId}
+            id={`search-result-${user?.userId}`}
+          >
+            <SearchResultUserCard
+              isHighlighted={selectedUserIds.includes(user.userId)}
+              user={user}
+            />
+          </StyledCardWrapper>
+        ))}
     </StyledContainer>
   );
 };

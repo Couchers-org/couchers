@@ -136,7 +136,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AgeAndGenderRenderer = ({ user }: Props) => {
+export const AgeAndGenderRenderer = ({ user }: Props) => {
   const classes = useStyles();
 
   const {

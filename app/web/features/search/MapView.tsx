@@ -1,10 +1,10 @@
 import { styled } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import Map from "components/Map";
+import Map, { API_BASE_URL } from "components/Map";
 import { Point } from "geojson";
 import { GeoJSONSource, MapLayerMouseEvent } from "maplibre-gl";
 import { User } from "proto/api_pb";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
 import { FlyToLocationProps, SearchQueryOptions } from "./SearchPage";
@@ -20,8 +20,10 @@ interface MapViewProps {
   flyToLocation: (location: FlyToLocationProps) => void;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
+  onClearSearchQuery: () => void;
   onSetSearchQuery: (searchQuery: SearchQueryOptions) => void;
   onSelectedUserIdClick: (userId: number) => void;
+  searchQuery: SearchQueryOptions;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
 }
@@ -40,6 +42,7 @@ const MapView = ({
   flyToLocation,
   isLoading,
   mapRef,
+  onClearSearchQuery,
   onSetSearchQuery,
   onSelectedUserIdClick,
   selectedUserIds,
@@ -47,6 +50,9 @@ const MapView = ({
 }: MapViewProps) => {
   const pins = usersToGeoJSON(users);
   const memoizedPins = useMemo(() => pins, [pins]);
+  const zoomedOutDataSource = API_BASE_URL + "/geojson/users";
+
+  const [zoom, setZoom] = useState<number>(1);
 
   const handleClick = useCallback(
     async (ev: MapLayerMouseEvent) => {
@@ -98,15 +104,35 @@ const MapView = ({
   };
 
   const handleMapMove = () => {
-    const mapBounds = mapRef.current?.getMap().getBounds();
-    if (!mapBounds) return;
-    const ne = mapBounds.getNorthEast();
-    const sw = mapBounds.getSouthWest();
-    const bbox: Coordinates = [sw.lng, sw.lat, ne.lng, ne.lat];
+    // If zoom is too large an area, don't reload pins
 
-    onSetSearchQuery({
-      bbox,
-    });
+    if (zoom && zoom >= 5) {
+      const mapBounds = mapRef.current?.getMap().getBounds();
+      if (!mapBounds) return;
+      const ne = mapBounds.getNorthEast();
+      const sw = mapBounds.getSouthWest();
+      const bbox: Coordinates = [sw.lng, sw.lat, ne.lng, ne.lat];
+
+      onSetSearchQuery({
+        bbox,
+      });
+    } else {
+      onClearSearchQuery();
+    }
+  };
+
+  const handleNavControlClick = () => {
+    const newZoom = mapRef.current?.getZoom() || 1;
+    console.log("HANDLE ZOOM", newZoom);
+
+    if (newZoom >= 5 && zoom < 5) {
+      handleMapMove();
+    }
+
+    if (zoom >= 5 && newZoom < 5) {
+      onClearSearchQuery();
+    }
+    setZoom(newZoom);
   };
 
   return (
@@ -123,7 +149,8 @@ const MapView = ({
         onClick={handleClick}
         onLoad={handleLoad}
         onMapMove={handleMapMove}
-        pins={memoizedPins}
+        onNavControlClick={handleNavControlClick}
+        pins={zoom < 5 ? zoomedOutDataSource : memoizedPins}
       />
     </>
   );

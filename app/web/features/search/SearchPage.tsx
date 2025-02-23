@@ -5,7 +5,14 @@ import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
-import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 import { MapProvider, MapRef } from "react-map-gl/maplibre";
 import {
   QueryClient,
@@ -23,6 +30,7 @@ import {
   mapSearchReducer,
 } from "./mapSearchReducers";
 import MobileMapView from "./MobileMapView";
+import { set } from "react-hook-form";
 
 export type FilterOptions = {
   acceptsKids?: boolean;
@@ -86,6 +94,8 @@ export default function SearchPage({ locationName }: { locationName: string }) {
     hasSearchQuery: Boolean(locationName),
   });
 
+  const zoom = mapRef.current?.getZoom() || 1;
+
   const flyToLocation = useCallback(
     ({ longitude, latitude, zoom }: FlyToLocationProps) => {
       mapRef.current?.flyTo({
@@ -97,14 +107,14 @@ export default function SearchPage({ locationName }: { locationName: string }) {
     [],
   );
 
+  // Zoom all the way out on initial load
   useEffect(() => {
-    const bbox = initialState.searchQuery.bbox!;
     flyToLocation({
-      longitude: (bbox[0] + bbox[2]) / 2,
-      latitude: (bbox[1] + bbox[3]) / 2,
+      longitude: 0,
+      latitude: 0,
       zoom: 1,
     });
-  }, [flyToLocation]);
+  }, []);
 
   const { data, isLoading, isFetching } = useInfiniteQuery<
     UserSearchRes.AsObject,
@@ -112,7 +122,7 @@ export default function SearchPage({ locationName }: { locationName: string }) {
   >(
     [
       "userSearch",
-      { ...mapSearchState.filters, ...mapSearchState.searchQuery },
+      { ...mapSearchState.filters, ...mapSearchState.searchQuery }, // @TODO(NA): is it inefficient to pass the whole object?
     ],
     ({ pageParam }) => {
       return service.search.userSearch(
@@ -121,6 +131,10 @@ export default function SearchPage({ locationName }: { locationName: string }) {
       );
     },
     {
+      // enabled:
+      //   zoom >= 5 ||
+      //   mapSearchState.hasActiveFilters ||
+      //   mapSearchState.hasSearchQuery, // only fetch when zoomed in or filters
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
     },
@@ -128,7 +142,7 @@ export default function SearchPage({ locationName }: { locationName: string }) {
 
   const formattedUsers = data?.pages
     .flatMap((page) => page.resultsList)
-    .map((result) => result.user)
+    .map((result) => result?.user)
     .filter((user): user is User.AsObject => Boolean(user)); // Type guard to remove undefined
 
   const memoizedUsers = useMemo(() => formattedUsers, [formattedUsers]);
@@ -165,12 +179,13 @@ export default function SearchPage({ locationName }: { locationName: string }) {
   };
 
   const handleClearSearchQuery = () => {
+    console.log("HANDLE CLEAR SEARCH QUERY");
     dispatch({ type: mapSearchActionTypes.CLEAR_SEARCH_QUERY });
-    flyToLocation({
-      longitude: 0,
-      latitude: 0,
-      zoom: 1,
-    });
+    // flyToLocation({
+    //   longitude: 0,
+    //   latitude: 0,
+    //   zoom: 1,
+    // });
   };
 
   const handleSelectedUserIdClick = (userId: number) => {
@@ -202,6 +217,7 @@ export default function SearchPage({ locationName }: { locationName: string }) {
             <DesktopMapView
               flyToLocation={flyToLocation}
               hasActiveFilters={mapSearchState.hasActiveFilters}
+              hasSearchQuery={mapSearchState.hasSearchQuery}
               isLoading={isLoading || isFetching}
               mapRef={mapRef}
               onClearFilters={handleClearFilters}

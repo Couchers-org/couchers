@@ -6,8 +6,8 @@ import {
   UNCLUSTERED_LAYER_ID,
   unclusteredPointLayer,
 } from "features/search/utils/mapLayers";
-import { MapLayerMouseEvent } from "maplibre-gl";
-import React, { useRef } from "react";
+import { MapLayerMouseEvent, RequestParameters } from "maplibre-gl";
+import React from "react";
 import {
   Layer,
   Map as MaplibreMap,
@@ -16,6 +16,8 @@ import {
   Source,
 } from "react-map-gl/maplibre";
 
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 interface MapProps {
   grow?: boolean;
   hash?: boolean;
@@ -23,7 +25,8 @@ interface MapProps {
   onClick: (ev: MapLayerMouseEvent) => void;
   onLoad: () => void;
   onMapMove: () => void;
-  pins: GeoJSON.FeatureCollection;
+  onNavControlClick: () => void;
+  pins: string | GeoJSON.FeatureCollection;
 }
 
 const Map = ({
@@ -33,16 +36,11 @@ const Map = ({
   onClick,
   onLoad,
   onMapMove,
+  onNavControlClick,
   pins,
 }: MapProps) => {
-  const navControlRef = useRef<HTMLDivElement | null>(null);
-
   const handleMapLoad = () => {
     if (mapRef.current) {
-      mapRef.current
-        .getContainer()
-        .addEventListener("click", handleNavControlClick);
-
       onLoad();
     }
   };
@@ -52,12 +50,7 @@ const Map = ({
   };
 
   const handleDragEnd = () => {
-    const zoom = mapRef.current?.getZoom();
-
-    // If zoom is too large an area, don't reload pins
-    if (zoom && zoom >= 5) {
-      onMapMove();
-    }
+    onMapMove();
   };
 
   const handleMouseMove = (event: MapLayerMouseEvent) => {
@@ -76,11 +69,21 @@ const Map = ({
   };
 
   const handleNavControlClick = () => {
-    const zoom = mapRef.current?.getZoom();
-    // If zoom is too large an area, don't reload pins
-    if (zoom && zoom >= 5) {
-      onMapMove();
+    onNavControlClick();
+  };
+
+  /*
+    Allows sending cookies (counted as sensitive "credentials") on cross-origin requests when we grab GeoJSON/other data from the API.
+    Those APIs will return an error if the session cookie is not set as these APIs are secure and not public.
+    */
+  const transformRequest = (url: string): RequestParameters => {
+    if (url.startsWith(API_BASE_URL)) {
+      return {
+        credentials: "include",
+        url,
+      };
     }
+    return { url };
   };
 
   return (
@@ -100,6 +103,7 @@ const Map = ({
         onMouseMove={handleMouseMove}
         hash={hash}
         ref={mapRef}
+        transformRequest={transformRequest}
       >
         <Source
           id="clustered-users"
@@ -114,10 +118,20 @@ const Map = ({
           <Layer {...clusterCountLayer} />
           <Layer {...unclusteredPointLayer} />
         </Source>
-        {/* Wrap NavigationControl in a div to detect clicks */}
-        <div ref={navControlRef}>
+        <div
+          id="nav-control"
+          onClick={handleNavControlClick}
+          style={{
+            position: "absolute",
+            right: 10,
+            top: 10,
+            zIndex: 4,
+            height: "80px",
+            width: "40px",
+          }}
+        >
           <NavigationControl position="top-right" showCompass={false} />
-        </div>{" "}
+        </div>
       </MaplibreMap>
     </>
   );

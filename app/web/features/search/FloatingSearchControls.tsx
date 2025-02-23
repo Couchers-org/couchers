@@ -278,11 +278,13 @@ const FloatingSearchControls = ({
           )}
         </StyledButtonsContainer>
       </StyledControlsWrapper>
-      <FilterDialog
-        isOpen={isFiltersOpen}
-        onCloseDialog={handleCloseDialog}
-        onSetFilters={onSetFilters}
-      />
+      {isFiltersOpen && (
+        <FilterDialog
+          isOpen={isFiltersOpen}
+          onCloseDialog={handleCloseDialog}
+          onSetFilters={onSetFilters}
+        />
+      )}
     </>
   );
 };
