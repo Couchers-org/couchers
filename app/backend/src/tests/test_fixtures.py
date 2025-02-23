@@ -2,7 +2,7 @@ import os
 from concurrent import futures
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
@@ -27,9 +27,12 @@ from couchers.models import (
     LanguageAbility,
     LanguageFluency,
     MeetupStatus,
+    PassportSex,
     Region,
     RegionLived,
     RegionVisited,
+    StrongVerificationAttempt,
+    StrongVerificationAttemptStatus,
     Upload,
     User,
     UserBlock,
@@ -228,7 +231,7 @@ def db():
     recreate_database()
 
 
-def generate_user(*, delete_user=False, complete_profile=True, **kwargs):
+def generate_user(*, delete_user=False, complete_profile=True, strong_verification=False, **kwargs):
     """
     Create a new user, return session token
 
@@ -254,7 +257,7 @@ def generate_user(*, delete_user=False, complete_profile=True, **kwargs):
             "hometown": "Test hometown",
             "community_standing": 0.5,
             "birthdate": date(year=2000, month=1, day=1),
-            "gender": "N/A",
+            "gender": "Woman",
             "pronouns": "",
             "occupation": "Tester",
             "education": "UST(esting)",
@@ -318,6 +321,28 @@ def generate_user(*, delete_user=False, complete_profile=True, **kwargs):
             session.flush()
             user.avatar_key = key
             user.about_me = "I have a complete profile!\n" * 20
+
+        if strong_verification:
+            attempt = StrongVerificationAttempt(
+                verification_attempt_token=f"verification_attempt_token_{user.id}",
+                user_id=user.id,
+                status=StrongVerificationAttemptStatus.succeeded,
+                has_full_data=True,
+                passport_encrypted_data=b"not real",
+                passport_date_of_birth=user.birthdate,
+                passport_sex={"Woman": PassportSex.female, "Man": PassportSex.male}.get(
+                    user.gender, PassportSex.unspecified
+                ),
+                has_minimal_data=True,
+                passport_expiry_date=date.today() + timedelta(days=10),
+                passport_nationality="UTO",
+                passport_last_three_document_chars=f"{user.id:03}",
+                iris_token=f"iris_token_{user.id}",
+                iris_session_id=user.id,
+            )
+            session.add(attempt)
+            session.flush()
+            assert attempt.has_strong_verification(user)
 
         session.commit()
 
