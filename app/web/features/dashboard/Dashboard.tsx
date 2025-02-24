@@ -7,6 +7,7 @@ import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { theme } from "theme";
 
+import dashboardNews from "../../dashboardNews.json";
 import CommunitiesSection from "./CommunitiesSection";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import Hero from "./Hero";
@@ -41,9 +42,8 @@ export default function Dashboard() {
 
             <PageTitle>{t("dashboard:welcome")}</PageTitle>
             <Alert severity="info">
-              <Typography variant="body1" paragraph>
-                <b>New Feature Alert!</b> Communities now have a "Members" tab,
-                where you can see all members of that community.
+              <Typography variant="body1">
+                <b>New Feature Alert!</b> {dashboardNews["2025-02-23"]}
               </Typography>
             </Alert>
 
