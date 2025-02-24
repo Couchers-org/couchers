@@ -4,16 +4,19 @@ crumb: Roadmap
 type: general
 description: Keep up to date with the Couchers development roadmap.
 ---
+
+*This page was last updated 24th February, 2025.*
+
 # Our current milestone: Prepare for v1 (to leave the Beta-phase) (Q1 2025)
 
-We are currently (Q1 2025, January to March) preparing to get out of the beta-phase and are readying for a v1 “launch”.
+We are currently (Q1 2025, January to March) preparing to get out of the beta-phase and are readying for a v1 "launch".
 
-## Achievements since Q4 2024:
+## Achievements since Q4 2024
 
-### Our last milestone was centered around a Safe & Active community, here is a short list of some of the bigger things we achieved for this milestone:
+Our last milestone was centered around *Safe & Active community*, here is a short list of some of the bigger things we achieved for this milestone:
 
 * We sent out a **Volunteer Newsletter** to re-engage previous contributors.
-* We rolled out **”Strong Verification”** for passport verification in feature preview.
+* We rolled out **"Strong Verification"** for passport verification in feature preview.
 * We completed **translating** Couchers.org to German, Portuguese (Brazil), and mostly Simplified Chinese.
 * We set-up **Zulip** for community builders to exchange ideas and allow for better engagement between communities. 
 * We released **Badges** and the ability to see users by badge.
@@ -22,14 +25,14 @@ We are currently (Q1 2025, January to March) preparing to get out of the beta-ph
 * A huge number of bug fixes and under-the-hood improvements.
 * A bunch of other smaller features and enhancements.
 
-## Milestones for Q1 2025:
+## Milestones for Q1 2025
 
-### Here are the main things we are focussing on before the v1 launch. We are a bit optimistic, so some might end up in Q2 or even later!
+Here are the main things we are focussing on before the v1 launch. We are a bit optimistic, so some might end up in Q2 or even later!
 
 * **Rebuilding the map search** to improve filter and sort options, highlighting active members, and showing more information on the map, making it easier to add features.
-* Building a system of **“activeness probes”** to keep track of who is still interested in hosting Couchers, making it easier for users to find active members even if they haven’t signed in for a while.
+* Building a system of **"activeness probes"** to keep track of who is still interested in hosting Couchers, making it easier for users to find active members even if they haven’t signed in for a while.
 * Building a notification feed into the main app and moving **push notifications** out of feature preview.
-* Rolling out of **”Strong Verification”** and **“Phone Number Verification”** to increase safety and help build trust on the platform. 
+* Rolling out of **"Strong Verification"** and **"Phone Number Verification"** to everyone to increase safety and help build trust on the platform. 
 * **Blog** revamp with monthly Dev updates and useful and informative posts.
 * **Language picker** to change preferred language per-user.
 * **Updating the reference system** with private feedback to mods and an option to indicate if you didn’t end up meeting up with your host/surfer.
