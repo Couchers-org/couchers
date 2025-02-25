@@ -224,9 +224,7 @@ const FloatingSearchControls = ({
                               position="end"
                               sx={{
                                 marginRight:
-                                  locationName === ""
-                                    ? theme.spacing(1)
-                                    : 0,
+                                  locationName === "" ? theme.spacing(1) : 0,
                               }}
                             >
                               <IconButton
@@ -279,13 +277,11 @@ const FloatingSearchControls = ({
           )}
         </StyledButtonsContainer>
       </StyledControlsWrapper>
-      {isFiltersOpen && (
-        <FilterDialog
-          isOpen={isFiltersOpen}
-          onCloseDialog={handleCloseDialog}
-          onSetFilters={onSetFilters}
-        />
-      )}
+      <FilterDialog
+        isOpen={isFiltersOpen}
+        onCloseDialog={handleCloseDialog}
+        onSetFilters={onSetFilters}
+      />
     </>
   );
 };

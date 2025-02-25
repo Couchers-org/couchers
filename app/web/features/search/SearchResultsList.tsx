@@ -46,7 +46,7 @@ const SearchResultsList = ({
   return (
     <StyledContainer>
       {!hasSearchCriteria && (
-        <Alert severity="info" sx={{ height: "fit-content" }}>
+        <Alert severity="info" sx={{ height: "fit-content", width: "100%" }}>
           {t("search:choose_search_criteria")}
         </Alert>
       )}

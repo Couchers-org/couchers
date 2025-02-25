@@ -104,9 +104,7 @@ export async function userSearch(
   }
 
   if (hasStrongVerification) {
-    req.setHasStrongVerification(
-      new BoolValue().setValue(hasStrongVerification),
-    );
+    req.setOnlyWithStrongVerification(hasStrongVerification);
   }
 
   if (hostingStatusOptions && hostingStatusOptions.length !== 0) {
