@@ -14,7 +14,7 @@ import makeStyles from "utils/makeStyles";
 
 import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
 import { useListCommunityEvents } from "../hooks";
-import CommunityLongEventCard from "./CommunityLongEventCard";
+import LongEventCard from "./LongEventCard";
 
 interface CommunityEventsListProps {
   community: Community.AsObject;
@@ -69,10 +69,7 @@ export default function CommunityEventsList({
         ) : hasAtLeastOnePage(data, "eventsList") ? (
           data.pages
             .flatMap((page) => page.eventsList)
-            .filter((event) => !event.isCancelled)
-            .map((event) => (
-              <CommunityLongEventCard event={event} key={event.eventId} />
-            ))
+            .map((event) => <LongEventCard event={event} key={event.eventId} />)
         ) : (
           !error && <TextBody>{t("communities:events_empty_state")}</TextBody>
         )}
