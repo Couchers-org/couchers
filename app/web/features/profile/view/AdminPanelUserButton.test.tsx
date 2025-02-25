@@ -29,6 +29,7 @@ const baseAccountInfo = {
   genderVerificationStatus: 3,
   doNotEmail: false,
   hasDonated: false,
+  uiLanguagePreference: "",
 };
 
 describe("AdminPanelUserButton", () => {

@@ -121,6 +121,8 @@ class User(Base):
     hashed_password = Column(Binary, nullable=False)
     # phone number in E.164 format with leading +, for example "+46701740605"
     phone = Column(String, nullable=True, server_default=text("NULL"))
+    # language preference -- defaults to empty string
+    ui_language_preference = Column(String, nullable=True, server_default="")
 
     # timezones should always be UTC
     ## location

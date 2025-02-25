@@ -43,6 +43,7 @@ const accountInfo = {
   doNotEmail: false,
   hasDonated: false,
   isSuperuser: false,
+  uiLanguagePreference: "",
 };
 
 describe("Create event page", () => {
@@ -403,6 +404,7 @@ describe("Create event page", () => {
       doNotEmail: false,
       hasDonated: false,
       isSuperuser: false,
+      uiLanguagePreference: "",
     });
 
     render(<CreateEventPage />, { wrapper });

@@ -19,6 +19,7 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   padding: 0,
   width: "100%",
   alignItems: "center",
+  wordBreak: "break-word",
 }));
 
 const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({

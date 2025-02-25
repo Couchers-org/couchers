@@ -23,6 +23,7 @@ from couchers.models import (
     PageType,
     PageVersion,
     Reference,
+    StrongVerificationAttempt,
     User,
 )
 from couchers.servicers.account import has_strong_verification
@@ -488,6 +489,8 @@ class Search(search_pb2_grpc.SearchServicer):
             statement = statement.where(User.has_housemates == request.has_housemates.value)
         if request.HasField("wheelchair_accessible"):
             statement = statement.where(User.wheelchair_accessible == request.wheelchair_accessible.value)
+        if request.HasField("smoking_allowed"):
+            statement = statement.where(User.smoking_allowed == request.smoking_allowed.value)
         if request.HasField("smokes_at_home"):
             statement = statement.where(User.smokes_at_home == request.smokes_at_home.value)
         if request.HasField("drinking_allowed"):
@@ -537,11 +540,16 @@ class Search(search_pb2_grpc.SearchServicer):
         if request.only_with_references:
             statement = statement.join(Reference, Reference.to_user_id == User.id)
 
+        if request.only_with_strong_verification:
+            statement = statement.join(
+                StrongVerificationAttempt,
+                and_(
+                    StrongVerificationAttempt.user_id == User.id,
+                    StrongVerificationAttempt.has_strong_verification(User),
+                ),
+            )
         # TODO:
-        # google.protobuf.StringValue language = 11;
         # bool friends_only = 13;
-        # google.protobuf.UInt32Value age_min = 14;
-        # google.protobuf.UInt32Value age_max = 15;
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_recommendation_score = float(decrypt_page_token(request.page_token)) if request.page_token else 1e10

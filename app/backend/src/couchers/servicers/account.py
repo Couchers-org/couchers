@@ -168,6 +168,7 @@ class Account(account_pb2_grpc.AccountServicer):
             profile_complete=user.has_completed_profile,
             timezone=user.timezone,
             is_superuser=user.is_superuser,
+            ui_language_preference=user.ui_language_preference,
             **get_strong_verification_fields(session, user),
         )
 
@@ -239,6 +240,15 @@ class Account(account_pb2_grpc.AccountServicer):
         )
 
         # session autocommit
+        return empty_pb2.Empty()
+
+    def ChangeLanguagePreference(self, request, context, session):
+        # select the user from the db
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+        # update the user's preference
+        user.ui_language_preference = request.ui_language_preference
+
         return empty_pb2.Empty()
 
     def FillContributorForm(self, request, context, session):
