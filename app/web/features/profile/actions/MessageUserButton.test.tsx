@@ -35,6 +35,7 @@ const accountInfo = {
   doNotEmail: false,
   hasDonated: false,
   isSuperuser: false,
+  uiLanguagePreference: "",
 };
 
 const incompleteAccountInfo = { ...accountInfo, profileComplete: false };

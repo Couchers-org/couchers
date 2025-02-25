@@ -45,6 +45,7 @@ def test_GetAccountInfo(db, fast_passwords):
         assert res.birthdate_verification_status == api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED
         assert res.gender_verification_status == api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED
         assert not res.is_superuser
+        assert res.ui_language_preference == ""
 
 
 def test_GetAccountInfo_regression(db):
@@ -525,6 +526,22 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector):
         title="An email change was initiated on your account",
         body=f"An email change to the email {new_email} was initiated on your account.",
     )
+
+
+def test_ChangePreferredLanguage(db, fast_passwords):
+    # user changes from default to ISO 639-1 language code
+    newLanguageCode = "zh"
+    user, token = generate_user()
+
+    with account_session(token) as account:
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert res.ui_language_preference == ""
+
+        account.ChangeLanguagePreference(
+            account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=newLanguageCode)
+        )
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert res.ui_language_preference == "zh"
 
 
 def test_contributor_form(db):
