@@ -25,15 +25,8 @@ const useStyles = makeStyles((theme) => ({
     display: "grid",
     rowGap: theme.spacing(3),
     [theme.breakpoints.down("sm")]: {
-      //break out of page padding
-      left: "50%",
-      marginLeft: "-50vw",
-      marginRight: "-50vw",
-      position: "relative",
-      right: "50%",
-      width: "100vw",
+      rowGap: theme.spacing(1.5),
     },
-    marginBlockEnd: theme.spacing(2),
   },
 }));
 
