@@ -21,6 +21,7 @@ export interface UsersListProps {
   emptyListChildren?: ReactNode;
   endChildren?: ReactNode;
   error?: RpcError | null;
+  titleIsLink?: boolean;
 }
 
 /**
@@ -37,6 +38,7 @@ export default function UsersList({
   emptyListChildren,
   endChildren,
   error,
+  titleIsLink = false,
 }: UsersListProps) {
   const {
     data: users,
@@ -72,6 +74,7 @@ export default function UsersList({
               headlineComponent="h3"
               key={userId}
               user={users?.get(userId)}
+              titleIsLink={titleIsLink}
             />
           ))}
           <>{endChildren}</>

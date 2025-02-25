@@ -210,6 +210,21 @@ def test_user_filter_language(db):
         assert [result.user.user_id for result in res.results] == [user_with_japanese_conversational.id]
 
 
+def test_user_filter_strong_verification(db):
+    user1, token11 = generate_user()
+    user2, _ = generate_user(strong_verification=True)
+    user3, _ = generate_user()
+    user4, _ = generate_user(strong_verification=True)
+    user5, _ = generate_user(strong_verification=True)
+
+    with search_session(token11) as api:
+        res = api.UserSearch(search_pb2.UserSearchReq(only_with_strong_verification=False))
+        assert [result.user.user_id for result in res.results] == [user1.id, user2.id, user3.id, user4.id, user5.id]
+
+        res = api.UserSearch(search_pb2.UserSearchReq(only_with_strong_verification=True))
+        assert [result.user.user_id for result in res.results] == [user2.id, user4.id, user5.id]
+
+
 @pytest.fixture
 def sample_event_data() -> dict:
     """Dummy data for creating events."""

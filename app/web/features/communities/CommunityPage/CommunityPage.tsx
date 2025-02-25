@@ -11,6 +11,7 @@ import CommunityInfoPage from "../CommunityInfoPage";
 import { DiscussionsListPage, DiscussionsSection } from "../discussions";
 import CommunityEventsList from "../events/CommunityEventsList";
 import EventsSection from "../events/EventsSection";
+import CommunityMembersList from "../members/CommunityMembersList";
 import PageHeader from "../PageHeader";
 import CommunityPageSubHeader from "./CommunityPageSubHeader";
 import InfoPageSection from "./InfoPageSection";
@@ -102,6 +103,8 @@ export default function CommunityPage({
               <DiscussionsListPage community={community} />
             ) : tab === "events" ? (
               <CommunityEventsList community={community} />
+            ) : tab === "members" ? (
+              <CommunityMembersList communityId={community.communityId} />
             ) : null}
           </>
         );
