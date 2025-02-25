@@ -69,7 +69,7 @@ description: Keep up to date with the Couchers development roadmap.
    </td>
    <td>
    </td>
-   <td colspan="2" >Integrate blog on dashboard
+   <td colspan="2" >Integrate blog in dashboard
    </td>
   </tr>
 
