@@ -99,11 +99,11 @@ const Map = ({
           height: grow ? "100%" : "200px",
           width: grow ? "100%" : "400px",
         }}
-        initialViewState={{
-          latitude: 0,
-          longitude: 0,
-          zoom: 1,
-        }}
+        // initialViewState={{
+        //   latitude: 0,
+        //   longitude: 0,
+        //   zoom: 1,
+        // }}
         interactive={true}
         mapStyle="https://cdn.couchers.org/maps/couchers-basemap-style-v1.json"
         interactiveLayerIds={clusterLayer.id ? [clusterLayer.id] : []}

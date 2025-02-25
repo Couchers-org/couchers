@@ -22,11 +22,11 @@ import { FilterOptions, SearchQueryOptions } from "./SearchPage";
 
 interface FloatingSearchNavigationProps {
   hasActiveFilters: boolean;
+  locationName: string | undefined;
   onClearFilters: () => void;
   onClearSearchQuery: () => void;
   onSetFilters: (filters: FilterOptions) => void;
   onSetSearchQuery: (searchQuery: SearchQueryOptions) => void;
-  searchQuery: string | undefined;
   showSearchIcon?: boolean;
 }
 
@@ -148,7 +148,7 @@ const FloatingSearchControls = ({
   onClearSearchQuery,
   onSetFilters,
   onSetSearchQuery,
-  searchQuery,
+  locationName,
 }: FloatingSearchNavigationProps) => {
   const { t } = useTranslation([SEARCH]);
 
@@ -199,13 +199,12 @@ const FloatingSearchControls = ({
           <StyledFlexRow>
             {searchType === "location" && (
               <StyledLocationAutocompleteOutlined
-                defaultValue={searchQuery}
+                defaultValue={locationName}
                 fullWidth={false}
                 placeholder={t("search:form.location_field_label")}
                 name="location"
                 onChange={handleLocationChange}
                 onClear={handleClearLocation}
-                showSearchIcon={false}
               />
             )}
             {searchType === "keyword" && (
@@ -225,7 +224,9 @@ const FloatingSearchControls = ({
                               position="end"
                               sx={{
                                 marginRight:
-                                  searchQuery === "" ? theme.spacing(1) : 0,
+                                  locationName === ""
+                                    ? theme.spacing(1)
+                                    : 0,
                               }}
                             >
                               <IconButton
@@ -253,8 +254,8 @@ const FloatingSearchControls = ({
               onChange={handleSearchTypeChange}
               placeholder="Search Type"
             >
-              <MenuItem value="location">Location</MenuItem>
-              <MenuItem value="keyword">Keyword</MenuItem>
+              <MenuItem value="location">{t("search:location")}</MenuItem>
+              <MenuItem value="keyword">{t("search:keyword")}</MenuItem>
             </StyledSelect>
           </StyledFlexRow>
 

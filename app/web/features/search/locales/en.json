@@ -66,5 +66,7 @@
     "choose_map_view": "Choose map view",
     "list": "List",
     "map_and_list": "Map and List"
-  }
+  },
+  "location": "Location",
+  "keyword": "Keyword"
 }

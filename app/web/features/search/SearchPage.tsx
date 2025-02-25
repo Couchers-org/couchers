@@ -71,7 +71,13 @@ const SearchPageContainer = styled("div")(({ theme }) => ({
 /**
  * Search page, creates the state, obtains the users, renders all its sub-components
  */
-export default function SearchPage({ locationName }: { locationName: string }) {
+export default function SearchPage({
+  bbox,
+  locationName,
+}: {
+  bbox: GeocodeResult["bbox"];
+  locationName: string;
+}) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const queryClient = new QueryClient();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -81,7 +87,7 @@ export default function SearchPage({ locationName }: { locationName: string }) {
     ...initialState,
     searchQuery: {
       ...initialState.searchQuery,
-      query: locationName,
+      bbox,
     },
     hasSearchQuery: Boolean(locationName),
   });
@@ -185,6 +191,7 @@ export default function SearchPage({ locationName }: { locationName: string }) {
             <DesktopMapView
               hasActiveFilters={mapSearchState.hasActiveFilters}
               hasSearchQuery={mapSearchState.hasSearchQuery}
+              initialLocation={{ bbox, locationName }}
               isLoading={isLoading || isFetching}
               mapRef={mapRef}
               onClearFilters={handleClearFilters}
@@ -192,7 +199,6 @@ export default function SearchPage({ locationName }: { locationName: string }) {
               onSetFilters={handleSetFilters}
               onSetSearchQuery={handleSetSearchQuery}
               onSelectedUserIdClick={handleSelectedUserIdClick}
-              searchQuery={mapSearchState.searchQuery.query}
               selectedUserIds={mapSearchState.selectedUserIds}
               users={memoizedUsers}
             />

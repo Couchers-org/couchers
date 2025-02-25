@@ -1,15 +1,6 @@
-import {
-  Autocomplete,
-  AutocompleteChangeReason,
-  InputAdornment,
-} from "@mui/material";
-import IconButton from "components/IconButton";
-import { SearchIcon } from "components/Icons";
+import { Autocomplete, AutocompleteChangeReason } from "@mui/material";
 import TextField from "components/TextField";
-import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
 import { forwardRef, SyntheticEvent, useState } from "react";
-import { theme } from "theme";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
 interface LocationAutocompleteOutlinedProps {
@@ -25,10 +16,10 @@ interface LocationAutocompleteOutlinedProps {
   onClear?: () => void;
   placeholder?: string;
   required?: string;
-  showSearchIcon?: boolean;
   showFullDisplayName?: boolean;
 }
 
+// @TODO(NA): Fix controlled state error
 const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   props: LocationAutocompleteOutlinedProps,
   ref,
@@ -44,9 +35,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     onChange,
     onClear,
     showFullDisplayName = false,
-    showSearchIcon = true,
   } = props;
-  const { t } = useTranslation(GLOBAL);
 
   const [isOpen, setIsOpen] = useState(false);
   const [value, setValue] = useState<string>(defaultValue);
@@ -92,15 +81,8 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
       className={className}
       disableClearable={!onClear}
       defaultValue={
-        options?.find(
-          (o) => geocodeResult2String(o, showFullDisplayName) === defaultValue,
-        ) || null
+        { name: defaultValue, simplifiedName: defaultValue } as GeocodeResult
       }
-      value={
-        options?.find(
-          (o) => geocodeResult2String(o, showFullDisplayName) === value,
-        ) || null
-      } // Convert string to GeocodeResult to appease TS and match options type
       id={id}
       ref={ref}
       renderInput={(params) => (
@@ -111,34 +93,6 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
           fullWidth={fullWidth}
           variant="outlined"
           placeholder={placeholder}
-          InputProps={
-            showSearchIcon
-              ? {
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {params.InputProps.endAdornment}
-                      <InputAdornment
-                        position="end"
-                        sx={{
-                          marginRight: value === "" ? theme.spacing(1) : 0,
-                        }}
-                      >
-                        <IconButton
-                          aria-label={t(
-                            "location_autocomplete.search_location_button",
-                          )}
-                          onClick={handleSearchSubmit}
-                          size="small"
-                        >
-                          <SearchIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    </>
-                  ),
-                }
-              : params.InputProps
-          }
         />
       )}
       loading={isLoading}

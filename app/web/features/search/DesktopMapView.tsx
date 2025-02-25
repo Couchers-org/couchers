@@ -14,6 +14,7 @@ import MapView from "./MapView";
 import MapViewToggle from "./MapViewToggle";
 import { FilterOptions, SearchQueryOptions } from "./SearchPage";
 import SearchResultsList from "./SearchResultsList";
+import { Coordinates } from "./utils/constants";
 
 export enum MapViews {
   MAP_AND_LIST = "MAP_AND_LIST",
@@ -24,6 +25,7 @@ export type MapViewOptions = MapViews.MAP_AND_LIST | MapViews.LIST_ONLY;
 interface DesktopMapViewProps {
   hasActiveFilters: boolean;
   hasSearchQuery: boolean;
+  initialLocation: { locationName: string; bbox: Coordinates };
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   onClearFilters: () => void;
@@ -31,7 +33,6 @@ interface DesktopMapViewProps {
   onSetFilters: (filters: FilterOptions) => void;
   onSetSearchQuery: (searchQuery: SearchQueryOptions) => void;
   onSelectedUserIdClick: (userId: number) => void;
-  searchQuery: string | undefined;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
 }
@@ -106,13 +107,13 @@ const CenterAligner = styled("div")(({ theme }) => ({
 const DesktopMapView = ({
   hasActiveFilters,
   hasSearchQuery,
+  initialLocation,
   isLoading,
   onClearFilters,
   onClearSearchQuery,
   onSetFilters,
   onSetSearchQuery,
   onSelectedUserIdClick,
-  searchQuery,
   mapRef,
   selectedUserIds,
   users,
@@ -150,7 +151,7 @@ const DesktopMapView = ({
             onClearSearchQuery={onClearSearchQuery}
             onSetFilters={onSetFilters}
             onSetSearchQuery={onSetSearchQuery}
-            searchQuery={searchQuery}
+            locationName={initialLocation.locationName}
           />
         </CenterAligner>
       </MapControlsWrapper>
@@ -199,6 +200,7 @@ const DesktopMapView = ({
         <MapContainer drawerWidth={drawerWidth}>
           <MapView
             hasActiveFilters={hasActiveFilters}
+            initialBbox={initialLocation.bbox}
             isLoading={isLoading}
             mapRef={mapRef}
             onClearSearchQuery={onClearSearchQuery}

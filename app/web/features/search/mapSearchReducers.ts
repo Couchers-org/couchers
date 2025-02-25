@@ -21,7 +21,6 @@ type MapSearchState = {
   searchQuery: {
     bbox?: Coordinates;
     query?: string;
-    shouldZoomTo?: boolean;
   };
   selectedUserIds: User.AsObject["userId"][];
 };
@@ -78,7 +77,7 @@ const mapSearchReducer = (
     case mapSearchActionTypes.CLEAR_SEARCH_QUERY:
       return {
         ...state,
-        searchQuery: initialState.searchQuery,
+        // searchQuery: initialState.searchQuery, // TODO: Do we want map to zoom out again on clear?
         hasSearchQuery: false,
       };
     case mapSearchActionTypes.SET_SEARCH_QUERY:

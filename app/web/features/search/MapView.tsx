@@ -8,6 +8,7 @@ import { useCallback, useMemo, useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
 import { FlyToLocationProps, SearchQueryOptions } from "./SearchPage";
+import { Coordinates } from "./utils/constants";
 import { UNCLUSTERED_LAYER_ID } from "./utils/mapLayers";
 import {
   getMapBounds,
@@ -18,6 +19,7 @@ import {
 
 interface MapViewProps {
   hasActiveFilters: boolean;
+  initialBbox: Coordinates;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   onClearSearchQuery: () => void;
@@ -39,6 +41,7 @@ const DEFAULT_USERS: User.AsObject[] = [];
 
 const MapView = ({
   hasActiveFilters,
+  initialBbox,
   isLoading,
   mapRef,
   onClearSearchQuery,
@@ -122,11 +125,22 @@ const MapView = ({
         onSelectedUserIdClick(userId);
       }
     },
-    [flyToLocation, mapRef, onSelectedUserIdClick, onSetSearchQuery, selectedUserIds],
+    [
+      flyToLocation,
+      mapRef,
+      onSelectedUserIdClick,
+      onSetSearchQuery,
+      selectedUserIds,
+    ],
   );
 
   const handleLoad = async () => {
     await loadMapUserPins(mapRef);
+
+    // Zoom into initial bbox
+    if (initialBbox) {
+      mapRef.current?.fitBounds(initialBbox);
+    }
   };
 
   const handleMapMove = () => {
