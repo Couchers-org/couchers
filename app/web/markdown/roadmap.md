@@ -26,7 +26,7 @@ description: Keep up to date with the Couchers development roadmap.
   </tr>
   <tr>
 
-   <td style="background-color:#E47701; color:#FFFFFF; text-align:center;" rowspan="8" ><strong>New Features</strong> 
+   <td style="background-color:#E47701; color:#FFFFFF; text-align:center;" rowspan="10" ><strong>New Features</strong> 
       </td>
    <td style="background-color: #00A398; color:#FFFFFF;" colspan="5" >✅ Push notifications
    </td>
@@ -64,7 +64,16 @@ description: Keep up to date with the Couchers development roadmap.
    </td>
   </tr>
   <tr>
-   <td style="background-color:#E47701; color:#FFFFFF; text-align:center;" rowspan="5" ><strong>Updates</strong>
+  <tr>
+   <td colspan="2" >
+   </td>
+   <td>
+   </td>
+   <td colspan="2" >Integrate blog on dashboard
+   </td>
+  </tr>
+
+   <td style="background-color:#E47701; color:#FFFFFF; text-align:center;" rowspan="4" ><strong>Updates</strong>
    </td>
    <td style="background-color: #00A398; color:#FFFFFF;" colspan="5" >✅ Blog revamp
    </td>
@@ -85,14 +94,7 @@ description: Keep up to date with the Couchers development roadmap.
    <td colspan="2" >Update blog design
    </td>
   </tr>
-  <tr>
-   <td colspan="2" >
-   </td>
-   <td>
-   </td>
-   <td colspan="2" >Integrate blog on dashboard
-   </td>
-  </tr>
+
   <tr>
    <td style="background-color:#E47701; color:#FFFFFF; text-align:center;" rowspan="7" ><strong>Operations</strong>
    </td>
