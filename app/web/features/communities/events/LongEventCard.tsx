@@ -3,20 +3,24 @@ import {
   CardContent,
   CardMedia,
   Theme,
-  Tooltip,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { eventImagePlaceholderUrl } from "appConstants";
+import { AttendeesIcon, CalendarIcon } from "components/Icons";
 import Pill from "components/Pill";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
+import { useMemo } from "react";
 import { routeToEvent } from "routes";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import makeStyles from "utils/makeStyles";
+
+import getContentSummary from "../getContentSummary";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -26,18 +30,13 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: theme.spacing(1),
-
+    padding: theme.spacing(1),
+    [theme.breakpoints.up("sm")]: {
+      padding: theme.spacing(2),
+    },
     "&:hover": {
       backgroundColor: theme.palette.grey[50],
     },
-  },
-  attendees: {
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "flex-end",
-    minWidth: theme.spacing(10),
-    fontSize: ".85rem",
-    color: theme.palette.text.secondary,
   },
   card: {
     display: "flex",
@@ -55,34 +54,48 @@ const useStyles = makeStyles((theme: Theme) => ({
   cardContent: {
     width: "75%",
     display: "flex",
+    padding: "0  !important",
     flexDirection: "column",
     justifyContent: "space-between",
-  },
-  eventInfo: {
-    display: "flex",
-    justifyContent: "flex-end",
-    flexDirection: "column",
-    fontSize: ".85rem",
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+      "& .MuiTypography-root": {
+        fontSize: "0.75rem",
+      },
+      "& .MuiTypography-h2": {
+        fontSize: "1rem",
+      },
+    },
   },
   row: {
     display: "flex",
     justifyContent: "space-between",
   },
+  location: {
+    fontWeight: "bold",
+    color: theme.palette.grey[600],
+  },
+  icon: {
+    display: "block",
+    fontSize: "1.25rem",
+    lineHeight: 1.5,
+    marginInlineEnd: theme.spacing(0.5),
+  },
+  eventTimeContainer: {
+    alignItems: "center",
+    display: "flex",
+  },
+  attendeesCountContainer: {
+    alignItems: "center",
+    display: "flex",
+  },
   tags: {
     minWidth: theme.spacing(15),
     [theme.breakpoints.down("sm")]: {
-      minWidth: theme.spacing(10),
+      "& > *": {
+        fontSize: "0.5rem",
+      },
     },
-  },
-  title: {
-    display: "-webkit-box",
-    lineClamp: 2,
-    boxOrient: "vertical",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    maxHeight: "3em" /* Approximate height for 2 lines of text */,
-    lineHeight: "1.5em",
-    paddingRight: theme.spacing(2),
   },
 }));
 
@@ -91,13 +104,23 @@ const LongEventCard = ({
   userId,
 }: {
   event: Event.AsObject;
-  userId: number | null | undefined;
+  userId?: number | null | undefined;
 }) => {
   const classes = useStyles({
     eventImageSrc: event.photoUrl || eventImagePlaceholderUrl,
   });
   const { t } = useTranslation([COMMUNITIES]);
+  const isBelowLg = useMediaQuery(theme.breakpoints.down("lg"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const truncatedContent = useMemo(
+    () =>
+      getContentSummary({
+        originalContent: event.content,
+        maxLength: isBelowLg ? 120 : 300,
+      }),
+    [event.content, isBelowLg],
+  );
   const startTime = dayjs(timestamp2Date(event.startTime!)).format("llll");
   const isCreatedByMe = event.creatorUserId === userId;
   const isOnline = event.onlineInformation?.link !== undefined;
@@ -116,11 +139,14 @@ const LongEventCard = ({
         />
         <CardContent className={classes.cardContent}>
           <div className={classes.row}>
-            <Tooltip title={event.title}>
-              <Typography variant="h3" className={classes.title}>
-                {event.title}
+            <div>
+              <Typography variant="h2">{event.title}</Typography>
+              <Typography className={classes.location} variant="body1">
+                {event.offlineInformation
+                  ? event.offlineInformation.address
+                  : t("communities:virtual_event_location_placeholder")}
               </Typography>
-            </Tooltip>
+            </div>
             <div className={classes.tags}>
               {isCreatedByMe && (
                 <Pill variant="rounded">{t("communities:created_by_me")}</Pill>
@@ -139,20 +165,23 @@ const LongEventCard = ({
               )}
             </div>
           </div>
-          <div className={classes.row}>
-            <div className={classes.eventInfo}>
-              {event.offlineInformation
-                ? event.offlineInformation.address
-                : t("communities:virtual_event_location_placeholder")}
-
-              <div>{startTime}</div>
+          <div>
+            <div className={classes.eventTimeContainer}>
+              <CalendarIcon className={classes.icon} />
+              <Typography variant="body1">{startTime}</Typography>
             </div>
-            <div className={classes.attendees}>
-              {t("communities:attendees_count", {
-                count: event.goingCount + event.maybeCount,
-              })}
+            <div className={classes.attendeesCountContainer}>
+              <AttendeesIcon className={classes.icon} />
+              <Typography variant="body1">
+                {t("communities:attendees_count", {
+                  count: event.goingCount + event.maybeCount,
+                })}
+              </Typography>
             </div>
           </div>
+          {!isMobile && (
+            <Typography variant="body1">{truncatedContent}</Typography>
+          )}
         </CardContent>
       </Link>
     </Card>
