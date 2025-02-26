@@ -27,7 +27,6 @@ import {
   mapSearchReducer,
 } from "./mapSearchReducers";
 import MobileMapView from "./MobileMapView";
-import { get } from "http";
 import { getMapBounds } from "./utils/mapUtils";
 
 export type FilterOptions = {

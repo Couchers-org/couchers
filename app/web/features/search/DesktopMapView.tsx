@@ -18,7 +18,6 @@ import {
   SearchOptions,
 } from "./SearchPage";
 import SearchResultsList from "./SearchResultsList";
-import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
 import { meetsApiSearchCriteria } from "./utils/mapUtils";
 
 export enum MapViews {

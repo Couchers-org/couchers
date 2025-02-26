@@ -25,9 +25,8 @@ import { HostingStatus } from "proto/api_pb";
 import { useState } from "react";
 import { theme } from "theme";
 
-import { DEFAULT_AGE_MAX, DEFAULT_AGE_MIN } from "./mapSearchReducers";
 import { FilterOptions } from "./SearchPage";
-import { HostingStatusOptions, lastActiveOptions } from "./utils/constants";
+import { DEFAULT_AGE_MAX, DEFAULT_AGE_MIN , HostingStatusOptions, lastActiveOptions } from "./utils/constants";
 
 interface FilterDialogProps {
   isOpen: boolean;

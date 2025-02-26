@@ -18,7 +18,12 @@ export default function SearchPage() {
   const location = router.query.location as string;
   const bbox = router.query.bbox || undefined;
 
-  return <SearchPageComponent locationName={location} bbox={bbox as Coordinates | undefined} />;
+  return (
+    <SearchPageComponent
+      locationName={location}
+      bbox={bbox as Coordinates | undefined}
+    />
+  );
 }
 
 SearchPage.getLayout = appGetLayout({ noFooter: true, variant: "full-width" });
