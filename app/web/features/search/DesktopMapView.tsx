@@ -128,8 +128,6 @@ const DesktopMapView = ({
   const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
   const zoom = mapRef.current?.getZoom() || 1;
 
-  console.log("ZOOM", zoom);
-
   const meetsSearchCriteria = meetsApiSearchCriteria({
     hasActiveFilters,
     hasSearchInputValue,
