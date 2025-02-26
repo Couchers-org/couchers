@@ -10,6 +10,19 @@ import {
 } from "./utils/constants";
 import { getHasActiveFilters } from "./utils/mapUtils";
 
+/** WHY USE A REDUCER FOR OUR MAP STATE?
+ * Mostly we use react-query for state management, which stores api responses as is in the browser cache.
+ * This generally works for us, as we use the api response as returned (more or less) in the UI.
+ * For the map, we need to modify the api response format significantly before using it in the UI.
+ * In some cases, we want to change the UI without calling the api again.
+ * Decoupling UI-state from api query response using a reducer allows us to store UI-specific state
+ * in a single place, and update it in a predictable way.
+ * In this case we want to decouple the users response from the search criteria and filters.
+ * 
+ * READ MORE: https://react.dev/reference/react/useReducer
+ */
+
+// The action types for the map search reducer
 enum mapSearchActionTypes {
   SET_SEARCH = "SET_SEARCH",
   CLEAR_SEARCH_INPUT_VALUE = "CLEAR_SEARCH_INPUT_VALUE",
@@ -18,6 +31,7 @@ enum mapSearchActionTypes {
   SET_SELECTED_USER_IDS = "SET_SELECTED_USER_IDS",
 }
 
+// Overall format of the map search state
 type MapSearchState = {
   filters: UserSearchFilters;
   hasActiveFilters: boolean;
@@ -30,6 +44,7 @@ type MapSearchState = {
   selectedUserIds: User.AsObject["userId"][];
 };
 
+// The action types for the map search reducer
 type MapSearchAction =
   | {
       type: mapSearchActionTypes.SET_SEARCH;
@@ -81,6 +96,8 @@ const mapSearchReducer = (
 ): MapSearchState => {
   switch (action.type) {
     case mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE:
+      //  FYI: State is read-only. Don’t modify any objects or arrays in state directly 🚩.
+      // Instead, always return new objects from your reducer ✅
       return {
         ...state,
         search: {
