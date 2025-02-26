@@ -18,15 +18,15 @@ import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
 import FilterDialog from "./FilterDialog";
-import { FilterOptions, SearchQueryOptions } from "./SearchPage";
+import { FilterOptions, SearchOptions } from "./SearchPage";
 
 interface FloatingSearchNavigationProps {
   hasActiveFilters: boolean;
   locationName: string | undefined;
   onClearFilters: () => void;
-  onClearSearchQuery: () => void;
+  onClearSearchInputValue: () => void;
   onSetFilters: (filters: FilterOptions) => void;
-  onSetSearchQuery: (searchQuery: SearchQueryOptions) => void;
+  onSetSearch: (search: SearchOptions) => void;
   showSearchIcon?: boolean;
 }
 
@@ -145,9 +145,9 @@ const StyledClearIcon = styled(Clear)(({ theme }) => ({
 const FloatingSearchControls = ({
   hasActiveFilters,
   onClearFilters,
-  onClearSearchQuery,
+  onClearSearchInputValue,
   onSetFilters,
-  onSetSearchQuery,
+  onSetSearch,
   locationName,
 }: FloatingSearchNavigationProps) => {
   const { t } = useTranslation([SEARCH]);
@@ -163,12 +163,9 @@ const FloatingSearchControls = ({
     setSearchType(value);
   };
 
-  const debouncedKeywordChange = debounce(
-    (value: SearchQueryOptions["keyword"]) => {
-      onSetSearchQuery({ keyword: value });
-    },
-    500,
-  );
+  const debouncedKeywordChange = debounce((value: SearchOptions["keyword"]) => {
+    onSetSearch({ keyword: value });
+  }, 500);
 
   const handleKeywordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     debouncedKeywordChange(event.target.value);
@@ -177,15 +174,15 @@ const FloatingSearchControls = ({
 
   const handleClearKeyword = () => {
     setKeyword("");
-    onSetSearchQuery({ keyword: "" });
+    onSetSearch({ keyword: "" });
   };
 
   const handleLocationChange = (value: GeocodeResult | undefined) => {
-    onSetSearchQuery({ location: value });
+    onSetSearch({ location: value });
   };
 
   const handleClearLocation = () => {
-    onClearSearchQuery();
+    onClearSearchInputValue();
   };
 
   const handleCloseDialog = () => {

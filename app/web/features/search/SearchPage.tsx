@@ -1,6 +1,10 @@
 import { styled, useMediaQuery } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
-import { HostingStatusOptions } from "features/search/utils/constants";
+import {
+  Coordinates,
+  HostingStatusOptions,
+  MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+} from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
@@ -23,6 +27,8 @@ import {
   mapSearchReducer,
 } from "./mapSearchReducers";
 import MobileMapView from "./MobileMapView";
+import { get } from "http";
+import { getMapBounds } from "./utils/mapUtils";
 
 export type FilterOptions = {
   acceptsKids?: boolean;
@@ -43,7 +49,7 @@ export type FilterOptions = {
   smokingAllowed?: boolean;
 };
 
-export type SearchQueryOptions = {
+export type SearchOptions = {
   bbox?: GeocodeResult["bbox"];
   query?: string;
   keyword?: string;
@@ -54,6 +60,11 @@ export interface FlyToLocationProps {
   longitude: number;
   latitude: number;
   zoom?: number;
+}
+
+export interface InitialSearchLocation {
+  locationName: string | undefined;
+  bbox: Coordinates | undefined;
 }
 
 const SearchPageContainer = styled("div")(({ theme }) => ({
@@ -75,8 +86,8 @@ export default function SearchPage({
   bbox,
   locationName,
 }: {
-  bbox: GeocodeResult["bbox"];
-  locationName: string;
+  bbox: GeocodeResult["bbox"] | undefined;
+  locationName: string | undefined;
 }) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const queryClient = new QueryClient();
@@ -85,11 +96,12 @@ export default function SearchPage({
 
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
-    searchQuery: {
-      ...initialState.searchQuery,
+    search: {
+      query: locationName,
       bbox,
     },
-    hasSearchQuery: Boolean(locationName),
+    hasSearchInputValue: Boolean(locationName),
+    hasSearchBounds: Boolean(bbox),
   });
 
   const zoom = mapRef.current?.getZoom() || 1;
@@ -111,19 +123,19 @@ export default function SearchPage({
   >(
     [
       "userSearch",
-      { ...mapSearchState.filters, ...mapSearchState.searchQuery }, // @TODO(NA): is it inefficient to pass the whole object?
+      { ...mapSearchState.filters, ...mapSearchState.search }, // @TODO(NA): is it inefficient to pass the whole object?
     ],
     ({ pageParam }) => {
       return service.search.userSearch(
-        { ...mapSearchState.filters, ...mapSearchState.searchQuery },
+        { ...mapSearchState.filters, ...mapSearchState.search },
         pageParam,
       );
     },
     {
       enabled:
-        zoom >= 5 ||
         mapSearchState.hasActiveFilters ||
-        mapSearchState.hasSearchQuery, // only fetch when zoomed in or filters
+        zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH ||
+        mapSearchState.hasSearchInputValue, // only fetch when zoomed in or filters
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
     },
@@ -136,13 +148,13 @@ export default function SearchPage({
 
   const memoizedUsers = useMemo(() => formattedUsers, [formattedUsers]);
 
-  const handleSetSearchQuery = (searchQuery: SearchQueryOptions) => {
+  const handleSetSearch = (search: SearchOptions) => {
     dispatch({
-      type: mapSearchActionTypes.SET_SEARCH_QUERY,
-      payload: searchQuery,
+      type: mapSearchActionTypes.SET_SEARCH,
+      payload: search,
     });
-    if (searchQuery.location) {
-      const geojson = searchQuery.location as GeocodeResult;
+    if (search.location) {
+      const geojson = search.location as GeocodeResult;
 
       flyToLocation({
         longitude: geojson.location.lng,
@@ -158,8 +170,13 @@ export default function SearchPage({
     });
   };
 
-  const handleClearSearchQuery = () => {
-    dispatch({ type: mapSearchActionTypes.CLEAR_SEARCH_QUERY });
+  const handleClearSearchInputValue = () => {
+    const currentBbox = getMapBounds(mapRef);
+
+    dispatch({
+      type: mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE,
+      payload: { bbox: currentBbox },
+    });
   };
 
   const handleSelectedUserIdClick = (userId: number) => {
@@ -190,14 +207,14 @@ export default function SearchPage({
           {!isMobile && (
             <DesktopMapView
               hasActiveFilters={mapSearchState.hasActiveFilters}
-              hasSearchQuery={mapSearchState.hasSearchQuery}
+              hasSearchInputValue={mapSearchState.hasSearchInputValue}
               initialLocation={{ bbox, locationName }}
               isLoading={isLoading || isFetching}
               mapRef={mapRef}
               onClearFilters={handleClearFilters}
-              onClearSearchQuery={handleClearSearchQuery}
+              onClearSearchInputValue={handleClearSearchInputValue}
               onSetFilters={handleSetFilters}
-              onSetSearchQuery={handleSetSearchQuery}
+              onSetSearch={handleSetSearch}
               onSelectedUserIdClick={handleSelectedUserIdClick}
               selectedUserIds={mapSearchState.selectedUserIds}
               users={memoizedUsers}

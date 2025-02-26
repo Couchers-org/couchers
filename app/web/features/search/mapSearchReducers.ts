@@ -2,13 +2,17 @@ import { User } from "proto/api_pb";
 import { UserSearchFilters } from "service/search";
 import { GeocodeResult } from "utils/hooks";
 
-import { FilterOptions, SearchQueryOptions } from "./SearchPage";
-import { Coordinates } from "./utils/constants";
+import { FilterOptions, SearchOptions } from "./SearchPage";
+import {
+  Coordinates,
+  DEFAULT_AGE_MAX,
+  DEFAULT_AGE_MIN,
+} from "./utils/constants";
 import { getHasActiveFilters } from "./utils/mapUtils";
 
 enum mapSearchActionTypes {
-  SET_SEARCH_QUERY = "SET_SEARCH_QUERY",
-  CLEAR_SEARCH_QUERY = "CLEAR_SEARCH_QUERY",
+  SET_SEARCH = "SET_SEARCH",
+  CLEAR_SEARCH_INPUT_VALUE = "CLEAR_SEARCH_INPUT_VALUE",
   SET_FILTERS = "SET_FILTERS",
   RESET_FILTERS = "RESET_FILTERS",
   SET_SELECTED_USER_IDS = "SET_SELECTED_USER_IDS",
@@ -17,8 +21,9 @@ enum mapSearchActionTypes {
 type MapSearchState = {
   filters: UserSearchFilters;
   hasActiveFilters: boolean;
-  hasSearchQuery: boolean;
-  searchQuery: {
+  hasSearchBounds: boolean;
+  hasSearchInputValue: boolean;
+  search: {
     bbox?: Coordinates;
     query?: string;
   };
@@ -27,10 +32,13 @@ type MapSearchState = {
 
 type MapSearchAction =
   | {
-      type: mapSearchActionTypes.SET_SEARCH_QUERY;
-      payload: SearchQueryOptions;
+      type: mapSearchActionTypes.SET_SEARCH;
+      payload: SearchOptions;
     }
-  | { type: mapSearchActionTypes.CLEAR_SEARCH_QUERY }
+  | {
+      type: mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE;
+      payload?: { bbox?: SearchOptions["bbox"] };
+    }
   | {
       type: mapSearchActionTypes.SET_FILTERS;
       payload: FilterOptions;
@@ -40,9 +48,6 @@ type MapSearchAction =
       type: mapSearchActionTypes.SET_SELECTED_USER_IDS;
       payload: { userId: User.AsObject["userId"] };
     };
-
-const DEFAULT_AGE_MIN = 18;
-const DEFAULT_AGE_MAX = 100;
 
 const initialState: MapSearchState = {
   filters: {
@@ -61,9 +66,10 @@ const initialState: MapSearchState = {
     smokingAllowed: undefined,
   },
   hasActiveFilters: false,
-  hasSearchQuery: false,
-  searchQuery: {
-    bbox: [390, 82, -173, -66],
+  hasSearchBounds: false,
+  hasSearchInputValue: false,
+  search: {
+    bbox: undefined,
     query: "",
   },
   selectedUserIds: [],
@@ -74,17 +80,24 @@ const mapSearchReducer = (
   action: MapSearchAction,
 ): MapSearchState => {
   switch (action.type) {
-    case mapSearchActionTypes.CLEAR_SEARCH_QUERY:
+    case mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE:
       return {
         ...state,
-        // searchQuery: initialState.searchQuery, // TODO: Do we want map to zoom out again on clear?
-        hasSearchQuery: false,
+        search: {
+          ...state.search,
+          query: "",
+          ...(action.payload?.bbox ? { bbox: action.payload.bbox } : {}),
+        },
+        hasSearchInputValue: false,
+        hasSearchBounds: action.payload?.bbox !== undefined,
       };
-    case mapSearchActionTypes.SET_SEARCH_QUERY:
-      const updatedSearchQuery = { ...state.searchQuery };
+    case mapSearchActionTypes.SET_SEARCH:
+      const updatedSearchQuery = { ...state.search };
+
       if (action.payload.bbox) {
         updatedSearchQuery.bbox = action.payload.bbox;
       }
+      // We get a location when user searches search input
       if (action.payload.location) {
         const bbox = (action.payload.location as GeocodeResult).bbox;
         const formattedBbox = [
@@ -95,20 +108,23 @@ const mapSearchReducer = (
         ] as Coordinates;
 
         updatedSearchQuery.bbox = formattedBbox; // sw long, sw lat, ne long, ne lat
+        updatedSearchQuery.query = action.payload.location?.name;
       }
-      if (action.payload.query) {
-        updatedSearchQuery.query = action.payload.query;
-        updatedSearchQuery.bbox = initialState.filters.bbox;
-      }
+
       if (action.payload.keyword) {
         updatedSearchQuery.query = action.payload.keyword;
-        updatedSearchQuery.bbox = initialState.filters.bbox;
+        updatedSearchQuery.bbox = initialState.search.bbox;
       }
 
       return {
         ...state,
-        searchQuery: updatedSearchQuery,
-        hasSearchQuery: true,
+        search: updatedSearchQuery,
+        hasSearchInputValue:
+          action.payload.location !== undefined ||
+          (action.payload.keyword?.length ?? 0) > 0,
+        hasSearchBounds:
+          action.payload.bbox !== undefined ||
+          action.payload.location !== undefined,
       };
     case mapSearchActionTypes.SET_FILTERS:
       const updatedFilters = { ...state.filters };
@@ -172,7 +188,11 @@ const mapSearchReducer = (
         hasActiveFilters: getHasActiveFilters(newState, initialState),
       };
     case mapSearchActionTypes.RESET_FILTERS:
-      return initialState;
+      return {
+        ...state,
+        filters: initialState.filters,
+        hasActiveFilters: false,
+      };
 
     case mapSearchActionTypes.SET_SELECTED_USER_IDS:
       const currentSelectedUserIds = state.selectedUserIds;
@@ -197,11 +217,5 @@ const mapSearchReducer = (
   }
 };
 
-export {
-  DEFAULT_AGE_MAX,
-  DEFAULT_AGE_MIN,
-  initialState,
-  mapSearchActionTypes,
-  mapSearchReducer,
-};
+export { initialState, mapSearchActionTypes, mapSearchReducer };
 export type { MapSearchAction, MapSearchState };

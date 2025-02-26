@@ -4,7 +4,7 @@ import { MapRef } from "react-map-gl/maplibre";
 
 import { MapSearchState } from "../mapSearchReducers";
 import userPin from "../resources/userPin.png";
-import { Coordinates } from "./constants";
+import { Coordinates, MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./constants";
 
 const usersToGeoJSON = (pins: User.AsObject[]): FeatureCollection => ({
   type: "FeatureCollection",
@@ -86,10 +86,27 @@ const getMapBounds = (mapRef: React.RefObject<MapRef>) => {
   return bbox;
 };
 
+const meetsApiSearchCriteria = ({
+  hasActiveFilters,
+  hasSearchInputValue,
+  zoom,
+}: {
+  hasActiveFilters: MapSearchState["hasActiveFilters"];
+  hasSearchInputValue: MapSearchState["hasSearchInputValue"];
+  zoom: number;
+}) => {
+  return (
+    hasActiveFilters ||
+    hasSearchInputValue ||
+    zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH
+  );
+};
+
 export {
   getHasActiveFilters,
   getMapBounds,
   loadMapUserPins,
+  meetsApiSearchCriteria,
   setMapFeatureState,
   usersToGeoJSON,
 };

@@ -7,23 +7,29 @@ import { User } from "proto/api_pb";
 import { useCallback, useMemo, useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
-import { FlyToLocationProps, SearchQueryOptions } from "./SearchPage";
-import { Coordinates } from "./utils/constants";
+import {
+  FlyToLocationProps,
+  InitialSearchLocation,
+  SearchOptions,
+} from "./SearchPage";
+import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
 import { UNCLUSTERED_LAYER_ID } from "./utils/mapLayers";
 import {
   getMapBounds,
   loadMapUserPins,
+  meetsApiSearchCriteria,
   setMapFeatureState,
   usersToGeoJSON,
 } from "./utils/mapUtils";
 
 interface MapViewProps {
   hasActiveFilters: boolean;
-  initialBbox: Coordinates;
+  hasSearchInputValue: boolean;
+  initialBbox: InitialSearchLocation["bbox"];
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
-  onClearSearchQuery: () => void;
-  onSetSearchQuery: (searchQuery: SearchQueryOptions) => void;
+  onClearSearchInputValue: () => void;
+  onSetSearch: (search: SearchOptions) => void;
   onSelectedUserIdClick: (userId: number) => void;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
@@ -41,11 +47,12 @@ const DEFAULT_USERS: User.AsObject[] = [];
 
 const MapView = ({
   hasActiveFilters,
+  hasSearchInputValue,
   initialBbox,
   isLoading,
   mapRef,
-  onClearSearchQuery,
-  onSetSearchQuery,
+  onClearSearchInputValue,
+  onSetSearch,
   onSelectedUserIdClick,
   selectedUserIds,
   users = DEFAULT_USERS,
@@ -56,9 +63,14 @@ const MapView = ({
 
   const [zoom, setZoom] = useState<number>(1);
 
-  // If zoomed in or has active filters, use the memoized pins form api query in SearchPage
-  const pinsSource =
-    zoom >= 5 || hasActiveFilters ? memoizedPins : zoomedOutDataSource;
+  // If zoomed in, has a location searched or has active filters, use the memoized pins form api query in SearchPage
+  const pinsSource = meetsApiSearchCriteria({
+    hasActiveFilters,
+    hasSearchInputValue,
+    zoom,
+  })
+    ? memoizedPins
+    : zoomedOutDataSource;
 
   const flyToLocation = useCallback(
     ({ longitude, latitude, zoom }: FlyToLocationProps) => {
@@ -103,10 +115,13 @@ const MapView = ({
             zoom: newZoom,
           });
 
-          if (newZoom >= 5) {
+          if (
+            newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+            !hasSearchInputValue
+          ) {
             const bbox = getMapBounds(mapRef);
 
-            onSetSearchQuery({
+            onSetSearch({
               bbox,
             });
           }
@@ -127,9 +142,10 @@ const MapView = ({
     },
     [
       flyToLocation,
+      hasSearchInputValue,
       mapRef,
       onSelectedUserIdClick,
-      onSetSearchQuery,
+      onSetSearch,
       selectedUserIds,
     ],
   );
@@ -143,38 +159,39 @@ const MapView = ({
     }
   };
 
+  //@TODO(NA): Should I debounce this in some way?
   const handleMapMove = () => {
     // If zoom is too large an area, don't reload pins
-    if (zoom && zoom >= 5) {
+    if (zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && !hasSearchInputValue) {
       const bbox = getMapBounds(mapRef);
 
-      onSetSearchQuery({
+      onSetSearch({
         bbox,
       });
     }
   };
 
   const handleZoomIn = (newZoom: number) => {
-    if (newZoom >= 5) {
+    if (newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && !hasSearchInputValue) {
       const bbox = getMapBounds(mapRef);
 
-      onSetSearchQuery({
+      onSetSearch({
         bbox,
       });
     }
   };
 
   const handleZoomOut = (newZoom: number) => {
-    if (newZoom >= 5) {
+    if (newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && !hasSearchInputValue) {
       const bbox = getMapBounds(mapRef);
 
-      onSetSearchQuery({
+      onSetSearch({
         bbox,
       });
     }
 
-    if (zoom >= 5 && newZoom < 5) {
-      onClearSearchQuery();
+    if (newZoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH) {
+      onClearSearchInputValue();
     }
   };
 

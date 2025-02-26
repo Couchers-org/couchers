@@ -24,7 +24,7 @@ const ZoomControl: React.FC<ZoomControlProps> = ({
   const handleZoomIn = () => {
     if (mapRef.current) {
       const map = mapRef.current.getMap();
-      const newZoom = map.getZoom() + 1;
+      const newZoom = Math.min(map.getZoom() + 1, 14); // Don't go higher than zoom level 14
 
       map.zoomIn();
       onZoomIn(newZoom);
@@ -34,7 +34,8 @@ const ZoomControl: React.FC<ZoomControlProps> = ({
   const handleZoomOut = () => {
     if (mapRef.current) {
       const map = mapRef.current.getMap();
-      const newZoom = map.getZoom() - 1;
+      const newZoom = Math.min(map.getZoom() - 1, 1); // don't go lower than zoom level 1
+
       map.zoomOut();
       onZoomOut(newZoom);
     }

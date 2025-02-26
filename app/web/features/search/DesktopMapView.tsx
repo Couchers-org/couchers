@@ -12,9 +12,14 @@ import { theme } from "theme";
 import FloatingSearchControls from "./FloatingSearchControls";
 import MapView from "./MapView";
 import MapViewToggle from "./MapViewToggle";
-import { FilterOptions, SearchQueryOptions } from "./SearchPage";
+import {
+  FilterOptions,
+  InitialSearchLocation,
+  SearchOptions,
+} from "./SearchPage";
 import SearchResultsList from "./SearchResultsList";
-import { Coordinates } from "./utils/constants";
+import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
+import { meetsApiSearchCriteria } from "./utils/mapUtils";
 
 export enum MapViews {
   MAP_AND_LIST = "MAP_AND_LIST",
@@ -24,14 +29,14 @@ export enum MapViews {
 export type MapViewOptions = MapViews.MAP_AND_LIST | MapViews.LIST_ONLY;
 interface DesktopMapViewProps {
   hasActiveFilters: boolean;
-  hasSearchQuery: boolean;
-  initialLocation: { locationName: string; bbox: Coordinates };
+  hasSearchInputValue: boolean;
+  initialLocation: InitialSearchLocation;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   onClearFilters: () => void;
-  onClearSearchQuery: () => void;
+  onClearSearchInputValue: () => void;
   onSetFilters: (filters: FilterOptions) => void;
-  onSetSearchQuery: (searchQuery: SearchQueryOptions) => void;
+  onSetSearch: (search: SearchOptions) => void;
   onSelectedUserIdClick: (userId: number) => void;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
@@ -106,13 +111,13 @@ const CenterAligner = styled("div")(({ theme }) => ({
 
 const DesktopMapView = ({
   hasActiveFilters,
-  hasSearchQuery,
+  hasSearchInputValue,
   initialLocation,
   isLoading,
   onClearFilters,
-  onClearSearchQuery,
+  onClearSearchInputValue,
   onSetFilters,
-  onSetSearchQuery,
+  onSetSearch,
   onSelectedUserIdClick,
   mapRef,
   selectedUserIds,
@@ -123,7 +128,13 @@ const DesktopMapView = ({
   const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
   const zoom = mapRef.current?.getZoom() || 1;
 
-  const hasSearchCriteria = hasActiveFilters || hasSearchQuery || zoom >= 5;
+  console.log("ZOOM", zoom);
+
+  const meetsSearchCriteria = meetsApiSearchCriteria({
+    hasActiveFilters,
+    hasSearchInputValue,
+    zoom,
+  });
 
   const handleDrawerWidthChange = (width: number) => {
     setDrawerWidth(width);
@@ -148,9 +159,9 @@ const DesktopMapView = ({
           <FloatingSearchControls
             hasActiveFilters={hasActiveFilters}
             onClearFilters={onClearFilters}
-            onClearSearchQuery={onClearSearchQuery}
+            onClearSearchInputValue={onClearSearchInputValue}
             onSetFilters={onSetFilters}
-            onSetSearchQuery={onSetSearchQuery}
+            onSetSearch={onSetSearch}
             locationName={initialLocation.locationName}
           />
         </CenterAligner>
@@ -178,7 +189,7 @@ const DesktopMapView = ({
                   justifyContent: "center",
                 }}
               >
-                {!hasSearchCriteria
+                {!meetsSearchCriteria
                   ? null
                   : !users
                     ? t("search:search_result.no_user_result_message")
@@ -190,7 +201,7 @@ const DesktopMapView = ({
                 isLoading={isLoading}
                 selectedUserIds={selectedUserIds}
                 users={users}
-                hasSearchCriteria={hasSearchCriteria}
+                meetsSearchCriteria={meetsSearchCriteria}
               />
             </ListContentWrapper>
           </>
@@ -200,11 +211,12 @@ const DesktopMapView = ({
         <MapContainer drawerWidth={drawerWidth}>
           <MapView
             hasActiveFilters={hasActiveFilters}
+            hasSearchInputValue={hasSearchInputValue}
             initialBbox={initialLocation.bbox}
             isLoading={isLoading}
             mapRef={mapRef}
-            onClearSearchQuery={onClearSearchQuery}
-            onSetSearchQuery={onSetSearchQuery}
+            onClearSearchInputValue={onClearSearchInputValue}
+            onSetSearch={onSetSearch}
             onSelectedUserIdClick={onSelectedUserIdClick}
             selectedUserIds={selectedUserIds}
             users={users}

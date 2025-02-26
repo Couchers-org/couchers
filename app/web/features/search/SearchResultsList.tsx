@@ -7,7 +7,7 @@ import { User } from "proto/api_pb";
 import SearchResultUserCard from "./SeachResultUserCard";
 
 interface SearchResultsListProps {
-  hasSearchCriteria: boolean;
+  meetsSearchCriteria: boolean;
   isLoading?: boolean;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
@@ -28,14 +28,14 @@ const StyledCardWrapper = styled(Box)(({ theme }) => ({
 }));
 
 const SearchResultsList = ({
-  hasSearchCriteria,
+  meetsSearchCriteria,
   isLoading,
   selectedUserIds,
   users,
 }: SearchResultsListProps) => {
   const { t } = useTranslation([SEARCH]);
 
-  if (!users && hasSearchCriteria) {
+  if (!users && meetsSearchCriteria) {
     return null;
   }
 
@@ -45,12 +45,12 @@ const SearchResultsList = ({
 
   return (
     <StyledContainer>
-      {!hasSearchCriteria && (
+      {!meetsSearchCriteria && (
         <Alert severity="info" sx={{ height: "fit-content", width: "100%" }}>
           {t("search:choose_search_criteria")}
         </Alert>
       )}
-      {hasSearchCriteria &&
+      {meetsSearchCriteria &&
         users?.map((user) => (
           <StyledCardWrapper
             key={user?.userId}

@@ -37,5 +37,16 @@ type HostingStatusOptions =
   | HostingStatus.HOSTING_STATUS_MAYBE
   | HostingStatus.HOSTING_STATUS_CAN_HOST;
 
-export { aboutText, lastActiveOptions, selectedUserZoom };
+const DEFAULT_AGE_MIN = 18;
+const DEFAULT_AGE_MAX = 100;
+const MAX_MAP_ZOOM_LEVEL_FOR_SEARCH = 6;
+
+export {
+  aboutText,
+  DEFAULT_AGE_MAX,
+  DEFAULT_AGE_MIN,
+  lastActiveOptions,
+  MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+  selectedUserZoom,
+};
 export type { Coordinates, HostingStatusOptions, HostingStatusType };
