@@ -217,6 +217,17 @@ def create_session_cookies(token, user_id, expiry) -> list[str]:
         _create_tasty_cookie("couchers-user-id", user_id, expiry, httponly=False),
     ]
 
+def create_persistent_cookies(lang, expiry) -> list[str]:
+    """
+    Creates persistent cookies.
+    
+    We have one: a cookie that represents a user's UI language preference which the javascript frontend can access to set the language in the browser. Cookie should only be changed when a user logs in ---or--- makes a request to change their preferred UI language
+    """
+    return [
+        # creates a cookie for user's preferred UI language, expiring 400 days in the future
+        _create_tasty_cookie("couchers-lang", lang, 34560000, httponly=False)
+    ]
+
 
 def parse_session_cookie(headers):
     """
