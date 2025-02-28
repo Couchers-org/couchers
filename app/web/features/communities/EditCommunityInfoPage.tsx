@@ -165,7 +165,7 @@ export default function EditCommunityPage({
                 className={classes.updateButton}
                 type="submit"
               >
-                {t("global:update")}
+                {t("global:save")}
               </Button>
             </form>
             {isSuccess && (
@@ -176,7 +176,7 @@ export default function EditCommunityPage({
           </>
         ) : (
           <Redirect
-            to={routeToCommunity(community.communityId, community.slug, "info")}
+            to={routeToCommunity(community.communityId, community.slug)}
           />
         );
       }}
