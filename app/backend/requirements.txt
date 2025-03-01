@@ -232,7 +232,7 @@ typing-extensions==4.12.2
     #   opentelemetry-sdk
     #   sqlalchemy
     #   stripe
-ua-parser==1.0.0
+ua-parser==1.0.1
     # via
     #   -r requirements.in
     #   user-agents
