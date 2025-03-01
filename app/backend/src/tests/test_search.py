@@ -56,6 +56,7 @@ def test_UserSearch(testing_communities):
     with search_session(token) as api:
         res = api.UserSearch(search_pb2.UserSearchReq())
         assert len(res.results) > 0
+        assert res.total_items == len(res.results)
 
 
 def test_regression_search_in_area(db):
