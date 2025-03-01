@@ -157,7 +157,7 @@ packaging==24.2
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-sqlalchemy
     #   pytest
-phonenumbers==8.13.53
+phonenumbers==8.13.55
     # via -r requirements.in
 platformdirs==4.3.6
     # via virtualenv
