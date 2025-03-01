@@ -1,6 +1,6 @@
 import { Clear } from "@mui/icons-material";
 import { debounce, InputAdornment, TextField } from "@mui/material";
-import { styled } from "@mui/styles";
+import { styled } from "@mui/material";
 import IconButton from "components/IconButton";
 import LocationAutocompleteOutlined from "components/LocationAutocomplete/LocationAutocompleteOutlined";
 import { useTranslation } from "i18n";
@@ -32,14 +32,15 @@ const StyledWrapper = styled("div")({
   width: "100%",
   display: "flex",
   flexDirection: "column",
-  padding: theme.spacing(2),
+  overflow: "hidden",
 });
 
 const StyledSearchBar = styled("div")(({ theme }) => ({
   display: "flex",
-  flexGrow: 1,
+  flexDirection: "column",
   backgroundColor: theme.palette.common.white,
   width: "100%",
+  padding: theme.spacing(2, 2, 0, 2),
 }));
 
 const StyledResultsWrapper = styled("div")(({ theme }) => ({
@@ -47,9 +48,10 @@ const StyledResultsWrapper = styled("div")(({ theme }) => ({
   height: "100%",
   display: "flex",
   justifyContent: "center",
-  alignItems: "center",
+  alignItems: "flex-start",
   flexDirection: "column",
   overflowY: "auto",
+  padding: theme.spacing(0, 2, 4, 2),
 }));
 
 const StyledLocationAutocompleteOutlined = styled(LocationAutocompleteOutlined)(
@@ -114,7 +116,7 @@ const MobileMapView = ({
   };
 
   return (
-    <StyledWrapper>
+    <StyledWrapper id="styled-wrapper">
       <StyledSearchBar>
         {searchType === "location" && (
           <StyledLocationAutocompleteOutlined
@@ -163,12 +165,12 @@ const MobileMapView = ({
             }
           />
         )}
+        <SearchTypeRadioGroup
+          onChange={handleSearchTypeChange}
+          searchType={searchType}
+        />
       </StyledSearchBar>
-      <SearchTypeRadioGroup
-        onChange={handleSearchTypeChange}
-        searchType={searchType}
-      />
-      <StyledResultsWrapper>
+      <StyledResultsWrapper id="styled-results-wrapper">
         <SearchResultsList
           isLoading={isLoading}
           selectedUserIds={selectedUserIds}
