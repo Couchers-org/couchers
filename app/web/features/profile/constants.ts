@@ -99,6 +99,9 @@ export const sleepingArrangementLabels = (t: TFunction) => ({
   [SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM]: t(
     "profile:sleeping_arrangement.shared_room",
   ),
+  [SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_SPACE]: t(
+    "profile:sleeping_arrangement.shared_space",
+  ),
   [SleepingArrangement.SLEEPING_ARRANGEMENT_UNSPECIFIED]: t(
     "profile:unspecified_info",
   ),

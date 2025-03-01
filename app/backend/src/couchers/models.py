@@ -79,6 +79,8 @@ class SleepingArrangement(enum.Enum):
     private = enum.auto()
     common = enum.auto()
     shared_room = enum.auto()
+    shared_space = enum.auto()
+
 
 class ParkingDetails(enum.Enum):
     free_onsite = enum.auto()
