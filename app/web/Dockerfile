@@ -23,7 +23,7 @@ RUN cp .env.$environment env && \
 RUN yarn build
 
 ARG commit_sha
-ENV COMMIT_SHA=$commit_sha
+ENV NEXT_PUBLIC_COMMIT_SHA=$commit_sha
 
 ARG commit_timestamp
-ENV COMMIT_TIMESTAMP=$commit_timestamp
+ENV NEXT_PUBLIC_COMMIT_TIMESTAMP=$commit_timestamp

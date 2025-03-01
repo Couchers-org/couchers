@@ -5,10 +5,9 @@ import {
   styled,
   Typography,
 } from "@mui/material";
-import { COPYRIGHT, NON_PROFIT } from "components/Footer/constants";
 import { GithubIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { ReactNode } from "react";
@@ -30,6 +29,7 @@ import {
   volunteerRoute,
 } from "routes";
 import { theme } from "theme";
+import { timeAgoI18n } from "utils/timeAgo";
 
 const StyledFooter = styled("footer")({
   display: "flex",
@@ -128,8 +128,26 @@ const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
   },
 }));
 
+const VersionLink = styled(Link)(({ theme }) => ({
+  fontWeight: 700,
+}));
+
 export default function Footer() {
   const { t } = useTranslation(GLOBAL);
+
+  const version_text = process.env.NEXT_PUBLIC_COMMIT_SHA
+    ? process.env.NEXT_PUBLIC_COMMIT_SHA.substring(0, 8)
+    : "dev";
+  const version_link = roadmapRoute;
+  const updated_ago_text = process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP
+    ? timeAgoI18n({
+        input: new Date(process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP),
+        t: t,
+      })
+    : "unknown";
+  console.log(updated_ago_text);
+  const updated_ago_link =
+    "https://github.com/Couchers-org/couchers/commits/develop";
 
   return (
     <StyledFooter>
@@ -202,16 +220,31 @@ export default function Footer() {
         <StyledMiddleContainer>
           <Typography variant="body2">
             <Link href={foundationRoute} passHref>
-              {NON_PROFIT}
+              {t("footer.non_profit_note")}
             </Link>
           </Typography>
         </StyledMiddleContainer>
       </StyledMiddleOuterContainer>
       <StyledLowerOuterContainer>
         <StyledLowerContainer>
-          <Typography variant="body1">{COPYRIGHT}</Typography>
+          <Typography variant="body1">{t("footer.copyright")}</Typography>
           <Typography variant="body1">
-            It&apos;s like Couchsurfing&#8482;, but better.
+            <Trans
+              t={t}
+              i18nKey="footer.version_info"
+              values={{
+                version: version_text,
+                updated_ago: updated_ago_text,
+              }}
+            >
+              Version{" "}
+              <VersionLink href={version_link}>{version_text}</VersionLink>,
+              last updated{" "}
+              <VersionLink href={updated_ago_link}>
+                {updated_ago_text}
+              </VersionLink>
+              .
+            </Trans>
           </Typography>
         </StyledLowerContainer>
       </StyledLowerOuterContainer>
