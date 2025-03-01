@@ -40,24 +40,3 @@ def upgrade():
 
     # 5. Drop the old enum type that includes 'shared_space'
     op.execute("DROP TYPE sleepingarrangement_old")
-
-
-# Downgrade function (if you want to rollback the migration)
-def downgrade():
-    # 1. Rename the current enum type to avoid conflict
-    op.execute("ALTER TYPE sleepingarrangement RENAME TO sleepingarrangement_new")
-
-    # 2. Create the old enum type that includes 'shared_space'
-    op.execute("""
-        CREATE TYPE sleepingarrangement AS ENUM ('private', 'common', 'shared_room', 'shared_space')
-    """)
-
-    # 3. Alter the 'sleeping_arrangement' column to use the old enum type
-    op.execute("""
-        ALTER TABLE users
-        ALTER COLUMN sleeping_arrangement TYPE sleepingarrangement
-        USING sleeping_arrangement::text::sleepingarrangement
-    """)
-
-    # 4. Drop the new enum type that doesn't include 'shared_space'
-    op.execute("DROP TYPE sleepingarrangement_new")
