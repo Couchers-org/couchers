@@ -251,7 +251,6 @@ export default function HostingPreferenceForm() {
                   SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE,
                   SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON,
                   SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM,
-                  SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_SPACE,
                 ]}
                 optionLabelMap={sleepingArrangementLabels(t)}
               />

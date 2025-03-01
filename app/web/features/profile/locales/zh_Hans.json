@@ -92,8 +92,7 @@
 	"sleeping_arrangement": {
 		"private": "私人空间",
 		"common": "公共区域",
-		"shared_room": "共享房间",
-		"shared_space": "共享空间"
+		"shared_room": "共享房间"
 	},
 	"parking_details": {
 		"free_onsite": "免费现场停车",
