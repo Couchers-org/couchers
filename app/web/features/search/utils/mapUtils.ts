@@ -5,6 +5,7 @@ import { MapRef } from "react-map-gl/maplibre";
 import { MapSearchState } from "../mapSearchReducers";
 import userPin from "../resources/userPin.png";
 import { Coordinates, MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./constants";
+import { SOURCE_CLUSTERED_USERS_ID } from "./mapLayers";
 
 const usersToGeoJSON = (pins: User.AsObject[]): FeatureCollection => ({
   type: "FeatureCollection",
@@ -39,7 +40,7 @@ const setMapFeatureState = (
   selected: boolean,
 ) => {
   mapRef.current?.setFeatureState(
-    { source: "clustered-users", id },
+    { source: SOURCE_CLUSTERED_USERS_ID, id },
     { selected },
   );
 };
@@ -52,6 +53,7 @@ const loadMapUserPins = async (mapRef: React.RefObject<MapRef>) => {
   if (image) {
     mapRef.current?.addImage("user-pin", image.data, { sdf: true });
   }
+  return;
 };
 
 const getHasActiveFilters = (
@@ -102,10 +104,29 @@ const meetsApiSearchCriteria = ({
   );
 };
 
+const mapFlyToLocation = ({
+  longitude,
+  latitude,
+  zoom = 12,
+  mapRef,
+}: {
+  longitude: number;
+  latitude: number;
+  zoom: number | undefined;
+  mapRef: React.RefObject<MapRef>;
+}) => {
+  mapRef.current?.flyTo({
+    center: [longitude, latitude],
+    zoom,
+    duration: 2000,
+  });
+};
+
 export {
   getHasActiveFilters,
   getMapBounds,
   loadMapUserPins,
+  mapFlyToLocation,
   meetsApiSearchCriteria,
   setMapFeatureState,
   usersToGeoJSON,

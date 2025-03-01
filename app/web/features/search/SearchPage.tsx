@@ -10,7 +10,14 @@ import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
-import { useCallback, useMemo, useReducer, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 import { MapProvider, MapRef } from "react-map-gl/maplibre";
 import {
   QueryClient,
@@ -29,7 +36,11 @@ import {
   mapSearchReducer,
 } from "./mapSearchReducers";
 import MobileMapView from "./MobileMapView";
-import { getMapBounds, meetsApiSearchCriteria } from "./utils/mapUtils";
+import {
+  getMapBounds,
+  mapFlyToLocation,
+  meetsApiSearchCriteria,
+} from "./utils/mapUtils";
 
 export type FilterOptions = {
   acceptsKids?: boolean;
@@ -94,7 +105,26 @@ export default function SearchPage({
   const queryClient = new QueryClient();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const mapRef = useRef<MapRef | null>(null);
-  const zoom = mapRef.current?.getZoom() || 1;
+
+  const [zoom, setZoom] = useState(1);
+
+  // Keep track of zoom, i.e. when zooming in to clusters
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+
+    const handleZoom = () => {
+      setZoom(map.getZoom());
+    };
+
+    map.on("zoomend", handleZoom);
+    map.on("moveend", handleZoom);
+
+    return () => {
+      map.off("zoomend", handleZoom);
+      map.off("moveend", handleZoom);
+    };
+  }, [mapRef.current]);
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [searchType, setSearchType] = useState<MapSearchTypes>("location");
@@ -115,23 +145,23 @@ export default function SearchPage({
     [mapSearchState.filters, mapSearchState.search],
   );
 
-  const { data, isLoading, isFetching } = useInfiniteQuery<
-    UserSearchRes.AsObject,
-    Error
-  >(
-    ["userSearch", searchParams],
-    ({ pageParam }) => {
-      return service.search.userSearch(searchParams, pageParam);
-    },
-    {
-      enabled:
-        mapSearchState.hasActiveFilters ||
-        zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH ||
-        mapSearchState.hasSearchInputValue, // only fetch when zoomed in, filters or input has value
-      getNextPageParam: (lastPage) =>
-        lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-    },
-  );
+  const { data, fetchNextPage, isLoading, hasNextPage, isFetching } =
+    useInfiniteQuery<UserSearchRes.AsObject, Error>(
+      ["userSearch", searchParams],
+      ({ pageParam }) => {
+        return service.search.userSearch(searchParams, pageParam);
+      },
+      {
+        enabled:
+          mapSearchState.hasActiveFilters ||
+          zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH ||
+          mapSearchState.hasSearchInputValue, // only fetch when zoomed in, filters or input has value
+        getNextPageParam: (lastPage) =>
+          lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+      },
+    );
+
+  const totalItems = data?.pages[0]?.totalItems ?? 0;
 
   const formattedUsers = useMemo(
     () =>
@@ -150,10 +180,11 @@ export default function SearchPage({
 
   const flyToLocation = useCallback(
     ({ longitude, latitude, zoom }: FlyToLocationProps) => {
-      mapRef.current?.flyTo({
-        center: [longitude, latitude],
-        zoom: zoom || 12,
-        duration: 2000,
+      mapFlyToLocation({
+        longitude,
+        latitude,
+        zoom,
+        mapRef,
       });
     },
     [],
@@ -220,6 +251,12 @@ export default function SearchPage({
     setIsFiltersOpen(false);
   };
 
+  const handleLoadNextPage = () => {
+    if (hasNextPage) {
+      fetchNextPage();
+    }
+  };
+
   return (
     <SearchPageContainer>
       <MapProvider>
@@ -243,6 +280,7 @@ export default function SearchPage({
           {!isMobile && (
             <DesktopMapView
               hasActiveFilters={mapSearchState.hasActiveFilters}
+              hasNextPage={hasNextPage}
               hasSearchInputValue={mapSearchState.hasSearchInputValue}
               initialLocation={{ bbox, locationName }}
               isLoading={isLoading || isFetching}
@@ -250,12 +288,14 @@ export default function SearchPage({
               mapRef={mapRef}
               onClearFilters={handleClearFilters}
               onClearSearchInputValue={handleClearSearchInputValue}
+              onLoadNextPage={handleLoadNextPage}
               onOpenFilters={handleOpenFiltersDialog}
               onSetSearch={handleSetSearch}
               onSetSearchType={handleSetSearchType}
               onSelectedUserIdClick={handleSelectedUserIdClick}
               searchType={searchType}
               selectedUserIds={mapSearchState.selectedUserIds}
+              totalItems={totalItems}
               users={formattedUsers}
             />
           )}

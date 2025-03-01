@@ -1,14 +1,17 @@
-import { Alert, Box, styled } from "@mui/material";
+import { Alert, Box, Button, styled } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
+import { theme } from "theme";
 
 import SearchResultUserCard from "./SeachResultUserCard";
 
 interface SearchResultsListProps {
-  meetsSearchCriteria: boolean;
+  hasNextPage?: boolean;
   isLoading?: boolean;
+  meetsSearchCriteria: boolean;
+  onLoadNextPage?: () => void;
   selectedUserIds?: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
 }
@@ -19,7 +22,6 @@ const StyledContainer = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2),
   marginTop: theme.spacing(2),
   width: "100%",
-  height: "100%",
 }));
 
 const StyledCardWrapper = styled(Box)(({ theme }) => ({
@@ -29,7 +31,9 @@ const StyledCardWrapper = styled(Box)(({ theme }) => ({
 
 const SearchResultsList = ({
   meetsSearchCriteria,
+  hasNextPage,
   isLoading,
+  onLoadNextPage,
   selectedUserIds,
   users,
 }: SearchResultsListProps) => {
@@ -64,6 +68,18 @@ const SearchResultsList = ({
             />
           </StyledCardWrapper>
         ))}
+
+      {!isLoading && hasNextPage && (
+        <Button
+          onClick={onLoadNextPage}
+          variant="contained"
+          color="primary"
+          fullWidth
+          sx={{ marginBottom: theme.spacing(2) }}
+        >
+          {t("global:load_more")}
+        </Button>
+      )}
     </StyledContainer>
   );
 };

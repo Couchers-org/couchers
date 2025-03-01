@@ -3,11 +3,16 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import {
   clusterCountLayer,
   clusterLayer,
+  SOURCE_CLUSTERED_USERS_ID,
   UNCLUSTERED_LAYER_ID,
   unclusteredPointLayer,
 } from "features/search/utils/mapLayers";
 import ZoomControl from "features/search/ZoomControl";
-import { MapLayerMouseEvent, RequestParameters } from "maplibre-gl";
+import {
+  MapLayerMouseEvent,
+  MapSourceDataEvent,
+  RequestParameters,
+} from "maplibre-gl";
 import React from "react";
 import {
   Layer,
@@ -27,6 +32,7 @@ interface MapProps {
   onLoad: () => void;
   onMapMove: () => void;
   onSetZoom: (newZoom: number) => void;
+  onSourceDataLoading: (event: MapSourceDataEvent) => void;
   onZoomIn: (newZoom: number) => void;
   onZoomOut: (newZoom: number) => void;
   pins: string | GeoJSON.FeatureCollection;
@@ -39,6 +45,7 @@ const Map = ({
   onClick,
   onLoad,
   onMapMove,
+  onSourceDataLoading,
   onZoomIn,
   onZoomOut,
   onSetZoom,
@@ -99,11 +106,6 @@ const Map = ({
           height: grow ? "100%" : "200px",
           width: grow ? "100%" : "400px",
         }}
-        // initialViewState={{
-        //   latitude: 0,
-        //   longitude: 0,
-        //   zoom: 1,
-        // }}
         interactive={true}
         mapStyle="https://cdn.couchers.org/maps/couchers-basemap-style-v1.json"
         interactiveLayerIds={clusterLayer.id ? [clusterLayer.id] : []}
@@ -115,9 +117,10 @@ const Map = ({
         hash={hash}
         ref={mapRef}
         transformRequest={transformRequest}
+        onSourceData={onSourceDataLoading}
       >
         <Source
-          id="clustered-users"
+          id={SOURCE_CLUSTERED_USERS_ID}
           cluster={true}
           clusterMaxZoom={14}
           clusterRadius={50}

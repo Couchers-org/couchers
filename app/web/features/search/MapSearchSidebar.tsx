@@ -10,11 +10,14 @@ import { MapViews } from "./utils/constants";
 
 interface MapSearchSidebarProps {
   drawerWidth: number;
+  hasNextPage?: boolean;
   isLoading?: boolean;
   mapView: MapViews;
   meetsSearchCriteria: boolean;
   onDrawerWidthChange: (width: number) => void;
+  onLoadNextPage?: () => void;
   selectedUserIds?: User.AsObject["userId"][];
+  totalItems?: number;
   users: User.AsObject[] | undefined;
 }
 
@@ -40,11 +43,14 @@ const ListContentWrapper = styled("div", {
 
 const MapSearchSidebar = ({
   drawerWidth,
+  hasNextPage,
   isLoading,
   mapView,
   meetsSearchCriteria,
   onDrawerWidthChange,
+  onLoadNextPage,
   selectedUserIds,
+  totalItems,
   users,
 }: MapSearchSidebarProps) => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
@@ -82,10 +88,13 @@ const MapSearchSidebar = ({
                   ? t("search:search_result.no_user_result_message")
                   : t("search:search_result.users_found_message", {
                       count: users.length,
+                      totalItems,
                     })}
             </Typography>
             <SearchResultsList
+              hasNextPage={hasNextPage}
               isLoading={isLoading}
+              onLoadNextPage={onLoadNextPage}
               selectedUserIds={selectedUserIds}
               users={users}
               meetsSearchCriteria={meetsSearchCriteria}

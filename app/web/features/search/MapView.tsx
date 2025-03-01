@@ -1,19 +1,21 @@
-import { styled } from "@mui/material";
+import { debounce, styled } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Map, { API_BASE_URL } from "components/Map";
-import { Point } from "geojson";
-import { GeoJSONSource, MapLayerMouseEvent } from "maplibre-gl";
+import {
+  GeoJSONSource,
+  MapLayerMouseEvent,
+  MapSourceDataEvent,
+} from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { useCallback, useMemo, useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
-import {
-  FlyToLocationProps,
-  InitialSearchLocation,
-  SearchOptions,
-} from "./SearchPage";
+import { InitialSearchLocation, SearchOptions } from "./SearchPage";
 import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
-import { UNCLUSTERED_LAYER_ID } from "./utils/mapLayers";
+import {
+  SOURCE_CLUSTERED_USERS_ID,
+  UNCLUSTERED_LAYER_ID,
+} from "./utils/mapLayers";
 import {
   getMapBounds,
   loadMapUserPins,
@@ -62,6 +64,8 @@ const MapView = ({
   const zoomedOutDataSource = API_BASE_URL + "/geojson/users";
 
   const [zoom, setZoom] = useState<number>(1);
+  const [isMapSourceDataLoading, setIsMapSourceDataLoading] =
+    useState<boolean>(true);
 
   // If zoomed in, has a location searched or has active filters, use the memoized pins form api query in SearchPage
   const pinsSource = meetsApiSearchCriteria({
@@ -71,17 +75,6 @@ const MapView = ({
   })
     ? memoizedPins
     : zoomedOutDataSource;
-
-  const flyToLocation = useCallback(
-    ({ longitude, latitude, zoom }: FlyToLocationProps) => {
-      mapRef.current?.flyTo({
-        center: [longitude, latitude],
-        zoom: zoom || 12,
-        duration: 2000,
-      });
-    },
-    [mapRef],
-  );
 
   const handleSetZoom = useCallback((newZoom: number) => {
     setZoom(newZoom);
@@ -99,7 +92,7 @@ const MapView = ({
 
       if (isCluster) {
         const source = mapRef.current?.getSource(
-          "clustered-users",
+          SOURCE_CLUSTERED_USERS_ID,
         ) as GeoJSONSource;
 
         const newZoom = await source.getClusterExpansionZoom(
@@ -107,15 +100,9 @@ const MapView = ({
         );
 
         if (newZoom) {
-          const point = feature.geometry as Point;
-
-          flyToLocation({
-            latitude: point.coordinates[1],
-            longitude: point.coordinates[0],
-            zoom: newZoom,
-          });
-
+          // Avoid excessive api calls if we already fetched more zoomed out
           if (
+            zoom <= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
             newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
             !hasSearchInputValue
           ) {
@@ -125,6 +112,9 @@ const MapView = ({
               bbox,
             });
           }
+
+          setZoom(newZoom);
+          mapRef.current?.zoomIn();
         }
       }
 
@@ -141,12 +131,12 @@ const MapView = ({
       }
     },
     [
-      flyToLocation,
       hasSearchInputValue,
       mapRef,
       onSelectedUserIdClick,
       onSetSearch,
       selectedUserIds,
+      zoom,
     ],
   );
 
@@ -159,8 +149,18 @@ const MapView = ({
     }
   };
 
-  //@TODO(NA): Should I debounce this in some way?
-  const handleMapMove = () => {
+  const handleMapSourceDataLoading = debounce((event: MapSourceDataEvent) => {
+    if (!event.isSourceLoaded && event.sourceId === SOURCE_CLUSTERED_USERS_ID) {
+      setIsMapSourceDataLoading(true);
+    } else if (
+      event.isSourceLoaded &&
+      event.sourceId === SOURCE_CLUSTERED_USERS_ID
+    ) {
+      setIsMapSourceDataLoading(false);
+    }
+  }, 600);
+
+  const handleMapMove = debounce(() => {
     // If zoom is too large an area, don't reload pins
     if (zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && !hasSearchInputValue) {
       const bbox = getMapBounds(mapRef);
@@ -169,19 +169,25 @@ const MapView = ({
         bbox,
       });
     }
-  };
+  }, 600);
 
-  const handleZoomIn = (newZoom: number) => {
-    if (newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && !hasSearchInputValue) {
+  // Debounce avoids excessive api calls when button rapidly clicked, waits til end of burst
+  const handleZoomIn = debounce((newZoom: number) => {
+    // Avoid excessive api calls if already fetched for more zoomed out level
+    if (
+      zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+      newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+      !hasSearchInputValue
+    ) {
       const bbox = getMapBounds(mapRef);
 
       onSetSearch({
         bbox,
       });
     }
-  };
+  }, 600);
 
-  const handleZoomOut = (newZoom: number) => {
+  const handleZoomOut = debounce((newZoom: number) => {
     if (newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && !hasSearchInputValue) {
       const bbox = getMapBounds(mapRef);
 
@@ -193,11 +199,11 @@ const MapView = ({
     if (newZoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH) {
       onClearSearchInputValue();
     }
-  };
+  }, 600);
 
   return (
     <>
-      {isLoading && (
+      {(isLoading || isMapSourceDataLoading) && (
         <MapLoadingContainer>
           <CenteredSpinner minHeight="100%" />
         </MapLoadingContainer>
@@ -212,6 +218,7 @@ const MapView = ({
         onSetZoom={handleSetZoom}
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
+        onSourceDataLoading={handleMapSourceDataLoading}
         pins={pinsSource}
       />
     </>
