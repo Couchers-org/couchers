@@ -1,6 +1,15 @@
-import { Autocomplete, AutocompleteChangeReason } from "@mui/material";
+import {
+  Autocomplete,
+  AutocompleteChangeReason,
+  InputAdornment,
+} from "@mui/material";
+import IconButton from "components/IconButton";
+import { SearchIcon } from "components/Icons";
 import TextField from "components/TextField";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import { forwardRef, SyntheticEvent, useState } from "react";
+import { theme } from "theme";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
 interface LocationAutocompleteOutlinedProps {
@@ -36,6 +45,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     onClear,
     showFullDisplayName = false,
   } = props;
+  const { t } = useTranslation([GLOBAL]);
 
   const [isOpen, setIsOpen] = useState(false);
   const [value, setValue] = useState<string>(defaultValue);
@@ -79,7 +89,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   return (
     <Autocomplete
       className={className}
-      disableClearable={!onClear}
+      disableClearable={value === ""}
       defaultValue={
         { name: defaultValue, simplifiedName: defaultValue } as GeocodeResult
       }
@@ -93,6 +103,30 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
           fullWidth={fullWidth}
           variant="outlined"
           placeholder={placeholder}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {params.InputProps.endAdornment}
+                <InputAdornment
+                  position="end"
+                  sx={{
+                    marginRight: value === "" ? theme.spacing(1) : 0,
+                  }}
+                >
+                  <IconButton
+                    aria-label={t(
+                      "location_autocomplete.search_location_button",
+                    )}
+                    onClick={handleSearchSubmit}
+                    size="small"
+                  >
+                    <SearchIcon />
+                  </IconButton>
+                </InputAdornment>
+              </>
+            ),
+          }}
         />
       )}
       loading={isLoading}

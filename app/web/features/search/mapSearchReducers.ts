@@ -18,7 +18,7 @@ import { getHasActiveFilters } from "./utils/mapUtils";
  * Decoupling UI-state from api query response using a reducer allows us to store UI-specific state
  * in a single place, and update it in a predictable way.
  * In this case we want to decouple the users response from the search criteria and filters.
- * 
+ *
  * READ MORE: https://react.dev/reference/react/useReducer
  */
 
@@ -71,7 +71,7 @@ const initialState: MapSearchState = {
     acceptsPets: undefined,
     ageMin: undefined,
     ageMax: undefined,
-    completeProfile: false,
+    completeProfile: undefined,
     drinkingAllowed: undefined,
     lastActive: 0,
     hasReferences: undefined,
@@ -158,6 +158,10 @@ const mapSearchReducer = (
             action.payload[key] === DEFAULT_AGE_MAX
               ? undefined
               : action.payload[key];
+        }
+        if (key === "completeProfile") {
+          updatedFilters.completeProfile =
+            action.payload[key] === false ? undefined : true;
         }
         if (key === "hostingStatus") {
           updatedFilters.hostingStatusOptions =

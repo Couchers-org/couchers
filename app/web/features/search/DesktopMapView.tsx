@@ -18,7 +18,6 @@ import {
   SearchOptions,
 } from "./SearchPage";
 import SearchResultsList from "./SearchResultsList";
-import { meetsApiSearchCriteria } from "./utils/mapUtils";
 
 export enum MapViews {
   MAP_AND_LIST = "MAP_AND_LIST",
@@ -31,6 +30,7 @@ interface DesktopMapViewProps {
   hasSearchInputValue: boolean;
   initialLocation: InitialSearchLocation;
   isLoading: boolean;
+  meetsSearchCriteria: boolean;
   mapRef: React.RefObject<MapRef>;
   onClearFilters: () => void;
   onClearSearchInputValue: () => void;
@@ -113,6 +113,7 @@ const DesktopMapView = ({
   hasSearchInputValue,
   initialLocation,
   isLoading,
+  meetsSearchCriteria,
   onClearFilters,
   onClearSearchInputValue,
   onSetFilters,
@@ -125,13 +126,6 @@ const DesktopMapView = ({
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const [drawerWidth, setDrawerWidth] = useState<number>(DEFAULT_DRAWER_WIDTH);
   const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
-  const zoom = mapRef.current?.getZoom() || 1;
-
-  const meetsSearchCriteria = meetsApiSearchCriteria({
-    hasActiveFilters,
-    hasSearchInputValue,
-    zoom,
-  });
 
   const handleDrawerWidthChange = (width: number) => {
     setDrawerWidth(width);

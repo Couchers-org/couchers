@@ -26,7 +26,12 @@ import { useState } from "react";
 import { theme } from "theme";
 
 import { FilterOptions } from "./SearchPage";
-import { DEFAULT_AGE_MAX, DEFAULT_AGE_MIN , HostingStatusOptions, lastActiveOptions } from "./utils/constants";
+import {
+  DEFAULT_AGE_MAX,
+  DEFAULT_AGE_MIN,
+  HostingStatusOptions,
+  lastActiveOptions,
+} from "./utils/constants";
 
 interface FilterDialogProps {
   isOpen: boolean;
@@ -125,7 +130,8 @@ const FilterDialog = ({
   const [ageMin, setAgeMin] = useState(DEFAULT_AGE_MIN);
   const [ageMax, setAgeMax] = useState(DEFAULT_AGE_MAX);
   const [drinkingAllowed, setDrinkingAllowed] = useState(false);
-  const [showEmptyProfiles, setShowEmptyProfiles] = useState(true);
+  const [showCompleteProfilesOnly, setShowCompleteProfilesOnly] =
+    useState(false);
   const [lastActive, setLastActive] = useState(
     lastActiveOptions.LAST_ACTIVE_ANY,
   );
@@ -160,8 +166,8 @@ const FilterDialog = ({
     setDrinkingAllowed(!drinkingAllowed);
   };
 
-  const handleShowEmptyProfilesChange = () => {
-    setShowEmptyProfiles(!showEmptyProfiles);
+  const handleShowCompleteProfilesOnlyChange = () => {
+    setShowCompleteProfilesOnly(!showCompleteProfilesOnly);
   };
 
   const handleLastActiveSelect = (event: SelectChangeEvent<number>) => {
@@ -199,7 +205,7 @@ const FilterDialog = ({
     setAgeMin(DEFAULT_AGE_MIN);
     setAgeMax(DEFAULT_AGE_MAX);
     setDrinkingAllowed(false);
-    setShowEmptyProfiles(true);
+    setShowCompleteProfilesOnly(false);
     setLastActive(lastActiveOptions.LAST_ACTIVE_ANY);
     setHasReferences(false);
     setHasStrongVerification(false);
@@ -216,7 +222,7 @@ const FilterDialog = ({
       ageMin,
       ageMax,
       drinkingAllowed,
-      completeProfile: !showEmptyProfiles,
+      completeProfile: showCompleteProfilesOnly,
       lastActive,
       hasReferences,
       hasStrongVerification,
@@ -258,8 +264,8 @@ const FilterDialog = ({
             {t("search:form.empty_profile_filters.title")}
           </Typography>
           <CustomColorSwitch
-            checked={!showEmptyProfiles}
-            onClick={handleShowEmptyProfilesChange}
+            checked={showCompleteProfilesOnly}
+            onClick={handleShowCompleteProfilesOnlyChange}
             customColor={theme.palette.primary.main}
           />
         </FilterItemRow>

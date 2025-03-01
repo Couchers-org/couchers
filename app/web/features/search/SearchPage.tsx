@@ -27,7 +27,7 @@ import {
   mapSearchReducer,
 } from "./mapSearchReducers";
 import MobileMapView from "./MobileMapView";
-import { getMapBounds } from "./utils/mapUtils";
+import { getMapBounds, meetsApiSearchCriteria } from "./utils/mapUtils";
 
 export type FilterOptions = {
   acceptsKids?: boolean;
@@ -92,6 +92,7 @@ export default function SearchPage({
   const queryClient = new QueryClient();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const mapRef = useRef<MapRef | null>(null);
+  const zoom = mapRef.current?.getZoom() || 1;
 
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
@@ -103,32 +104,19 @@ export default function SearchPage({
     hasSearchBounds: Boolean(bbox),
   });
 
-  const zoom = mapRef.current?.getZoom() || 1;
-
-  const flyToLocation = useCallback(
-    ({ longitude, latitude, zoom }: FlyToLocationProps) => {
-      mapRef.current?.flyTo({
-        center: [longitude, latitude],
-        zoom: zoom || 12,
-        duration: 2000,
-      });
-    },
-    [],
+  // useMemo to avoid unnecessary object reference changes - causing unnecessary rerenders
+  const searchParams = useMemo(
+    () => ({ ...mapSearchState.filters, ...mapSearchState.search }),
+    [mapSearchState.filters, mapSearchState.search],
   );
 
   const { data, isLoading, isFetching } = useInfiniteQuery<
     UserSearchRes.AsObject,
     Error
   >(
-    [
-      "userSearch",
-      { ...mapSearchState.filters, ...mapSearchState.search }, // @TODO(NA): is it inefficient to pass the whole object?
-    ],
+    ["userSearch", searchParams],
     ({ pageParam }) => {
-      return service.search.userSearch(
-        { ...mapSearchState.filters, ...mapSearchState.search },
-        pageParam,
-      );
+      return service.search.userSearch(searchParams, pageParam);
     },
     {
       enabled:
@@ -140,12 +128,31 @@ export default function SearchPage({
     },
   );
 
-  const formattedUsers = data?.pages
-    .flatMap((page) => page.resultsList)
-    .map((result) => result?.user)
-    .filter((user): user is User.AsObject => Boolean(user)); // Type guard to remove undefined
+  const formattedUsers = useMemo(
+    () =>
+      data?.pages
+        .flatMap((page) => page.resultsList)
+        .map((result) => result?.user)
+        .filter((user): user is User.AsObject => Boolean(user)) || [],
+    [data], // Only recompute if `data` changes
+  );
 
-  const memoizedUsers = useMemo(() => formattedUsers, [formattedUsers]);
+  const meetsSearchCriteria = meetsApiSearchCriteria({
+    hasActiveFilters: mapSearchState.hasActiveFilters,
+    hasSearchInputValue: mapSearchState.hasSearchInputValue,
+    zoom,
+  });
+
+  const flyToLocation = useCallback(
+    ({ longitude, latitude, zoom }: FlyToLocationProps) => {
+      mapRef.current?.flyTo({
+        center: [longitude, latitude],
+        zoom: zoom || 12,
+        duration: 2000,
+      });
+    },
+    [],
+  );
 
   const handleSetSearch = (search: SearchOptions) => {
     dispatch({
@@ -204,14 +211,15 @@ export default function SearchPage({
           {isMobile && (
             <MobileMapView
               hasActiveFilters={mapSearchState.hasActiveFilters}
-              locationName={locationName}
               isLoading={isLoading || isFetching}
+              locationName={locationName}
+              meetsSearchCriteria={meetsSearchCriteria}
               onClearFilters={handleClearFilters}
               onClearSearchInputValue={handleClearSearchInputValue}
               onSetFilters={handleSetFilters}
               onSetSearch={handleSetSearch}
               selectedUserIds={mapSearchState.selectedUserIds}
-              users={memoizedUsers}
+              users={formattedUsers}
             />
           )}
 
@@ -221,6 +229,7 @@ export default function SearchPage({
               hasSearchInputValue={mapSearchState.hasSearchInputValue}
               initialLocation={{ bbox, locationName }}
               isLoading={isLoading || isFetching}
+              meetsSearchCriteria={meetsSearchCriteria}
               mapRef={mapRef}
               onClearFilters={handleClearFilters}
               onClearSearchInputValue={handleClearSearchInputValue}
@@ -228,7 +237,7 @@ export default function SearchPage({
               onSetSearch={handleSetSearch}
               onSelectedUserIdClick={handleSelectedUserIdClick}
               selectedUserIds={mapSearchState.selectedUserIds}
-              users={memoizedUsers}
+              users={formattedUsers}
             />
           )}
         </QueryClientProvider>

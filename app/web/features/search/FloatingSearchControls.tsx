@@ -65,7 +65,6 @@ const sharedInputStyles = () => ({
     height: "40px",
     minWidth: "250px",
     maxWidth: "250px",
-
     padding: 0,
   },
 

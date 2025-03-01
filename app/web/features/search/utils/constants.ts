@@ -41,6 +41,8 @@ const DEFAULT_AGE_MIN = 18;
 const DEFAULT_AGE_MAX = 100;
 const MAX_MAP_ZOOM_LEVEL_FOR_SEARCH = 6;
 
+type MapSearchTypes = "location" | "keyword";
+
 export {
   aboutText,
   DEFAULT_AGE_MAX,
@@ -49,4 +51,9 @@ export {
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
   selectedUserZoom,
 };
-export type { Coordinates, HostingStatusOptions, HostingStatusType };
+export type {
+  Coordinates,
+  HostingStatusOptions,
+  HostingStatusType,
+  MapSearchTypes,
+};
