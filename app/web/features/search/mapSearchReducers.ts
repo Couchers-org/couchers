@@ -96,8 +96,8 @@ const mapSearchReducer = (
 ): MapSearchState => {
   switch (action.type) {
     case mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE:
-      //  FYI: State is read-only. Don’t modify any objects or arrays in state directly 🚩.
-      // Instead, always return new objects from your reducer ✅
+      // State is read-only. Don’t modify any objects or arrays in state directly 🚩.
+      // Instead, always return new objects from your reducer ✅.
       return {
         ...state,
         search: {

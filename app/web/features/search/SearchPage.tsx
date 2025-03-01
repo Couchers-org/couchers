@@ -134,7 +134,7 @@ export default function SearchPage({
       enabled:
         mapSearchState.hasActiveFilters ||
         zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH ||
-        mapSearchState.hasSearchInputValue, // only fetch when zoomed in or filters
+        mapSearchState.hasSearchInputValue, // only fetch when zoomed in, filters or input has value
       getNextPageParam: (lastPage) =>
         lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
     },
@@ -186,7 +186,7 @@ export default function SearchPage({
       },
     });
 
-    //update result list
+    // scroll selected user card into view when pin is clicked
     document
       .getElementById(`search-result-${userId}`)
       ?.scrollIntoView({ behavior: "smooth" });
@@ -201,7 +201,19 @@ export default function SearchPage({
       <MapProvider>
         <QueryClientProvider client={queryClient}>
           <HtmlMeta title={t("global:nav.map_search")} />
-          {isMobile && <MobileMapView />}
+          {isMobile && (
+            <MobileMapView
+              hasActiveFilters={mapSearchState.hasActiveFilters}
+              locationName={locationName}
+              isLoading={isLoading || isFetching}
+              onClearFilters={handleClearFilters}
+              onClearSearchInputValue={handleClearSearchInputValue}
+              onSetFilters={handleSetFilters}
+              onSetSearch={handleSetSearch}
+              selectedUserIds={mapSearchState.selectedUserIds}
+              users={memoizedUsers}
+            />
+          )}
 
           {!isMobile && (
             <DesktopMapView
