@@ -158,6 +158,19 @@ export default function SearchPage({
           mapSearchState.hasSearchInputValue, // only fetch when zoomed in, filters or input has value
         getNextPageParam: (lastPage) =>
           lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+        onSuccess: (data) => {
+          if (data.pages.length <= 1) return;
+
+          const lastPage = data.pages[data.pages.length - 1];
+          const firstNewItemUserId = lastPage.resultsList?.[0]?.user?.userId;
+
+          // Scroll to the first item in the new page
+          if (firstNewItemUserId) {
+            document
+              .getElementById(`search-result-${firstNewItemUserId}`)
+              ?.scrollIntoView({ behavior: "smooth" });
+          }
+        },
       },
     );
 
