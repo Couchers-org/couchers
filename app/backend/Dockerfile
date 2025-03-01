@@ -33,4 +33,10 @@ COPY --from=build /deps/timezone_areas.sql /app/resources/timezone_areas.sql
 ARG version
 ENV VERSION=$version
 
+ARG commit_sha
+ENV COMMIT_SHA=$commit_sha
+
+ARG commit_timestamp
+ENV COMMIT_TIMESTAMP=$commit_timestamp
+
 CMD python src/app.py

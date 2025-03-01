@@ -21,3 +21,9 @@ RUN cp .env.$environment env && \
     mv env .env.local
 
 RUN yarn build
+
+ARG commit_sha
+ENV COMMIT_SHA=$commit_sha
+
+ARG commit_timestamp
+ENV COMMIT_TIMESTAMP=$commit_timestamp
