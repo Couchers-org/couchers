@@ -2,6 +2,7 @@ import {
   Autocomplete,
   AutocompleteChangeReason,
   InputAdornment,
+  InputProps,
 } from "@mui/material";
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
@@ -19,6 +20,7 @@ interface LocationAutocompleteOutlinedProps {
   fieldError?: string | undefined;
   fullWidth?: boolean;
   id?: string;
+  InputProps?: InputProps;
   label?: string;
   name: string;
   onChange: (value: GeocodeResult | undefined) => void;
@@ -38,11 +40,12 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     defaultValue = "",
     fieldError,
     fullWidth,
-    placeholder,
     id = "location-autocomplete-outlined",
+    InputProps,
     label,
     onChange,
     onClear,
+    placeholder,
     showFullDisplayName = false,
   } = props;
   const { t } = useTranslation([GLOBAL]);
@@ -123,6 +126,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
                   >
                     <SearchIcon />
                   </IconButton>
+                  {InputProps?.endAdornment}
                 </InputAdornment>
               </>
             ),

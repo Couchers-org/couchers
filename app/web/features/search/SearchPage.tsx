@@ -3,13 +3,14 @@ import HtmlMeta from "components/HtmlMeta";
 import {
   Coordinates,
   HostingStatusOptions,
+  MapSearchTypes,
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
 } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { UserSearchRes } from "proto/search_pb";
-import { useCallback, useMemo, useReducer, useRef } from "react";
+import { useCallback, useMemo, useReducer, useRef, useState } from "react";
 import { MapProvider, MapRef } from "react-map-gl/maplibre";
 import {
   QueryClient,
@@ -21,6 +22,7 @@ import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
 import DesktopMapView from "./DesktopMapView";
+import FilterDialog from "./FilterDialog";
 import {
   initialState,
   mapSearchActionTypes,
@@ -93,6 +95,9 @@ export default function SearchPage({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const mapRef = useRef<MapRef | null>(null);
   const zoom = mapRef.current?.getZoom() || 1;
+
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [searchType, setSearchType] = useState<MapSearchTypes>("location");
 
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
@@ -203,6 +208,18 @@ export default function SearchPage({
     dispatch({ type: mapSearchActionTypes.RESET_FILTERS });
   };
 
+  const handleSetSearchType = (type: MapSearchTypes) => {
+    setSearchType(type);
+  };
+
+  const handleOpenFiltersDialog = () => {
+    setIsFiltersOpen(true);
+  };
+
+  const handleCloseFiltersDialog = () => {
+    setIsFiltersOpen(false);
+  };
+
   return (
     <SearchPageContainer>
       <MapProvider>
@@ -214,11 +231,11 @@ export default function SearchPage({
               isLoading={isLoading || isFetching}
               locationName={locationName}
               meetsSearchCriteria={meetsSearchCriteria}
-              onClearFilters={handleClearFilters}
               onClearSearchInputValue={handleClearSearchInputValue}
-              onSetFilters={handleSetFilters}
+              onOpenFilters={handleOpenFiltersDialog}
               onSetSearch={handleSetSearch}
-              selectedUserIds={mapSearchState.selectedUserIds}
+              onSetSearchType={handleSetSearchType}
+              searchType={searchType}
               users={formattedUsers}
             />
           )}
@@ -233,15 +250,22 @@ export default function SearchPage({
               mapRef={mapRef}
               onClearFilters={handleClearFilters}
               onClearSearchInputValue={handleClearSearchInputValue}
-              onSetFilters={handleSetFilters}
+              onOpenFilters={handleOpenFiltersDialog}
               onSetSearch={handleSetSearch}
+              onSetSearchType={handleSetSearchType}
               onSelectedUserIdClick={handleSelectedUserIdClick}
+              searchType={searchType}
               selectedUserIds={mapSearchState.selectedUserIds}
               users={formattedUsers}
             />
           )}
         </QueryClientProvider>
       </MapProvider>
+      <FilterDialog
+        isOpen={isFiltersOpen}
+        onCloseDialog={handleCloseFiltersDialog}
+        onSetFilters={handleSetFilters}
+      />
     </SearchPageContainer>
   );
 }

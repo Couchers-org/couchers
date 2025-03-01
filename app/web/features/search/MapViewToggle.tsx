@@ -3,7 +3,7 @@ import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { theme } from "theme";
 
-import { MapViewOptions, MapViews } from "./DesktopMapView";
+import { MapViewOptions, MapViews } from "./utils/constants";
 
 interface MapViewToggleProps {
   mapView: MapViewOptions;

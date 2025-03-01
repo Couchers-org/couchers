@@ -1,30 +1,16 @@
-import { styled, Typography } from "@mui/material";
-import ResizeableDrawer, {
-  DEFAULT_DRAWER_WIDTH,
-} from "components/ResizeableDrawer";
-import { useTranslation } from "i18n";
-import { GLOBAL, SEARCH } from "i18n/namespaces";
+import { styled } from "@mui/material";
+import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { User } from "proto/api_pb";
 import { useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
-import { theme } from "theme";
 
 import FloatingSearchControls from "./FloatingSearchControls";
+import MapSearchSidebar from "./MapSearchSidebar";
 import MapView from "./MapView";
 import MapViewToggle from "./MapViewToggle";
-import {
-  FilterOptions,
-  InitialSearchLocation,
-  SearchOptions,
-} from "./SearchPage";
-import SearchResultsList from "./SearchResultsList";
+import { InitialSearchLocation, SearchOptions } from "./SearchPage";
+import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
 
-export enum MapViews {
-  MAP_AND_LIST = "MAP_AND_LIST",
-  LIST_ONLY = "LIST_ONLY",
-}
-
-export type MapViewOptions = MapViews.MAP_AND_LIST | MapViews.LIST_ONLY;
 interface DesktopMapViewProps {
   hasActiveFilters: boolean;
   hasSearchInputValue: boolean;
@@ -34,9 +20,11 @@ interface DesktopMapViewProps {
   mapRef: React.RefObject<MapRef>;
   onClearFilters: () => void;
   onClearSearchInputValue: () => void;
-  onSetFilters: (filters: FilterOptions) => void;
+  onOpenFilters: () => void;
   onSetSearch: (search: SearchOptions) => void;
+  onSetSearchType: (searchType: MapSearchTypes) => void;
   onSelectedUserIdClick: (userId: number) => void;
+  searchType: MapSearchTypes;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
 }
@@ -47,26 +35,6 @@ const Wrapper = styled("div")(({ theme }) => ({
   overflow: "hidden",
   display: "flex",
   position: "relative",
-}));
-
-const DrawerContainer = styled("div", {
-  shouldForwardProp: (prop) => prop !== "drawerWidth" && prop !== "isDualView",
-})<{ drawerWidth: number; isDualView: boolean }>(
-  ({ theme, drawerWidth, isDualView }) => ({
-    display: "flex",
-    width: isDualView ? `${drawerWidth}px` : "100%",
-    height: "100%",
-    position: "relative",
-  }),
-);
-
-const ListContentWrapper = styled("div", {
-  shouldForwardProp: (prop) => prop !== "showTopSpace",
-})<{ showTopSpace: boolean }>(({ theme, showTopSpace }) => ({
-  width: "100%",
-  height: "100%",
-
-  ...(showTopSpace && { paddingTop: theme.spacing(6) }),
 }));
 
 const MapContainer = styled("div", {
@@ -116,23 +84,24 @@ const DesktopMapView = ({
   meetsSearchCriteria,
   onClearFilters,
   onClearSearchInputValue,
-  onSetFilters,
+  onOpenFilters,
   onSetSearch,
+  onSetSearchType,
   onSelectedUserIdClick,
   mapRef,
+  searchType,
   selectedUserIds,
   users,
 }: DesktopMapViewProps) => {
-  const { t } = useTranslation([GLOBAL, SEARCH]);
   const [drawerWidth, setDrawerWidth] = useState<number>(DEFAULT_DRAWER_WIDTH);
   const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
 
-  const handleDrawerWidthChange = (width: number) => {
-    setDrawerWidth(width);
-  };
-
   const handleMapViewChange = (view: MapViewOptions) => {
     setMapView(view);
+  };
+
+  const handleDrawerWidthChange = (width: number) => {
+    setDrawerWidth(width);
   };
 
   return (
@@ -151,53 +120,23 @@ const DesktopMapView = ({
             hasActiveFilters={hasActiveFilters}
             onClearFilters={onClearFilters}
             onClearSearchInputValue={onClearSearchInputValue}
-            onSetFilters={onSetFilters}
+            onOpenFilters={onOpenFilters}
             onSetSearch={onSetSearch}
+            onSetSearchType={onSetSearchType}
             locationName={initialLocation.locationName}
+            searchType={searchType}
           />
         </CenterAligner>
       </MapControlsWrapper>
-      <DrawerContainer
+      <MapSearchSidebar
         drawerWidth={drawerWidth}
-        isDualView={mapView === MapViews.MAP_AND_LIST}
-      >
-        <ResizeableDrawer
-          onDrawerWidthChange={handleDrawerWidthChange}
-          showDragger={mapView !== MapViews.LIST_ONLY}
-        >
-          <>
-            <ListContentWrapper
-              showTopSpace={
-                mapView === MapViews.LIST_ONLY ||
-                drawerWidth > window.innerWidth / 2
-              }
-            >
-              <Typography
-                variant="caption"
-                sx={{
-                  marginTop: theme.spacing(2),
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                {!meetsSearchCriteria
-                  ? null
-                  : !users
-                    ? t("search:search_result.no_user_result_message")
-                    : t("search:search_result.users_found_message", {
-                        count: users.length,
-                      })}
-              </Typography>
-              <SearchResultsList
-                isLoading={isLoading}
-                selectedUserIds={selectedUserIds}
-                users={users}
-                meetsSearchCriteria={meetsSearchCriteria}
-              />
-            </ListContentWrapper>
-          </>
-        </ResizeableDrawer>
-      </DrawerContainer>
+        isLoading={isLoading}
+        mapView={mapView}
+        meetsSearchCriteria={meetsSearchCriteria}
+        onDrawerWidthChange={handleDrawerWidthChange}
+        selectedUserIds={selectedUserIds}
+        users={users}
+      />
       {mapView !== MapViews.LIST_ONLY && (
         <MapContainer drawerWidth={drawerWidth}>
           <MapView

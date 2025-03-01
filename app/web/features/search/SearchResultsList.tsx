@@ -9,7 +9,7 @@ import SearchResultUserCard from "./SeachResultUserCard";
 interface SearchResultsListProps {
   meetsSearchCriteria: boolean;
   isLoading?: boolean;
-  selectedUserIds: User.AsObject["userId"][];
+  selectedUserIds?: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
 }
 
@@ -39,10 +39,6 @@ const SearchResultsList = ({
     return null;
   }
 
-  if (isLoading) {
-    <CenteredSpinner />;
-  }
-
   return (
     <StyledContainer>
       {!meetsSearchCriteria && (
@@ -50,14 +46,20 @@ const SearchResultsList = ({
           {t("search:choose_search_criteria")}
         </Alert>
       )}
-      {meetsSearchCriteria &&
+
+      {isLoading && <CenteredSpinner />}
+
+      {!isLoading &&
+        meetsSearchCriteria &&
         users?.map((user) => (
           <StyledCardWrapper
             key={user?.userId}
             id={`search-result-${user?.userId}`}
           >
             <SearchResultUserCard
-              isHighlighted={selectedUserIds.includes(user.userId)}
+              isHighlighted={
+                !selectedUserIds ? false : selectedUserIds.includes(user.userId)
+              }
               user={user}
             />
           </StyledCardWrapper>

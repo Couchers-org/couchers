@@ -1,15 +1,21 @@
-import { Clear } from "@mui/icons-material";
-import { debounce, InputAdornment, TextField } from "@mui/material";
-import { styled } from "@mui/material";
+import { Clear, Tune } from "@mui/icons-material";
+import {
+  debounce,
+  InputAdornment,
+  styled,
+  TextField,
+  Typography,
+} from "@mui/material";
 import IconButton from "components/IconButton";
 import LocationAutocompleteOutlined from "components/LocationAutocomplete/LocationAutocompleteOutlined";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
+import { User } from "proto/api_pb";
 import { useState } from "react";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
-import { FilterOptions, SearchOptions } from "./SearchPage";
+import { SearchOptions } from "./SearchPage";
 import SearchResultsList from "./SearchResultsList";
 import SearchTypeRadioGroup from "./SearchTypeRadioGroup";
 import { MapSearchTypes } from "./utils/constants";
@@ -19,12 +25,12 @@ interface MobileMapViewProps {
   isLoading?: boolean;
   locationName: string | undefined;
   meetsSearchCriteria: boolean;
-  onClearFilters: () => void;
   onClearSearchInputValue: () => void;
-  onSetFilters: (filters: FilterOptions) => void;
+  onOpenFilters: () => void;
   onSetSearch: (search: SearchOptions) => void;
-  selectedUserIds: number[];
-  users: any[] | undefined;
+  onSetSearchType: (searchType: MapSearchTypes) => void;
+  searchType: MapSearchTypes;
+  users: User.AsObject[];
 }
 
 const StyledWrapper = styled("div")({
@@ -56,41 +62,49 @@ const StyledResultsWrapper = styled("div")(({ theme }) => ({
 
 const StyledLocationAutocompleteOutlined = styled(LocationAutocompleteOutlined)(
   ({ theme }) => ({
-    borderRadius: "50px",
-
-    "& .MuiOutlinedInput-root": {
+    "& div > .MuiInputBase-root": {
       borderRadius: "50px",
     },
   }),
 );
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
-  borderRadius: "50px",
-
   "& .MuiOutlinedInput-root": {
     borderRadius: "50px",
   },
+}));
+
+const StyledTuneIcon = styled(Tune, {
+  shouldForwardProp: (prop) => prop !== "hasActiveFilters",
+})<{ hasActiveFilters: boolean }>(({ theme, hasActiveFilters }) => ({
+  color: hasActiveFilters
+    ? theme.palette.primary.main
+    : theme.palette.grey[500],
+  fontSize: "38px",
+  cursor: "pointer",
+  height: "20px",
+  width: "20px",
+  padding: 0,
 }));
 
 const MobileMapView = ({
   hasActiveFilters,
   locationName,
   meetsSearchCriteria,
-  onClearFilters,
   onClearSearchInputValue,
-  onSetFilters,
+  onOpenFilters,
   onSetSearch,
+  onSetSearchType,
+  searchType,
   isLoading,
-  selectedUserIds,
   users,
 }: MobileMapViewProps) => {
   const { t } = useTranslation([SEARCH]);
 
-  const [searchType, setSearchType] = useState<MapSearchTypes>("location");
   const [keyword, setKeyword] = useState("");
 
   const handleSearchTypeChange = (value: string) => {
-    setSearchType(value as MapSearchTypes);
+    onSetSearchType(value as MapSearchTypes);
   };
 
   const debouncedKeywordChange = debounce((value: SearchOptions["keyword"]) => {
@@ -126,6 +140,16 @@ const MobileMapView = ({
             name="location"
             onChange={handleLocationChange}
             onClear={handleClearLocation}
+            InputProps={{
+              endAdornment: (
+                <IconButton
+                  aria-label={t("search:form.search_filters")}
+                  onClick={onOpenFilters}
+                >
+                  <StyledTuneIcon hasActiveFilters={hasActiveFilters} />
+                </IconButton>
+              ),
+            }}
           />
         )}
         {searchType === "keyword" && (
@@ -136,44 +160,62 @@ const MobileMapView = ({
             onChange={handleKeywordChange}
             value={keyword}
             variant="outlined"
-            InputProps={
-              keyword.length < 1
-                ? {}
-                : {
-                    endAdornment: (
-                      <>
-                        <InputAdornment
-                          position="end"
-                          sx={{
-                            marginRight:
-                              locationName === "" ? theme.spacing(1) : 0,
-                          }}
-                        >
-                          <IconButton
-                            aria-label={t(
-                              "search:form.keywords.clear_field_action_a11y_label",
-                            )}
-                            onClick={handleClearKeyword}
-                            size="small"
-                          >
-                            <Clear sx={{ fontSize: "20px" }} />
-                          </IconButton>
-                        </InputAdornment>
-                      </>
-                    ),
-                  }
-            }
+            InputProps={{
+              endAdornment: (
+                <>
+                  <InputAdornment
+                    position="end"
+                    sx={{
+                      marginRight: locationName === "" ? theme.spacing(1) : 0,
+                    }}
+                  >
+                    {keyword.length > 0 && (
+                      <IconButton
+                        aria-label={t(
+                          "search:form.keywords.clear_field_action_a11y_label",
+                        )}
+                        onClick={handleClearKeyword}
+                        size="small"
+                      >
+                        <Clear sx={{ fontSize: "20px" }} />
+                      </IconButton>
+                    )}
+                    <IconButton
+                      aria-label={t("search:form.search_filters")}
+                      onClick={onOpenFilters}
+                    >
+                      <StyledTuneIcon hasActiveFilters={hasActiveFilters} />
+                    </IconButton>
+                  </InputAdornment>
+                </>
+              ),
+            }}
           />
         )}
         <SearchTypeRadioGroup
           onChange={handleSearchTypeChange}
           searchType={searchType}
         />
+        <Typography
+          variant="caption"
+          sx={{
+            marginTop: theme.spacing(2),
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          {!meetsSearchCriteria
+            ? null
+            : !users
+              ? t("search:search_result.no_user_result_message")
+              : t("search:search_result.users_found_message", {
+                  count: users.length,
+                })}
+        </Typography>
       </StyledSearchBar>
       <StyledResultsWrapper id="styled-results-wrapper">
         <SearchResultsList
           isLoading={isLoading}
-          selectedUserIds={selectedUserIds}
           users={users}
           meetsSearchCriteria={meetsSearchCriteria}
         />

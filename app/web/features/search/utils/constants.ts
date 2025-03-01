@@ -43,11 +43,19 @@ const MAX_MAP_ZOOM_LEVEL_FOR_SEARCH = 6;
 
 type MapSearchTypes = "location" | "keyword";
 
+enum MapViews {
+  MAP_AND_LIST = "MAP_AND_LIST",
+  LIST_ONLY = "LIST_ONLY",
+}
+
+type MapViewOptions = MapViews.MAP_AND_LIST | MapViews.LIST_ONLY;
+
 export {
   aboutText,
   DEFAULT_AGE_MAX,
   DEFAULT_AGE_MIN,
   lastActiveOptions,
+  MapViews,
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
   selectedUserZoom,
 };
@@ -56,4 +64,5 @@ export type {
   HostingStatusOptions,
   HostingStatusType,
   MapSearchTypes,
+  MapViewOptions,
 };

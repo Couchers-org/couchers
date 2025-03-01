@@ -17,17 +17,18 @@ import { useState } from "react";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
-import FilterDialog from "./FilterDialog";
-import { FilterOptions, SearchOptions } from "./SearchPage";
+import { SearchOptions } from "./SearchPage";
+import { MapSearchTypes } from "./utils/constants";
 
 interface FloatingSearchNavigationProps {
   hasActiveFilters: boolean;
   locationName: string | undefined;
   onClearFilters: () => void;
   onClearSearchInputValue: () => void;
-  onSetFilters: (filters: FilterOptions) => void;
+  onOpenFilters: () => void;
   onSetSearch: (search: SearchOptions) => void;
-  showSearchIcon?: boolean;
+  onSetSearchType: (searchType: MapSearchTypes) => void;
+  searchType: MapSearchTypes;
 }
 
 const StyledControlsWrapper = styled("div")(({ theme }) => ({
@@ -145,21 +146,19 @@ const FloatingSearchControls = ({
   hasActiveFilters,
   onClearFilters,
   onClearSearchInputValue,
-  onSetFilters,
+  onOpenFilters,
   onSetSearch,
+  onSetSearchType,
   locationName,
+  searchType,
 }: FloatingSearchNavigationProps) => {
   const { t } = useTranslation([SEARCH]);
 
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [searchType, setSearchType] = useState<"location" | "keyword">(
-    "location",
-  );
   const [keyword, setKeyword] = useState("");
 
   const handleSearchTypeChange = (event: SelectChangeEvent<unknown>) => {
     const value = event.target.value as "location" | "keyword";
-    setSearchType(value);
+    onSetSearchType(value);
   };
 
   const debouncedKeywordChange = debounce((value: SearchOptions["keyword"]) => {
@@ -182,10 +181,6 @@ const FloatingSearchControls = ({
 
   const handleClearLocation = () => {
     onClearSearchInputValue();
-  };
-
-  const handleCloseDialog = () => {
-    setIsFiltersOpen(false);
   };
 
   return (
@@ -256,7 +251,7 @@ const FloatingSearchControls = ({
           <Tooltip title={t("search:form.search_filters")}>
             <IconButton
               aria-label={t("search:form.search_filters")}
-              onClick={() => setIsFiltersOpen(true)}
+              onClick={onOpenFilters}
             >
               <StyledTuneIcon hasActiveFilters={hasActiveFilters} />
             </IconButton>
@@ -273,11 +268,6 @@ const FloatingSearchControls = ({
           )}
         </StyledButtonsContainer>
       </StyledControlsWrapper>
-      <FilterDialog
-        isOpen={isFiltersOpen}
-        onCloseDialog={handleCloseDialog}
-        onSetFilters={onSetFilters}
-      />
     </>
   );
 };
