@@ -40,6 +40,7 @@ function mockTestResults() {
             user: users[0],
           },
         ],
+        totalItems: 1,
       },
     ],
   };

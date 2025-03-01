@@ -553,6 +553,7 @@ class Search(search_pb2_grpc.SearchServicer):
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_recommendation_score = float(decrypt_page_token(request.page_token)) if request.page_token else 1e10
+        total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
 
         statement = (
             statement.where(User.recommendation_score <= next_recommendation_score)
@@ -572,6 +573,7 @@ class Search(search_pb2_grpc.SearchServicer):
             next_page_token=(
                 encrypt_page_token(str(users[-1].recommendation_score)) if len(users) > page_size else None
             ),
+            total_items=total_items,
         )
 
     def EventSearch(self, request, context, session):

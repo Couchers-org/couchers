@@ -12,6 +12,7 @@ select = [
     "I",   # isort
 ]
 ignore = [
+    "A005",   # Our `email` module shadows stdlib email
     "B007",   # Loop control variable not used within loop body
     "C408",   # Unnecessary `dict` call (rewrite as a literal)
     "E501",   # Line too long
