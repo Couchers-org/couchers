@@ -96,7 +96,6 @@ sleepingarrangement2sql = {
     api_pb2.SLEEPING_ARRANGEMENT_PRIVATE: SleepingArrangement.private,
     api_pb2.SLEEPING_ARRANGEMENT_COMMON: SleepingArrangement.common,
     api_pb2.SLEEPING_ARRANGEMENT_SHARED_ROOM: SleepingArrangement.shared_room,
-    api_pb2.SLEEPING_ARRANGEMENT_SHARED_SPACE: SleepingArrangement.shared_space,
 }
 
 sleepingarrangement2api = {
@@ -104,7 +103,6 @@ sleepingarrangement2api = {
     SleepingArrangement.private: api_pb2.SLEEPING_ARRANGEMENT_PRIVATE,
     SleepingArrangement.common: api_pb2.SLEEPING_ARRANGEMENT_COMMON,
     SleepingArrangement.shared_room: api_pb2.SLEEPING_ARRANGEMENT_SHARED_ROOM,
-    SleepingArrangement.shared_space: api_pb2.SLEEPING_ARRANGEMENT_SHARED_SPACE,
 }
 
 parkingdetails2sql = {
