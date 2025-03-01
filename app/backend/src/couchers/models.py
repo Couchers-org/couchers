@@ -431,6 +431,60 @@ class UserBadge(Base):
     user = relationship("User", backref="badges")
 
 
+class ActivenessProbeStatus(enum.Enum):
+    # no response yet
+    pending = enum.auto()
+
+    # didn't respond on time
+    expired = enum.auto()
+
+    # responded that they're still active
+    still_active = enum.auto()
+
+    # responded that they're no longer active
+    no_longer_active = enum.auto()
+
+
+class ActivenessProbe(Base):
+    """
+    Activeness probes are used to gauge if users are still active: we send them a notification and ask them to respond,
+    we use this data both to help indicate response rate, as well as to make sure only those who are actively hosting
+    show up as such.
+    """
+
+    __tablename__ = "activeness_probes"
+
+    id = Column(BigInteger, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    # the time this probe was initiated
+    probe_initiated = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    # the number of reminders sent for this probe
+    reminders_sent = Column(BigInteger, nullable=False, unique=True)
+
+    # the time of response
+    response_time = Column(DateTime(timezone=True), nullable=True, default=None)
+    # the response value
+    response = Column(Enum(ActivenessProbeStatus), nullable=False, default=ActivenessProbeStatus.pending)
+
+    user = relationship("User", backref="activeness_probes")
+
+    __table_args__ = (
+        # a user can have at most one pending activeness probe at a time
+        Index(
+            "ix_activeness_probe_unique_pending_response",
+            user_id,
+            unique=True,
+            postgresql_where=response_time == None,
+        ),
+        # response time is none iff response is pending
+        CheckConstraint(
+            "(response_time IS NULL AND response = 'pending') OR (response_time IS NOT NULL AND response != 'pending')",
+            name="pending_has_no_response_time",
+        ),
+    )
+
+
 class StrongVerificationAttemptStatus(enum.Enum):
     ## full data states
     # completed, this now provides verification for a user
