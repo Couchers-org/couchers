@@ -22,6 +22,7 @@ export const teamRoute = "/team";
 export const donationsRoute = "/donate";
 export const builtWithRoute = "/open-source";
 export const contactRoute = "/contact";
+export const roadmapRoute = "/roadmap";
 
 export const loginRoute = "/login";
 export const resetPasswordRoute = "/password-reset";

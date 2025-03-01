@@ -24,6 +24,7 @@ import {
   helpCenterURL,
   missionRoute,
   planRoute,
+  roadmapRoute,
   teamRoute,
   tosRoute,
   volunteerRoute,
@@ -142,6 +143,9 @@ export default function Footer() {
             <FooterLink href={faqRoute}>{t("nav.faq")}</FooterLink>
             <FooterLink href={missionRoute}>{t("nav.mission")}</FooterLink>
             <FooterLink href={helpCenterURL}>{t("nav.help_center")}</FooterLink>
+            <FooterLink href={roadmapRoute}>
+              {t("nav.roadmap_updates")}
+            </FooterLink>
           </div>
           <div>
             <Typography variant="h3" component="h2">
@@ -191,25 +195,6 @@ export default function Footer() {
               <GithubIcon />
               <span>{t("nav.github")}</span>
             </StyledButton>
-            {process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" && (
-              <StyledButton
-                component="a"
-                href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
-                variant="outlined"
-                color="primary"
-                sx={{
-                  color: theme.palette.common.black,
-                  borderColor: theme.palette.grey[300],
-
-                  "&:hover": {
-                    borderColor: theme.palette.grey[300],
-                    backgroundColor: "#3135390A",
-                  },
-                }}
-              >
-                Powered by ▲
-              </StyledButton>
-            )}
           </StyledButtonContainer>
         </StyledUpperContainer>
       </StyledUpperOuterContainer>

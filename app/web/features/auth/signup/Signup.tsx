@@ -12,7 +12,6 @@ import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
 import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
-import vercelLogo from "resources/vercel.svg";
 import { dashboardRoute, loginRoute, signupRoute, tosRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
@@ -161,18 +160,6 @@ const StyledDivider = styled(Divider)(({ theme }) => ({
   left: theme.spacing(1),
   position: "absolute",
   width: "100%",
-}));
-
-const StyledVercelLink = styled("a")(({ theme }) => ({
-  marginTop: theme.spacing(2),
-  [theme.breakpoints.up("md")]: {
-    position: "absolute",
-    right: theme.spacing(2),
-    bottom: theme.spacing(2),
-    "& img": { height: "2.5rem" },
-  },
-  textAlign: "center",
-  "& img": { height: "2rem" },
 }));
 
 function CurrentForm() {
@@ -349,14 +336,6 @@ export default function Signup() {
           )}
           {loading ? <CenteredSpinner /> : <CurrentForm />}
         </StyledFormWrapper>
-        {process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" && (
-          <StyledVercelLink
-            rel="noopener noreferrer"
-            href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
-          >
-            <img alt={t("auth:vercel_logo_alt_text")} src={vercelLogo.src} />
-          </StyledVercelLink>
-        )}
       </StyledScrollingContent>
     </>
   );
