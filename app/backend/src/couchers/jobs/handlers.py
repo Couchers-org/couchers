@@ -15,6 +15,7 @@ from sqlalchemy.sql import and_, case, cast, delete, distinct, extract, func, li
 from sqlalchemy.sql.functions import percentile_disc
 
 from couchers.config import config
+from couchers.constants import ACTIVENESS_PROBE_INACTIVITY_PERIOD
 from couchers.crypto import asym_encrypt, b64decode, simple_decrypt
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
@@ -891,3 +892,18 @@ def finalize_strong_verification(payload):
 
 
 finalize_strong_verification.PAYLOAD = jobs_pb2.FinalizeStrongVerificationPayload
+
+
+def send_activeness_probes(payload):
+    with session_scope() as session:
+        session.execute(
+            select(User.id)
+            .where(User.is_visible)
+            .where(User.hosting_status == HostingStatus.can_host)
+            .where(User.last_active < func.now() - ACTIVENESS_PROBE_INACTIVITY_PERIOD)
+        ).scalars().all()
+    # ACTIVENESS_PROBE_TIME_REMINDERS
+
+
+send_activeness_probes.PAYLOAD = empty_pb2.Empty
+send_activeness_probes.SCHEDULE = timedelta(minutes=60)

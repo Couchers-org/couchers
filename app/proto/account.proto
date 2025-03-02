@@ -89,6 +89,10 @@ service Account {
   rpc LogOutOtherSessions(LogOutOtherSessionsReq) returns (google.protobuf.Empty) {
     // Logs the user out of all other sessions except this one
   }
+
+  rpc RespondToActivenessProbe(RespondToActivenessProbeReq) returns (google.protobuf.Empty) {
+    // Either dismiss an activeness probe or say you aren't hosting
+  }
 }
 
 message GetAccountInfoRes {
@@ -230,4 +234,14 @@ message LogOutSessionReq {
 
 message LogOutOtherSessionsReq {
   bool confirm = 1;
+}
+
+enum ActivenessProbeResponse {
+  ACTIVENESS_PROBE_RESPONSE_UNKNOWN = 0;
+  ACTIVENESS_PROBE_RESPONSE_STILL_ACTIVE = 1;
+  ACTIVENESS_PROBE_RESPONSE_NO_LONGER_ACTIVE = 2;
+}
+
+message RespondToActivenessProbeReq {
+  ActivenessProbeResponse response = 1;
 }
