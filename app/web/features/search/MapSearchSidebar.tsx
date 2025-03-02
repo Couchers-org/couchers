@@ -5,7 +5,6 @@ import { User } from "proto/api_pb";
 import { useTranslation } from "react-i18next";
 import { theme } from "theme";
 
-import PreviousNextPagination from "./PreviousNextPagination";
 import SearchResultsList from "./SearchResultsList";
 import { MapViews } from "./utils/constants";
 
@@ -110,17 +109,13 @@ const MapSearchSidebar = ({
                 selectedUserIds={selectedUserIds}
                 users={users}
                 meetsSearchCriteria={meetsSearchCriteria}
+                hasPreviousPage={hasPreviousPage}
+                hasNextPage={hasNextPage}
+                onLoadPreviousPage={onLoadPreviousPage}
+                onLoadNextPage={onLoadNextPage}
+                totalItems={totalItems}
               />
             </UpperBox>
-            <PreviousNextPagination
-              hasPreviousPage={hasPreviousPage}
-              hasNextPage={hasNextPage}
-              hasUsers={!!users}
-              meetsSearchCriteria={meetsSearchCriteria}
-              onPreviousClick={onLoadPreviousPage}
-              onNextClick={onLoadNextPage}
-              totalItems={totalItems}
-            />
           </ListContentWrapper>
         </>
       </ResizeableDrawer>

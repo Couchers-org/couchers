@@ -1,4 +1,7 @@
-import { Coordinates } from "features/search/utils/constants";
+import {
+  Coordinates,
+  SleepingArrangementOptions,
+} from "features/search/utils/constants";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {
   BoolValue,
@@ -32,6 +35,7 @@ export interface UserSearchFilters {
   completeProfile?: boolean;
   pageNumber?: number;
   pageSize?: number;
+  sleepingArrangement?: SleepingArrangementOptions[];
   smokingAllowed?: boolean;
 }
 
@@ -51,6 +55,7 @@ export async function userSearch(
     hostingStatusOptions,
     numGuests,
     completeProfile,
+    sleepingArrangement,
     smokingAllowed,
   }: UserSearchFilters,
   pageToken = "",
@@ -107,7 +112,7 @@ export async function userSearch(
     req.setOnlyWithStrongVerification(hasStrongVerification);
   }
 
-  if (hostingStatusOptions && hostingStatusOptions.length !== 0) {
+  if (hostingStatusOptions && hostingStatusOptions.length > 0) {
     req.setHostingStatusFilterList(hostingStatusOptions);
   }
 
@@ -121,6 +126,10 @@ export async function userSearch(
 
   if (numGuests) {
     req.setGuests(new UInt32Value().setValue(numGuests));
+  }
+
+  if (sleepingArrangement && sleepingArrangement.length > 0) {
+    req.setSleepingArrangementFilterList(sleepingArrangement);
   }
 
   if (smokingAllowed) {

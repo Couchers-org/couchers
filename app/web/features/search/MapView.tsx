@@ -33,8 +33,10 @@ interface MapViewProps {
   onClearSearchInputValue: () => void;
   onSetSearch: (search: SearchOptions) => void;
   onSelectedUserIdClick: (userId: number) => void;
+  onSetZoom: (zoom: number) => void;
   selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
+  zoom: number;
 }
 
 const MapLoadingContainer = styled("div")(({ theme }) => ({
@@ -56,14 +58,15 @@ const MapView = ({
   onClearSearchInputValue,
   onSetSearch,
   onSelectedUserIdClick,
+  onSetZoom,
   selectedUserIds,
   users = DEFAULT_USERS,
+  zoom,
 }: MapViewProps) => {
   const pins = usersToGeoJSON(users);
   const memoizedPins = useMemo(() => pins, [pins]);
   const zoomedOutDataSource = API_BASE_URL + "/geojson/users";
 
-  const [zoom, setZoom] = useState<number>(1);
   const [isMapSourceDataLoading, setIsMapSourceDataLoading] =
     useState<boolean>(true);
 
@@ -75,10 +78,6 @@ const MapView = ({
   })
     ? memoizedPins
     : zoomedOutDataSource;
-
-  const handleSetZoom = useCallback((newZoom: number) => {
-    setZoom(newZoom);
-  }, []);
 
   const handleClick = useCallback(
     async (ev: MapLayerMouseEvent) => {
@@ -113,7 +112,7 @@ const MapView = ({
             });
           }
 
-          setZoom(newZoom);
+          onSetZoom(newZoom);
           mapRef.current?.zoomIn();
         }
       }
@@ -135,6 +134,7 @@ const MapView = ({
       mapRef,
       onSelectedUserIdClick,
       onSetSearch,
+      onSetZoom,
       selectedUserIds,
       zoom,
     ],
@@ -149,7 +149,7 @@ const MapView = ({
     }
   };
 
-  const handleMapSourceDataLoading = debounce((event: MapSourceDataEvent) => {
+  const handleMapSourceDataLoading = (event: MapSourceDataEvent) => {
     if (!event.isSourceLoaded && event.sourceId === SOURCE_CLUSTERED_USERS_ID) {
       setIsMapSourceDataLoading(true);
     } else if (
@@ -158,7 +158,7 @@ const MapView = ({
     ) {
       setIsMapSourceDataLoading(false);
     }
-  }, 600);
+  };
 
   const handleMapMove = debounce(() => {
     // If zoom is too large an area, don't reload pins
@@ -215,7 +215,7 @@ const MapView = ({
         onClick={handleClick}
         onLoad={handleLoad}
         onMapMove={handleMapMove}
-        onSetZoom={handleSetZoom}
+        onSetZoom={onSetZoom}
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
         onSourceDataLoading={handleMapSourceDataLoading}

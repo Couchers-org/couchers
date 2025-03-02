@@ -4,12 +4,18 @@ import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 
+import PreviousNextPagination from "./PreviousNextPagination";
 import SearchResultUserCard from "./SeachResultUserCard";
 
 interface SearchResultsListProps {
+  hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
   isLoading?: boolean;
   meetsSearchCriteria: boolean;
+  onLoadPreviousPage: () => void;
+  onLoadNextPage: () => void;
   selectedUserIds?: User.AsObject["userId"][];
+  totalItems?: number;
   users: User.AsObject[] | undefined;
 }
 
@@ -28,8 +34,13 @@ const StyledCardWrapper = styled(Box)(({ theme }) => ({
 
 const SearchResultsList = ({
   meetsSearchCriteria,
+  hasPreviousPage,
+  hasNextPage,
   isLoading,
+  onLoadPreviousPage,
+  onLoadNextPage,
   selectedUserIds,
+  totalItems,
   users,
 }: SearchResultsListProps) => {
   const { t } = useTranslation([SEARCH]);
@@ -45,9 +56,7 @@ const SearchResultsList = ({
           {t("search:choose_search_criteria")}
         </Alert>
       )}
-
       {isLoading && <CenteredSpinner />}
-
       {!isLoading &&
         meetsSearchCriteria &&
         users?.map((user) => (
@@ -63,6 +72,16 @@ const SearchResultsList = ({
             />
           </StyledCardWrapper>
         ))}
+      {(users ?? []).length > 0 && (
+        <PreviousNextPagination
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          meetsSearchCriteria={meetsSearchCriteria}
+          onPreviousClick={onLoadPreviousPage}
+          onNextClick={onLoadNextPage}
+          totalItems={totalItems}
+        />
+      )}
     </StyledContainer>
   );
 };

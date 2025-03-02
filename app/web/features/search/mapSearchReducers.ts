@@ -78,6 +78,7 @@ const initialState: MapSearchState = {
     hasStrongVerification: undefined,
     hostingStatusOptions: undefined,
     numGuests: undefined,
+    sleepingArrangement: undefined,
     smokingAllowed: undefined,
   },
   hasActiveFilters: false,
@@ -159,20 +160,7 @@ const mapSearchReducer = (
               ? undefined
               : action.payload[key];
         }
-        if (key === "completeProfile") {
-          updatedFilters.completeProfile =
-            action.payload[key] === false ? undefined : true;
-        }
-        if (key === "hostingStatus") {
-          updatedFilters.hostingStatusOptions =
-            action.payload[key] && action.payload[key].length === 0
-              ? undefined
-              : action.payload[key];
-        }
-        if (key === "numGuests") {
-          updatedFilters.numGuests =
-            action.payload[key] === 0 ? undefined : action.payload[key];
-        }
+
         if (key === "acceptsKids") {
           updatedFilters.acceptsKids =
             action.payload[key] === false ? undefined : action.payload[key];
@@ -180,6 +168,10 @@ const mapSearchReducer = (
         if (key === "acceptsLastMinRequests") {
           updatedFilters.acceptsLastMinRequests =
             action.payload[key] === false ? undefined : action.payload[key];
+        }
+        if (key === "completeProfile") {
+          updatedFilters.completeProfile =
+            action.payload[key] === false ? undefined : true;
         }
         if (key === "drinkingAllowed") {
           updatedFilters.drinkingAllowed =
@@ -192,6 +184,22 @@ const mapSearchReducer = (
         if (key === "hasStrongVerification") {
           updatedFilters.hasStrongVerification =
             action.payload[key] === false ? undefined : action.payload[key];
+        }
+        if (key === "hostingStatus") {
+          updatedFilters.hostingStatusOptions =
+            action.payload[key] && action.payload[key].length === 0
+              ? undefined
+              : action.payload[key];
+        }
+        if (key === "numGuests") {
+          updatedFilters.numGuests =
+            action.payload[key] === 0 ? undefined : action.payload[key];
+        }
+        if (key === "sleepingArrangement") {
+          updatedFilters.sleepingArrangement =
+            action.payload[key] && action.payload[key].length === 0
+              ? undefined
+              : action.payload[key];
         }
         if (key === "smokingAllowed") {
           updatedFilters.smokingAllowed =

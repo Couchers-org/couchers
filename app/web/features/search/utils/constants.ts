@@ -1,5 +1,5 @@
 import { TFunction } from "i18n";
-import { HostingStatus, User } from "proto/api_pb";
+import { HostingStatus, SleepingArrangement, User } from "proto/api_pb";
 import { firstName } from "utils/names";
 
 const aboutText = (user: User.AsObject, t: TFunction) => {
@@ -37,6 +37,11 @@ type HostingStatusOptions =
   | HostingStatus.HOSTING_STATUS_MAYBE
   | HostingStatus.HOSTING_STATUS_CAN_HOST;
 
+type SleepingArrangementOptions =
+  | SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON
+  | SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE
+  | SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM;
+
 const DEFAULT_AGE_MIN = 18;
 const DEFAULT_AGE_MAX = 100;
 const MAX_MAP_ZOOM_LEVEL_FOR_SEARCH = 6;
@@ -59,10 +64,12 @@ export {
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
   selectedUserZoom,
 };
+
 export type {
   Coordinates,
   HostingStatusOptions,
   HostingStatusType,
   MapSearchTypes,
   MapViewOptions,
+  SleepingArrangementOptions
 };

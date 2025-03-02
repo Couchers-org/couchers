@@ -73,9 +73,12 @@ const getHasActiveFilters = (
       initialState.filters.acceptsLastMinRequests ||
     state.filters.drinkingAllowed !== initialState.filters.drinkingAllowed ||
     state.filters.hasReferences !== initialState.filters.hasReferences ||
+    state.filters.sleepingArrangement !==
+      initialState.filters.sleepingArrangement ||
     state.filters.hasStrongVerification !==
       initialState.filters.hasStrongVerification ||
-    state.filters.smokingAllowed !== initialState.filters.smokingAllowed
+    state.filters.smokingAllowed !== initialState.filters.smokingAllowed ||
+    state.filters.lastActive !== initialState.filters.lastActive
   );
 };
 

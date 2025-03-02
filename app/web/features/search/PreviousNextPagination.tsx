@@ -7,7 +7,6 @@ import { theme } from "theme";
 interface PreviousNextPaginationProps {
   hasPreviousPage: boolean | undefined;
   hasNextPage: boolean | undefined;
-  hasUsers: boolean;
   meetsSearchCriteria: boolean;
   totalItems: number | undefined;
   onPreviousClick: () => void;
@@ -17,7 +16,6 @@ interface PreviousNextPaginationProps {
 const PreviousNextPagination: React.FC<PreviousNextPaginationProps> = ({
   hasPreviousPage,
   hasNextPage,
-  hasUsers,
   meetsSearchCriteria,
   totalItems,
   onPreviousClick,
@@ -46,11 +44,9 @@ const PreviousNextPagination: React.FC<PreviousNextPaginationProps> = ({
       <Typography variant="caption">
         {!meetsSearchCriteria
           ? null
-          : !hasUsers
-            ? t("search:search_result.no_user_result_message")
-            : t("search:search_result.users_found_message", {
-                totalItems,
-              })}
+          : t("search:search_result.users_found_message", {
+              totalItems,
+            })}
       </Typography>
 
       <Button

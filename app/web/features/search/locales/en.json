@@ -35,7 +35,13 @@
     },
     "accommodation_filters": {
       "title": "Accommodation filters",
-      "guests_field_label": "Number of guests"
+      "guests_field_label": "Number of guests",
+      "sleeping_arrangement_label": "Sleeping arrangement",
+      "sleeping_arrangement_filters": {
+        "shared_room": "Shared room",
+        "private": "Private room",
+        "common": "Common space"
+      }
     },
     "empty_profile_filters": {
       "title": "Filter out empty profiles"

@@ -21,7 +21,7 @@ import { CloseIcon } from "components/Icons";
 import PlusMinusSelector from "components/PlusMinusSelector";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { HostingStatus } from "proto/api_pb";
+import { HostingStatus, SleepingArrangement } from "proto/api_pb";
 import { useState } from "react";
 import { theme } from "theme";
 
@@ -31,6 +31,7 @@ import {
   DEFAULT_AGE_MIN,
   HostingStatusOptions,
   lastActiveOptions,
+  SleepingArrangementOptions,
 } from "./utils/constants";
 
 interface FilterDialogProps {
@@ -141,6 +142,9 @@ const FilterDialog = ({
     HostingStatusOptions[] | undefined
   >();
   const [numberOfGuests, setNumberOfGuests] = useState<number | undefined>();
+  const [sleepingArrangement, setSleepingArrangement] = useState<
+    SleepingArrangementOptions[] | undefined
+  >(undefined);
   const [smokingAllowed, setSmokingAllowed] = useState(false);
 
   const handleAcceptsPetsChange = () => {
@@ -194,6 +198,13 @@ const FilterDialog = ({
     setNumberOfGuests(value);
   };
 
+  const handleSleepingArrangementChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newSleepingArrangement: SleepingArrangementOptions[],
+  ) => {
+    setSleepingArrangement(newSleepingArrangement);
+  };
+
   const handleSmokingAllowedChange = () => {
     setSmokingAllowed(!smokingAllowed);
   };
@@ -211,6 +222,7 @@ const FilterDialog = ({
     setHasStrongVerification(false);
     setHostingStatus(undefined);
     setNumberOfGuests(undefined);
+    setSleepingArrangement(undefined);
     setSmokingAllowed(false);
   };
 
@@ -228,6 +240,7 @@ const FilterDialog = ({
       hasStrongVerification,
       hostingStatus,
       numGuests: numberOfGuests,
+      sleepingArrangement,
       smokingAllowed,
     });
 
@@ -464,6 +477,57 @@ const FilterDialog = ({
             onChange={handleNumberOfGuestsChange}
             value={numberOfGuests}
           />
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>
+            {t("search:form.accommodation_filters.sleeping_arrangement_label")}
+          </Typography>
+          <ToggleButtonGroup
+            onChange={handleSleepingArrangementChange}
+            value={sleepingArrangement}
+            aria-label={t(
+              "search:form.accommodation_filters.sleeping_arrangement_label",
+            )}
+            size="small"
+            color="primary"
+            sx={{
+              borderRadius: 20,
+              marginRight: "-5px",
+            }}
+          >
+            <ToggleButton
+              value={SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON}
+              aria-label={t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.common",
+              )}
+              sx={{ borderRadius: "20px 0 0 20px" }}
+            >
+              {t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.common",
+              )}
+            </ToggleButton>
+            <ToggleButton
+              value={SleepingArrangement.SLEEPING_ARRANGEMENT_PRIVATE}
+              aria-label={t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.private",
+              )}
+            >
+              {t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.private",
+              )}
+            </ToggleButton>
+            <ToggleButton
+              value={SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM}
+              aria-label={t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room",
+              )}
+              sx={{ borderRadius: "0 20px 20px 0" }}
+            >
+              {t(
+                "search:form.accommodation_filters.sleeping_arrangement_filters.shared_room",
+              )}
+            </ToggleButton>
+          </ToggleButtonGroup>
         </FilterItemRow>
       </FilterItemsContainer>
       <DialogActions sx={{ display: "flex", justifyContent: "space-between" }}>
