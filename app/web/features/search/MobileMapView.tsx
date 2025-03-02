@@ -15,6 +15,7 @@ import { useState } from "react";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
+import PreviousNextPagination from "./PreviousNextPagination";
 import { SearchOptions } from "./SearchPage";
 import SearchResultsList from "./SearchResultsList";
 import SearchTypeRadioGroup from "./SearchTypeRadioGroup";
@@ -22,14 +23,19 @@ import { MapSearchTypes } from "./utils/constants";
 
 interface MobileMapViewProps {
   hasActiveFilters: boolean;
+  hasPreviousPage: boolean | undefined;
+  hasNextPage: boolean | undefined;
   isLoading?: boolean;
   locationName: string | undefined;
   meetsSearchCriteria: boolean;
   onClearSearchInputValue: () => void;
   onOpenFilters: () => void;
+  onLoadNextPage: () => void;
+  onLoadPreviousPage: () => void;
   onSetSearch: (search: SearchOptions) => void;
   onSetSearchType: (searchType: MapSearchTypes) => void;
   searchType: MapSearchTypes;
+  totalItems?: number;
   users: User.AsObject[];
 }
 
@@ -53,7 +59,7 @@ const StyledResultsWrapper = styled("div")(({ theme }) => ({
   width: "100%",
   height: "100%",
   display: "flex",
-  justifyContent: "center",
+  justifyContent: "space-between",
   alignItems: "flex-start",
   flexDirection: "column",
   overflowY: "auto",
@@ -89,14 +95,19 @@ const StyledTuneIcon = styled(Tune, {
 
 const MobileMapView = ({
   hasActiveFilters,
+  hasNextPage,
+  hasPreviousPage,
   locationName,
   meetsSearchCriteria,
   onClearSearchInputValue,
+  onLoadNextPage,
+  onLoadPreviousPage,
   onOpenFilters,
   onSetSearch,
   onSetSearchType,
   searchType,
   isLoading,
+  totalItems,
   users,
 }: MobileMapViewProps) => {
   const { t } = useTranslation([SEARCH]);
@@ -209,15 +220,24 @@ const MobileMapView = ({
             : !users
               ? t("search:search_result.no_user_result_message")
               : t("search:search_result.users_found_message", {
-                  count: users.length,
+                  totalItems,
                 })}
         </Typography>
       </StyledSearchBar>
-      <StyledResultsWrapper id="styled-results-wrapper">
+      <StyledResultsWrapper>
         <SearchResultsList
           isLoading={isLoading}
           users={users}
           meetsSearchCriteria={meetsSearchCriteria}
+        />
+        <PreviousNextPagination
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          hasUsers={!!users}
+          meetsSearchCriteria={meetsSearchCriteria}
+          onPreviousClick={onLoadPreviousPage}
+          onNextClick={onLoadNextPage}
+          totalItems={totalItems}
         />
       </StyledResultsWrapper>
     </StyledWrapper>

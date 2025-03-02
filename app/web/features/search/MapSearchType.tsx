@@ -10,8 +10,6 @@ import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { ChangeEvent, useState } from "react";
 
-import { FilterKey, FilterValue } from "./SearchPage";
-
 type MapSearchTypes = "location" | "keyword";
 
 const CenteredContainer = styled("div")(({ theme }) => ({
@@ -24,7 +22,7 @@ const CenteredContainer = styled("div")(({ theme }) => ({
 const MapSearchType = ({
   onChange,
 }: {
-  onChange: (key: FilterKey, value: FilterValue) => void;
+  onChange: (type: "location" | "query", value: string) => void;
 }) => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
 

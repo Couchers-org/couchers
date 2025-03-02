@@ -124,10 +124,11 @@ export default function SearchPage({
       map.off("zoomend", handleZoom);
       map.off("moveend", handleZoom);
     };
-  }, [mapRef.current]);
+  }, []);
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [searchType, setSearchType] = useState<MapSearchTypes>("location");
+  const [pageNumber, setPageNumber] = useState(0);
 
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
@@ -145,45 +146,48 @@ export default function SearchPage({
     [mapSearchState.filters, mapSearchState.search],
   );
 
-  const { data, fetchNextPage, isLoading, hasNextPage, isFetching } =
-    useInfiniteQuery<UserSearchRes.AsObject, Error>(
-      ["userSearch", searchParams],
-      ({ pageParam }) => {
-        return service.search.userSearch(searchParams, pageParam);
-      },
-      {
-        enabled:
-          mapSearchState.hasActiveFilters ||
-          zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH ||
-          mapSearchState.hasSearchInputValue, // only fetch when zoomed in, filters or input has value
-        getNextPageParam: (lastPage) =>
-          lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-        onSuccess: (data) => {
-          if (data.pages.length <= 1) return;
-
-          const lastPage = data.pages[data.pages.length - 1];
-          const firstNewItemUserId = lastPage.resultsList?.[0]?.user?.userId;
-
-          // Scroll to the first item in the new page
-          if (firstNewItemUserId) {
-            document
-              .getElementById(`search-result-${firstNewItemUserId}`)
-              ?.scrollIntoView({ behavior: "smooth" });
-          }
-        },
-      },
-    );
-
-  const totalItems = data?.pages[0]?.totalItems ?? 0;
+  const {
+    data,
+    fetchPreviousPage,
+    fetchNextPage,
+    isLoading,
+    hasNextPage,
+    isFetching,
+  } = useInfiniteQuery<UserSearchRes.AsObject, Error>(
+    ["userSearch", searchParams],
+    ({ pageParam }) => {
+      return service.search.userSearch(searchParams, pageParam);
+    },
+    {
+      enabled:
+        mapSearchState.hasActiveFilters ||
+        zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH ||
+        mapSearchState.hasSearchInputValue, // only fetch when zoomed in, filters or input has value
+      keepPreviousData: true,
+      getNextPageParam: (lastPage) =>
+        lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
+    },
+  );
 
   const formattedUsers = useMemo(
     () =>
-      data?.pages
-        .flatMap((page) => page.resultsList)
-        .map((result) => result?.user)
+      data?.pages[pageNumber]?.resultsList
+        ?.map((result) => result?.user)
         .filter((user): user is User.AsObject => Boolean(user)) || [],
-    [data], // Only recompute if `data` changes
+    [data, pageNumber], // Only recompute if `data` or `pageNumber` changes
   );
+
+  /** We don't have a previousPageToken on the backend, so for now we deterine
+   *  if we have a previous page by checking if the current page is greater than 0
+   *  and if the previous page has a nextPageToken.
+   */
+  const hasPreviousPage = useMemo(
+    () =>
+      formattedUsers.length > 0 &&
+      data?.pages[pageNumber - 1]?.nextPageToken !== undefined,
+    [data?.pages, formattedUsers.length, pageNumber],
+  );
+  const totalItems = data?.pages[0]?.totalItems ?? 0;
 
   const meetsSearchCriteria = meetsApiSearchCriteria({
     hasActiveFilters: mapSearchState.hasActiveFilters,
@@ -264,10 +268,14 @@ export default function SearchPage({
     setIsFiltersOpen(false);
   };
 
+  const handleLoadPreviousPage = () => {
+    fetchPreviousPage();
+    setPageNumber((prev) => prev - 1);
+  };
+
   const handleLoadNextPage = () => {
-    if (hasNextPage) {
-      fetchNextPage();
-    }
+    fetchNextPage();
+    setPageNumber((prev) => prev + 1);
   };
 
   return (
@@ -278,14 +286,19 @@ export default function SearchPage({
           {isMobile && (
             <MobileMapView
               hasActiveFilters={mapSearchState.hasActiveFilters}
+              hasPreviousPage={hasPreviousPage}
+              hasNextPage={hasNextPage}
               isLoading={isLoading || isFetching}
               locationName={locationName}
               meetsSearchCriteria={meetsSearchCriteria}
               onClearSearchInputValue={handleClearSearchInputValue}
+              onLoadPreviousPage={handleLoadPreviousPage}
+              onLoadNextPage={handleLoadNextPage}
               onOpenFilters={handleOpenFiltersDialog}
               onSetSearch={handleSetSearch}
               onSetSearchType={handleSetSearchType}
               searchType={searchType}
+              totalItems={totalItems}
               users={formattedUsers}
             />
           )}
@@ -293,6 +306,7 @@ export default function SearchPage({
           {!isMobile && (
             <DesktopMapView
               hasActiveFilters={mapSearchState.hasActiveFilters}
+              hasPreviousPage={hasPreviousPage}
               hasNextPage={hasNextPage}
               hasSearchInputValue={mapSearchState.hasSearchInputValue}
               initialLocation={{ bbox, locationName }}
@@ -301,6 +315,7 @@ export default function SearchPage({
               mapRef={mapRef}
               onClearFilters={handleClearFilters}
               onClearSearchInputValue={handleClearSearchInputValue}
+              onLoadPreviousPage={handleLoadPreviousPage}
               onLoadNextPage={handleLoadNextPage}
               onOpenFilters={handleOpenFiltersDialog}
               onSetSearch={handleSetSearch}

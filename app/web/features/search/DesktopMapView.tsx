@@ -14,6 +14,7 @@ import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
 interface DesktopMapViewProps {
   hasActiveFilters: boolean;
   hasSearchInputValue: boolean;
+  hasPreviousPage: boolean | undefined;
   hasNextPage: boolean | undefined;
   initialLocation: InitialSearchLocation;
   isLoading: boolean;
@@ -21,6 +22,7 @@ interface DesktopMapViewProps {
   mapRef: React.RefObject<MapRef>;
   onClearFilters: () => void;
   onClearSearchInputValue: () => void;
+  onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
   onOpenFilters: () => void;
   onSetSearch: (search: SearchOptions) => void;
@@ -81,6 +83,7 @@ const CenterAligner = styled("div")(({ theme }) => ({
 
 const DesktopMapView = ({
   hasActiveFilters,
+  hasPreviousPage,
   hasNextPage,
   hasSearchInputValue,
   initialLocation,
@@ -88,6 +91,7 @@ const DesktopMapView = ({
   meetsSearchCriteria,
   onClearFilters,
   onClearSearchInputValue,
+  onLoadPreviousPage,
   onLoadNextPage,
   onOpenFilters,
   onSetSearch,
@@ -136,16 +140,19 @@ const DesktopMapView = ({
       </MapControlsWrapper>
       <MapSearchSidebar
         drawerWidth={drawerWidth}
+        hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}
         isLoading={isLoading}
         mapView={mapView}
         meetsSearchCriteria={meetsSearchCriteria}
         onDrawerWidthChange={handleDrawerWidthChange}
+        onLoadPreviousPage={onLoadPreviousPage}
         onLoadNextPage={onLoadNextPage}
         selectedUserIds={selectedUserIds}
         totalItems={totalItems}
         users={users}
       />
+
       {mapView !== MapViews.LIST_ONLY && (
         <MapContainer drawerWidth={drawerWidth}>
           <MapView
