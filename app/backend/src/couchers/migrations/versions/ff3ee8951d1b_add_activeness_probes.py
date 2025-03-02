@@ -18,7 +18,7 @@ depends_on = None
 
 def upgrade():
     # remove postgis things we don't use
-    op.execute("DROP EXTENSION postgis_tiger_geocoder IF EXISTS")
+    op.execute("DROP EXTENSION IF EXISTS postgis_tiger_geocoder")
 
     op.create_table(
         "activeness_probes",
