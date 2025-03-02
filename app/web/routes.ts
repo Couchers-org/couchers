@@ -11,6 +11,8 @@ export const baseRoute = "/";
 
 export const githubURL = "https://github.com/Couchers-org/couchers";
 export const helpCenterURL = "https://help.couchers.org";
+export const githubUpdatesURL =
+  "https://github.com/Couchers-org/couchers/commits/develop";
 
 export const dashboardRoute = "/dashboard";
 export const blogRoute = "/blog";

@@ -19,6 +19,7 @@ import {
   eventsRoute,
   faqRoute,
   foundationRoute,
+  githubUpdatesURL,
   githubURL,
   helpCenterURL,
   missionRoute,
@@ -145,9 +146,7 @@ export default function Footer() {
         t: t,
       })
     : "unknown";
-  console.log(updated_ago_text);
-  const updated_ago_link =
-    "https://github.com/Couchers-org/couchers/commits/develop";
+  const updated_ago_link = githubUpdatesURL;
 
   return (
     <StyledFooter>
