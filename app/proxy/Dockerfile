@@ -6,4 +6,10 @@ COPY ./descriptors.pb /etc/envoy/descriptors.pb
 EXPOSE 8888
 EXPOSE 9901
 
+ARG commit_sha
+ENV COMMIT_SHA=$commit_sha
+
+ARG commit_timestamp
+ENV COMMIT_TIMESTAMP=$commit_timestamp
+
 CMD /usr/local/bin/envoy -c /etc/envoy/envoy.yaml

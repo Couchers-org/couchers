@@ -7,7 +7,6 @@ import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import vercelLogo from "resources/vercel.svg";
 import { dashboardRoute, signupRoute } from "routes";
 import stringOrFirstString from "utils/stringOrFirstString";
 
@@ -106,18 +105,6 @@ const StyledDivider = styled(Divider)(({ theme }) => ({
   width: "100%",
 }));
 
-const StyledVercelLink = styled("a")(({ theme }) => ({
-  marginTop: theme.spacing(2),
-  [theme.breakpoints.up("md")]: {
-    position: "absolute",
-    right: theme.spacing(2),
-    bottom: theme.spacing(2),
-    "& img": { height: "2.5rem" },
-  },
-  textAlign: "center",
-  "& img": { height: "2rem" },
-}));
-
 export default function Login() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState } = useAuthContext();
@@ -166,14 +153,6 @@ export default function Login() {
             </Typography>
           </StyledFormWrapper>
         </StyledContent>
-        {process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod" && (
-          <StyledVercelLink
-            rel="noopener noreferrer"
-            href="https://vercel.com?utm_source=couchers-org&utm_campaign=oss"
-          >
-            <img alt={t("auth:vercel_logo_alt_text")} src={vercelLogo.src} />
-          </StyledVercelLink>
-        )}
       </StyledBackground>
     </>
   );

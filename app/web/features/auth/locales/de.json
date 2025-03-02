@@ -287,7 +287,6 @@
     }
   },
   "logged_out_message": "Du wurdest ausgeloggt.",
-  "vercel_logo_alt_text": "Powered by Vercel",
   "jail_set_password_form": {
     "title": "Erstelle ein Passwort",
     "explanation": "Du hast noch kein Passwort für deinen Account angegeben. Bitte erstelle eins, um fortzusetzen."

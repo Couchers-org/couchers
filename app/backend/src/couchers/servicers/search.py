@@ -538,7 +538,13 @@ class Search(search_pb2_grpc.SearchServicer):
             statement = statement.where(func.ST_Contains(node.geom, User.geom))
 
         if request.only_with_references:
-            statement = statement.join(Reference, Reference.to_user_id == User.id)
+            references = (
+                select(Reference.to_user_id.label("user_id"))
+                .where_users_column_visible(context, Reference.from_user_id)
+                .distinct()
+                .subquery()
+            )
+            statement = statement.join(references, references.c.user_id == User.id)
 
         if request.only_with_strong_verification:
             statement = statement.join(
