@@ -266,7 +266,7 @@ export default function LandingPage() {
               {t("landing:signup_header")}
             </Typography>
             <Typography variant="body2" paragraph gutterBottom>
-              {t("landing:signup_description", { user_count: "40k" })}
+              {t("landing:signup_description", { user_count: "50k" })}
             </Typography>
             {!flowState || !isMounted ? (
               <BasicForm
