@@ -33,3 +33,9 @@ WORKER_THREADS = 1
 
 # how long the user has to undelete their account
 UNDELETE_DAYS = 7
+
+# activeness probe settings
+# wait about 11 months before sending one out
+ACTIVENESS_PROBE_INACTIVITY = timedelta(days=333)
+# time after first notification until reminders
+ACTIVENESS_PROBE_TIME_REMINDER_DELAYS = [timedelta(days=3), timedelta(days=7)]
