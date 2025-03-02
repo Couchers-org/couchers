@@ -170,7 +170,7 @@ def test_activeness_probes_cant_have_multiple(db):
 
     with session_scope() as session:
         # we can create one
-        first_probe = ActivenessProbe(user_id=user.id, reminders_sent=0)
+        first_probe = ActivenessProbe(user_id=user.id)
         session.add(first_probe)
         session.commit()
 
@@ -180,12 +180,12 @@ def test_activeness_probes_cant_have_multiple(db):
         session.commit()
 
         # can create another one
-        session.add(ActivenessProbe(user_id=user.id, reminders_sent=0))
+        session.add(ActivenessProbe(user_id=user.id))
         session.commit()
 
     # can't create one more
     with pytest.raises(IntegrityError) as e:
         with session_scope() as session:
-            session.add(ActivenessProbe(user_id=user.id, reminders_sent=0))
+            session.add(ActivenessProbe(user_id=user.id))
             session.commit()
     assert "violates unique constraint" in str(e.value)

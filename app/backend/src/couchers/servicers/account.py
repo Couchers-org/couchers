@@ -624,7 +624,7 @@ class Account(account_pb2_grpc.AccountServicer):
         ).scalar_one_or_none()
 
         if not probe:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PROBE)
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.PROBE_NOT_FOUND)
 
         if request.response == account_pb2.ACTIVENESS_PROBE_RESPONSE_STILL_ACTIVE:
             probe.response = ActivenessProbeStatus.still_active
@@ -636,6 +636,8 @@ class Account(account_pb2_grpc.AccountServicer):
 
             if user.meetup_status == MeetupStatus.wants_to_meetup:
                 user.meetup_status = MeetupStatus.open_to_meetup
+        else:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.PROBE_RESPONSE_INVALID)
 
         probe.responded = func.now()
 

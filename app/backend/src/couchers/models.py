@@ -460,7 +460,7 @@ class ActivenessProbe(Base):
     # the time this probe was initiated
     probe_initiated = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     # the number of reminders sent for this probe
-    reminders_sent = Column(BigInteger, nullable=False)
+    notifications_sent = Column(Integer, nullable=False, server_default="0")
 
     # the time of response
     responded = Column(DateTime(timezone=True), nullable=True, default=None)
@@ -2318,6 +2318,8 @@ class NotificationTopicAction(enum.Enum):
     host_request__cancel = ("host_request:cancel", dt_all, True, nd.HostRequestCancel)
     host_request__message = ("host_request:message", [dt.push, dt.digest], True, nd.HostRequestMessage)
     host_request__missed_messages = ("host_request:missed_messages", [dt.email], True, nd.HostRequestMissedMessages)
+
+    activeness__probe = ("activeness:probe", dt_sec, False, nd.ActivenessProbe)
 
     # you receive a friend ref
     reference__receive_friend = ("reference:receive_friend", dt_all, True, nd.ReferenceReceiveFriend)

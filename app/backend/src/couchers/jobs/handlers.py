@@ -30,7 +30,7 @@ from couchers.models import (
     ClusterSubscription,
     Float,
     GroupChat,
-    GroupChatSubscription,
+    GroupChatSubscription,ActivenessProbe,
     HostingStatus,
     HostRequest,
     Invoice,
@@ -896,14 +896,44 @@ finalize_strong_verification.PAYLOAD = jobs_pb2.FinalizeStrongVerificationPayloa
 
 def send_activeness_probes(payload):
     with session_scope() as session:
-        session.execute(
-            select(User.id)
+        ## Step 1: create new activeness probes for those who need it and don't have one
+
+        # current activeness probes
+        subquery = (
+            select(
+                ActivenessProbe.user_id
+            )
+            .where(ActivenessProbe.responded == None)
+            .subquery()
+        )
+
+        # users who we should send an activeness probe to
+        users = session.execute(
+            select(User)
             .where(User.is_visible)
             .where(User.hosting_status == HostingStatus.can_host)
             .where(User.last_active < func.now() - ACTIVENESS_PROBE_INACTIVITY_PERIOD)
+            .where(User.id.not_in(select(subquery.c.user_id)))
         ).scalars().all()
+
+        for user in users:
+            session.add(ActivenessProbe(user_id=user.id))
+        session.commit()
+
+        ## Step 2: actually send out probe notifications
+
     # ACTIVENESS_PROBE_TIME_REMINDERS
 
+    context = SimpleNamespace(user_id=user.id)
+    notify(
+        session,
+        user_id=user.id,
+        topic_action="activeness:probe",
+        key=ActivenessProbe.id,
+        data=notification_data_pb2.ActivenessProbe(
+            reminder_number=todo,
+        ),
+    )
 
 send_activeness_probes.PAYLOAD = empty_pb2.Empty
 send_activeness_probes.SCHEDULE = timedelta(minutes=60)
