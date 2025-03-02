@@ -47,3 +47,5 @@ def upgrade():
         postgresql_where=sa.text("responded IS NULL"),
     )
     op.create_index(op.f("ix_activeness_probes_user_id"), "activeness_probes", ["user_id"], unique=False)
+
+    op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'activeness__probe'")
