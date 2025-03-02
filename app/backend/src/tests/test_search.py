@@ -14,9 +14,9 @@ from tests.test_fixtures import (  # noqa
     events_session,
     generate_user,
     search_session,
-    session_scope,
     testconfig,
 )
+from tests.test_references import create_friend_reference
 
 
 @pytest.fixture(autouse=True)
@@ -211,18 +211,41 @@ def test_user_filter_language(db):
 
 
 def test_user_filter_strong_verification(db):
-    user1, token11 = generate_user()
+    user1, token1 = generate_user()
     user2, _ = generate_user(strong_verification=True)
     user3, _ = generate_user()
     user4, _ = generate_user(strong_verification=True)
     user5, _ = generate_user(strong_verification=True)
 
-    with search_session(token11) as api:
+    with search_session(token1) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(only_with_strong_verification=False))
         assert [result.user.user_id for result in res.results] == [user1.id, user2.id, user3.id, user4.id, user5.id]
 
         res = api.UserSearch(search_pb2.UserSearchReq(only_with_strong_verification=True))
         assert [result.user.user_id for result in res.results] == [user2.id, user4.id, user5.id]
+
+
+def test_regression_search_only_with_references(db):
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    user4, _ = generate_user(delete_user=True)
+
+    with session_scope() as session:
+        # user 2 has references
+        create_friend_reference(session, user1.id, user2.id, timedelta(days=1))
+        create_friend_reference(session, user3.id, user2.id, timedelta(days=1))
+        create_friend_reference(session, user4.id, user2.id, timedelta(days=1))
+
+        # user 3 only has reference from a deleted user
+        create_friend_reference(session, user4.id, user3.id, timedelta(days=1))
+
+    with search_session(token1) as api:
+        res = api.UserSearch(search_pb2.UserSearchReq(only_with_references=False))
+        assert [result.user.user_id for result in res.results] == [user1.id, user2.id, user3.id]
+
+        res = api.UserSearch(search_pb2.UserSearchReq(only_with_references=True))
+        assert [result.user.user_id for result in res.results] == [user2.id]
 
 
 @pytest.fixture
