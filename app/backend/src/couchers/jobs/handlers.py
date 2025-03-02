@@ -15,7 +15,7 @@ from sqlalchemy.sql import and_, case, cast, delete, distinct, extract, func, li
 from sqlalchemy.sql.functions import percentile_disc
 
 from couchers.config import config
-from couchers.constants import ACTIVENESS_PROBE_INACTIVITY_PERIOD
+from couchers.constants import ACTIVENESS_PROBE_INACTIVITY_PERIOD, ACTIVENESS_PROBE_TIME_REMINDERS
 from couchers.crypto import asym_encrypt, b64decode, simple_decrypt
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
@@ -25,16 +25,19 @@ from couchers.materialized_views import refresh_materialized_views, refresh_mate
 from couchers.metrics import strong_verification_completions_counter
 from couchers.models import (
     AccountDeletionToken,
+    ActivenessProbe,
+    ActivenessProbeStatus,
     Cluster,
     ClusterRole,
     ClusterSubscription,
     Float,
     GroupChat,
-    GroupChatSubscription,ActivenessProbe,
+    GroupChatSubscription,
     HostingStatus,
     HostRequest,
     Invoice,
     LoginToken,
+    MeetupStatus,
     Message,
     MessageType,
     PassportSex,
@@ -899,41 +902,72 @@ def send_activeness_probes(payload):
         ## Step 1: create new activeness probes for those who need it and don't have one
 
         # current activeness probes
-        subquery = (
-            select(
-                ActivenessProbe.user_id
-            )
-            .where(ActivenessProbe.responded == None)
-            .subquery()
-        )
+        subquery = select(ActivenessProbe.user_id).where(ActivenessProbe.responded == None).subquery()
 
         # users who we should send an activeness probe to
-        users = session.execute(
-            select(User)
-            .where(User.is_visible)
-            .where(User.hosting_status == HostingStatus.can_host)
-            .where(User.last_active < func.now() - ACTIVENESS_PROBE_INACTIVITY_PERIOD)
-            .where(User.id.not_in(select(subquery.c.user_id)))
-        ).scalars().all()
+        new_probe_user_ids = (
+            session.execute(
+                select(User.id)
+                .where(User.is_visible)
+                .where(User.hosting_status == HostingStatus.can_host)
+                .where(User.last_active < func.now() - ACTIVENESS_PROBE_INACTIVITY_PERIOD)
+                .where(User.id.not_in(select(subquery.c.user_id)))
+            )
+            .scalars()
+            .all()
+        )
 
-        for user in users:
-            session.add(ActivenessProbe(user_id=user.id))
+        for user_id in new_probe_user_ids:
+            session.add(ActivenessProbe(user_id=user_id))
+
         session.commit()
 
         ## Step 2: actually send out probe notifications
+        for probe_number_minus_1, delay in enumerate(ACTIVENESS_PROBE_TIME_REMINDERS):
+            probes = (
+                session.execute(
+                    select(ActivenessProbe)
+                    .where(ActivenessProbe.notifications_sent == probe_number_minus_1)
+                    .where(ActivenessProbe.probe_initiated < func.now() - delay)
+                    .where(ActivenessProbe.is_pending)
+                )
+                .scalars()
+                .all()
+            )
 
-    # ACTIVENESS_PROBE_TIME_REMINDERS
+            for probe in probes:
+                probe.notifications_sent = probe_number_minus_1 + 1
+                context = SimpleNamespace(user_id=probe.user.id)
+                notify(
+                    session,
+                    user_id=probe.user.id,
+                    topic_action="activeness:probe",
+                    key=ActivenessProbe.id,
+                    data=notification_data_pb2.ActivenessProbe(
+                        reminder_number=probe_number_minus_1 + 1,
+                    ),
+                )
+                session.commit()
 
-    context = SimpleNamespace(user_id=user.id)
-    notify(
-        session,
-        user_id=user.id,
-        topic_action="activeness:probe",
-        key=ActivenessProbe.id,
-        data=notification_data_pb2.ActivenessProbe(
-            reminder_number=todo,
-        ),
-    )
+        ## Step 3: for those who haven't responded, mark them as failed
+        expired_probes = (
+            session.execute(
+                select(ActivenessProbe)
+                .where(ActivenessProbe.notifications_sent == len(ACTIVENESS_PROBE_TIME_REMINDERS))
+                .where(ActivenessProbe.is_pending)
+            )
+            .scalars()
+            .all()
+        )
+
+        for probe in expired_probes:
+            probe.responded = now()
+            probe.response = ActivenessProbeStatus.expired
+            probe.user.hosting_status = HostingStatus.cant_host
+            if probe.user.meetup_status == MeetupStatus.wants_to_meetup:
+                probe.user.meetup_status = MeetupStatus.open_to_meetup
+            session.commit()
+
 
 send_activeness_probes.PAYLOAD = empty_pb2.Empty
 send_activeness_probes.SCHEDULE = timedelta(minutes=60)

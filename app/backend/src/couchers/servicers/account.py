@@ -32,12 +32,8 @@ from couchers.metrics import (
 from couchers.models import (
     AccountDeletionReason,
     AccountDeletionToken,
-    ActivenessProbe,
-    ActivenessProbeStatus,
     ContributeOption,
     ContributorForm,
-    HostingStatus,
-    MeetupStatus,
     ModNote,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
@@ -615,31 +611,6 @@ class Account(account_pb2_grpc.AccountServicer):
             .execution_options(synchronize_session=False)
         )
         return empty_pb2.Empty()
-
-    def RespondToActivenessProbe(self, request, context, session):
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-
-        probe = session.execute(
-            select(ActivenessProbe).where(ActivenessProbe.user_id == user.id).where(ActivenessProbe.responded == None)
-        ).scalar_one_or_none()
-
-        if not probe:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.PROBE_NOT_FOUND)
-
-        if request.response == account_pb2.ACTIVENESS_PROBE_RESPONSE_STILL_ACTIVE:
-            probe.response = ActivenessProbeStatus.still_active
-        elif request.response == account_pb2.ACTIVENESS_PROBE_RESPONSE_NO_LONGER_ACTIVE:
-            probe.response = ActivenessProbeStatus.no_longer_active
-
-            # disable hosting and downgrade from wants_to_meetup if applicable
-            user.hosting_status = HostingStatus.cant_host
-
-            if user.meetup_status == MeetupStatus.wants_to_meetup:
-                user.meetup_status = MeetupStatus.open_to_meetup
-        else:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.PROBE_RESPONSE_INVALID)
-
-        probe.responded = func.now()
 
 
 class Iris(iris_pb2_grpc.IrisServicer):

@@ -356,12 +356,29 @@ class User(Base):
         return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 150)
 
     @hybrid_property
+    def jailed_missing_tos(self):
+        return self.accepted_tos < TOS_VERSION
+
+    @hybrid_property
+    def jailed_missing_community_guidelines(self):
+        return self.accepted_community_guidelines < GUIDELINES_VERSION
+
+    @hybrid_property
+    def jailed_pending_mod_notes(self):
+        return self.mod_notes.where(ModNote.is_pending).count() > 0
+
+    @hybrid_property
+    def jailed_pending_activeness_probe(self):
+        return self.pending_activeness_probe != None
+
+    @hybrid_property
     def is_jailed(self):
         return (
-            (self.accepted_tos < TOS_VERSION)
-            | (self.accepted_community_guidelines < GUIDELINES_VERSION)
+            self.jailed_missing_tos
+            | self.jailed_missing_community_guidelines
             | self.is_missing_location
-            | (self.mod_notes.where(ModNote.is_pending).count() > 0)
+            | self.jailed_pending_mod_notes
+            | self.jailed_pending_activeness_probe
         )
 
     @hybrid_property
@@ -467,7 +484,16 @@ class ActivenessProbe(Base):
     # the response value
     response = Column(Enum(ActivenessProbeStatus), nullable=False, default=ActivenessProbeStatus.pending)
 
-    user = relationship("User", backref="activeness_probes")
+    @hybrid_property
+    def is_pending(self):
+        return self.responded == None
+
+    user = relationship(
+        "User",
+        primaryjoin="and_(ActivenessProbe.user_id == User.id, ActivenessProbe.is_pending)",
+        backref=backref("pending_activeness_probe", uselist=False),
+        uselist=False,
+    )
 
     __table_args__ = (
         # a user can have at most one pending activeness probe at a time

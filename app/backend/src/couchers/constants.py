@@ -37,5 +37,7 @@ UNDELETE_DAYS = 7
 # activeness probe settings
 # wait about 11 months before sending one out
 ACTIVENESS_PROBE_INACTIVITY_PERIOD = timedelta(days=333)
-# times at which to send notifications after inactivity
-ACTIVENESS_PROBE_TIME_REMINDERS = [timedelta(days=0), timedelta(days=3, hours=8), timedelta(days=8, hours=16)]
+# times at which to send notifications after inactivity (cumulative since start of probe)
+ACTIVENESS_PROBE_TIME_REMINDERS = [timedelta(days=0), timedelta(days=3, hours=8)]
+# time after the last reminder after which to expire the probe
+ACTIVENESS_PROBE_EXPIRY_TIME = timedelta(days=7)

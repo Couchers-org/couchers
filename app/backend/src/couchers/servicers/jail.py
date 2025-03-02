@@ -4,7 +4,7 @@ import grpc
 
 from couchers import errors
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
-from couchers.models import ModNote, User
+from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, MeetupStatus, ModNote, User
 from couchers.servicers.account import mod_note_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now
@@ -14,15 +14,13 @@ logger = logging.getLogger(__name__)
 
 
 def _get_jail_info(session, user):
-    pending_notes = (
-        session.execute(select(ModNote).where(ModNote.user_id == user.id).where(ModNote.is_pending)).scalars().all()
-    )
     res = jail_pb2.JailInfoRes(
-        has_not_accepted_tos=user.accepted_tos < TOS_VERSION,
+        has_not_accepted_tos=user.jailed_missing_tos,
         has_not_added_location=user.is_missing_location,
-        has_not_accepted_community_guidelines=user.accepted_community_guidelines < GUIDELINES_VERSION,
-        has_pending_mod_notes=len(pending_notes) > 0,
-        pending_mod_notes=[mod_note_to_pb(note) for note in pending_notes],
+        has_not_accepted_community_guidelines=user.jailed_missing_community_guidelines,
+        has_pending_mod_notes=user.jailed_pending_mod_notes,
+        pending_mod_notes=[mod_note_to_pb(note) for note in user.mod_notes.where(ModNote.is_pending)],
+        has_pending_activeness_probe=user.jailed_pending_activeness_probe,
     )
 
     # if any of the bools in res are true, we're jailed
@@ -103,6 +101,34 @@ class Jail(jail_pb2_grpc.JailServicer):
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MOD_NOTE_NEED_TO_ACKNOWELDGE)
 
         note.acknowledged = now()
+        session.flush()
+
+        return _get_jail_info(session, user)
+
+    def RespondToActivenessProbe(self, request, context, session):
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+        probe = session.execute(
+            select(ActivenessProbe).where(ActivenessProbe.user_id == user.id).where(ActivenessProbe.responded == None)
+        ).scalar_one_or_none()
+
+        if not probe:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.PROBE_NOT_FOUND)
+
+        if request.response == jail_pb2.ACTIVENESS_PROBE_RESPONSE_STILL_ACTIVE:
+            probe.response = ActivenessProbeStatus.still_active
+        elif request.response == jail_pb2.ACTIVENESS_PROBE_RESPONSE_NO_LONGER_ACTIVE:
+            probe.response = ActivenessProbeStatus.no_longer_active
+
+            # disable hosting and downgrade from wants_to_meetup if applicable
+            user.hosting_status = HostingStatus.cant_host
+
+            if user.meetup_status == MeetupStatus.wants_to_meetup:
+                user.meetup_status = MeetupStatus.open_to_meetup
+        else:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.PROBE_RESPONSE_INVALID)
+
+        probe.responded = now()
         session.flush()
 
         return _get_jail_info(session, user)
