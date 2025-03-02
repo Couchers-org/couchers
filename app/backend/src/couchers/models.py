@@ -460,10 +460,10 @@ class ActivenessProbe(Base):
     # the time this probe was initiated
     probe_initiated = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     # the number of reminders sent for this probe
-    reminders_sent = Column(BigInteger, nullable=False, unique=True)
+    reminders_sent = Column(BigInteger, nullable=False)
 
     # the time of response
-    response_time = Column(DateTime(timezone=True), nullable=True, default=None)
+    responded = Column(DateTime(timezone=True), nullable=True, default=None)
     # the response value
     response = Column(Enum(ActivenessProbeStatus), nullable=False, default=ActivenessProbeStatus.pending)
 
@@ -475,12 +475,12 @@ class ActivenessProbe(Base):
             "ix_activeness_probe_unique_pending_response",
             user_id,
             unique=True,
-            postgresql_where=response_time == None,
+            postgresql_where=responded == None,
         ),
         # response time is none iff response is pending
         CheckConstraint(
-            "(response_time IS NULL AND response = 'pending') OR (response_time IS NOT NULL AND response != 'pending')",
-            name="pending_has_no_response_time",
+            "(responded IS NULL AND response = 'pending') OR (responded IS NOT NULL AND response != 'pending')",
+            name="pending_has_no_responded",
         ),
     )
 
