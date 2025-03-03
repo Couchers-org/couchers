@@ -503,10 +503,10 @@
   resolved "https://registry.yarnpkg.com/@fontsource/mansalva/-/mansalva-5.2.5.tgz#278f80e9be5b69532b10170164f0f08cbb9bd1c5"
   integrity sha512-559ImUvBeyEWeGjSoBLyDYWgRXnP7U6x2YBH6JlTodtOKCfzeqFpfPt+tCQHeHwK4W24Z9Q/sPRXCo62444GdQ==
 
-"@fontsource/ubuntu@^5.1.1":
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/@fontsource/ubuntu/-/ubuntu-5.1.1.tgz#818d9a722c4b8ebb202bddedc9d1519f15c8f3d6"
-  integrity sha512-ghyIHIsqbBkUMA3zjvCIQENHl4CEhNgKrVxsuuC46XKw5Yfiy4C3W/A0eLGBR4+yre39b/1sVVsjK6VByVMAtg==
+"@fontsource/ubuntu@^5.2.5":
+  version "5.2.5"
+  resolved "https://registry.yarnpkg.com/@fontsource/ubuntu/-/ubuntu-5.2.5.tgz#cd3745524134505608be8779477319bcf6a73db9"
+  integrity sha512-VKVFVqmJ9MGnOJW2dsQ982qHN8Zr+tNeEwEHnzt5VdGi9ZWL37wYFD32YsqukWlI/+I7v5ZkgHTEAvsZxU6aDA==
 
 "@humanwhocodes/config-array@^0.13.0":
   version "0.13.0"
