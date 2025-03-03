@@ -202,8 +202,7 @@
   "sleeping_arrangement": {
     "private": "Privater Raum",
     "common": "Gemeinschaftsbereich",
-    "shared_room": "Geteiltes Zimmer",
-    "shared_space": "Geteilter bereich"
+    "shared_room": "Geteiltes Zimmer"
   },
   "edit_profile_name_required": "Name benötigt",
   "parking_details": {

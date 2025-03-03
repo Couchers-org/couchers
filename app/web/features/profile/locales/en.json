@@ -106,8 +106,7 @@
   "sleeping_arrangement": {
     "private": "Private space",
     "common": "Common area",
-    "shared_room": "Shared room",
-    "shared_space": "Shared space"
+    "shared_room": "Shared room"
   },
   "parking_details": {
     "free_onsite": "Free onsite parking",
