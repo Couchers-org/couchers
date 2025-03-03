@@ -488,12 +488,7 @@ class ActivenessProbe(Base):
     def is_pending(self):
         return self.responded == None
 
-    user = relationship(
-        "User",
-        primaryjoin="and_(ActivenessProbe.user_id == User.id, ActivenessProbe.is_pending)",
-        backref=backref("pending_activeness_probe", uselist=False),
-        uselist=False,
-    )
+    user = relationship("User", back_populates="pending_activeness_probe")
 
     __table_args__ = (
         # a user can have at most one pending activeness probe at a time
@@ -509,6 +504,14 @@ class ActivenessProbe(Base):
             name="pending_has_no_responded",
         ),
     )
+
+
+User.pending_activeness_probe = relationship(
+    ActivenessProbe,
+    primaryjoin="and_(ActivenessProbe.user_id == User.id, ActivenessProbe.is_pending)",
+    uselist=False,
+    back_populates="user",
+)
 
 
 class StrongVerificationAttemptStatus(enum.Enum):

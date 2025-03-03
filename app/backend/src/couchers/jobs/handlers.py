@@ -15,7 +15,11 @@ from sqlalchemy.sql import and_, case, cast, delete, distinct, extract, func, li
 from sqlalchemy.sql.functions import percentile_disc
 
 from couchers.config import config
-from couchers.constants import ACTIVENESS_PROBE_INACTIVITY_PERIOD, ACTIVENESS_PROBE_TIME_REMINDERS
+from couchers.constants import (
+    ACTIVENESS_PROBE_EXPIRY_TIME,
+    ACTIVENESS_PROBE_INACTIVITY_PERIOD,
+    ACTIVENESS_PROBE_TIME_REMINDERS,
+)
 from couchers.crypto import asym_encrypt, b64decode, simple_decrypt
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
@@ -929,7 +933,7 @@ def send_activeness_probes(payload):
                 session.execute(
                     select(ActivenessProbe)
                     .where(ActivenessProbe.notifications_sent == probe_number_minus_1)
-                    .where(ActivenessProbe.probe_initiated < func.now() - delay)
+                    .where(ActivenessProbe.probe_initiated + delay < func.now())
                     .where(ActivenessProbe.is_pending)
                 )
                 .scalars()
@@ -943,7 +947,7 @@ def send_activeness_probes(payload):
                     session,
                     user_id=probe.user.id,
                     topic_action="activeness:probe",
-                    key=ActivenessProbe.id,
+                    key=probe.id,
                     data=notification_data_pb2.ActivenessProbe(
                         reminder_number=probe_number_minus_1 + 1,
                     ),
@@ -956,6 +960,7 @@ def send_activeness_probes(payload):
                 select(ActivenessProbe)
                 .where(ActivenessProbe.notifications_sent == len(ACTIVENESS_PROBE_TIME_REMINDERS))
                 .where(ActivenessProbe.is_pending)
+                .where(ActivenessProbe.probe_initiated + ACTIVENESS_PROBE_EXPIRY_TIME < func.now())
             )
             .scalars()
             .all()
@@ -964,7 +969,8 @@ def send_activeness_probes(payload):
         for probe in expired_probes:
             probe.responded = now()
             probe.response = ActivenessProbeStatus.expired
-            probe.user.hosting_status = HostingStatus.cant_host
+            if probe.user.hosting_status == HostingStatus.can_host:
+                probe.user.hosting_status = HostingStatus.may_host
             if probe.user.meetup_status == MeetupStatus.wants_to_meetup:
                 probe.user.meetup_status = MeetupStatus.open_to_meetup
             session.commit()

@@ -826,5 +826,17 @@ def render_notification(user, notification) -> RenderedNotification:
             push_icon=urls.icon_url(),
             push_url=urls.account_settings_link(),
         )
+    elif notification.topic_action.display == "activeness:probe":
+        title = "Are you still hosting on Couchers.org?"
+        return RenderedNotification(
+            email_subject=title,
+            email_preview=title,
+            email_template_name="activeness_probe",
+            email_template_args={"app_link": urls.app_link()},
+            push_title=title,
+            push_body="Please log back in and let us know if you are still open to hosting!",
+            push_icon=urls.icon_url(),
+            push_url=urls.app_link(),
+        )
     else:
         raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")

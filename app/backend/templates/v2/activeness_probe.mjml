@@ -1,0 +1,19 @@
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text>It's been a while since you logged in to Couchers.org, and we just wanted to check if you are still actively hosting surfers?</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ app_link|v2url }}">
+      <b>Log back in to respond</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>These hosting check-ins help us keep track of who is still open to hosting which helps surfers find hosts easier, and helps us figure out how quickly you respond to requests!</mj-text>
+    <mj-text>Best,<br />The Couchers.org Team</mj-text>
+  </mj-column>
+</mj-section>
