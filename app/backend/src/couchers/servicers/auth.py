@@ -31,7 +31,6 @@ from couchers.tasks import (
 )
 from couchers.utils import (
     create_coordinate,
-    create_persistent_cookies,
     create_session_cookies,
     is_valid_email,
     is_valid_name,
@@ -92,10 +91,8 @@ def create_session(context, session, user, long_lived, is_api_key=False, duratio
     logger.debug(f"Handing out {token=} to {user=}")
 
     if set_cookie:
-        # combine session cookies and persistent cookies
-        cookie_metadata = [("set-cookie", cookie) for cookie in create_session_cookies(token, user.id, user_session.expiry)] + [("set-cookie", cookie) for cookie in create_persistent_cookies(user.ui_language_preference)] 
         context.send_initial_metadata(
-            cookie_metadata
+            [("set-cookie", cookie) for cookie in create_session_cookies(token, user.id, user_session.expiry)]
         )
 
     logins_counter.labels(user.gender).inc()
