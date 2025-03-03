@@ -899,28 +899,29 @@ finalize_strong_verification.PAYLOAD = jobs_pb2.FinalizeStrongVerificationPayloa
 
 def send_activeness_probes(payload):
     with session_scope() as session:
-        ## Step 1: create new activeness probes for those who need it and don't have one
+        ## Step 1: create new activeness probes for those who need it and don't have one (if enabled)
 
-        # current activeness probes
-        subquery = select(ActivenessProbe.user_id).where(ActivenessProbe.responded == None).subquery()
+        if config["ACTIVENESS_PROBES_ENABLED"]:
+            # current activeness probes
+            subquery = select(ActivenessProbe.user_id).where(ActivenessProbe.responded == None).subquery()
 
-        # users who we should send an activeness probe to
-        new_probe_user_ids = (
-            session.execute(
-                select(User.id)
-                .where(User.is_visible)
-                .where(User.hosting_status == HostingStatus.can_host)
-                .where(User.last_active < func.now() - ACTIVENESS_PROBE_INACTIVITY_PERIOD)
-                .where(User.id.not_in(select(subquery.c.user_id)))
+            # users who we should send an activeness probe to
+            new_probe_user_ids = (
+                session.execute(
+                    select(User.id)
+                    .where(User.is_visible)
+                    .where(User.hosting_status == HostingStatus.can_host)
+                    .where(User.last_active < func.now() - ACTIVENESS_PROBE_INACTIVITY_PERIOD)
+                    .where(User.id.not_in(select(subquery.c.user_id)))
+                )
+                .scalars()
+                .all()
             )
-            .scalars()
-            .all()
-        )
 
-        for user_id in new_probe_user_ids:
-            session.add(ActivenessProbe(user_id=user_id))
+            for user_id in new_probe_user_ids:
+                session.add(ActivenessProbe(user_id=user_id))
 
-        session.commit()
+            session.commit()
 
         ## Step 2: actually send out probe notifications
         for probe_number_minus_1, delay in enumerate(ACTIVENESS_PROBE_TIME_REMINDERS):

@@ -145,6 +145,13 @@
       "description": "The moderators have sent you the following note. Please read it carefully and acknowledge that you have read and understood it before continuing.",
       "note_title": "Mod note received on {{time}}:",
       "acknowledge": "Acknowledge note"
+    },
+    "activeness_probe": {
+      "title": "Are you still hosting surfers?",
+      "description": "It's been a while since you last logged in, so we just want to check in to see if you are still open to hosting travelers!",
+      "still_hosting": "I'm still hosting!",
+      "not_hosting": "I'm no longer open to hosting.",
+      "note": "We'll updated your profile to match this choice!"
     }
   },
   "logged_out_message": "You were logged out.",

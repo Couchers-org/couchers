@@ -16,6 +16,7 @@ import React, { useEffect, useState } from "react";
 import { loginRoute } from "routes";
 import { service } from "service";
 
+import ActivenessProbeSection from "./ActivenessProbeSection";
 import ModNoteSection from "./ModNoteSection";
 
 const StyledContainer = styled("div")(({ theme }) => ({
@@ -83,6 +84,11 @@ export default function Jail() {
       {jailInfo?.hasNotAddedLocation && (
         <StyledContainer>
           <LocationSection updateJailed={updateJailed} />
+        </StyledContainer>
+      )}
+      {jailInfo?.hasPendingActivenessProbe && (
+        <StyledContainer>
+          <ActivenessProbeSection updateJailed={updateJailed} />
         </StyledContainer>
       )}
     </>

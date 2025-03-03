@@ -3,6 +3,8 @@ import {
   AcceptCommunityGuidelinesReq,
   AcceptTOSReq,
   AcknowledgePendingModNoteReq,
+  ActivenessProbeResponse,
+  RespondToActivenessProbeReq,
   SetLocationReq,
 } from "proto/jail_pb";
 
@@ -60,5 +62,14 @@ export async function acknowledgePendingModNote(
   req.setNoteId(modNoteId);
   req.setAcknowledge(acknowledge);
   const res = await client.jail.acknowledgePendingModNote(req);
+  return { isJailed: res.getJailed() };
+}
+
+export async function respondToActivenessProbe(
+  response: ActivenessProbeResponse,
+) {
+  const req = new RespondToActivenessProbeReq();
+  req.setResponse(response);
+  const res = await client.jail.respondToActivenessProbe(req);
   return { isJailed: res.getJailed() };
 }
