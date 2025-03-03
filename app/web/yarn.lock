@@ -498,10 +498,10 @@
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.9.tgz#50dea3616bc8191fb8e112283b49eaff03e78429"
   integrity sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==
 
-"@fontsource/mansalva@^5.1.1":
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/@fontsource/mansalva/-/mansalva-5.1.1.tgz#cd02db457e40ab7f11e0c17a8ff98e08562d98c6"
-  integrity sha512-Fzezu1MDuU6HFAWC+ST1bXulS7nvbxJ+mEhpaDmXEoXn/N0RYQSIYFt9d2V9CerTgZSCcLfkJBLj5+EL1uxCmQ==
+"@fontsource/mansalva@^5.2.5":
+  version "5.2.5"
+  resolved "https://registry.yarnpkg.com/@fontsource/mansalva/-/mansalva-5.2.5.tgz#278f80e9be5b69532b10170164f0f08cbb9bd1c5"
+  integrity sha512-559ImUvBeyEWeGjSoBLyDYWgRXnP7U6x2YBH6JlTodtOKCfzeqFpfPt+tCQHeHwK4W24Z9Q/sPRXCo62444GdQ==
 
 "@fontsource/ubuntu@^5.1.1":
   version "5.1.1"
