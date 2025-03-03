@@ -109,7 +109,7 @@ class Jail(jail_pb2_grpc.JailServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         probe = session.execute(
-            select(ActivenessProbe).where(ActivenessProbe.user_id == user.id).where(ActivenessProbe.responded == None)
+            select(ActivenessProbe).where(ActivenessProbe.user_id == user.id).where(ActivenessProbe.is_pending)
         ).scalar_one_or_none()
 
         if not probe:
