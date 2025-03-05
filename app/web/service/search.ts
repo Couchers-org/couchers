@@ -61,7 +61,10 @@ export async function userSearch(
   pageToken = "",
 ) {
   const req = new UserSearchReq();
-  req.setPageToken(pageToken);
+
+  if (pageToken) {
+    req.setPageToken(pageToken);
+  }
 
   if (acceptsKids) {
     req.setAcceptsKids(new BoolValue().setValue(acceptsKids));

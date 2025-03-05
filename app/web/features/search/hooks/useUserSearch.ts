@@ -30,7 +30,7 @@ export function useUserSearch(
         zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH ||
         mapSearchState.hasSearchInputValue,
       keepPreviousData: true,
-      getNextPageParam: (lastPage) => lastPage.nextPageToken ?? undefined,
+      getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     },
   );
 
