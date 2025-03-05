@@ -257,7 +257,6 @@
     "missing_payload_or_sig": "URL inválida",
     "error_message": "Error al anular la suscripción: {{message}}"
   },
-  "vercel_logo_alt_text": "Soportado por Vercel",
   "delete_account": {
     "request": {
       "confirm_username_explanation": "Tu usuario es <1>{{ username }}</1>, por favor, tecléalo abajo para confirmar la eliminación de tu cuenta.",

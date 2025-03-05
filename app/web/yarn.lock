@@ -498,15 +498,15 @@
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.9.tgz#50dea3616bc8191fb8e112283b49eaff03e78429"
   integrity sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==
 
-"@fontsource/mansalva@^5.1.1":
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/@fontsource/mansalva/-/mansalva-5.1.1.tgz#cd02db457e40ab7f11e0c17a8ff98e08562d98c6"
-  integrity sha512-Fzezu1MDuU6HFAWC+ST1bXulS7nvbxJ+mEhpaDmXEoXn/N0RYQSIYFt9d2V9CerTgZSCcLfkJBLj5+EL1uxCmQ==
+"@fontsource/mansalva@^5.2.5":
+  version "5.2.5"
+  resolved "https://registry.yarnpkg.com/@fontsource/mansalva/-/mansalva-5.2.5.tgz#278f80e9be5b69532b10170164f0f08cbb9bd1c5"
+  integrity sha512-559ImUvBeyEWeGjSoBLyDYWgRXnP7U6x2YBH6JlTodtOKCfzeqFpfPt+tCQHeHwK4W24Z9Q/sPRXCo62444GdQ==
 
-"@fontsource/ubuntu@^5.1.1":
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/@fontsource/ubuntu/-/ubuntu-5.1.1.tgz#818d9a722c4b8ebb202bddedc9d1519f15c8f3d6"
-  integrity sha512-ghyIHIsqbBkUMA3zjvCIQENHl4CEhNgKrVxsuuC46XKw5Yfiy4C3W/A0eLGBR4+yre39b/1sVVsjK6VByVMAtg==
+"@fontsource/ubuntu@^5.2.5":
+  version "5.2.5"
+  resolved "https://registry.yarnpkg.com/@fontsource/ubuntu/-/ubuntu-5.2.5.tgz#cd3745524134505608be8779477319bcf6a73db9"
+  integrity sha512-VKVFVqmJ9MGnOJW2dsQ982qHN8Zr+tNeEwEHnzt5VdGi9ZWL37wYFD32YsqukWlI/+I7v5ZkgHTEAvsZxU6aDA==
 
 "@humanwhocodes/config-array@^0.13.0":
   version "0.13.0"
@@ -1814,10 +1814,10 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
-"@stripe/stripe-js@^5.4.0":
-  version "5.6.0"
-  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-5.6.0.tgz#cbb5b5f6110f870ca7de7e8ea3d189e9525a1019"
-  integrity sha512-w8CEY73X/7tw2KKlL3iOk679V9bWseE4GzNz3zlaYxcTjmcmWOathRb0emgo/QQ3eoNzmq68+2Y2gxluAv3xGw==
+"@stripe/stripe-js@^5.7.0":
+  version "5.7.0"
+  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-5.7.0.tgz#ab4ce04a033e8a5bf9cddb9958aa2f85a3c8d22a"
+  integrity sha512-9pCOK3AH75hDKPRyJm9PO5TA3aHZ/PVlIBOZwpi6mABxwr6mMIBjqgZEUThIE5zFEkOmaKXwxBgTsVKC29x+mQ==
 
 "@swc/counter@^0.1.3":
   version "0.1.3"
@@ -4051,7 +4051,7 @@ expect@^29.0.0, expect@^29.7.0:
     jest-message-util "^29.7.0"
     jest-util "^29.7.0"
 
-express@^4.18.2:
+express@^4.21.2:
   version "4.21.2"
   resolved "https://registry.yarnpkg.com/express/-/express-4.21.2.tgz#cf250e48362174ead6cea4a566abef0162c1ec32"
   integrity sha512-28HqgMZAmih1Czt9ny7qr6ek2qddF4FclbMzwhCREB6OFfH+rXAnuNCwo1/wFvrtbgsQDb4kSbX9de9lFbrXnA==
@@ -7243,13 +7243,13 @@ send@0.19.0:
     range-parser "~1.2.1"
     statuses "2.0.1"
 
-sentry-testkit@^5.0.9:
-  version "5.0.9"
-  resolved "https://registry.yarnpkg.com/sentry-testkit/-/sentry-testkit-5.0.9.tgz#28356612116aff9c7f3398913cef63d677ac1b4a"
-  integrity sha512-b9oa3juBM3EXKDU/v5aL4HEC41yGxQZY4pluFN+nvRJLyvHc+JQWPWxxkOPAAr1vGY/4zH+V9NGS+ojIQkc88w==
+sentry-testkit@^5.0.10:
+  version "5.0.10"
+  resolved "https://registry.yarnpkg.com/sentry-testkit/-/sentry-testkit-5.0.10.tgz#b60648662af028a9e464499c1c8fd353f19a79fe"
+  integrity sha512-wpvt29IIK+L1Pe02uc0y7rJkXQcnIk46hvB02Zqd4UNgP2lIhzv80GjR2lu8RtsbAmf7LJnGz8zLuV3rVa69ew==
   dependencies:
     body-parser "^1.20.1"
-    express "^4.18.2"
+    express "^4.21.2"
 
 serve-static@1.16.2:
   version "1.16.2"
