@@ -2,13 +2,13 @@ import { User } from "proto/api_pb";
 import { UserSearchFilters } from "service/search";
 import { GeocodeResult } from "utils/hooks";
 
-import { FilterOptions, SearchOptions } from "./SearchPage";
+import { FilterOptions, SearchOptions } from "../SearchPage";
 import {
   Coordinates,
   DEFAULT_AGE_MAX,
   DEFAULT_AGE_MIN,
-} from "./utils/constants";
-import { getHasActiveFilters } from "./utils/mapUtils";
+} from "../utils/constants";
+import { getHasActiveFilters } from "../utils/mapUtils";
 
 /** WHY USE A REDUCER FOR OUR MAP STATE?
  * Mostly we use react-query for state management, which stores api responses as is in the browser cache.

@@ -8,8 +8,7 @@ import {
 } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { User } from "proto/api_pb";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { MapProvider } from "react-map-gl/maplibre";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
@@ -18,13 +17,9 @@ import DesktopMapView from "./DesktopMapView";
 import FilterDialog from "./FilterDialog";
 import { useSearchState } from "./hooks/useSearchState";
 import { useUserSearch } from "./hooks/useUserSearch";
-import { mapSearchActionTypes } from "./mapSearchReducers";
 import MobileMapView from "./MobileMapView";
-import {
-  getMapBounds,
-  mapFlyToLocation,
-  meetsApiSearchCriteria,
-} from "./utils/mapUtils";
+import { mapSearchActionTypes } from "./state/mapSearchReducers";
+import { getMapBounds, mapFlyToLocation } from "./utils/mapUtils";
 
 export type FilterOptions = {
   acceptsKids?: boolean;
@@ -95,54 +90,24 @@ export default function SearchPage({
     setIsFiltersOpen,
     searchType,
     setSearchType,
-    pageNumber,
-    setPageNumber,
     zoom,
     setZoom,
     mapSearchState,
     dispatch,
+    searchParams,
+    meetsSearchCriteria,
   } = useSearchState(locationName, bbox);
 
-  // useMemo to avoid unnecessary object reference changes - causing unnecessary rerenders
-  const searchParams = useMemo(
-    () => ({ ...mapSearchState.filters, ...mapSearchState.search }),
-    [mapSearchState.filters, mapSearchState.search],
-  );
-
   const {
-    data,
-    fetchPreviousPage,
     fetchNextPage,
+    fetchPreviousPage,
     isLoading,
     hasNextPage,
-    isFetching,
+    hasPreviousPage,
+    setPageNumber,
+    totalItems,
+    users,
   } = useUserSearch(searchParams, mapSearchState, zoom);
-
-  const formattedUsers = useMemo(
-    () =>
-      data?.pages[pageNumber]?.resultsList
-        ?.map((result) => result?.user)
-        .filter((user): user is User.AsObject => Boolean(user)) || [],
-    [data, pageNumber], // Only recompute if `data` or `pageNumber` changes
-  );
-
-  /** We don't have a previousPageToken on the backend, so for now we deterine
-   *  if we have a previous page by checking if the current page is greater than 0
-   *  and if the previous page has a nextPageToken.
-   */
-  const hasPreviousPage = useMemo(
-    () =>
-      formattedUsers.length > 0 &&
-      data?.pages[pageNumber - 1]?.nextPageToken !== undefined,
-    [data?.pages, formattedUsers.length, pageNumber],
-  );
-  const totalItems = data?.pages[0]?.totalItems ?? 0;
-
-  const meetsSearchCriteria = meetsApiSearchCriteria({
-    hasActiveFilters: mapSearchState.hasActiveFilters,
-    hasSearchInputValue: mapSearchState.hasSearchInputValue,
-    zoom,
-  });
 
   const flyToLocation = useCallback(
     ({ longitude, latitude, zoom }: FlyToLocationProps) => {
@@ -243,7 +208,7 @@ export default function SearchPage({
             hasActiveFilters={mapSearchState.hasActiveFilters}
             hasPreviousPage={hasPreviousPage}
             hasNextPage={hasNextPage}
-            isLoading={isLoading || isFetching}
+            isLoading={isLoading}
             locationName={locationName}
             meetsSearchCriteria={meetsSearchCriteria}
             onClearSearchInputValue={handleClearSearchInputValue}
@@ -254,7 +219,7 @@ export default function SearchPage({
             onSetSearchType={handleSetSearchType}
             searchType={searchType}
             totalItems={totalItems}
-            users={formattedUsers}
+            users={users}
           />
         )}
 
@@ -265,7 +230,7 @@ export default function SearchPage({
             hasNextPage={hasNextPage}
             hasSearchInputValue={mapSearchState.hasSearchInputValue}
             initialLocation={{ bbox, locationName }}
-            isLoading={isLoading || isFetching}
+            isLoading={isLoading}
             meetsSearchCriteria={meetsSearchCriteria}
             mapRef={mapRef}
             onClearFilters={handleClearFilters}
@@ -280,7 +245,7 @@ export default function SearchPage({
             searchType={searchType}
             selectedUserIds={mapSearchState.selectedUserIds}
             totalItems={totalItems}
-            users={formattedUsers}
+            users={users}
             zoom={zoom}
           />
         )}

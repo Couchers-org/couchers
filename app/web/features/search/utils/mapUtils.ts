@@ -2,8 +2,8 @@ import { FeatureCollection } from "geojson";
 import { User } from "proto/api_pb";
 import { MapRef } from "react-map-gl/maplibre";
 
-import { MapSearchState } from "../mapSearchReducers";
 import userPin from "../resources/userPin.png";
+import { MapSearchState } from "../state/mapSearchReducers";
 import { Coordinates, MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./constants";
 import { SOURCE_CLUSTERED_USERS_ID } from "./mapLayers";
 

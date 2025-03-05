@@ -1,14 +1,17 @@
 import { Coordinates, MapSearchTypes } from "features/search/utils/constants";
-import { useReducer, useRef, useState } from "react";
+import { useMemo, useReducer, useRef, useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
-import { initialState, mapSearchReducer } from "../mapSearchReducers";
+import { initialState, mapSearchReducer } from "../state/mapSearchReducers";
+import { meetsApiSearchCriteria } from "../utils/mapUtils";
 
-export function useSearchState(locationName: string | undefined, bbox: Coordinates | undefined) {
+export function useSearchState(
+  locationName: string | undefined,
+  bbox: Coordinates | undefined,
+) {
   const mapRef = useRef<MapRef | null>(null);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [searchType, setSearchType] = useState<MapSearchTypes>("location");
-  const [pageNumber, setPageNumber] = useState(0);
   const [zoom, setZoom] = useState(1);
 
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
@@ -18,17 +21,29 @@ export function useSearchState(locationName: string | undefined, bbox: Coordinat
     hasSearchBounds: Boolean(bbox),
   });
 
+  // useMemo to avoid unnecessary object reference changes - causing unnecessary rerenders
+  const searchParams = useMemo(
+    () => ({ ...mapSearchState.filters, ...mapSearchState.search }),
+    [mapSearchState.filters, mapSearchState.search],
+  );
+
+  const meetsSearchCriteria = meetsApiSearchCriteria({
+    hasActiveFilters: mapSearchState.hasActiveFilters,
+    hasSearchInputValue: mapSearchState.hasSearchInputValue,
+    zoom,
+  });
+
   return {
     mapRef,
     isFiltersOpen,
     setIsFiltersOpen,
     searchType,
     setSearchType,
-    pageNumber,
-    setPageNumber,
     zoom,
     setZoom,
     mapSearchState,
     dispatch,
+    searchParams,
+    meetsSearchCriteria,
   };
 }
