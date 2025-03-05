@@ -55,7 +55,7 @@ describe("Edit community page", () => {
       screen.getByLabelText(t("communities:page_content_field_label")),
     ).toBeVisible();
     expect(
-      screen.getByRole("button", { name: t("global:update") }),
+      screen.getByRole("button", { name: t("global:save") }),
     ).toBeVisible();
   });
 
@@ -84,7 +84,7 @@ describe("Edit community page", () => {
       screen.getByLabelText(t("communities:page_content_field_label")),
       " are great!",
     );
-    await user.click(screen.getByRole("button", { name: t("global:update") }));
+    await user.click(screen.getByRole("button", { name: t("global:save") }));
 
     const successAlert = await screen.findByRole("alert");
     expect(successAlert).toBeVisible();
@@ -108,7 +108,7 @@ describe("Edit community page", () => {
 
     const user = userEvent.setup();
 
-    await user.click(screen.getByRole("button", { name: t("global:update") }));
+    await user.click(screen.getByRole("button", { name: t("global:save") }));
 
     await assertErrorAlert(errorMessage);
   });
