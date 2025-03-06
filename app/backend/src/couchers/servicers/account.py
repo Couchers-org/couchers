@@ -52,6 +52,7 @@ from couchers.tasks import (
 )
 from couchers.utils import (
     Timestamp_from_datetime,
+    create_lang_cookie,
     dt_from_page_token,
     dt_to_page_token,
     is_valid_email,
@@ -248,8 +249,16 @@ class Account(account_pb2_grpc.AccountServicer):
 
         # update the user's preference
         user.ui_language_preference = request.ui_language_preference
-        # setting this on context will update the cookie (via interceptors)
+        # setting this on context will update the cookie (via interceptors)?
         context.ui_language_preference = request.ui_language_preference
+        expiry = now() + timedelta(days=400)
+
+        try:
+            context.send_initial_metadata(
+                [("set-cookie", cookie) for cookie in create_lang_cookie(context.ui_language_preference, expiry)]
+            )
+        except ValueError as e:
+            logger.info("Tried to send initial metadata but wasn't allowed to")
 
         return empty_pb2.Empty()
 
