@@ -57,7 +57,7 @@ describe("Events list", () => {
       screen.getByRole("button", { name: t("communities:create_an_event") }),
     ).toBeVisible();
     // High level check that there are 3 events cards
-    expect(screen.getAllByRole("link")).toHaveLength(4);
+    expect(screen.getAllByRole("link")).toHaveLength(3);
   });
 
   it("renders the empty state if there are no events", async () => {
@@ -119,7 +119,7 @@ describe("Events list", () => {
 
       await user.click(seeMoreEventsButton);
 
-      expect(screen.getAllByRole("link")).toHaveLength(4);
+      expect(screen.getAllByRole("link")).toHaveLength(3);
       expect(listCommunityEventsMock).toHaveBeenCalledTimes(2);
       expect(listCommunityEventsMock.mock.calls).toEqual([
         // [communityId, pageToken, pageSize]
