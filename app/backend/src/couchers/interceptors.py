@@ -226,7 +226,7 @@ class CookieInterceptor(grpc.ServerInterceptor):
 
             if context.ui_language_preference != cookie_ui_lang:
                 cookies.extend(
-                    [[("set-cookie", cookie) for cookie in create_lang_cookie(context.ui_language_preference, expiry)]]
+                    [("set-cookie", cookie) for cookie in create_lang_cookie(context.ui_language_preference, expiry)]
                 )
 
             try:
