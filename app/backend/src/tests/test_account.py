@@ -541,14 +541,17 @@ def test_ChangeLanguagePreference(db, fast_passwords):
 
         # call will have info about the request
         res, call = account.ChangeLanguagePreference.with_call(request)
-        
+
         # cookies are sent via initial metadata, so we check for it there
         metadata = dict(call.initial_metadata())
-        print(metadata.keys()) # ?? this is empty for some reason, so this test will fail :(
 
         assert "set-cookie" in metadata, "expected 'set-cookie' in initial metadata"
-        assert metadata["set-cookie"] == "couchers-lang=zh", f"expected 'couchers-lang=zh', got {metadata['set-cookie']}"
 
+        # the value of "set-cookie" will be the full cookie string, pull the key value from the string
+        key_val = metadata["set-cookie"].split(";")[0]
+        assert key_val == "couchers-lang=zh", f"expected 'couchers-lang=zh', got {key_val}"
+
+        # the changed language preference should also be sent to the backend
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.ui_language_preference == "zh"
 
