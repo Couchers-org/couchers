@@ -528,18 +528,27 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector):
     )
 
 
-def test_ChangePreferredLanguage(db, fast_passwords):
+def test_ChangeLanguagePreference(db, fast_passwords):
     # user changes from default to ISO 639-1 language code
     newLanguageCode = "zh"
     user, token = generate_user()
 
-    with account_session(token) as account:
+    with real_account_session(token) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.ui_language_preference == ""
 
-        account.ChangeLanguagePreference(
-            account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=newLanguageCode)
-        )
+        request = account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=newLanguageCode)
+
+        # call will have info about the request
+        res, call = account.ChangeLanguagePreference.with_call(request)
+        
+        # cookies are sent via initial metadata, so we check for it there
+        metadata = dict(call.initial_metadata())
+        print(metadata.keys()) # ?? this is empty for some reason, so this test will fail :(
+
+        assert "set-cookie" in metadata, "expected 'set-cookie' in initial metadata"
+        assert metadata["set-cookie"] == "couchers-lang=zh", f"expected 'couchers-lang=zh', got {metadata['set-cookie']}"
+
         res = account.GetAccountInfo(empty_pb2.Empty())
         assert res.ui_language_preference == "zh"
 
