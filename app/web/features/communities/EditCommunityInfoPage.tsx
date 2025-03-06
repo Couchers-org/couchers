@@ -11,6 +11,7 @@ import { communityKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { Page } from "proto/pages_pb";
 import { useForm } from "react-hook-form";
@@ -58,6 +59,7 @@ export default function EditCommunityPage({
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const classes = useStyles();
   const queryClient = useQueryClient();
+  const router = useRouter();
   const {
     control,
     handleSubmit,
@@ -99,6 +101,9 @@ export default function EditCommunityPage({
   const onSubmit = handleSubmit(
     (data) => {
       updatePage(data);
+      const currentPath = router.asPath;
+      const newPath = currentPath.replace("/edit", "");
+      router.push(newPath);
     },
     (errors) => {
       if (errors.communityPhotoKey) {
@@ -165,7 +170,7 @@ export default function EditCommunityPage({
                 className={classes.updateButton}
                 type="submit"
               >
-                {t("global:update")}
+                {t("global:save")}
               </Button>
             </form>
             {isSuccess && (
