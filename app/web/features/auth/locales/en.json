@@ -241,7 +241,8 @@
           "update": "An event you are attending is updated",
           "cancel": "An event you are attending is cancelled",
           "delete": "An event you are attending is deleted",
-          "invite_organizer": "Someone invites you to co-organize an event"
+          "invite_organizer": "Someone invites you to co-organize an event",
+          "comment":" A user comments on an event you are going to"
         },
         "onboarding": {
           "reminder": "Reminder to complete your profile after signing up"
