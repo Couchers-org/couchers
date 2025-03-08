@@ -2069,6 +2069,7 @@ def test_event_threads(db, push_collector):
         h = create_group(session, "Group", [user4], [], c)
         c_id = c.id
         h_id = h.id
+        user4_id = user4.id
 
     with events_session(token1) as api:
         event = api.CreateEvent(
@@ -2108,6 +2109,7 @@ def test_event_threads(db, push_collector):
 
     push_collector.assert_user_has_single_matching(user1.id, title=f'{user2.name} commented on "Dummy Title"')
     push_collector.assert_user_has_single_matching(user2.id, title="Dummy Title")
+    push_collector.assert_user_has_count(user4_id, 0)
 
 
 def test_can_overlap_other_events_schedule_regression(db):
