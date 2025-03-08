@@ -2102,9 +2102,12 @@ def test_event_threads(db, push_collector):
         assert ret.replies[0].author_user_id == user2.id
         assert ret.replies[0].num_replies == 0
 
+        api.PostReply(threads_pb2.PostReplyReq(thread_id=reply_id, content="what a silly comment"))
+
     process_jobs()
 
     push_collector.assert_user_has_single_matching(user1.id, title=f'{user2.name} commented on "Dummy Title"')
+    push_collector.assert_user_has_single_matching(user2.id, title="Dummy Title")
 
 
 def test_can_overlap_other_events_schedule_regression(db):
