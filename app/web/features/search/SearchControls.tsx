@@ -41,8 +41,6 @@ const SearchControls = ({
 
   const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
 
-
-
   return isMobile ? (
     <MobileSearchControls
       hasActiveFilters={hasActiveFilters}

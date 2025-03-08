@@ -29,6 +29,7 @@ enum mapSearchActionTypes {
   SET_FILTERS = "SET_FILTERS",
   RESET_FILTERS = "RESET_FILTERS",
   SET_SELECTED_USER_IDS = "SET_SELECTED_USER_IDS",
+  SET_ZOOM = "SET_ZOOM",
 }
 
 // Overall format of the map search state
@@ -42,6 +43,7 @@ type MapSearchState = {
     query?: string;
   };
   selectedUserIds: User.AsObject["userId"][];
+  zoom: number;
 };
 
 // The action types for the map search reducer
@@ -62,6 +64,10 @@ type MapSearchAction =
   | {
       type: mapSearchActionTypes.SET_SELECTED_USER_IDS;
       payload: { userId: User.AsObject["userId"] };
+    }
+  | {
+      type: mapSearchActionTypes.SET_ZOOM;
+      payload: { zoom: number };
     };
 
 const initialState: MapSearchState = {
@@ -89,6 +95,7 @@ const initialState: MapSearchState = {
     query: "",
   },
   selectedUserIds: [],
+  zoom: 1,
 };
 
 const mapSearchReducer = (
@@ -239,6 +246,12 @@ const mapSearchReducer = (
       return {
         ...state,
         selectedUserIds: [...currentSelectedUserIds, action.payload.userId],
+      };
+
+    case mapSearchActionTypes.SET_ZOOM:
+      return {
+        ...state,
+        zoom: action.payload.zoom,
       };
 
     default:

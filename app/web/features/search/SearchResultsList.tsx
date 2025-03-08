@@ -6,15 +6,15 @@ import { User } from "proto/api_pb";
 
 import PreviousNextPagination from "./PreviousNextPagination";
 import SearchResultUserCard from "./SeachResultUserCard";
+import { useMapSearchState } from "./state/MapSearchContext";
+import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
 
 interface SearchResultsListProps {
   hasNextPage?: boolean;
   hasPreviousPage?: boolean;
   isLoading?: boolean;
-  meetsSearchCriteria: boolean;
   onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
-  selectedUserIds?: User.AsObject["userId"][];
   totalItems?: number;
   users: User.AsObject[] | undefined;
 }
@@ -33,17 +33,23 @@ const StyledCardWrapper = styled(Box)(({ theme }) => ({
 }));
 
 const SearchResultsList = ({
-  meetsSearchCriteria,
   hasPreviousPage,
   hasNextPage,
   isLoading,
   onLoadPreviousPage,
   onLoadNextPage,
-  selectedUserIds,
   totalItems,
   users,
 }: SearchResultsListProps) => {
   const { t } = useTranslation([SEARCH]);
+
+  const { hasActiveFilters, hasSearchInputValue, selectedUserIds, zoom } =
+    useMapSearchState();
+
+  const meetsSearchCriteria =
+    hasActiveFilters ||
+    hasSearchInputValue ||
+    zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
 
   if (!users && meetsSearchCriteria) {
     return null;

@@ -10,7 +10,6 @@ import { MapSearchState } from "../state/mapSearchReducers";
 export function useUserSearch(
   searchParams: FilterOptions,
   mapSearchState: MapSearchState,
-  zoom: number,
 ) {
   const [pageNumber, setPageNumber] = useState(0);
 
@@ -27,7 +26,7 @@ export function useUserSearch(
     {
       enabled:
         mapSearchState.hasActiveFilters ||
-        zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH ||
+        mapSearchState.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH ||
         mapSearchState.hasSearchInputValue,
       keepPreviousData: true,
       getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,

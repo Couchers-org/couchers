@@ -71,5 +71,5 @@ export type {
   HostingStatusType,
   MapSearchTypes,
   MapViewOptions,
-  SleepingArrangementOptions
+  SleepingArrangementOptions,
 };

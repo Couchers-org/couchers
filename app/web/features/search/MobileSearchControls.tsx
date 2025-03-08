@@ -17,12 +17,14 @@ import { GeocodeResult } from "utils/hooks";
 
 import { SearchOptions } from "./SearchPage";
 import SearchTypeRadioGroup from "./SearchTypeRadioGroup";
-import { MapSearchTypes } from "./utils/constants";
+import { useMapSearchState } from "./state/MapSearchContext";
+import {
+  MapSearchTypes,
+  MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+} from "./utils/constants";
 
 interface MobileSearchControlsProps {
-  hasActiveFilters: boolean;
   locationName: string | undefined;
-  meetsSearchCriteria: boolean;
   onClearSearchInputValue: () => void;
   onOpenFilters: () => void;
   onSetSearch: (search: SearchOptions) => void;
@@ -68,9 +70,7 @@ const StyledTuneIcon = styled(Tune, {
 }));
 
 const MobileSearchControls = ({
-  hasActiveFilters,
   locationName,
-  meetsSearchCriteria,
   onClearSearchInputValue,
   onOpenFilters,
   onSetSearch,
@@ -82,6 +82,13 @@ const MobileSearchControls = ({
   const { t } = useTranslation([SEARCH]);
 
   const [keyword, setKeyword] = useState("");
+
+  const { hasActiveFilters, hasSearchInputValue, zoom } = useMapSearchState();
+
+  const meetsSearchCriteria =
+    hasActiveFilters ||
+    hasSearchInputValue ||
+    zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
 
   const handleSearchTypeChange = (value: string) => {
     onSetSearchType(value as MapSearchTypes);

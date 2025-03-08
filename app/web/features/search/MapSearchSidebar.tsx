@@ -6,7 +6,8 @@ import { useTranslation } from "react-i18next";
 import { theme } from "theme";
 
 import SearchResultsList from "./SearchResultsList";
-import { MapViews } from "./utils/constants";
+import { useMapSearchState } from "./state/MapSearchContext";
+import { MapViews, MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
 
 interface MapSearchSidebarProps {
   drawerWidth: number;
@@ -14,11 +15,9 @@ interface MapSearchSidebarProps {
   hasPreviousPage?: boolean;
   isLoading?: boolean;
   mapView: MapViews;
-  meetsSearchCriteria: boolean;
   onDrawerWidthChange: (width: number) => void;
   onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
-  selectedUserIds?: User.AsObject["userId"][];
   totalItems?: number;
   users: User.AsObject[] | undefined;
 }
@@ -57,15 +56,20 @@ const MapSearchSidebar = ({
   hasNextPage,
   isLoading,
   mapView,
-  meetsSearchCriteria,
   onDrawerWidthChange,
   onLoadPreviousPage,
   onLoadNextPage,
-  selectedUserIds,
   totalItems,
   users,
 }: MapSearchSidebarProps) => {
   const { t } = useTranslation([SEARCH]);
+
+  const { hasActiveFilters, hasSearchInputValue, zoom } = useMapSearchState();
+
+  const meetsSearchCriteria =
+    hasActiveFilters ||
+    hasSearchInputValue ||
+    zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
 
   const handleDrawerWidthChange = (width: number) => {
     onDrawerWidthChange(width);
@@ -106,9 +110,7 @@ const MapSearchSidebar = ({
               </Typography>
               <SearchResultsList
                 isLoading={isLoading}
-                selectedUserIds={selectedUserIds}
                 users={users}
-                meetsSearchCriteria={meetsSearchCriteria}
                 hasPreviousPage={hasPreviousPage}
                 hasNextPage={hasNextPage}
                 onLoadPreviousPage={onLoadPreviousPage}

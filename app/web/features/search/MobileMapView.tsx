@@ -7,12 +7,10 @@ import SearchResultsList from "./SearchResultsList";
 import { MapSearchTypes } from "./utils/constants";
 
 interface MobileMapViewProps {
-  hasActiveFilters: boolean;
   hasPreviousPage: boolean | undefined;
   hasNextPage: boolean | undefined;
   isLoading?: boolean;
   locationName: string | undefined;
-  meetsSearchCriteria: boolean;
   onClearSearchInputValue: () => void;
   onOpenFilters: () => void;
   onLoadNextPage: () => void;
@@ -44,11 +42,9 @@ const StyledResultsWrapper = styled("div")(({ theme }) => ({
 }));
 
 const MobileMapView = ({
-  hasActiveFilters,
   hasNextPage,
   hasPreviousPage,
   locationName,
-  meetsSearchCriteria,
   onClearSearchInputValue,
   onLoadNextPage,
   onLoadPreviousPage,
@@ -63,9 +59,7 @@ const MobileMapView = ({
   return (
     <StyledWrapper id="styled-wrapper">
       <MobileSearchControls
-        hasActiveFilters={hasActiveFilters}
         locationName={locationName}
-        meetsSearchCriteria={meetsSearchCriteria}
         onClearSearchInputValue={onClearSearchInputValue}
         onOpenFilters={onOpenFilters}
         onSetSearch={onSetSearch}
@@ -78,7 +72,6 @@ const MobileMapView = ({
         <SearchResultsList
           isLoading={isLoading}
           users={users}
-          meetsSearchCriteria={meetsSearchCriteria}
           hasPreviousPage={hasPreviousPage}
           hasNextPage={hasNextPage}
           onLoadPreviousPage={onLoadPreviousPage}

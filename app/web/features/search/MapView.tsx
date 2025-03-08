@@ -11,6 +11,7 @@ import { useCallback, useMemo, useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
 import { InitialSearchLocation, SearchOptions } from "./SearchPage";
+import { useMapSearchState } from "./state/MapSearchContext";
 import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
 import {
   SOURCE_CLUSTERED_USERS_ID,
@@ -19,14 +20,11 @@ import {
 import {
   getMapBounds,
   loadMapUserPins,
-  meetsApiSearchCriteria,
   setMapFeatureState,
   usersToGeoJSON,
 } from "./utils/mapUtils";
 
 interface MapViewProps {
-  hasActiveFilters: boolean;
-  hasSearchInputValue: boolean;
   initialBbox: InitialSearchLocation["bbox"];
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
@@ -34,9 +32,7 @@ interface MapViewProps {
   onSetSearch: (search: SearchOptions) => void;
   onSelectedUserIdClick: (userId: number) => void;
   onSetZoom: (zoom: number) => void;
-  selectedUserIds: User.AsObject["userId"][];
   users: User.AsObject[] | undefined;
-  zoom: number;
 }
 
 const MapLoadingContainer = styled("div")(({ theme }) => ({
@@ -50,8 +46,6 @@ const MapLoadingContainer = styled("div")(({ theme }) => ({
 const DEFAULT_USERS: User.AsObject[] = [];
 
 const MapView = ({
-  hasActiveFilters,
-  hasSearchInputValue,
   initialBbox,
   isLoading,
   mapRef,
@@ -59,9 +53,7 @@ const MapView = ({
   onSetSearch,
   onSelectedUserIdClick,
   onSetZoom,
-  selectedUserIds,
   users = DEFAULT_USERS,
-  zoom,
 }: MapViewProps) => {
   const pins = usersToGeoJSON(users);
   const memoizedPins = useMemo(() => pins, [pins]);
@@ -70,14 +62,16 @@ const MapView = ({
   const [isMapSourceDataLoading, setIsMapSourceDataLoading] =
     useState<boolean>(true);
 
+  const { hasActiveFilters, hasSearchInputValue, selectedUserIds, zoom } =
+    useMapSearchState();
+
+  const meetsSearchCriteria =
+    hasActiveFilters ||
+    hasSearchInputValue ||
+    zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+
   // If zoomed in, has a location searched or has active filters, use the memoized pins form api query in SearchPage
-  const pinsSource = meetsApiSearchCriteria({
-    hasActiveFilters,
-    hasSearchInputValue,
-    zoom,
-  })
-    ? memoizedPins
-    : zoomedOutDataSource;
+  const pinsSource = meetsSearchCriteria ? memoizedPins : zoomedOutDataSource;
 
   const handleClick = useCallback(
     async (ev: MapLayerMouseEvent) => {

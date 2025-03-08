@@ -11,13 +11,10 @@ import { InitialSearchLocation, SearchOptions } from "./SearchPage";
 import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
 
 interface DesktopMapViewProps {
-  hasActiveFilters: boolean;
-  hasSearchInputValue: boolean;
   hasPreviousPage: boolean | undefined;
   hasNextPage: boolean | undefined;
   initialLocation: InitialSearchLocation;
   isLoading: boolean;
-  meetsSearchCriteria: boolean;
   mapRef: React.RefObject<MapRef>;
   onClearFilters: () => void;
   onClearSearchInputValue: () => void;
@@ -29,10 +26,8 @@ interface DesktopMapViewProps {
   onSetZoom: (zoom: number) => void;
   onSelectedUserIdClick: (userId: number) => void;
   searchType: MapSearchTypes;
-  selectedUserIds: User.AsObject["userId"][];
   totalItems: number;
   users: User.AsObject[] | undefined;
-  zoom: number;
 }
 
 const Wrapper = styled("div")(({ theme }) => ({
@@ -55,13 +50,10 @@ const MapContainer = styled("div", {
 }));
 
 const DesktopMapView = ({
-  hasActiveFilters,
   hasPreviousPage,
   hasNextPage,
-  hasSearchInputValue,
   initialLocation,
   isLoading,
-  meetsSearchCriteria,
   onClearFilters,
   onClearSearchInputValue,
   onLoadPreviousPage,
@@ -73,10 +65,8 @@ const DesktopMapView = ({
   onSetZoom,
   mapRef,
   searchType,
-  selectedUserIds,
   totalItems,
   users,
-  zoom,
 }: DesktopMapViewProps) => {
   const [drawerWidth, setDrawerWidth] = useState<number>(DEFAULT_DRAWER_WIDTH);
   const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
@@ -89,7 +79,6 @@ const DesktopMapView = ({
     <Wrapper>
       <DesktopSearchControls
         drawerWidth={drawerWidth}
-        hasActiveFilters={hasActiveFilters}
         locationName={initialLocation.locationName}
         mapView={mapView}
         onClearFilters={onClearFilters}
@@ -107,11 +96,9 @@ const DesktopMapView = ({
         hasNextPage={hasNextPage}
         isLoading={isLoading}
         mapView={mapView}
-        meetsSearchCriteria={meetsSearchCriteria}
         onDrawerWidthChange={handleDrawerWidthChange}
         onLoadPreviousPage={onLoadPreviousPage}
         onLoadNextPage={onLoadNextPage}
-        selectedUserIds={selectedUserIds}
         totalItems={totalItems}
         users={users}
       />
@@ -119,8 +106,6 @@ const DesktopMapView = ({
       {mapView !== MapViews.LIST_ONLY && (
         <MapContainer drawerWidth={drawerWidth}>
           <MapView
-            hasActiveFilters={hasActiveFilters}
-            hasSearchInputValue={hasSearchInputValue}
             initialBbox={initialLocation.bbox}
             isLoading={isLoading}
             mapRef={mapRef}
@@ -128,9 +113,7 @@ const DesktopMapView = ({
             onSetSearch={onSetSearch}
             onSelectedUserIdClick={onSelectedUserIdClick}
             onSetZoom={onSetZoom}
-            selectedUserIds={selectedUserIds}
             users={users}
-            zoom={zoom}
           />
         </MapContainer>
       )}

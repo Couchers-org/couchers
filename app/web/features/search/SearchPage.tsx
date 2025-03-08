@@ -8,17 +8,24 @@ import {
 } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { useCallback } from "react";
-import { MapProvider } from "react-map-gl/maplibre";
+import { useCallback, useMemo, useReducer, useRef, useState } from "react";
+import { MapProvider, MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
 import DesktopMapView from "./DesktopMapView";
 import FilterDialog from "./FilterDialog";
-import { useSearchState } from "./hooks/useSearchState";
 import { useUserSearch } from "./hooks/useUserSearch";
 import MobileMapView from "./MobileMapView";
-import { mapSearchActionTypes } from "./state/mapSearchReducers";
+import {
+  MapSearchContext,
+  MapSearchDispatchContext,
+} from "./state/MapSearchContext";
+import {
+  initialState,
+  mapSearchActionTypes,
+  mapSearchReducer,
+} from "./state/mapSearchReducers";
 import { getMapBounds, mapFlyToLocation } from "./utils/mapUtils";
 
 export type FilterOptions = {
@@ -83,20 +90,26 @@ export default function SearchPage({
 }) {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const mapRef = useRef<MapRef | null>(null);
 
-  const {
-    mapRef,
-    isFiltersOpen,
-    setIsFiltersOpen,
-    searchType,
-    setSearchType,
-    zoom,
-    setZoom,
-    mapSearchState,
-    dispatch,
-    searchParams,
-    meetsSearchCriteria,
-  } = useSearchState(locationName, bbox);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [searchType, setSearchType] = useState<MapSearchTypes>("location");
+
+  // This is the pattern of using Reducer with Context we're using here:
+  // https://react.dev/learn/scaling-up-with-reducer-and-context
+
+  const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
+    ...initialState,
+    search: { query: locationName, bbox },
+    hasSearchInputValue: Boolean(locationName),
+    hasSearchBounds: Boolean(bbox),
+  });
+
+  // useMemo to avoid unnecessary object reference changes - causing unnecessary rerenders
+  const searchParams = useMemo(
+    () => ({ ...mapSearchState.filters, ...mapSearchState.search }),
+    [mapSearchState.filters, mapSearchState.search],
+  );
 
   const {
     fetchNextPage,
@@ -107,7 +120,7 @@ export default function SearchPage({
     setPageNumber,
     totalItems,
     users,
-  } = useUserSearch(searchParams, mapSearchState, zoom);
+  } = useUserSearch(searchParams, mapSearchState);
 
   const flyToLocation = useCallback(
     ({ longitude, latitude, zoom }: FlyToLocationProps) => {
@@ -192,69 +205,66 @@ export default function SearchPage({
     setPageNumber((prev) => prev + 1);
   };
 
-  const handleSetZoom = useCallback(
-    (newZoom: number) => {
-      setZoom(newZoom);
-    },
-    [setZoom],
-  );
+  const handleSetZoom = (newZoom: number) => {
+    dispatch({
+      type: mapSearchActionTypes.SET_ZOOM,
+      payload: { zoom: newZoom },
+    });
+  };
 
   return (
-    <SearchPageContainer>
-      <MapProvider>
-        <HtmlMeta title={t("global:nav.map_search")} />
-        {isMobile && (
-          <MobileMapView
-            hasActiveFilters={mapSearchState.hasActiveFilters}
-            hasPreviousPage={hasPreviousPage}
-            hasNextPage={hasNextPage}
-            isLoading={isLoading}
-            locationName={locationName}
-            meetsSearchCriteria={meetsSearchCriteria}
-            onClearSearchInputValue={handleClearSearchInputValue}
-            onLoadPreviousPage={handleLoadPreviousPage}
-            onLoadNextPage={handleLoadNextPage}
-            onOpenFilters={handleOpenFiltersDialog}
-            onSetSearch={handleSetSearch}
-            onSetSearchType={handleSetSearchType}
-            searchType={searchType}
-            totalItems={totalItems}
-            users={users}
-          />
-        )}
+    <MapSearchContext.Provider value={mapSearchState}>
+      <MapSearchDispatchContext.Provider value={dispatch}>
+        <SearchPageContainer>
+          <MapProvider>
+            <HtmlMeta title={t("global:nav.map_search")} />
+            {isMobile && (
+              <MobileMapView
+                hasPreviousPage={hasPreviousPage}
+                hasNextPage={hasNextPage}
+                isLoading={isLoading}
+                locationName={locationName}
+                onClearSearchInputValue={handleClearSearchInputValue}
+                onLoadPreviousPage={handleLoadPreviousPage}
+                onLoadNextPage={handleLoadNextPage}
+                onOpenFilters={handleOpenFiltersDialog}
+                onSetSearch={handleSetSearch}
+                onSetSearchType={handleSetSearchType}
+                searchType={searchType}
+                totalItems={totalItems}
+                users={users}
+              />
+            )}
 
-        {!isMobile && (
-          <DesktopMapView
-            hasActiveFilters={mapSearchState.hasActiveFilters}
-            hasPreviousPage={hasPreviousPage}
-            hasNextPage={hasNextPage}
-            hasSearchInputValue={mapSearchState.hasSearchInputValue}
-            initialLocation={{ bbox, locationName }}
-            isLoading={isLoading}
-            meetsSearchCriteria={meetsSearchCriteria}
-            mapRef={mapRef}
-            onClearFilters={handleClearFilters}
-            onClearSearchInputValue={handleClearSearchInputValue}
-            onLoadPreviousPage={handleLoadPreviousPage}
-            onLoadNextPage={handleLoadNextPage}
-            onOpenFilters={handleOpenFiltersDialog}
-            onSetSearch={handleSetSearch}
-            onSetSearchType={handleSetSearchType}
-            onSetZoom={handleSetZoom}
-            onSelectedUserIdClick={handleSelectedUserIdClick}
-            searchType={searchType}
-            selectedUserIds={mapSearchState.selectedUserIds}
-            totalItems={totalItems}
-            users={users}
-            zoom={zoom}
+            {!isMobile && (
+              <DesktopMapView
+                hasPreviousPage={hasPreviousPage}
+                hasNextPage={hasNextPage}
+                initialLocation={{ bbox, locationName }}
+                isLoading={isLoading}
+                mapRef={mapRef}
+                onClearFilters={handleClearFilters}
+                onClearSearchInputValue={handleClearSearchInputValue}
+                onLoadPreviousPage={handleLoadPreviousPage}
+                onLoadNextPage={handleLoadNextPage}
+                onOpenFilters={handleOpenFiltersDialog}
+                onSetSearch={handleSetSearch}
+                onSetSearchType={handleSetSearchType}
+                onSetZoom={handleSetZoom}
+                onSelectedUserIdClick={handleSelectedUserIdClick}
+                searchType={searchType}
+                totalItems={totalItems}
+                users={users}
+              />
+            )}
+          </MapProvider>
+          <FilterDialog
+            isOpen={isFiltersOpen}
+            onCloseDialog={handleCloseFiltersDialog}
+            onSetFilters={handleSetFilters}
           />
-        )}
-      </MapProvider>
-      <FilterDialog
-        isOpen={isFiltersOpen}
-        onCloseDialog={handleCloseFiltersDialog}
-        onSetFilters={handleSetFilters}
-      />
-    </SearchPageContainer>
+        </SearchPageContainer>
+      </MapSearchDispatchContext.Provider>
+    </MapSearchContext.Provider>
   );
 }
