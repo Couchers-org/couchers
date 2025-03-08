@@ -597,7 +597,7 @@ def render_notification(user, notification) -> RenderedNotification:
         discussion = data.discussion
         discussion_link = urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug)
         if notification.action == "create":
-            body = f"{data.author.name} created a discussion: {discussion.title}\n\n"
+            body = f"{data.author.name} created a discussion in {discussion.owner_title}: {discussion.title}\n\n"
             body += discussion.content
             return RenderedNotification(
                 email_subject=f'{data.author.name} created a discussion: "{discussion.title}"',
@@ -648,7 +648,7 @@ def render_notification(user, notification) -> RenderedNotification:
         return RenderedNotification(
             email_subject=f'{data.author.name} commented on "{title}"',
             email_preview="Someone replied on your comment.",
-            email_template_name="discussion_comment",
+            email_template_name="comment_reply",
             email_template_args={
                 "author": data.author,
                 "title": title,

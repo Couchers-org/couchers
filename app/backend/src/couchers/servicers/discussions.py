@@ -36,6 +36,7 @@ def discussion_to_pb(session, discussion: Discussion, context):
         creator_user_id=discussion.creator_user_id,
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
+        owner_title=discussion.owner_cluster.name,
         title=discussion.title,
         content=discussion.content,
         thread=thread_to_pb(session, discussion.thread_id),

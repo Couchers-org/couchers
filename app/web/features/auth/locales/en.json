@@ -206,7 +206,9 @@
         "event": "Events",
         "friend_request": "Friend requests",
         "host_request": "Host requests",
-        "reference": "References"
+        "reference": "References",
+        "discussion": "Discussions",
+        "thread": "Threads"
       },
       "item_descriptions": {
         "host_request": {
@@ -279,6 +281,13 @@
         },
         "gender": {
           "change": "The gender displayed on your profile is changed"
+        },
+        "discussion": {
+          "create": "Someone creates a discussion in a community you are in",
+          "comment": "Someone comments on a discussion you are following"
+        },
+        "thread": {
+          "reply": "Someone responds to your comment"
         }
       }
     },

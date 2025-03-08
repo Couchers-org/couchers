@@ -110,9 +110,9 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     raise NotImplementedError("Shouldn't have discussions under groups, only communities")
 
                 for user in list(cluster.members.where(User.is_visible)):
-                    if are_blocked(session, user_id, comment.author_user_id):
+                    if are_blocked(session, user.id, comment.author_user_id):
                         continue
-                    if user_id == comment.author_user_id:
+                    if user.id == comment.author_user_id:
                         continue
 
                     context = SimpleNamespace(user_id=user.id)

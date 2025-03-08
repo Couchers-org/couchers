@@ -28,6 +28,8 @@ message Discussion {
     int64 owner_community_id = 5;
     int64 owner_group_id = 6;
   }
+  // name of community/group that this belongs in
+  string owner_title = 12;
   string title = 7;
   string content = 8;
   org.couchers.api.threads.Thread thread = 11;
