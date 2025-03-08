@@ -162,7 +162,7 @@
 		"meetup_only": "仅见面",
 		"overnight_stay": "过夜住宿",
 		"request": "请求",
-		"request_description": "分享你的访问计划，并说明为什么选择与这位特定的主人住",
+		"request_description": "分享你的访问计划，并说明为什么选择与这位特定的沙发主住",
 		"request_description_empty": "请写一条请求消息",
 		"stay_type_a11y_text": "住宿类型",
 		"success": "请求已发送！",
@@ -170,7 +170,7 @@
 	},
 	"reference_filter_label": {
 		"friend": "来自朋友",
-		"hosted": "来自主人",
+		"hosted": "来自沙发主",
 		"surfed": "来自客人",
 		"given": "给他人的",
 		"all": "所有评语"
