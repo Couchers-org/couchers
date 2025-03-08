@@ -10,8 +10,8 @@ import { User } from "proto/api_pb";
 import { useCallback, useMemo, useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
-import { InitialSearchLocation, SearchOptions } from "./SearchPage";
-import { useMapSearchState } from "./state/MapSearchContext";
+import { SearchOptions } from "./SearchPage";
+import { useMapSearchState } from "./state/mapSearchContext";
 import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
 import {
   SOURCE_CLUSTERED_USERS_ID,
@@ -25,7 +25,6 @@ import {
 } from "./utils/mapUtils";
 
 interface MapViewProps {
-  initialBbox: InitialSearchLocation["bbox"];
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   onClearSearchInputValue: () => void;
@@ -46,7 +45,6 @@ const MapLoadingContainer = styled("div")(({ theme }) => ({
 const DEFAULT_USERS: User.AsObject[] = [];
 
 const MapView = ({
-  initialBbox,
   isLoading,
   mapRef,
   onClearSearchInputValue,
@@ -62,8 +60,13 @@ const MapView = ({
   const [isMapSourceDataLoading, setIsMapSourceDataLoading] =
     useState<boolean>(true);
 
-  const { hasActiveFilters, hasSearchInputValue, selectedUserIds, zoom } =
-    useMapSearchState();
+  const {
+    search: { bbox },
+    hasActiveFilters,
+    hasSearchInputValue,
+    selectedUserIds,
+    zoom,
+  } = useMapSearchState();
 
   const meetsSearchCriteria =
     hasActiveFilters ||
@@ -138,8 +141,12 @@ const MapView = ({
     await loadMapUserPins(mapRef);
 
     // Zoom into initial bbox
-    if (initialBbox) {
-      mapRef.current?.fitBounds(initialBbox);
+    if (bbox) {
+      mapRef.current?.fitBounds(bbox, {
+        padding: 20,
+        maxZoom: 12,
+        duration: 2000,
+      });
     }
   };
 

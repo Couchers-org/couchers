@@ -17,14 +17,13 @@ import { GeocodeResult } from "utils/hooks";
 
 import { SearchOptions } from "./SearchPage";
 import SearchTypeRadioGroup from "./SearchTypeRadioGroup";
-import { useMapSearchState } from "./state/MapSearchContext";
+import { useMapSearchState } from "./state/mapSearchContext";
 import {
   MapSearchTypes,
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
 } from "./utils/constants";
 
 interface MobileSearchControlsProps {
-  locationName: string | undefined;
   onClearSearchInputValue: () => void;
   onOpenFilters: () => void;
   onSetSearch: (search: SearchOptions) => void;
@@ -70,7 +69,6 @@ const StyledTuneIcon = styled(Tune, {
 }));
 
 const MobileSearchControls = ({
-  locationName,
   onClearSearchInputValue,
   onOpenFilters,
   onSetSearch,
@@ -83,7 +81,12 @@ const MobileSearchControls = ({
 
   const [keyword, setKeyword] = useState("");
 
-  const { hasActiveFilters, hasSearchInputValue, zoom } = useMapSearchState();
+  const {
+    hasActiveFilters,
+    hasSearchInputValue,
+    search: { query },
+    zoom,
+  } = useMapSearchState();
 
   const meetsSearchCriteria =
     hasActiveFilters ||
@@ -119,7 +122,7 @@ const MobileSearchControls = ({
     <StyledSearchBar>
       {searchType === "location" && (
         <StyledLocationAutocompleteOutlined
-          defaultValue={locationName}
+          defaultValue={query}
           fullWidth
           placeholder={t("search:form.location_field_label")}
           name="location"
@@ -151,7 +154,7 @@ const MobileSearchControls = ({
                 <InputAdornment
                   position="end"
                   sx={{
-                    marginRight: locationName === "" ? theme.spacing(1) : 0,
+                    marginRight: query === "" ? theme.spacing(1) : 0,
                   }}
                 >
                   {keyword.length > 0 && (

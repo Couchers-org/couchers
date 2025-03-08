@@ -1,5 +1,6 @@
 import { appGetLayout } from "components/AppRoute";
 import SearchPageComponent from "features/search/SearchPage";
+import { MapSearchProvider } from "features/search/state/mapSearchContext";
 import { Coordinates } from "features/search/utils/constants";
 import { GLOBAL, PROFILE, SEARCH } from "i18n/namespaces";
 import { translationStaticProps } from "i18n/server-side-translations";
@@ -19,10 +20,12 @@ export default function SearchPage() {
   const bbox = router.query.bbox || undefined;
 
   return (
-    <SearchPageComponent
-      locationName={location}
-      bbox={bbox as Coordinates | undefined}
-    />
+    <MapSearchProvider
+      initialLocationName={location}
+      initialBbox={bbox as Coordinates | undefined}
+    >
+      <SearchPageComponent />
+    </MapSearchProvider>
   );
 }
 

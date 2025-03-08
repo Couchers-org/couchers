@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { theme } from "theme";
 
 import SearchResultsList from "./SearchResultsList";
-import { useMapSearchState } from "./state/MapSearchContext";
+import { useMapSearchState } from "./state/mapSearchContext";
 import { MapViews, MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
 
 interface MapSearchSidebarProps {

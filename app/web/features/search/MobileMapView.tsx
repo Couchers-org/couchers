@@ -10,7 +10,6 @@ interface MobileMapViewProps {
   hasPreviousPage: boolean | undefined;
   hasNextPage: boolean | undefined;
   isLoading?: boolean;
-  locationName: string | undefined;
   onClearSearchInputValue: () => void;
   onOpenFilters: () => void;
   onLoadNextPage: () => void;
@@ -44,7 +43,6 @@ const StyledResultsWrapper = styled("div")(({ theme }) => ({
 const MobileMapView = ({
   hasNextPage,
   hasPreviousPage,
-  locationName,
   onClearSearchInputValue,
   onLoadNextPage,
   onLoadPreviousPage,
@@ -59,7 +57,6 @@ const MobileMapView = ({
   return (
     <StyledWrapper id="styled-wrapper">
       <MobileSearchControls
-        locationName={locationName}
         onClearSearchInputValue={onClearSearchInputValue}
         onOpenFilters={onOpenFilters}
         onSetSearch={onSetSearch}

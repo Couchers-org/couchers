@@ -7,7 +7,6 @@ import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
 
 interface DesktopSearchControlsProps {
   drawerWidth: number;
-  locationName: string | undefined;
   mapView: MapViewOptions;
   onClearFilters: () => void;
   onClearSearchInputValue: () => void;
@@ -48,7 +47,6 @@ const CenterAligner = styled("div")(({ theme }) => ({
 
 const DesktopSearchControls = ({
   drawerWidth,
-  locationName,
   mapView,
   onClearFilters,
   onClearSearchInputValue,
@@ -79,7 +77,6 @@ const DesktopSearchControls = ({
           onOpenFilters={onOpenFilters}
           onSetSearch={onSetSearch}
           onSetSearchType={onSetSearchType}
-          locationName={locationName}
           searchType={searchType}
         />
       </CenterAligner>

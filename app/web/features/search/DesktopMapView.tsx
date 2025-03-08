@@ -7,13 +7,12 @@ import { MapRef } from "react-map-gl/maplibre";
 import DesktopSearchControls from "./DesktopSearchControls";
 import MapSearchSidebar from "./MapSearchSidebar";
 import MapView from "./MapView";
-import { InitialSearchLocation, SearchOptions } from "./SearchPage";
+import { SearchOptions } from "./SearchPage";
 import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
 
 interface DesktopMapViewProps {
   hasPreviousPage: boolean | undefined;
   hasNextPage: boolean | undefined;
-  initialLocation: InitialSearchLocation;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   onClearFilters: () => void;
@@ -52,7 +51,6 @@ const MapContainer = styled("div", {
 const DesktopMapView = ({
   hasPreviousPage,
   hasNextPage,
-  initialLocation,
   isLoading,
   onClearFilters,
   onClearSearchInputValue,
@@ -79,7 +77,6 @@ const DesktopMapView = ({
     <Wrapper>
       <DesktopSearchControls
         drawerWidth={drawerWidth}
-        locationName={initialLocation.locationName}
         mapView={mapView}
         onClearFilters={onClearFilters}
         onClearSearchInputValue={onClearSearchInputValue}
@@ -106,7 +103,6 @@ const DesktopMapView = ({
       {mapView !== MapViews.LIST_ONLY && (
         <MapContainer drawerWidth={drawerWidth}>
           <MapView
-            initialBbox={initialLocation.bbox}
             isLoading={isLoading}
             mapRef={mapRef}
             onClearSearchInputValue={onClearSearchInputValue}

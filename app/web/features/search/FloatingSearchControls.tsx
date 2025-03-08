@@ -18,11 +18,10 @@ import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
 import { SearchOptions } from "./SearchPage";
-import { useMapSearchState } from "./state/MapSearchContext";
+import { useMapSearchState } from "./state/mapSearchContext";
 import { MapSearchTypes } from "./utils/constants";
 
 interface FloatingSearchNavigationProps {
-  locationName: string | undefined;
   onClearFilters: () => void;
   onClearSearchInputValue: () => void;
   onOpenFilters: () => void;
@@ -148,14 +147,16 @@ const FloatingSearchControls = ({
   onOpenFilters,
   onSetSearch,
   onSetSearchType,
-  locationName,
   searchType,
 }: FloatingSearchNavigationProps) => {
   const { t } = useTranslation([SEARCH]);
 
   const [keyword, setKeyword] = useState("");
 
-  const { hasActiveFilters } = useMapSearchState();
+  const {
+    search: { query },
+    hasActiveFilters,
+  } = useMapSearchState();
 
   const handleSearchTypeChange = (event: SelectChangeEvent<unknown>) => {
     const value = event.target.value as "location" | "keyword";
@@ -191,7 +192,7 @@ const FloatingSearchControls = ({
           <StyledFlexRow>
             {searchType === "location" && (
               <StyledLocationAutocompleteOutlined
-                defaultValue={locationName}
+                defaultValue={query}
                 fullWidth={false}
                 placeholder={t("search:form.location_field_label")}
                 name="location"
@@ -216,7 +217,7 @@ const FloatingSearchControls = ({
                               position="end"
                               sx={{
                                 marginRight:
-                                  locationName === "" ? theme.spacing(1) : 0,
+                                  query === "" ? theme.spacing(1) : 0,
                               }}
                             >
                               <IconButton
