@@ -572,6 +572,95 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_icon=v2avatar(data.inviting_user),
                 push_url=event_link,
             )
+        elif notification.action == "comment":
+            body = f"{time_display}\n"
+            body += f"{data.author.name} commented:\n\n"
+            body += data.reply.content
+            return RenderedNotification(
+                email_subject=f'{data.author.name} commented on "{event.title}"',
+                email_preview="Someone commented on an event you are attending.",
+                email_template_name="event_comment",
+                email_template_args={
+                    "author": data.author,
+                    "time_display": time_display,
+                    "event": event,
+                    "content": data.reply.content,
+                    "view_link": event_link,
+                },
+                email_topic_action_unsubscribe_text="event comments",
+                push_title=f'{data.author.name} commented on "{event.title}"',
+                push_body=body,
+                push_icon=v2avatar(data.author),
+                push_url=event_link,
+            )
+    elif notification.topic == "discussion":
+        discussion = data.discussion
+        discussion_link = urls.discussion_link(discussion_id=discussion.discussion_id, slug=discussion.slug)
+        if notification.action == "create":
+            body = f"{data.author.name} created a discussion in {discussion.owner_title}: {discussion.title}\n\n"
+            body += discussion.content
+            return RenderedNotification(
+                email_subject=f'{data.author.name} created a discussion: "{discussion.title}"',
+                email_preview="Someone created a discussion in a community or group you are subscribed to.",
+                email_template_name="discussion_create",
+                email_template_args={
+                    "author": data.author,
+                    "discussion": discussion,
+                    "view_link": discussion_link,
+                },
+                email_topic_action_unsubscribe_text="new discussions",
+                push_title=discussion.title,
+                push_body=body,
+                push_icon=v2avatar(data.author),
+                push_url=discussion_link,
+            )
+        elif notification.action == "comment":
+            body = f"{data.author.name} commented:\n\n"
+            body += data.reply.content
+            return RenderedNotification(
+                email_subject=f'{data.author.name} commented on "{discussion.title}"',
+                email_preview="Someone commented on your discussion.",
+                email_template_name="discussion_comment",
+                email_template_args={
+                    "author": data.author,
+                    "discussion": discussion,
+                    "reply": data.reply,
+                    "view_link": discussion_link,
+                },
+                email_topic_action_unsubscribe_text="discussion comments",
+                push_title=discussion.title,
+                push_body=body,
+                push_icon=v2avatar(data.author),
+                push_url=discussion_link,
+            )
+    elif notification.topic_action.display == "thread:reply":
+        if data.event:
+            title = data.event.title
+            view_link = urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug)
+        elif data.discussion:
+            title = data.discussion.title
+            view_link = urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug)
+        else:
+            raise Exception("Can only do replies to events and discussions")
+
+        body = f"{data.author.name} replied:\n\n"
+        body += data.reply.content
+        return RenderedNotification(
+            email_subject=f'{data.author.name} replied in "{title}"',
+            email_preview="Someone replied on your comment.",
+            email_template_name="comment_reply",
+            email_template_args={
+                "author": data.author,
+                "title": title,
+                "reply": data.reply,
+                "view_link": view_link,
+            },
+            email_topic_action_unsubscribe_text="comment replies",
+            push_title=title,
+            push_body=body,
+            push_icon=v2avatar(data.author),
+            push_url=view_link,
+        )
     elif notification.topic == "reference":
         if notification.action == "receive_friend":
             title = f"You've received a friend reference from {data.from_user.name}!"
