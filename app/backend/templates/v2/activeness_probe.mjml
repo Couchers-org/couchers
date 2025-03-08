@@ -1,7 +1,7 @@
 <mj-section padding="0px">
   <mj-column>
     <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-    <mj-text>It's been a while since you logged in to Couchers.org, and we just wanted to check if you are still actively hosting surfers?</mj-text>
+    <mj-text>We noticed you haven't logged in for a while and wanted to check if you're still open to hosting surfers. To keep your "Can Host" status, please log back in within the next {{ days_left|v2esc }} days. Otherwise, we'll change your hosting status to "Can't Host."</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="0px">
@@ -13,7 +13,7 @@
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-text>These hosting check-ins help us keep track of who is still open to hosting which helps surfers find hosts easier, and helps us figure out how quickly you respond to requests!</mj-text>
+    <mj-text>These check-ins help surfers find active hosts more easily and keep response times accurate.</mj-text>
     <mj-text>Best,<br />The Couchers.org Team</mj-text>
   </mj-column>
 </mj-section>

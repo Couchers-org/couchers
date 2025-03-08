@@ -60,8 +60,8 @@ def test_activeness_probes_happy_path_inactive(db, push_collector):
 
     push_collector.assert_user_has_single_matching(
         user.id,
-        title="Are you still hosting on Couchers.org?",
-        body="Please log back in and let us know if you are still open to hosting!",
+        title="Are you still open to hosting on Couchers.org?",
+        body="Please log in to confirm your hosting status.",
     )
 
 
@@ -95,8 +95,8 @@ def test_activeness_probes_happy_path_active(db, push_collector):
 
     push_collector.assert_user_has_single_matching(
         user.id,
-        title="Are you still hosting on Couchers.org?",
-        body="Please log back in and let us know if you are still open to hosting!",
+        title="Are you still open to hosting on Couchers.org?",
+        body="Please log in to confirm your hosting status.",
     )
 
 

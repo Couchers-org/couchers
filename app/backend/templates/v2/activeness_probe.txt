@@ -1,11 +1,11 @@
 Hi {{ user.name }}!
 
-It's been a while since you logged in to Couchers.org, and we just wanted to check if you are still actively hosting surfers?
+We noticed you haven't logged in for a while and wanted to check if you're still open to hosting surfers. To keep your "Can Host" status, please log back in within the next {{ days_left }} days. Otherwise, we'll change your hosting status to "Can't Host."
 
 <{{ app_link }}>
 
 
-These hosting check-ins help us keep track of who is still open to hosting which helps surfers find hosts easier, and helps us figure out how quickly you respond to requests!
+These check-ins help surfers find active hosts more easily and keep response times accurate.
 
 
 Best,

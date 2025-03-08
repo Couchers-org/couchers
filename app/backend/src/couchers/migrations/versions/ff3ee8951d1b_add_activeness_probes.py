@@ -1,7 +1,7 @@
 """Add activeness probes
 
 Revision ID: ff3ee8951d1b
-Revises: e6205511239b
+Revises: 33944292a259
 Create Date: 2025-03-02 12:16:18.782722
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "ff3ee8951d1b"
-down_revision = "e6205511239b"
+down_revision = "33944292a259"
 branch_labels = None
 depends_on = None
 

@@ -147,10 +147,10 @@
       "acknowledge": "Acknowledge note"
     },
     "activeness_probe": {
-      "title": "Are you still hosting surfers?",
-      "description": "It's been a while since you last logged in, so we just want to check in to see if you are still open to hosting travelers!",
-      "still_hosting": "I'm still hosting!",
-      "not_hosting": "I'm no longer open to hosting.",
+      "title": "Are you still open to hosting surfers?",
+      "description": "We noticed you haven't logged in for a while and wanted to check if you're still open to hosting surfers.",
+      "still_hosting": "I still want to host!",
+      "not_hosting": "I'm no longer able to host.",
       "note": "We'll updated your profile to match this choice!"
     }
   },

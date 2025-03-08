@@ -216,4 +216,5 @@ message ThreadReply {
 message ActivenessProbe {
   // 1, 2, 3, etc
   uint64 reminder_number = 1;
+  google.protobuf.Timestamp deadline = 2;
 }
