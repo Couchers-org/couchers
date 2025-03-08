@@ -25,6 +25,26 @@ const useStyles = makeStyles((theme) => ({
   centerSelf: {
     justifySelf: "center",
   },
+  cardContainer: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: theme.spacing(2),
+    [theme.breakpoints.down("sm")]: {
+      overflowX: "auto",
+      flexWrap: "nowrap",
+    },
+  },
+  placeEventCard: {
+    [theme.breakpoints.up("sm")]: {
+      width: "calc(33.333% - 16px)", // 3 cards per row with gap
+      maxWidth: "280px",
+    },
+    [theme.breakpoints.down("sm")]: {
+      width: "200px", // Fixed width on mobile
+      flexShrink: 0,
+    },
+  },
 }));
 
 export default function EventsSection({

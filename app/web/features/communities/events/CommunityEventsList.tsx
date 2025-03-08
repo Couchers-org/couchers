@@ -14,7 +14,7 @@ import makeStyles from "utils/makeStyles";
 
 import { SectionTitle, useCommunityPageStyles } from "../CommunityPage";
 import { useListCommunityEvents } from "../hooks";
-import CommunityLongEventCard from "./CommunityLongEventCard";
+import LongEventCard from "./LongEventCard";
 
 interface CommunityEventsListProps {
   community: Community.AsObject;
@@ -25,15 +25,8 @@ const useStyles = makeStyles((theme) => ({
     display: "grid",
     rowGap: theme.spacing(3),
     [theme.breakpoints.down("sm")]: {
-      //break out of page padding
-      left: "50%",
-      marginLeft: "-50vw",
-      marginRight: "-50vw",
-      position: "relative",
-      right: "50%",
-      width: "100vw",
+      rowGap: theme.spacing(1.5),
     },
-    marginBlockEnd: theme.spacing(2),
   },
 }));
 
@@ -70,9 +63,7 @@ export default function CommunityEventsList({
           data.pages
             .flatMap((page) => page.eventsList)
             .filter((event) => !event.isCancelled)
-            .map((event) => (
-              <CommunityLongEventCard event={event} key={event.eventId} />
-            ))
+            .map((event) => <LongEventCard event={event} key={event.eventId} />)
         ) : (
           !error && <TextBody>{t("communities:events_empty_state")}</TextBody>
         )}
