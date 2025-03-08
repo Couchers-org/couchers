@@ -3,7 +3,13 @@ Please describe the pull request below.
 If it closes an issue, make sure to write "closes #1234"
 If there is an issue but it isn't completely closed, still refer to the issue number, eg. "part of #1234"
 --->
+**Please give clear steps for how the reviewer can best test this PR**
 
+Please include any necessary dev environment, .env, etc. adjustments.
+
+-
+-
+-
 
 <!---
 Checklists - you can remove one that is not applicable (ie. remove backend checklist if you only worked on the web frontend)
