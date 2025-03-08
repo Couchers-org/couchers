@@ -210,5 +210,5 @@ message ThreadReply {
   oneof reply_parent {
     org.couchers.api.events.Event event = 3;
     org.couchers.api.discussions.Discussion discussion = 4;
-    }
+  }
 }
