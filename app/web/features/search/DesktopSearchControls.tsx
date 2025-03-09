@@ -20,7 +20,7 @@ const MapControlsWrapper = styled("div", {
 })<{ drawerWidth: number; isDualView: boolean }>(
   ({ theme, drawerWidth, isDualView }) => ({
     position: "absolute",
-    top: theme.spacing(2),
+    top: theme.spacing(10),
     zIndex: 2,
     display: "flex",
     alignItems: "center",
@@ -47,11 +47,8 @@ const DesktopSearchControls = ({
   drawerWidth,
   mapView,
   mapRef,
-  // onClearFilters,
-  // onClearSearchInputValue,
   onOpenFilters,
   onSetMapView,
-  // onSetSearch,
   onSetSearchType,
   searchType,
 }: DesktopSearchControlsProps) => {

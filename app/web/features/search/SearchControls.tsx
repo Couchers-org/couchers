@@ -1,22 +1,18 @@
 import { useMediaQuery } from "@mui/material";
 import { User } from "proto/api_pb";
-import { useState } from "react";
+import { MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 
 import DesktopSearchControls from "./DesktopSearchControls";
 import MobileSearchControls from "./MobileSearchControls";
-import { SearchOptions } from "./SearchPage";
-import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
+import { MapSearchTypes, MapViewOptions } from "./utils/constants";
 
 interface SearchControlsProps {
   drawerWidth: number;
-  hasActiveFilters: boolean;
-  locationName: string | undefined;
-  meetsSearchCriteria: boolean;
-  onClearFilters: () => void;
-  onClearSearchInputValue: () => void;
+  mapRef: React.RefObject<MapRef>;
+  mapView: MapViewOptions;
+  onMapViewChange: (view: MapViewOptions) => void;
   onOpenFilters: () => void;
-  onSetSearch: (search: SearchOptions) => void;
   onSetSearchType: (searchType: MapSearchTypes) => void;
   searchType: MapSearchTypes;
   totalItems?: number;
@@ -25,13 +21,10 @@ interface SearchControlsProps {
 
 const SearchControls = ({
   drawerWidth,
-  hasActiveFilters,
-  locationName,
-  meetsSearchCriteria,
-  onClearFilters,
-  onClearSearchInputValue,
+  mapRef,
+  mapView,
+  onMapViewChange,
   onOpenFilters,
-  onSetSearch,
   onSetSearchType,
   searchType,
   totalItems,
@@ -39,16 +32,10 @@ const SearchControls = ({
 }: SearchControlsProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
-
   return isMobile ? (
     <MobileSearchControls
-      hasActiveFilters={hasActiveFilters}
-      locationName={locationName}
-      meetsSearchCriteria={meetsSearchCriteria}
-      onClearSearchInputValue={onClearSearchInputValue}
+      mapRef={mapRef}
       onOpenFilters={onOpenFilters}
-      onSetSearch={onSetSearch}
       onSetSearchType={onSetSearchType}
       searchType={searchType}
       totalItems={totalItems}
@@ -57,14 +44,10 @@ const SearchControls = ({
   ) : (
     <DesktopSearchControls
       drawerWidth={drawerWidth}
-      hasActiveFilters={hasActiveFilters}
-      locationName={locationName}
+      mapRef={mapRef}
       mapView={mapView}
-      onClearFilters={onClearFilters}
-      onClearSearchInputValue={onClearSearchInputValue}
       onOpenFilters={onOpenFilters}
-      onSetMapView={setMapView}
-      onSetSearch={onSetSearch}
+      onSetMapView={onMapViewChange}
       onSetSearchType={onSetSearchType}
       searchType={searchType}
     />

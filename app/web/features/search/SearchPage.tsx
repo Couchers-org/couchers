@@ -1,8 +1,11 @@
 import { styled, useMediaQuery } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
+import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import {
   HostingStatusOptions,
   MapSearchTypes,
+  MapViewOptions,
+  MapViews,
   SleepingArrangementOptions,
 } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
@@ -16,6 +19,7 @@ import DesktopMapView from "./DesktopMapView";
 import FilterDialog from "./FilterDialog";
 import { useUserSearch } from "./hooks/useUserSearch";
 import MobileMapView from "./MobileMapView";
+import SearchControls from "./SearchControls";
 import { useMapSearchState } from "./state/mapSearchContext";
 
 export type FilterOptions = {
@@ -67,6 +71,8 @@ export default function SearchPage() {
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [searchType, setSearchType] = useState<MapSearchTypes>("location");
+  const [drawerWidth, setDrawerWidth] = useState<number>(DEFAULT_DRAWER_WIDTH);
+  const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
 
   const mapSearchState = useMapSearchState();
 
@@ -109,10 +115,29 @@ export default function SearchPage() {
     setPageNumber((prev) => prev + 1);
   };
 
+  const handleDrawerWidthChange = (width: number) => {
+    setDrawerWidth(width);
+  };
+
+  const handleMapViewChange = (view: MapViewOptions) => {
+    setMapView(view);
+  };
+
   return (
     <SearchPageContainer>
       <MapProvider>
         <HtmlMeta title={t("global:nav.map_search")} />
+        <SearchControls
+          drawerWidth={drawerWidth}
+          mapRef={mapRef}
+          mapView={mapView}
+          onMapViewChange={handleMapViewChange}
+          onOpenFilters={handleOpenFiltersDialog}
+          onSetSearchType={handleSetSearchType}
+          searchType={searchType}
+          totalItems={totalItems}
+          users={users}
+        />
         {isMobile && (
           <MobileMapView
             hasPreviousPage={hasPreviousPage}
@@ -131,10 +156,13 @@ export default function SearchPage() {
 
         {!isMobile && (
           <DesktopMapView
+            drawerWidth={drawerWidth}
             hasPreviousPage={hasPreviousPage}
             hasNextPage={hasNextPage}
             isLoading={isLoading}
             mapRef={mapRef}
+            mapView={mapView}
+            onDrawerWidthChange={handleDrawerWidthChange}
             onLoadPreviousPage={handleLoadPreviousPage}
             onLoadNextPage={handleLoadNextPage}
             onOpenFilters={handleOpenFiltersDialog}

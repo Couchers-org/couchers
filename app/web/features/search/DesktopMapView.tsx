@@ -1,19 +1,19 @@
 import { styled } from "@mui/material";
-import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { User } from "proto/api_pb";
-import { useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
-import DesktopSearchControls from "./DesktopSearchControls";
 import MapSearchSidebar from "./MapSearchSidebar";
 import MapView from "./MapView";
 import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
 
 interface DesktopMapViewProps {
+  drawerWidth: number;
   hasPreviousPage: boolean | undefined;
   hasNextPage: boolean | undefined;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
+  mapView: MapViewOptions;
+  onDrawerWidthChange: (width: number) => void;
   onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
   onOpenFilters: () => void;
@@ -43,44 +43,27 @@ const MapContainer = styled("div", {
 }));
 
 const DesktopMapView = ({
+  drawerWidth,
   hasPreviousPage,
   hasNextPage,
   isLoading,
+  onDrawerWidthChange,
   onLoadPreviousPage,
   onLoadNextPage,
-  onOpenFilters,
-  onSetSearchType,
   mapRef,
-  searchType,
+  mapView,
   totalItems,
   users,
 }: DesktopMapViewProps) => {
-  const [drawerWidth, setDrawerWidth] = useState<number>(DEFAULT_DRAWER_WIDTH);
-  const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
-
-  const handleDrawerWidthChange = (width: number) => {
-    setDrawerWidth(width);
-  };
-
   return (
     <Wrapper>
-      <DesktopSearchControls
-        drawerWidth={drawerWidth}
-        mapView={mapView}
-        mapRef={mapRef}
-        onOpenFilters={onOpenFilters}
-        onSetMapView={setMapView}
-        onSetSearchType={onSetSearchType}
-        searchType={searchType}
-      />
-
       <MapSearchSidebar
         drawerWidth={drawerWidth}
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}
         isLoading={isLoading}
         mapView={mapView}
-        onDrawerWidthChange={handleDrawerWidthChange}
+        onDrawerWidthChange={onDrawerWidthChange}
         onLoadPreviousPage={onLoadPreviousPage}
         onLoadNextPage={onLoadNextPage}
         totalItems={totalItems}
