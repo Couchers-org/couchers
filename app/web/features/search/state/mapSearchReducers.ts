@@ -115,6 +115,7 @@ const mapSearchReducer = (
         },
         hasSearchInputValue: false,
         hasSearchBounds: action.payload?.bbox !== undefined,
+        zoom: initialState.zoom,
       };
     case mapSearchActionTypes.SET_SEARCH:
       const updatedSearchQuery = { ...state.search };

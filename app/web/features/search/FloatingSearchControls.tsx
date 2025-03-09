@@ -8,6 +8,7 @@ import {
   styled,
   TextField,
   Tooltip,
+  useMediaQuery,
 } from "@mui/material";
 import IconButton from "components/IconButton";
 import LocationAutocompleteOutlined from "components/LocationAutocomplete/LocationAutocompleteOutlined";
@@ -149,6 +150,7 @@ const FloatingSearchControls = ({
   searchType,
 }: FloatingSearchNavigationProps) => {
   const { t } = useTranslation([SEARCH]);
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [keyword, setKeyword] = useState("");
 
@@ -250,17 +252,19 @@ const FloatingSearchControls = ({
               />
             )}
 
-            <StyledSelect
-              labelId="search-type-select"
-              id="search-type"
-              value={searchType}
-              label="search-type"
-              onChange={handleSearchTypeChange}
-              placeholder="Search Type"
-            >
-              <MenuItem value="location">{t("search:location")}</MenuItem>
-              <MenuItem value="keyword">{t("search:keyword")}</MenuItem>
-            </StyledSelect>
+            {!isMobile && (
+              <StyledSelect
+                labelId="search-type-select"
+                id="search-type"
+                value={searchType}
+                label="search-type"
+                onChange={handleSearchTypeChange}
+                placeholder="Search Type"
+              >
+                <MenuItem value="location">{t("search:location")}</MenuItem>
+                <MenuItem value="keyword">{t("search:keyword")}</MenuItem>
+              </StyledSelect>
+            )}
           </StyledFlexRow>
 
           <Tooltip title={t("search:form.search_filters")}>

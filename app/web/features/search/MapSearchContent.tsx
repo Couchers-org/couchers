@@ -2,11 +2,11 @@ import { styled } from "@mui/material";
 import { User } from "proto/api_pb";
 import { MapRef } from "react-map-gl/maplibre";
 
-import MapSearchSidebar from "./MapSearchSidebar";
+import MapSearchResultsList from "./MapSearchResultsList";
 import MapView from "./MapView";
 import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
 
-interface DesktopMapViewProps {
+interface MapSearchContentProps {
   drawerWidth: number;
   hasPreviousPage: boolean | undefined;
   hasNextPage: boolean | undefined;
@@ -23,12 +23,22 @@ interface DesktopMapViewProps {
   users: User.AsObject[] | undefined;
 }
 
-const Wrapper = styled("div")(({ theme }) => ({
+const Wrapper = styled("div")({
+  display: "flex",
   height: "100%",
   width: "100%",
-  overflow: "hidden",
+});
+
+const SearchResultsContainer = styled("div", {
+  shouldForwardProp: (prop) => prop !== "drawerWidth",
+})<{ drawerWidth: number }>(({ theme, drawerWidth }) => ({
   display: "flex",
-  position: "relative",
+  height: "100%",
+  width: `${drawerWidth}px`,
+
+  [theme.breakpoints.down("md")]: {
+    overflowY: "auto",
+  },
 }));
 
 const MapContainer = styled("div", {
@@ -42,7 +52,7 @@ const MapContainer = styled("div", {
   alignItems: "center",
 }));
 
-const DesktopMapView = ({
+const MapSearchContent = ({
   drawerWidth,
   hasPreviousPage,
   hasNextPage,
@@ -54,22 +64,23 @@ const DesktopMapView = ({
   mapView,
   totalItems,
   users,
-}: DesktopMapViewProps) => {
+}: MapSearchContentProps) => {
   return (
     <Wrapper>
-      <MapSearchSidebar
-        drawerWidth={drawerWidth}
-        hasPreviousPage={hasPreviousPage}
-        hasNextPage={hasNextPage}
-        isLoading={isLoading}
-        mapView={mapView}
-        onDrawerWidthChange={onDrawerWidthChange}
-        onLoadPreviousPage={onLoadPreviousPage}
-        onLoadNextPage={onLoadNextPage}
-        totalItems={totalItems}
-        users={users}
-      />
-
+      <SearchResultsContainer drawerWidth={drawerWidth}>
+        <MapSearchResultsList
+          drawerWidth={drawerWidth}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          isLoading={isLoading}
+          mapView={mapView}
+          onDrawerWidthChange={onDrawerWidthChange}
+          onLoadPreviousPage={onLoadPreviousPage}
+          onLoadNextPage={onLoadNextPage}
+          totalItems={totalItems}
+          users={users}
+        />
+      </SearchResultsContainer>
       {mapView !== MapViews.LIST_ONLY && (
         <MapContainer drawerWidth={drawerWidth}>
           <MapView isLoading={isLoading} mapRef={mapRef} users={users} />
@@ -79,4 +90,4 @@ const DesktopMapView = ({
   );
 };
 
-export default DesktopMapView;
+export default MapSearchContent;

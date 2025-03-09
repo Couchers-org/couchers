@@ -1,4 +1,4 @@
-import { styled, useMediaQuery } from "@mui/material";
+import { styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import {
@@ -12,13 +12,11 @@ import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { useMemo, useRef, useState } from "react";
 import { MapProvider, MapRef } from "react-map-gl/maplibre";
-import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
-import DesktopMapView from "./DesktopMapView";
 import FilterDialog from "./FilterDialog";
 import { useUserSearch } from "./hooks/useUserSearch";
-import MobileMapView from "./MobileMapView";
+import MapSearchContent from "./MapSearchContent";
 import SearchControls from "./SearchControls";
 import { useMapSearchState } from "./state/mapSearchContext";
 
@@ -66,7 +64,6 @@ const SearchPageContainer = styled("div")(({ theme }) => ({
  */
 export default function SearchPage() {
   const { t } = useTranslation([GLOBAL, SEARCH]);
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const mapRef = useRef<MapRef | null>(null);
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -119,7 +116,7 @@ export default function SearchPage() {
     setDrawerWidth(width);
   };
 
-  const handleMapViewChange = (view: MapViewOptions) => {
+  const handleSetMapView = (view: MapViewOptions) => {
     setMapView(view);
   };
 
@@ -131,47 +128,27 @@ export default function SearchPage() {
           drawerWidth={drawerWidth}
           mapRef={mapRef}
           mapView={mapView}
-          onMapViewChange={handleMapViewChange}
+          onSetMapView={handleSetMapView}
+          onOpenFilters={handleOpenFiltersDialog}
+          onSetSearchType={handleSetSearchType}
+          searchType={searchType}
+        />
+        <MapSearchContent
+          drawerWidth={drawerWidth}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          isLoading={isLoading}
+          mapRef={mapRef}
+          mapView={mapView}
+          onDrawerWidthChange={handleDrawerWidthChange}
+          onLoadPreviousPage={handleLoadPreviousPage}
+          onLoadNextPage={handleLoadNextPage}
           onOpenFilters={handleOpenFiltersDialog}
           onSetSearchType={handleSetSearchType}
           searchType={searchType}
           totalItems={totalItems}
           users={users}
         />
-        {isMobile && (
-          <MobileMapView
-            hasPreviousPage={hasPreviousPage}
-            hasNextPage={hasNextPage}
-            isLoading={isLoading}
-            mapRef={mapRef}
-            onLoadPreviousPage={handleLoadPreviousPage}
-            onLoadNextPage={handleLoadNextPage}
-            onOpenFilters={handleOpenFiltersDialog}
-            onSetSearchType={handleSetSearchType}
-            searchType={searchType}
-            totalItems={totalItems}
-            users={users}
-          />
-        )}
-
-        {!isMobile && (
-          <DesktopMapView
-            drawerWidth={drawerWidth}
-            hasPreviousPage={hasPreviousPage}
-            hasNextPage={hasNextPage}
-            isLoading={isLoading}
-            mapRef={mapRef}
-            mapView={mapView}
-            onDrawerWidthChange={handleDrawerWidthChange}
-            onLoadPreviousPage={handleLoadPreviousPage}
-            onLoadNextPage={handleLoadNextPage}
-            onOpenFilters={handleOpenFiltersDialog}
-            onSetSearchType={handleSetSearchType}
-            searchType={searchType}
-            totalItems={totalItems}
-            users={users}
-          />
-        )}
       </MapProvider>
       <FilterDialog
         isOpen={isFiltersOpen}

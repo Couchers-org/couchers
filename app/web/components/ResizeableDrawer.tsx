@@ -15,6 +15,14 @@ interface ResizeableDrawerProps {
   showDragger?: boolean;
 }
 
+const DrawerContentWrapper = styled("div")(() => ({
+  display: "flex",
+  flexDirection: "row",
+  height: "100%",
+  width: "100%",
+  position: "relative",
+}));
+
 const StyledDragger = styled("div")(({ theme }) => ({
   width: "8px",
   borderLeft: `1px solid ${theme.palette.divider}`,
@@ -24,13 +32,6 @@ const StyledDragger = styled("div")(({ theme }) => ({
   justifyContent: "center",
   position: "relative",
   overflow: "visible",
-}));
-
-const DrawerContentWrapper = styled("div")(() => ({
-  display: "flex",
-  flexDirection: "row",
-  height: "100%",
-  width: "100%",
 }));
 
 const ScrollableContent = styled("div")(({ theme }) => ({

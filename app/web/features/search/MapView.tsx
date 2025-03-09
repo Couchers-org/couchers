@@ -27,10 +27,6 @@ import {
 interface MapViewProps {
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
-  // onClearSearchInputValue: () => void;
-  // onSetSearch: (search: SearchOptions) => void;
-  // onSelectedUserIdClick: (userId: number) => void;
-  // onSetZoom: (zoom: number) => void;
   users: User.AsObject[] | undefined;
 }
 
@@ -47,10 +43,6 @@ const DEFAULT_USERS: User.AsObject[] = [];
 const MapView = ({
   isLoading,
   mapRef,
-  // onClearSearchInputValue,
-  // onSetSearch,
-  // onSelectedUserIdClick,
-  // onSetZoom,
   users = DEFAULT_USERS,
 }: MapViewProps) => {
   const pins = usersToGeoJSON(users);
