@@ -1,0 +1,46 @@
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text><b>{{ author.name|v2esc }}</b> commented on the event <b>{{ event.title|v2esc }}</b>:</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px" text-align="left">
+  <mj-column>
+    <mj-table>
+      <tr>
+        <td style="width: 100px;">
+          <img width="80px" style="border-radius: 80px" src="{{ author|v2avatar }}" />
+        </td>
+        <td>
+          <b>{{ author.name|v2esc }}</b>, {{ author.age|v2esc }}<br />{{ author.city|v2esc }}
+        </td>
+      </tr>
+    </mj-table>
+  </mj-column>
+</mj-section>
+<mj-section padding="10px 20px" text-align="left">
+  <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
+    <mj-text>{{ content|v2esc|v2multiline }}</mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Here are the details of the event:</mj-text>
+    <mj-text><b>{{ event.title|v2esc }}</b><br />
+      {{ time_display|v2esc }}<br />
+      <i>{% if event.online_information.link %}<a href="{{ event.online_information.link|v2url }}">Online</a>{% endif %}{% if event.offline_information.address|v2esc %}{{ event.offline_information.address }}{% endif %}</i>
+    </mj-text>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ view_link|v2url }}">
+      <b>View event</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>Best,<br />The Couchers.org Team</mj-text>
+  </mj-column>
+</mj-section>
