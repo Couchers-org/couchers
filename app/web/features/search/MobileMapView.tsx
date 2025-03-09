@@ -1,8 +1,8 @@
 import { styled } from "@mui/material";
 import { User } from "proto/api_pb";
+import { MapRef } from "react-map-gl/maplibre";
 
 import MobileSearchControls from "./MobileSearchControls";
-import { SearchOptions } from "./SearchPage";
 import SearchResultsList from "./SearchResultsList";
 import { MapSearchTypes } from "./utils/constants";
 
@@ -10,11 +10,12 @@ interface MobileMapViewProps {
   hasPreviousPage: boolean | undefined;
   hasNextPage: boolean | undefined;
   isLoading?: boolean;
-  onClearSearchInputValue: () => void;
+  // onClearSearchInputValue: () => void;
+  mapRef: React.RefObject<MapRef>;
   onOpenFilters: () => void;
   onLoadNextPage: () => void;
   onLoadPreviousPage: () => void;
-  onSetSearch: (search: SearchOptions) => void;
+  // onSetSearch: (search: SearchOptions) => void;
   onSetSearchType: (searchType: MapSearchTypes) => void;
   searchType: MapSearchTypes;
   totalItems?: number;
@@ -43,11 +44,12 @@ const StyledResultsWrapper = styled("div")(({ theme }) => ({
 const MobileMapView = ({
   hasNextPage,
   hasPreviousPage,
-  onClearSearchInputValue,
+  // onClearSearchInputValue,
+  mapRef,
   onLoadNextPage,
   onLoadPreviousPage,
   onOpenFilters,
-  onSetSearch,
+  // onSetSearch,
   onSetSearchType,
   searchType,
   isLoading,
@@ -57,9 +59,10 @@ const MobileMapView = ({
   return (
     <StyledWrapper id="styled-wrapper">
       <MobileSearchControls
-        onClearSearchInputValue={onClearSearchInputValue}
+        mapRef={mapRef}
+        // onClearSearchInputValue={onClearSearchInputValue}
         onOpenFilters={onOpenFilters}
-        onSetSearch={onSetSearch}
+        // onSetSearch={onSetSearch}
         onSetSearchType={onSetSearchType}
         searchType={searchType}
         totalItems={totalItems}

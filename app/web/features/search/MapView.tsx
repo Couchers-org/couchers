@@ -10,8 +10,8 @@ import { User } from "proto/api_pb";
 import { useCallback, useMemo, useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
-import { SearchOptions } from "./SearchPage";
 import { useMapSearchState } from "./state/mapSearchContext";
+import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
 import {
   SOURCE_CLUSTERED_USERS_ID,
@@ -27,10 +27,10 @@ import {
 interface MapViewProps {
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
-  onClearSearchInputValue: () => void;
-  onSetSearch: (search: SearchOptions) => void;
-  onSelectedUserIdClick: (userId: number) => void;
-  onSetZoom: (zoom: number) => void;
+  // onClearSearchInputValue: () => void;
+  // onSetSearch: (search: SearchOptions) => void;
+  // onSelectedUserIdClick: (userId: number) => void;
+  // onSetZoom: (zoom: number) => void;
   users: User.AsObject[] | undefined;
 }
 
@@ -47,10 +47,10 @@ const DEFAULT_USERS: User.AsObject[] = [];
 const MapView = ({
   isLoading,
   mapRef,
-  onClearSearchInputValue,
-  onSetSearch,
-  onSelectedUserIdClick,
-  onSetZoom,
+  // onClearSearchInputValue,
+  // onSetSearch,
+  // onSelectedUserIdClick,
+  // onSetZoom,
   users = DEFAULT_USERS,
 }: MapViewProps) => {
   const pins = usersToGeoJSON(users);
@@ -67,6 +67,9 @@ const MapView = ({
     selectedUserIds,
     zoom,
   } = useMapSearchState();
+
+  const { setSearch, clearSearchInputValue, setZoom, setSelectedUserIds } =
+    useMapSearchActions();
 
   const meetsSearchCriteria =
     hasActiveFilters ||
@@ -104,12 +107,12 @@ const MapView = ({
           ) {
             const bbox = getMapBounds(mapRef);
 
-            onSetSearch({
+            setSearch({
               bbox,
             });
           }
 
-          onSetZoom(newZoom);
+          setZoom(newZoom);
           mapRef.current?.zoomIn();
         }
       }
@@ -123,16 +126,16 @@ const MapView = ({
           setMapFeatureState(mapRef, userId, true);
         }
 
-        onSelectedUserIdClick(userId);
+        setSelectedUserIds(userId);
       }
     },
     [
       hasSearchInputValue,
       mapRef,
-      onSelectedUserIdClick,
-      onSetSearch,
-      onSetZoom,
       selectedUserIds,
+      setSearch,
+      setSelectedUserIds,
+      setZoom,
       zoom,
     ],
   );
@@ -166,7 +169,7 @@ const MapView = ({
     if (zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && !hasSearchInputValue) {
       const bbox = getMapBounds(mapRef);
 
-      onSetSearch({
+      setSearch({
         bbox,
       });
     }
@@ -182,7 +185,7 @@ const MapView = ({
     ) {
       const bbox = getMapBounds(mapRef);
 
-      onSetSearch({
+      setSearch({
         bbox,
       });
     }
@@ -192,13 +195,13 @@ const MapView = ({
     if (newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && !hasSearchInputValue) {
       const bbox = getMapBounds(mapRef);
 
-      onSetSearch({
+      setSearch({
         bbox,
       });
     }
 
     if (newZoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH) {
-      onClearSearchInputValue();
+      clearSearchInputValue(bbox);
     }
   }, 600);
 
@@ -216,7 +219,7 @@ const MapView = ({
         onClick={handleClick}
         onLoad={handleLoad}
         onMapMove={handleMapMove}
-        onSetZoom={onSetZoom}
+        onSetZoom={setZoom}
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
         onSourceDataLoading={handleMapSourceDataLoading}

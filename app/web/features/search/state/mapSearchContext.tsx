@@ -5,13 +5,13 @@ import {
   useContext,
   useReducer,
 } from "react";
+import { GeocodeResult } from "utils/hooks";
 
 import {
   initialState,
   MapSearchAction,
   mapSearchReducer,
 } from "./mapSearchReducers";
-import { GeocodeResult } from "utils/hooks";
 
 const MapSearchContext = createContext(initialState);
 const MapSearchDispatchContext = createContext<Dispatch<MapSearchAction>>(

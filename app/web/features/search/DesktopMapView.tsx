@@ -7,7 +7,6 @@ import { MapRef } from "react-map-gl/maplibre";
 import DesktopSearchControls from "./DesktopSearchControls";
 import MapSearchSidebar from "./MapSearchSidebar";
 import MapView from "./MapView";
-import { SearchOptions } from "./SearchPage";
 import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
 
 interface DesktopMapViewProps {
@@ -15,15 +14,10 @@ interface DesktopMapViewProps {
   hasNextPage: boolean | undefined;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
-  onClearFilters: () => void;
-  onClearSearchInputValue: () => void;
   onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
   onOpenFilters: () => void;
-  onSetSearch: (search: SearchOptions) => void;
   onSetSearchType: (searchType: MapSearchTypes) => void;
-  onSetZoom: (zoom: number) => void;
-  onSelectedUserIdClick: (userId: number) => void;
   searchType: MapSearchTypes;
   totalItems: number;
   users: User.AsObject[] | undefined;
@@ -52,15 +46,10 @@ const DesktopMapView = ({
   hasPreviousPage,
   hasNextPage,
   isLoading,
-  onClearFilters,
-  onClearSearchInputValue,
   onLoadPreviousPage,
   onLoadNextPage,
   onOpenFilters,
-  onSetSearch,
   onSetSearchType,
-  onSelectedUserIdClick,
-  onSetZoom,
   mapRef,
   searchType,
   totalItems,
@@ -78,11 +67,9 @@ const DesktopMapView = ({
       <DesktopSearchControls
         drawerWidth={drawerWidth}
         mapView={mapView}
-        onClearFilters={onClearFilters}
-        onClearSearchInputValue={onClearSearchInputValue}
+        mapRef={mapRef}
         onOpenFilters={onOpenFilters}
         onSetMapView={setMapView}
-        onSetSearch={onSetSearch}
         onSetSearchType={onSetSearchType}
         searchType={searchType}
       />
@@ -102,15 +89,7 @@ const DesktopMapView = ({
 
       {mapView !== MapViews.LIST_ONLY && (
         <MapContainer drawerWidth={drawerWidth}>
-          <MapView
-            isLoading={isLoading}
-            mapRef={mapRef}
-            onClearSearchInputValue={onClearSearchInputValue}
-            onSetSearch={onSetSearch}
-            onSelectedUserIdClick={onSelectedUserIdClick}
-            onSetZoom={onSetZoom}
-            users={users}
-          />
+          <MapView isLoading={isLoading} mapRef={mapRef} users={users} />
         </MapContainer>
       )}
     </Wrapper>

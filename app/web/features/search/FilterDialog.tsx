@@ -25,7 +25,7 @@ import { HostingStatus, SleepingArrangement } from "proto/api_pb";
 import { useState } from "react";
 import { theme } from "theme";
 
-import { FilterOptions } from "./SearchPage";
+import { useMapSearchActions } from "./state/useMapSearchActions";
 import {
   DEFAULT_AGE_MAX,
   DEFAULT_AGE_MIN,
@@ -37,7 +37,6 @@ import {
 interface FilterDialogProps {
   isOpen: boolean;
   onCloseDialog: () => void;
-  onSetFilters: (filters: FilterOptions) => void;
 }
 
 const StyledDialog = styled(Dialog)({
@@ -117,14 +116,11 @@ function SliderThumbComponent(props: SliderThumbComponentProps) {
   );
 }
 
-const FilterDialog = ({
-  isOpen,
-  onCloseDialog,
-  onSetFilters,
-}: FilterDialogProps) => {
+const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+  // We store the filter state in the component itself, and then submit it all at once to api call when user clicks "Apply" button.
   const [acceptsPets, setAcceptsPets] = useState(false);
   const [acceptsKids, setAcceptsKids] = useState(false);
   const [acceptsLastMinRequests, setAcceptsLastMinRequests] = useState(false);
@@ -146,6 +142,8 @@ const FilterDialog = ({
     SleepingArrangementOptions[] | undefined
   >(undefined);
   const [smokingAllowed, setSmokingAllowed] = useState(false);
+
+  const { setSearchFilters } = useMapSearchActions();
 
   const handleAcceptsPetsChange = () => {
     setAcceptsPets(!acceptsPets);
@@ -209,6 +207,7 @@ const FilterDialog = ({
     setSmokingAllowed(!smokingAllowed);
   };
 
+  // Just clear local state, will be submit when user clicks "Apply"
   const handleClearFilters = () => {
     setAcceptsKids(false);
     setAcceptsPets(false);
@@ -227,7 +226,7 @@ const FilterDialog = ({
   };
 
   const handleApplyFilters = () => {
-    onSetFilters({
+    setSearchFilters({
       acceptsKids,
       acceptsPets,
       acceptsLastMinRequests,

@@ -7,7 +7,7 @@ import {
 } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { MapProvider, MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
@@ -16,12 +16,7 @@ import DesktopMapView from "./DesktopMapView";
 import FilterDialog from "./FilterDialog";
 import { useUserSearch } from "./hooks/useUserSearch";
 import MobileMapView from "./MobileMapView";
-import {
-  useMapSearchDispatch,
-  useMapSearchState,
-} from "./state/mapSearchContext";
-import { mapSearchActionTypes } from "./state/mapSearchReducers";
-import { getMapBounds, mapFlyToLocation } from "./utils/mapUtils";
+import { useMapSearchState } from "./state/mapSearchContext";
 
 export type FilterOptions = {
   acceptsKids?: boolean;
@@ -50,12 +45,6 @@ export type SearchOptions = {
   location?: GeocodeResult;
 };
 
-export interface FlyToLocationProps {
-  longitude: number;
-  latitude: number;
-  zoom?: number;
-}
-
 const SearchPageContainer = styled("div")(({ theme }) => ({
   height: `calc(100vh - 10px - ${theme.shape.navPaddingXs})`,
 
@@ -80,7 +69,6 @@ export default function SearchPage() {
   const [searchType, setSearchType] = useState<MapSearchTypes>("location");
 
   const mapSearchState = useMapSearchState();
-  const dispatch = useMapSearchDispatch();
 
   // useMemo to avoid unnecessary object reference changes - causing unnecessary rerenders
   const searchParams = useMemo(
@@ -98,67 +86,6 @@ export default function SearchPage() {
     totalItems,
     users,
   } = useUserSearch(searchParams, mapSearchState);
-
-  const flyToLocation = useCallback(
-    ({ longitude, latitude, zoom }: FlyToLocationProps) => {
-      mapFlyToLocation({
-        longitude,
-        latitude,
-        zoom,
-        mapRef,
-      });
-    },
-    [mapRef],
-  );
-
-  const handleSetSearch = (search: SearchOptions) => {
-    dispatch({
-      type: mapSearchActionTypes.SET_SEARCH,
-      payload: search,
-    });
-    if (search.location) {
-      const geojson = search.location as GeocodeResult;
-
-      flyToLocation({
-        longitude: geojson.location.lng,
-        latitude: geojson.location.lat,
-      });
-    }
-  };
-
-  const handleSetFilters = (newFilters: FilterOptions) => {
-    dispatch({
-      type: mapSearchActionTypes.SET_FILTERS,
-      payload: newFilters,
-    });
-  };
-
-  const handleClearSearchInputValue = () => {
-    const currentBbox = getMapBounds(mapRef);
-
-    dispatch({
-      type: mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE,
-      payload: { bbox: currentBbox },
-    });
-  };
-
-  const handleSelectedUserIdClick = (userId: number) => {
-    dispatch({
-      type: mapSearchActionTypes.SET_SELECTED_USER_IDS,
-      payload: {
-        userId,
-      },
-    });
-
-    // scroll selected user card into view when pin is clicked
-    document
-      .getElementById(`search-result-${userId}`)
-      ?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const handleClearFilters = () => {
-    dispatch({ type: mapSearchActionTypes.RESET_FILTERS });
-  };
 
   const handleSetSearchType = (type: MapSearchTypes) => {
     setSearchType(type);
@@ -182,13 +109,6 @@ export default function SearchPage() {
     setPageNumber((prev) => prev + 1);
   };
 
-  const handleSetZoom = (newZoom: number) => {
-    dispatch({
-      type: mapSearchActionTypes.SET_ZOOM,
-      payload: { zoom: newZoom },
-    });
-  };
-
   return (
     <SearchPageContainer>
       <MapProvider>
@@ -198,11 +118,10 @@ export default function SearchPage() {
             hasPreviousPage={hasPreviousPage}
             hasNextPage={hasNextPage}
             isLoading={isLoading}
-            onClearSearchInputValue={handleClearSearchInputValue}
+            mapRef={mapRef}
             onLoadPreviousPage={handleLoadPreviousPage}
             onLoadNextPage={handleLoadNextPage}
             onOpenFilters={handleOpenFiltersDialog}
-            onSetSearch={handleSetSearch}
             onSetSearchType={handleSetSearchType}
             searchType={searchType}
             totalItems={totalItems}
@@ -216,15 +135,10 @@ export default function SearchPage() {
             hasNextPage={hasNextPage}
             isLoading={isLoading}
             mapRef={mapRef}
-            onClearFilters={handleClearFilters}
-            onClearSearchInputValue={handleClearSearchInputValue}
             onLoadPreviousPage={handleLoadPreviousPage}
             onLoadNextPage={handleLoadNextPage}
             onOpenFilters={handleOpenFiltersDialog}
-            onSetSearch={handleSetSearch}
             onSetSearchType={handleSetSearchType}
-            onSetZoom={handleSetZoom}
-            onSelectedUserIdClick={handleSelectedUserIdClick}
             searchType={searchType}
             totalItems={totalItems}
             users={users}
@@ -234,7 +148,6 @@ export default function SearchPage() {
       <FilterDialog
         isOpen={isFiltersOpen}
         onCloseDialog={handleCloseFiltersDialog}
-        onSetFilters={handleSetFilters}
       />
     </SearchPageContainer>
   );

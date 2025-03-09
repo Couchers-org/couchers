@@ -1,18 +1,16 @@
 import { styled } from "@mui/material";
+import { MapRef } from "react-map-gl/maplibre";
 
 import FloatingSearchControls from "./FloatingSearchControls";
 import MapViewToggle from "./MapViewToggle";
-import { SearchOptions } from "./SearchPage";
 import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
 
 interface DesktopSearchControlsProps {
   drawerWidth: number;
   mapView: MapViewOptions;
-  onClearFilters: () => void;
-  onClearSearchInputValue: () => void;
+  mapRef: React.RefObject<MapRef>;
   onOpenFilters: () => void;
   onSetMapView: (view: MapViewOptions) => void;
-  onSetSearch: (search: SearchOptions) => void;
   onSetSearchType: (searchType: MapSearchTypes) => void;
   searchType: MapSearchTypes;
 }
@@ -48,11 +46,12 @@ const CenterAligner = styled("div")(({ theme }) => ({
 const DesktopSearchControls = ({
   drawerWidth,
   mapView,
-  onClearFilters,
-  onClearSearchInputValue,
+  mapRef,
+  // onClearFilters,
+  // onClearSearchInputValue,
   onOpenFilters,
   onSetMapView,
-  onSetSearch,
+  // onSetSearch,
   onSetSearchType,
   searchType,
 }: DesktopSearchControlsProps) => {
@@ -72,10 +71,8 @@ const DesktopSearchControls = ({
           onMapViewChange={handleMapViewChange}
         />
         <FloatingSearchControls
-          onClearFilters={onClearFilters}
-          onClearSearchInputValue={onClearSearchInputValue}
+          mapRef={mapRef}
           onOpenFilters={onOpenFilters}
-          onSetSearch={onSetSearch}
           onSetSearchType={onSetSearchType}
           searchType={searchType}
         />

@@ -12,21 +12,25 @@ import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
 import { useState } from "react";
+import { MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
 import { SearchOptions } from "./SearchPage";
 import SearchTypeRadioGroup from "./SearchTypeRadioGroup";
 import { useMapSearchState } from "./state/mapSearchContext";
+import { useMapSearchActions } from "./state/useMapSearchActions";
 import {
   MapSearchTypes,
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
 } from "./utils/constants";
+import { getMapBounds, mapFlyToLocation } from "./utils/mapUtils";
 
 interface MobileSearchControlsProps {
-  onClearSearchInputValue: () => void;
+  mapRef: React.RefObject<MapRef>;
+  // onClearSearchInputValue: () => void;
   onOpenFilters: () => void;
-  onSetSearch: (search: SearchOptions) => void;
+  // onSetSearch: (search: SearchOptions) => void;
   onSetSearchType: (searchType: MapSearchTypes) => void;
   searchType: MapSearchTypes;
   totalItems?: number;
@@ -69,9 +73,10 @@ const StyledTuneIcon = styled(Tune, {
 }));
 
 const MobileSearchControls = ({
-  onClearSearchInputValue,
+  mapRef,
+  // onClearSearchInputValue,
   onOpenFilters,
-  onSetSearch,
+  // onSetSearch,
   onSetSearchType,
   searchType,
   totalItems,
@@ -88,6 +93,8 @@ const MobileSearchControls = ({
     zoom,
   } = useMapSearchState();
 
+  const { setSearch, clearSearchInputValue } = useMapSearchActions();
+
   const meetsSearchCriteria =
     hasActiveFilters ||
     hasSearchInputValue ||
@@ -98,7 +105,7 @@ const MobileSearchControls = ({
   };
 
   const debouncedKeywordChange = debounce((value: SearchOptions["keyword"]) => {
-    onSetSearch({ keyword: value });
+    setSearch({ keyword: value });
   }, 500);
 
   const handleKeywordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,16 +115,27 @@ const MobileSearchControls = ({
 
   const handleClearKeyword = () => {
     setKeyword("");
-    onSetSearch({ keyword: "" });
+    setSearch({ keyword: "" });
   };
 
   const handleLocationChange = (value: GeocodeResult | undefined) => {
-    onSetSearch({ location: value });
+    setSearch({ location: value });
+
+    if (value) {
+      mapFlyToLocation({
+        longitude: value.location.lng,
+        latitude: value.location.lat,
+        zoom: 10,
+        mapRef,
+      });
+    }
   };
 
   const handleClearLocation = () => {
-    onClearSearchInputValue();
+    const currentBbox = getMapBounds(mapRef);
+    clearSearchInputValue(currentBbox);
   };
+
   return (
     <StyledSearchBar>
       {searchType === "location" && (

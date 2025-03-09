@@ -14,18 +14,19 @@ import LocationAutocompleteOutlined from "components/LocationAutocomplete/Locati
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { useState } from "react";
+import { MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
 import { SearchOptions } from "./SearchPage";
 import { useMapSearchState } from "./state/mapSearchContext";
+import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MapSearchTypes } from "./utils/constants";
+import { getMapBounds, mapFlyToLocation } from "./utils/mapUtils";
 
 interface FloatingSearchNavigationProps {
-  onClearFilters: () => void;
-  onClearSearchInputValue: () => void;
+  mapRef: React.RefObject<MapRef>;
   onOpenFilters: () => void;
-  onSetSearch: (search: SearchOptions) => void;
   onSetSearchType: (searchType: MapSearchTypes) => void;
   searchType: MapSearchTypes;
 }
@@ -142,10 +143,8 @@ const StyledClearIcon = styled(Clear)(({ theme }) => ({
 }));
 
 const FloatingSearchControls = ({
-  onClearFilters,
-  onClearSearchInputValue,
+  mapRef,
   onOpenFilters,
-  onSetSearch,
   onSetSearchType,
   searchType,
 }: FloatingSearchNavigationProps) => {
@@ -158,13 +157,16 @@ const FloatingSearchControls = ({
     hasActiveFilters,
   } = useMapSearchState();
 
+  const { setSearch, clearSearchFilters, clearSearchInputValue } =
+    useMapSearchActions();
+
   const handleSearchTypeChange = (event: SelectChangeEvent<unknown>) => {
     const value = event.target.value as "location" | "keyword";
     onSetSearchType(value);
   };
 
   const debouncedKeywordChange = debounce((value: SearchOptions["keyword"]) => {
-    onSetSearch({ keyword: value });
+    setSearch({ keyword: value });
   }, 500);
 
   const handleKeywordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -174,15 +176,26 @@ const FloatingSearchControls = ({
 
   const handleClearKeyword = () => {
     setKeyword("");
-    onSetSearch({ keyword: "" });
+    setSearch({ keyword: "" });
   };
 
   const handleLocationChange = (value: GeocodeResult | undefined) => {
-    onSetSearch({ location: value });
+    setSearch({ location: value });
+
+    if (value) {
+      mapFlyToLocation({
+        longitude: value.location.lng,
+        latitude: value.location.lat,
+        zoom: 10,
+        mapRef,
+      });
+    }
   };
 
   const handleClearLocation = () => {
-    onClearSearchInputValue();
+    const currentBbox = getMapBounds(mapRef);
+
+    clearSearchInputValue(currentBbox);
   };
 
   return (
@@ -262,7 +275,7 @@ const FloatingSearchControls = ({
             <Tooltip title={t("search:form.clear_filters")}>
               <IconButton
                 aria-label={t("search:form.clear_filters")}
-                onClick={onClearFilters}
+                onClick={clearSearchFilters}
               >
                 <StyledClearIcon />
               </IconButton>
