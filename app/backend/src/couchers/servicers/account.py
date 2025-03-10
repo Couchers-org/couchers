@@ -251,7 +251,6 @@ class Account(account_pb2_grpc.AccountServicer):
         user.ui_language_preference = request.ui_language_preference
         # setting this on context will update the cookie (via interceptors)?
         context.ui_language_preference = request.ui_language_preference
-        expiry = now() + timedelta(days=400)
 
         try:
             context.send_initial_metadata(
