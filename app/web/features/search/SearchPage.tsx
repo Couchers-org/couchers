@@ -48,15 +48,9 @@ export type SearchOptions = {
 };
 
 const SearchPageContainer = styled("div")(({ theme }) => ({
-  height: `calc(100vh - 10px - ${theme.shape.navPaddingXs})`,
-
-  [theme.breakpoints.up("sm")]: {
-    height: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
-  },
-
-  overflow: "hidden",
-  paddingLeft: `-${theme.spacing(2)}`,
-  paddingRight: `-${theme.spacing(2)}`,
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
 }));
 
 /**

@@ -31,12 +31,11 @@ const StyledDragger = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "center",
   position: "relative",
-  overflow: "visible",
+  // overflow: "visible", // @TODO(NA) Do I need this?
 }));
 
 const ScrollableContent = styled("div")(({ theme }) => ({
-  flexGrow: 1, // Take up remaining space
-  padding: theme.spacing(2),
+  paddingTop: theme.spacing(2),
   overflowY: "auto",
   overflowX: "hidden",
   height: "100%",

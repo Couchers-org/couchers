@@ -51,6 +51,7 @@ const ContentWrapper = styled(Container, {
 }>(({ theme, variant, isNativeEmbed }) => ({
   display: "flex",
   flexDirection: "column",
+  height: "100%",
   ...(variant === "standard" && {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),

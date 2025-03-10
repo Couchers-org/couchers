@@ -54,36 +54,30 @@ const MapSearchResultsList = ({
     <DrawerContainer>
       {isLoading && <CenteredSpinner />}
 
-      {isMobile ? (
+      <ResizeableDrawer
+        onDrawerWidthChange={onDrawerWidthChange}
+        showDragger={!isMobile && mapView !== MapViews.LIST_ONLY}
+      >
         <SearchResultListContent
-          showAlert={!meetsSearchCriteria}
+          showAlert={!isLoading && !meetsSearchCriteria}
+          showTopSpace={
+            !isMobile &&
+            mapView === MapViews.MAP_AND_LIST &&
+            drawerWidth > window.innerWidth / 2
+          }
           users={users}
         />
-      ) : (
-        <ResizeableDrawer
-          onDrawerWidthChange={onDrawerWidthChange}
-          showDragger={mapView !== MapViews.LIST_ONLY}
-        >
-          <SearchResultListContent
-            showAlert={!isLoading && !meetsSearchCriteria}
-            showTopSpace={
-              mapView === MapViews.MAP_AND_LIST &&
-              drawerWidth > window.innerWidth / 2
-            }
-            users={users}
+        {(hasPreviousPage || hasNextPage) && (
+          <PreviousNextPagination
+            hasPreviousPage={hasPreviousPage}
+            hasNextPage={hasNextPage}
+            meetsSearchCriteria={meetsSearchCriteria}
+            onPreviousClick={onLoadPreviousPage}
+            onNextClick={onLoadNextPage}
+            totalItems={totalItems}
           />
-        </ResizeableDrawer>
-      )}
-      {(users?.length ?? 0) > 0 && (
-        <PreviousNextPagination
-          hasPreviousPage={hasPreviousPage}
-          hasNextPage={hasNextPage}
-          meetsSearchCriteria={meetsSearchCriteria}
-          onPreviousClick={onLoadPreviousPage}
-          onNextClick={onLoadNextPage}
-          totalItems={totalItems}
-        />
-      )}
+        )}
+      </ResizeableDrawer>
     </DrawerContainer>
   );
 };

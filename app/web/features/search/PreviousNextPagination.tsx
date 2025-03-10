@@ -2,7 +2,6 @@ import { Button, Stack, Typography } from "@mui/material";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { theme } from "theme";
 
 interface PreviousNextPaginationProps {
   hasPreviousPage: boolean | undefined;
@@ -29,7 +28,6 @@ const PreviousNextPagination: React.FC<PreviousNextPaginationProps> = ({
       alignItems="center"
       justifyContent="space-between"
       sx={{
-        marginTop: theme.spacing(2),
         width: "100%",
       }}
     >

@@ -27,6 +27,7 @@ const Wrapper = styled("div")({
   display: "flex",
   height: "100%",
   width: "100%",
+  overflow: "hidden",
 });
 
 const SearchResultsContainer = styled("div", {
@@ -35,10 +36,6 @@ const SearchResultsContainer = styled("div", {
   display: "flex",
   height: "100%",
   width: `${drawerWidth}px`,
-
-  [theme.breakpoints.down("md")]: {
-    overflowY: "auto",
-  },
 }));
 
 const MapContainer = styled("div", {

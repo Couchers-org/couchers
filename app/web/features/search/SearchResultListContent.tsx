@@ -19,20 +19,15 @@ const ListContentWrapper = styled(Box, {
   display: "flex",
   flexWrap: "wrap",
   gap: theme.spacing(2),
-  marginTop: theme.spacing(2),
   width: "100%",
-  padding: theme.spacing(0, 2),
-  overflowY: "auto", // Allow scrolling if content overflows
-  ...(showTopSpace && { paddingTop: theme.spacing(6) }),
+  padding: theme.spacing(1, 2),
+  height: "100%",
+  ...(showTopSpace && { paddingTop: theme.spacing(8) }),
 }));
 
 const StyledCardWrapper = styled(Box)(({ theme }) => ({
   // 3 columns by default
   flex: `1 1 calc(33% - ${theme.spacing(2)})`,
-
-  [theme.breakpoints.down("sm")]: {
-    flex: "1 1 100%", // Make it a single column on mobile
-  },
 }));
 
 const SearchResultListContent = ({
