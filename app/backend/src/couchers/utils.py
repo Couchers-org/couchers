@@ -219,7 +219,11 @@ def create_session_cookies(token, user_id, expiry) -> list[str]:
 
 
 def create_lang_cookie(lang):
-    return [_create_tasty_cookie("couchers-preferred-language", lang, expiry=(now() + PREFERRED_LANGUAGE_COOKIE_EXPIRY), httponly=False)]
+    return [
+        _create_tasty_cookie(
+            "couchers-preferred-language", lang, expiry=(now() + PREFERRED_LANGUAGE_COOKIE_EXPIRY), httponly=False
+        )
+    ]
 
 
 def parse_session_cookie(headers):

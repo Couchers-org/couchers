@@ -217,17 +217,17 @@ class CookieInterceptor(grpc.ServerInterceptor):
             res = user_aware_function(req, context)
             cookies = []
 
-            # check the two cookies are in sync
+            # check the two cookies are in sync & that language preference cookie is correct
             token, expiry = context.token
-            if context.user_id and not context.is_api_key and cookie_user_id != str(context.user_id):
-                cookies.extend(
-                    [("set-cookie", cookie) for cookie in create_session_cookies(token, context.user_id, expiry)]
-                )
-
-            if context.ui_language_preference != cookie_ui_lang:
-                cookies.extend(
-                    [("set-cookie", cookie) for cookie in create_lang_cookie(context.ui_language_preference)]
-                )
+            if context.user_id and not context.is_api_key:
+                if cookie_user_id != str(context.user_id):
+                    cookies.extend(
+                        [("set-cookie", cookie) for cookie in create_session_cookies(token, context.user_id, expiry)]
+                    )
+                if context.ui_language_preference != cookie_ui_lang:
+                    cookies.extend(
+                        [("set-cookie", cookie) for cookie in create_lang_cookie(context.ui_language_preference)]
+                    )
 
             try:
                 context.send_initial_metadata(cookies)
