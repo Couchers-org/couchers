@@ -255,7 +255,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         try:
             context.send_initial_metadata(
-                [("set-cookie", cookie) for cookie in create_lang_cookie(context.ui_language_preference, expiry)]
+                [("set-cookie", cookie) for cookie in create_lang_cookie(context.ui_language_preference)]
             )
         except ValueError as e:
             logger.info("Tried to send initial metadata but wasn't allowed to")

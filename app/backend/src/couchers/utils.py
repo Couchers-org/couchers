@@ -14,7 +14,7 @@ from sqlalchemy.sql import cast, func
 from sqlalchemy.types import DateTime
 
 from couchers.config import config
-from couchers.constants import EMAIL_REGEX
+from couchers.constants import EMAIL_REGEX, PREFERRED_LANGUAGE_COOKIE_EXPIRY
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 
 utc = pytz.UTC
@@ -218,8 +218,8 @@ def create_session_cookies(token, user_id, expiry) -> list[str]:
     ]
 
 
-def create_lang_cookie(lang, expiry):
-    return [_create_tasty_cookie("couchers-preferred-language", lang, expiry, httponly=False)]
+def create_lang_cookie(lang):
+    return [_create_tasty_cookie("couchers-preferred-language", lang, expiry=(now() + PREFERRED_LANGUAGE_COOKIE_EXPIRY), httponly=False)]
 
 
 def parse_session_cookie(headers):
