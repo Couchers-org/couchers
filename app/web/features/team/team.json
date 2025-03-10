@@ -127,6 +127,17 @@
     "img": "/img/team/head-dom.jpg"
   },
   {
+    "name": "Laura Botel",
+    "role": "Full Stack Developer",
+    "location": "Brooklyn, NY, USA",
+    "img": "https://usercontent.couchershq.org/media/img/full/4430bc75f4997c5ab5349e5bc0456c27ac56d52f74408653d0a7bf81227c50e5.jpg",
+    "link": {
+      "type": "linkedin",
+      "text": "laurabotel",
+      "url": "https://www.linkedin.com/in/laurabotel/"
+    }
+  },
+  {
     "name": "Lucas Levin",
     "role": "Past Frontend Dev Lead",
     "location": "Melbourne, Australia",
