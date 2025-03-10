@@ -11,8 +11,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { ActivenessProbeResponse } from "proto/jail_pb";
 import React, { useState } from "react";
 import { service } from "service";
-
-type StillHosting = "yes" | "no";
+import { theme } from "theme";
 
 interface ActivenessProbeSectionProps {
   updateJailed: () => void;
@@ -25,20 +24,20 @@ export default function ActivenessProbeSection({
 }: ActivenessProbeSectionProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
 
-  const [selected, setSelected] = useState<StillHosting | undefined>(undefined);
-  const [loading, setLoading] = useState(false);
+  const [isSelected, setIsSelected] = useState<boolean | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const save = async () => {
-    setLoading(true);
+  const handleSave = async () => {
+    setIsLoading(true);
     const info = await service.jail.respondToActivenessProbe(
-      selected == "yes"
+      isSelected
         ? ActivenessProbeResponse.ACTIVENESS_PROBE_RESPONSE_STILL_ACTIVE
         : ActivenessProbeResponse.ACTIVENESS_PROBE_RESPONSE_NO_LONGER_ACTIVE,
     );
     if (!info.isJailed) {
       updateJailed();
     }
-    setLoading(false);
+    setIsLoading(false);
   };
 
   return (
@@ -51,25 +50,34 @@ export default function ActivenessProbeSection({
       </Typography>
       <FormControl variant="standard" component="fieldset">
         <RadioGroup
-          value={selected ?? null}
-          onChange={(e, val) => setSelected(val as StillHosting)}
+          value={isSelected}
+          onChange={(e, val) => setIsSelected(val === "true")}
         >
           <FormControlLabel
-            value="yes"
+            value={true}
             control={<Radio />}
             label={t("auth:jail.activeness_probe.still_hosting")}
           />
           <FormControlLabel
-            value="no"
+            value={false}
             control={<Radio />}
             label={t("auth:jail.activeness_probe.not_hosting")}
           />
         </RadioGroup>
       </FormControl>
-      <Typography variant="body2" gutterBottom>
+      <Typography
+        variant="body2"
+        gutterBottom
+        sx={{ marginTop: theme.spacing(2) }}
+      >
         {t("auth:jail.activeness_probe.note")}
       </Typography>
-      <Button loading={loading} onClick={save} disabled={!selected}>
+      <Button
+        loading={isLoading}
+        onClick={handleSave}
+        disabled={isSelected === undefined}
+        sx={{ marginTop: theme.spacing(2) }}
+      >
         {t("global:save")}
       </Button>
     </div>
