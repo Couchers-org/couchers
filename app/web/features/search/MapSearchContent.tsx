@@ -31,7 +31,8 @@ const Wrapper = styled("div")({
 });
 
 const SearchResultsContainer = styled("div", {
-  shouldForwardProp: (prop) => prop !== "drawerWidth",
+  shouldForwardProp: (prop) =>
+    prop !== "drawerWidth" && prop !== "isListOnlyView",
 })<{ drawerWidth: number; isListOnlyView: boolean }>(
   ({ theme, drawerWidth, isListOnlyView }) => ({
     display: "flex",
