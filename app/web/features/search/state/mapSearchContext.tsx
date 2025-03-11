@@ -43,7 +43,6 @@ function MapSearchProvider({
   initialBbox: GeocodeResult["bbox"] | undefined;
   initialLocationName: string | undefined;
 }) {
-  // @TODO(NA) Add this to the context - but need to next the child components a layer deeper then to be within the context
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
     search: { query: initialLocationName, bbox: initialBbox },

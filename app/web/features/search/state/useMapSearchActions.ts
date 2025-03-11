@@ -12,26 +12,11 @@ export interface FlyToLocationProps {
 function useMapSearchActions() {
   const dispatch = useMapSearchDispatch();
 
-  //   const flyToLocation = useCallback(
-  //     ({ longitude, latitude, zoom }: FlyToLocationProps) => {
-  //       mapFlyToLocation({ longitude, latitude, zoom, mapRef });
-  //     },
-  //     [mapRef],
-  //   );
-
   const setSearch = (search: SearchOptions) => {
     dispatch({
       type: mapSearchActionTypes.SET_SEARCH,
       payload: search,
     });
-
-    // if (search.location) {
-    //   const geojson = search.location as GeocodeResult;
-    //   flyToLocation({
-    //     longitude: geojson.location.lng,
-    //     latitude: geojson.location.lat,
-    //   });
-    // }
   };
 
   const setSearchFilters = (newFilters: FilterOptions) => {

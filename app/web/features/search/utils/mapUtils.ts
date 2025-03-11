@@ -16,20 +16,9 @@ const usersToGeoJSON = (pins: User.AsObject[]): FeatureCollection => ({
       coordinates: [pin.lng, pin.lat], // GeoJSON expects [lng, lat]
     },
     properties: {
-      avatarUrl: pin.avatarUrl,
       id: pin.userId,
       hasCompletedProfile:
         pin.avatarUrl && pin.aboutMe && pin.aboutMe.length >= 150,
-      name: pin.name,
-      username: pin.username,
-      city: pin.city,
-      age: pin.age,
-      avatarThumbnailUrl: pin.avatarThumbnailUrl,
-      lat: pin.lat,
-      lng: pin.lng,
-      radius: pin.radius,
-      hasStrongVerification: pin.hasStrongVerification,
-      timezone: pin.timezone,
     },
   })),
 });
@@ -56,6 +45,7 @@ const loadMapUserPins = async (mapRef: React.RefObject<MapRef>) => {
   return;
 };
 
+// @TODO(NA) - Maybe stringify state and initialState and compare them instead? As long as order is the same.
 const getHasActiveFilters = (
   state: MapSearchState,
   initialState: MapSearchState,

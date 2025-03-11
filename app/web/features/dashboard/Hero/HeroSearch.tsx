@@ -1,6 +1,5 @@
 import { Typography } from "@mui/material";
 import LocationAutocomplete from "components/LocationAutocomplete";
-import { Coordinates } from "features/search/utils/constants";
 import { DASHBOARD } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
@@ -26,6 +25,7 @@ export default function HeroSearch() {
 
   const {
     control,
+
     formState: { errors },
   } = useForm<{ location: GeocodeResult }>({ mode: "onChange" });
 
@@ -50,7 +50,7 @@ export default function HeroSearch() {
         defaultValue={""}
         onChange={(value) => {
           if (value !== "") {
-            const newBbox: Coordinates = [
+            const newBbox: [number, number, number, number] = [
               value.bbox[2],
               value.bbox[3],
               value.bbox[0],
