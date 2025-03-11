@@ -689,17 +689,19 @@ def test_DeleteReference(db):
             rating=0.5,
             was_appropriate=True
         )
-
         session.add(reference)
         session.commit()
-        session.expire_all()
+        
+        reference_id = reference.id
 
         with real_admin_session(super_token) as api:
             res = api.DeleteReference(
                 admin_pb2.DeleteReferenceReq(reference_id=reference.id)
             )
 
-        reference = session.execute(select(Reference).where(Reference.id == reference.id)).scalar_one_or_none()
-        assert reference is None
+        session.expire_all()
+
+        modified_reference = session.execute(select(Reference).where(Reference.id == reference_id)).scalar_one_or_none()
+        assert modified_reference is None
     
 # community invite feature tested in test_events.py
