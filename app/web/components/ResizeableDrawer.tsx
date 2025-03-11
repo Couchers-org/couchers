@@ -11,6 +11,7 @@ export const DEFAULT_DRAWER_WIDTH = 400;
 
 interface ResizeableDrawerProps {
   children: React.ReactNode;
+  nonScrollableChildren?: React.ReactNode;
   onDrawerWidthChange: (width: number) => void;
   showDragger?: boolean;
 }
@@ -31,18 +32,22 @@ const StyledDragger = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "center",
   position: "relative",
-  // overflow: "visible", // @TODO(NA) Do I need this?
 }));
 
 const ScrollableContent = styled("div")(({ theme }) => ({
-  paddingTop: theme.spacing(2),
   overflowY: "auto",
-  overflowX: "hidden",
   height: "100%",
 }));
 
+const FlexColumn = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  height: "100%",
+});
+
 export default function ResizeableDrawer({
   children,
+  nonScrollableChildren,
   onDrawerWidthChange,
   showDragger,
 }: ResizeableDrawerProps) {
@@ -60,7 +65,10 @@ export default function ResizeableDrawer({
 
   return (
     <DrawerContentWrapper>
-      <ScrollableContent>{children}</ScrollableContent>
+      <FlexColumn>
+        <ScrollableContent>{children}</ScrollableContent>
+        {nonScrollableChildren}
+      </FlexColumn>
       {showDragger && (
         <StyledDragger>
           <IconButton

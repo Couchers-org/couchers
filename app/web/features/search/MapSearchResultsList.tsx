@@ -57,6 +57,16 @@ const MapSearchResultsList = ({
       <ResizeableDrawer
         onDrawerWidthChange={onDrawerWidthChange}
         showDragger={!isMobile && mapView !== MapViews.LIST_ONLY}
+        nonScrollableChildren={
+          <PreviousNextPagination
+            hasPreviousPage={hasPreviousPage}
+            hasNextPage={hasNextPage}
+            meetsSearchCriteria={meetsSearchCriteria}
+            onPreviousClick={onLoadPreviousPage}
+            onNextClick={onLoadNextPage}
+            totalItems={totalItems}
+          />
+        }
       >
         <SearchResultListContent
           showAlert={!isLoading && !meetsSearchCriteria}
@@ -67,16 +77,6 @@ const MapSearchResultsList = ({
           }
           users={users}
         />
-        {(hasPreviousPage || hasNextPage) && (
-          <PreviousNextPagination
-            hasPreviousPage={hasPreviousPage}
-            hasNextPage={hasNextPage}
-            meetsSearchCriteria={meetsSearchCriteria}
-            onPreviousClick={onLoadPreviousPage}
-            onNextClick={onLoadNextPage}
-            totalItems={totalItems}
-          />
-        )}
       </ResizeableDrawer>
     </DrawerContainer>
   );

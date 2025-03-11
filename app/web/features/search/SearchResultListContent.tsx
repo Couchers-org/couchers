@@ -18,14 +18,20 @@ const ListContentWrapper = styled(Box, {
 })<{ showTopSpace: boolean }>(({ showTopSpace }) => ({
   display: "flex",
   flexWrap: "wrap",
-  gap: theme.spacing(2),
   width: "100%",
-  padding: theme.spacing(1, 2),
+  padding: theme.spacing(2),
   height: "100%",
-  ...(showTopSpace && { paddingTop: theme.spacing(8) }),
+  ...(showTopSpace && { paddingTop: theme.spacing(10) }),
 }));
 
-const StyledCardWrapper = styled(Box)(({ theme }) => ({
+const UserCardsWrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexWrap: "wrap",
+  gap: theme.spacing(2),
+  paddingBottom: theme.spacing(2),
+}));
+
+const StyledCardWrapper = styled("div")(({ theme }) => ({
   // 3 columns by default
   flex: `1 1 calc(33% - ${theme.spacing(2)})`,
 }));
@@ -46,19 +52,21 @@ const SearchResultListContent = ({
           {t("search:choose_search_criteria")}
         </Alert>
       )}
-      {users?.map((user) => (
-        <StyledCardWrapper
-          key={user?.userId}
-          id={`search-result-${user?.userId}`}
-        >
-          <SearchResultUserCard
-            isHighlighted={
-              !selectedUserIds ? false : selectedUserIds.includes(user.userId)
-            }
-            user={user}
-          />
-        </StyledCardWrapper>
-      ))}
+      <UserCardsWrapper>
+        {users?.map((user) => (
+          <StyledCardWrapper
+            key={user?.userId}
+            id={`search-result-${user?.userId}`}
+          >
+            <SearchResultUserCard
+              isHighlighted={
+                !selectedUserIds ? false : selectedUserIds.includes(user.userId)
+              }
+              user={user}
+            />
+          </StyledCardWrapper>
+        ))}
+      </UserCardsWrapper>
     </ListContentWrapper>
   );
 };
