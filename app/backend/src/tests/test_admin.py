@@ -644,6 +644,7 @@ def test_ListUserIds(db):
         )
         assert res.user_ids == []
 
+
 def test_EditReferenceText(db):
     super_user, super_token = generate_user(is_superuser=True)
     test_new_text = "New Text"
@@ -652,26 +653,26 @@ def test_EditReferenceText(db):
     user2, user2_token = generate_user()
 
     with session_scope() as session:
-
         reference = Reference(
             from_user_id=user1.id,
             to_user_id=user2.id,
             reference_type=ReferenceType.friend,
             text="Old Text",
             rating=0.2,
-            was_appropriate=True
+            was_appropriate=True,
         )
         session.add(reference)
         session.commit()
-        
+
         with real_admin_session(super_token) as api:
             res = api.EditReferenceText(
                 admin_pb2.EditReferenceTextReq(reference_id=reference.id, new_text=test_new_text)
             )
-        
+
         session.expire_all()
 
         modified_reference = session.execute(select(Reference).where(Reference.id == reference.id)).scalar_one_or_none()
         assert modified_reference.text == test_new_text
-    
+
+
 # community invite feature tested in test_events.py
