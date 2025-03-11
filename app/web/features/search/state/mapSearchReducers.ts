@@ -147,8 +147,7 @@ const mapSearchReducer = (
         search: updatedSearchQuery,
         hasSearchInputValue:
           action.payload.location || action.payload.keyword ? true : false,
-        hasSearchBounds:
-          updatedSearchQuery.bbox !== undefined,
+        hasSearchBounds: updatedSearchQuery.bbox !== undefined,
         zoom: action.payload.keyword ? 1 : state.zoom,
       };
     case mapSearchActionTypes.SET_FILTERS:

@@ -2144,10 +2144,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/node@*", "@types/node@^22.13.5":
-  version "22.13.5"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.13.5.tgz#23add1d71acddab2c6a4d31db89c0f98d330b511"
-  integrity sha512-+lTU0PxZXn0Dr1NBtC7Y8cR21AJr87dLLU953CWA6pMxxv/UDc7jYAY90upcrie1nRcD6XNG5HOYEDtgW5TxAg==
+"@types/node@*", "@types/node@^22.13.10":
+  version "22.13.10"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.13.10.tgz#df9ea358c5ed991266becc3109dc2dc9125d77e4"
+  integrity sha512-I6LPUvlRH+O6VRUqYOcMudhaIdUVWfsjnZavnsraHvpBwaEyMN29ry+0UVJhImYL16xsscu0aske3yA+uPOWfw==
   dependencies:
     undici-types "~6.20.0"
 
@@ -3166,10 +3166,10 @@ cosmiconfig@^7.0.0:
     path-type "^4.0.0"
     yaml "^1.10.0"
 
-country-flag-icons@^1.5.11:
-  version "1.5.14"
-  resolved "https://registry.yarnpkg.com/country-flag-icons/-/country-flag-icons-1.5.14.tgz#5f621bb8b1e14a3fd5f002be8e45abb0f28b3b70"
-  integrity sha512-GAFsVzHDu3bdAhbQ1LwBRqk/Ad8+ZzS5zU49P+lRla0KGy/V1V8ywNa1SxBOAmI/lyEOT9dfH3Q++q1lqJlvBA==
+country-flag-icons@^1.5.17:
+  version "1.5.18"
+  resolved "https://registry.yarnpkg.com/country-flag-icons/-/country-flag-icons-1.5.18.tgz#091de61e4c1f69dfb7e6575ed1e1135c9333ee15"
+  integrity sha512-z+Uzesi8u8IdkViqqbzzbkf3+a7WJpcET5B7sPwTg7GXqPYpVEgNlZ/FC3l8KO4mEf+mNkmzKLppKTN4PlCJEQ==
 
 create-jest@^29.7.0:
   version "29.7.0"
@@ -3785,10 +3785,10 @@ eslint-config-next@^14.2.24:
     eslint-plugin-react "^7.33.2"
     eslint-plugin-react-hooks "^4.5.0 || 5.0.0-canary-7118f5dd7-20230705"
 
-eslint-config-prettier@^10.0.1:
-  version "10.0.1"
-  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-10.0.1.tgz#fbb03bfc8db0651df9ce4e8b7150d11c5fe3addf"
-  integrity sha512-lZBts941cyJyeaooiKxAtzoPHTN+GbQTJFAIdQbRhA4/8whaAraEh47Whw/ZFfrjNSnlAxqfm9i0XVAEkULjCw==
+eslint-config-prettier@^10.1.1:
+  version "10.1.1"
+  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-10.1.1.tgz#cf0ff6e5c4e7e15f129f1f1ce2a5ecba92dec132"
+  integrity sha512-4EQQr6wXwS+ZJSzaR5ZCrYgLxqvUjdXctaEtBqHcbkW944B1NQyO4qpdHQbXBONfwxXdkAY81HH4+LUfrg+zPw==
 
 eslint-import-resolver-node@^0.3.6, eslint-import-resolver-node@^0.3.9:
   version "0.3.9"
@@ -5771,10 +5771,10 @@ levn@^0.4.1:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
 
-libphonenumber-js@^1.11.17:
-  version "1.11.19"
-  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.11.19.tgz#de6437b15d23d9e3b16e5b14c6f2d6d65f58c9b7"
-  integrity sha512-bW/Yp/9dod6fmyR+XqSUL1N5JE7QRxQ3KrBIbYS1FTv32e5i3SEtQVX+71CYNv8maWNSOgnlCoNp9X78f/cKiA==
+libphonenumber-js@^1.11.20:
+  version "1.12.5"
+  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.12.5.tgz#8e6043a67112d4beedb8627b359a613f04d88fba"
+  integrity sha512-DOjiaVjjSmap12ztyb4QgoFmUe/GbgnEXHu+R7iowk0lzDIjScvPAm8cK9RYTEobbRb0OPlwlZUGTTJPJg13Kw==
 
 lines-and-columns@^1.1.6:
   version "1.2.4"
@@ -6904,15 +6904,15 @@ react-map-gl@^8.0.1:
     "@vis.gl/react-mapbox" "8.0.1"
     "@vis.gl/react-maplibre" "8.0.1"
 
-react-phone-number-input@^3.4.11:
-  version "3.4.11"
-  resolved "https://registry.yarnpkg.com/react-phone-number-input/-/react-phone-number-input-3.4.11.tgz#d1120ef5323311eaed5ea46ca9ecfcadd5255b6a"
-  integrity sha512-ypN9hXwUModpngho9brCHLLD40xzb1DKAZFacbF0J+fFaMVLEJo+zul9sZfSRlKehSjpttT4b1pLMcOWXI228g==
+react-phone-number-input@^3.4.12:
+  version "3.4.12"
+  resolved "https://registry.yarnpkg.com/react-phone-number-input/-/react-phone-number-input-3.4.12.tgz#0e8cfdf3cba36239290640bc25163c49addca753"
+  integrity sha512-Raob77KdtLGm49iC6nuOX9qy6Mg16idkgC7Y1mHmvG2WBYoauHpzxYNlfmFskQKeiztrJIwPhPzBhjFwjenNCA==
   dependencies:
     classnames "^2.5.1"
-    country-flag-icons "^1.5.11"
+    country-flag-icons "^1.5.17"
     input-format "^0.3.10"
-    libphonenumber-js "^1.11.17"
+    libphonenumber-js "^1.11.20"
     prop-types "^15.8.1"
 
 react-query@*, react-query@^3.39.3:
