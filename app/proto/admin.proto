@@ -65,7 +65,6 @@ service Admin {
 
   rpc EditReferenceText(EditReferenceTextReq) returns (google.protobuf.Empty) {}
 
-  rpc DeleteReference(DeleteReferenceReq) returns (google.protobuf.Empty) {}
 }
 
 message UserDetails {
@@ -276,8 +275,4 @@ message ListUserIdsRes {
 message EditReferenceTextReq {
   int64 reference_id = 1;
   string new_text = 6; //plain text
-}
-
-message DeleteReferenceReq {
-  int64 reference_id = 1;
 }

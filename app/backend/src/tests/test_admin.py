@@ -673,35 +673,5 @@ def test_EditReferenceText(db):
 
         modified_reference = session.execute(select(Reference).where(Reference.id == reference.id)).scalar_one_or_none()
         assert modified_reference.text == test_new_text
-
-def test_DeleteReference(db):
-    super_user, super_token = generate_user(is_superuser=True)
-    user1, user1_token = generate_user()
-    user2, user2_token = generate_user()
-
-    with session_scope() as session:
-
-        reference = Reference(
-            from_user_id=user1.id,
-            to_user_id=user2.id,
-            reference_type=ReferenceType.friend,
-            text="Old Text",
-            rating=0.5,
-            was_appropriate=True
-        )
-        session.add(reference)
-        session.commit()
-        
-        reference_id = reference.id
-
-        with real_admin_session(super_token) as api:
-            res = api.DeleteReference(
-                admin_pb2.DeleteReferenceReq(reference_id=reference.id)
-            )
-
-        session.expire_all()
-
-        modified_reference = session.execute(select(Reference).where(Reference.id == reference_id)).scalar_one_or_none()
-        assert modified_reference is None
     
 # community invite feature tested in test_events.py
