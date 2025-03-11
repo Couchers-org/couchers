@@ -86,6 +86,10 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     if (value !== newValue) {
       setValue(newValue);
     }
+
+    if (newValue === "" && onClear) {
+      onClear();
+    }
   };
 
   return (

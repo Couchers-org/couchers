@@ -115,13 +115,13 @@ const mapSearchReducer = (
         },
         hasSearchInputValue: false,
         hasSearchBounds: action.payload?.bbox !== undefined,
-        zoom: initialState.zoom,
       };
     case mapSearchActionTypes.SET_SEARCH:
       const updatedSearchQuery = { ...state.search };
 
       if (action.payload.bbox) {
         updatedSearchQuery.bbox = action.payload.bbox;
+        updatedSearchQuery.query = initialState.search.query;
       }
       // We get a location when user searches search input
       if (action.payload.location) {
@@ -146,12 +146,10 @@ const mapSearchReducer = (
         ...state,
         search: updatedSearchQuery,
         hasSearchInputValue:
-          action.payload.location !== undefined ||
-          (action.payload.keyword?.length ?? 0) > 0,
+          action.payload.location || action.payload.keyword ? true : false,
         hasSearchBounds:
-          action.payload.bbox !== undefined ||
-          action.payload.location !== undefined,
-        zoom: initialState.zoom,
+          updatedSearchQuery.bbox !== undefined,
+        zoom: action.payload.keyword ? 1 : state.zoom,
       };
     case mapSearchActionTypes.SET_FILTERS:
       const updatedFilters = { ...state.filters };
