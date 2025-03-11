@@ -23,9 +23,9 @@ from couchers.models import (
     Message,
     ModNote,
     Node,
+    Reference,
     User,
     UserBadge,
-    Reference
 )
 from couchers.notifications.notify import notify
 from couchers.resources import get_badge_dict
@@ -544,7 +544,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
         reference.text = request.new_text
         session.commit()
-
+        
         return empty_pb2.Empty()
 
     def DeleteReference(self, request, context, session):
