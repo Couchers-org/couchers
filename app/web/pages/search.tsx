@@ -29,4 +29,4 @@ export default function SearchPage() {
   );
 }
 
-SearchPage.getLayout = appGetLayout({ noFooter: true, variant: "full-width" });
+SearchPage.getLayout = appGetLayout({ noFooter: true, variant: "full-screen" });

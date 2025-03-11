@@ -2,13 +2,13 @@ import ReplayIcon from "@mui/icons-material/Replay";
 import TuneIcon from "@mui/icons-material/Tune";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import Map from "components/Map";
+import Map from "components/OldMap";
 import {
   addClusteredUsersToMap,
   filterData,
   layers,
   reRenderUsersOnMap,
-} from "features/_search/users";
+} from "features/oldSearch/users";
 import { Point } from "geojson";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";

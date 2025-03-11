@@ -134,7 +134,7 @@ const mapSearchReducer = (
         ] as Coordinates;
 
         updatedSearchQuery.bbox = formattedBbox; // sw long, sw lat, ne long, ne lat
-        updatedSearchQuery.query = action.payload.location?.name;
+        updatedSearchQuery.query = initialState.search.query;
       }
 
       if (action.payload.keyword) {
@@ -151,6 +151,7 @@ const mapSearchReducer = (
         hasSearchBounds:
           action.payload.bbox !== undefined ||
           action.payload.location !== undefined,
+        zoom: initialState.zoom,
       };
     case mapSearchActionTypes.SET_FILTERS:
       const updatedFilters = { ...state.filters };

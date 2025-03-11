@@ -37,12 +37,14 @@ const StyledDragger = styled("div")(({ theme }) => ({
 const ScrollableContent = styled("div")(({ theme }) => ({
   overflowY: "auto",
   height: "100%",
+  width: "100%",
 }));
 
 const FlexColumn = styled("div")({
   display: "flex",
   flexDirection: "column",
   height: "100%",
+  width: "100%",
 });
 
 export default function ResizeableDrawer({

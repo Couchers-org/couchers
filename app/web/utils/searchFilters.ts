@@ -1,4 +1,4 @@
-import { Coordinates } from "features/_search/constants";
+import { Coordinates } from "features/oldSearch/constants";
 import { ParsedUrlQuery } from "querystring";
 import { UserSearchFilters as ServiceUserSearchFilters } from "service/search";
 import stringOrFirstString from "utils/stringOrFirstString";

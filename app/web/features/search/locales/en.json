@@ -14,7 +14,7 @@
     "last_3_months": "Last 3 months"
   },
   "form": {
-    "location_field_label": "Search location",
+    "location_field_label": "Near location",
     "missing_location_validation_error": "Specify a location to use this filter",
     "keywords": {
       "field_label": "Name, keywords, or username",

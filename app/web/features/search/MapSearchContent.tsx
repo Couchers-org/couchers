@@ -32,11 +32,13 @@ const Wrapper = styled("div")({
 
 const SearchResultsContainer = styled("div", {
   shouldForwardProp: (prop) => prop !== "drawerWidth",
-})<{ drawerWidth: number }>(({ theme, drawerWidth }) => ({
-  display: "flex",
-  height: "100%",
-  width: `${drawerWidth}px`,
-}));
+})<{ drawerWidth: number; isListOnlyView: boolean }>(
+  ({ theme, drawerWidth, isListOnlyView }) => ({
+    display: "flex",
+    height: "100%",
+    width: isListOnlyView ? "100%" : `${drawerWidth}px`,
+  }),
+);
 
 const MapContainer = styled("div", {
   shouldForwardProp: (prop) => prop !== "drawerWidth",
@@ -64,7 +66,10 @@ const MapSearchContent = ({
 }: MapSearchContentProps) => {
   return (
     <Wrapper>
-      <SearchResultsContainer drawerWidth={drawerWidth}>
+      <SearchResultsContainer
+        drawerWidth={drawerWidth}
+        isListOnlyView={mapView === MapViews.LIST_ONLY}
+      >
         <MapSearchResultsList
           drawerWidth={drawerWidth}
           hasPreviousPage={hasPreviousPage}

@@ -52,8 +52,6 @@ const MapSearchResultsList = ({
 
   return (
     <DrawerContainer>
-      {isLoading && <CenteredSpinner />}
-
       <ResizeableDrawer
         onDrawerWidthChange={onDrawerWidthChange}
         showDragger={!isMobile && mapView !== MapViews.LIST_ONLY}
@@ -68,15 +66,20 @@ const MapSearchResultsList = ({
           />
         }
       >
-        <SearchResultListContent
-          showAlert={!isLoading && !meetsSearchCriteria}
-          showTopSpace={
-            !isMobile &&
-            mapView === MapViews.MAP_AND_LIST &&
-            drawerWidth > window.innerWidth / 2
-          }
-          users={users}
-        />
+        {isLoading ? (
+          <CenteredSpinner />
+        ) : (
+          <SearchResultListContent
+            showAlert={!isLoading && !meetsSearchCriteria}
+            showTopSpace={
+              !isMobile &&
+              (mapView === MapViews.LIST_ONLY ||
+                (mapView === MapViews.MAP_AND_LIST &&
+                  drawerWidth > window.innerWidth / 2))
+            }
+            users={users}
+          />
+        )}
       </ResizeableDrawer>
     </DrawerContainer>
   );

@@ -48,9 +48,9 @@ export type SearchOptions = {
 };
 
 const SearchPageContainer = styled("div")(({ theme }) => ({
-  height: "100%",
   display: "flex",
   flexDirection: "column",
+  height: "100%",
 }));
 
 /**

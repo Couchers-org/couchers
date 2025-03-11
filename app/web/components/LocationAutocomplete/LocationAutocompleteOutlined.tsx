@@ -30,7 +30,6 @@ interface LocationAutocompleteOutlinedProps {
   showFullDisplayName?: boolean;
 }
 
-// @TODO(NA): Fix controlled state error
 const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   props: LocationAutocompleteOutlinedProps,
   ref,
@@ -93,8 +92,13 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
     <Autocomplete
       className={className}
       disableClearable={value === ""}
-      defaultValue={
-        { name: defaultValue, simplifiedName: defaultValue } as GeocodeResult
+      value={
+        defaultValue
+          ? ({
+              name: defaultValue,
+              simplifiedName: defaultValue,
+            } as GeocodeResult)
+          : null // Ensure it's never undefined or get uncontrolled state error
       }
       id={id}
       ref={ref}

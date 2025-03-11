@@ -168,12 +168,16 @@ const FloatingSearchControls = ({
   };
 
   const debouncedKeywordChange = debounce((value: SearchOptions["keyword"]) => {
-    setSearch({ keyword: value });
+    // Only search if the keyword is longer than 3 characters
+    if ((value ?? "").length > 3) {
+      setSearch({ keyword: value });
+    }
   }, 500);
 
   const handleKeywordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     debouncedKeywordChange(event.target.value);
     setKeyword(event.target.value);
+    mapRef.current?.setZoom(1); // zoom out because people with keyword could be anywhere
   };
 
   const handleClearKeyword = () => {

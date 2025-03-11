@@ -3,7 +3,7 @@ import classNames from "classnames";
 import Button from "components/Button";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import UserSummary from "components/UserSummary";
-import { aboutText } from "features/_search/constants";
+import { aboutText } from "features/oldSearch/constants";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
