@@ -7,10 +7,10 @@ from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, ContentReport, EventOccurrence, Node, Reference, ReferenceType, UserSession
+from couchers.models import Cluster, ContentReport, EventOccurrence, Node, Reference, UserSession
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
-from proto import admin_pb2, events_pb2, reporting_pb2, references_pb2
+from proto import admin_pb2, events_pb2, references_pb2, reporting_pb2
 from tests.test_communities import create_community
 from tests.test_fixtures import (  # noqa
     db,
@@ -657,11 +657,7 @@ def test_EditReferenceText(db):
         with references_session(user1_token) as api:
             reference = api.WriteFriendReference(
                 references_pb2.WriteFriendReferenceReq(
-                    to_user_id=user2.id,
-                    text="Old Text",
-                    private_text="",
-                    was_appropriate=True,
-                    rating=1
+                    to_user_id=user2.id, text="Old Text", private_text="", was_appropriate=True, rating=1
                 )
             )
 
@@ -672,7 +668,9 @@ def test_EditReferenceText(db):
 
         session.expire_all()
 
-        modified_reference = session.execute(select(Reference).where(Reference.id == reference.reference_id)).scalar_one_or_none()
+        modified_reference = session.execute(
+            select(Reference).where(Reference.id == reference.reference_id)
+        ).scalar_one_or_none()
         assert modified_reference.text == test_new_text
 
 
