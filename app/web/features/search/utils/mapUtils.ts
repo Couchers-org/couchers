@@ -126,8 +126,8 @@ const onClusterClick = async ({
   );
 
   // prevent it from hyper zooming rapidly
-  if (newZoom - zoom > 4) {
-    newZoom = zoom + 4;
+  if (newZoom - zoom > 5) {
+    newZoom = zoom + 5;
   }
 
   mapRef.current?.easeTo({
