@@ -62,6 +62,9 @@ service Admin {
   rpc DeleteEvent(DeleteEventReq) returns (google.protobuf.Empty) {}
 
   rpc ListUserIds(ListUserIdsReq) returns (ListUserIdsRes) {}
+
+  rpc EditReferenceText(EditReferenceTextReq) returns (google.protobuf.Empty) {}
+
 }
 
 message UserDetails {
@@ -267,4 +270,9 @@ message ListUserIdsRes {
   repeated int64 user_ids = 1;
 
   string next_page_token = 2;
+}
+
+message EditReferenceTextReq {
+  int64 reference_id = 1;
+  string new_text = 2;
 }

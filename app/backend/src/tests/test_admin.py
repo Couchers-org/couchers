@@ -7,10 +7,10 @@ from sqlalchemy.sql import func
 
 from couchers import errors
 from couchers.db import session_scope
-from couchers.models import Cluster, ContentReport, EventOccurrence, Node, UserSession
+from couchers.models import Cluster, ContentReport, EventOccurrence, Node, Reference, UserSession
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
-from proto import admin_pb2, events_pb2, reporting_pb2
+from proto import admin_pb2, events_pb2, references_pb2, reporting_pb2
 from tests.test_communities import create_community
 from tests.test_fixtures import (  # noqa
     db,
@@ -21,6 +21,7 @@ from tests.test_fixtures import (  # noqa
     mock_notification_email,
     push_collector,
     real_admin_session,
+    references_session,
     reporting_session,
     testconfig,
 )
@@ -643,6 +644,34 @@ def test_ListUserIds(db):
             admin_pb2.ListUserIdsReq(start_time=Timestamp_from_datetime(now()), end_time=Timestamp_from_datetime(now()))
         )
         assert res.user_ids == []
+
+
+def test_EditReferenceText(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    test_new_text = "New Text"
+
+    user1, user1_token = generate_user()
+    user2, user2_token = generate_user()
+
+    with session_scope() as session:
+        with references_session(user1_token) as api:
+            reference = api.WriteFriendReference(
+                references_pb2.WriteFriendReferenceReq(
+                    to_user_id=user2.id, text="Old Text", private_text="", was_appropriate=True, rating=1
+                )
+            )
+
+        with real_admin_session(super_token) as admin_api:
+            admin_api.EditReferenceText(
+                admin_pb2.EditReferenceTextReq(reference_id=reference.reference_id, new_text=test_new_text)
+            )
+
+        session.expire_all()
+
+        modified_reference = session.execute(
+            select(Reference).where(Reference.id == reference.reference_id)
+        ).scalar_one_or_none()
+        assert modified_reference.text == test_new_text
 
 
 # community invite feature tested in test_events.py
