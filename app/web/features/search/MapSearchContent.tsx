@@ -1,6 +1,7 @@
-import { styled } from "@mui/material";
+import { styled, useMediaQuery } from "@mui/material";
 import { User } from "proto/api_pb";
 import { MapRef } from "react-map-gl/maplibre";
+import { theme } from "theme";
 
 import MapSearchResultsList from "./MapSearchResultsList";
 import MapView from "./MapView";
@@ -38,6 +39,10 @@ const SearchResultsContainer = styled("div", {
     display: "flex",
     height: "100%",
     width: isListOnlyView ? "100%" : `${drawerWidth}px`,
+
+    [theme.breakpoints.down("md")]: {
+      width: "100%",
+    },
   }),
 );
 
@@ -65,6 +70,8 @@ const MapSearchContent = ({
   totalItems,
   users,
 }: MapSearchContentProps) => {
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   return (
     <Wrapper>
       <SearchResultsContainer
@@ -84,7 +91,7 @@ const MapSearchContent = ({
           users={users}
         />
       </SearchResultsContainer>
-      {mapView !== MapViews.LIST_ONLY && (
+      {!isMobile && mapView !== MapViews.LIST_ONLY && (
         <MapContainer drawerWidth={drawerWidth}>
           <MapView isLoading={isLoading} mapRef={mapRef} users={users} />
         </MapContainer>

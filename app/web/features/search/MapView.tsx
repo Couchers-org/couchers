@@ -105,11 +105,15 @@ const MapView = ({
           }
 
           setZoom(newZoom);
+          mapRef.current?.setCenter(ev.lngLat);
           mapRef.current?.zoomIn();
         }
       }
 
       if (layerId === UNCLUSTERED_LAYER_ID) {
+        // Don't turn pins orange and scroll if zoomed out too much as cards won't be there
+        if (zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH) return;
+
         const userId = feature.properties.id;
 
         if (selectedUserIds.includes(userId)) {

@@ -1,4 +1,5 @@
 import { Alert, Box, styled } from "@mui/material";
+import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { User } from "proto/api_pb";
@@ -16,8 +17,6 @@ interface SearchResultListContentProps {
 const ListContentWrapper = styled(Box, {
   shouldForwardProp: (prop) => prop !== "showTopSpace",
 })<{ showTopSpace: boolean }>(({ showTopSpace }) => ({
-  display: "flex",
-  flexWrap: "wrap",
   width: "100%",
   padding: theme.spacing(2),
   height: "100%",
@@ -25,15 +24,17 @@ const ListContentWrapper = styled(Box, {
 }));
 
 const UserCardsWrapper = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexWrap: "wrap",
+  display: "grid",
+  gridTemplateColumns: `repeat(auto-fill, minmax(${DEFAULT_DRAWER_WIDTH - 50}px, 1fr))`, // Responsive columns
   gap: theme.spacing(2),
+  justifyContent: "start",
+  width: "100%",
   paddingBottom: theme.spacing(2),
 }));
 
 const StyledCardWrapper = styled("div")(({ theme }) => ({
-  // 3 columns by default
-  flex: `1 1 calc(33% - ${theme.spacing(2)})`,
+  height: `${DEFAULT_DRAWER_WIDTH - 50}px`,
+  display: "flex",
 }));
 
 const SearchResultListContent = ({

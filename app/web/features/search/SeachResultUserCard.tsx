@@ -1,4 +1,4 @@
-import { Card, styled, Tooltip, Typography } from "@mui/material";
+import { styled, Tooltip, Typography } from "@mui/material";
 import { FlexboxProps } from "@mui/system";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
@@ -25,7 +25,7 @@ interface SearchResultUserCardProps {
   user: User.AsObject;
 }
 
-const StyledCard = styled(Card, {
+const StyledCard = styled("div", {
   shouldForwardProp: (prop) => prop !== "isHighlighted",
 })<{ isHighlighted: boolean }>(({ theme, isHighlighted }) => ({
   display: "flex",
@@ -34,7 +34,8 @@ const StyledCard = styled(Card, {
   borderRadius: 8,
   boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
   paddingTop: theme.spacing(1),
-  height: theme.spacing(50),
+  height: "100%",
+  width: "100%",
 }));
 
 const StyledTopContent = styled("div")(({ theme }) => ({
@@ -113,12 +114,7 @@ const SearchResultUserCard = ({
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
   return (
-    <StyledCard
-      isHighlighted={isHighlighted}
-      variant="outlined"
-      square={false}
-      elevation={0}
-    >
+    <StyledCard isHighlighted={isHighlighted}>
       <StyledTopContent>
         <Avatar user={user} />
         <FlexColumn>
@@ -191,7 +187,6 @@ const SearchResultUserCard = ({
         </Typography>
         <FlexRow alignItems="flex-end">
           <UserDetailsRow>
-            {/* <BulletPoint>•</BulletPoint> */}
             <Typography variant="body2">
               {user.lastActive
                 ? `Active: ` +
@@ -205,7 +200,6 @@ const SearchResultUserCard = ({
                   })
                 : t("last_active_false")}
             </Typography>
-            {/* <BulletPoint>•</BulletPoint> */}
             <Typography variant="body2" sx={{ display: "flex" }}>
               {`${t("profile:response_rate_label")}: `}
               <ResponseRateText user={user} />

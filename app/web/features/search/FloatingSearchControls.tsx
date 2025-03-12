@@ -164,6 +164,9 @@ const FloatingSearchControls = ({
 
   const handleSearchTypeChange = (event: SelectChangeEvent<unknown>) => {
     const value = event.target.value as "location" | "keyword";
+
+    setKeyword("");
+    clearSearchInputValue(undefined);
     onSetSearchType(value);
   };
 
