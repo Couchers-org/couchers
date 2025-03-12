@@ -55,6 +55,9 @@ enum MapViews {
 
 type MapViewOptions = MapViews.MAP_AND_LIST | MapViews.LIST_ONLY;
 
+const MAX_ZOOM_LEVEL = 14;
+const MIN_ZOOM_LEVEL = 1;
+
 export {
   aboutText,
   DEFAULT_AGE_MAX,
@@ -62,6 +65,8 @@ export {
   lastActiveOptions,
   MapViews,
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+  MAX_ZOOM_LEVEL,
+  MIN_ZOOM_LEVEL,
   selectedUserZoom,
 };
 

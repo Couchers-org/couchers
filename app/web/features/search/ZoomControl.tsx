@@ -4,6 +4,8 @@ import { Box, IconButton, styled } from "@mui/material";
 import React from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
+import { MAX_ZOOM_LEVEL, MIN_ZOOM_LEVEL } from "./utils/constants";
+
 interface ZoomControlProps {
   mapRef: React.RefObject<MapRef>;
   onZoomIn: (newZoom: number) => void;
@@ -24,7 +26,7 @@ const ZoomControl: React.FC<ZoomControlProps> = ({
   const handleZoomIn = () => {
     if (mapRef.current) {
       const map = mapRef.current.getMap();
-      const newZoom = Math.min(map.getZoom() + 1, 14); // Don't go higher than zoom level 14
+      const newZoom = Math.min(map.getZoom() + 1, MAX_ZOOM_LEVEL);
 
       map.zoomIn();
       onZoomIn(newZoom);
@@ -34,7 +36,7 @@ const ZoomControl: React.FC<ZoomControlProps> = ({
   const handleZoomOut = () => {
     if (mapRef.current) {
       const map = mapRef.current.getMap();
-      const newZoom = Math.min(map.getZoom() - 1, 1); // Don't go lower than zoom level 1
+      const newZoom = Math.min(map.getZoom() - 1, MIN_ZOOM_LEVEL);
 
       map.zoomOut();
       onZoomOut(newZoom);

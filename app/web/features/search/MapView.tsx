@@ -1,11 +1,7 @@
 import { debounce, styled } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Map, { API_BASE_URL } from "components/Map";
-import {
-  GeoJSONSource,
-  MapLayerMouseEvent,
-  MapSourceDataEvent,
-} from "maplibre-gl";
+import { MapLayerMouseEvent, MapSourceDataEvent } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { useCallback, useMemo, useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
@@ -20,7 +16,8 @@ import {
 import {
   getMapBounds,
   loadMapUserPins,
-  setMapFeatureState,
+  onClusterClick,
+  onPointClick,
   usersToGeoJSON,
 } from "./utils/mapUtils";
 
@@ -82,51 +79,23 @@ const MapView = ({
       const isCluster = feature?.properties.cluster;
 
       if (isCluster) {
-        const source = mapRef.current?.getSource(
-          SOURCE_CLUSTERED_USERS_ID,
-        ) as GeoJSONSource;
-
-        const newZoom = await source.getClusterExpansionZoom(
-          feature.properties.cluster_id,
-        );
-
-        if (newZoom) {
-          // Avoid excessive api calls if we already fetched more zoomed out
-          if (
-            zoom <= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
-            newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
-            !hasSearchInputValue
-          ) {
-            const bbox = getMapBounds(mapRef);
-
-            setSearch({
-              bbox,
-            });
-          }
-
-          setZoom(newZoom);
-
-          mapRef.current?.easeTo({
-            center: ev.lngLat,
-            duration: 2000,
-            zoom: newZoom,
-          });
-        }
-      }
-
-      if (layerId === UNCLUSTERED_LAYER_ID) {
-        // Don't turn pins orange and scroll if zoomed out too much as cards won't be there
-        if (zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH) return;
-
-        const userId = feature.properties.id;
-
-        if (selectedUserIds.includes(userId)) {
-          setMapFeatureState(mapRef, userId, false);
-        } else {
-          setMapFeatureState(mapRef, userId, true);
-        }
-
-        setSelectedUserIds(userId);
+        onClusterClick({
+          center: ev.lngLat,
+          feature,
+          hasSearchInputValue,
+          mapRef,
+          setSearch,
+          setZoom,
+          zoom,
+        });
+      } else if (layerId === UNCLUSTERED_LAYER_ID) {
+        onPointClick({
+          feature,
+          mapRef,
+          selectedUserIds,
+          setSelectedUserIds,
+          zoom,
+        });
       }
     },
     [

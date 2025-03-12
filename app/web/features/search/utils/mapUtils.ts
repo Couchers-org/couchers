@@ -1,10 +1,11 @@
 import { FeatureCollection } from "geojson";
+import { GeoJSONSource, LngLat } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { MapRef } from "react-map-gl/maplibre";
 
 import userPin from "../resources/userPin.png";
 import { MapSearchState } from "../state/mapSearchReducers";
-import { Coordinates } from "./constants";
+import { Coordinates, MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./constants";
 import { SOURCE_CLUSTERED_USERS_ID } from "./mapLayers";
 
 const usersToGeoJSON = (pins: User.AsObject[]): FeatureCollection => ({
@@ -99,11 +100,93 @@ const mapFlyToLocation = ({
   });
 };
 
+const onClusterClick = async ({
+  center,
+  feature,
+  hasSearchInputValue,
+  mapRef,
+  setSearch,
+  setZoom,
+  zoom,
+}: {
+  center: LngLat;
+  feature: maplibregl.MapGeoJSONFeature;
+  mapRef: React.RefObject<MapRef>;
+  setSearch: (params: { bbox: Coordinates | undefined }) => void;
+  setZoom: (zoom: number) => void;
+  zoom: number;
+  hasSearchInputValue: boolean;
+}) => {
+  const source = mapRef.current?.getSource(
+    SOURCE_CLUSTERED_USERS_ID,
+  ) as GeoJSONSource;
+
+  let newZoom = await source.getClusterExpansionZoom(
+    feature.properties.cluster_id,
+  );
+
+  // prevent it from hyper zooming rapidly
+  if (newZoom - zoom > 4) {
+    newZoom = zoom + 4;
+  }
+
+  mapRef.current?.easeTo({
+    center,
+    duration: 2000,
+    zoom: newZoom,
+  });
+
+  // Wait for easing to complete before recalculating the bounds
+  mapRef.current?.once("moveend", () => {
+    if (
+      zoom <= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+      newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+      !hasSearchInputValue
+    ) {
+      const bbox = getMapBounds(mapRef);
+      setSearch({ bbox });
+    }
+
+    setZoom(newZoom);
+  });
+};
+
+const onPointClick = ({
+  feature,
+  mapRef,
+  selectedUserIds,
+  setSelectedUserIds,
+  zoom,
+}: {
+  feature: maplibregl.MapGeoJSONFeature;
+  mapRef: React.RefObject<MapRef>;
+  selectedUserIds: number[];
+  setSelectedUserIds: (userId: number) => void;
+  zoom: number;
+}) => {
+  mapRef.current?.zoomIn();
+
+  // Don't turn pins orange and scroll if zoomed out too much as cards won't be there
+  if (zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH) return;
+
+  const userId = feature.properties.id;
+
+  if (selectedUserIds.includes(userId)) {
+    setMapFeatureState(mapRef, userId, false);
+  } else {
+    setMapFeatureState(mapRef, userId, true);
+  }
+
+  setSelectedUserIds(userId);
+};
+
 export {
   getHasActiveFilters,
   getMapBounds,
   loadMapUserPins,
   mapFlyToLocation,
+  onClusterClick,
+  onPointClick,
   setMapFeatureState,
   usersToGeoJSON,
 };
