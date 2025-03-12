@@ -274,5 +274,5 @@ message ListUserIdsRes {
 
 message EditReferenceTextReq {
   int64 reference_id = 1;
-  string new_text = 6; //plain text
+  string new_text = 2;
 }

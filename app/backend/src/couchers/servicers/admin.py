@@ -539,10 +539,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if reference is None:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.REFERENCE_NOT_FOUND)
 
-        if request.new_text.strip() == "":
+        if not request.new_text.strip():
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REFERENCE_NO_TEXT)
 
-        reference.text = request.new_text
-        session.commit()
-
+        reference.text = request.new_text.strip()
         return empty_pb2.Empty()
