@@ -105,8 +105,12 @@ const MapView = ({
           }
 
           setZoom(newZoom);
-          mapRef.current?.setCenter(ev.lngLat);
-          mapRef.current?.zoomIn();
+
+          mapRef.current?.easeTo({
+            center: ev.lngLat,
+            duration: 2000,
+            zoom: newZoom,
+          });
         }
       }
 
