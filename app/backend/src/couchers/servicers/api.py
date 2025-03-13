@@ -799,6 +799,7 @@ def user_model_to_pb(db_user, session, context):
         .join(User, User.id == Reference.from_user_id)
         .where(User.is_visible)
         .where(Reference.to_user_id == db_user.id)
+        .where(Reference.is_deleted == False)
     ).scalar_one()
 
     # returns (lat, lng)

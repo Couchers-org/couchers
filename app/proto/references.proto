@@ -56,8 +56,6 @@ message Reference {
 
   // if the reference is about the current user, this tells which host request it's about
   int64 host_request_id = 7;
-
-  bool is_deleted = 8;
 }
 
 message ListReferencesReq {
