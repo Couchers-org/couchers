@@ -634,10 +634,10 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_url=discussion_link,
             )
     elif notification.topic_action.display == "thread:reply":
-        if data.event:
+        if data.HasField("event"):
             title = data.event.title
             view_link = urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug)
-        elif data.discussion:
+        elif data.HasField("discussion"):
             title = data.discussion.title
             view_link = urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug)
         else:
