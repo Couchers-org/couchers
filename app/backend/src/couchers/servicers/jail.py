@@ -4,7 +4,7 @@ import grpc
 
 from couchers import errors
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
-from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, MeetupStatus, ModNote, User
+from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, ModNote, User
 from couchers.servicers.account import mod_note_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now
@@ -119,12 +119,8 @@ class Jail(jail_pb2_grpc.JailServicer):
             probe.response = ActivenessProbeStatus.still_active
         elif request.response == jail_pb2.ACTIVENESS_PROBE_RESPONSE_NO_LONGER_ACTIVE:
             probe.response = ActivenessProbeStatus.no_longer_active
-
-            # disable hosting and downgrade from wants_to_meetup if applicable
+            # disable hosting
             user.hosting_status = HostingStatus.cant_host
-
-            if user.meetup_status == MeetupStatus.wants_to_meetup:
-                user.meetup_status = MeetupStatus.open_to_meetup
         else:
             context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.PROBE_RESPONSE_INVALID)
 

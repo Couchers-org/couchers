@@ -56,7 +56,7 @@ def test_activeness_probes_happy_path_inactive(db, push_collector):
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
         assert res.hosting_status == api_pb2.HOSTING_STATUS_CANT_HOST
-        assert res.meetup_status == api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP
+        assert res.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
 
     push_collector.assert_user_has_single_matching(
         user.id,
