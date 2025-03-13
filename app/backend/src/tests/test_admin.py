@@ -674,4 +674,33 @@ def test_EditReferenceText(db):
         assert modified_reference.text == test_new_text
 
 
+def test_DeleteReference(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    user1, user1_token = generate_user()
+    user2, user2_token = generate_user()
+
+    with references_session(user1_token) as api:
+        reference = api.WriteFriendReference(
+            references_pb2.WriteFriendReferenceReq(
+                to_user_id=user2.id, text="Old Text", private_text="", was_appropriate=True, rating=1
+            )
+        )
+
+    with references_session(user1_token) as api:
+        assert api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id)).references
+
+    with real_admin_session(super_token) as admin_api:
+        admin_api.DeleteReference(admin_pb2.DeleteReferenceReq(reference_id=reference.reference_id))
+
+    with references_session(user1_token) as api:
+        assert not api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id)).references
+
+    with session_scope() as session:
+        modified_reference = session.execute(
+            select(Reference).where(Reference.id == reference.reference_id)
+        ).scalar_one_or_none()
+        assert modified_reference.is_deleted
+
+
 # community invite feature tested in test_events.py

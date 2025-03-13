@@ -544,3 +544,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
         reference.text = request.new_text.strip()
         return empty_pb2.Empty()
+
+    def DeleteReference(self, request, context, session):
+        reference = session.execute(select(Reference).where(Reference.id == request.reference_id)).scalar_one_or_none()
+
+        if reference is None:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.REFERENCE_NOT_FOUND)
+
+        reference.is_deleted = True
+        return empty_pb2.Empty()

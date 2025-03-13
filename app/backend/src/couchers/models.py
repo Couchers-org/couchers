@@ -1418,6 +1418,8 @@ class Reference(Base):
     rating = Column(Float, nullable=False)
     was_appropriate = Column(Boolean, nullable=False)
 
+    is_deleted = Column(Boolean, nullable=False, default=False, server_default="false")
+
     from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
     to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
 
