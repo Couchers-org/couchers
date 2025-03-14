@@ -24,7 +24,7 @@ export interface UserSearchFilters {
   acceptsLastMinRequests?: boolean;
   ageMin?: number;
   ageMax?: number;
-  drinkingAllowed?: boolean;
+  drinkingAllowed?: boolean | undefined;
   query?: string;
   bbox?: Coordinates;
   lastActive?: number; //within x days
@@ -36,7 +36,7 @@ export interface UserSearchFilters {
   pageNumber?: number;
   pageSize?: number;
   sleepingArrangement?: SleepingArrangementOptions[];
-  smokesAtHome?: boolean;
+  smokesAtHome?: boolean | undefined;
 }
 
 export async function userSearch(
@@ -78,7 +78,7 @@ export async function userSearch(
     req.setAcceptsPets(new BoolValue().setValue(acceptsPets));
   }
 
-  if (drinkingAllowed) {
+  if (drinkingAllowed !== undefined) {
     req.setDrinkingAllowed(new BoolValue().setValue(drinkingAllowed));
   }
 
@@ -135,7 +135,7 @@ export async function userSearch(
     req.setSleepingArrangementFilterList(sleepingArrangement);
   }
 
-  if (smokesAtHome) {
+  if (smokesAtHome !== undefined) {
     req.setSmokesAtHome(new BoolValue().setValue(smokesAtHome));
   }
 

@@ -1,4 +1,4 @@
-import { Alert, Box, styled } from "@mui/material";
+import { Alert, Box, styled, Typography } from "@mui/material";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
@@ -52,6 +52,11 @@ const SearchResultListContent = ({
         <Alert severity="info" sx={{ height: "fit-content", width: "100%" }}>
           {t("search:choose_search_criteria")}
         </Alert>
+      )}
+      {users?.length === 0 && (
+        <Typography>
+          {t("search:search_result.no_user_result_message")}
+        </Typography>
       )}
       <UserCardsWrapper>
         {users?.map((user) => (

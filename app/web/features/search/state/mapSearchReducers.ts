@@ -180,8 +180,7 @@ const mapSearchReducer = (
             action.payload[key] === false ? undefined : true;
         }
         if (key === "drinkingAllowed") {
-          updatedFilters.drinkingAllowed =
-            action.payload[key] === action.payload[key] || undefined;
+          updatedFilters.drinkingAllowed = action.payload[key];
         }
         if (key === "hasReferences") {
           updatedFilters.hasReferences =
@@ -208,8 +207,7 @@ const mapSearchReducer = (
               : action.payload[key];
         }
         if (key === "smokesAtHome") {
-          updatedFilters.smokesAtHome =
-            action.payload[key] === action.payload[key] || undefined;
+          updatedFilters.smokesAtHome = action.payload[key];
         }
       }
 
