@@ -489,8 +489,6 @@ class Search(search_pb2_grpc.SearchServicer):
             statement = statement.where(User.has_housemates == request.has_housemates.value)
         if request.HasField("wheelchair_accessible"):
             statement = statement.where(User.wheelchair_accessible == request.wheelchair_accessible.value)
-        if request.HasField("smoking_allowed"):
-            statement = statement.where(User.smoking_allowed == request.smoking_allowed.value)
         if request.HasField("smokes_at_home"):
             statement = statement.where(User.smokes_at_home == request.smokes_at_home.value)
         if request.HasField("drinking_allowed"):
