@@ -126,7 +126,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
   const [acceptsLastMinRequests, setAcceptsLastMinRequests] = useState(false);
   const [ageMin, setAgeMin] = useState(DEFAULT_AGE_MIN);
   const [ageMax, setAgeMax] = useState(DEFAULT_AGE_MAX);
-  const [drinkingAllowed, setDrinkingAllowed] = useState(false);
+  const [drinkingAllowed, setDrinkingAllowed] = useState<boolean | undefined>();
   const [showCompleteProfilesOnly, setShowCompleteProfilesOnly] =
     useState(false);
   const [lastActive, setLastActive] = useState(
@@ -141,7 +141,9 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
   const [sleepingArrangement, setSleepingArrangement] = useState<
     SleepingArrangementOptions[] | undefined
   >(undefined);
-  const [smokingAllowed, setSmokingAllowed] = useState(false);
+  const [smokesAtHome, setSmokesAtHome] = useState<boolean | undefined>(
+    undefined,
+  );
 
   const { setSearchFilters } = useMapSearchActions();
 
@@ -164,8 +166,11 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
     }
   };
 
-  const handleDrinkingAllowedChange = () => {
-    setDrinkingAllowed(!drinkingAllowed);
+  const handleDrinkingAllowedChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newDrinkingAllowed: boolean | undefined,
+  ) => {
+    setDrinkingAllowed(newDrinkingAllowed);
   };
 
   const handleShowCompleteProfilesOnlyChange = () => {
@@ -203,8 +208,11 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
     setSleepingArrangement(newSleepingArrangement);
   };
 
-  const handleSmokingAllowedChange = () => {
-    setSmokingAllowed(!smokingAllowed);
+  const handleSmokesAtHomeChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newSmokesAtHome: boolean | undefined,
+  ) => {
+    setSmokesAtHome(newSmokesAtHome);
   };
 
   // Just clear local state, will be submit when user clicks "Apply"
@@ -214,7 +222,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
     setAcceptsLastMinRequests(false);
     setAgeMin(DEFAULT_AGE_MIN);
     setAgeMax(DEFAULT_AGE_MAX);
-    setDrinkingAllowed(false);
+    setDrinkingAllowed(undefined);
     setShowCompleteProfilesOnly(false);
     setLastActive(lastActiveOptions.LAST_ACTIVE_ANY);
     setHasReferences(false);
@@ -222,7 +230,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
     setHostingStatus(undefined);
     setNumberOfGuests(undefined);
     setSleepingArrangement(undefined);
-    setSmokingAllowed(false);
+    setSmokesAtHome(undefined);
   };
 
   const handleApplyFilters = () => {
@@ -240,7 +248,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
       hostingStatus,
       numGuests: numberOfGuests,
       sleepingArrangement,
-      smokingAllowed,
+      smokesAtHome,
     });
 
     onCloseDialog();
@@ -344,20 +352,64 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
           />
         </FilterItemRow>
         <FilterItemRow>
-          <Typography> {t("search:form.rules.smoking_allowed")}</Typography>
-          <CustomColorSwitch
-            checked={smokingAllowed}
-            onClick={handleSmokingAllowedChange}
-            customColor={theme.palette.primary.main}
-          />
+          <Typography> {t("search:form.rules.smokes_at_home")}</Typography>
+          <ToggleButtonGroup
+            onChange={handleSmokesAtHomeChange}
+            value={smokesAtHome}
+            aria-label={t("search:form.rules.smokes_at_home")}
+            exclusive
+            size="small"
+            color="primary"
+            sx={{
+              borderRadius: 20,
+              marginRight: "-5px",
+            }}
+          >
+            <ToggleButton
+              value={true}
+              aria-label={t("global:yes")}
+              sx={{ borderRadius: "20px 0 0 20px" }}
+            >
+              {t("global:yes")}
+            </ToggleButton>
+            <ToggleButton
+              value={false}
+              aria-label={t("global:no")}
+              sx={{ borderRadius: "0 20px 20px 0" }}
+            >
+              {t("global:no")}
+            </ToggleButton>
+          </ToggleButtonGroup>
         </FilterItemRow>
         <FilterItemRow>
           <Typography> {t("search:form.rules.alcohol_allowed")}</Typography>
-          <CustomColorSwitch
-            checked={drinkingAllowed}
-            onClick={handleDrinkingAllowedChange}
-            customColor={theme.palette.primary.main}
-          />
+          <ToggleButtonGroup
+            onChange={handleDrinkingAllowedChange}
+            value={drinkingAllowed}
+            aria-label={t("search:form.rules.smokes_at_home")}
+            exclusive
+            size="small"
+            color="primary"
+            sx={{
+              borderRadius: 20,
+              marginRight: "-5px",
+            }}
+          >
+            <ToggleButton
+              value={true}
+              aria-label={t("global:yes")}
+              sx={{ borderRadius: "20px 0 0 20px" }}
+            >
+              {t("global:yes")}
+            </ToggleButton>
+            <ToggleButton
+              value={false}
+              aria-label={t("global:no")}
+              sx={{ borderRadius: "0 20px 20px 0" }}
+            >
+              {t("global:no")}
+            </ToggleButton>
+          </ToggleButtonGroup>
         </FilterItemRow>
         <Divider />
         <Typography variant="h3" sx={{ marginBottom: theme.spacing(2) }}>

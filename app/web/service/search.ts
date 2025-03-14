@@ -36,7 +36,7 @@ export interface UserSearchFilters {
   pageNumber?: number;
   pageSize?: number;
   sleepingArrangement?: SleepingArrangementOptions[];
-  smokingAllowed?: boolean;
+  smokesAtHome?: boolean;
 }
 
 export async function userSearch(
@@ -56,7 +56,7 @@ export async function userSearch(
     numGuests,
     completeProfile,
     sleepingArrangement,
-    smokingAllowed,
+    smokesAtHome,
   }: UserSearchFilters,
   pageToken = "",
 ) {
@@ -135,8 +135,8 @@ export async function userSearch(
     req.setSleepingArrangementFilterList(sleepingArrangement);
   }
 
-  if (smokingAllowed) {
-    req.setSmokingAllowed(new BoolValue().setValue(smokingAllowed));
+  if (smokesAtHome) {
+    req.setSmokesAtHome(new BoolValue().setValue(smokesAtHome));
   }
 
   const response = await client.search.userSearch(req);

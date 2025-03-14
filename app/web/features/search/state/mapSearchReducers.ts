@@ -85,7 +85,7 @@ const initialState: MapSearchState = {
     hostingStatusOptions: undefined,
     numGuests: undefined,
     sleepingArrangement: undefined,
-    smokingAllowed: undefined,
+    smokesAtHome: undefined,
   },
   hasActiveFilters: false,
   hasSearchBounds: false,
@@ -181,7 +181,7 @@ const mapSearchReducer = (
         }
         if (key === "drinkingAllowed") {
           updatedFilters.drinkingAllowed =
-            action.payload[key] === false ? undefined : action.payload[key];
+            action.payload[key] === action.payload[key] || undefined;
         }
         if (key === "hasReferences") {
           updatedFilters.hasReferences =
@@ -207,9 +207,9 @@ const mapSearchReducer = (
               ? undefined
               : action.payload[key];
         }
-        if (key === "smokingAllowed") {
-          updatedFilters.smokingAllowed =
-            action.payload[key] === false ? undefined : action.payload[key];
+        if (key === "smokesAtHome") {
+          updatedFilters.smokesAtHome =
+            action.payload[key] === action.payload[key] || undefined;
         }
       }
 

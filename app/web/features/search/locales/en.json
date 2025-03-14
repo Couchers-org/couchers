@@ -56,7 +56,7 @@
       "alcohol_allowed": "Alcohol allowed",
       "kids_allowed": "Kids allowed",
       "pets_allowed": "Pets allowed",
-      "smoking_allowed": "Smoking allowed"
+      "smokes_at_home": "Smokes at home"
     },
     "submit_button_label": "Apply",
     "search_filters": "Search filters",
