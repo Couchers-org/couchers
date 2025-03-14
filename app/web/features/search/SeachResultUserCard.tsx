@@ -12,6 +12,7 @@ import { ResponseRateText } from "features/profile/view/userLabels";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, MeetupStatus, User } from "proto/api_pb";
+import LinesEllipsis from "react-lines-ellipsis";
 import { routeToUser } from "routes";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
@@ -51,6 +52,7 @@ const StyledBottomContent = styled("div")(({ theme }) => ({
   flexDirection: "column",
   flexGrow: 1,
   padding: theme.spacing(1, 2, 1),
+  width: "100%",
 }));
 
 const StyledCardHeader = styled(Typography)(({ theme }) => ({
@@ -68,13 +70,23 @@ const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
   width: "1.25rem",
 }));
 
-const FlexRow = styled("div")<{ alignItems?: FlexboxProps["alignItems"] }>(
-  ({ theme, alignItems }) => ({
-    display: "flex",
-    alignItems: alignItems || "flex-start",
-    flexGrow: 1,
-  }),
-);
+const FlexRow = styled("div")<{
+  alignItems?: FlexboxProps["alignItems"];
+  justifyContent?: FlexboxProps["justifyContent"];
+}>(({ theme, alignItems }) => ({
+  display: "flex",
+  alignItems: alignItems || "flex-start",
+  flexGrow: 1,
+  justifyContent: "space-between",
+}));
+
+const HostingMeetingStatus = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "space-between",
+  marginTop: theme.spacing(1),
+  marginBottom: theme.spacing(1),
+}));
 
 const FlexColumn = styled("div")(({ theme }) => ({
   display: "flex",
@@ -120,7 +132,7 @@ const SearchResultUserCard = ({
         <FlexColumn>
           <StyledCardHeader variant="h2">
             <div>
-              {user.name}
+              <LinesEllipsis text={user.name} maxLine={2} />
               {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
             </div>
             <StyledLink
@@ -145,36 +157,36 @@ const SearchResultUserCard = ({
               {`${user.age}, ${user.gender}, ${user.city}`}
             </Typography>
           </FlexRow>
-          <FlexRow>
-            <StyledTypography
-              display="inline"
-              variant="body1"
-              isNegative={
-                user.hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST
-              }
-            >
-              {hostingStatusLabels(t)[user.hostingStatus]}
-            </StyledTypography>
-            <VerticalLine>|</VerticalLine>
-            <StyledTypography
-              display="inline"
-              variant="body1"
-              isNegative={
-                user.meetupStatus ===
-                MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP
-              }
-            >
-              {meetupStatusLabels(t)[user.meetupStatus]}
-            </StyledTypography>
-            <VerticalLine>|</VerticalLine>
-            <StyledTypography
-              variant="body2"
-              isNegative={false}
-            >{`${user.numReferences >= 100 ? `100+` : user.numReferences} ${t("profile:heading.references").toLowerCase()}`}</StyledTypography>
-          </FlexRow>
         </FlexColumn>
       </StyledTopContent>
       <StyledBottomContent>
+        <HostingMeetingStatus>
+          <StyledTypography
+            display="inline"
+            variant="body1"
+            isNegative={
+              user.hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST
+            }
+          >
+            {hostingStatusLabels(t)[user.hostingStatus]}
+          </StyledTypography>
+          <VerticalLine>|</VerticalLine>
+          <StyledTypography
+            display="inline"
+            variant="body1"
+            isNegative={
+              user.meetupStatus ===
+              MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP
+            }
+          >
+            {meetupStatusLabels(t)[user.meetupStatus]}
+          </StyledTypography>
+          <VerticalLine>|</VerticalLine>
+          <StyledTypography
+            variant="body2"
+            isNegative={false}
+          >{`${user.numReferences >= 100 ? `100+` : user.numReferences} ${t("profile:heading.references").toLowerCase()}`}</StyledTypography>
+        </HostingMeetingStatus>
         <Typography
           variant="body1"
           sx={{

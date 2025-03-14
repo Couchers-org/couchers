@@ -164,8 +164,6 @@ const onPointClick = ({
   setSelectedUserIds: (userId: number) => void;
   zoom: number;
 }) => {
-  mapRef.current?.zoomIn();
-
   // Don't turn pins orange and scroll if zoomed out too much as cards won't be there
   if (zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH) return;
 
