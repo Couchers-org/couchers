@@ -23,7 +23,7 @@ As a member, you can contribute in lots of different ways:
 * ✨Spread the word! Invite friends to sign up at [Couchers.org](https://www.couchers.org)
 * 🎉Create or attend events in your community
 * 📝Complete your profile and write references
-* ## 📱Share on social media **\[links here !]**
+* 📱Share on social media
 * 🤝[Volunteer](https://couchers.org/volunteer) with us! We’re really friendly!
 * 💖[Donate](https://couchers.org/donate) to support our mission
 
@@ -62,5 +62,4 @@ Want to help us make Couchers the best, safest, most active and inclusive couch 
 
 Thanks from all of us at Couchers.org and we’re excited for what’s next in 2025!
 
-@couchers.bsky.social
-@couchersorg ig
+<a href="https://www.instagram.com/couchersorg/#" target="_blank"><img src="instagram_logo_2016.svg" alt="IG" width="200"/></a> <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="bluesky_logo.svg" alt="bsky" width="200"/></a>
