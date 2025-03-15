@@ -11,7 +11,7 @@ share_image: https://couchers.org/img/blog/20250316_couchers_volunteers
 
 Hi everyone, we are excited to welcome our 50.000th member!!! To celebrate this event we want to provide an update since there’s been a lot going on behind the scenes as we keep growing our Couchers community! We’ve recently sent out a volunteer newsletter to help us re-engage previous contributors, set up Zulip for community builders, and we’d love to see all of you Couchers members help us to continue making this an active and inclusive community for all of us.
 
-![couchers-weekly-meeting](couchers-volunteers.jpeg "Couchers.org Weekly Zoom Meeting")
+![Couchers.org Weekly Zoom Meeting](/img/blog/20250316_couchers_volunteers)
 
 ## 🤝How you can get involved🤝
 
