@@ -72,7 +72,7 @@ For more detailed updates on the technical side, check out our [GitHub](https://
 
 ## 👥 New board member 👥
 
-Couchers, Inc. is also excited to welcome [Nicole](https://couchers.org/user/unsettleddown) onto the Board of Directors of the non-profit supporting Couchers.org. Nicole has been a couch surfer for a very long time and has been one of the most active contributors to Couchers in the past year.
+Couchers, Inc. is also excited to welcome [Nicole](https://couchers.org/user/unsettleddown) onto the [Board of Directors](https://couchers.org/foundation) of the non-profit supporting Couchers.org. Nicole has been a couch surfer for a very long time and has been one of the most active contributors to Couchers in the past year.
 
 Want to help us make Couchers the best, safest, most active and inclusive couch surfing community? Get involved however you can!
 
