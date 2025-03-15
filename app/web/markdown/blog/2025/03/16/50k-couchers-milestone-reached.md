@@ -42,9 +42,22 @@ Communities now have a **Members tab** where you can see all members of that com
 
 Get active in your communities! Not much going on in your local community? Start a discussion, create an event, host surfers, and meet amazing new people. If you’re interested in helping to grow Couchers.org and improving the couch surfing community, consider becoming a [Community Builder](https://docs.google.com/forms/d/e/1FAIpQLSeactITjrAUVjUg80gFIjxweK3-oPsgwoBmaAe0RJcjdL2xGw/viewform)!
 
+## 🌟 The Current Big Picture Plan 🌟
+
+Our big push right now is to move away from the “better than Couchsurfing” branding to instead establish our own identity as a modern, safe, and active couch surfing platform. This includes things like really nailing down moderation, streamlining all the core couch surfing features, as well as communicating to new couch surfers about what the concept is about and how to get started.
+
+Key areas of work include:
+
+* 🛡️ **Safety & Moderation Features**: our Strong verification (passport verification) feature, new moderation tools, etc.
+* 📝 **Active Users**: Highlighting users with complete profiles, encouraging users to complete their own profiles, implementing activeness probes, etc.
+* 🗺️ **Ironing out core features**: Iterating on map search & filtering, hosting & surfing flow, reference flow, and notifications.
+* 📰 **Communication, Marketing, & Outreach**: Rewriting our landing pages, and our core marketing copy; writing a gentle introduction to couch surfing, helping newbies understand what the concept is (and is not) about.
+
+We have a list of some core updates, new features, and non-dev tasks we are aiming to complete, and then we will be aiming for a big marketing push before we (finally) "get out of Beta". This will be a big push for us, and we're excited to be finally reaching this milestone hopefully by the start of summer!
+
 ## 🚀 Exciting milestones coming up 🚀
 
-We’ve got big goals and with our v1 launch in the works, these are the main priorities we’re focusing on at the moment:
+More conretely, we are working on the following priorities on the engineering side:
 
 * 🗺️ Rebuilding and improving the map search
 * 📊 Building a system to keep track of active members
