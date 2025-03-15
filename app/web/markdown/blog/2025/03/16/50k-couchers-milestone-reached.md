@@ -66,3 +66,7 @@ Thanks from all of us at Couchers.org and we’re excited for what’s next in 2
 
 <a href="https://www.instagram.com/couchersorg/#" target="_blank"><img src="/img/blog/instagram_logo.svg" alt="IG" width="200"/></a>
  <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="/img/blog/bluesky_logo.svg" alt="bsky" width="200"/></a>
+
+_Written by [Chris](/user/chrisk). Published on 2025/03/16_
+
+**Want to submit to our blog? [Sign up](/contribute) and let us know.**
