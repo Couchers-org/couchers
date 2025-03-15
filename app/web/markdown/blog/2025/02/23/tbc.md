@@ -11,6 +11,8 @@ share_image: /app/web/public/img/blog/couchers-volunteers.jpeg
 
 Hi everyone, we are excited to welcome our 50.000th member!!! To celebrate this event we want to provide an update since there’s been a lot going on behind the scenes as we keep growing our Couchers community! We’ve recently sent out a volunteer newsletter to help us re-engage previous contributors, set up Zulip for community builders, and we’d love to see all of you Couchers members help us to continue making this an active and inclusive community for all of us.
 
+![couchers-weekly-meeting](couchers-volunteers.jpeg "Couchers.org Weekly Zoom Meeting")
+
 ## 🤝How you can get involved🤝
 
 Our mission is to create genuine real-world connections and community. Our current milestone is preparing to move out of beta-phase and we are getting ready for a v1 launch soon! To make Couchers even better, we need your support - engage in your community!
@@ -62,4 +64,5 @@ Want to help us make Couchers the best, safest, most active and inclusive couch 
 
 Thanks from all of us at Couchers.org and we’re excited for what’s next in 2025!
 
-<a href="https://www.instagram.com/couchersorg/#" target="_blank"><img src="instagram_logo_2016.svg" alt="IG" width="200"/></a> <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="bluesky_logo.svg" alt="bsky" width="200"/></a>
+<a href="https://www.instagram.com/couchersorg/#" target="_blank">![IG](instagram_logo_2016.svg)</a>
+ <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="bluesky_logo.svg" alt="bsky" width="200"/></a>
