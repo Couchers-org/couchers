@@ -59,6 +59,8 @@ We’ve got big goals and with our v1 launch in the works, these are the main pr
 
 For more detailed updates on the technical side, check out our [GitHub](https://github.com/Couchers-org). Friendly reminder that Couchers is entirely built and maintained by volunteers in our free time! We’re passionate about couch surfing and are always looking for ways to improve Couchers for all of us in the community.
 
+**New board member**: Couchers, Inc. is also excited to welcome [Nicole](https://couchers.org/user/unsettleddown) onto the Board of Directors of the non-profit supporting Couchers.org. Nicole has been a couch surfer for a very long time and has been one of the most active contributors to Couchers in the past year.
+
 Want to help us make Couchers the best, safest, most active and inclusive couch surfing community? Get involved however you can!
 
 Thanks from all of us at Couchers.org and we’re excited for what’s next in 2025!

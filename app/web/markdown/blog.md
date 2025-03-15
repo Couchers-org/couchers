@@ -10,7 +10,7 @@ If you'd like to contribute to the blog, please [sign up](/volunteer) and let us
 
 2025/03/16.
 
-Couchers.org welcomes 50.000th member. Preparing for v1 launch, introducing exciting new features.
+Couchers.org welcomes 50 000th member. Preparing for v1 launch, introducing exciting new features.
 
 [Read more.](/blog/2025/03/16/50k-couchers-milestone-reached)
 
