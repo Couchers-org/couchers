@@ -64,5 +64,9 @@ Want to help us make Couchers the best, safest, most active and inclusive couch 
 
 Thanks from all of us at Couchers.org and we’re excited for what’s next in 2025!
 
-<a href="https://www.instagram.com/couchersorg/#" target="_blank">![IG](instagram_logo_2016.svg)</a>
+<a href="https://www.instagram.com/couchersorg/#" target="_blank">
+
+![IG](instagram_logo_2016.svg)
+
+</a>
  <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="bluesky_logo.svg" alt="bsky" width="200"/></a>
