@@ -5,7 +5,7 @@ description: Couchers.org welcomes 50.000th member. Preparing for v1 launch,
   introducing exciting new features
 date: 2025/03/13
 author: Colleen
-share_image: /app/web/public/img/blog/couchers-volunteers.jpeg
+share_image: https://couchers.org/img/blog/20250316_couchers_volunteers
 ---
 # 50.000+ Couchers Milestone Reached
 
@@ -64,5 +64,5 @@ Want to help us make Couchers the best, safest, most active and inclusive couch 
 
 Thanks from all of us at Couchers.org and we’re excited for what’s next in 2025!
 
-<a href="https://www.instagram.com/couchersorg/#" target="_blank"><img src="instagram_logo_2016.svg" alt="IG" width="200"/></a>
- <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="bluesky_logo.svg" alt="bsky" width="200"/></a>
+<a href="https://www.instagram.com/couchersorg/#" target="_blank"><img src="/img/blog/instagram_logo.svg" alt="IG" width="200"/></a>
+ <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="/img/blog/bluesky_logo.svg" alt="bsky" width="200"/></a>
