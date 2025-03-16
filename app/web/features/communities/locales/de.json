@@ -128,5 +128,8 @@
   "created_by_me": "Von mir erstellt",
   "my_communities": "Meine Communities",
   "create_new_event": "Neues Event erstellen",
-  "fill_out_comment": "Du musst erst etwas schreiben!"
+  "fill_out_comment": "Du musst erst etwas schreiben!",
+  "members_empty_state": "Zurzeit keine Mitglieder.",
+  "members_label": "Mitglieder",
+  "members_title": "Community-Mitglieder"
 }
