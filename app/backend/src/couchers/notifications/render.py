@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from couchers import urls
 from couchers.notifications.unsubscribe import generate_unsub_topic_action
 from couchers.templates.v2 import v2avatar, v2date, v2esc, v2phone, v2timestamp
+from couchers.utils import now, to_aware_datetime
 from proto import notification_data_pb2
 
 logger = logging.getLogger(__name__)
@@ -825,6 +826,21 @@ def render_notification(user, notification) -> RenderedNotification:
             push_body=message,
             push_icon=urls.icon_url(),
             push_url=urls.account_settings_link(),
+        )
+    elif notification.topic_action.display == "activeness:probe":
+        title = "Are you still open to hosting on Couchers.org?"
+        return RenderedNotification(
+            email_subject=title,
+            email_preview=title,
+            email_template_name="activeness_probe",
+            email_template_args={
+                "app_link": urls.app_link(),
+                "days_left": (to_aware_datetime(data.deadline) - now()).days,
+            },
+            push_title=title,
+            push_body="Please log in to confirm your hosting status.",
+            push_icon=urls.icon_url(),
+            push_url=urls.app_link(),
         )
     else:
         raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")

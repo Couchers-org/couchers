@@ -900,6 +900,8 @@ def testconfig():
     config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"] = "uI1DCR4G1AdlmMlPfRLemMxrz9f3h4kvjfnI8K9WsVI"
     config["PUSH_NOTIFICATIONS_VAPID_SUBJECT"] = "mailto:testing@couchers.org.invalid"
 
+    config["ACTIVENESS_PROBES_ENABLED"] = True
+
     yield None
 
     config.clear()
