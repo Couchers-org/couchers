@@ -252,13 +252,6 @@ class Account(account_pb2_grpc.AccountServicer):
         # setting this on context will update the cookie (via interceptors)?
         context.ui_language_preference = request.ui_language_preference
 
-        try:
-            context.send_initial_metadata(
-                [("set-cookie", cookie) for cookie in create_lang_cookie(context.ui_language_preference)]
-            )
-        except ValueError as e:
-            logger.info("Tried to send initial metadata but wasn't allowed to")
-
         return empty_pb2.Empty()
 
     def FillContributorForm(self, request, context, session):
