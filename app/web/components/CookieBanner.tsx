@@ -27,7 +27,7 @@ const StyledWrapper = styled("div")(({ theme }) => ({
 
 const StyledCloseButton = styled(IconButton)(({ theme }) => ({
   position: "absolute",
-  top: "50%",
+  top: theme.spacing(4),
   transform: "translateY(-50%)",
   right: theme.spacing(1),
 }));
