@@ -1,8 +1,9 @@
 import pytest
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql import func
 
 from couchers.db import session_scope
-from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread
+from couchers.models import ActivenessProbe, ActivenessProbeStatus, Cluster, Node, Page, PageType, PageVersion, Thread
 from couchers.utils import create_polygon_lat_lng, to_multi
 from tests.test_communities import create_1d_polygon, create_community
 from tests.test_fixtures import db, generate_user, testconfig  # noqa
@@ -161,3 +162,30 @@ def test_page_constraints(db):
             )
     assert "violates unique constraint" in str(e.value)
     assert "ix_pages_owner_cluster_id_type" in str(e.value)
+
+
+def test_activeness_probes_cant_have_multiple(db):
+    # can't have two active activeness probes for a given user
+    user, token = generate_user()
+
+    with session_scope() as session:
+        # we can create one
+        first_probe = ActivenessProbe(user_id=user.id)
+        session.add(first_probe)
+        session.commit()
+
+        # change it to expired
+        first_probe.response = ActivenessProbeStatus.expired
+        first_probe.responded = func.now()
+        session.commit()
+
+        # can create another one
+        session.add(ActivenessProbe(user_id=user.id))
+        session.commit()
+
+    # can't create one more
+    with pytest.raises(IntegrityError) as e:
+        with session_scope() as session:
+            session.add(ActivenessProbe(user_id=user.id))
+            session.commit()
+    assert "violates unique constraint" in str(e.value)

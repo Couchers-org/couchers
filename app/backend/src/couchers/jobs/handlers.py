@@ -15,6 +15,11 @@ from sqlalchemy.sql import and_, case, cast, delete, distinct, extract, func, li
 from sqlalchemy.sql.functions import percentile_disc
 
 from couchers.config import config
+from couchers.constants import (
+    ACTIVENESS_PROBE_EXPIRY_TIME,
+    ACTIVENESS_PROBE_INACTIVITY_PERIOD,
+    ACTIVENESS_PROBE_TIME_REMINDERS,
+)
 from couchers.crypto import asym_encrypt, b64decode, simple_decrypt
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
@@ -24,6 +29,8 @@ from couchers.materialized_views import refresh_materialized_views, refresh_mate
 from couchers.metrics import strong_verification_completions_counter
 from couchers.models import (
     AccountDeletionToken,
+    ActivenessProbe,
+    ActivenessProbeStatus,
     Cluster,
     ClusterRole,
     ClusterSubscription,
@@ -34,6 +41,7 @@ from couchers.models import (
     HostRequest,
     Invoice,
     LoginToken,
+    MeetupStatus,
     Message,
     MessageType,
     PassportSex,
@@ -50,6 +58,7 @@ from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import are_blocked
 from couchers.servicers.conversations import generate_message_notifications
+from couchers.servicers.discussions import generate_create_discussion_notifications
 from couchers.servicers.events import (
     generate_event_cancel_notifications,
     generate_event_create_notifications,
@@ -57,10 +66,11 @@ from couchers.servicers.events import (
     generate_event_update_notifications,
 )
 from couchers.servicers.requests import host_request_to_pb
+from couchers.servicers.threads import generate_reply_notifications
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.tasks import send_duplicate_strong_verification_email
-from couchers.utils import now
+from couchers.utils import Timestamp_from_datetime, now
 from proto import notification_data_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
@@ -75,6 +85,10 @@ handle_email_digests.PAYLOAD = empty_pb2.Empty
 handle_email_digests.SCHEDULE = timedelta(minutes=15)
 
 generate_message_notifications.PAYLOAD = jobs_pb2.GenerateMessageNotificationsPayload
+
+generate_reply_notifications.PAYLOAD = jobs_pb2.GenerateReplyNotificationsPayload
+
+generate_create_discussion_notifications.PAYLOAD = jobs_pb2.GenerateCreateDiscussionNotificationsPayload
 
 generate_event_create_notifications.PAYLOAD = jobs_pb2.GenerateEventCreateNotificationsPayload
 
@@ -885,3 +899,83 @@ def finalize_strong_verification(payload):
 
 
 finalize_strong_verification.PAYLOAD = jobs_pb2.FinalizeStrongVerificationPayload
+
+
+def send_activeness_probes(payload):
+    with session_scope() as session:
+        ## Step 1: create new activeness probes for those who need it and don't have one (if enabled)
+
+        if config["ACTIVENESS_PROBES_ENABLED"]:
+            # current activeness probes
+            subquery = select(ActivenessProbe.user_id).where(ActivenessProbe.responded == None).subquery()
+
+            # users who we should send an activeness probe to
+            new_probe_user_ids = (
+                session.execute(
+                    select(User.id)
+                    .where(User.is_visible)
+                    .where(User.hosting_status == HostingStatus.can_host)
+                    .where(User.last_active < func.now() - ACTIVENESS_PROBE_INACTIVITY_PERIOD)
+                    .where(User.id.not_in(select(subquery.c.user_id)))
+                )
+                .scalars()
+                .all()
+            )
+
+            for user_id in new_probe_user_ids:
+                session.add(ActivenessProbe(user_id=user_id))
+
+            session.commit()
+
+        ## Step 2: actually send out probe notifications
+        for probe_number_minus_1, delay in enumerate(ACTIVENESS_PROBE_TIME_REMINDERS):
+            probes = (
+                session.execute(
+                    select(ActivenessProbe)
+                    .where(ActivenessProbe.notifications_sent == probe_number_minus_1)
+                    .where(ActivenessProbe.probe_initiated + delay < func.now())
+                    .where(ActivenessProbe.is_pending)
+                )
+                .scalars()
+                .all()
+            )
+
+            for probe in probes:
+                probe.notifications_sent = probe_number_minus_1 + 1
+                context = SimpleNamespace(user_id=probe.user.id)
+                notify(
+                    session,
+                    user_id=probe.user.id,
+                    topic_action="activeness:probe",
+                    key=probe.id,
+                    data=notification_data_pb2.ActivenessProbe(
+                        reminder_number=probe_number_minus_1 + 1,
+                        deadline=Timestamp_from_datetime(probe.probe_initiated + ACTIVENESS_PROBE_EXPIRY_TIME),
+                    ),
+                )
+                session.commit()
+
+        ## Step 3: for those who haven't responded, mark them as failed
+        expired_probes = (
+            session.execute(
+                select(ActivenessProbe)
+                .where(ActivenessProbe.notifications_sent == len(ACTIVENESS_PROBE_TIME_REMINDERS))
+                .where(ActivenessProbe.is_pending)
+                .where(ActivenessProbe.probe_initiated + ACTIVENESS_PROBE_EXPIRY_TIME < func.now())
+            )
+            .scalars()
+            .all()
+        )
+
+        for probe in expired_probes:
+            probe.responded = now()
+            probe.response = ActivenessProbeStatus.expired
+            if probe.user.hosting_status == HostingStatus.can_host:
+                probe.user.hosting_status = HostingStatus.cant_host
+            if probe.user.meetup_status == MeetupStatus.wants_to_meetup:
+                probe.user.meetup_status = MeetupStatus.open_to_meetup
+            session.commit()
+
+
+send_activeness_probes.PAYLOAD = empty_pb2.Empty
+send_activeness_probes.SCHEDULE = timedelta(minutes=60)

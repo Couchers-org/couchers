@@ -12,6 +12,8 @@ CONFIG_OPTIONS = [
     # Whether we're `api` mode (answering API queries) or `scheduler` (scheduling background jobs), or `worker`
     # (servicing background jobs). Can also be set to `all` to do all three simultaneously
     ("ROLE", ["api", "scheduler", "worker", "all"], "all"),
+    # number of bg worker processes, requires worker or all above
+    ("BACKGROUND_WORKER_COUNT", int, 2),
     # Version string
     ("VERSION", str, "unknown"),
     # Base URL of frontend, e.g. https://couchers.org
@@ -82,6 +84,8 @@ CONFIG_OPTIONS = [
     ("PUSH_NOTIFICATIONS_ENABLED", bool),
     ("PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY", str),
     ("PUSH_NOTIFICATIONS_VAPID_SUBJECT", str),
+    # Whether to initiate new activeness probes
+    ("ACTIVENESS_PROBES_ENABLED", bool),
     # Listmonk (mailing list)
     ("LISTMONK_ENABLED", bool),
     ("LISTMONK_BASE_URL", str),

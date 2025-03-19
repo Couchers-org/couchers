@@ -9,7 +9,13 @@ from sqlalchemy.sql import func
 from couchers import errors
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
-from couchers.models import AccountDeletionReason, AccountDeletionToken, BackgroundJob, Upload, User
+from couchers.models import (
+    AccountDeletionReason,
+    AccountDeletionToken,
+    BackgroundJob,
+    Upload,
+    User,
+)
 from couchers.sql import couchers_select as select
 from couchers.utils import now
 from proto import account_pb2, api_pb2, auth_pb2

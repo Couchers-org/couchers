@@ -2,6 +2,7 @@
 // Please keep alphabetical order :)
 export { default as AccountSecurityIcon } from "@mui/icons-material/VerifiedUser";
 export { default as AccountSettingsIcon } from "@mui/icons-material/SettingsApplications";
+export { default as CommentIcon } from "@mui/icons-material/Comment";
 export { default as CommunityIcon } from "./CommunityIcon";
 export { default as EventIcon } from "./EventIcon";
 export { default as NotificationNewIcon } from "./NotificationNewIcon";
@@ -44,6 +45,7 @@ export { default as LinkedInIcon } from "@mui/icons-material/LinkedIn";
 export { default as LinkIcon } from "@mui/icons-material/LinkOutlined";
 export { default as LocationIcon } from "@mui/icons-material/LocationOnOutlined";
 export { default as MenuIcon } from "@mui/icons-material/Menu";
+export { default as MessageIcon } from "@mui/icons-material/Message";
 export {
   default as MoreIcon,
   default as QuestionIcon,

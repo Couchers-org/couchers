@@ -1,0 +1,24 @@
+Hi {{ user.name }},
+
+{{ author.name }} commented on the event {{ event.title }}:
+
+{{ content|v2quote }}
+
+
+
+Here are the details of the event:
+
+{{ event.title }}
+{{ time_display }}
+
+{% if event.online_information.link %}<a href="{{ event.online_information.link|v2url }}">Online</a>{% endif %}{% if event.offline_information.address|v2esc %}{{ event.offline_information.address }}{% endif %}
+
+
+{{ event.content|v2quote }}
+
+
+
+You can view the event here: <{{ view_link }}>
+
+Best,
+The Couchers.org team

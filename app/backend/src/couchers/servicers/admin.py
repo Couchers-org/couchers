@@ -23,6 +23,7 @@ from couchers.models import (
     Message,
     ModNote,
     Node,
+    Reference,
     User,
     UserBadge,
 )
@@ -531,3 +532,24 @@ class Admin(admin_pb2_grpc.AdminServicer):
             user_ids=user_ids[:page_size],
             next_page_token=str(user_ids[-1]) if len(user_ids) > page_size else None,
         )
+
+    def EditReferenceText(self, request, context, session):
+        reference = session.execute(select(Reference).where(Reference.id == request.reference_id)).scalar_one_or_none()
+
+        if reference is None:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.REFERENCE_NOT_FOUND)
+
+        if not request.new_text.strip():
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REFERENCE_NO_TEXT)
+
+        reference.text = request.new_text.strip()
+        return empty_pb2.Empty()
+
+    def DeleteReference(self, request, context, session):
+        reference = session.execute(select(Reference).where(Reference.id == request.reference_id)).scalar_one_or_none()
+
+        if reference is None:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.REFERENCE_NOT_FOUND)
+
+        reference.is_deleted = True
+        return empty_pb2.Empty()

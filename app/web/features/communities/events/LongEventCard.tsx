@@ -91,7 +91,7 @@ const LongEventCard = ({
   userId,
 }: {
   event: Event.AsObject;
-  userId: number | null | undefined;
+  userId?: number | null | undefined;
 }) => {
   const classes = useStyles({
     eventImageSrc: event.photoUrl || eventImagePlaceholderUrl,

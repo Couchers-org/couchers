@@ -151,7 +151,9 @@
         "event": "Veranstaltungen",
         "friend_request": "Freundschaftsanfragen",
         "host_request": "Gastgeberanfragen",
-        "reference": "Referenzen"
+        "reference": "Referenzen",
+        "discussion": "Beiträge",
+        "thread": "Themen"
       },
       "item_descriptions": {
         "host_request": {
@@ -184,7 +186,8 @@
           "update": "Eine Veranstaltung, an der Sie teilnehmen, wird aktualisiert",
           "cancel": "Eine Veranstaltung, an der Sie teilnehmen, wird abgesagt",
           "delete": "Eine Veranstaltung, an der Sie teilnehmen, wird gelöscht",
-          "invite_organizer": "Jemand lädt Sie ein, eine Veranstaltung mit zu organisieren"
+          "invite_organizer": "Jemand lädt Sie ein, eine Veranstaltung mit zu organisieren",
+          "comment": " Ein Mitglied kommentiert ein Event, das du besuchst"
         },
         "onboarding": {
           "reminder": "Erinnerung, Ihr Profil nach der Anmeldung zu vervollständigen"
@@ -224,6 +227,13 @@
         },
         "gender": {
           "change": "Das auf Ihrem Profil angezeigte Geschlecht wurde geändert"
+        },
+        "discussion": {
+          "create": "Jemand schreibt einen Beitrag in einer Community, in der du Mitglied bist",
+          "comment": "Jemand kommentiert einen Beitrag, den du verfolgst"
+        },
+        "thread": {
+          "reply": "Jemand antwortet auf deinen Kommentar"
         }
       }
     },
@@ -284,6 +294,13 @@
       "description": "Die Moderatoren haben dir die folgende Mitteilung geschickt. Bitte lies sie sorgfältig durch und bestätige, dass du sie gelesen und verstanden hast, bevor du fortfährst.",
       "note_title": "Mod-Notiz erhalten um {{time}}:",
       "acknowledge": "Mitteilung bestätigen"
+    },
+    "activeness_probe": {
+      "title": "Bist du immer noch bereit, Surfer aufzunehmen?",
+      "still_hosting": "Ich will weiterhin hosten!",
+      "description": "Uns ist aufgefallen, dass du dich eine Weile nicht mehr eingeloggt hast und wollten nachfragen, ob du weiterhin bereit bist Surfern zu hosten.",
+      "not_hosting": "Ich bin nicht mehr in der Lage zu hosten.",
+      "note": "Wir werden dein Profil entsprechend dieser Wahl aktualisieren!"
     }
   },
   "logged_out_message": "Du wurdest ausgeloggt.",

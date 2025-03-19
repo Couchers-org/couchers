@@ -1,6 +1,14 @@
 import logging
 import signal
 import sys
+from os import environ
+from tempfile import TemporaryDirectory
+
+# these two lines need to be at the top of the file before we span child processes
+# this temp dir will be destroyed when prometheus_multiproc_dir is destroyed, aka at the end of the program
+prometheus_multiproc_dir = TemporaryDirectory()
+environ["PROMETHEUS_MULTIPROC_DIR"] = prometheus_multiproc_dir.name
+# ruff: noqa: E402
 
 import sentry_sdk
 from sentry_sdk.integrations import argv, atexit, dedupe, modules, stdlib, threading
@@ -10,7 +18,7 @@ from sqlalchemy.sql import text
 from couchers.config import check_config, config
 from couchers.db import apply_migrations, session_scope
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
-from couchers.metrics import create_prometheus_server, main_process_registry
+from couchers.metrics import create_prometheus_server
 from couchers.server import create_main_server, create_media_server
 from couchers.tracing import setup_tracing
 from dummy_data import add_dummy_data
@@ -19,8 +27,6 @@ check_config()
 
 logging.basicConfig(format="[%(process)5d:%(thread)20d] %(asctime)s: %(name)s: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-logging.getLogger("couchers.jobs.worker").setLevel(logging.INFO)
 
 if config["SENTRY_ENABLED"]:
     # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
@@ -44,7 +50,7 @@ if config["SENTRY_ENABLED"]:
     )
 
 # used to export metrics
-create_prometheus_server(main_process_registry, 8000)
+create_prometheus_server(8000)
 
 
 def log_unhandled_exception(exc_type, exc_value, exc_traceback):
@@ -78,7 +84,8 @@ if config["ROLE"] in ["scheduler", "all"]:
     scheduler = start_jobs_scheduler()
 
 if config["ROLE"] in ["worker", "all"]:
-    worker = start_jobs_worker()
+    for _ in range(config["BACKGROUND_WORKER_COUNT"]):
+        start_jobs_worker()
 
 setup_tracing()
 

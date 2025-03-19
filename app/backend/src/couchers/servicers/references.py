@@ -109,7 +109,7 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         to_users = aliased(User)
         from_users = aliased(User)
-        statement = select(Reference)
+        statement = select(Reference).where(Reference.is_deleted == False)
         if request.from_user_id:
             # join the to_users, because only interested if the recipient is visible
             statement = (

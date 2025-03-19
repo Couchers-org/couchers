@@ -10,10 +10,14 @@ interface EventListProps {
   isVerticalStyle?: boolean;
 }
 
-const StyledRoot = styled("div")({
+const StyledRoot = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-});
+  rowGap: theme.spacing(3),
+  [theme.breakpoints.down("sm")]: {
+    rowGap: theme.spacing(1.5),
+  },
+}));
 
 const StyledVerticalStyleContainer = styled("div")(({ theme }) => ({
   display: "grid",

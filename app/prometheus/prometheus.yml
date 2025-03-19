@@ -18,10 +18,6 @@ scrape_configs:
     static_configs:
       - targets: ["backend:8000"]
 
-  - job_name: "backend-jobs"
-    static_configs:
-      - targets: ["backend:8001"]
-
   - job_name: "postgres"
     static_configs:
       - targets: ["pgprom:9187"]

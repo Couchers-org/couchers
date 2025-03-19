@@ -48,6 +48,7 @@ def push_to_subscription(
             push_notification_subscription_id=push_notification_subscription_id,
             ttl=ttl,
         ),
+        priority=7,
     )
 
 

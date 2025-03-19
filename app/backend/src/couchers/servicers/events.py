@@ -290,7 +290,6 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
         attending_user_ids = [user.user_id for user in occurrence.attendances]
 
         for user_id in set(subscribed_user_ids + attending_user_ids):
-            logger.info(user_id)
             if are_blocked(session, user_id, updating_user.id):
                 continue
             context = SimpleNamespace(user_id=user_id)
@@ -319,7 +318,6 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
         attending_user_ids = [user.user_id for user in occurrence.attendances]
 
         for user_id in set(subscribed_user_ids + attending_user_ids):
-            logger.info(user_id)
             if are_blocked(session, user_id, cancelling_user.id):
                 continue
             context = SimpleNamespace(user_id=user_id)
@@ -345,7 +343,6 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
         attending_user_ids = [user.user_id for user in occurrence.attendances]
 
         for user_id in set(subscribed_user_ids + attending_user_ids):
-            logger.info(user_id)
             context = SimpleNamespace(user_id=user_id)
             notify(
                 session,

@@ -6,6 +6,7 @@
     "creatorUserId": 1,
     "ownerCommunityId": 1,
     "ownerGroupId": 0,
+    "ownerTitle": "Amsterdam Community",
     "title": "What is there to do in Amsterdam?",
     "content": "# Hi everyone,\nI'm looking for *fun* activities to do here!",
     "thread": {
@@ -21,6 +22,7 @@
     "creatorUserId": 2,
     "ownerCommunityId": 1,
     "ownerGroupId": 0,
+    "ownerTitle": "Amsterdam Community",
     "title": "General rules for the Amsterdam discussion forum",
     "content": "Some rules you need to know...",
     "thread": {

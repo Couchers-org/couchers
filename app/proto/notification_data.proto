@@ -6,8 +6,10 @@ import "google/protobuf/timestamp.proto";
 
 import "api.proto";
 import "communities.proto";
+import "discussions.proto";
 import "events.proto";
 import "requests.proto";
+import "threads.proto";
 
 message HostRequestCreate {
   org.couchers.api.requests.HostRequest host_request = 1;
@@ -183,4 +185,36 @@ enum SVFailReason {
 
 message VerificationSVFail {
   SVFailReason reason = 1;
+}
+
+message EventComment {
+  org.couchers.api.threads.Reply reply = 1;
+  org.couchers.api.events.Event event = 2;
+  org.couchers.api.core.User author = 3;
+}
+
+message DiscussionCreate {
+  org.couchers.api.discussions.Discussion discussion = 1;
+  org.couchers.api.core.User author = 2;
+}
+
+message DiscussionComment {
+  org.couchers.api.threads.Reply reply = 1;
+  org.couchers.api.discussions.Discussion discussion = 2;
+  org.couchers.api.core.User author = 3;
+}
+
+message ThreadReply {
+  org.couchers.api.threads.Reply reply = 1;
+  org.couchers.api.core.User author = 2;
+  oneof reply_parent {
+    org.couchers.api.events.Event event = 3;
+    org.couchers.api.discussions.Discussion discussion = 4;
+  }
+}
+
+message ActivenessProbe {
+  // 1, 2, 3, etc
+  uint64 reminder_number = 1;
+  google.protobuf.Timestamp deadline = 2;
 }

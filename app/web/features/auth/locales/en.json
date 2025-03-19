@@ -145,6 +145,13 @@
       "description": "The moderators have sent you the following note. Please read it carefully and acknowledge that you have read and understood it before continuing.",
       "note_title": "Mod note received on {{time}}:",
       "acknowledge": "Acknowledge note"
+    },
+    "activeness_probe": {
+      "title": "Are you still open to hosting surfers?",
+      "description": "We noticed you haven't logged in for a while and wanted to check if you're still open to hosting surfers.",
+      "still_hosting": "I still want to host!",
+      "not_hosting": "I'm no longer able to host.",
+      "note": "We'll updated your profile to match this choice!"
     }
   },
   "logged_out_message": "You were logged out.",
@@ -206,7 +213,9 @@
         "event": "Events",
         "friend_request": "Friend requests",
         "host_request": "Host requests",
-        "reference": "References"
+        "reference": "References",
+        "discussion": "Discussions",
+        "thread": "Threads"
       },
       "item_descriptions": {
         "host_request": {
@@ -239,7 +248,8 @@
           "update": "An event you are attending is updated",
           "cancel": "An event you are attending is cancelled",
           "delete": "An event you are attending is deleted",
-          "invite_organizer": "Someone invites you to co-organize an event"
+          "invite_organizer": "Someone invites you to co-organize an event",
+          "comment":" A user comments on an event you are going to"
         },
         "onboarding": {
           "reminder": "Reminder to complete your profile after signing up"
@@ -279,6 +289,13 @@
         },
         "gender": {
           "change": "The gender displayed on your profile is changed"
+        },
+        "discussion": {
+          "create": "Someone creates a discussion in a community you are in",
+          "comment": "Someone comments on a discussion you are following"
+        },
+        "thread": {
+          "reply": "Someone responds to your comment"
         }
       }
     },

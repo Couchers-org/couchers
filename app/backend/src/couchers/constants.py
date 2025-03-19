@@ -36,3 +36,11 @@ UNDELETE_DAYS = 7
 
 # expiry time for preferrred language cookie
 PREFERRED_LANGUAGE_COOKIE_EXPIRY = timedelta(days=3650)
+
+# activeness probe settings
+# wait about 11 months before sending one out
+ACTIVENESS_PROBE_INACTIVITY_PERIOD = timedelta(days=333)
+# times at which to send notifications after inactivity (cumulative since start of probe)
+ACTIVENESS_PROBE_TIME_REMINDERS = [timedelta(days=0), timedelta(days=4, hours=8)]
+# total time from initiation after which to expire the probe
+ACTIVENESS_PROBE_EXPIRY_TIME = timedelta(days=14)
