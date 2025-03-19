@@ -192,10 +192,25 @@ rsvpd_to_event_gauge = _make_gauge_from_query(
     ),
 )
 
-background_jobs_ready_to_execute = _make_gauge_from_query(
+background_jobs_ready_to_execute_gauge = _make_gauge_from_query(
     "couchers_background_jobs_ready_to_execute",
     "Total number of background jobs ready to execute",
     select(func.count()).select_from(BackgroundJob).where(BackgroundJob.ready_for_retry),
+)
+
+background_jobs_serialization_errors_counter = Counter(
+    "couchers_background_jobs_serialization_errors_total",
+    "Number of times a bg worker has a serialization error",
+)
+
+background_jobs_no_jobs_counter = Counter(
+    "couchers_background_jobs_no_jobs_total",
+    "Number of times a bg worker tries to grab a job but there is none",
+)
+
+background_jobs_got_job_counter = Counter(
+    "couchers_background_jobs_got_job_total",
+    "Number of times a bg worker grabbed a job",
 )
 
 

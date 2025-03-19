@@ -19,7 +19,13 @@ from couchers.config import config
 from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
 from couchers.jobs import handlers
 from couchers.jobs.enqueue import queue_job
-from couchers.metrics import jobs_queued_histogram, observe_in_jobs_duration_histogram
+from couchers.metrics import (
+    background_jobs_got_job_counter,
+    background_jobs_no_jobs_counter,
+    background_jobs_serialization_errors_counter,
+    jobs_queued_histogram,
+    observe_in_jobs_duration_histogram,
+)
 from couchers.models import BackgroundJob, BackgroundJobState
 from couchers.sql import couchers_select as select
 from couchers.tracing import setup_tracing
@@ -62,12 +68,16 @@ def process_job():
                 .first()
             )
         except sqlalchemy.exc.OperationalError:
+            background_jobs_serialization_errors_counter.inc()
             logger.debug("Serialization error")
             return False
 
         if not job:
+            background_jobs_no_jobs_counter.inc()
             logger.debug("No pending jobs")
             return False
+
+        background_jobs_got_job_counter.inc()
 
         # we've got a lock for a job now, it's "pending" until we commit or the lock is gone
         logger.info(f"Job #{job.id} of type {job.job_type} grabbed")
