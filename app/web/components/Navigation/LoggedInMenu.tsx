@@ -3,6 +3,7 @@ import Avatar from "components/Avatar";
 import { MenuIcon } from "components/Icons";
 import Menu from "components/Menu";
 import useCurrentUser from "features/userQueries/useCurrentUser";
+import LanguagePickerSelect from "../LanguagePickerSelect";
 import React, { Dispatch, ReactNode, SetStateAction } from "react";
 import { theme } from "theme";
 
@@ -56,8 +57,28 @@ export default function LoggedInMenu({
   const menuRef = React.useRef<HTMLButtonElement>(null);
   const { data: user } = useCurrentUser();
 
+  const handleLanguageChange = () => {
+    // send request to backend
+  };
+
+  // id,
+  // className,
+  // native = true,
+  // menuItems = false,
+  // optionLabelMap,
+  // label,
+  // variant = "outlined",
+  // options,
+  // onChange,
+  // ...otherProps
+
   return (
     <>
+      <LanguagePickerSelect
+        defaultValue="en"
+        value=""
+        onSelect={handleLanguageChange}
+      />
       <ReportButtonContainer>
         <ReportButton />
       </ReportButtonContainer>
