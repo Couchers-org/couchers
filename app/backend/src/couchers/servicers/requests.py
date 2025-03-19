@@ -256,7 +256,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             .where(message_2.id == None)
             .where(or_(Message.id < request.last_request_id, request.last_request_id == 0))
         )
-
+        
+        # `expiration_date` added dynamically is the UTC version of `to_date`
+        statement = statement.add_columns(
+            func.timezone('UTC', HostRequest.to_date).label("expiration_date")
+        )
         if request.only_sent:
             statement = statement.where(HostRequest.surfer_user_id == context.user_id)
         elif request.only_received:
