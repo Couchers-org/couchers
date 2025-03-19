@@ -67,10 +67,10 @@ def interceptor_dummy_api(
             server.stop(None).wait()
 
 
-def _check_histogram_labels(method, logged_in, exception, code, count):
+def _get_histogram_labels_value(method, logged_in, exception, code):
     metrics = servicer_duration_histogram.collect()
     servicer_histogram = [m for m in metrics if m.name == "couchers_servicer_duration_seconds"][0]
-    histogram_count = [
+    histogram_counts = [
         s
         for s in servicer_histogram.samples
         if s.name == "couchers_servicer_duration_seconds_count"
@@ -78,9 +78,10 @@ def _check_histogram_labels(method, logged_in, exception, code, count):
         and s.labels["logged_in"] == logged_in
         and s.labels["code"] == code
         and s.labels["exception"] == exception
-    ][0]
-    assert histogram_count.value == count
-    servicer_duration_histogram.clear()
+    ]
+    if len(histogram_counts) == 0:
+        return 0
+    return histogram_counts[0].value
 
 
 def test_logging_interceptor_ok():
@@ -175,6 +176,8 @@ def test_logging_interceptor_raise_custom():
 
 
 def test_tracing_interceptor_ok_open(db):
+    val = _get_histogram_labels_value("/testing.Test/TestRpc", "False", "", "")
+
     def TestRpc(request, context):
         return empty_pb2.Empty()
 
@@ -190,10 +193,12 @@ def test_tracing_interceptor_ok_open(db):
         assert len(trace.response) == 0
         assert not trace.traceback
 
-    _check_histogram_labels("/testing.Test/TestRpc", "False", "", "", 1)
+    assert _get_histogram_labels_value("/testing.Test/TestRpc", "False", "", "") == val + 1
 
 
 def test_tracing_interceptor_sensitive(db):
+    val = _get_histogram_labels_value("/testing.Test/TestRpc", "False", "", "")
+
     def TestRpc(request, context):
         return auth_pb2.AuthReq(user="this is not secret", password="this is secret")
 
@@ -220,7 +225,7 @@ def test_tracing_interceptor_sensitive(db):
         assert res.user == "this is not secret"
         assert not res.password
 
-    _check_histogram_labels("/testing.Test/TestRpc", "False", "", "", 1)
+    assert _get_histogram_labels_value("/testing.Test/TestRpc", "False", "", "") == val + 1
 
 
 def test_tracing_interceptor_sensitive_ping(db):
@@ -238,6 +243,8 @@ def test_tracing_interceptor_sensitive_ping(db):
 
 
 def test_tracing_interceptor_exception(db):
+    val = _get_histogram_labels_value("/testing.Test/TestRpc", "False", "Exception", "")
+
     def TestRpc(request, context):
         raise Exception("Some error message")
 
@@ -261,10 +268,12 @@ def test_tracing_interceptor_exception(db):
         assert req.username == "not removed"
         assert not trace.response
 
-    _check_histogram_labels("/testing.Test/TestRpc", "False", "Exception", "", 1)
+    assert _get_histogram_labels_value("/testing.Test/TestRpc", "False", "Exception", "") == val + 1
 
 
 def test_tracing_interceptor_abort(db):
+    val = _get_histogram_labels_value("/testing.Test/TestRpc", "False", "Exception", "FAILED_PRECONDITION")
+
     def TestRpc(request, context):
         context.abort(grpc.StatusCode.FAILED_PRECONDITION, "now a grpc abort")
 
@@ -288,7 +297,7 @@ def test_tracing_interceptor_abort(db):
         assert req.username == "not removed"
         assert not trace.response
 
-    _check_histogram_labels("/testing.Test/TestRpc", "False", "Exception", "FAILED_PRECONDITION", 1)
+    assert _get_histogram_labels_value("/testing.Test/TestRpc", "False", "Exception", "FAILED_PRECONDITION") == val + 1
 
 
 def test_auth_interceptor(db):
