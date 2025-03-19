@@ -39,7 +39,7 @@ const globalStyles = (
 const PageWrapper = styled(Box)({
   display: "flex",
   flexDirection: "column",
-  flexGrow: 1,
+  flex: 1,
   overflowY: "auto",
 });
 
@@ -51,6 +51,7 @@ const ContentWrapper = styled(Container, {
 }>(({ theme, variant, isNativeEmbed }) => ({
   display: "flex",
   flexDirection: "column",
+  flex: 1,
   ...(variant === "full-screen" && {
     height: "100%",
   }),
@@ -58,7 +59,6 @@ const ContentWrapper = styled(Container, {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     paddingBottom: theme.spacing(2),
-    flex: 1,
   }),
   ...(isNativeEmbed && {
     margin: "0 auto",

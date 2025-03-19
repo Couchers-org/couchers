@@ -291,6 +291,37 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
         </FilterItemRow>
         <FilterItemRow>
           <Typography>
+            {t("search:form.host_filters.last_active_field_label")}
+          </Typography>
+          <Select<number>
+            id="last_active_filter"
+            onChange={handleLastActiveSelect}
+            variant="outlined"
+            size="small"
+            value={lastActive}
+          >
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_ANY}>
+              {t("search:last_active_options.any")}
+            </MenuItem>
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_DAY}>
+              {t("search:last_active_options.last_day")}
+            </MenuItem>
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_WEEK}>
+              {t("search:last_active_options.last_week")}
+            </MenuItem>
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_2_WEEKS}>
+              {t("search:last_active_options.last_2_weeks")}
+            </MenuItem>
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_MONTH}>
+              {t("search:last_active_options.last_month")}
+            </MenuItem>
+            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_3_MONTHS}>
+              {t("search:last_active_options.last_3_months")}
+            </MenuItem>
+          </Select>
+        </FilterItemRow>
+        <FilterItemRow>
+          <Typography>
             {t("search:form.general_filters.has_references")}
           </Typography>
           <CustomColorSwitch
@@ -415,37 +446,6 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
         <Typography variant="h3" sx={{ marginBottom: theme.spacing(2) }}>
           {t("search:form.host_filters.title")}
         </Typography>
-        <FilterItemRow>
-          <Typography>
-            {t("search:form.host_filters.last_active_field_label")}
-          </Typography>
-          <Select<number>
-            id="last_active_filter"
-            onChange={handleLastActiveSelect}
-            variant="outlined"
-            size="small"
-            value={lastActive}
-          >
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_ANY}>
-              {t("search:last_active_options.any")}
-            </MenuItem>
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_DAY}>
-              {t("search:last_active_options.last_day")}
-            </MenuItem>
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_WEEK}>
-              {t("search:last_active_options.last_week")}
-            </MenuItem>
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_2_WEEKS}>
-              {t("search:last_active_options.last_2_weeks")}
-            </MenuItem>
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_MONTH}>
-              {t("search:last_active_options.last_month")}
-            </MenuItem>
-            <MenuItem value={lastActiveOptions.LAST_ACTIVE_LAST_3_MONTHS}>
-              {t("search:last_active_options.last_3_months")}
-            </MenuItem>
-          </Select>
-        </FilterItemRow>
         <FilterItemRow>
           <Typography>
             {t("search:form.host_filters.hosting_status_field_label")}

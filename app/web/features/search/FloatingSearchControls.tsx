@@ -1,5 +1,6 @@
 import { Clear, Tune } from "@mui/icons-material";
 import {
+  alpha,
   debounce,
   InputAdornment,
   MenuItem,
@@ -129,18 +130,17 @@ const StyledTuneIcon = styled(Tune, {
   padding: 0,
 }));
 
-const StyledClearIcon = styled(Clear)(({ theme }) => ({
-  color: theme.palette.grey[500],
+const StyledClearIcon = styled(Clear, {
+  shouldForwardProp: (prop) => prop !== "hasActiveFilters",
+})<{ hasActiveFilters: boolean }>(({ theme, hasActiveFilters }) => ({
+  color: hasActiveFilters
+    ? theme.palette.primary.main
+    : theme.palette.grey[500],
   fontSize: "30px",
   paddingRight: theme.spacing(1),
   height: "20px",
   width: "20px",
   padding: 0,
-
-  "&:hover": {
-    cursor: "pointer",
-    color: theme.palette.primary.dark,
-  },
 }));
 
 const FloatingSearchControls = ({
@@ -278,6 +278,12 @@ const FloatingSearchControls = ({
             <IconButton
               aria-label={t("search:form.search_filters")}
               onClick={onOpenFilters}
+              sx={{
+                ...(hasActiveFilters && {
+                  backgroundColor: alpha(theme.palette.primary.light, 0.2), // Adjust opacity as needed
+                  marginRight: theme.spacing(0.5),
+                }),
+              }}
             >
               <StyledTuneIcon hasActiveFilters={hasActiveFilters} />
             </IconButton>
@@ -287,8 +293,13 @@ const FloatingSearchControls = ({
               <IconButton
                 aria-label={t("search:form.clear_filters")}
                 onClick={clearSearchFilters}
+                sx={{
+                  ...(hasActiveFilters && {
+                    backgroundColor: alpha(theme.palette.primary.light, 0.2), // Adjust opacity as needed
+                  }),
+                }}
               >
-                <StyledClearIcon />
+                <StyledClearIcon hasActiveFilters={hasActiveFilters} />
               </IconButton>
             </Tooltip>
           )}
