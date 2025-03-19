@@ -19,10 +19,11 @@ from couchers.config import config
 from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
 from couchers.jobs import handlers
 from couchers.jobs.enqueue import queue_job
-from couchers.metrics import observe_in_jobs_duration_histogram
+from couchers.metrics import jobs_queued_histogram, observe_in_jobs_duration_histogram
 from couchers.models import BackgroundJob, BackgroundJobState
 from couchers.sql import couchers_select as select
 from couchers.tracing import setup_tracing
+from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 trace = trace.get_tracer(__name__)
@@ -74,6 +75,7 @@ def process_job():
 
         message_type, func = JOBS[job.job_type]
 
+        jobs_queued_histogram.observe((now() - job.queued).total_seconds())
         try:
             with trace.start_as_current_span(job.job_type) as rollspan:
                 start = perf_counter_ns()

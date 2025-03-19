@@ -2282,7 +2282,7 @@ class BackgroundJob(Base):
 
     __table_args__ = (
         # used in looking up background jobs to attempt
-        # create index on background_jobs(next_attempt_after, (max_tries - try_count)) where state = 'pending' OR state = 'error';
+        # create index on background_jobs(priority desc, next_attempt_after, (max_tries - try_count)) where state = 'pending' OR state = 'error';
         Index(
             "ix_background_jobs_lookup",
             priority.desc(),

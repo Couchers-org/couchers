@@ -34,6 +34,13 @@ def observe_in_jobs_duration_histogram(job_type, job_state, try_count, exception
     jobs_duration_histogram.labels(job_type, job_state, str(try_count), exception_name).observe(duration_s)
 
 
+jobs_queued_histogram = Histogram(
+    "couchers_background_jobs_queued_seconds",
+    "Time background job spent queued before being picked up",
+    buckets=(0.01, 0.05, 0.1, 0.5, 1.0, 2.5, 5.0, 10, 20, 30, 40, 50, 60, 90, 120, 300, 600, 1800, 3600, _INF),
+)
+
+
 servicer_duration_histogram = Histogram(
     "couchers_servicer_duration_seconds",
     "Durations of processing gRPC calls",
