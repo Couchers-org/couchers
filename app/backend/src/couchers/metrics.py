@@ -1,16 +1,25 @@
 import threading
 from datetime import timedelta
 
-from prometheus_client import Counter, Gauge, Histogram, exposition
+from prometheus_client import (
+    CONTENT_TYPE_LATEST,
+    CollectorRegistry,
+    Counter,
+    Gauge,
+    Histogram,
+    exposition,
+    generate_latest,
+    multiprocess,
+)
 from prometheus_client.registry import CollectorRegistry
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
-from couchers.models import EventOccurrenceAttendee, HostingStatus, HostRequest, Message, Reference, User
+from couchers.models import BackgroundJob, EventOccurrenceAttendee, HostingStatus, HostRequest, Message, Reference, User
 from couchers.sql import couchers_select as select
 
-main_process_registry = CollectorRegistry()
-job_process_registry = CollectorRegistry()
+registry = CollectorRegistry()
+multiprocess.MultiProcessCollector(registry)
 
 _INF = float("inf")
 
@@ -18,7 +27,6 @@ jobs_duration_histogram = Histogram(
     "couchers_background_jobs_seconds",
     "Durations of background jobs",
     labelnames=["job", "status", "attempt", "exception"],
-    registry=job_process_registry,
 )
 
 
@@ -30,12 +38,17 @@ servicer_duration_histogram = Histogram(
     "couchers_servicer_duration_seconds",
     "Durations of processing gRPC calls",
     labelnames=["method", "logged_in", "code", "exception"],
-    registry=main_process_registry,
 )
 
 
 def observe_in_servicer_duration_histogram(method, user_id, status_code, exception_type, duration_s):
     servicer_duration_histogram.labels(method, user_id is not None, status_code, exception_type).observe(duration_s)
+
+
+# list of gauge names and function to execute to set value to
+# the python prometheus client does not support Gauge.set_function, so instead we hack around it and set each gauge just
+# before collection with this
+_set_hacky_gauges_funcs = []
 
 
 def _make_gauge_from_query(name, description, statement):
@@ -45,16 +58,12 @@ def _make_gauge_from_query(name, description, statement):
     statement should be a sqlalchemy SELECT statement that returns a single number
     """
 
-    def func():
+    def f():
         with session_scope() as session:
             return session.execute(statement).scalar_one()
 
-    gauge = Gauge(
-        name,
-        description,
-        registry=main_process_registry,
-    )
-    gauge.set_function(func)
+    gauge = Gauge(name, description, multiprocess_mode="mostrecent")
+    _set_hacky_gauges_funcs.append((gauge, f))
     return gauge
 
 
@@ -176,23 +185,26 @@ rsvpd_to_event_gauge = _make_gauge_from_query(
     ),
 )
 
+background_jobs_ready_to_execute = _make_gauge_from_query(
+    "couchers_background_jobs_ready_to_execute",
+    "Total number of background jobs ready to execute",
+    select(func.count()).select_from(BackgroundJob).where(BackgroundJob.ready_for_retry),
+)
+
 
 signup_initiations_counter = Counter(
     "couchers_signup_initiations_total",
     "Number of initiated signups",
-    registry=main_process_registry,
 )
 signup_completions_counter = Counter(
     "couchers_signup_completions_total",
     "Number of completed signups",
     labelnames=["gender"],
-    registry=main_process_registry,
 )
 signup_time_histogram = Histogram(
     "couchers_signup_time_seconds",
     "Time taken for a user to sign up",
     labelnames=["gender"],
-    registry=main_process_registry,
     buckets=(30, 60, 90, 120, 180, 240, 300, 360, 420, 480, 540, 600, 900, 1200, 1800, 3600, 7200, _INF),
 )
 
@@ -200,75 +212,63 @@ logins_counter = Counter(
     "couchers_logins_total",
     "Number of logins",
     labelnames=["gender"],
-    registry=main_process_registry,
 )
 
 password_reset_initiations_counter = Counter(
     "couchers_password_reset_initiations_total",
     "Number of password reset initiations",
-    registry=main_process_registry,
 )
 password_reset_completions_counter = Counter(
     "couchers_password_reset_completions_total",
     "Number of password reset completions",
-    registry=main_process_registry,
 )
 
 account_deletion_initiations_counter = Counter(
     "couchers_account_deletion_initiations_total",
     "Number of account deletion initiations",
     labelnames=["gender"],
-    registry=main_process_registry,
 )
 account_deletion_completions_counter = Counter(
     "couchers_account_deletion_completions_total",
     "Number of account deletion completions",
     labelnames=["gender"],
-    registry=main_process_registry,
 )
 account_recoveries_counter = Counter(
     "couchers_account_recoveries_total",
     "Number of account recoveries",
     labelnames=["gender"],
-    registry=main_process_registry,
 )
 
 strong_verification_initiations_counter = Counter(
     "couchers_strong_verification_initiations_total",
     "Number of strong verification initiations",
     labelnames=["gender"],
-    registry=main_process_registry,
 )
 strong_verification_completions_counter = Counter(
     "couchers_strong_verification_completions_total",
     "Number of strong verification completions",
-    registry=main_process_registry,
 )
 strong_verification_data_deletions_counter = Counter(
     "couchers_strong_verification_data_deletions_total",
     "Number of strong verification data deletions",
     labelnames=["gender"],
-    registry=main_process_registry,
 )
 
 host_requests_sent_counter = Counter(
     "couchers_host_requests_total",
     "Number of host requests sent",
     labelnames=["from_gender", "to_gender"],
-    registry=main_process_registry,
 )
 host_request_responses_counter = Counter(
     "couchers_host_requests_responses_total",
     "Number of responses to host requests",
     labelnames=["responder_gender", "other_gender", "response_type"],
-    registry=main_process_registry,
 )
 
 sent_messages_counter = Counter(
     "couchers_sent_messages_total",
     "Number of messages sent",
     labelnames=["gender", "message_type"],
-    registry=main_process_registry,
 )
 
 
@@ -276,7 +276,6 @@ host_request_first_response_histogram = Histogram(
     "couchers_host_request_first_response_seconds",
     "Response time to host requests",
     labelnames=["host_gender", "surfer_gender", "response_type"],
-    registry=main_process_registry,
     buckets=(
         1 * 60,  # 1m
         2 * 60,  # 2m
@@ -304,7 +303,6 @@ account_age_on_host_request_create_histogram = Histogram(
     "couchers_account_age_on_host_request_create_histogram_seconds",
     "Age of account sending a host request",
     labelnames=["surfer_gender", "host_gender"],
-    registry=main_process_registry,
     buckets=(
         5 * 60,  # 5m
         10 * 60,  # 10m
@@ -336,9 +334,18 @@ account_age_on_host_request_create_histogram = Histogram(
 )
 
 
-def create_prometheus_server(registry, port):
+def create_prometheus_server(port):
     """custom start method to fix problem descrbied in https://github.com/prometheus/client_python/issues/155"""
-    app = exposition.make_wsgi_app(registry)
+
+    def app(environ, start_response):
+        # set hacky gauges
+        for gauge, f in _set_hacky_gauges_funcs:
+            gauge.set(f())
+
+        data = generate_latest(registry)
+        start_response("200 OK", [("Content-type", CONTENT_TYPE_LATEST), ("Content-Length", str(len(data)))])
+        return [data]
+
     httpd = exposition.make_server(
         "", port, app, exposition.ThreadingWSGIServer, handler_class=exposition._SilentHandler
     )

@@ -11,6 +11,7 @@ from sched import scheduler
 from time import monotonic, perf_counter_ns, sleep
 
 import sentry_sdk
+import sqlalchemy.exc
 from google.protobuf import empty_pb2
 from opentelemetry import trace
 
@@ -18,7 +19,7 @@ from couchers.config import config
 from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
 from couchers.jobs import handlers
 from couchers.jobs.enqueue import queue_job
-from couchers.metrics import create_prometheus_server, job_process_registry, observe_in_jobs_duration_histogram
+from couchers.metrics import observe_in_jobs_duration_histogram
 from couchers.models import BackgroundJob, BackgroundJobState
 from couchers.sql import couchers_select as select
 from couchers.tracing import setup_tracing
@@ -48,13 +49,17 @@ def process_job():
         # will modify the job at a time. SKIP UPDATE means that if the job is locked, then we ignore that row, it's
         # easier to use SKIP LOCKED vs NOWAIT in the ORM, with NOWAIT you get an ugly exception from deep inside
         # psycopg2 that's quite annoying to catch and deal with
-        job = (
-            session.execute(
-                select(BackgroundJob).where(BackgroundJob.ready_for_retry).with_for_update(skip_locked=True)
+        try:
+            job = (
+                session.execute(
+                    select(BackgroundJob).where(BackgroundJob.ready_for_retry).with_for_update(skip_locked=True)
+                )
+                .scalars()
+                .first()
             )
-            .scalars()
-            .first()
-        )
+        except sqlalchemy.exc.OperationalError:
+            logger.debug("Serialization error")
+            return False
 
         if not job:
             logger.debug("No pending jobs")
@@ -109,15 +114,10 @@ def service_jobs():
     """
     Service jobs in an infinite loop
     """
-    t = create_prometheus_server(job_process_registry, 8001)
-    try:
-        while True:
-            # if no job was found, sleep for a second, otherwise query for another job straight away
-            if not process_job():
-                sleep(1)
-    finally:
-        logger.info("Closing prometheus server")
-        t.server_close()
+    while True:
+        # if no job was found, sleep for a second, otherwise query for another job straight away
+        if not process_job():
+            sleep(1)
 
 
 def _run_job_and_schedule(sched, schedule_id):
