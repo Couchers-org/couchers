@@ -35,7 +35,6 @@ const StyledScrollingContent = styled("div")(({ theme }) => ({
   position: "relative",
   zIndex: 2,
   justifyContent: "center",
-  minHeight: `calc(100vh - ${theme.shape.navPaddingXs})`,
   display: "flex",
   flexDirection: "column",
   padding: theme.spacing(1, 4),
@@ -43,9 +42,6 @@ const StyledScrollingContent = styled("div")(({ theme }) => ({
 
   [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(1, 2),
-  },
-  [theme.breakpoints.up("sm")]: {
-    minHeight: `calc(100vh - ${theme.shape.navPaddingSmUp})`,
   },
 }));
 

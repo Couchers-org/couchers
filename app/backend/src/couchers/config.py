@@ -82,6 +82,8 @@ CONFIG_OPTIONS = [
     ("PUSH_NOTIFICATIONS_ENABLED", bool),
     ("PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY", str),
     ("PUSH_NOTIFICATIONS_VAPID_SUBJECT", str),
+    # Whether to initiate new activeness probes
+    ("ACTIVENESS_PROBES_ENABLED", bool),
     # Listmonk (mailing list)
     ("LISTMONK_ENABLED", bool),
     ("LISTMONK_BASE_URL", str),

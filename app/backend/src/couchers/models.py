@@ -356,12 +356,29 @@ class User(Base):
         return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 150)
 
     @hybrid_property
+    def jailed_missing_tos(self):
+        return self.accepted_tos < TOS_VERSION
+
+    @hybrid_property
+    def jailed_missing_community_guidelines(self):
+        return self.accepted_community_guidelines < GUIDELINES_VERSION
+
+    @hybrid_property
+    def jailed_pending_mod_notes(self):
+        return self.mod_notes.where(ModNote.is_pending).count() > 0
+
+    @hybrid_property
+    def jailed_pending_activeness_probe(self):
+        return self.pending_activeness_probe != None
+
+    @hybrid_property
     def is_jailed(self):
         return (
-            (self.accepted_tos < TOS_VERSION)
-            | (self.accepted_community_guidelines < GUIDELINES_VERSION)
+            self.jailed_missing_tos
+            | self.jailed_missing_community_guidelines
             | self.is_missing_location
-            | (self.mod_notes.where(ModNote.is_pending).count() > 0)
+            | self.jailed_pending_mod_notes
+            | self.jailed_pending_activeness_probe
         )
 
     @hybrid_property
@@ -429,6 +446,72 @@ class UserBadge(Base):
     created = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     user = relationship("User", backref="badges")
+
+
+class ActivenessProbeStatus(enum.Enum):
+    # no response yet
+    pending = enum.auto()
+
+    # didn't respond on time
+    expired = enum.auto()
+
+    # responded that they're still active
+    still_active = enum.auto()
+
+    # responded that they're no longer active
+    no_longer_active = enum.auto()
+
+
+class ActivenessProbe(Base):
+    """
+    Activeness probes are used to gauge if users are still active: we send them a notification and ask them to respond,
+    we use this data both to help indicate response rate, as well as to make sure only those who are actively hosting
+    show up as such.
+    """
+
+    __tablename__ = "activeness_probes"
+
+    id = Column(BigInteger, primary_key=True)
+
+    user_id = Column(ForeignKey("users.id"), nullable=False, index=True)
+    # the time this probe was initiated
+    probe_initiated = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    # the number of reminders sent for this probe
+    notifications_sent = Column(Integer, nullable=False, server_default="0")
+
+    # the time of response
+    responded = Column(DateTime(timezone=True), nullable=True, default=None)
+    # the response value
+    response = Column(Enum(ActivenessProbeStatus), nullable=False, default=ActivenessProbeStatus.pending)
+
+    @hybrid_property
+    def is_pending(self):
+        return self.responded == None
+
+    user = relationship("User", back_populates="pending_activeness_probe")
+
+    __table_args__ = (
+        # a user can have at most one pending activeness probe at a time
+        Index(
+            "ix_activeness_probe_unique_pending_response",
+            user_id,
+            unique=True,
+            postgresql_where=responded == None,
+        ),
+        # response time is none iff response is pending
+        CheckConstraint(
+            "(responded IS NULL AND response = 'pending') OR (responded IS NOT NULL AND response != 'pending')",
+            name="pending_has_no_responded",
+        ),
+    )
+
+
+User.pending_activeness_probe = relationship(
+    ActivenessProbe,
+    primaryjoin="and_(ActivenessProbe.user_id == User.id, ActivenessProbe.is_pending)",
+    uselist=False,
+    back_populates="user",
+)
 
 
 class StrongVerificationAttemptStatus(enum.Enum):
@@ -1418,6 +1501,8 @@ class Reference(Base):
     rating = Column(Float, nullable=False)
     was_appropriate = Column(Boolean, nullable=False)
 
+    is_deleted = Column(Boolean, nullable=False, default=False, server_default="false")
+
     from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
     to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
 
@@ -2262,6 +2347,8 @@ class NotificationTopicAction(enum.Enum):
     host_request__cancel = ("host_request:cancel", dt_all, True, nd.HostRequestCancel)
     host_request__message = ("host_request:message", [dt.push, dt.digest], True, nd.HostRequestMessage)
     host_request__missed_messages = ("host_request:missed_messages", [dt.email], True, nd.HostRequestMissedMessages)
+
+    activeness__probe = ("activeness:probe", dt_sec, False, nd.ActivenessProbe)
 
     # you receive a friend ref
     reference__receive_friend = ("reference:receive_friend", dt_all, True, nd.ReferenceReceiveFriend)

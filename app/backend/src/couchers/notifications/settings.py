@@ -92,6 +92,13 @@ settings_layout = [
                 ],
             ),
             (
+                "activeness",
+                "Activity Check-in",
+                [
+                    ("probe", "Check in to see if you are still hosting after a long period of inactivity"),
+                ],
+            ),
+            (
                 "chat",
                 "Messaging",
                 [
