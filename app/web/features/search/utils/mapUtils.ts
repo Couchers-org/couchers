@@ -24,6 +24,13 @@ const usersToGeoJSON = (pins: User.AsObject[]): FeatureCollection => ({
   })),
 });
 
+const clearMapFeatureState = (mapRef: React.RefObject<MapRef>) => {
+  const map = mapRef.current?.getMap();
+  if (map) {
+    map.removeFeatureState({ source: SOURCE_CLUSTERED_USERS_ID });
+  }
+};
+
 const setMapFeatureState = (
   mapRef: React.RefObject<MapRef>,
   id: string,
@@ -154,28 +161,30 @@ const onClusterClick = async ({
 const onPointClick = ({
   feature,
   mapRef,
-  selectedUserIds,
-  setSelectedUserIds,
+  selectedUserId,
+  setSelectedUserId,
   zoom,
 }: {
   feature: maplibregl.MapGeoJSONFeature;
   mapRef: React.RefObject<MapRef>;
-  selectedUserIds: number[];
-  setSelectedUserIds: (userId: number) => void;
+  selectedUserId: number | undefined;
+  setSelectedUserId: (userId: number) => void;
   zoom: number;
 }) => {
+  clearMapFeatureState(mapRef);
+
   // Don't turn pins orange and scroll if zoomed out too much as cards won't be there
   if (zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH) return;
 
   const userId = feature.properties.id;
 
-  if (selectedUserIds.includes(userId)) {
+  if (selectedUserId === userId) {
     setMapFeatureState(mapRef, userId, false);
   } else {
     setMapFeatureState(mapRef, userId, true);
   }
 
-  setSelectedUserIds(userId);
+  setSelectedUserId(userId);
 };
 
 export {

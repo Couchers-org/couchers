@@ -33,9 +33,9 @@ function useMapSearchActions() {
     });
   };
 
-  const setSelectedUserIds = (userId: number) => {
+  const setSelectedUserId = (userId: number) => {
     dispatch({
-      type: mapSearchActionTypes.SET_SELECTED_USER_IDS,
+      type: mapSearchActionTypes.SET_SELECTED_USER_ID,
       payload: { userId },
     });
 
@@ -59,7 +59,7 @@ function useMapSearchActions() {
     setSearch,
     setSearchFilters,
     clearSearchInputValue,
-    setSelectedUserIds,
+    setSelectedUserId,
     clearSearchFilters,
     setZoom,
   };

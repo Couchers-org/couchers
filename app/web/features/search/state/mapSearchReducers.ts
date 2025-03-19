@@ -28,7 +28,7 @@ enum mapSearchActionTypes {
   CLEAR_SEARCH_INPUT_VALUE = "CLEAR_SEARCH_INPUT_VALUE",
   SET_FILTERS = "SET_FILTERS",
   RESET_FILTERS = "RESET_FILTERS",
-  SET_SELECTED_USER_IDS = "SET_SELECTED_USER_IDS",
+  SET_SELECTED_USER_ID = "SET_SELECTED_USER_ID",
   SET_ZOOM = "SET_ZOOM",
 }
 
@@ -42,7 +42,7 @@ type MapSearchState = {
     bbox?: Coordinates;
     query?: string;
   };
-  selectedUserIds: User.AsObject["userId"][];
+  selectedUserId: User.AsObject["userId"] | undefined;
   zoom: number;
 };
 
@@ -62,7 +62,7 @@ type MapSearchAction =
     }
   | { type: mapSearchActionTypes.RESET_FILTERS }
   | {
-      type: mapSearchActionTypes.SET_SELECTED_USER_IDS;
+      type: mapSearchActionTypes.SET_SELECTED_USER_ID;
       payload: { userId: User.AsObject["userId"] };
     }
   | {
@@ -94,7 +94,7 @@ const initialState: MapSearchState = {
     bbox: undefined,
     query: "",
   },
-  selectedUserIds: [],
+  selectedUserId: undefined,
   zoom: 1,
 };
 
@@ -227,22 +227,15 @@ const mapSearchReducer = (
         hasActiveFilters: false,
       };
 
-    case mapSearchActionTypes.SET_SELECTED_USER_IDS:
-      const currentSelectedUserIds = state.selectedUserIds;
+    case mapSearchActionTypes.SET_SELECTED_USER_ID:
+      const currentSelectedUserId = state.selectedUserId;
 
-      if (currentSelectedUserIds.includes(action.payload.userId)) {
-        const newSelectedUserIds = currentSelectedUserIds.filter(
-          (userId) => userId !== action.payload.userId,
-        );
-
-        return {
-          ...state,
-          selectedUserIds: newSelectedUserIds,
-        };
-      }
       return {
         ...state,
-        selectedUserIds: [...currentSelectedUserIds, action.payload.userId],
+        selectedUserId:
+          currentSelectedUserId === action.payload.userId
+            ? undefined
+            : action.payload.userId,
       };
 
     case mapSearchActionTypes.SET_ZOOM:

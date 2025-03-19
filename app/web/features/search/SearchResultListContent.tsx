@@ -44,7 +44,7 @@ const SearchResultListContent = ({
 }: SearchResultListContentProps) => {
   const { t } = useTranslation([SEARCH]);
 
-  const { selectedUserIds } = useMapSearchState();
+  const { selectedUserId } = useMapSearchState();
 
   return (
     <ListContentWrapper showTopSpace={showTopSpace}>
@@ -65,9 +65,7 @@ const SearchResultListContent = ({
             id={`search-result-${user?.userId}`}
           >
             <SearchResultUserCard
-              isHighlighted={
-                !selectedUserIds ? false : selectedUserIds.includes(user.userId)
-              }
+              isHighlighted={selectedUserId === user.userId}
               user={user}
             />
           </StyledCardWrapper>

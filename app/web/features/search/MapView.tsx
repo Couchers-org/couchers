@@ -53,11 +53,11 @@ const MapView = ({
     search: { bbox },
     hasActiveFilters,
     hasSearchInputValue,
-    selectedUserIds,
+    selectedUserId,
     zoom,
   } = useMapSearchState();
 
-  const { setSearch, clearSearchInputValue, setZoom, setSelectedUserIds } =
+  const { setSearch, clearSearchInputValue, setZoom, setSelectedUserId } =
     useMapSearchActions();
 
   const meetsSearchCriteria =
@@ -92,8 +92,8 @@ const MapView = ({
         onPointClick({
           feature,
           mapRef,
-          selectedUserIds,
-          setSelectedUserIds,
+          selectedUserId,
+          setSelectedUserId,
           zoom,
         });
       }
@@ -101,9 +101,9 @@ const MapView = ({
     [
       hasSearchInputValue,
       mapRef,
-      selectedUserIds,
+      selectedUserId,
       setSearch,
-      setSelectedUserIds,
+      setSelectedUserId,
       setZoom,
       zoom,
     ],

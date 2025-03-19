@@ -31,7 +31,7 @@ const StyledCard = styled("div", {
 })<{ isHighlighted: boolean }>(({ theme, isHighlighted }) => ({
   display: "flex",
   flexDirection: "column",
-  border: isHighlighted ? `2px solid ${theme.palette.primary.main}` : "none",
+  border: isHighlighted ? `2px solid ${theme.palette.secondary.main}` : "none",
   borderRadius: 8,
   boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
   paddingTop: theme.spacing(1),
