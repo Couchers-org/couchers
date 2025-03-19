@@ -52,7 +52,6 @@ from couchers.tasks import (
 )
 from couchers.utils import (
     Timestamp_from_datetime,
-    create_lang_cookie,
     dt_from_page_token,
     dt_to_page_token,
     is_valid_email,
