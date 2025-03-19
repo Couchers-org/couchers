@@ -215,11 +215,12 @@ class CookieInterceptor(grpc.ServerInterceptor):
 
         def user_unaware_function(req, context):
             res = user_aware_function(req, context)
-            cookies = []
 
-            # check the two cookies are in sync & that language preference cookie is correct
-            token, expiry = context.token
             if context.user_id and not context.is_api_key:
+                cookies = []
+                
+                # check the two cookies are in sync & that language preference cookie is correct
+                token, expiry = context.token
                 if cookie_user_id != str(context.user_id):
                     cookies.extend(
                         [("set-cookie", cookie) for cookie in create_session_cookies(token, context.user_id, expiry)]
@@ -229,10 +230,10 @@ class CookieInterceptor(grpc.ServerInterceptor):
                         [("set-cookie", cookie) for cookie in create_lang_cookie(context.ui_language_preference)]
                     )
 
-            try:
-                context.send_initial_metadata(cookies)
-            except ValueError as e:
-                logger.info("Tried to send initial metadata but wasn't allowed to")
+                try:
+                    context.send_initial_metadata(cookies)
+                except ValueError as e:
+                    logger.info("Tried to send initial metadata but wasn't allowed to")
 
             return res
 
