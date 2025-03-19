@@ -52,7 +52,10 @@ def process_job():
         try:
             job = (
                 session.execute(
-                    select(BackgroundJob).where(BackgroundJob.ready_for_retry).with_for_update(skip_locked=True)
+                    select(BackgroundJob)
+                    .where(BackgroundJob.ready_for_retry)
+                    .order_by(BackgroundJob.priority.desc(), BackgroundJob.next_attempt_after.asc())
+                    .with_for_update(skip_locked=True)
                 )
                 .scalars()
                 .first()

@@ -2271,6 +2271,9 @@ class BackgroundJob(Base):
 
     max_tries = Column(Integer, nullable=False, default=5)
 
+    # higher is more important
+    priority = Column(Integer, nullable=False, server_default=text("10"))
+
     # protobuf encoded job payload
     payload = Column(Binary, nullable=False)
 
@@ -2282,6 +2285,7 @@ class BackgroundJob(Base):
         # create index on background_jobs(next_attempt_after, (max_tries - try_count)) where state = 'pending' OR state = 'error';
         Index(
             "ix_background_jobs_lookup",
+            priority.desc(),
             next_attempt_after,
             (max_tries - try_count),
             postgresql_where=((state == BackgroundJobState.pending) | (state == BackgroundJobState.error)),
