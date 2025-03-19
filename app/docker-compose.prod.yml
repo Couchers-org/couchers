@@ -41,7 +41,6 @@ services:
       - "./data/aux/:/app/aux/:ro"
     expose:
       - 1751
-      - 1752
       - 1753
     depends_on:
       - postgres

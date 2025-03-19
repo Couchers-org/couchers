@@ -12,6 +12,8 @@ CONFIG_OPTIONS = [
     # Whether we're `api` mode (answering API queries) or `scheduler` (scheduling background jobs), or `worker`
     # (servicing background jobs). Can also be set to `all` to do all three simultaneously
     ("ROLE", ["api", "scheduler", "worker", "all"], "all"),
+    # number of bg worker processes, requires worker or all above
+    ("BACKGROUND_WORKER_COUNT", int, 2),
     # Version string
     ("VERSION", str, "unknown"),
     # Base URL of frontend, e.g. https://couchers.org
