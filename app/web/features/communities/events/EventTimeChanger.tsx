@@ -1,10 +1,10 @@
 import Datepicker from "components/Datepicker";
-import TextField from "components/TextField";
+import Timepicker from "components/Timepicker";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
-import { UseFormReturn } from "react-hook-form";
+import { Controller, UseFormReturn } from "react-hook-form";
 import { isSameOrFutureDate, timestamp2Date } from "utils/date";
 import dayjs, { Dayjs, TIME_FORMAT } from "utils/dayjs";
 import { timePattern } from "utils/validation";
@@ -41,7 +41,6 @@ export default function EventTimeChanger({
   errors,
   event,
   getValues,
-  register,
   setValue,
 }: EventTimeChangerProps) {
   const { t } = useTranslation([COMMUNITIES]);
@@ -52,39 +51,8 @@ export default function EventTimeChanger({
   const { date: eventEndDate, time: eventEndTime } =
     splitTimestampToDateAndTime(event?.endTime);
 
-  const handleStartTimeChange = (e: {
-    target: { value: string | number | dayjs.Dayjs | Date | null | undefined };
-  }) => {
-    if (!e.target.value) {
-      setValue("startTime", "", { shouldDirty: true, shouldValidate: true });
-      return;
-    }
-    const newStartTime = dayjs(e.target.value, TIME_FORMAT);
-
-    setValue("startTime", newStartTime.format(TIME_FORMAT), {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
-  };
-
   const handleStartDateChange = (newStartDate: Dayjs) => {
     setValue("startDate", newStartDate, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
-  };
-
-  const handleEndTimeChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
-  ) => {
-    if (!event.target.value) {
-      setValue("endTime", "", { shouldDirty: true, shouldValidate: true });
-      return;
-    }
-
-    const newEndTime = dayjs(event.target.value, TIME_FORMAT);
-
-    setValue("endTime", newEndTime.format(TIME_FORMAT), {
       shouldDirty: true,
       shouldValidate: true,
     });
@@ -124,9 +92,12 @@ export default function EventTimeChanger({
           }}
           testId="startDate"
         />
-        <TextField
-          id="startTime"
-          {...register("startTime", {
+
+        <Controller
+          control={control}
+          name="startTime"
+          defaultValue={eventStartTime || ""}
+          rules={{
             required: t("communities:time_required"),
             pattern: {
               message: t("communities:invalid_time"),
@@ -153,16 +124,17 @@ export default function EventTimeChanger({
                 t("communities:past_time_error")
               );
             },
-          })}
-          defaultValue={eventStartTime || null}
-          error={!!errors.startTime?.message}
-          fullWidth
-          helperText={errors.startTime?.message}
-          InputLabelProps={{ shrink: true }}
-          label={t("communities:start_time")}
-          onChange={handleStartTimeChange}
-          type="time"
-          variant="standard"
+          }}
+          render={({ field }) => (
+            <Timepicker
+              {...field}
+              control={control}
+              id="startTime"
+              label={t("communities:start_time")}
+              error={!!errors.startTime?.message}
+              helperText={errors.startTime?.message || ""}
+            />
+          )}
         />
       </div>
       <div className={classes.duoContainer}>
@@ -196,13 +168,12 @@ export default function EventTimeChanger({
           testId="endDate"
           onPostChange={handleEndDateChange}
         />
-        <TextField
-          defaultValue={eventEndTime || null}
-          error={!!errors.endTime?.message}
-          fullWidth
-          helperText={errors.endTime?.message || ""}
-          id="endTime"
-          {...register("endTime", {
+
+        <Controller
+          control={control}
+          name="endTime"
+          defaultValue={eventEndTime || ""}
+          rules={{
             required: t("communities:time_required"),
             pattern: {
               message: t("communities:invalid_time"),
@@ -224,6 +195,7 @@ export default function EventTimeChanger({
                 .startOf("day")
                 .add(startTime.get("hour"), "hour")
                 .add(startTime.get("minute"), "minute");
+
               const endTime = dayjs(time, TIME_FORMAT);
               const endDate = getValues("endDate")
                 .startOf("day")
@@ -246,12 +218,17 @@ export default function EventTimeChanger({
                 endDate.isAfter(dayjs()) || t("communities:past_time_error")
               );
             },
-          })}
-          InputLabelProps={{ shrink: true }}
-          label={t("communities:end_time")}
-          type="time"
-          variant="standard"
-          onChange={handleEndTimeChange}
+          }}
+          render={({ field }) => (
+            <Timepicker
+              {...field}
+              control={control}
+              id="endTime"
+              label={t("communities:end_time")}
+              error={!!errors.endTime?.message}
+              helperText={errors.endTime?.message || ""}
+            />
+          )}
         />
       </div>
     </>
