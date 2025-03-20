@@ -218,7 +218,7 @@ class CookieInterceptor(grpc.ServerInterceptor):
 
             if context.user_id and not context.is_api_key:
                 cookies = []
-                
+
                 # check the two cookies are in sync & that language preference cookie is correct
                 token, expiry = context.token
                 if cookie_user_id != str(context.user_id):
