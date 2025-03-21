@@ -41,7 +41,7 @@ export default function Dashboard() {
             <HtmlMeta title={t("global:nav.dashboard")} />
 
             <PageTitle>{t("dashboard:welcome")}</PageTitle>
-            <Alert severity="info">
+            <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
               <Typography variant="body1">
                 <b>New Feature Alert!</b> {dashboardNews["2025-02-23"]}
               </Typography>
