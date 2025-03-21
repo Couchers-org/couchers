@@ -1,0 +1,90 @@
+export const LANGUAGE_MAP = {
+  cs: {
+    name: "Czech",
+    flagIconCode: "CZ",
+  },
+  de: {
+    name: "German",
+    flagIconCode: "DE",
+  },
+  en: {
+    name: "English",
+    flagIconCode: "GB",
+  },
+  es: {
+    name: "Spanish",
+    flagIconCode: "ES",
+  },
+  "es-419": {
+    name: "Spanish",
+    flagIconCode: "MX",
+  },
+  fr: {
+    name: "French",
+    flagIconCode: "FR",
+  },
+  "fr-CA": {
+    name: "French (Canada)",
+    flagIconCode: "CA",
+  },
+  hi: {
+    name: "Hindi",
+    flagIconCode: "IN",
+  },
+  it: {
+    name: "Italian",
+    flagIconCode: "IT",
+  },
+  ja: {
+    name: "Japanese",
+    flagIconCode: "JP",
+  },
+  "nb-NO": {
+    name: "Norwegian (Bokm?l) (Norway)",
+    flagIconCode: "NO",
+  },
+  pl: {
+    name: "Polish",
+    flagIconCode: "PL",
+  },
+  pt: {
+    name: "Portuguese",
+    flagIconCode: "PT",
+  },
+  "pt-BR": {
+    name: "Portuguese (Brazil)",
+    flagIconCode: "BR",
+  },
+  ru: {
+    name: "Russian",
+    flagIconCode: "RU",
+  },
+  zh: {
+    name: "Chinese",
+    flagIconCode: "CN",
+  },
+  "zh-CN": {
+    name: "Chinese (S)",
+    flagIconCode: "CN",
+  },
+  "zh-Hans": {
+    name: "Common Simplified Chinese",
+    flagIconCode: "CN",
+  },
+  "zh-Hant": {
+    name: "Traditional Chinese",
+    flagIconCode: "CN",
+  },
+  "zh-HK": {
+    name: "Chinese (Hong Kong)",
+    flagIconCode: "HK",
+  },
+  "zh-SG": {
+    name: "Chinese (Singapore)",
+    flagIconCode: "SG",
+  },
+  "zh-TW": {
+    name: "Chinese (T)",
+    flagIconCode: "CN",
+  },
+};
