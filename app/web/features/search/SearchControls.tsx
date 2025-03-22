@@ -1,11 +1,16 @@
-import { styled, useMediaQuery } from "@mui/material";
+import { Button, styled, useMediaQuery } from "@mui/material";
+import { useTranslation } from "i18n";
+import { SEARCH } from "i18n/namespaces";
 import { MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 
 import FloatingSearchControls from "./FloatingSearchControls";
 import MapViewToggle from "./MapViewToggle";
 import SearchTypeRadioGroup from "./SearchTypeRadioGroup";
+import { useMapSearchState } from "./state/mapSearchContext";
+import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
+import { getMapBounds } from "./utils/mapUtils";
 
 interface SearchControlsProps {
   drawerWidth: number;
@@ -26,6 +31,8 @@ const MapControlsWrapper = styled("div", {
     alignItems: "center",
     width: "100%",
     marginTop: theme.spacing(2),
+    flexDirection: "column",
+    gap: theme.spacing(2),
 
     ...(!isMobile && {
       position: "absolute",
@@ -51,6 +58,17 @@ const CenterAligner = styled("div")(({ theme }) => ({
   justifyContent: "center",
 }));
 
+const SearchThisAreaButton = styled(Button)(({ theme }) => ({
+  backgroundColor: theme.palette.common.white,
+  borderRadius: "20px",
+  boxShadow: theme.shadows[4],
+  padding: theme.spacing(1, 2),
+
+  "&:hover": {
+    backgroundColor: theme.palette.grey[200],
+  },
+}));
+
 const SearchControls = ({
   drawerWidth,
   mapView,
@@ -60,10 +78,19 @@ const SearchControls = ({
   onSetSearchType,
   searchType,
 }: SearchControlsProps) => {
+  const { t } = useTranslation([SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const { showSearchThisAreaButton } = useMapSearchState();
+  const { setSearch } = useMapSearchActions();
 
   const handleMapViewChange = (view: MapViewOptions) => {
     onSetMapView(view);
+  };
+
+  const handleSearchThisAreaClick = () => {
+    const bbox = getMapBounds(mapRef);
+    setSearch({ bbox });
   };
 
   return (
@@ -88,6 +115,11 @@ const SearchControls = ({
             searchType={searchType}
           />
         </CenterAligner>
+        {showSearchThisAreaButton && (
+          <SearchThisAreaButton onClick={handleSearchThisAreaClick}>
+            {t("search:search_this_area")}
+          </SearchThisAreaButton>
+        )}
       </MapControlsWrapper>
       {isMobile && (
         <SearchTypeRadioGroup

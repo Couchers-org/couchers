@@ -74,5 +74,6 @@
     "map_and_list": "Map & List"
   },
   "location": "Location",
-  "keyword": "Keyword"
+  "keyword": "Keyword",
+  "search_this_area": "Search this area"
 }

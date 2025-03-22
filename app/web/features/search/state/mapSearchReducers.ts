@@ -7,6 +7,7 @@ import {
   Coordinates,
   DEFAULT_AGE_MAX,
   DEFAULT_AGE_MIN,
+  MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
 } from "../utils/constants";
 import { getHasActiveFilters } from "../utils/mapUtils";
 
@@ -28,6 +29,7 @@ enum mapSearchActionTypes {
   CLEAR_SEARCH_INPUT_VALUE = "CLEAR_SEARCH_INPUT_VALUE",
   SET_FILTERS = "SET_FILTERS",
   RESET_FILTERS = "RESET_FILTERS",
+  SET_MOVE_MAP = "SET_MOVE_MAP",
   SET_SELECTED_USER_ID = "SET_SELECTED_USER_ID",
   SET_ZOOM = "SET_ZOOM",
 }
@@ -36,13 +38,13 @@ enum mapSearchActionTypes {
 type MapSearchState = {
   filters: UserSearchFilters;
   hasActiveFilters: boolean;
-  hasSearchBounds: boolean;
   hasSearchInputValue: boolean;
   search: {
     bbox?: Coordinates;
     query?: string;
   };
   selectedUserId: User.AsObject["userId"] | undefined;
+  showSearchThisAreaButton: boolean;
   zoom: number;
 };
 
@@ -54,7 +56,9 @@ type MapSearchAction =
     }
   | {
       type: mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE;
-      payload?: { bbox?: SearchOptions["bbox"] };
+    }
+  | {
+      type: mapSearchActionTypes.SET_MOVE_MAP;
     }
   | {
       type: mapSearchActionTypes.SET_FILTERS;
@@ -88,13 +92,13 @@ const initialState: MapSearchState = {
     smokesAtHome: undefined,
   },
   hasActiveFilters: false,
-  hasSearchBounds: false,
   hasSearchInputValue: false,
   search: {
     bbox: undefined,
     query: "",
   },
   selectedUserId: undefined,
+  showSearchThisAreaButton: false,
   zoom: 1,
 };
 
@@ -111,10 +115,8 @@ const mapSearchReducer = (
         search: {
           ...state.search,
           query: "",
-          ...(action.payload?.bbox ? { bbox: action.payload.bbox } : {}),
         },
         hasSearchInputValue: false,
-        hasSearchBounds: action.payload?.bbox !== undefined,
       };
     case mapSearchActionTypes.SET_SEARCH:
       const updatedSearchQuery = { ...state.search };
@@ -147,7 +149,7 @@ const mapSearchReducer = (
         search: updatedSearchQuery,
         hasSearchInputValue:
           action.payload.location || action.payload.keyword ? true : false,
-        hasSearchBounds: updatedSearchQuery.bbox !== undefined,
+        showSearchThisAreaButton: false,
         zoom: action.payload.keyword ? 1 : state.zoom,
       };
     case mapSearchActionTypes.SET_FILTERS:
@@ -227,6 +229,14 @@ const mapSearchReducer = (
         hasActiveFilters: false,
       };
 
+    case mapSearchActionTypes.SET_MOVE_MAP:
+      const zoom = state.zoom;
+
+      return {
+        ...state,
+        showSearchThisAreaButton: zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+      };
+
     case mapSearchActionTypes.SET_SELECTED_USER_ID:
       const currentSelectedUserId = state.selectedUserId;
 
@@ -239,9 +249,20 @@ const mapSearchReducer = (
       };
 
     case mapSearchActionTypes.SET_ZOOM:
+      const newZoom = action.payload.zoom;
+      const hasSearchInputValue = state.hasSearchInputValue;
+
       return {
         ...state,
-        zoom: action.payload.zoom,
+        ...(newZoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && {
+          search: {
+            ...state.search,
+            bbox: initialState.search.bbox,
+          },
+        }),
+        showSearchThisAreaButton:
+          !hasSearchInputValue && newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+        zoom: newZoom,
       };
 
     default:

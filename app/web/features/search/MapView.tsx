@@ -8,13 +8,11 @@ import { MapRef } from "react-map-gl/maplibre";
 
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
-import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
 import {
   SOURCE_CLUSTERED_USERS_ID,
   UNCLUSTERED_LAYER_ID,
 } from "./utils/mapLayers";
 import {
-  getMapBounds,
   loadMapUserPins,
   onClusterClick,
   onPointClick,
@@ -57,13 +55,10 @@ const MapView = ({
     zoom,
   } = useMapSearchState();
 
-  const { setSearch, clearSearchInputValue, setZoom, setSelectedUserId } =
-    useMapSearchActions();
+  const { setMoveMap, setZoom, setSelectedUserId } = useMapSearchActions();
 
   const meetsSearchCriteria =
-    hasActiveFilters ||
-    hasSearchInputValue ||
-    zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+    hasActiveFilters || hasSearchInputValue || bbox !== undefined;
 
   // If zoomed in, has a location searched or has active filters, use the memoized pins form api query in SearchPage
   const pinsSource = meetsSearchCriteria ? memoizedPins : zoomedOutDataSource;
@@ -82,9 +77,7 @@ const MapView = ({
         onClusterClick({
           center: ev.lngLat,
           feature,
-          hasSearchInputValue,
           mapRef,
-          setSearch,
           setZoom,
           zoom,
         });
@@ -98,15 +91,7 @@ const MapView = ({
         });
       }
     },
-    [
-      hasSearchInputValue,
-      mapRef,
-      selectedUserId,
-      setSearch,
-      setSelectedUserId,
-      setZoom,
-      zoom,
-    ],
+    [mapRef, selectedUserId, setSelectedUserId, setZoom, zoom],
   );
 
   const handleLoad = async () => {
@@ -134,45 +119,24 @@ const MapView = ({
   };
 
   const handleMapMove = debounce(() => {
-    // If zoom is too large an area, don't reload pins
-    if (zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && !hasSearchInputValue) {
-      const bbox = getMapBounds(mapRef);
-
-      setSearch({
-        bbox,
-      });
-    }
+    setMoveMap();
   }, 600);
 
-  // Debounce avoids excessive api calls when button rapidly clicked, waits til end of burst
-  const handleZoomIn = debounce((newZoom: number) => {
-    // Avoid excessive api calls if already fetched for more zoomed out level
-    if (
-      zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
-      newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
-      !hasSearchInputValue
-    ) {
-      const bbox = getMapBounds(mapRef);
+  const handleZoomIn = (newZoom: number) => {
+    setZoom(newZoom);
+    mapRef.current?.easeTo({
+      zoom: newZoom,
+      duration: 2000,
+    });
+  };
 
-      setSearch({
-        bbox,
-      });
-    }
-  }, 600);
-
-  const handleZoomOut = debounce((newZoom: number) => {
-    if (newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && !hasSearchInputValue) {
-      const bbox = getMapBounds(mapRef);
-
-      setSearch({
-        bbox,
-      });
-    }
-
-    if (newZoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH) {
-      clearSearchInputValue(bbox);
-    }
-  }, 600);
+  const handleZoomOut = (newZoom: number) => {
+    setZoom(newZoom);
+    mapRef.current?.easeTo({
+      zoom: newZoom,
+      duration: 2000,
+    });
+  };
 
   return (
     <>

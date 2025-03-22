@@ -47,7 +47,6 @@ function MapSearchProvider({
     ...initialState,
     search: { query: initialLocationName, bbox: initialBbox },
     hasSearchInputValue: initialLocationName !== undefined,
-    hasSearchBounds: initialBbox !== undefined,
   });
 
   return (

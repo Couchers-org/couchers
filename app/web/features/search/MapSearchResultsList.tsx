@@ -7,7 +7,7 @@ import { theme } from "theme";
 import PreviousNextPagination from "./PreviousNextPagination";
 import SearchResultListContent from "./SearchResultListContent";
 import { useMapSearchState } from "./state/mapSearchContext";
-import { MapViews, MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
+import { MapViews } from "./utils/constants";
 
 interface MapSearchResultsListProps {
   drawerWidth: number;
@@ -43,12 +43,14 @@ const MapSearchResultsList = ({
 }: MapSearchResultsListProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const { hasActiveFilters, hasSearchInputValue, zoom } = useMapSearchState();
+  const {
+    hasActiveFilters,
+    hasSearchInputValue,
+    search: { bbox },
+  } = useMapSearchState();
 
   const meetsSearchCriteria =
-    hasActiveFilters ||
-    hasSearchInputValue ||
-    zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+    hasActiveFilters || hasSearchInputValue || bbox !== undefined;
 
   return (
     <DrawerContainer>

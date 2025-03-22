@@ -1,7 +1,6 @@
 import { FilterOptions, SearchOptions } from "../SearchPage";
 import { useMapSearchDispatch } from "../state/mapSearchContext";
 import { mapSearchActionTypes } from "../state/mapSearchReducers";
-import { Coordinates } from "../utils/constants";
 
 export interface FlyToLocationProps {
   longitude: number;
@@ -26,11 +25,14 @@ function useMapSearchActions() {
     });
   };
 
-  const clearSearchInputValue = (currentBbox: Coordinates | undefined) => {
+  const clearSearchInputValue = () => {
     dispatch({
       type: mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE,
-      payload: { bbox: currentBbox },
     });
+  };
+
+  const setMoveMap = () => {
+    dispatch({ type: mapSearchActionTypes.SET_MOVE_MAP });
   };
 
   const setSelectedUserId = (userId: number) => {
@@ -59,6 +61,7 @@ function useMapSearchActions() {
     setSearch,
     setSearchFilters,
     clearSearchInputValue,
+    setMoveMap,
     setSelectedUserId,
     clearSearchFilters,
     setZoom,

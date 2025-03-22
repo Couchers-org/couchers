@@ -15,7 +15,7 @@ import Navigation from "./Navigation";
 interface AppRouteProps {
   isPrivate: boolean;
   noFooter?: boolean;
-  variant?: "standard" | "full-screen" | "full-width";
+  variant?: "standard" | "full-screen" | "full-width" | "no-overflow";
   children: ReactNode;
 }
 
@@ -52,6 +52,9 @@ const ContentWrapper = styled(Container, {
   display: "flex",
   flexDirection: "column",
   flex: 1,
+  ...(variant === "no-overflow" && {
+    overflow: "hidden",
+  }),
   ...(variant === "standard" && {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),

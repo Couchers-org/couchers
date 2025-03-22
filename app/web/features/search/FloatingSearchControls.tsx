@@ -24,7 +24,7 @@ import { SearchOptions } from "./SearchPage";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MapSearchTypes } from "./utils/constants";
-import { getMapBounds, mapFlyToLocation } from "./utils/mapUtils";
+import { mapFlyToLocation } from "./utils/mapUtils";
 
 interface FloatingSearchNavigationProps {
   mapRef: React.RefObject<MapRef>;
@@ -166,7 +166,7 @@ const FloatingSearchControls = ({
     const value = event.target.value as "location" | "keyword";
 
     setKeyword("");
-    clearSearchInputValue(undefined);
+    clearSearchInputValue();
     onSetSearchType(value);
   };
 
@@ -202,9 +202,7 @@ const FloatingSearchControls = ({
   };
 
   const handleClearLocation = () => {
-    const currentBbox = getMapBounds(mapRef);
-
-    clearSearchInputValue(currentBbox);
+    clearSearchInputValue();
   };
 
   return (

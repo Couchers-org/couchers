@@ -1,4 +1,3 @@
-import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "features/search/utils/constants";
 import { User } from "proto/api_pb";
 import { useState } from "react";
 import { useInfiniteQuery } from "react-query";
@@ -15,8 +14,8 @@ export function useUserSearch(
 
   const meetsSearchCriteria =
     mapSearchState.hasActiveFilters ||
-    mapSearchState.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH ||
-    mapSearchState.hasSearchInputValue;
+    mapSearchState.hasSearchInputValue ||
+    mapSearchState.search.bbox !== undefined;
 
   const {
     data,

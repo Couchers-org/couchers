@@ -110,19 +110,15 @@ const mapFlyToLocation = ({
 const onClusterClick = async ({
   center,
   feature,
-  hasSearchInputValue,
   mapRef,
-  setSearch,
   setZoom,
   zoom,
 }: {
   center: LngLat;
   feature: maplibregl.MapGeoJSONFeature;
   mapRef: React.RefObject<MapRef>;
-  setSearch: (params: { bbox: Coordinates | undefined }) => void;
   setZoom: (zoom: number) => void;
   zoom: number;
-  hasSearchInputValue: boolean;
 }) => {
   const source = mapRef.current?.getSource(
     SOURCE_CLUSTERED_USERS_ID,
@@ -143,19 +139,7 @@ const onClusterClick = async ({
     zoom: newZoom,
   });
 
-  // Wait for easing to complete before recalculating the bounds
-  mapRef.current?.once("moveend", () => {
-    if (
-      zoom <= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
-      newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
-      !hasSearchInputValue
-    ) {
-      const bbox = getMapBounds(mapRef);
-      setSearch({ bbox });
-    }
-
-    setZoom(newZoom);
-  });
+  setZoom(newZoom);
 };
 
 const onPointClick = ({
