@@ -31,6 +31,7 @@ def _queue_email(
         session,
         job_type="send_email",
         payload=payload,
+        priority=5,
     )
 
 

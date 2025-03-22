@@ -52,9 +52,6 @@ const ContentWrapper = styled(Container, {
   display: "flex",
   flexDirection: "column",
   flex: 1,
-  ...(variant === "full-screen" && {
-    height: "100%",
-  }),
   ...(variant === "standard" && {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),

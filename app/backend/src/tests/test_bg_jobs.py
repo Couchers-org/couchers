@@ -23,7 +23,7 @@ from couchers.jobs.handlers import (
     update_recommendation_scores,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
-from couchers.metrics import create_prometheus_server, job_process_registry
+from couchers.metrics import create_prometheus_server
 from couchers.models import (
     AccountDeletionToken,
     BackgroundJob,
@@ -61,7 +61,7 @@ def _(testconfig):
 
 
 def _check_job_counter(job, status, attempt, exception):
-    metrics_string = requests.get("http://localhost:8001").text
+    metrics_string = requests.get("http://localhost:8000").text
     string_to_check = f'attempt="{attempt}",exception="{exception}",job="{job}",status="{status}"'
     assert string_to_check in metrics_string
 
@@ -389,7 +389,7 @@ def test_job_retry(db):
     MOCK_JOBS = {
         "mock_job": (empty_pb2.Empty, mock_job),
     }
-    create_prometheus_server(registry=job_process_registry, port=8001)
+    create_prometheus_server(port=8000)
 
     # if IN_TEST is true, then the bg worker will raise on exceptions
     new_config = config.copy()
