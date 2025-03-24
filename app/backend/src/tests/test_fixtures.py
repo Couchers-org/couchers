@@ -16,7 +16,12 @@ from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import random_hex
 from couchers.db import _get_base_engine, session_scope
 from couchers.descriptor_pool import get_descriptor_pool
-from couchers.interceptors import AuthValidatorInterceptor, SessionInterceptor, _try_get_and_update_user_details
+from couchers.interceptors import (
+    AuthValidatorInterceptor,
+    CookieInterceptor,
+    SessionInterceptor,
+    _try_get_and_update_user_details,
+)
 from couchers.jobs.worker import process_job
 from couchers.models import (
     Base,
@@ -512,7 +517,9 @@ def real_account_session(token):
     Create a Account service for testing, using TCP sockets, uses the token for auth
     """
     with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[AuthValidatorInterceptor(), SessionInterceptor()])
+        server = grpc.server(
+            executor, interceptors=[AuthValidatorInterceptor(), CookieInterceptor(), SessionInterceptor()]
+        )
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
         account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
         server.start()
@@ -630,7 +637,7 @@ class FakeChannel:
 
 def fake_channel(token=None):
     if token:
-        user_id, is_jailed, is_superuser, token_expiry = _try_get_and_update_user_details(
+        user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = _try_get_and_update_user_details(
             token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
         )
         return FakeChannel(user_id=user_id, is_jailed=is_jailed, is_superuser=is_superuser, token_expiry=token_expiry)
