@@ -1,11 +1,12 @@
 import CheckIcon from "@mui/icons-material/Check";
-import {   Box,
+import {
+  Box,
   FormControl,
   ListItemIcon,
   MenuItem,
   Select,
   SelectChangeEvent,
-styled ,
+  styled,
 } from "@mui/material";
 import { LANGUAGE_MAP } from "i18n/constants";
 import * as React from "react";
@@ -70,7 +71,7 @@ type LanguagePickerSelectProps = {
   displayMode?: "pill" | "rect";
 };
 
-export default function LanguagePickerSelectTwo({
+export default function LanguagePickerSelect({
   defaultValue,
   value,
   onSelect,
