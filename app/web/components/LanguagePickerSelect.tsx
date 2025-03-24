@@ -3,10 +3,12 @@ import {
   Box,
   FormControl,
   ListItemIcon,
+  ListItemText,
   MenuItem,
   Select,
   SelectChangeEvent,
   styled,
+  Stack,
 } from "@mui/material";
 import { LANGUAGE_MAP } from "i18n/constants";
 import * as React from "react";
@@ -18,10 +20,10 @@ import * as React from "react";
  * read our `displayMode` prop in the styling callback.
  */
 const StyledLanguageFormControl = styled(FormControl)<{
-  displayMode?: "pill" | "rect";
+  displayMode?: "round" | "rect";
 }>(({ theme, displayMode }) => ({
-  // For a "pill" shape, use a large radius; for "rect", use the default theme radius
-  borderRadius: displayMode === "pill" ? 999 : theme.shape.borderRadius,
+  // For a "round" shape, use a large radius; for "rect", use the default theme radius
+  borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
   border: `2px solid ${theme.palette.grey[300]}`,
 
   // Remove default MUI outline so we rely on custom border
@@ -33,9 +35,9 @@ const StyledLanguageFormControl = styled(FormControl)<{
   },
 }));
 
-const StyledLanguageSelect = styled(Select)<{ displayMode?: "pill" | "rect" }>(
+const StyledLanguageSelect = styled(Select)<{ displayMode?: "round" | "rect" }>(
   ({ theme, displayMode }) => ({
-    borderRadius: displayMode === "pill" ? 999 : theme.shape.borderRadius,
+    borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
     // extra spacing on the right to avoid overlap with the dropdown arrow
     paddingRight: theme.spacing(1),
     "& .MuiSelect-icon": {
@@ -49,10 +51,10 @@ const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
   alignItems: "center",
   gap: theme.spacing(1),
   // customize the selected/hover states here:
-  "&.Mui-selected": {
+  "& .Mui-selected": {
     backgroundColor: theme.palette.action.selected,
   },
-  "&.Mui-selected:hover": {
+  "& .Mui-selected:hover": {
     backgroundColor: theme.palette.action.hover,
   },
 }));
@@ -64,18 +66,18 @@ type LanguagePickerSelectProps = {
   value?: string;
   onSelect?: (value: string) => void;
   /**
-   * Toggle between "pill" shape or "rect" shape.
-   * - "pill": fully rounded edges
+   * Toggle between "round" shape or "rect" shape.
+   * - "round": fully rounded edges
    * - "rect": typical rounded rectangle
    */
-  displayMode?: "pill" | "rect";
+  displayMode?: "round" | "rect";
 };
 
 export default function LanguagePickerSelect({
   defaultValue,
   value,
   onSelect,
-  displayMode = "pill", // default to pill if not specified
+  displayMode = "round", // default to round if not specified
 }: LanguagePickerSelectProps) {
   // once full functionality is implemented, state changes will be handled elsewhere
   const [language, setLanguage] = React.useState("en");
@@ -104,28 +106,42 @@ export default function LanguagePickerSelect({
 
     menuItems.push(
       <StyledMenuItem value={languageCode}>
-        {renderFlag(flagCode)}
-        {languageCode.toUpperCase()}
-        {language === languageCode && (
-          <ListItemIcon>
-            <CheckIcon fontSize="small" />
-          </ListItemIcon>
-        )}
+        <Stack
+          sx={{ width: "100%" }}
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Stack direction="row">
+            <ListItemIcon>{renderFlag(flagCode)}</ListItemIcon>{" "}
+            <ListItemText
+              sx={{ color: "#666666", fontWeight: "bold", display: "inline" }}
+            >
+              {languageCode.toUpperCase()}
+            </ListItemText>
+          </Stack>
+          {/* if this menu item matches selected language, display a check mark */}
+          <div>
+            {language === languageCode && (
+              <CheckIcon fontSize="small" sx={{ color: "#00a69a" }} />
+            )}
+          </div>
+        </Stack>
       </StyledMenuItem>,
     );
   }
 
   return (
-    <Box sx={{ minWidth: 120 }}>
+    <Box sx={{ minWidth: 60 }}>
       <StyledLanguageFormControl variant="outlined" displayMode={displayMode}>
         <StyledLanguageSelect
           id="language-select"
           value={language}
           onChange={handleChange}
           displayMode={displayMode}
-          // Use renderValue to display the flag icon (and code?) in collapsed state
-          renderValue={(selected) =>
-            displayMode === "pill" ? (
+          // Use renderValue to display the selected language in collapsed state
+          renderValue={(selected: string) =>
+            displayMode === "round" ? (
               <Box
                 sx={{ display: "flex", alignItems: "center", gap: 1, pl: 1 }}
               >
