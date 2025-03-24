@@ -1,4 +1,13 @@
-export const LANGUAGE_MAP = {
+interface Language {
+  name: string;
+  flagIconCode: string;
+}
+
+interface LanguageMap {
+  [key: string]: Language;
+}
+
+export const LANGUAGE_MAP: LanguageMap = {
   cs: {
     name: "Czech",
     flagIconCode: "CZ",
