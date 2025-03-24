@@ -33,7 +33,7 @@
     "@mui/x-date-pickers": "^5.0.20",
     "@sentry/nextjs": "^8.47.0",
     "@sentry/react": "^8.51.0",
-    "@stripe/stripe-js": "^5.7.0",
+    "@stripe/stripe-js": "^6.1.0",
     "@toast-ui/editor": "^3.2.2",
     "classnames": "^2.5.1",
     "dayjs": "^1.11.13",
