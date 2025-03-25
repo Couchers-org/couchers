@@ -30,6 +30,7 @@ enum mapSearchActionTypes {
   SET_FILTERS = "SET_FILTERS",
   RESET_FILTERS = "RESET_FILTERS",
   SET_MOVE_MAP = "SET_MOVE_MAP",
+  SET_PAGE_NUMBER = "SET_PAGE_NUMBER",
   SET_SELECTED_USER_ID = "SET_SELECTED_USER_ID",
   SET_ZOOM = "SET_ZOOM",
 }
@@ -39,6 +40,7 @@ type MapSearchState = {
   filters: UserSearchFilters;
   hasActiveFilters: boolean;
   hasSearchInputValue: boolean;
+  pageNumber: number;
   search: {
     bbox?: Coordinates;
     query?: string;
@@ -63,6 +65,10 @@ type MapSearchAction =
   | {
       type: mapSearchActionTypes.SET_FILTERS;
       payload: FilterOptions;
+    }
+  | {
+      type: mapSearchActionTypes.SET_PAGE_NUMBER;
+      payload: { pageNumber: number };
     }
   | { type: mapSearchActionTypes.RESET_FILTERS }
   | {
@@ -93,6 +99,7 @@ const initialState: MapSearchState = {
   },
   hasActiveFilters: false,
   hasSearchInputValue: false,
+  pageNumber: 0,
   search: {
     bbox: undefined,
     query: "",
@@ -113,10 +120,11 @@ const mapSearchReducer = (
       return {
         ...state,
         search: {
-          ...state.search,
-          query: "",
+          bbox: initialState.search.bbox,
+          query: initialState.search.query,
         },
         hasSearchInputValue: false,
+        pageNumber: initialState.pageNumber,
       };
     case mapSearchActionTypes.SET_SEARCH:
       const updatedSearchQuery = { ...state.search };
@@ -140,7 +148,10 @@ const mapSearchReducer = (
       }
 
       if (action.payload.keyword) {
-        updatedSearchQuery.query = action.payload.keyword;
+        updatedSearchQuery.query =
+          action.payload.keyword === ""
+            ? initialState.search.query
+            : action.payload.keyword;
         updatedSearchQuery.bbox = initialState.search.bbox;
       }
 
@@ -148,7 +159,11 @@ const mapSearchReducer = (
         ...state,
         search: updatedSearchQuery,
         hasSearchInputValue:
-          action.payload.location || action.payload.keyword ? true : false,
+          action.payload.location ||
+          (action.payload.keyword && action.payload.keyword.length > 0)
+            ? true
+            : false,
+        pageNumber: initialState.pageNumber,
         showSearchThisAreaButton: false,
         zoom: action.payload.keyword ? 1 : state.zoom,
       };
@@ -221,12 +236,21 @@ const mapSearchReducer = (
       return {
         ...newState,
         hasActiveFilters: getHasActiveFilters(newState, initialState),
+        pageNumber: initialState.pageNumber,
       };
+
+    case mapSearchActionTypes.SET_PAGE_NUMBER:
+      return {
+        ...state,
+        pageNumber: action.payload.pageNumber,
+      };
+
     case mapSearchActionTypes.RESET_FILTERS:
       return {
         ...state,
         filters: initialState.filters,
         hasActiveFilters: false,
+        pageNumber: initialState.pageNumber,
       };
 
     case mapSearchActionTypes.SET_MOVE_MAP:
@@ -234,7 +258,8 @@ const mapSearchReducer = (
 
       return {
         ...state,
-        showSearchThisAreaButton: zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+        showSearchThisAreaButton:
+          zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && !state.hasSearchInputValue,
       };
 
     case mapSearchActionTypes.SET_SELECTED_USER_ID:

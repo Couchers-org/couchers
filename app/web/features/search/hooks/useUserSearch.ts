@@ -1,16 +1,16 @@
 import { User } from "proto/api_pb";
-import { useState } from "react";
 import { useInfiniteQuery } from "react-query";
 import { service } from "service";
 
 import { FilterOptions } from "../SearchPage";
+import { useMapSearchState } from "../state/mapSearchContext";
 import { MapSearchState } from "../state/mapSearchReducers";
 
 export function useUserSearch(
   searchParams: FilterOptions,
   mapSearchState: MapSearchState,
 ) {
-  const [pageNumber, setPageNumber] = useState(0);
+  const { pageNumber } = useMapSearchState();
 
   const meetsSearchCriteria =
     mapSearchState.hasActiveFilters ||
@@ -59,7 +59,5 @@ export function useUserSearch(
     fetchNextPage,
     fetchPreviousPage,
     totalItems,
-    pageNumber,
-    setPageNumber,
   };
 }

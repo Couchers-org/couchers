@@ -19,6 +19,7 @@ import { useUserSearch } from "./hooks/useUserSearch";
 import MapSearchContent from "./MapSearchContent";
 import SearchControls from "./SearchControls";
 import { useMapSearchState } from "./state/mapSearchContext";
+import { useMapSearchActions } from "./state/useMapSearchActions";
 
 export type FilterOptions = {
   acceptsKids?: boolean;
@@ -66,6 +67,7 @@ export default function SearchPage() {
   const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
 
   const mapSearchState = useMapSearchState();
+  const { setPageNumber } = useMapSearchActions();
 
   // useMemo to avoid unnecessary object reference changes - causing unnecessary rerenders
   const searchParams = useMemo(
@@ -79,7 +81,6 @@ export default function SearchPage() {
     isLoading,
     hasNextPage,
     hasPreviousPage,
-    setPageNumber,
     totalItems,
     users,
   } = useUserSearch(searchParams, mapSearchState);
@@ -98,12 +99,12 @@ export default function SearchPage() {
 
   const handleLoadPreviousPage = () => {
     fetchPreviousPage();
-    setPageNumber((prev) => prev - 1);
+    setPageNumber(mapSearchState.pageNumber - 1);
   };
 
   const handleLoadNextPage = () => {
     fetchNextPage();
-    setPageNumber((prev) => prev + 1);
+    setPageNumber(mapSearchState.pageNumber + 1);
   };
 
   const handleDrawerWidthChange = (width: number) => {

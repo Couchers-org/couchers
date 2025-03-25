@@ -1,8 +1,11 @@
+import { Clear } from "@mui/icons-material";
 import {
+  alpha,
   Autocomplete,
   AutocompleteChangeReason,
   InputAdornment,
   InputProps,
+  styled,
 } from "@mui/material";
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
@@ -29,6 +32,25 @@ interface LocationAutocompleteOutlinedProps {
   required?: string;
   showFullDisplayName?: boolean;
 }
+
+const IconWrapper = styled("div")({
+  display: "flex",
+  alignItems: "center",
+  borderRadius: "50%",
+  backgroundColor: alpha(theme.palette.primary.light, 0.2),
+  padding: theme.spacing(0.75),
+
+  "&:hover": {
+    backgroundColor: alpha(theme.palette.primary.light, 0.4),
+  },
+});
+
+const StyledClearIcon = styled(Clear)(({ theme }) => ({
+  color: theme.palette.primary.main,
+  fontSize: "30px",
+  height: "18px",
+  width: "18px",
+}));
 
 const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   props: LocationAutocompleteOutlinedProps,
@@ -95,7 +117,12 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
   return (
     <Autocomplete
       className={className}
-      disableClearable={value === ""}
+      clearIcon={
+        <IconWrapper>
+          <StyledClearIcon />
+        </IconWrapper>
+      }
+      disableClearable={false}
       value={
         defaultValue
           ? ({
@@ -131,6 +158,7 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
                     )}
                     onClick={handleSearchSubmit}
                     size="small"
+                    sx={{ marginRight: theme.spacing(1) }}
                   >
                     <SearchIcon />
                   </IconButton>
@@ -158,6 +186,12 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
       }}
       freeSolo
       multiple={false}
+      sx={{
+        width: 300,        
+        "& button.MuiButtonBase-root" : {
+          visibility: "visible"
+        }
+      }}
     />
   );
 });

@@ -73,11 +73,11 @@ const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
 const FlexRow = styled("div")<{
   alignItems?: FlexboxProps["alignItems"];
   justifyContent?: FlexboxProps["justifyContent"];
-}>(({ theme, alignItems }) => ({
+}>(({ theme, alignItems, justifyContent }) => ({
   display: "flex",
   alignItems: alignItems || "flex-start",
   flexGrow: 1,
-  justifyContent: "space-between",
+  justifyContent: justifyContent || "flex-start",
 }));
 
 const HostingMeetingStatus = styled("div")(({ theme }) => ({
@@ -131,10 +131,10 @@ const SearchResultUserCard = ({
         <Avatar user={user} />
         <FlexColumn>
           <StyledCardHeader variant="h2">
-            <div>
+            <FlexRow alignItems="center">
               <LinesEllipsis text={user.name} maxLine={2} />
               {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
-            </div>
+            </FlexRow>
             <StyledLink
               aria-label={t("profile:open_profile_new_tab")}
               href={routeToUser(user.username)}
@@ -152,7 +152,7 @@ const SearchResultUserCard = ({
               </Tooltip>
             </StyledLink>
           </StyledCardHeader>
-          <FlexRow>
+          <FlexRow justifyContent="space-between">
             <Typography variant="body2" sx={{ marginBottom: theme.spacing(1) }}>
               {`${user.age}, ${user.gender}, ${user.city}`}
             </Typography>
@@ -197,7 +197,7 @@ const SearchResultUserCard = ({
         >
           {stripMarkdown(aboutText(user, t))}
         </Typography>
-        <FlexRow alignItems="flex-end">
+        <FlexRow alignItems="flex-end" justifyContent="space-between">
           <UserDetailsRow>
             <Typography variant="body2">
               {user.lastActive

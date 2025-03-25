@@ -132,14 +132,14 @@ const StyledTuneIcon = styled(Tune, {
 
 const StyledClearIcon = styled(Clear, {
   shouldForwardProp: (prop) => prop !== "hasActiveFilters",
-})<{ hasActiveFilters: boolean }>(({ theme, hasActiveFilters }) => ({
+})<{ hasActiveFilters?: boolean }>(({ theme, hasActiveFilters }) => ({
   color: hasActiveFilters
     ? theme.palette.primary.main
     : theme.palette.grey[500],
   fontSize: "30px",
   paddingRight: theme.spacing(1),
-  height: "20px",
-  width: "20px",
+  height: "18px",
+  width: "18px",
   padding: 0,
 }));
 
@@ -246,8 +246,19 @@ const FloatingSearchControls = ({
                                 )}
                                 onClick={handleClearKeyword}
                                 size="small"
+                                sx={{
+                                  backgroundColor: alpha(
+                                    theme.palette.primary.light,
+                                    0.2,
+                                  ), // Adjust opacity as needed
+                                }}
                               >
-                                <Clear sx={{ fontSize: "20px" }} />
+                                <Clear
+                                  sx={{
+                                    color: theme.palette.primary.main,
+                                    fontSize: "20px",
+                                  }}
+                                />
                               </IconButton>
                             </InputAdornment>
                           </>
@@ -276,6 +287,7 @@ const FloatingSearchControls = ({
             <IconButton
               aria-label={t("search:form.search_filters")}
               onClick={onOpenFilters}
+              size="small"
               sx={{
                 ...(hasActiveFilters && {
                   backgroundColor: alpha(theme.palette.primary.light, 0.2), // Adjust opacity as needed
@@ -291,6 +303,7 @@ const FloatingSearchControls = ({
               <IconButton
                 aria-label={t("search:form.clear_filters")}
                 onClick={clearSearchFilters}
+                size="small"
                 sx={{
                   ...(hasActiveFilters && {
                     backgroundColor: alpha(theme.palette.primary.light, 0.2), // Adjust opacity as needed

@@ -50,6 +50,13 @@ function useMapSearchActions() {
     dispatch({ type: mapSearchActionTypes.RESET_FILTERS });
   };
 
+  const setPageNumber = (pageNumber: number) => {
+    dispatch({
+      type: mapSearchActionTypes.SET_PAGE_NUMBER,
+      payload: { pageNumber },
+    });
+  };
+
   const setZoom = (newZoom: number) => {
     dispatch({
       type: mapSearchActionTypes.SET_ZOOM,
@@ -58,12 +65,13 @@ function useMapSearchActions() {
   };
 
   return {
-    setSearch,
-    setSearchFilters,
+    clearSearchFilters,
     clearSearchInputValue,
     setMoveMap,
+    setPageNumber,
+    setSearch,
+    setSearchFilters,
     setSelectedUserId,
-    clearSearchFilters,
     setZoom,
   };
 }
