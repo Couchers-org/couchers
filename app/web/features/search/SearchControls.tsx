@@ -1,14 +1,17 @@
 import { Button, styled, useMediaQuery } from "@mui/material";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
+import { useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 
+import FilterDialog from "./FilterDialog";
 import FloatingSearchControls from "./FloatingSearchControls";
 import MapViewToggle from "./MapViewToggle";
 import SearchTypeRadioGroup from "./SearchTypeRadioGroup";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
+import { useSearchFilters } from "./state/useSearchFilters";
 import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
 import { getMapBounds } from "./utils/mapUtils";
 
@@ -16,7 +19,6 @@ interface SearchControlsProps {
   drawerWidth: number;
   mapView: MapViewOptions;
   mapRef: React.RefObject<MapRef>;
-  onOpenFilters: () => void;
   onSetMapView: (view: MapViewOptions) => void;
   onSetSearchType: (searchType: MapSearchTypes) => void;
   searchType: MapSearchTypes;
@@ -73,7 +75,6 @@ const SearchControls = ({
   drawerWidth,
   mapView,
   mapRef,
-  onOpenFilters,
   onSetMapView,
   onSetSearchType,
   searchType,
@@ -81,8 +82,12 @@ const SearchControls = ({
   const { t } = useTranslation([SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+
   const { showSearchThisAreaButton } = useMapSearchState();
   const { setSearch } = useMapSearchActions();
+
+  const { filters, resetFilters, updateFilter } = useSearchFilters();
 
   const handleMapViewChange = (view: MapViewOptions) => {
     onSetMapView(view);
@@ -91,6 +96,14 @@ const SearchControls = ({
   const handleSearchThisAreaClick = () => {
     const bbox = getMapBounds(mapRef);
     setSearch({ bbox });
+  };
+
+  const handleOpenFiltersDialog = () => {
+    setIsFiltersOpen(true);
+  };
+
+  const handleCloseFiltersDialog = () => {
+    setIsFiltersOpen(false);
   };
 
   return (
@@ -110,7 +123,8 @@ const SearchControls = ({
           )}
           <FloatingSearchControls
             mapRef={mapRef}
-            onOpenFilters={onOpenFilters}
+            onClearFilters={resetFilters}
+            onOpenFilters={handleOpenFiltersDialog}
             onSetSearchType={onSetSearchType}
             searchType={searchType}
           />
@@ -127,6 +141,13 @@ const SearchControls = ({
           searchType={searchType}
         />
       )}
+      <FilterDialog
+        filters={filters}
+        isOpen={isFiltersOpen}
+        onCloseDialog={handleCloseFiltersDialog}
+        updateFilter={updateFilter}
+        resetFilters={resetFilters}
+      />
     </>
   );
 };

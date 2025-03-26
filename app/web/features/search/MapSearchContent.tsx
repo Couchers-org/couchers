@@ -17,7 +17,6 @@ interface MapSearchContentProps {
   onDrawerWidthChange: (width: number) => void;
   onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
-  onOpenFilters: () => void;
   onSetSearchType: (searchType: MapSearchTypes) => void;
   searchType: MapSearchTypes;
   totalItems: number;

@@ -56,7 +56,7 @@ enum MapViews {
 type MapViewOptions = MapViews.MAP_AND_LIST | MapViews.LIST_ONLY;
 
 const MAX_ZOOM_LEVEL = 15;
-const MIN_ZOOM_LEVEL = 1;
+const MIN_ZOOM_LEVEL = 0;
 
 export {
   aboutText,

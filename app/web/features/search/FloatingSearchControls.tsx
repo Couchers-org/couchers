@@ -28,6 +28,7 @@ import { mapFlyToLocation } from "./utils/mapUtils";
 
 interface FloatingSearchNavigationProps {
   mapRef: React.RefObject<MapRef>;
+  onClearFilters: () => void;
   onOpenFilters: () => void;
   onSetSearchType: (searchType: MapSearchTypes) => void;
   searchType: MapSearchTypes;
@@ -145,6 +146,7 @@ const StyledClearIcon = styled(Clear, {
 
 const FloatingSearchControls = ({
   mapRef,
+  onClearFilters,
   onOpenFilters,
   onSetSearchType,
   searchType,
@@ -203,6 +205,11 @@ const FloatingSearchControls = ({
 
   const handleClearLocation = () => {
     clearSearchInputValue();
+  };
+
+  const handleClearSearchFilters = () => {
+    onClearFilters();
+    clearSearchFilters();
   };
 
   return (
@@ -302,7 +309,7 @@ const FloatingSearchControls = ({
             <Tooltip title={t("search:form.clear_filters")}>
               <IconButton
                 aria-label={t("search:form.clear_filters")}
-                onClick={clearSearchFilters}
+                onClick={handleClearSearchFilters}
                 size="small"
                 sx={{
                   ...(hasActiveFilters && {

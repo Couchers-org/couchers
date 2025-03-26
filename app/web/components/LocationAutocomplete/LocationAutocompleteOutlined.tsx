@@ -187,10 +187,10 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
       freeSolo
       multiple={false}
       sx={{
-        width: 300,        
-        "& button.MuiButtonBase-root" : {
-          visibility: "visible"
-        }
+        width: 300,
+        "& button.MuiButtonBase-root": {
+          visibility: "visible",
+        },
       }}
     />
   );

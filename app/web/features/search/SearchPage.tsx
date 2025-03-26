@@ -14,7 +14,6 @@ import { useMemo, useRef, useState } from "react";
 import { MapProvider, MapRef } from "react-map-gl/maplibre";
 import { GeocodeResult } from "utils/hooks";
 
-import FilterDialog from "./FilterDialog";
 import { useUserSearch } from "./hooks/useUserSearch";
 import MapSearchContent from "./MapSearchContent";
 import SearchControls from "./SearchControls";
@@ -61,7 +60,6 @@ export default function SearchPage() {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const mapRef = useRef<MapRef | null>(null);
 
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [searchType, setSearchType] = useState<MapSearchTypes>("location");
   const [drawerWidth, setDrawerWidth] = useState<number>(DEFAULT_DRAWER_WIDTH);
   const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
@@ -87,14 +85,6 @@ export default function SearchPage() {
 
   const handleSetSearchType = (type: MapSearchTypes) => {
     setSearchType(type);
-  };
-
-  const handleOpenFiltersDialog = () => {
-    setIsFiltersOpen(true);
-  };
-
-  const handleCloseFiltersDialog = () => {
-    setIsFiltersOpen(false);
   };
 
   const handleLoadPreviousPage = () => {
@@ -124,7 +114,6 @@ export default function SearchPage() {
           mapRef={mapRef}
           mapView={mapView}
           onSetMapView={handleSetMapView}
-          onOpenFilters={handleOpenFiltersDialog}
           onSetSearchType={handleSetSearchType}
           searchType={searchType}
         />
@@ -138,17 +127,12 @@ export default function SearchPage() {
           onDrawerWidthChange={handleDrawerWidthChange}
           onLoadPreviousPage={handleLoadPreviousPage}
           onLoadNextPage={handleLoadNextPage}
-          onOpenFilters={handleOpenFiltersDialog}
           onSetSearchType={handleSetSearchType}
           searchType={searchType}
           totalItems={totalItems}
           users={users}
         />
       </MapProvider>
-      <FilterDialog
-        isOpen={isFiltersOpen}
-        onCloseDialog={handleCloseFiltersDialog}
-      />
     </SearchPageContainer>
   );
 }

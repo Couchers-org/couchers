@@ -22,9 +22,9 @@ import PlusMinusSelector from "components/PlusMinusSelector";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { HostingStatus, SleepingArrangement } from "proto/api_pb";
-import { useState } from "react";
 import { theme } from "theme";
 
+import { FilterOptions } from "./SearchPage";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import {
   DEFAULT_AGE_MAX,
@@ -35,8 +35,11 @@ import {
 } from "./utils/constants";
 
 interface FilterDialogProps {
+  filters: FilterOptions;
   isOpen: boolean;
   onCloseDialog: () => void;
+  resetFilters: () => void;
+  updateFilter: (filter: FilterOptions) => void;
 }
 
 const StyledDialog = styled(Dialog)({
@@ -116,53 +119,33 @@ function SliderThumbComponent(props: SliderThumbComponentProps) {
   );
 }
 
-const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
+const FilterDialog = ({
+  filters,
+  isOpen,
+  onCloseDialog,
+  resetFilters,
+  updateFilter,
+}: FilterDialogProps) => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-  // We store the filter state in the component itself, and then submit it all at once to api call when user clicks "Apply" button.
-  const [acceptsPets, setAcceptsPets] = useState(false);
-  const [acceptsKids, setAcceptsKids] = useState(false);
-  const [acceptsLastMinRequests, setAcceptsLastMinRequests] = useState(false);
-  const [ageMin, setAgeMin] = useState(DEFAULT_AGE_MIN);
-  const [ageMax, setAgeMax] = useState(DEFAULT_AGE_MAX);
-  const [drinkingAllowed, setDrinkingAllowed] = useState<boolean | undefined>();
-  const [showCompleteProfilesOnly, setShowCompleteProfilesOnly] =
-    useState(false);
-  const [lastActive, setLastActive] = useState(
-    lastActiveOptions.LAST_ACTIVE_ANY,
-  );
-  const [hasReferences, setHasReferences] = useState<boolean>(false);
-  const [hasStrongVerification, setHasStrongVerification] = useState(false);
-  const [hostingStatus, setHostingStatus] = useState<
-    HostingStatusOptions[] | undefined
-  >();
-  const [numberOfGuests, setNumberOfGuests] = useState<number | undefined>();
-  const [sleepingArrangement, setSleepingArrangement] = useState<
-    SleepingArrangementOptions[] | undefined
-  >(undefined);
-  const [smokesAtHome, setSmokesAtHome] = useState<boolean | undefined>(
-    undefined,
-  );
 
   const { setSearchFilters } = useMapSearchActions();
 
   const handleAcceptsPetsChange = () => {
-    setAcceptsPets(!acceptsPets);
+    updateFilter({ acceptsPets: !filters.acceptsPets });
   };
 
   const handleAcceptsKidsChange = () => {
-    setAcceptsKids(!acceptsKids);
+    updateFilter({ acceptsKids: !filters.acceptsKids });
   };
 
   const handleAcceptsLastMinRequestsChange = () => {
-    setAcceptsLastMinRequests(!acceptsLastMinRequests);
+    updateFilter({ acceptsLastMinRequests: !filters.acceptsLastMinRequests });
   };
 
   const handleAgeRangeChange = (event: Event, newValue: number | number[]) => {
     if (Array.isArray(newValue)) {
-      setAgeMin(newValue[0]);
-      setAgeMax(newValue[1]);
+      updateFilter({ ageMin: newValue[0], ageMax: newValue[1] });
     }
   };
 
@@ -170,86 +153,58 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
     event: React.MouseEvent<HTMLElement>,
     newDrinkingAllowed: boolean | undefined,
   ) => {
-    setDrinkingAllowed(newDrinkingAllowed);
+    updateFilter({ drinkingAllowed: newDrinkingAllowed });
   };
 
   const handleShowCompleteProfilesOnlyChange = () => {
-    setShowCompleteProfilesOnly(!showCompleteProfilesOnly);
+    updateFilter({ completeProfile: !filters.completeProfile });
   };
 
   const handleLastActiveSelect = (event: SelectChangeEvent<number>) => {
     const value = event.target.value as lastActiveOptions;
-    setLastActive(value);
+    updateFilter({ lastActive: value });
   };
 
   const handleHasReferencesChange = () => {
-    setHasReferences(!hasReferences);
+    updateFilter({ hasReferences: !filters.hasReferences });
   };
 
   const handleHasStrongVerificationChange = () => {
-    setHasStrongVerification(!hasStrongVerification);
+    updateFilter({ hasStrongVerification: !filters.hasStrongVerification });
   };
 
   const handleHostingStatusChange = (
     event: React.MouseEvent<HTMLElement>,
     newHostingStatus: HostingStatusOptions[],
   ) => {
-    setHostingStatus(newHostingStatus);
+    updateFilter({ hostingStatus: newHostingStatus });
   };
 
   const handleNumberOfGuestsChange = (value: number | undefined) => {
-    setNumberOfGuests(value);
+    updateFilter({ numGuests: value });
   };
 
   const handleSleepingArrangementChange = (
     event: React.MouseEvent<HTMLElement>,
     newSleepingArrangement: SleepingArrangementOptions[],
   ) => {
-    setSleepingArrangement(newSleepingArrangement);
+    updateFilter({ sleepingArrangement: newSleepingArrangement });
   };
 
   const handleSmokesAtHomeChange = (
     event: React.MouseEvent<HTMLElement>,
     newSmokesAtHome: boolean | undefined,
   ) => {
-    setSmokesAtHome(newSmokesAtHome);
+    updateFilter({ smokesAtHome: newSmokesAtHome });
   };
 
   // Just clear local state, will be submit when user clicks "Apply"
   const handleClearFilters = () => {
-    setAcceptsKids(false);
-    setAcceptsPets(false);
-    setAcceptsLastMinRequests(false);
-    setAgeMin(DEFAULT_AGE_MIN);
-    setAgeMax(DEFAULT_AGE_MAX);
-    setDrinkingAllowed(undefined);
-    setShowCompleteProfilesOnly(false);
-    setLastActive(lastActiveOptions.LAST_ACTIVE_ANY);
-    setHasReferences(false);
-    setHasStrongVerification(false);
-    setHostingStatus(undefined);
-    setNumberOfGuests(undefined);
-    setSleepingArrangement(undefined);
-    setSmokesAtHome(undefined);
+    resetFilters();
   };
 
   const handleApplyFilters = () => {
-    setSearchFilters({
-      acceptsKids,
-      acceptsPets,
-      acceptsLastMinRequests,
-      ageMin,
-      ageMax,
-      drinkingAllowed,
-      completeProfile: showCompleteProfilesOnly,
-      lastActive,
-      hasReferences,
-      hasStrongVerification,
-      hostingStatus,
-      numGuests: numberOfGuests,
-      sleepingArrangement,
-      smokesAtHome,
-    });
+    setSearchFilters(filters);
 
     onCloseDialog();
   };
@@ -284,7 +239,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
             {t("search:form.empty_profile_filters.title")}
           </Typography>
           <CustomColorSwitch
-            checked={showCompleteProfilesOnly}
+            checked={filters.completeProfile || false}
             onClick={handleShowCompleteProfilesOnlyChange}
             customColor={theme.palette.primary.main}
           />
@@ -298,7 +253,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
             onChange={handleLastActiveSelect}
             variant="outlined"
             size="small"
-            value={lastActive}
+            value={filters.lastActive}
           >
             <MenuItem value={lastActiveOptions.LAST_ACTIVE_ANY}>
               {t("search:last_active_options.any")}
@@ -325,7 +280,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
             {t("search:form.general_filters.has_references")}
           </Typography>
           <CustomColorSwitch
-            checked={hasReferences}
+            checked={filters.hasReferences || false}
             onClick={handleHasReferencesChange}
             customColor={theme.palette.primary.main}
           />
@@ -347,7 +302,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
             </Tooltip>
           </Typography>
           <CustomColorSwitch
-            checked={hasStrongVerification}
+            checked={filters.hasStrongVerification || false}
             onClick={handleHasStrongVerificationChange}
             customColor={theme.palette.primary.main}
           />
@@ -357,7 +312,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
             {t("search:form.general_filters.accepts_last_minute_requests")}
           </Typography>
           <CustomColorSwitch
-            checked={acceptsLastMinRequests}
+            checked={filters.acceptsLastMinRequests || false}
             onClick={handleAcceptsLastMinRequestsChange}
             customColor={theme.palette.primary.main}
           />
@@ -369,7 +324,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
         <FilterItemRow>
           <Typography> {t("search:form.rules.kids_allowed")}</Typography>
           <CustomColorSwitch
-            checked={acceptsKids}
+            checked={filters.acceptsKids || false}
             onClick={handleAcceptsKidsChange}
             customColor={theme.palette.primary.main}
           />
@@ -377,7 +332,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
         <FilterItemRow>
           <Typography> {t("search:form.rules.pets_allowed")}</Typography>
           <CustomColorSwitch
-            checked={acceptsPets}
+            checked={filters.acceptsPets || false}
             onClick={handleAcceptsPetsChange}
             customColor={theme.palette.primary.main}
           />
@@ -386,7 +341,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
           <Typography> {t("search:form.rules.smokes_at_home")}</Typography>
           <ToggleButtonGroup
             onChange={handleSmokesAtHomeChange}
-            value={smokesAtHome}
+            value={filters.smokesAtHome}
             aria-label={t("search:form.rules.smokes_at_home")}
             exclusive
             size="small"
@@ -416,7 +371,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
           <Typography> {t("search:form.rules.alcohol_allowed")}</Typography>
           <ToggleButtonGroup
             onChange={handleDrinkingAllowedChange}
-            value={drinkingAllowed}
+            value={filters.drinkingAllowed}
             aria-label={t("search:form.rules.smokes_at_home")}
             exclusive
             size="small"
@@ -452,7 +407,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
           </Typography>
           <ToggleButtonGroup
             onChange={handleHostingStatusChange}
-            value={hostingStatus}
+            value={filters.hostingStatus}
             aria-label={t(
               "search:form.host_filters.hosting_status_field_label",
             )}
@@ -497,7 +452,10 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
                 ? t("search:form.host_filters.age.min_age")
                 : t("search:form.host_filters.age.max_age")
             }
-            value={[ageMin, ageMax]}
+            value={[
+              filters.ageMin || DEFAULT_AGE_MIN,
+              filters.ageMax || DEFAULT_AGE_MAX,
+            ]}
             onChange={handleAgeRangeChange}
             valueLabelDisplay="auto"
             slots={{ thumb: SliderThumbComponent }}
@@ -526,7 +484,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
           </Typography>
           <PlusMinusSelector
             onChange={handleNumberOfGuestsChange}
-            value={numberOfGuests}
+            value={filters.numGuests}
           />
         </FilterItemRow>
         <FilterItemRow>
@@ -535,7 +493,7 @@ const FilterDialog = ({ isOpen, onCloseDialog }: FilterDialogProps) => {
           </Typography>
           <ToggleButtonGroup
             onChange={handleSleepingArrangementChange}
-            value={sleepingArrangement}
+            value={filters.sleepingArrangement}
             aria-label={t(
               "search:form.accommodation_filters.sleeping_arrangement_label",
             )}
