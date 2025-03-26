@@ -6,7 +6,7 @@ import LocationAutocomplete from "components/LocationAutocomplete";
 import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
 import TextField from "components/TextField";
-import { Coordinates } from "features/oldSearch/constants";
+import { Coordinates } from "features/search/utils/constants";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
