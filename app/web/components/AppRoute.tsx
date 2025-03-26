@@ -111,7 +111,9 @@ export default function AppRoute({
               isNativeEmbed={isNativeEmbed}
               variant={variant}
               maxWidth={
-                variant === "full-screen" || variant === "full-width"
+                variant === "full-screen" ||
+                variant === "full-width" ||
+                variant === "no-overflow"
                   ? false
                   : "lg"
               }
