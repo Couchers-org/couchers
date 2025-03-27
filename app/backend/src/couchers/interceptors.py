@@ -225,15 +225,16 @@ class CookieInterceptor(grpc.ServerInterceptor):
                     cookies.extend(
                         [("set-cookie", cookie) for cookie in create_session_cookies(token, context.user_id, expiry)]
                     )
-                if context.ui_language_preference != cookie_ui_lang:
+                if context.ui_language_preference and context.ui_language_preference != cookie_ui_lang:
                     cookies.extend(
                         [("set-cookie", cookie) for cookie in create_lang_cookie(context.ui_language_preference)]
                     )
 
-                try:
-                    context.send_initial_metadata(cookies)
-                except ValueError as e:
-                    logger.info("Tried to send initial metadata but wasn't allowed to")
+                if cookies:
+                    try:
+                        context.send_initial_metadata(cookies)
+                    except ValueError as e:
+                        logger.info("Tried to send initial metadata but wasn't allowed to")
 
             return res
 
