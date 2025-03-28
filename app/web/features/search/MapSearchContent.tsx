@@ -5,7 +5,7 @@ import { theme } from "theme";
 
 import MapSearchResultsList from "./MapSearchResultsList";
 import MapView from "./MapView";
-import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
+import { MapViewOptions, MapViews } from "./utils/constants";
 
 interface MapSearchContentProps {
   drawerWidth: number;
@@ -17,8 +17,6 @@ interface MapSearchContentProps {
   onDrawerWidthChange: (width: number) => void;
   onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
-  onSetSearchType: (searchType: MapSearchTypes) => void;
-  searchType: MapSearchTypes;
   totalItems: number;
   users: User.AsObject[] | undefined;
 }

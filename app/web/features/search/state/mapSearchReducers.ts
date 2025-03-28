@@ -291,7 +291,7 @@ const mapSearchReducer = (
       };
 
     default:
-      return state;
+      throw Error("Unknown action: " + action);
   }
 };
 

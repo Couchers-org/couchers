@@ -20,8 +20,6 @@ interface SearchControlsProps {
   mapView: MapViewOptions;
   mapRef: React.RefObject<MapRef>;
   onSetMapView: (view: MapViewOptions) => void;
-  onSetSearchType: (searchType: MapSearchTypes) => void;
-  searchType: MapSearchTypes;
 }
 
 const MapControlsWrapper = styled("div", {
@@ -76,13 +74,12 @@ const SearchControls = ({
   mapView,
   mapRef,
   onSetMapView,
-  onSetSearchType,
-  searchType,
 }: SearchControlsProps) => {
   const { t } = useTranslation([SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [searchType, setSearchType] = useState<MapSearchTypes>("location");
 
   const { showSearchThisAreaButton } = useMapSearchState();
   const { setSearch } = useMapSearchActions();
@@ -106,6 +103,10 @@ const SearchControls = ({
     setIsFiltersOpen(false);
   };
 
+  const handleSetSearchType = (type: MapSearchTypes) => {
+    setSearchType(type);
+  };
+
   return (
     <>
       <MapControlsWrapper
@@ -125,7 +126,7 @@ const SearchControls = ({
             mapRef={mapRef}
             onClearFilters={resetFilters}
             onOpenFilters={handleOpenFiltersDialog}
-            onSetSearchType={onSetSearchType}
+            onSetSearchType={handleSetSearchType}
             searchType={searchType}
           />
         </CenterAligner>
@@ -137,7 +138,7 @@ const SearchControls = ({
       </MapControlsWrapper>
       {isMobile && (
         <SearchTypeRadioGroup
-          onChange={onSetSearchType}
+          onChange={handleSetSearchType}
           searchType={searchType}
         />
       )}

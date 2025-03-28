@@ -3,7 +3,6 @@ import HtmlMeta from "components/HtmlMeta";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import {
   HostingStatusOptions,
-  MapSearchTypes,
   MapViewOptions,
   MapViews,
   SleepingArrangementOptions,
@@ -60,7 +59,6 @@ export default function SearchPage() {
   const { t } = useTranslation([GLOBAL, SEARCH]);
   const mapRef = useRef<MapRef | null>(null);
 
-  const [searchType, setSearchType] = useState<MapSearchTypes>("location");
   const [drawerWidth, setDrawerWidth] = useState<number>(DEFAULT_DRAWER_WIDTH);
   const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
 
@@ -82,10 +80,6 @@ export default function SearchPage() {
     totalItems,
     users,
   } = useUserSearch(searchParams, mapSearchState);
-
-  const handleSetSearchType = (type: MapSearchTypes) => {
-    setSearchType(type);
-  };
 
   const handleLoadPreviousPage = () => {
     fetchPreviousPage();
@@ -114,8 +108,6 @@ export default function SearchPage() {
           mapRef={mapRef}
           mapView={mapView}
           onSetMapView={handleSetMapView}
-          onSetSearchType={handleSetSearchType}
-          searchType={searchType}
         />
         <MapSearchContent
           drawerWidth={drawerWidth}
@@ -127,8 +119,6 @@ export default function SearchPage() {
           onDrawerWidthChange={handleDrawerWidthChange}
           onLoadPreviousPage={handleLoadPreviousPage}
           onLoadNextPage={handleLoadNextPage}
-          onSetSearchType={handleSetSearchType}
-          searchType={searchType}
           totalItems={totalItems}
           users={users}
         />

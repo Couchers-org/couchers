@@ -198,7 +198,6 @@ const FilterDialog = ({
     updateFilter({ smokesAtHome: newSmokesAtHome });
   };
 
-  // Just clear local state, will be submit when user clicks "Apply"
   const handleClearFilters = () => {
     resetFilters();
   };
