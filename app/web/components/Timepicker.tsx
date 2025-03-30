@@ -1,14 +1,14 @@
 import TextField from "@mui/material/TextField";
 import { TimePicker } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
+import React from "react";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
 import { theme } from "theme";
-import dayjs, { Dayjs } from "utils/dayjs";
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Dayjs } from "utils/dayjs";
 
 interface TimepickerProps {
   className?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>;
   defaultValue?: Dayjs | null;
   error: boolean;
@@ -47,7 +47,7 @@ const Timepicker = ({
           data-testid={testId}
           {...field}
           label={label}
-          value={field.value ? dayjs(field.value) : null}
+          value={field.value}
           onChange={(time) => {
             field.onChange(time);
             onPostChange?.(time);

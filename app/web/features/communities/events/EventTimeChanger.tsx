@@ -65,6 +65,30 @@ export default function EventTimeChanger({
     });
   };
 
+  const handleStartTimeChange = (newTime: Dayjs | null) => {
+    if (!newTime) {
+      setValue("startTime", "", { shouldDirty: true, shouldValidate: true });
+      return;
+    }
+  
+    setValue("startTime", newTime.format(TIME_FORMAT), {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
+
+  const handleEndTimeChange = (newTime: Dayjs | null) => {
+    if (!newTime) {
+      setValue("endTime", "", { shouldDirty: true, shouldValidate: true });
+      return;
+    }
+  
+    setValue("endTime", newTime.format(TIME_FORMAT), {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
+
   return (
     <>
       <div className={classes.duoContainer}>
@@ -130,7 +154,9 @@ export default function EventTimeChanger({
               {...field}
               control={control}
               id="startTime"
+              defaultValue={eventStartTime ? dayjs(eventStartTime, TIME_FORMAT) : null}
               label={t("communities:start_time")}
+              onPostChange={handleStartTimeChange}
               error={!!errors.startTime?.message}
               helperText={errors.startTime?.message || ""}
             />
@@ -224,7 +250,9 @@ export default function EventTimeChanger({
               {...field}
               control={control}
               id="endTime"
+              defaultValue={eventEndTime ? dayjs(eventEndTime, TIME_FORMAT) : null}
               label={t("communities:end_time")}
+              onPostChange={handleEndTimeChange}
               error={!!errors.endTime?.message}
               helperText={errors.endTime?.message || ""}
             />
