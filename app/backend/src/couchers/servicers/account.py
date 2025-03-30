@@ -248,6 +248,8 @@ class Account(account_pb2_grpc.AccountServicer):
 
         # update the user's preference
         user.ui_language_preference = request.ui_language_preference
+        # setting this on context will update the cookie (via interceptors)?
+        context.ui_language_preference = request.ui_language_preference
 
         return empty_pb2.Empty()
 

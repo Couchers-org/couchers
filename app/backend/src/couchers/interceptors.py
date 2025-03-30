@@ -17,7 +17,15 @@ from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import observe_in_servicer_duration_histogram
 from couchers.models import APICall, User, UserActivity, UserSession
 from couchers.sql import couchers_select as select
-from couchers.utils import create_session_cookies, now, parse_api_key, parse_session_cookie, parse_user_id_cookie
+from couchers.utils import (
+    create_lang_cookie,
+    create_session_cookies,
+    now,
+    parse_api_key,
+    parse_session_cookie,
+    parse_ui_lang_cookie,
+    parse_user_id_cookie,
+)
 from proto import annotations_pb2
 
 logger = logging.getLogger(__name__)
@@ -83,7 +91,7 @@ def _try_get_and_update_user_details(token, is_api_key, ip_address, user_agent):
 
             session.commit()
 
-            return user.id, user.is_jailed, user.is_superuser, user_session.expiry
+            return user.id, user.is_jailed, user.is_superuser, user_session.expiry, user.ui_language_preference
 
 
 def abort_handler(message, status_code):
@@ -158,6 +166,7 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             is_api_key = False
             token_expiry = None
             user_id = None
+            ui_language_preference = None
 
         # if no session was found and this isn't an open service, fail
         if not auth_info:
@@ -165,7 +174,7 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
                 return unauthenticated_handler()
         else:
             # a valid user session was found
-            user_id, is_jailed, is_superuser, token_expiry = auth_info
+            user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = auth_info
 
             if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser:
                 return unauthenticated_handler("Permission denied", grpc.StatusCode.PERMISSION_DENIED)
@@ -181,6 +190,7 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
             context.user_id = user_id
             context.token = (token, token_expiry)
             context.is_api_key = is_api_key
+            context.ui_language_preference = ui_language_preference
             return user_aware_function(req, context)
 
         return grpc.unary_unary_rpc_method_handler(
@@ -192,12 +202,13 @@ class AuthValidatorInterceptor(grpc.ServerInterceptor):
 
 class CookieInterceptor(grpc.ServerInterceptor):
     """
-    Syncs up the couchers-sesh and couchers-user-id cookies
+    Syncs up the couchers-sesh and couchers-user-id cookies & sets lang cookie
     """
 
     def intercept_service(self, continuation, handler_call_details):
         headers = dict(handler_call_details.invocation_metadata)
         cookie_user_id = parse_user_id_cookie(headers)
+        cookie_ui_lang = parse_ui_lang_cookie(headers)
 
         handler = continuation(handler_call_details)
         user_aware_function = handler.unary_unary
@@ -205,15 +216,25 @@ class CookieInterceptor(grpc.ServerInterceptor):
         def user_unaware_function(req, context):
             res = user_aware_function(req, context)
 
-            # check the two cookies are in sync
-            if context.user_id and not context.is_api_key and cookie_user_id != str(context.user_id):
-                try:
-                    token, expiry = context.token
-                    context.send_initial_metadata(
+            if context.user_id and not context.is_api_key:
+                cookies = []
+
+                # check the two cookies are in sync & that language preference cookie is correct
+                token, expiry = context.token
+                if cookie_user_id != str(context.user_id):
+                    cookies.extend(
                         [("set-cookie", cookie) for cookie in create_session_cookies(token, context.user_id, expiry)]
                     )
-                except ValueError as e:
-                    logger.info("Tried to send initial metadata but wasn't allowed to")
+                if context.ui_language_preference and context.ui_language_preference != cookie_ui_lang:
+                    cookies.extend(
+                        [("set-cookie", cookie) for cookie in create_lang_cookie(context.ui_language_preference)]
+                    )
+
+                if cookies:
+                    try:
+                        context.send_initial_metadata(cookies)
+                    except ValueError as e:
+                        logger.info("Tried to send initial metadata but wasn't allowed to")
 
             return res
 
