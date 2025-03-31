@@ -51,6 +51,24 @@ type LanguagePickerSelectProps = {
   displayMode?: "round" | "rect";
 };
 
+// note: this will not retrieve secure cookies in development,
+// manually add a non-secure cookie in development to test this functionality
+function getLangCookie() {
+  let name = "couchers-preferred-language" + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(";");
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == " ") {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
 export default function LanguagePickerSelect({
   defaultValue,
   value,
@@ -58,7 +76,7 @@ export default function LanguagePickerSelect({
   displayMode = "round", // default to round if not specified
 }: LanguagePickerSelectProps) {
   // once functionality is implemented, state changes will be handled elsewhere
-  const [language, setLanguage] = useState("en");
+  const [language, setLanguage] = useState(getLangCookie());
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
 
