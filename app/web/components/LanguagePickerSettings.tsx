@@ -1,0 +1,151 @@
+import {
+  Typography,
+  useMediaQuery,
+  useTheme,
+  Link as MuiLink,
+} from "@mui/material";
+import Alert from "components/Alert";
+import Button from "components/Button";
+import TextField from "components/TextField";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
+import { RpcError } from "grpc-web";
+import { Trans, useTranslation } from "i18n";
+import { AUTH, GLOBAL } from "i18n/namespaces";
+import { useForm } from "react-hook-form";
+import { useMutation } from "react-query";
+import { service } from "service";
+import { LANGUAGE_MAP } from "i18n/constants";
+import { lowercaseAndTrimField } from "utils/validation";
+import LanguagePickerSelect from "./LanguagePickerSelect";
+
+import useChangeDetailsFormStyles from "../features/auth/useChangeDetailsFormStyles";
+
+// TODO: Update to correct link
+const COMMUNITY_BUILDER_FORM_LINK =
+  "https://couchers.org/community-builder-form";
+
+interface ChangeLanguageFormData {
+  newLanguage: string;
+}
+
+interface ChangeLanguageProps {
+  // language: string;
+  className?: string;
+}
+
+// TODO: this function is used in two places, where should it live?
+// note: this will not retrieve secure cookies in development,
+// manually add a non-secure cookie in development to test this functionality
+function getLangCookie() {
+  let name = "couchers-preferred-language" + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(";");
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == " ") {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
+export default function LanguagePickerSettings({
+  className,
+}: ChangeLanguageProps) {
+  const { t } = useTranslation([AUTH, GLOBAL]);
+  const formClasses = useChangeDetailsFormStyles();
+  const theme = useTheme();
+  const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
+
+  console.dir(service);
+
+  const {
+    handleSubmit,
+    register,
+    reset: resetForm,
+  } = useForm<ChangeLanguageFormData>();
+  const onSubmit = handleSubmit(({ newLanguage }) => {
+    // TODO: send request to update cookie on backend w/ newLanguage code
+  });
+
+  const {
+    error: changeLanguageError,
+    isLoading: isChangeLanguageLoading,
+    isSuccess: isChangeLanguageSuccess,
+    mutate: changeLanguage,
+  } = useMutation<Empty, RpcError, ChangeLanguageFormData>(
+    ({ newLanguage }) => service.account.changeLanguage(newLanguage),
+    {
+      onSuccess: () => {
+        resetForm();
+      },
+    },
+  );
+
+  return (
+    <div className={className}>
+      {/* <Typography variant="h2">{t("auth:change_language_form.title")}</Typography> */}
+      <Typography variant="h2">Language</Typography>
+      <>
+        <Typography variant="body1">
+          {/* <Trans
+            i18nKey="auth:change_language_form.current_language_message"
+            values={{ language }}
+          >
+            {`Your language preference is currently `}
+            <strong>{language}</strong>
+            {`.`}
+          </Trans> */}
+          {`Your language preference is currently `}
+          <strong>{LANGUAGE_MAP[getLangCookie()].name}</strong>
+        </Typography>
+        <Typography
+          variant="body1"
+          paragraph
+          // className={classes.createCommunityText}
+        >
+          {/* <Trans i18nKey="dashboard:your_communities_helper_text2"> */}
+          {/* {`Don't see your community? `} */}
+          <MuiLink
+            href={COMMUNITY_BUILDER_FORM_LINK}
+            target="_blank"
+            rel="noreferrer noopener"
+            underline="hover"
+          >
+            <strong>Help translate couchers into your language.</strong>
+          </MuiLink>
+          {/* </Trans> */}
+        </Typography>
+        {changeLanguageError && (
+          <Alert severity="error">{changeLanguageError.message}</Alert>
+        )}
+        {isChangeLanguageSuccess && (
+          <Alert severity="success">
+            {t("auth:change_language_form.success_message")}
+          </Alert>
+        )}
+        <form className={formClasses.form} onSubmit={onSubmit}>
+          <LanguagePickerSelect displayMode="rect" />
+          {/* <TextField
+            id="newLanguage"
+            {...register("newLanguage", { required: true })}
+            // label={t("auth:change_language_form.new_language")}
+            label="Select a language"
+            name="newLanguage"
+            fullWidth={!isMdOrWider}
+          /> */}
+          <Button
+            fullWidth={!isMdOrWider}
+            loading={isChangeLanguageLoading}
+            type="submit"
+          >
+            {t("global:submit")}
+          </Button>
+        </form>
+      </>
+    </div>
+  );
+}

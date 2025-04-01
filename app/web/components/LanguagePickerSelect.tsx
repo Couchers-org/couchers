@@ -10,48 +10,24 @@ import {
   SelectChangeEvent,
   Stack,
   styled,
+  TextField,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { useState } from "react";
 
-// Styled Components
-
-/**
- * We pass a generic type to `styled(FormControl)` so it can
- * read our `displayMode` prop in the styling callback.
- */
-const StyledLanguageFormControl = styled(FormControl)<{
-  displayMode?: "round" | "rect";
-}>(({ theme, displayMode }) => ({
-  // For a "round" shape, use a large radius; for "rect", use the default theme radius
-  borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
-  // border: `1px solid ${theme.palette.grey[300]}`,
-  // height: displayMode === "rect" ? 56 : "auto", // Match TextField height
-  "& .MuiOutlinedInput-notchedOutline": {
-    // border: "none",
-  },
-}));
-
-// --- Component ------------------------------------------------------
-
 type LanguagePickerSelectProps = {
   defaultValue?: string;
   value?: string;
   onSelect?: (value: string) => void;
-  /**
-   * Toggle between "round" shape or "rect" shape.
-   * - "round": fully rounded edges
-   * - "rect": typical rounded rectangle
-   */
   displayMode?: "round" | "rect";
 };
 
-// note: this will not retrieve secure cookies in development,
-// manually add a non-secure cookie in development to test this functionality
+// note: manually add a non-secure cookie in development to test this functionality
+// TODO: this function lives in two places... where should it live?
 function getLangCookie() {
-  let name = "couchers-preferred-language" + "=";
+  let name = "couchers-preferred-language=";
   let decodedCookie = decodeURIComponent(document.cookie);
   let ca = decodedCookie.split(";");
   for (let i = 0; i < ca.length; i++) {
@@ -72,7 +48,6 @@ export default function LanguagePickerSelect({
   onSelect,
   displayMode = "round", // default to round if not specified
 }: LanguagePickerSelectProps) {
-  // once functionality is implemented, state changes will be handled elsewhere
   const [language, setLanguage] = useState(getLangCookie());
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
@@ -80,7 +55,7 @@ export default function LanguagePickerSelect({
   const handleChange = (event: SelectChangeEvent) => {
     const newLang = event.target.value as string;
     setLanguage(newLang);
-    onSelect?.(newLang);
+    onSelect?.(newLang); // sends request to update language preference on backend?
   };
 
   // Helper function to render a flag icon from country flag icons collection
@@ -94,7 +69,7 @@ export default function LanguagePickerSelect({
     );
   };
 
-  // Build list of menu items based on language map
+  // Build list of menu items based on LANGUAGE_MAP
   const menuItems: React.ReactNode[] = [];
   for (const languageCode in LANGUAGE_MAP) {
     const flagCode = LANGUAGE_MAP[languageCode].flagIconCode;
@@ -106,7 +81,6 @@ export default function LanguagePickerSelect({
           display: "flex",
           alignItems: "center",
           gap: theme.spacing(1),
-          // customized selected/hover states:
           "& .Mui-selected": {
             backgroundColor: theme.palette.action.selected,
           },
@@ -142,7 +116,7 @@ export default function LanguagePickerSelect({
 
   return (
     <Box sx={{ minWidth: 60 }}>
-      <StyledLanguageFormControl
+      <FormControl
         variant="outlined"
         displayMode={displayMode}
         sx={{
@@ -155,55 +129,68 @@ export default function LanguagePickerSelect({
                 : "100%",
         }}
       >
-        <MuiSelect
-          id="language-select"
-          value={language}
-          sx={{
-            borderRadius:
-              displayMode === "round" ? 999 : theme.shape.borderRadius,
-            // extra spacing on the right to avoid overlap with the dropdown arrow
-            // paddingRight: theme.spacing(0.5),
-            "& .MuiSelect-icon": {
-              color: theme.palette.text.primary,
-              fontSize: "1.25rem",
-              top: "50%",
-              transform: "translateY(-50%)",
-              right: 10,
-            },
-          }}
-          onChange={handleChange}
-          // Use renderValue to display the selected language in collapsed state
-          renderValue={(selected: string) => {
-            const selectedDisplay = (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  pl: 1,
-                  color: "#666666",
-                  fontWeight: "bold",
-                }}
-              >
-                {renderFlag(LANGUAGE_MAP[selected].flagIconCode)}
-                {selected.toUpperCase()}
-              </Box>
-            );
-            return displayMode === "round" ? (
-              selectedDisplay
-            ) : selected ? (
-              selectedDisplay
-            ) : (
-              <label className="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1ttrm8x-MuiFormLabel-root-MuiInputLabel-root">
-                {"Select a Language"}
-              </label>
-            );
-          }}
-          IconComponent={ExpandMoreOutlinedIcon}
-        >
-          {menuItems}
-        </MuiSelect>
-      </StyledLanguageFormControl>
+        {" "}
+        {displayMode === "round" ? (
+          <MuiSelect
+            id="language-select"
+            value={language}
+            sx={{
+              borderRadius:
+                displayMode === "round" ? 999 : theme.shape.borderRadius,
+              "& .MuiSelect-icon": {
+                color: theme.palette.text.primary,
+                fontSize: "1.25rem",
+                top: "50%",
+                transform: "translateY(-50%)",
+                right: 10,
+              },
+            }}
+            onChange={handleChange}
+            // Use renderValue to display the selected language in collapsed state
+            renderValue={(selected: string) => {
+              const selectedDisplay = (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    pl: 1,
+                    color: "#666666",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {renderFlag(LANGUAGE_MAP[selected].flagIconCode)}
+                  {selected.toUpperCase()}
+                </Box>
+              );
+              return displayMode === "round" ? (
+                selectedDisplay
+              ) : selected ? (
+                selectedDisplay
+              ) : (
+                <label className="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1ttrm8x-MuiFormLabel-root-MuiInputLabel-root">
+                  {"Select a Language"}
+                </label>
+              );
+            }}
+            IconComponent={ExpandMoreOutlinedIcon}
+          >
+            {menuItems}
+          </MuiSelect>
+        ) : (
+          <TextField
+            select={true}
+            id="newLanguage"
+            // {...register("newLanguage", { required: true })}
+            // label={t("auth:change_language_form.new_language")}
+            label="Select a language"
+            name="newLanguage"
+            fullWidth={!isMdOrWider}
+          >
+            {menuItems}
+          </TextField>
+        )}
+      </FormControl>
     </Box>
   );
 }
