@@ -73,7 +73,7 @@ type MapSearchAction =
   | { type: mapSearchActionTypes.RESET_FILTERS }
   | {
       type: mapSearchActionTypes.SET_SELECTED_USER_ID;
-      payload: { userId: User.AsObject["userId"] };
+      payload: { bbox?: Coordinates; userId: User.AsObject["userId"] };
     }
   | {
       type: mapSearchActionTypes.SET_ZOOM;
@@ -129,7 +129,7 @@ const mapSearchReducer = (
     case mapSearchActionTypes.SET_SEARCH:
       const updatedSearchQuery = { ...state.search };
 
-      if (action.payload.bbox) {
+      if (action.payload.bbox && !action.payload.keyword) {
         updatedSearchQuery.bbox = action.payload.bbox;
         updatedSearchQuery.query = initialState.search.query;
       }
@@ -152,7 +152,7 @@ const mapSearchReducer = (
           action.payload.keyword === ""
             ? initialState.search.query
             : action.payload.keyword;
-        updatedSearchQuery.bbox = initialState.search.bbox;
+        updatedSearchQuery.bbox = action.payload.bbox;
       }
 
       return {
@@ -165,7 +165,6 @@ const mapSearchReducer = (
             : false,
         pageNumber: initialState.pageNumber,
         showSearchThisAreaButton: false,
-        zoom: action.payload.keyword ? 1 : state.zoom,
       };
     case mapSearchActionTypes.SET_FILTERS:
       const updatedFilters = { ...state.filters };

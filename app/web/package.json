@@ -45,7 +45,7 @@
     "i18next": "^23.0.0",
     "intersection-observer": "^0.12.2",
     "luhn": "^2.4.1",
-    "maplibre-gl": "^5.2.0",
+    "maplibre-gl": "^5.3.0",
     "markdown-it": "^14.1.0",
     "next": "^14.2.23",
     "next-i18next": "^14.0.0",

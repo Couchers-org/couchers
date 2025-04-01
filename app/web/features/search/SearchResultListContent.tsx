@@ -33,7 +33,7 @@ const UserCardsWrapper = styled("div")(({ theme }) => ({
 }));
 
 const StyledCardWrapper = styled("div")(({ theme }) => ({
-  height: `${DEFAULT_DRAWER_WIDTH - 50}px`,
+  height: `${DEFAULT_DRAWER_WIDTH - 40}px`,
   display: "flex",
 }));
 

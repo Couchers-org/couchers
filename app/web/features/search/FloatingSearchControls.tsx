@@ -1,7 +1,6 @@
 import { Clear, Tune } from "@mui/icons-material";
 import {
   alpha,
-  debounce,
   InputAdornment,
   MenuItem,
   Select,
@@ -12,6 +11,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import IconButton from "components/IconButton";
+import { SearchIcon } from "components/Icons";
 import LocationAutocompleteOutlined from "components/LocationAutocomplete/LocationAutocompleteOutlined";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
@@ -20,11 +20,10 @@ import { MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
-import { SearchOptions } from "./SearchPage";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MapSearchTypes } from "./utils/constants";
-import { mapFlyToLocation } from "./utils/mapUtils";
+import { getMapBounds, mapFlyToLocation } from "./utils/mapUtils";
 
 interface FloatingSearchNavigationProps {
   mapRef: React.RefObject<MapRef>;
@@ -167,22 +166,32 @@ const FloatingSearchControls = ({
   const handleSearchTypeChange = (event: SelectChangeEvent<unknown>) => {
     const value = event.target.value as "location" | "keyword";
 
-    setKeyword("");
-    clearSearchInputValue();
     onSetSearchType(value);
+
+    if (value === "location") {
+      setKeyword("");
+      clearSearchInputValue();
+    }
   };
 
-  const debouncedKeywordChange = debounce((value: SearchOptions["keyword"]) => {
-    // Only search if the keyword is longer than 3 characters
-    if ((value ?? "").length > 3) {
-      setSearch({ keyword: value });
-    }
-  }, 500);
-
   const handleKeywordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    debouncedKeywordChange(event.target.value);
     setKeyword(event.target.value);
-    mapRef.current?.setZoom(1); // zoom out because people with keyword could be anywhere
+  };
+
+  const handleKeywordSubmit = () => {
+    // Only search if the keyword is longer than 3 characters
+    if (keyword.length > 3) {
+      const bbox = getMapBounds(mapRef);
+      setSearch({ keyword, bbox });
+    }
+  };
+
+  const handleKeyWordEnterPress = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ): void => {
+    if (event.key === "Enter") {
+      handleKeywordSubmit();
+    }
   };
 
   const handleClearKeyword = () => {
@@ -234,6 +243,7 @@ const FloatingSearchControls = ({
                 name={t("search:form.keywords.field_label")}
                 onChange={handleKeywordChange}
                 value={keyword}
+                onKeyDown={handleKeyWordEnterPress}
                 InputProps={
                   keyword.length < 1
                     ? {}
@@ -247,6 +257,16 @@ const FloatingSearchControls = ({
                                   query === "" ? theme.spacing(1) : 0,
                               }}
                             >
+                              <IconButton
+                                aria-label={t(
+                                  "search:form.keywords.search_this_keyword_a11y_label",
+                                )}
+                                onClick={handleKeywordSubmit}
+                                size="small"
+                                sx={{ marginRight: theme.spacing(1) }}
+                              >
+                                <SearchIcon />
+                              </IconButton>
                               <IconButton
                                 aria-label={t(
                                   "search:form.keywords.clear_field_action_a11y_label",

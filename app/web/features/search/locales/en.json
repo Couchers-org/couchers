@@ -18,7 +18,8 @@
     "missing_location_validation_error": "Specify a location to use this filter",
     "keywords": {
       "field_label": "Name, keywords, or username",
-      "clear_field_action_a11y_label": "Clear search"
+      "clear_field_action_a11y_label": "Clear search",
+      "search_this_keyword_a11y_label": "Search this keyword"
     },
     "by_location_filter_label": "By location",
     "by_keyword_filter_label": "By keyword or name",
