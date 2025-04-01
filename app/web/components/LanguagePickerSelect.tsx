@@ -28,9 +28,8 @@ const StyledLanguageFormControl = styled(FormControl)<{
   // For a "round" shape, use a large radius; for "rect", use the default theme radius
   borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius * 3,
   border: `2px solid ${theme.palette.grey[300]}`,
+  fullWidth: true,
   width: displayMode === "rect" ? "241px" : "fit-content",
-  // fullWidth: true,
-  // dataShrink: false,
   height: displayMode === "rect" ? 56 : "auto", // Match TextField height
   "& .MuiOutlinedInput-notchedOutline": {
     border: "none",
@@ -144,13 +143,14 @@ export default function LanguagePickerSelect({
   }
 
   return (
-    <Box sx={{ minWidth: 60 }}>
+    <Box sx={{ minWidth: 60 }} fullWidth={!isMdOrWider}>
       <StyledLanguageFormControl
         variant="outlined"
         displayMode={displayMode}
         fullWidth={!isMdOrWider}
       >
         <MuiSelect
+          fullWidth={!isMdOrWider}
           id="language-select"
           value={language}
           sx={{
