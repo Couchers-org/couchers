@@ -184,7 +184,7 @@ pycparser==2.22
     # via cffi
 pynacl==1.5.0
     # via -r requirements.in
-pytest==8.3.4
+pytest==8.3.5
     # via
     #   -r requirements.in
     #   pytest-cov
