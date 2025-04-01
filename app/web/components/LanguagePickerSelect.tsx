@@ -9,7 +9,6 @@ import {
   Select as MuiSelect,
   SelectChangeEvent,
   Stack,
-  styled,
   TextField,
   useMediaQuery,
   useTheme,
@@ -27,9 +26,9 @@ type LanguagePickerSelectProps = {
 // note: manually add a non-secure cookie in development to test this functionality
 // TODO: this function lives in two places... where should it live?
 function getLangCookie() {
-  let name = "couchers-preferred-language=";
-  let decodedCookie = decodeURIComponent(document.cookie);
-  let ca = decodedCookie.split(";");
+  const name = "couchers-preferred-language=";
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const ca = decodedCookie.split(";");
   for (let i = 0; i < ca.length; i++) {
     let c = ca[i];
     while (c.charAt(0) == " ") {

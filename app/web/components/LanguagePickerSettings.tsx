@@ -1,24 +1,22 @@
 import {
+  Link as MuiLink,
   Typography,
   useMediaQuery,
   useTheme,
-  Link as MuiLink,
 } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
-import TextField from "components/TextField";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
-import { Trans, useTranslation } from "i18n";
+import { useTranslation } from "i18n";
+import { LANGUAGE_MAP } from "i18n/constants";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
-import { LANGUAGE_MAP } from "i18n/constants";
-import { lowercaseAndTrimField } from "utils/validation";
-import LanguagePickerSelect from "./LanguagePickerSelect";
 
 import useChangeDetailsFormStyles from "../features/auth/useChangeDetailsFormStyles";
+import LanguagePickerSelect from "./LanguagePickerSelect";
 
 // TODO: Update to correct link
 const COMMUNITY_BUILDER_FORM_LINK =
@@ -37,9 +35,9 @@ interface ChangeLanguageProps {
 // note: this will not retrieve secure cookies in development,
 // manually add a non-secure cookie in development to test this functionality
 function getLangCookie() {
-  let name = "couchers-preferred-language" + "=";
-  let decodedCookie = decodeURIComponent(document.cookie);
-  let ca = decodedCookie.split(";");
+  const name = "couchers-preferred-language" + "=";
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const ca = decodedCookie.split(";");
   for (let i = 0; i < ca.length; i++) {
     let c = ca[i];
     while (c.charAt(0) == " ") {
