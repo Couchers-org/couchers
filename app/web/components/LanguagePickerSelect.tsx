@@ -26,13 +26,11 @@ const StyledLanguageFormControl = styled(FormControl)<{
   displayMode?: "round" | "rect";
 }>(({ theme, displayMode }) => ({
   // For a "round" shape, use a large radius; for "rect", use the default theme radius
-  borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius * 3,
-  border: `2px solid ${theme.palette.grey[300]}`,
-  fullWidth: true,
-  width: displayMode === "rect" ? "241px" : "fit-content",
-  height: displayMode === "rect" ? 56 : "auto", // Match TextField height
+  borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
+  // border: `1px solid ${theme.palette.grey[300]}`,
+  // height: displayMode === "rect" ? 56 : "auto", // Match TextField height
   "& .MuiOutlinedInput-notchedOutline": {
-    border: "none",
+    // border: "none",
   },
 }));
 
@@ -143,14 +141,21 @@ export default function LanguagePickerSelect({
   }
 
   return (
-    <Box sx={{ minWidth: 60 }} fullWidth={!isMdOrWider}>
+    <Box sx={{ minWidth: 60 }}>
       <StyledLanguageFormControl
         variant="outlined"
         displayMode={displayMode}
-        fullWidth={!isMdOrWider}
+        sx={{
+          // specialized sizing based on screen size
+          width:
+            displayMode === "round"
+              ? "fit-content"
+              : isMdOrWider
+                ? "241px"
+                : "100%",
+        }}
       >
         <MuiSelect
-          fullWidth={!isMdOrWider}
           id="language-select"
           value={language}
           sx={{
@@ -160,15 +165,13 @@ export default function LanguagePickerSelect({
             // paddingRight: theme.spacing(0.5),
             "& .MuiSelect-icon": {
               color: theme.palette.text.primary,
-              // color: "#666",                // match existing UI
-              fontSize: "1.25rem", // adjust to match screenshot
+              fontSize: "1.25rem",
               top: "50%",
               transform: "translateY(-50%)",
               right: 10,
             },
           }}
           onChange={handleChange}
-          // displayMode={displayMode}
           // Use renderValue to display the selected language in collapsed state
           renderValue={(selected: string) => {
             const selectedDisplay = (
