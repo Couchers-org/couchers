@@ -40,7 +40,7 @@ function Linkify({ text, isCurrentUser }: LinkifyProps) {
           rel="noreferrer"
           href={`${protocolPrefix}${href}`}
           underline="hover"
-          sx={{ ...(!isCurrentUser ? { color: "#0000EE" } : {}) }}
+          sx={{ ...(isCurrentUser ? { color: "#0000EE" } : {}) }}
         >
           {part}
         </MuiLink>
