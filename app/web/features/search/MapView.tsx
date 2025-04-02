@@ -78,7 +78,7 @@ const MapView = ({
       }
       setZoom(newZoom);
     },
-    [zoom, mapRef, setSearch, setZoom]
+    [zoom, mapRef, setSearch, setZoom],
   );
 
   const handleZoomOut = (newZoom: number) => {
