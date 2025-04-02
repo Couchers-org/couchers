@@ -15,9 +15,10 @@ const urlRegex = () => {
 
 interface LinkifyProps {
   text: string;
+  isCurrentUser: boolean;
 }
 
-function Linkify({ text }: LinkifyProps) {
+function Linkify({ text, isCurrentUser }: LinkifyProps) {
   const nonCapturingRegex = urlRegex();
   const parts = text.split(nonCapturingRegex);
 
@@ -39,6 +40,7 @@ function Linkify({ text }: LinkifyProps) {
           rel="noreferrer"
           href={`${protocolPrefix}${href}`}
           underline="hover"
+          sx={{ ...(!isCurrentUser ? { color: "#0000EE" } : {}) }}
         >
           {part}
         </MuiLink>

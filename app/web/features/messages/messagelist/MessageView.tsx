@@ -1,6 +1,4 @@
-import { Card, CardContent, Skeleton, Typography } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
-import classNames from "classnames";
+import { Card, CardContent, Skeleton, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import Linkify from "components/Linkify";
 import TextBody from "components/TextBody";
@@ -14,9 +12,32 @@ import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
 export const messageElementId = (id: number) => `message-${id}`;
 
-const useStyles = makeStyles((theme) => ({
-  avatar: { height: 40, width: 40 },
-  card: {
+const RootContainer = styled("div", {
+  shouldForwardProp: (prop) => prop !== "isCurrentUser" && prop !== "isLoading",
+})<{ isCurrentUser: boolean; isLoading: boolean }>(
+  ({ theme, isCurrentUser, isLoading }) => ({
+    "& > :first-child": { marginRight: theme.spacing(2) },
+    display: "flex",
+
+    ...(isLoading && {
+      justifyContent: "center",
+    }),
+
+    ...(isCurrentUser && !isLoading && { justifyContent: "flex-end" }),
+
+    ...(!isCurrentUser && !isLoading && { justifyContent: "flex-start" }),
+  }),
+);
+
+const StyledAvatar = styled(Avatar)(({ theme }) => ({
+  height: 40,
+  width: 40,
+}));
+
+const StyledCard = styled(Card, {
+  shouldForwardProp: (prop) => prop !== "isLoading" && prop !== "isCurrentUser",
+})<{ isLoading: boolean; isCurrentUser: boolean }>(
+  ({ theme, isCurrentUser, isLoading }) => ({
     [theme.breakpoints.up("xs")]: {
       width: "100%",
     },
@@ -28,57 +49,61 @@ const useStyles = makeStyles((theme) => ({
     },
     border: "1px solid",
     borderRadius: theme.shape.borderRadius * 3,
-  },
-  footer: {
-    display: "flex",
-    justifyContent: "flex-end",
-    paddingBottom: theme.spacing(2),
-    paddingInlineEnd: theme.spacing(2),
-    paddingInlineStart: theme.spacing(2),
-  },
-  header: {
-    alignItems: "center",
-    display: "flex",
-    padding: theme.spacing(2),
-    paddingBottom: theme.spacing(1),
-  },
-  loadingCard: {
-    borderColor: theme.palette.text.secondary,
-  },
-  loadingRoot: { justifyContent: "center" },
-  messageBody: {
-    "&:last-child": { paddingBottom: theme.spacing(2) },
-    paddingBottom: theme.spacing(1),
-    paddingTop: 0,
-    overflowWrap: "break-word",
-    whiteSpace: "pre-wrap",
-  },
-  name: {
-    ...theme.typography.body2,
-    flexGrow: 1,
-    fontWeight: "bold",
-    margin: 0,
-  },
-  otherCard: {
-    borderColor: theme.palette.grey[300],
-    backgroundColor: theme.palette.grey[200],
-  },
-  otherRoot: { justifyContent: "flex-start" },
-  root: {
-    "& > :first-child": { marginRight: theme.spacing(2) },
-    display: "flex",
-  },
-  userCard: {
-    borderColor: theme.palette.primary.main,
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.common.white,
-  },
-  userRoot: { justifyContent: "flex-end" },
-  leftOfMessage: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
+
+    ...(isLoading && {
+      borderColor: theme.palette.text.secondary,
+    }),
+
+    ...(isCurrentUser &&
+      !isLoading && {
+        borderColor: theme.palette.primary.main,
+        backgroundColor: theme.palette.primary.main,
+        color: theme.palette.common.white,
+      }),
+
+    ...(!isCurrentUser &&
+      !isLoading && {
+        borderColor: theme.palette.grey[300],
+        backgroundColor: theme.palette.grey[200],
+      }),
+  }),
+);
+
+const StyledLeftOfMessage = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+}));
+
+const StyledHeader = styled("div")(({ theme }) => ({
+  alignItems: "center",
+  display: "flex",
+  padding: theme.spacing(2),
+  paddingBottom: theme.spacing(1),
+}));
+
+const StyledNameTypography = styled(Typography)(({ theme }) => ({
+  ...theme.typography.body2,
+  flexGrow: 1,
+  fontWeight: "bold",
+  margin: 0,
+}));
+
+const StyledMessageBody = styled(CardContent)(({ theme }) => ({
+  "&:last-of-type": { paddingBottom: theme.spacing(2) },
+
+  paddingBottom: theme.spacing(1),
+  paddingTop: 0,
+  overflowWrap: "break-word",
+  whiteSpace: "pre-wrap",
+}));
+
+const StyledFooter = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "flex-end",
+  paddingBottom: theme.spacing(2),
+  paddingInlineEnd: theme.spacing(2),
+  paddingInlineStart: theme.spacing(2),
 }));
 
 export interface MessageProps {
@@ -88,11 +113,10 @@ export interface MessageProps {
 }
 
 export default function MessageView({
+  className,
   message,
   onVisible,
-  className,
 }: MessageProps) {
-  const classes = useStyles();
   const { data: author, isLoading: isAuthorLoading } = useLiteUser(
     message.authorUserId,
   );
@@ -104,60 +128,53 @@ export default function MessageView({
   const { ref } = useOnVisibleEffect(onVisible);
 
   return (
-    <div
-      className={classNames(classes.root, className, {
-        [classes.loadingRoot]: isLoading,
-        [classes.userRoot]: isCurrentUser && !isLoading,
-        [classes.otherRoot]: !isCurrentUser && !isLoading,
-      })}
+    <RootContainer
+      className={className}
       data-testid={`message-${message.messageId}`}
       ref={ref}
       id={messageElementId(message.messageId)}
+      isCurrentUser={isCurrentUser}
+      isLoading={isLoading}
     >
       {author && !isCurrentUser && (
-        <div className={classes.leftOfMessage}>
-          <Avatar user={author} className={classes.avatar} />
+        <StyledLeftOfMessage>
+          <StyledAvatar user={author} />
           <FlagButton
             contentRef={`chat/message/${message.messageId}`}
             authorUser={author.userId}
           />
-        </div>
+        </StyledLeftOfMessage>
       )}
-      <Card
-        className={classNames(classes.card, {
-          [classes.loadingCard]: isLoading,
-          [classes.userCard]: isCurrentUser && !isLoading,
-          [classes.otherCard]: !isCurrentUser && !isLoading,
-        })}
-      >
-        <div className={classes.header}>
+      <StyledCard isLoading={isLoading} isCurrentUser={isCurrentUser}>
+        <StyledHeader>
           {author ? (
-            <Typography variant="h5" className={classes.name}>
+            <StyledNameTypography variant="h5">
               {author.name}
-            </Typography>
+            </StyledNameTypography>
           ) : (
             <Skeleton width={100} />
           )}
           {!isCurrentUser && (
             <TimeInterval date={timestamp2Date(message.time!)} />
           )}
-        </div>
+        </StyledHeader>
 
-        <CardContent className={classes.messageBody}>
+        <StyledMessageBody>
           <TextBody>
-            <Linkify text={message.text?.text || ""} />
+            <Linkify
+              text={message.text?.text || ""}
+              isCurrentUser={isCurrentUser}
+            />
           </TextBody>
-        </CardContent>
+        </StyledMessageBody>
 
         {isCurrentUser && (
-          <div className={classes.footer}>
+          <StyledFooter>
             <TimeInterval date={timestamp2Date(message.time!)} />
-          </div>
+          </StyledFooter>
         )}
-      </Card>
-      {author && isCurrentUser && (
-        <Avatar user={author} className={classes.avatar} />
-      )}
-    </div>
+      </StyledCard>
+      {author && isCurrentUser && <StyledAvatar user={author} />}
+    </RootContainer>
   );
 }
