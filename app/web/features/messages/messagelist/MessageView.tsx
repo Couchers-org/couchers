@@ -16,7 +16,7 @@ const RootContainer = styled("div", {
   shouldForwardProp: (prop) => prop !== "isCurrentUser" && prop !== "isLoading",
 })<{ isCurrentUser: boolean; isLoading: boolean }>(
   ({ theme, isCurrentUser, isLoading }) => ({
-    "& > :first-child": { marginRight: theme.spacing(2) },
+    "& > :first-of-type": { marginRight: theme.spacing(2) },
     display: "flex",
 
     ...(isLoading && {
