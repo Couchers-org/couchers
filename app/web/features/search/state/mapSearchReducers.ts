@@ -285,7 +285,9 @@ const mapSearchReducer = (
           },
         }),
         showSearchThisAreaButton:
-          !hasSearchInputValue && newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+          !hasSearchInputValue &&
+          newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+          state.zoom > newZoom,
         zoom: newZoom,
       };
 

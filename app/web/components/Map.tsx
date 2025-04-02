@@ -1,5 +1,6 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
+import { useMapSearchState } from "features/search/state/mapSearchContext";
 import {
   clusterCountLayer,
   clusterLayer,
@@ -31,10 +32,11 @@ interface MapProps {
   onClick: (ev: MapLayerMouseEvent) => void;
   onLoad: () => void;
   onMapMove: () => void;
-  onSetZoom: (newZoom: number) => void;
   onSourceDataLoading: (event: MapSourceDataEvent) => void;
   onZoomIn: (newZoom: number) => void;
   onZoomOut: (newZoom: number) => void;
+  onZoomControlInClick: (newZoom: number) => void;
+  onZoomControlOutClick: (newZoom: number) => void;
   pins: string | GeoJSON.FeatureCollection;
 }
 
@@ -48,9 +50,12 @@ const Map = ({
   onSourceDataLoading,
   onZoomIn,
   onZoomOut,
-  onSetZoom,
+  onZoomControlInClick,
+  onZoomControlOutClick,
   pins,
 }: MapProps) => {
+  const { zoom } = useMapSearchState();
+
   const handleMapLoad = () => {
     if (mapRef.current) {
       onLoad();
@@ -81,7 +86,13 @@ const Map = ({
   };
 
   const handleSetZoom = (viewState: ViewStateChangeEvent) => {
-    onSetZoom(viewState.viewState.zoom);
+    const isZoomIn = viewState.viewState.zoom > zoom;
+
+    if (isZoomIn) {
+      onZoomIn(viewState.viewState.zoom);
+    } else {
+      onZoomOut(viewState.viewState.zoom);
+    }
   };
 
   /*
@@ -137,8 +148,8 @@ const Map = ({
          * and user cards on the map. */}
         <ZoomControl
           mapRef={mapRef}
-          onZoomIn={onZoomIn}
-          onZoomOut={onZoomOut}
+          onZoomIn={onZoomControlInClick}
+          onZoomOut={onZoomControlOutClick}
         />
       </MaplibreMap>
     </>

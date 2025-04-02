@@ -111,13 +111,13 @@ const onClusterClick = async ({
   center,
   feature,
   mapRef,
-  setZoom,
+  onZoomIn,
   zoom,
 }: {
   center: LngLat;
   feature: maplibregl.MapGeoJSONFeature;
   mapRef: React.RefObject<MapRef>;
-  setZoom: (zoom: number) => void;
+  onZoomIn: (zoom: number) => void;
   zoom: number;
 }) => {
   const source = mapRef.current?.getSource(
@@ -139,7 +139,7 @@ const onClusterClick = async ({
     zoom: newZoom,
   });
 
-  setZoom(newZoom);
+  onZoomIn(newZoom);
 };
 
 const onPointClick = ({

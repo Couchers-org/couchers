@@ -8,11 +8,13 @@ import { MapRef } from "react-map-gl/maplibre";
 
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
+import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
 import {
   SOURCE_CLUSTERED_USERS_ID,
   UNCLUSTERED_LAYER_ID,
 } from "./utils/mapLayers";
 import {
+  getMapBounds,
   loadMapUserPins,
   onClusterClick,
   onPointClick,
@@ -55,13 +57,33 @@ const MapView = ({
     zoom,
   } = useMapSearchState();
 
-  const { setMoveMap, setZoom, setSelectedUserId } = useMapSearchActions();
+  const { setMoveMap, setSearch, setZoom, setSelectedUserId } =
+    useMapSearchActions();
 
   const meetsSearchCriteria =
     hasActiveFilters || hasSearchInputValue || bbox !== undefined;
 
   // If zoomed in, has a location searched or has active filters, use the memoized pins form api query in SearchPage
   const pinsSource = meetsSearchCriteria ? memoizedPins : zoomedOutDataSource;
+
+  const handleZoomIn = useCallback(
+    (newZoom: number) => {
+      if (
+        zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+        newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH
+      ) {
+        const bbox = getMapBounds(mapRef);
+
+        setSearch({ bbox });
+      }
+      setZoom(newZoom);
+    },
+    [zoom, mapRef, setSearch, setZoom]
+  );
+
+  const handleZoomOut = (newZoom: number) => {
+    setZoom(newZoom);
+  };
 
   const handleClick = useCallback(
     async (ev: MapLayerMouseEvent) => {
@@ -78,7 +100,7 @@ const MapView = ({
           center: ev.lngLat,
           feature,
           mapRef,
-          setZoom,
+          onZoomIn: handleZoomIn,
           zoom,
         });
       } else if (layerId === UNCLUSTERED_LAYER_ID) {
@@ -91,7 +113,7 @@ const MapView = ({
         });
       }
     },
-    [mapRef, selectedUserId, setSelectedUserId, setZoom, zoom],
+    [handleZoomIn, mapRef, selectedUserId, setSelectedUserId, zoom],
   );
 
   const handleLoad = async () => {
@@ -122,15 +144,17 @@ const MapView = ({
     setMoveMap();
   }, 600);
 
-  const handleZoomIn = (newZoom: number) => {
+  const handleZoomControlInClick = (newZoom: number) => {
     setZoom(newZoom);
     mapRef.current?.easeTo({
       zoom: newZoom,
       duration: 2000,
     });
+
+    handleZoomIn(newZoom);
   };
 
-  const handleZoomOut = (newZoom: number) => {
+  const handleZoomControlOutClick = (newZoom: number) => {
     setZoom(newZoom);
     mapRef.current?.easeTo({
       zoom: newZoom,
@@ -152,9 +176,10 @@ const MapView = ({
         onClick={handleClick}
         onLoad={handleLoad}
         onMapMove={handleMapMove}
-        onSetZoom={setZoom}
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
+        onZoomControlInClick={handleZoomControlInClick}
+        onZoomControlOutClick={handleZoomControlOutClick}
         onSourceDataLoading={handleMapSourceDataLoading}
         pins={pinsSource}
       />
