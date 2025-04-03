@@ -1,6 +1,7 @@
 import { FilterOptions, SearchOptions } from "../SearchPage";
 import { useMapSearchDispatch } from "../state/mapSearchContext";
 import { mapSearchActionTypes } from "../state/mapSearchReducers";
+import { Coordinates } from "../utils/constants";
 
 export interface FlyToLocationProps {
   longitude: number;
@@ -25,9 +26,10 @@ function useMapSearchActions() {
     });
   };
 
-  const clearSearchInputValue = () => {
+  const clearSearchInputValue = (bbox: Coordinates | undefined) => {
     dispatch({
       type: mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE,
+      payload: { bbox },
     });
   };
 

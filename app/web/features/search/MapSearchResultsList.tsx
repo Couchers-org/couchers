@@ -15,6 +15,7 @@ interface MapSearchResultsListProps {
   hasPreviousPage?: boolean;
   isLoading?: boolean;
   mapView: MapViews;
+  numberOfTotal: number;
   onDrawerWidthChange: (width: number) => void;
   onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
@@ -35,6 +36,7 @@ const MapSearchResultsList = ({
   hasNextPage,
   isLoading,
   mapView,
+  numberOfTotal,
   onDrawerWidthChange,
   onLoadPreviousPage,
   onLoadNextPage,
@@ -61,10 +63,8 @@ const MapSearchResultsList = ({
           <PreviousNextPagination
             hasPreviousPage={hasPreviousPage}
             hasNextPage={hasNextPage}
-            meetsSearchCriteria={meetsSearchCriteria}
             onPreviousClick={onLoadPreviousPage}
             onNextClick={onLoadNextPage}
-            totalItems={totalItems}
           />
         }
       >
@@ -72,6 +72,7 @@ const MapSearchResultsList = ({
           <CenteredSpinner />
         ) : (
           <SearchResultListContent
+            numberOfTotal={numberOfTotal}
             showAlert={!isLoading && !meetsSearchCriteria}
             showTopSpace={
               !isMobile &&
@@ -79,6 +80,7 @@ const MapSearchResultsList = ({
                 (mapView === MapViews.MAP_AND_LIST &&
                   drawerWidth > window.innerWidth / 2))
             }
+            totalItems={totalItems}
             users={users}
           />
         )}

@@ -9,8 +9,10 @@ import SearchResultUserCard from "./SeachResultUserCard";
 import { useMapSearchState } from "./state/mapSearchContext";
 
 interface SearchResultListContentProps {
+  numberOfTotal: number;
   showAlert: boolean;
   showTopSpace?: boolean;
+  totalItems: number | undefined;
   users: User.AsObject[] | undefined;
 }
 
@@ -37,9 +39,19 @@ const StyledCardWrapper = styled("div")(({ theme }) => ({
   display: "flex",
 }));
 
+const CenteredRow = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  width: "100%",
+  marginBottom: theme.spacing(2),
+}));
+
 const SearchResultListContent = ({
+  numberOfTotal,
   showAlert,
   showTopSpace = false,
+  totalItems,
   users,
 }: SearchResultListContentProps) => {
   const { t } = useTranslation([SEARCH]);
@@ -53,11 +65,21 @@ const SearchResultListContent = ({
           {t("search:choose_search_criteria")}
         </Alert>
       )}
-      {users?.length === 0 && (
-        <Typography>
-          {t("search:search_result.no_user_result_message")}
-        </Typography>
-      )}
+      <CenteredRow>
+        {users?.length === 0 && (
+          <Typography>
+            {t("search:search_result.no_user_result_message")}
+          </Typography>
+        )}
+        {(users ?? []).length > 0 && (
+          <Typography variant="caption">
+            {t("search:search_result.users_found_message", {
+              numberOfTotal,
+              totalItems,
+            })}
+          </Typography>
+        )}
+      </CenteredRow>
       <UserCardsWrapper>
         {users?.map((user) => (
           <StyledCardWrapper

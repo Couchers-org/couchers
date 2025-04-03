@@ -1,4 +1,4 @@
-import { Button, Stack, Typography } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -7,8 +7,6 @@ import { theme } from "theme";
 interface PreviousNextPaginationProps {
   hasPreviousPage: boolean | undefined;
   hasNextPage: boolean | undefined;
-  meetsSearchCriteria: boolean;
-  totalItems: number | undefined;
   onPreviousClick: () => void;
   onNextClick: () => void;
 }
@@ -16,8 +14,6 @@ interface PreviousNextPaginationProps {
 const PreviousNextPagination: React.FC<PreviousNextPaginationProps> = ({
   hasPreviousPage,
   hasNextPage,
-  meetsSearchCriteria,
-  totalItems,
   onPreviousClick,
   onNextClick,
 }) => {
@@ -42,15 +38,6 @@ const PreviousNextPagination: React.FC<PreviousNextPaginationProps> = ({
       >
         {t("global:previous")}
       </Button>
-
-      <Typography variant="caption">
-        {!meetsSearchCriteria
-          ? null
-          : t("search:search_result.users_found_message", {
-              totalItems,
-            })}
-      </Typography>
-
       <Button
         aria-label={t("global:next")}
         onClick={onNextClick}

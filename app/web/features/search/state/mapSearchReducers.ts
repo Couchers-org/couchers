@@ -58,6 +58,7 @@ type MapSearchAction =
     }
   | {
       type: mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE;
+      payload: { bbox: Coordinates | undefined };
     }
   | {
       type: mapSearchActionTypes.SET_MOVE_MAP;
@@ -99,7 +100,7 @@ const initialState: MapSearchState = {
   },
   hasActiveFilters: false,
   hasSearchInputValue: false,
-  pageNumber: 0,
+  pageNumber: 1,
   search: {
     bbox: undefined,
     query: "",
@@ -120,7 +121,7 @@ const mapSearchReducer = (
       return {
         ...state,
         search: {
-          bbox: initialState.search.bbox,
+          bbox: action.payload.bbox,
           query: initialState.search.query,
         },
         hasSearchInputValue: false,

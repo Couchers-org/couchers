@@ -128,7 +128,7 @@ const SearchResultUserCard = ({
   return (
     <StyledCard isHighlighted={isHighlighted}>
       <StyledTopContent>
-        <Avatar user={user} />
+        <Avatar openInNewTab user={user} />
         <FlexColumn>
           <StyledCardHeader variant="h2">
             <FlexRow alignItems="center">

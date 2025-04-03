@@ -170,7 +170,9 @@ const FloatingSearchControls = ({
 
     if (value === "location") {
       setKeyword("");
-      clearSearchInputValue();
+
+      const bbox = getMapBounds(mapRef);
+      clearSearchInputValue(bbox);
     }
   };
 
@@ -213,7 +215,9 @@ const FloatingSearchControls = ({
   };
 
   const handleClearLocation = () => {
-    clearSearchInputValue();
+    const bbox = getMapBounds(mapRef);
+
+    clearSearchInputValue(bbox);
   };
 
   const handleClearSearchFilters = () => {
