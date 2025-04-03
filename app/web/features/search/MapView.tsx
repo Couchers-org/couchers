@@ -117,6 +117,7 @@ const MapView = ({
         }
 
         onPointClick({
+          center: ev.lngLat,
           feature,
           mapRef,
           selectedUserId,

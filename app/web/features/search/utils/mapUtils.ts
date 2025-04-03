@@ -143,11 +143,13 @@ const onClusterClick = async ({
 };
 
 const onPointClick = ({
+  center,
   feature,
   mapRef,
   selectedUserId,
   setSelectedUserId,
 }: {
+  center: LngLat;
   feature: maplibregl.MapGeoJSONFeature;
   mapRef: React.RefObject<MapRef>;
   selectedUserId: number | undefined;
@@ -161,6 +163,11 @@ const onPointClick = ({
   } else {
     setMapFeatureState(mapRef, userId, true);
   }
+
+  mapRef.current?.easeTo({
+    center,
+    duration: 2000,
+  });
 
   setSelectedUserId(userId);
 };
