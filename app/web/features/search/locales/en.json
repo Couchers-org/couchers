@@ -76,5 +76,6 @@
   },
   "location": "Location",
   "keyword": "Keyword",
-  "search_this_area": "Search this area"
+  "search_this_area": "Search this area",
+  "zoom_in_to_select_user": "Zoom in to select a user"
 }

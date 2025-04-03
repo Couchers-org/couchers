@@ -5,7 +5,7 @@ import { MapRef } from "react-map-gl/maplibre";
 
 import userPin from "../resources/userPin.png";
 import { MapSearchState } from "../state/mapSearchReducers";
-import { Coordinates, MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./constants";
+import { Coordinates } from "./constants";
 import { SOURCE_CLUSTERED_USERS_ID } from "./mapLayers";
 
 const usersToGeoJSON = (pins: User.AsObject[]): FeatureCollection => ({
@@ -147,19 +147,13 @@ const onPointClick = ({
   mapRef,
   selectedUserId,
   setSelectedUserId,
-  zoom,
 }: {
   feature: maplibregl.MapGeoJSONFeature;
   mapRef: React.RefObject<MapRef>;
   selectedUserId: number | undefined;
   setSelectedUserId: (userId: number) => void;
-  zoom: number;
 }) => {
   clearMapFeatureState(mapRef);
-
-  // Don't turn pins orange and scroll if zoomed out too much as cards won't be there
-  if (zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH) return;
-
   const userId = feature.properties.id;
 
   if (selectedUserId === userId) {
