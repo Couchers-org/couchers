@@ -43,7 +43,7 @@ function getLangCookie() {
 
   // find the cookie with key "couchers-preferred-language" and extract its value
   for (let i = 0; i < allCookies.length; i++) {
-    let cookie = allCookies[i];
+    const cookie = allCookies[i];
 
     // if cookie key is couchers-preferred-language
     if (cookie.indexOf(name) == 0) {
@@ -61,7 +61,7 @@ export default function LanguagePickerSettings({
   const { t } = useTranslation([AUTH, GLOBAL]);
   const formClasses = useChangeDetailsFormStyles();
   const theme = useTheme();
-  const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   console.dir(service);
 
@@ -132,16 +132,8 @@ export default function LanguagePickerSettings({
         )}
         <form className={formClasses.form} onSubmit={onSubmit}>
           <LanguagePickerSelect displayMode="rect" />
-          {/* <TextField
-            id="newLanguage"
-            {...register("newLanguage", { required: true })}
-            // label={t("auth:change_language_form.new_language")}
-            label="Select a language"
-            name="newLanguage"
-            fullWidth={!isMdOrWider}
-          /> */}
           <Button
-            fullWidth={!isMdOrWider}
+            fullWidth={isMobile}
             loading={isChangeLanguageLoading}
             type="submit"
           >
