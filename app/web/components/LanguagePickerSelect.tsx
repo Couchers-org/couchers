@@ -27,17 +27,22 @@ type LanguagePickerSelectProps = {
 // TODO: this function lives in two places... where should it live?
 function getLangCookie() {
   const name = "couchers-preferred-language=";
-  const decodedCookie = decodeURIComponent(document.cookie);
-  const ca = decodedCookie.split(";");
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) == " ") {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
+
+  // split multiple cookies from cookie string
+  // "couchers-preferred-language=es; some-other-cookie=some value" --> ['couchers-preferred-language=es', ' some-other-cookie=some value']")
+  const allCookies = document.cookie.split("; ");
+
+  // find the cookie with key "couchers-preferred-language" and extract its value
+  for (let i = 0; i < allCookies.length; i++) {
+    let cookie = allCookies[i];
+
+    // if cookie key is couchers-preferred-language
+    if (cookie.indexOf(name) == 0) {
+      // cookie val will start at the length of the cookie's name
+      return cookie.substring(name.length);
     }
   }
+  // if not cookie is found, return an empty string
   return "";
 }
 
@@ -50,6 +55,8 @@ export default function LanguagePickerSelect({
   const [language, setLanguage] = useState(getLangCookie());
   const theme = useTheme();
   const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
+
+  console.log(getLangCookie());
 
   const handleChange = (event: SelectChangeEvent) => {
     const newLang = event.target.value as string;
