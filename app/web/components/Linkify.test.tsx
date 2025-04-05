@@ -32,7 +32,7 @@ test("renders links as anchor tags with correct href attributes", () => {
     },
   ];
   for (const message of testMessages) {
-    render(<Linkify text={message.text} />);
+    render(<Linkify isCurrentUser={false} text={message.text} />);
     const linkElement = screen.getByText(message.searchTerm);
     expect(linkElement).toBeInTheDocument();
     expect(linkElement).toHaveAttribute("href", message.href);
