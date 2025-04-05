@@ -4,7 +4,7 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
-import { Controller, UseFormReturn } from "react-hook-form";
+import { UseFormReturn } from "react-hook-form";
 import { isSameOrFutureDate, timestamp2Date } from "utils/date";
 import dayjs, { Dayjs, TIME_FORMAT } from "utils/dayjs";
 import { timePattern } from "utils/validation";
@@ -13,13 +13,13 @@ import { CreateEventData, useEventFormStyles } from "./EventForm";
 
 function splitTimestampToDateAndTime(timestamp?: Timestamp.AsObject): {
   date?: Dayjs;
-  time?: string;
+  time?: Dayjs;
 } {
   if (timestamp) {
     const dayjsDate = dayjs(timestamp2Date(timestamp));
     return {
       date: dayjsDate.startOf("day"),
-      time: dayjsDate.format(TIME_FORMAT),
+      time: dayjsDate,
     };
   }
   return {};
@@ -65,6 +65,20 @@ export default function EventTimeChanger({
     });
   };
 
+  const handleStartTimeChange = (newStartTime: Dayjs) => {
+    setValue("startTime", newStartTime, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
+
+  const handleEndTimeChange = (newEndTime: Dayjs) => {
+    setValue("endTime", newEndTime, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
+
   return (
     <>
       <div className={classes.duoContainer}>
@@ -92,50 +106,45 @@ export default function EventTimeChanger({
           }}
           testId="startDate"
         />
-
-        <Controller
-          control={control}
-          defaultValue={eventStartTime || ""}
-          name="startTime"
-          rules={{
-            required: t("communities:time_required"),
-            pattern: {
-              message: t("communities:invalid_time"),
-              value: timePattern,
-            },
-            validate: (time: string) => {
-              if (event && !dirtyFields.startTime) {
-                return true;
-              }
-
-              const startTime = dayjs(time, TIME_FORMAT);
-              const startDate = getValues("startDate");
-
-              if (!startDate) {
-                return false;
-              }
-
-              const newStartDate = startDate
-                .startOf("day")
-                .add(startTime.get("hour"), "hour")
-                .add(startTime.get("minute"), "minute");
-              return (
-                newStartDate.isAfter(dayjs()) ||
-                t("communities:past_time_error")
-              );
-            },
-          }}
-          render={({ field }) => (
+          
             <Timepicker
-              {...field}
               control={control}
+              name="startTime"
+              onPostChange={handleStartTimeChange}
+              defaultValue={eventStartTime || null}
+              rules={{
+                required: t("communities:time_required"),
+                pattern: {
+                  message: t("communities:invalid_time"),
+                  value: timePattern,
+                },
+                validate: (time: string) => {
+                  if (event && !dirtyFields.startTime) {
+                    return true;
+                  }
+    
+                  const startTime = dayjs(time, TIME_FORMAT);
+                  const startDate = getValues("startDate");
+    
+                  if (!startDate) {
+                    return false;
+                  }
+    
+                  const newStartDate = startDate
+                    .startOf("day")
+                    .add(startTime.get("hour"), "hour")
+                    .add(startTime.get("minute"), "minute");
+                  return (
+                    newStartDate.isAfter(dayjs()) ||
+                    t("communities:past_time_error")
+                  );
+                },
+              }}
               id="startTime"
               label={t("communities:start_time")}
               error={!!errors.startTime?.message}
               helperText={errors.startTime?.message || ""}
             />
-          )}
-        />
       </div>
       <div className={classes.duoContainer}>
         <Datepicker
@@ -168,68 +177,63 @@ export default function EventTimeChanger({
           testId="endDate"
           onPostChange={handleEndDateChange}
         />
-
-        <Controller
-          control={control}
-          defaultValue={eventEndTime || ""}
-          name="endTime"
-          rules={{
-            required: t("communities:time_required"),
-            pattern: {
-              message: t("communities:invalid_time"),
-              value: timePattern,
-            },
-            validate: (time) => {
-              if (event && !dirtyFields.endTime) {
-                return true;
-              }
-
-              const startTime = dayjs(getValues("startTime"), TIME_FORMAT);
-              const startDate = getValues("startDate");
-
-              if (!startDate) {
-                return false;
-              }
-
-              const newStartDate = startDate
-                .startOf("day")
-                .add(startTime.get("hour"), "hour")
-                .add(startTime.get("minute"), "minute");
-
-              const endTime = dayjs(time, TIME_FORMAT);
-              const endDate = getValues("endDate")
-                .startOf("day")
-                .add(endTime.get("hour"), "hour")
-                .add(endTime.get("minute"), "minute");
-
-              if (!endDate.isAfter(newStartDate)) {
-                return t("communities:end_time_error");
-              }
-
-              // if the endTime is in the past return past_time_error
-              const endDateTime = endDate.format("YYYY-MM-DD HH:mm");
-              const nowDateTime = dayjs().format("YYYY-MM-DD HH:mm");
-
-              if (endDateTime < nowDateTime) {
-                return t("communities:past_time_error");
-              }
-
-              return (
-                endDate.isAfter(dayjs()) || t("communities:past_time_error")
-              );
-            },
-          }}
-          render={({ field }) => (
+       
             <Timepicker
-              {...field}
               control={control}
+              name="endTime"
+              onPostChange={handleEndTimeChange}
+              defaultValue={eventEndTime || null}
+              rules={{
+                required: t("communities:time_required"),
+                pattern: {
+                  message: t("communities:invalid_time"),
+                  value: timePattern,
+                },
+                validate: (time) => {
+                  if (event && !dirtyFields.endTime) {
+                    return true;
+                  }
+    
+                  const startTime = dayjs(getValues("startTime"), TIME_FORMAT);
+                  const startDate = getValues("startDate");
+    
+                  if (!startDate) {
+                    return false;
+                  }
+    
+                  const newStartDate = startDate
+                    .startOf("day")
+                    .add(startTime.get("hour"), "hour")
+                    .add(startTime.get("minute"), "minute");
+    
+                  const endTime = dayjs(time, TIME_FORMAT);
+                  const endDate = getValues("endDate")
+                    .startOf("day")
+                    .add(endTime.get("hour"), "hour")
+                    .add(endTime.get("minute"), "minute");
+    
+                  if (!endDate.isAfter(newStartDate)) {
+                    return t("communities:end_time_error");
+                  }
+    
+                  // if the endTime is in the past return past_time_error
+                  const endDateTime = endDate.format("YYYY-MM-DD HH:mm");
+                  const nowDateTime = dayjs().format("YYYY-MM-DD HH:mm");
+    
+                  if (endDateTime < nowDateTime) {
+                    return t("communities:past_time_error");
+                  }
+    
+                  return (
+                    endDate.isAfter(dayjs()) || t("communities:past_time_error")
+                  );
+                },
+              }}
               id="endTime"
               label={t("communities:end_time")}
               error={!!errors.endTime?.message}
               helperText={errors.endTime?.message || ""}
             />
-          )}
-        />
       </div>
     </>
   );
