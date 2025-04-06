@@ -32,7 +32,7 @@ interface MapProps {
   onClick: (ev: MapLayerMouseEvent) => void;
   onLoad: () => void;
   onMapMove: () => void;
-  onSourceDataLoading: (event: MapSourceDataEvent) => void;
+  // onSourceDataLoading: (event: MapSourceDataEvent) => void;
   onZoomIn: (newZoom: number) => void;
   onZoomOut: (newZoom: number) => void;
   onZoomControlInClick: (newZoom: number) => void;
@@ -47,7 +47,7 @@ const Map = ({
   onClick,
   onLoad,
   onMapMove,
-  onSourceDataLoading,
+  // onSourceDataLoading,
   onZoomIn,
   onZoomOut,
   onZoomControlInClick,
@@ -128,7 +128,7 @@ const Map = ({
         hash={hash}
         ref={mapRef}
         transformRequest={transformRequest}
-        onSourceData={onSourceDataLoading}
+        // onSourceData={onSourceDataLoading}
       >
         <Source
           id={SOURCE_CLUSTERED_USERS_ID}
