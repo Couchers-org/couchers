@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 import requests
 from google.protobuf import empty_pb2
-from sqlalchemy import Integer
+from sqlalchemy import Float, Integer
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, case, cast, delete, distinct, extract, func, literal, not_, or_, select, union_all
 from sqlalchemy.sql.functions import percentile_disc
@@ -34,7 +34,6 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
-    Float,
     GroupChat,
     GroupChatSubscription,
     HostingStatus,

@@ -1,9 +1,20 @@
 import logging
+from datetime import timedelta
 
 from google.protobuf import empty_pb2
-from sqlalchemy import Index, Integer, event
-from sqlalchemy.sql import func, literal, literal_column, union_all
+from sqlalchemy import Float, Index, Integer, event
+from sqlalchemy.sql import (
+    and_,
+    case,
+    cast,
+    extract,
+    func,
+    literal,
+    literal_column,
+    union_all,
+)
 from sqlalchemy.sql import select as sa_select
+from sqlalchemy.sql.functions import percentile_disc
 from sqlalchemy_utils.view import (
     CreateView,
     DropView,
@@ -13,7 +24,19 @@ from sqlalchemy_utils.view import (
 )
 
 from couchers.db import session_scope
-from couchers.models import Base, ClusterRole, ClusterSubscription, StrongVerificationAttempt, Upload, User
+from couchers.models import (
+    ActivenessProbe,
+    ActivenessProbeStatus,
+    Base,
+    ClusterRole,
+    ClusterSubscription,
+    HostRequest,
+    Message,
+    MessageType,
+    StrongVerificationAttempt,
+    Upload,
+    User,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -197,12 +220,88 @@ clustered_users = create_materialized_view_with_different_ddl(
 )
 
 
+def float_(stmt):
+    return func.coalesce(cast(stmt, Float), 0.0)
+
+
+t = sa_select(Message.conversation_id, Message.time).where(Message.message_type == MessageType.chat_created).subquery()
+s = (
+    sa_select(Message.conversation_id, Message.author_id, func.min(Message.time).label("time"))
+    .group_by(Message.conversation_id, Message.author_id)
+    .subquery()
+)
+all_responses = union_all(
+    # host request responses
+    sa_select(
+        HostRequest.host_user_id.label("user_id"),
+        (s.c.time - t.c.time).label("response_time"),
+    )
+    .join(t, t.c.conversation_id == HostRequest.conversation_id)
+    .outerjoin(s, and_(s.c.conversation_id == HostRequest.conversation_id, s.c.author_id == HostRequest.host_user_id)),
+    # activeness probes
+    sa_select(
+        ActivenessProbe.user_id,
+        (
+            # expired probes have a responded time for when they were marked responded
+            case(
+                (
+                    ActivenessProbe.response != ActivenessProbeStatus.expired,
+                    ActivenessProbe.responded - ActivenessProbe.probe_initiated,
+                ),
+                else_=None,
+            )
+        ).label("response_time"),
+    ),
+).subquery()
+users_with_response_rates = (
+    sa_select(
+        all_responses.c.user_id.label("user_id"),
+        func.count().label("requests"),
+        (func.count(all_responses.c.response_time) / func.count()).label("response_rate"),
+        func.avg(all_responses.c.response_time).label("avg_response_time"),
+        float_(
+            extract(
+                "epoch",
+                percentile_disc(0.33).within_group(func.coalesce(all_responses.c.response_time, timedelta(days=1000))),
+            )
+            / 60.0
+        ).label("response_time_33p"),
+        float_(
+            extract(
+                "epoch",
+                percentile_disc(0.66).within_group(func.coalesce(all_responses.c.response_time, timedelta(days=1000))),
+            )
+            / 60.0
+        ).label("response_time_66p"),
+    )
+    .group_by(all_responses.c.user_id)
+    .subquery()
+)
+user_response_rates_selectable = sa_select(
+    User.id.label("user_id"),
+    func.coalesce(users_with_response_rates.c.requests, 0).label("requests"),
+    func.coalesce(users_with_response_rates.c.response_rate, 0.0).label("response_rate"),
+    users_with_response_rates.c.avg_response_time.label("avg_response_time"),
+    users_with_response_rates.c.response_time_33p.label("response_time_33p"),
+    users_with_response_rates.c.response_time_66p.label("response_time_66p"),
+).outerjoin(users_with_response_rates, users_with_response_rates.c.user_id == User.id)
+print(user_response_rates_selectable)
+
+user_response_rates = create_materialized_view(
+    "user_response_rates",
+    user_response_rates_selectable,
+    Base.metadata,
+    [Index("uq_user_response_rates_id", user_response_rates_selectable.c.user_id, unique=True)],
+)
+
+
 def refresh_materialized_views(payload: empty_pb2.Empty):
     logger.info("Refreshing materialized views")
     with session_scope() as session:
         refresh_materialized_view(session, "cluster_subscription_counts", concurrently=True)
         refresh_materialized_view(session, "cluster_admin_counts", concurrently=True)
         refresh_materialized_view(session, "clustered_users")
+        refresh_materialized_view(session, "user_response_rates")
 
 
 def refresh_materialized_views_rapid(payload: empty_pb2.Empty):
