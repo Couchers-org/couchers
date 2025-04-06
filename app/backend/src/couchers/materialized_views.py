@@ -282,7 +282,6 @@ user_response_rates_selectable = sa_select(
     users_with_response_rates.c.response_time_33p.label("response_time_33p"),
     users_with_response_rates.c.response_time_66p.label("response_time_66p"),
 ).outerjoin(users_with_response_rates, users_with_response_rates.c.user_id == User.id)
-print(user_response_rates_selectable)
 
 user_response_rates = create_materialized_view(
     "user_response_rates",
