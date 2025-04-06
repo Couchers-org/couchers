@@ -31,27 +31,11 @@ def upgrade():
                 count(*) AS requests,
                 count(responses.response_time) / CAST(count(*) AS NUMERIC) AS response_rate,
                 avg(responses.response_time) AS avg_response_time,
-                COALESCE(
-                    CAST(
-                        EXTRACT(
-                            epoch
-                            FROM PERCENTILE_DISC(0.33) WITHIN GROUP (
-                                ORDER BY COALESCE(responses.response_time, interval '1000 days')
-                            )
-                        ) / CAST(60 AS FLOAT) AS FLOAT
-                    ),
-                    0.0
+                PERCENTILE_DISC(0.33) WITHIN GROUP (
+                    ORDER BY COALESCE(responses.response_time, interval '1000 days')
                 ) AS response_time_33p,
-                COALESCE(
-                    CAST(
-                        EXTRACT(
-                            epoch
-                            FROM PERCENTILE_DISC(0.66) WITHIN GROUP (
-                                ORDER BY COALESCE(responses.response_time, interval '1000 days')
-                            )
-                        ) / CAST(60 AS FLOAT) AS FLOAT
-                    ),
-                    0.0
+                PERCENTILE_DISC(0.66) WITHIN GROUP (
+                    ORDER BY COALESCE(responses.response_time, interval '1000 days')
                 ) AS response_time_66p
                 FROM (
                     SELECT host_requests.host_user_id AS user_id,

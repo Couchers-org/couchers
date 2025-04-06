@@ -7,7 +7,6 @@ from sqlalchemy.sql import (
     and_,
     case,
     cast,
-    extract,
     func,
     literal,
     literal_column,
@@ -224,7 +223,9 @@ def float_(stmt):
     return func.coalesce(cast(stmt, Float), 0.0)
 
 
+# this subquery gets the time that the request was sent
 t = sa_select(Message.conversation_id, Message.time).where(Message.message_type == MessageType.chat_created).subquery()
+# this subquery gets the time that the user responded to the request
 s = (
     sa_select(Message.conversation_id, Message.author_id, func.min(Message.time).label("time"))
     .group_by(Message.conversation_id, Message.author_id)
@@ -256,23 +257,19 @@ all_responses = union_all(
 users_with_response_rates = (
     sa_select(
         all_responses.c.user_id.label("user_id"),
+        # number of requests received
         func.count().label("requests"),
+        # percentage of requests responded to
         (func.count(all_responses.c.response_time) / func.count()).label("response_rate"),
         func.avg(all_responses.c.response_time).label("avg_response_time"),
-        float_(
-            extract(
-                "epoch",
-                percentile_disc(0.33).within_group(func.coalesce(all_responses.c.response_time, timedelta(days=1000))),
-            )
-            / 60.0
-        ).label("response_time_33p"),
-        float_(
-            extract(
-                "epoch",
-                percentile_disc(0.66).within_group(func.coalesce(all_responses.c.response_time, timedelta(days=1000))),
-            )
-            / 60.0
-        ).label("response_time_66p"),
+        # the 33rd percentile response time
+        percentile_disc(0.33)
+        .within_group(func.coalesce(all_responses.c.response_time, timedelta(days=1000)))
+        .label("response_time_33p"),
+        # the 66th percentile response time
+        percentile_disc(0.66)
+        .within_group(func.coalesce(all_responses.c.response_time, timedelta(days=1000)))
+        .label("response_time_66p"),
     )
     .group_by(all_responses.c.user_id)
     .subquery()
