@@ -196,7 +196,7 @@ const MapView = ({
         onZoomOut={handleZoomOut}
         onZoomControlInClick={handleZoomControlInClick}
         onZoomControlOutClick={handleZoomControlOutClick}
-        onSourceDataLoading={handleMapSourceDataLoading}
+        // onSourceDataLoading={handleMapSourceDataLoading}
         pins={pinsSource}
       />
       <Snackbar
