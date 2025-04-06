@@ -53,8 +53,8 @@ const MapView = ({
   const memoizedPins = useMemo(() => pins, [pins]);
   const zoomedOutDataSource = API_BASE_URL + "/geojson/users";
 
-  const [isMapSourceDataLoading, setIsMapSourceDataLoading] =
-    useState<boolean>(true);
+  // const [isMapSourceDataLoading, setIsMapSourceDataLoading] =
+  //   useState<boolean>(true);
 
   const {
     search: { bbox },
@@ -180,7 +180,7 @@ const MapView = ({
 
   return (
     <>
-      {(isLoading || isMapSourceDataLoading) && (
+      {isLoading && (
         <MapLoadingContainer>
           <CenteredSpinner minHeight="100%" />
         </MapLoadingContainer>
