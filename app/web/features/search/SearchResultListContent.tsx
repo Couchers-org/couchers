@@ -73,7 +73,7 @@ const SearchResultListContent = ({
         )}
         {(users ?? []).length > 0 && (
           <Typography variant="caption">
-            {t("search:search_result.users_found_message", {
+            {t("search:search_result.people_found_message", {
               numberOfTotal,
               totalItems,
             })}

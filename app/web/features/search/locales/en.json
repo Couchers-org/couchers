@@ -67,7 +67,7 @@
     "no_user_result_message": "No users found.",
     "show_user_button_label": "Show {{name}} on the map",
     "missing_about_description": "{{name}} hasn't said anything about themselves yet",
-    "users_found_message": "{{numberOfTotal}} from {{totalItems}} users found"
+    "people_found_message": "Showing {{numberOfTotal}} from {{totalItems}} people found"
   },
   "views": {
     "choose_map_view": "Choose map view",

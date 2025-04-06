@@ -74,7 +74,7 @@ const MapView = ({
   const pinsSource = meetsSearchCriteria ? memoizedPins : zoomedOutDataSource;
 
   const handleZoomIn = useCallback(
-    (newZoom: number) => {
+    debounce((newZoom: number) => {
       if (
         zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
         newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH
@@ -84,13 +84,13 @@ const MapView = ({
         setSearch({ bbox });
       }
       setZoom(newZoom);
-    },
+    }, 500),
     [zoom, mapRef, setSearch, setZoom],
   );
 
-  const handleZoomOut = (newZoom: number) => {
+  const handleZoomOut = debounce((newZoom: number) => {
     setZoom(newZoom);
-  };
+  }, 500);
 
   const handleClick = useCallback(
     async (ev: MapLayerMouseEvent) => {
