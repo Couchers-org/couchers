@@ -13,6 +13,9 @@ const aboutText = (user: User.AsObject, t: TFunction) => {
       : user.aboutMe.substring(0, 300) + "...";
 };
 
+const truncateWithEllipsis = (str: string, maxLength = 40): string =>
+  str.length > maxLength ? str.slice(0, maxLength) + "…" : str;
+
 enum lastActiveOptions {
   LAST_ACTIVE_ANY = 0,
   LAST_ACTIVE_LAST_DAY = 1,
@@ -68,6 +71,7 @@ export {
   MAX_ZOOM_LEVEL,
   MIN_ZOOM_LEVEL,
   selectedUserZoom,
+  truncateWithEllipsis,
 };
 
 export type {

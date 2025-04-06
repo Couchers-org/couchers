@@ -11,7 +11,6 @@ import {
 import ZoomControl from "features/search/ZoomControl";
 import {
   MapLayerMouseEvent,
-  MapSourceDataEvent,
   RequestParameters,
 } from "maplibre-gl";
 import React from "react";

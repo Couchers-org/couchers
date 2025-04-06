@@ -7,7 +7,7 @@ import { theme } from "theme";
 
 import IconButton from "./IconButton";
 
-export const DEFAULT_DRAWER_WIDTH = 400;
+export const DEFAULT_DRAWER_WIDTH = 420;
 
 interface ResizeableDrawerProps {
   children: React.ReactNode;

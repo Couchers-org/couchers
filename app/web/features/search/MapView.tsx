@@ -5,7 +5,7 @@ import { CloseIcon } from "components/Icons";
 import Map, { API_BASE_URL } from "components/Map";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
-import { MapLayerMouseEvent, MapSourceDataEvent } from "maplibre-gl";
+import { MapLayerMouseEvent } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { useCallback, useMemo, useState } from "react";
 import { MapRef } from "react-map-gl/maplibre";
@@ -13,10 +13,7 @@ import { MapRef } from "react-map-gl/maplibre";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
-import {
-  SOURCE_CLUSTERED_USERS_ID,
-  UNCLUSTERED_LAYER_ID,
-} from "./utils/mapLayers";
+import { UNCLUSTERED_LAYER_ID } from "./utils/mapLayers";
 import {
   getMapBounds,
   loadMapUserPins,
@@ -53,9 +50,6 @@ const MapView = ({
   const memoizedPins = useMemo(() => pins, [pins]);
   const zoomedOutDataSource = API_BASE_URL + "/geojson/users";
 
-  // const [isMapSourceDataLoading, setIsMapSourceDataLoading] =
-  //   useState<boolean>(true);
-
   const {
     search: { bbox },
     hasActiveFilters,
@@ -73,19 +67,27 @@ const MapView = ({
   // If zoomed in, has a location searched or has active filters, use the memoized pins form api query in SearchPage
   const pinsSource = meetsSearchCriteria ? memoizedPins : zoomedOutDataSource;
 
-  const handleZoomIn = useCallback(
-    debounce((newZoom: number) => {
-      if (
-        zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
-        newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH
-      ) {
-        const bbox = getMapBounds(mapRef);
+  const debouncedZoomIn = useMemo(
+    () =>
+      debounce((newZoom: number) => {
+        if (
+          zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+          newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH
+        ) {
+          const bbox = getMapBounds(mapRef);
 
-        setSearch({ bbox });
-      }
-      setZoom(newZoom);
-    }, 500),
+          setSearch({ bbox });
+        }
+        setZoom(newZoom);
+      }, 500),
     [zoom, mapRef, setSearch, setZoom],
+  );
+
+  const handleZoomIn = useCallback(
+    (newZoom: number) => {
+      debouncedZoomIn(newZoom);
+    },
+    [debouncedZoomIn],
   );
 
   const handleZoomOut = debounce((newZoom: number) => {
@@ -141,17 +143,6 @@ const MapView = ({
     }
   };
 
-  const handleMapSourceDataLoading = (event: MapSourceDataEvent) => {
-    if (!event.isSourceLoaded && event.sourceId === SOURCE_CLUSTERED_USERS_ID) {
-      setIsMapSourceDataLoading(true);
-    } else if (
-      event.isSourceLoaded &&
-      event.sourceId === SOURCE_CLUSTERED_USERS_ID
-    ) {
-      setIsMapSourceDataLoading(false);
-    }
-  };
-
   const handleMapMove = debounce(() => {
     setMoveMap();
   }, 600);
@@ -196,7 +187,6 @@ const MapView = ({
         onZoomOut={handleZoomOut}
         onZoomControlInClick={handleZoomControlInClick}
         onZoomControlOutClick={handleZoomControlOutClick}
-        // onSourceDataLoading={handleMapSourceDataLoading}
         pins={pinsSource}
       />
       <Snackbar

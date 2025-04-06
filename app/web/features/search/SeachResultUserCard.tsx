@@ -4,14 +4,11 @@ import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
 import StyledLink from "components/StyledLink";
-import {
-  hostingStatusLabels,
-  meetupStatusLabels,
-} from "features/profile/constants";
 import { ResponseRateText } from "features/profile/view/userLabels";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { HostingStatus, MeetupStatus, User } from "proto/api_pb";
+import { TFunction } from "i18next";
+import { User } from "proto/api_pb";
 import LinesEllipsis from "react-lines-ellipsis";
 import { routeToUser } from "routes";
 import { theme } from "theme";
@@ -19,7 +16,9 @@ import { timestamp2Date } from "utils/date";
 import stripMarkdown from "utils/stripMarkdown";
 import { hourMillis, timeAgoI18n } from "utils/timeAgo";
 
-import { aboutText } from "./utils/constants";
+import HostMeetingReferenceStatus from "./HostMeetReferenceStatus";
+import { useMapSearchActions } from "./state/useMapSearchActions";
+import { aboutText, truncateWithEllipsis } from "./utils/constants";
 
 interface SearchResultUserCardProps {
   isHighlighted?: boolean;
@@ -65,48 +64,25 @@ const StyledCardHeader = styled(Typography)(({ theme }) => ({
   wordBreak: "break-word",
 }));
 
-const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
-  height: "1.25rem",
-  width: "1.25rem",
+const StyledOpenInNewIcon = styled(OpenInNewIcon)(() => ({
+  height: "1rem",
+  width: "1rem",
 }));
 
 const FlexRow = styled("div")<{
   alignItems?: FlexboxProps["alignItems"];
   justifyContent?: FlexboxProps["justifyContent"];
-}>(({ theme, alignItems, justifyContent }) => ({
+}>(({ alignItems, justifyContent }) => ({
   display: "flex",
   alignItems: alignItems || "flex-start",
   flexGrow: 1,
   justifyContent: justifyContent || "flex-start",
 }));
 
-const HostingMeetingStatus = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "flex-start",
-  justifyContent: "space-between",
-  marginTop: theme.spacing(1),
-  marginBottom: theme.spacing(1),
-}));
-
 const FlexColumn = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   width: "100%",
-}));
-
-const StyledTypography = styled(Typography, {
-  shouldForwardProp: (prop) => prop !== "isNegative",
-})<{ isNegative: boolean }>(({ theme, isNegative }) => ({
-  fontWeight: 600,
-  color: isNegative ? theme.palette.grey[100] : theme.palette.common.black,
-  opacity: isNegative ? 0.5 : 0.65,
-  fontSize: "0.875rem",
-}));
-
-const VerticalLine = styled("div")(({ theme }) => ({
-  color: theme.palette.grey[300],
-  paddingRight: theme.spacing(0.5),
-  paddingLeft: theme.spacing(0.5),
 }));
 
 const UserDetailsRow = styled("div")(({ theme }) => ({
@@ -119,20 +95,66 @@ const UserDetailsRow = styled("div")(({ theme }) => ({
   width: "100%",
 }));
 
+const HaikuContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center", // vertical centering
+  alignItems: "center",
+  fontFamily: "Georgia, serif",
+  fontStyle: "italic",
+  whiteSpace: "pre-line",
+  lineHeight: 1.8,
+  padding: theme.spacing(2),
+  color: theme.palette.text.primary,
+  opacity: 0.2,
+  textAlign: "center",
+  height: "100%",
+}));
+
+const generateAboutText = (user: User.AsObject, t: TFunction) => {
+  const missingAbout = user.aboutMe.length === 0;
+  const hasPhoto = user.avatarUrl.length > 0;
+
+  if (missingAbout && !hasPhoto) {
+    return (
+      <HaikuContainer>
+        <Typography variant="body1">
+          {t("profile:incomplete_profile_haiku")}
+        </Typography>
+      </HaikuContainer>
+    );
+  } else {
+    return stripMarkdown(aboutText(user, t));
+  }
+};
+
 const SearchResultUserCard = ({
   isHighlighted = false,
   user,
 }: SearchResultUserCardProps) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
+  const { setSelectedUserId } = useMapSearchActions();
+
+  const handleUserCardClick = () => {
+    setSelectedUserId(user.userId);
+  };
+
   return (
-    <StyledCard isHighlighted={isHighlighted}>
+    <StyledCard isHighlighted={isHighlighted} onClick={handleUserCardClick}>
       <StyledTopContent>
         <Avatar openInNewTab user={user} />
         <FlexColumn>
           <StyledCardHeader variant="h2">
             <FlexRow alignItems="center">
-              <LinesEllipsis text={user.name} maxLine={2} />
+              <StyledLink
+                aria-label={t("profile:open_profile_new_tab")}
+                href={routeToUser(user.username)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <LinesEllipsis text={user.name} maxLine={2} />
+              </StyledLink>
               {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
             </FlexRow>
             <StyledLink
@@ -153,50 +175,25 @@ const SearchResultUserCard = ({
             </StyledLink>
           </StyledCardHeader>
           <FlexRow justifyContent="space-between">
-            <Typography variant="body2" sx={{ marginBottom: theme.spacing(1) }}>
-              {`${user.age}, ${user.gender}, ${user.city}`}
-            </Typography>
+            <Tooltip title={`${user.age}, ${user.gender}, ${user.city}`}>
+              <Typography
+                variant="body2"
+                sx={{ marginBottom: theme.spacing(1) }}
+              >
+                {`${user.age}, ${user.gender}, ${truncateWithEllipsis(user.city)}`}
+              </Typography>
+            </Tooltip>
           </FlexRow>
         </FlexColumn>
       </StyledTopContent>
       <StyledBottomContent>
-        <HostingMeetingStatus>
-          <StyledTypography
-            display="inline"
-            variant="body1"
-            isNegative={
-              user.hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST
-            }
-          >
-            {hostingStatusLabels(t)[user.hostingStatus]}
-          </StyledTypography>
-          <VerticalLine>|</VerticalLine>
-          <StyledTypography
-            display="inline"
-            variant="body1"
-            isNegative={
-              user.meetupStatus ===
-              MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP
-            }
-          >
-            {meetupStatusLabels(t)[user.meetupStatus]}
-          </StyledTypography>
-          <VerticalLine>|</VerticalLine>
-          <StyledTypography
-            variant="body2"
-            isNegative={false}
-          >{`${user.numReferences >= 100 ? `100+` : user.numReferences} ${t("profile:heading.references").toLowerCase()}`}</StyledTypography>
-        </HostingMeetingStatus>
-        <Typography
-          variant="body1"
-          sx={{
-            overflowWrap: "break-word",
-            wordBreak: "break-word",
-            flexFlowGrow: 1,
-          }}
-        >
-          {stripMarkdown(aboutText(user, t))}
-        </Typography>
+        <HostMeetingReferenceStatus
+          hostingStatus={user.hostingStatus}
+          meetupStatus={user.meetupStatus}
+          numberReferences={user.numReferences}
+        />
+
+        {generateAboutText(user, t)}
         <FlexRow alignItems="flex-end" justifyContent="space-between">
           <UserDetailsRow>
             <Typography variant="body2">
