@@ -297,7 +297,7 @@ def refresh_materialized_views(payload: empty_pb2.Empty):
         refresh_materialized_view(session, "cluster_subscription_counts", concurrently=True)
         refresh_materialized_view(session, "cluster_admin_counts", concurrently=True)
         refresh_materialized_view(session, "clustered_users")
-        refresh_materialized_view(session, "user_response_rates")
+        refresh_materialized_view(session, "user_response_rates", concurrently=True)
 
 
 def refresh_materialized_views_rapid(payload: empty_pb2.Empty):

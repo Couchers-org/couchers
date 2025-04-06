@@ -636,4 +636,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         return empty_pb2.Empty()
 
     def GetResponseRate(self, request, context, session):
-        return requests_pb2.GetResponseRateRes(**get_response_rate(request.user_id, session, context))
+        res = get_response_rate(request.user_id, session, context)
+        if not res:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+        return requests_pb2.GetResponseRateRes(**res)

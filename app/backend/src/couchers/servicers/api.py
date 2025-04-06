@@ -794,34 +794,32 @@ class API(api_pb2_grpc.APIServicer):
 
 
 def get_response_rate(user_id, session, context):
-    res = session.execute(
-        select(user_response_rates)
-        .join(User, User.id == user_response_rates.c.user_id)
+    user_res = session.execute(
+        select(User.id, user_response_rates)
+        .outerjoin(user_response_rates, user_response_rates.c.user_id == User.id)
         .where_users_visible(context)
         .where(User.id == user_id)
     ).one_or_none()
 
-    if not res:
-        context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+    # if user doesn't exist, return None
+    if not user_res:
+        return None
 
-    _, n, response_rate, _, response_time_p33, response_time_p66 = res
+    user, _, n, response_rate, _, response_time_p33, response_time_p66 = user_res
 
-    if n < 3:
+    # if n is None, the user might be new so we haven't refreshed the view yet
+    if not n or n < 3:
         return {"insufficient_data": requests_pb2.ResponseRateInsufficientData()}
 
     if response_rate <= 0.33:
-        return {
-            "low": requests_pb2.ResponseRateLow(),
-        }
+        return {"low": requests_pb2.ResponseRateLow()}
 
     response_time_p33_coarsened = Duration_from_timedelta(
         timedelta(seconds=round(response_time_p33.total_seconds() / 60) * 60)
     )
 
     if response_rate <= 0.66:
-        return {
-            "some": requests_pb2.ResponseRateSome(response_time_p33=response_time_p33_coarsened),
-        }
+        return {"some": requests_pb2.ResponseRateSome(response_time_p33=response_time_p33_coarsened)}
 
     response_time_p66_coarsened = Duration_from_timedelta(
         timedelta(seconds=round(response_time_p66.total_seconds() / 60) * 60)
@@ -831,13 +829,13 @@ def get_response_rate(user_id, session, context):
         return {
             "most": requests_pb2.ResponseRateMost(
                 response_time_p33=response_time_p33_coarsened, response_time_p66=response_time_p66_coarsened
-            ),
+            )
         }
     else:
         return {
             "almost_all": requests_pb2.ResponseRateAlmostAll(
                 response_time_p33=response_time_p33_coarsened, response_time_p66=response_time_p66_coarsened
-            ),
+            )
         }
 
 
