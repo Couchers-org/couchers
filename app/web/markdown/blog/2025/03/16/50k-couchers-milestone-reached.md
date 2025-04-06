@@ -24,7 +24,7 @@ As a member, you can contribute in lots of different ways:
 * 📝 Complete your profile and write references for your friends
 * 📱 Share on social media
 * 🤝 [Volunteer](https://couchers.org/volunteer) with us! We’re really friendly!
-* 💖 [Donate](https://couchers.org/donate) to support our mission
+* 💖 [Donate](https://couchers.org/donate) to support our mission NOW!
 
 ## 🛡️ Safe & active community 🛡️
 
