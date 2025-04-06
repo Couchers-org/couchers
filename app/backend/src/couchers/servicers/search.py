@@ -392,168 +392,180 @@ class Search(search_pb2_grpc.SearchServicer):
     def UserSearch(self, request, context, session):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
+        # Base statement with visibility filter
         statement = select(User).where_users_visible(context)
-        if request.HasField("query"):
-            if request.query_name_only:
+
+        # If exactly_user_ids is present, only filter by those IDs and ignore all other filters
+        # This is a bit of a hacky feature to help with the frontend map implementation
+        if len(request.exactly_user_ids) > 0:
+            statement = statement.where(User.id.in_(request.exactly_user_ids))
+        else:
+            # Apply all the normal filters
+            if request.HasField("query"):
+                if request.query_name_only:
+                    statement = statement.where(
+                        or_(
+                            User.name.ilike(f"%{request.query.value}%"), User.username.ilike(f"%{request.query.value}%")
+                        )
+                    )
+                else:
+                    statement = statement.where(
+                        or_(
+                            User.name.ilike(f"%{request.query.value}%"),
+                            User.username.ilike(f"%{request.query.value}%"),
+                            User.city.ilike(f"%{request.query.value}%"),
+                            User.hometown.ilike(f"%{request.query.value}%"),
+                            User.about_me.ilike(f"%{request.query.value}%"),
+                            User.things_i_like.ilike(f"%{request.query.value}%"),
+                            User.about_place.ilike(f"%{request.query.value}%"),
+                            User.additional_information.ilike(f"%{request.query.value}%"),
+                        )
+                    )
+
+            if request.HasField("last_active"):
+                raw_dt = to_aware_datetime(request.last_active)
+                statement = statement.where(User.last_active >= last_active_coarsen(raw_dt))
+
+            if len(request.gender) > 0:
+                if not has_strong_verification(session, user):
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NEED_STRONG_VERIFICATION)
+                elif user.gender not in request.gender:
+                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MUST_INCLUDE_OWN_GENDER)
+                else:
+                    statement = statement.where(User.gender.in_(request.gender))
+
+            if len(request.hosting_status_filter) > 0:
                 statement = statement.where(
-                    or_(User.name.ilike(f"%{request.query.value}%"), User.username.ilike(f"%{request.query.value}%"))
+                    User.hosting_status.in_([hostingstatus2sql[status] for status in request.hosting_status_filter])
                 )
-            else:
+            if len(request.meetup_status_filter) > 0:
                 statement = statement.where(
-                    or_(
-                        User.name.ilike(f"%{request.query.value}%"),
-                        User.username.ilike(f"%{request.query.value}%"),
-                        User.city.ilike(f"%{request.query.value}%"),
-                        User.hometown.ilike(f"%{request.query.value}%"),
-                        User.about_me.ilike(f"%{request.query.value}%"),
-                        User.things_i_like.ilike(f"%{request.query.value}%"),
-                        User.about_place.ilike(f"%{request.query.value}%"),
-                        User.additional_information.ilike(f"%{request.query.value}%"),
+                    User.meetup_status.in_([meetupstatus2sql[status] for status in request.meetup_status_filter])
+                )
+            if len(request.smoking_location_filter) > 0:
+                statement = statement.where(
+                    User.smoking_allowed.in_([smokinglocation2sql[loc] for loc in request.smoking_location_filter])
+                )
+            if len(request.sleeping_arrangement_filter) > 0:
+                statement = statement.where(
+                    User.sleeping_arrangement.in_(
+                        [sleepingarrangement2sql[arr] for arr in request.sleeping_arrangement_filter]
                     )
                 )
-
-        if request.HasField("last_active"):
-            raw_dt = to_aware_datetime(request.last_active)
-            statement = statement.where(User.last_active >= last_active_coarsen(raw_dt))
-
-        if len(request.gender) > 0:
-            if not has_strong_verification(session, user):
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NEED_STRONG_VERIFICATION)
-            elif user.gender not in request.gender:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MUST_INCLUDE_OWN_GENDER)
-            else:
-                statement = statement.where(User.gender.in_(request.gender))
-
-        if len(request.hosting_status_filter) > 0:
-            statement = statement.where(
-                User.hosting_status.in_([hostingstatus2sql[status] for status in request.hosting_status_filter])
-            )
-        if len(request.meetup_status_filter) > 0:
-            statement = statement.where(
-                User.meetup_status.in_([meetupstatus2sql[status] for status in request.meetup_status_filter])
-            )
-        if len(request.smoking_location_filter) > 0:
-            statement = statement.where(
-                User.smoking_allowed.in_([smokinglocation2sql[loc] for loc in request.smoking_location_filter])
-            )
-        if len(request.sleeping_arrangement_filter) > 0:
-            statement = statement.where(
-                User.sleeping_arrangement.in_(
-                    [sleepingarrangement2sql[arr] for arr in request.sleeping_arrangement_filter]
+            if len(request.parking_details_filter) > 0:
+                statement = statement.where(
+                    User.parking_details.in_([parkingdetails2sql[det] for det in request.parking_details_filter])
                 )
-            )
-        if len(request.parking_details_filter) > 0:
-            statement = statement.where(
-                User.parking_details.in_([parkingdetails2sql[det] for det in request.parking_details_filter])
-            )
-        # limits/default could be handled on the front end as well
-        min_age = request.age_min.value if request.HasField("age_min") else 18
-        max_age = request.age_max.value if request.HasField("age_max") else 200
+            # limits/default could be handled on the front end as well
+            min_age = request.age_min.value if request.HasField("age_min") else 18
+            max_age = request.age_max.value if request.HasField("age_max") else 200
 
-        statement = statement.where((User.age >= min_age) & (User.age <= max_age))
+            statement = statement.where((User.age >= min_age) & (User.age <= max_age))
 
-        # return results with by language code as only input
-        # fluency in conversational or fluent
+            # return results with by language code as only input
+            # fluency in conversational or fluent
 
-        if len(request.language_ability_filter) > 0:
-            language_options = []
-            for ability_filter in request.language_ability_filter:
-                fluency_sql_value = fluency2sql.get(ability_filter.fluency)
+            if len(request.language_ability_filter) > 0:
+                language_options = []
+                for ability_filter in request.language_ability_filter:
+                    fluency_sql_value = fluency2sql.get(ability_filter.fluency)
 
-                if fluency_sql_value is None:
-                    continue
-                language_options.append(
+                    if fluency_sql_value is None:
+                        continue
+                    language_options.append(
+                        and_(
+                            (LanguageAbility.language_code == ability_filter.code),
+                            (LanguageAbility.fluency >= (fluency_sql_value)),
+                        )
+                    )
+                statement = statement.join(LanguageAbility, LanguageAbility.user_id == User.id)
+                statement = statement.where(or_(*language_options))
+
+            if request.HasField("profile_completed"):
+                statement = statement.where(User.has_completed_profile == request.profile_completed.value)
+            if request.HasField("guests"):
+                statement = statement.where(User.max_guests >= request.guests.value)
+            if request.HasField("last_minute"):
+                statement = statement.where(User.last_minute == request.last_minute.value)
+            if request.HasField("has_pets"):
+                statement = statement.where(User.has_pets == request.has_pets.value)
+            if request.HasField("accepts_pets"):
+                statement = statement.where(User.accepts_pets == request.accepts_pets.value)
+            if request.HasField("has_kids"):
+                statement = statement.where(User.has_kids == request.has_kids.value)
+            if request.HasField("accepts_kids"):
+                statement = statement.where(User.accepts_kids == request.accepts_kids.value)
+            if request.HasField("has_housemates"):
+                statement = statement.where(User.has_housemates == request.has_housemates.value)
+            if request.HasField("wheelchair_accessible"):
+                statement = statement.where(User.wheelchair_accessible == request.wheelchair_accessible.value)
+            if request.HasField("smokes_at_home"):
+                statement = statement.where(User.smokes_at_home == request.smokes_at_home.value)
+            if request.HasField("drinking_allowed"):
+                statement = statement.where(User.drinking_allowed == request.drinking_allowed.value)
+            if request.HasField("drinks_at_home"):
+                statement = statement.where(User.drinks_at_home == request.drinks_at_home.value)
+            if request.HasField("parking"):
+                statement = statement.where(User.parking == request.parking.value)
+            if request.HasField("camping_ok"):
+                statement = statement.where(User.camping_ok == request.camping_ok.value)
+
+            if request.HasField("search_in_area"):
+                # EPSG4326 measures distance in decimal degress
+                # we want to check whether two circles overlap, so check if the distance between their centers is less
+                # than the sum of their radii, divided by 111111 m ~= 1 degree (at the equator)
+                search_point = create_coordinate(request.search_in_area.lat, request.search_in_area.lng)
+                statement = statement.where(
+                    func.ST_DWithin(
+                        # old:
+                        # User.geom, search_point, (User.geom_radius + request.search_in_area.radius) / 111111
+                        # this is an optimization that speeds up the db queries since it doesn't need to look up the user's geom radius
+                        User.geom,
+                        search_point,
+                        (1000 + request.search_in_area.radius) / 111111,
+                    )
+                )
+            if request.HasField("search_in_rectangle"):
+                statement = statement.where(
+                    func.ST_Within(
+                        User.geom,
+                        func.ST_MakeEnvelope(
+                            request.search_in_rectangle.lng_min,
+                            request.search_in_rectangle.lat_min,
+                            request.search_in_rectangle.lng_max,
+                            request.search_in_rectangle.lat_max,
+                            4326,
+                        ),
+                    )
+                )
+            if request.HasField("search_in_community_id"):
+                # could do a join here as well, but this is just simpler
+                node = session.execute(
+                    select(Node).where(Node.id == request.search_in_community_id)
+                ).scalar_one_or_none()
+                if not node:
+                    context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+                statement = statement.where(func.ST_Contains(node.geom, User.geom))
+
+            if request.only_with_references:
+                references = (
+                    select(Reference.to_user_id.label("user_id"))
+                    .where_users_column_visible(context, Reference.from_user_id)
+                    .distinct()
+                    .subquery()
+                )
+                statement = statement.join(references, references.c.user_id == User.id)
+
+            if request.only_with_strong_verification:
+                statement = statement.join(
+                    StrongVerificationAttempt,
                     and_(
-                        (LanguageAbility.language_code == ability_filter.code),
-                        (LanguageAbility.fluency >= (fluency_sql_value)),
-                    )
-                )
-            statement = statement.join(LanguageAbility, LanguageAbility.user_id == User.id)
-            statement = statement.where(or_(*language_options))
-
-        if request.HasField("profile_completed"):
-            statement = statement.where(User.has_completed_profile == request.profile_completed.value)
-        if request.HasField("guests"):
-            statement = statement.where(User.max_guests >= request.guests.value)
-        if request.HasField("last_minute"):
-            statement = statement.where(User.last_minute == request.last_minute.value)
-        if request.HasField("has_pets"):
-            statement = statement.where(User.has_pets == request.has_pets.value)
-        if request.HasField("accepts_pets"):
-            statement = statement.where(User.accepts_pets == request.accepts_pets.value)
-        if request.HasField("has_kids"):
-            statement = statement.where(User.has_kids == request.has_kids.value)
-        if request.HasField("accepts_kids"):
-            statement = statement.where(User.accepts_kids == request.accepts_kids.value)
-        if request.HasField("has_housemates"):
-            statement = statement.where(User.has_housemates == request.has_housemates.value)
-        if request.HasField("wheelchair_accessible"):
-            statement = statement.where(User.wheelchair_accessible == request.wheelchair_accessible.value)
-        if request.HasField("smokes_at_home"):
-            statement = statement.where(User.smokes_at_home == request.smokes_at_home.value)
-        if request.HasField("drinking_allowed"):
-            statement = statement.where(User.drinking_allowed == request.drinking_allowed.value)
-        if request.HasField("drinks_at_home"):
-            statement = statement.where(User.drinks_at_home == request.drinks_at_home.value)
-        if request.HasField("parking"):
-            statement = statement.where(User.parking == request.parking.value)
-        if request.HasField("camping_ok"):
-            statement = statement.where(User.camping_ok == request.camping_ok.value)
-
-        if request.HasField("search_in_area"):
-            # EPSG4326 measures distance in decimal degress
-            # we want to check whether two circles overlap, so check if the distance between their centers is less
-            # than the sum of their radii, divided by 111111 m ~= 1 degree (at the equator)
-            search_point = create_coordinate(request.search_in_area.lat, request.search_in_area.lng)
-            statement = statement.where(
-                func.ST_DWithin(
-                    # old:
-                    # User.geom, search_point, (User.geom_radius + request.search_in_area.radius) / 111111
-                    # this is an optimization that speeds up the db queries since it doesn't need to look up the user's geom radius
-                    User.geom,
-                    search_point,
-                    (1000 + request.search_in_area.radius) / 111111,
-                )
-            )
-        if request.HasField("search_in_rectangle"):
-            statement = statement.where(
-                func.ST_Within(
-                    User.geom,
-                    func.ST_MakeEnvelope(
-                        request.search_in_rectangle.lng_min,
-                        request.search_in_rectangle.lat_min,
-                        request.search_in_rectangle.lng_max,
-                        request.search_in_rectangle.lat_max,
-                        4326,
+                        StrongVerificationAttempt.user_id == User.id,
+                        StrongVerificationAttempt.has_strong_verification(User),
                     ),
                 )
-            )
-        if request.HasField("search_in_community_id"):
-            # could do a join here as well, but this is just simpler
-            node = session.execute(select(Node).where(Node.id == request.search_in_community_id)).scalar_one_or_none()
-            if not node:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
-            statement = statement.where(func.ST_Contains(node.geom, User.geom))
-
-        if request.only_with_references:
-            references = (
-                select(Reference.to_user_id.label("user_id"))
-                .where_users_column_visible(context, Reference.from_user_id)
-                .distinct()
-                .subquery()
-            )
-            statement = statement.join(references, references.c.user_id == User.id)
-
-        if request.only_with_strong_verification:
-            statement = statement.join(
-                StrongVerificationAttempt,
-                and_(
-                    StrongVerificationAttempt.user_id == User.id,
-                    StrongVerificationAttempt.has_strong_verification(User),
-                ),
-            )
-        # TODO:
-        # bool friends_only = 13;
+            # TODO:
+            # bool friends_only = 13;
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_recommendation_score = float(decrypt_page_token(request.page_token)) if request.page_token else 1e10
