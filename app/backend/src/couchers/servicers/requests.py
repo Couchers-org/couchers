@@ -7,7 +7,6 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
-from couchers.materialized_views import user_response_rates
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
     host_request_first_response_histogram,
@@ -17,10 +16,9 @@ from couchers.metrics import (
 )
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.notifications.notify import notify
-from couchers.servicers.api import user_model_to_pb
+from couchers.servicers.api import get_response_rate, user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
-    Duration_from_timedelta,
     Timestamp_from_datetime,
     date_to_api,
     now,
@@ -638,50 +636,4 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         return empty_pb2.Empty()
 
     def GetResponseRate(self, request, context, session):
-        res = session.execute(
-            select(user_response_rates)
-            .join(User, User.id == user_response_rates.c.user_id)
-            .where_users_visible(context)
-            .where(User.id == request.user_id)
-        ).one_or_none()
-
-        if not res:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-
-        _, n, response_rate, _, response_time_p33, response_time_p66 = res
-
-        if n < 3:
-            return requests_pb2.GetResponseRateRes(
-                insufficient_data=requests_pb2.ResponseRateInsufficientData(),
-            )
-
-        if response_rate <= 0.33:
-            return requests_pb2.GetResponseRateRes(
-                low=requests_pb2.ResponseRateLow(),
-            )
-
-        response_time_p33_coarsened = Duration_from_timedelta(
-            timedelta(seconds=round(response_time_p33.total_seconds() / 60) * 60)
-        )
-
-        if response_rate <= 0.66:
-            return requests_pb2.GetResponseRateRes(
-                some=requests_pb2.ResponseRateSome(response_time_p33=response_time_p33_coarsened),
-            )
-
-        response_time_p66_coarsened = Duration_from_timedelta(
-            timedelta(seconds=round(response_time_p66.total_seconds() / 60) * 60)
-        )
-
-        if response_rate <= 0.90:
-            return requests_pb2.GetResponseRateRes(
-                most=requests_pb2.ResponseRateMost(
-                    response_time_p33=response_time_p33_coarsened, response_time_p66=response_time_p66_coarsened
-                ),
-            )
-        else:
-            return requests_pb2.GetResponseRateRes(
-                almost_all=requests_pb2.ResponseRateAlmostAll(
-                    response_time_p33=response_time_p33_coarsened, response_time_p66=response_time_p66_coarsened
-                ),
-            )
+        return requests_pb2.GetResponseRateRes(**get_response_rate(request.user_id, session, context))
