@@ -807,7 +807,7 @@ def get_response_rate(user_id, session, context):
 
     user, _, n, response_rate, _, response_time_p33, response_time_p66 = user_res
 
-    # if n is None, the user might be new so we haven't refreshed the view yet
+    # if n is None, the user is new or they have no requests
     if not n or n < 3:
         return {"insufficient_data": requests_pb2.ResponseRateInsufficientData()}
 

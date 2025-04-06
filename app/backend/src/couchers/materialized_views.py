@@ -254,34 +254,23 @@ all_responses = union_all(
         ).label("response_time"),
     ),
 ).subquery()
-users_with_response_rates = (
-    sa_select(
-        all_responses.c.user_id.label("user_id"),
-        # number of requests received
-        func.count().label("requests"),
-        # percentage of requests responded to
-        (func.count(all_responses.c.response_time) / func.count()).label("response_rate"),
-        func.avg(all_responses.c.response_time).label("avg_response_time"),
-        # the 33rd percentile response time
-        percentile_disc(0.33)
-        .within_group(func.coalesce(all_responses.c.response_time, timedelta(days=1000)))
-        .label("response_time_33p"),
-        # the 66th percentile response time
-        percentile_disc(0.66)
-        .within_group(func.coalesce(all_responses.c.response_time, timedelta(days=1000)))
-        .label("response_time_66p"),
-    )
-    .group_by(all_responses.c.user_id)
-    .subquery()
-)
+
 user_response_rates_selectable = sa_select(
-    User.id.label("user_id"),
-    func.coalesce(users_with_response_rates.c.requests, 0).label("requests"),
-    func.coalesce(users_with_response_rates.c.response_rate, 0.0).label("response_rate"),
-    users_with_response_rates.c.avg_response_time.label("avg_response_time"),
-    users_with_response_rates.c.response_time_33p.label("response_time_33p"),
-    users_with_response_rates.c.response_time_66p.label("response_time_66p"),
-).outerjoin(users_with_response_rates, users_with_response_rates.c.user_id == User.id)
+    all_responses.c.user_id.label("user_id"),
+    # number of requests received
+    func.count().label("requests"),
+    # percentage of requests responded to
+    (func.count(all_responses.c.response_time) / func.count()).label("response_rate"),
+    func.avg(all_responses.c.response_time).label("avg_response_time"),
+    # the 33rd percentile response time
+    percentile_disc(0.33)
+    .within_group(func.coalesce(all_responses.c.response_time, timedelta(days=1000)))
+    .label("response_time_33p"),
+    # the 66th percentile response time
+    percentile_disc(0.66)
+    .within_group(func.coalesce(all_responses.c.response_time, timedelta(days=1000)))
+    .label("response_time_66p"),
+).group_by(all_responses.c.user_id)
 
 user_response_rates = create_materialized_view(
     "user_response_rates",
