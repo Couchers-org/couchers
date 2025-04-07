@@ -76,6 +76,10 @@ const MapSearchContent = ({
   const { setSelectedUserId } = useMapSearchActions();
 
   const handleUserCardClick = (userId: number) => {
+    if (mapView === MapViews.LIST_ONLY) {
+      return;
+    }
+
     clearMapFeatureState(mapRef);
     setSelectedUserId(userId);
 
