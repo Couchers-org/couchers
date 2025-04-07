@@ -61,7 +61,7 @@
     "react-query": "^3.39.3",
     "react-simple-maps": "^3.0.0",
     "seamless-scroll-polyfill": "^2.1.8",
-    "sharp": "^0.33.5"
+    "sharp": "^0.34.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",
