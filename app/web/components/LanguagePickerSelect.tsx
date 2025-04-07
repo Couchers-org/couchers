@@ -9,12 +9,24 @@ import {
   Select as MuiSelect,
   SelectChangeEvent,
   Stack,
+  styled,
   TextField,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { LANGUAGE_MAP } from "i18n/constants";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
+
+const StyledMuiSelect = styled(MuiSelect)(({ theme, displayMode }) => ({
+  borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
+  "& .MuiSelect-icon": {
+    color: theme.palette.text.primary,
+    fontSize: "1.25rem",
+    top: "50%",
+    transform: "translateY(-50%)",
+    right: 10,
+  },
+}));
 
 type LanguagePickerSelectProps = {
   defaultValue?: string;
@@ -135,22 +147,11 @@ export default function LanguagePickerSelect({
                 : "100%",
         }}
       >
-        {" "}
         {displayMode === "round" ? (
-          <MuiSelect
+          <StyledMuiSelect
             id="language-select"
             value={language}
-            sx={{
-              borderRadius:
-                displayMode === "round" ? 999 : theme.shape.borderRadius,
-              "& .MuiSelect-icon": {
-                color: theme.palette.text.primary,
-                fontSize: "1.25rem",
-                top: "50%",
-                transform: "translateY(-50%)",
-                right: 10,
-              },
-            }}
+            displayMode={displayMode}
             onChange={handleChange}
             // Use renderValue to display the selected language in collapsed state
             renderValue={(selected: string) => {
@@ -182,7 +183,7 @@ export default function LanguagePickerSelect({
             IconComponent={ExpandMoreOutlinedIcon}
           >
             {menuItems}
-          </MuiSelect>
+          </StyledMuiSelect>
         ) : (
           <TextField
             select={true}
