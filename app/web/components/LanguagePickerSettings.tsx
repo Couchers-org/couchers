@@ -10,7 +10,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
-import { AUTH, GLOBAL } from "i18n/namespaces";
+import { GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import { service } from "service";
@@ -58,18 +58,12 @@ function getLangCookie() {
 export default function LanguagePickerSettings({
   className,
 }: ChangeLanguageProps) {
-  const { t } = useTranslation([AUTH, GLOBAL]);
+  const { t } = useTranslation([GLOBAL]);
   const formClasses = useChangeDetailsFormStyles();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  console.dir(service);
-
-  const {
-    handleSubmit,
-    register,
-    reset: resetForm,
-  } = useForm<ChangeLanguageFormData>();
+  const { handleSubmit, reset: resetForm } = useForm<ChangeLanguageFormData>();
   const onSubmit = handleSubmit(({ newLanguage }) => {
     // TODO: send request to update cookie on backend w/ newLanguage code
   });
@@ -90,44 +84,30 @@ export default function LanguagePickerSettings({
 
   return (
     <div className={className}>
-      {/* <Typography variant="h2">{t("auth:change_language_form.title")}</Typography> */}
-      <Typography variant="h2">Language</Typography>
+      <Typography variant="h2">
+        {t("global:language_preference.form_title")}
+      </Typography>
       <>
         <Typography variant="body1">
-          {/* <Trans
-            i18nKey="auth:change_language_form.current_language_message"
-            values={{ language }}
-          >
-            {`Your language preference is currently `}
-            <strong>{language}</strong>
-            {`.`}
-          </Trans> */}
-          {`Your language preference is currently `}
+          {`${t("global:language_preference.current_preferred_language")}`}
           <strong>{LANGUAGE_MAP[getLangCookie()].name}</strong>
         </Typography>
-        <Typography
-          variant="body1"
-          paragraph
-          // className={classes.createCommunityText}
-        >
-          {/* <Trans i18nKey="dashboard:your_communities_helper_text2"> */}
-          {/* {`Don't see your community? `} */}
+        <Typography variant="body1" paragraph>
           <MuiLink
             href={COMMUNITY_BUILDER_FORM_LINK}
             target="_blank"
             rel="noreferrer noopener"
             underline="hover"
           >
-            <strong>Help translate couchers into your language.</strong>
+            <strong>{t("global:language_preference.help_translate")}</strong>
           </MuiLink>
-          {/* </Trans> */}
         </Typography>
         {changeLanguageError && (
           <Alert severity="error">{changeLanguageError.message}</Alert>
         )}
         {isChangeLanguageSuccess && (
           <Alert severity="success">
-            {t("auth:change_language_form.success_message")}
+            {t("global:language_preference.success_message")}
           </Alert>
         )}
         <form className={formClasses.form} onSubmit={onSubmit}>

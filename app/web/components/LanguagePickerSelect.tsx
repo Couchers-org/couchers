@@ -14,8 +14,10 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
-import { ReactNode, useState } from "react";
+import { GLOBAL } from "i18n/namespaces";
+import { useState } from "react";
 
 const StyledMuiSelect = styled(MuiSelect)(({ theme, displayMode }) => ({
   borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
@@ -67,8 +69,7 @@ export default function LanguagePickerSelect({
   const [language, setLanguage] = useState(getLangCookie());
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-  console.log(getLangCookie());
+  const { t } = useTranslation([GLOBAL]);
 
   const handleChange = (event: SelectChangeEvent) => {
     const newLang = event.target.value as string;
@@ -132,6 +133,26 @@ export default function LanguagePickerSelect({
     );
   }
 
+  // renderValue function for what should be rendered after a selection is made
+  const renderValue = (selected: string) => {
+    const selectedDisplay = (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          pl: 1,
+          color: "#666666",
+          fontWeight: "bold",
+        }}
+      >
+        {renderFlag(LANGUAGE_MAP[selected].flagIconCode)}
+        {selected.toUpperCase()}
+      </Box>
+    );
+    return selectedDisplay;
+  };
+
   return (
     <Box sx={{ minWidth: 60 }}>
       <FormControl
@@ -154,32 +175,7 @@ export default function LanguagePickerSelect({
             displayMode={displayMode}
             onChange={handleChange}
             // Use renderValue to display the selected language in collapsed state
-            renderValue={(selected: string) => {
-              const selectedDisplay = (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    pl: 1,
-                    color: "#666666",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {renderFlag(LANGUAGE_MAP[selected].flagIconCode)}
-                  {selected.toUpperCase()}
-                </Box>
-              );
-              return displayMode === "round" ? (
-                selectedDisplay
-              ) : selected ? (
-                selectedDisplay
-              ) : (
-                <label className="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1ttrm8x-MuiFormLabel-root-MuiInputLabel-root">
-                  {"Select a Language"}
-                </label>
-              );
-            }}
+            renderValue={renderValue}
             IconComponent={ExpandMoreOutlinedIcon}
           >
             {menuItems}
@@ -188,9 +184,7 @@ export default function LanguagePickerSelect({
           <TextField
             select={true}
             id="newLanguage"
-            // {...register("newLanguage", { required: true })}
-            // label={t("auth:change_language_form.new_language")}
-            label="Select a language"
+            label={t("global:language_preference.select_language")}
             name="newLanguage"
             fullWidth={isMobile}
           >
