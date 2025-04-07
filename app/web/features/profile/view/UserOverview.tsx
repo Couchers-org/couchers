@@ -40,6 +40,7 @@ const useStyles = makeStyles((theme) => ({
     wordBreak: "break-word",
     overflowWrap: "break-word",
     textAlign: "center",
+    marginBottom: theme.spacing(1),
   },
 
   wrapper: {
