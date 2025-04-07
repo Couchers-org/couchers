@@ -103,6 +103,9 @@ export default function UserOverview({
           </span>
         </Typography>
         <Typography variant="body1" className={classes.intro}>
+          @{user.username}
+        </Typography>
+        <Typography variant="body1" className={classes.intro}>
           {user.city}
         </Typography>
         <Badges user={user} />
