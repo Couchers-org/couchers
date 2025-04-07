@@ -6,6 +6,7 @@ from sqlalchemy.sql import select
 
 from couchers import errors
 from couchers.db import session_scope
+from couchers.materialized_views import refresh_materialized_view
 from couchers.models import Message, MessageType
 from couchers.templates.v2 import v2date
 from couchers.utils import now, today
@@ -804,6 +805,9 @@ def test_response_rate(db):
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
 
+    with session_scope() as session:
+        refresh_materialized_view(session, "user_response_rates")
+
     with requests_session(token1) as api:
         # no requests: insufficient
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
@@ -821,6 +825,7 @@ def test_response_rate(db):
                 .where(Message.conversation_id == host_request_1)
                 .where(Message.message_type == MessageType.chat_created)
             ).scalar_one().time = now() - timedelta(hours=36)
+            refresh_materialized_view(session, "user_response_rates")
 
         # still insufficient
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
@@ -838,6 +843,7 @@ def test_response_rate(db):
                 .where(Message.conversation_id == host_request_2)
                 .where(Message.message_type == MessageType.chat_created)
             ).scalar_one().time = now() - timedelta(hours=35)
+            refresh_materialized_view(session, "user_response_rates")
 
         # still insufficient
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
@@ -855,6 +861,7 @@ def test_response_rate(db):
                 .where(Message.conversation_id == host_request_3)
                 .where(Message.message_type == MessageType.chat_created)
             ).scalar_one().time = now() - timedelta(hours=34)
+            refresh_materialized_view(session, "user_response_rates")
 
         # now low
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
@@ -869,6 +876,9 @@ def test_response_rate(db):
                 text="Accepting host request",
             )
         )
+
+    with session_scope() as session:
+        refresh_materialized_view(session, "user_response_rates")
 
     with requests_session(token1) as api:
         # now some w p33 = 35h
@@ -886,6 +896,9 @@ def test_response_rate(db):
             )
         )
 
+    with session_scope() as session:
+        refresh_materialized_view(session, "user_response_rates")
+
     with requests_session(token1) as api:
         # now most w p33 = 34h, p66 = 35h
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
@@ -902,6 +915,9 @@ def test_response_rate(db):
                 text="Accepting host request",
             )
         )
+
+    with session_scope() as session:
+        refresh_materialized_view(session, "user_response_rates")
 
     with requests_session(token1) as api:
         # now all w p33 = 34h, p66 = 35h
@@ -922,6 +938,7 @@ def test_response_rate(db):
                 .where(Message.conversation_id == host_request_4)
                 .where(Message.message_type == MessageType.chat_created)
             ).scalar_one().time = now() - timedelta(hours=2)
+            refresh_materialized_view(session, "user_response_rates")
 
         # send a request and back date it by 4 hours
         host_request_5 = api.CreateHostRequest(
@@ -935,6 +952,7 @@ def test_response_rate(db):
                 .where(Message.conversation_id == host_request_5)
                 .where(Message.message_type == MessageType.chat_created)
             ).scalar_one().time = now() - timedelta(hours=4)
+            refresh_materialized_view(session, "user_response_rates")
 
         # now some w p33 = 35h
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
@@ -950,6 +968,9 @@ def test_response_rate(db):
                 text="Accepting host request",
             )
         )
+
+    with session_scope() as session:
+        refresh_materialized_view(session, "user_response_rates")
 
     with requests_session(token1) as api:
         # now most w p33 = 34h, p66 = 36h
@@ -967,6 +988,9 @@ def test_response_rate(db):
                 text="Accepting host request",
             )
         )
+
+    with session_scope() as session:
+        refresh_materialized_view(session, "user_response_rates")
 
     with requests_session(token1) as api:
         # now most w p33 = 4h, p66 = 35h
