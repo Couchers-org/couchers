@@ -19,6 +19,7 @@ interface MapSearchResultsListProps {
   onDrawerWidthChange: (width: number) => void;
   onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
+  onUserCardClick: (userId: number) => void;
   totalItems?: number;
   users: User.AsObject[] | undefined;
 }
@@ -40,6 +41,7 @@ const MapSearchResultsList = ({
   onDrawerWidthChange,
   onLoadPreviousPage,
   onLoadNextPage,
+  onUserCardClick,
   totalItems,
   users,
 }: MapSearchResultsListProps) => {
@@ -77,6 +79,7 @@ const MapSearchResultsList = ({
         ) : (
           <SearchResultListContent
             numberOfTotal={numberOfTotal}
+            onUserCardClick={onUserCardClick}
             showAlert={!isLoading && !meetsSearchCriteria}
             showTopSpace={
               !isMobile &&

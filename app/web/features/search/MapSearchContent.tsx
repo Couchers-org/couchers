@@ -5,7 +5,9 @@ import { theme } from "theme";
 
 import MapSearchResultsList from "./MapSearchResultsList";
 import MapView from "./MapView";
-import { MapViewOptions, MapViews } from "./utils/constants";
+import { useMapSearchActions } from "./state/useMapSearchActions";
+import { MapViewOptions, MapViews, MAX_ZOOM_LEVEL } from "./utils/constants";
+import { clearMapFeatureState, setMapFeatureState } from "./utils/mapUtils";
 
 interface MapSearchContentProps {
   drawerWidth: number;
@@ -71,6 +73,24 @@ const MapSearchContent = ({
 }: MapSearchContentProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+  const { setSelectedUserId } = useMapSearchActions();
+
+  const handleUserCardClick = (userId: number) => {
+    clearMapFeatureState(mapRef);
+    setSelectedUserId(userId);
+
+    if (mapRef.current) {
+      const user = users?.find((user) => user.userId === userId);
+      setMapFeatureState(mapRef, userId.toString(), true);
+
+      mapRef.current.easeTo({
+        center: [user?.lng || 0, user?.lat || 0],
+        duration: 2000,
+        zoom: MAX_ZOOM_LEVEL,
+      });
+    }
+  };
+
   return (
     <Wrapper>
       <SearchResultsContainer
@@ -87,6 +107,7 @@ const MapSearchContent = ({
           onDrawerWidthChange={onDrawerWidthChange}
           onLoadPreviousPage={onLoadPreviousPage}
           onLoadNextPage={onLoadNextPage}
+          onUserCardClick={handleUserCardClick}
           totalItems={totalItems}
           users={users}
         />

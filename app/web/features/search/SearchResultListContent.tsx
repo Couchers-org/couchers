@@ -10,6 +10,7 @@ import { useMapSearchState } from "./state/mapSearchContext";
 
 interface SearchResultListContentProps {
   numberOfTotal: number;
+  onUserCardClick: (userId: number) => void;
   showAlert: boolean;
   showTopSpace?: boolean;
   totalItems: number | undefined;
@@ -49,6 +50,7 @@ const CenteredRow = styled("div")(({ theme }) => ({
 
 const SearchResultListContent = ({
   numberOfTotal,
+  onUserCardClick,
   showAlert,
   showTopSpace = false,
   totalItems,
@@ -88,6 +90,7 @@ const SearchResultListContent = ({
           >
             <SearchResultUserCard
               isHighlighted={selectedUserId === user.userId}
+              onUserCardClick={onUserCardClick}
               user={user}
             />
           </StyledCardWrapper>

@@ -74,7 +74,12 @@ export default function SearchPage() {
         ? mapSearchState.selectedUserId
         : undefined,
     }),
-    [mapSearchState.filters, mapSearchState.search, mapSearchState.selectedUserId, mapSearchState.shouldSearchByUserId],
+    [
+      mapSearchState.filters,
+      mapSearchState.search,
+      mapSearchState.selectedUserId,
+      mapSearchState.shouldSearchByUserId,
+    ],
   );
 
   const {

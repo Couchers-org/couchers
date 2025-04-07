@@ -17,11 +17,11 @@ import stripMarkdown from "utils/stripMarkdown";
 import { hourMillis, timeAgoI18n } from "utils/timeAgo";
 
 import HostMeetupReferenceStatus from "./HostMeetupReferenceStatus";
-import { useMapSearchActions } from "./state/useMapSearchActions";
 import { aboutText, truncateWithEllipsis } from "./utils/constants";
 
 interface SearchResultUserCardProps {
   isHighlighted?: boolean;
+  onUserCardClick: (userId: number) => void;
   user: User.AsObject;
 }
 
@@ -130,14 +130,13 @@ const generateAboutText = (user: User.AsObject, t: TFunction) => {
 
 const SearchResultUserCard = ({
   isHighlighted = false,
+  onUserCardClick,
   user,
 }: SearchResultUserCardProps) => {
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
-  const { setSelectedUserId } = useMapSearchActions();
-
   const handleUserCardClick = () => {
-    setSelectedUserId(user.userId);
+    onUserCardClick(user.userId);
   };
 
   return (

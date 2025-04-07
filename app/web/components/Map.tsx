@@ -9,10 +9,7 @@ import {
   unclusteredPointLayer,
 } from "features/search/utils/mapLayers";
 import ZoomControl from "features/search/ZoomControl";
-import {
-  MapLayerMouseEvent,
-  RequestParameters,
-} from "maplibre-gl";
+import { MapLayerMouseEvent, RequestParameters } from "maplibre-gl";
 import React from "react";
 import {
   Layer,
@@ -31,7 +28,6 @@ interface MapProps {
   onClick: (ev: MapLayerMouseEvent) => void;
   onLoad: () => void;
   onMapMove: () => void;
-  // onSourceDataLoading: (event: MapSourceDataEvent) => void;
   onZoomIn: (newZoom: number) => void;
   onZoomOut: (newZoom: number) => void;
   onZoomControlInClick: (newZoom: number) => void;
@@ -46,7 +42,6 @@ const Map = ({
   onClick,
   onLoad,
   onMapMove,
-  // onSourceDataLoading,
   onZoomIn,
   onZoomOut,
   onZoomControlInClick,
@@ -127,7 +122,6 @@ const Map = ({
         hash={hash}
         ref={mapRef}
         transformRequest={transformRequest}
-        // onSourceData={onSourceDataLoading}
       >
         <Source
           id={SOURCE_CLUSTERED_USERS_ID}
