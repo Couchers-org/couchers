@@ -1,9 +1,4 @@
-import {
-  Link as MuiLink,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Link as MuiLink, Typography, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
@@ -13,6 +8,7 @@ import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
+import { theme } from "theme";
 import { service } from "service";
 
 import useChangeDetailsFormStyles from "../features/auth/useChangeDetailsFormStyles";
@@ -60,7 +56,6 @@ export default function LanguagePickerSettings({
 }: ChangeLanguageProps) {
   const { t } = useTranslation([GLOBAL]);
   const formClasses = useChangeDetailsFormStyles();
-  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { handleSubmit, reset: resetForm } = useForm<ChangeLanguageFormData>();

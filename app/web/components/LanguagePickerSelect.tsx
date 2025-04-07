@@ -12,12 +12,12 @@ import {
   styled,
   TextField,
   useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
+import { theme } from "theme";
 
 const StyledMuiSelect = styled(MuiSelect)(({ theme, displayMode }) => ({
   borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
@@ -67,7 +67,6 @@ export default function LanguagePickerSelect({
   displayMode = "round", // default to round if not specified
 }: LanguagePickerSelectProps) {
   const [language, setLanguage] = useState(getLangCookie());
-  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL]);
 
