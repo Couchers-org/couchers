@@ -46,6 +46,7 @@ type MapSearchState = {
     query?: string;
   };
   selectedUserId: User.AsObject["userId"] | undefined;
+  shouldSearchByUserId: boolean;
   showSearchThisAreaButton: boolean;
   zoom: number;
 };
@@ -74,7 +75,10 @@ type MapSearchAction =
   | { type: mapSearchActionTypes.RESET_FILTERS }
   | {
       type: mapSearchActionTypes.SET_SELECTED_USER_ID;
-      payload: { bbox?: Coordinates; userId: User.AsObject["userId"] };
+      payload: {
+        bbox?: Coordinates;
+        userId: User.AsObject["userId"] | undefined;
+      };
     }
   | {
       type: mapSearchActionTypes.SET_ZOOM;
@@ -106,6 +110,7 @@ const initialState: MapSearchState = {
     query: "",
   },
   selectedUserId: undefined,
+  shouldSearchByUserId: false,
   showSearchThisAreaButton: false,
   zoom: 1,
 };
@@ -130,6 +135,8 @@ const mapSearchReducer = (
     case mapSearchActionTypes.SET_SEARCH:
       const updatedSearchQuery = { ...state.search };
 
+      console.log("SET SEARCH BBOX", action.payload.bbox);
+
       if (action.payload.bbox && !action.payload.keyword) {
         updatedSearchQuery.bbox = action.payload.bbox;
         updatedSearchQuery.query = initialState.search.query;
@@ -137,12 +144,16 @@ const mapSearchReducer = (
       // We get a location when user searches search input
       if (action.payload.location) {
         const bbox = (action.payload.location as GeocodeResult).bbox;
-        const formattedBbox = [
-          bbox[2],
-          bbox[3],
-          bbox[0],
-          bbox[1],
-        ] as Coordinates;
+
+        // @TODO(NA): Causing double rendering of the map - maybe due array?
+        const formattedBbox: Coordinates = [
+          Number(bbox[2]),
+          Number(bbox[3]),
+          Number(bbox[0]),
+          Number(bbox[1]),
+        ];
+
+        console.log("FORMATTED BBOX", formattedBbox);
 
         updatedSearchQuery.bbox = formattedBbox; // sw long, sw lat, ne long, ne lat
         updatedSearchQuery.query = initialState.search.query;
@@ -165,7 +176,8 @@ const mapSearchReducer = (
             ? true
             : false,
         pageNumber: initialState.pageNumber,
-        showSearchThisAreaButton: false,
+        showSearchThisAreaButton: initialState.showSearchThisAreaButton,
+        shouldSearchByUserId: initialState.shouldSearchByUserId,
       };
     case mapSearchActionTypes.SET_FILTERS:
       const updatedFilters = { ...state.filters };
@@ -237,20 +249,24 @@ const mapSearchReducer = (
         ...newState,
         hasActiveFilters: getHasActiveFilters(newState, initialState),
         pageNumber: initialState.pageNumber,
+        shouldSearchByUserId: initialState.shouldSearchByUserId,
       };
 
     case mapSearchActionTypes.SET_PAGE_NUMBER:
       return {
         ...state,
         pageNumber: action.payload.pageNumber,
+        shouldSearchByUserId: initialState.shouldSearchByUserId,
       };
 
     case mapSearchActionTypes.RESET_FILTERS:
       return {
         ...state,
         filters: initialState.filters,
-        hasActiveFilters: false,
+        hasActiveFilters: initialState.hasActiveFilters,
         pageNumber: initialState.pageNumber,
+        selectedUserId: initialState.selectedUserId,
+        shouldSearchByUserId: initialState.shouldSearchByUserId,
       };
 
     case mapSearchActionTypes.SET_MOVE_MAP:
@@ -271,6 +287,10 @@ const mapSearchReducer = (
           currentSelectedUserId === action.payload.userId
             ? undefined
             : action.payload.userId,
+        shouldSearchByUserId:
+          currentSelectedUserId !== action.payload.userId &&
+          action.payload.userId !== undefined &&
+          state.zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
       };
 
     case mapSearchActionTypes.SET_ZOOM:

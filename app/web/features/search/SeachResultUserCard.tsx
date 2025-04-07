@@ -16,7 +16,7 @@ import { timestamp2Date } from "utils/date";
 import stripMarkdown from "utils/stripMarkdown";
 import { hourMillis, timeAgoI18n } from "utils/timeAgo";
 
-import HostMeetingReferenceStatus from "./HostMeetReferenceStatus";
+import HostMeetupReferenceStatus from "./HostMeetupReferenceStatus";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { aboutText, truncateWithEllipsis } from "./utils/constants";
 
@@ -187,7 +187,7 @@ const SearchResultUserCard = ({
         </FlexColumn>
       </StyledTopContent>
       <StyledBottomContent>
-        <HostMeetingReferenceStatus
+        <HostMeetupReferenceStatus
           hostingStatus={user.hostingStatus}
           meetupStatus={user.meetupStatus}
           numberReferences={user.numReferences}

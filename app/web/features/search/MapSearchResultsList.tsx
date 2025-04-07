@@ -49,10 +49,14 @@ const MapSearchResultsList = ({
     hasActiveFilters,
     hasSearchInputValue,
     search: { bbox },
+    shouldSearchByUserId,
   } = useMapSearchState();
 
   const meetsSearchCriteria =
-    hasActiveFilters || hasSearchInputValue || bbox !== undefined;
+    hasActiveFilters ||
+    hasSearchInputValue ||
+    bbox !== undefined ||
+    shouldSearchByUserId;
 
   return (
     <DrawerContainer>

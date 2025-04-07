@@ -43,6 +43,9 @@ function MapSearchProvider({
   initialBbox: GeocodeResult["bbox"] | undefined;
   initialLocationName: string | undefined;
 }) {
+
+  console.log("context initialBbox", initialBbox);
+  console.log("context initialLocationName", initialLocationName);
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
     search: { query: initialLocationName, bbox: initialBbox },

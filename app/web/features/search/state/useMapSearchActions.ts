@@ -37,7 +37,7 @@ function useMapSearchActions() {
     dispatch({ type: mapSearchActionTypes.SET_MOVE_MAP });
   };
 
-  const setSelectedUserId = (userId: number) => {
+  const setSelectedUserId = (userId: number | undefined) => {
     dispatch({
       type: mapSearchActionTypes.SET_SELECTED_USER_ID,
       payload: { userId },

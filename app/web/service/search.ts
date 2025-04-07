@@ -35,6 +35,7 @@ export interface UserSearchFilters {
   completeProfile?: boolean;
   pageNumber?: number;
   pageSize?: number;
+  selectedUserId?: number;
   sleepingArrangement?: SleepingArrangementOptions[];
   smokesAtHome?: boolean | undefined;
 }
@@ -55,11 +56,31 @@ export async function userSearch(
     hostingStatusOptions,
     numGuests,
     completeProfile,
+    selectedUserId,
     sleepingArrangement,
     smokesAtHome,
   }: UserSearchFilters,
   pageToken = "",
 ) {
+  console.log("USER SEARCH QUERY RUNNING", {
+    acceptsKids,
+    acceptsLastMinRequests,
+    acceptsPets,
+    ageMin,
+    ageMax,
+    drinkingAllowed,
+    query,
+    bbox,
+    lastActive,
+    hasReferences,
+    hasStrongVerification,
+    hostingStatusOptions,
+    numGuests,
+    completeProfile,
+    selectedUserId,
+    sleepingArrangement,
+    smokesAtHome,
+  });
   const req = new UserSearchReq();
 
   if (pageToken) {
@@ -85,6 +106,8 @@ export async function userSearch(
   if (query) {
     req.setQuery(new StringValue().setValue(query));
   }
+
+  //@TODO(NA): WIP - Stringify existing bbox and new one and only run if they are different
 
   if (bbox !== undefined && bbox.join() !== "0,0,0,0") {
     const rectAreaSearch = new RectArea();
@@ -129,6 +152,12 @@ export async function userSearch(
 
   if (numGuests) {
     req.setGuests(new UInt32Value().setValue(numGuests));
+  }
+
+  console.log("SELECTED_USER_ID", selectedUserId);
+
+  if (selectedUserId !== undefined) {
+    req.addExactlyUserIds(selectedUserId);
   }
 
   if (sleepingArrangement && sleepingArrangement.length > 0) {

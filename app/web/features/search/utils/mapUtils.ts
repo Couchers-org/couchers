@@ -173,6 +173,7 @@ const onPointClick = ({
 };
 
 export {
+  clearMapFeatureState,
   getHasActiveFilters,
   getMapBounds,
   loadMapUserPins,

@@ -67,8 +67,14 @@ export default function SearchPage() {
 
   // useMemo to avoid unnecessary object reference changes - causing unnecessary rerenders
   const searchParams = useMemo(
-    () => ({ ...mapSearchState.filters, ...mapSearchState.search }),
-    [mapSearchState.filters, mapSearchState.search],
+    () => ({
+      ...mapSearchState.filters,
+      ...mapSearchState.search,
+      selectedUserId: mapSearchState.shouldSearchByUserId
+        ? mapSearchState.selectedUserId
+        : undefined,
+    }),
+    [mapSearchState.filters, mapSearchState.search, mapSearchState.selectedUserId, mapSearchState.shouldSearchByUserId],
   );
 
   const {

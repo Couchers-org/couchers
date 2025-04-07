@@ -14,7 +14,7 @@ import { TFunction } from "i18next";
 import { HostingStatus, MeetupStatus, User } from "proto/api_pb";
 import { theme } from "theme";
 
-const HostingMeetingStatus = styled("div")(({ theme }) => ({
+const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "flex-start",
   justifyContent: "space-between",
@@ -67,7 +67,7 @@ const HostMeetupReferenceStatus = ({
   const { t } = useTranslation([PROFILE]);
 
   return (
-    <HostingMeetingStatus>
+    <Wrapper>
       <StyledTypography
         display="inline"
         variant="body1"
@@ -176,7 +176,7 @@ const HostMeetupReferenceStatus = ({
           {generateReferenceText(numberReferences, t)}
         </CenteredFlexRow>
       </StyledTypography>
-    </HostingMeetingStatus>
+    </Wrapper>
   );
 };
 

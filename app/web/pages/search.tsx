@@ -19,6 +19,8 @@ export default function SearchPage() {
   const location = router.query.location as string;
   const bbox = router.query.bbox || undefined;
 
+  console.log("BBOX FROM ROUTER", bbox);
+
   return (
     <MapSearchProvider
       initialLocationName={location}

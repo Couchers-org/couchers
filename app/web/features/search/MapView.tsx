@@ -1,13 +1,11 @@
-import { debounce, Snackbar, styled } from "@mui/material";
+import { debounce, styled } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import IconButton from "components/IconButton";
-import { CloseIcon } from "components/Icons";
 import Map, { API_BASE_URL } from "components/Map";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { MapLayerMouseEvent } from "maplibre-gl";
 import { User } from "proto/api_pb";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
 import { useMapSearchState } from "./state/mapSearchContext";
@@ -15,6 +13,7 @@ import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MAX_MAP_ZOOM_LEVEL_FOR_SEARCH } from "./utils/constants";
 import { UNCLUSTERED_LAYER_ID } from "./utils/mapLayers";
 import {
+  clearMapFeatureState,
   getMapBounds,
   loadMapUserPins,
   onClusterClick,
@@ -43,8 +42,7 @@ const MapView = ({
   mapRef,
   users = DEFAULT_USERS,
 }: MapViewProps) => {
-  const { t } = useTranslation([SEARCH]);
-  const [showSnackbar, setShowSnackbar] = useState(false);
+  // const { t } = useTranslation([SEARCH]);
 
   const pins = usersToGeoJSON(users);
   const memoizedPins = useMemo(() => pins, [pins]);
@@ -55,6 +53,7 @@ const MapView = ({
     hasActiveFilters,
     hasSearchInputValue,
     selectedUserId,
+    shouldSearchByUserId,
     zoom,
   } = useMapSearchState();
 
@@ -62,7 +61,10 @@ const MapView = ({
     useMapSearchActions();
 
   const meetsSearchCriteria =
-    hasActiveFilters || hasSearchInputValue || bbox !== undefined;
+    hasActiveFilters ||
+    hasSearchInputValue ||
+    bbox !== undefined ||
+    shouldSearchByUserId;
 
   // If zoomed in, has a location searched or has active filters, use the memoized pins form api query in SearchPage
   const pinsSource = meetsSearchCriteria ? memoizedPins : zoomedOutDataSource;
@@ -113,11 +115,6 @@ const MapView = ({
           zoom,
         });
       } else if (layerId === UNCLUSTERED_LAYER_ID) {
-        if (zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH) {
-          setShowSnackbar(true);
-          return;
-        }
-
         onPointClick({
           center: ev.lngLat,
           feature,
@@ -125,6 +122,9 @@ const MapView = ({
           selectedUserId,
           setSelectedUserId,
         });
+      } else if (selectedUserId !== undefined) {
+        setSelectedUserId(undefined);
+        clearMapFeatureState(mapRef);
       }
     },
     [handleZoomIn, mapRef, selectedUserId, setSelectedUserId, zoom],
@@ -165,10 +165,6 @@ const MapView = ({
     });
   };
 
-  const handleSnackbarClose = () => {
-    setShowSnackbar(false);
-  };
-
   return (
     <>
       {isLoading && (
@@ -188,26 +184,6 @@ const MapView = ({
         onZoomControlInClick={handleZoomControlInClick}
         onZoomControlOutClick={handleZoomControlOutClick}
         pins={pinsSource}
-      />
-      <Snackbar
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        message={t("search:zoom_in_to_select_user")}
-        open={showSnackbar}
-        autoHideDuration={3000}
-        onClose={handleSnackbarClose}
-        action={
-          <IconButton
-            size="small"
-            aria-label="close"
-            color="inherit"
-            onClick={handleSnackbarClose}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        }
       />
     </>
   );

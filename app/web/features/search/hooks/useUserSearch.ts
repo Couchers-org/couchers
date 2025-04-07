@@ -3,7 +3,6 @@ import { useInfiniteQuery } from "react-query";
 import { service } from "service";
 
 import { FilterOptions } from "../SearchPage";
-import { useMapSearchState } from "../state/mapSearchContext";
 import { MapSearchState } from "../state/mapSearchReducers";
 
 const calculateCurrentNumberOfTotal = ({
@@ -25,12 +24,13 @@ export function useUserSearch(
   searchParams: FilterOptions,
   mapSearchState: MapSearchState,
 ) {
-  const { pageNumber } = useMapSearchState();
+  // const { pageNumber } = useMapSearchState();
 
   const meetsSearchCriteria =
     mapSearchState.hasActiveFilters ||
     mapSearchState.hasSearchInputValue ||
-    mapSearchState.search.bbox !== undefined;
+    mapSearchState.search.bbox !== undefined ||
+    mapSearchState.shouldSearchByUserId;
 
   const {
     data,
@@ -52,7 +52,7 @@ export function useUserSearch(
   // React-query will keep the previously fetched data in the cache, so return undefined if we don't meet the search criteria
   const users = !meetsSearchCriteria
     ? undefined
-    : data?.pages[pageNumber - 1]?.resultsList
+    : data?.pages[mapSearchState.pageNumber - 1]?.resultsList
         ?.map((result) => result?.user)
         .filter((user): user is User.AsObject => Boolean(user)) || [];
 
@@ -62,15 +62,15 @@ export function useUserSearch(
    */
   const hasPreviousPage =
     (users ?? []).length > 0 &&
-    data?.pages[pageNumber - 1]?.nextPageToken !== undefined;
+    data?.pages[mapSearchState.pageNumber - 1]?.nextPageToken !== undefined;
 
   const totalItems = data?.pages[0]?.totalItems ?? 0;
 
   const currentPageNumItems =
-    data?.pages[pageNumber - 1]?.resultsList?.length ?? 0;
+    data?.pages[mapSearchState.pageNumber - 1]?.resultsList?.length ?? 0;
 
   const numberOfTotal = calculateCurrentNumberOfTotal({
-    pageNumber,
+    pageNumber: mapSearchState.pageNumber,
     currentPageNumItems,
   });
 
