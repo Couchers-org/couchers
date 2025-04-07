@@ -1,85 +1,78 @@
 ---
-title: 50 000+ Couchers Milestone Reached
+title: 50,000+ Couchers Milestone Reached
 slug: 50k-couchers-milestone-reached
-description: Couchers.org welcomes 50 000th member. Preparing for v1 launch,
+description: Couchers.org welcomes 50,000th member. Preparing for v1 launch,
   introducing exciting new features
 date: 2025/03/13
-author: Colleen
+author: Colleen, Jesse
 share_image: https://couchers.org/img/blog/20250316_couchers_volunteers
 ---
 
-Hi everyone, we are excited to welcome our 50 000th member!!! We want to provide an update for the community to celebrate this event and since there’s been a lot going on behind the scenes as we keep growing our Couchers community! We’ve recently sent out a volunteer newsletter to help us re-engage previous contributors, set up Zulip for community builders, and we’d love to see all of you Couchers members help us to continue making this an active and inclusive community for all of us.
+Hello everyone!
+
+We are excited to announce that we now have over 50,000 members!!! To celebrate this occasion, we would like to share some updates with the community, especially since there has been a lot going on behind the scenes. 
 
 ![Couchers.org Weekly Zoom Meeting](/img/blog/20250316_couchers_volunteers.jpg)
 
-## 🤝 How you can get involved 🤝
+Volunteers are working tirelessly toward our upcoming milestone of getting out of the beta-phase and launching Version 1.0 of the Couchers.org platform! To help us achieve this goal, we need your support.
 
-Our mission is to create genuine real-world connections and community. Our current milestone is preparing to move out of the beta-phase and we are getting ready for a v1 launch soon! To make Couchers even better, we need your support -- engage in your community!
-Read more about [our mission and values](http://couchers.org/mission) and reach out to us if you have any questions or feedback. You can find more info on the [Help center](https://help.couchers.org/) or [Contact us](https://couchers.org/contact).
+## 🤝 How you can help 🤝
 
-As a member, you can contribute in lots of different ways:
+You can contribute in lots of different ways:
 
-* ✨ Spread the word! Invite friends to sign up at [Couchers.org](https://www.couchers.org)
-* 🎉 Create or attend events in your community
-* 📝 Complete your profile and write references for your friends
-* 📱 Share on social media
-* 🤝 [Volunteer](https://couchers.org/volunteer) with us! We’re really friendly!
-* 💖 [Donate](https://couchers.org/donate) to support our mission NOW!
+* 🤝 [Volunteer](https://couchers.org/volunteer) with us! We’re really friendly and flexible 😊
+* 💖 [Donate](https://couchers.org/donate) to our 501(c)(3) non-profit to help us keep the lights on 💡💻
+* 🎉 Organize or attend events in your community
+* 🧑‍💻 Complete or [improve your profile](https://help.couchers.org/hc/couchersorg-help-center/articles/1725919197-how-do-i-create-a-great-profile) -- don't forget the "My Home" page of your profile!🏠
+* ✨ Spread the word! Invite friends to sign up, create a profile, and attend events
+* 📝 [Write references](https://help.couchers.org/hc/couchersorg-help-center/articles/1715125659-how-can-i-leave-a-reference-for-someone) for your friends
+* 📱 Share Couchers.org (and your couchers events) on social media and in your local chat groups
 
-## 🛡️ Safe & active community 🛡️
+## 🌟 The big picture 🌟
 
-We’ve achieved a lot since our last blog post! Our amazing team of volunteers have been working away in the background and we’re continually doing our best to make Couchers even better. For a full list of updates check out our [Roadmap](https://www.couchers.org/roadmap)
+We are currently working on a move away from branding and marketing language based upon a comparison of Couchers.org with Couchsurfing™. Instead, we will focus on how Couchers.org is a modern, safe, and active couch surfing platform which is run by the community, for the community. While our Mission, Values, and Community Guidelines will remain the same, the rebranding will include many changes to the landing page, marketing, and communication language.
 
-* 🔒 We’ve rolled out Strong Verification
-* 🌍 Completed translating Couchers.org to German, Portuguese (Brazil) and mostly Simplified Chinese
-* 📝 Volunteer newsletter and Zulip for community builders
-* 🏅 Released Badges
+We are aiming to complete some key updates, new features, and non-engineering tasks before we can "get out of Beta" and formally announce both Version 1.0 and the new branding language of Couchers.org. We are aiming to achieve this milestone by the start of summer!
+
+## 🚀 Progress & Improvements 📈
+
+We’ve achieved a lot over the past year! Our amazing team of volunteers have been working hard to build and improve the Couchers.org platform. For a full list of updates check out our [Roadmap](https://www.couchers.org/roadmap), but here are just a few accomplishments:
+
+* 🔒 Launched a new safety feature called [Strong Verification](https://help.couchers.org/hc/couchersorg-help-center/en/categories/strong-verification)
+* 🚵 Created a new [event page](https://couchers.org/events) and added an "[invite the community](https://help.couchers.org/hc/couchersorg-help-center/articles/1720304409-how-does-the-invite-the-community-feature-work)" feature to events
+* 🌍 Completed translation of Couchers.org to German, Portuguese (Brazil) and mostly Simplified Chinese
+* 🔔 Expanded and improved the [notification system](https://help.couchers.org/hc/couchersorg-help-center/articles/1733067370-how-to-update-your-notification-preferences) for events and discussions
+* 🏅 Added Profile Badges
+* 📝 Created a new [Volunteer newsletter](https://newsletter.couchers.org/subscription/form) and Zulip for [Community Builders](https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder)
+* 🛟 Expanded and improved our [Help Center](https://help.couchers.org/hc/couchersorg-help-center/) so users can find answers and get support quickly.
+* 📱Made significant progress in building a native app for iOS and Android (not yet released; still in development)
 * 🔧 We addressed major tech debt and lots of under-the-hood fixes!
 
 ## 🎉 New feature alert! 🎉
 
 Communities now have a **Members tab** where you can see all members of that community.
 
-Get active in your communities! Not much going on in your local community? Start a discussion, create an event, host surfers, and meet amazing new people. If you’re interested in helping to grow Couchers.org and improving the couch surfing community, consider becoming a [Community Builder](https://docs.google.com/forms/d/e/1FAIpQLSeactITjrAUVjUg80gFIjxweK3-oPsgwoBmaAe0RJcjdL2xGw/viewform)!
+Get active in your communities! Not much going on in your local community? Create an event, start a discussion, and host or meet up with travelers. If you’re interested in helping to grow your local community and improve the Couchers.org platform, consider becoming a [Community Builder](https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder)!
 
-## 🌟 The Current Big Picture Plan 🌟
+## 🛡️ Safe & active community 🛡️
 
-Our big push right now is to move away from the “better than Couchsurfing” branding to instead establish our own identity as a modern, safe, and active couch surfing platform. This includes things like really nailing down moderation, streamlining all the core couch surfing features, as well as communicating to new couch surfers about what the concept is about and how to get started.
+With our goal of being the safest and most active couch surfing community, we have been working to improve safety, support, and features that help active users find and engage with other active users. Here are just some of the things we are currently working on:
 
-Key areas of work include:
+* 🛡️ **Safety & Moderation Features**: In addition to Strong Verification and phone number verification, adding address verification, new moderation and reporting tools, and more.
+* 📝 **Active Users**: Adding search filters to make finding active users easier, highlighting users with complete profiles on the map, encouraging users to complete their own profiles, implementing activeness probes, etc.
+* 🗺️ **Ironing out core features**: Improving map search & filtering, signup flow, hosting & surfing flow, reference flow, notifications, events, and community pages.
+* 📰 **Communication, Marketing, & Outreach**: Sharing release notes on new features on a regular basis; revamping our blog; rewriting our landing pages, and our core marketing copy; writing a gentle introduction to couch surfing to help newbies understand what the concept is (and is not) about; promoting Couchers through marketing and social media.
 
-* 🛡️ **Safety & Moderation Features**: our Strong verification (passport verification) feature, new moderation tools, etc.
-* 📝 **Active Users**: Highlighting users with complete profiles, encouraging users to complete their own profiles, implementing activeness probes, etc.
-* 🗺️ **Ironing out core features**: Iterating on map search & filtering, hosting & surfing flow, reference flow, and notifications.
-* 📰 **Communication, Marketing, & Outreach**: Rewriting our landing pages, and our core marketing copy; writing a gentle introduction to couch surfing, helping newbies understand what the concept is (and is not) about.
-
-We have a list of some core updates, new features, and non-dev tasks we are aiming to complete, and then we will be aiming for a big marketing push before we (finally) "get out of Beta". This will be a big push for us, and we're excited to be finally reaching this milestone hopefully by the start of summer!
-
-## 🚀 Exciting milestones coming up 🚀
-
-More conretely, we are working on the following priorities on the engineering side:
-
-* 🗺️ Rebuilding and improving the map search
-* 📊 Building a system to keep track of active members
-* 🔔 Push notifications
-* 🔒 Strong Verification and phone number verification to increase safety
-* 📈 Revamping the blog to keep you all in the loop, including monthly dev statistics!
-* 🌐 Building a language picker to change preferred language
-* 🌟 Improving the reference system
-* 🚀 Promoting Couchers and grow the community!
-
-For more detailed updates on the technical side, check out our [GitHub](https://github.com/Couchers-org). Friendly reminder that Couchers is entirely built and maintained by volunteers in our free time! We’re passionate about couch surfing and are always looking for ways to improve Couchers for all of us in the community.
+For more detailed updates and technical insights, check out our [GitHub](https://github.com/Couchers-org). A friendly reminder: Couchers.org is entirely built and maintained by [volunteers](https://couchers.org/team) in our free time! We’re passionate about couch surfing and constantly looking to grow and improve; We are always [open to feedback](https://help.couchers.org/hc/couchersorg-help-center/articles/1715125658-how-do-i-give-feedback-or-share-an-idea) from the community.
 
 ## 👥 New board member 👥
 
-Couchers, Inc. is also excited to welcome [Nicole](https://couchers.org/user/unsettleddown) onto the [Board of Directors](https://couchers.org/foundation) of the non-profit supporting Couchers.org. Nicole has been a couch surfer for a very long time and has been one of the most active contributors to Couchers in the past year.
+Couchers, Inc. is also excited to welcome [Nicole](https://couchers.org/user/unsettleddown) onto the [Board of Directors](https://couchers.org/foundation) of the non-profit supporting Couchers.org. Nicole has been a couch surfer for a very long time and has been one of the most active contributors in the past year.
 
-Want to help us make Couchers the best, safest, most active and inclusive couch surfing community? Get involved however you can!
-
-Thanks from all of us at Couchers.org and we’re excited for what’s next in 2025!
+Thanks from all of us at Couchers.org! We’re excited for what’s next in 2025!
 
 <a href="https://www.instagram.com/couchersorg/#" target="_blank"><img src="/img/blog/instagram_logo.svg" alt="IG" style="width:26px !important;" /></a> <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="/img/blog/bluesky_logo.svg" alt="bsky" style="width:26px !important;" /></a>
 
-_Written by [Colleen](/user/colleen). Published on 2025/03/16_
+_Written by [Colleen](/user/colleen) and [Jesse](/user/jesse). Published on 2025/03/16_
 
 **Want to submit to our blog? [Sign up](/contribute) and let us know.**
