@@ -9,10 +9,9 @@ from types import SimpleNamespace
 
 import requests
 from google.protobuf import empty_pb2
-from sqlalchemy import Integer
+from sqlalchemy import Float, Integer
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, case, cast, delete, distinct, extract, func, literal, not_, or_, select, union_all
-from sqlalchemy.sql.functions import percentile_disc
 
 from couchers.config import config
 from couchers.constants import (
@@ -25,7 +24,11 @@ from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.helpers.badges import user_add_badge, user_remove_badge
-from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
+from couchers.materialized_views import (
+    refresh_materialized_views,
+    refresh_materialized_views_rapid,
+    user_response_rates,
+)
 from couchers.metrics import strong_verification_completions_counter
 from couchers.models import (
     AccountDeletionToken,
@@ -34,7 +37,6 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
-    Float,
     GroupChat,
     GroupChatSubscription,
     HostingStatus,
@@ -673,53 +675,15 @@ def update_recommendation_scores(payload):
         other_points = 0.0 + 10 * wcb + 5 * cb + int_(badge_subquery.c.badge_points)
 
         # response rate
-        t = (
-            select(Message.conversation_id, Message.time)
-            .where(Message.message_type == MessageType.chat_created)
-            .subquery()
-        )
-        s = (
-            select(Message.conversation_id, Message.author_id, func.min(Message.time).label("time"))
-            .group_by(Message.conversation_id, Message.author_id)
-            .subquery()
-        )
-        hr_subquery = (
-            select(
-                HostRequest.host_user_id.label("user_id"),
-                func.avg(s.c.time - t.c.time).label("avg_response_time"),
-                func.count(t.c.time).label("received"),
-                func.count(s.c.time).label("responded"),
-                float_(
-                    extract(
-                        "epoch",
-                        percentile_disc(0.33).within_group(func.coalesce(s.c.time - t.c.time, timedelta(days=1000))),
-                    )
-                    / 60.0
-                ).label("response_time_33p"),
-                float_(
-                    extract(
-                        "epoch",
-                        percentile_disc(0.66).within_group(func.coalesce(s.c.time - t.c.time, timedelta(days=1000))),
-                    )
-                    / 60.0
-                ).label("response_time_66p"),
-            )
-            .join(t, t.c.conversation_id == HostRequest.conversation_id)
-            .outerjoin(
-                s, and_(s.c.conversation_id == HostRequest.conversation_id, s.c.author_id == HostRequest.host_user_id)
-            )
-            .group_by(HostRequest.host_user_id)
-            .subquery()
-        )
-        avg_response_time = hr_subquery.c.avg_response_time
-        avg_response_time_hr = float_(extract("epoch", avg_response_time) / 60.0)
-        received = hr_subquery.c.received
-        responded = hr_subquery.c.responded
+        hr_subquery = select(
+            user_response_rates.c.user_id,
+            float_(extract("epoch", user_response_rates.c.response_time_33p) / 60.0).label("response_time_33p"),
+            float_(extract("epoch", user_response_rates.c.response_time_66p) / 60.0).label("response_time_66p"),
+        ).subquery()
         response_time_33p = hr_subquery.c.response_time_33p
         response_time_66p = hr_subquery.c.response_time_66p
-        response_rate = float_(responded / (1.0 * func.greatest(received, 1)))
         # be careful with nulls
-        response_rate_points = -10 * int_(response_time_33p > 60 * 48.0) + 5 * int_(response_time_66p < 60 * 48.0)
+        response_rate_points = -10 * int_(response_time_33p > 60 * 72.0) + 5 * int_(response_time_66p < 60 * 48.0)
 
         recommendation_score = (
             profile_points

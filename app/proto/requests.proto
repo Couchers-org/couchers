@@ -166,10 +166,6 @@ message ResponseRateAlmostAll {
   google.protobuf.Duration response_time_p66 = 3;
 }
 
-enum ResponseRate {
-  RESPONSE_RATE_UNSPECIFIED = 0;
-}
-
 message GetResponseRateRes {
   // Response rate is number of requests responded to (accepted/rejected/sent message) divided by total number of
   // received requests.
