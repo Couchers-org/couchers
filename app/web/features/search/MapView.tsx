@@ -1,8 +1,6 @@
 import { debounce, styled } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Map, { API_BASE_URL } from "components/Map";
-import { useTranslation } from "i18n";
-import { SEARCH } from "i18n/namespaces";
 import { MapLayerMouseEvent } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { useCallback, useMemo } from "react";
@@ -42,8 +40,6 @@ const MapView = ({
   mapRef,
   users = DEFAULT_USERS,
 }: MapViewProps) => {
-  // const { t } = useTranslation([SEARCH]);
-
   const pins = usersToGeoJSON(users);
   const memoizedPins = useMemo(() => pins, [pins]);
   const zoomedOutDataSource = API_BASE_URL + "/geojson/users";

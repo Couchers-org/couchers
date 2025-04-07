@@ -9,7 +9,7 @@ import {
   DEFAULT_AGE_MIN,
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
 } from "../utils/constants";
-import { getHasActiveFilters } from "../utils/mapUtils";
+import { compareStringifiedBBox, getHasActiveFilters } from "../utils/mapUtils";
 
 /** WHY USE A REDUCER FOR OUR MAP STATE?
  * Mostly we use react-query for state management, which stores api responses as is in the browser cache.
@@ -135,11 +135,19 @@ const mapSearchReducer = (
     case mapSearchActionTypes.SET_SEARCH:
       const updatedSearchQuery = { ...state.search };
 
-      console.log("SET SEARCH BBOX", action.payload.bbox);
-
       if (action.payload.bbox && !action.payload.keyword) {
-        updatedSearchQuery.bbox = action.payload.bbox;
-        updatedSearchQuery.query = initialState.search.query;
+        // Stringifying arrays is necessary to compare their contents because
+        // JavaScript compares arrays by reference, not by value. Without stringifying,
+        // two arrays with identical elements would not be considered equal.
+        const hasBboxChanged = compareStringifiedBBox({
+          existingBbox: state.search.bbox,
+          newBbox: action.payload.bbox,
+        });
+
+        if (hasBboxChanged) {
+          updatedSearchQuery.bbox = action.payload.bbox;
+          updatedSearchQuery.query = initialState.search.query;
+        }
       }
       // We get a location when user searches search input
       if (action.payload.location) {
@@ -152,8 +160,6 @@ const mapSearchReducer = (
           Number(bbox[0]),
           Number(bbox[1]),
         ];
-
-        console.log("FORMATTED BBOX", formattedBbox);
 
         updatedSearchQuery.bbox = formattedBbox; // sw long, sw lat, ne long, ne lat
         updatedSearchQuery.query = initialState.search.query;

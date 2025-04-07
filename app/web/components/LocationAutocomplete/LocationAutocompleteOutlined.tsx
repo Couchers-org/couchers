@@ -90,10 +90,6 @@ const LocationAutocompleteOutlined = forwardRef(function LocationAutocomplete(
       onChange(newValue as GeocodeResult | undefined);
       setIsOpen(false);
     }
-
-    if (reason === "clear" && onClear) {
-      onClear();
-    }
   };
 
   const handleSearchSubmit = () => {

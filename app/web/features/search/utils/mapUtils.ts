@@ -172,8 +172,21 @@ const onPointClick = ({
   setSelectedUserId(userId);
 };
 
+const compareStringifiedBBox = ({
+  existingBbox,
+  newBbox,
+}: {
+  existingBbox: Coordinates | undefined;
+  newBbox: Coordinates | undefined;
+}) => {
+  const existingBboxString = JSON.stringify(existingBbox);
+  const newBboxString = JSON.stringify(newBbox);
+  return existingBboxString === newBboxString;
+};
+
 export {
   clearMapFeatureState,
+  compareStringifiedBBox,
   getHasActiveFilters,
   getMapBounds,
   loadMapUserPins,
