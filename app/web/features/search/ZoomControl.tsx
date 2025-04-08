@@ -1,7 +1,7 @@
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { Box, IconButton, styled } from "@mui/material";
-import React, { MutableRefObject } from "react";
+import React from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
 import { MAX_ZOOM_LEVEL, MIN_ZOOM_LEVEL } from "./utils/constants";
@@ -10,7 +10,7 @@ interface ZoomControlProps {
   mapRef: React.RefObject<MapRef>;
   onZoomIn: (newZoom: number) => void;
   onZoomOut: (newZoom: number) => void;
-  ref: MutableRefObject<boolean>;
+  isZoomFromControlRef: React.MutableRefObject<boolean>;
 }
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
@@ -21,12 +21,12 @@ const StyledIconButton = styled(IconButton)(({ theme }) => ({
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const ZoomControl: React.FC<ZoomControlProps> = ({
+const ZoomControl = ({
   mapRef,
   onZoomIn,
   onZoomOut,
-  ref,
-}) => {
+  isZoomFromControlRef,
+}: ZoomControlProps) => {
   const handleZoomIn = () => {
     if (mapRef.current) {
       delay(1000);
@@ -60,7 +60,7 @@ const ZoomControl: React.FC<ZoomControlProps> = ({
         boxShadow: 3,
         zIndex: 2,
       }}
-      ref={ref}
+      ref={isZoomFromControlRef}
     >
       <StyledIconButton onClick={handleZoomIn} size="small">
         <AddIcon />

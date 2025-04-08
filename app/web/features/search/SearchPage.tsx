@@ -57,8 +57,12 @@ export default function SearchPage() {
   const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
 
   const mapSearchState = useMapSearchState();
-  const { setPageNumber, setMapQueryArea, setShowSearchThisAreaButton } =
-    useMapSearchActions();
+  const {
+    setPageNumber,
+    setMapQueryArea,
+    setShowSearchThisAreaButton,
+    setSelectedUserId,
+  } = useMapSearchActions();
 
   // useMemo to avoid unnecessary object reference changes - causing unnecessary rerenders
   const searchParams = useMemo(
@@ -108,28 +112,35 @@ export default function SearchPage() {
 
   const debouncedZoomIn = useMemo(
     () =>
-      debounce((newZoom: number, center?: LngLatLike) => {
-        const didCrossSearchThreshold =
-          newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
-          mapSearchState.uiOnly.zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
-        // If it's the first zoom within threshold, set the map bounds so the user pins load
-        if (didCrossSearchThreshold) {
-          const bbox = getMapBounds(mapRef);
-          setMapQueryArea(bbox, newZoom);
-        }
+      debounce(
+        (
+          newZoom: number,
+          center?: LngLatLike,
+          isLocationSearch: boolean = false,
+        ) => {
+          const didCrossSearchThreshold =
+            newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+            mapSearchState.uiOnly.zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+          // If it's the first zoom within threshold, set the map bounds so the user pins load
+          if (didCrossSearchThreshold && !isLocationSearch) {
+            const bbox = getMapBounds(mapRef);
+            setMapQueryArea(bbox, newZoom);
+          }
 
-        mapRef.current?.easeTo({
-          center,
-          zoom: newZoom,
-          duration: 2000,
-        });
-      }, 300),
+          mapRef.current?.easeTo({
+            center,
+            zoom: newZoom,
+            duration: 2000,
+          });
+        },
+        300,
+      ),
     [mapSearchState.uiOnly.zoom, setMapQueryArea],
   );
 
   const handleZoomIn = useCallback(
-    (newZoom: number, center?: LngLatLike) => {
-      debouncedZoomIn(newZoom, center);
+    (newZoom: number, center?: LngLatLike, isLocationSearch?: boolean) => {
+      debouncedZoomIn(newZoom, center, isLocationSearch);
     },
     [debouncedZoomIn],
   );
@@ -138,7 +149,9 @@ export default function SearchPage() {
     const didZoomOutWithinThreshold = newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
     const didZoomBelowThreshold = newZoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
 
-    if (didZoomBelowThreshold) {
+    setSelectedUserId(undefined);
+
+    if (didZoomBelowThreshold && !mapSearchState.search.query) {
       setMapQueryArea(undefined, newZoom);
     } else if (didZoomOutWithinThreshold) {
       setShowSearchThisAreaButton(true);

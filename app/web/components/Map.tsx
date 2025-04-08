@@ -167,7 +167,7 @@ const Map = ({
           mapRef={mapRef}
           onZoomIn={handleZoomControlInClick}
           onZoomOut={handleZoomControlOutClick}
-          ref={isZoomFromControlRef}
+          isZoomFromControlRef={isZoomFromControlRef}
         />
       </MaplibreMap>
     </>

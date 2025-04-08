@@ -31,7 +31,11 @@ interface FloatingSearchNavigationProps {
   onOpenFilters: () => void;
   onSetSearchType: (searchType: MapSearchTypes) => void;
   searchType: MapSearchTypes;
-  onZoomIn: (newZoom: number, cneter?: LngLatLike) => void;
+  onZoomIn: (
+    newZoom: number,
+    cneter?: LngLatLike,
+    isLocationSearch?: boolean,
+  ) => void;
 }
 
 const StyledControlsWrapper = styled("div")(({ theme }) => ({
@@ -209,6 +213,7 @@ const FloatingSearchControls = ({
   };
 
   const handleLocationChange = (value: GeocodeResult | undefined) => {
+    console.log("FSC LOCATION CHANGE", value);
     if (value) {
       setLocationInputValue({
         center: [value.location.lng, value.location.lat],
@@ -216,7 +221,10 @@ const FloatingSearchControls = ({
         zoom: 10,
       });
 
-      onZoomIn(10, [value.location.lng, value.location.lat]);
+      // this issue is zooming in runs the zoom function
+      // want to not reset bbox
+
+      onZoomIn(10, [value.location.lng, value.location.lat], true);
     }
   };
 

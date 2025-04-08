@@ -30,14 +30,6 @@ export function useUserSearch(
     mapSearchState.search.query !== undefined ||
     mapSearchState.shouldSearchByUserId;
 
-  console.log("MEETS SEARCH CRITERIA ITEMS", {
-    meetsSearchCriteria,
-    hasActiveFilters: mapSearchState.hasActiveFilters,
-    bbox: mapSearchState.search.bbox,
-    query: mapSearchState.search.query,
-    shouldSearchByUserId: mapSearchState.shouldSearchByUserId,
-  });
-
   const {
     data,
     hasNextPage,

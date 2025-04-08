@@ -204,18 +204,11 @@ const mapSearchReducer = (
         return state; // Return the current state if locationBbox is undefined
       }
 
-      const formattedBbox: Coordinates = [
-        Number(locationBbox[2]),
-        Number(locationBbox[3]),
-        Number(locationBbox[0]),
-        Number(locationBbox[1]),
-      ];
-
       return {
         ...state,
         search: {
           ...state.search,
-          bbox: formattedBbox,
+          bbox: locationBbox,
           query: initialState.search.query,
         },
         selectedUserId: initialState.selectedUserId,
@@ -223,7 +216,7 @@ const mapSearchReducer = (
         showSearchThisAreaButton: initialState.showSearchThisAreaButton,
         uiOnly: {
           ...state.uiOnly,
-          bbox: formattedBbox,
+          bbox: locationBbox,
           center: newCenter,
           zoom: newZoom ? newZoom : state.uiOnly.zoom,
         },
@@ -340,23 +333,11 @@ const mapSearchReducer = (
       const zoom = action.payload.zoom!;
       const center = action.payload.center;
       const bbox = action.payload.bbox;
-
-      const isLateralMove = bbox !== undefined && state.uiOnly.zoom === zoom;
-      const isZoomOut = zoom! < state.uiOnly.zoom;
       const didZoomBelowThreshold =
         zoom! < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
         state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
 
-      console.log("MOVE MAP REDUCER", {
-        bbox,
-        zoom,
-        didZoomBelowThreshold,
-        isLateralMove,
-        isZoomOut,
-        zoomIsGreaterThanThreshold: zoom! >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
-      });
       // If we zoom out below the threshold, reset the state to initial
-
       if (didZoomBelowThreshold) {
         return initialState;
       }
