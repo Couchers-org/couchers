@@ -73,7 +73,7 @@ const MapSearchContent = ({
 }: MapSearchContentProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const { setSelectedUserId } = useMapSearchActions();
+  const { setSelectedUserId, setMoveMapUIOnly } = useMapSearchActions();
 
   const handleUserCardClick = (userId: number) => {
     if (mapView === MapViews.LIST_ONLY) {
@@ -87,9 +87,8 @@ const MapSearchContent = ({
       const user = users?.find((user) => user.userId === userId);
       setMapFeatureState(mapRef, userId.toString(), true);
 
-      mapRef.current.easeTo({
+      setMoveMapUIOnly({
         center: [user?.lng || 0, user?.lat || 0],
-        duration: 2000,
         zoom: MAX_ZOOM_LEVEL,
       });
     }

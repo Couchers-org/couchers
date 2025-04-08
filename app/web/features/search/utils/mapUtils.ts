@@ -1,5 +1,4 @@
 import { FeatureCollection } from "geojson";
-import { GeoJSONSource, LngLat } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { MapRef } from "react-map-gl/maplibre";
 
@@ -89,110 +88,11 @@ const getMapBounds = (mapRef: React.RefObject<MapRef>) => {
   return bbox;
 };
 
-const mapFlyToLocation = ({
-  longitude,
-  latitude,
-  zoom = 12,
-  mapRef,
-}: {
-  longitude: number;
-  latitude: number;
-  zoom: number | undefined;
-  mapRef: React.RefObject<MapRef>;
-}) => {
-  mapRef.current?.flyTo({
-    center: [longitude, latitude],
-    zoom,
-    duration: 2000,
-  });
-};
-
-const onClusterClick = async ({
-  center,
-  feature,
-  mapRef,
-  onZoomIn,
-  zoom,
-}: {
-  center: LngLat;
-  feature: maplibregl.MapGeoJSONFeature;
-  mapRef: React.RefObject<MapRef>;
-  onZoomIn: (zoom: number) => void;
-  zoom: number;
-}) => {
-  const source = mapRef.current?.getSource(
-    SOURCE_CLUSTERED_USERS_ID,
-  ) as GeoJSONSource;
-
-  let newZoom = await source.getClusterExpansionZoom(
-    feature.properties.cluster_id,
-  );
-
-  // prevent it from hyper zooming rapidly
-  if (newZoom - zoom > 5) {
-    newZoom = zoom + 5;
-  }
-
-  mapRef.current?.easeTo({
-    center,
-    duration: 2000,
-    zoom: newZoom,
-  });
-
-  onZoomIn(newZoom);
-};
-
-const onPointClick = ({
-  center,
-  feature,
-  mapRef,
-  selectedUserId,
-  setSelectedUserId,
-}: {
-  center: LngLat;
-  feature: maplibregl.MapGeoJSONFeature;
-  mapRef: React.RefObject<MapRef>;
-  selectedUserId: number | undefined;
-  setSelectedUserId: (userId: number) => void;
-}) => {
-  clearMapFeatureState(mapRef);
-  const userId = feature.properties.id;
-
-  if (selectedUserId === userId) {
-    setMapFeatureState(mapRef, userId, false);
-  } else {
-    setMapFeatureState(mapRef, userId, true);
-  }
-
-  mapRef.current?.easeTo({
-    center,
-    duration: 2000,
-  });
-
-  setSelectedUserId(userId);
-};
-
-const compareStringifiedBBox = ({
-  existingBbox,
-  newBbox,
-}: {
-  existingBbox: Coordinates | undefined;
-  newBbox: Coordinates | undefined;
-}) => {
-  const existingBboxString = JSON.stringify(existingBbox);
-  const newBboxString = JSON.stringify(newBbox);
-  return existingBboxString === newBboxString;
-};
-
 export {
   clearMapFeatureState,
-  compareStringifiedBBox,
   getHasActiveFilters,
   getMapBounds,
   loadMapUserPins,
-  mapFlyToLocation,
-  onClusterClick,
-  onPointClick,
   setMapFeatureState,
   usersToGeoJSON,
 };

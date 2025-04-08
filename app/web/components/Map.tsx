@@ -48,7 +48,9 @@ const Map = ({
   onZoomControlOutClick,
   pins,
 }: MapProps) => {
-  const { zoom } = useMapSearchState();
+  const {
+    uiOnly: { zoom },
+  } = useMapSearchState();
 
   const handleMapLoad = () => {
     if (mapRef.current) {

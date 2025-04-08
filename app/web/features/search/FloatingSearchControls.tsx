@@ -23,7 +23,7 @@ import { GeocodeResult } from "utils/hooks";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MapSearchTypes } from "./utils/constants";
-import { getMapBounds, mapFlyToLocation } from "./utils/mapUtils";
+import { getMapBounds } from "./utils/mapUtils";
 
 interface FloatingSearchNavigationProps {
   mapRef: React.RefObject<MapRef>;
@@ -160,8 +160,13 @@ const FloatingSearchControls = ({
     hasActiveFilters,
   } = useMapSearchState();
 
-  const { setSearch, clearSearchFilters, clearSearchInputValue } =
-    useMapSearchActions();
+  const {
+    clearKeywordInputValue,
+    clearSearchFilters,
+    clearSearchInputValue,
+    setKeywordInputValue,
+    setLocationInputValue,
+  } = useMapSearchActions();
 
   const handleSearchTypeChange = (event: SelectChangeEvent<unknown>) => {
     const value = event.target.value as "location" | "keyword";
@@ -169,8 +174,9 @@ const FloatingSearchControls = ({
     onSetSearchType(value);
 
     if (value === "location") {
-      setKeyword("");
+      clearKeywordInputValue();
 
+      // clear any previous location values
       const bbox = getMapBounds(mapRef);
       clearSearchInputValue(bbox);
     }
@@ -183,8 +189,7 @@ const FloatingSearchControls = ({
   const handleKeywordSubmit = () => {
     // Only search if the keyword is longer than 3 characters
     if (keyword.length > 3) {
-      const bbox = getMapBounds(mapRef);
-      setSearch({ keyword, bbox });
+      setKeywordInputValue(keyword);
     }
   };
 
@@ -198,18 +203,15 @@ const FloatingSearchControls = ({
 
   const handleClearKeyword = () => {
     setKeyword("");
-    setSearch({ keyword: "" });
+    clearKeywordInputValue();
   };
 
   const handleLocationChange = (value: GeocodeResult | undefined) => {
-    setSearch({ location: value });
-
     if (value) {
-      mapFlyToLocation({
-        longitude: value.location.lng,
-        latitude: value.location.lat,
+      setLocationInputValue({
+        center: [value.location.lng, value.location.lat],
+        location: value,
         zoom: 10,
-        mapRef,
       });
     }
   };

@@ -82,7 +82,7 @@ const SearchControls = ({
   const [searchType, setSearchType] = useState<MapSearchTypes>("location");
 
   const { showSearchThisAreaButton } = useMapSearchState();
-  const { setSearch } = useMapSearchActions();
+  const { setSearchThisArea } = useMapSearchActions();
 
   const { filters, resetFilters, updateFilter } = useSearchFilters();
 
@@ -92,7 +92,7 @@ const SearchControls = ({
 
   const handleSearchThisAreaClick = () => {
     const bbox = getMapBounds(mapRef);
-    setSearch({ bbox });
+    setSearchThisArea(bbox);
   };
 
   const handleOpenFiltersDialog = () => {

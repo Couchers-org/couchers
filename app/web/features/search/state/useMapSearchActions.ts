@@ -1,6 +1,12 @@
-import { FilterOptions, SearchOptions } from "../SearchPage";
+import { LngLatLike } from "maplibre-gl";
+import { GeocodeResult } from "utils/hooks";
+
+import { FilterOptions } from "../SearchPage";
 import { useMapSearchDispatch } from "../state/mapSearchContext";
-import { mapSearchActionTypes } from "../state/mapSearchReducers";
+import {
+  mapSearchActionTypes,
+  MapSearchState,
+} from "../state/mapSearchReducers";
 import { Coordinates } from "../utils/constants";
 
 export interface FlyToLocationProps {
@@ -12,10 +18,44 @@ export interface FlyToLocationProps {
 function useMapSearchActions() {
   const dispatch = useMapSearchDispatch();
 
-  const setSearch = (search: SearchOptions) => {
+  const setInitialState = () => {
     dispatch({
-      type: mapSearchActionTypes.SET_SEARCH,
-      payload: search,
+      type: mapSearchActionTypes.SET_INITIAL_STATE,
+    });
+  };
+
+  const setSearchThisArea = (bbox: Coordinates | undefined) => {
+    dispatch({
+      type: mapSearchActionTypes.SET_SEARCH_THIS_AREA,
+      payload: { bbox },
+    });
+  };
+
+  const clearKeywordInputValue = () => {
+    dispatch({
+      type: mapSearchActionTypes.CLEAR_KEYWORD_INPUT_VALUE,
+    });
+  };
+
+  const setKeywordInputValue = (keyword: string) => {
+    dispatch({
+      type: mapSearchActionTypes.SET_KEYWORD_INPUT_VALUE,
+      payload: { keyword },
+    });
+  };
+
+  const setLocationInputValue = ({
+    location,
+    center,
+    zoom,
+  }: {
+    location: GeocodeResult | undefined;
+    center: LngLatLike | undefined;
+    zoom: number | undefined;
+  }) => {
+    dispatch({
+      type: mapSearchActionTypes.SET_SEARCH_INPUT_VALUE,
+      payload: { location, center, zoom },
     });
   };
 
@@ -33,8 +73,19 @@ function useMapSearchActions() {
     });
   };
 
-  const setMoveMap = () => {
-    dispatch({ type: mapSearchActionTypes.SET_MOVE_MAP });
+  const setMoveMapUIOnly = ({
+    bbox,
+    center,
+    zoom,
+  }: {
+    bbox?: MapSearchState["uiOnly"]["bbox"];
+    center?: MapSearchState["uiOnly"]["center"];
+    zoom?: MapSearchState["uiOnly"]["zoom"];
+  }) => {
+    dispatch({
+      type: mapSearchActionTypes.SET_MOVE_MAP_UI_ONLY,
+      payload: { bbox, center, zoom },
+    });
   };
 
   const setSelectedUserId = (userId: number | undefined) => {
@@ -59,22 +110,18 @@ function useMapSearchActions() {
     });
   };
 
-  const setZoom = (newZoom: number) => {
-    dispatch({
-      type: mapSearchActionTypes.SET_ZOOM,
-      payload: { zoom: newZoom },
-    });
-  };
-
   return {
+    clearKeywordInputValue,
     clearSearchFilters,
     clearSearchInputValue,
-    setMoveMap,
+    setKeywordInputValue,
+    setInitialState,
+    setMoveMapUIOnly,
     setPageNumber,
-    setSearch,
+    setLocationInputValue,
+    setSearchThisArea,
     setSearchFilters,
     setSelectedUserId,
-    setZoom,
   };
 }
 

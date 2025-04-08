@@ -49,15 +49,14 @@ const MapSearchResultsList = ({
 
   const {
     hasActiveFilters,
-    hasSearchInputValue,
-    search: { bbox },
+    search: { bbox, query },
     shouldSearchByUserId,
   } = useMapSearchState();
 
   const meetsSearchCriteria =
     hasActiveFilters ||
-    hasSearchInputValue ||
     bbox !== undefined ||
+    query !== "" ||
     shouldSearchByUserId;
 
   return (

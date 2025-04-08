@@ -11,7 +11,6 @@ import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { useMemo, useRef, useState } from "react";
 import { MapProvider, MapRef } from "react-map-gl/maplibre";
-import { GeocodeResult } from "utils/hooks";
 
 import { useUserSearch } from "./hooks/useUserSearch";
 import MapSearchContent from "./MapSearchContent";
@@ -39,13 +38,6 @@ export type FilterOptions = {
   smokesAtHome?: boolean | undefined;
 };
 
-export type SearchOptions = {
-  bbox?: GeocodeResult["bbox"];
-  query?: string;
-  keyword?: string;
-  location?: GeocodeResult;
-};
-
 const SearchPageContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -64,6 +56,8 @@ export default function SearchPage() {
 
   const mapSearchState = useMapSearchState();
   const { setPageNumber } = useMapSearchActions();
+
+  console.log("ZOOM", mapSearchState.uiOnly.zoom);
 
   // useMemo to avoid unnecessary object reference changes - causing unnecessary rerenders
   const searchParams = useMemo(

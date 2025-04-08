@@ -1,15 +1,16 @@
+import { LngLatLike } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { UserSearchFilters } from "service/search";
 import { GeocodeResult } from "utils/hooks";
 
-import { FilterOptions, SearchOptions } from "../SearchPage";
+import { FilterOptions } from "../SearchPage";
 import {
   Coordinates,
   DEFAULT_AGE_MAX,
   DEFAULT_AGE_MIN,
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
 } from "../utils/constants";
-import { compareStringifiedBBox, getHasActiveFilters } from "../utils/mapUtils";
+import { getHasActiveFilters } from "../utils/mapUtils";
 
 /** WHY USE A REDUCER FOR OUR MAP STATE?
  * Mostly we use react-query for state management, which stores api responses as is in the browser cache.
@@ -25,44 +26,77 @@ import { compareStringifiedBBox, getHasActiveFilters } from "../utils/mapUtils";
 
 // The action types for the map search reducer
 enum mapSearchActionTypes {
-  SET_SEARCH = "SET_SEARCH",
+  SET_INITIAL_STATE = "SET_INITIAL_STATE",
+  SET_SEARCH_THIS_AREA = "SET_SEARCH_THIS_AREA",
+  CLEAR_KEYWORD_INPUT_VALUE = "CLEAR_KEYWORD_INPUT_VALUE",
+  SET_KEYWORD_INPUT_VALUE = "SET_KEYWORD_INPUT_VALUE",
+  SET_SEARCH_INPUT_VALUE = "SET_SEARCH_INPUT_VALUE",
   CLEAR_SEARCH_INPUT_VALUE = "CLEAR_SEARCH_INPUT_VALUE",
   SET_FILTERS = "SET_FILTERS",
   RESET_FILTERS = "RESET_FILTERS",
-  SET_MOVE_MAP = "SET_MOVE_MAP",
+  SET_MOVE_MAP_UI_ONLY = "SET_MOVE_MAP_UI_ONLY",
   SET_PAGE_NUMBER = "SET_PAGE_NUMBER",
   SET_SELECTED_USER_ID = "SET_SELECTED_USER_ID",
-  SET_ZOOM = "SET_ZOOM",
 }
 
 // Overall format of the map search state
 type MapSearchState = {
   filters: UserSearchFilters;
   hasActiveFilters: boolean;
-  hasSearchInputValue: boolean;
   pageNumber: number;
   search: {
-    bbox?: Coordinates;
-    query?: string;
+    bbox: Coordinates | undefined;
+    query: string | undefined;
   };
   selectedUserId: User.AsObject["userId"] | undefined;
   shouldSearchByUserId: boolean;
   showSearchThisAreaButton: boolean;
-  zoom: number;
+  uiOnly: {
+    bbox: Coordinates | undefined;
+    center: LngLatLike | undefined;
+    zoom: number;
+  };
 };
 
 // The action types for the map search reducer
 type MapSearchAction =
   | {
-      type: mapSearchActionTypes.SET_SEARCH;
-      payload: SearchOptions;
+      type: mapSearchActionTypes.SET_INITIAL_STATE;
+    }
+  | {
+      type: mapSearchActionTypes.CLEAR_KEYWORD_INPUT_VALUE;
+    }
+  | {
+      type: mapSearchActionTypes.SET_KEYWORD_INPUT_VALUE;
+      payload: {
+        keyword: string;
+      };
+    }
+  | {
+      type: mapSearchActionTypes.SET_SEARCH_INPUT_VALUE;
+      payload: {
+        location: GeocodeResult | undefined;
+        zoom: number | undefined;
+        center: LngLatLike | undefined;
+      };
+    }
+  | {
+      type: mapSearchActionTypes.SET_SEARCH_THIS_AREA;
+      payload: {
+        bbox: Coordinates | undefined;
+      };
     }
   | {
       type: mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE;
-      payload: { bbox: Coordinates | undefined };
+      payload: { bbox: MapSearchState["search"]["bbox"] };
     }
   | {
-      type: mapSearchActionTypes.SET_MOVE_MAP;
+      type: mapSearchActionTypes.SET_MOVE_MAP_UI_ONLY;
+      payload: {
+        bbox?: MapSearchState["uiOnly"]["bbox"];
+        center?: MapSearchState["uiOnly"]["center"];
+        zoom?: MapSearchState["uiOnly"]["zoom"];
+      };
     }
   | {
       type: mapSearchActionTypes.SET_FILTERS;
@@ -76,13 +110,8 @@ type MapSearchAction =
   | {
       type: mapSearchActionTypes.SET_SELECTED_USER_ID;
       payload: {
-        bbox?: Coordinates;
         userId: User.AsObject["userId"] | undefined;
       };
-    }
-  | {
-      type: mapSearchActionTypes.SET_ZOOM;
-      payload: { zoom: number };
     };
 
 const initialState: MapSearchState = {
@@ -103,7 +132,6 @@ const initialState: MapSearchState = {
     smokesAtHome: undefined,
   },
   hasActiveFilters: false,
-  hasSearchInputValue: false,
   pageNumber: 1,
   search: {
     bbox: undefined,
@@ -112,75 +140,98 @@ const initialState: MapSearchState = {
   selectedUserId: undefined,
   shouldSearchByUserId: false,
   showSearchThisAreaButton: false,
-  zoom: 1,
+  uiOnly: {
+    bbox: undefined,
+    center: undefined,
+    zoom: 1,
+  },
 };
 
 const mapSearchReducer = (
   state: MapSearchState,
   action: MapSearchAction,
 ): MapSearchState => {
+  // State is read-only. Don’t modify any objects or arrays in state directly 🚩.
+  // Instead, always return new objects from your reducer ✅.
   switch (action.type) {
+    case mapSearchActionTypes.SET_INITIAL_STATE:
+      return initialState;
+    case mapSearchActionTypes.CLEAR_KEYWORD_INPUT_VALUE:
+      return {
+        ...state,
+        search: {
+          ...state.search,
+          query: initialState.search.query,
+        },
+        pageNumber: initialState.pageNumber,
+        showSearchThisAreaButton: initialState.showSearchThisAreaButton,
+        shouldSearchByUserId: initialState.shouldSearchByUserId,
+      };
+
+    case mapSearchActionTypes.SET_KEYWORD_INPUT_VALUE:
+      return {
+        ...state,
+        search: {
+          ...state.search,
+          bbox: initialState.search.bbox,
+          query: action.payload.keyword,
+        },
+        selectedUserId: initialState.selectedUserId,
+        pageNumber: initialState.pageNumber,
+        showSearchThisAreaButton: initialState.showSearchThisAreaButton,
+        shouldSearchByUserId: initialState.shouldSearchByUserId,
+      };
     case mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE:
-      // State is read-only. Don’t modify any objects or arrays in state directly 🚩.
-      // Instead, always return new objects from your reducer ✅.
       return {
         ...state,
         search: {
           bbox: action.payload.bbox,
           query: initialState.search.query,
         },
-        hasSearchInputValue: false,
         pageNumber: initialState.pageNumber,
       };
-    case mapSearchActionTypes.SET_SEARCH:
-      const updatedSearchQuery = { ...state.search };
 
-      if (action.payload.bbox && !action.payload.keyword) {
-        // Stringifying arrays is necessary to compare their contents because
-        // JavaScript compares arrays by reference, not by value. Without stringifying,
-        // two arrays with identical elements would not be considered equal.
-        const hasBboxChanged = compareStringifiedBBox({
-          existingBbox: state.search.bbox,
-          newBbox: action.payload.bbox,
-        });
-
-        if (hasBboxChanged) {
-          updatedSearchQuery.bbox = action.payload.bbox;
-          updatedSearchQuery.query = initialState.search.query;
-        }
-      }
+    case mapSearchActionTypes.SET_SEARCH_INPUT_VALUE:
       // We get a location when user searches search input
-      if (action.payload.location) {
-        const bbox = (action.payload.location as GeocodeResult).bbox;
+      const locationBbox = action.payload.location?.bbox;
 
-        // @TODO(NA): Causing double rendering of the map - maybe due array?
-        const formattedBbox: Coordinates = [
-          Number(bbox[2]),
-          Number(bbox[3]),
-          Number(bbox[0]),
-          Number(bbox[1]),
-        ];
-
-        updatedSearchQuery.bbox = formattedBbox; // sw long, sw lat, ne long, ne lat
-        updatedSearchQuery.query = initialState.search.query;
+      if (!locationBbox) {
+        return state; // Return the current state if locationBbox is undefined
       }
 
-      if (action.payload.keyword) {
-        updatedSearchQuery.query =
-          action.payload.keyword === ""
-            ? initialState.search.query
-            : action.payload.keyword;
-        updatedSearchQuery.bbox = action.payload.bbox;
-      }
+      const formattedBbox: Coordinates = [
+        Number(locationBbox[2]),
+        Number(locationBbox[3]),
+        Number(locationBbox[0]),
+        Number(locationBbox[1]),
+      ];
 
       return {
         ...state,
-        search: updatedSearchQuery,
-        hasSearchInputValue:
-          action.payload.location ||
-          (action.payload.keyword && action.payload.keyword.length > 0)
-            ? true
-            : false,
+        search: {
+          ...state.search,
+          bbox: formattedBbox,
+          query: initialState.search.query,
+        },
+        selectedUserId: initialState.selectedUserId,
+        shouldSearchByUserId: initialState.shouldSearchByUserId,
+        showSearchThisAreaButton: initialState.showSearchThisAreaButton,
+        uiOnly: {
+          ...state.uiOnly,
+          center: action.payload.center,
+          zoom: action.payload.zoom ?? state.uiOnly.zoom,
+        },
+      };
+
+    case mapSearchActionTypes.SET_SEARCH_THIS_AREA:
+      return {
+        ...state,
+        search: {
+          ...state.search,
+          bbox: action.payload.bbox,
+          query: initialState.search.query,
+        },
+        selectedUserId: initialState.selectedUserId,
         pageNumber: initialState.pageNumber,
         showSearchThisAreaButton: initialState.showSearchThisAreaButton,
         shouldSearchByUserId: initialState.shouldSearchByUserId,
@@ -275,13 +326,26 @@ const mapSearchReducer = (
         shouldSearchByUserId: initialState.shouldSearchByUserId,
       };
 
-    case mapSearchActionTypes.SET_MOVE_MAP:
-      const zoom = state.zoom;
+    case mapSearchActionTypes.SET_MOVE_MAP_UI_ONLY:
+      const zoom = action.payload.zoom;
+      const center = action.payload.center;
+      const bbox = action.payload.bbox;
+
+      const isLateralMove = bbox !== undefined && state.uiOnly.zoom === zoom;
+      const isZoomOut = zoom !== undefined && zoom < state.uiOnly.zoom;
 
       return {
         ...state,
+        uiOnly: {
+          ...state.uiOnly,
+          bbox: bbox ?? state.uiOnly.bbox,
+          center: center ?? state.uiOnly.center,
+          zoom: zoom ?? state.uiOnly.zoom,
+        },
+        selectedUserId: initialState.selectedUserId,
+        shouldSearchByUserId: initialState.shouldSearchByUserId,
         showSearchThisAreaButton:
-          zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && !state.hasSearchInputValue,
+          (isLateralMove || isZoomOut) && zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
       };
 
     case mapSearchActionTypes.SET_SELECTED_USER_ID:
@@ -296,26 +360,7 @@ const mapSearchReducer = (
         shouldSearchByUserId:
           currentSelectedUserId !== action.payload.userId &&
           action.payload.userId !== undefined &&
-          state.zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
-      };
-
-    case mapSearchActionTypes.SET_ZOOM:
-      const newZoom = action.payload.zoom;
-      const hasSearchInputValue = state.hasSearchInputValue;
-
-      return {
-        ...state,
-        ...(newZoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH && {
-          search: {
-            ...state.search,
-            bbox: initialState.search.bbox,
-          },
-        }),
-        showSearchThisAreaButton:
-          !hasSearchInputValue &&
-          newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
-          state.zoom > newZoom,
-        zoom: newZoom,
+          state.uiOnly.zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
       };
 
     default:

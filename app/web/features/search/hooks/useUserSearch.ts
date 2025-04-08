@@ -24,13 +24,19 @@ export function useUserSearch(
   searchParams: FilterOptions,
   mapSearchState: MapSearchState,
 ) {
-  // const { pageNumber } = useMapSearchState();
-
   const meetsSearchCriteria =
     mapSearchState.hasActiveFilters ||
-    mapSearchState.hasSearchInputValue ||
     mapSearchState.search.bbox !== undefined ||
+    mapSearchState.search.query !== "" ||
     mapSearchState.shouldSearchByUserId;
+
+  console.log("MEETS SEARCH CRITERIA ITEMS", {
+    meetsSearchCriteria,
+    hasActiveFilters: mapSearchState.hasActiveFilters,
+    bbox: mapSearchState.search.bbox,
+    query: mapSearchState.search.query,
+    shouldSearchByUserId: mapSearchState.shouldSearchByUserId,
+  });
 
   const {
     data,
