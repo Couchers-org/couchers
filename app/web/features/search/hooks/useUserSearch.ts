@@ -27,7 +27,7 @@ export function useUserSearch(
   const meetsSearchCriteria =
     mapSearchState.hasActiveFilters ||
     mapSearchState.search.bbox !== undefined ||
-    mapSearchState.search.query !== "" ||
+    mapSearchState.search.query !== undefined ||
     mapSearchState.shouldSearchByUserId;
 
   console.log("MEETS SEARCH CRITERIA ITEMS", {

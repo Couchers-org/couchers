@@ -16,7 +16,7 @@ import LocationAutocompleteOutlined from "components/LocationAutocomplete/Locati
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { useState } from "react";
-import { MapRef } from "react-map-gl/maplibre";
+import { LngLatLike, MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
@@ -31,6 +31,7 @@ interface FloatingSearchNavigationProps {
   onOpenFilters: () => void;
   onSetSearchType: (searchType: MapSearchTypes) => void;
   searchType: MapSearchTypes;
+  onZoomIn: (newZoom: number, cneter?: LngLatLike) => void;
 }
 
 const StyledControlsWrapper = styled("div")(({ theme }) => ({
@@ -148,6 +149,7 @@ const FloatingSearchControls = ({
   onClearFilters,
   onOpenFilters,
   onSetSearchType,
+  onZoomIn,
   searchType,
 }: FloatingSearchNavigationProps) => {
   const { t } = useTranslation([SEARCH]);
@@ -213,6 +215,8 @@ const FloatingSearchControls = ({
         location: value,
         zoom: 10,
       });
+
+      onZoomIn(10, [value.location.lng, value.location.lat]);
     }
   };
 

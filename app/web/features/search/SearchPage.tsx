@@ -1,22 +1,24 @@
-import { styled } from "@mui/material";
+import { debounce, styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import {
   HostingStatusOptions,
   MapViewOptions,
   MapViews,
+  MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
   SleepingArrangementOptions,
 } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { useMemo, useRef, useState } from "react";
-import { MapProvider, MapRef } from "react-map-gl/maplibre";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { LngLatLike, MapProvider, MapRef } from "react-map-gl/maplibre";
 
 import { useUserSearch } from "./hooks/useUserSearch";
 import MapSearchContent from "./MapSearchContent";
 import SearchControls from "./SearchControls";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
+import { getMapBounds } from "./utils/mapUtils";
 
 export type FilterOptions = {
   acceptsKids?: boolean;
@@ -55,9 +57,8 @@ export default function SearchPage() {
   const [mapView, setMapView] = useState<MapViewOptions>(MapViews.MAP_AND_LIST);
 
   const mapSearchState = useMapSearchState();
-  const { setPageNumber } = useMapSearchActions();
-
-  console.log("ZOOM", mapSearchState.uiOnly.zoom);
+  const { setPageNumber, setMapQueryArea, setShowSearchThisAreaButton } =
+    useMapSearchActions();
 
   // useMemo to avoid unnecessary object reference changes - causing unnecessary rerenders
   const searchParams = useMemo(
@@ -105,6 +106,50 @@ export default function SearchPage() {
     setMapView(view);
   };
 
+  const debouncedZoomIn = useMemo(
+    () =>
+      debounce((newZoom: number, center?: LngLatLike) => {
+        const didCrossSearchThreshold =
+          newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+          mapSearchState.uiOnly.zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+        // If it's the first zoom within threshold, set the map bounds so the user pins load
+        if (didCrossSearchThreshold) {
+          const bbox = getMapBounds(mapRef);
+          setMapQueryArea(bbox, newZoom);
+        }
+
+        mapRef.current?.easeTo({
+          center,
+          zoom: newZoom,
+          duration: 2000,
+        });
+      }, 300),
+    [mapSearchState.uiOnly.zoom, setMapQueryArea],
+  );
+
+  const handleZoomIn = useCallback(
+    (newZoom: number, center?: LngLatLike) => {
+      debouncedZoomIn(newZoom, center);
+    },
+    [debouncedZoomIn],
+  );
+
+  const handleZoomOut = debounce((newZoom: number) => {
+    const didZoomOutWithinThreshold = newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+    const didZoomBelowThreshold = newZoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+
+    if (didZoomBelowThreshold) {
+      setMapQueryArea(undefined, newZoom);
+    } else if (didZoomOutWithinThreshold) {
+      setShowSearchThisAreaButton(true);
+    }
+
+    mapRef.current?.easeTo({
+      zoom: newZoom,
+      duration: 2000,
+    });
+  }, 300);
+
   return (
     <SearchPageContainer>
       <MapProvider>
@@ -114,6 +159,7 @@ export default function SearchPage() {
           mapRef={mapRef}
           mapView={mapView}
           onSetMapView={handleSetMapView}
+          onZoomIn={handleZoomIn}
         />
         <MapSearchContent
           drawerWidth={drawerWidth}
@@ -126,6 +172,8 @@ export default function SearchPage() {
           onDrawerWidthChange={handleDrawerWidthChange}
           onLoadPreviousPage={handleLoadPreviousPage}
           onLoadNextPage={handleLoadNextPage}
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
           totalItems={totalItems}
           users={users}
         />

@@ -1,6 +1,6 @@
 import { styled, useMediaQuery } from "@mui/material";
 import { User } from "proto/api_pb";
-import { MapRef } from "react-map-gl/maplibre";
+import { LngLatLike, MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 
 import MapSearchResultsList from "./MapSearchResultsList";
@@ -20,6 +20,8 @@ interface MapSearchContentProps {
   onDrawerWidthChange: (width: number) => void;
   onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
+  onZoomIn: (newZoom: number, center?: LngLatLike) => void;
+  onZoomOut: (newZoom: number) => void;
   totalItems: number;
   users: User.AsObject[] | undefined;
 }
@@ -68,15 +70,17 @@ const MapSearchContent = ({
   onDrawerWidthChange,
   onLoadPreviousPage,
   onLoadNextPage,
+  onZoomIn,
+  onZoomOut,
   totalItems,
   users,
 }: MapSearchContentProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const { setSelectedUserId, setMoveMapUIOnly } = useMapSearchActions();
+  const { setSelectedUserId } = useMapSearchActions();
 
   const handleUserCardClick = (userId: number) => {
-    if (mapView === MapViews.LIST_ONLY) {
+    if (mapView === MapViews.LIST_ONLY || isMobile) {
       return;
     }
 
@@ -86,11 +90,7 @@ const MapSearchContent = ({
     if (mapRef.current) {
       const user = users?.find((user) => user.userId === userId);
       setMapFeatureState(mapRef, userId.toString(), true);
-
-      setMoveMapUIOnly({
-        center: [user?.lng || 0, user?.lat || 0],
-        zoom: MAX_ZOOM_LEVEL,
-      });
+      onZoomIn(MAX_ZOOM_LEVEL, [user?.lng || 0, user?.lat || 0]);
     }
   };
 
@@ -117,7 +117,13 @@ const MapSearchContent = ({
       </SearchResultsContainer>
       {!isMobile && mapView !== MapViews.LIST_ONLY && (
         <MapContainer drawerWidth={drawerWidth}>
-          <MapView isLoading={isLoading} mapRef={mapRef} users={users} />
+          <MapView
+            isLoading={isLoading}
+            mapRef={mapRef}
+            onZoomIn={onZoomIn}
+            onZoomOut={onZoomOut}
+            users={users}
+          />
         </MapContainer>
       )}
     </Wrapper>

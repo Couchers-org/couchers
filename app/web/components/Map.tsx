@@ -10,7 +10,7 @@ import {
 } from "features/search/utils/mapLayers";
 import ZoomControl from "features/search/ZoomControl";
 import { MapLayerMouseEvent, RequestParameters } from "maplibre-gl";
-import React from "react";
+import React, { useRef } from "react";
 import {
   Layer,
   Map as MaplibreMap,
@@ -48,6 +48,8 @@ const Map = ({
   onZoomControlOutClick,
   pins,
 }: MapProps) => {
+  const isZoomFromControlRef = useRef(false);
+
   const {
     uiOnly: { zoom },
   } = useMapSearchState();
@@ -82,11 +84,21 @@ const Map = ({
   };
 
   const handleSetZoom = (viewState: ViewStateChangeEvent) => {
+    if (isZoomFromControlRef.current) {
+      isZoomFromControlRef.current = false; // reset the flag
+      return; // skip regular zoom logic since already handled
+    }
+
+    if (viewState.viewState.zoom === zoom) return;
+
     const isZoomIn = viewState.viewState.zoom > zoom;
+    const isZoomOut = viewState.viewState.zoom < zoom;
 
     if (isZoomIn) {
       onZoomIn(viewState.viewState.zoom);
-    } else {
+    }
+
+    if (isZoomOut) {
       onZoomOut(viewState.viewState.zoom);
     }
   };
@@ -103,6 +115,16 @@ const Map = ({
       };
     }
     return { url };
+  };
+
+  const handleZoomControlInClick = (newZoom: number) => {
+    isZoomFromControlRef.current = true;
+    onZoomControlInClick(newZoom);
+  };
+
+  const handleZoomControlOutClick = (newZoom: number) => {
+    isZoomFromControlRef.current = true;
+    onZoomControlOutClick(newZoom);
   };
 
   return (
@@ -143,8 +165,9 @@ const Map = ({
          * and user cards on the map. */}
         <ZoomControl
           mapRef={mapRef}
-          onZoomIn={onZoomControlInClick}
-          onZoomOut={onZoomControlOutClick}
+          onZoomIn={handleZoomControlInClick}
+          onZoomOut={handleZoomControlOutClick}
+          ref={isZoomFromControlRef}
         />
       </MaplibreMap>
     </>

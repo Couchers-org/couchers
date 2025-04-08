@@ -27,7 +27,7 @@ import { getHasActiveFilters } from "../utils/mapUtils";
 // The action types for the map search reducer
 enum mapSearchActionTypes {
   SET_INITIAL_STATE = "SET_INITIAL_STATE",
-  SET_SEARCH_THIS_AREA = "SET_SEARCH_THIS_AREA",
+  SET_MAP_QUERY_AREA = "SET_MAP_QUERY_AREA",
   CLEAR_KEYWORD_INPUT_VALUE = "CLEAR_KEYWORD_INPUT_VALUE",
   SET_KEYWORD_INPUT_VALUE = "SET_KEYWORD_INPUT_VALUE",
   SET_SEARCH_INPUT_VALUE = "SET_SEARCH_INPUT_VALUE",
@@ -37,6 +37,7 @@ enum mapSearchActionTypes {
   SET_MOVE_MAP_UI_ONLY = "SET_MOVE_MAP_UI_ONLY",
   SET_PAGE_NUMBER = "SET_PAGE_NUMBER",
   SET_SELECTED_USER_ID = "SET_SELECTED_USER_ID",
+  SET_SHOW_SEARCH_THIS_AREA_BUTTON = "SET_SHOW_SEARCH_THIS_AREA_BUTTON",
 }
 
 // Overall format of the map search state
@@ -61,9 +62,6 @@ type MapSearchState = {
 // The action types for the map search reducer
 type MapSearchAction =
   | {
-      type: mapSearchActionTypes.SET_INITIAL_STATE;
-    }
-  | {
       type: mapSearchActionTypes.CLEAR_KEYWORD_INPUT_VALUE;
     }
   | {
@@ -76,14 +74,15 @@ type MapSearchAction =
       type: mapSearchActionTypes.SET_SEARCH_INPUT_VALUE;
       payload: {
         location: GeocodeResult | undefined;
-        zoom: number | undefined;
-        center: LngLatLike | undefined;
+        zoom: MapSearchState["uiOnly"]["zoom"] | undefined;
+        center: MapSearchState["uiOnly"]["center"] | undefined;
       };
     }
   | {
-      type: mapSearchActionTypes.SET_SEARCH_THIS_AREA;
+      type: mapSearchActionTypes.SET_MAP_QUERY_AREA;
       payload: {
-        bbox: Coordinates | undefined;
+        bbox: MapSearchState["search"]["bbox"];
+        zoom?: MapSearchState["uiOnly"]["zoom"] | undefined;
       };
     }
   | {
@@ -104,13 +103,19 @@ type MapSearchAction =
     }
   | {
       type: mapSearchActionTypes.SET_PAGE_NUMBER;
-      payload: { pageNumber: number };
+      payload: { pageNumber: MapSearchState["pageNumber"] };
     }
   | { type: mapSearchActionTypes.RESET_FILTERS }
   | {
       type: mapSearchActionTypes.SET_SELECTED_USER_ID;
       payload: {
         userId: User.AsObject["userId"] | undefined;
+      };
+    }
+  | {
+      type: mapSearchActionTypes.SET_SHOW_SEARCH_THIS_AREA_BUTTON;
+      payload: {
+        showSearchThisAreaButton: MapSearchState["showSearchThisAreaButton"];
       };
     };
 
@@ -135,7 +140,7 @@ const initialState: MapSearchState = {
   pageNumber: 1,
   search: {
     bbox: undefined,
-    query: "",
+    query: undefined,
   },
   selectedUserId: undefined,
   shouldSearchByUserId: false,
@@ -154,8 +159,6 @@ const mapSearchReducer = (
   // State is read-only. Don’t modify any objects or arrays in state directly 🚩.
   // Instead, always return new objects from your reducer ✅.
   switch (action.type) {
-    case mapSearchActionTypes.SET_INITIAL_STATE:
-      return initialState;
     case mapSearchActionTypes.CLEAR_KEYWORD_INPUT_VALUE:
       return {
         ...state,
@@ -185,7 +188,7 @@ const mapSearchReducer = (
       return {
         ...state,
         search: {
-          bbox: action.payload.bbox,
+          bbox: initialState.search.bbox,
           query: initialState.search.query,
         },
         pageNumber: initialState.pageNumber,
@@ -193,7 +196,9 @@ const mapSearchReducer = (
 
     case mapSearchActionTypes.SET_SEARCH_INPUT_VALUE:
       // We get a location when user searches search input
-      const locationBbox = action.payload.location?.bbox;
+
+      const { center: newCenter, location, zoom: newZoom } = action.payload;
+      const locationBbox = location?.bbox;
 
       if (!locationBbox) {
         return state; // Return the current state if locationBbox is undefined
@@ -218,12 +223,13 @@ const mapSearchReducer = (
         showSearchThisAreaButton: initialState.showSearchThisAreaButton,
         uiOnly: {
           ...state.uiOnly,
-          center: action.payload.center,
-          zoom: action.payload.zoom ?? state.uiOnly.zoom,
+          bbox: formattedBbox,
+          center: newCenter,
+          zoom: newZoom ? newZoom : state.uiOnly.zoom,
         },
       };
 
-    case mapSearchActionTypes.SET_SEARCH_THIS_AREA:
+    case mapSearchActionTypes.SET_MAP_QUERY_AREA:
       return {
         ...state,
         search: {
@@ -235,6 +241,10 @@ const mapSearchReducer = (
         pageNumber: initialState.pageNumber,
         showSearchThisAreaButton: initialState.showSearchThisAreaButton,
         shouldSearchByUserId: initialState.shouldSearchByUserId,
+        uiOnly: {
+          ...state.uiOnly,
+          zoom: action.payload.zoom ?? state.uiOnly.zoom,
+        },
       };
     case mapSearchActionTypes.SET_FILTERS:
       const updatedFilters = { ...state.filters };
@@ -327,12 +337,29 @@ const mapSearchReducer = (
       };
 
     case mapSearchActionTypes.SET_MOVE_MAP_UI_ONLY:
-      const zoom = action.payload.zoom;
+      const zoom = action.payload.zoom!;
       const center = action.payload.center;
       const bbox = action.payload.bbox;
 
       const isLateralMove = bbox !== undefined && state.uiOnly.zoom === zoom;
-      const isZoomOut = zoom !== undefined && zoom < state.uiOnly.zoom;
+      const isZoomOut = zoom! < state.uiOnly.zoom;
+      const didZoomBelowThreshold =
+        zoom! < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+        state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
+
+      console.log("MOVE MAP REDUCER", {
+        bbox,
+        zoom,
+        didZoomBelowThreshold,
+        isLateralMove,
+        isZoomOut,
+        zoomIsGreaterThanThreshold: zoom! >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+      });
+      // If we zoom out below the threshold, reset the state to initial
+
+      if (didZoomBelowThreshold) {
+        return initialState;
+      }
 
       return {
         ...state,
@@ -345,7 +372,9 @@ const mapSearchReducer = (
         selectedUserId: initialState.selectedUserId,
         shouldSearchByUserId: initialState.shouldSearchByUserId,
         showSearchThisAreaButton:
-          (isLateralMove || isZoomOut) && zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+          zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH
+            ? initialState.showSearchThisAreaButton
+            : state.showSearchThisAreaButton,
       };
 
     case mapSearchActionTypes.SET_SELECTED_USER_ID:
@@ -361,6 +390,12 @@ const mapSearchReducer = (
           currentSelectedUserId !== action.payload.userId &&
           action.payload.userId !== undefined &&
           state.uiOnly.zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+      };
+
+    case mapSearchActionTypes.SET_SHOW_SEARCH_THIS_AREA_BUTTON:
+      return {
+        ...state,
+        showSearchThisAreaButton: action.payload.showSearchThisAreaButton,
       };
 
     default:

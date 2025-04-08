@@ -9,25 +9,16 @@ import {
 } from "../state/mapSearchReducers";
 import { Coordinates } from "../utils/constants";
 
-export interface FlyToLocationProps {
-  longitude: number;
-  latitude: number;
-  zoom?: number;
-}
-
 function useMapSearchActions() {
   const dispatch = useMapSearchDispatch();
 
-  const setInitialState = () => {
+  const setMapQueryArea = (
+    bbox: MapSearchState["search"]["bbox"],
+    zoom?: MapSearchState["uiOnly"]["zoom"],
+  ) => {
     dispatch({
-      type: mapSearchActionTypes.SET_INITIAL_STATE,
-    });
-  };
-
-  const setSearchThisArea = (bbox: Coordinates | undefined) => {
-    dispatch({
-      type: mapSearchActionTypes.SET_SEARCH_THIS_AREA,
-      payload: { bbox },
+      type: mapSearchActionTypes.SET_MAP_QUERY_AREA,
+      payload: { bbox, zoom },
     });
   };
 
@@ -110,18 +101,25 @@ function useMapSearchActions() {
     });
   };
 
+  const setShowSearchThisAreaButton = (showSearchThisAreaButton: boolean) => {
+    dispatch({
+      type: mapSearchActionTypes.SET_SHOW_SEARCH_THIS_AREA_BUTTON,
+      payload: { showSearchThisAreaButton },
+    });
+  };
+
   return {
     clearKeywordInputValue,
     clearSearchFilters,
     clearSearchInputValue,
     setKeywordInputValue,
-    setInitialState,
     setMoveMapUIOnly,
     setPageNumber,
     setLocationInputValue,
-    setSearchThisArea,
+    setMapQueryArea,
     setSearchFilters,
     setSelectedUserId,
+    setShowSearchThisAreaButton,
   };
 }
 

@@ -56,7 +56,7 @@ const MapSearchResultsList = ({
   const meetsSearchCriteria =
     hasActiveFilters ||
     bbox !== undefined ||
-    query !== "" ||
+    query !== undefined ||
     shouldSearchByUserId;
 
   return (

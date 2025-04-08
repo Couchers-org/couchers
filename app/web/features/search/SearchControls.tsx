@@ -2,7 +2,7 @@ import { Button, styled, useMediaQuery } from "@mui/material";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { useState } from "react";
-import { MapRef } from "react-map-gl/maplibre";
+import { LngLatLike, MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 
 import FilterDialog from "./FilterDialog";
@@ -20,6 +20,7 @@ interface SearchControlsProps {
   mapView: MapViewOptions;
   mapRef: React.RefObject<MapRef>;
   onSetMapView: (view: MapViewOptions) => void;
+  onZoomIn: (newZoom: number, center?: LngLatLike) => void;
 }
 
 const MapControlsWrapper = styled("div", {
@@ -74,6 +75,7 @@ const SearchControls = ({
   mapView,
   mapRef,
   onSetMapView,
+  onZoomIn,
 }: SearchControlsProps) => {
   const { t } = useTranslation([SEARCH]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -82,7 +84,7 @@ const SearchControls = ({
   const [searchType, setSearchType] = useState<MapSearchTypes>("location");
 
   const { showSearchThisAreaButton } = useMapSearchState();
-  const { setSearchThisArea } = useMapSearchActions();
+  const { setMapQueryArea } = useMapSearchActions();
 
   const { filters, resetFilters, updateFilter } = useSearchFilters();
 
@@ -92,7 +94,7 @@ const SearchControls = ({
 
   const handleSearchThisAreaClick = () => {
     const bbox = getMapBounds(mapRef);
-    setSearchThisArea(bbox);
+    setMapQueryArea(bbox);
   };
 
   const handleOpenFiltersDialog = () => {
@@ -128,6 +130,7 @@ const SearchControls = ({
             onOpenFilters={handleOpenFiltersDialog}
             onSetSearchType={handleSetSearchType}
             searchType={searchType}
+            onZoomIn={onZoomIn}
           />
         </CenterAligner>
         {showSearchThisAreaButton && (

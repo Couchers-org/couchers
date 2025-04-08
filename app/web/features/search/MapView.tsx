@@ -3,7 +3,7 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Map, { API_BASE_URL } from "components/Map";
 import { GeoJSONSource, LngLatLike, MapLayerMouseEvent } from "maplibre-gl";
 import { User } from "proto/api_pb";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { MapRef } from "react-map-gl/maplibre";
 
 import { useMapSearchState } from "./state/mapSearchContext";
@@ -24,6 +24,8 @@ import {
 interface MapViewProps {
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
+  onZoomIn: (newZoom: number, center?: LngLatLike) => void;
+  onZoomOut: (newZoom: number) => void;
   users: User.AsObject[] | undefined;
 }
 
@@ -40,6 +42,8 @@ const DEFAULT_USERS: User.AsObject[] = [];
 const MapView = ({
   isLoading,
   mapRef,
+  onZoomIn,
+  onZoomOut,
   users = DEFAULT_USERS,
 }: MapViewProps) => {
   const pins = usersToGeoJSON(users);
@@ -51,72 +55,20 @@ const MapView = ({
     hasActiveFilters,
     selectedUserId,
     shouldSearchByUserId,
-    uiOnly: { center, zoom },
+    uiOnly: { zoom },
   } = useMapSearchState();
 
-  const { setInitialState, setMoveMapUIOnly, setSelectedUserId } =
+  const { setMoveMapUIOnly, setSelectedUserId, setShowSearchThisAreaButton } =
     useMapSearchActions();
 
   const meetsSearchCriteria =
     hasActiveFilters ||
     searchQueryBbox !== undefined ||
-    query !== "" ||
+    query !== undefined ||
     shouldSearchByUserId;
 
   // If zoomed in, has a location searched or has active filters, use the memoized pins form api query in SearchPage
   const pinsSource = meetsSearchCriteria ? memoizedPins : zoomedOutDataSource;
-
-  // We set zoom, center and bbox as single source of truth in the reducer
-  // Then check for changes here to relocate map
-  useEffect(() => {
-    if (center || (zoom && zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH)) {
-      console.log("ZOOMING IN USE EFFECT", center, zoom);
-      mapRef.current?.easeTo({
-        ...(center && { center }),
-        ...(zoom && { zoom }),
-        duration: 2000,
-      });
-    }
-  }, [center, mapRef, zoom]);
-
-  // @TODO: GET ZOOM WORKING WHEN BELOW THRESHOLD AND ZOOM OUT INFINITE LOOP
-
-  useEffect(() => {
-    if (
-      zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
-      !shouldSearchByUserId &&
-      !query
-    ) {
-      console.log("RESETTING INITIAL STATE");
-      setInitialState();
-    }
-  }, [query, setInitialState, shouldSearchByUserId, zoom]);
-
-  const debouncedZoomIn = useMemo(
-    () =>
-      debounce((newZoom: number, center?: LngLatLike) => {
-        if (
-          zoom! < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
-          newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH
-        ) {
-          setMoveMapUIOnly({ center, zoom: newZoom });
-        } else {
-          setMoveMapUIOnly({ zoom: newZoom });
-        }
-      }, 500),
-    [zoom, setMoveMapUIOnly],
-  );
-
-  const handleZoomIn = useCallback(
-    (newZoom: number, center?: LngLatLike) => {
-      debouncedZoomIn(newZoom, center);
-    },
-    [debouncedZoomIn],
-  );
-
-  const handleZoomOut = debounce((newZoom: number) => {
-    setMoveMapUIOnly({ zoom: newZoom });
-  }, 500);
 
   const handleClick = useCallback(
     async (ev: MapLayerMouseEvent) => {
@@ -144,7 +96,7 @@ const MapView = ({
           newZoom = zoom + 5;
         }
 
-        handleZoomIn(newZoom, ev.lngLat);
+        onZoomIn(newZoom, ev.lngLat);
       } else if (layerId === UNCLUSTERED_LAYER_ID) {
         const userId = feature.properties.id;
 
@@ -159,7 +111,7 @@ const MapView = ({
         setSelectedUserId(undefined);
       }
     },
-    [handleZoomIn, mapRef, selectedUserId, setSelectedUserId, zoom],
+    [mapRef, onZoomIn, selectedUserId, setSelectedUserId, zoom],
   );
 
   const handleLoad = async () => {
@@ -178,15 +130,19 @@ const MapView = ({
   const handleMapMove = debounce(() => {
     const bbox = getMapBounds(mapRef);
     clearMapFeatureState(mapRef);
-    setMoveMapUIOnly({ bbox, zoom });
-  }, 600);
+    setMoveMapUIOnly({ bbox });
+
+    if (zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH) {
+      setShowSearchThisAreaButton(true);
+    }
+  }, 300);
 
   const handleZoomControlInClick = (newZoom: number) => {
-    handleZoomIn(newZoom);
+    onZoomIn(newZoom);
   };
 
   const handleZoomControlOutClick = (newZoom: number) => {
-    handleZoomOut(newZoom);
+    onZoomOut(newZoom);
   };
 
   return (
@@ -203,8 +159,8 @@ const MapView = ({
         onClick={handleClick}
         onLoad={handleLoad}
         onMapMove={handleMapMove}
-        onZoomIn={handleZoomIn}
-        onZoomOut={handleZoomOut}
+        onZoomIn={onZoomIn}
+        onZoomOut={onZoomOut}
         onZoomControlInClick={handleZoomControlInClick}
         onZoomControlOutClick={handleZoomControlOutClick}
         pins={pinsSource}
