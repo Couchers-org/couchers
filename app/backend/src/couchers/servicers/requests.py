@@ -184,7 +184,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         )
         session.add(message)
         session.flush()
-
+        
         host_request = HostRequest(
             conversation_id=conversation.id,
             surfer_user_id=context.user_id,
@@ -193,6 +193,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             to_date=to_date,
             status=HostRequestStatus.pending,
             surfer_last_seen_message_id=message.id,
+            last_sent_request_reminder_time = now()
             # TODO: tz
             # timezone=host.timezone,
         )

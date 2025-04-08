@@ -31,6 +31,8 @@ from couchers.constants import (
     ACTIVENESS_PROBE_EXPIRY_TIME,
     ACTIVENESS_PROBE_INACTIVITY_PERIOD,
     ACTIVENESS_PROBE_TIME_REMINDERS,
+    HOST_REQUEST_MAX_REMINDERS,
+    HOST_REQUEST_REMINDER_INTERVAL
 )
 from couchers.crypto import (
     USER_LOCATION_RANDOMIZATION_NAME,
@@ -61,6 +63,7 @@ from couchers.models import (
     GroupChatSubscription,
     HostingStatus,
     HostRequest,
+    HostRequestStatus,
     Invoice,
     LoginToken,
     MeetupStatus,
@@ -93,7 +96,7 @@ from couchers.servicers.threads import generate_reply_notifications
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.tasks import send_duplicate_strong_verification_email
-from couchers.utils import Timestamp_from_datetime, create_coordinate, get_coordinates, make_user_context, now
+from couchers.utils import Timestamp_from_datetime, create_coordinate, get_coordinates, make_user_context, now, today_in_timezone
 from proto import notification_data_pb2
 from proto.internal import jobs_pb2, verification_pb2
 
@@ -504,6 +507,34 @@ def send_reference_reminders(payload):
 
 send_reference_reminders.PAYLOAD = empty_pb2.Empty
 send_reference_reminders.SCHEDULE = timedelta(hours=1)
+
+def send_host_request_reminders(payload):
+
+    with session_scope() as session:
+        requests = (
+            select(HostRequest)
+            .where(HostRequest.status == HostRequestStatus.pending)
+            .where(HostRequest.host_sent_request_reminders < HOST_REQUEST_MAX_REMINDERS)
+            .where(HostRequest.from_date > today_in_timezone(HostRequest.timezone))
+            .where((today_in_timezone(HostRequest.timezone) - HostRequest.last_sent_request_reminder_time) >= HOST_REQUEST_REMINDER_INTERVAL)
+        )
+
+        for host_request in requests:
+            host_request.host_sent_request_reminders += 1
+            host_request.last_sent_request_reminder_time = today_in_timezone(HostRequest.timezone)
+
+            notify(
+                session,
+                user_id=host_request.Host.id,
+                topic_action="host_request:reminder",
+                data=notification_data_pb2.HostRequestReminder(
+                    host_request=host_request,
+                    host=host_request.Host,
+                    surfer=host_request.surfer
+                )
+            )
+            
+            #Fazer o call utilizando a constante de intervalo
 
 
 def add_users_to_email_list(payload):

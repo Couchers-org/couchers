@@ -125,6 +125,28 @@ def render_notification(user, notification) -> RenderedNotification:
                 push_icon=v2avatar(other),
                 push_url=view_link,
             )
+        elif notification.action == "reminder":
+            host = data.host
+            surfer = data.surfer
+            
+            message = f"You have a pending host request from {surfer.name}!"
+            description = "Please accept or decline the request."
+            return RenderedNotification(
+                email_subject=message,
+                email_preview=description,
+                email_template_name="host_request__plain",
+                email_template_args={
+                    "view_link": view_link,
+                    "host_request": data.host_request,
+                    "message": description,
+                    "other": other,
+                },
+                email_topic_action_unsubscribe_text=f"Pending host request reminders",
+                push_title=message,
+                push_body="Check the app for more info.",
+                push_icon=v2avatar(other),
+                push_url=view_link,
+            )
     elif notification.topic_action.display == "password:change":
         title = "Your password was changed"
         message = "Your login password for Couchers.org was changed."
