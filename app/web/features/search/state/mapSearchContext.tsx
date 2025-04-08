@@ -46,7 +46,6 @@ function MapSearchProvider({
   const [mapSearchState, dispatch] = useReducer(mapSearchReducer, {
     ...initialState,
     search: { query: initialLocationName, bbox: initialBbox },
-    hasSearchInputValue: initialLocationName !== undefined,
   });
 
   return (
