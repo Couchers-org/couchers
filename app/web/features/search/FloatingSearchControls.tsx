@@ -213,16 +213,12 @@ const FloatingSearchControls = ({
   };
 
   const handleLocationChange = (value: GeocodeResult | undefined) => {
-    console.log("FSC LOCATION CHANGE", value);
     if (value) {
       setLocationInputValue({
         center: [value.location.lng, value.location.lat],
         location: value,
         zoom: 10,
       });
-
-      // this issue is zooming in runs the zoom function
-      // want to not reset bbox
 
       onZoomIn(10, [value.location.lng, value.location.lat], true);
     }

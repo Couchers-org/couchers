@@ -152,7 +152,9 @@ const SearchResultUserCard = ({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <LinesEllipsis text={user.name} maxLine={2} />
+                <div>
+                  <LinesEllipsis text={user.name} maxLine={2} />
+                </div>
               </StyledLink>
               {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
             </FlexRow>
