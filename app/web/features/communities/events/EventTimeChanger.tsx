@@ -106,45 +106,46 @@ export default function EventTimeChanger({
           }}
           testId="startDate"
         />
-          
-            <Timepicker
-              control={control}
-              name="startTime"
-              onPostChange={handleStartTimeChange}
-              defaultValue={eventStartTime || null}
-              rules={{
-                required: t("communities:time_required"),
-                pattern: {
-                  message: t("communities:invalid_time"),
-                  value: timePattern,
-                },
-                validate: (time: string) => {
-                  if (event && !dirtyFields.startTime) {
-                    return true;
-                  }
-    
-                  const startTime = dayjs(time, TIME_FORMAT);
-                  const startDate = getValues("startDate");
-    
-                  if (!startDate) {
-                    return false;
-                  }
-    
-                  const newStartDate = startDate
-                    .startOf("day")
-                    .add(startTime.get("hour"), "hour")
-                    .add(startTime.get("minute"), "minute");
-                  return (
-                    newStartDate.isAfter(dayjs()) ||
-                    t("communities:past_time_error")
-                  );
-                },
-              }}
-              id="startTime"
-              label={t("communities:start_time")}
-              error={!!errors.startTime?.message}
-              helperText={errors.startTime?.message || ""}
-            />
+
+        <Timepicker
+          control={control}
+          name="startTime"
+          onPostChange={handleStartTimeChange}
+          defaultValue={eventStartTime || null}
+          rules={{
+            required: t("communities:time_required"),
+            pattern: {
+              message: t("communities:invalid_time"),
+              value: timePattern,
+            },
+            validate: (time: Dayjs) => {
+              if (event && !dirtyFields.startTime) {
+                return true;
+              }
+
+              const startTime = dayjs(time, TIME_FORMAT);
+              const startDate = getValues("startDate");
+
+              if (!startDate) {
+                return false;
+              }
+
+              const newStartDate = startDate
+                .startOf("day")
+                .add(startTime.get("hour"), "hour")
+                .add(startTime.get("minute"), "minute");
+              return (
+                newStartDate.isAfter(dayjs()) ||
+                t("communities:past_time_error")
+              );
+            },
+          }}
+          id="startTime"
+          label={t("communities:start_time")}
+          error={!!errors.startTime?.message}
+          helperText={errors.startTime?.message || ""}
+          testId="startTime"
+        />
       </div>
       <div className={classes.duoContainer}>
         <Datepicker
@@ -177,63 +178,64 @@ export default function EventTimeChanger({
           testId="endDate"
           onPostChange={handleEndDateChange}
         />
-       
-            <Timepicker
-              control={control}
-              name="endTime"
-              onPostChange={handleEndTimeChange}
-              defaultValue={eventEndTime || null}
-              rules={{
-                required: t("communities:time_required"),
-                pattern: {
-                  message: t("communities:invalid_time"),
-                  value: timePattern,
-                },
-                validate: (time) => {
-                  if (event && !dirtyFields.endTime) {
-                    return true;
-                  }
-    
-                  const startTime = dayjs(getValues("startTime"), TIME_FORMAT);
-                  const startDate = getValues("startDate");
-    
-                  if (!startDate) {
-                    return false;
-                  }
-    
-                  const newStartDate = startDate
-                    .startOf("day")
-                    .add(startTime.get("hour"), "hour")
-                    .add(startTime.get("minute"), "minute");
-    
-                  const endTime = dayjs(time, TIME_FORMAT);
-                  const endDate = getValues("endDate")
-                    .startOf("day")
-                    .add(endTime.get("hour"), "hour")
-                    .add(endTime.get("minute"), "minute");
-    
-                  if (!endDate.isAfter(newStartDate)) {
-                    return t("communities:end_time_error");
-                  }
-    
-                  // if the endTime is in the past return past_time_error
-                  const endDateTime = endDate.format("YYYY-MM-DD HH:mm");
-                  const nowDateTime = dayjs().format("YYYY-MM-DD HH:mm");
-    
-                  if (endDateTime < nowDateTime) {
-                    return t("communities:past_time_error");
-                  }
-    
-                  return (
-                    endDate.isAfter(dayjs()) || t("communities:past_time_error")
-                  );
-                },
-              }}
-              id="endTime"
-              label={t("communities:end_time")}
-              error={!!errors.endTime?.message}
-              helperText={errors.endTime?.message || ""}
-            />
+
+        <Timepicker
+          control={control}
+          name="endTime"
+          onPostChange={handleEndTimeChange}
+          defaultValue={eventEndTime || null}
+          rules={{
+            required: t("communities:time_required"),
+            pattern: {
+              message: t("communities:invalid_time"),
+              value: timePattern,
+            },
+            validate: (time) => {
+              if (event && !dirtyFields.endTime) {
+                return true;
+              }
+
+              const startTime = dayjs(getValues("startTime"), TIME_FORMAT);
+              const startDate = getValues("startDate");
+
+              if (!startDate) {
+                return false;
+              }
+
+              const newStartDate = startDate
+                .startOf("day")
+                .add(startTime.get("hour"), "hour")
+                .add(startTime.get("minute"), "minute");
+
+              const endTime = dayjs(time, TIME_FORMAT);
+              const endDate = getValues("endDate")
+                .startOf("day")
+                .add(endTime.get("hour"), "hour")
+                .add(endTime.get("minute"), "minute");
+
+              if (!endDate.isAfter(newStartDate)) {
+                return t("communities:end_time_error");
+              }
+
+              // if the endTime is in the past return past_time_error
+              const endDateTime = endDate.format("YYYY-MM-DD HH:mm");
+              const nowDateTime = dayjs().format("YYYY-MM-DD HH:mm");
+
+              if (endDateTime < nowDateTime) {
+                return t("communities:past_time_error");
+              }
+
+              return (
+                endDate.isAfter(dayjs()) || t("communities:past_time_error")
+              );
+            },
+          }}
+          id="endTime"
+          label={t("communities:end_time")}
+          error={!!errors.endTime?.message}
+          helperText={errors.endTime?.message || ""}
+          testId="endTime"
+        />
       </div>
     </>
   );
