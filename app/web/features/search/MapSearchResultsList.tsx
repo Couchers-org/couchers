@@ -31,6 +31,10 @@ const DrawerContainer = styled("div")(({ theme }) => ({
   flexDirection: "column",
 }));
 
+const SpinnerWrapper = styled("div")(({ theme }) => ({
+  paddingTop: theme.spacing(8),
+}));
+
 const MapSearchResultsList = ({
   drawerWidth,
   hasPreviousPage,
@@ -74,7 +78,9 @@ const MapSearchResultsList = ({
         }
       >
         {isLoading ? (
-          <CenteredSpinner />
+          <SpinnerWrapper>
+            <CenteredSpinner />
+          </SpinnerWrapper>
         ) : (
           <SearchResultListContent
             numberOfTotal={numberOfTotal}

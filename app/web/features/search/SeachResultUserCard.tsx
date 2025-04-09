@@ -191,7 +191,6 @@ const SearchResultUserCard = ({
           meetupStatus={user.meetupStatus}
           numberReferences={user.numReferences}
         />
-
         {generateAboutText(user, t)}
         <FlexRow alignItems="flex-end" justifyContent="space-between">
           <UserDetailsRow>
