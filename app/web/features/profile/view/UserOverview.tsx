@@ -40,6 +40,7 @@ const useStyles = makeStyles((theme) => ({
     wordBreak: "break-word",
     overflowWrap: "break-word",
     textAlign: "center",
+    marginBottom: theme.spacing(1),
   },
 
   wrapper: {
@@ -101,6 +102,9 @@ export default function UserOverview({
             {user.name}
             {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
           </span>
+        </Typography>
+        <Typography variant="body1" className={classes.intro}>
+          @{user.username}
         </Typography>
         <Typography variant="body1" className={classes.intro}>
           {user.city}
