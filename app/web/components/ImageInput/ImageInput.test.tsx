@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   CANCEL_UPLOAD,
@@ -288,6 +288,51 @@ describe.each`
     await user.click(screen.getByLabelText(CONFIRM_UPLOAD));
 
     expect(await screen.findByText("Whoops")).toBeVisible();
+  });
+
+  it("calls onUploading callback during image upload", async () => {
+    const onUploadingMock = jest.fn();
+    const Form = () => {
+      const { control } = useForm();
+      return (
+        <form data-testid="test-form">
+          <ImageInput
+            control={control}
+            id="image-input"
+            initialPreviewSrc={MOCK_INITIAL_SRC}
+            name="imageInput"
+            userName={NAME}
+            type="avatar"
+            onUploading={onUploadingMock}
+          />
+        </form>
+      );
+    };
+    render(<Form />, { wrapper });
+
+    const user = userEvent.setup({ applyAccept: false });
+    const form = screen.getByTestId("test-form");
+
+    // Start upload
+    await user.upload(
+      within(form).getByLabelText(SELECT_AN_IMAGE) as HTMLInputElement,
+      MOCK_FILE,
+    );
+    expect(await within(form).findByLabelText(CONFIRM_UPLOAD)).toBeVisible();
+
+    // Confirm upload
+    await user.click(within(form).getByLabelText(CONFIRM_UPLOAD));
+
+    // Verify onUploading was called with true when upload started
+    expect(onUploadingMock).toHaveBeenCalledWith(true);
+
+    // Wait for upload to complete
+    await waitFor(() => {
+      expect(uploadFileMock).toHaveBeenCalled();
+    });
+
+    // Verify onUploading was called with false when upload completed
+    expect(onUploadingMock).toHaveBeenCalledWith(false);
   });
 
   it("previews the image after cancelling and selecting the same image", async () => {
