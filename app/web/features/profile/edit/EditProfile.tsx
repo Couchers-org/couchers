@@ -12,6 +12,7 @@ import {
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import CircularProgress from "components/CircularProgress";
 import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
@@ -49,6 +50,10 @@ const StyledAlert = styled(Alert)(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
+const StyledCircularProgress = styled(CircularProgress)(({ theme }) => ({
+  position: "absolute",
+}));
+
 export type EditProfileFormValues = Omit<
   UpdateUserProfileData,
   "languageAbilities" | "city" | "lat" | "lng" | "radius"
@@ -79,6 +84,8 @@ export default function EditProfileForm() {
   );
   const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] =
     useState(false);
+
+  const [isUploading, setIsUploading] = useState(false);
 
   const queryClient = useQueryClient();
   const {
@@ -219,6 +226,7 @@ export default function EditProfileForm() {
               initialPreviewSrc={user.avatarUrl}
               userName={user.name}
               type="avatar"
+              onUploading={setIsUploading} //track upload state
               onSuccess={async (data) => {
                 await service.user.updateAvatar(data.key);
                 if (user) queryClient.invalidateQueries(userKey(user.userId));
@@ -526,9 +534,11 @@ export default function EditProfileForm() {
                 variant="contained"
                 color="primary"
                 loading={updateIsLoading}
+                disabled={isUploading || updateIsLoading} //Disable while uploading
               >
                 {t("global:save")}
               </Button>
+              {isUploading && <StyledCircularProgress />}
             </div>
           </form>
           <Dialog
