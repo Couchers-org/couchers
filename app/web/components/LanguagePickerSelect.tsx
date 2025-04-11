@@ -18,6 +18,7 @@ import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { theme } from "theme";
+import { getLangCookie } from "i18n/getLangCookie";
 
 const StyledMuiSelect = styled(MuiSelect)(({ theme, displayMode }) => ({
   borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
@@ -37,29 +38,6 @@ type LanguagePickerSelectProps = {
   displayMode?: "round" | "rect";
 };
 
-// note: manually add a non-secure cookie in development to test this functionality
-// TODO: this function lives in two places... where should it live?
-function getLangCookie() {
-  const name = "couchers-preferred-language=";
-
-  // split multiple cookies from cookie string
-  // "couchers-preferred-language=es; some-other-cookie=some value" --> ['couchers-preferred-language=es', ' some-other-cookie=some value']")
-  const allCookies = document.cookie.split("; ");
-
-  // find the cookie with key "couchers-preferred-language" and extract its value
-  for (let i = 0; i < allCookies.length; i++) {
-    const cookie = allCookies[i];
-
-    // if cookie key is couchers-preferred-language
-    if (cookie.indexOf(name) == 0) {
-      // cookie val will start at the length of the cookie's name
-      return cookie.substring(name.length);
-    }
-  }
-  // if not cookie is found, return an empty string
-  return "";
-}
-
 export default function LanguagePickerSelect({
   defaultValue,
   value,
@@ -73,7 +51,7 @@ export default function LanguagePickerSelect({
   const handleChange = (event: SelectChangeEvent) => {
     const newLang = event.target.value as string;
     setLanguage(newLang);
-    onSelect?.(newLang); // sends request to update language preference on backend?
+    onSelect?.(newLang); // uses i18n.changeLanguage to update UI language
   };
 
   // Helper function to render a flag icon from country flag icons collection
@@ -82,7 +60,7 @@ export default function LanguagePickerSelect({
       <img
         alt={`${flagCode} flag`}
         src={`http://purecatamphetamine.github.io/country-flag-icons/3x2/${flagCode}.svg`}
-        style={{ width: 30 }}
+        style={{ width: 25 }}
       />
     );
   };

@@ -5,18 +5,17 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
+import { getLangCookie } from "i18n/getLangCookie";
 import { GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
-import { theme } from "theme";
 import { service } from "service";
+import { theme } from "theme";
 
 import useChangeDetailsFormStyles from "../features/auth/useChangeDetailsFormStyles";
 import LanguagePickerSelect from "./LanguagePickerSelect";
 
-// TODO: Update to correct link
-const COMMUNITY_BUILDER_FORM_LINK =
-  "https://couchers.org/community-builder-form";
+const VOLUNTEER_PAGE_LINK = "https://couchers.org/volunteer";
 
 interface ChangeLanguageFormData {
   newLanguage: string;
@@ -25,30 +24,6 @@ interface ChangeLanguageFormData {
 interface ChangeLanguageProps {
   // language: string;
   className?: string;
-}
-
-// TODO: this function is used in two places, where should it live?
-// note: this will not retrieve secure cookies in development,
-// manually add a non-secure cookie in development to test this functionality
-function getLangCookie() {
-  const name = "couchers-preferred-language=";
-
-  // split multiple cookies from cookie string
-  // "couchers-preferred-language=es; some-other-cookie=some value" --> ['couchers-preferred-language=es', ' some-other-cookie=some value']")
-  const allCookies = document.cookie.split("; ");
-
-  // find the cookie with key "couchers-preferred-language" and extract its value
-  for (let i = 0; i < allCookies.length; i++) {
-    const cookie = allCookies[i];
-
-    // if cookie key is couchers-preferred-language
-    if (cookie.indexOf(name) == 0) {
-      // cookie val will start at the length of the cookie's name
-      return cookie.substring(name.length);
-    }
-  }
-  // if not cookie is found, return an empty string
-  return "";
 }
 
 export default function LanguagePickerSettings({
@@ -61,6 +36,7 @@ export default function LanguagePickerSettings({
   const { handleSubmit, reset: resetForm } = useForm<ChangeLanguageFormData>();
   const onSubmit = handleSubmit(({ newLanguage }) => {
     // TODO: send request to update cookie on backend w/ newLanguage code
+    // TODO: uses i18n.changeLanguage to update UI language
   });
 
   const {
@@ -89,7 +65,7 @@ export default function LanguagePickerSettings({
         </Typography>
         <Typography variant="body1" paragraph>
           <MuiLink
-            href={COMMUNITY_BUILDER_FORM_LINK}
+            href={VOLUNTEER_PAGE_LINK}
             target="_blank"
             rel="noreferrer noopener"
             underline="hover"
