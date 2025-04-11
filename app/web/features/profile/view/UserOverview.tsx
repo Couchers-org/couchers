@@ -1,4 +1,4 @@
-import { Card, CardActions, Typography } from "@mui/material";
+import { Card, CardActions, Link, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
@@ -18,6 +18,7 @@ import makeStyles from "utils/makeStyles";
 import { useProfileUser } from "../hooks/useProfileUser";
 import { Badges } from "./Badges";
 import { ReferencesLastActiveLabels, ResponseRateLabel } from "./userLabels";
+import { routeToUser } from "routes";
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -103,9 +104,9 @@ export default function UserOverview({
             {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
           </span>
         </Typography>
-        <Typography variant="body1" className={classes.intro}>
+        <Link href={routeToUser(user.username)} variant="body1" className={classes.intro}>
           @{user.username}
-        </Typography>
+        </Link>
         <Typography variant="body1" className={classes.intro}>
           {user.city}
         </Typography>
