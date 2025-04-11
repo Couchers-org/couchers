@@ -20,17 +20,23 @@ import { useState } from "react";
 import { theme } from "theme";
 import { getLangCookie } from "i18n/getLangCookie";
 
-const StyledMuiSelect = styled(MuiSelect)(({ theme, displayMode }) => ({
-  borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
-  "& .MuiSelect-icon": {
-    color: theme.palette.text.primary,
-    fontSize: "1.25rem",
-    top: "50%",
-    transform: "translateY(-50%)",
-    right: 10,
-  },
-  height: 41.25,
-}));
+interface StyledMuiSelectProps {
+  displayMode?: "round" | "rect";
+}
+
+const StyledMuiSelect = styled(MuiSelect)<StyledMuiSelectProps>(
+  ({ theme, displayMode }) => ({
+    borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
+    "& .MuiSelect-icon": {
+      color: theme.palette.text.primary,
+      fontSize: "1.25rem",
+      top: "50%",
+      transform: "translateY(-50%)",
+      right: 10,
+    },
+    height: 41.25,
+  }),
+);
 
 type LanguagePickerSelectProps = {
   defaultValue?: string;
@@ -49,7 +55,7 @@ export default function LanguagePickerSelect({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL]);
 
-  const handleChange = (event: SelectChangeEvent) => {
+  const handleChange = (event: SelectChangeEvent<unknown>) => {
     const newLang = event.target.value as string;
     setLanguage(newLang);
     onSelect?.(newLang); // uses i18n.changeLanguage to update UI language
@@ -112,7 +118,8 @@ export default function LanguagePickerSelect({
   }
 
   // renderValue function for what should be rendered after a selection is made
-  const renderValue = (selected: string) => {
+  const renderValue = (value: unknown) => {
+    const selected = value as string;
     const selectedDisplay = (
       <Box
         sx={{
@@ -135,7 +142,6 @@ export default function LanguagePickerSelect({
     <Box sx={{ minWidth: 60 }}>
       <FormControl
         variant="outlined"
-        displayMode={displayMode}
         sx={{
           // specialized sizing based on screen size
           width:
