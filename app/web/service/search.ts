@@ -1,5 +1,7 @@
 import {
   Coordinates,
+  DEFAULT_AGE_MAX,
+  DEFAULT_AGE_MIN,
   SleepingArrangementOptions,
 } from "features/search/utils/constants";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
@@ -121,11 +123,11 @@ export async function userSearch(
     req.setHostingStatusFilterList(hostingStatusOptions);
   }
 
-  if (ageMin) {
+  if (ageMin && ageMin !== DEFAULT_AGE_MIN) {
     req.setAgeMin(new UInt32Value().setValue(ageMin));
   }
 
-  if (ageMax) {
+  if (ageMax && ageMax !== DEFAULT_AGE_MAX) {
     req.setAgeMax(new UInt32Value().setValue(ageMax));
   }
 

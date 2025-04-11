@@ -264,7 +264,10 @@ const mapSearchReducer = (
           updatedFilters.acceptsLastMinRequests =
             action.payload[key] === false ? undefined : action.payload[key];
         }
-        if (key === "completeProfile") {
+        if (
+          key === "completeProfile" &&
+          action.payload.completeProfile !== undefined
+        ) {
           updatedFilters.completeProfile =
             action.payload[key] === false ? undefined : true;
         }
@@ -285,6 +288,11 @@ const mapSearchReducer = (
               ? undefined
               : action.payload[key];
         }
+
+        if (key === "lastActive") {
+          updatedFilters.lastActive =
+            action.payload[key] === 0 ? undefined : action.payload[key];
+        }
         if (key === "numGuests") {
           updatedFilters.numGuests =
             action.payload[key] === 0 ? undefined : action.payload[key];
@@ -304,6 +312,8 @@ const mapSearchReducer = (
         ...state,
         filters: updatedFilters,
       };
+
+      console.log("NEW STATE", newState);
 
       return {
         ...newState,

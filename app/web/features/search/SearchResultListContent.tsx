@@ -74,7 +74,7 @@ const SearchResultListContent = ({
           </Typography>
         )}
         {(users ?? []).length > 0 && (
-          <Typography variant="caption">
+          <Typography variant="body2">
             {t("search:search_result.people_found_message", {
               numberOfTotal,
               totalItems,

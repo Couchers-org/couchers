@@ -60,7 +60,7 @@ export function useUserSearch(
    */
   const hasPreviousPage =
     (users ?? []).length > 0 &&
-    data?.pages[mapSearchState.pageNumber - 1]?.nextPageToken !== undefined;
+    data?.pages[mapSearchState.pageNumber - 2] !== undefined;
 
   const totalItems = data?.pages[0]?.totalItems ?? 0;
 

@@ -46,7 +46,7 @@ type SleepingArrangementOptions =
   | SleepingArrangement.SLEEPING_ARRANGEMENT_SHARED_ROOM;
 
 const DEFAULT_AGE_MIN = 18;
-const DEFAULT_AGE_MAX = 100;
+const DEFAULT_AGE_MAX = 120;
 const MAX_MAP_ZOOM_LEVEL_FOR_SEARCH = 7;
 
 type MapSearchTypes = "location" | "keyword";

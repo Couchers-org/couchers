@@ -1,6 +1,8 @@
-import { debounce, styled } from "@mui/material";
+import { Button, debounce, styled } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Map, { API_BASE_URL } from "components/Map";
+import { useTranslation } from "i18n";
+import { SEARCH } from "i18n/namespaces";
 import { GeoJSONSource, LngLatLike, MapLayerMouseEvent } from "maplibre-gl";
 import { User } from "proto/api_pb";
 import { useCallback, useMemo } from "react";
@@ -22,6 +24,7 @@ import {
 } from "./utils/mapUtils";
 
 interface MapViewProps {
+  isDrawerExpanded: boolean;
   isLoading: boolean;
   mapRef: React.RefObject<MapRef>;
   onZoomIn: (newZoom: number, center?: LngLatLike) => void;
@@ -37,15 +40,36 @@ const MapLoadingContainer = styled("div")(({ theme }) => ({
   height: "100%",
 }));
 
+const SearchThisAreaButton = styled(Button, {
+  shouldForwardProp: (prop) => prop !== "isDrawerExpanded",
+})<{ isDrawerExpanded: boolean }>(({ isDrawerExpanded, theme }) => ({
+  backgroundColor: theme.palette.common.white,
+  borderRadius: "20px",
+  boxShadow: theme.shadows[4],
+  padding: theme.spacing(1, 2),
+  position: "absolute",
+  top: isDrawerExpanded ? theme.spacing(2) : theme.spacing(9),
+  zIndex: 10,
+  left: "50%",
+  transform: "translateX(-50%)",
+
+  "&:hover": {
+    backgroundColor: theme.palette.grey[200],
+  },
+}));
+
 const DEFAULT_USERS: User.AsObject[] = [];
 
 const MapView = ({
+  isDrawerExpanded,
   isLoading,
   mapRef,
   onZoomIn,
   onZoomOut,
   users = DEFAULT_USERS,
 }: MapViewProps) => {
+  const { t } = useTranslation([SEARCH]);
+
   const pins = usersToGeoJSON(users);
   const memoizedPins = useMemo(() => pins, [pins]);
   const zoomedOutDataSource = API_BASE_URL + "/geojson/users";
@@ -54,12 +78,17 @@ const MapView = ({
     search: { bbox: searchQueryBbox, query },
     hasActiveFilters,
     selectedUserId,
+    showSearchThisAreaButton,
     shouldSearchByUserId,
     uiOnly: { zoom },
   } = useMapSearchState();
 
-  const { setMoveMapUIOnly, setSelectedUserId, setShowSearchThisAreaButton } =
-    useMapSearchActions();
+  const {
+    setMapQueryArea,
+    setMoveMapUIOnly,
+    setSelectedUserId,
+    setShowSearchThisAreaButton,
+  } = useMapSearchActions();
 
   const meetsSearchCriteria =
     hasActiveFilters ||
@@ -69,6 +98,11 @@ const MapView = ({
 
   // If zoomed in, has a location searched or has active filters, use the memoized pins form api query in SearchPage
   const pinsSource = meetsSearchCriteria ? memoizedPins : zoomedOutDataSource;
+
+  const handleSearchThisAreaClick = () => {
+    const bbox = getMapBounds(mapRef);
+    setMapQueryArea(bbox);
+  };
 
   const handleClick = useCallback(
     async (ev: MapLayerMouseEvent) => {
@@ -92,8 +126,8 @@ const MapView = ({
         );
 
         // prevent it from hyper zooming rapidly
-        if (newZoom - zoom > 5) {
-          newZoom = zoom + 5;
+        if (newZoom - zoom > 6) {
+          newZoom = zoom + 6;
         }
 
         onZoomIn(newZoom, ev.lngLat);
@@ -151,6 +185,14 @@ const MapView = ({
         <MapLoadingContainer>
           <CenteredSpinner minHeight="100%" />
         </MapLoadingContainer>
+      )}
+      {showSearchThisAreaButton && (
+        <SearchThisAreaButton
+          isDrawerExpanded={isDrawerExpanded}
+          onClick={handleSearchThisAreaClick}
+        >
+          {t("search:search_this_area")}
+        </SearchThisAreaButton>
       )}
       <Map
         grow

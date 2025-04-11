@@ -1,4 +1,5 @@
 import { styled, useMediaQuery } from "@mui/material";
+import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { User } from "proto/api_pb";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
@@ -118,6 +119,7 @@ const MapSearchContent = ({
       {!isMobile && mapView !== MapViews.LIST_ONLY && (
         <MapContainer drawerWidth={drawerWidth}>
           <MapView
+            isDrawerExpanded={drawerWidth > DEFAULT_DRAWER_WIDTH}
             isLoading={isLoading}
             mapRef={mapRef}
             onZoomIn={onZoomIn}

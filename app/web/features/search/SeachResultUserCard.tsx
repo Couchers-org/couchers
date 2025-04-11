@@ -52,6 +52,7 @@ const StyledBottomContent = styled("div")(({ theme }) => ({
   flexGrow: 1,
   padding: theme.spacing(1, 2, 1),
   width: "100%",
+  wordBreak: "break-word",
 }));
 
 const StyledCardHeader = styled(Typography)(({ theme }) => ({

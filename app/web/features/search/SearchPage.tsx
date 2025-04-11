@@ -60,6 +60,7 @@ export default function SearchPage() {
   const {
     setPageNumber,
     setMapQueryArea,
+    setMoveMapUIOnly,
     setShowSearchThisAreaButton,
     setSelectedUserId,
   } = useMapSearchActions();
@@ -122,9 +123,15 @@ export default function SearchPage() {
             newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
             mapSearchState.uiOnly.zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
           // If it's the first zoom within threshold, set the map bounds so the user pins load
-          if (didCrossSearchThreshold && !isLocationSearch) {
+          if (
+            didCrossSearchThreshold &&
+            !isLocationSearch && // need to pass since it's zoomed before state is set
+            !mapSearchState.search.query // not keyword search bc already has filter then
+          ) {
             const bbox = getMapBounds(mapRef);
             setMapQueryArea(bbox, newZoom);
+          } else {
+            setMoveMapUIOnly({ zoom: newZoom });
           }
 
           mapRef.current?.easeTo({
