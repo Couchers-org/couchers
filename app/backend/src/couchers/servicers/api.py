@@ -9,7 +9,7 @@ from sqlalchemy.sql import and_, delete, func, intersect, or_, union
 from couchers import errors, urls
 from couchers.config import config
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
-from couchers.materialized_views import lite_users
+from couchers.materialized_views import lite_users, user_response_rates
 from couchers.models import (
     FriendRelationship,
     FriendStatus,
@@ -36,13 +36,14 @@ from couchers.servicers.account import get_strong_verification_fields
 from couchers.sql import couchers_select as select
 from couchers.sql import is_valid_user_id, is_valid_username
 from couchers.utils import (
+    Duration_from_timedelta,
     Timestamp_from_datetime,
     create_coordinate,
     get_coordinates,
     is_valid_name,
     now,
 )
-from proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2
+from proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
 
 MAX_USERS_PER_QUERY = 200
 MAX_PAGINATION_LENGTH = 50
@@ -792,6 +793,52 @@ class API(api_pb2_grpc.APIServicer):
         )
 
 
+def get_response_rate(user_id, session, context):
+    user_res = session.execute(
+        select(User.id, user_response_rates)
+        .outerjoin(user_response_rates, user_response_rates.c.user_id == User.id)
+        .where_users_visible(context)
+        .where(User.id == user_id)
+    ).one_or_none()
+
+    # if user doesn't exist, return None
+    if not user_res:
+        return None
+
+    user, _, n, response_rate, _, response_time_p33, response_time_p66 = user_res
+
+    # if n is None, the user is new or they have no requests
+    if not n or n < 3:
+        return {"insufficient_data": requests_pb2.ResponseRateInsufficientData()}
+
+    if response_rate <= 0.33:
+        return {"low": requests_pb2.ResponseRateLow()}
+
+    response_time_p33_coarsened = Duration_from_timedelta(
+        timedelta(seconds=round(response_time_p33.total_seconds() / 60) * 60)
+    )
+
+    if response_rate <= 0.66:
+        return {"some": requests_pb2.ResponseRateSome(response_time_p33=response_time_p33_coarsened)}
+
+    response_time_p66_coarsened = Duration_from_timedelta(
+        timedelta(seconds=round(response_time_p66.total_seconds() / 60) * 60)
+    )
+
+    if response_rate <= 0.90:
+        return {
+            "most": requests_pb2.ResponseRateMost(
+                response_time_p33=response_time_p33_coarsened, response_time_p66=response_time_p66_coarsened
+            )
+        }
+    else:
+        return {
+            "almost_all": requests_pb2.ResponseRateAlmostAll(
+                response_time_p33=response_time_p33_coarsened, response_time_p66=response_time_p66_coarsened
+            )
+        }
+
+
 def user_model_to_pb(db_user, session, context):
     num_references = session.execute(
         select(func.count())
@@ -902,6 +949,7 @@ def user_model_to_pb(db_user, session, context):
         avatar_thumbnail_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
         badges=[badge.badge_id for badge in db_user.badges],
         **get_strong_verification_fields(session, db_user),
+        **get_response_rate(db_user.id, session, context),
     )
 
     if db_user.max_guests is not None:

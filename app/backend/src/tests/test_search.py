@@ -249,6 +249,40 @@ def test_regression_search_only_with_references(db):
         assert [result.user.user_id for result in res.results] == [user2.id]
 
 
+def test_user_search_exactly_user_ids(db):
+    """
+    Test that UserSearch with exactly_user_ids returns only those users and ignores other filters.
+    """
+    # Create users with different properties
+    user1, token1 = generate_user()
+    user2, _ = generate_user(strong_verification=True)
+    user3, _ = generate_user(complete_profile=True)
+    user4, _ = generate_user(meetup_status=MeetupStatus.wants_to_meetup)
+    user5, _ = generate_user(delete_user=True)  # Deleted user
+
+    with search_session(token1) as api:
+        # Test that exactly_user_ids returns only the specified users
+        res = api.UserSearch(search_pb2.UserSearchReq(exactly_user_ids=[user2.id, user3.id, user4.id]))
+        assert sorted([result.user.user_id for result in res.results]) == sorted([user2.id, user3.id, user4.id])
+
+        # Test that exactly_user_ids ignores other filters
+        res = api.UserSearch(
+            search_pb2.UserSearchReq(
+                exactly_user_ids=[user2.id, user3.id, user4.id],
+                only_with_strong_verification=True,  # This would normally filter out user3 and user4
+            )
+        )
+        assert sorted([result.user.user_id for result in res.results]) == sorted([user2.id, user3.id, user4.id])
+
+        # Test with non-existent user IDs (should be ignored)
+        res = api.UserSearch(search_pb2.UserSearchReq(exactly_user_ids=[user1.id, 99999]))
+        assert [result.user.user_id for result in res.results] == [user1.id]
+
+        # Test with deleted user ID (should be ignored due to visibility filter)
+        res = api.UserSearch(search_pb2.UserSearchReq(exactly_user_ids=[user1.id, user5.id]))
+        assert [result.user.user_id for result in res.results] == [user1.id]
+
+
 @pytest.fixture
 def sample_event_data() -> dict:
     """Dummy data for creating events."""

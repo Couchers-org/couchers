@@ -28,7 +28,7 @@
     "@mui/lab": "^5.0.0-alpha.164",
     "@mui/material": "^5.16.7",
     "@mui/styles": "^5.16.7",
-    "@mui/system": "^5.16.14",
+    "@mui/system": "^5.17.1",
     "@mui/utils": "^5.16.13",
     "@mui/x-date-pickers": "^5.0.20",
     "@sentry/nextjs": "^8.47.0",
@@ -61,7 +61,7 @@
     "react-query": "^3.39.3",
     "react-simple-maps": "^3.0.0",
     "seamless-scroll-polyfill": "^2.1.8",
-    "sharp": "^0.33.5"
+    "sharp": "^0.34.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",
@@ -81,7 +81,7 @@
     "@types/react-gtm-module": "^2.0.4",
     "@types/react-query": "^1.2.9",
     "@types/react-simple-maps": "^3.0.6",
-    "@typescript-eslint/eslint-plugin": "^8.26.1",
+    "@typescript-eslint/eslint-plugin": "^8.29.0",
     "@typescript-eslint/parser": "^8.27.0",
     "cross-env": "^7.0.3",
     "css-mediaquery": "^0.1.2",
