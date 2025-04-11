@@ -29,6 +29,7 @@ const StyledMuiSelect = styled(MuiSelect)(({ theme, displayMode }) => ({
     transform: "translateY(-50%)",
     right: 10,
   },
+  height: 41.25,
 }));
 
 type LanguagePickerSelectProps = {
