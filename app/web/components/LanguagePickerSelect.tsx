@@ -15,10 +15,10 @@ import {
 } from "@mui/material";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
+import { getLangCookie } from "i18n/getLangCookie";
 import { GLOBAL } from "i18n/namespaces";
 import { useState } from "react";
 import { theme } from "theme";
-import { getLangCookie } from "i18n/getLangCookie";
 
 interface StyledMuiSelectProps {
   displayMode?: "round" | "rect";

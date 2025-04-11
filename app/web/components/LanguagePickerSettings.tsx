@@ -1,15 +1,10 @@
 import { Link as MuiLink, Typography, useMediaQuery } from "@mui/material";
-import Alert from "components/Alert";
 import Button from "components/Button";
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { getLangCookie } from "i18n/getLangCookie";
 import { GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
-import { useMutation } from "react-query";
-import { service } from "service";
 import { theme } from "theme";
 
 import useChangeDetailsFormStyles from "../features/auth/useChangeDetailsFormStyles";
