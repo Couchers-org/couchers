@@ -20,17 +20,37 @@ import { useState } from "react";
 import { theme } from "theme";
 import { getLangCookie } from "i18n/getLangCookie";
 
-const StyledMuiSelect = styled(MuiSelect)(({ theme, displayMode }) => ({
-  borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
-  "& .MuiSelect-icon": {
-    color: theme.palette.text.primary,
-    fontSize: "1.25rem",
-    top: "50%",
-    transform: "translateY(-50%)",
-    right: 10,
-  },
-  height: 41.25,
-}));
+interface StyledSelectProps {
+  displayMode: "round" | "rect";
+}
+
+const StyledMuiSelect = styled(MuiSelect)<StyledSelectProps>(
+  ({ theme, displayMode }) => ({
+    borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
+    "& .MuiSelect-icon": {
+      color: theme.palette.text.primary,
+      fontSize: "1.25rem",
+      top: "50%",
+      transform: "translateY(-50%)",
+      right: 10,
+    },
+    "& .Mui-focused": {
+      borderColor: "red", // this is the focus override
+    },
+    height: 41.25,
+    // "& .MuiOutlinedInput-root": {
+    //   // "& fieldset": {
+    //   //   borderColor: "gray", // or 'transparent' to remove
+    //   // },
+    //   // "&:hover fieldset": {
+    //   //   borderColor: "gray", // optional: consistent hover behavior
+    //   // },
+    //   "& .Mui-focused fieldset": {
+    //     borderColor: "gray", // this is the focus override
+    //   },
+    // },
+  }),
+);
 
 type LanguagePickerSelectProps = {
   defaultValue?: string;
@@ -49,10 +69,9 @@ export default function LanguagePickerSelect({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL]);
 
-  const handleChange = (event: SelectChangeEvent) => {
-    const newLang = event.target.value as string;
-    setLanguage(newLang);
-    onSelect?.(newLang); // uses i18n.changeLanguage to update UI language
+  const handleChange: (event: SelectChangeEvent<unknown>) => void = (event) => {
+    const value = event.target.value as string;
+    setLanguage(value); // uses i18n.changeLanguage to update UI language
   };
 
   // Helper function to render a flag icon from country flag icons collection
@@ -112,7 +131,8 @@ export default function LanguagePickerSelect({
   }
 
   // renderValue function for what should be rendered after a selection is made
-  const renderValue = (selected: string) => {
+  const renderValue = (value: unknown) => {
+    const selected = value as string;
     const selectedDisplay = (
       <Box
         sx={{
@@ -132,10 +152,9 @@ export default function LanguagePickerSelect({
   };
 
   return (
-    <Box sx={{ minWidth: 60 }}>
+    <Box sx={{ minWidth: 40 }}>
       <FormControl
         variant="outlined"
-        displayMode={displayMode}
         sx={{
           // specialized sizing based on screen size
           width:

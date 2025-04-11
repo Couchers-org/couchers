@@ -59,6 +59,12 @@ export function changeEmail(newEmail: string, currentPassword: string) {
   return client.account.changeEmailV2(req);
 }
 
+export function changeLanguage(newLanguage: string) {
+  // make a ChangeLanguage request
+  // set the new request language to newLanguage
+  // return the response
+}
+
 export async function confirmChangeEmail(resetToken: string) {
   const req = new ConfirmChangeEmailV2Req();
   req.setChangeEmailToken(resetToken);
