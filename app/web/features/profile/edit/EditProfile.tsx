@@ -533,12 +533,11 @@ export default function EditProfileForm() {
                 type="submit"
                 variant="contained"
                 color="primary"
-                loading={updateIsLoading}
-                disabled={isUploading || updateIsLoading} //Disable while uploading
+                loading={updateIsLoading || isUploading}
+                disabled={updateIsLoading || isUploading}
               >
                 {t("global:save")}
               </Button>
-              {isUploading && <StyledCircularProgress />}
             </div>
           </form>
           <Dialog
