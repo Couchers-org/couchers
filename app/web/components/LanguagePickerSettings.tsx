@@ -29,9 +29,10 @@ export default function LanguagePickerSettings({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { handleSubmit, reset: resetForm } = useForm<ChangeLanguageFormData>();
-  const onSubmit = handleSubmit(({ newLanguage }) => {
+  const onSubmit = handleSubmit(() => {
     // TODO: send request to update cookie on backend w/ newLanguage code
     // TODO: uses i18n.changeLanguage to update UI language
+    resetForm();
   });
 
   return (

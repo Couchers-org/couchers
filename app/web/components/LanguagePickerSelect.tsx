@@ -46,12 +46,13 @@ type LanguagePickerSelectProps = {
 };
 
 export default function LanguagePickerSelect({
-  defaultValue,
-  value,
+  defaultValue = "en",
   onSelect,
   displayMode = "round", // default to round if not specified
 }: LanguagePickerSelectProps) {
-  const [language, setLanguage] = useState(getLangCookie());
+  const [language, setLanguage] = useState(
+    getLangCookie() != "" ? getLangCookie() : defaultValue,
+  );
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { t } = useTranslation([GLOBAL]);
 
