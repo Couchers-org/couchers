@@ -39,20 +39,6 @@ export default function LanguagePickerSettings({
     // TODO: uses i18n.changeLanguage to update UI language
   });
 
-  const {
-    error: changeLanguageError,
-    isLoading: isChangeLanguageLoading,
-    isSuccess: isChangeLanguageSuccess,
-    mutate: changeLanguage,
-  } = useMutation<Empty, RpcError, ChangeLanguageFormData>(
-    ({ newLanguage }) => service.account.changeLanguage(newLanguage),
-    {
-      onSuccess: () => {
-        resetForm();
-      },
-    },
-  );
-
   return (
     <div className={className}>
       <Typography variant="h2">
@@ -73,21 +59,9 @@ export default function LanguagePickerSettings({
             <strong>{t("global:language_preference.help_translate")}</strong>
           </MuiLink>
         </Typography>
-        {changeLanguageError && (
-          <Alert severity="error">{changeLanguageError.message}</Alert>
-        )}
-        {isChangeLanguageSuccess && (
-          <Alert severity="success">
-            {t("global:language_preference.success_message")}
-          </Alert>
-        )}
         <form className={formClasses.form} onSubmit={onSubmit}>
           <LanguagePickerSelect displayMode="rect" />
-          <Button
-            fullWidth={isMobile}
-            loading={isChangeLanguageLoading}
-            type="submit"
-          >
+          <Button fullWidth={isMobile} type="submit">
             {t("global:submit")}
           </Button>
         </form>
