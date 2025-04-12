@@ -142,7 +142,12 @@ export default function SearchPage() {
         },
         300,
       ),
-    [mapSearchState.uiOnly.zoom, setMapQueryArea],
+    [
+      mapSearchState.search.query,
+      mapSearchState.uiOnly.zoom,
+      setMapQueryArea,
+      setMoveMapUIOnly,
+    ],
   );
 
   const handleZoomIn = useCallback(
