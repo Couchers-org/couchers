@@ -3,18 +3,18 @@ title: 50,000+ Couchers Milestone Reached
 slug: 50k-couchers-milestone-reached
 description: Couchers.org welcomes 50,000th member. Preparing for v1 launch,
   introducing exciting new features
-date: 2025/03/13
+date: 2025/04/12
 author: Colleen, Jesse
-share_image: https://couchers.org/img/blog/20250316_couchers_volunteers
+share_image: https://couchers.org/img/blog/20250412_couchers_volunteers
 ---
 
 Hello everyone!
 
 We are excited to announce that we now have over 50,000 members!!! To celebrate this occasion, we would like to share some updates with the community, especially since there has been a lot going on behind the scenes. 
 
-![Couchers.org Weekly Zoom Meeting](/img/blog/20250316_couchers_volunteers.jpg)
+![Screenshot of the weekly Couchers.org volunteer Zoom meeting](/img/blog/20250412_couchers_volunteers.jpg)
 
-Volunteers are working tirelessly toward our upcoming milestone of getting out of the beta-phase and launching Version 1.0 of the Couchers.org platform! To help us achieve this goal, we need your support.
+Volunteers are working tirelessly toward our upcoming milestone of getting out of the beta-phase and launching version 1.0 of the Couchers.org platform! To help us achieve this goal, we need your support.
 
 ## 🤝 How you can help 🤝
 
@@ -32,7 +32,7 @@ You can contribute in lots of different ways:
 
 We are currently working on a move away from branding and marketing language based upon a comparison of Couchers.org with Couchsurfing™. Instead, we will focus on how Couchers.org is a modern, safe, and active couch surfing platform which is run by the community, for the community. While our Mission, Values, and Community Guidelines will remain the same, the rebranding will include many changes to the landing page, marketing, and communication language.
 
-We are aiming to complete some key updates, new features, and non-engineering tasks before we can "get out of Beta" and formally announce both Version 1.0 and the new branding language of Couchers.org. We are aiming to achieve this milestone by the start of summer!
+We are aiming to complete some key updates, new features, and non-engineering tasks before we can "get out of Beta" and formally announce both version 1.0 and the new branding language of Couchers.org. We are hoping to achieve this milestone by the start of summer!
 
 ## 🚀 Progress & Improvements 📈
 
@@ -73,6 +73,6 @@ Thanks from all of us at Couchers.org! We’re excited for what’s next in 2025
 
 <a href="https://www.instagram.com/couchersorg/#" target="_blank"><img src="/img/blog/instagram_logo.svg" alt="IG" style="width:26px !important;" /></a> <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="/img/blog/bluesky_logo.svg" alt="bsky" style="width:26px !important;" /></a>
 
-_Written by [Colleen](/user/colleen) and [Jesse](/user/jesse). Published on 2025/03/16_
+_Written by [Colleen](/user/colleen) and [Jesse](/user/jesse). Published on 2025/04/12_
 
 **Want to submit to our blog? [Sign up](/contribute) and let us know.**

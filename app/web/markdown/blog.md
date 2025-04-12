@@ -6,13 +6,13 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
-## [50 000+ Couchers Milestone Reached](/blog/2025/03/16/50k-couchers-milestone-reached)
+## [50 000+ Couchers Milestone Reached](/blog/2025/04/12/50k-couchers-milestone-reached)
 
-2025/03/16.
+2025/04/12.
 
 Couchers.org welcomes 50 000th member. Preparing for v1 launch, introducing exciting new features.
 
-[Read more.](/blog/2025/03/16/50k-couchers-milestone-reached)
+[Read more.](/blog/2025/04/12/50k-couchers-milestone-reached)
 
 ## [Summer 2024 updates](/blog/2024/09/08/summer-2024-updates)
 
