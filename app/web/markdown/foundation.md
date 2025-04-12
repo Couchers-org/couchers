@@ -19,7 +19,7 @@ Donations to Couchers, Inc., including through our [donation page](/donate) are 
 
 The bylaws of Couchers, Inc. are available [here](/foundation/bylaws.pdf).
 
-The current Board Members are the Founders Aapeli ([@aapeli](/user/aapeli)) and Itsi ([@itsi](/user/itsi)), as well as at-large Board Members Emily ([@emily](/user/emily)), Yannic ([@spreeni](/user/spreeni)), Natalia ([@natalia](/user/natalia)), Paul ([@paul](/user/paul)), Jesse ([@jesse](/user/jesse)).
+The current Board Members are the Founders Aapeli ([@aapeli](/user/aapeli)) and Itsi ([@itsi](/user/itsi)), as well as at-large Board Members Nicole ([@unsettleddown](/user/unsettleddown)), Emily ([@emily](/user/emily)), Yannic ([@spreeni](/user/spreeni)), Natalia ([@natalia](/user/natalia)), Paul ([@paul](/user/paul)), Jesse ([@jesse](/user/jesse)).
 
 ## Couchers.org Foundation (Australia)
 
