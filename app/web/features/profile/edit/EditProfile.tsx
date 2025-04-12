@@ -12,7 +12,6 @@ import {
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import CircularProgress from "components/CircularProgress";
 import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import EditLocationMap from "components/EditLocationMap";
 import ImageInput from "components/ImageInput";
@@ -48,10 +47,6 @@ import useStyles from "./styles";
 
 const StyledAlert = styled(Alert)(({ theme }) => ({
   marginTop: theme.spacing(2),
-}));
-
-const StyledCircularProgress = styled(CircularProgress)(({ theme }) => ({
-  position: "absolute",
 }));
 
 export type EditProfileFormValues = Omit<
