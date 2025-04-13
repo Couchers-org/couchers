@@ -1,6 +1,7 @@
 import TextField from "@mui/material/TextField";
 import { TimePicker } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
 import React, { forwardRef, useRef } from "react";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
 import { theme } from "theme";
@@ -38,7 +39,7 @@ const Timepicker = forwardRef<HTMLInputElement, TimepickerProps>(
     }: TimepickerProps,
     ref,
   ) => {
-    const { t } = useTranslation();
+    const { t } = useTranslation([GLOBAL]);
     const inputRef = useRef<null | HTMLInputElement>(null);
     const anchorEl = useRef<null | HTMLDivElement>(null);
 
@@ -81,7 +82,7 @@ const Timepicker = forwardRef<HTMLInputElement, TimepickerProps>(
                     ...props.InputProps,
                     className,
                     inputRef: ref || inputRef,
-                    "aria-label": t("components.timepicker.change_time"),
+                    "aria-label": t("global:change_time"),
                   }}
                   variant="standard"
                   sx={{
