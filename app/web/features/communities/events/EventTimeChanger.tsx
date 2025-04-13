@@ -6,7 +6,7 @@ import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
 import { UseFormReturn } from "react-hook-form";
 import { isSameOrFutureDate, timestamp2Date } from "utils/date";
-import dayjs, { Dayjs, TIME_FORMAT } from "utils/dayjs";
+import dayjs, { Dayjs } from "utils/dayjs";
 import { timePattern } from "utils/validation";
 
 import { CreateEventData, useEventFormStyles } from "./EventForm";
@@ -123,19 +123,22 @@ export default function EventTimeChanger({
                 return true;
               }
 
-              const startTime = dayjs(time, TIME_FORMAT);
               const startDate = getValues("startDate");
 
               if (!startDate) {
-                return false;
+                return t("communities:date_required");
               }
 
-              const newStartDate = startDate
-                .startOf("day")
-                .add(startTime.get("hour"), "hour")
-                .add(startTime.get("minute"), "minute");
+              if (!time) {
+                return t("communities:time_required");
+              }
+
+              const startDateTime = startDate
+                .hour(time.hour())
+                .minute(time.minute());
+
               return (
-                newStartDate.isAfter(dayjs()) ||
+                startDateTime.isAfter(dayjs()) ||
                 t("communities:past_time_error")
               );
             },
@@ -190,43 +193,37 @@ export default function EventTimeChanger({
               message: t("communities:invalid_time"),
               value: timePattern,
             },
-            validate: (time) => {
+            validate: (time: Dayjs) => {
               if (event && !dirtyFields.endTime) {
                 return true;
               }
 
-              const startTime = dayjs(getValues("startTime"), TIME_FORMAT);
+              const startTime = getValues("startTime");
               const startDate = getValues("startDate");
+              const endDate = getValues("endDate");
 
-              if (!startDate) {
-                return false;
+              if (!startTime || !time) {
+                return t("communities:time_required");
               }
 
-              const newStartDate = startDate
-                .startOf("day")
-                .add(startTime.get("hour"), "hour")
-                .add(startTime.get("minute"), "minute");
+              if (!startDate || !endDate) {
+                return t("communities:date_required");
+              }
 
-              const endTime = dayjs(time, TIME_FORMAT);
-              const endDate = getValues("endDate")
-                .startOf("day")
-                .add(endTime.get("hour"), "hour")
-                .add(endTime.get("minute"), "minute");
+              const startDateTime = startDate
+                .hour(startTime.hour())
+                .minute(startTime.minute());
 
-              if (!endDate.isAfter(newStartDate)) {
+              const endDateTime = endDate
+                .hour(time.hour())
+                .minute(time.minute());
+
+              if (!endDateTime.isAfter(startDateTime)) {
                 return t("communities:end_time_error");
               }
 
-              // if the endTime is in the past return past_time_error
-              const endDateTime = endDate.format("YYYY-MM-DD HH:mm");
-              const nowDateTime = dayjs().format("YYYY-MM-DD HH:mm");
-
-              if (endDateTime < nowDateTime) {
-                return t("communities:past_time_error");
-              }
-
               return (
-                endDate.isAfter(dayjs()) || t("communities:past_time_error")
+                endDateTime.isAfter(dayjs()) || t("communities:past_time_error")
               );
             },
           }}
