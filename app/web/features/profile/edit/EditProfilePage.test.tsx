@@ -77,7 +77,7 @@ describe("Edit profile", () => {
       () => expect(mockRouter.pathname).toBe(routeToProfile("about")),
       { timeout: 5000 },
     );
-  }, 60000);
+  }, 8000);
 
   it(`should not submit the default headings for the '${t(
     "profile:heading.who_section",
