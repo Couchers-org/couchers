@@ -22,77 +22,72 @@ interface TimepickerProps {
   testId?: string;
 }
 
-const Timepicker =
-  (
-    {
-      className,
-      control,
-      defaultValue,
-      error,
-      helperText,
-      id,
-      rules,
-      label,
-      name,
-      onPostChange,
-      testId,
-    }: TimepickerProps,
-  ) => {
-    const { t } = useTranslation([GLOBAL]);
+const Timepicker = ({
+  className,
+  control,
+  defaultValue,
+  error,
+  helperText,
+  id,
+  rules,
+  label,
+  name,
+  onPostChange,
+  testId,
+}: TimepickerProps) => {
+  const { t } = useTranslation([GLOBAL]);
 
-    return (
-        <Controller
-          control={control}
-          defaultValue={defaultValue}
-          name={name}
-          rules={rules}
-          render={({ field }) => (
-            <TimePicker
+  return (
+    <Controller
+      control={control}
+      defaultValue={defaultValue}
+      name={name}
+      rules={rules}
+      render={({ field }) => (
+        <TimePicker
+          data-testid={testId}
+          {...field}
+          label={label}
+          value={field.value ? dayjs(field.value) : null}
+          onChange={(time) => {
+            field.onChange(time);
+            onPostChange?.(time);
+          }}
+          renderInput={(props) => (
+            <TextField
+              {...props}
+              fullWidth
+              id={id}
+              error={error}
+              helperText={
+                <span data-testid={`${name}-helper-text`}>{helperText}</span>
+              }
               data-testid={testId}
-              {...field}
-              label={label}
-              value={field.value ? dayjs(field.value) : null}
-              onChange={(time) => {
-                field.onChange(time);
-                onPostChange?.(time);
+              InputLabelProps={{
+                shrink: true,
               }}
-              renderInput={(props) => (
-                <TextField
-                  {...props}
-                  fullWidth
-                  id={id}
-                  error={error}
-                  helperText={
-                    <span data-testid={`${name}-helper-text`}>
-                      {helperText}
-                    </span>
-                  }
-                  data-testid={testId}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  InputProps={{
-                    ...props.InputProps,
-                    className,
-                    "aria-label": t("global:change_time"),
-                  }}
-                  variant="standard"
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      backgroundColor: theme.palette.primary.main,
-                      color: theme.palette.text.primary,
-                    },
-                    "& .MuiPaper-root": {
-                      backgroundColor: theme.palette.primary.main,
-                      color: theme.palette.text.primary,
-                    },
-                  }}
-                />
-              )}
+              InputProps={{
+                ...props.InputProps,
+                className,
+                "aria-label": t("global:change_time"),
+              }}
+              variant="standard"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: theme.palette.primary.main,
+                  color: theme.palette.text.primary,
+                },
+                "& .MuiPaper-root": {
+                  backgroundColor: theme.palette.primary.main,
+                  color: theme.palette.text.primary,
+                },
+              }}
             />
           )}
         />
-    );
-  };
+      )}
+    />
+  );
+};
 
 export default Timepicker;
