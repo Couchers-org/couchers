@@ -1,4 +1,4 @@
-import { Card, CardActions, Typography } from "@mui/material";
+import { Card, CardActions, Link, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
@@ -13,6 +13,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import React from "react";
+import { routeToUser } from "routes";
 import makeStyles from "utils/makeStyles";
 
 import { useProfileUser } from "../hooks/useProfileUser";
@@ -103,9 +104,13 @@ export default function UserOverview({
             {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
           </span>
         </Typography>
-        <Typography variant="body1" className={classes.intro}>
+        <Link
+          href={routeToUser(user.username)}
+          variant="body1"
+          className={classes.intro}
+        >
           @{user.username}
-        </Typography>
+        </Link>
         <Typography variant="body1" className={classes.intro}>
           {user.city}
         </Typography>
