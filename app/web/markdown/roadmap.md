@@ -4,140 +4,139 @@ crumb: Roadmap
 type: general
 description: Keep up to date with the Couchers development roadmap.
 ---
-<table w﻿idth="100%" style="background-color: #FFF" t﻿able-layout="fixed;">
-  <tr style="background-color: #E47701">
-   <th colspan="6" width="100%;">
-<h1 style="text-align: center;"><strong>2025 Roadmap</strong></h1>
-   </th>
-  </tr>
-  <tr style="background-color: #E47701; color:#FFFFFF;">
-   <td  border="1px" border-collapse="collapse" width="20%">
-   </td>
-   <td width="16%"><strong>Q1 2025</strong>
-   </td>
-   <td width="16%"><strong>Q2</strong>
-   </td>
-   <td width="16%"><strong>Q3</strong>
-   </td>
-   <td width="16%"><strong>Q4</strong>
-   </td>
-   <td width="16%"><strong>Q1 2026</strong>
-   </td>
-  </tr>
-  <tr>
-
-   <td style="background-color:#E47701; color:#FFFFFF; text-align:center;" rowspan="10" ><strong>New Features</strong> 
-      </td>
-   <td style="background-color: #00A398; color:#FFFFFF;" colspan="5" >✅ Push notifications
-   </td>
-  </tr>
-  <tr>
-   <td colspan="5" >✔️ Strong Verification
-   </td>
-  </tr>
-  <tr>
-   <td colspan="5" >✔️ Phone Number Verification
-   </td>
-  </tr>
-  <tr>
-   <td style="background-color: #00A398; color:#FFFFFF;" colspan="5" >✅ Badges
-   </td>
-  </tr>
-  <tr>
-   <td style="background-color: #00A398; color:#FFFFFF;" colspan="5" >✅ Add members tab to communities
-   </td>
-  </tr>
-  <tr>
-   <td colspan="5" >Language Picker
-   </td>
-  </tr>
-  <tr>
-   <td>
-   </td>
-   <td colspan="4" >Activeness Probes
-   </td>
-  </tr>
-  <tr>
-   <td>
-   </td>
-   <td colspan="4" >Host Address Verification
-   </td>
-  </tr>
-  <tr>
-  <tr>
-   <td colspan="2" >
-   </td>
-   <td>
-   </td>
-   <td colspan="2" >Integrate blog in dashboard
-   </td>
-  </tr>
-
-   <td style="background-color:#E47701; color:#FFFFFF; text-align:center;" rowspan="4" ><strong>Updates</strong>
-   </td>
-   <td style="background-color: #00A398; color:#FFFFFF;" colspan="5" >✅ Blog revamp
-   </td>
-  </tr>
-  <tr>
-   <td colspan="5" >Rebuild map search
-   </td>
-  </tr>
-  <tr>
-   <td colspan="5" >Reference system update
-   </td>
-  </tr>
-  <tr>
-   <td colspan="2" >
-   </td>
-   <td>
-   </td>
-   <td colspan="2" >Update blog design
-   </td>
-  </tr>
-
-  <tr>
-   <td style="background-color:#E47701; color:#FFFFFF; text-align:center;" rowspan="7" ><strong>Operations</strong>
-   </td>
-   <td colspan="5" >✔️ Re-engage previous volunteers
-   </td>
-  </tr>
-  <tr>
-   <td colspan="5" >Grow community
-   </td>
-  </tr>
-  <tr>
-   <td>
-   </td>
-   <td colspan="4" >Rebranding to own identity
-   </td>
-  </tr>
-  <tr>
-   <td>
-   </td>
-   <td colspan="4" >Attract new volunteers
-   </td>
-  </tr>
-  <tr>
-   <td>
-   </td>
-   <td colspan="4" >Design Merchandise
-   </td>
-  </tr>
-  <tr>
-   <td>
-   </td>
-   <td colspan="4" >Set up web store
-   </td>
-  </tr>
-  <tr>
-   <td>
-   </td>
-   <td>
-   </td>
-   <td colspan="3" >Offer Merchandise
-   </td>
-  </tr>
+<table style="width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 3; border-radius: 5px; text-align: left; font-family: Arial, sans-serif; font-size: 14px;">
+  <thead>
+    <tr style="background-color: #E47701; color: white; border-top-left-radius: 10px; text-align: center; border-top-right-radius: 10px;">
+      <th colspan="6" style="padding: 10px; font-size: 24px;">2025 Roadmap</th>
+    </tr>
+    <tr style="background-color: #dddddd; text-align: center; animation: fade-in 0.5s;">
+      <th style="border: 0px solid #ddd; padding: 8px;"></th>
+      <th style="border: 0px solid #ddd; padding: 8px;">Q1 2025</th>
+      <th style="border: 0px solid #ddd; padding: 8px;">Q2 2025</th>
+      <th style="border: 0px solid #ddd; padding: 8px;">Q3 2025</th>
+      <th style="border: 0px solid #ddd; padding: 8px;">Q4 2025</th>
+      <th style="border: 0px solid #ddd; padding: 8px;">Q1 2026</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="animation: fade-in 0.5s;">
+      <td rowspan="13" style="border: 0px solid #ddd; padding: 8px; text-align: center; background-color: #ddd; font-weight: bold;">New Features</td>
+      <td colspan="5" style="border: 0px solid #ddd; padding: 8px; color: #FFF; background-color: #00A398;">✅ Push Notifications</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="5" style="border: 0px solid #ddd; padding: 8px; color: #FFF; background-color: #00A398;">✅ Badges</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="5" style="border: 0px solid #ddd; padding: 8px; color: #FFF; background-color: #00A398;">✅ Add Members Tab to Communities</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="5" style="border: 0px solid #ddd; padding: 8px; color: #FFF; background-color: #00A398;">✅ New Chat Bubble Design in Messages</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0px solid #ddd; padding: 8px;">✔️Display Username on Profile</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0px solid #ddd; padding: 8px;">✔️ Strong Verification</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0px solid #ddd; padding: 8px;">✔️ Phone Number Verification</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0px solid #ddd; padding: 8px;">✔️ Language Picker</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0px solid #ddd; padding: 8px;">Activeness Probes</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="1"</td>
+	  <td colspan="4" style="border: 0px solid #ddd; padding: 8px;">Host Address Verification</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="2"</td>
+	  <td colspan="3" style="border: 0px solid #ddd; padding: 8px;">Feedback Option: "Did Not Stay"</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="2"</td>
+	  <td colspan="3" style="border: 0px solid #ddd; padding: 8px;">Automated Welcome Text to New Members</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+	  <td colspan="3"</td>
+      <td colspan="2" style="border: 0px solid #ddd; padding: 8px;">Integrate Blog in Dashboard</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td rowspan="5" style="border: 0px solid #ddd; padding: 8px; text-align: center; background-color: #ddd; font-weight: bold;">Updates</td>
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0px solid #ddd; padding: 8px; color: #FFF; background-color: #00A398;">✅ Roadmap Revamp</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0px solid #ddd; padding: 8px;">✔️ Blog Revamp</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0px solid #ddd; padding: 8px;">✔️ Rebuild Map Search</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0px solid #ddd; padding: 8px;">✔️ Reference System Update</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="3"</td>
+      <td colspan="2" style="border: 0px solid #ddd; padding: 8px;">Update Blog Design</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td rowspan="9" style="border: 0px solid #ddd; padding: 8px; text-align: center; background-color: #ddd; font-weight: bold;">Operations</td>
+      <td colspan="5" style="border: 0px solid #ddd; padding: 8px; color: #FFF; background-color: #00A398;">✅ Re-engage Previous Volunteers Through Newsletter</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="5" style="border: 0px solid #ddd; padding: 8px;">Grow Community</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0px solid #ddd; padding: 8px;">Regular Posts on Social Media Accounts</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0px solid #ddd; padding: 8px;">Rebranding to Own Identity</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0px solid #ddd; padding: 8px;">Attract New Volunteers</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0px solid #ddd; padding: 8px;">Design Merchandise</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0px solid #ddd; padding: 8px;"><strong>LAUNCH COUCHERS V1</strong></td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0px solid #ddd; padding: 8px;">Set Up Web Store</td>
+    </tr>
+    <tr style="animation: fade-in 0.5s;">
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0px solid #ddd; padding: 8px;">Offer Merchandise</td>
+    </tr>
+  </tbody>
 </table>
+
+<style>
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+</style>
 
 ✅Completed ✔️Partially completed
 
