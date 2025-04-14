@@ -2,7 +2,7 @@ import TextField from "@mui/material/TextField";
 import { TimePicker } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
-import React, { forwardRef, useRef } from "react";
+import React from "react";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
 import { theme } from "theme";
 import dayjs, { Dayjs } from "utils/dayjs";
@@ -22,7 +22,7 @@ interface TimepickerProps {
   testId?: string;
 }
 
-const Timepicker = forwardRef<HTMLInputElement, TimepickerProps>(
+const Timepicker =
   (
     {
       className,
@@ -37,14 +37,10 @@ const Timepicker = forwardRef<HTMLInputElement, TimepickerProps>(
       onPostChange,
       testId,
     }: TimepickerProps,
-    ref,
   ) => {
     const { t } = useTranslation([GLOBAL]);
-    const inputRef = useRef<null | HTMLInputElement>(null);
-    const anchorEl = useRef<null | HTMLDivElement>(null);
 
     return (
-      <div ref={anchorEl}>
         <Controller
           control={control}
           defaultValue={defaultValue}
@@ -56,7 +52,6 @@ const Timepicker = forwardRef<HTMLInputElement, TimepickerProps>(
               {...field}
               label={label}
               value={field.value ? dayjs(field.value) : null}
-              inputRef={field.ref}
               onChange={(time) => {
                 field.onChange(time);
                 onPostChange?.(time);
@@ -65,9 +60,7 @@ const Timepicker = forwardRef<HTMLInputElement, TimepickerProps>(
                 <TextField
                   {...props}
                   fullWidth
-                  defaultValue={defaultValue}
                   id={id}
-                  inputRef={ref}
                   error={error}
                   helperText={
                     <span data-testid={`${name}-helper-text`}>
@@ -81,7 +74,6 @@ const Timepicker = forwardRef<HTMLInputElement, TimepickerProps>(
                   InputProps={{
                     ...props.InputProps,
                     className,
-                    inputRef: ref || inputRef,
                     "aria-label": t("global:change_time"),
                   }}
                   variant="standard"
@@ -97,17 +89,10 @@ const Timepicker = forwardRef<HTMLInputElement, TimepickerProps>(
                   }}
                 />
               )}
-              PopperProps={{
-                anchorEl: anchorEl.current,
-              }}
             />
           )}
         />
-      </div>
     );
-  },
-);
-
-Timepicker.displayName = "Timepicker";
+  };
 
 export default Timepicker;
