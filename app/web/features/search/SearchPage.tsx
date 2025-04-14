@@ -1,4 +1,4 @@
-import { debounce, styled } from "@mui/material";
+import { styled } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import {
@@ -10,7 +10,7 @@ import {
 } from "features/search/utils/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { LngLatLike, MapProvider, MapRef } from "react-map-gl/maplibre";
 
 import { useUserSearch } from "./hooks/useUserSearch";
@@ -111,53 +111,35 @@ export default function SearchPage() {
     setMapView(view);
   };
 
-  const debouncedZoomIn = useMemo(
-    () =>
-      debounce(
-        (
-          newZoom: number,
-          center?: LngLatLike,
-          isLocationSearch: boolean = false,
-        ) => {
-          const didCrossSearchThreshold =
-            newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
-            mapSearchState.uiOnly.zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
-          // If it's the first zoom within threshold, set the map bounds so the user pins load
-          if (
-            didCrossSearchThreshold &&
-            !isLocationSearch && // need to pass since it's zoomed before state is set
-            !mapSearchState.search.query // not keyword search bc already has filter then
-          ) {
-            const bbox = getMapBounds(mapRef);
-            setMapQueryArea(bbox, newZoom);
-          } else {
-            setMoveMapUIOnly({ zoom: newZoom });
-          }
+  const handleZoomIn = (
+    newZoom: number,
+    center?: LngLatLike,
+    isLocationSearch: boolean = false,
+  ) => {
+    const didCrossSearchThreshold =
+      newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH &&
+      mapSearchState.uiOnly.zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
 
-          mapRef.current?.easeTo({
-            center,
-            zoom: newZoom,
-            duration: 2000,
-          });
-        },
-        300,
-      ),
-    [
-      mapSearchState.search.query,
-      mapSearchState.uiOnly.zoom,
-      setMapQueryArea,
-      setMoveMapUIOnly,
-    ],
-  );
+    // If it's the first zoom within threshold, set the map bounds so the user pins load
+    if (
+      didCrossSearchThreshold &&
+      !isLocationSearch && // need to pass since it's zoomed before state is set
+      !mapSearchState.search.query // not keyword search bc already has filter then
+    ) {
+      const bbox = getMapBounds(mapRef);
+      setMapQueryArea(bbox, newZoom);
+    } else {
+      setMoveMapUIOnly({ zoom: newZoom });
+    }
 
-  const handleZoomIn = useCallback(
-    (newZoom: number, center?: LngLatLike, isLocationSearch?: boolean) => {
-      debouncedZoomIn(newZoom, center, isLocationSearch);
-    },
-    [debouncedZoomIn],
-  );
+    mapRef.current?.easeTo({
+      center,
+      zoom: newZoom,
+      duration: 2000,
+    });
+  };
 
-  const handleZoomOut = debounce((newZoom: number) => {
+  const handleZoomOut = (newZoom: number) => {
     const didZoomOutWithinThreshold = newZoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
     const didZoomBelowThreshold = newZoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH;
 
@@ -173,7 +155,7 @@ export default function SearchPage() {
       zoom: newZoom,
       duration: 2000,
     });
-  }, 300);
+  };
 
   return (
     <SearchPageContainer>
