@@ -641,7 +641,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         session.commit()
         return empty_pb2.Empty()
-    
+
     def ArchiveHostRequest(self, request, context, session):
         host_request = session.execute(
             select(HostRequest).where(HostRequest.conversation_id == request.host_request_id)
@@ -655,7 +655,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         if host_request.status == HostRequestStatus.pending:
             context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.HOST_REQUEST_PENDING_ARCHIVE_ATTEMPT)
-        
+
         if context.user_id == host_request.surfer_user_id:
             host_request.is_surfer_archived = True
         else:
