@@ -23,12 +23,11 @@ const globalStyles = (
   <GlobalStyles
     styles={{
       "html, body": {
-        height: "-webkit-fill-available",
         margin: 0,
         overflow: "hidden", // Prevents whole-page scrolling
       },
       "#__next": {
-        height: "-webkit-fill-available",
+        height: "calc(var(--vh, 1vh) * 100)", // Use the dynamic --vh value from _app
         display: "flex",
         flexDirection: "column",
       },
