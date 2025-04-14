@@ -68,7 +68,7 @@
     "@babel/core": "^7.26.9",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.1.0",
+    "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.0",
     "@types/css-mediaquery": "^0.1.4",
     "@types/geojson": "^7946.0.10",
