@@ -258,6 +258,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             statement = statement.where(HostRequest.surfer_user_id == context.user_id)
         elif request.only_received:
             statement = statement.where(HostRequest.host_user_id == context.user_id)
+        elif request.only_archived:
+            statement = statement.where(
+                or_(
+                    and_(HostRequest.surfer_user_id == context.user_id, HostRequest.is_surfer_archived),
+                    and_(HostRequest.host_user_id == context.user_id, HostRequest.is_host_archived),
+                )
+            )
         else:
             statement = statement.where(
                 or_(HostRequest.host_user_id == context.user_id, HostRequest.surfer_user_id == context.user_id)
@@ -631,6 +638,28 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             if not host_request.host_last_seen_message_id <= request.last_seen_message_id:
                 context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_UNSEE_MESSAGES)
             host_request.host_last_seen_message_id = request.last_seen_message_id
+
+        session.commit()
+        return empty_pb2.Empty()
+    
+    def ArchiveHostRequest(self, request, context, session):
+        host_request = session.execute(
+            select(HostRequest).where(HostRequest.conversation_id == request.host_request_id)
+        ).scalar_one_or_none()
+
+        if not host_request:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+
+        if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
+            context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+
+        if host_request.status == HostRequestStatus.pending:
+            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.HOST_REQUEST_PENDING_ARCHIVE_ATTEMPT)
+        
+        if context.user_id == host_request.surfer_user_id:
+            host_request.is_surfer_archived = True
+        else:
+            host_request.is_host_archived = True
 
         session.commit()
         return empty_pb2.Empty()

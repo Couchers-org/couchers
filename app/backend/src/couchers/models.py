@@ -1421,6 +1421,8 @@ class HostRequest(Base):
     end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))
 
     status = Column(Enum(HostRequestStatus), nullable=False)
+    is_host_archived = Column(Boolean, nullable=False, default=False)
+    is_user_archived = Column(Boolean, nullable=False, default=False)
 
     host_last_seen_message_id = Column(BigInteger, nullable=False, default=0)
     surfer_last_seen_message_id = Column(BigInteger, nullable=False, default=0)

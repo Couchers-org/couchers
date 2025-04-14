@@ -21,6 +21,10 @@ service Requests {
   // if you try to change the status to one you aren't allowed.
   rpc RespondHostRequest(RespondHostRequestReq) returns (google.protobuf.Empty);
 
+  // Archive a host request. This will remove it from the list of requests
+
+  rpc ArchiveHostRequest(ArchiveHostRequestReq) returns (google.protobuf.Empty);
+
   rpc ListHostRequests(ListHostRequestsReq) returns (ListHostRequestsRes);
 
   // Get the messages and events (created, accepted, etc) for a host request
@@ -77,6 +81,10 @@ message RespondHostRequestReq {
   int64 host_request_id = 1;
   org.couchers.api.conversations.HostRequestStatus status = 2;
   string text = 3;
+}
+
+message ArchiveHostRequestReq {
+  int64 host_request_id = 1;
 }
 
 message ListHostRequestsReq {
