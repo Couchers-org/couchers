@@ -16,6 +16,7 @@ import { AUTH } from "i18n/namespaces";
 import DeleteAccount from "./deletion/DeleteAccount";
 import LoginsLink from "./logins/LoginsLink";
 import useAccountInfo from "./useAccountInfo";
+import StrongVerification from "./verification/StrongVerification";
 
 const TopMarginWrapper = styled("div")(({ theme }) => ({
   margin: theme.spacing(4, 0),
@@ -49,6 +50,9 @@ export default function Settings() {
           <TopMarginWrapper>
             <NotificationSettings />
           </TopMarginWrapper>
+          <MarginWrapper>
+            <StrongVerification accountInfo={accountInfo!} />
+          </MarginWrapper>
           <MarginWrapper>
             <ChangeEmail email={accountInfo.email} />
           </MarginWrapper>
