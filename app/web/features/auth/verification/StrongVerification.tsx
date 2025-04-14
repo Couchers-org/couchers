@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { Link, Typography } from "@mui/material";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import { GetAccountInfoRes } from "proto/account_pb";
@@ -32,6 +32,21 @@ export default function StrongVerification({
         >
           You <strong>are currently</strong> verified with Strong Verification.
         </Trans>
+      </Typography>
+      <Typography variant="body1" paragraph>
+        <Trans
+          t={t}
+          i18nKey="strong_verification.learn_more"
+          components={{
+            a: (
+              <Link
+                href="https://help.couchers.org/hc/couchersorg-help-center/en/categories/strong-verification"
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            ),
+          }}
+        />
       </Typography>
       {accountInfo.hasStrongVerification ? (
         <DeleteStrongVerificationDataButton />
