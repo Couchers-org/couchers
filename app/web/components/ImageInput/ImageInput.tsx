@@ -31,6 +31,7 @@ interface ImageInputProps {
   initialPreviewSrc?: string;
   name: string;
   onSuccess?(data: ImageInputValues): Promise<void>;
+  onUploading?: (isUploading: boolean) => void; //new prop
 }
 
 interface AvatarInputProps extends ImageInputProps {
@@ -112,6 +113,9 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
         ? service.api.uploadFile(file)
         : Promise.reject(new Error(NO_VALID_FILE)),
     {
+      onMutate: () => {
+        props.onUploading?.(true); //notify form upload has started
+      },
       onSuccess: async (data: ImageInputValues) => {
         field.onChange(data.key);
         setImageUrl(
@@ -120,6 +124,10 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
         confirmedUpload.current = data;
         setFile(null);
         await props.onSuccess?.(data);
+        props.onUploading?.(false); //notify form upload has finished
+      },
+      onError: () => {
+        props.onUploading?.(false); //notify form upload has failed
       },
     },
   );

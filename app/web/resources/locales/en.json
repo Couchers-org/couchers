@@ -32,6 +32,13 @@
     "cant_host": "Can't host",
     "unspecified_info": "Didn't say"
   },
+  "language_preference": {
+    "current_preferred_language": "Your language preferences is currently ",
+    "form_title": "Language",
+    "help_translate": "Help translate couchers into your language.",
+    "select_language": "Select a language",
+    "success_message": "Your change has been saved."
+  },
   "meetup_status": {
     "wants_to_meetup": "Wants to meet",
     "open_to_meetup": "Open to meet",
