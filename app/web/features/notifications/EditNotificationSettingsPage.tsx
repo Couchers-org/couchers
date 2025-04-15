@@ -1,6 +1,6 @@
 import { CircularProgress, List, styled, Typography } from "@mui/material";
 import Snackbar from "components/Snackbar";
-import { AUTH } from "i18n/namespaces";
+import { AUTH, NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useEffect, useState } from "react";
 
@@ -58,7 +58,7 @@ const StyledLoadingSpinner = styled(CircularProgress)({
 });
 
 export default function EditNotificationSettingsPage() {
-  const { t } = useTranslation(AUTH, {
+  const { t } = useTranslation(NOTIFICATIONS, {
     keyPrefix: "notification_settings.edit_preferences",
   });
   const { data, isLoading, isError } = useNotificationSettings();

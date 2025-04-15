@@ -7,6 +7,7 @@ import nextI18NextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { PageType } from "proto/pages_pb";
 import stringOrFirstString from "utils/stringOrFirstString";
+import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: [],
@@ -17,7 +18,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
     ...(await serverSideTranslations(
       locale ?? "en",
-      ["global", "communities"],
+      [GLOBAL, NOTIFICATIONS],
       nextI18NextConfig,
     )),
   },

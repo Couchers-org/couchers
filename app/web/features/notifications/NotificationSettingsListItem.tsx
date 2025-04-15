@@ -20,7 +20,7 @@ import {
   PenIcon,
   SinglePersonIcon,
 } from "components/Icons";
-import { AUTH } from "i18n/namespaces";
+import { AUTH, NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
 
@@ -61,9 +61,9 @@ export default function NotificationSettingsListItem({
   type,
 }: NotificationSettingsListItemProps) {
   const notificationType =
-    type as `auth:notification_settings.edit_preferences.list_items.${NotificationType}`;
+    type as `notifications:notification_settings.edit_preferences.list_items.${NotificationType}`;
 
-  const { t } = useTranslation([AUTH], {
+  const { t } = useTranslation([NOTIFICATIONS], {
     keyPrefix: "notification_settings.edit_preferences.list_items",
   });
   const [isCollapseOpen, setIsCollapseOpen] = useState<boolean>(false);

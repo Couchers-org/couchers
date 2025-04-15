@@ -11,7 +11,7 @@ import {
 import Alert from "components/Alert";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import { NotificationNewIcon } from "components/Icons";
-import { AUTH, GLOBAL } from "i18n/namespaces";
+import { AUTH, GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
 import { NotificationPreferenceData } from "service/notifications";
@@ -52,8 +52,9 @@ export default function NotificationSettingsSubListItem({
   email,
   push,
 }: NotificationSettingsSubListItemProps) {
-  const { t } = useTranslation([AUTH, GLOBAL], {
-    keyPrefix: "notification_settings.edit_preferences.item_descriptions",
+  const { t } = useTranslation([GLOBAL, NOTIFICATIONS], {
+    keyPrefix:
+      "notifications:notification_settings.edit_preferences.item_descriptions",
   });
 
   const { updateNotificationSettings, status } =

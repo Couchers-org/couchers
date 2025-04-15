@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import nextI18nextConfig from "next-i18next.config";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { editUserTabs } from "routes";
+import { GLOBAL, NOTIFICATIONS, PROFILE } from "i18n/namespaces";
 
 export const getStaticPaths: GetStaticPaths = () => ({
   paths: [],
@@ -16,7 +17,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
     ...(await serverSideTranslations(
       locale ?? "en",
-      ["global", "profile"],
+      [GLOBAL, NOTIFICATIONS, PROFILE],
       nextI18nextConfig,
     )),
   },

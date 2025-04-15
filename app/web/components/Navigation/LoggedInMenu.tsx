@@ -4,7 +4,7 @@ import Avatar from "components/Avatar";
 import IconButton from "components/IconButton";
 import { MenuIcon } from "components/Icons";
 import Menu from "components/Menu";
-import NotificationsFeed from "features/auth/notifications/NotificationsFeed/NotificationsFeed";
+import NotificationsFeed from "features/notifications/NotificationsFeed/NotificationsFeed";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
