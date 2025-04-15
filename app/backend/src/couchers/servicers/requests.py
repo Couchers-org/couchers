@@ -643,8 +643,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         return empty_pb2.Empty()
 
     def ArchiveHostRequest(self, request, context, session):
+
         host_request = session.execute(
-            select(HostRequest).where(HostRequest.conversation_id == request.host_request_id)
+            select(HostRequest)
+            .where_users_column_visible(context, HostRequest.surfer_user_id)
+            .where_users_column_visible(context, HostRequest.host_user_id)
+            .where(HostRequest.conversation_id == request.host_request_id)
+            .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
         ).scalar_one_or_none()
 
         if not host_request:
@@ -654,7 +659,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
 
         if host_request.status == HostRequestStatus.pending:
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.HOST_REQUEST_PENDING_ARCHIVE_ATTEMPT)
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.HOST_REQUEST_PENDING_ARCHIVE_ATTEMPT)
 
         if context.user_id == host_request.surfer_user_id:
             host_request.is_surfer_archived = True
