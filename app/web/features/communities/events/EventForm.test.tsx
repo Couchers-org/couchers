@@ -19,6 +19,7 @@ jest.mock("@mui/x-date-pickers", () => {
   return {
     ...jest.requireActual("@mui/x-date-pickers"),
     DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
+    TimePicker: jest.requireActual("@mui/x-date-pickers").DesktopTimePicker,
   };
 });
 
@@ -126,7 +127,7 @@ describe("Event form", () => {
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:start_time")),
-      "02:37",
+      "02:37 AM",
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:end_date")),
@@ -134,7 +135,7 @@ describe("Event form", () => {
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:end_time")),
-      "03:37",
+      "03:37 AM",
     );
     assertFieldVisibleWithValue(
       screen.getByLabelText(t("communities:location")),
@@ -269,10 +270,10 @@ describe("Event form", () => {
       t("communities:start_time"),
     )) as HTMLInputElement;
 
-    user.type(startTimeField, "01:00");
+    user.type(startTimeField, "0100 AM");
 
     await waitFor(() => {
-      expect(startTimeField).toHaveValue("01:00");
+      expect(startTimeField).toHaveValue("01:00 AM");
     });
 
     const endDateField = (await screen.findByLabelText(
@@ -289,9 +290,9 @@ describe("Event form", () => {
       t("communities:end_time"),
     ) as HTMLInputElement;
 
-    user.type(endTimeField, "02:00");
+    user.type(endTimeField, "0200 AM");
 
-    await waitFor(() => expect(endTimeField).toHaveValue("02:00"));
+    await waitFor(() => expect(endTimeField).toHaveValue("02:00 AM"));
 
     const virtualEventCheckbox = screen.getByLabelText(
       t("communities:virtual_event"),
@@ -365,10 +366,10 @@ describe("Event form", () => {
       t("communities:start_time"),
     )) as HTMLInputElement;
 
-    user.type(startTimeField, "01:00");
+    user.type(startTimeField, "0100 AM");
 
     await waitFor(() => {
-      expect(startTimeField).toHaveValue("01:00");
+      expect(startTimeField).toHaveValue("01:00 AM");
     });
 
     const endDateField = (await screen.findByLabelText(
@@ -385,9 +386,9 @@ describe("Event form", () => {
       t("communities:end_time"),
     ) as HTMLInputElement;
 
-    user.type(endTimeField, "02:00");
+    user.type(endTimeField, "0200 AM");
 
-    await waitFor(() => expect(endTimeField).toHaveValue("02:00"));
+    await waitFor(() => expect(endTimeField).toHaveValue("02:00 AM"));
 
     user.click(screen.getByLabelText(t("communities:virtual_event")));
 
@@ -452,10 +453,10 @@ describe("Event form", () => {
       t("communities:start_time"),
     )) as HTMLInputElement;
 
-    user.type(startTimeField, "01:00");
+    user.type(startTimeField, "0100 AM");
 
     await waitFor(() => {
-      expect(startTimeField).toHaveValue("01:00");
+      expect(startTimeField).toHaveValue("01:00 AM");
     });
 
     const endDateField = (await screen.findByLabelText(
@@ -472,9 +473,9 @@ describe("Event form", () => {
       t("communities:end_time"),
     ) as HTMLInputElement;
 
-    user.type(endTimeField, "02:00");
+    user.type(endTimeField, "0200 AM");
 
-    await waitFor(() => expect(endTimeField).toHaveValue("02:00"));
+    await waitFor(() => expect(endTimeField).toHaveValue("02:00 AM"));
 
     jest.useRealTimers();
 
