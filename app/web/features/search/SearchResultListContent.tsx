@@ -1,4 +1,4 @@
-import { Alert, Box, styled, Typography } from "@mui/material";
+import { Alert, Box, styled, Typography, useMediaQuery } from "@mui/material";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
@@ -57,6 +57,7 @@ const SearchResultListContent = ({
   users,
 }: SearchResultListContentProps) => {
   const { t } = useTranslation([SEARCH]);
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { selectedUserId } = useMapSearchState();
 
@@ -64,7 +65,9 @@ const SearchResultListContent = ({
     <ListContentWrapper showTopSpace={showTopSpace}>
       {showAlert && (
         <Alert severity="info" sx={{ height: "fit-content", width: "100%" }}>
-          {t("search:choose_search_criteria")}
+          {isMobile
+            ? t("search:choose_search_criteria_mobile")
+            : t("search:choose_search_criteria")}
         </Alert>
       )}
       <CenteredRow>

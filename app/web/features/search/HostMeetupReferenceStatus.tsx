@@ -25,6 +25,8 @@ const Wrapper = styled("div")(({ theme }) => ({
 const StyledTypography = styled(Typography, {
   shouldForwardProp: (prop) => prop !== "isNegative",
 })<{ isNegative: boolean }>(({ theme, isNegative }) => ({
+  display: "flex",
+  alignItems: "center",
   fontWeight: 600,
   color: isNegative ? theme.palette.grey[600] : theme.palette.common.black,
   fontSize: "0.875rem",
@@ -35,11 +37,6 @@ const VerticalLine = styled("div")(({ theme }) => ({
   paddingRight: theme.spacing(0.5),
   paddingLeft: theme.spacing(0.5),
 }));
-
-const CenteredFlexRow = styled("div")({
-  display: "flex",
-  alignItems: "center",
-});
 
 const generateReferenceText = (numberReferences: number, t: TFunction) => {
   if (numberReferences === 0) {
@@ -73,39 +70,37 @@ const HostMeetupReferenceStatus = ({
         variant="body1"
         isNegative={hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST}
       >
-        <CenteredFlexRow>
-          {hostingStatus === HostingStatus.HOSTING_STATUS_CAN_HOST && (
-            <CheckCircleOutlineRounded
-              fontSize="small"
-              sx={{
-                color: theme.palette.success.main,
-                fontSize: "0.875rem",
-                marginRight: theme.spacing(0.5),
-              }}
-            />
-          )}
-          {hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST && (
-            <DoDisturb
-              fontSize="small"
-              sx={{
-                color: theme.palette.error.main,
-                fontSize: "0.875rem",
-                marginRight: theme.spacing(0.5),
-              }}
-            />
-          )}
-          {hostingStatus === HostingStatus.HOSTING_STATUS_MAYBE && (
-            <PendingRounded
-              fontSize="small"
-              sx={{
-                color: theme.palette.grey[600],
-                fontSize: "0.875rem",
-                marginRight: theme.spacing(0.5),
-              }}
-            />
-          )}
-          {hostingStatusLabels(t)[hostingStatus]}
-        </CenteredFlexRow>
+        {hostingStatus === HostingStatus.HOSTING_STATUS_CAN_HOST && (
+          <CheckCircleOutlineRounded
+            fontSize="small"
+            sx={{
+              color: theme.palette.success.main,
+              fontSize: "0.875rem",
+              marginRight: theme.spacing(0.5),
+            }}
+          />
+        )}
+        {hostingStatus === HostingStatus.HOSTING_STATUS_CANT_HOST && (
+          <DoDisturb
+            fontSize="small"
+            sx={{
+              color: theme.palette.error.main,
+              fontSize: "0.875rem",
+              marginRight: theme.spacing(0.5),
+            }}
+          />
+        )}
+        {hostingStatus === HostingStatus.HOSTING_STATUS_MAYBE && (
+          <PendingRounded
+            fontSize="small"
+            sx={{
+              color: theme.palette.grey[600],
+              fontSize: "0.875rem",
+              marginRight: theme.spacing(0.5),
+            }}
+          />
+        )}
+        {hostingStatusLabels(t)[hostingStatus]}
       </StyledTypography>
       <VerticalLine>|</VerticalLine>
       <StyledTypography
@@ -115,66 +110,62 @@ const HostMeetupReferenceStatus = ({
           meetupStatus === MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP
         }
       >
-        <CenteredFlexRow>
-          {meetupStatus === MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP && (
-            <CheckCircleOutlineRounded
-              fontSize="small"
-              sx={{
-                color: theme.palette.success.main,
-                fontSize: "0.875rem",
-                marginRight: theme.spacing(0.5),
-              }}
-            />
-          )}
-          {meetupStatus ===
-            MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP && (
-            <DoDisturb
-              fontSize="small"
-              sx={{
-                color: theme.palette.error.main,
-                fontSize: "0.875rem",
-                marginRight: theme.spacing(0.5),
-              }}
-            />
-          )}
-          {meetupStatus === MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP && (
-            <PendingRounded
-              fontSize="small"
-              sx={{
-                color: theme.palette.grey[600],
-                fontSize: "0.875rem",
-                marginRight: theme.spacing(0.5),
-              }}
-            />
-          )}
-          {meetupStatusLabels(t)[meetupStatus]}
-        </CenteredFlexRow>
+        {meetupStatus === MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP && (
+          <CheckCircleOutlineRounded
+            fontSize="small"
+            sx={{
+              color: theme.palette.success.main,
+              fontSize: "0.875rem",
+              marginRight: theme.spacing(0.5),
+            }}
+          />
+        )}
+        {meetupStatus ===
+          MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP && (
+          <DoDisturb
+            fontSize="small"
+            sx={{
+              color: theme.palette.error.main,
+              fontSize: "0.875rem",
+              marginRight: theme.spacing(0.5),
+            }}
+          />
+        )}
+        {meetupStatus === MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP && (
+          <PendingRounded
+            fontSize="small"
+            sx={{
+              color: theme.palette.grey[600],
+              fontSize: "0.875rem",
+              marginRight: theme.spacing(0.5),
+            }}
+          />
+        )}
+        {meetupStatusLabels(t)[meetupStatus]}
       </StyledTypography>
       <VerticalLine>|</VerticalLine>
       <StyledTypography variant="body2" isNegative={numberReferences === 0}>
-        <CenteredFlexRow>
-          {numberReferences > 0 && (
-            <CheckCircleOutlineRounded
-              fontSize="small"
-              sx={{
-                color: theme.palette.success.main,
-                fontSize: "0.875rem",
-                marginRight: theme.spacing(0.5),
-              }}
-            />
-          )}
-          {numberReferences === 0 && (
-            <DoDisturb
-              fontSize="small"
-              sx={{
-                color: theme.palette.error.main,
-                fontSize: "0.875rem",
-                marginRight: theme.spacing(0.5),
-              }}
-            />
-          )}
-          {generateReferenceText(numberReferences, t)}
-        </CenteredFlexRow>
+        {numberReferences > 0 && (
+          <CheckCircleOutlineRounded
+            fontSize="small"
+            sx={{
+              color: theme.palette.success.main,
+              fontSize: "0.875rem",
+              marginRight: theme.spacing(0.5),
+            }}
+          />
+        )}
+        {numberReferences === 0 && (
+          <DoDisturb
+            fontSize="small"
+            sx={{
+              color: theme.palette.error.main,
+              fontSize: "0.875rem",
+              marginRight: theme.spacing(0.5),
+            }}
+          />
+        )}
+        {generateReferenceText(numberReferences, t)}
       </StyledTypography>
     </Wrapper>
   );
