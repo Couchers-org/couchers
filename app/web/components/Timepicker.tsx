@@ -5,7 +5,7 @@ import { GLOBAL } from "i18n/namespaces";
 import React from "react";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
 import { theme } from "theme";
-import dayjs, { Dayjs } from "utils/dayjs";
+import { Dayjs } from "utils/dayjs";
 
 interface TimepickerProps {
   className?: string;
@@ -48,7 +48,7 @@ const Timepicker = ({
           data-testid={testId}
           {...field}
           label={label}
-          value={field.value ? dayjs(field.value) : null}
+          value={field.value}
           onChange={(time) => {
             field.onChange(time);
             onPostChange?.(time);
