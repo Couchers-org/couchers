@@ -1,4 +1,5 @@
-import { styled } from "@mui/material";
+import { Edit } from "@mui/icons-material";
+import { styled, Tooltip } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import MuiIconButton from "@mui/material/IconButton";
 import Alert from "components/Alert";
@@ -8,6 +9,8 @@ import {
   getAvatarLabel,
   SELECT_AN_IMAGE,
 } from "components/constants";
+import { useTranslation } from "i18n";
+import { PROFILE } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import React, { useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
@@ -68,6 +71,17 @@ const StyledImage = styled("img", {
   ...(grow && { maxWidth: "100%", height: "auto" }),
 }));
 
+const EditIconButton = styled(MuiIconButton)(({ theme }) => ({
+  position: "absolute",
+  bottom: theme.spacing(1),
+  right: theme.spacing(1),
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: theme.shadows[1],
+  "&:hover": {
+    backgroundColor: theme.palette.grey[200],
+  },
+}));
+
 const StyledLabel = styled("label")(({ theme }) => ({
   alignItems: "center",
   display: "flex",
@@ -85,6 +99,8 @@ const StyledInput = styled("input")(({ theme }) => ({
 
 export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   const { className, control, id, initialPreviewSrc, name } = props;
+
+  const { t } = useTranslation([PROFILE]);
 
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
   const [readerError, setReaderError] = useState("");
@@ -168,16 +184,28 @@ export function ImageInput(props: AvatarInputProps | RectImgInputProps) {
         />
         <StyledLabel htmlFor={id} ref={field.ref}>
           {props.type === "avatar" ? (
-            <MuiIconButton component="span">
-              <Avatar
-                className={className}
-                src={imageUrl}
-                alt={getAvatarLabel(props.userName ?? "")}
-                sx={{ "& img": { objectFit: "cover" } }}
-              >
-                {props.userName?.split(/\s+/).map((name) => name[0])}
-              </Avatar>
-            </MuiIconButton>
+            <Tooltip title={t("profile:click_replace_image")} placement="top">
+              <MuiIconButton component="span" sx={{ position: "relative" }}>
+                <Avatar
+                  className={className}
+                  src={imageUrl}
+                  alt={getAvatarLabel(props.userName ?? "")}
+                  sx={{ "& img": { objectFit: "cover" } }}
+                >
+                  {props.userName?.split(/\s+/).map((name) => name[0])}
+                </Avatar>
+
+                <EditIconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.preventDefault(); // prevent triggering label click again
+                    inputRef.current?.click();
+                  }}
+                >
+                  <Edit fontSize="small" />
+                </EditIconButton>
+              </MuiIconButton>
+            </Tooltip>
           ) : (
             <StyledImage
               className={className}
