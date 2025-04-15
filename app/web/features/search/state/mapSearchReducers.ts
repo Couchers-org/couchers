@@ -313,8 +313,6 @@ const mapSearchReducer = (
         filters: updatedFilters,
       };
 
-      console.log("NEW STATE", newState);
-
       return {
         ...newState,
         hasActiveFilters: getHasActiveFilters(newState, initialState),

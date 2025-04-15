@@ -30,22 +30,16 @@ export function useUserSearch(
     mapSearchState.search.query !== undefined ||
     mapSearchState.shouldSearchByUserId;
 
-  const {
-    data,
-    hasNextPage,
-    isLoading,
-    isFetching,
-    fetchNextPage,
-    fetchPreviousPage,
-  } = useInfiniteQuery(
-    ["userSearch", searchParams],
-    ({ pageParam }) => service.search.userSearch(searchParams, pageParam),
-    {
-      enabled: meetsSearchCriteria,
-      keepPreviousData: meetsSearchCriteria,
-      getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
-    },
-  );
+  const { data, isLoading, isFetching, fetchNextPage, fetchPreviousPage } =
+    useInfiniteQuery(
+      ["userSearch", searchParams],
+      ({ pageParam }) => service.search.userSearch(searchParams, pageParam),
+      {
+        enabled: meetsSearchCriteria,
+        keepPreviousData: meetsSearchCriteria,
+        getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+      },
+    );
 
   // React-query will keep the previously fetched data in the cache, so return undefined if we don't meet the search criteria
   const users = !meetsSearchCriteria
@@ -61,6 +55,10 @@ export function useUserSearch(
   const hasPreviousPage =
     (users ?? []).length > 0 &&
     data?.pages[mapSearchState.pageNumber - 2] !== undefined;
+
+  const hasNextPage =
+    (users ?? []).length > 0 &&
+    data?.pages[mapSearchState.pageNumber - 1]?.nextPageToken !== "";
 
   const totalItems = data?.pages[0]?.totalItems ?? 0;
 
