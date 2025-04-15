@@ -1,6 +1,8 @@
 {
+  "earlier": "Earlier",
   "mark_all_read": "Mark all as read",
   "new": "New",
+  "no_new_notifications": "No new notifications",
   "notification_settings": {
     "title": "Notification settings",
     "edit_in_console": "You can change your notification settings <2>on this page</2>. We will soon move it here.",

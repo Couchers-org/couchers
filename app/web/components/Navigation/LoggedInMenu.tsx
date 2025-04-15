@@ -13,6 +13,9 @@ import { theme } from "theme";
 
 import ReportButton from "./ReportButton";
 
+export const NOTIFICATIONS_LAST_SEEN_AT_COOKIE_NAME =
+  "notifications_last_seen_at";
+
 const StyledMenu = styled(Menu)(({ theme }) => ({
   "& .MuiPaper-root": {
     boxShadow: theme.shadows[1],
@@ -78,6 +81,10 @@ export default function LoggedInMenu({
     event: React.MouseEvent<HTMLButtonElement>,
   ) => {
     setNotificationsAnchorEl(event.currentTarget);
+    window.localStorage.setItem(
+      NOTIFICATIONS_LAST_SEEN_AT_COOKIE_NAME,
+      new Date().toISOString(),
+    );
   };
 
   const handleNotificationsFeedClose = () => {

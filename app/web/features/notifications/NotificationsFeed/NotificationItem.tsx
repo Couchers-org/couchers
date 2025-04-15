@@ -1,4 +1,7 @@
+import { Circle } from "@mui/icons-material";
 import { Avatar, MenuItem, styled, Typography } from "@mui/material";
+import { NOTIFICATIONS_LAST_SEEN_AT_COOKIE_NAME } from "components/Navigation/LoggedInMenu";
+import dayjs from "dayjs";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -29,7 +32,8 @@ const FlexColumn = styled("div")(({ theme }) => ({
   justifyContent: "center",
   width: "100%",
   paddingLeft: theme.spacing(2),
-  paddingRight: theme.spacing(2),
+  overflow: "hidden",
+  minWidth: 0,
 }));
 
 const NotificationItem = ({ notification }: NotificationItemProps) => {
@@ -37,20 +41,29 @@ const NotificationItem = ({ notification }: NotificationItemProps) => {
   const router = useRouter();
 
   const userName = notification.title.split(" ")[0];
+  const lastSeenAt = dayjs(
+    window.localStorage.getItem(NOTIFICATIONS_LAST_SEEN_AT_COOKIE_NAME),
+  );
+  const isSeen =
+    lastSeenAt && dayjs(timestamp2Date(notification.created!)) < lastSeenAt;
 
   const handleMenuItemClick = () => {
     router.push(notification.url);
   };
 
   return (
-    <StyledMenuItem onClick={handleMenuItemClick}>
-      <Avatar alt={userName} src={notification.url}></Avatar>
+    <StyledMenuItem key={notification.key} onClick={handleMenuItemClick}>
+      <Avatar alt={userName} src={notification.icon}></Avatar>
       <FlexColumn>
         <LinesEllipsis
           text={notification.title}
-          maxLine="2"
+          maxLine={2}
           ellipsis="..."
-          style={{ fontSize: theme.typography.body2.fontSize }}
+          style={{
+            fontSize: theme.typography.body2.fontSize,
+            whiteSpace: "normal",
+            wordBreak: "break-word",
+          }}
         />
         <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
           {timeAgoI18n({
@@ -59,6 +72,17 @@ const NotificationItem = ({ notification }: NotificationItemProps) => {
           })}
         </Typography>
       </FlexColumn>
+      {!isSeen && (
+        <Circle
+          sx={{
+            color: theme.palette.primary.main,
+            fontSize: ".9rem",
+            position: "absolute",
+            right: theme.spacing(2),
+            bottom: theme.spacing(2),
+          }}
+        />
+      )}
     </StyledMenuItem>
   );
 };
