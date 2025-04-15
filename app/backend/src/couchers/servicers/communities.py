@@ -114,9 +114,10 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         nodes = (
             session.execute(
                 select(Node)
+                .join(Node.official_cluster)
                 .where(or_(Node.parent_node_id == request.community_id, request.community_id == 0))
                 .where(Node.id >= next_node_id)
-                .order_by(Node.id)
+                .order_by(Cluster.name)
                 .limit(page_size + 1)
             )
             .scalars()
@@ -411,7 +412,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .where(ClusterSubscription.user_id == user_id)
                 .where(Cluster.is_official_cluster)
                 .where(Node.id >= next_node_id)
-                .order_by(Node.id)
+                .order_by(Cluster.name)
                 .limit(page_size + 1)
             )
             .scalars()
