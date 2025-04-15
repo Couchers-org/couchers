@@ -1,9 +1,14 @@
-import { Button, styled } from "@mui/material";
+import { NotificationsOutlined } from "@mui/icons-material";
+import { Button, styled, Tooltip } from "@mui/material";
 import Avatar from "components/Avatar";
+import IconButton from "components/IconButton";
 import { MenuIcon } from "components/Icons";
 import Menu from "components/Menu";
+import NotificationsFeed from "features/auth/notifications/NotificationsFeed/NotificationsFeed";
 import useCurrentUser from "features/userQueries/useCurrentUser";
-import React, { Dispatch, ReactNode, SetStateAction } from "react";
+import { useTranslation } from "i18n";
+import { GLOBAL } from "i18n/namespaces";
+import React, { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import { theme } from "theme";
 
 import ReportButton from "./ReportButton";
@@ -44,6 +49,14 @@ const ReportButtonContainer = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),
 }));
 
+const StyledNotificationsButton = styled(IconButton)(({ theme }) => ({
+  padding: theme.spacing(1),
+  marginRight: theme.spacing(1),
+  "&:hover": {
+    backgroundColor: theme.palette.grey[300],
+  },
+}));
+
 export default function LoggedInMenu({
   menuOpen,
   setMenuOpen,
@@ -55,12 +68,44 @@ export default function LoggedInMenu({
 }) {
   const menuRef = React.useRef<HTMLButtonElement>(null);
   const { data: user } = useCurrentUser();
+  const { t } = useTranslation([GLOBAL]);
+
+  const [notificationsAnchorEl, setNotificationsAnchorEl] =
+    useState<HTMLButtonElement | null>(null);
+  const isNotificationsFeedOpen = Boolean(notificationsAnchorEl);
+
+  const handleNotificationsFeedOpen = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    setNotificationsAnchorEl(event.currentTarget);
+  };
+
+  const handleNotificationsFeedClose = () => {
+    setNotificationsAnchorEl(null);
+  };
 
   return (
     <>
       <ReportButtonContainer>
         <ReportButton />
       </ReportButtonContainer>
+      <Tooltip title={t("global:nav.notifications")}>
+        <StyledNotificationsButton
+          id="notifications-feed-button"
+          onClick={handleNotificationsFeedOpen}
+          aria-label={t("global:nav.notifications")}
+          aria-controls="notifications-feed"
+          aria-haspopup="true"
+          aria-expanded={isNotificationsFeedOpen ? "true" : undefined}
+        >
+          <NotificationsOutlined />
+        </StyledNotificationsButton>
+      </Tooltip>
+      <NotificationsFeed
+        isOpen={isNotificationsFeedOpen}
+        anchorEl={notificationsAnchorEl}
+        onClose={handleNotificationsFeedClose}
+      />
       <StyledMenuButton
         aria-controls="navigation-menu"
         aria-haspopup="true"

@@ -1,6 +1,7 @@
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import {
   GetNotificationSettingsReq,
+  ListNotificationsReq,
   RegisterPushNotificationSubscriptionReq,
   SetNotificationSettingsReq,
   SingleNotificationPreference,
@@ -64,4 +65,10 @@ export async function registerPushNotificationSubscription(
 
 export async function sendTestPushNotification() {
   await client.notifications.sendTestPushNotification(new Empty());
+}
+
+export async function listNotifications() {
+  const req = new ListNotificationsReq();
+  const res = await client.notifications.listNotifications(req);
+  return res.toObject();
 }
