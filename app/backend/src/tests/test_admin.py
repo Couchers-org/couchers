@@ -46,6 +46,24 @@ def test_access_by_normal_user(db):
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
 
 
+def test_GetUser(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user()
+
+    with real_admin_session(super_token) as api:
+        res = api.GetUser(admin_pb2.GetUserReq(user=str(normal_user.id)))
+    assert res.user_id == normal_user.id
+    assert res.username == normal_user.username
+
+    with real_admin_session(super_token) as api:
+        res = api.BanUser(admin_pb2.BanUserReq(user=normal_user.username, admin_note="Testing banning"))
+
+    with real_admin_session(super_token) as api:
+        res = api.GetUser(admin_pb2.GetUserReq(user=str(normal_user.id)))
+    assert res.user_id == normal_user.id
+    assert res.username == normal_user.username
+
+
 def test_GetUserDetails(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
