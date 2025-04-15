@@ -14,7 +14,8 @@ export type NotificationType =
   | "event"
   | "reference"
   | "friend_request"
-  | "host_request";
+  | "host_request"
+  | "reply";
 
 export interface GroupAction {
   action: string;
@@ -80,7 +81,10 @@ export default function EditNotificationSettingsPage() {
                   ? "account_security"
                   : group.heading === "Account Settings"
                     ? "account_settings"
-                    : topic.topic;
+                    : subTopic.action === "reply" ||
+                        subTopic.action === "comment"
+                      ? "reply"
+                      : topic.topic;
 
               if (!acc[key]) {
                 acc[key] = [];
