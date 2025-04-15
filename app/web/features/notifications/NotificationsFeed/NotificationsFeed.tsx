@@ -1,10 +1,16 @@
-import { Menu, MenuItem, styled, Typography } from "@mui/material";
+import { Menu, styled, Typography } from "@mui/material";
 import { Check, Settings } from "@mui/icons-material";
 import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { useTranslation } from "i18n";
 import { theme } from "theme";
 import { useRouter } from "next/router";
 import { notificationSettingsRoute } from "routes";
+import { useQuery } from "react-query";
+import { ListNotificationsRes } from "proto/notifications_pb";
+import { RpcError } from "grpc-web";
+import { listNotificationsQueryKey } from "features/queryKeys";
+import { service } from "service";
+import NotificationItem from "./NotificationItem";
 
 interface NotificationsFeedProps {
   anchorEl: HTMLElement | null;
@@ -40,8 +46,15 @@ const NotificationsFeed = ({
   onClose,
 }: NotificationsFeedProps) => {
   const { t } = useTranslation([GLOBAL, NOTIFICATIONS]);
-
   const router = useRouter();
+
+  const { data, error, isLoading } = useQuery<
+    ListNotificationsRes.AsObject,
+    RpcError
+  >({
+    queryKey: listNotificationsQueryKey,
+    queryFn: () => service.notifications.listNotifications(),
+  });
 
   const handleNotificationSettingsClick = () => {
     router.push(notificationSettingsRoute);
@@ -95,7 +108,10 @@ const NotificationsFeed = ({
       <Typography sx={{ paddingLeft: theme.spacing(2), fontWeight: 500 }}>
         {t("notifications:new")}
       </Typography>
-      <MenuItem>Stuff</MenuItem>
+      {!isLoading &&
+        data?.notificationsList.map((notification) => (
+          <NotificationItem notification={notification} />
+        ))}
     </Menu>
   );
 };
