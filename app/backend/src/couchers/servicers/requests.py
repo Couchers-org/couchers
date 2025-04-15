@@ -7,6 +7,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
 from couchers import errors
+from couchers.materialized_views import user_response_rates
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
     host_request_first_response_histogram,
@@ -16,7 +17,7 @@ from couchers.metrics import (
 )
 from couchers.models import Conversation, HostRequest, HostRequestStatus, Message, MessageType, User
 from couchers.notifications.notify import notify
-from couchers.servicers.api import get_response_rate, user_model_to_pb
+from couchers.servicers.api import response_rate_to_pb, user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import (
     Timestamp_from_datetime,
@@ -636,7 +637,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         return empty_pb2.Empty()
 
     def GetResponseRate(self, request, context, session):
-        res = get_response_rate(request.user_id, session, context)
-        if not res:
+        user_res = session.execute(
+            select(User.id, user_response_rates)
+            .outerjoin(user_response_rates, user_response_rates.c.user_id == User.id)
+            .where_users_visible(context)
+            .where(User.id == request.user_id)
+        ).one_or_none()
+
+        # if user doesn't exist, return None
+        if not user_res:
             context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
-        return requests_pb2.GetResponseRateRes(**res)
+
+        user, *response_rates = user_res
+        return requests_pb2.GetResponseRateRes(**response_rate_to_pb(response_rates))
