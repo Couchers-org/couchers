@@ -793,19 +793,11 @@ class API(api_pb2_grpc.APIServicer):
         )
 
 
-def get_response_rate(user_id, session, context):
-    user_res = session.execute(
-        select(User.id, user_response_rates)
-        .outerjoin(user_response_rates, user_response_rates.c.user_id == User.id)
-        .where_users_visible(context)
-        .where(User.id == user_id)
-    ).one_or_none()
+def response_rate_to_pb(response_rates):
+    if not response_rates:
+        return {"insufficient_data": requests_pb2.ResponseRateInsufficientData()}
 
-    # if user doesn't exist, return None
-    if not user_res:
-        return None
-
-    user, _, n, response_rate, _, response_time_p33, response_time_p66 = user_res
+    _, n, response_rate, _, response_time_p33, response_time_p66 = response_rates
 
     # if n is None, the user is new or they have no requests
     if not n or n < 3:
@@ -840,6 +832,7 @@ def get_response_rate(user_id, session, context):
 
 
 def user_model_to_pb(db_user, session, context):
+    # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
     num_references = session.execute(
         select(func.count())
         .select_from(Reference)
@@ -904,6 +897,10 @@ def user_model_to_pb(db_user, session, context):
         else:
             friends_status = api_pb2.User.FriendshipStatus.NOT_FRIENDS
 
+    response_rates = session.execute(
+        select(user_response_rates).where(user_response_rates.c.user_id == db_user.id)
+    ).one_or_none()
+
     verification_score = 0.0
     if db_user.phone_verification_verified:
         verification_score += 1.0 * db_user.phone_is_verified
@@ -949,7 +946,7 @@ def user_model_to_pb(db_user, session, context):
         avatar_thumbnail_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
         badges=[badge.badge_id for badge in db_user.badges],
         **get_strong_verification_fields(session, db_user),
-        **get_response_rate(db_user.id, session, context),
+        **response_rate_to_pb(response_rates),
     )
 
     if db_user.max_guests is not None:
