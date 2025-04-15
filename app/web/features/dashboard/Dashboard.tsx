@@ -5,8 +5,10 @@ import PageTitle from "components/PageTitle";
 import DashboardBanners from "features/dashboard/DashboardBanners";
 import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
+import Link from "next/link";
 import { theme } from "theme";
 
+import dashboardBlog from "../../dashboardBlog.json";
 import dashboardNews from "../../dashboardNews.json";
 import CommunitiesSection from "./CommunitiesSection";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
@@ -41,6 +43,19 @@ export default function Dashboard() {
             <HtmlMeta title={t("global:nav.dashboard")} />
 
             <PageTitle>{t("dashboard:welcome")}</PageTitle>
+
+            <Alert severity="info" sx={{ marginBottom: 2 }}>
+              <Typography variant="body1">
+                <b>New Blog Post!</b> Read the new blog post here:{" "}
+                <Link
+                  href="/blog/2025/04/12/50k-couchers-milestone-reached"
+                  passHref
+                >
+                  {dashboardBlog["2025-04-12"]}
+                </Link>
+              </Typography>
+            </Alert>
+
             <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
               <Typography variant="body1">
                 <b>New Feature Alert!</b> {dashboardNews["2025-02-23"]}
