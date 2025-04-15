@@ -8,7 +8,6 @@ import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { theme } from "theme";
 
-import dashboardBlog from "../../dashboardBlog.json";
 import dashboardNews from "../../dashboardNews.json";
 import CommunitiesSection from "./CommunitiesSection";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
@@ -44,14 +43,11 @@ export default function Dashboard() {
 
             <PageTitle>{t("dashboard:welcome")}</PageTitle>
 
-            <Alert severity="info" sx={{ marginBottom: 2 }}>
+            <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
               <Typography variant="body1">
-                <b>New Blog Post!</b> Read the new blog post here:{" "}
-                <Link
-                  href="/blog/2025/04/12/50k-couchers-milestone-reached"
-                  passHref
-                >
-                  {dashboardBlog["2025-04-12"]}
+                <b>New Blog Post! Read it here: </b>
+                <Link href={dashboardNews["2025-04-12"].link}>
+                  {dashboardNews["2025-04-12"].title}
                 </Link>
               </Typography>
             </Alert>
