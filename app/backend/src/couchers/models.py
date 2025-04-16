@@ -1481,8 +1481,8 @@ class HostRequest(Base):
     host_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
     surfer_sent_reference_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
     host_sent_request_reminders = Column(BigInteger, nullable=False, server_default=text("0"))
-    last_sent_request_reminder_time = Column(Date, nullable=False)
-
+    last_sent_request_reminder_time = Column(DateTime, nullable=False, server_default=text("now()"))
+    
     # reason why the host/surfer marked that they didn't meet up
     # if null then they haven't marked it such
     host_reason_didnt_meetup = Column(String, nullable=True)

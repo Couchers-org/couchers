@@ -511,26 +511,28 @@ send_reference_reminders.SCHEDULE = timedelta(hours=1)
 def send_host_request_reminders(payload):
 
     with session_scope() as session:
-        requests = (
+        requests = session.execute(
             select(HostRequest)
             .where(HostRequest.status == HostRequestStatus.pending)
             .where(HostRequest.host_sent_request_reminders < HOST_REQUEST_MAX_REMINDERS)
             .where(HostRequest.from_date > today_in_timezone(HostRequest.timezone))
-            .where((today_in_timezone(HostRequest.timezone) - HostRequest.last_sent_request_reminder_time) >= HOST_REQUEST_REMINDER_INTERVAL)
-        )
-
+            .where((now() - HostRequest.last_sent_request_reminder_time) >= HOST_REQUEST_REMINDER_INTERVAL)
+        ).all()
+        
         for host_request in requests:
+            host_request = host_request[0]
             host_request.host_sent_request_reminders += 1
             host_request.last_sent_request_reminder_time = today_in_timezone(HostRequest.timezone)
-
+            
+            context = SimpleNamespace(user_id=host_request.host.id)
             notify(
                 session,
-                user_id=host_request.Host.id,
+                user_id=host_request.host.id,
                 topic_action="host_request:reminder",
                 data=notification_data_pb2.HostRequestReminder(
-                    host_request=host_request,
-                    host=host_request.Host,
-                    surfer=host_request.surfer
+                    host_request=host_request_to_pb(host_request, session, context),
+                    host=user_model_to_pb(host_request.host, session, context),
+                    surfer=user_model_to_pb(host_request.surfer, session, context)
                 )
             )
             

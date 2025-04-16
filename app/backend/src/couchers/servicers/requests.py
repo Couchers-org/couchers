@@ -88,7 +88,7 @@ def host_request_to_pb(host_request: HostRequest, session, context):
         .order_by(Message.id.desc())
         .limit(1)
     ).scalar_one()
-
+    
     return requests_pb2.HostRequest(
         host_request_id=host_request.conversation_id,
         surfer_user_id=host_request.surfer_user_id,
@@ -102,7 +102,7 @@ def host_request_to_pb(host_request: HostRequest, session, context):
             if context.user_id == host_request.surfer_user_id
             else host_request.host_last_seen_message_id
         ),
-        latest_message=message_to_pb(latest_message),
+        latest_message=message_to_pb(latest_message)
     )
 
 
@@ -193,6 +193,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             to_date=to_date,
             status=HostRequestStatus.pending,
             surfer_last_seen_message_id=message.id,
+            host_sent_request_reminders=0,
             last_sent_request_reminder_time = now()
             # TODO: tz
             # timezone=host.timezone,

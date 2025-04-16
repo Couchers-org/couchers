@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from unittest.mock import call, patch
 
 import pytest
@@ -18,6 +18,7 @@ from couchers.jobs.handlers import (
     send_message_notifications,
     send_onboarding_emails,
     send_reference_reminders,
+    send_host_request_reminders,
     send_request_notifications,
     update_badges,
     update_recommendation_scores,
@@ -32,9 +33,11 @@ from couchers.models import (
     LoginToken,
     PasswordResetToken,
     UserBadge,
+    HostRequest,
+    HostRequestStatus
 )
 from couchers.sql import couchers_select as select
-from couchers.utils import now, today
+from couchers.utils import now, today, date_in_timezone
 from proto import conversations_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
     auth_api_session,
@@ -49,6 +52,7 @@ from tests.test_fixtures import (  # noqa
     testconfig,
 )
 from tests.test_references import create_host_reference, create_host_request
+from couchers.constants import HOST_REQUEST_MAX_REMINDERS, HOST_REQUEST_REMINDER_INTERVAL
 
 
 def now_5_min_in_future():
@@ -937,6 +941,67 @@ def test_send_reference_reminders(db):
                 assert find in plain, f"Expected to find string {find} in PLAIN email {subject} to {address}, didn't"
                 assert find in html, f"Expected to find string {find} in HTML email {subject} to {address}, didn't"
 
+def test_send_host_request_reminders(db):
+
+    user1, token1 = generate_user(email="user1@couchers.org.invalid", name="User 1")
+    user2, token2 = generate_user(email="user2@couchers.org.invalid", name="User 2")
+    user3, token3 = generate_user(email="user3@couchers.org.invalid", name="User 3")
+    user4, token4 = generate_user(email="user4@couchers.org.invalid", name="User 4")
+    user5, token5 = generate_user(email="user5@couchers.org.invalid", name="User 5")
+    user6, token6 = generate_user(email="user6@couchers.org.invalid", name="User 6")
+
+    with session_scope() as session:
+        #case 1: Host request was sent some time before the start date and the notification interval passes, notify
+        hr1 = create_host_request(
+            session=session,
+            surfer_user_id=user1.id,
+            host_user_id=user2.id,
+            from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1), 
+            to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
+            status=HostRequestStatus.pending,
+            host_sent_request_reminders=0,
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL
+        )
+
+        #case 2: Host request was sent before the start date and the notification interval passes, but we have already sent
+        #enough notifications, do not notify
+        hr2 = create_host_request(
+            session=session,
+            surfer_user_id=user3.id,
+            host_user_id=user4.id,
+            from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
+            to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
+            status=HostRequestStatus.pending,
+            host_sent_request_reminders=HOST_REQUEST_MAX_REMINDERS,
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL
+        )
+
+        #case 3: Some time has passed after we notified, but not enough to notify again, do not notify
+        hr3 = create_host_request(
+            session=session,
+            surfer_user_id=user3.id,
+            host_user_id=user4.id,
+            from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
+            to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
+            status=HostRequestStatus.pending,
+            host_sent_request_reminders=0,
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL + timedelta(hours=1)
+        )
+        
+        #case 4: Host request was sent and the notification interval passes but not before the start date, do not notify
+        hr4 = create_host_request(
+            session=session,
+            surfer_user_id=user3.id,
+            host_user_id=user4.id,
+            from_date=today(),
+            to_date=today() + timedelta(days=2),
+            status=HostRequestStatus.pending,
+            host_sent_request_reminders=0,
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL
+        )
+
+    send_host_request_reminders(empty_pb2.Empty())
+    print()
 
 def test_add_users_to_email_list(db):
     new_config = config.copy()
