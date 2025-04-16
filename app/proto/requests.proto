@@ -101,6 +101,7 @@ message ListHostRequestsReq {
 
   bool only_sent = 4;
   bool only_received = 5;
+  bool only_archived = 6;
 }
 
 message ListHostRequestsRes {

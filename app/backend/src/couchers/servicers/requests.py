@@ -258,7 +258,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             statement = statement.where(HostRequest.surfer_user_id == context.user_id)
         elif request.only_received:
             statement = statement.where(HostRequest.host_user_id == context.user_id)
-        elif request.only_archived:
+        elif request.HasField("only_archived"):
             statement = statement.where(
                 or_(
                     and_(HostRequest.surfer_user_id == context.user_id, HostRequest.is_surfer_archived),
