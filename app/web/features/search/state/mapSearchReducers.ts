@@ -160,6 +160,11 @@ const mapSearchReducer = (
   // Instead, always return new objects from your reducer ✅.
   switch (action.type) {
     case mapSearchActionTypes.CLEAR_KEYWORD_INPUT_VALUE:
+      const meetsCriteriaAfterKeywordClear =
+        state.hasActiveFilters ||
+        state.search.bbox !== undefined ||
+        state.shouldSearchByUserId;
+
       return {
         ...state,
         search: {
@@ -167,8 +172,10 @@ const mapSearchReducer = (
           query: initialState.search.query,
         },
         pageNumber: initialState.pageNumber,
-        showSearchThisAreaButton: initialState.showSearchThisAreaButton,
-        shouldSearchByUserId: initialState.shouldSearchByUserId,
+        shouldSearchByUserId: state.selectedUserId !== undefined,
+        showSearchThisAreaButton:
+          !meetsCriteriaAfterKeywordClear &&
+          state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
       };
 
     case mapSearchActionTypes.SET_KEYWORD_INPUT_VALUE:
@@ -185,6 +192,11 @@ const mapSearchReducer = (
         shouldSearchByUserId: initialState.shouldSearchByUserId,
       };
     case mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE:
+      const meetsCriteriaAfterSearchClear =
+        state.hasActiveFilters ||
+        state.search.query !== undefined ||
+        state.shouldSearchByUserId;
+
       return {
         ...state,
         search: {
@@ -192,6 +204,10 @@ const mapSearchReducer = (
           query: initialState.search.query,
         },
         pageNumber: initialState.pageNumber,
+        shouldSearchByUserId: state.selectedUserId !== undefined,
+        showSearchThisAreaButton:
+          !meetsCriteriaAfterSearchClear &&
+          state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
       };
 
     case mapSearchActionTypes.SET_SEARCH_INPUT_VALUE:
@@ -358,7 +374,6 @@ const mapSearchReducer = (
           center: center ?? state.uiOnly.center,
           zoom: zoom ?? state.uiOnly.zoom,
         },
-        selectedUserId: initialState.selectedUserId,
         shouldSearchByUserId: initialState.shouldSearchByUserId,
         showSearchThisAreaButton:
           zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH
@@ -369,6 +384,11 @@ const mapSearchReducer = (
     case mapSearchActionTypes.SET_SELECTED_USER_ID:
       const currentSelectedUserId = state.selectedUserId;
 
+      const meetsCriteriaAfterSelectedUserIdClear =
+        state.hasActiveFilters ||
+        state.search.bbox !== undefined ||
+        state.search.query !== undefined;
+
       return {
         ...state,
         selectedUserId:
@@ -378,7 +398,10 @@ const mapSearchReducer = (
         shouldSearchByUserId:
           currentSelectedUserId !== action.payload.userId &&
           action.payload.userId !== undefined &&
-          state.uiOnly.zoom < MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
+          !meetsCriteriaAfterSelectedUserIdClear,
+        showSearchThisAreaButton:
+          !meetsCriteriaAfterSelectedUserIdClear &&
+          state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
       };
 
     case mapSearchActionTypes.SET_SHOW_SEARCH_THIS_AREA_BUTTON:

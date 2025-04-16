@@ -33,7 +33,7 @@ interface FloatingSearchNavigationProps {
   searchType: MapSearchTypes;
   onZoomIn: (
     newZoom: number,
-    cneter?: LngLatLike,
+    center?: LngLatLike,
     isLocationSearch?: boolean,
   ) => void;
 }

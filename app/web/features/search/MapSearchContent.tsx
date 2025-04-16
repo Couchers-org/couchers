@@ -6,6 +6,7 @@ import { theme } from "theme";
 
 import MapSearchResultsList from "./MapSearchResultsList";
 import MapView from "./MapView";
+import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MapViewOptions, MapViews, MAX_ZOOM_LEVEL } from "./utils/constants";
 import { clearMapFeatureState, setMapFeatureState } from "./utils/mapUtils";
@@ -79,9 +80,14 @@ const MapSearchContent = ({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { setSelectedUserId } = useMapSearchActions();
+  const { selectedUserId } = useMapSearchState();
 
   const handleUserCardClick = (userId: number) => {
-    if (mapView === MapViews.LIST_ONLY || isMobile) {
+    if (
+      mapView === MapViews.LIST_ONLY ||
+      isMobile ||
+      userId === selectedUserId
+    ) {
       return;
     }
 
