@@ -21,12 +21,23 @@ hide_title: true
   </thead>
   <tbody>
     <tr>
-      <td rowspan="1" style="border: 0; padding: 20px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Key Milestone</td>
-      <td colspan="1"</td>
-      <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><strong>LAUNCH COUCHERS V1</strong> <img src="/img/rocket.png" style="width:16px!important;height:16px!important;display:inline-block"></td>
+      <td rowspan="4" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Key Milestone</td>
+      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Notifications Galore</td>
     </tr>
     <tr>
-      <td rowspan="12" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">New Features</td>
+      <td colspan="1"</td>
+      <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><strong>COUCHERS v1 LAUNCH</strong> <img src="/img/rocket.png" style="width:16px!important;height:16px!important;display:inline-block"></td>
+    </tr>
+    <tr >
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Merchandise Mania</td>
+    </tr>
+    <tr >
+	  <td colspan="3"</td>
+      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Blog It Like You Mean It</td>
+    </tr>
+    <tr>
+      <td rowspan="13" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">New Features</td>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Push Notifications</td>
     </tr>
     <tr>
@@ -35,8 +46,8 @@ hide_title: true
     <tr>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Badges</td>
     </tr>
-    <tr>
-      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ New Chat Bubble Design in Messages</td>
+    <tr >
+      <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Notifications Feed</td>
     </tr>
     <tr >
       <td colspan="1"</td>
@@ -67,13 +78,29 @@ hide_title: true
 	  <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Feedback Option: "Did Not Stay"</td>
     </tr>
     <tr >
+      <td colspan="2"</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Merchandise Store</td>
+    </tr>
+    <tr >
 	  <td colspan="3"</td>
       <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Integrate Blog in Dashboard</td>
     </tr>
     <tr >
-      <td rowspan="8" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Updates</td>
+      <td rowspan="12" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Updates</td>
+      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Granular Notification Settings</td>
+    </tr>
+    <tr >
+      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Pretty Notification Emails</td>
+    </tr>
+    <tr >
+      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Translate Couchers.org to Chinese (Simplified), German & Portuguese (Brazil)</td>
+    </tr>
+    <tr>
+      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ New Chat Bubble Design in Messages</td>
+    </tr>
+    <tr >
       <td colspan="1"</td>
-      <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Rebuild Desktop Map Search</td>
+	  <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Rebuild Desktop Map Search</td>
     </tr>
     <tr >
       <td colspan="1"</td>
@@ -104,11 +131,14 @@ hide_title: true
       <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Update Blog Design</td>
     </tr>
     <tr >
-      <td rowspan="10" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Operations</td>
+      <td rowspan="12" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Operations</td>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Re-engage Previous Volunteers Through Newsletter</td>
     </tr>
     <tr >
-      <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Grow Community</td>
+      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Set-up Zulip for Community Builders</td>
+    </tr>
+    <tr >
+      <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Grow Community to 100k Members</td>
     </tr>
     <tr >
       <td colspan="1"</td>
@@ -133,21 +163,34 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="2"</td>
-      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Set Up Merchandise Store</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Offer Merchandise</td>
     </tr>
     <tr >
-      <td colspan="2"</td>
-      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Offer Merchandise</td>
+      <td colspan="3"</td>
+      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Engage Community to write Blog Posts</td>
+    </tr>
+    <tr >
+      <td colspan="3"</td>
+      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Travel Blog Posts</td>
     </tr>
   </tbody>
 </table>
 
 ✅Completed ✔️Partially completed
 
+## About the Roadmap
+
+Our roadmap is designed around *Milestones* with quarterly goals in mind, setting realistic timeframes for meaningful progress. However, some tasks may extend into subsequent quarters as needed. To stay adaptable, priorities can shift, items may be postponed indefinitely, and new tasks might be introduced as opportunities arise. This flexibility ensures that we remain focused on delivering value, all while acknowledging that Couchers is powered entirely by the dedication of passionate volunteers working in their free time.
+
+## Milestones
+
+We currently build around a quarter-based system of strategic *Milestones*. We divide the year into calendar quarters, Q1 (Jan to Mar) to Q4 (Oct to Dec) and choose a strategy and development focus that we call a *Milestone* for each quarter. This helps the various teams at Couchers to rally behind a common goal and have clarity on what they should be working on together. Each strategic milestone is brainstormed and chosen by the[ Board of Directors](https://couchers.org/foundation) along with the[ core volunteer team](https://couchers.org/team) using input from the community.
+
 ## Github Project Boards
 
-Explore the latest updates and detailed information on our ongoing projects by visiting our project board views for [Development](https://github.com/orgs/Couchers-org/projects/6) and [Operations](https://github.com/orgs/Couchers-org/projects/7) on Github which we update regularly. Note that some of the information there may be highly technical in nature and not be accessible to all audiences; and dates or timelines listed there are by no means guaranteed and are only an indication. Please keep in mind that Couchers is a volunteer project built, maintained, and operated entirely by volunteers in their free time!
+Explore the latest updates and detailed information on our ongoing projects by visiting our project board views for [Development](https://github.com/orgs/Couchers-org/projects/6) and [Operations](https://github.com/orgs/Couchers-org/projects/7) on Github which we update regularly. Note that some of the information there may be highly technical in nature and not be accessible to all audiences; and dates or timelines listed there are by no means guaranteed and are only an indication.
 
-## How we structure our strategic and development goals and roadmap
+## Do you have ideas or suggestions
 
-We currently build around a quarter-based system of strategic *milestones*. We divide the year into calendar quarters, Q1 (Jan to Mar) to Q4 (Oct to Dec) and choose a strategy and development focus that we call a *milestone* for each quarter. This helps the various teams at Couchers to rally behind a common goal and have clarity on what they should be working on together. Each strategic milestone is brainstormed and chosen by the[ Board of Directors](https://couchers.org/foundation) along with the[ core volunteer team](https://couchers.org/team) using input from the community.
+Please let us know at [support@couchers.org](mailto:support@couchers.org) - we love feedback!\
+Check out <https://couchers.org/volunteer> to see how you can help out.
