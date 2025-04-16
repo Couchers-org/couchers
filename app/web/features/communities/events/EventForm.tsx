@@ -68,8 +68,8 @@ interface BaseEventData {
   title: string;
   startDate: Dayjs;
   endDate: Dayjs;
-  startTime: string;
-  endTime: string;
+  startTime: Dayjs;
+  endTime: Dayjs;
   isOnline: boolean;
   eventImage?: string;
   parentCommunityId?: number;

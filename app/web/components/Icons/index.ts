@@ -61,6 +61,7 @@ export { default as PinIcon } from "@mui/icons-material/LocationOn";
 export { default as ReminderIcon } from "@mui/icons-material/Notifications";
 export { default as SatisfiedIcon } from "@mui/icons-material/SentimentSatisfiedAltOutlined";
 export { default as SearchIcon } from "@mui/icons-material/SearchOutlined";
+export { default as SegmentIcon } from "@mui/icons-material/Segment";
 export { default as SettingsIcon } from "@mui/icons-material/SettingsOutlined";
 export { default as SinglePersonIcon } from "@mui/icons-material/Person";
 export { default as SlightlyDissatisfiedIcon } from "@mui/icons-material/SentimentDissatisfied";
