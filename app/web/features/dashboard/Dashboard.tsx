@@ -2,10 +2,10 @@ import { Alert, Container, Grid, Typography } from "@mui/material";
 import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
+import StyledLink from "components/StyledLink";
 import DashboardBanners from "features/dashboard/DashboardBanners";
 import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
-import Link from "next/link";
 import { theme } from "theme";
 
 import dashboardNews from "../../dashboardNews.json";
@@ -45,10 +45,10 @@ export default function Dashboard() {
 
             <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
               <Typography variant="body1">
-                <b>New Blog Post! Read it here: </b>
-                <Link href={dashboardNews["2025-04-12"].link}>
+                <b>New Blog Post!</b> Read it here:{" "}
+                <StyledLink href={dashboardNews["2025-04-12"].link}>
                   {dashboardNews["2025-04-12"].title}
-                </Link>
+                </StyledLink>
               </Typography>
             </Alert>
 
