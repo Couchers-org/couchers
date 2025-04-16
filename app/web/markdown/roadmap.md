@@ -22,7 +22,7 @@ description: Keep up to date with the Couchers development roadmap.
     <tr>
       <td rowspan="1" style="border: 0; padding: 20px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Key Milestone</td>
       <td colspan="1"</td>
-      <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><strong>LAUNCH COUCHERS V1</strong> <img src="couchers_rocket.png" width="16" height="16"></td>
+      <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><strong>LAUNCH COUCHERS V1</strong> <img src="/img/rocket.png" style="width:16px!important;height:16px!important;display:inline-block"></td>
     </tr>
     <tr>
       <td rowspan="12" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">New Features</td>
