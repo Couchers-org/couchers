@@ -21,6 +21,7 @@ from couchers.models import (
     LanguageFluency,
     MeetupStatus,
     Message,
+    Notification,
     ParkingDetails,
     Reference,
     RegionLived,
@@ -185,12 +186,19 @@ class API(api_pb2_grpc.APIServicer):
             .where(FriendRelationship.status == FriendStatus.pending)
         ).scalar_one()
 
+        unseen_notification_count = session.execute(
+            select(func.count(Notification.id))
+            .where(Notification.user_id == context.user_id)
+            .where(Notification.seen == False)
+        ).scalar_one()
+
         return api_pb2.PingRes(
             user=user_model_to_pb(user, session, context),
             unseen_message_count=unseen_message_count,
             unseen_sent_host_request_count=unseen_sent_host_request_count,
             unseen_received_host_request_count=unseen_received_host_request_count,
             pending_friend_request_count=pending_friend_request_count,
+            unseen_notification_count=unseen_notification_count,
         )
 
     def GetUser(self, request, context, session):
