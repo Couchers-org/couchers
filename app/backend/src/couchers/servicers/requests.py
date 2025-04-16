@@ -643,7 +643,6 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         return empty_pb2.Empty()
 
     def ArchiveHostRequest(self, request, context, session):
-
         host_request = session.execute(
             select(HostRequest)
             .where_users_column_visible(context, HostRequest.surfer_user_id)
