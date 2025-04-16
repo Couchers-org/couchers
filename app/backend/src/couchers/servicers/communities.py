@@ -404,7 +404,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
     def ListUserCommunities(self, request, context, session):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        offset = int(request.page_token) if request.page_token else 0
+        next_node_id = int(request.page_token) if request.page_token else 0
         user_id = request.user_id or context.user_id
         nodes = (
             session.execute(
@@ -413,9 +413,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
                 .where(ClusterSubscription.user_id == user_id)
                 .where(Cluster.is_official_cluster)
-                .order_by(Cluster.name)
+                .where(Node.id >= next_node_id)
+                .order_by(Cluster.id)
                 .limit(page_size + 1)
-                .offset(offset)
             )
             .scalars()
             .all()
@@ -423,5 +423,5 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
         return communities_pb2.ListUserCommunitiesRes(
             communities=[community_to_pb(session, node, context) for node in nodes[:page_size]],
-            next_page_token=str(offset + page_size) if len(nodes) > page_size else None,
+            next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
         )

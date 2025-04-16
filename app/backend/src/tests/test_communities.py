@@ -441,6 +441,7 @@ class TestCommunities:
             c2r1_id = get_community_id(session, "Country 2, Region 1")
             c2r1c1_id = get_community_id(session, "Country 2, Region 1, City 1")
 
+        # Fetch all communities ordered by name
         with communities_session(token1) as api:
             res = api.ListCommunities(
                 communities_pb2.ListCommunitiesReq(
@@ -475,17 +476,17 @@ class TestCommunities:
             c1r2_id = get_community_id(session, "Country 1, Region 2")
             c1r2c1_id = get_community_id(session, "Country 1, Region 2, City 1")
 
-        # Fetch user2's communities from user2's account ordered by name
+        # Fetch user2's communities from user2's account
         with communities_session(token2) as api:
             res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq())
             assert [c.community_id for c in res.communities] == [
+                w_id,
                 c1_id,
                 c1r1_id,
                 c1r1c1_id,
                 c1r1c2_id,
                 c1r2_id,
                 c1r2c1_id,
-                w_id,
             ]
 
     @staticmethod
@@ -501,17 +502,17 @@ class TestCommunities:
             c1r2_id = get_community_id(session, "Country 1, Region 2")
             c1r2c1_id = get_community_id(session, "Country 1, Region 2, City 1")
 
-        # Fetch user2's communities from user1's account ordered by name
+        # Fetch user2's communities from user1's account
         with communities_session(token1) as api:
             res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq(user_id=user2_id))
             assert [c.community_id for c in res.communities] == [
+                w_id,
                 c1_id,
                 c1r1_id,
                 c1r1c1_id,
                 c1r1c2_id,
                 c1r2_id,
                 c1r2c1_id,
-                w_id,
             ]
 
     @staticmethod
@@ -1004,7 +1005,7 @@ def test_enforce_community_memberships_for_user(testing_communities):
 
     with communities_session(token) as api:
         res = api.ListUserCommunities(communities_pb2.ListUserCommunitiesReq())
-        assert [c.community_id for c in res.communities] == [c1_id, c1r1_id, c1r1c2_id, w_id]
+        assert [c.community_id for c in res.communities] == [w_id, c1_id, c1r1_id, c1r1c2_id]
 
 
 # TODO: requires transferring of content
