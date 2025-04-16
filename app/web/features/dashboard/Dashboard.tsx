@@ -43,7 +43,7 @@ export default function Dashboard() {
             <PageTitle>{t("dashboard:welcome")}</PageTitle>
             <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
               <Typography variant="body1">
-                <b>New Feature Alert!</b> {dashboardNews["2025-02-23"]}
+                <b>New Release Alert!</b> {dashboardNews["2025-04-16"]}
               </Typography>
             </Alert>
 
